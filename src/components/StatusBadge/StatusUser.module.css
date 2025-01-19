@@ -1,0 +1,17 @@
+.badgeText {
+  font-size: 12px;
+  position: relative;
+  line-height: 14px;
+  font-weight: 400;
+  text-transform: capitalize;
+  font-family: Montserrat;
+  --badge-bd: none;
+}
+
+.activeBadge {
+  --badge-dot-color: 'green';
+  --badge-bg: '#EBFBEE';
+  --badge-color: '#40C057';
+  --badge-bd: none;
+  --badge-radius: 'sm';
+}

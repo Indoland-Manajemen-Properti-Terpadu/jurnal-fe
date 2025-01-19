@@ -1,0 +1,222 @@
+[
+  {
+    "id": "8e17249a-c8eb-495b-b22a-874c1a86fc74",
+    "full_name": "Rizky Dwi Santoso",
+    "email": "rizkydwisantoso@example.com",
+    "address": "9936 Corry Court",
+    "country": "Grenada",
+    "status": "Inactive",
+    "role": ["Super Admin"],
+    "issue_date": "15/12/2022",
+    "type_user": "Member"
+  },
+  {
+    "id": "ebb1f433-10ef-4107-9b18-648e4b73d997",
+    "full_name": "Lionel Messi",
+    "email": "lionel.messi@example.com",
+    "address": "1 Artisan Drive",
+    "country": "France",
+    "status": "Active",
+    "role": ["Super Admin", "Finance", "Banker", "Report Viewer", "Security"],
+    "issue_date": "24/5/2023",
+    "type_user": "Member"
+  },
+  {
+    "id": "ebb1f433-10ef-4107-9b18-648e4b73d998",
+    "full_name": "Tatang Suganda",
+    "email": "tatang.suganda@example.com",
+    "address": "1 Artisan Drive",
+    "country": "France",
+    "status": "Inactive",
+    "role": ["Finance"],
+    "issue_date": "24/5/2023",
+    "type_user": "Member"
+  },
+  {
+    "id": "a7c9f1f4-12ef-41e8-9b18-549e5b7b999a",
+    "full_name": "Sarah Connor",
+    "email": "sarah.connor@example.com",
+    "address": "123 Skynet Avenue",
+    "country": "USA",
+    "status": "Active",
+    "role": ["Super Admin", "Security"],
+    "issue_date": "20/3/2023",
+    "type_user": "Admin"
+  },
+  {
+    "id": "b8e2a2b5-23cf-42d7-a1c9-759e6a7b888b",
+    "full_name": "John Doe",
+    "email": "john.doe@example.com",
+    "address": "456 Elm Street",
+    "country": "Canada",
+    "status": "Inactive",
+    "role": ["Viewer"],
+    "issue_date": "12/11/2022",
+    "type_user": "Guest"
+  },
+  {
+    "id": "c9f3a3c6-34df-43e7-b2d0-869f7b8b999c",
+    "full_name": "Jane Smith",
+    "email": "jane.smith@example.com",
+    "address": "789 Maple Avenue",
+    "country": "UK",
+    "status": "Active",
+    "role": ["Editor", "Publisher"],
+    "issue_date": "5/2/2023",
+    "type_user": "Member"
+  },
+  {
+    "id": "d1f4b4d7-45ef-44f8-c3e1-979f8b9b999d",
+    "full_name": "Michael Johnson",
+    "email": "michael.johnson@example.com",
+    "address": "101 Pine Road",
+    "country": "Australia",
+    "status": "Active",
+    "role": ["Admin", "Moderator"],
+    "issue_date": "18/7/2022",
+    "type_user": "Admin"
+  },
+  {
+    "id": "e2f5c5e8-56ff-45f9-d4f2-089f9b0b999e",
+    "full_name": "Emily Davis",
+    "email": "emily.davis@example.com",
+    "address": "202 Oak Lane",
+    "country": "New Zealand",
+    "status": "Inactive",
+    "role": ["Admin"],
+    "issue_date": "27/9/2023",
+    "type_user": "Guest"
+  },
+  {
+    "id": "f3f6d6f9-67ff-46fa-e5f3-19f0a1a0b999f",
+    "full_name": "Chris Evans",
+    "email": "chris.evans@example.com",
+    "address": "303 Birch Boulevard",
+    "country": "Germany",
+    "status": "Active",
+    "role": ["User", "Manager"],
+    "issue_date": "10/8/2023",
+    "type_user": "Member"
+  },
+  {
+    "id": "g4f7e7fa-78ff-47fb-f6f4-29f1b1b0b999a",
+    "full_name": "Laura Lee",
+    "email": "laura.lee@example.com",
+    "address": "404 Cedar Drive",
+    "country": "Japan",
+    "status": "Active",
+    "role": ["Super Admin", "Finance"],
+    "issue_date": "8/1/2023",
+    "type_user": "Member"
+  },
+  {
+    "id": "h5f8f8fb-89ff-48fc-g7f5-39f2c2c0b999b",
+    "full_name": "James Brown",
+    "email": "james.brown@example.com",
+    "address": "505 Walnut Street",
+    "country": "Brazil",
+    "status": "Inactive",
+    "role": ["Manager"],
+    "issue_date": "17/4/2023",
+    "type_user": "Guest"
+  },
+  {
+    "id": "i6f9g9fc-90ff-49fd-h8f6-49f3d3d0b999c",
+    "full_name": "Natalie Portman",
+    "email": "natalie.portman@example.com",
+    "address": "606 Cherry Court",
+    "country": "Mexico",
+    "status": "Active",
+    "role": ["Finance", "Admin"],
+    "issue_date": "22/6/2023",
+    "type_user": "Member"
+  },
+  {
+    "id": "j7g0h0fd-a1ff-50fe-i9f7-59f4e4e0b999d",
+    "full_name": "Bruce Lee",
+    "email": "bruce.wayne@example.com",
+    "address": "707 Elm Street",
+    "country": "South Africa",
+    "status": "Active",
+    "role": ["Super Admin", "Security"],
+    "issue_date": "1/12/2022",
+    "type_user": "Admin"
+  },
+  {
+    "id": "k8h1i1ge-b2ff-51ff-j0f8-69f5f5f0b999e",
+    "full_name": "Diana Prince",
+    "email": "diana.prince@example.com",
+    "address": "808 Oak Lane",
+    "country": "Greece",
+    "status": "Active",
+    "role": ["Super Admin", "Editor"],
+    "issue_date": "11/10/2022",
+    "type_user": "Member"
+  },
+  {
+    "id": "l9i2j2hf-c3ff-52fg-k1f9-79f6g6g0b999f",
+    "full_name": "Clark Kent",
+    "email": "clark.kent@example.com",
+    "address": "909 Pine Road",
+    "country": "Italy",
+    "status": "Inactive",
+    "role": ["Viewer"],
+    "issue_date": "21/5/2023",
+    "type_user": "Guest"
+  },
+  {
+    "id": "m0j3k3ig-d4ff-53gh-l2g0-89f7h7h0b999g",
+    "full_name": "Peter Parker",
+    "email": "peter.parker@example.com",
+    "address": "1010 Cedar Drive",
+    "country": "Netherlands",
+    "status": "Active",
+    "role": ["User", "Editor"],
+    "issue_date": "30/7/2023",
+    "type_user": "Member"
+  },
+  {
+    "id": "n1k4l4jh-e5ff-54hi-m3g1-99f8i8i0b999h",
+    "full_name": "Tony Stark",
+    "email": "tony.stark@example.com",
+    "address": "1111 Birch Boulevard",
+    "country": "India",
+    "status": "Active",
+    "role": ["Super Admin", "Finance", "Admin"],
+    "issue_date": "2/3/2023",
+    "type_user": "Member"
+  },
+  {
+    "id": "o2l5m5ji-f6ff-55ij-n4g2-09f9j9j0b999i",
+    "full_name": "Steve Rogers",
+    "email": "steve.rogers@example.com",
+    "address": "1212 Maple Avenue",
+    "country": "Russia",
+    "status": "Active",
+    "role": ["User", "Security"],
+    "issue_date": "14/2/2023",
+    "type_user": "Member"
+  },
+  {
+    "id": "p3m6n6kj-g7ff-56jk-o5g3-19g0k0k0b999j",
+    "full_name": "Natasha Romanoff",
+    "email": "natasha.romanoff@example.com",
+    "address": "1313 Elm Street",
+    "country": "China",
+    "status": "Inactive",
+    "role": ["Editor"],
+    "issue_date": "6/4/2023",
+    "type_user": "Guest"
+  },
+  {
+    "id": "q4n7o7lk-h8ff-57kl-p6g4-29g1l1l0b999k",
+    "full_name": "Wanda Maximoff",
+    "email": "wanda.maximoff@example.com",
+    "address": "1414 Cherry Court",
+    "country": "Korea",
+    "status": "Active",
+    "role": ["Super Admin", "Editor", "Publisher"],
+    "issue_date": "9/8/2023",
+    "type_user": "Member"
+  }
+]

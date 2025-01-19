@@ -1,0 +1,62 @@
+[
+  {
+    "roleName": "Administrator",
+    "access": ["Invite New User", "View and Add all transaction data", "Change and Delete data"],
+    "roleDescription": "Administrator can view and add all transaction data, change and delete data",
+    "emoji": "🥦"
+  },
+  {
+    "roleName": "Finance",
+    "access": ["Invite New User", "View and Add all transaction data", "Change and Delete data"],
+    "roleDescription": "Administrator can view and add all transaction data, change and delete data",
+    "emoji": "🥦"
+  },
+  {
+    "roleName": "Banker",
+    "access": ["Invite New User", "View and Add all transaction data", "Change and Delete data"],
+    "roleDescription": "Administrator can view and add all transaction data, change and delete data",
+    "emoji": "🥦"
+  },
+  {
+    "roleName": "Manager",
+    "access": ["Invite New User", "View and Add all transaction data", "Change and Delete data"],
+    "roleDescription": "Administrator can view and add all transaction data, change and delete data",
+    "emoji": "🥦"
+  },
+  {
+    "roleName": "Developer",
+    "access": ["Invite New User", "View and Add all transaction data", "Change and Delete data"],
+    "roleDescription": "Administrator can view and add all transaction data, change and delete data",
+    "emoji": "🥦"
+  },
+  {
+    "roleName": "Designer",
+    "access": ["Invite New User", "View and Add all transaction data", "Change and Delete data"],
+    "roleDescription": "Administrator can view and add all transaction data, change and delete data",
+    "emoji": "🥦"
+  },
+  {
+    "roleName": "HR",
+    "access": ["Invite New User", "View and Add all transaction data", "Change and Delete data"],
+    "roleDescription": "Administrator can view and add all transaction data, change and delete data",
+    "emoji": "🥦"
+  },
+  {
+    "roleName": "Marketing",
+    "access": ["Invite New User", "View and Add all transaction data", "Change and Delete data"],
+    "roleDescription": "Administrator can view and add all transaction data, change and delete data",
+    "emoji": "🥦"
+  },
+  {
+    "roleName": "Sales",
+    "access": ["Invite New User", "View and Add all transaction data", "Change and Delete data"],
+    "roleDescription": "Administrator can view and add all transaction data, change and delete data",
+    "emoji": "🥦"
+  },
+  {
+    "roleName": "Support",
+    "access": ["Invite New User", "View and Add all transaction data", "Change and Delete data"],
+    "roleDescription": "Administrator can view and add all transaction data, change and delete data",
+     "emoji": "🥦"
+  }
+]

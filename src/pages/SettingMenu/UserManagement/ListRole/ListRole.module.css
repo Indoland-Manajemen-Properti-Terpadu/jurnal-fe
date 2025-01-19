@@ -1,0 +1,37 @@
+.tableText {
+  color: black;
+  font-size: 14px;
+  position: relative;
+  line-height: 16px;
+  font-weight: 400;
+  text-transform: capitalize;
+  font-family: Montserrat;
+}
+
+.root{
+  background: var(--mantine-color-white);
+  
+}
+
+.tabLabel{
+  color: var(--mantine-color-cyan-cyan-6)
+}
+
+.pagination {
+  color: var(--mantine-color-cyan-6);
+  display:flex;
+  justify-content:space-between;
+  position: relative;
+  button {
+    background: transparent;
+    color: var(--mantine-color-cyan-6);
+    border-color: var(--mantine-color-cyan-6);
+
+    &[data-active='true'] {
+      color: var(--mantine-color-white);
+      border: transparent;
+      background-color: 'grape';
+      background: var(--TealBLue, linear-gradient(90deg, #00B194 0%, #1C8FD4 100%));
+    }
+  }
+}
