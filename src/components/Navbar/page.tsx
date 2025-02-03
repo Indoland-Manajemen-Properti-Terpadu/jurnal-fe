@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { ActionIcon, Box, Code, Flex, Group, rem, ScrollArea, Text, Image } from '@mantine/core';
+import { Box, Group, rem, ScrollArea, Text, Image, ActionIcon, UnstyledButton } from '@mantine/core';
 import {
   IconChartPie3,
   IconReport,
@@ -9,47 +9,44 @@ import {
   IconReportMoney,
   IconAddressBook,
   IconReceipt2,
-  IconLayersSubtract,
-  IconFileInvoice,
-  IconList,
   IconSettings,
-  icons,
   IconPackages,
   IconPackage,
+  IconBook2,
+  IconDoorExit,
 } from '@tabler/icons-react';
 import { useMediaQuery } from '@mantine/hooks';
 import { LinksGroup } from './Links/page';
 import classes from './page.module.css';
 import LogoProapps from '@/assets/img/proapps-md-transparent.svg';
-import UserProfileButton from '../UserButton/page';
-import UserProfileData from '../../../public/mocks/UserProfile.json';
+import { themeColors } from '@/theme';
 
 const mockdata = [
   {
     title: 'MAIN',
     links: [
       { label: 'Dashboard', icon: IconChartPie3, link: '/dashboard' },
-      {
-        label: 'Result Reports',
-        icon: IconReport,
-        links: [
-          {
-            label: 'List',
-            link: '/invoices/list',
-          },
-          {
-            label: 'Details',
-            link: '/invoices/details',
-          },
-        ],
-      },
+      { label: 'Result Reports', icon: IconReport, link: '/result-reports' },
     ],
   },
   {
     title: 'Finance',
     links: [
-      { label: 'Bank & Cash', icon: IconBuildingBank, link: '/finance/bank-cash' },
-      { label: 'Setting Budget', icon: IconBusinessplan, link: '/finance/setting-budget' },
+      { label: 'Bank & Cash', icon: IconBuildingBank, link: '/bank-cash' },
+      {
+        label: 'Setting Budget',
+        icon: IconBusinessplan,
+        links: [
+          {
+            label: 'Budget Management',
+            link: '/setting-budget/budget-management',
+          },
+          {
+            label: 'Budget I/S',
+            link: '/setting-budget/budget-is',
+          },
+        ],
+      },
       {
         label: 'Purchasing',
         icon: IconShoppingCart,
@@ -65,7 +62,7 @@ const mockdata = [
         ],
       },
       { label: 'Cost', icon: IconReportMoney, link: '/finance/cost' },
-      { label: 'Contact', icon: IconAddressBook, link: '/finance/contact' },
+      { label: 'Contact', icon: IconAddressBook, link: '/contact' },
     ],
   },
   {
@@ -85,20 +82,20 @@ const mockdata = [
           },
         ],
       },
-      {
-        label: 'Production',
-        icon: IconPackage,
-        links: [
-          {
-            label: 'List',
-            link: '/invoices/list',
-          },
-          {
-            label: 'Details',
-            link: '/invoices/details',
-          },
-        ],
-      },
+      // {
+      //   label: 'Production',
+      //   icon: IconPackage,
+      //   links: [
+      //     {
+      //       label: 'List',
+      //       link: '/invoices/list',
+      //     },
+      //     {
+      //       label: 'Details',
+      //       link: '/invoices/details',
+      //     },
+      //   ],
+      // },
       { label: 'Fullfillment', icon: IconReceipt2, link: '/fullfillment' },
       { label: 'Assets', icon: IconPackages, link: '/assets' },
     ],
@@ -106,7 +103,7 @@ const mockdata = [
   {
     title: 'Setting Menu',
     links: [
-      { label: 'General Ledger', icon: IconList, link: '/general-ledger' },
+      { label: 'Chart of Account', icon: IconBook2, link: '/general-journal' },
       {
         label: 'Settings',
         icon: IconSettings,
@@ -160,11 +157,12 @@ const NavbarComponent = ({ onClose }: NavigationProps) => {
       </ScrollArea>
 
       <div className={classes.footer}>
-        <UserProfileButton
-          email={UserProfileData.email}
-          image={UserProfileData.avatar}
-          name={UserProfileData.name}
-        />
+
+        <UnstyledButton className={classes.user}>
+          <Group justify='center' p={10}>
+            <IconDoorExit size={14} color={themeColors.red[6]} />
+          </Group>
+        </UnstyledButton>
       </div>
     </nav>
   );

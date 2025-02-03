@@ -6,12 +6,10 @@ type AppMainProps = {
   children: ReactNode;
 };
 
-const AppMain = ({ children }: AppMainProps) => {
-  return (
-    <Box py="lg" px="md" className={classes.main}>
-      {children}
-    </Box>
-  );
-};
+const AppMain = ({ children }: AppMainProps) => (
+  <Box py="lg" px="md" className={classes.main}>
+    {children}
+  </Box>
+);
 
 export default AppMain;

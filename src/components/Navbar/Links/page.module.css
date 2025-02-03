@@ -14,7 +14,7 @@
   &[data-active] {
     &,
     &:hover {
-      background: linear-gradient(20deg, #00b194, #1c8fd4);
+      background: linear-gradient(200deg, #00b194, #1c8fd4);
       color: var(--mantine-color-white);
     }
   }
@@ -22,49 +22,27 @@
 
 .link {
   font-weight: 500;
-  display:block;
+  display: block;
   text-decoration: none;
   padding: var(--mantine-spacing-xs) var(--mantine-spacing-md);
   padding-left: var(--mantine-spacing-md);
   margin-left: var(--mantine-spacing-xl);
   font-size: var(--mantine-font-size-sm);
-  color: light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-0));
   border-left: 2px solid var(--mantine-color-gray-1);
-
-  @mixin light {
-    color: var(--mantine-color-gray-7);
-  }
-
-  @mixin dark {
-    color: var(--mantine-color-black);
-  }
+  color: var(--mantine-color-black);
 
   @mixin hover {
     transition: all ease 0.2s;
-
-    @mixin light {
-      background: linear-gradient(200deg, #00b194, #1c8fd4);
-      color: var(--mantine-color-white);
-    }
-
-    @mixin dark {
-      background-color: var(--mantine-color-black);
-      color: var(--mantine-primary-color-light-color);
-    }
+    background: linear-gradient(200deg, #00b194, #1c8fd4);
+    color: var(--mantine-color-white);
   }
 
   &[data-active] {
     &,
     &:hover {
-      @mixin light {
-        background: linear-gradient(200deg, #00b194, #1c8fd4);
-        color: var(--mantine-color-white);
-      }
-
-      @mixin dark {
-        background-color: var(--mantine-primary-color-light-hover);
-        color: var(--mantine-color-black);
-      }
+      background: linear-gradient(200deg, #00b194, #1c8fd4);
+      color: var(--mantine-color-white);
+      border-left-color: var(--mantine-color-blue-6);
     }
   }
 }

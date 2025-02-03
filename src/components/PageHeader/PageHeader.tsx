@@ -1,14 +1,9 @@
-'use client';
-
 import {
   ActionIcon,
   Breadcrumbs,
   BreadcrumbsProps,
-  Button,
-  Divider,
   Flex,
   MantineGradient,
-  Paper,
   PaperProps,
   rem,
   Stack,
@@ -16,16 +11,17 @@ import {
   Title,
   useMantineTheme,
 } from '@mantine/core';
-import { IconPlus, IconRefresh } from '@tabler/icons-react';
-// import { FilterDateMenu, Surface } from '@/components';
+import { IconRefresh } from '@tabler/icons-react';
 import { useColorScheme } from '@mantine/hooks';
-import BreadcrumbsStyle from '@mantine/core';
-('@mantine/core/styles/Breadcrumbs.css');
+import { gradientColors } from '@/theme';
+import { ReactNode } from 'react';
 
 type PageHeaderProps = {
   title: string;
-  withActions?: boolean;
+  // subtittle?: string;
+  withinBreadcums?: boolean;
   breadcrumbItems?: any;
+  actionButton?: ReactNode;
   actionButtons?: {
     variant: string;
     gradient?: MantineGradient;
@@ -39,7 +35,7 @@ type PageHeaderProps = {
 } & PaperProps;
 
 const PageHeader = (props: PageHeaderProps) => {
-  const { withActions, breadcrumbItems, title, actionButtons, ...others } = props;
+  const { withinBreadcums, breadcrumbItems, title, actionButton, actionButtons, ...others } = props;
   const theme = useMantineTheme();
   const colorScheme = useColorScheme();
 
@@ -60,65 +56,60 @@ const PageHeader = (props: PageHeaderProps) => {
     },
   };
 
-  return (
-    <>
-      {withActions ? (
-        <Flex
-          justify="space-between"
-          direction={{ base: 'column', sm: 'row' }}
-          gap={{ base: 'sm', sm: 4 }}
-        >
-          <Stack gap={4}>
-            <Title order={3}>{title}</Title>
-            <Text c="blue">Welcome back, Kelvin!</Text>
-          </Stack>
-          <Flex align="center" gap="sm">
-            <ActionIcon variant="subtle">
-              <IconRefresh size={16} />
-            </ActionIcon>
-            {/* <FilterDateMenu /> */}
-          </Flex>
-        </Flex>
-      ) : actionButtons ? (
-        <Flex
-          align="center"
-          justify="space-between"
-          direction={{ base: 'row', sm: 'row' }}
-          gap={{ base: 'sm', sm: 4 }}
-        >
-          <Stack>
-            <Title order={3}>{title}</Title>
-            <Breadcrumbs {...BREADCRUMBS_PROPS}>{breadcrumbItems}</Breadcrumbs>
-          </Stack>
-          <Flex gap="sm">
-            {actionButtons.map((button, index) => (
-              <Button
-                key={index}
-                variant={button.variant}
-                gradient={button.gradient}
-                leftSection={button.icon ? <button.icon size={18} /> : null}
-                onClick={button.onClick}
-                style={{
-                  backgroundColor: button.color || '#F1F3F5',
-                  color: button.textColor || '#495057',
-                  ...button.style,
-                }}
-              >
-                {button.label}
-              </Button>
-            ))}
-          </Flex>
-        </Flex>
-      ) : (
-        <Stack gap="sm">
+  let content;
+  if (withinBreadcums) {
+    content = (
+      <Flex
+        justify="space-between"
+        direction={{ base: 'column', sm: 'row' }}
+        gap={{ base: 'sm', sm: 4 }}
+      >
+        <Stack gap={4}>
           <Title order={3}>{title}</Title>
-          <Text variant="gradient" gradient={{ from: 'blue', to: 'cyan', deg: 90 }}>
-            <Breadcrumbs {...BREADCRUMBS_PROPS} variant='gradient'>{breadcrumbItems}</Breadcrumbs>
-          </Text>
+          {/* <Text c="blue">{subtittle}</Text> */}
         </Stack>
-      )}
-    </>
-  );
+        <Flex align="center" gap="sm">
+          {/* <ActionIcon variant="subtle">
+            <IconRefresh size={16} />
+          </ActionIcon> */}
+        </Flex>
+      </Flex>
+    );
+  } else if (actionButton) {
+    content = (
+      <Flex
+        align="center"
+        justify="space-between"
+        direction={{ base: 'row', sm: 'row' }}
+        gap={{ base: 'sm', sm: 4 }}
+      >
+        <Stack>
+          <Title order={3}>{title}</Title>
+          {breadcrumbItems && (
+            <Text variant="gradient" gradient={gradientColors.gradient} fz={12} fw={400}>
+              <Breadcrumbs {...BREADCRUMBS_PROPS}>{breadcrumbItems}</Breadcrumbs>
+            </Text>
+          )}
+        </Stack>
+        <Flex gap="sm">
+          {actionButton}
+        </Flex>
+      </Flex>
+    );
+  } else {
+    content = (
+      <Stack gap="sm">
+        <Title order={3}>{title}</Title>
+        <Text variant="gradient" gradient={gradientColors.mainGR} fz={12} fw={400}>
+          <Breadcrumbs {...BREADCRUMBS_PROPS} >
+            {breadcrumbItems}
+          </Breadcrumbs>
+        </Text>
+      </Stack>
+    );
+  }
+
+  return <>{content}</>;
 };
 
 export default PageHeader;

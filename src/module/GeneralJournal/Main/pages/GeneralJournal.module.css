@@ -1,0 +1,65 @@
+.pagination {
+  color: var(--mantine-color-red-5);
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  button {
+    background: transparent;
+    color: var(--mantine-color-cyan-6);
+    border-color: var(--mantine-color-cyan-6);
+
+    &[data-active='true'] {
+      color: var(--mantine-color-white);
+      border: transparent;
+      background-color: var(--mantine-color-red-6);
+      background: var(--TealBLue, linear-gradient(90deg, #00b194 0%, #1c8fd4 100%));
+    }
+  }
+}
+.dropdown {
+  width: 400px;
+}
+
+.modal {
+  border-radius: 16px;
+}
+.modalHeader {
+  border-bottom: 2px #00b194;
+}
+
+.columnText {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.accountNameColumn {
+  font-size: 14px;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+.categoryColumn {
+  font-size: 14px;
+  font-weight: 400;
+  text-transform: capitalize;
+}
+
+/* Overriding default pagination active styles */
+.mantine-datatable-pagination-active {
+  background: linear-gradient(90deg, #00b194, #1c8fd4) !important; /* Use your gradient color */
+  color: white; /* Adjust text color if needed */
+}
+
+.icon {
+  width: rem(13px);
+  height: auto;
+  vertical-align: rem(-1px);
+  margin-right: rem(8px);
+}
+
+.expandIcon {
+  transition: transform 0.2s;
+}
+
+.expandIconRotated {
+  transform: rotate(90deg);
+}

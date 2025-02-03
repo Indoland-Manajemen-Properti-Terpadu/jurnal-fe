@@ -1,13 +1,11 @@
-'use client';
-
 import {
   ActionIcon,
   Avatar,
   Burger,
+  Button,
   Flex,
   Group,
   Indicator,
-  MantineTheme,
   Menu,
   rem,
   Stack,
@@ -19,19 +17,23 @@ import {
 } from '@mantine/core';
 import {
   IconBell,
-  IconCircleHalf2,
+  IconChevronDown,
+  IconDoorExit,
   IconHistory,
   IconLayoutSidebarLeftCollapse,
   IconLayoutSidebarLeftExpand,
-  IconMessageCircle,
-  IconMoonStars,
-  IconPower,
   IconSearch,
-  IconSunHigh,
+  IconSettings,
+  IconUserCircle,
 } from '@tabler/icons-react';
-// import { LanguagePicker } from '@/components';
-import { upperFirst, useMediaQuery } from '@mantine/hooks';
-import { showNotification } from '@mantine/notifications';
+import { useMediaQuery } from '@mantine/hooks';
+import { useNavigate } from 'react-router-dom';
+import { routes } from '@/router';
+import { themeColors } from '@/theme';
+import { useGetAllUser } from '@/module/SettingMenu/UserManagement/User/service/User.service';
+import { useLogin } from '@/module/Authentication/Login/service/Login.service';
+import { useAuthStore } from '@/store/useAuthentications';
+import { capitalize } from 'lodash';
 
 const ICON_SIZE = 20;
 
@@ -137,20 +139,21 @@ type HeaderNavProps = {
 };
 
 const HeaderNav = (props: HeaderNavProps) => {
+  const { userName } = useAuthStore();
   const { desktopOpened, toggleDesktop, toggleMobile, mobileOpened } = props;
   const theme = useMantineTheme();
   const { setColorScheme, colorScheme } = useMantineColorScheme();
   const laptop_match = useMediaQuery('(max-width: 992px)');
   const tablet_match = useMediaQuery('(max-width: 768px)');
   const mobile_match = useMediaQuery('(max-width: 425px)');
+  const navigate = useNavigate();
 
   const messages = MESSAGES.map((m) => (
     <Menu.Item
       key={m.id}
       style={{
-        borderBottom: `1px solid ${
-          colorScheme === 'dark' ? theme.colors.gray[7] : theme.colors.gray[3]
-        }`,
+        borderBottom: `1px solid ${colorScheme === 'dark' ? theme.colors.gray[7] : theme.colors.gray[3]
+          }`,
       }}
     >
       <Flex gap="sm" align="center">
@@ -180,9 +183,8 @@ const HeaderNav = (props: HeaderNavProps) => {
     <Menu.Item
       key={n.id}
       style={{
-        borderBottom: `1px solid ${
-          colorScheme === 'dark' ? theme.colors.gray[7] : theme.colors.gray[3]
-        }`,
+        borderBottom: `1px solid ${colorScheme === 'dark' ? theme.colors.gray[7] : theme.colors.gray[3]
+          }`,
       }}
     >
       <Flex gap="sm" align="center">
@@ -199,63 +201,13 @@ const HeaderNav = (props: HeaderNavProps) => {
     </Menu.Item>
   ));
 
-  const handleColorSwitch = (mode: 'light' | 'dark' | 'auto') => {
-    setColorScheme(mode);
-    showNotification({
-      title: `${upperFirst(mode)} is on`,
-      message: `You just switched to ${
-        colorScheme === 'dark' ? 'light' : 'dark'
-      } mode. Hope you like it`,
-      styles: (theme: MantineTheme) => ({
-        root: {
-          backgroundColor:
-            colorScheme === 'dark'
-              ? theme.colors.gray[7]
-              : theme.colors.gray[2],
-          borderColor:
-            colorScheme === 'dark'
-              ? theme.colors.gray[7]
-              : theme.colors.gray[2],
-
-          '&::before': {
-            backgroundColor:
-              colorScheme === 'dark'
-                ? theme.colors.gray[2]
-                : theme.colors.gray[7],
-          },
-        },
-
-        title: {
-          color:
-            colorScheme === 'dark'
-              ? theme.colors.gray[2]
-              : theme.colors.gray[7],
-        },
-        description: {
-          color:
-            colorScheme === 'dark'
-              ? theme.colors.gray[2]
-              : theme.colors.gray[7],
-        },
-        closeButton: {
-          color:
-            colorScheme === 'dark'
-              ? theme.colors.gray[2]
-              : theme.colors.gray[7],
-          '&:hover': {
-            backgroundColor: theme.colors.red[5],
-            color: theme.white,
-          },
-        },
-      }),
-    });
-  };
 
   return (
+
     <Group justify="space-between">
       <Group gap={0}>
         <Tooltip label="Toggle side navigation">
-          <ActionIcon visibleFrom="md" onClick={toggleDesktop} variant='gradient' gradient={{ from: 'blue', to: 'cyan', deg: 90 }}>
+          <ActionIcon visibleFrom="md" onClick={toggleDesktop} variant="gradient" gradient={{ from: 'blue', to: 'cyan', deg: 90 }}>
             {desktopOpened ? (
               <IconLayoutSidebarLeftCollapse />
             ) : (
@@ -269,7 +221,6 @@ const HeaderNav = (props: HeaderNavProps) => {
           hiddenFrom="md"
           size="sm"
         />
-        {/*<Burger opened={desktopOpened} onClick={toggleDesktop} visibleFrom="md" size="sm"/>*/}
         {!mobile_match && (
           <TextInput
             placeholder="search"
@@ -285,16 +236,15 @@ const HeaderNav = (props: HeaderNavProps) => {
             <IconSearch size={ICON_SIZE} />
           </ActionIcon>
         )}
-        {/* <LanguagePicker type="collapsed" /> */}
         <Menu shadow="lg" width={320}>
           <Menu.Target>
-            <Indicator inline processing color="red" size={12}>
-              <Tooltip label="Messages">
-                <ActionIcon size="lg" title="Nessages" variant='gradient' gradient={{ from: 'blue', to: 'cyan', deg: 90 }}>
-                  <IconHistory size={ICON_SIZE} />
-                </ActionIcon>
-              </Tooltip>
-            </Indicator>
+            {/* <Indicator inline processing color="red" size={12}> */}
+            <Tooltip label="Messages">
+              <ActionIcon size="lg" title="Nessages" variant="transparent" color={themeColors.grey[7]}>
+                <IconHistory size={ICON_SIZE} />
+              </ActionIcon>
+            </Tooltip>
+            {/* </Indicator> */}
           </Menu.Target>
           <Menu.Dropdown>
             <Menu.Label tt="uppercase" ta="center" fw={600}>
@@ -310,7 +260,7 @@ const HeaderNav = (props: HeaderNavProps) => {
           <Menu.Target>
             <Indicator inline processing color="red" size={12}>
               <Tooltip label="Notifications">
-                <ActionIcon size="lg" title="Notifications" variant='gradient' gradient={{ from: 'blue', to: 'cyan', deg: 90 }}>
+                <ActionIcon size="lg" title="Notifications" variant="transparent" color={themeColors.grey[7]}>
                   <IconBell size={ICON_SIZE} />
                 </ActionIcon>
               </Tooltip>
@@ -326,43 +276,43 @@ const HeaderNav = (props: HeaderNavProps) => {
             </Menu.Item>
           </Menu.Dropdown>
         </Menu>
-        <Tooltip label="Logout">
-          <ActionIcon size='lg' title='Logout' variant='gradient' gradient={{ from: 'blue', to: 'cyan', deg: 90 }}>
-            <IconPower size={ICON_SIZE} />
-          </ActionIcon>
-        </Tooltip>
-        {/* <Menu shadow="lg" width={200}>
+        <Menu shadow="lg" width={200}>
           <Menu.Target>
-            <Tooltip label="Switch color modes">
-              <ActionIcon variant="light">
-                {colorScheme === 'auto' ? (
-                  <IconCircleHalf2 size={ICON_SIZE} />
-                ) : colorScheme === 'dark' ? (
-                  <IconMoonStars size={ICON_SIZE} />
-                ) : (
-                  <IconSunHigh size={ICON_SIZE} />
-                )}
-              </ActionIcon>
+            <Tooltip label="Logout">
+              <Button color={themeColors.grey[7]} variant="light" radius='xl' px='xs'>
+                <Group>
+                  <Avatar
+                    src="https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-8.png"
+                    radius="xl"
+                    size={ICON_SIZE}
+                  />
+                  <Text c={themeColors.defaultBlack[10]} fz={12} fw={400} >{capitalize(userName!)}</Text>
+                  <IconChevronDown style={{ width: rem(14), height: rem(14) }} stroke={1.5} color={themeColors.grey[7]} />
+                </Group>
+              </Button>
             </Tooltip>
           </Menu.Target>
           <Menu.Dropdown>
-            <Menu.Label tt="uppercase" ta="center" fw={600}>
-              Select color modes
-            </Menu.Label>
             <Menu.Item
-              leftSection={<IconSunHigh size={16} />}
+              leftSection={<IconUserCircle size={16} />}
               onClick={() => setColorScheme('light')}
             >
-              Light
+              Profile
             </Menu.Item>
             <Menu.Item
-              leftSection={<IconMoonStars size={16} />}
+              leftSection={<IconSettings size={16} />}
               onClick={() => setColorScheme('dark')}
             >
-              Dark
+              Setting Account
+            </Menu.Item>
+            <Menu.Item
+              leftSection={<IconDoorExit size={16} />}
+              onClick={() => navigate(routes.login)}
+            >
+              Logout
             </Menu.Item>
           </Menu.Dropdown>
-        </Menu> */}
+        </Menu>
       </Group>
     </Group>
   );

@@ -1,0 +1,31 @@
+/* Styling for PageHeader */
+.pageHeader {
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  background-color: #ffffff;
+  margin-bottom: 16px;
+}
+
+/* Styling for Action Buttons */
+.actionButton {
+  margin-right: 8px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.actionButton.addRole {
+  background-color: #f1f3f5;
+  color: #495057;
+}
+
+.actionButton.addUser {
+  background-color: #00b194;
+  color: #ffffff;
+}
+
+.actionButton:hover {
+  opacity: 0.8;
+}

@@ -1,4 +1,4 @@
-import { Autocomplete, Group, Burger, rem, Divider, MenuDivider } from '@mantine/core';
+import { Autocomplete, Group, Burger, rem } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { IconSearch } from '@tabler/icons-react';
 import LogoProapps from '../../../public/icons/proapps-main-logo.svg';

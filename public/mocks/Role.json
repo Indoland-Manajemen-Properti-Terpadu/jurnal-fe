@@ -1,62 +1,142 @@
 [
   {
-    "roleName": "Administrator",
-    "access": ["Invite New User", "View and Add all transaction data", "Change and Delete data"],
-    "roleDescription": "Administrator can view and add all transaction data, change and delete data",
-    "emoji": "🥦"
+    "id": 1,
+    "roleName": "Report",
+    "access": [
+      { "menuId": "JP-REPORT-BGR", "menuName": "Business Glance Report" },
+      { "menuId": "JP-REPORT-SALES", "menuName": "Sales Report" },
+      { "menuId": "JP-REPORT-PURCHASE", "menuName": "Purchase Report" },
+      { "menuId": "JP-REPORT-PRODUCT", "menuName": "Product Report" },
+      { "menuId": "JP-REPORT-ASSET", "menuName": "Asset Report" },
+      { "menuId": "JP-REPORT-EXCHANGE", "menuName": "Exchange Rate Report" },
+      { "menuId": "JP-REPORT-BANK", "menuName": "Bank Report" },
+      { "menuId": "JP-REPORT-TAX", "menuName": "Tax Report" }    
+    ],
+    "menuId": "JP-REPORT",
+    "roleDescription": "Administrator can view and add all transaction data, change and delete data"
   },
   {
-    "roleName": "Finance",
-    "access": ["Invite New User", "View and Add all transaction data", "Change and Delete data"],
-    "roleDescription": "Administrator can view and add all transaction data, change and delete data",
-    "emoji": "🥦"
+    "id": 2,
+    "roleName": "Bank & Cash",
+    "access": [
+      { "menuId": "JP-TRF-MONEY", "menuName": "Transfer Money" },
+      { "menuId": "JP-RCV-MONEY", "menuName": "Receive Money" },
+      { "menuId": "JP-SEND-MONEY", "menuName": "Send Money" }
+    ],
+    "menuId": "JP-BNC",
+    "roleDescription": "Administrator can view and add all transaction data, change and delete data"
   },
   {
-    "roleName": "Banker",
-    "access": ["Invite New User", "View and Add all transaction data", "Change and Delete data"],
-    "roleDescription": "Administrator can view and add all transaction data, change and delete data",
-    "emoji": "🥦"
+    "id": 3,
+    "roleName": "Setting Budget",
+    "access": [
+      { "menuId": "JP-BUDGET-MB", "menuName": "Management Budget" },
+      { "menuId": "JP-BUDGET-ISB", "menuName": "Income Statement Budget" }
+    ],
+    "menuId": "JP-BUDGET",
+    "roleDescription": "Administrator can view and add all transaction data, change and delete data"
   },
   {
-    "roleName": "Manager",
-    "access": ["Invite New User", "View and Add all transaction data", "Change and Delete data"],
-    "roleDescription": "Administrator can view and add all transaction data, change and delete data",
-    "emoji": "🥦"
+    "id": 4,
+    "roleName": "Purchasing",
+    "access": [
+      { "menuId": "JP-PURCHASE-OFFR", "menuName": "Purchase Offer" },
+      { "menuId": "JP-PURCHASE-ORD", "menuName": "Purchase Order" },
+      { "menuId": "JP-PURCHASE-SHIP", "menuName": "Purchase Shipment" },
+      { "menuId": "JP-PURCHASE-BILL", "menuName": "Purchase Billing" },
+      { "menuId": "JP-PURCHASE-RTRN", "menuName": "Purchase Return" },
+      { "menuId": "JP-PURCHASE-RQST", "menuName": "Purchase Request" },
+      { "menuId": "JP-PURCHASE-IF", "menuName": "Purchase Invoice Financing" }
+    ],
+    "menuId": "JP-PURCHASE",
+    "roleDescription": "Administrator can view and add all transaction data, change and delete data"
   },
   {
-    "roleName": "Developer",
-    "access": ["Invite New User", "View and Add all transaction data", "Change and Delete data"],
-    "roleDescription": "Administrator can view and add all transaction data, change and delete data",
-    "emoji": "🥦"
+    "id": 5,
+    "roleName": "Selling",
+    "access": [
+      { "menuId": "JP-SLS-OFFR", "menuName": "Sales Offer" },
+      { "menuId": "JP-SLS-ORD", "menuName": "Sales Order" },
+      { "menuId": "JP-SLS-SHIP", "menuName": "Sales Shipment" },
+      { "menuId": "JP-SLS-BILL", "menuName": "Sales Billing" },
+      { "menuId": "JP-SLS-RTRN", "menuName": "Sales Return" },
+      { "menuId": "JP-SLS-IF", "menuName": "Sales Invoice Financing" }
+    ],
+    "menuId": "JP-SLS",
+    "roleDescription": "Administrator can view and add all transaction data, change and delete data"
   },
   {
-    "roleName": "Designer",
-    "access": ["Invite New User", "View and Add all transaction data", "Change and Delete data"],
-    "roleDescription": "Administrator can view and add all transaction data, change and delete data",
-    "emoji": "🥦"
+    "id": 6,
+    "roleName": "Cost",
+    "access": [
+      { "menuId": "JP-COST-CB", "menuName": "Cost Bill" },
+      { "menuId": "JP-COST-PB", "menuName": "Pay Bill" }
+    ],
+    "menuId": "JP-COST",
+    "roleDescription": "Administrator can view and add all transaction data, change and delete data"
   },
   {
-    "roleName": "HR",
-    "access": ["Invite New User", "View and Add all transaction data", "Change and Delete data"],
-    "roleDescription": "Administrator can view and add all transaction data, change and delete data",
-    "emoji": "🥦"
+    "id": 7,
+    "roleName": "Contact",
+    "access": [],
+    "menuId": "JP-CNTCT",
+    "roleDescription": "Administrator can view and add all transaction data, change and delete data"
   },
   {
-    "roleName": "Marketing",
-    "access": ["Invite New User", "View and Add all transaction data", "Change and Delete data"],
-    "roleDescription": "Administrator can view and add all transaction data, change and delete data",
-    "emoji": "🥦"
+    "id": 8,
+    "roleName": "Product",
+    "access": [
+      { "menuId": "JP-PRDCT-STCK-ADJST", "menuName": "Stock Adjustment" },
+      { "menuId": "JP-PRDCT-CONV", "menuName": "Product Converstion" },
+      { "menuId": "JP-PRDCT-WRH-TRF", "menuName": "Warehouse Transfer" }
+    ],
+    "menuId": "JP-PRDCT",
+    "roleDescription": "Administrator can view and add all transaction data, change and delete data"
   },
   {
-    "roleName": "Sales",
-    "access": ["Invite New User", "View and Add all transaction data", "Change and Delete data"],
-    "roleDescription": "Administrator can view and add all transaction data, change and delete data",
-    "emoji": "🥦"
+    "id": 9,
+    "roleName": "Production",
+    "access": [
+      { "menuId": "JP-PRDCTN-BOM", "menuName": "Bill of Material" },
+      { "menuId": "JP-PRDCTN-WO", "menuName": "Work Order" }
+    ],
+    "menuId": "JP-PRDCTN",
+    "roleDescription": "Administrator can view and add all transaction data, change and delete data"
   },
   {
-    "roleName": "Support",
-    "access": ["Invite New User", "View and Add all transaction data", "Change and Delete data"],
-    "roleDescription": "Administrator can view and add all transaction data, change and delete data",
-     "emoji": "🥦"
+    "id": 10,
+    "roleName": "Assets Management",
+    "access": [
+      { "menuId": "JP-AM-DA", "menuName": "Deferred Assets" },
+      { "menuId": "JP-AM-AS", "menuName": "Active Assets" },
+      { "menuId": "JP-AM-SD", "menuName": "Sold / Disposed" },
+      { "menuId": "JP-AM-DPR", "menuName": "Depreciation" }
+    ],
+    "menuId": "JP-AM",
+    "roleDescription": "Administrator can view and add all transaction data, change and delete data"
+  },
+  {
+    "id": 11,
+    "roleName": "General Ledger",
+    "access": [
+      { "menuId": "JP-GL-JA", "menuName": "Journal Account" },
+      { "menuId": "JP-GL-JT", "menuName": "Journal Transaction" },
+      { "menuId": "JP-GL-BB", "menuName": "Beginning Balance" },
+      { "menuId": "JP-GL-PL", "menuName": "Period Lock" },
+      { "menuId": "JP-GL-CB", "menuName": "Closing Book" }
+    ],
+    "menuId": "JP-GL",
+    "roleDescription": "Administrator can view and add all transaction data, change and delete data"
+  },
+  {
+    "id": 12,
+    "roleName": "Setting",
+    "access": [
+      { "menuId": "JP-SETT-UM", "menuName": "User Management" },
+      { "menuId": "JP-SETT-CT", "menuName": "Companny Setting" },
+      { "menuId": "JP-SETT-AS", "menuName": "Approval Setting" }
+    ],
+    "menuId": "JP-SETT",
+    "roleDescription": "Administrator can view and add all transaction data, change and delete data"
   }
 ]

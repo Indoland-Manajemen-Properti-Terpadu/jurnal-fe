@@ -1,19 +1,18 @@
-import classes from './Logo.module.css';
 import { Group, Text, Image, UnstyledButtonProps } from '@mantine/core';
-import ProappsLogo from '@/assets/img/proapps-md-teal.svg';
 import { Link } from 'react-router-dom';
 import { Button } from '@mantine/core'; // Pastikan Button diimpor dari @mantine/core
+import ProappsLogo from '@/assets/img/proapps-md-teal.svg';
+import classes from './Logo.module.css';
 
 type LogoProps = {
   href?: string;
 } & UnstyledButtonProps;
 
-const LogoProapps = () => {
-  return (
+const LogoProapps = () => (
     <Button
       className={classes.logo}
       component={Link}
-      to='/'
+      to="/"
       variant="subtle"
     >
       <Group gap="xs">
@@ -22,6 +21,5 @@ const LogoProapps = () => {
       </Group>
     </Button>
   );
-};
 
 export default LogoProapps;

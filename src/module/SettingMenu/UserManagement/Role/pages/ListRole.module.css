@@ -1,0 +1,7 @@
+.tabLabel {
+  &[data-active] {
+    z-index: 1;
+    /* border: 1px solid light-dark(var(--mantine-color-gray-1)); */
+    color: var(--mantine-color-white);
+  }
+}

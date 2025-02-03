@@ -2,6 +2,7 @@ import { ReactNode } from 'react';
 import { Avatar, Group, Text, UnstyledButton, UnstyledButtonProps } from '@mantine/core';
 import { IconChevronRight } from '@tabler/icons-react';
 import classes from './page.module.css';
+import { themeColors } from '@/theme';
 
 type UserProfileButtonProps = {
   image: string;
@@ -18,24 +19,22 @@ const UserProfileButton = ({
   icon,
   asAction,
   ...others
-}: UserProfileButtonProps) => {
-  return (
-    <UnstyledButton className={classes.user} {...others}>
-      <Group>
-        <Avatar src={image} radius="xl" />
+}: UserProfileButtonProps) => (
+  <UnstyledButton className={classes.user} {...others}>
+    <Group>
+      <Avatar src={image} radius="xl" />
 
-        <div style={{ flex: 1 }}>
-          <Text size="sm" fw={500} c='black'>
-            {name}
-          </Text>
+      <div style={{ flex: 1 }}>
+        <Text size="sm" fw={500} c="black">
+          {name}
+        </Text>
 
-          <Text size="xs">{email}</Text>
-        </div>
+        <Text size="xs" c={themeColors.grey[6]}>{email}</Text>
+      </div>
 
-        {icon && asAction && <IconChevronRight size="0.9rem" stroke={1.5} />}
-      </Group>
-    </UnstyledButton>
-  );
-};
+      {icon && asAction && <IconChevronRight size="0.9rem" stroke={1.5} />}
+    </Group>
+  </UnstyledButton>
+);
 
 export default UserProfileButton;

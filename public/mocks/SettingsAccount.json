@@ -1,0 +1,22 @@
+{
+  "data": [
+    {
+      "type": "Import",
+      "icon": "/src/assets/img/SettingsAccount-Import.svg",
+      "title": "Import an Account",
+      "description": "Add a new account by importing a CSV file"
+    },
+    {
+      "type": "Export",
+      "icon": "/src/assets/img/SettingsAccount-Export.svg",
+      "title": "Export an Account",
+      "description": "Get a pdf account file by exporting all accounts into a pdf file"
+    },
+    {
+      "type": "Restore",
+      "icon": "/src/assets/img/SettingsAccount-Restore.svg",
+      "title": "Restore an Account",
+      "description": "Reset the journal account by restoring it to default"
+    }
+  ]
+}

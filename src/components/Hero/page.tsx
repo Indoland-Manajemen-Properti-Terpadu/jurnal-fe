@@ -1,4 +1,4 @@
-import { Container, Title, Text, Button, Grid, rem } from '@mantine/core';
+import { Container, Title, Text, Button, Grid } from '@mantine/core';
 import classes from './page.module.css';
 
 export function HeroComponent() {

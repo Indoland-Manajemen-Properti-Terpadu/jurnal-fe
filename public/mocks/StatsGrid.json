@@ -1,0 +1,36 @@
+{
+  "data": [
+    {
+      "title": "Bank & Cash Balance",
+      "amount": 2000000,
+      "diff": 34,
+      "icon": "receipt",
+      "value": "13,456",
+      "period": "today"
+    },
+    {
+      "title": "Credit Card Balance",
+      "amount": 200000,
+      "diff": -13,
+      "icon": "coin",
+      "value": "4,145",
+      "period": "annual"
+    },
+    {
+      "title": "Income for the Next 30 Days",
+      "amount": 200000,
+      "diff": 0,
+      "icon": "discount",
+      "value": "$ 74,5",
+      "period": "monthly"
+    },
+    {
+      "title": "Expenses for the Next 30 Days",
+      "amount": 200000,
+      "diff": -30,
+      "icon": "user",
+      "value": "188",
+      "period": "monthly"
+    }
+  ]
+}

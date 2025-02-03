@@ -1,0 +1,30 @@
+.root {
+  font-family: 'Montserrat';
+}
+
+.input {
+  height: rem(54px);
+  padding-top: rem(18px);
+}
+
+.label {
+  position: absolute;
+  pointer-events: none;
+  font-size: var(--mantine-font-size-xs);
+  padding-left: var(--mantine-spacing-sm);
+  padding-top: calc(var(--mantine-spacing-sm) / 2);
+  z-index: 1;
+}
+
+.switch {
+  position: relative;
+  justify-content: flex-end;
+  align-items: flex-end;
+  display: flex;
+  margin-right: 20px;
+}
+
+.table th {
+  background-color: #f0fdfa; /* Custom background color */
+  color: #000000; /* Text color */
+}
