@@ -63,17 +63,17 @@ export default function BankStatementTable({ selectedRecords, setSelectedRecords
             ),
         },
         {
-            accessor: 'credit',
-            title: <Text size="sm" fz={14} fw={500} c={themeColors.defaultBlack[10]} >Credit</Text>,
+            accessor: 'receive',
+            title: <Text size="sm" fz={14} fw={500} c={themeColors.defaultBlack[10]} >Received</Text>,
             render: (element: Result) => (
-                <Text size="sm" fz={14} fw={400} c={themeColors.defaultBlack[10]} >{formatCurrency(element.credit || 0)}</Text>
+                <Text size="sm" fz={14} fw={400} c={themeColors.defaultBlack[10]} >{formatCurrency(element.debit || 0)}</Text>
             ),
         },
         {
-            accessor: 'debit',
+            accessor: 'sent',
             title: <Text size="sm" fz={14} fw={500} c={themeColors.defaultBlack[10]} >Sent</Text>,
             render: (element: Result) => (
-                <Text size="sm" fz={14} fw={400} c={themeColors.defaultBlack[10]} >{formatCurrency(element.debit || 0)}</Text>
+                <Text size="sm" fz={14} fw={400} c={themeColors.defaultBlack[10]} >{formatCurrency(element.credit || 0)}</Text>
             ),
         },
         {
