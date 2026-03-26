@@ -1,4 +1,4 @@
-export const BASE_URL = 'https://jurnal-api.proapps.id';
+export const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://jurnal-api.proapps.id';
 // export const API_AUTH = {
 //   POST_LOGIN: `${BASE_URL}/v1/auth/login`,
 //   POST_REGISTER: `${BASE_URL}/v1/auth/register`,
