@@ -47,6 +47,21 @@ function LoginPage() {
     login(values);
   };
 
+  const handleOAuthLogin = () => {
+    const state = window.crypto.randomUUID();
+    sessionStorage.setItem('oauth_state', state);
+
+    const params = new URLSearchParams({
+      client_id: import.meta.env.VITE_OAUTH_CLIENT_ID || '',
+      redirect_uri: 'https://jurnal.proapps.id/callback',
+      response_type: 'code',
+      scope: '*',
+      state,
+    });
+
+    window.location.href = `https://proapps.id/oauth/authorize?${params.toString()}`;
+  };
+
   const carouselRef = useRef(null);
 
   return (
@@ -143,8 +158,9 @@ function LoginPage() {
                 variant='outline'
                 fullWidth
                 gradient={gradientColors.gradient}
+                onClick={handleOAuthLogin}
               >
-                Back
+                Login with ProApps
               </Button>
             </Stack>
           </form>
