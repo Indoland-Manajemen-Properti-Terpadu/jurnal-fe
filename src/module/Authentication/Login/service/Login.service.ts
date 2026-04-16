@@ -7,11 +7,6 @@ import { routes } from '@/router';
 import { useAuthStore } from '@/store/useAuthentications';
 import { LoginModelResponse } from '../types/LoginModelResponse';
 
-interface UseLoginProps {
-  onSuccess?: (data: any) => void;
-  onError?: (error: any) => void;
-}
-
 export const useLoginHandler = () => {
   const navigate = useNavigate();
   const { setTokens, setUserName } = useAuthStore();
@@ -47,7 +42,7 @@ export const useLoginHandler = () => {
   };
 };
 
-export const useLogin = (p0: {}) => {
+export const useLogin = () => {
   const { handleLoginSuccess, handleLoginError } = useLoginHandler();
 
   return useMutation({

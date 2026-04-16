@@ -28,7 +28,7 @@ import Slider2 from '@/assets/img/Slider/accounting.png';
 import { gradientColors, themeColors } from '@/theme';
 
 function LoginPage() {
-  const { mutate: login } = useLogin({});
+  const { mutate: login } = useLogin();
   const loginForm = useForm({
     mode: 'uncontrolled',
     initialValues: { email: '', password: '' },

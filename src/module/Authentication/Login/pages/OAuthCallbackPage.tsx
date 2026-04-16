@@ -34,7 +34,11 @@ function OAuthCallbackPage() {
           id_site: idSite,
         });
 
-        if (!response?.tokens?.access?.token || !response?.tokens?.refresh?.token || !response?.user?.name) {
+        if (
+          !response?.tokens?.access?.token
+          || !response?.tokens?.refresh?.token
+          || !response?.user?.name
+        ) {
           throw new Error('OAuth exchange failed');
         }
 
