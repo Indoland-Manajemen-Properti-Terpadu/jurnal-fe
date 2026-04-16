@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { notifications } from '@mantine/notifications';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { post } from '@/services/apiClient';
@@ -11,19 +11,28 @@ function OAuthCallbackPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { handleLoginSuccess } = useLoginHandler();
+  const hasExchangedCode = useRef(false);
 
   useEffect(() => {
+    if (hasExchangedCode.current) {
+      return;
+    }
+    hasExchangedCode.current = true;
+
     const exchangeOAuthCode = async () => {
       const code = searchParams.get('code');
       const idSite = searchParams.get('id_site');
+      const state = searchParams.get('state');
+      const expectedState = sessionStorage.getItem('oauth_state');
 
-      if (!code || !idSite) {
+      if (!code || !idSite || !state || !expectedState || state !== expectedState) {
         notifications.show({
           color: 'red',
           autoClose: 3000,
           title: 'OAuth Login Failed',
-          message: 'Invalid OAuth callback data',
+          message: 'Invalid OAuth callback data. Please try again.',
         });
+        sessionStorage.removeItem('oauth_state');
         navigate(routes.login);
         return;
       }
@@ -42,6 +51,7 @@ function OAuthCallbackPage() {
           throw new Error('OAuth exchange failed');
         }
 
+        sessionStorage.removeItem('oauth_state');
         handleLoginSuccess(response as LoginModelResponse);
       } catch {
         notifications.show({
@@ -50,6 +60,7 @@ function OAuthCallbackPage() {
           title: 'OAuth Login Failed',
           message: 'Unable to login with OAuth, please try again',
         });
+        sessionStorage.removeItem('oauth_state');
         navigate(routes.login);
       }
     };
@@ -57,7 +68,11 @@ function OAuthCallbackPage() {
     exchangeOAuthCode();
   }, [handleLoginSuccess, navigate, searchParams]);
 
-  return null;
+  return (
+    <div>
+      Processing OAuth login...
+    </div>
+  );
 }
 
 export default OAuthCallbackPage;

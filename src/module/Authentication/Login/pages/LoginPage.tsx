@@ -17,6 +17,7 @@ import {
   Title,
   Grid,
 } from '@mantine/core';
+import { notifications } from '@mantine/notifications';
 import { useForm } from '@mantine/form';
 import { useLogin } from '../service/Login.service';
 import classes from './page.module.css';
@@ -29,6 +30,8 @@ import { gradientColors, themeColors } from '@/theme';
 
 function LoginPage() {
   const { mutate: login } = useLogin();
+  const oauthAuthorizeUrl = import.meta.env.VITE_OAUTH_AUTHORIZE_URL || 'https://proapps.id/oauth/authorize';
+  const oauthRedirectUri = import.meta.env.VITE_OAUTH_REDIRECT_URI || 'https://jurnal.proapps.id/callback';
   const loginForm = useForm({
     mode: 'uncontrolled',
     initialValues: { email: '', password: '' },
@@ -48,18 +51,33 @@ function LoginPage() {
   };
 
   const handleOAuthLogin = () => {
-    const state = window.crypto.randomUUID();
+    const clientId = import.meta.env.VITE_OAUTH_CLIENT_ID;
+    if (!clientId) {
+      notifications.show({
+        color: 'red',
+        autoClose: 3000,
+        title: 'OAuth Login Failed',
+        message: 'OAuth client configuration is missing',
+      });
+      return;
+    }
+
+    const state = window.crypto.randomUUID
+      ? window.crypto.randomUUID()
+      : Array.from(window.crypto.getRandomValues(new Uint8Array(16)))
+        .map((byte) => byte.toString(16).padStart(2, '0'))
+        .join('');
     sessionStorage.setItem('oauth_state', state);
 
     const params = new URLSearchParams({
-      client_id: import.meta.env.VITE_OAUTH_CLIENT_ID || '',
-      redirect_uri: 'https://jurnal.proapps.id/callback',
+      client_id: clientId,
+      redirect_uri: oauthRedirectUri,
       response_type: 'code',
       scope: '*',
       state,
     });
 
-    window.location.href = `https://proapps.id/oauth/authorize?${params.toString()}`;
+    window.location.href = `${oauthAuthorizeUrl}?${params.toString()}`;
   };
 
   const carouselRef = useRef(null);
