@@ -1,0 +1,227 @@
+/* =============================================
+   Mantine v8 Component Styles
+   Using CSS Modules with classNames API
+   ============================================= */
+
+/* Button Styles */
+.button-root {
+  font-weight: 500;
+  transition: all 150ms ease;
+}
+
+.button-root:hover {
+  transform: translateY(-1px);
+}
+
+/* Input Styles */
+.input-base {
+  font-size: 14px;
+}
+
+.input-base:focus {
+  border-color: var(--mantine-color-primary-5);
+}
+
+.input-label {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+/* Paper Styles */
+.paper-root {
+  transition: box-shadow 150ms ease;
+}
+
+/* Table Styles */
+.table-base {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.table-thead {
+  background-color: #f8f9fa;
+}
+
+.table-th {
+  font-size: 14px;
+  font-weight: 500;
+  color: #000000;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.table-td {
+  font-size: 14px;
+  padding: 12px 16px;
+  border-bottom: 1px solid #f1f3f5;
+}
+
+.table-tr {
+  transition: background-color 150ms ease;
+}
+
+.table-tr:hover {
+  background-color: #f8f9fa;
+}
+
+/* Modal Styles */
+.modal-title {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* =============================================
+   Global Styles untuk Mantine DataTable
+   ============================================= */
+
+/* DataTable Styling */
+.mantine-datatable {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.mantine-datatable-header {
+  background-color: #f8f9fa;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.mantine-datatable-row:hover {
+  background-color: #f8f9fa;
+  transition: background-color 150ms ease;
+}
+
+.mantine-datatable-empty-state {
+  padding: 40px 20px;
+}
+
+/* DataTable Pagination */
+.mantine-datatable-pagination {
+  padding: 16px;
+  border-top: 1px solid #e9ecef;
+}
+
+/* =============================================
+   Scrollbar Styling
+   ============================================= */
+
+/* Custom Scrollbar - Webkit browsers (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f3f5;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #adb5bd;
+  border-radius: 4px;
+  transition: background 150ms ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #868e96;
+}
+
+/* =============================================
+   Global Utility Classes
+   ============================================= */
+
+/* Text Utilities */
+.text-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-right {
+  text-align: right;
+}
+
+/* Flex Utilities */
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Shadow Utilities */
+.shadow-hover {
+  transition: box-shadow 150ms ease;
+}
+
+.shadow-hover:hover {
+  box-shadow:
+    0 4px 6px rgba(0, 0, 0, 0.07),
+    0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* =============================================
+   Global Animations
+   ============================================= */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 300ms ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.slide-in {
+  animation: slideIn 300ms ease-out;
+}
+
+/* =============================================
+   Print Styles
+   ============================================= */
+
+@media print {
+  body {
+    background: white;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .print-full-width {
+    width: 100% !important;
+  }
+}
