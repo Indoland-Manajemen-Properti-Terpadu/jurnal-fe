@@ -24,9 +24,9 @@ function ContactFormLayout({ children, footer }: Props) {
             header={{ height: 60 }}
             footer={{ height: 70 }}
             navbar={{
-                width: 300,
+                width: desktopOpened ? 300 : 84,
                 breakpoint: 'md',
-                collapsed: { mobile: !mobileOpened, desktop: !desktopOpened },
+                collapsed: { mobile: !mobileOpened },
             }}
             padding={0}
         >
@@ -47,7 +47,7 @@ function ContactFormLayout({ children, footer }: Props) {
                 </Container>
             </AppShell.Header>
             <AppShell.Navbar>
-                <NavbarComponent onClose={toggleMobile} />
+                <NavbarComponent onClose={toggleMobile} collapsed={!desktopOpened} />
             </AppShell.Navbar>
             <AppShell.Main>
                 <AppMain>{children}</AppMain>

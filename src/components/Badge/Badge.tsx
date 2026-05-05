@@ -3,14 +3,25 @@ import { IconLock } from '@tabler/icons-react';
 import classes from './StatusUser.module.css';
 import { themeColors } from '@/theme';
 
+const STATUS_STYLES: Record<string, { bg: string; color: string }> = {
+  active: {
+    bg: 'var(--jurnal-color-success-subtle)',
+    color: 'var(--jurnal-color-success)',
+  },
+  inactive: {
+    bg: 'var(--jurnal-color-surface-muted)',
+    color: 'var(--jurnal-color-text-muted)',
+  },
+};
+
 export const ActiveBadge = () => (
   <Badge
     variant="dot"
     color="green"
     radius="sm"
     style={{
-      backgroundColor: '#EBFBEE',
-      color: '#40C057',
+      backgroundColor: STATUS_STYLES.active.bg,
+      color: STATUS_STYLES.active.color,
       marginLeft: '0.5rem',
       border: 'none',
     }}
@@ -26,8 +37,8 @@ export const InactiveBadge = () => (
     color="grey"
     radius="sm"
     style={{
-      backgroundColor: '#F8F9FA',
-      color: '#868E96',
+      backgroundColor: STATUS_STYLES.inactive.bg,
+      color: STATUS_STYLES.inactive.color,
       marginLeft: '0.5rem',
       border: 'none',
     }}
@@ -43,8 +54,8 @@ export const AllRoleBadge = () => (
     color="grey"
     radius="sm"
     style={{
-      backgroundColor: '#F8F9FA',
-      color: '#868E96',
+      backgroundColor: 'var(--jurnal-color-surface-muted)',
+      color: 'var(--jurnal-color-text-muted)',
       border: 'none',
     }}
     className={classes.badgeText}

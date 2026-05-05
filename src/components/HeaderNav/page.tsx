@@ -16,16 +16,16 @@ import {
   useMantineTheme,
 } from '@mantine/core';
 import {
-  IconBell,
-  IconChevronDown,
-  IconDoorExit,
-  IconHistory,
-  IconLayoutSidebarLeftCollapse,
-  IconLayoutSidebarLeftExpand,
-  IconSearch,
-  IconSettings,
-  IconUserCircle,
-} from '@tabler/icons-react';
+  Bell,
+  CaretDown,
+  ChatCircleDots,
+  ClockCounterClockwise,
+  GearSix,
+  ListBullets,
+  MagnifyingGlass,
+  SignOut,
+  UserCircle,
+} from '@phosphor-icons/react';
 import { useMediaQuery } from '@mantine/hooks';
 import { useNavigate } from 'react-router-dom';
 import { routes } from '@/router';
@@ -35,7 +35,7 @@ import { useLogin } from '@/module/Authentication/Login/service/Login.service';
 import { useAuthStore } from '@/store/useAuthentications';
 import { capitalize } from 'lodash';
 
-const ICON_SIZE = 20;
+const ICON_SIZE = 24;
 
 const MESSAGES = [
   {
@@ -73,7 +73,7 @@ const NOTIFICATIONS = [
     id: '28d772cb-dcbd-4a34-bbe2-587fc03c5723',
     title: 'Orn, Wehner and Kirlin',
     message: 'Integer ac leo.',
-    icon: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAJzSURBVDjLpZNLSFRxFMZ/944z42MqH2MllWJEkT1UjHETSFJiVAtdtHFly5aCm6xNWyFw2aoIoiAoWgjSIqkWghAuVFBTJJVGGV/pzPznzr3/c9qEaUaLOsuPw4/z+D5HVfmfKvhdCIadmCo9KrSLkFAFFUZFGFLh0YFbmt7d7+yeIBh2WlR44lT31jqlCTRSDmpRs4rdGMP70j8vQndZh37YBwjeOx1a2vLaPdqFFh/CZqcQbw0NcuAU4haewvFdvIVXeCsfOitv65sdgP/eKVfla+jCi5i4Wwy/HCSVNJy5eAhUmR7fIl4Jl6+fJxS9wPeRO2kRaqq6dN0FUKHHremLmewKm/PvCLuGtptFLM1usDS3SdvNIiIRsNsTmPUxis/2xcTSA+ACiHDDKWtGtj8TdbZoSkA0bLjstylekTr9QjRsKEp8XNpb4qC0tOI5cZuQB3Rg6xML+z5yOZymo1ls0dLLRrAw1pqdwAqGA1yePkSVhc9xCr5nJDJKEuzhuScIcgryTlDdjMLqogQ2vGBWObxTUP8ZDVzI5OMf0xREHGJH48SPxJi/VuGmdEtKqostyle07FEFuA7zH7CyAM+qtjDWU1F2koNai/jfo5xObQwHC4CrQ+AFXCFY2Y1a/4eQZ/3cAykJ18mCY4gBs5Aeqg4oHNo9ZHxQdcQrEzaLSe5KeHad9jYAdQ1qkpEbqzs89AjxE62IwTKkdFQRQ3EidceRUtbmVt4i1+nu7Ge5raZ+Xkc+eaWB6X1PXWRirO4YZdkIDAs2SSMyyP9M8HPneb7uvQH7MAsPjUiYmlV4R2a0kEeQh8RgOfocCn/9KDv4TpX+oHaI9cJDajhlcAAAAASUVORK5CYII=',
+    icon: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAJzSURBVDjLpZNLSFRXFMd/72U+dDLNRItGUSeJiagTJ6IQhdhaWoopFCJiF10UBAXpSlHcddHi0oUbkXYRFURE/NiIIjSkpCpdtGoTJG20iUMsMZJokhmqee/de8/p4jmDggcuFw73/s7/nPu/nqrSe/hch6peUZhD6VYUVUCVeNPaEmcwYbn06/nv1gIkiA8cVNhQLOS96ZkyqtVLEMMEFZgvv2IhVEQTrbyJGAA7i4U13qeda8ivLKIxAVGJq0pcfVljhsyiBDt2f8s7AFstyleFDuauXVvjLm516gIAFJVoYqKMl95TRBGvB1vWsBLpBKs29RMe9NSnANVQURxTnEiWFEWAsPlq4PvAyjOCRPTFVJ+kiAIMGGElThvqSORTFFID3Oy+xfqdnUyfLZHvWByX3UGiBOsM4RhyJ5t7bH8WB2qyp27fWxLP2dx8RtyrVuYL61n9Oe+EzUFxgnOWKzzuTD4F6GxWKc4K7Sk/2DPpjINuR3Mjv9Nyov4oGEF2Q/zuRrAWiEyhkhA/TReMgm+sjr1gL0bZ2lc20M4dYlUxmNiaBQTRC+Dhf+6q0PEWIcNLKFxWCcYJ6zkPl93lMi19RJM/oSfsiSzzQSzI4j1P+862v/YrylwggkNoXEExrGkfJuv2sbJtfcSTP6InzRElRaeDtzj+4EGth7tHwLw327BRDGgstyleKXL/LPWN7xJdHzPupSSlhpZur2fX4Y+Yyx+XTtGf2qYSLrsKGl/lk/vflphFVMPTyFEPBqdhWlwYdcW3SYF1H2vUaKDRM5CjpA4aMzPLp0jMd3fiOd30x5ZoqbyYNkMktRxhCRp+8oUFXwfbq2d/JofIZo5Aatmz+mvn49//75D0NNh8g2tWGtoAphENbs6Kkqn+w/3afKAUVZ8eQ4W1uX0bWhhYmonqulTuZMtvYzUa7/fvHI7irgf/y+taODWkwAAAAAAElFTkSuQmCC',
   },
   {
     id: '64ee7341-f2a8-42f2-b379-48f523811d49',
@@ -108,14 +108,14 @@ const NOTIFICATIONS = [
     title: "O'Hara Inc",
     message:
       'Maecenas tristique, est et tempus semper, est quam pharetra magna, ac consequat metus sapien ut nunc. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Mauris viverra diam vitae quam. Suspendisse potenti.',
-    icon: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAADoSURBVBgZBcExblNBGAbA2ceegTRBuIKOgiihSZNTcC5LUHAihNJR0kGKCDcYJY6D3/77MdOinTvzAgCw8ysThIvn/VojIyMjIyPP+bS1sUQIV2s95pBDDvmbP/mdkft83tpYguZq5Jh/OeaYh+yzy8hTHvNlaxNNczm+la9OTlar1UdA/+C2A4trRCnD3jS8BB1obq2Gk6GU6QbQAS4BUaYSQAf4bhhKKTFdAzrAOwAxEUAH+KEM01SY3gM6wBsEAQB0gJ+maZoC3gI6iPYaAIBJsiRmHU0AALOeFC3aK2cWAACUXe7+AwO0lc9eTHYTAAAAAElFTkSuQmCC',
+    icon: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAADoSURBVDjLbZJtSFNxFIcHgjAQgr6VhBSFIhhJQa842JdeLBMyVIpSSUtFZpIIaqa5UNTpUKebmR82FZmmzpXiHKawhqKUlUVQCEEE1ZfQmFg3n85VLN8uHC738H9+5/mfTQNoNtR4S7iUidHmacYtCl6zwnD1NEMPTPSWhG8+vxnOEzDAZBe8ckm5YaYfnjtgzAI9+QGcuXlbA8ZbghmzDTHRDi965HAzDFYiU6H/LvQWgKsERmuhrxAeXhmi+XLw/4DRZjOTAqsBw9WKgHrR1f6b1JGtxZ6up+2aQo+EOTLBfM60GjBqieJZvcJEp0ysUOgvDaOvKER0jaLrpz3Tjz3NiDU5BFtCGA0XFJxyiyqdQuWJSA0jJjO+NtEzq7p6+gpC6c6b42k5dOVCZ5a8b4M1fo76s6FU6/USAq1XwRht0ojue/ztq3fruaMV3W7cZYiuk5YkHY3xOtF14siQqTHdVB3Xcv8wYgaF4W81oruEX7bszFWbQaIbwHEL0dVNTU3F+Xy+SNHV0RAL5UcClB4MoigCOnIkYN8Pjegu4Xski0lXt6vFmqjqfqPLcErg316v9xdNCWdE9xP3oqDggJbC/atXK967oJHtfuBxPqIbEN1g0Y1Rtyuwg5lh+OjB6XTaDY3JxYbGpJ8ZtRdJNeqWO0uj1QC5gjXZILoZspgdaz+bwDtl8oLb7V4WeLncWjBf1p3Kk1kLM1881I1kkVgXRaohdECz5a8sJXCTwArfX8LXKa5Xnsb1xozrXT3qU+NNp857k6PZuxa3gw8J/EedbLfbfTabzXe+KJrB2VbWPwOvLWrA1ukCewVeFLh1rXcyZ49S7UmjwpOyAlcMp2xvIHCswJ8FLl7fl4PGSzURmDw3Viarb/Vb+jUbAgRuEThuu73I4cpj2bsDqrbUvPqt9v8CPKvGd70s+8YAAAAASUVORK5CYII=',
   },
   {
     id: 'd50227d9-8bd9-4b64-8b74-1fe356941149',
     title: 'Hand LLC',
     message:
       'Quisque erat eros, viverra eget, congue eget, semper rutrum, nulla. Nunc purus. Phasellus in felis.',
-    icon: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAJsSURBVBgZfcFLbExhGIDh9z9zztw6marQUm1DNZEQEdUpsRC2lLgsJDZNGmFjY2nBErGzENewIEUQRBBBJFW3IC6xqqYSd4tWtOPMnMv/fdqYUIvxPEZVqWbn6sUzm+tyV3OpTMFaQUET2eSN7YdvdFHhUMWudR1OY23NxVwyXbAiWFUiK8YfLa3ZvXFpDxUOVbTUanZKpmZ5Jl9L67w5NDY1IKKICHWZzAkqXKpI6seoftZsae/a7Ez3ikwoaZox63H/7LGACocq9n3fE06dlh3L4hOaFMbLMiH48FTntjWGVLgD1wt+Oj8/Y4zDX8r5rZ/ibYcWvjxV09/R3NJKyXh4JuTDx2HtHVrU28lvZuBap7ateYQxBpRxih9Ydhx4QuvceRQKAU9vncWYNF4yT1NHN6eP3olvv3q/JX7cc8EMXC5I29o+E349jA0T4OTZ2xtRmrqaKZ2zGCyCtfzhKkxDeXHuXvDm7etNLpFBJcSGSVSUn0MP6M6/gvg4PKSq45uupA4+33PJxaiRuMTo0CDRyCckKlO3YD0/2nfxL2VCzoPRk8v4kpxJ86IVSZfIwc3UM2PVfkBAFRuHJL7f5KtfxqqlZBP4McQ2orlhCQaIn70ojXj9sUukqC0TfjsJKL8JKbFkyTEmSYwYPBWsRLgEWCDR0d40Z2XfiEsAKjEYQBUQkAhHIxrcH9QbHzVF1CmiDJPOtPMOOLOSEca5hIrBgiqoBQ1RCUDKqJZQ66O2iMajqPUBYTJXQyH2h5HYA3VAE6h6IClUakAjVEMwITgxtlxmMlfLweehIxsaUBwMhv9RwNwF0WEqfgE9XTQvEQ+I/gAAAABJRU5ErkJggg==',
+    icon: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAJsSURBVDjLpZN/S8JgEMd9i1JURPSDIoIkS1FQI4iQgihStExrhGmydGObyZyyYRaybBRFQb/8vxcgBIF92275ApoHx7jjns/37p49LgCuQdzlXmEXd8RON1L4QPjM9NwbQtkXBE+eEWCe4D9+hC99j+XDO3j3b+FJ3CCcvu5a5wgQLXV6ceUT/3Xv3mWPAJayE5/fboAA4dw7nNjspmoDQqevlDAMA+12G61WC1/fP1BVFfV6HbIsUyyKIgRBAMdxVD8drf0BzIU5scl12QZY27ZM13VSbzQapFir1VCtViFJEsUsy6JQKCCfz1P9xFrFBlhX5cTGVyUb4D96oESz2SR1RVFIsVKpoFwuo1gsUpzNZsEwDDKZDNWPhQUb4D0wHHUwHCjZgKVEmxKaptHc/ZmtL8/zNLMVp1IpJJNJxGIxqh/yn9sAT1x31IHbx6L/FtiF3Sv6s+a2NMxE65jaUMwtX9CixiIiRkM8RoKc2XbRVGZhnrGcJcDAr3FQwC803UMOARws7QAAAABJRU5ErkJggg==',
   },
   {
     id: 'bc8f3d9b-baed-4bab-9f34-d42f114461d0',
@@ -142,6 +142,12 @@ const HeaderNav = (props: HeaderNavProps) => {
   const { userName } = useAuthStore();
   const { desktopOpened, toggleDesktop, toggleMobile, mobileOpened } = props;
   const theme = useMantineTheme();
+  const iconColor = theme.colors.defaultBlack[10];
+  const brandColor = theme.colors.primary[6];
+  const borderColor = theme.colors.grey[2];
+  const mutedColor = theme.colors.grey[5];
+  const surfaceHoverColor = theme.colors.figmaGray[0];
+  const userButtonBorderColor = theme.colors.grey[6];
   const { setColorScheme, colorScheme } = useMantineColorScheme();
   const laptop_match = useMediaQuery('(max-width: 992px)');
   const tablet_match = useMediaQuery('(max-width: 768px)');
@@ -201,50 +207,53 @@ const HeaderNav = (props: HeaderNavProps) => {
     </Menu.Item>
   ));
 
-
   return (
-
-    <Group justify="space-between">
-      <Group gap={0}>
-        <Tooltip label="Toggle side navigation">
-          <ActionIcon visibleFrom="md" onClick={toggleDesktop} variant="gradient" gradient={{ from: 'blue', to: 'cyan', deg: 90 }}>
-            {desktopOpened ? (
-              <IconLayoutSidebarLeftCollapse />
-            ) : (
-              <IconLayoutSidebarLeftExpand />
-            )}
-          </ActionIcon>
-        </Tooltip>
+    <Group justify="space-between" w="100%" wrap="nowrap">
+      <Group gap="sm" wrap="nowrap">
         <Burger
           opened={mobileOpened}
           onClick={toggleMobile}
           hiddenFrom="md"
           size="sm"
         />
+
+
+        {/* <Group gap={8} wrap="nowrap" visibleFrom="md">
+          <ListBullets size={24} weight="duotone" color={iconColor} />
+          <Text fw={500} fz={20} lh={1.2} c={brandColor}>
+            Tambah Akun
+          </Text>
+        </Group> */}
+
         {!mobile_match && (
           <TextInput
-            placeholder="search"
-            rightSection={<IconSearch size={ICON_SIZE} />}
-            ml="md"
-            style={{ width: tablet_match ? 'auto' : rem(400) }}
+            placeholder="Cari sesuatu..."
+            leftSection={<MagnifyingGlass size={20} weight="duotone" color={borderColor} />}
+            ml="xs"
+            radius={8}
+            styles={{
+              input: {
+                width: rem(334),
+                height: rem(40),
+                borderColor,
+                fontSize: rem(16),
+                lineHeight: rem(22),
+              },
+            }}
           />
         )}
       </Group>
-      <Group>
+      <Group gap="sm" wrap="nowrap">
         {mobile_match && (
-          <ActionIcon>
-            <IconSearch size={ICON_SIZE} />
+          <ActionIcon variant="subtle" radius="sm" size={40}>
+            <MagnifyingGlass size={ICON_SIZE} weight="duotone" />
           </ActionIcon>
         )}
-        <Menu shadow="lg" width={320}>
+        <Menu shadow="lg" width={320} radius="lg">
           <Menu.Target>
-            {/* <Indicator inline processing color="red" size={12}> */}
-            <Tooltip label="Messages">
-              <ActionIcon size="lg" title="Nessages" variant="transparent" color={themeColors.grey[7]}>
-                <IconHistory size={ICON_SIZE} />
-              </ActionIcon>
-            </Tooltip>
-            {/* </Indicator> */}
+            <ActionIcon size={40} title="History" variant="subtle" radius="sm" color="gray">
+              <ClockCounterClockwise size={ICON_SIZE} weight="duotone" />
+            </ActionIcon>
           </Menu.Target>
           <Menu.Dropdown>
             <Menu.Label tt="uppercase" ta="center" fw={600}>
@@ -256,14 +265,12 @@ const HeaderNav = (props: HeaderNavProps) => {
             </Menu.Item>
           </Menu.Dropdown>
         </Menu>
-        <Menu shadow="lg" width={320}>
+        <Menu shadow="lg" width={320} radius="lg">
           <Menu.Target>
-            <Indicator inline processing color="red" size={12}>
-              <Tooltip label="Notifications">
-                <ActionIcon size="lg" title="Notifications" variant="transparent" color={themeColors.grey[7]}>
-                  <IconBell size={ICON_SIZE} />
-                </ActionIcon>
-              </Tooltip>
+            <Indicator inline processing color="red" size={8} offset={6}>
+              <ActionIcon size={40} title="Notifications" variant="subtle" radius="sm" color="gray">
+                <Bell size={ICON_SIZE} weight="duotone" />
+              </ActionIcon>
             </Indicator>
           </Menu.Target>
           <Menu.Dropdown>
@@ -276,37 +283,50 @@ const HeaderNav = (props: HeaderNavProps) => {
             </Menu.Item>
           </Menu.Dropdown>
         </Menu>
-        <Menu shadow="lg" width={200}>
+        <Menu shadow="lg" width={200} radius="lg">
           <Menu.Target>
-            <Tooltip label="Logout">
-              <Button color={themeColors.grey[7]} variant="light" radius='xl' px='xs'>
-                <Group>
+            <Button
+              color="gray"
+              variant="subtle"
+              radius="xl"
+              px={8}
+              h={40}
+              style={{
+                width: rem(160),
+                backgroundColor: surfaceHoverColor,
+                border: `1px solid ${userButtonBorderColor}`,
+              }}
+            >
+              <Group gap={8} wrap="nowrap" w="100%" justify="space-between">
+                <Group gap={8} wrap="nowrap">
                   <Avatar
                     src="https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-8.png"
                     radius="xl"
-                    size={ICON_SIZE}
+                    size={24}
                   />
-                  <Text c={themeColors.defaultBlack[10]} fz={12} fw={400} >{capitalize(userName!)}</Text>
-                  <IconChevronDown style={{ width: rem(14), height: rem(14) }} stroke={1.5} color={themeColors.grey[7]} />
+                  <Text c={iconColor} fz={12} fw={500} visibleFrom="sm" lineClamp={1}>
+                    {capitalize(userName || 'Finance')}
+                  </Text>
                 </Group>
-              </Button>
-            </Tooltip>
+                <CaretDown size={16} weight="duotone" color={mutedColor} />
+              </Group>
+            </Button>
           </Menu.Target>
           <Menu.Dropdown>
             <Menu.Item
-              leftSection={<IconUserCircle size={16} />}
+              leftSection={<UserCircle size={16} weight="duotone" />}
               onClick={() => setColorScheme('light')}
             >
               Profile
             </Menu.Item>
             <Menu.Item
-              leftSection={<IconSettings size={16} />}
+              leftSection={<GearSix size={16} weight="duotone" />}
               onClick={() => setColorScheme('dark')}
             >
               Setting Account
             </Menu.Item>
             <Menu.Item
-              leftSection={<IconDoorExit size={16} />}
+              leftSection={<SignOut size={16} weight="duotone" />}
               onClick={() => navigate(routes.login)}
             >
               Logout

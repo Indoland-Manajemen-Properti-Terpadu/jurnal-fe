@@ -1,32 +1,4 @@
 export const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://jurnal-api.proapps.id';
-// export const API_AUTH = {
-//   POST_LOGIN: `${BASE_URL}/v1/auth/login`,
-//   POST_REGISTER: `${BASE_URL}/v1/auth/register`,
-// };
-
-// export const API_USERS = {
-//   GET_ALL_USER: `${BASE_URL}/v1/users`,
-// };
-
-// export const API_ACCESS_ROLE = {
-//   GET_DEFAULT_ROLE: `${BASE_URL}/v1/access-role?isDefault=true`,
-//   GET_ADDITIONAL_ROLE: `${BASE_URL}/v1/access-role`,
-// };
-
-// export const API_SITE = {
-//   GET_ALL_SITE: `${BASE_URL}/v1/site/get/by-token`,
-//   POST_SITE: `${BASE_URL}/v1/site`,
-// };
-
-// export const API_ACCOUNT_BANK = {
-//   POST_IMPORT_RECONCILLIATION: `${BASE_URL}/v1/bank-accounts/import/reconciliation`,
-// };
-
-// export const API_ACCOUNT = {
-//   GET_ALL_ACCOUNT: `${BASE_URL}/v1/accounts`,
-//   ADD_ACCOUNT: `${BASE_URL}/v1/accounts`,
-//   POST_TRANSACTION_ACCOUNT: `${BASE_URL}/v1/journal`,
-// };
 
 export const API_AUTH = {
   POST_LOGIN: `/v1/auth/login`,
