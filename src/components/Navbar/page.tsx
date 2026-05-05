@@ -47,20 +47,20 @@ const mockdata = [
           },
         ],
       },
-      {
-        label: 'Purchasing',
-        icon: IconShoppingCart,
-        links: [
-          {
-            label: 'List',
-            link: '/invoices/list',
-          },
-          {
-            label: 'Details',
-            link: '/invoices/details',
-          },
-        ],
-      },
+      // {
+      //   label: 'Purchasing',
+      //   icon: IconShoppingCart,
+      //   links: [
+      //     {
+      //       label: 'List',
+      //       link: '/invoices/list',
+      //     },
+      //     {
+      //       label: 'Details',
+      //       link: '/invoices/details',
+      //     },
+      //   ],
+      // },
       { label: 'Cost', icon: IconReportMoney, link: '/finance/cost' },
       { label: 'Contact', icon: IconAddressBook, link: '/contact' },
     ],
@@ -96,7 +96,7 @@ const mockdata = [
       //     },
       //   ],
       // },
-      { label: 'Fullfillment', icon: IconReceipt2, link: '/fullfillment' },
+      // { label: 'Fullfillment', icon: IconReceipt2, link: '/fullfillment' },
       { label: 'Assets', icon: IconPackages, link: '/assets' },
     ],
   },

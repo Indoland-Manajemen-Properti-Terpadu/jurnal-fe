@@ -21,20 +21,25 @@ import {
   IconChevronDown,
 } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
-import { PageHeader } from '@/components';
-import { routes } from '@/router';
-import { gradientColors, themeColors } from '@/theme';
 import { useEffect, useState } from 'react';
-import { BeginningBalanceModal } from '@/module/GeneralJournal/BeginningBalance/components/BeginningBalanceModal';
-import { PeriodAndClosingBooksModal } from '@/module/GeneralJournal/PeriodeLockAndClosingBooks/components/PeriodAndClosingBooksModal';
-import { SettingAccountModal } from '@/module/GeneralJournal/SettingAccount/pages/SettingAccountModal';
-import { useDeleteJurnalAccount } from '../../JournalAccount/service/DeleteTransaction.service';
-import TableAccounts from '@/module/GeneralJournal/Main/components/TableJournalAccount/TableAccount';
+
+// Shared imports using barrel exports
+import { PageHeader } from '@components';
+import { routes } from '@router';
+import { themeColors } from '@theme';
+import { useAccountStore } from '@store';
+
+// Feature imports
+import {
+  useDeleteJurnalAccount,
+  GetJournalAccounts
+} from '@features/GeneralJournal/JournalAccount/service';
+import { GetDraftAccount } from '@features/GeneralJournal/BeginningBalance/service/SetDraftBalance.service';
+import { BeginningBalanceModal } from '@features/GeneralJournal/BeginningBalance/components/BeginningBalanceModal';
+import { PeriodAndClosingBooksModal } from '@features/GeneralJournal/PeriodeLockAndClosingBooks/components/PeriodAndClosingBooksModal';
+import { SettingAccountModal } from '@features/GeneralJournal/SettingAccount/pages/SettingAccountModal';
+import TableAccounts from '@features/GeneralJournal/Main/components/TableJournalAccount/TableAccount';
 import GeneralJournalLayout from './Layout';
-import useAccountStore from '@/store/useAccountLedger';
-import { GetJournalAccounts } from '../../JournalAccount/service/AccountJournal.service';
-import { GetDraftAccount } from '../../BeginningBalance/service/SetDraftBalance.service';
-import clasess from './GeneralJournal.module.css'
 
 
 const PAPER_PROPS = {
