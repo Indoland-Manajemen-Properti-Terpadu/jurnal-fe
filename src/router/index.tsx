@@ -43,7 +43,16 @@ import DetailContactPage from '@/module/Contact/view/DetailContact';
 import TransactionDetailByContact from '@/module/Contact/view/TransactionDetailByContact';
 
 // Base Module Routes
-import BaseModulePage from '@/components/BaseModulePage';
+import BudgetPlanningPage from '@/module/BudgetPlanning/view/BudgetPlanningPage';
+import PembelianPage from '@/module/Pembelian/view/PembelianPage';
+import CostPage from '@/module/Cost/view/CostPage';
+import ProdukPage from '@/module/Produk/view/ProdukPage';
+import ProductionPage from '@/module/Production/view/ProductionPage';
+import FulfillmentPage from '@/module/Fulfillment/view/FulfillmentPage';
+import AssetPage from '@/module/Asset/view/AssetPage';
+import KontakPage from '@/module/Kontak/view/KontakPage';
+import CompanySettingPage from '@/module/SettingMenu/CompanySetting/view/CompanySettingPage';
+import ApprovalSettingPage from '@/module/SettingMenu/ApprovalSetting/view/ApprovalSettingPage';
 
 // Routes Configuration
 export const routes = {
@@ -308,47 +317,47 @@ const router = createBrowserRouter([
 
   {
     path: routes.baseModules.budgetPlanning,
-    element: <BaseModulePage title="Perencanaan Anggaran" description="Modul dasar Perencanaan Anggaran. Fitur detail menyusul tahap pengembangan berikutnya." routePath={routes.baseModules.budgetPlanning} />,
+    element: <BudgetPlanningPage />,
   },
   {
     path: routes.baseModules.pembelian,
-    element: <BaseModulePage title="Pembelian" description="Modul dasar Pembelian. Fitur detail menyusul tahap pengembangan berikutnya." routePath={routes.baseModules.pembelian} />,
+    element: <PembelianPage />,
   },
   {
     path: routes.baseModules.cost,
-    element: <BaseModulePage title="Biaya" description="Modul dasar Biaya. Fitur detail menyusul tahap pengembangan berikutnya." routePath={routes.baseModules.cost} />,
+    element: <CostPage />,
   },
   {
     path: routes.baseModules.products,
-    element: <BaseModulePage title="Produk" description="Modul dasar Produk. Fitur detail menyusul tahap pengembangan berikutnya." routePath={routes.baseModules.products} />,
+    element: <ProdukPage />,
   },
   {
     path: routes.baseModules.production,
-    element: <BaseModulePage title="Produksi" description="Modul dasar Produksi. Fitur detail menyusul tahap pengembangan berikutnya." routePath={routes.baseModules.production} />,
+    element: <ProductionPage />,
   },
   {
     path: routes.baseModules.fulfillment,
-    element: <BaseModulePage title="Pemenuhan" description="Modul dasar Pemenuhan. Fitur detail menyusul tahap pengembangan berikutnya." routePath={routes.baseModules.fulfillment} />,
+    element: <FulfillmentPage />,
   },
   {
     path: routes.baseModules.assets,
-    element: <BaseModulePage title="Aset Operasional" description="Modul dasar Aset Operasional. Fitur detail menyusul tahap pengembangan berikutnya." routePath={routes.baseModules.assets} />,
+    element: <AssetPage />,
   },
   {
     path: routes.baseModules.assetMaster,
-    element: <BaseModulePage title="Asset" description="Modul dasar Asset Master Data. Fitur detail menyusul tahap pengembangan berikutnya." routePath={routes.baseModules.assetMaster} />,
+    element: <AssetPage />,
   },
   {
     path: routes.baseModules.contactsMaster,
-    element: <BaseModulePage title="Kontak" description="Modul dasar Kontak Master Data. Fitur detail menyusul tahap pengembangan berikutnya." routePath={routes.baseModules.contactsMaster} />,
+    element: <KontakPage />,
   },
   {
     path: routes.baseModules.companySetting,
-    element: <BaseModulePage title="Company Setting" description="Modul dasar Company Setting. Fitur detail menyusul tahap pengembangan berikutnya." routePath={routes.baseModules.companySetting} />,
+    element: <CompanySettingPage />,
   },
   {
     path: routes.baseModules.approvalSetting,
-    element: <BaseModulePage title="Approval Setting" description="Modul dasar Approval Setting. Fitur detail menyusul tahap pengembangan berikutnya." routePath={routes.baseModules.approvalSetting} />,
+    element: <ApprovalSettingPage />,
   },
 ]);
 
