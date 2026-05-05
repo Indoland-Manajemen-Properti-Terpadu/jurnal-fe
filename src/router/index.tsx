@@ -42,6 +42,9 @@ import AddContactPage from '@/module/Contact/view/AddContact';
 import DetailContactPage from '@/module/Contact/view/DetailContact';
 import TransactionDetailByContact from '@/module/Contact/view/TransactionDetailByContact';
 
+// Base Module Routes
+import BaseModulePage from '@/components/BaseModulePage';
+
 // Routes Configuration
 export const routes = {
   notFound: '*',
@@ -109,7 +112,21 @@ export const routes = {
     generalLedgerReport: '/result-reports/business-overview/general-ledger',
     equityChanges: '/result-reports/business-overview/equity-changes',
     budgetManagement: '/result-reports/business-overview/budget-management',
-  }
+  },
+
+  baseModules: {
+    budgetPlanning: '/budget-planning',
+    pembelian: '/pembelian',
+    cost: '/finance/cost',
+    products: '/products',
+    production: '/production',
+    fulfillment: '/fulfillment',
+    assets: '/assets',
+    assetMaster: '/asset',
+    contactsMaster: '/kontak',
+    companySetting: '/settings/company-setting',
+    approvalSetting: '/settings/approval-setting',
+  },
 };
 
 const router = createBrowserRouter([
@@ -289,6 +306,50 @@ const router = createBrowserRouter([
     element: <NotFound />,
   },
 
+  {
+    path: routes.baseModules.budgetPlanning,
+    element: <BaseModulePage title="Perencanaan Anggaran" description="Modul dasar Perencanaan Anggaran. Fitur detail menyusul tahap pengembangan berikutnya." routePath={routes.baseModules.budgetPlanning} />,
+  },
+  {
+    path: routes.baseModules.pembelian,
+    element: <BaseModulePage title="Pembelian" description="Modul dasar Pembelian. Fitur detail menyusul tahap pengembangan berikutnya." routePath={routes.baseModules.pembelian} />,
+  },
+  {
+    path: routes.baseModules.cost,
+    element: <BaseModulePage title="Biaya" description="Modul dasar Biaya. Fitur detail menyusul tahap pengembangan berikutnya." routePath={routes.baseModules.cost} />,
+  },
+  {
+    path: routes.baseModules.products,
+    element: <BaseModulePage title="Produk" description="Modul dasar Produk. Fitur detail menyusul tahap pengembangan berikutnya." routePath={routes.baseModules.products} />,
+  },
+  {
+    path: routes.baseModules.production,
+    element: <BaseModulePage title="Produksi" description="Modul dasar Produksi. Fitur detail menyusul tahap pengembangan berikutnya." routePath={routes.baseModules.production} />,
+  },
+  {
+    path: routes.baseModules.fulfillment,
+    element: <BaseModulePage title="Pemenuhan" description="Modul dasar Pemenuhan. Fitur detail menyusul tahap pengembangan berikutnya." routePath={routes.baseModules.fulfillment} />,
+  },
+  {
+    path: routes.baseModules.assets,
+    element: <BaseModulePage title="Aset Operasional" description="Modul dasar Aset Operasional. Fitur detail menyusul tahap pengembangan berikutnya." routePath={routes.baseModules.assets} />,
+  },
+  {
+    path: routes.baseModules.assetMaster,
+    element: <BaseModulePage title="Asset" description="Modul dasar Asset Master Data. Fitur detail menyusul tahap pengembangan berikutnya." routePath={routes.baseModules.assetMaster} />,
+  },
+  {
+    path: routes.baseModules.contactsMaster,
+    element: <BaseModulePage title="Kontak" description="Modul dasar Kontak Master Data. Fitur detail menyusul tahap pengembangan berikutnya." routePath={routes.baseModules.contactsMaster} />,
+  },
+  {
+    path: routes.baseModules.companySetting,
+    element: <BaseModulePage title="Company Setting" description="Modul dasar Company Setting. Fitur detail menyusul tahap pengembangan berikutnya." routePath={routes.baseModules.companySetting} />,
+  },
+  {
+    path: routes.baseModules.approvalSetting,
+    element: <BaseModulePage title="Approval Setting" description="Modul dasar Approval Setting. Fitur detail menyusul tahap pengembangan berikutnya." routePath={routes.baseModules.approvalSetting} />,
+  },
 ]);
 
 export function Router() {

@@ -1,5 +1,3 @@
-
-
 import {
   Paper,
   TextInput,
@@ -59,7 +57,7 @@ function LoginPage() {
       <Grid.Col span={6} p={0}  >
         <Carousel
           ref={carouselRef}
-          loop
+          emblaOptions={{ loop: true }}
           height="100%"
           withControls={false}
           withIndicators
@@ -73,7 +71,7 @@ function LoginPage() {
                 height="100%"
               />
               <Overlay
-                gradient="linear-gradient(180deg, rgba(255, 255, 255, 0.00) 0%, #115E59 100%)"
+                gradient="var(--jurnal-gradient-teal-overlay)"
                 opacity={0.85}
                 zIndex={1}
               />

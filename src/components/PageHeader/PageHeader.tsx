@@ -84,7 +84,7 @@ const PageHeader = (props: PageHeaderProps) => {
         gap={{ base: 'sm', sm: 4 }}
       >
         <Stack>
-          <Title order={3}>{title}</Title>
+          <Title order={5}>{title}</Title>
           {breadcrumbItems && (
             <Text variant="gradient" gradient={gradientColors.gradient} fz={12} fw={400}>
               <Breadcrumbs {...BREADCRUMBS_PROPS}>{breadcrumbItems}</Breadcrumbs>

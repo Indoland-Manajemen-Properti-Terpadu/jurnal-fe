@@ -40,21 +40,21 @@
 }
 
 .table-thead {
-  background-color: #f8f9fa;
+  background-color: var(--jurnal-color-bg-subtle);
 }
 
 .table-th {
-  font-size: 14px;
+  font-size: var(--jurnal-text-sm);
   font-weight: 500;
-  color: #000000;
-  padding: 12px 16px;
-  border-bottom: 1px solid #e9ecef;
+  color: var(--jurnal-color-text-primary);
+  padding: var(--jurnal-spacing-sm) var(--jurnal-spacing-base);
+  border-bottom: 1px solid var(--jurnal-color-border-muted);
 }
 
 .table-td {
-  font-size: 14px;
-  padding: 12px 16px;
-  border-bottom: 1px solid #f1f3f5;
+  font-size: var(--jurnal-text-sm);
+  padding: var(--jurnal-spacing-sm) var(--jurnal-spacing-base);
+  border-bottom: 1px solid var(--jurnal-color-surface-muted);
 }
 
 .table-tr {
@@ -62,7 +62,7 @@
 }
 
 .table-tr:hover {
-  background-color: #f8f9fa;
+  background-color: var(--jurnal-color-bg-subtle);
 }
 
 /* Modal Styles */
@@ -82,13 +82,13 @@
 }
 
 .mantine-datatable-header {
-  background-color: #f8f9fa;
+  background-color: var(--jurnal-color-bg-subtle);
   font-weight: 500;
-  font-size: 14px;
+  font-size: var(--jurnal-text-sm);
 }
 
 .mantine-datatable-row:hover {
-  background-color: #f8f9fa;
+  background-color: var(--jurnal-color-bg-subtle);
   transition: background-color 150ms ease;
 }
 
@@ -98,8 +98,8 @@
 
 /* DataTable Pagination */
 .mantine-datatable-pagination {
-  padding: 16px;
-  border-top: 1px solid #e9ecef;
+  padding: var(--jurnal-spacing-base);
+  border-top: 1px solid var(--jurnal-color-border-muted);
 }
 
 /* =============================================
@@ -113,18 +113,18 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f3f5;
-  border-radius: 4px;
+  background: var(--jurnal-color-surface-muted);
+  border-radius: var(--jurnal-radius-md);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #adb5bd;
-  border-radius: 4px;
+  background: var(--mantine-color-grey-5);
+  border-radius: var(--jurnal-radius-md);
   transition: background 150ms ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #868e96;
+  background: var(--mantine-color-grey-6);
 }
 
 /* =============================================
@@ -224,4 +224,63 @@
   .print-full-width {
     width: 100% !important;
   }
+}
+
+/* =============================================
+   Figma Design Tokens
+   Source: Design-System-Lite
+   ============================================= */
+:root {
+  --jurnal-font-family: Figtree, Montserrat, sans-serif;
+
+  --jurnal-color-white: var(--mantine-color-white);
+  --jurnal-color-black: var(--mantine-color-defaultBlack-10);
+  --jurnal-color-primary: var(--mantine-color-primary-6);
+  --jurnal-color-primary-subtle: var(--mantine-color-primary-0);
+  --jurnal-color-text-primary: #111827;
+  --jurnal-color-text-secondary: #6b7280;
+  --jurnal-color-text-muted: var(--mantine-color-grey-5);
+  --jurnal-color-border-subtle: #e5e7eb;
+  --jurnal-color-border-muted: var(--mantine-color-grey-2);
+  --jurnal-color-border-strong: var(--mantine-color-grey-4);
+  --jurnal-color-bg-subtle: #f9fafb;
+  --jurnal-color-surface: var(--mantine-color-white);
+  --jurnal-color-surface-hover: var(--mantine-color-figmaGray-0);
+  --jurnal-color-surface-muted: var(--mantine-color-grey-1);
+  --jurnal-color-success: #22c55e;
+  --jurnal-color-success-subtle: var(--mantine-color-green-0);
+  --jurnal-color-warning: #f59e0b;
+  --jurnal-color-danger: #ef4444;
+  --jurnal-color-danger-subtle: var(--mantine-color-figmaRed-0);
+  --jurnal-color-info: #0ea5e9;
+  --jurnal-gradient-brand: linear-gradient(90deg, #00b194, #1c8fd4);
+  --jurnal-gradient-teal-overlay: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0) 0%,
+    var(--mantine-color-primary-8) 100%
+  );
+
+  --jurnal-text-xs: 12px;
+  --jurnal-text-sm: 14px;
+  --jurnal-text-md: 16px;
+  --jurnal-text-lg: 18px;
+  --jurnal-text-xl: 20px;
+
+  --jurnal-spacing-xs: 8px;
+  --jurnal-spacing-sm: 12px;
+  --jurnal-spacing-base: 16px;
+  --jurnal-spacing-md: 20px;
+  --jurnal-spacing-lg: 24px;
+  --jurnal-spacing-xl: 28px;
+  --jurnal-spacing-2xl: 32px;
+  --jurnal-spacing-3xl: 40px;
+  --jurnal-spacing-4xl: 48px;
+
+  --jurnal-radius-sm: 2px;
+  --jurnal-radius-md: 4px;
+  --jurnal-radius-lg: 8px;
+  --jurnal-radius-xl: 12px;
+  --jurnal-radius-2xl: 16px;
+  --jurnal-radius-3xl: 24px;
+  --jurnal-radius-full: 999px;
 }

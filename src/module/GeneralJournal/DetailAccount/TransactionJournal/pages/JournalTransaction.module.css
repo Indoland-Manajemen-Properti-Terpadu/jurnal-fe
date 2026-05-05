@@ -21,10 +21,10 @@
   justify-content: flex-end;
   align-items: flex-end;
   display: flex;
-  margin-right: 20px;
+  margin-right: var(--jurnal-spacing-md);
 }
 
 .table th {
-  background-color: #f0fdfa; /* Custom background color */
-  color: #000000; /* Text color */
+  background-color: var(--jurnal-color-primary-subtle);
+  color: var(--jurnal-color-text-primary);
 }

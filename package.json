@@ -30,6 +30,7 @@
     "@mantine/notifications": "^8.3.14",
     "@mantine/tiptap": "^8.3.14",
     "@mantinex/mantine-logo": "^1.0.1",
+    "@phosphor-icons/react": "^2.1.10",
     "@tabler/icons-react": "^3.6.0",
     "@tanstack/react-query": "^5.52.2",
     "@tiptap/extension-link": "^2.5.4",

@@ -9,9 +9,9 @@
 }
 
 .activeBadge {
-  --badge-dot-color: 'green';
-  --badge-bg: '#EBFBEE';
-  --badge-color: '#40C057';
+  --badge-dot-color: var(--jurnal-color-success);
+  --badge-bg: var(--jurnal-color-success-subtle);
+  --badge-color: var(--jurnal-color-success);
   --badge-bd: none;
-  --badge-radius: 'sm';
+  --badge-radius: 4px;
 }

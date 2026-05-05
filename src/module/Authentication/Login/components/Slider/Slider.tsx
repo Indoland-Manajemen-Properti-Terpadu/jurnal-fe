@@ -28,7 +28,7 @@ export default function Slider() {
     return (
         <Carousel
             mx="auto"
-            loop
+            emblaOptions={{ loop: true }}
             // withIndicators
             height='100%'
         >
@@ -36,8 +36,10 @@ export default function Slider() {
                 return (
                     <Carousel.Slide key={item.id}>
                         <Image src={item.src} p={0} m={0} />
-                        <Overlay gradient="linear-gradient(180deg, rgba(255, 255, 255, 0.00) 0%, #115E59 100%)"
-                            opacity={0.85} />
+                        <Overlay
+                            gradient="var(--jurnal-gradient-teal-overlay)"
+                            opacity={0.85}
+                        />
                         <Center>
                             <>
                                 <Text size="lg" w={"bold"}>
