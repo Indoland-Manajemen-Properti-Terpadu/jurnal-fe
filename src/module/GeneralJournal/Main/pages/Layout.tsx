@@ -51,11 +51,11 @@ function GeneralJournalLayout({ children }: Readonly<Props>) {
       <AppShell.Main>
         <AppMain>{children}</AppMain>
       </AppShell.Main>
-      <AppShell.Footer p="md">
+      {/* <AppShell.Footer p="md">
         <Container fluid px="lg">
           <FooterNav />
         </Container>
-      </AppShell.Footer>
+      </AppShell.Footer> */}
     </AppShell>
   );
 }
