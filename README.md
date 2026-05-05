@@ -27,6 +27,7 @@
 - [Build dan Preview Produksi](#build-dan-preview-produksi)
 - [Panduan Kontribusi](#panduan-kontribusi)
 - [Catatan Pengembangan](#catatan-pengembangan)
+- [Design Guardrail untuk AI Agent](#design-guardrail-untuk-ai-agent)
 
 ---
 
@@ -344,13 +345,57 @@ Gunakan alur kerja berikut untuk kontribusi internal:
 
 ## Catatan Pengembangan
 
-- Prioritaskan komponen reusable untuk pola UI yang berulang.
-- Tambahkan type TypeScript untuk request, response, dan state penting.
-- Hindari duplikasi logic API antar modul.
-- Gunakan React Query untuk data server yang perlu caching, refetching, atau invalidation.
-- Gunakan Zustand untuk state aplikasi yang benar-benar perlu dibagikan lintas komponen.
-- Pastikan setiap halaman penting memiliki loading, empty, dan error state.
-- Dokumentasikan komponen reusable baru melalui Storybook bila relevan.
+- Proyek saat ini menggunakan Mantine v8.
+- Prioritas stabilitas dan konsistensi UI lebih diutamakan daripada upgrade mayor framework.
+
+---
+
+## Design Guardrail untuk AI Agent
+
+Tujuan section ini: memastikan semua output AI tetap konsisten dengan design system proyek dan tidak keluar konteks.
+
+### Sumber kebenaran (source of truth)
+
+Wajib rujuk urutan berikut:
+
+1. Figma tokens resmi proyek:
+   - Color: https://www.figma.com/design/I3tHoLYN005e1bUjQWlkAL/Jurnal-Figma-Fix?node-id=2-493&m=dev
+   - Text Style: https://www.figma.com/design/I3tHoLYN005e1bUjQWlkAL/Jurnal-Figma-Fix?node-id=2-4400&m=dev
+   - Spacing: https://www.figma.com/design/I3tHoLYN005e1bUjQWlkAL/Jurnal-Figma-Fix?node-id=2-5511&m=dev
+   - Radius: https://www.figma.com/design/I3tHoLYN005e1bUjQWlkAL/Jurnal-Figma-Fix?node-id=2-6791&m=dev
+2. Theme lokal repo:
+   - [src/theme.ts](src/theme.ts)
+   - [src/theme/index.ts](src/theme/index.ts)
+   - [src/theme/constants.ts](src/theme/constants.ts)
+   - [src/theme/globalStyles.css](src/theme/globalStyles.css)
+3. Komponen reusable existing di `src/components`.
+
+### Aturan wajib implementasi AI
+
+- Wajib gunakan Mantine v8. Dilarang API/pola Mantine v9.
+- Wajib pakai token dari theme. Hindari hardcode hex, spacing px, radius px kalau token sudah ada.
+- Wajib pakai `themeColors`, `spacing`, `radius`, `fontSizes`, `headings` dari konfigurasi theme.
+- Wajib konsisten typography `Montserrat` sesuai theme.
+- Wajib konsisten icon style untuk area app shell: Phosphor `weight="duotone"`.
+- Wajib gunakan CSS Modules atau classNames API Mantine sesuai pola proyek.
+- Wajib sediakan state `loading`, `empty`, `error` untuk komponen berbasis data.
+- Wajib reuse komponen existing sebelum membuat komponen baru.
+
+### Checklist review sebelum merge
+
+- [ ] Tidak ada literal style yang melanggar token design system.
+- [ ] Tidak ada penggunaan API Mantine v9.
+- [ ] Header/sidebar mengikuti pola AppShell terbaru (desktop collapse = icon rail).
+- [ ] Typecheck, lint, test minimum untuk area yang berubah sudah dijalankan.
+- [ ] Visual hasil implementasi sesuai referensi Figma node terkait.
+
+### Fallback saat akses Figma MCP gagal
+
+Jika AI tidak bisa menarik context Figma secara otomatis (mis. unauthorized), AI tetap harus:
+
+1. Menggunakan URL Figma di atas sebagai referensi manual.
+2. Mengutamakan token dari file theme lokal sebagai sumber implementasi.
+3. Menolak membuat style baru yang bertentangan dengan token eksisting kecuali diminta eksplisit.
 
 ---
 

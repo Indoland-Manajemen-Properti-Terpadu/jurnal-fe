@@ -15,8 +15,8 @@ const TotalSent = () => {
             align="center"
             style={{
                 whiteSpace: 'nowrap',
-                backgroundColor: '#f8f9fa',
-                borderRadius: '8px',
+                backgroundColor: 'var(--jurnal-color-surface-muted)',
+                borderRadius: 'var(--jurnal-radius-lg)',
             }}
         >
             <HeadingText fz={14} fw={600}>Sent From</HeadingText>

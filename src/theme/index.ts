@@ -1,4 +1,5 @@
 import { themeColors } from '@/theme';
+import { figmaRadius, figmaSpacing, figmaTypography, semanticColors } from './constants';
 import {
   ActionIcon,
   Button,
@@ -18,46 +19,70 @@ import {
  * No more sx prop or styles API
  */
 export const myTheme = createTheme({
-  primaryColor: 'cyan',
+  primaryColor: 'figmaCyan',
   fontSmoothing: true,
   defaultRadius: 'md',
-  fontFamily: 'Montserrat, sans-serif',
+  fontFamily: figmaTypography.fontFamily,
 
   headings: {
-    fontFamily: 'Montserrat, sans-serif',
+    fontFamily: figmaTypography.fontFamily,
     fontWeight: '600',
     sizes: {
-      h1: { fontSize: rem(32), lineHeight: '1.3' },
-      h2: { fontSize: rem(24), lineHeight: '1.35' },
-      h3: { fontSize: rem(20), lineHeight: '1.4' },
-      h4: { fontSize: rem(18), lineHeight: '1.45' },
-      h5: { fontSize: rem(16), lineHeight: '1.5' },
-      h6: { fontSize: rem(14), lineHeight: '1.5' },
+      h1: {
+        fontSize: figmaTypography.heading.h1.fontSize,
+        lineHeight: figmaTypography.heading.h1.lineHeight,
+        fontWeight: '600',
+      },
+      h2: {
+        fontSize: figmaTypography.heading.h2.fontSize,
+        lineHeight: figmaTypography.heading.h2.lineHeight,
+        fontWeight: '600',
+      },
+      h3: {
+        fontSize: figmaTypography.heading.h3.fontSize,
+        lineHeight: figmaTypography.heading.h3.lineHeight,
+        fontWeight: '600',
+      },
+      h4: {
+        fontSize: figmaTypography.heading.h4.fontSize,
+        lineHeight: figmaTypography.heading.h4.lineHeight,
+        fontWeight: '600',
+      },
+      h5: {
+        fontSize: figmaTypography.heading.h5.fontSize,
+        lineHeight: figmaTypography.heading.h5.lineHeight,
+        fontWeight: '600',
+      },
+      h6: {
+        fontSize: figmaTypography.heading.h6.fontSize,
+        lineHeight: figmaTypography.heading.h6.lineHeight,
+        fontWeight: '600',
+      },
     },
   },
 
   fontSizes: {
-    xs: rem(12),
-    sm: rem(14),
-    md: rem(16),
-    lg: rem(18),
-    xl: rem(20),
+    xs: figmaTypography.body.body4.fontSize,
+    sm: figmaTypography.body.body3.fontSize,
+    md: figmaTypography.body.body2.fontSize,
+    lg: figmaTypography.body.body1.fontSize,
+    xl: figmaTypography.heading.h6.fontSize,
   },
 
   spacing: {
-    xs: rem(8),
-    sm: rem(12),
-    md: rem(16),
-    lg: rem(20),
-    xl: rem(24),
+    xs: figmaSpacing.xs,
+    sm: figmaSpacing.sm,
+    md: figmaSpacing.base,
+    lg: figmaSpacing.md,
+    xl: figmaSpacing.lg,
   },
 
   radius: {
-    xs: rem(4),
-    sm: rem(6),
-    md: rem(8),
-    lg: rem(12),
-    xl: rem(16),
+    xs: figmaRadius.sm,
+    sm: figmaRadius.md,
+    md: figmaRadius.lg,
+    lg: figmaRadius.xl,
+    xl: figmaRadius['2xl'],
   },
 
   shadows: {
@@ -146,19 +171,11 @@ export const myTheme = createTheme({
 
   // Custom properties for reusable values
   other: {
-    tableStyles: {
-      head: {
-        borderColor: themeColors.grey[1],
-        borderWidth: '1px',
-        borderStyle: 'solid',
-        fontWeight: 500,
-        fontSize: 14,
-      },
-      row: {
-        borderColor: themeColors.grey[1],
-        borderWidth: '1px',
-        borderStyle: 'solid',
-      },
+    figma: {
+      spacing: figmaSpacing,
+      radius: figmaRadius,
+      typography: figmaTypography,
+      colors: semanticColors,
     },
   },
 });
