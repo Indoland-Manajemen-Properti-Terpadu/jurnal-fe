@@ -1,6 +1,7 @@
 export const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://jurnal-api.proapps.id';
 
 export const API_AUTH = {
+  POST_OAUTH_EXCHANGE: `/v1/auth/oauth/exchange`,
   POST_LOGIN: `/v1/auth/login`,
   POST_REGISTER: `/v1/auth/register`,
 };

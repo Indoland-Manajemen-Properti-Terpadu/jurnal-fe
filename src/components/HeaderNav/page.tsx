@@ -139,7 +139,7 @@ type HeaderNavProps = {
 };
 
 const HeaderNav = (props: HeaderNavProps) => {
-  const { userName } = useAuthStore();
+  const { userName, clearTokens } = useAuthStore();
   const { desktopOpened, toggleDesktop, toggleMobile, mobileOpened } = props;
   const theme = useMantineTheme();
   const iconColor = theme.colors.defaultBlack[10];
@@ -315,7 +315,7 @@ const HeaderNav = (props: HeaderNavProps) => {
           <Menu.Dropdown>
             <Menu.Item
               leftSection={<UserCircle size={16} weight="duotone" />}
-              onClick={() => setColorScheme('light')}
+              onClick={() => navigate(routes.profile)}
             >
               Profile
             </Menu.Item>
@@ -327,7 +327,7 @@ const HeaderNav = (props: HeaderNavProps) => {
             </Menu.Item>
             <Menu.Item
               leftSection={<SignOut size={16} weight="duotone" />}
-              onClick={() => navigate(routes.login)}
+              onClick={() => { clearTokens(); navigate(routes.login); }}
             >
               Logout
             </Menu.Item>

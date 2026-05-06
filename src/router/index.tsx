@@ -1,7 +1,9 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { NotFound } from '@/components/ErrorPage/NotFound';
 import LandingPage from '@/module/LandingPage/pages/LandingPage';
+import ProfilePage from '@/module/Profile/pages/ProfilePage';
 import LoginPage from '@/module/Authentication/Login/pages/LoginPage';
+import OAuthCallback from '@/module/Authentication/Login/pages/OAuthCallback';
 import MainDashboard from '@/module/Dashboard/page/page';
 
 // General Journal Module
@@ -59,7 +61,9 @@ export const routes = {
   notFound: '*',
   landingPage: '/',
   login: '/login',
+  oauthCallback: '/callback',
   dashboard: '/dashboard',
+  profile: '/profile',
 
   BankAndCash: {
     Main: '/bank-cash',
@@ -148,8 +152,16 @@ const router = createBrowserRouter([
     element: <LoginPage />,
   },
   {
+    path: routes.oauthCallback,
+    element: <OAuthCallback />,
+  },
+  {
     path: routes.dashboard,
     element: <MainDashboard />,
+  },
+  {
+    path: routes.profile,
+    element: <ProfilePage />,
   },
 
 
