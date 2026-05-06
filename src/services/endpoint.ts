@@ -35,6 +35,7 @@ export const API_ACCOUNT = {
   DEL_TRANSACTION_ACCOUNT: `${BASE_URL}/v1/journal`,
 
   GET_CATEGORY_ACCOUNT: `${BASE_URL}/v1/category-accounts`,
+  GET_CATEGORY_INFO: `${BASE_URL}/v1/accounts/category-info`,
 
   GET_DRAFT_BALANCE: `${BASE_URL}/v1/accounts/get/draft-start-amount`,
   POST_DRAFT_BALANCE: `${BASE_URL}/v1/accounts/set/draft-start-amount`,
