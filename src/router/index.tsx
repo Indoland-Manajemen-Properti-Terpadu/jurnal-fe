@@ -11,8 +11,8 @@ import GeneralJournalPage from '@/module/GeneralJournal/Main/pages/GeneralJourna
 import AddAccountjournalPage from '@/module/GeneralJournal/JournalAccount/pages/AddAccount/AddAccountJournal';
 import AddJournalTransactionForm from '@/module/GeneralJournal/DetailAccount/TransactionJournal/components/Form/AddJournalTransactionForm';
 import JournalTransactionDetailPage from '@/module/GeneralJournal/DetailAccount/TransactionJournal/pages/JournalTransactionDetail';
-import DetailAccount from '@/module/GeneralJournal/DetailAccount/Main/page/DetailAccountPage';
-import DetailAccountNonCashBank from '@/module/GeneralJournal/DetailAccount/Main/page/DetailAccountNonCashBankPage';
+import DetailAccount from '@/module/GeneralJournal/DetailAccount/Main/pages/DetailAccountPage';
+import DetailAccountNonCashBank from '@/module/GeneralJournal/DetailAccount/Main/pages/DetailAccountNonCashBankPage';
 import BeginningBalancePage from '@/module/GeneralJournal/BeginningBalance/pages/BeginningBalancePage';
 import ClosingBooksPage from '@/module/GeneralJournal/PeriodeLockAndClosingBooks/pages/ClosingBooks';
 

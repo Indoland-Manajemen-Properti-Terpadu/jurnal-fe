@@ -1,12 +1,10 @@
-
-
 import { ActionIcon, Anchor, Button, Center, Checkbox, Text, Flex, Grid, Menu, Paper, PaperProps, rem, Select, Stack, TextInput, Container, Badge } from '@mantine/core';
 import { themeColors } from '@/theme';
 import { IconChevronDown, IconDots, IconInfoCircle, IconSearch, IconTrash } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
-import { useDeleteJurnalAccount } from '@/module/GeneralJournal/JournalAccount/service/DeleteTransaction.service';
+import { useDeleteJurnalAccount } from '@/module/GeneralJournal/JournalAccount/services/DeleteTransaction.service';
 import { useState } from 'react';
-import { GetJournalAccounts } from '@/module/GeneralJournal/JournalAccount/service/AccountJournal.service';
+import { useJournalAccounts } from '@/module/GeneralJournal/JournalAccount/hooks/useJournalAccounts';
 import { NotFound } from '@/components/ErrorPage/NotFound';
 import EmptyState from '@/components/EmptyState/EmptyTable';
 import { formatCurrency } from '@/utils/FormatCurrency';
@@ -46,7 +44,7 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
 
 export default function TableTransactionByContact() {
     const navigate = useNavigate();
-    const { accounts, isError, isEmpty } = GetJournalAccounts();
+    const { accounts, isError, isEmpty } = useJournalAccounts();
     const JournalAccounts = Array.isArray(accounts) ? accounts : [];
     const categoryAccounts = Array.from(new Set(JournalAccounts.map((account) => account.category?.name).filter((name): name is string => Boolean(name))));
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);

@@ -3,7 +3,7 @@ import { ActionIcon, Box, Button, Group, SimpleGrid, Stack, Table, Text } from "
 import { themeColors } from "@/theme";
 import { formatCurrency } from "@/utils/FormatCurrency";
 import EmptyState from "@/components/EmptyState/EmptyTable";
-import { GetReconciliation } from "../service/GetReconciliation.service";
+import { GetReconciliation } from "../services/GetReconciliation.service";
 import { useParams } from "react-router-dom";
 import { dateFormatV1 } from "@/utils/FormatDate";
 import { IconTrash } from "@tabler/icons-react";

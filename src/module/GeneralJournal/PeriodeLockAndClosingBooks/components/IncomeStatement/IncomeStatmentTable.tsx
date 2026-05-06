@@ -2,7 +2,7 @@ import React from "react";
 import { Box, Group, Stack, Table, Text } from "@mantine/core";
 import { gradientColors, themeColors } from "@/theme";
 import { formatCurrency } from "@/utils/FormatCurrency";
-import { GetJournalAccounts } from "@/module/GeneralJournal/JournalAccount/service/AccountJournal.service";
+import { useJournalAccounts } from "@/module/GeneralJournal/JournalAccount/hooks/useJournalAccounts";
 import { JournalAccounts } from "@/module/GeneralJournal/JournalAccount/types/JournalAccountModel";
 import IncomeStatementTableRow, { CostofRevenueRow, NonOperatingExpensesRow, NonOperatingIncomeRow, ProfitandTaxRow } from "./TableRow";
 import EmptyState from "@/components/EmptyState/EmptyTable";
@@ -21,7 +21,7 @@ const headTableStyle = {
 }
 
 const IncomeStatementTable: React.FC = () => {
-    const { accounts, isError } = GetJournalAccounts();
+    const { accounts, isError } = useJournalAccounts();
 
     if (isError) {
         return <Text c="red">Failed to load data.</Text>;

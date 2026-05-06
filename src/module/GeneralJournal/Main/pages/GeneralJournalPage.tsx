@@ -28,35 +28,36 @@ import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 
 // Shared imports using barrel exports
-import { PageHeader } from '@components';
-import { routes } from '@router';
-import { useAccountStore } from '@store';
+import { PageHeader } from '@/components';
+import { routes } from '@/router';
+import { useAccountStore, useJournalAccountStore } from '@/store';
 import classes from './GeneralJournal.module.css';
 
 // Feature imports
 import {
   useDeleteJurnalAccount,
-  GetJournalAccounts
-} from '@features/GeneralJournal/JournalAccount/service';
-import { GetDraftAccount } from '@features/GeneralJournal/BeginningBalance/service/SetDraftBalance.service';
-import { BeginningBalanceModal } from '@features/GeneralJournal/BeginningBalance/components/BeginningBalanceModal';
-import { PeriodAndClosingBooksModal } from '@features/GeneralJournal/PeriodeLockAndClosingBooks/components/PeriodAndClosingBooksModal';
-import { SettingAccountModal } from '@features/GeneralJournal/SettingAccount/pages/SettingAccountModal';
-import TableAccounts from '@features/GeneralJournal/Main/components/TableJournalAccount/TableAccount';
+  getJournalAccounts
+} from '@/module/GeneralJournal/JournalAccount/services';
+import { useDraftAccount } from '@/module/GeneralJournal/BeginningBalance/hooks/useDraftBalance';
+import { BeginningBalanceModal } from '@/module/GeneralJournal/BeginningBalance/components/BeginningBalanceModal';
+import { PeriodAndClosingBooksModal } from '@/module/GeneralJournal/PeriodeLockAndClosingBooks/components/PeriodAndClosingBooksModal';
+import { SettingAccountModal } from '@/module/GeneralJournal/SettingAccount/pages/SettingAccountModal';
+import TableAccounts from '@/module/GeneralJournal/Main/components/TableJournalAccount/TableAccount';
 import GeneralJournalLayout from './Layout';
 import { themeColors } from '@/theme/theme.exports';
+import { useJournalAccounts } from '../../JournalAccount/hooks/useJournalAccounts';
 
 
 const GeneralJournalPage: React.FC = () => {
   const navigate = useNavigate();
-  const { accounts, isError, isLoading } = GetJournalAccounts();
+  const { accounts, isError, isLoading } = useJournalAccounts();
   const JournalAccounts = Array.isArray(accounts) ? accounts : [];
   const categoryAccounts = Array.from(new Set(JournalAccounts.map((account) => account.category?.name).filter((name): name is string => Boolean(name))));
   const { selectedRecords } = useAccountStore();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const { mutate: deleteAccount } = useDeleteJurnalAccount();
-  const { draftAccounts } = GetDraftAccount();
+  const { draftAccounts } = useDraftAccount();
 
   const searchData = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.currentTarget.value);

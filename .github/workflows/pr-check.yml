@@ -1,0 +1,37 @@
+name: Quality Gate & Build Check
+
+on:
+  pull_request:
+    branches: ['mantine-v8', 'main', 'master']
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # Menggunakan Node.js 20 LTS
+
+      - name: Enable Corepack (for Yarn 4)
+        run: corepack enable
+
+      - name: Install Dependencies
+        run: yarn install --immutable
+
+      - name: Run Typecheck
+        run: yarn typecheck
+
+      - name: Run Linting (ESLint & Stylelint)
+        run: yarn lint
+
+      - name: Run Unit Tests (Vitest)
+        run: yarn vitest --run
+        continue-on-error: true # Bisa diubah ke false jika unit test sudah wajib lulus 100%
+
+      - name: Build Production Preview
+        run: yarn build

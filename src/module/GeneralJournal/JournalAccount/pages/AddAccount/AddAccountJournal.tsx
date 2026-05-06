@@ -19,16 +19,24 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { IconArrowLeft, IconChevronDown, IconInfoCircle, IconFileDescription, IconKey } from '@tabler/icons-react';
 import { routes } from '@/router';
-import { themeColors } from '@/theme';
-import { GetCategoryAccount } from '../../service/GetCategoryAccount.service';
+import { gradientColors, themeColors } from '@/theme';
+import { TextMediumGR } from '@/components/Text/CustomText';
+// import { GetCategoryAccount } from '../../services/GetCategoryAccount.service';
+// import { themeColors } from '@/theme';
+import { GetCategoryAccount } from '../../services/GetCategoryAccount.service';
 import { useForm } from '@mantine/form';
 import { AddAccountPayload } from '../../types/AddAccountPayload';
 import AddAccountLedgerFormLayout from './Layout';
 import { useState, useEffect } from 'react';
 import { useGetAllUser } from '@/module/SettingMenu/UserManagement/User/service/User.service';
 import { GetRoles } from '@/module/SettingMenu/UserManagement/Role/Service/Role.service';
-import { useAddAccount } from '../../service/AddAccount.service';
-import { useGetCategoryInfo } from '../../service/GetCategoryInfo.service';
+import { useAddAccount } from '../../services/AddAccount.service';
+import { useJournalAccounts } from '../../hooks/useJournalAccounts';
+import { useHeadAccounts, useSubAccounts } from '../../store/useAccount';
+
+
+// import { useAddAccount } from '../../service/AddAccount.service';
+import { useGetCategoryInfo } from '../../services/GetCategoryInfo.service';
 
 const PAPER_PROPS = {
   p: '0',
@@ -47,6 +55,7 @@ type IconWithTooltipProps = {
 const AddAccountLedgerPage = () => {
   const navigate = useNavigate();
   const { data: categoryAccounts } = GetCategoryAccount();
+  const { accounts, isLoading } = useJournalAccounts();
   const { data: User } = useGetAllUser();
   const { data: Role } = GetRoles();
   

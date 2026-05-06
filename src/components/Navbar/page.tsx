@@ -96,7 +96,7 @@ const mockdata = [
   }
 ];
 
-type NavigationProps = {
+type NavigationProps = { 
   onClose: () => void;
   collapsed?: boolean;
   desktopOpened?: boolean;

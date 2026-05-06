@@ -3,7 +3,7 @@ import { Table, Text } from '@mantine/core';
 import { formatCurrency } from '@/utils/FormatCurrency';
 import { themeColors } from '@/theme';
 import { TransactionDetail } from '../../types/TransactionDetailModel';
-import { GetDetailTransaction } from '../../services/TransactionDetail.service';
+import { useDetailTransaction } from '../../hooks/useDetailTransaction';
 import { useParams } from 'react-router-dom';
 
 const rowStyle = {
@@ -28,7 +28,7 @@ const headTableStyle = {
 
 const JournalTransactionTable = () => {
     const { idTransaction } = useParams<{ idTransaction: string }>();
-    const { detailTransaction, isError, isLoading } = GetDetailTransaction(idTransaction!);
+    const { detailTransaction, isError, isLoading } = useDetailTransaction(idTransaction!);
 
     if (isLoading) return <Text>Loading...</Text>;
     if (isError) return <Text>Error loading transaction data.</Text>;

@@ -19,12 +19,12 @@ import { useFileStore } from '@/store/GeneralJournal/useFileStore';
 import { buttonGradient, gradientColors, themeColors } from '@/theme';
 import { useInitialBalanceStore } from '@/store/GeneralJournal/initialBalanceAccount';
 import { formatCurrency } from '@/utils/FormatCurrency';
-import { GetJournalAccounts } from '../../JournalAccount/service/AccountJournal.service';
+import { useJournalAccounts } from '../../JournalAccount/hooks/useJournalAccounts';
 import TableBeginningBalance from '../components/TableBeginningBalance';
 import CustomConfirmModal from '@/components/Modals/ConfirmModal';
 import BeginningBalancePageLayout from './Layout';
 import { formatDate } from '@/utils/FormatDate';
-import { GetDraftAccount, usePublishDraftBalance, useSetDraftBalance } from '../service/SetDraftBalance.service';
+import { useDraftAccount, usePublishDraftBalance, useSetDraftBalance } from '../hooks/useDraftBalance';
 import { JournalAccounts } from '../../JournalAccount/types/JournalAccountModel';
 import { DraftAccount } from '../types/DraftAccount.types';
 
@@ -36,7 +36,7 @@ const PAPER_PROPS = {
 
 const BeginningBalancePage = () => {
     const navigate = useNavigate();
-    const { accounts: JournalAccount, isError } = GetJournalAccounts();
+    const { accounts: JournalAccount, isError } = useJournalAccounts();
     const [listAccounts, setListAccounts] = useState<JournalAccounts[]>([]);
     const { files, removeFile } = useFileStore((state) => ({
         files: state.files,
@@ -57,7 +57,7 @@ const BeginningBalancePage = () => {
     } = useInitialBalanceStore();
     const { mutate: publishDraftBalance } = usePublishDraftBalance();
     const { mutate: setDraftBalance } = useSetDraftBalance();
-    const { draftAccounts, isLoading } = GetDraftAccount();
+    const { draftAccounts, isLoading } = useDraftAccount();
 
     useEffect(() => {
         const fetchDraft = async () => {

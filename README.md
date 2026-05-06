@@ -375,7 +375,7 @@ Wajib rujuk urutan berikut:
 - Wajib gunakan Mantine v8. Dilarang API/pola Mantine v9.
 - Wajib pakai token dari theme. Hindari hardcode hex, spacing px, radius px kalau token sudah ada.
 - Wajib pakai `themeColors`, `spacing`, `radius`, `fontSizes`, `headings` dari konfigurasi theme.
-- Wajib konsisten typography `Montserrat` sesuai theme.
+- Wajib konsisten typography `Figtree` sesuai theme.
 - Wajib konsisten icon style untuk area app shell: Phosphor `weight="duotone"`.
 - Wajib gunakan CSS Modules atau classNames API Mantine sesuai pola proyek.
 - Wajib sediakan state `loading`, `empty`, `error` untuk komponen berbasis data.

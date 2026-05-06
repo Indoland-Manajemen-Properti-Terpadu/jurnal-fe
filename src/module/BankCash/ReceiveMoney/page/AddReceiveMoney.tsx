@@ -16,10 +16,10 @@ import { navigate, routes } from "@/router";
 import ReceiveMoneyLayout from "./Layout";
 import ReceiveMoneyForm from "../components/ReceiveMoneyForm";
 import dayjs from "dayjs";
-import { useJournalAccountStore, useReceiveMoneyStore } from "../store/ReceiveMoneyStore";
+import { useJournalAccounts } from '@/module/GeneralJournal/JournalAccount/hooks/useJournalAccounts';
+import { useReceiveMoneyStore } from "../store/ReceiveMoneyStore";
 import { useEffect, useState } from "react";
 import TotalAmountReceive from "../components/TotalAmountReceive";
-import { GetJournalAccounts } from "@/module/GeneralJournal/JournalAccount/service/AccountJournal.service";
 import PageHeaderV2 from "@/components/PageHeader/PageHeaderV2";
 import { IMAGE_MIME_TYPE, PDF_MIME_TYPE } from "@mantine/dropzone";
 
@@ -39,7 +39,7 @@ const AddReceiveMoneyPage = () => {
     const [selectedAccount, setSelectedAccount] = useState<string | null>(null);
     // const disableTransaction = useReceiveMoneyStore((state) => state.disableTransaction());
 
-    const { accounts } = GetJournalAccounts();
+    const { accounts } = useJournalAccounts();
     const JournalAccounts = Array.isArray(accounts) ? accounts : [];
     const accountBankAndCash = JournalAccounts
         .filter((account) => account.isBankAndCash === true)

@@ -11,7 +11,7 @@ import { notifications } from "@mantine/notifications";
 import { navigate } from "@/router";
 import dayjs from "dayjs";
 import { useState } from "react";
-import { GetJournalAccounts } from "@/module/GeneralJournal/JournalAccount/service/AccountJournal.service";
+import { useJournalAccounts } from '@/module/GeneralJournal/JournalAccount/hooks/useJournalAccounts';
 import PageHeaderV2 from "@/components/PageHeader/PageHeaderV2";
 import { useReceiveMoneyStore } from "../../ReceiveMoney/store/ReceiveMoneyStore";
 import SentMoneyLayout from "./Layout";
@@ -36,7 +36,7 @@ const AddSentMoneyPage = () => {
     const [transactionDate, setTransactionDate] = useState(dayjs().format('YYYY-MM-DD'));
     const [selectedAccount, setSelectedAccount] = useState<string | null>(null);
 
-    const { accounts } = GetJournalAccounts();
+    const { accounts } = useJournalAccounts();
     const JournalAccounts = Array.isArray(accounts) ? accounts : [];
     const accountBankAndCash = JournalAccounts
         .filter((account) => account.isBankAndCash === true)

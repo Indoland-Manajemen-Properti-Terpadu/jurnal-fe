@@ -17,7 +17,7 @@ import { themeColors } from '@/theme';
 import { IconPencil, IconReportSearch, IconArchive, IconChevronUp } from '@tabler/icons-react';
 import { useState } from 'react';
 import { notifications } from '@mantine/notifications';
-import { getDetailAccount } from '../service/DetailAccount.service';
+import { useDetailAccount } from '../hooks/useDetailAccount';
 import { accountDetailData } from '../types/DetailAccountModel';
 import DetailAccountLayout from './Layout';
 import DeleteTransactionModal from '../components/DeleteTransactionModal';
@@ -39,7 +39,7 @@ const PAPER_PROPS = {
 const DetailAccount = () => {
     const queryClient = useQueryClient()
     const { idAccount } = useParams<{ idAccount: string }>();
-    const { accountDetail } = getDetailAccount(idAccount!);
+    const { accountDetail } = useDetailAccount(idAccount!);
     const accountData = accountDetailData(accountDetail);
 
     const journalSelection = useSelectionHandler<TransactionByAccountModel>();

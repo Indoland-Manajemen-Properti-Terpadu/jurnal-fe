@@ -1,12 +1,12 @@
 import { Grid, NumberInput, Select, TextInput, ActionIcon } from '@mantine/core';
 import { IconChevronDown, IconTrash } from '@tabler/icons-react';
-import { GetJournalAccounts } from '@/module/GeneralJournal/JournalAccount/service/AccountJournal.service';
+import { useJournalAccounts } from '@/module/GeneralJournal/JournalAccount/hooks/useJournalAccounts';
 import { useTransactionStore } from '@/store/GeneralJournal/useTransactionStore';
 
 const TransactionForm = () => {
     const { minimumTransaction, transactions, updateTransaction, removeTransaction } =
         useTransactionStore();
-    const { accounts } = GetJournalAccounts();
+    const { accounts } = useJournalAccounts();
     const JournalAccounts = Array.isArray(accounts) ? accounts : [];
 
     const listJournalAccount = JournalAccounts.filter(

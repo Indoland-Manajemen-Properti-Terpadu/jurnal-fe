@@ -1,3 +1,8 @@
+/* Tailwind v4 CSS (Without Preflight to avoid conflicts with Mantine) */
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+
 /* =============================================
    Mantine v8 Component Styles
    Using CSS Modules with classNames API
@@ -231,7 +236,7 @@
    Source: Design-System-Lite
    ============================================= */
 :root {
-  --jurnal-font-family: Figtree, Montserrat, sans-serif;
+  --jurnal-font-family: Figtree, sans-serif;
 
   --jurnal-color-white: var(--mantine-color-white);
   --jurnal-color-black: var(--mantine-color-defaultBlack-10);

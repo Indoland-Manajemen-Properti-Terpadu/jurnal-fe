@@ -3,13 +3,13 @@ import { gradientColors, themeColors } from "@/theme";
 import { IconInfoCircle, IconX } from "@tabler/icons-react";
 import BankStatementLayout from "./Layout";
 import ImportBankStatementDraftTable from "../components/ImportBankStatementDraftTable";
-import { getBankStatement } from "../service/ListBankStatement.service";
+import { getBankStatement } from "../services/ListBankStatement.service";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { TextMediumGR } from "@/components/Text/CustomText";
 import { useBankStatementStore } from "../store/useBankStatement.store";
 import { Data } from "../types/ImportBankStatement.model";
-import { getSubmitImportBankStatement } from "../service/ImportBankStatement.service";
+import { getSubmitImportBankStatement } from "../services/ImportBankStatement.service";
 
 const PAPER_PROPS = {
     p: 'md',

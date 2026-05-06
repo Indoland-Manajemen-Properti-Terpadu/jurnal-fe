@@ -3,7 +3,7 @@ import { createTheme, MantineProvider } from '@mantine/core';
 import { themeColors } from '@/theme';
 
 const theme = createTheme({
-  fontFamily: 'Montserrat, sans-serif',
+  fontFamily: 'Figtree, sans-serif',
   colors: themeColors,
 });
 

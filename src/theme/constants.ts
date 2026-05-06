@@ -12,45 +12,45 @@ import { themeColors } from '@/theme';
  * Common Table Styles
  * Gunakan untuk styling tabel yang konsisten
  */
-export const tableStyles = {
-  head: {
-    borderColor: themeColors.grey[1],
-    borderWidth: '1px',
-    borderStyle: 'solid' as const,
-    fontWeight: 500,
-    fontSize: 14,
-    backgroundColor: themeColors.grey[0],
-  },
-  row: {
-    borderColor: themeColors.grey[1],
-    borderWidth: '1px',
-    borderStyle: 'solid' as const,
-    transition: 'background-color 150ms ease',
-  },
-  cell: {
-    fontSize: 14,
-    fontWeight: 400,
-    padding: `${rem(12)} ${rem(16)}`,
-  },
-} as const;
+// export const tableStyles = {
+//   head: {
+//     borderColor: themeColors.grey[1],
+//     borderWidth: '1px',
+//     borderStyle: 'solid' as const,
+//     fontWeight: 500,
+//     fontSize: 14,
+//     backgroundColor: themeColors.grey[0],
+//   },
+//   row: {
+//     borderColor: themeColors.grey[1],
+//     borderWidth: '1px',
+//     borderStyle: 'solid' as const,
+//     transition: 'background-color 150ms ease',
+//   },
+//   cell: {
+//     fontSize: 14,
+//     fontWeight: 400,
+//     padding: `${rem(12)} ${rem(16)}`,
+//   },
+// } as const;
 
-/**
- * Common Card Styles
- */
-export const cardStyles = {
-  default: {
-    padding: rem(16),
-    radius: rem(8),
-    shadow: '0 1px 3px rgba(0, 0, 0, 0.08)',
-    transition: 'box-shadow 150ms ease',
-  },
-  hover: {
-    '&:hover': {
-      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.05)',
-      transform: 'translateY(-2px)',
-    },
-  },
-} as const;
+// /**
+//  * Common Card Styles
+//  */
+// export const cardStyles = {
+//   default: {
+//     padding: rem(16),
+//     radius: rem(8),
+//     shadow: '0 1px 3px rgba(0, 0, 0, 0.08)',
+//     transition: 'box-shadow 150ms ease',
+//   },
+//   hover: {
+//     '&:hover': {
+//       boxShadow: '0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.05)',
+//       transform: 'translateY(-2px)',
+//     },
+//   },
+// } as const;
 
 /**
  * Common Icon Sizes
@@ -142,7 +142,7 @@ export const figmaRadius = {
 } as const;
 
 export const figmaTypography = {
-  fontFamily: 'Figtree, Montserrat, sans-serif',
+  fontFamily: 'Figtree, sans-serif',
   heading: {
     h1: { fontSize: rem(56), lineHeight: '68px', fontWeight: 600, letterSpacing: rem(-0.5) },
     h2: { fontSize: rem(48), lineHeight: '58px', fontWeight: 600, letterSpacing: rem(-0.4) },

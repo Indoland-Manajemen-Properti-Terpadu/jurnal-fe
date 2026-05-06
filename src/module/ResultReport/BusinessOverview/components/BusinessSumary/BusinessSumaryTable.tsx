@@ -2,7 +2,7 @@ import React from "react";
 import { Stack, Table, Text } from "@mantine/core";
 import { gradientColors, themeColors } from "@/theme";
 import { formatCurrency } from "@/utils/FormatCurrency";
-import { GetJournalAccounts } from "@/module/GeneralJournal/JournalAccount/service/AccountJournal.service";
+import { useJournalAccounts } from '@/module/GeneralJournal/JournalAccount/hooks/useJournalAccounts';
 import { CashFlowfromOA, CashFlowfromIA, CashFlowfromFA, EndingCashPosition } from "../CashFlow/TableRow";
 import { BalanceSheetSumary, CashFlowSumary, IncomeStatementSumary, InsightReport } from "./TableRow";
 
@@ -22,7 +22,7 @@ const headTableStyle = {
 }
 
 const BusinessSumaryTable: React.FC = () => {
-    const { accounts, isError } = GetJournalAccounts();
+    const { accounts, isError } = useJournalAccounts();
     return (
         <Stack>
             <Table
