@@ -1,5 +1,5 @@
 // stores/useTransactionStore.ts
-import { GetJournalAccounts } from '@/module/GeneralJournal/JournalAccount/service/AccountJournal.service';
+import { getJournalAccounts } from '@/module/GeneralJournal/JournalAccount/services/AccountJournal.service';
 import { JournalAccounts } from '@/module/GeneralJournal/JournalAccount/types/JournalAccountModel';
 import { randomId } from '@mantine/hooks';
 import { create } from 'zustand';
@@ -12,7 +12,7 @@ interface JournalAccountState {
 export const useJournalAccountStore = create<JournalAccountState>((set) => ({
   journalAccounts: [],
   fetchJournalAccounts: async () => {
-    const { accounts } = GetJournalAccounts();
+    const accounts = await getJournalAccounts();
     if (Array.isArray(accounts)) {
       set({ journalAccounts: accounts });
     }

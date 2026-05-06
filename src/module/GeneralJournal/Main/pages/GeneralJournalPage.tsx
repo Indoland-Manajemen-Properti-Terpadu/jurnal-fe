@@ -30,13 +30,13 @@ import { useEffect, useState } from 'react';
 // Shared imports using barrel exports
 import { PageHeader } from '@/components';
 import { routes } from '@/router';
-import { useAccountStore } from '@/store';
+import { useAccountStore, useJournalAccountStore } from '@/store';
 import classes from './GeneralJournal.module.css';
 
 // Feature imports
 import {
   useDeleteJurnalAccount,
-  useJournalAccounts
+  getJournalAccounts
 } from '@/module/GeneralJournal/JournalAccount/services';
 import { useDraftAccount } from '@/module/GeneralJournal/BeginningBalance/hooks/useDraftBalance';
 import { BeginningBalanceModal } from '@/module/GeneralJournal/BeginningBalance/components/BeginningBalanceModal';
@@ -45,6 +45,7 @@ import { SettingAccountModal } from '@/module/GeneralJournal/SettingAccount/page
 import TableAccounts from '@/module/GeneralJournal/Main/components/TableJournalAccount/TableAccount';
 import GeneralJournalLayout from './Layout';
 import { themeColors } from '@/theme/theme.exports';
+import { useJournalAccounts } from '../../JournalAccount/hooks/useJournalAccounts';
 
 
 const GeneralJournalPage: React.FC = () => {

@@ -1,7 +1,5 @@
-/* Tambahkan di baris paling atas globalStyles.css */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Tailwind v4: keep utilities only, no preflight reset because Mantine already owns base styles */
+@import "tailwindcss/utilities";
 
 /* =============================================
    Mantine v8 Component Styles

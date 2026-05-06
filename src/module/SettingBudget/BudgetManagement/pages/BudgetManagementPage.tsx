@@ -31,9 +31,9 @@ import { SettingAccountModal } from '@/module/GeneralJournal/SettingAccount/page
 import TableAccounts from '@/module/GeneralJournal/Main/components/TableJournalAccount/TableAccount';
 import useAccountStore from '@/store/useAccountLedger';
 import clasess from './GeneralJournal.module.css'
-import { GetDraftAccount } from '@/module/GeneralJournal/BeginningBalance/service/SetDraftBalance.service';
-import { useDeleteJurnalAccount } from '@/module/GeneralJournal/JournalAccount/service/DeleteTransaction.service';
-import { GetJournalAccounts } from '@/module/GeneralJournal/JournalAccount/service/AccountJournal.service';
+import { useDraftAccount } from '@/module/GeneralJournal/BeginningBalance/hooks/useDraftBalance';
+import { useDeleteJurnalAccount } from '@/module/GeneralJournal/JournalAccount/services/DeleteTransaction.service';
+import { useJournalAccounts } from '@/module/GeneralJournal/JournalAccount/hooks/useJournalAccounts';
 import GeneralJournalLayout from '@/module/GeneralJournal/Main/pages/Layout';
 
 
@@ -45,14 +45,14 @@ const PAPER_PROPS = {
 
 const BudgetManagementPage: React.FC = () => {
     const navigate = useNavigate();
-    const { accounts, isError, isLoading } = GetJournalAccounts();
+    const { accounts, isError, isLoading } = useJournalAccounts();
     const JournalAccounts = Array.isArray(accounts) ? accounts : [];
     const categoryAccounts = Array.from(new Set(JournalAccounts.map((account) => account.category?.name).filter((name): name is string => Boolean(name))));
     const { selectedRecords } = useAccountStore();
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState<string>('');
     const { mutate: deleteAccount } = useDeleteJurnalAccount();
-    const { draftAccounts } = GetDraftAccount();
+    const { draftAccounts } = useDraftAccount();
 
     const searchData = (event: React.ChangeEvent<HTMLInputElement>) => {
         setSearchQuery(event.currentTarget.value);

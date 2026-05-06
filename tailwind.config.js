@@ -2,8 +2,6 @@
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   corePlugins: {
-    // 🔥 SANGAT PENTING: Matikan preflight agar reset CSS Tailwind
-    // tidak merusak komponen bawaan Mantine
     preflight: false,
   },
   theme: {
