@@ -20,7 +20,7 @@ import { IconAdjustments, IconChevronDown, IconInfoCircle, IconSquareRounded } f
 import { routes } from '@/router';
 import { gradientColors, themeColors } from '@/theme';
 import { TextMediumGR } from '@/components/Text/CustomText';
-import { GetCategoryAccount } from '../../service/GetCategoryAccount.service';
+import { GetCategoryAccount } from '../../services/GetCategoryAccount.service';
 import { useForm } from '@mantine/form';
 import { AddAccountPayload } from '../../types/AddAccountPayload';
 import AddAccountLedgerFormLayout from './Layout';
@@ -28,8 +28,8 @@ import PageHeaderV2 from '@/components/PageHeader/PageHeaderV2';
 import { useState } from 'react';
 import { useGetAllUser } from '@/module/SettingMenu/UserManagement/User/service/User.service';
 import { GetRoles } from '@/module/SettingMenu/UserManagement/Role/Service/Role.service';
-import { useAddAccount } from '../../service/AddAccount.service';
-import { GetJournalAccounts } from '../../service/AccountJournal.service';
+import { useAddAccount } from '../../services/AddAccount.service';
+import { useJournalAccounts } from '../../hooks/useJournalAccounts';
 import { useHeadAccounts, useSubAccounts } from '../../store/useAccount';
 
 
@@ -50,7 +50,7 @@ type IconWithTooltipProps = {
 const AddAccountLedgerPage = () => {
   const navigate = useNavigate();
   const { data: categoryAccounts } = GetCategoryAccount();
-  const { accounts, isLoading } = GetJournalAccounts();
+  const { accounts, isLoading } = useJournalAccounts();
   const { data: User } = useGetAllUser();
   const { data: Role, } = GetRoles();
   const subAccountData = useSubAccounts(accounts || []);

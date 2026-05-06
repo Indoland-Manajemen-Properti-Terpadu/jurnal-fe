@@ -15,7 +15,7 @@ import { PageHeader } from '@/components';
 import { TextWithSubObject, TextWithSubText } from '@/components/Text/TextwithSubText';
 import { gradientColors, themeColors } from '@/theme';
 import { IconDots, IconPencil, IconTrash } from '@tabler/icons-react';
-import { GetDetailTransaction } from '../services/TransactionDetail.service';
+import { useDetailTransaction } from '../hooks/useDetailTransaction';
 import { dateFormatV1 } from '@/utils/FormatDate';
 import TransactionJournalFormLayout from './Layout';
 import JournalTransactionDetailTable from '../components/TableTransactionJournal/JournalTransactionDetailTable';
@@ -32,7 +32,7 @@ const items = [
 const JournalTransactionDetailPage = () => {
     const navigate = useNavigate();
     const { idTransaction } = useParams<{ idTransaction: string }>();
-    const { detailTransaction, isError, isLoading } = GetDetailTransaction(idTransaction!);
+    const { detailTransaction, isError, isLoading } = useDetailTransaction(idTransaction!);
 
     return (
         <TransactionJournalFormLayout

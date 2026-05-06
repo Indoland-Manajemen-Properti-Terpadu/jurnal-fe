@@ -9,7 +9,7 @@ import EmptyState from '@/components/EmptyState/EmptyTable';
 import { themeColors } from '@/theme';
 import BadgeStatusReconciled from './BadgeStatus';
 import { useQueryClient } from '@tanstack/react-query';
-import { getBankStatement } from '../service/ListBankStatement.service';
+import { getBankStatement } from '../services/ListBankStatement.service';
 import ImportBankStatementModal from './ImportBankStatementModal';
 import { useState } from 'react';
 

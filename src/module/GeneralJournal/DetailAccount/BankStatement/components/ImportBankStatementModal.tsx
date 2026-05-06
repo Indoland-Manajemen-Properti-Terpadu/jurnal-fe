@@ -8,7 +8,7 @@ import CustomDropzone from '@/components/Dropzone/CustomDropzone';
 import { FileRejection } from '@mantine/dropzone';
 import { notifications } from '@mantine/notifications';
 import { useFileStore } from '@/store/GeneralJournal/useFileStore';
-import { getImportBankStatement } from '../service/ImportBankStatement.service';
+import { getImportBankStatement } from '../services/ImportBankStatement.service';
 import { useNavigate } from 'react-router-dom';
 import { routes } from '@/router';
 import { InformationAlert } from '@/components/Alert/Alert';

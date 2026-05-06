@@ -6,7 +6,7 @@ import { formatCurrency } from '@/utils/FormatCurrency';
 import { IconChevronDown } from '@tabler/icons-react';
 import { DataTable } from 'mantine-datatable';
 import EmptyState from '@/components/EmptyState/EmptyTable';
-import { GetJournalAccounts } from '@/module/GeneralJournal/JournalAccount/service/AccountJournal.service';
+import { useJournalAccounts } from '@/module/GeneralJournal/JournalAccount/hooks/useJournalAccounts';
 
 const elements: JournalTransactionTable[] = [
     { id: 1, transaction: 'Journal Transaction #1', date: '15/08/24', received: 200000, sent: 50000, balance: 150000, description: 'Transfer BI Fast Dari Mandiri' },
@@ -21,7 +21,7 @@ const elements: JournalTransactionTable[] = [
 export default function CashMapping() {
     const navigate = useNavigate();
     const [selectedRecords, setSelectedRecords] = useState<JournalTransactionTable[]>([]);
-    const { accounts } = GetJournalAccounts();
+    const { accounts } = useJournalAccounts();
     const JournalAccounts = Array.isArray(accounts) ? accounts : [];
     const listJournalAccount = JournalAccounts
         .filter(account => account.name && account.accountNumber && account.category)

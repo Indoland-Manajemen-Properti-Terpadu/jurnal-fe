@@ -4,7 +4,7 @@
  */
 
 // Account APIs
-export { GetJournalAccounts } from './AccountJournal.service';
+export { getJournalAccounts } from './AccountJournal.service';
 export { useAddAccount } from './AddAccount.service';
 export { useDeleteJurnalAccount } from './DeleteTransaction.service';
 export { GetCategoryAccount } from './GetCategoryAccount.service';

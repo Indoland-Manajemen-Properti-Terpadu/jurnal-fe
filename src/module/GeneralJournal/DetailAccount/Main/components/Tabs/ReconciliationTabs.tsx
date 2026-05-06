@@ -1,5 +1,5 @@
 import React from 'react';
-import Reconciliation from '../../../Reconciliation/page/Reconciliation';
+import Reconciliation from '../../../Reconciliation/pages/Reconciliation';
 
 
 const ReconciliationTab = () => {

@@ -19,7 +19,7 @@ import { IconSettings, IconSearch, IconEdit, IconTrash, IconPlus, IconCalendar }
 import { notifications } from '@mantine/notifications';
 import DetailAccountLayout from './Layout';
 import TableJournalTransaction from '../../TransactionJournal/components/TableTransactionJournal/JournalTransactionTable';
-import { getDetailAccount } from '../service/DetailAccount.service';
+import { useDetailAccount } from '../hooks/useDetailAccount';
 import { accountDetailData } from '../types/DetailAccountModel';
 import { routes } from '@/router';
 import { useState } from 'react';
@@ -34,7 +34,7 @@ const PAPER_PROPS = {
 const DetailAccountNonCashBank = () => {
     const navigate = useNavigate();
     const { idAccount } = useParams<{ idAccount: string }>();
-    const { accountDetail, isError, isLoading } = getDetailAccount(idAccount!);
+    const { accountDetail, isError, isLoading } = useDetailAccount(idAccount!);
     const accountData = accountDetailData(accountDetail);
     const journalSelection = useSelectionHandler<TransactionByAccountModel>();
     const [dateValue, setDateValue] = useState<Date | null>(null);
