@@ -23,7 +23,7 @@ export const TextwithAsterisk: React.FC<CustomTextProps> = ({
   fwP = 400,
   fz = 14,
   fzP = 12,
-  ff = 'Montserrat',
+  ff = 'Figtree',
 }) => (
   <Stack gap="xs">
     <Text fw={fw} fz={fz} ff={ff} c={themeColors.dark[6]} mb={1}>
