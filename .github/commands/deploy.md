@@ -11,6 +11,7 @@ Persiapkan dan validasi deployment untuk `jurnal-fe`.
 ## Langkah
 
 1. Jalankan validasi:
+
    ```bash
    yarn typecheck && yarn lint && yarn build
    ```

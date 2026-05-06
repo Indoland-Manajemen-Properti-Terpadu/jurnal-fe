@@ -23,6 +23,7 @@ Penyelesaian bug/issue di `jurnal-fe`.
    - Ikuti aturan di `.github/rules/`.
 
 5. Validasi:
+
    ```bash
    yarn typecheck
    yarn lint

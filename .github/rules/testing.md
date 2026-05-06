@@ -69,6 +69,7 @@ describe('UserCard', () => {
 ## Coverage
 
 Target minimal:
+
 - Utility: 80%.
 - Hooks: 70%.
 - Komponen kritikal: 60%.

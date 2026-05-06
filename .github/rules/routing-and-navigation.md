@@ -40,11 +40,11 @@ interface ProtectedRouteProps {
 
 export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { isAuthenticated } = useAuth();
-  
+
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
-  
+
   return <>{children}</>;
 };
 ```
@@ -57,8 +57,8 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
 import { useNavigate } from 'react-router-dom';
 
 const navigate = useNavigate();
-navigate('/users');           // push
-navigate(-1);                 // back
+navigate('/users'); // push
+navigate(-1); // back
 navigate('/users', { replace: true }); // replace
 ```
 

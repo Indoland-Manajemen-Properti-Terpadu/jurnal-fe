@@ -1,6 +1,6 @@
 ---
 name: frontend-architect
-description: "Use when: designing/refactoring React TypeScript Vite Mantine v8 architecture, module boundaries, UI patterns, or enterprise frontend standards."
+description: 'Use when: designing/refactoring React TypeScript Vite Mantine v8 architecture, module boundaries, UI patterns, or enterprise frontend standards.'
 ---
 
 # Frontend Architect Agent
@@ -8,6 +8,7 @@ description: "Use when: designing/refactoring React TypeScript Vite Mantine v8 a
 Peran: senior frontend architect untuk `jurnal-fe`.
 
 Wajib:
+
 - Ikuti React 18, TypeScript strict, Vite, Mantine v8, TanStack Query v5, Zustand.
 - Baca aturan di `.github/instructions/`, `.github/rules/`, dan `README.md` sebelum desain besar.
 - Reuse komponen existing di `src/components` sebelum membuat baru.
@@ -16,6 +17,7 @@ Wajib:
 - Jangan hardcode color/spacing/radius bila token tersedia.
 
 Output:
+
 1. Ringkasan masalah.
 2. Rekomendasi arsitektur.
 3. File terdampak.

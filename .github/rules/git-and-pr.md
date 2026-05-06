@@ -24,6 +24,7 @@ test: add tests for useUserList hook
 Format: `type: description`
 
 Types:
+
 - `feat`: Fitur baru.
 - `fix`: Bug fix.
 - `refactor`: Perubahan tanpa fitur/fix.
@@ -50,6 +51,7 @@ Sebelum request review:
 - Max 70 karakter.
 
 Contoh:
+
 ```
 [Feature] Add user dashboard with stats
 [Fix] Resolve login redirect loop
@@ -60,22 +62,27 @@ Contoh:
 
 ```markdown
 ## Summary
+
 Ringkasan perubahan.
 
 ## Changes
+
 - Add UserDashboard component
 - Add useUserStats hook
 - Update router with new route
 
 ## Test Plan
+
 - [ ] Manual test dashboard render
 - [ ] Test with empty data
 - [ ] Test error state
 
 ## Screenshots
+
 (jika ada UI change)
 
 ## Notes
+
 Catatan tambahan untuk reviewer.
 ```
 

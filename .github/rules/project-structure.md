@@ -38,14 +38,14 @@ src/module/[ModuleName]/
 
 ## File Naming
 
-| Type | Pattern | Example |
-|------|---------|---------|
-| Component | PascalCase | `UserCard.tsx` |
-| Hook | camelCase dengan `use` prefix | `useUserList.ts` |
-| Service | camelCase dengan `.service` | `user.service.ts` |
-| Type | PascalCase | `User.types.ts` |
-| Store | camelCase dengan `use` prefix | `useUserStore.ts` |
-| Utility | camelCase | `formatDate.ts` |
+| Type      | Pattern                       | Example           |
+| --------- | ----------------------------- | ----------------- |
+| Component | PascalCase                    | `UserCard.tsx`    |
+| Hook      | camelCase dengan `use` prefix | `useUserList.ts`  |
+| Service   | camelCase dengan `.service`   | `user.service.ts` |
+| Type      | PascalCase                    | `User.types.ts`   |
+| Store     | camelCase dengan `use` prefix | `useUserStore.ts` |
+| Utility   | camelCase                     | `formatDate.ts`   |
 
 ## Import Order
 

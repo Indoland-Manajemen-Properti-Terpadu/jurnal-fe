@@ -84,6 +84,7 @@ Mantine v8 sudah built-in accessibility untuk komponen.
 ## Validation
 
 Full validation memerlukan:
+
 - Manual testing dengan screen reader.
 - Keyboard-only navigation test.
 - Automated tool (axe, Lighthouse).

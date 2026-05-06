@@ -19,6 +19,7 @@ Tulis test untuk modul/komponen di `jurnal-fe`.
    - Coverage: happy path, edge case, error state.
 
 4. Jalankan test:
+
    ```bash
    yarn vitest --run
    ```

@@ -4,11 +4,11 @@ Standar state management di `jurnal-fe`.
 
 ## Pembagian
 
-| State Type | Solution |
-|------------|----------|
-| Server state | TanStack Query v5 |
-| Client state | Zustand |
-| Local UI state | React useState |
+| State Type     | Solution          |
+| -------------- | ----------------- |
+| Server state   | TanStack Query v5 |
+| Client state   | Zustand           |
+| Local UI state | React useState    |
 
 ## Server State (TanStack Query)
 
@@ -29,7 +29,7 @@ export const useUserList = (params?: UserParams) => {
 ```typescript
 export const useCreateUser = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: createUser,
     onSuccess: () => {
@@ -43,13 +43,13 @@ export const useCreateUser = () => {
 
 ```typescript
 // List dengan params
-['users', params]
-
-// Detail dengan ID
-['user', id]
-
-// Nested resource
-['users', id, 'posts']
+['users', params][
+  // Detail dengan ID
+  ('user', id)
+][
+  // Nested resource
+  ('users', id, 'posts')
+];
 ```
 
 ## Client State (Zustand)

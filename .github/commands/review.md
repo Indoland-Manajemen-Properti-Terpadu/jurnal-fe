@@ -35,12 +35,14 @@ Review code untuk PR atau perubahan besar.
 ## Output
 
 Klasifikasi:
+
 - **Blocker**: harus diperbaiki sebelum merge.
 - **Major**: perlu perbaikan, tapi tidak blocking.
 - **Minor**: saran perbaikan.
 - **Nit**: komentar kecil, opsional.
 
 Format:
+
 ```
 [SEVERITY] File:Line - Deskripsi
 Saran: ...

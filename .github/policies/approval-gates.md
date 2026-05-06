@@ -13,10 +13,12 @@
 ## Format permintaan approval
 
 Sertakan:
+
 - Tujuan perubahan.
 - File yang terdampak.
 - Risiko potensial.
 - Rollback plan singkat.
 
 ## Rule
+
 Tanpa approval eksplisit, jangan lanjut untuk scope di atas.
