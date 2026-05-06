@@ -58,7 +58,7 @@ const AddAccountLedgerPage = () => {
   const { accounts, isLoading } = useJournalAccounts();
   const { data: User } = useGetAllUser();
   const { data: Role } = GetRoles();
-  
+
   const [selectedOption, setSelectedOption] = useState<string>('AllUsers');
   const [selectedAccountType, setSelectedAccountType] = useState<string>('SingleAccount');
   const [specialUsers, setSpecialUsers] = useState<string[]>([]);
@@ -112,7 +112,7 @@ const AddAccountLedgerPage = () => {
     value: headAccount.id,
     label: `(${headAccount.accountNumber}) ${headAccount.name}`,
   })) || [];
-  
+
   const SubAccountData = categoryInfo?.possibleSubAccounts?.map((subAccount: any) => ({
     value: subAccount.id,
     label: `(${subAccount.accountNumber}) ${subAccount.name}`,
@@ -412,7 +412,7 @@ const AddAccountLedgerPage = () => {
               </Button>
               <Button
                 variant="filled"
-                bg={themeColors.primary[6]}
+                color={themeColors.primary[5]}
                 onClick={handleAddAccount}
                 disabled={!isFormValid || (selectedAccountType === 'SubAccount' && !subAccounts)}
               >
