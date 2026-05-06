@@ -10,8 +10,8 @@ import { primaryColor } from '@/theme';
 
 export const appShellLayout = {
     headerHeight: 72,
-    footerHeight: 60,
-    footerActionHeight: 70,
+    footerHeight: 72,
+    footerActionHeight: 72,
     navbarExpandedWidth: 280,
     navbarCollapsedWidth: 84,
     breakpoint: 'md',
