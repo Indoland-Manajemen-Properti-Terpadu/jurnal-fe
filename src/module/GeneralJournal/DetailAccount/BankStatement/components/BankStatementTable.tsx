@@ -118,7 +118,7 @@ export default function BankStatementTable({ selectedRecords, setSelectedRecords
                     selectedRecords={selectedRecords}
                     onSelectedRecordsChange={setSelectedRecords}
                     columns={columns}
-                    records={bankStatement?.results}
+                    records={bankStatement?.results || []}
                 />
             )
             }
