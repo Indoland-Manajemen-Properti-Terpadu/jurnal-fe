@@ -12,6 +12,7 @@ export type JournalAccounts = {
   credit: number | 0;
   tax?: number | '-';
   isAllUser?: boolean;
+  isArchived?: boolean;
   level?: string;
   reconciliationDetail?: any[];
   journals?: any[];

@@ -20,10 +20,7 @@ import {
   IconKey,
   IconChevronDown,
 } from '@tabler/icons-react';
-import {
-  PlusIcon,
-  MoneyWavyIcon,
-} from '@phosphor-icons/react';
+import { PlusIcon, MoneyWavyIcon } from '@phosphor-icons/react';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 
@@ -36,7 +33,7 @@ import classes from './GeneralJournal.module.css';
 // Feature imports
 import {
   useDeleteJurnalAccount,
-  getJournalAccounts
+  getJournalAccounts,
 } from '@/module/GeneralJournal/JournalAccount/services';
 import { useDraftAccount } from '@/module/GeneralJournal/BeginningBalance/hooks/useDraftBalance';
 import { BeginningBalanceModal } from '@/module/GeneralJournal/BeginningBalance/components/BeginningBalanceModal';
@@ -47,12 +44,18 @@ import GeneralJournalLayout from './Layout';
 import { themeColors } from '@/theme/theme.exports';
 import { useJournalAccounts } from '../../JournalAccount/hooks/useJournalAccounts';
 
-
 const GeneralJournalPage: React.FC = () => {
   const navigate = useNavigate();
-  const { accounts, isError, isLoading } = useJournalAccounts();
+  const [showArchived, setShowArchived] = useState<boolean>(false);
+  const { accounts, isError, isLoading } = useJournalAccounts(showArchived);
   const JournalAccounts = Array.isArray(accounts) ? accounts : [];
-  const categoryAccounts = Array.from(new Set(JournalAccounts.map((account) => account.category?.name).filter((name): name is string => Boolean(name))));
+  const categoryAccounts = Array.from(
+    new Set(
+      JournalAccounts.map((account) => account.category?.name).filter((name): name is string =>
+        Boolean(name)
+      )
+    )
+  );
   const { selectedRecords } = useAccountStore();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -70,7 +73,6 @@ const GeneralJournalPage: React.FC = () => {
     beginningBalance: false,
     settingAccount: false,
     periodAndClosingBooks: false,
-
   });
 
   const openModal = (modalName: string) => {
@@ -95,18 +97,18 @@ const GeneralJournalPage: React.FC = () => {
 
   const handleDeleteAccount = () => {
     const ids = {
-      "accountIds": selectedRecords.map((item) => item.id)
-    }
-    deleteAccount(ids)
+      accountIds: selectedRecords.map((item) => item.id),
+    };
+    deleteAccount(ids);
   };
 
   const handleButtonInitialBalance = async () => {
     if (draftAccounts.status === false) {
       openModal('beginningBalance');
-      return
+      return;
     }
-    navigate(routes.generalJournal.beginningBalance)
-  }
+    navigate(routes.generalJournal.beginningBalance);
+  };
 
   return (
     <GeneralJournalLayout>
@@ -119,11 +121,11 @@ const GeneralJournalPage: React.FC = () => {
                 <Group gap="sm" className={classes.headerActions}>
                   <Button
                     variant="light"
-                    color="gray"
+                    color="black"
                     leftSection={<MoneyWavyIcon size={14} />}
                     onClick={() => navigate(routes.generalJournal.addTransactionJournal)}
                   >
-                    Add Transaction Journal
+                    Buat Jurnal Transaksi
                   </Button>
                   <Button
                     variant="filled"
@@ -139,7 +141,11 @@ const GeneralJournalPage: React.FC = () => {
           </Paper>
           <Paper className={classes.sectionPaper}>
             <Stack gap="md">
-              <Flex className={classes.filtersBar} direction={{ base: 'column', md: 'row' }} wrap="wrap">
+              <Flex
+                className={classes.filtersBar}
+                direction={{ base: 'column', md: 'row' }}
+                wrap="wrap"
+              >
                 <Grid columns={24} gutter="sm" className={classes.filtersGrid}>
                   <Grid.Col span={{ base: 24, sm: 12, lg: 8 }}>
                     <TextInput
@@ -147,7 +153,7 @@ const GeneralJournalPage: React.FC = () => {
                       size="md"
                       leftSectionPointerEvents="none"
                       leftSection={<IconSearch size={16} />}
-                      placeholder="Find Account"
+                      placeholder="Cari Kode atau Nama Akun"
                       value={searchQuery}
                       onChange={searchData}
                     />
@@ -161,16 +167,21 @@ const GeneralJournalPage: React.FC = () => {
                       value={selectedCategory}
                       onChange={filterData}
                       clearable={!!selectedCategory}
-
                       rightSection={!selectedCategory ? <IconChevronDown size={16} /> : null}
                       comboboxProps={{ width: 400, position: 'bottom-start' }}
                     />
                   </Grid.Col>
                   <Grid.Col span={{ base: 24, sm: 12, lg: 4 }}>
-                    <Button variant="default" className={`${classes.checkboxButton} ${classes.controlField}`} size="md" fullWidth>
+                    <Button
+                      variant="default"
+                      className={`${classes.checkboxButton} ${classes.controlField}`}
+                      size="md"
+                      fullWidth
+                    >
                       <Checkbox
-                        defaultChecked
-                        label="Show Archive"
+                        checked={showArchived}
+                        onChange={(e) => setShowArchived(e.currentTarget.checked)}
+                        label="Lihat Diarsipkan"
                         color="teal"
                         variant="outline"
                         size="xs"
@@ -191,25 +202,48 @@ const GeneralJournalPage: React.FC = () => {
                   )}
                   <Menu width={300} position="bottom-end" withinPortal>
                     <Menu.Target>
-                      <Button variant="default" className={classes.controlField} leftSection={<IconDots size={16} />} size="md">
+                      <Button
+                        variant="default"
+                        className={classes.controlField}
+                        leftSection={<IconDots size={16} />}
+                        size="md"
+                      >
                         Other Actions
                       </Button>
                     </Menu.Target>
                     <Menu.Dropdown>
-                      <Menu.Item leftSection={<IconSettings size={16} />} onClick={() => openModal('settingAccount')}>
+                      <Menu.Item
+                        leftSection={<IconSettings size={16} />}
+                        onClick={() => openModal('settingAccount')}
+                      >
                         Setting Account
                       </Menu.Item>
-                      <Menu.Item leftSection={<IconReportMoney size={16} />} onClick={handleButtonInitialBalance}>
+                      <Menu.Item
+                        leftSection={<IconReportMoney size={16} />}
+                        onClick={handleButtonInitialBalance}
+                      >
                         Beginning Balance
                       </Menu.Item>
-                      <Menu.Item leftSection={<IconKey size={16} />} onClick={() => openModal('periodAndClosingBooks')}>
+                      <Menu.Item
+                        leftSection={<IconKey size={16} />}
+                        onClick={() => openModal('periodAndClosingBooks')}
+                      >
                         Period Lock & Closing Books
                       </Menu.Item>
                     </Menu.Dropdown>
                   </Menu>
-                  <SettingAccountModal opened={modals.settingAccount} onClose={() => closeModal('settingAccount')} />
-                  <BeginningBalanceModal opened={modals.beginningBalance} onClose={() => closeModal('beginningBalance')} />
-                  <PeriodAndClosingBooksModal opened={modals.periodAndClosingBooks} onClose={() => closeModal('periodAndClosingBooks')} />
+                  <SettingAccountModal
+                    opened={modals.settingAccount}
+                    onClose={() => closeModal('settingAccount')}
+                  />
+                  <BeginningBalanceModal
+                    opened={modals.beginningBalance}
+                    onClose={() => closeModal('beginningBalance')}
+                  />
+                  <PeriodAndClosingBooksModal
+                    opened={modals.periodAndClosingBooks}
+                    onClose={() => closeModal('periodAndClosingBooks')}
+                  />
                 </Group>
               </Flex>
               <TableAccounts

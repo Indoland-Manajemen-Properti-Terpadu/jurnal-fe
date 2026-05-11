@@ -51,16 +51,13 @@ export const InactiveBadge = () => (
 // General Ledger Table Components
 export const AllRoleBadge = () => (
   <Badge
-    color="grey"
+    color="blue"
     radius="sm"
-    style={{
-      backgroundColor: 'var(--jurnal-color-surface-muted)',
-      color: 'var(--jurnal-color-text-muted)',
-      border: 'none',
-    }}
+    bg={themeColors.blue[6]}
+    c="white"
     className={classes.badgeText}
   >
-    All Role
+    All Users
   </Badge>
 );
 
