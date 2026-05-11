@@ -20,7 +20,7 @@ type CustomTextProps = {
 export const HeadingText: React.FC<CustomTextProps> = ({
   children,
   fw = 700,
-  ff = 'Montserrat',
+  ff = 'Figtree',
   ta,
   mainColor = 'black',
   fz,
@@ -50,7 +50,7 @@ export const TextAmount: React.FC<CustomTextProps> = ({
   mainColor,
   ta,
   fz = 14,
-  ff = 'Montserrat',
+  ff = 'Figtree',
 }) => (
   <Group
     align='center'
