@@ -1,6 +1,7 @@
 export interface DetailAccountModel {
   id?: string;
   isLocked?: boolean;
+  isArchived?: boolean;
   name?: string;
   type?: string;
   accountNumber?: string;
@@ -39,6 +40,7 @@ export const accountDetailData = (data?: Partial<DetailAccountModel>): DetailAcc
   return {
     id: data?.id || '',
     isLocked: data?.isLocked || false,
+    isArchived: data?.isArchived || false,
     name: data?.name || 'N/A',
     type: data?.type || 'N/A',
     accountNumber: data?.accountNumber || 'N/A',
