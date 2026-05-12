@@ -150,3 +150,9 @@
   align-items: center;
   justify-content: flex-start;
 }
+
+/* Ensure the nested DataTable spans the full width of the parent row to perfectly align columns */
+:global(.mantine-datatable-row-expansion-cell),
+:global(.mantine-datatable-row-expansion-cell-content) {
+  padding: 0 !important;
+}

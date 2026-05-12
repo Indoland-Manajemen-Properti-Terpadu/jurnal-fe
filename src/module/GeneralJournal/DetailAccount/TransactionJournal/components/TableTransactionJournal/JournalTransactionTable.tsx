@@ -152,7 +152,7 @@ function TableJournalTransaction({ selectedRecords, setSelectedRecords }: TableJ
     ];
 
     return (
-        transaction?.length == 0 ? (
+        !transaction || transaction.length === 0 ? (
             <EmptyState />
         ) : (
             <DataTable
@@ -162,7 +162,7 @@ function TableJournalTransaction({ selectedRecords, setSelectedRecords }: TableJ
                 columns={columns}
                 selectedRecords={selectedRecords}
                 onSelectedRecordsChange={setSelectedRecords}
-                records={searchAndFilterTransaction}
+                records={searchAndFilterTransaction || []}
                 isRecordSelectable={(row: TransactionByAccountModel) => row.transactionNumber !== 0}
             />
 

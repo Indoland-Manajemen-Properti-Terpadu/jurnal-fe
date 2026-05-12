@@ -16,7 +16,7 @@
 
 - [ ] Saya menggunakan Mantine v8 (TIDAK ADA API v9).
 - [ ] Saya tidak menggunakan hardcode HEX color/pixel, semua mengambil dari token theme lokal.
-- [ ] Typography menggunakan Montserrat dan icon AppShell menggunakan Phosphor (duotone).
+- [ ] Typography menggunakan Figtree dan icon AppShell menggunakan Phosphor (duotone).
 - [ ] State `loading`, `empty`, dan `error` sudah diimplementasikan untuk data fetching.
 
 ## Checklist Quality Gate

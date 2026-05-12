@@ -53,7 +53,7 @@ const ReconciliationTable: React.FC = () => {
         return <Text c="red">Failed to load data.</Text>;
     }
 
-    if (!ReconData || (ReconData.bankStatementData.length === 0 && ReconData.journalTransaction.length === 0)) {
+    if (!ReconData || !ReconData.bankStatementData || !ReconData.journalTransaction || (ReconData.bankStatementData.length === 0 && ReconData.journalTransaction.length === 0)) {
         return <EmptyState />;
     }
 
