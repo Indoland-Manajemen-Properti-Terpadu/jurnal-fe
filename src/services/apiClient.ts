@@ -169,4 +169,17 @@ export const del = async (url: string, data?: any) => {
   }
 };
 
+export const patch = async (url: string, data: any) => {
+  try {
+    const response = await apiClient.patch(url, data);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    if (axios.isAxiosError(error)) {
+      return error.response;
+    }
+    return null;
+  }
+};
+
 export default apiClient;

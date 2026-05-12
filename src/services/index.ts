@@ -4,7 +4,7 @@
  */
 
 // API Client
-export { get, post, postV2, put, del } from './apiClient';
+export { get, post, postV2, put, patch, del } from './apiClient';
 
 // API Endpoints
 export {

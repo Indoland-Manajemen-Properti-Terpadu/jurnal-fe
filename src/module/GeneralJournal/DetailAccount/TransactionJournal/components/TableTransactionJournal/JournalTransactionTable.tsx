@@ -1,37 +1,29 @@
-import { Text, ActionIcon, Anchor, Title, Tooltip, Center } from '@mantine/core';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Text, Anchor } from '@mantine/core';
+import { useNavigate } from 'react-router-dom';
 import { themeColors } from '@/theme';
 import { formatCurrency } from '@/utils/FormatCurrency';
-import { IconPuzzle, IconPuzzleOff } from '@tabler/icons-react';
 import { DataTable } from 'mantine-datatable';
 import { routes } from '@/router';
 import EmptyState from '@/components/EmptyState/EmptyTable';
-import { GetTransactionByAccount } from '../../services/TransactionByAccount.service';
 import { dateFormatV1 } from '@/utils/FormatDate';
-import { isEmpty } from 'lodash';
-import { useState } from 'react';
 import useFilterTransaction from '../../../Main/store/FilterTransaction';
 
 interface TableJournalTransactionProps {
     selectedRecords: TransactionByAccountModel[];
     setSelectedRecords: React.Dispatch<React.SetStateAction<TransactionByAccountModel[]>>;
+    noRecordsContent?: React.ReactNode;
+    data: TransactionByAccountModel[] | undefined;
 }
 
 const headTableStyle = {
     fontSize: 14,
     fontWeight: 500,
     color: themeColors.defaultBlack[10]
-
 }
 
-function TableJournalTransaction({ selectedRecords, setSelectedRecords }: TableJournalTransactionProps) {
+function TableJournalTransaction({ selectedRecords, setSelectedRecords, noRecordsContent, data: transaction }: TableJournalTransactionProps) {
     const navigate = useNavigate();
-    const { idAccount } = useParams<{ idAccount: string }>();
-    const { data: transaction, isError, isLoading } = GetTransactionByAccount(idAccount!);
-    const { searchQuery, setSearchQuery, selectedDate, setSelectedDate } = useFilterTransaction();
-
-    if (isLoading) return <Text>Loading...</Text>;
-    if (isError) return <Text>Error loading data</Text>;
+    const { searchQuery, selectedDate } = useFilterTransaction();
 
     const searchAndFilterTransaction = transaction?.filter((item: TransactionByAccountModel) => {
         const matchesQuery =
@@ -52,48 +44,10 @@ function TableJournalTransaction({ selectedRecords, setSelectedRecords }: TableJ
     });
 
 
-    const badgeAction = (status: string, transactionNumber: number) => {
-        if (transactionNumber === 0) {
-            return (
-                <ActionIcon variant="light" color={themeColors.grey[6]} disabled>
-                    <Tooltip label="Not available for opening balance" offset={5}>
-                        <IconPuzzleOff size={16} />
-                    </Tooltip>
-                </ActionIcon>
-            );
-        }
-
-        switch (status) {
-            case 'Reconciled':
-                return (
-                    <ActionIcon variant="light" color={themeColors.grey[6]}>
-                        <Tooltip label="Cancel Reconciled" offset={5}>
-                            <IconPuzzleOff size={16} />
-                        </Tooltip>
-                    </ActionIcon>
-                );
-            case 'Inreconciled':
-                return (
-                    <ActionIcon variant="light" color={themeColors.grey[6]}>
-                        <Tooltip label="Reconciled" offset={5}>
-                            <IconPuzzle size={16} />
-                        </Tooltip>
-                    </ActionIcon>
-                );
-            default:
-                return (
-                    <ActionIcon variant="light" color={themeColors.red[6]}>
-                        <IconPuzzleOff size={16} />
-                    </ActionIcon>
-                );
-        }
-    };
-
-
-    const columns = [
+const columns = [
         {
             accessor: 'transactionNumber',
-            title: <Text style={headTableStyle} > Transaction Name</Text >,
+            title: <Text style={headTableStyle}>No Transaksi</Text>,
             render: (row: TransactionByAccountModel) => (
                 <Anchor
                     underline="never"
@@ -103,37 +57,43 @@ function TableJournalTransaction({ selectedRecords, setSelectedRecords }: TableJ
                 >
                     <Text c={themeColors.primary[6]} fz={14}>
                         {row.transactionNumber === 0
-                            ? "Opening Balance"
-                            : `Journal Entry #${row.transactionNumber}`}
+                            ? "Saldo Awal #1"
+                            : `Jurnal Transaksi #${row.transactionNumber}`}
                     </Text>
-
                 </Anchor>
             ),
         },
         {
             accessor: 'transactionDate',
-            title: <Text style={headTableStyle} ta='center' >Transaction Date</Text>,
+            title: <Text style={headTableStyle}>Tanggal</Text>,
             render: (row: TransactionByAccountModel) => (
-                <Text c={themeColors.defaultBlack[10]} fz={14} ta='center'>{dateFormatV1(row.transactionDate)}</Text>
+                <Text c={themeColors.defaultBlack[10]} fz={14}>{dateFormatV1(row.transactionDate)}</Text>
+            ),
+        },
+        {
+            accessor: 'contact',
+            title: <Text style={headTableStyle}>Kontak</Text>,
+            render: () => (
+                <Text c={themeColors.defaultBlack[10]} fz={14}>-</Text>
             ),
         },
         {
             accessor: 'debit',
-            title: <Text style={headTableStyle} >Received</Text>,
+            title: <Text style={headTableStyle}>Debit (Dalam Rp)</Text>,
             render: (row: TransactionByAccountModel) => (
                 <Text c={themeColors.defaultBlack[10]} fz={14}>{formatCurrency(row.debit || 0)}</Text>
             ),
         },
         {
             accessor: 'credit',
-            title: <Text style={headTableStyle} >Sent</Text>,
+            title: <Text style={headTableStyle}>Kredit (Dalam Rp)</Text>,
             render: (row: TransactionByAccountModel) => (
                 <Text c={themeColors.defaultBlack[10]} fz={14}>{formatCurrency(row.credit || 0)}</Text>
             ),
         },
         {
             accessor: 'balance',
-            title: <Text style={headTableStyle} >Balance</Text>,
+            title: <Text style={headTableStyle}>Saldo</Text>,
             render: (row: TransactionByAccountModel) => (
                 <Text c={themeColors.defaultBlack[10]} fz={14}>
                     {row.balance! >= 0
@@ -141,19 +101,11 @@ function TableJournalTransaction({ selectedRecords, setSelectedRecords }: TableJ
                         : `(${formatCurrency(Math.abs(row.balance ?? 0))})`}</Text>
             ),
         },
-        {
-            accessor: 'action',
-            title: <Text style={headTableStyle} ta='center' >Action</Text>,
-            render: (row: TransactionByAccountModel) =>
-                <Center>
-                    {badgeAction(row.status, row.transactionNumber)}
-                </Center>,
-        },
     ];
 
     return (
         !transaction || transaction.length === 0 ? (
-            <EmptyState />
+            noRecordsContent || <EmptyState />
         ) : (
             <DataTable
                 withTableBorder

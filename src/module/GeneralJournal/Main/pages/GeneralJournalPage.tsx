@@ -10,6 +10,7 @@ import {
   Stack,
   TextInput,
   Group,
+  Badge,
 } from '@mantine/core';
 import {
   IconSearch,
@@ -196,8 +197,19 @@ const GeneralJournalPage: React.FC = () => {
                       className={`${classes.dangerButton} ${classes.controlField}`}
                       size="md"
                       leftSection={<IconTrash size={16} />}
+                      rightSection={
+                        <Badge
+                          color="white"
+                          variant="filled"
+                          size="sm"
+                          circle
+                          style={{ color: 'var(--jurnal-color-danger)' }}
+                        >
+                          {selectedRecords.length}
+                        </Badge>
+                      }
                     >
-                      Delete Account
+                      Hapus Akun
                     </Button>
                   )}
                   <Menu width={300} position="bottom-end" withinPortal>
