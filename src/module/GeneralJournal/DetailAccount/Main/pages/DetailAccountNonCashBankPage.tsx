@@ -11,6 +11,8 @@ import {
     SimpleGrid,
     Grid,
     Flex,
+    Loader,
+    Center,
 } from '@mantine/core';
 import { useNavigate, useParams } from 'react-router-dom';
 import { TextMediumGR } from '@/components/Text/CustomText';
@@ -35,7 +37,11 @@ const DetailAccountNonCashBank = () => {
     const navigate = useNavigate();
     const { idAccount } = useParams<{ idAccount: string }>();
     const { accountDetail, isError, isLoading } = useDetailAccount(idAccount!);
-    const accountData = accountDetailData(accountDetail);
+    
+    // Improved data extraction to handle various API response structures
+    const rawData = (accountDetail as any)?.data?.data || (accountDetail as any)?.data || accountDetail;
+    const accountData = accountDetailData(rawData);
+
     const journalSelection = useSelectionHandler<TransactionByAccountModel>();
     const [dateValue, setDateValue] = useState<Date | null>(null);
     function useSelectionHandler<T>(initialSelection: T[] = []) {
@@ -43,6 +49,15 @@ const DetailAccountNonCashBank = () => {
         return { selectedRecords, setSelectedRecords };
     }
 
+    if (isLoading) {
+        return (
+            <DetailAccountLayout>
+                <Center h={300}>
+                    <Loader color={themeColors.primary[6]} />
+                </Center>
+            </DetailAccountLayout>
+        );
+    }
 
     return (
         <DetailAccountLayout>
@@ -52,10 +67,13 @@ const DetailAccountNonCashBank = () => {
                         <SimpleGrid cols={2}>
                             <Stack gap={2}>
                                 <Title order={3}>
-                                    {accountData?.name} - {accountData?.accountNumber}
+                                    {accountData.name}{' '}
+                                    <Text span c={themeColors.primary[6]} inherit>
+                                        ({accountData.accountNumber})
+                                    </Text>
                                 </Title>
                                 <Text c={themeColors.grey[6]} fz={14}>
-                                    {accountData?.category?.name}
+                                    Kategori {accountData.category?.name}
                                 </Text>
                             </Stack>
                             <Group justify="flex-end">

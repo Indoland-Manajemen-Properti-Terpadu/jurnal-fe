@@ -10,6 +10,8 @@ import {
     SimpleGrid,
     Menu,
     rem,
+    Loader,
+    Center,
 } from '@mantine/core';
 import { useNavigate, useParams } from 'react-router-dom';
 import { TextMediumGR } from '@/components/Text/CustomText';
@@ -39,8 +41,14 @@ const PAPER_PROPS = {
 const DetailAccount = () => {
     const queryClient = useQueryClient()
     const { idAccount } = useParams<{ idAccount: string }>();
-    const { accountDetail } = useDetailAccount(idAccount!);
-    const accountData = accountDetailData(accountDetail);
+    const { accountDetail, isLoading } = useDetailAccount(idAccount!);
+    
+    // Improved data extraction to handle various API response structures
+    const rawData = (accountDetail as any)?.data?.data || (accountDetail as any)?.data || accountDetail;
+    const accountData = accountDetailData(rawData);
+
+    console.log('Account Detail Raw:', accountDetail);
+    console.log('Mapped Account Data:', accountData);
 
     const journalSelection = useSelectionHandler<TransactionByAccountModel>();
     const bankStatementSelection = useSelectionHandler<Result>();
@@ -68,6 +76,16 @@ const DetailAccount = () => {
         return { selectedRecords, setSelectedRecords };
     }
 
+    if (isLoading) {
+        return (
+            <DetailAccountLayout>
+                <Center h={300}>
+                    <Loader color={themeColors.primary[6]} />
+                </Center>
+            </DetailAccountLayout>
+        );
+    }
+
     return (
         <>
             <DetailAccountLayout>
@@ -77,9 +95,14 @@ const DetailAccount = () => {
                             <SimpleGrid cols={2}>
                                 <Stack gap={2}>
                                     <Group>
-                                        <Title order={3}>{accountData?.name} - {accountData?.accountNumber}</Title>
+                                        <Title order={3}>
+                                            {accountData.name}{' '}
+                                            <Text span c={themeColors.primary[6]} inherit>
+                                                ({accountData.accountNumber})
+                                            </Text>
+                                        </Title>
                                     </Group>
-                                    <Text c={themeColors.grey[6]} fz={14}>{accountData?.category?.name}</Text>
+                                    <Text c={themeColors.grey[6]} fz={14}>Kategori {accountData.category?.name}</Text>
                                 </Stack>
                                 <Group justify="flex-end">
                                     <Menu position="bottom-end" offset={5} withArrow>
