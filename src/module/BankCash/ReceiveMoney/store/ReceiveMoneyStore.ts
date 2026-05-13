@@ -1,6 +1,6 @@
 // stores/useTransactionStore.ts
-import { getJournalAccounts } from '@/module/GeneralJournal/JournalAccount/services/AccountJournal.service';
-import { JournalAccounts } from '@/module/GeneralJournal/JournalAccount/types/JournalAccountModel';
+import { getJournalAccounts } from '@/module/JurnalUmum/AkunJurnal/services/AccountJournal.service';
+import { JournalAccounts } from '@/module/JurnalUmum/AkunJurnal/types/JournalAccountModel';
 import { randomId } from '@mantine/hooks';
 import { create } from 'zustand';
 

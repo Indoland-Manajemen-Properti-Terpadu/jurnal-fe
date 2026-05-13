@@ -2,15 +2,15 @@
 // import { themeColors } from '@/theme';
 // import { IconChevronDown, IconDots, IconInfoCircle, IconPencil, IconSearch, IconTrash } from '@tabler/icons-react';
 // import { useNavigate } from 'react-router-dom';
-// import { useDeleteJurnalAccount } from '@/module/GeneralJournal/JournalAccount/service/DeleteTransaction.service';
+// import { useDeleteJurnalAccount } from '@/module/JurnalUmum/AkunJurnal/service/DeleteTransaction.service';
 // import { useEffect, useState } from 'react';
-// import { GetJournalAccounts } from '@/module/GeneralJournal/JournalAccount/service/AccountJournal.service';
+// import { GetJournalAccounts } from '@/module/JurnalUmum/AkunJurnal/service/AccountJournal.service';
 // import { NotFound } from '@/components/ErrorPage/NotFound';
 // import EmptyState from '@/components/EmptyState/EmptyTable';
 // import { formatCurrency } from '@/utils/FormatCurrency';
-// import BadgeStatusReconciled from '@/module/GeneralJournal/DetailAccount/BankStatement/components/BadgeStatus';
+// import BadgeStatusReconciled from '@/module/JurnalUmum/LaporanBank/components/BadgeStatus';
 // import { dateFormatV1 } from '@/utils/FormatDate';
-// import { JournalAccounts } from '@/module/GeneralJournal/JournalAccount/types/JournalAccountModel';
+// import { JournalAccounts } from '@/module/JurnalUmum/AkunJurnal/types/JournalAccountModel';
 // import { DataTable } from 'mantine-datatable';
 
 

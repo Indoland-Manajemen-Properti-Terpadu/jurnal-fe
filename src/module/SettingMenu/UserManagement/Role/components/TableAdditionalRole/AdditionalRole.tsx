@@ -5,7 +5,7 @@ import { themeColors } from "@/theme";
 import { IconDots, IconEye, IconEdit, IconTrash } from "@tabler/icons-react";
 import { ActiveBadge, InactiveBadge } from "@/components/Badge/Badge";
 import { notifications } from "@mantine/notifications";
-import DeleteTransactionModal from "@/module/GeneralJournal/DetailAccount/Main/components/DeleteTransactionModal";
+import DeleteTransactionModal from "@/module/JurnalUmum/DetailAkun/components/DeleteTransactionModal";
 import { GetRoles } from "../../Service/Role.service";
 
 const rowStyle = {

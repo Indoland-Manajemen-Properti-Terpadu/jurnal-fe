@@ -8,7 +8,7 @@ import {
   MIME_TYPES,
 } from '@mantine/dropzone';
 import { themeColors } from '@/theme';
-import { useFileStore } from '@/store/GeneralJournal/useFileStore';
+import { useFileStore } from '@/store/JurnalUmum/useFileStore';
 import { useState } from 'react';
 
 interface DropzoneComponentProps extends Partial<DropzoneProps> {

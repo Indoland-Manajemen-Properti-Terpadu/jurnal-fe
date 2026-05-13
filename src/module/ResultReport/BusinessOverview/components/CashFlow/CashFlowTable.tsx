@@ -2,7 +2,7 @@ import React from "react";
 import { Stack, Table, Text } from "@mantine/core";
 import { gradientColors, themeColors } from "@/theme";
 import { formatCurrency } from "@/utils/FormatCurrency";
-import { useJournalAccounts } from '@/module/GeneralJournal/JournalAccount/hooks/useJournalAccounts';
+import { useJournalAccounts } from '@/module/JurnalUmum/AkunJurnal/hooks/useJournalAccounts';
 
 import EmptyState from "@/components/EmptyState/EmptyTable";
 import { CashFlowfromFA, CashFlowfromIA, CashFlowfromOA, EndingCashPosition } from "./TableRow";

@@ -2,7 +2,7 @@ import React from "react";
 import { Stack, Table, Text } from "@mantine/core";
 import { gradientColors, themeColors } from "@/theme";
 import { formatCurrency } from "@/utils/FormatCurrency";
-import { JournalAccounts } from "@/module/GeneralJournal/JournalAccount/types/JournalAccountModel";
+import { JournalAccounts } from "@/module/JurnalUmum/AkunJurnal/types/JournalAccountModel";
 import EmptyState from "@/components/EmptyState/EmptyTable";
 import { GetEquityChangeReport } from "../../services/EquityChange.service";
 import { NotFound } from "@/components/ErrorPage/NotFound";

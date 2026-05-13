@@ -65,7 +65,7 @@ const mockdata = [
   {
     title: 'MASTER DATA',
     links: [
-      { label: 'Daftar Akun', icon: ListBullets, link: '/general-journal' },
+      { label: 'Daftar Akun', icon: ListBullets, link: '/jurnal-umum' },
       { label: 'Asset', icon: Toolbox, link: '/asset' },
       { label: 'Kontak', icon: AddressBook, link: '/kontak' },
     ],

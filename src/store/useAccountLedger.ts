@@ -1,4 +1,4 @@
-import { JournalAccounts } from '@/module/GeneralJournal/JournalAccount/types/JournalAccountModel';
+import { JournalAccounts } from '@/module/JurnalUmum/AkunJurnal/types/JournalAccountModel';
 import create from 'zustand';
 
 interface AccountStoreState {

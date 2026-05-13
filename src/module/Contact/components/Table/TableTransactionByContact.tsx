@@ -2,13 +2,13 @@ import { ActionIcon, Anchor, Button, Center, Checkbox, Text, Flex, Grid, Menu, P
 import { themeColors } from '@/theme';
 import { IconChevronDown, IconDots, IconInfoCircle, IconSearch, IconTrash } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
-import { useDeleteJurnalAccount } from '@/module/GeneralJournal/JournalAccount/services/DeleteTransaction.service';
+import { useDeleteJurnalAccount } from '@/module/JurnalUmum/AkunJurnal/services/DeleteTransaction.service';
 import { useState } from 'react';
-import { useJournalAccounts } from '@/module/GeneralJournal/JournalAccount/hooks/useJournalAccounts';
+import { useJournalAccounts } from '@/module/JurnalUmum/AkunJurnal/hooks/useJournalAccounts';
 import { NotFound } from '@/components/ErrorPage/NotFound';
 import EmptyState from '@/components/EmptyState/EmptyTable';
 import { formatCurrency } from '@/utils/FormatCurrency';
-import { JournalAccounts } from '@/module/GeneralJournal/JournalAccount/types/JournalAccountModel';
+import { JournalAccounts } from '@/module/JurnalUmum/AkunJurnal/types/JournalAccountModel';
 import { DataTable } from 'mantine-datatable';
 import { routes } from '@/router';
 import { capitalize } from '@/utils/Capitalize';

@@ -25,16 +25,16 @@ import { PageHeader } from '@/components';
 import { routes } from '@/router';
 import { gradientColors, themeColors } from '@/theme';
 import { useEffect, useState } from 'react';
-import { BeginningBalanceModal } from '@/module/GeneralJournal/BeginningBalance/components/BeginningBalanceModal';
-import { PeriodAndClosingBooksModal } from '@/module/GeneralJournal/PeriodeLockAndClosingBooks/components/PeriodAndClosingBooksModal';
-import { SettingAccountModal } from '@/module/GeneralJournal/SettingAccount/pages/SettingAccountModal';
-import TableAccounts from '@/module/GeneralJournal/Main/components/TableJournalAccount/TableAccount';
+import { BeginningBalanceModal } from '@/module/JurnalUmum/SaldoAwal/components/BeginningBalanceModal';
+import { PeriodAndClosingBooksModal } from '@/module/JurnalUmum/PenutupanPeriode/components/PeriodAndClosingBooksModal';
+import { SettingAccountModal } from '@/module/JurnalUmum/PengaturanAkun/pages/SettingAccountModal';
+import TableAccounts from '@/module/JurnalUmum/AkunJurnal/Daftar/components/TableJournalAccount/TableAccount';
 import useAccountStore from '@/store/useAccountLedger';
 import clasess from './GeneralJournal.module.css'
-import { useDraftAccount } from '@/module/GeneralJournal/BeginningBalance/hooks/useDraftBalance';
-import { useDeleteJurnalAccount } from '@/module/GeneralJournal/JournalAccount/services/DeleteTransaction.service';
-import { useJournalAccounts } from '@/module/GeneralJournal/JournalAccount/hooks/useJournalAccounts';
-import GeneralJournalLayout from '@/module/GeneralJournal/Main/pages/Layout';
+import { useDraftAccount } from '@/module/JurnalUmum/SaldoAwal/hooks/useDraftBalance';
+import { useDeleteJurnalAccount } from '@/module/JurnalUmum/AkunJurnal/services/DeleteTransaction.service';
+import { useJournalAccounts } from '@/module/JurnalUmum/AkunJurnal/hooks/useJournalAccounts';
+import GeneralJournalLayout from '@/module/JurnalUmum/AkunJurnal/Daftar/pages/Layout';
 
 
 const PAPER_PROPS = {

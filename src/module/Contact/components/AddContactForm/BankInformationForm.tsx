@@ -5,7 +5,7 @@ import { DataTable } from "mantine-datatable";
 import { themeColors } from "@/theme";
 import EmptyState from "@/components/EmptyState/EmptyTable";
 import { showNotification } from "@mantine/notifications";
-import { JournalAccounts } from "@/module/GeneralJournal/JournalAccount/types/JournalAccountModel";
+import { JournalAccounts } from "@/module/JurnalUmum/AkunJurnal/types/JournalAccountModel";
 
 interface BankData {
     id: number;

@@ -10,7 +10,7 @@ import { ActionIcon, Box, Menu, rem, Stack, Table, Text } from "@mantine/core";
 import { themeColors } from "@/theme";
 import { iconSizes } from "@/theme/constants";
 import { formatCurrency } from "@/utils/FormatCurrency";
-import { useJournalAccounts } from "@/module/GeneralJournal/JournalAccount/hooks/useJournalAccounts";
+import { useJournalAccounts } from "@/module/JurnalUmum/AkunJurnal/hooks/useJournalAccounts";
 import { IconBuildingBank, IconDots, IconFileImport } from "@tabler/icons-react";
 import { NotFound } from "@/components/ErrorPage/NotFound";
 import EmptyState from "@/components/EmptyState/EmptyTable";

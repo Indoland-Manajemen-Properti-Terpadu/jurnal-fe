@@ -40,7 +40,7 @@ const DynamicBreadcrumbs: React.FC<DynamicBreadcrumbsProps> = ({
       const isLast = index === relevantPathnames.length - 1;
 
       const defaultDisplayMapping: Record<string, string> = {
-        'general-journal': 'General Journal',
+        'jurnal-umum': 'General Journal',
         accounts: 'Daftar Akun',
         add: 'Tambah Akun',
         // Add more default mappings here as needed
