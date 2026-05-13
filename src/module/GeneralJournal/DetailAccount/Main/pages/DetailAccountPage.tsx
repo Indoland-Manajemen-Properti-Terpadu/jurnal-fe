@@ -45,9 +45,13 @@ import { PlusIcon, MoneyWavyIcon } from '@phosphor-icons/react';
 // Constants
 import { ArrowLeftIcon } from '@phosphor-icons/react';
 import { archiveAccount } from '../services/DetailAccount.service';
+import { useDeleteJurnalAccount } from '@/module/GeneralJournal/JournalAccount/services';
+import { ConfirmModal } from '@/components';
+import deleteModalImage from '@/assets/img/vectors/delete_modal.svg';
+import arsipkanIcon from '@/assets/img/vectors/arsipkan.svg';
 
 const PAPER_PROPS = {
-  p: 'md',
+  p: '0',
   shadow: 'md',
   radius: 'md',
   withBorder: true,
@@ -58,18 +62,19 @@ const DetailAccount = () => {
   const navigate = useNavigate();
   const { accountDetail, isLoading } = useDetailAccount(idAccount!);
   const queryClient = useQueryClient();
+  const { mutate: deleteAccount, isPending: isDeleting } = useDeleteJurnalAccount();
 
   const rawData =
     (accountDetail as any)?.data?.data || (accountDetail as any)?.data || accountDetail;
   const accountData = accountDetailData(rawData);
 
-  console.log('Account Detail Raw:', accountDetail);
-  console.log('Mapped Account Data:', accountData);
 
   const journalSelection = useSelectionHandler<TransactionByAccountModel>();
   const bankStatementSelection = useSelectionHandler<Result>();
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isDeleteAccountModalOpen, setIsDeleteAccountModalOpen] = useState(false);
+  const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
   const [isArchiving, setIsArchiving] = useState(false);
 
   const handleDeleteTransaction = () => {
@@ -96,6 +101,7 @@ const DetailAccount = () => {
       });
       // Refresh the account detail data
       await queryClient.refetchQueries({ queryKey: ['detail_account', idAccount] });
+      setIsArchiveModalOpen(false);
     } catch (error: any) {
       notifications.show({
         color: themeColors.red[6],
@@ -106,6 +112,19 @@ const DetailAccount = () => {
     } finally {
       setIsArchiving(false);
     }
+  };
+
+  const handleDeleteAccount = () => {
+    if (!idAccount) return;
+    deleteAccount(
+      { accountIds: [idAccount] },
+      {
+        onSuccess: () => {
+          setIsDeleteAccountModalOpen(false);
+          navigate(routes.generalJournal.main);
+        },
+      }
+    );
   };
 
   const handleRefresh = () => {
@@ -133,8 +152,8 @@ const DetailAccount = () => {
         <Container fluid>
           <Stack gap="lg">
             <Paper {...PAPER_PROPS}>
-              <Stack gap="lg">
-                <SimpleGrid cols={2}>
+              <Stack gap={0}>
+                <SimpleGrid cols={2} p="md" style={{ borderBottom: '1px solid #E9ECEF' }}>
                   <Group align="flex-start" wrap="nowrap">
                     <ActionIcon variant="subtle" color="gray" onClick={() => navigate(-1)} mt={4}>
                       <ArrowLeftIcon size={32} weight="duotone" />
@@ -188,6 +207,14 @@ const DetailAccount = () => {
                         <Menu.Divider />
                         <Menu.Item
                           leftSection={<IconPencil style={{ width: rem(14), height: rem(14) }} />}
+                          onClick={() =>
+                            navigate(
+                              routes.generalJournal.editAccountJournal.replace(
+                                ':idAccount',
+                                idAccount!
+                              )
+                            )
+                          }
                         >
                           Ubah Akun
                         </Menu.Item>
@@ -197,7 +224,7 @@ const DetailAccount = () => {
                               leftSection={
                                 <IconArchive style={{ width: rem(14), height: rem(14) }} />
                               }
-                              onClick={handleArchiveAccount}
+                              onClick={() => setIsArchiveModalOpen(true)}
                               disabled={isArchiving}
                             >
                               {accountData.isArchived ? 'Tampilkan Akun' : 'Arsipkan Akun'}
@@ -207,6 +234,7 @@ const DetailAccount = () => {
                               leftSection={
                                 <IconTrash style={{ width: rem(14), height: rem(14) }} />
                               }
+                              onClick={() => setIsDeleteAccountModalOpen(true)}
                             >
                               Hapus Akun
                             </Menu.Item>
@@ -241,7 +269,23 @@ const DetailAccount = () => {
                     </Menu>
                   </Group>
                 </SimpleGrid>
-                <Tabs defaultValue="transaction" color={themeColors.primary[6]}>
+                <Tabs
+                  defaultValue="transaction"
+                  color={themeColors.figmaTeal[5]}
+                  p="md"
+                  styles={{
+                    tab: {
+                      fontWeight: 500,
+                      '&[data-active]': {
+                        backgroundColor: themeColors.figmaTeal[0],
+                        color: themeColors.figmaTeal[6],
+                      },
+                      '&:hover': {
+                        backgroundColor: themeColors.figmaTeal[0],
+                      },
+                    },
+                  }}
+                >
                   <Tabs.List>
                     <Tabs.Tab value="transaction">Journal Transaction</Tabs.Tab>
                     <Tabs.Tab value="bankStatement">Bank Statement</Tabs.Tab>
@@ -290,6 +334,40 @@ const DetailAccount = () => {
         opened={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onDelete={handleDeleteTransaction}
+      />
+
+      <ConfirmModal
+        opened={isDeleteAccountModalOpen}
+        onClose={() => setIsDeleteAccountModalOpen(false)}
+        onConfirm={handleDeleteAccount}
+        title="Hapus Akun"
+        message={
+          <>
+            Apakah Anda yakin ingin menghapus akun <strong>{accountData.name}</strong>?
+          </>
+        }
+        helperText="Data yang dihapus tidak dapat dipulihkan kembali."
+        imageSrc={deleteModalImage}
+        confirmLabel="Hapus Akun"
+        cancelLabel="Batal"
+        confirmLoading={isDeleting}
+      />
+
+      <ConfirmModal
+        opened={isArchiveModalOpen}
+        onClose={() => setIsArchiveModalOpen(false)}
+        onConfirm={handleArchiveAccount}
+        title="Arsipkan Akun"
+        message="Apakah anda yakin dengan ingin megarsipkan akun ini?"
+        helperText="Akun akan disembunyikan dari daftar aktif dan akun dapat dikembalikan kapan saja."
+        imageSrc={arsipkanIcon}
+        confirmLabel={accountData.isArchived ? 'Tampilkan Akun' : 'Arsipkan Akun'}
+        cancelLabel="Batal"
+        confirmLoading={isArchiving}
+        confirmButtonProps={{
+          color: '#64748b',
+          leftSection: <IconArchive size={18} />,
+        }}
       />
     </>
   );

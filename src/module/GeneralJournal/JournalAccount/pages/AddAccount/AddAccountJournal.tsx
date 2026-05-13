@@ -81,7 +81,7 @@ const AddAccountLedgerPage = () => {
 
   const { data: categoryInfo } = useGetCategoryInfo(form.values.category);
 
-  console.log('categoryInfo response:', categoryInfo);
+  // console.log('categoryInfo response:', categoryInfo);
 
   useEffect(() => {
     if (categoryInfo?.suggestedAccountNumber && !form.values.accountNumber) {

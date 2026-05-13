@@ -43,6 +43,7 @@ const DynamicBreadcrumbs: React.FC<DynamicBreadcrumbsProps> = ({
         'general-journal': 'General Journal',
         accounts: 'Daftar Akun',
         add: 'Tambah Akun',
+        'edit-account': 'Ubah Akun',
         // Add more default mappings here as needed
       };
       const mergedSegmentMap = { ...defaultDisplayMapping, ...segmentMap };

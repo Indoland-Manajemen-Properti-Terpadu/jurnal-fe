@@ -13,7 +13,7 @@ export const themeColors = {
     '#000000',
   ] as const,
   primary: [
-    '#F0FDFA',
+    '#F0FDFA', 
     '#CCFBF1',
     '#99F6E4',
     '#5EEAD4',
