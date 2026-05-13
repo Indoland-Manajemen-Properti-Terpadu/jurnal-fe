@@ -47,6 +47,8 @@ export const API_ACCOUNT = {
 
   GET_RECONCILIATION: `${BASE_URL}/v1/reconciliation/`,
 
+  ARCHIVE_ACCOUNT: `${BASE_URL}/v1/accounts/:accountId/archive`,
+
   POST_ADD_ROLE: `${BASE_URL}/v1/access-role/`,
 };
 

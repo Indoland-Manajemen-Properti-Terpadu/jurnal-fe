@@ -1,26 +1,34 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { del, get } from '@/services/apiClient';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { del } from '@/services/apiClient';
 import { API_ACCOUNT } from '@/services/endpoint';
-import { useJournalAccountStore } from '@/store/GeneralJournal/useJournalAccount';
 import { notifications } from '@mantine/notifications';
+import useAccountStore from '@/store/useAccountLedger';
 
 export const useDeleteJurnalAccount = () => {
   const queryClient = useQueryClient();
+  const { setSelectedRecords } = useAccountStore();
+  
   return useMutation({
-    mutationFn: async (ids: any) => {
+    mutationFn: async (ids: { accountIds: string[] }) => {
       const result = await del(API_ACCOUNT.DELETE_ACCOUNT, ids);
       return result;
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       notifications.show({
         title: 'Success',
         message: 'Selected accounts have been deleted',
         color: 'green',
       });
+      setSelectedRecords([]);
       queryClient.invalidateQueries({ queryKey: ['accounts'] });
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.log(error);
+      notifications.show({
+        title: 'Error',
+        message: error?.response?.data?.message || 'Failed to delete accounts',
+        color: 'red',
+      });
     },
   });
 };

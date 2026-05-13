@@ -1,4 +1,4 @@
-interface TransactionByAccountModel {
+export interface TransactionByAccountModel {
   id: string;
   transactionNumber: number;
   transactionDate: Date;

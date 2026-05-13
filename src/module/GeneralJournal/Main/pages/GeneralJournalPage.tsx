@@ -10,6 +10,7 @@ import {
   Stack,
   TextInput,
   Group,
+  Badge,
 } from '@mantine/core';
 import {
   IconSearch,
@@ -25,7 +26,7 @@ import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 
 // Shared imports using barrel exports
-import { PageHeader } from '@/components';
+import { ConfirmModal, PageHeader } from '@/components';
 import { routes } from '@/router';
 import { useAccountStore, useJournalAccountStore } from '@/store';
 import classes from './GeneralJournal.module.css';
@@ -43,6 +44,7 @@ import TableAccounts from '@/module/GeneralJournal/Main/components/TableJournalA
 import GeneralJournalLayout from './Layout';
 import { themeColors } from '@/theme/theme.exports';
 import { useJournalAccounts } from '../../JournalAccount/hooks/useJournalAccounts';
+import deleteModalImage from '@/assets/img/vectors/delete_modal.svg';
 
 const GeneralJournalPage: React.FC = () => {
   const navigate = useNavigate();
@@ -59,7 +61,7 @@ const GeneralJournalPage: React.FC = () => {
   const { selectedRecords } = useAccountStore();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const { mutate: deleteAccount } = useDeleteJurnalAccount();
+  const { mutate: deleteAccount, isPending: isDeleting } = useDeleteJurnalAccount();
   const { draftAccounts } = useDraftAccount();
 
   const searchData = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -73,6 +75,7 @@ const GeneralJournalPage: React.FC = () => {
     beginningBalance: false,
     settingAccount: false,
     periodAndClosingBooks: false,
+    deleteConfirmation: false,
   });
 
   const openModal = (modalName: string) => {
@@ -99,7 +102,11 @@ const GeneralJournalPage: React.FC = () => {
     const ids = {
       accountIds: selectedRecords.map((item) => item.id),
     };
-    deleteAccount(ids);
+    deleteAccount(ids, {
+      onSuccess: () => {
+        closeModal('deleteConfirmation');
+      },
+    });
   };
 
   const handleButtonInitialBalance = async () => {
@@ -192,12 +199,23 @@ const GeneralJournalPage: React.FC = () => {
                 <Group gap="sm" className={classes.actionsGrid}>
                   {selectedRecords.length > 0 && (
                     <Button
-                      onClick={handleDeleteAccount}
+                      onClick={() => openModal('deleteConfirmation')}
                       className={`${classes.dangerButton} ${classes.controlField}`}
                       size="md"
                       leftSection={<IconTrash size={16} />}
+                      rightSection={
+                        <Badge
+                          color="white"
+                          variant="filled"
+                          size="sm"
+                          circle
+                          style={{ color: 'var(--jurnal-color-danger)' }}
+                        >
+                          {selectedRecords.length}
+                        </Badge>
+                      }
                     >
-                      Delete Account
+                      Hapus Akun
                     </Button>
                   )}
                   <Menu width={300} position="bottom-end" withinPortal>
@@ -243,6 +261,26 @@ const GeneralJournalPage: React.FC = () => {
                   <PeriodAndClosingBooksModal
                     opened={modals.periodAndClosingBooks}
                     onClose={() => closeModal('periodAndClosingBooks')}
+                  />
+                  <ConfirmModal
+                    opened={modals.deleteConfirmation}
+                    onClose={() => closeModal('deleteConfirmation')}
+                    onConfirm={handleDeleteAccount}
+                    title="Hapus Akun"
+                    message={
+                      // <>
+                      //   Apakah Anda yakin ingin menghapus <strong>{selectedRecords.length}</strong>{' '}
+                      //   akun yang dipilih?
+                      // </>
+                      <>
+                        Apakah Anda yakin ingin menghapus semua data akun jurnal ini?
+                      </>
+                    }
+                    helperText="Data yang dihapus tidak dapat dipulihkan kembali."
+                    imageSrc={deleteModalImage}
+                    confirmLabel="Hapus Akun"
+                    cancelLabel="Batal"
+                    confirmLoading={isDeleting}
                   />
                 </Group>
               </Flex>

@@ -5,7 +5,7 @@ import { gradientColors, themeColors } from '@/theme';
 import { formatCurrency, numberFormat, sanitizedInput } from '@/utils/FormatCurrency';
 import classes from '../pages/BeginningBalance.module.css';
 import EmptyState from '@/components/EmptyState/EmptyTable';
-import defaultEmptyImage from '@/assets/img/Empty-Data.svg';
+import defaultEmptyImage from '@/assets/img/Empty-Dataa.svg';
 import { useInitialBalanceStore } from '@/store/GeneralJournal/initialBalanceAccount';
 import { JournalAccounts } from '../../JournalAccount/types/JournalAccountModel';
 

@@ -24,9 +24,6 @@ export const useLogin = (p0: {}) => {
 
     onSuccess: (data) => {
       const { tokens, user } = data;
-      localStorage.setItem('accessToken', tokens.access.token);
-      localStorage.setItem('refreshToken', tokens.refresh.token);
-      localStorage.setItem('userName', user.name);
       setTokens(tokens.access.token, tokens.refresh.token);
       setUserName(user.name);
       notifications.show({
