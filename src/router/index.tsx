@@ -7,14 +7,14 @@ import OAuthCallback from '@/module/Authentication/Login/pages/OAuthCallback';
 import MainDashboard from '@/module/Dashboard/page/page';
 
 // General Journal Module
-import GeneralJournalPage from '@/module/GeneralJournal/Main/pages/GeneralJournalPage';
-import AddAccountjournalPage from '@/module/GeneralJournal/JournalAccount/pages/AddAccount/AddAccountJournal';
-import AddJournalTransactionForm from '@/module/GeneralJournal/DetailAccount/TransactionJournal/components/Form/AddJournalTransactionForm';
-import JournalTransactionDetailPage from '@/module/GeneralJournal/DetailAccount/TransactionJournal/pages/JournalTransactionDetail';
-import DetailAccount from '@/module/GeneralJournal/DetailAccount/Main/pages/DetailAccountPage';
-import DetailAccountNonCashBank from '@/module/GeneralJournal/DetailAccount/Main/pages/DetailAccountNonCashBankPage';
-import BeginningBalancePage from '@/module/GeneralJournal/BeginningBalance/pages/BeginningBalancePage';
-import ClosingBooksPage from '@/module/GeneralJournal/PeriodeLockAndClosingBooks/pages/ClosingBooks';
+import GeneralJournalPage from '@/module/JurnalUmum/AkunJurnal/Daftar/pages/DaftarAkunJurnalPage';
+import AddAccountjournalPage from '@/module/JurnalUmum/AkunJurnal/pages/AddAccount/TambahAkunJurnal';
+import AddJournalTransactionForm from '@/module/JurnalUmum/TransaksiJurnal/components/Form/AddJournalTransactionForm';
+import JournalTransactionDetailPage from '@/module/JurnalUmum/TransaksiJurnal/pages/JournalTransactionDetail';
+import DetailAccount from '@/module/JurnalUmum/DetailAkun/pages/DetailAkunPage';
+import DetailAccountNonCashBank from '@/module/JurnalUmum/DetailAkun/pages/DetailAkunNonKasBankPage';
+import BeginningBalancePage from '@/module/JurnalUmum/SaldoAwal/pages/SaldoAwalPage';
+import ClosingBooksPage from '@/module/JurnalUmum/PenutupanPeriode/pages/PenutupanBuku';
 
 // User Management Module
 import UserManagement from '@/module/SettingMenu/UserManagement/Main/pages/UserManagement';
@@ -22,15 +22,15 @@ import AddUserForm from '@/module/SettingMenu/UserManagement/User/components/Add
 import AddRoleForm from '@/module/SettingMenu/UserManagement/Role/components/AddRoleForm/AddRoleForm';
 import ResultReportPage from '@/module/ResultReport/Main/pages/CategoryReportPage';
 import BalanceSheetPage from '@/module/ResultReport/BusinessOverview/page/BalanceSheetPage';
-import ImportBankStatementDraft from '@/module/GeneralJournal/DetailAccount/BankStatement/pages/ImportBankStatementDraft';
+import ImportBankStatementDraft from '@/module/JurnalUmum/LaporanBank/pages/ImportBankStatementDraft';
 import TrialBalancePage from '@/module/ResultReport/BusinessOverview/page/TrialBalancePage';
 import IncomeStatementPage from '@/module/ResultReport/BusinessOverview/page/IncomeStatementPage';
 import CashFlowPage from '@/module/ResultReport/BusinessOverview/page/CashFlowPage';
 import JournalEntryPage from '@/module/ResultReport/BusinessOverview/page/JournalEntryPage';
 import BusinessSumaryPage from '@/module/ResultReport/BusinessOverview/page/BusinessSumaryPage';
 import IncomeStatementBudgetPage from '@/module/ResultReport/BusinessOverview/page/IncomeStatementBudgetPage';
-import FinancialstatementPage from '@/module/GeneralJournal/PeriodeLockAndClosingBooks/pages/FinancialStatement';
-import ListPeriodLockAndClosingBooksPage from '@/module/GeneralJournal/PeriodeLockAndClosingBooks/pages/ListPeriodLockAndClosingBooks';
+import FinancialstatementPage from '@/module/JurnalUmum/PenutupanPeriode/pages/LaporanKeuangan';
+import ListPeriodLockAndClosingBooksPage from '@/module/JurnalUmum/PenutupanPeriode/pages/DaftarPenutupanPeriode';
 import GeneralLedgerReportPage from '@/module/ResultReport/BusinessOverview/page/GeneralLedgerPage';
 import EquityChangesPage from '@/module/ResultReport/BusinessOverview/page/EquityChangesPage';
 import BudgetManagementPage from '@/module/ResultReport/BusinessOverview/page/BudgetManagementPage';
@@ -81,16 +81,16 @@ export const routes = {
 
   // General Journal Routes
   generalJournal: {
-    main: '/general-journal',
-    list: '/general-journal',
-    addAccountJournal: '/general-journal/add-account',
-    addTransactionJournal: '/general-journal/add-transaction-journal',
-    detailTransactionJournal: '/general-journal/detail-transaction-journal/:idTransaction',
-    beginningBalance: '/general-journal/beginning-balance',
-    closingBooks: '/settings/general-journal/closing-books',
-    detailAccount: '/general-journal/detail-account-cb/:idAccount',
-    detailAccountNonCB: '/general-journal/detail-account/:idAccount',
-    bankStatementDraftImport: '/general-journal/bank-statement/import'
+    main: '/jurnal-umum',
+    list: '/jurnal-umum',
+    addAccountJournal: '/jurnal-umum/add-account',
+    addTransactionJournal: '/jurnal-umum/add-transaction-journal',
+    detailTransactionJournal: '/jurnal-umum/detail-transaction-journal/:idTransaction',
+    beginningBalance: '/jurnal-umum/beginning-balance',
+    closingBooks: '/settings/jurnal-umum/closing-books',
+    detailAccount: '/jurnal-umum/detail-account-cb/:idAccount',
+    detailAccountNonCB: '/jurnal-umum/detail-account/:idAccount',
+    bankStatementDraftImport: '/jurnal-umum/bank-statement/import'
   },
 
   SettingBudget: {
@@ -108,8 +108,8 @@ export const routes = {
   },
 
   PeriodAndClosingBook: {
-    FinancialStatement: '/settings/general-journal/period-lock/financial-statement',
-    ListPLandCB: '/settings/general-journal/closing-books/list/period-lock',
+    FinancialStatement: '/settings/jurnal-umum/period-lock/financial-statement',
+    ListPLandCB: '/settings/jurnal-umum/closing-books/list/period-lock',
   },
 
   resultReport: {
@@ -191,7 +191,7 @@ const router = createBrowserRouter([
   },
 
 
-  // General Journal Routes
+  // Jurnal Umum Routes
   {
     path: routes.generalJournal.main,
     element: <GeneralJournalPage />,
