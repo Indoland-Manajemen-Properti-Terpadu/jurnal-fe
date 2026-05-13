@@ -9,6 +9,7 @@ import MainDashboard from '@/module/Dashboard/page/page';
 // General Journal Module
 import GeneralJournalPage from '@/module/GeneralJournal/Main/pages/GeneralJournalPage';
 import AddAccountjournalPage from '@/module/GeneralJournal/JournalAccount/pages/AddAccount/AddAccountJournal';
+import EditAccountJournalPage from '@/module/GeneralJournal/JournalAccount/pages/EditAccount/EditAccountJournal';
 import AddJournalTransactionForm from '@/module/GeneralJournal/DetailAccount/TransactionJournal/components/Form/AddJournalTransactionForm';
 import JournalTransactionDetailPage from '@/module/GeneralJournal/DetailAccount/TransactionJournal/pages/JournalTransactionDetail';
 import DetailAccount from '@/module/GeneralJournal/DetailAccount/Main/pages/DetailAccountPage';
@@ -84,6 +85,7 @@ export const routes = {
     main: '/general-journal',
     list: '/general-journal',
     addAccountJournal: '/general-journal/add-account',
+    editAccountJournal: '/general-journal/edit-account/:idAccount',
     addTransactionJournal: '/general-journal/add-transaction-journal',
     detailTransactionJournal: '/general-journal/detail-transaction-journal/:idTransaction',
     beginningBalance: '/general-journal/beginning-balance',
@@ -199,6 +201,10 @@ const router = createBrowserRouter([
   {
     path: routes.generalJournal.addAccountJournal,
     element: <AddAccountjournalPage />,
+  },
+  {
+    path: routes.generalJournal.editAccountJournal,
+    element: <EditAccountJournalPage />,
   },
   {
     path: routes.generalJournal.addTransactionJournal,

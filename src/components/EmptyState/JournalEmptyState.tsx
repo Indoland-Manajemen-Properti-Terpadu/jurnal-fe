@@ -1,5 +1,5 @@
 import { Stack, Image, Title, Text, Button } from '@mantine/core';
-import EmptyDataImage from '@/assets/img/Empty-Data.svg';
+import EmptyDataImage from '@/assets/img/vectors/Empty-Data.svg';
 import { MoneyWavyIcon } from '@phosphor-icons/react';
 
 interface JournalEmptyStateProps {
@@ -17,7 +17,6 @@ export function JournalEmptyState({ onButtonClick }: JournalEmptyStateProps) {
         <Button
           variant="light"
           color="black"
-          leftSection={<MoneyWavyIcon size={14} />}
           onClick={onButtonClick}
           leftSection={<MoneyWavyIcon size={16} />}
         >

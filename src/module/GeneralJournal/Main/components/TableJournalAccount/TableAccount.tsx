@@ -255,8 +255,6 @@ const TableAccounts = ({
     content: expansionContent,
   };
 
-  console.log('TableAccounts Columns:', columns);
-  console.log('TableAccounts Rows:', records);
 
   return records.length === 0 ? (
     <EmptyState
