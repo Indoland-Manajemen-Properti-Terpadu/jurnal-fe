@@ -448,7 +448,7 @@ const EditAccountJournalPage = () => {
                 disabled={!isFormValid || (selectedAccountType === 'SubAccount' && !subAccounts)}
                 loading={updateAccountMutation.isPending}
               >
-                Simpan Perubahan
+                Perbarui
               </Button>
             </Group>
 
