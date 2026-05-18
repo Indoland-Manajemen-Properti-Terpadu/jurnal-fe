@@ -30,12 +30,26 @@ const ImportBankStatementDraftTable = ({
 }: ImportBankStatementDraftTableProps) => {
     const [editModalOpened, setEditModalOpened] = useState(false);
     const [editData, setEditData] = useState<BankStatementPreviewItem | null>(null);
+    const [originalData, setOriginalData] = useState<BankStatementPreviewItem | null>(null);
     const { updateItem, deleteItem } = useBankStatementStore();
 
     const handleEditClick = (item: BankStatementPreviewItem) => {
         setEditData({ ...item });
+        setOriginalData(item);
         setEditModalOpened(true);
     };
+
+    const isChanged = Boolean(
+        originalData && editData && (
+            originalData.Description !== editData.Description ||
+            originalData.TransactionDate !== editData.TransactionDate ||
+            originalData.Received !== editData.Received ||
+            originalData.Spent !== editData.Spent
+        )
+    );
+
+    const hasReceived = Boolean(editData?.Received && editData.Received !== '0' && editData.Received !== '');
+    const hasSpent = Boolean(editData?.Spent && editData.Spent !== '0' && editData.Spent !== '');
 
     const handleFieldChange = (field: keyof BankStatementPreviewItem, value: any) => {
         if (editData) {
@@ -148,7 +162,7 @@ const ImportBankStatementDraftTable = ({
             <Modal 
                 opened={editModalOpened} 
                 onClose={() => setEditModalOpened(false)} 
-                title={<Text fw={600}>Ubah Data Pratinjau</Text>}
+                title={<Text fw={600} c={themeColors.defaultBlack[10]}>Ubah Data Pratinjau</Text>}
                 centered
             >
                 <Stack gap="md">
@@ -166,21 +180,33 @@ const ImportBankStatementDraftTable = ({
                         value={editData?.TransactionDate ? parse(editData.TransactionDate, 'dd/MM/yyyy', new Date()) : null}
                         onChange={(e) => handleFieldChange('TransactionDate', e ? format(e, 'dd/MM/yyyy') : '')}
                     />
-                    <TextInput
-                        label="Terima (Dalam Rp)"
-                        placeholder="0"
-                        value={editData?.Received || ''}
-                        onChange={(e) => handleFieldChange('Received', e.currentTarget.value)}
-                    />
-                    <TextInput
-                        label="Kirim (Dalam Rp)"
-                        placeholder="0"
-                        value={editData?.Spent || ''}
-                        onChange={(e) => handleFieldChange('Spent', e.currentTarget.value)}
-                    />
+                    <Group grow align="flex-start">
+                        <TextInput
+                            label="Terima (Dalam Rp)"
+                            placeholder="0"
+                            value={editData?.Received || ''}
+                            onChange={(e) => handleFieldChange('Received', e.currentTarget.value)}
+                            disabled={hasSpent}
+                        />
+                        <TextInput
+                            label="Kirim (Dalam Rp)"
+                            placeholder="0"
+                            value={editData?.Spent || ''}
+                            onChange={(e) => handleFieldChange('Spent', e.currentTarget.value)}
+                            disabled={hasReceived}
+                        />
+                    </Group>
                     <Flex justify="flex-end" gap="sm" mt="md">
                         <Button variant="light" color="gray" onClick={() => setEditModalOpened(false)}>Batal</Button>
-                        <Button variant="filled" color={themeColors.figmaTeal[5]} onClick={handleSaveChange}>Simpan Perubahan</Button>
+                        <Button 
+                            variant="filled" 
+                            color={themeColors.figmaTeal[5]} 
+                            onClick={handleSaveChange}
+                            leftSection={<IconPencil size={16} />}
+                            disabled={!isChanged}
+                        >
+                            Simpan Perubahan
+                        </Button>
                     </Flex>
                 </Stack>
             </Modal>

@@ -106,9 +106,9 @@ const ImportBankStatementDraft = () => {
                       <ArrowLeftIcon size={32} weight="duotone" />
                     </ActionIcon>
                     <Stack gap={2}>
-                      <Title order={5}>Validate Data Import</Title>
+                      <Title order={5}>Validasi Data Impor</Title>
                       <Text c={themeColors.grey[6]} fz={14}>
-                        Please double check the data you have imported and adjust accordingly
+                        Periksa kembali data yang telah anda impor dan lakukan penyesuaian jika diperlukan.
                       </Text>
                     </Stack>
                   </Group>
