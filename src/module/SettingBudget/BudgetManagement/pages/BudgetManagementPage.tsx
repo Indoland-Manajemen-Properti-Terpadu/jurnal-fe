@@ -114,7 +114,7 @@ const BudgetManagementPage: React.FC = () => {
                                 <Group>
                                     <Button
                                         variant="light"
-                                        color={themeColors.grey[7]}
+                                        color={themeColors.gray[7]}
                                         onClick={() => navigate(routes.generalJournal.addTransactionJournal)}
                                     >
                                         Add Transaction Journal

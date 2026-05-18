@@ -8,6 +8,7 @@ import SearchActions from '../SearchAction';
 import TableJournalTransaction from '../../../TransactionJournal/components/TableTransactionJournal/JournalTransactionTable';
 import { DeleteTransactionAccounts } from '../../../TransactionJournal/services/DeleteTransactionAccount.service';
 import { GetTransactionByAccount } from '../../../TransactionJournal/services/TransactionByAccount.service';
+import { TransactionByAccountModel } from '../../../TransactionJournal/types/TransactionByAccountModel';
 
 
 interface Props {
@@ -44,7 +45,7 @@ const JournalTransactionTab = ({ selectedRecords, setSelectedRecords, noRecordsC
                             <Button
                                 size="xs"
                                 variant="filled"
-                                bg={themeColors.primary[6]}
+                                bg={themeColors.teal[6]}
                                 rightSection={<IconPlus size={16} />}
                             >
                                 Add Transaction

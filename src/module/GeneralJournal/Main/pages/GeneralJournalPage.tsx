@@ -134,7 +134,8 @@ const GeneralJournalPage: React.FC = () => {
                     <Menu.Target>
                       <Button
                         variant="filled"
-                        color={themeColors.figmaTeal[5]}
+                        color={themeColors.slate[1]}
+                        style={{ '--button-color': themeColors.black[9] } as React.CSSProperties}
                         leftSection={<MoneyWavyIcon size={14} />}
                       >
                         Buat Jurnal Transaksi
@@ -158,7 +159,7 @@ const GeneralJournalPage: React.FC = () => {
                   <Button
                     variant="filled"
                     leftSection={<PlusIcon size={14} />}
-                    color={themeColors.figmaTeal[5]}
+                    color={themeColors.teal[5]}
                     onClick={() => navigate(routes.generalJournal.addAccountJournal)}
                   >
                     Tambah Akun
