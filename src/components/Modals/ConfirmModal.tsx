@@ -27,7 +27,7 @@ const CustomConfirmModal: React.FC<CustomConfirmModalProps> = ({
         <Modal opened={opened} onClose={onClose} title={title} withCloseButton={withCloseButton} centered size={size} >
             <Stack >
                 {children}
-                <Group grow>
+                <Group justify="flex-end">
                     {labels.cancel}
                     {labels.confirm}
                 </Group>

@@ -1,50 +1,31 @@
 import React, { useState } from "react";
-import { ActionIcon, Box, Button, Group, SimpleGrid, Stack, Table, Text } from "@mantine/core";
+import { ActionIcon, Box, Button, Checkbox, Group, Paper, SimpleGrid, Stack, Text, Badge } from "@mantine/core";
 import { themeColors } from "@/theme";
 import { formatCurrency } from "@/utils/FormatCurrency";
-import EmptyState from "@/components/EmptyState/EmptyTable";
+import { JournalEmptyState } from "@/components/EmptyState/JournalEmptyState";
 import { GetReconciliation } from "../services/GetReconciliation.service";
 import { useParams } from "react-router-dom";
 import { dateFormatV1 } from "@/utils/FormatDate";
-import { IconTrash } from "@tabler/icons-react";
+import { ArrowsCounterClockwise, CloudArrowUp, MagnifyingGlass, ArrowCircleDown, ArrowCircleUp, Trash, CheckCircle } from "@phosphor-icons/react";
 import { NotFound } from "@/components/ErrorPage/NotFound";
 import { FindAndReconModal } from "./FindAndReconModal";
-import { BankStatementModel } from "../../BankStatement/types/BankStatementModel";
 import { BankStatementData } from "../types/GetReconciliationModel";
-
-const rowStyle = {
-    borderColor: themeColors.grey[1],
-    borderWidth: '1px',
-    borderStyle: 'solid',
-};
-
-const headTableStyle = {
-    backgroundColor: themeColors.primary[0],
-    borderColor: themeColors.grey[1],
-    borderWidth: '1px',
-    borderStyle: 'solid',
-    borderCollapse: 'collapse' as const,
-};
-
-const headTableFont = {
-    fontSize: 14,
-    fontWeight: 500,
-    color: themeColors.defaultBlack[10]
-};
-
-const columnTableFont = {
-    fontSize: 14,
-    fontWeight: 400,
-    color: themeColors.defaultBlack[10]
-};
+import ImportBankStatementModal from "../../BankStatement/components/ImportBankStatementModal";
+import { useDetailAccount } from "../../Main/hooks/useDetailAccount";
 
 const ReconciliationTable: React.FC = () => {
     const { idAccount } = useParams<{ idAccount: string }>();
     const [modalOpened, setModalOpened] = useState(false);
+    const [isImportModalOpen, setIsImportModalOpen] = useState(false);
     const [selectedBankStatement, setSelectedBankStatement] = useState<BankStatementData | null>(null);
-    let { data: ReconData, isLoading, isError } = GetReconciliation(idAccount!);
-    // const [selectedJournalTransaction, setSelectedJournalTransaction] = useState(null);
+    
+    const { accountDetail } = useDetailAccount(idAccount!);
+    let { data: ReconData, isLoading, isError, refetch } = GetReconciliation(idAccount!);
 
+    console.log("Reconciliation Data Log:", ReconData);
+
+    const handleOpenImportModal = () => setIsImportModalOpen(true);
+    const handleCloseImportModal = () => setIsImportModalOpen(false);
 
     if (isError) {
         return <NotFound />;
@@ -53,284 +34,215 @@ const ReconciliationTable: React.FC = () => {
         return <Text c="red">Failed to load data.</Text>;
     }
 
-    if (!ReconData || !ReconData.bankStatementData || !ReconData.journalTransaction || (ReconData.bankStatementData.length === 0 && ReconData.journalTransaction.length === 0)) {
-        return <EmptyState />;
+    if (!ReconData || !ReconData.bankStatements || !ReconData.journalDetails || (ReconData.bankStatements.length === 0 && ReconData.journalDetails.length === 0)) {
+        return (
+            <>
+                <JournalEmptyState
+                    onButtonClick={handleOpenImportModal}
+                    title="Rekonsiliasi Belum Tersedia"
+                    description="Rekening koran belum diimpor. Import rekening koran terlebih dahulu untuk memulai rekonsiliasi."
+                    buttonLabel="Import Rekening Koran"
+                    buttonIcon={<CloudArrowUp size={16} />}
+                />
+                <ImportBankStatementModal
+                    idAccount={idAccount!}
+                    onContinue={refetch}
+                    isOpen={isImportModalOpen}
+                    onClose={handleCloseImportModal}
+                />
+            </>
+        );
     }
 
-    const openReconModal = (journalTransaction: any, bankStatement: any) => {
+    const openReconModal = (bankStatement: any) => {
         setSelectedBankStatement(bankStatement);
         setModalOpened(true);
-        // setSelectedJournalTransaction(journalTransaction);
     };
 
-    // const matchTransactions = (bankStatement: { debit: number; transactionDate: string }) => {
-    //     return ReconData.journalTransaction.find((journalTransaction) => {
-    //         return (
-    //             (journalTransaction.reconciled ?? false) &&
-    //             journalTransaction.credit === bankStatement.debit &&
-    //             dateFormatV1(journalTransaction.transactionDate).slice(0, 10) === bankStatement.transactionDate.slice(0, 10)
-    //         );
-    //     });
-    // };
+    const rows = ReconData.bankStatements.map((BS) => {
+        let matchingJournal = BS.matchedJournalDetail || null;
+        let isRecommendation = false;
 
-    const matchTransactions = (bankStatement: { debit: number; transactionDate: string }) => {
-        return ReconData.journalTransaction.find((journalTransaction) => {
-            if (!journalTransaction) return false; // Skip null entries
-            return (
-                (journalTransaction.reconciled ?? false) &&
-                journalTransaction.credit === bankStatement.debit &&
-                dateFormatV1(journalTransaction.transactionDate).slice(0, 10) === bankStatement.transactionDate.slice(0, 10)
-            );
-        });
-    };
+        if (!matchingJournal && BS.recommendations && BS.recommendations.length > 0) {
+            matchingJournal = BS.recommendations[0].journalDetail;
+            isRecommendation = true;
+        }
 
-
-    // Reconciliation Rows
-    // const rows = ReconData.bankStatementData.map((BS) => {
-    //     const matchingJournal = matchTransactions({
-    //         debit: BS.debit,
-    //         transactionDate: dateFormatV1(BS.transactionDate).slice(0, 10),
-    //     });
-    //     return { bankStatement: BS, journalTransaction: matchingJournal || null };
-    // });
-
-    const rows = ReconData.bankStatementData.map((BS) => {
-        const matchingJournal = matchTransactions({
-            debit: BS.debit,
-            transactionDate: dateFormatV1(BS.transactionDate).slice(0, 10),
-        });
-        return { bankStatement: BS, journalTransaction: matchingJournal || null };
+        return { bankStatement: BS, journalTransaction: matchingJournal, isRecommendation };
     });
 
-
     return (
-        <>
-            <SimpleGrid cols={2} mt="md">
-                {/* Bank Statement Table */}
-                <Stack>
-                    <Box bg={themeColors.primary[5]} p={10} style={{ borderRadius: 5 }}>
-                        <Group grow justify="space-between" align="center">
-                            <Text fz={14} fw={600} lineClamp={1}>Total Balance in Bank</Text>
-                            <Text fz={14} fw={600} ta='right'>Rp.0</Text>
+        <Stack gap="md" mt="md">
+            <Paper withBorder radius="sm" style={{ overflow: 'hidden' }}>
+                {/* Header Section */}
+                <SimpleGrid cols={2} spacing={0}>
+                    <Box bg={themeColors.blue[1]} p="md">
+                        <Group justify="space-between" align="flex-start">
+                            <Stack gap={0}>
+                                <Text size="xs" fw={500} c={themeColors.blue[6]}>Sumber Data</Text>
+                                <Text size="sm" fw={600} c={themeColors.defaultBlack[10]}>Rekening Koran</Text>
+                            </Stack>
+                            <Stack gap={0} align="flex-end">
+                                <Text size="xs" fw={500} c={themeColors.grey[6]}>Saldo</Text>
+                                <Text size="sm" fw={600} c={themeColors.defaultBlack[10]}>{formatCurrency(accountDetail?.draftAmount || 0)}</Text>
+                            </Stack>
                         </Group>
                     </Box>
-                    <Table highlightOnHover>
-                        <Table.Thead>
-                            <Table.Tr style={headTableStyle}>
-                                <Table.Th colSpan={4} style={headTableFont}>Bank Statement</Table.Th>
-                                <Table.Th colSpan={2} style={headTableFont} ta='left'>Received</Table.Th>
-                                <Table.Th colSpan={2} style={headTableFont} ta='left'>Sent</Table.Th>
-                                <Table.Th colSpan={2} style={headTableFont} ta='center'>Action</Table.Th>
-                            </Table.Tr>
-                        </Table.Thead>
-                        <Table.Tbody>
-                            {rows.map(({ bankStatement }, index) => (
-                                <Table.Tr key={index} style={rowStyle}>
-                                    <Table.Td colSpan={4} style={{ ...columnTableFont, textAlign: "left" }}>
-                                        <Stack gap={0}>
-                                            <Text fz={12} fw={400} c={themeColors.grey[5]}>{dateFormatV1(bankStatement.transactionDate)}</Text>
-                                            <Text fz={12} fw={400} c={themeColors.defaultBlack[10]} lineClamp={1}> {bankStatement.transactionName}</Text>
-                                        </Stack>
-                                    </Table.Td>
-                                    <Table.Td colSpan={2} style={{ ...columnTableFont, textAlign: "left" }}>
-                                        {formatCurrency(bankStatement.debit)}
-                                    </Table.Td>
-                                    <Table.Td colSpan={2} style={{ ...columnTableFont, textAlign: "left" }}>
-                                        {formatCurrency(bankStatement.credit)}
-                                    </Table.Td>
-                                    <Table.Td colSpan={2} style={{ ...columnTableFont, textAlign: "center" }}>
-                                        <ActionIcon variant="light" color={themeColors.grey[5]} aria-label="find" >
-                                            <IconTrash style={{ width: '70%', height: '70%' }} stroke={1.5} />
-                                        </ActionIcon>
-                                    </Table.Td>
-                                </Table.Tr>
-                            ))}
-                        </Table.Tbody>
-                    </Table>
-                </Stack>
-                {/* Journal Transaction Table */}
-                <Stack>
-                    <Box bg={themeColors.grey[5]} p={10} style={{ borderRadius: 5 }}>
-                        <Group grow justify="space-between" align="center">
-                            <Text fz={14} fw={600} lineClamp={1}>Total Balance in Proapps Journal</Text>
-                            <Text fz={14} fw={600} ta='right'>Rp.0</Text>
+                    <Box bg={themeColors.figmaTeal[1]} p="md" style={{ borderLeft: `1px solid ${themeColors.grey[1]}` }}>
+                        <Group justify="space-between" align="flex-start">
+                            <Stack gap={0}>
+                                <Text size="xs" fw={500} c={themeColors.figmaTeal[6]}>Pembukuan</Text>
+                                <Text size="sm" fw={600} c={themeColors.defaultBlack[10]}>Jurnal Transaksi</Text>
+                            </Stack>
+                            <Stack gap={0} align="flex-end">
+                                <Text size="xs" fw={500} c={themeColors.grey[6]}>Saldo</Text>
+                                <Text size="sm" fw={600} c={themeColors.defaultBlack[10]}>{formatCurrency(accountDetail?.amount || 0)}</Text>
+                            </Stack>
                         </Group>
                     </Box>
-                    <Table highlightOnHover>
-                        <Table.Thead>
-                            <Table.Tr style={headTableStyle}>
-                                <Table.Th colSpan={4} style={headTableFont}>Transaction</Table.Th>
-                                <Table.Th colSpan={2} style={headTableFont} ta='left'>Received</Table.Th>
-                                <Table.Th colSpan={2} style={headTableFont} ta='left'>Sent</Table.Th>
-                                <Table.Th colSpan={2} style={headTableFont} ta='center'>Action</Table.Th>
-                            </Table.Tr>
-                        </Table.Thead>
-                        <Table.Tbody>
-                            {rows.map(({ bankStatement, journalTransaction }, index) => (
-                                <Table.Tr key={index} style={rowStyle}>
-                                    {journalTransaction ? (
-                                        <>
-                                            <Table.Td colSpan={4} style={{ ...columnTableFont, textAlign: "left" }}>
+                </SimpleGrid>
+
+                {/* Rows Section */}
+                <Stack gap={0}>
+                    {rows.map(({ bankStatement, journalTransaction, isRecommendation }, index) => (
+                        <SimpleGrid key={index} cols={2} spacing={0} style={{ borderTop: `1px solid ${themeColors.grey[1]}` }}>
+                            {/* Left Side: Bank Statement (Sumber Data) */}
+                            <Box p="md" bg={themeColors.blue[0]} style={{ position: 'relative' }}>
+                                <Group wrap="nowrap" align="flex-start" gap="md">
+                                    <Checkbox mt="xs" styles={{ input: { backgroundColor: 'white' } }} />
+                                    <Paper withBorder p="sm" radius="sm" flex={1} bg="white" style={{ borderLeft: `4px solid ${themeColors.blue[6]}` }}>
+                                        <Stack gap="xs">
+                                            <Group justify="space-between" align="flex-start">
                                                 <Stack gap={0}>
-                                                    <Text fz={12} fw={400} c={themeColors.grey[5]}>{dateFormatV1(journalTransaction.transactionDate)}</Text>
-                                                    <Text fz={12} fw={400} c={themeColors.defaultBlack[10]} lineClamp={1}> {journalTransaction.transactionNumber}</Text>
+                                                    <Text size="xs" c={themeColors.grey[6]} fw={400}>{dateFormatV1(bankStatement.date)}</Text>
+                                                    <Text size="sm" fw={600} c={themeColors.defaultBlack[10]} lineClamp={1}>{bankStatement.description}</Text>
                                                 </Stack>
-                                            </Table.Td>
-                                            <Table.Td colSpan={2} style={{ ...columnTableFont, textAlign: "left" }}>
-                                                {journalTransaction.transactionNumber}
-                                            </Table.Td>
-                                            <Table.Td colSpan={2} style={{ ...columnTableFont, textAlign: "left" }}>
-                                                {formatCurrency(journalTransaction.credit)}
-                                            </Table.Td>
-                                            <Table.Td colSpan={2} style={{ ...columnTableFont, textAlign: "center", color: "green" }}>
-                                                <Button variant="filled">Find</Button>;
-                                            </Table.Td>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Table.Td colSpan={8} style={{ ...columnTableFont, textAlign: "left", color: "red" }}>
-                                                <Text fz={12} fw={400} c={themeColors.grey[5]}>{dateFormatV1(bankStatement.transactionDate)}</Text>
-                                                <Text fz={12} fw={400} c={themeColors.defaultBlack[10]} lineClamp={1}> There is no suitable match for this transaction.</Text>
-                                            </Table.Td>
-                                            <Table.Td style={{ ...columnTableFont, textAlign: "center", color: "green" }}>
-                                                <Button variant="filled" size="xs" bg={themeColors.blue[5]} onClick={() => openReconModal(journalTransaction, bankStatement)}>Find</Button>
-                                            </Table.Td>
-                                        </>
-                                    )}
-                                </Table.Tr>
-                            ))}
-                        </Table.Tbody>
-                    </Table>
+                                                <Stack align="flex-end" gap={4}>
+                                                    <Badge 
+                                                        variant="light" 
+                                                        color={bankStatement.amount > 0 ? "green" : "red"}
+                                                        leftSection={bankStatement.amount > 0 ? <ArrowCircleDown size={14} /> : <ArrowCircleUp size={14} />}
+                                                        style={{ textTransform: 'capitalize' }}
+                                                    >
+                                                        {bankStatement.amount > 0 ? "Diterima" : "Dikirim"}
+                                                    </Badge>
+                                                    <Text size="sm" fw={700} c={themeColors.defaultBlack[10]}>{formatCurrency(Math.abs(bankStatement.amount))}</Text>
+                                                </Stack>
+                                            </Group>
+                                            <Group justify="space-between" align="flex-end">
+                                                {journalTransaction ? (
+                                                    <Group gap={4}>
+                                                        <CheckCircle size={16} color={themeColors.green[6]} weight="fill" />
+                                                        <Text size="xs" c={themeColors.green[6]} fw={500}>
+                                                            Cocok dengan {journalTransaction.transactionNumber ? `Jurnal Transaksi #${journalTransaction.transactionNumber}` : journalTransaction.description}
+                                                        </Text>
+                                                    </Group>
+                                                ) : (
+                                                    <Group gap={4} style={{ cursor: 'pointer' }}>
+                                                        <MagnifyingGlass size={16} color={themeColors.grey[5]} />
+                                                        <Text size="xs" c={themeColors.grey[6]} fw={500}>Belum dipasangkan</Text>
+                                                    </Group>
+                                                )}
+                                                <ActionIcon variant="subtle" color="gray" size="sm">
+                                                    <Trash size={18} weight="regular" />
+                                                </ActionIcon>
+                                            </Group>
+                                        </Stack>
+                                    </Paper>
+                                </Group>
+                            </Box>
+
+                            {/* Right Side: Journal Match (Pembukuan) */}
+                            <Box p="md" bg={themeColors.figmaTeal[0]} style={{ borderLeft: `1px solid ${themeColors.grey[1]}` }}>
+                                {journalTransaction ? (
+                                    <Paper withBorder p="sm" radius="sm" bg="white" style={{ borderLeft: `4px solid ${themeColors.figmaTeal[6]}`, height: '100%' }}>
+                                        <Stack gap="xs" h="100%" justify="center">
+                                            <Group justify="space-between" align="flex-start">
+                                                <Stack gap={0}>
+                                                    <Text size="xs" c={themeColors.grey[6]} fw={400}>{dateFormatV1(journalTransaction.transactionDate)}</Text>
+                                                    <Text size="sm" fw={600} c={themeColors.defaultBlack[10]} lineClamp={1}>
+                                                        {journalTransaction.transactionNumber ? `Jurnal Transaksi #${journalTransaction.transactionNumber}` : journalTransaction.description}
+                                                    </Text>
+                                                </Stack>
+                                                <Text size="sm" fw={700} c={themeColors.defaultBlack[10]}>{formatCurrency(journalTransaction.credit || journalTransaction.debit)}</Text>
+                                            </Group>
+                                            <Group justify="space-between" align="flex-end">
+                                                <Group gap={4}>
+                                                    <CheckCircle size={16} color={themeColors.green[6]} weight="fill" />
+                                                    <Text size="xs" c={themeColors.green[6]} fw={500}>
+                                                        Cocok dengan {bankStatement.description}
+                                                    </Text>
+                                                </Group>
+                                                <ActionIcon variant="subtle" color="gray" size="sm">
+                                                    <Trash size={18} weight="regular" />
+                                                </ActionIcon>
+                                            </Group>
+                                        </Stack>
+                                    </Paper>
+                                ) : (
+                                    <Box 
+                                        h="100%" 
+                                        style={{ 
+                                            border: `1px dashed ${themeColors.figmaTeal[4]}`, 
+                                            borderRadius: '8px',
+                                            backgroundColor: themeColors.figmaTeal[0],
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            cursor: 'pointer',
+                                            minHeight: '110px'
+                                        }}
+                                        onClick={() => openReconModal(bankStatement)}
+                                    >
+                                        <Group gap={6}>
+                                            <MagnifyingGlass size={20} weight="bold" color={themeColors.figmaTeal[5]} />
+                                            <Text size="sm" fw={600} c={themeColors.figmaTeal[6]}>Cari & Cocokkan</Text>
+                                        </Group>
+                                        <Text size="xs" c={themeColors.figmaTeal[6]} fw={500}>Pilih jurnal untuk dipasangkan</Text>
+                                    </Box>
+                                )}
+                            </Box>
+                        </SimpleGrid>
+                    ))}
                 </Stack>
-            </SimpleGrid>
+            </Paper>
+
+            {/* Footer Buttons */}
+            <Group justify="flex-end" mt="xl">
+                <Button variant="subtle" color="gray" fw={500}>Reset</Button>
+                <Button 
+                    disabled={rows.every(r => !r.journalTransaction)} 
+                    leftSection={<ArrowsCounterClockwise size={16} />}
+                    variant="filled"
+                    bg={themeColors.grey[2]}
+                    styles={{
+                        root: {
+                            '--button-color': themeColors.grey[2],
+                            '&:disabled': {
+                                backgroundColor: themeColors.grey[2],
+                                color: themeColors.grey[5],
+                            }
+                        }
+                    }}
+                >
+                    Rekonsiliasi
+                </Button>
+            </Group>
+
             <FindAndReconModal
                 opened={modalOpened}
                 onClose={() => setModalOpened(false)}
                 SelectedBankStatament={selectedBankStatement}
             />
-        </>
+            <ImportBankStatementModal
+                idAccount={idAccount!}
+                onContinue={refetch}
+                isOpen={isImportModalOpen}
+                onClose={handleCloseImportModal}
+            />
+        </Stack>
     );
 };
 
 export default ReconciliationTable;
-
-//     const ReconBankStatementTable = () => {
-//         return (
-//             <Stack>
-//                 <Box bg={themeColors.primary[5]} p={10} style={{ borderRadius: 5 }}>
-//                     <Group grow justify="space-between" align="center">
-//                         <Text fz={14} fw={600} lineClamp={1}>Total Balance in Bank</Text>
-//                         <Text fz={14} fw={600} ta='right'>Rp.0</Text>
-//                     </Group>
-//                 </Box>
-//                 <Table highlightOnHover>
-//                     <Table.Thead>
-//                         <Table.Tr style={headTableStyle}>
-//                             <Table.Th colSpan={4} style={headTableFont}>Bank Statement</Table.Th>
-//                             <Table.Th colSpan={2} style={headTableFont} ta='left'>Received</Table.Th>
-//                             <Table.Th colSpan={2} style={headTableFont} ta='left'>Sent</Table.Th>
-//                             <Table.Th colSpan={2} style={headTableFont} ta='center'>Match</Table.Th>
-//                         </Table.Tr>
-//                     </Table.Thead>
-
-//                     <Table.Tbody>
-//                         {ReconData.bankStatementData.map((BS) => {
-//                             const matchingTransaction = getMatchTransaction({
-//                                 debit: BS.debit,
-//                                 transactionDate: dateFormatV1(BS.transactionDate).slice(0, 10),
-//                             });
-
-//                             return (
-//                                 <Table.Tr key={BS.id} style={rowStyle}>
-//                                     <Table.Td colSpan={4} style={{ ...columnTableFont, textAlign: "left" }}>
-//                                         <Stack gap={0}>
-//                                             <Text fz={12} fw={400} c={themeColors.grey[5]}>{dateFormatV1(BS.transactionDate)}</Text>
-//                                             <Text fz={12} fw={400} c={themeColors.defaultBlack[10]} lineClamp={1}>{BS.transactionName}</Text>
-//                                         </Stack>
-//                                     </Table.Td>
-//                                     <Table.Td colSpan={2} style={{ ...columnTableFont, textAlign: "left" }}>
-//                                         {formatCurrency(BS.credit)}
-//                                     </Table.Td>
-//                                     <Table.Td colSpan={2} style={{ ...columnTableFont, textAlign: "left" }}>
-//                                         {formatCurrency(BS.debit)}
-//                                     </Table.Td>
-//                                     <Table.Td colSpan={2} style={{ textAlign: "center", ...columnTableFont }}>
-//                                         {matchingTransaction ? <Text c="green">Matched</Text> : <Text c="red">Unmatched</Text>}
-//                                     </Table.Td>
-//                                 </Table.Tr>
-//                             );
-//                         })}
-//                     </Table.Tbody>
-//                 </Table>
-//             </Stack>
-//         );
-//     };
-
-//     const ReconTransactionTable = () => {
-//         return (
-//             <Stack>
-//                 <Box bg={themeColors.grey[5]} p={10} style={{ borderRadius: 5 }}>
-//                     <Group grow justify="space-between" align="center">
-//                         <Text fz={14} fw={600} lineClamp={1}>Total Balance in Proapps Journal</Text>
-//                         <Text fz={14} fw={600} ta='right'>Rp.0</Text>
-//                     </Group>
-//                 </Box>
-//                 <Table highlightOnHover>
-//                     <Table.Thead>
-//                         <Table.Tr style={headTableStyle}>
-//                             <Table.Th colSpan={4} style={headTableFont}>Transaction</Table.Th>
-//                             <Table.Th colSpan={2} style={headTableFont} ta='left'>Received</Table.Th>
-//                             <Table.Th colSpan={2} style={headTableFont} ta='left'>Sent</Table.Th>
-//                             <Table.Th colSpan={2} style={headTableFont} ta='center'>Action</Table.Th>
-//                         </Table.Tr>
-//                     </Table.Thead>
-//                     <Table.Tbody>
-//                         {ReconData.journalTransaction.map((JT) => (
-//                             <Table.Tr key={JT.id} style={rowStyle}>
-//                                 <Table.Td colSpan={4} style={{ ...columnTableFont, textAlign: "left" }}>
-//                                     <Stack gap={0}>
-//                                         <Text fz={12} fw={400} c={themeColors.grey[5]}>{dateFormatV1(JT.transactionDate)}</Text>
-//                                         <Text fz={12} fw={400} c={themeColors.defaultBlack[10]} lineClamp={1}>{JT.transactionNumber}</Text>
-//                                     </Stack>
-//                                 </Table.Td>
-//                                 <Table.Td colSpan={2} style={{ ...columnTableFont, textAlign: "left" }}>
-//                                     {formatCurrency(JT.debit)}
-//                                 </Table.Td>
-//                                 <Table.Td colSpan={2} style={{ ...columnTableFont, textAlign: "left" }}>
-//                                     {formatCurrency(JT.credit)}
-//                                 </Table.Td>
-//                                 <Table.Td colSpan={2} style={{ textAlign: "center", ...columnTableFont }}>
-//                                     {matchedTransactions.has(JT.id) ? (
-//                                         <Text c="green">Matched</Text>
-//                                     ) : (
-//                                         <Group gap="xs">
-//                                             <ActionIcon variant="filled" color={themeColors.primary[6]} aria-label="recon">
-//                                                 <IconPuzzle style={{ width: '70%', height: '70%' }} stroke={1.5} />
-//                                             </ActionIcon>
-//                                             <ActionIcon variant="filled" color={themeColors.blue[6]} aria-label="find">
-//                                                 <IconSearch style={{ width: '70%', height: '70%' }} stroke={1.5} />
-//                                             </ActionIcon>
-//                                         </Group>
-//                                     )}
-//                                 </Table.Td>
-//                             </Table.Tr>
-//                         ))}
-//                     </Table.Tbody>
-//                 </Table>
-//             </Stack>
-//         );
-//     };
-
-//     return (
-//         <SimpleGrid cols={2} mt='md'>
-//             <Stack>
-//                 <ReconBankStatementTable />
-//             </Stack>
-//             <Stack>
-//                 <ReconTransactionTable />
-//             </Stack>
-//         </SimpleGrid>
-//     );
-// }
-
-// export default ReconciliationTable;

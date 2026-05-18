@@ -1,27 +1,25 @@
 import { create } from 'zustand'
-import { Data } from '../types/ImportBankStatement.model';
+import { BankStatementPreviewItem } from '../types/ImportBankStatement.model';
 
 interface BankStatementState {
     showAlert: boolean;
-    errorMessages: [];
-    masterData: Data;
-    totalData: Data[];
-    wrongData: Data[];
-    correctData: Data[];
+    errorMessages: string[];
+    totalData: BankStatementPreviewItem[];
+    wrongData: BankStatementPreviewItem[];
+    correctData: BankStatementPreviewItem[];
     sumTotalData: number;
     totalWrongData: number;
     totalCorrectData: number;
-    setMasterData: (datas: Data) => void;
-    setTotalData: (datas: Data[]) => void;
+    
     setShowAlert: (status: boolean) => void;
-    setWrongData: (wrongDatas: Data[]) => void;
-    setErrorMessages: (dataMessages: any) => void;
-    setCorrectData: (correctDatas: Data[]) => void;
+    setImportData: (preview: BankStatementPreviewItem[]) => void;
+    setErrorMessages: (dataMessages: string[]) => void;
+    updateItem: (rowIndex: number, updatedItem: Partial<BankStatementPreviewItem>) => void;
+    deleteItem: (rowIndex: number) => void;
 }
 
 export const useBankStatementStore = create<BankStatementState>((set) => ({
-    showAlert: true,
-    masterData: [],
+    showAlert: false,
     totalData: [],
     wrongData: [],
     correctData: [],
@@ -29,23 +27,67 @@ export const useBankStatementStore = create<BankStatementState>((set) => ({
     sumTotalData: 0,
     totalWrongData: 0,
     totalCorrectData: 0,
+    
     setShowAlert: (status) => set({ showAlert: status }),
-    setMasterData: (datas) => set({ masterData: datas }),
-    setTotalData: (datas) =>
-        set(() => {
-            return { totalData: datas, sumTotalData: datas.length }
-        }),
-    setWrongData: (wrongDatas) =>
-        set(() => {
-            return { wrongData: wrongDatas, totalWrongData: wrongDatas.length }
-        }),
-    setCorrectData: (correctDatas) =>
-        set(() => {
-            return { correctData: correctDatas, totalCorrectData: correctDatas.length }
-        }),
+    
+    setImportData: (preview) => {
+        const correct = preview.filter(item => item.isValid);
+        const wrong = preview.filter(item => !item.isValid);
+        const allErrors = wrong.map(item => `Row ${item.rowIndex}: ${item.errors.join(', ')}`);
+        
+        set({
+            totalData: preview,
+            correctData: correct,
+            wrongData: wrong,
+            sumTotalData: preview.length,
+            totalCorrectData: correct.length,
+            totalWrongData: wrong.length,
+            errorMessages: allErrors,
+            showAlert: allErrors.length > 0
+        });
+    },
+
     setErrorMessages: (dataMessages) =>
         set(() => {
-            return { errorMessages: dataMessages, showAlert: dataMessages.length === 0 ? false : true }
+            return { errorMessages: dataMessages, showAlert: dataMessages.length > 0 }
         }),
-}))
 
+    updateItem: (rowIndex, updatedItem) => set((state) => {
+        const totalData = state.totalData.map((item) => 
+            item.rowIndex === rowIndex ? { ...item, ...updatedItem } : item
+        );
+        
+        const correct = totalData.filter(item => item.isValid);
+        const wrong = totalData.filter(item => !item.isValid);
+        const allErrors = wrong.map(item => `Row ${item.rowIndex}: ${item.errors.join(', ')}`);
+
+        return {
+            totalData,
+            correctData: correct,
+            wrongData: wrong,
+            sumTotalData: totalData.length,
+            totalCorrectData: correct.length,
+            totalWrongData: wrong.length,
+            errorMessages: allErrors,
+            showAlert: allErrors.length > 0
+        };
+    }),
+
+    deleteItem: (rowIndex) => set((state) => {
+        const totalData = state.totalData.filter((item) => item.rowIndex !== rowIndex);
+        const correct = totalData.filter(item => item.isValid);
+        const wrong = totalData.filter(item => !item.isValid);
+        const allErrors = wrong.map(item => `Row ${item.rowIndex}: ${item.errors.join(', ')}`);
+
+        return {
+            totalData,
+            correctData: correct,
+            wrongData: wrong,
+            sumTotalData: totalData.length,
+            totalCorrectData: correct.length,
+            totalWrongData: wrong.length,
+            errorMessages: allErrors,
+            showAlert: allErrors.length > 0
+        };
+    }),
+}))

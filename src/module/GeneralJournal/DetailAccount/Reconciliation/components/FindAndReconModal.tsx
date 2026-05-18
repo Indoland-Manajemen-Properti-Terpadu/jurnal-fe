@@ -1,17 +1,16 @@
-import { themeColors, buttonGradient, gradientColors } from "@/theme"
-import { Button, Stack, Divider, Text, Input, SimpleGrid, Group, Checkbox, Box, Flex } from "@mantine/core"
-import { IconCalendar, IconSearch } from "@tabler/icons-react"
+import { themeColors } from "@/theme"
+import { Button, Stack, Text, Input, Group, Paper, Badge } from "@mantine/core"
+import { IconCalendar } from "@tabler/icons-react"
 import CustomConfirmModal from "@/components/Modals/ConfirmModal"
 import { useState } from "react"
 import { DataTable } from "mantine-datatable"
 import { formatCurrency } from "@/utils/FormatCurrency"
 import { DatePickerInput } from "@mantine/dates"
-import { BankStatementModel } from "../../BankStatement/types/BankStatementModel"
 import { GetTransactionByAccountRecon } from "../services/TransactionByAccountRecon.service"
 import { useParams } from "react-router-dom"
 import { dateFormatV1 } from "@/utils/FormatDate"
 import { BankStatementData } from "../types/GetReconciliationModel"
-import { useMemo } from "react";
+import { ArrowCircleDown, ArrowCircleUp, MagnifyingGlass } from "@phosphor-icons/react"
 import useFilterTransaction from "../../Main/store/FilterTransaction"
 
 interface FindAndReconModalProps {
@@ -21,17 +20,12 @@ interface FindAndReconModalProps {
 }
 
 export const FindAndReconModal: React.FC<FindAndReconModalProps> = ({ opened, onClose, SelectedBankStatament }) => {
-    const initialFromDate = new Date("2024-01-01");
-    const initialToDate = new Date();
-    const [value, setValue] = useState<[Date | null, Date | null]>([initialFromDate, initialToDate]);
-    const [expenditure, setExpenditure] = useState(false);
     const { idAccount } = useParams<{ idAccount: string }>();
-    const { data: ReconTransaction } = GetTransactionByAccountRecon(idAccount!, expenditure);
-    const [selectedRecords, setSelectedRecords] = useState<TransactionByAccountRecon[]>([]);
     const { searchQuery, setSearchQuery, selectedDate, setSelectedDate } = useFilterTransaction();
+    const { data: ReconTransaction } = GetTransactionByAccountRecon(idAccount!, false);
+    const [selectedRecords, setSelectedRecords] = useState<any[]>([]);
 
-
-    const filteredTransaction = ReconTransaction?.filter((item: TransactionByAccountRecon) => {
+    const filteredTransaction = ReconTransaction?.filter((item: any) => {
         const matchesQuery =
             (item.transactionNumber && String(item.transactionNumber)
                 .toLowerCase()
@@ -48,208 +42,155 @@ export const FindAndReconModal: React.FC<FindAndReconModalProps> = ({ opened, on
         return matchesQuery && matchesDate;
     });
 
-    // Validation for check Reconciliate matched beetween bank statement === journal transaction
-    const reconcileMatch = useMemo(() => {
-        if (!SelectedBankStatament || selectedRecords.length === 0) return false;
+    const totalNominal = Math.abs(SelectedBankStatament?.amount || 0);
+    const selectedNominal = selectedRecords.reduce((total, record) => {
+        return total + (record.debit || record.credit || 0);
+    }, 0);
+    const shortageNominal = totalNominal - selectedNominal;
 
-        // Bank Statement details
-        const bankAmount = SelectedBankStatament.debit || SelectedBankStatament.credit;
-        const bankDate = dateFormatV1(SelectedBankStatament.transactionDate);
-
-        // Selected journal transaction details
-        const match = selectedRecords.some((record) => {
-            const journalAmount = selectedRecords.length > 1
-                ? selectedRecords.reduce((total, { debit, credit }) => total + (debit || credit || 0), 0)
-                : record.debit || record.credit;
-            const journalDate = dateFormatV1(record.transactionDate);
-            return journalAmount === bankAmount && journalDate === bankDate;
-        });
-
-        return match;
-    }, [SelectedBankStatament, selectedRecords]);
-
-
-    const bankStatementColumn = [
+    const columns = [
         {
-            accessor: 'bankStatement',
-            title: 'Bank Statement',
-            render: (element: BankStatementData) =>
-                <Text c={themeColors.defaultBlack[10]} fz={14}>{element.transactionName}</Text>
+            accessor: 'transactionNumber',
+            title: <Text size="sm" fw={600} c={themeColors.defaultBlack[10]}>No Transaksi</Text>,
+            render: (element: any) => (
+                <Text size="sm" c={themeColors.figmaTeal[6]} fw={500} style={{ textDecoration: 'underline', cursor: 'pointer' }}>
+                    Jurnal Transaksi #{element.transactionNumber}
+                </Text>
+            ),
         },
         {
             accessor: 'transactionDate',
-            title: 'Transaction Date',
-            render: (element: BankStatementData) => <Text c={themeColors.defaultBlack[10]} fz={14}>{dateFormatV1(element.transactionDate)}</Text>,
+            title: <Text size="sm" fw={600} c={themeColors.defaultBlack[10]}>Tanggal</Text>,
+            render: (element: any) => <Text size="sm" c={themeColors.defaultBlack[10]}>{dateFormatV1(element.transactionDate)}</Text>,
         },
         {
-            accessor: 'received',
-            title: 'Received',
-            render: (element: BankStatementData) => <Text c={themeColors.defaultBlack[10]} fz={14}>{formatCurrency(element.debit)}</Text>,
+            accessor: 'debit',
+            title: <Text size="sm" fw={600} c={themeColors.defaultBlack[10]}>Debit (Dalam Rp)</Text>,
+            render: (element: any) => <Text size="sm" c={themeColors.defaultBlack[10]}>{formatCurrency(element.debit || 0)}</Text>,
         },
         {
-            accessor: 'sent',
-            title: 'Sent',
-            render: (element: BankStatementData) => <Text c={themeColors.defaultBlack[10]} fz={14}>{formatCurrency(element.credit)}</Text>,
+            accessor: 'credit',
+            title: <Text size="sm" fw={600} c={themeColors.defaultBlack[10]}>Kredit (Dalam Rp)</Text>,
+            render: (element: any) => <Text size="sm" c={themeColors.defaultBlack[10]}>{formatCurrency(element.credit || 0)}</Text>,
         }
-    ]
-    const journalTransactiontColumn = [
-        {
-            accessor: 'bankStatement',
-            title: 'Journal Transaction',
-            render: (element: TransactionByAccountRecon) =>
-                <Text c={themeColors.defaultBlack[10]} fz={14}>Journal Entry #{element.transactionNumber}</Text>
-        },
-        {
-            accessor: 'transactionDate',
-            title: 'Transaction Date',
-            render: (element: TransactionByAccountRecon) => <Text c={themeColors.defaultBlack[10]} fz={14}>{dateFormatV1(element.transactionDate)}</Text>,
-        },
-        {
-            accessor: 'received',
-            title: 'Received',
-            render: (element: TransactionByAccountRecon) => <Text c={themeColors.defaultBlack[10]} fz={14}>{formatCurrency(element.debit)}</Text>,
-        },
-        {
-            accessor: 'sent',
-            title: 'Sent',
-            render: (element: TransactionByAccountRecon) => <Text c={themeColors.defaultBlack[10]} fz={14}>{formatCurrency(element.credit)}</Text>,
-        }
-    ]
-
-
-    const NominalDetails = () => {
-        const bankStatementAmount = SelectedBankStatament
-            ? SelectedBankStatament.debit > 0
-                ? SelectedBankStatament.debit
-                : SelectedBankStatament.credit
-            : 0;
-
-        const selectedTransactionAmount = selectedRecords.reduce((total, record) => {
-            return total + (record.debit > 0 ? record.debit : record.credit);
-        }, 0);
-
-        // Calculated values
-        const adjustNominal = Math.max(0, selectedTransactionAmount - bankStatementAmount);
-        const shortageNominal = Math.max(0, bankStatementAmount - selectedTransactionAmount);
-
-        return (
-            <Box bg={themeColors.grey[0]} bd="sm" p={10} style={{ borderRadius: 5 }}>
-                <Group grow justify="space-between" align="center">
-                    <Text fz={14} fw={400} c={themeColors.grey[7]}>
-                        Adjust Nominal
-                    </Text>
-                    <Text fz={14} fw={400} c={themeColors.defaultBlack[10]} ta="right">
-                        {formatCurrency(adjustNominal)}
-                    </Text>
-                </Group>
-                <Group grow justify="space-between" align="center">
-                    <Text fz={14} fw={400} c={themeColors.grey[7]}>
-                        Selected Nominal
-                    </Text>
-                    <Text fz={14} fw={400} c={themeColors.defaultBlack[10]} ta="right">
-                        {formatCurrency(selectedTransactionAmount)}
-                    </Text>
-                </Group>
-                <Group grow justify="space-between" align="center">
-                    <Text fz={14} fw={400} c={themeColors.red[6]}>
-                        Nominal Shortage
-                    </Text>
-                    <Text fz={14} fw={400} c={themeColors.red[6]} ta="right">
-                        {formatCurrency(shortageNominal)}
-                    </Text>
-                </Group>
-            </Box>
-        );
-    };
-
-
+    ];
 
     return (
         <CustomConfirmModal
-            size="55rem"
+            size="65rem"
             opened={opened}
             onClose={onClose}
             withCloseButton={true}
-            title={<Text variant="gradient" gradient={gradientColors.mainGR} fz={16} fw={500}>Reconcile the journal transactions with the bank statement</Text>}
+            title={<Text fw={700} fz={18} c={themeColors.defaultBlack[10]}>Cocokkan dengan Rekening Koran</Text>}
             labels={{
                 confirm:
                     <Button
-                        variant="gradient"
-                        gradient={buttonGradient.gradient}
+                        variant="filled"
+                        bg={shortageNominal === 0 ? themeColors.grey[2] : themeColors.grey[1]}
                         onClick={onClose}
-                        disabled={!reconcileMatch}
+                        disabled={shortageNominal !== 0}
+                        style={{ 
+                            color: shortageNominal === 0 ? themeColors.defaultBlack[10] : themeColors.grey[5] 
+                        }}
                     >
-                        Reconcile
+                        Cocokkan
                     </Button>,
                 cancel:
                     <Button
-                        variant="light"
-                        color={themeColors.grey[7]}
+                        variant="filled"
+                        bg={themeColors.blue[0]}
+                        c={themeColors.blue[6]}
                         onClick={onClose}
                     >
-                        Cancel
+                        Batal
                     </Button>
             }}
         >
-            <Stack gap='xs' align="stretch" justify="center">
-                <Divider />
-                <Text c={themeColors.defaultBlack[10]} fz={16} fw={500}>Bank Statement</Text>
-                <DataTable
-                    withTableBorder
-                    borderRadius="md"
-                    striped
-                    highlightOnHover
-                    fz="sm"
-                    columns={bankStatementColumn}
-                    records={SelectedBankStatament ? [SelectedBankStatament] : []}
-                />
-                <Text c={themeColors.defaultBlack[10]} fz={16} fw={500}>Find Transaction Journal</Text>
-                <SimpleGrid cols={3}>
+            <Stack gap="md">
+                {/* Bank Statement Summary Card */}
+                {SelectedBankStatament && (
+                    <Paper withBorder p="md" radius="sm" bg="white">
+                        <Stack gap="xs">
+                            <Text size="xs" fw={600} c={themeColors.defaultBlack[10]}>Rekening Koran</Text>
+                            <Group justify="space-between" align="flex-start">
+                                <Stack gap={2}>
+                                    <Text size="xs" c={themeColors.grey[6]}>{dateFormatV1(SelectedBankStatament.date)}</Text>
+                                    <Text size="sm" fw={600} c={themeColors.defaultBlack[10]}>{SelectedBankStatament.description}</Text>
+                                </Stack>
+                                <Stack align="flex-end" gap={4}>
+                                    <Badge 
+                                        variant="light" 
+                                        color={SelectedBankStatament.amount > 0 ? "green" : "red"}
+                                        leftSection={SelectedBankStatament.amount > 0 ? <ArrowCircleDown size={14} /> : <ArrowCircleUp size={14} />}
+                                    >
+                                        <Text size="xs" fw={700} c={SelectedBankStatament.amount > 0 ? themeColors.green[8] : themeColors.red[8]}>
+                                            {SelectedBankStatament.amount > 0 ? "Diterima" : "Dikirim"}
+                                        </Text>
+                                    </Badge>
+                                    <Text size="sm" fw={700} c={themeColors.defaultBlack[10]}>{formatCurrency(Math.abs(SelectedBankStatament.amount))}</Text>
+                                </Stack>
+                            </Group>
+                        </Stack>
+                    </Paper>
+                )}
+
+                <Text fw={600} size="sm" c={themeColors.defaultBlack[10]}>Cari Jurnal Transaksi</Text>
+
+                {/* Filters */}
+                <Group grow>
                     <Input
-                        key='bankStatement'
-                        placeholder="Find Transaction"
-                        size="xs"
-                        leftSection={<IconSearch size={16} />}
+                        placeholder="Cari kode atau nama akun..."
+                        leftSection={<MagnifyingGlass size={16} color={themeColors.grey[6]} />}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
+                        styles={{ input: { color: themeColors.defaultBlack[10] } }}
                     />
                     <DatePickerInput
-                        type="range"
-                        placeholder="Select start date and end date"
-                        value={value}
-                        valueFormat="DD/MM/YYYY"
-                        onChange={setValue}
-                        size="xs"
-                        highlightToday
+                        placeholder="Semua Tanggal"
+                        leftSection={<IconCalendar size={18} color={themeColors.grey[6]} />}
+                        value={selectedDate}
+                        onChange={setSelectedDate}
                         clearable
-                        rightSection={!value ? <IconCalendar size={16} /> : null}
-                        maxDate={new Date()}
+                        styles={{ input: { color: themeColors.defaultBlack[10] } }}
                     />
-                    <Button variant="default" size="xs">
-                        <Checkbox
-                            defaultChecked
-                            label="Show Expenditur"
-                            color="cyan"
-                            variant="outline"
-                            size="xs"
-                            checked={expenditure}
-                            onChange={() => setExpenditure((prev) => !prev)}
-                        />
-                    </Button>
-                </SimpleGrid >
+                </Group>
+
+                {/* Journal Transactions Table */}
                 <DataTable
                     withTableBorder
-                    borderRadius="md"
-                    striped
-                    highlightOnHover
+                    borderRadius="sm"
                     fz="sm"
-                    columns={journalTransactiontColumn}
-                    records={filteredTransaction}
+                    columns={columns}
+                    records={filteredTransaction || []}
                     selectedRecords={selectedRecords}
                     onSelectedRecordsChange={setSelectedRecords}
+                    minHeight={200}
+                    paginationColor="teal"
+                    styles={{
+                        header: { color: themeColors.defaultBlack[10] },
+                        row: { color: themeColors.defaultBlack[10] }
+                    }}
                 />
-                <NominalDetails />
-                <Divider />
+
+                {/* Modal Footer Info */}
+                <Group justify="space-between" mt="sm">
+                    <Group gap="lg">
+                        <Group gap={4}>
+                            <Text size="sm" fw={500} c={themeColors.defaultBlack[10]}>Total Nominal:</Text>
+                            <Text size="sm" fw={700} c={themeColors.defaultBlack[10]}>{formatCurrency(totalNominal)}</Text>
+                        </Group>
+                        <Group gap={4}>
+                            <Text size="sm" fw={500} c={themeColors.defaultBlack[10]}>Dipilih:</Text>
+                            <Text size="sm" fw={700} c={themeColors.defaultBlack[10]}>{formatCurrency(selectedNominal)}</Text>
+                        </Group>
+                        <Group gap={4}>
+                            <Text size="sm" fw={500} c={themeColors.defaultBlack[10]}>Kekurangan:</Text>
+                            <Text size="sm" fw={700} c={shortageNominal > 0 ? themeColors.red[7] : themeColors.figmaTeal[6]}>
+                                {formatCurrency(Math.abs(shortageNominal))}
+                            </Text>
+                        </Group>
+                    </Group>
+                </Group>
             </Stack>
         </CustomConfirmModal>
     )

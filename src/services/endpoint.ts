@@ -41,9 +41,11 @@ export const API_ACCOUNT = {
   POST_DRAFT_BALANCE: `${BASE_URL}/v1/accounts/set/draft-start-amount`,
   POST_PUBLISH_DRAFT_BALANCE: `${BASE_URL}/v1/accounts/set/save-start-amount`,
 
-  GET_BANK_STATEMENT: `${BASE_URL}/v1/bank-statement`,
-  POST_IMPORT_BANK_STATEMENT: `${BASE_URL}/v1/bank-statement/import`,
+  GET_BANK_STATEMENT: `${BASE_URL}/v1/bank-statements`,
+  POST_IMPORT_BANK_STATEMENT: `${BASE_URL}/v1/bank-statements/import`,
   POST_COMMIT_IMPORT_BANK_STATEMENT: `${BASE_URL}/v1/bank-statement/`,
+  POST_CONFIRM_IMPORT_BANK_STATEMENT: `${BASE_URL}/v1/bank-statements/import/confirm`,
+  POST_IMPORT_ACCOUNT: `${BASE_URL}/v1/accounts/import`,
 
   GET_RECONCILIATION: `${BASE_URL}/v1/reconciliation/`,
 

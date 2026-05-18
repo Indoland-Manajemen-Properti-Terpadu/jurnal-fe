@@ -20,26 +20,6 @@ const BankStatementTab = ({ selectedRecords, setSelectedRecords, idAccount, onRe
 
     return (
         <Stack gap="md">
-            <Flex justify="space-between" align="center" mt="md">
-                <SearchActions
-                    onDelete={() => setSelectedRecords([])}
-                    hasSelection={selectedRecords.length > 0}
-                />
-                <Button
-                    size="xs"
-                    variant="outline"
-                    color={themeColors.blue[6]}
-                    onClick={handleOpenModal}
-                >
-                    Import Bank Statement
-                </Button>
-                <ImportBankStatementModal
-                    idAccount={idAccount}
-                    onContinue={onRefresh}
-                    isOpen={isModalOpen}
-                    onClose={handleCloseModal}
-                />
-            </Flex>
             <BankStatementTable
                 selectedRecords={selectedRecords}
                 setSelectedRecords={setSelectedRecords}
