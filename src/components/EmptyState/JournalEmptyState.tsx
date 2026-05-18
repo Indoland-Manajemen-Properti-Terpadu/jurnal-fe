@@ -4,23 +4,33 @@ import { MoneyWavyIcon } from '@phosphor-icons/react';
 
 interface JournalEmptyStateProps {
     onButtonClick: () => void;
+    title?: string;
+    description?: string;
+    buttonLabel?: string;
+    buttonIcon?: React.ReactNode;
 }
 
-export function JournalEmptyState({ onButtonClick }: JournalEmptyStateProps) {
+export function JournalEmptyState({ 
+    onButtonClick, 
+    title = "Belum Ada Transaksi Jurnal",
+    description = "Transaksi jurnal belum tersedia. Silakan buat transaksi untuk mulai mencatat keuangan.",
+    buttonLabel = "Buat Jurnal Transaksi",
+    buttonIcon = <MoneyWavyIcon size={16} />
+}: JournalEmptyStateProps) {
     return (
       <Stack align="center" justify="center" h="70vh">
         <Image src={EmptyDataImage} alt="No data" w={210} h={141} />
-        <Title order={4}>Belum Ada Transaksi Jurnal</Title>
+        <Title order={4}>{title}</Title>
         <Text c="dimmed" size="sm" ta="center">
-          Transaksi jurnal belum tersedia. Silakan buat transaksi untuk mulai mencatat keuangan.
+          {description}
         </Text>
         <Button
           variant="light"
           color="black"
           onClick={onButtonClick}
-          leftSection={<MoneyWavyIcon size={16} />}
+          leftSection={buttonIcon}
         >
-          Buat Jurnal Transaksi
+          {buttonLabel}
         </Button>
       </Stack>
     );

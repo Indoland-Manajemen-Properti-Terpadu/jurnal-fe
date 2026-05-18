@@ -38,11 +38,7 @@ const JournalTransactionTab = ({ selectedRecords, setSelectedRecords, noRecordsC
     return (
         <Stack gap="md">
             {transaction && transaction.length > 0 && (
-                <Flex justify="space-between" align="center" mt="md">
-                    <SearchActions
-                        onDelete={handleDelete}
-                        hasSelection={selectedRecords.length > 0}
-                    />
+                <Flex justify="flex-end" align="center" mt="md">
                     <Menu position="bottom-end" offset={5}>
                         <Menu.Target>
                             <Button

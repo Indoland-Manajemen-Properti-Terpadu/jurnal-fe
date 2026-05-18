@@ -1,283 +1,190 @@
-import { ActionIcon, Group, Text, TextInput, Title } from '@mantine/core';
-import { useNavigate } from 'react-router';
+import { ActionIcon, Group, Text, TextInput, Modal, Stack, Button, Flex } from '@mantine/core';
 import { DataTable, DataTableColumn } from 'mantine-datatable';
 import { formatCurrency } from '@/utils/FormatCurrency';
-import { dateFormatV1 } from '@/utils/FormatDate';
 import EmptyState from '@/components/EmptyState/EmptyTable';
 import classes from '../pages/ImportBankStatementDraft.module.css'
-import { IconAdjustments, IconCalendar, IconCheck, IconPencil, IconTrash, IconX } from '@tabler/icons-react';
+import { IconCalendar, IconPencil, IconTrash } from '@tabler/icons-react';
 import { themeColors } from '@/theme';
-import { Data } from '../types/ImportBankStatement.model';
-import { useEffect, useState } from 'react';
+import { BankStatementPreviewItem } from '../types/ImportBankStatement.model';
+import { useState } from 'react';
 import { DateInput } from '@mantine/dates';
 import { format, parse } from 'date-fns';
 import { useBankStatementStore } from '../store/useBankStatement.store';
 
 interface ImportBankStatementDraftTableProps {
-    records: Data[];
-    typeTable: string;
+    records: BankStatementPreviewItem[];
+    selectedRecords?: BankStatementPreviewItem[];
+    onSelectedRecordsChange?: (records: BankStatementPreviewItem[]) => void;
+}
+
+const headTableStyle = {
+    fontSize: 14,
+    fontWeight: 500,
+    color: themeColors.defaultBlack[10]
 }
 
 const ImportBankStatementDraftTable = ({
     records,
-    typeTable
+    selectedRecords,
+    onSelectedRecordsChange
 }: ImportBankStatementDraftTableProps) => {
-    const [localData, setLocalData] = useState<Data[]>([])
-    const [editRowId, setEditRowId] = useState(-1);
-    const {
-        wrongData,
-        correctData,
-        setCorrectData,
-        setWrongData,
-        totalData,
-        errorMessages,
-        setShowAlert,
-        setErrorMessages
-    } = useBankStatementStore()
+    const [editModalOpened, setEditModalOpened] = useState(false);
+    const [editData, setEditData] = useState<BankStatementPreviewItem | null>(null);
+    const { updateItem, deleteItem } = useBankStatementStore();
 
-    const handleEditClick = (index: number) => {
-        setEditRowId(index);
+    const handleEditClick = (item: BankStatementPreviewItem) => {
+        setEditData({ ...item });
+        setEditModalOpened(true);
     };
 
-    useEffect(() => {
-        setLocalData(records);
-    }, [records]);
-
-    const removeItemById = (datas: Data, id: string) => {
-        return datas.filter((item: Data) => item.id !== id);
-    };
-
-    const handleDateChange = (id: string, value: Date | string) => {
-        const updatedData = [...localData];
-        const recordIndex = updatedData.findIndex((item) => item.id === id);
-
-        if (recordIndex > -1) {
-            let formattedValue = value instanceof Date ? format(value, 'dd/MM/yyyy') : value;
-            let updatedErrors = updatedData[recordIndex].errors?.filter(error => error !== "transactionDate");
-
-            updatedData[recordIndex] = {
-                ...updatedData[recordIndex],
-                transactionDate: formattedValue,
-                errors: updatedErrors,
-            };
+    const handleFieldChange = (field: keyof BankStatementPreviewItem, value: any) => {
+        if (editData) {
+            setEditData({ ...editData, [field]: value });
         }
-        
-        setLocalData(updatedData);
     };
 
-    const handleNumberChange = (id: string, field: string, value: string) => {
-        const updatedData = [...localData];
-        const recordIndex = updatedData.findIndex((item) => item.id === id);
-
-        const localDataF = localData.find((item) => item.id === id)
-        const parsedValue = parseInt(value, 10);
-        const validValue = isNaN(parsedValue) ? 0 : parsedValue;
-
-        const updatedErrors = localDataF?.errors?.filter(error => error !== field);
-
-        updatedData[recordIndex] = {
-            ...updatedData[recordIndex],
-            errors: updatedErrors,
-            [field]: validValue
-        };
-
-        setLocalData(updatedData);
-    };
-
-    const handleSaveChange = (id: string) => {
-        const localDataF = localData.find((item) => item.id === id)
-        const countErrors = localDataF?.errors?.length
-        const wrongF = wrongData.find((item: Data) => item.id === id)
-
-        if (countErrors === 0 && localDataF) {
-            const removeWrongData = removeItemById(wrongData, id)
-            const updatedCorrectData = [...correctData, localDataF];
-
-            handleErrorMessages(localDataF.transactionName!)
-
-            if (wrongF && countErrors === 0) {
-                setCorrectData(updatedCorrectData);
-            } else {
-                handleCorrectData(id, localDataF)
-            }
-
-            setWrongData(removeWrongData)
-            handleMasterData(id, localDataF)
+    const handleSaveChange = () => {
+        if (editData) {
+            updateItem(editData.rowIndex, { 
+                ...editData, 
+                isValid: true, 
+                errors: [],
+                isDateValid: true,
+                isReceivedValid: true,
+                isSpentValid: true,
+                isDescriptionValid: true
+            });
+            setEditModalOpened(false);
+            setEditData(null);
         }
-        setEditRowId(-1);
-    }
+    };
 
-    const handleMasterData = (id: string, item: Data) => {
-        const recordMasterIndex = totalData.findIndex((fi: Data) => fi.id === id);
-        Object.assign(totalData[recordMasterIndex], item);
-    }
+    const handleDelete = (rowIndex: number) => {
+        deleteItem(rowIndex);
+    };
 
-    const handleCorrectData = (id: string, item: Data) => {
-        const recordCorrectIndex = correctData.findIndex((fi: Data) => fi.id === id);
-        Object.assign(correctData[recordCorrectIndex], item);
-    }
-
-    const handleErrorMessages = (transactionName: string) => {
-        const filteredArray = errorMessages.filter((item: string) => !item.includes(transactionName));
-
-        setErrorMessages(filteredArray)
-    }
-
-    const handleCancelChange = (index: number) => {
-        const updatedData = [...localData];
-
-        updatedData[index] = records[index];
-
-        setLocalData(updatedData);
-        setEditRowId(-1);
-    }
-
-    const columns: DataTableColumn<Data>[] = [
+    const columns: DataTableColumn<BankStatementPreviewItem>[] = [
         {
-            accessor: 'id',
-            title: 'No',
-            render: (element, index) => (
-                <Text size="sm" c={themeColors.defaultBlack[10]}>
-                    {index + 1}
+            accessor: 'Description',
+            title: <Text style={headTableStyle}>Deskripsi Transaksi</Text>,
+            render: (element) => (
+                <Text size="sm" fz={14} fw={400} c={!element.isDescriptionValid ? themeColors.red[6] : themeColors.defaultBlack[10]}>
+                    {element.Description || '-'}
                 </Text>
             ),
         },
         {
-            accessor: 'transactionName',
-            title: 'Transaction',
-            render: (element: Data, index) => (
-                <Text
-                    size="sm"
-                    c={element.errors?.includes("transactionName") ? themeColors.red[6] : themeColors.defaultBlack[10]}
-                >
-                    {element.transactionName}
+            accessor: 'TransactionDate',
+            title: <Text style={headTableStyle} ta='center'>Tanggal</Text>,
+            render: (element) => (
+                <Text size="sm" fz={14} fw={400} c={!element.isDateValid ? themeColors.red[6] : themeColors.defaultBlack[10]} ta='center'>
+                    {element.TransactionDate || '-'}
                 </Text>
             ),
         },
         {
-            accessor: 'transactionDate',
-            title: 'Transaction Date',
-            render: (element, index) => {
-                let parsedDate = null;
-                if (element.transactionDate && element.transactionDate !== '0') {
-                    parsedDate = parse(element.transactionDate, 'dd/MM/yyyy', new Date());
-                    if (isNaN(parsedDate.getTime())) {
-                        parsedDate = null;
-                    }
-                }
-
-                return index === editRowId ? (
-                    <DateInput
-                        valueFormat="DD/MM/YYYY"
-                        rightSection={<IconCalendar />}
-                        data-autofocus
-                        value={parsedDate}
-                        onChange={(e) => handleDateChange(element.id, e!)}
-                    />
-                ) : (
-                    <Text
-                        size="sm"
-                        c={element.errors?.includes("transactionDate") ? themeColors.red[6] : themeColors.defaultBlack[10]}
-                    >
-                        {element.transactionDate ? element.transactionDate : '-'}
-                    </Text>
-                );
-            },
-        },
-        {
-            accessor: 'debit',
-            title: 'Received',
-            render: (element, index) => (
-                index === editRowId ? (
-                    <TextInput
-                        disabled={element?.credit ? true : false}
-                        leftSectionPointerEvents="none"
-                        leftSection="Rp"
-                        data-autofocus
-                        value={element.debit}
-                        onChange={(e) => handleNumberChange(element.id, 'debit', e.currentTarget.value)}
-                    />
-                ) : (
-                    <Text
-                        size="sm"
-                        c={element.errors?.includes("debit") ? themeColors.red[6] : themeColors.defaultBlack[10]}
-                    >
-                        {formatCurrency(element.debit || 0)}
-                    </Text>
-                )
+            accessor: 'Received',
+            title: <Text style={headTableStyle}>Terima (Dalam Rp)</Text>,
+            render: (element) => (
+                <Text size="sm" fz={14} fw={400} c={!element.isReceivedValid ? themeColors.red[6] : themeColors.defaultBlack[10]}>
+                    {element.Received ? formatCurrency(parseFloat(element.Received) || 0) : '-'}
+                </Text>
             ),
         },
         {
-            accessor: 'credit',
-            title: 'Sent',
-            render: (element, index) => (
-                index === editRowId ? (
-                    <TextInput
-                        disabled={element?.debit ? true : false}
-                        leftSectionPointerEvents="none"
-                        leftSection="Rp"
-                        data-autofocus
-                        value={element.credit}
-                        onChange={(e) => handleNumberChange(element.id, 'credit', e.currentTarget.value)}
-                    />
-                ) : (
-                    <Text
-                        size="sm"
-                        c={element.errors?.includes("credit") ? themeColors.red[6] : themeColors.defaultBlack[10]}
-                    >
-                        {formatCurrency(element.credit || 0)}
-                    </Text>
-                )
+            accessor: 'Spent',
+            title: <Text style={headTableStyle}>Kirim (Dalam Rp)</Text>,
+            render: (element) => (
+                <Text size="sm" fz={14} fw={400} c={!element.isSpentValid ? themeColors.red[6] : themeColors.defaultBlack[10]}>
+                    {element.Spent ? formatCurrency(parseFloat(element.Spent) || 0) : '-'}
+                </Text>
+            ),
+        },
+        {
+            accessor: 'Balance',
+            title: <Text style={headTableStyle}>Saldo</Text>,
+            render: () => (
+                <Text size="sm" fz={14} fw={400} c={themeColors.defaultBlack[10]}>{formatCurrency(0)}</Text>
             ),
         },
         {
             accessor: 'action',
-            title: 'Action',
-            render: (element, index) => (
-                index === editRowId ? (
-                    <Group>
-                        <ActionIcon variant="default" onClick={() => handleSaveChange(element.id)}>
-                            <IconCheck style={{ width: '70%', height: '70%' }} stroke={1.5} />
-                        </ActionIcon>
-                        <ActionIcon variant="default" onClick={() => handleCancelChange(index)}>
-                            <IconX style={{ width: '70%', height: '70%' }} stroke={1.5} />
-                        </ActionIcon>
-                    </Group>
-                ) : (
-                    <Group>
-                        <ActionIcon
-                            variant="default"
-                            aria-label="Settings"
-                            onClick={() => handleEditClick(index)}
-                        >
-                            <IconPencil style={{ width: '70%', height: '70%' }} stroke={1.5} />
-                        </ActionIcon>
-                        <ActionIcon
-                            variant="default"
-                            aria-label="Settings"
-                        >
-                            <IconTrash style={{ width: '70%', height: '70%' }} stroke={1.5} />
-                        </ActionIcon>
-                    </Group>
-                )
+            title: <Text style={headTableStyle} ta='center'>Aksi</Text>,
+            render: (element) => (
+                <Group gap="xs" justify="center">
+                    <ActionIcon variant="subtle" color="blue" onClick={() => handleEditClick(element)}>
+                        <IconPencil size={18} />
+                    </ActionIcon>
+                    <ActionIcon variant="subtle" color="red" onClick={() => handleDelete(element.rowIndex)}>
+                        <IconTrash size={18} />
+                    </ActionIcon>
+                </Group>
             ),
         },
     ];
 
     return (
-        <DataTable
-            withTableBorder
-            minHeight={500}
-            highlightOnHover
-            fz="sm"
-            className={classes.tableBorder}
-            columns={columns}
-            records={localData}
-            emptyState={<EmptyState />}
-            rowStyle={(record) => ({
-                backgroundColor: record.errors && record.errors.length > 0 ? themeColors.red[0] : 'inherit',
-            })}
-        />
+        <>
+            <DataTable
+                withTableBorder
+                borderRadius="md"
+                minHeight={300}
+                highlightOnHover
+                fz="sm"
+                verticalAlign="center"
+                columns={columns}
+                records={records}
+                selectedRecords={selectedRecords}
+                onSelectedRecordsChange={onSelectedRecordsChange}
+                emptyState={<EmptyState />}
+                rowStyle={(record) => ({
+                    backgroundColor: !record.isValid ? themeColors.red[0] : 'inherit',
+                })}
+                styles={{
+                    root: { borderColor: '#E9ECEF' },
+                }}
+            />
+
+            <Modal 
+                opened={editModalOpened} 
+                onClose={() => setEditModalOpened(false)} 
+                title={<Text fw={600}>Ubah Data Pratinjau</Text>}
+                centered
+            >
+                <Stack gap="md">
+                    <TextInput
+                        label="Nama Transaksi"
+                        placeholder="Masukkan nama transaksi"
+                        value={editData?.Description || ''}
+                        onChange={(e) => handleFieldChange('Description', e.currentTarget.value)}
+                    />
+                    <DateInput
+                        label="Tanggal"
+                        placeholder="Pilih tanggal"
+                        valueFormat="DD/MM/YYYY"
+                        rightSection={<IconCalendar size={16} />}
+                        value={editData?.TransactionDate ? parse(editData.TransactionDate, 'dd/MM/yyyy', new Date()) : null}
+                        onChange={(e) => handleFieldChange('TransactionDate', e ? format(e, 'dd/MM/yyyy') : '')}
+                    />
+                    <TextInput
+                        label="Terima (Dalam Rp)"
+                        placeholder="0"
+                        value={editData?.Received || ''}
+                        onChange={(e) => handleFieldChange('Received', e.currentTarget.value)}
+                    />
+                    <TextInput
+                        label="Kirim (Dalam Rp)"
+                        placeholder="0"
+                        value={editData?.Spent || ''}
+                        onChange={(e) => handleFieldChange('Spent', e.currentTarget.value)}
+                    />
+                    <Flex justify="flex-end" gap="sm" mt="md">
+                        <Button variant="light" color="gray" onClick={() => setEditModalOpened(false)}>Batal</Button>
+                        <Button variant="filled" color={themeColors.figmaTeal[5]} onClick={handleSaveChange}>Simpan Perubahan</Button>
+                    </Flex>
+                </Stack>
+            </Modal>
+        </>
     );
 };
 

@@ -153,7 +153,7 @@ const DetailAccount = () => {
           <Stack gap="lg">
             <Paper {...PAPER_PROPS}>
               <Stack gap={0}>
-                <SimpleGrid cols={2} p="md" style={{ borderBottom: '1px solid #E9ECEF' }}>
+                <SimpleGrid cols={2} p="md">
                   <Group align="flex-start" wrap="nowrap">
                     <ActionIcon variant="subtle" color="gray" onClick={() => navigate(-1)} mt={4}>
                       <ArrowLeftIcon size={32} weight="duotone" />

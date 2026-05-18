@@ -1,16 +1,38 @@
 import { JournalAccounts } from "@/module/GeneralJournal/JournalAccount/types/JournalAccountModel";
-import { SetStateAction } from "react";
 
 export interface ImportBankStatement {
     account?: JournalAccounts;
-    datas?:   Data[];
+    datas?:   BankStatementPreviewItem[];
 }
 
-export interface Data {
-    [x: string]: any;
-    transactionName?: string;
-    transactionDate?: string;
-    debit?:           number;
-    credit?:          number;
-    errors?:          any[];
+export interface BankStatementPreviewItem {
+    rowIndex: number;
+    TransactionDate: string;
+    Received: string;
+    Spent: string;
+    Description: string;
+    date: string | null;
+    received: number | null;
+    spent: number | null;
+    amount: number | null;
+    description: string;
+    isDateValid: boolean;
+    isReceivedValid: boolean;
+    isSpentValid: boolean;
+    isDescriptionValid: boolean;
+    isValid: boolean;
+    errors: string[];
+    id?: string; // For local identification if needed
+}
+
+export interface BankStatementImportResponse {
+    code: number;
+    message: string;
+    data: {
+        accountId: string;
+        preview: BankStatementPreviewItem[];
+        errors: Record<string, string[]>;
+        totalRows: number;
+        totalValid: number;
+    }
 }

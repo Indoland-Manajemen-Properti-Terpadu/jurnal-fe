@@ -2,10 +2,11 @@ import React, { useState } from "react";
 import { ActionIcon, Box, Button, Group, SimpleGrid, Stack, Table, Text } from "@mantine/core";
 import { themeColors } from "@/theme";
 import { formatCurrency } from "@/utils/FormatCurrency";
-import EmptyState from "@/components/EmptyState/EmptyTable";
+import { JournalEmptyState } from "@/components/EmptyState/JournalEmptyState";
 import { GetReconciliation } from "../services/GetReconciliation.service";
 import { useParams } from "react-router-dom";
 import { dateFormatV1 } from "@/utils/FormatDate";
+import { ArrowsCounterClockwise } from "@phosphor-icons/react";
 import { IconTrash } from "@tabler/icons-react";
 import { NotFound } from "@/components/ErrorPage/NotFound";
 import { FindAndReconModal } from "./FindAndReconModal";
@@ -42,7 +43,7 @@ const ReconciliationTable: React.FC = () => {
     const { idAccount } = useParams<{ idAccount: string }>();
     const [modalOpened, setModalOpened] = useState(false);
     const [selectedBankStatement, setSelectedBankStatement] = useState<BankStatementData | null>(null);
-    let { data: ReconData, isLoading, isError } = GetReconciliation(idAccount!);
+    let { data: ReconData, isLoading, isError, refetch } = GetReconciliation(idAccount!);
     // const [selectedJournalTransaction, setSelectedJournalTransaction] = useState(null);
 
 
@@ -54,7 +55,13 @@ const ReconciliationTable: React.FC = () => {
     }
 
     if (!ReconData || !ReconData.bankStatementData || !ReconData.journalTransaction || (ReconData.bankStatementData.length === 0 && ReconData.journalTransaction.length === 0)) {
-        return <EmptyState />;
+        return <JournalEmptyState 
+            onButtonClick={() => refetch()} 
+            title="Belum Ada Rekonsiliasi"
+            description="Data rekonsiliasi belum tersedia. Silakan import bank statement atau buat transaksi untuk mulai mencocokkan."
+            buttonLabel="Muat Ulang"
+            buttonIcon={<ArrowsCounterClockwise size={16} />}
+        />;
     }
 
     const openReconModal = (journalTransaction: any, bankStatement: any) => {
@@ -333,4 +340,4 @@ export default ReconciliationTable;
 //     );
 // }
 
-// export default ReconciliationTable;
+// export default ReconciliationTable;e;

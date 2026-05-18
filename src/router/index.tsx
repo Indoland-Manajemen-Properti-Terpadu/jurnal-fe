@@ -92,7 +92,7 @@ export const routes = {
     closingBooks: '/settings/general-journal/closing-books',
     detailAccount: '/general-journal/detail-account-cb/:idAccount',
     detailAccountNonCB: '/general-journal/detail-account/:idAccount',
-    bankStatementDraftImport: '/general-journal/bank-statement/import'
+    bankStatementDraftImport: '/general-journal/bank-statement/:idAccount/import'
   },
 
   SettingBudget: {
