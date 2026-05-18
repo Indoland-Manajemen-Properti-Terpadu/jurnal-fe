@@ -21,7 +21,11 @@ import {
   IconKey,
   IconChevronDown,
 } from '@tabler/icons-react';
-import { PlusIcon, MoneyWavyIcon } from '@phosphor-icons/react';
+import {
+  PlusIcon,
+  MoneyWavyIcon,
+  DownloadSimpleIcon,
+} from '@phosphor-icons/react';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 
@@ -126,14 +130,31 @@ const GeneralJournalPage: React.FC = () => {
               title="Daftar Akun"
               actionButton={
                 <Group gap="sm" className={classes.headerActions}>
-                  <Button
-                    variant="light"
-                    color="black"
-                    leftSection={<MoneyWavyIcon size={14} />}
-                    onClick={() => navigate(routes.generalJournal.addTransactionJournal)}
-                  >
-                    Buat Jurnal Transaksi
-                  </Button>
+                  <Menu width={240} position="bottom-end" withinPortal shadow="md">
+                    <Menu.Target>
+                      <Button
+                        variant="filled"
+                        color={themeColors.figmaTeal[5]}
+                        leftSection={<MoneyWavyIcon size={14} />}
+                      >
+                        Buat Jurnal Transaksi
+                      </Button>
+                    </Menu.Target>
+                    <Menu.Dropdown>
+                      <Menu.Item
+                        leftSection={<PlusIcon size={16} />}
+                        onClick={() => navigate(routes.generalJournal.addTransactionJournal)}
+                      >
+                        Tambah Transaksi
+                      </Menu.Item>
+                      <Menu.Item
+                        leftSection={<DownloadSimpleIcon size={16} />}
+                        onClick={() => navigate(routes.generalJournal.bankStatementDraftImport)}
+                      >
+                        Import Transaksi
+                      </Menu.Item>
+                    </Menu.Dropdown>
+                  </Menu>
                   <Button
                     variant="filled"
                     leftSection={<PlusIcon size={14} />}
