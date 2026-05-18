@@ -8,7 +8,7 @@ export const getBankStatement = (idAccount: string) => {
   return useQuery<BankStatementModelV2>({
     queryKey: ['bank_statement', idAccount],
     queryFn: async () => {
-      const result = await get(`${API_ACCOUNT.GET_BANK_STATEMENT}?page=1`);
+      const result = await get(`${API_ACCOUNT.GET_BANK_STATEMENT}?accountId=${idAccount}`);
       
       console.log("BankStatement API Raw Result:", result);
 

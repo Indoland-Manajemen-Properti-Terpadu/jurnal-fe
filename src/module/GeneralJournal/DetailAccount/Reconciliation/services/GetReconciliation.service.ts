@@ -7,13 +7,8 @@ export const GetReconciliation = (idAccount: string) => {
   return useQuery<GetReconciliationModel>({
     queryKey: ['get_reconciliation', idAccount],
     queryFn: async () => {
-      const params = new URLSearchParams({
-        page: '1',
-        query: '',
-      });
-
-      const result = await get(`${API_ACCOUNT.GET_RECONCILIATION}/${idAccount}?${params}`);
-      return result;
+      const result = await get(`${API_ACCOUNT.GET_RECONCILIATION}${idAccount}`);
+      return result.data;
     },
     enabled: !!idAccount,
     retry: false,

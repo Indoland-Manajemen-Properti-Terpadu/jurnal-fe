@@ -16,7 +16,7 @@ import {
   ActionIcon,
 } from '@mantine/core';
 import { useParams, useNavigate } from 'react-router-dom';
-import { themeColors, gradientColors } from '@/theme';
+import { themeColors } from '@/theme';
 import {
   IconPencil,
   IconArchive,
@@ -41,7 +41,7 @@ import { Result } from '../../BankStatement/types/BankStatementModel';
 import { useQueryClient } from '@tanstack/react-query';
 import { JournalEmptyState } from '@/components/EmptyState/JournalEmptyState';
 import { routes } from '@/router';
-import { PlusIcon, MoneyWavyIcon } from '@phosphor-icons/react';
+import { MoneyWavyIcon } from '@phosphor-icons/react';
 // Constants
 import { ArrowLeftIcon } from '@phosphor-icons/react';
 import { archiveAccount } from '../services/DetailAccount.service';
@@ -49,6 +49,7 @@ import { useDeleteJurnalAccount } from '@/module/GeneralJournal/JournalAccount/s
 import { ConfirmModal } from '@/components';
 import deleteModalImage from '@/assets/img/vectors/delete_modal.svg';
 import arsipkanIcon from '@/assets/img/vectors/arsipkan.svg';
+import { GetReconciliation } from '../../Reconciliation/services/GetReconciliation.service';
 
 const PAPER_PROPS = {
   p: '0',
@@ -61,12 +62,15 @@ const DetailAccount = () => {
   const { idAccount } = useParams<{ idAccount: string }>();
   const navigate = useNavigate();
   const { accountDetail, isLoading } = useDetailAccount(idAccount!);
+  const { data: reconData } = GetReconciliation(idAccount!);
   const queryClient = useQueryClient();
   const { mutate: deleteAccount, isPending: isDeleting } = useDeleteJurnalAccount();
 
   const rawData =
     (accountDetail as any)?.data?.data || (accountDetail as any)?.data || accountDetail;
   const accountData = accountDetailData(rawData);
+
+  const unreconciledCount = reconData?.bankStatements?.filter(bs => !bs.isReconciled).length || 0;
 
 
   const journalSelection = useSelectionHandler<TransactionByAccountModel>();
@@ -154,37 +158,48 @@ const DetailAccount = () => {
             <Paper {...PAPER_PROPS}>
               <Stack gap={0}>
                 <SimpleGrid cols={2} p="md">
-                  <Group align="flex-start" wrap="nowrap">
-                    <ActionIcon variant="subtle" color="gray" onClick={() => navigate(-1)} mt={4}>
-                      <ArrowLeftIcon size={32} weight="duotone" />
-                    </ActionIcon>
-                    <Stack gap={2}>
-                      <Group>
-                        <Title order={5}>
-                          {accountData.name}{' '}
-                          <Text span c={themeColors.primary[6]} inherit>
-                            ({accountData.accountNumber})
-                          </Text>
-                        </Title>
-                        {accountData.isArchived && (
-                          <Badge color="gray" variant="filled" size="sm" radius="sm">
-                            Diarsipkan
-                          </Badge>
-                        )}
-                      </Group>
-                      <Text c={themeColors.grey[6]} fz={14}>
-                        Kategori {accountData.category?.name}
-                      </Text>
-                    </Stack>
-                  </Group>
+                  <Stack gap={4}>
+                    <Text size="xs" fw={500} c={themeColors.primary[6]} ml={40}>
+                      Kas & Bank
+                    </Text>
+                    <Group align="flex-start" wrap="nowrap">
+                      <ActionIcon
+                        variant="subtle"
+                        color="gray"
+                        onClick={() => navigate(-1)}
+                        mt={4}
+                      >
+                        <ArrowLeftIcon size={24} weight="bold" />
+                      </ActionIcon>
+                      <Stack gap={0}>
+                        <Group>
+                          <Title order={4} fw={600}>
+                            {accountData.name}{' '}
+                            <Text span c={themeColors.primary[6]} inherit fw={600}>
+                              ({accountData.accountNumber})
+                            </Text>
+                          </Title>
+                          {accountData.isArchived && (
+                            <Badge color="gray" variant="filled" size="sm" radius="sm">
+                              Diarsipkan
+                            </Badge>
+                          )}
+                        </Group>
+                        <Text c={themeColors.grey[6]} fz={12}>
+                          {accountData.description || 'akun untuk kas'}
+                        </Text>
+                      </Stack>
+                    </Group>
+                  </Stack>
                   <Group justify="flex-end">
                     <Menu position="top-end" offset={5} withArrow>
                       <Menu.Target>
                         <Button
                           variant="light"
-                          size="md"
-                          color={themeColors.grey[7]}
-                          leftSection={<IconDots style={{ width: rem(16), height: rem(16) }} />}
+                          size="sm"
+                          bg="#F1F3F5"
+                          color="#495057"
+                          leftSection={<IconDots size={16} />}
                         >
                           Aksi Lainnya
                         </Button>
@@ -246,7 +261,8 @@ const DetailAccount = () => {
                       <Menu.Target>
                         <Button
                           variant="filled"
-                          leftSection={<MoneyWavyIcon size={14} />}
+                          size="sm"
+                          leftSection={<MoneyWavyIcon size={16} />}
                           color={themeColors.figmaTeal[5]}
                         >
                           Buat Transaksi
@@ -287,10 +303,21 @@ const DetailAccount = () => {
                   }}
                 >
                   <Tabs.List>
-                    <Tabs.Tab value="transaction">Journal Transaction</Tabs.Tab>
-                    <Tabs.Tab value="bankStatement">Bank Statement</Tabs.Tab>
-                    <Tabs.Tab value="reconciliation">Reconciliation</Tabs.Tab>
-                    <Tabs.Tab value="cashMapping">Cash Mapping</Tabs.Tab>
+                    <Tabs.Tab value="transaction">Jurnal Transaksi</Tabs.Tab>
+                    <Tabs.Tab value="bankStatement">Rekening Koran</Tabs.Tab>
+                    <Tabs.Tab 
+                      value="reconciliation"
+                      rightSection={
+                        unreconciledCount > 0 ? (
+                          <Badge w={20} h={20} p={0} variant="filled" color="teal.6" size="xs" circle>
+                            {unreconciledCount}
+                          </Badge>
+                        ) : null
+                      }
+                    >
+                      Rekonsiliasi
+                    </Tabs.Tab>
+                    <Tabs.Tab value="cashMapping">Pemetaan Kas</Tabs.Tab>
                   </Tabs.List>
 
                   <Tabs.Panel value="transaction" pt="md">
