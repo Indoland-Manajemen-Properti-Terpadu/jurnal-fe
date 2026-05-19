@@ -1,6 +1,6 @@
 import { SimpleGrid } from "@mantine/core"
 import ReportCard from "../../Main/components/ReportCard"
-import { routes } from "@/router"
+import { routes } from "@/router/routes"
 
 
 

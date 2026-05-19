@@ -6,7 +6,8 @@ import { formatCurrency } from "@/utils/FormatCurrency";
 import BusinessOverviewLayout from "./Layout";
 import EquityChangesTable from "../components/EquityChanges/EquityChangesTable";
 import { useState } from "react";
-import { navigate, routes } from "@/router";
+import { navigate } from "@/router";
+import { routes } from "@/router/routes";
 
 const PAPER_PROPS = {
     p: 'md',
@@ -15,8 +16,8 @@ const PAPER_PROPS = {
 };
 const BudgetManagementPage = () => {
     const lastDate = '19 Sept 2021'
-    const [startDate, setStartDate] = useState<Date | null>(null);
-    const [endDate, setEndDate] = useState<Date | null>(null);
+    const [startDate, setStartDate] = useState<string | null>(null);
+    const [endDate, setEndDate] = useState<string | null>(null);
     const [selectedPeriod, setSelectedPeriod] = useState<string | null>('All Period');
 
 

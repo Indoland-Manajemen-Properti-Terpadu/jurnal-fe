@@ -29,7 +29,7 @@ const BusinessSumaryPage = () => {
                                 </Grid.Col>
 
                             </Grid>
-                            <Text c={themeColors.grey[6]} fz={14}>
+                            <Text c={themeColors.gray[6]} fz={14}>
                                 Latest data : {lastDate}
                             </Text>
                         </Stack>
@@ -81,13 +81,13 @@ const BusinessSumaryPage = () => {
                             </Flex>
                             <Stack gap={0}>
                                 <Box
-                                    bg={themeColors.primary[0]}
+                                    bg={themeColors.teal[0]}
                                     bd="sm"
                                     p={10}
                                     style={{
                                         borderTopLeftRadius: 5,
                                         borderTopRightRadius: 5,
-                                        borderColor: themeColors.grey[1],
+                                        borderColor: themeColors.gray[1],
                                         borderStyle: 'solid',
                                         borderWidth: '1px',
                                         borderBottomWidth: '0px'
@@ -95,10 +95,10 @@ const BusinessSumaryPage = () => {
                                 >
                                     <Group justify="space-between">
                                         <Stack gap={1}>
-                                            <Text c={themeColors.defaultBlack[10]} fz={14} fw={500}>Report</Text>
-                                            <Text c={themeColors.grey[6]} fz={14} fw={500}>Period : {lastDate}</Text>
+                                            <Text c={themeColors.black[9]} fz={14} fw={500}>Report</Text>
+                                            <Text c={themeColors.gray[6]} fz={14} fw={500}>Period : {lastDate}</Text>
                                         </Stack>
-                                        <Text c={themeColors.defaultBlack[10]} fz={14} fw={500}>Total : {formatCurrency(totalBalanceSheet)}</Text>
+                                        <Text c={themeColors.black[9]} fz={14} fw={500}>Total : {formatCurrency(totalBalanceSheet)}</Text>
                                     </Group>
                                 </Box>
                                 <BusinessSumaryTable />

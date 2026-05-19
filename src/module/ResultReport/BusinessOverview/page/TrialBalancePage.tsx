@@ -53,7 +53,7 @@ const TrialBalancePage = () => {
                                 </Grid.Col>
 
                             </Grid>
-                            <Text c={themeColors.grey[6]} fz={14}>
+                            <Text c={themeColors.gray[6]} fz={14}>
                                 Latest data : {lastDate}
                             </Text>
                         </Stack>

@@ -9,21 +9,21 @@ import { dateFormatV1, dateFormatV2 } from '../../../../../utils/FormatDate';
 
 
 const rowStyle = {
-    borderColor: themeColors.grey[1],
+    borderColor: themeColors.gray[1],
     borderWidth: '1px',
     borderStyle: 'solid',
 };
 
 const totalRowStyle = {
-    backgroundColor: themeColors.grey[0],
-    borderColor: themeColors.grey[1],
+    backgroundColor: themeColors.gray[0],
+    borderColor: themeColors.gray[1],
     borderWidth: '1px',
     borderStyle: 'solid',
 };
 
 const headTableStyle = {
-    backgroundColor: themeColors.grey[0],
-    borderColor: themeColors.grey[1],
+    backgroundColor: themeColors.gray[0],
+    borderColor: themeColors.gray[1],
     borderWidth: '1px',
     borderStyle: 'solid',
 };
@@ -53,18 +53,18 @@ const GeneralLedgerTable: React.FC<GeneralLedgerTableProps> = ({ fromDate, toDat
         <Table>
             <Table.Thead>
                 <Table.Tr style={{
-                    backgroundColor: themeColors.primary[0],
-                    borderColor: themeColors.grey[1],
+                    backgroundColor: themeColors.teal[0],
+                    borderColor: themeColors.gray[1],
                     borderWidth: '1px',
                     borderStyle: 'solid',
                 }}>
-                    <Table.Th ta='left' c={themeColors.defaultBlack[10]} fw={600} fz={14}>
+                    <Table.Th ta='left' c={themeColors.black[9]} fw={600} fz={14}>
                         Account Name
                     </Table.Th>
-                    <Table.Th ta='left' c={themeColors.defaultBlack[10]} fw={600} fz={14} >
+                    <Table.Th ta='left' c={themeColors.black[9]} fw={600} fz={14} >
                         Transaction Date
                     </Table.Th>
-                    <Table.Th ta='left' c={themeColors.defaultBlack[10]} fw={600} fz={14} >
+                    <Table.Th ta='left' c={themeColors.black[9]} fw={600} fz={14} >
                         Transaction Name
                     </Table.Th>
                     <Table.Th ta='left' fw={600} fz={14}>
@@ -87,8 +87,8 @@ const GeneralLedgerTable: React.FC<GeneralLedgerTableProps> = ({ fromDate, toDat
                                 onClick={() => toggleAccount(account.name)}
                                 style={{
                                     cursor: "pointer",
-                                    // backgroundColor: themeColors.grey[0],
-                                    borderColor: themeColors.grey[1],
+                                    // backgroundColor: themeColors.gray[0],
+                                    borderColor: themeColors.gray[1],
                                     borderWidth: '1px',
                                     borderStyle: 'solid',
                                 }}
@@ -96,7 +96,7 @@ const GeneralLedgerTable: React.FC<GeneralLedgerTableProps> = ({ fromDate, toDat
                                 <Table.Td >
                                     <Group>
                                         {isExpanded ? <IconChevronDown size={14} /> : <IconChevronRight size={14} />}
-                                        <Text fw={600} fz={14} c={themeColors.defaultBlack[10]}>{`${account.name} (${account.accountNumber})`}</Text>
+                                        <Text fw={600} fz={14} c={themeColors.black[9]}>{`${account.name} (${account.accountNumber})`}</Text>
                                     </Group>
                                 </Table.Td>
                                 <Table.Td fz="sm" style={{ textAlign: "left", fontWeight: 600 }}>
@@ -137,19 +137,19 @@ const GeneralLedgerTable: React.FC<GeneralLedgerTableProps> = ({ fromDate, toDat
                             {isExpanded && account.transactions.length === 0 && (
                                 <Table.Tr style={{
                                     cursor: "pointer",
-                                    borderColor: themeColors.grey[1],
+                                    borderColor: themeColors.gray[1],
                                     borderWidth: '1px',
                                     borderStyle: 'solid',
                                 }}>
-                                    <Table.Td colSpan={6} style={{ textAlign: "center", color: themeColors.grey[6] }}>
+                                    <Table.Td colSpan={6} style={{ textAlign: "center", color: themeColors.gray[6] }}>
                                         No transactions available.
                                     </Table.Td>
                                 </Table.Tr>
                             )}
 
                             <Table.Tr style={{
-                                backgroundColor: themeColors.grey[1],
-                                borderColor: themeColors.grey[1],
+                                backgroundColor: themeColors.gray[1],
+                                borderColor: themeColors.gray[1],
                                 borderWidth: '1px',
                                 borderStyle: 'solid',
                             }}>

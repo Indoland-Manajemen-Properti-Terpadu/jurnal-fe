@@ -16,10 +16,10 @@ const ReportCard: React.FC<ReportCardProps> = ({ title, description, route }) =>
         <Card withBorder radius="md" p="md" shadow="none">
             <Stack gap='md' style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
                 <Stack gap="md">
-                    <Text c={themeColors.dark[8]} fz={16} tt="capitalize" fw={500}>
+                    <Text c={themeColors.slate[8]} fz={16} tt="capitalize" fw={500}>
                         {title}
                     </Text>
-                    <Text c={themeColors.grey[6]} fz={14} fw={400}>
+                    <Text c={themeColors.gray[6]} fz={14} fw={400}>
                         {description}
                     </Text>
                 </Stack>
@@ -27,7 +27,7 @@ const ReportCard: React.FC<ReportCardProps> = ({ title, description, route }) =>
                 <Group justify='flex-end'>
                     <Button
                         variant="outline"
-                        color={themeColors.primary[6]}
+                        color={themeColors.teal[6]}
                         p="xs"
                         radius="md"
                         rightSection={<IconArrowUpRight size={16} />}

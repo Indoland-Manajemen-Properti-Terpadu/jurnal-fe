@@ -2,23 +2,23 @@ import React, { useState, useEffect } from "react";
 import { Grid, Select } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
 import { IconCalendar, IconChevronDown } from "@tabler/icons-react";
-import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, subDays } from "date-fns";
+import { format, startOfMonth, startOfWeek, subDays } from "date-fns";
 
 interface FilterDateProps {
     onFilterChange: (fromDate: string | undefined, toDate: string | undefined) => void;
 }
 
 const FilterDate: React.FC<FilterDateProps> = ({ onFilterChange }) => {
-    const initialFromDate = new Date("2024-01-01");
-    const initialToDate = new Date();
+    const initialFromDate = format(new Date("2024-01-01"), "yyyy-MM-dd");
+    const initialToDate = format(new Date(), "yyyy-MM-dd");
 
-    const [value, setValue] = useState<[Date | null, Date | null]>([initialFromDate, initialToDate]);
+    const [value, setValue] = useState<[string | null, string | null]>([initialFromDate, initialToDate]);
     const [selectedPeriod, setSelectedPeriod] = useState<string>("All Period");
 
     useEffect(() => {
         const [fromDate, toDate] = value;
-        const formattedFromDate = fromDate ? format(fromDate, "yyyy-MM-dd") : undefined;
-        const formattedToDate = toDate ? format(toDate, "yyyy-MM-dd") : undefined;
+        const formattedFromDate = fromDate ? format(new Date(fromDate), "yyyy-MM-dd") : undefined;
+        const formattedToDate = toDate ? format(new Date(toDate), "yyyy-MM-dd") : undefined;
         onFilterChange(formattedFromDate, formattedToDate);
     }, [value, onFilterChange]);
 
@@ -27,29 +27,29 @@ const FilterDate: React.FC<FilterDateProps> = ({ onFilterChange }) => {
 
         setSelectedPeriod(value);
 
-        let newFromDate: Date | null = null;
-        let newToDate: Date | null = new Date();
+        let newFromDate: string | null = null;
+        let newToDate: string | null = format(new Date(), "yyyy-MM-dd");
 
         switch (value) {
             case "Today":
-                newFromDate = new Date();
-                newToDate = new Date();
+                newFromDate = format(new Date(), "yyyy-MM-dd");
+                newToDate = format(new Date(), "yyyy-MM-dd");
                 break;
             case "Yesterday":
-                newFromDate = subDays(new Date(), 1);
-                newToDate = subDays(new Date(), 1);
+                newFromDate = format(subDays(new Date(), 1), "yyyy-MM-dd");
+                newToDate = format(subDays(new Date(), 1), "yyyy-MM-dd");
                 break;
             case "This Week":
-                newFromDate = startOfWeek(new Date());
-                newToDate = new Date();
+                newFromDate = format(startOfWeek(new Date()), "yyyy-MM-dd");
+                newToDate = format(new Date(), "yyyy-MM-dd");
                 break;
             case "This Month":
-                newFromDate = startOfMonth(new Date());
-                newToDate = new Date();
+                newFromDate = format(startOfMonth(new Date()), "yyyy-MM-dd");
+                newToDate = format(new Date(), "yyyy-MM-dd");
                 break;
             case "This Year":
-                newFromDate = new Date(new Date().getFullYear(), 0, 1);
-                newToDate = new Date();
+                newFromDate = format(new Date(new Date().getFullYear(), 0, 1), "yyyy-MM-dd");
+                newToDate = format(new Date(), "yyyy-MM-dd");
                 break;
             default:
                 newFromDate = initialFromDate;
