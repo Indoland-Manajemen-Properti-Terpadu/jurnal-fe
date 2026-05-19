@@ -29,8 +29,8 @@ const ImportFiles = () => {
                                     <Group>
                                         <img src={IconFiles} alt='icons-files' />
                                         <Stack gap={5}>
-                                            <Text size='12px' c={themeColors.defaultBlack[9]}>{file.name}</Text>
-                                            <Text size='12px' c={themeColors.grey[5]}>{(file.size / 1024 / 1024).toFixed(2)} MB</Text>
+                                            <Text size='12px' c={themeColors.black[9]}>{file.name}</Text>
+                                            <Text size='12px' c={themeColors.gray[5]}>{(file.size / 1024 / 1024).toFixed(2)} MB</Text>
                                         </Stack>
                                     </Group>
                                 </Grid.Col>

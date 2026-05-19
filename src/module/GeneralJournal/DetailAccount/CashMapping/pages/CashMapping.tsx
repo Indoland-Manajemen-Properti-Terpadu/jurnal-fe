@@ -33,23 +33,23 @@ export default function CashMapping() {
             title: 'Transaction Date',
             width: 200,
             render: (element: JournalTransactionTable) =>
-                <Text c={themeColors.defaultBlack[10]} fz={14}>{element.date}</Text>
+                <Text c={themeColors.black[9]} fz={14}>{element.date}</Text>
         },
         {
             accessor: 'received',
             title: 'Received',
-            render: (element: JournalTransactionTable) => <Text c={themeColors.defaultBlack[10]} fz={14}>{formatCurrency(element.received)}</Text>,
+            render: (element: JournalTransactionTable) => <Text c={themeColors.black[9]} fz={14}>{formatCurrency(element.received)}</Text>,
         },
         {
             accessor: 'sent',
             title: 'Sent',
-            render: (element: JournalTransactionTable) => <Text c={themeColors.defaultBlack[10]} fz={14}>{formatCurrency(element.sent)}</Text>,
+            render: (element: JournalTransactionTable) => <Text c={themeColors.black[9]} fz={14}>{formatCurrency(element.sent)}</Text>,
         },
         {
             accessor: 'description',
             title: 'Description',
             width: 300,
-            render: (element: JournalTransactionTable) => <Text c={themeColors.defaultBlack[10]} fz={14}>{element.description}</Text>,
+            render: (element: JournalTransactionTable) => <Text c={themeColors.black[9]} fz={14}>{element.description}</Text>,
         },
         {
             accessor: 'account',

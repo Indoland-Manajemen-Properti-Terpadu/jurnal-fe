@@ -7,21 +7,21 @@ import { useDetailTransaction } from '../../hooks/useDetailTransaction';
 import { useParams } from 'react-router-dom';
 
 const rowStyle = {
-    borderColor: themeColors.grey[1],
+    borderColor: themeColors.gray[1],
     borderWidth: '1px',
     borderStyle: 'solid',
 };
 
 const totalRowStyle = {
-    backgroundColor: themeColors.grey[0],
-    borderColor: themeColors.grey[1],
+    backgroundColor: themeColors.gray[0],
+    borderColor: themeColors.gray[1],
     borderWidth: '1px',
     borderStyle: 'solid',
 };
 
 const headTableStyle = {
-    backgroundColor: themeColors.grey[0],
-    borderColor: themeColors.grey[1],
+    backgroundColor: themeColors.gray[0],
+    borderColor: themeColors.gray[1],
     borderWidth: '1px',
     borderStyle: 'solid',
 };
@@ -37,8 +37,8 @@ const JournalTransactionTable = () => {
     return (
         <Table style={rowStyle} >
             <Table.Thead>
-                <Table.Tr style={{ backgroundColor: themeColors.primary[0] }}>
-                    <Table.Th colSpan={8} ta='left' c={themeColors.defaultBlack[10]} >
+                <Table.Tr style={{ backgroundColor: themeColors.teal[0] }}>
+                    <Table.Th colSpan={8} ta='left' c={themeColors.black[9]} >
                         Transaction Account
                     </Table.Th>
                     <Table.Th colSpan={2} ta='left' >

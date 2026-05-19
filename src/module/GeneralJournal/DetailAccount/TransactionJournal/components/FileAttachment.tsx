@@ -15,7 +15,7 @@ interface FileAttachmentsProps {
 const FileAttachments: React.FC<FileAttachmentsProps> = ({ attachments }) => {
     if (!attachments || attachments.length === 0) {
         return (
-            <Text fz={14} fw={400} c={themeColors.defaultBlack[10]}>
+            <Text fz={14} fw={400} c={themeColors.black[9]}>
                 No Attached File
             </Text>
         );
@@ -40,8 +40,8 @@ const FileAttachments: React.FC<FileAttachmentsProps> = ({ attachments }) => {
                                 <Group>
                                     <img src={IconFiles} alt='icons-files' />
                                     <Stack gap={5}>
-                                        <Text size='12px' c={themeColors.defaultBlack[9]}>{attachment.fileName}</Text>
-                                        <Text size='12px' c={themeColors.grey[5]}>{attachment.mimeType}</Text>
+                                        <Text size='12px' c={themeColors.black[9]}>{attachment.fileName}</Text>
+                                        <Text size='12px' c={themeColors.gray[5]}>{attachment.mimeType}</Text>
                                     </Stack>
                                 </Group>
                             </Grid.Col>

@@ -14,7 +14,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { HeadingText, TextAmount, TextMediumGR } from '@/components/Text/CustomText';
-import { routes } from '@/router';
+import { routes } from '@/router/routes';
 import { useFileStore } from '@/store/GeneralJournal/useFileStore';
 import { buttonGradient, gradientColors, themeColors } from '@/theme';
 import { useInitialBalanceStore } from '@/store/GeneralJournal/initialBalanceAccount';
@@ -171,7 +171,7 @@ const BeginningBalancePage = () => {
     const cancelButton = draftStatus !== '[Published]' ? (
         <Button
             variant="light"
-            color={themeColors.grey[7]}
+            color={themeColors.gray[7]}
             onClick={handleSaveDraft}
         >
             Save as Draft
@@ -187,7 +187,7 @@ const BeginningBalancePage = () => {
                             ? (
                                 <Button
                                     variant="light"
-                                    color={themeColors.grey[7]}
+                                    color={themeColors.gray[7]}
                                     onClick={handleReset}
                                 >
                                     Reset
@@ -224,14 +224,14 @@ const BeginningBalancePage = () => {
                                     }>{draftStatus}</Title>
                                 </Grid.Col>
                             </Grid>
-                            <Text c={themeColors.grey[6]} fz={14}>
+                            <Text c={themeColors.gray[6]} fz={14}>
                                 Please enter the beginning balance as of the date {formatDate(conversionDate)}
                             </Text>
                         </Stack>
                     </Paper>
                     <Paper p="md" shadow="md" radius="md">
                         <Stack>
-                            <Box bg={themeColors.grey[0]} bd="sm" p={10}>
+                            <Box bg={themeColors.gray[0]} bd="sm" p={10}>
                                 <Grid columns={24} grow justify="space-between" align="center">
                                     <Grid.Col span={12}>
                                         <HeadingText fz={14}>Total</HeadingText>
@@ -274,13 +274,13 @@ const BeginningBalancePage = () => {
             >
                 <Stack gap='md' align="stretch" justify="center">
                     <Divider />
-                    <Text fw={400} c={themeColors.grey[7]} fz={14}>If you proceed with publishing, you will not be able to:</Text>
-                    <List fw={400} c={themeColors.grey[7]} fz={14}>
+                    <Text fw={400} c={themeColors.gray[7]} fz={14}>If you proceed with publishing, you will not be able to:</Text>
+                    <List fw={400} c={themeColors.gray[7]} fz={14}>
                         <List.Item>Reissue the initial balance</List.Item>
                         <List.Item>Add a comparative balance</List.Item>
                         <List.Item>Reset accounts</List.Item>
                     </List>
-                    <Text fw={400} c={themeColors.grey[7]} fz={14}>However, if you save as a draft, you can make changes at any time.</Text>
+                    <Text fw={400} c={themeColors.gray[7]} fz={14}>However, if you save as a draft, you can make changes at any time.</Text>
                     <Divider />
                 </Stack>
             </CustomConfirmModal>
@@ -288,16 +288,16 @@ const BeginningBalancePage = () => {
                 opened={resetModalOpen}
                 onClose={() => setResetModalOpen(false)}
                 withCloseButton={true}
-                title={<Text c={themeColors.defaultBlack[10]} fw={500} fz={16}>Reset Balance</Text>}
+                title={<Text c={themeColors.black[9]} fw={500} fz={16}>Reset Balance</Text>}
                 labels={{
                     confirm:
                         <Button variant="filled" color={themeColors.red[6]} onClick={handleResetTrue}>Reset</Button>,
-                    cancel: <Button variant="light" color={themeColors.grey[7]} onClick={() => setResetModalOpen(false)}>Cancel</Button>
+                    cancel: <Button variant="light" color={themeColors.gray[7]} onClick={() => setResetModalOpen(false)}>Cancel</Button>
                 }}
             >
                 <Stack gap='md' align="stretch" justify="center">
                     <Divider />
-                    <Text fw={400} c={themeColors.grey[7]} fz={14}>Are you sure you want to reset the beginning balance data to default?</Text>
+                    <Text fw={400} c={themeColors.gray[7]} fz={14}>Are you sure you want to reset the beginning balance data to default?</Text>
                     <Divider />
                 </Stack>
             </CustomConfirmModal>

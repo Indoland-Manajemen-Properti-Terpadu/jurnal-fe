@@ -3,7 +3,8 @@ import { IconChartBar, IconExchange, IconFileDollar, IconScale } from "@tabler/i
 import PeriodLockAndClosingBookLayout from "./Layout";
 import { uuID } from "@/utils/uuid";
 import { gradientColors, themeColors } from "@/theme";
-import { navigate, routes } from "@/router";
+import { navigate } from "@/router";
+import { routes } from "@/router/routes";
 import TrialBalanceTable from "../components/TrialBalanceTable";
 import IncomeStatementTable from "../components/IncomeStatement/IncomeStatmentTable";
 
@@ -56,7 +57,7 @@ const ListPeriodLockAndClosingBooksPage = () => {
                             <Group justify="flex-end" gap="xs" mt='md'>
                                 <Button
                                     variant="light"
-                                    color={themeColors.grey[7]}
+                                    color={themeColors.gray[7]}
                                     onClick={() => navigate(-1)}
                                 >
                                     Back
@@ -81,7 +82,7 @@ const ListPeriodLockAndClosingBooksPage = () => {
                                 <Group>
                                     <Button
                                         variant="light"
-                                        color={themeColors.grey[7]}
+                                        color={themeColors.gray[7]}
                                         onClick={() => navigate(-1)}
                                     >
                                         Add Period Lock

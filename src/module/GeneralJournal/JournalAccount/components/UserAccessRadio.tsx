@@ -38,7 +38,7 @@ const UserAccessRadioGroup: React.FC<UserAccessRadioGroupProps> = ({ userAccess,
         {
             userAccess === 'SpecialUsers' && (
                 <Stack gap='xs'>
-                    <Text fz={14} fw={600} c={themeColors.dark[6]} >
+                    <Text fz={14} fw={600} c={themeColors.slate[6]} >
                         Special User Roles <span style={{ color: 'red' }}>*</span>
                     </Text>
                     <MultiSelect
@@ -53,7 +53,7 @@ const UserAccessRadioGroup: React.FC<UserAccessRadioGroupProps> = ({ userAccess,
         {
             userAccess === 'CertainRoles' && (
                 <Stack>
-                    <Text fz={14} fw={600} c={themeColors.dark[6]} >
+                    <Text fz={14} fw={600} c={themeColors.slate[6]} >
                         Certain Roles <span style={{ color: 'red' }}>*</span>
                     </Text>
                     <MultiSelect

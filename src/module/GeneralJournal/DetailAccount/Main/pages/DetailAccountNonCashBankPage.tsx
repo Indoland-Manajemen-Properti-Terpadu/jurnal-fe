@@ -33,7 +33,7 @@ import DetailAccountLayout from './Layout';
 import TableJournalTransaction from '../../TransactionJournal/components/TableTransactionJournal/JournalTransactionTable';
 import { useDetailAccount } from '../hooks/useDetailAccount';
 import { accountDetailData } from '../types/DetailAccountModel';
-import { routes } from '@/router';
+import { routes } from '@/router/routes';
 import { useState } from 'react';
 import { DatePickerInput } from '@mantine/dates';
 import { TransactionByAccountModel } from '../../TransactionJournal/types/TransactionByAccountModel';
@@ -71,7 +71,7 @@ const DetailAccountNonCashBank = () => {
   const accountData = accountDetailData(rawData);
 
   const journalSelection = useSelectionHandler<TransactionByAccountModel>();
-  const [dateValue, setDateValue] = useState<Date | null>(null);
+  const [dateValue, setDateValue] = useState<string | null>(null);
   const [isArchiving, setIsArchiving] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
@@ -83,7 +83,7 @@ const DetailAccountNonCashBank = () => {
     try {
       await archiveAccount(idAccount);
       notifications.show({
-        color: themeColors.primary[6],
+        color: themeColors.teal[6],
         autoClose: 3000,
         title: 'Success',
         message: accountData.isArchived ? 'Account has been restored' : 'Account has been archived',
@@ -125,7 +125,7 @@ const DetailAccountNonCashBank = () => {
     return (
       <DetailAccountLayout>
         <Center h={300}>
-          <Loader color={themeColors.primary[6]} />
+          <Loader color={themeColors.teal[6]} />
         </Center>
       </DetailAccountLayout>
     );
@@ -147,7 +147,7 @@ const DetailAccountNonCashBank = () => {
                       <Group>
                         <Title order={5}>
                           {accountData.name}{' '}
-                          <Text span c={themeColors.primary[6]} inherit>
+                          <Text span c={themeColors.teal[6]} inherit>
                             ({accountData.accountNumber})
                           </Text>
                         </Title>
@@ -157,7 +157,7 @@ const DetailAccountNonCashBank = () => {
                           </Badge>
                         )}
                       </Group>
-                      <Text c={themeColors.grey[6]} fz={14}>
+                      <Text c={themeColors.gray[6]} fz={14}>
                         Kategori {accountData.category?.name}
                       </Text>
                     </Stack>
@@ -167,7 +167,7 @@ const DetailAccountNonCashBank = () => {
                       <Button
                         variant="light"
                         size="md"
-                        color={themeColors.grey[7]}
+                        color={themeColors.gray[7]}
                         leftSection={<IconPencil style={{ width: rem(16), height: rem(16) }} />}
                         onClick={() =>
                           navigate(
@@ -186,7 +186,7 @@ const DetailAccountNonCashBank = () => {
                           <Button
                             variant="light"
                             size="md"
-                            color={themeColors.grey[7]}
+                            color={themeColors.gray[7]}
                             leftSection={<IconDots style={{ width: rem(16), height: rem(16) }} />}
                           >
                             Aksi

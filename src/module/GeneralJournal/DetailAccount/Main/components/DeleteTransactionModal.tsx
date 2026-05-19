@@ -20,19 +20,19 @@ const DeleteTransactionModal = ({ opened, onClose, onDelete }: DeleteTransaction
             opened={opened}
             onClose={onClose}
             withCloseButton={true}
-            title={<Text fz={16} fw={600} c={themeColors.defaultBlack[10]}>Delete Account</Text>}
+            title={<Text fz={16} fw={600} c={themeColors.black[9]}>Delete Account</Text>}
             labels={{
                 confirm: (
                     <Button variant="filled" color={themeColors.red[6]} onClick={handleDelete}>
                         Delete
                     </Button>
                 ),
-                cancel: <Button variant="light" color={themeColors.grey[7]} onClick={onClose}>Cancel</Button>,
+                cancel: <Button variant="light" color={themeColors.gray[7]} onClick={onClose}>Cancel</Button>,
             }}
         >
             <Stack gap="md" align="stretch" justify="center">
                 <Divider />
-                <Text fz={14} fw={400} c={themeColors.grey[7]}>
+                <Text fz={14} fw={400} c={themeColors.gray[7]}>
                     Are you sure you want to delete this transaction?
                 </Text>
             </Stack>

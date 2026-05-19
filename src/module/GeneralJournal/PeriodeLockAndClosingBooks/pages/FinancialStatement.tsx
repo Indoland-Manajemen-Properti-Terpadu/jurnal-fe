@@ -3,7 +3,8 @@ import { IconChartBar, IconExchange, IconFileDollar, IconMessageCircle, IconPhot
 import PeriodLockAndClosingBookLayout from "./Layout";
 import { uuID } from "@/utils/uuid";
 import { gradientColors, themeColors } from "@/theme";
-import { navigate, routes } from "@/router";
+import { navigate } from "@/router";
+import { routes } from "@/router/routes";
 import WorkingPaperTable from "../components/WorkingPaperTable";
 import TrialBalanceTable from "../components/TrialBalanceTable";
 import IncomeStatementTable from "../components/IncomeStatement/IncomeStatmentTable";
@@ -43,7 +44,7 @@ const FinancialstatementPage = () => {
                         <Group justify="flex-end" gap="xs" mt='md'>
                             <Button
                                 variant="light"
-                                color={themeColors.grey[7]}
+                                color={themeColors.gray[7]}
                                 onClick={() => navigate(-1)}
                             >
                                 Back
@@ -65,14 +66,14 @@ const FinancialstatementPage = () => {
                     <Paper {...PAPER_PROPS}>
                         <Stack gap={2}>
                             <Title order={3}>Financial Statement</Title>
-                            <Text c={themeColors.grey[6]} fz={14}>
+                            <Text c={themeColors.gray[6]} fz={14}>
                                 From start to 31/07/2024
                             </Text>
                         </Stack>
                     </Paper>
                     <Paper {...PAPER_PROPS}>
                         <Stack align="stretch" justify="flex-start" gap="sm">
-                            <Tabs color={themeColors.primary[6]} defaultValue="trial-balance">
+                            <Tabs color={themeColors.teal[6]} defaultValue="trial-balance">
                                 <Tabs.List>
                                     <Tabs.Tab value="trial-balance" leftSection={<IconScale style={iconStyle} />}>
                                         Trial Balance
@@ -92,10 +93,10 @@ const FinancialstatementPage = () => {
                                     <Stack gap='md' mt='md'>
                                         <Group justify='space-between'>
                                             <Stack gap={1}>
-                                                <Text fw={500} fz={18} c={themeColors.dark[8]}> Trial Balance</Text>
-                                                <Text fw={400} fz={14} c={themeColors.grey[6]}> Period 31/07/2024</Text>
+                                                <Text fw={500} fz={18} c={themeColors.slate[8]}> Trial Balance</Text>
+                                                <Text fw={400} fz={14} c={themeColors.gray[6]}> Period 31/07/2024</Text>
                                             </Stack>
-                                            <Text fw={500} fz={18} c={themeColors.dark[8]}> PT Kolang Kaling Keliling</Text>
+                                            <Text fw={500} fz={18} c={themeColors.slate[8]}> PT Kolang Kaling Keliling</Text>
                                         </Group>
                                         <TrialBalanceTable />
                                     </Stack>
@@ -105,10 +106,10 @@ const FinancialstatementPage = () => {
                                     <Stack gap='md' mt='md'>
                                         <Group justify='space-between'>
                                             <Stack gap={1}>
-                                                <Text fw={500} fz={18} c={themeColors.dark[8]}> Income Statement</Text>
-                                                <Text fw={400} fz={14} c={themeColors.grey[6]}> Period 31/07/2024</Text>
+                                                <Text fw={500} fz={18} c={themeColors.slate[8]}> Income Statement</Text>
+                                                <Text fw={400} fz={14} c={themeColors.gray[6]}> Period 31/07/2024</Text>
                                             </Stack>
-                                            <Text fw={500} fz={18} c={themeColors.dark[8]}> PT Kolang Kaling Keliling</Text>
+                                            <Text fw={500} fz={18} c={themeColors.slate[8]}> PT Kolang Kaling Keliling</Text>
                                         </Group>
                                         <IncomeStatementTable />
                                     </Stack>
@@ -118,10 +119,10 @@ const FinancialstatementPage = () => {
                                     <Stack gap='md' mt='md'>
                                         <Group justify='space-between'>
                                             <Stack gap={1}>
-                                                <Text fw={500} fz={18} c={themeColors.dark[8]}> Balance Sheet</Text>
-                                                <Text fw={400} fz={14} c={themeColors.grey[6]}> Period 31/07/2024</Text>
+                                                <Text fw={500} fz={18} c={themeColors.slate[8]}> Balance Sheet</Text>
+                                                <Text fw={400} fz={14} c={themeColors.gray[6]}> Period 31/07/2024</Text>
                                             </Stack>
-                                            <Text fw={500} fz={18} c={themeColors.dark[8]}> PT Kolang Kaling Keliling</Text>
+                                            <Text fw={500} fz={18} c={themeColors.slate[8]}> PT Kolang Kaling Keliling</Text>
                                         </Group>
                                         <BalanceSheetTable />
                                     </Stack>
@@ -130,10 +131,10 @@ const FinancialstatementPage = () => {
                                     <Stack gap='md' mt='md'>
                                         <Group justify='space-between'>
                                             <Stack gap={1}>
-                                                <Text fw={500} fz={18} c={themeColors.dark[8]}> Cash Flow</Text>
-                                                <Text fw={400} fz={14} c={themeColors.grey[6]}> Period 31/07/2024</Text>
+                                                <Text fw={500} fz={18} c={themeColors.slate[8]}> Cash Flow</Text>
+                                                <Text fw={400} fz={14} c={themeColors.gray[6]}> Period 31/07/2024</Text>
                                             </Stack>
-                                            <Text fw={500} fz={18} c={themeColors.dark[8]}> PT Kolang Kaling Keliling</Text>
+                                            <Text fw={500} fz={18} c={themeColors.slate[8]}> PT Kolang Kaling Keliling</Text>
                                         </Group>
                                         <CashFlowTable />
                                     </Stack>

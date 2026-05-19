@@ -5,7 +5,7 @@ import { DatePickerInput } from "@mantine/dates";
 import { IconCalendar, IconInfoCircle } from "@tabler/icons-react";
 import { notifications } from "@mantine/notifications";
 import { useNavigate } from "react-router-dom";
-import { routes } from "@/router";
+import { routes } from "@/router/routes";
 import { InformationAlert } from "@/components/Alert/Alert";
 import CustomConfirmModal from "@/components/Modals/ConfirmModal";
 import useModalStore from "@/store/useModals";
@@ -58,7 +58,7 @@ export const PeriodAndClosingBooksModal: React.FC<PeriodAndClosingBooksModalProp
                         setCBDateSettingOpened(true);
                     }}>Start Closing Books</Button>,
 
-                    cancel: <Button variant="light" color={themeColors.grey[7]} onClick={() => {
+                    cancel: <Button variant="light" color={themeColors.gray[7]} onClick={() => {
                         onClose();
                         setPLDateSettingOpened(true);
                     }}>Start Period Lock</Button>
@@ -77,8 +77,8 @@ export const PeriodAndClosingBooksModal: React.FC<PeriodAndClosingBooksModalProp
                     >
                         <Image src={KeyPeriodeImage} fit="contain" height={250} />
                     </Container>
-                    <Text fz={20} fw={600} c={themeColors.defaultBlack[9]} ta='center'> Period Lock & Closing Books Functionality</Text>
-                    <Text fz={14} fw={500} c={themeColors.grey[7]} ta='center'>
+                    <Text fz={20} fw={600} c={themeColors.black[9]} ta='center'> Period Lock & Closing Books Functionality</Text>
+                    <Text fz={14} fw={500} c={themeColors.gray[7]} ta='center'>
                         Ensure that transactions remain unchanged during the locked period.
                         Unlike the book closing feature, the period lock does not automatically generate closing journals.
                     </Text>
@@ -121,7 +121,7 @@ export const PeriodAndClosingBooksModal: React.FC<PeriodAndClosingBooksModalProp
                 title={<TextMediumGR>Set Closing Period Date</TextMediumGR>}
                 labels={{
                     confirm: <Button variant="gradient" gradient={buttonGradient.gradient} onClick={() => setPLConfirmOpened(true)}>Set Date</Button>,
-                    cancel: <Button variant="light" color={themeColors.grey[7]} onClick={closeAllModals}>Cancel</Button>,
+                    cancel: <Button variant="light" color={themeColors.gray[7]} onClick={closeAllModals}>Cancel</Button>,
                 }}
             >
                 <Stack gap='md' align="stretch" justify="center">
@@ -157,11 +157,11 @@ export const PeriodAndClosingBooksModal: React.FC<PeriodAndClosingBooksModalProp
                 title={<TextMediumGR>Check</TextMediumGR>}
                 labels={{
                     confirm: <Button variant="gradient" gradient={buttonGradient.gradient} onClick={handleFinalConfirmCheck}>Continue</Button>,
-                    cancel: <Button variant="light" color={themeColors.grey[7]} onClick={cancelToCheckPL}>Cancel</Button>,
+                    cancel: <Button variant="light" color={themeColors.gray[7]} onClick={cancelToCheckPL}>Cancel</Button>,
                 }}
             >
                 <Stack gap="md" align="stretch" justify="center">
-                    <Text fz={14} fw={400} c={themeColors.defaultBlack[9]}>
+                    <Text fz={14} fw={400} c={themeColors.black[9]}>
                         Please check your last reconciliation date and ensure that nothing is missing!
                     </Text>
                 </Stack>
@@ -177,7 +177,7 @@ export const PeriodAndClosingBooksModal: React.FC<PeriodAndClosingBooksModalProp
                 title={<TextMediumGR>Set Financial Period Date</TextMediumGR>}
                 labels={{
                     confirm: <Button variant="gradient" gradient={buttonGradient.gradient} onClick={() => setCBConfirmOpened(true)}>Set Date</Button>,
-                    cancel: <Button variant="light" color={themeColors.grey[7]} onClick={closeAllModals}>Cancel</Button>,
+                    cancel: <Button variant="light" color={themeColors.gray[7]} onClick={closeAllModals}>Cancel</Button>,
                 }}
             >
                 <Stack gap='md' align="stretch" justify="center">
@@ -210,11 +210,11 @@ export const PeriodAndClosingBooksModal: React.FC<PeriodAndClosingBooksModalProp
                 title={<TextMediumGR>Check</TextMediumGR>}
                 labels={{
                     confirm: <Button variant="gradient" gradient={buttonGradient.gradient} onClick={handleFinalConfirmCheck}>Continue</Button >,
-                    cancel: <Button variant="light" color={themeColors.grey[7]} onClick={cancelToCheckCB}>Cancel</Button>,
+                    cancel: <Button variant="light" color={themeColors.gray[7]} onClick={cancelToCheckCB}>Cancel</Button>,
                 }}
             >
                 <Stack gap="md" align="stretch" justify="center">
-                    <Text fz={14} fw={400} c={themeColors.defaultBlack[9]}>
+                    <Text fz={14} fw={400} c={themeColors.black[9]}>
                         Please check your last reconciliation date and ensure that nothing is missing!
                     </Text>
                 </Stack>

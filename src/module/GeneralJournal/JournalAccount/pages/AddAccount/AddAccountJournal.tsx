@@ -18,7 +18,7 @@ import {
 } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
 import { IconArrowLeft, IconChevronDown, IconInfoCircle, IconFileDescription, IconKey } from '@tabler/icons-react';
-import { routes } from '@/router';
+import { routes } from '@/router/routes';
 import { gradientColors, themeColors } from '@/theme';
 import { TextMediumGR } from '@/components/Text/CustomText';
 // import { GetCategoryAccount } from '../../services/GetCategoryAccount.service';
@@ -173,8 +173,8 @@ const AddAccountLedgerPage = () => {
 
   const SectionHeader = ({ icon: Icon, title }: { icon: any; title: string }) => (
     <Group gap="sm" px="md" py="xs" bg="#F4FAF8" style={{ borderTop: '1px solid #E9ECEF', borderBottom: '1px solid #E9ECEF' }}>
-      <Icon size={20} color={themeColors.primary[6]} />
-      <Text fw={600} fz={14} c={themeColors.dark[8]}>{title}</Text>
+      <Icon size={20} color={themeColors.teal[6]} />
+      <Text fw={600} fz={14} c={themeColors.slate[8]}>{title}</Text>
     </Group>
   );
 
@@ -182,7 +182,7 @@ const AddAccountLedgerPage = () => {
 
   const inputStyles = {
     label: {
-      color: themeColors.dark[8],
+      color: themeColors.slate[8],
       fontWeight: 500,
       fontSize: 14,
       marginBottom: 4,
@@ -196,12 +196,12 @@ const AddAccountLedgerPage = () => {
           <Stack gap={0}>
             {/* Header */}
             <Group align="flex-start" gap="sm" p="md">
-              <ActionIcon variant="transparent" c={themeColors.dark[6]} onClick={handleCancel} mt={4}>
+              <ActionIcon variant="transparent" c={themeColors.slate[6]} onClick={handleCancel} mt={4}>
                 <IconArrowLeft size={24} />
               </ActionIcon>
               <Stack gap={2}>
-                <Title order={4} fw={600} c={themeColors.dark[8]}>Tambah Akun</Title>
-                <Text c={themeColors.dark[4]} fz={13}>Tambahkan akun baru ke dalam daftar Chart of Accounts untuk mencatat transaksi.</Text>
+                <Title order={4} fw={600} c={themeColors.slate[8]}>Tambah Akun</Title>
+                <Text c={themeColors.slate[4]} fz={13}>Tambahkan akun baru ke dalam daftar Chart of Accounts untuk mencatat transaksi.</Text>
               </Stack>
             </Group>
 
@@ -243,8 +243,8 @@ const AddAccountLedgerPage = () => {
               <Group gap="sm" mt={0}>
                 <Group gap={4}>
                   <Checkbox
-                    label={<Text span fz={12} c={themeColors.dark[6]}>Akun Contra</Text>}
-                    color={themeColors.primary[6]}
+                    label={<Text span fz={12} c={themeColors.slate[6]}>Akun Contra</Text>}
+                    color={themeColors.teal[6]}
                     size="xs"
                     {...form.getInputProps('isContra', { type: 'checkbox' })}
                   />
@@ -255,8 +255,8 @@ const AddAccountLedgerPage = () => {
                 </Group>
                 {/* <Group gap={4}>
                   <Checkbox
-                    label={<Text span fz={12} c={themeColors.dark[6]}>Kas & Bank</Text>}
-                    color={themeColors.primary[6]}
+                    label={<Text span fz={12} c={themeColors.slate[6]}>Kas & Bank</Text>}
+                    color={themeColors.teal[6]}
                     size="xs"
                     {...form.getInputProps('isBankAndCash', { type: 'checkbox' })}
                   />
@@ -293,8 +293,8 @@ const AddAccountLedgerPage = () => {
             <Stack gap="sm" p="md">
               <Group justify="space-between" align="flex-start">
                 <Stack gap={2}>
-                  <Text fz={14} fw={500} c={themeColors.dark[8]}>Tentukan Jenis Akun <span style={{ color: 'red' }}>*</span></Text>
-                  <Text c={themeColors.dark[4]} fz={12}>Pilih apakah akun ini sebagai induk, sub akun, atau akun mandiri</Text>
+                  <Text fz={14} fw={500} c={themeColors.slate[8]}>Tentukan Jenis Akun <span style={{ color: 'red' }}>*</span></Text>
+                  <Text c={themeColors.slate[4]} fz={12}>Pilih apakah akun ini sebagai induk, sub akun, atau akun mandiri</Text>
                 </Stack>
                 <Radio.Group
                   value={selectedAccountType}
@@ -302,9 +302,9 @@ const AddAccountLedgerPage = () => {
                   name="accountType"
                 >
                   <Group gap="lg">
-                    <Radio color={themeColors.primary[6]} value="SingleAccount" label={<Text span fz={13} c={themeColors.dark[8]}>Akun Mandiri</Text>} />
-                    <Radio color={themeColors.primary[6]} value="SubAccount" label={<Text span fz={13} c={themeColors.dark[8]}>Sub Akun</Text>} />
-                    <Radio color={themeColors.primary[6]} value="HeaderAccount" label={<Text span fz={13} c={themeColors.dark[8]}>Akun Induk</Text>} />
+                    <Radio color={themeColors.teal[6]} value="SingleAccount" label={<Text span fz={13} c={themeColors.slate[8]}>Akun Mandiri</Text>} />
+                    <Radio color={themeColors.teal[6]} value="SubAccount" label={<Text span fz={13} c={themeColors.slate[8]}>Sub Akun</Text>} />
+                    <Radio color={themeColors.teal[6]} value="HeaderAccount" label={<Text span fz={13} c={themeColors.slate[8]}>Akun Induk</Text>} />
                   </Group>
                 </Radio.Group>
               </Group>
@@ -346,8 +346,8 @@ const AddAccountLedgerPage = () => {
             <Stack gap="sm" p="md">
               <Group justify="space-between" align="flex-start">
                 <Stack gap={2}>
-                  <Text fz={14} fw={500} c={themeColors.dark[8]}>Atur akses akun <span style={{ color: 'red' }}>*</span></Text>
-                  <Text c={themeColors.dark[4]} fz={12}>Pilih pengguna yang dapat melihat atau menggunakan akun ini</Text>
+                  <Text fz={14} fw={500} c={themeColors.slate[8]}>Atur akses akun <span style={{ color: 'red' }}>*</span></Text>
+                  <Text c={themeColors.slate[4]} fz={12}>Pilih pengguna yang dapat melihat atau menggunakan akun ini</Text>
                 </Stack>
                 <Radio.Group
                   value={selectedOption}
@@ -356,15 +356,15 @@ const AddAccountLedgerPage = () => {
                   disabled={selectedAccountType !== 'SingleAccount'}
                 >
                   <Group gap="lg">
-                    <Radio color={themeColors.primary[6]} value="AllUsers" label={<Text span fz={13} c={themeColors.dark[8]}>Semua Pengguna</Text>} />
-                    <Radio color={themeColors.primary[6]} value="SpecialUsers" label={<Text span fz={13} c={themeColors.dark[8]}>Pengguna Tertentu</Text>} />
-                    <Radio color={themeColors.primary[6]} value="CertainRoles" label={<Text span fz={13} c={themeColors.dark[8]}>Role Tertentu</Text>} />
+                    <Radio color={themeColors.teal[6]} value="AllUsers" label={<Text span fz={13} c={themeColors.slate[8]}>Semua Pengguna</Text>} />
+                    <Radio color={themeColors.teal[6]} value="SpecialUsers" label={<Text span fz={13} c={themeColors.slate[8]}>Pengguna Tertentu</Text>} />
+                    <Radio color={themeColors.teal[6]} value="CertainRoles" label={<Text span fz={13} c={themeColors.slate[8]}>Role Tertentu</Text>} />
                   </Group>
                 </Radio.Group>
               </Group>
 
               {selectedAccountType !== 'SingleAccount' && (
-                <Text fz={12} c={themeColors.dark[4]} mt={-8}>
+                <Text fz={12} c={themeColors.slate[4]} mt={-8}>
                   * Akses akun otomatis disetel ke "Semua Pengguna" untuk Akun Induk atau Sub Akun.
                 </Text>
               )}
@@ -412,7 +412,7 @@ const AddAccountLedgerPage = () => {
               </Button>
               <Button
                 variant="filled"
-                color={themeColors.primary[5]}
+                color={themeColors.teal[5]}
                 onClick={handleAddAccount}
                 disabled={!isFormValid || (selectedAccountType === 'SubAccount' && !subAccounts)}
               >

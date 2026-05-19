@@ -8,14 +8,14 @@ import IncomeStatementTableRow, { CostofRevenueRow, NonOperatingExpensesRow, Non
 import EmptyState from "@/components/EmptyState/EmptyTable";
 
 const rowStyle = {
-    borderColor: themeColors.grey[1],
+    borderColor: themeColors.gray[1],
     borderWidth: '1px',
     borderStyle: 'solid',
 };
 
 const headTableStyle = {
-    backgroundColor: themeColors.grey[0],
-    borderColor: themeColors.grey[1],
+    backgroundColor: themeColors.gray[0],
+    borderColor: themeColors.gray[1],
     borderWidth: '1px',
     borderStyle: 'solid',
 }
@@ -54,21 +54,21 @@ const IncomeStatementTable: React.FC = () => {
     return (
         <Stack gap={0}>
             <Box
-                bg={themeColors.primary[0]}
+                bg={themeColors.teal[0]}
                 bd="sm"
                 p={10}
                 style={{
                     borderTopLeftRadius: 5,
                     borderTopRightRadius: 5,
-                    borderColor: themeColors.grey[1],
+                    borderColor: themeColors.gray[1],
                     borderStyle: 'solid',
                     borderWidth: '1px',
                     borderBottomWidth: '0px'
                 }}
             >
                 <Group justify="space-between">
-                    <Text c={themeColors.defaultBlack[10]} fz={14} fw={500}>Report</Text>
-                    <Text c={themeColors.defaultBlack[10]} fz={14} fw={500}>Total : {formatCurrency(200)}</Text>
+                    <Text c={themeColors.black[9]} fz={14} fw={500}>Report</Text>
+                    <Text c={themeColors.black[9]} fz={14} fw={500}>Total : {formatCurrency(200)}</Text>
                 </Group>
             </Box>
             <Table

@@ -31,11 +31,11 @@ export default function BankStatementTable({ selectedRecords, setSelectedRecords
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
     let { data: bankStatement, isLoading, isError } = getBankStatement(idAccount!);
-    
+
     const rawRecords = bankStatement?.results || bankStatement?.resultTransaction || [];
     const records = rawRecords.filter((r): r is Result => r !== null);
     const isEmpty = records.length === 0;
-    
+
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const handleOpenModal = () => setIsModalOpen(true);
@@ -60,8 +60,8 @@ export default function BankStatementTable({ selectedRecords, setSelectedRecords
 
     if (isError || isEmpty) return (
         <>
-            <JournalEmptyState 
-                onButtonClick={handleOpenModal} 
+            <JournalEmptyState
+                onButtonClick={handleOpenModal}
                 title="Belum Ada Bank Statement"
                 description="Bank statement belum tersedia. Silakan import bank statement untuk mulai melakukan rekonsiliasi."
                 buttonLabel="Import Bank Statement"
@@ -79,10 +79,10 @@ export default function BankStatementTable({ selectedRecords, setSelectedRecords
     const columns = [
         {
             accessor: 'transactionName',
-            title: <Text size="sm" fz={14} fw={500} c={themeColors.defaultBlack[10]} >Transaction Name</Text>,
+            title: <Text size="sm" fz={14} fw={500} c={themeColors.black[9]} >Transaction Name</Text>,
             render: (element: Result) => (
                 <Anchor underline="never" onClick={() => navigate(`/transaction/${element.id}`)}>
-                    <Text c={themeColors.primary[6]} size="sm">
+                    <Text c={themeColors.teal[6]} size="sm">
                         {element.transactionName}
                     </Text>
                 </Anchor>
@@ -90,9 +90,9 @@ export default function BankStatementTable({ selectedRecords, setSelectedRecords
         },
         {
             accessor: 'transactionDate',
-            title: <Text size="sm" fz={14} fw={500} ta='center' c={themeColors.defaultBlack[10]} >Transaction Date</Text>,
+            title: <Text size="sm" fz={14} fw={500} ta='center' c={themeColors.black[9]} >Transaction Date</Text>,
             render: (element: Result) => (
-                <Text size="sm" fz={14} fw={400} c={themeColors.defaultBlack[10]} ta='center'>
+                <Text size="sm" fz={14} fw={400} c={themeColors.black[9]} ta='center'>
                     {element.transactionDate
                         ? dateFormatV1(element.transactionDate)
                         : '-'
@@ -102,28 +102,28 @@ export default function BankStatementTable({ selectedRecords, setSelectedRecords
         },
         {
             accessor: 'receive',
-            title: <Text size="sm" fz={14} fw={500} c={themeColors.defaultBlack[10]} >Received</Text>,
+            title: <Text size="sm" fz={14} fw={500} c={themeColors.black[9]} >Received</Text>,
             render: (element: Result) => (
-                <Text size="sm" fz={14} fw={400} c={themeColors.defaultBlack[10]} >{formatCurrency(element.debit || 0)}</Text>
+                <Text size="sm" fz={14} fw={400} c={themeColors.black[9]} >{formatCurrency(element.debit || 0)}</Text>
             ),
         },
         {
             accessor: 'sent',
-            title: <Text size="sm" fz={14} fw={500} c={themeColors.defaultBlack[10]} >Sent</Text>,
+            title: <Text size="sm" fz={14} fw={500} c={themeColors.black[9]} >Sent</Text>,
             render: (element: Result) => (
-                <Text size="sm" fz={14} fw={400} c={themeColors.defaultBlack[10]} >{formatCurrency(element.credit || 0)}</Text>
+                <Text size="sm" fz={14} fw={400} c={themeColors.black[9]} >{formatCurrency(element.credit || 0)}</Text>
             ),
         },
         {
             accessor: 'balance',
-            title: <Text size="sm" fz={14} fw={500} c={themeColors.defaultBlack[10]} >Balance</Text>,
+            title: <Text size="sm" fz={14} fw={500} c={themeColors.black[9]} >Balance</Text>,
             render: (element: Result) => (
-                <Text size="sm" fz={14} fw={400} c={themeColors.defaultBlack[10]} >{formatCurrency(element.debit || 0)}</Text>
+                <Text size="sm" fz={14} fw={400} c={themeColors.black[9]} >{formatCurrency(element.debit || 0)}</Text>
             ),
         },
         {
             accessor: 'reconciled',
-            title: <Text size="sm" fz={14} fw={500} ta='center' c={themeColors.defaultBlack[10]} >Status</Text>,
+            title: <Text size="sm" fz={14} fw={500} ta='center' c={themeColors.black[9]} >Status</Text>,
             render: (element: Result) => <Center><BadgeStatusReconciled reconciled={!!element.reconciled} /></Center>
         }
 
@@ -155,7 +155,7 @@ export default function BankStatementTable({ selectedRecords, setSelectedRecords
                 </Group>
                 <Button
                     size="xs"
-                    color={themeColors.primary[6]}
+                    color={themeColors.teal[6]}
                     leftSection={<CloudArrowUp size={16} />}
                     onClick={handleOpenModal}
                 >

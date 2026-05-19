@@ -20,7 +20,7 @@ interface ImportBankStatementDraftTableProps {
 const headTableStyle = {
     fontSize: 14,
     fontWeight: 500,
-    color: themeColors.defaultBlack[10]
+    color: themeColors.black[9]
 }
 
 const ImportBankStatementDraftTable = ({
@@ -59,9 +59,9 @@ const ImportBankStatementDraftTable = ({
 
     const handleSaveChange = () => {
         if (editData) {
-            updateItem(editData.rowIndex, { 
-                ...editData, 
-                isValid: true, 
+            updateItem(editData.rowIndex, {
+                ...editData,
+                isValid: true,
                 errors: [],
                 isDateValid: true,
                 isReceivedValid: true,
@@ -82,7 +82,7 @@ const ImportBankStatementDraftTable = ({
             accessor: 'Description',
             title: <Text style={headTableStyle}>Deskripsi Transaksi</Text>,
             render: (element) => (
-                <Text size="sm" fz={14} fw={400} c={!element.isDescriptionValid ? themeColors.red[6] : themeColors.defaultBlack[10]}>
+                <Text size="sm" fz={14} fw={400} c={!element.isDescriptionValid ? themeColors.red[6] : themeColors.black[9]}>
                     {element.Description || '-'}
                 </Text>
             ),
@@ -91,7 +91,7 @@ const ImportBankStatementDraftTable = ({
             accessor: 'TransactionDate',
             title: <Text style={headTableStyle} ta='center'>Tanggal</Text>,
             render: (element) => (
-                <Text size="sm" fz={14} fw={400} c={!element.isDateValid ? themeColors.red[6] : themeColors.defaultBlack[10]} ta='center'>
+                <Text size="sm" fz={14} fw={400} c={!element.isDateValid ? themeColors.red[6] : themeColors.black[9]} ta='center'>
                     {element.TransactionDate || '-'}
                 </Text>
             ),
@@ -100,7 +100,7 @@ const ImportBankStatementDraftTable = ({
             accessor: 'Received',
             title: <Text style={headTableStyle}>Terima (Dalam Rp)</Text>,
             render: (element) => (
-                <Text size="sm" fz={14} fw={400} c={!element.isReceivedValid ? themeColors.red[6] : themeColors.defaultBlack[10]}>
+                <Text size="sm" fz={14} fw={400} c={!element.isReceivedValid ? themeColors.red[6] : themeColors.black[9]}>
                     {element.Received ? formatCurrency(parseFloat(element.Received) || 0) : '-'}
                 </Text>
             ),
@@ -109,7 +109,7 @@ const ImportBankStatementDraftTable = ({
             accessor: 'Spent',
             title: <Text style={headTableStyle}>Kirim (Dalam Rp)</Text>,
             render: (element) => (
-                <Text size="sm" fz={14} fw={400} c={!element.isSpentValid ? themeColors.red[6] : themeColors.defaultBlack[10]}>
+                <Text size="sm" fz={14} fw={400} c={!element.isSpentValid ? themeColors.red[6] : themeColors.black[9]}>
                     {element.Spent ? formatCurrency(parseFloat(element.Spent) || 0) : '-'}
                 </Text>
             ),
@@ -118,7 +118,7 @@ const ImportBankStatementDraftTable = ({
             accessor: 'Balance',
             title: <Text style={headTableStyle}>Saldo</Text>,
             render: () => (
-                <Text size="sm" fz={14} fw={400} c={themeColors.defaultBlack[10]}>{formatCurrency(0)}</Text>
+                <Text size="sm" fz={14} fw={400} c={themeColors.black[9]}>{formatCurrency(0)}</Text>
             ),
         },
         {
@@ -159,10 +159,10 @@ const ImportBankStatementDraftTable = ({
                 }}
             />
 
-            <Modal 
-                opened={editModalOpened} 
-                onClose={() => setEditModalOpened(false)} 
-                title={<Text fw={600} c={themeColors.defaultBlack[10]}>Ubah Data Pratinjau</Text>}
+            <Modal
+                opened={editModalOpened}
+                onClose={() => setEditModalOpened(false)}
+                title={<Text fw={600} c={themeColors.black[9]}>Ubah Data Pratinjau</Text>}
                 centered
             >
                 <Stack gap="md">
@@ -198,9 +198,9 @@ const ImportBankStatementDraftTable = ({
                     </Group>
                     <Flex justify="flex-end" gap="sm" mt="md">
                         <Button variant="light" color="gray" onClick={() => setEditModalOpened(false)}>Batal</Button>
-                        <Button 
-                            variant="filled" 
-                            color={themeColors.figmaTeal[5]} 
+                        <Button
+                            variant="filled"
+                            color={themeColors.teal[5]}
                             onClick={handleSaveChange}
                             leftSection={<IconPencil size={16} />}
                             disabled={!isChanged}

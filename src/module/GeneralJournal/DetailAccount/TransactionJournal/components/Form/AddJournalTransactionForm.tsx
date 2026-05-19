@@ -18,7 +18,8 @@ import { notifications } from '@mantine/notifications';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import { TextMediumGR } from '@/components/Text/CustomText';
-import { navigate, routes } from '@/router';
+import { navigate } from '@/router';
+import { routes } from '@/router/routes';
 import { PageHeader } from '@/components';
 import { gradientColors, themeColors } from '@/theme';
 import { useTransactionStore } from '@/store/GeneralJournal/useTransactionStore';
@@ -103,7 +104,7 @@ const AddJournalTransactionForm = () => {
             <Group >
               <Button
                 variant="light"
-                color={themeColors.grey[7]}
+                color={themeColors.gray[7]}
                 onClick={() => navigate(-1)}
               >
                 Cancel
@@ -154,7 +155,7 @@ const AddJournalTransactionForm = () => {
                 <TextMediumGR>Transaction Account</TextMediumGR>
                 <Button
                   variant="filled"
-                  color={themeColors.defaultBlack[10]}
+                  color={themeColors.black[9]}
                   size="xs"
                   leftSection={<IconPlus size={14} />}
                   onClick={() => addTransaction()}
@@ -162,7 +163,7 @@ const AddJournalTransactionForm = () => {
                   Add Account
                 </Button>
               </Group>
-              <Box bg={themeColors.grey[0]} bd="sm" p={10}>
+              <Box bg={themeColors.gray[0]} bd="sm" p={10}>
                 <TotalAmount />
               </Box>
               <TransactionForm />

@@ -2,7 +2,7 @@ import React from 'react';
 import { Stack, Flex, Button, Menu, Text } from '@mantine/core';
 import { gradientColors, themeColors } from '@/theme';
 import { IconPlus } from '@tabler/icons-react';
-import { routes } from '@/router';
+import { routes } from '@/router/routes';
 import { useNavigate, useParams } from 'react-router-dom';
 import SearchActions from '../SearchAction';
 import TableJournalTransaction from '../../../TransactionJournal/components/TableTransactionJournal/JournalTransactionTable';

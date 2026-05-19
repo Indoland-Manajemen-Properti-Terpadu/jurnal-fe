@@ -3,10 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { themeColors } from '@/theme';
 import { formatCurrency } from '@/utils/FormatCurrency';
 import { DataTable } from 'mantine-datatable';
-import { routes } from '@/router';
+import { routes } from '@/router/routes';
 import EmptyState from '@/components/EmptyState/EmptyTable';
 import { dateFormatV1 } from '@/utils/FormatDate';
 import useFilterTransaction from '../../../Main/store/FilterTransaction';
+import type { TransactionByAccountModel } from '../../types/TransactionByAccountModel';
 
 interface TableJournalTransactionProps {
     selectedRecords: TransactionByAccountModel[];
@@ -18,7 +19,7 @@ interface TableJournalTransactionProps {
 const headTableStyle = {
     fontSize: 14,
     fontWeight: 500,
-    color: themeColors.defaultBlack[10]
+    color: themeColors.black[9]
 }
 
 function TableJournalTransaction({ selectedRecords, setSelectedRecords, noRecordsContent, data: transaction }: TableJournalTransactionProps) {
@@ -38,13 +39,13 @@ function TableJournalTransaction({ selectedRecords, setSelectedRecords, noRecord
         const matchesDate =
             !selectedDate ||
             (item.transactionDate && new Date(item.transactionDate)
-                .toDateString() === selectedDate.toDateString());
+                .toDateString() === new Date(selectedDate).toDateString());
 
         return matchesQuery && matchesDate;
     });
 
 
-const columns = [
+    const columns = [
         {
             accessor: 'transactionNumber',
             title: <Text style={headTableStyle}>No Transaksi</Text>,
@@ -55,7 +56,7 @@ const columns = [
                         navigate(routes.generalJournal.detailTransactionJournal.replace(':idTransaction', row.id))
                     }
                 >
-                    <Text c={themeColors.primary[6]} fz={14}>
+                    <Text c={themeColors.teal[6]} fz={14}>
                         {row.transactionNumber === 0
                             ? "Saldo Awal #1"
                             : `Jurnal Transaksi #${row.transactionNumber}`}
@@ -67,35 +68,35 @@ const columns = [
             accessor: 'transactionDate',
             title: <Text style={headTableStyle}>Tanggal</Text>,
             render: (row: TransactionByAccountModel) => (
-                <Text c={themeColors.defaultBlack[10]} fz={14}>{dateFormatV1(row.transactionDate)}</Text>
+                <Text c={themeColors.black[9]} fz={14}>{dateFormatV1(row.transactionDate)}</Text>
             ),
         },
         {
             accessor: 'contact',
             title: <Text style={headTableStyle}>Kontak</Text>,
             render: () => (
-                <Text c={themeColors.defaultBlack[10]} fz={14}>-</Text>
+                <Text c={themeColors.black[9]} fz={14}>-</Text>
             ),
         },
         {
             accessor: 'debit',
             title: <Text style={headTableStyle}>Debit (Dalam Rp)</Text>,
             render: (row: TransactionByAccountModel) => (
-                <Text c={themeColors.defaultBlack[10]} fz={14}>{formatCurrency(row.debit || 0)}</Text>
+                <Text c={themeColors.black[9]} fz={14}>{formatCurrency(row.debit || 0)}</Text>
             ),
         },
         {
             accessor: 'credit',
             title: <Text style={headTableStyle}>Kredit (Dalam Rp)</Text>,
             render: (row: TransactionByAccountModel) => (
-                <Text c={themeColors.defaultBlack[10]} fz={14}>{formatCurrency(row.credit || 0)}</Text>
+                <Text c={themeColors.black[9]} fz={14}>{formatCurrency(row.credit || 0)}</Text>
             ),
         },
         {
             accessor: 'balance',
             title: <Text style={headTableStyle}>Saldo</Text>,
             render: (row: TransactionByAccountModel) => (
-                <Text c={themeColors.defaultBlack[10]} fz={14}>
+                <Text c={themeColors.black[9]} fz={14}>
                     {row.balance! >= 0
                         ? formatCurrency(row.balance ?? 0)
                         : `(${formatCurrency(Math.abs(row.balance ?? 0))})`}</Text>

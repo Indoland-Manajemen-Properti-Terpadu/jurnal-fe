@@ -18,7 +18,7 @@ import { gradientColors, themeColors } from '@/theme';
 import { TextMediumGR } from '@/components/Text/CustomText';
 import { uuID } from '@/utils/uuid';
 import { useState } from 'react';
-import { routes } from '@/router';
+import { routes } from '@/router/routes';
 import AddAccountLedgerFormLayout from '../../JournalAccount/pages/AddAccount/Layout';
 import WorkingPaperTable from '../components/WorkingPaperTable';
 import { IconChevronDown } from '@tabler/icons-react';
@@ -51,7 +51,7 @@ const ClosingBooksPage = () => {
                         <Group justify="flex-end" gap="xs" mt='md'>
                             <Button
                                 variant="light"
-                                color={themeColors.grey[7]}
+                                color={themeColors.gray[7]}
                                 onClick={() => navigate(routes.generalJournal.main)}
                             >
                                 Back
@@ -73,7 +73,7 @@ const ClosingBooksPage = () => {
                     <Paper {...PAPER_PROPS}>
                         <Stack gap={2}>
                             <Title order={3}>Trial Balance Working Paper</Title>
-                            <Text c={themeColors.grey[6]} fz={14}>
+                            <Text c={themeColors.gray[6]} fz={14}>
                                 From start to 31/07/2024
                             </Text>
                         </Stack>

@@ -12,7 +12,7 @@ import {
 import { themeColors } from '@/theme';
 import { formatCurrency } from '@/utils/FormatCurrency';
 import { Link, useNavigate } from 'react-router-dom';
-import { routes } from '@/router';
+import { routes } from '@/router/routes';
 import { JournalAccounts } from '@/module/GeneralJournal/JournalAccount/types/JournalAccountModel';
 import classes from '../../pages/GeneralJournal.module.css';
 import useAccountStore from '@/store/useAccountLedger';
@@ -73,7 +73,7 @@ const TableAccounts = ({
       width: 200,
       render: ({ id = '', subAccount, accountNumber }: JournalAccounts) => (
         <Group justify="space-between">
-          <Text style={ColumnTableFont} c={themeColors.defaultBlack[9]}>
+          <Text style={ColumnTableFont} c={themeColors.black[9]}>
             {accountNumber}
           </Text>
           <IconChevronDown
@@ -109,7 +109,7 @@ const TableAccounts = ({
             }}
             className={classes.accountNameColumn}
           >
-            <Text c={themeColors.primary[6]} className={classes.accountNameColumn}>
+            <Text c={themeColors.teal[6]} className={classes.accountNameColumn}>
               {item.name}
             </Text>
           </Anchor>
@@ -126,7 +126,7 @@ const TableAccounts = ({
       title: <Title style={HeadTableFont}>Kategori</Title>,
       width: 150,
       render: (item: any) => (
-        <Text c={themeColors.defaultBlack[10]} className={classes.categoryColumn}>
+        <Text c={themeColors.black[9]} className={classes.categoryColumn}>
           {item.category?.name}
         </Text>
       ),
@@ -136,7 +136,7 @@ const TableAccounts = ({
       title: <Title style={HeadTableFont}>Posisi Saldo</Title>,
       width: 120,
       render: (item: any) => (
-        <Text c={themeColors.defaultBlack[10]} className={classes.categoryColumn}>
+        <Text c={themeColors.black[9]} className={classes.categoryColumn}>
           {item.category?.isDebit === true ? 'Debit' : 'Kredit'}
         </Text>
       ),
@@ -180,7 +180,7 @@ const TableAccounts = ({
         render: ({ id = '', subAccount, accountNumber }: JournalAccounts) => (
           <div style={{ paddingLeft: '16px' }}>
             <Group justify="space-between">
-              <Text style={ColumnTableFont} c={themeColors.defaultBlack[9]}>
+              <Text style={ColumnTableFont} c={themeColors.black[9]}>
                 {accountNumber}
               </Text>
               <IconChevronDown
@@ -220,7 +220,7 @@ const TableAccounts = ({
                 }}
                 className={classes.accountNameColumn}
               >
-                <Text c={themeColors.primary[6]} className={classes.accountNameColumn}>
+                <Text c={themeColors.teal[6]} className={classes.accountNameColumn}>
                   {item.name}
                 </Text>
               </Anchor>
@@ -241,7 +241,7 @@ const TableAccounts = ({
     <DataTable
       noHeader
       records={record.subAccount}
-      rowStyle={() => () => ({ backgroundColor: themeColors.grey[0] })}
+      rowStyle={() => () => ({ backgroundColor: themeColors.gray[0] })}
       columns={subAccountColumns}
       selectedRecords={selectedRecords}
       onSelectedRecordsChange={setSelectedRecords}

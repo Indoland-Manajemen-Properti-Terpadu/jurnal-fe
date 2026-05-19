@@ -45,7 +45,7 @@ const TableBeginningBalance = ({ data }: TableBeginningBalanceProps) => {
             noWrap: true,
             render: ({ accountNumber }: JournalAccounts) => (
                 <Group>
-                    <Text className={classes.columnText} c={themeColors.defaultBlack[9]}>
+                    <Text className={classes.columnText} c={themeColors.black[9]}>
                         {accountNumber}
                     </Text>
                 </Group>
@@ -160,7 +160,7 @@ const TableBeginningBalance = ({ data }: TableBeginningBalanceProps) => {
             records={localData}
             columns={columns}
             borderRadius="md"
-            c={themeColors.defaultBlack[10]}
+            c={themeColors.black[9]}
             minHeight={300}
             emptyState={
                 <EmptyState

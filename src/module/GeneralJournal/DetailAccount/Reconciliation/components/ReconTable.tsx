@@ -18,7 +18,7 @@ const ReconciliationTable: React.FC = () => {
     const [modalOpened, setModalOpened] = useState(false);
     const [isImportModalOpen, setIsImportModalOpen] = useState(false);
     const [selectedBankStatement, setSelectedBankStatement] = useState<BankStatementData | null>(null);
-    
+
     const { accountDetail } = useDetailAccount(idAccount!);
     let { data: ReconData, isLoading, isError, refetch } = GetReconciliation(idAccount!);
 
@@ -80,23 +80,23 @@ const ReconciliationTable: React.FC = () => {
                         <Group justify="space-between" align="flex-start">
                             <Stack gap={0}>
                                 <Text size="xs" fw={500} c={themeColors.blue[6]}>Sumber Data</Text>
-                                <Text size="sm" fw={600} c={themeColors.defaultBlack[10]}>Rekening Koran</Text>
+                                <Text size="sm" fw={600} c={themeColors.black[9]}>Rekening Koran</Text>
                             </Stack>
                             <Stack gap={0} align="flex-end">
-                                <Text size="xs" fw={500} c={themeColors.grey[6]}>Saldo</Text>
-                                <Text size="sm" fw={600} c={themeColors.defaultBlack[10]}>{formatCurrency(accountDetail?.draftAmount || 0)}</Text>
+                                <Text size="xs" fw={500} c={themeColors.gray[6]}>Saldo</Text>
+                                <Text size="sm" fw={600} c={themeColors.black[9]}>{formatCurrency(accountDetail?.draftAmount || 0)}</Text>
                             </Stack>
                         </Group>
                     </Box>
-                    <Box bg={themeColors.figmaTeal[1]} p="md" style={{ borderLeft: `1px solid ${themeColors.grey[1]}` }}>
+                    <Box bg={themeColors.teal[1]} p="md" style={{ borderLeft: `1px solid ${themeColors.gray[1]}` }}>
                         <Group justify="space-between" align="flex-start">
                             <Stack gap={0}>
-                                <Text size="xs" fw={500} c={themeColors.figmaTeal[6]}>Pembukuan</Text>
-                                <Text size="sm" fw={600} c={themeColors.defaultBlack[10]}>Jurnal Transaksi</Text>
+                                <Text size="xs" fw={500} c={themeColors.teal[6]}>Pembukuan</Text>
+                                <Text size="sm" fw={600} c={themeColors.black[9]}>Jurnal Transaksi</Text>
                             </Stack>
                             <Stack gap={0} align="flex-end">
-                                <Text size="xs" fw={500} c={themeColors.grey[6]}>Saldo</Text>
-                                <Text size="sm" fw={600} c={themeColors.defaultBlack[10]}>{formatCurrency(accountDetail?.amount || 0)}</Text>
+                                <Text size="xs" fw={500} c={themeColors.gray[6]}>Saldo</Text>
+                                <Text size="sm" fw={600} c={themeColors.black[9]}>{formatCurrency(accountDetail?.amount || 0)}</Text>
                             </Stack>
                         </Group>
                     </Box>
@@ -105,7 +105,7 @@ const ReconciliationTable: React.FC = () => {
                 {/* Rows Section */}
                 <Stack gap={0}>
                     {rows.map(({ bankStatement, journalTransaction, isRecommendation }, index) => (
-                        <SimpleGrid key={index} cols={2} spacing={0} style={{ borderTop: `1px solid ${themeColors.grey[1]}` }}>
+                        <SimpleGrid key={index} cols={2} spacing={0} style={{ borderTop: `1px solid ${themeColors.gray[1]}` }}>
                             {/* Left Side: Bank Statement (Sumber Data) */}
                             <Box p="md" bg={themeColors.blue[0]} style={{ position: 'relative' }}>
                                 <Group wrap="nowrap" align="flex-start" gap="md">
@@ -114,19 +114,19 @@ const ReconciliationTable: React.FC = () => {
                                         <Stack gap="xs">
                                             <Group justify="space-between" align="flex-start">
                                                 <Stack gap={0}>
-                                                    <Text size="xs" c={themeColors.grey[6]} fw={400}>{dateFormatV1(bankStatement.date)}</Text>
-                                                    <Text size="sm" fw={600} c={themeColors.defaultBlack[10]} lineClamp={1}>{bankStatement.description}</Text>
+                                                    <Text size="xs" c={themeColors.gray[6]} fw={400}>{dateFormatV1(bankStatement.date)}</Text>
+                                                    <Text size="sm" fw={600} c={themeColors.black[9]} lineClamp={1}>{bankStatement.description}</Text>
                                                 </Stack>
                                                 <Stack align="flex-end" gap={4}>
-                                                    <Badge 
-                                                        variant="light" 
+                                                    <Badge
+                                                        variant="light"
                                                         color={bankStatement.amount > 0 ? "green" : "red"}
                                                         leftSection={bankStatement.amount > 0 ? <ArrowCircleDown size={14} /> : <ArrowCircleUp size={14} />}
                                                         style={{ textTransform: 'capitalize' }}
                                                     >
                                                         {bankStatement.amount > 0 ? "Diterima" : "Dikirim"}
                                                     </Badge>
-                                                    <Text size="sm" fw={700} c={themeColors.defaultBlack[10]}>{formatCurrency(Math.abs(bankStatement.amount))}</Text>
+                                                    <Text size="sm" fw={700} c={themeColors.black[9]}>{formatCurrency(Math.abs(bankStatement.amount))}</Text>
                                                 </Stack>
                                             </Group>
                                             <Group justify="space-between" align="flex-end">
@@ -139,8 +139,8 @@ const ReconciliationTable: React.FC = () => {
                                                     </Group>
                                                 ) : (
                                                     <Group gap={4} style={{ cursor: 'pointer' }}>
-                                                        <MagnifyingGlass size={16} color={themeColors.grey[5]} />
-                                                        <Text size="xs" c={themeColors.grey[6]} fw={500}>Belum dipasangkan</Text>
+                                                        <MagnifyingGlass size={16} color={themeColors.gray[5]} />
+                                                        <Text size="xs" c={themeColors.gray[6]} fw={500}>Belum dipasangkan</Text>
                                                     </Group>
                                                 )}
                                                 <ActionIcon variant="subtle" color="gray" size="sm">
@@ -153,18 +153,18 @@ const ReconciliationTable: React.FC = () => {
                             </Box>
 
                             {/* Right Side: Journal Match (Pembukuan) */}
-                            <Box p="md" bg={themeColors.figmaTeal[0]} style={{ borderLeft: `1px solid ${themeColors.grey[1]}` }}>
+                            <Box p="md" bg={themeColors.teal[0]} style={{ borderLeft: `1px solid ${themeColors.gray[1]}` }}>
                                 {journalTransaction ? (
-                                    <Paper withBorder p="sm" radius="sm" bg="white" style={{ borderLeft: `4px solid ${themeColors.figmaTeal[6]}`, height: '100%' }}>
+                                    <Paper withBorder p="sm" radius="sm" bg="white" style={{ borderLeft: `4px solid ${themeColors.teal[6]}`, height: '100%' }}>
                                         <Stack gap="xs" h="100%" justify="center">
                                             <Group justify="space-between" align="flex-start">
                                                 <Stack gap={0}>
-                                                    <Text size="xs" c={themeColors.grey[6]} fw={400}>{dateFormatV1(journalTransaction.transactionDate)}</Text>
-                                                    <Text size="sm" fw={600} c={themeColors.defaultBlack[10]} lineClamp={1}>
+                                                    <Text size="xs" c={themeColors.gray[6]} fw={400}>{dateFormatV1(journalTransaction.transactionDate)}</Text>
+                                                    <Text size="sm" fw={600} c={themeColors.black[9]} lineClamp={1}>
                                                         {journalTransaction.transactionNumber ? `Jurnal Transaksi #${journalTransaction.transactionNumber}` : journalTransaction.description}
                                                     </Text>
                                                 </Stack>
-                                                <Text size="sm" fw={700} c={themeColors.defaultBlack[10]}>{formatCurrency(journalTransaction.credit || journalTransaction.debit)}</Text>
+                                                <Text size="sm" fw={700} c={themeColors.black[9]}>{formatCurrency(journalTransaction.credit || journalTransaction.debit)}</Text>
                                             </Group>
                                             <Group justify="space-between" align="flex-end">
                                                 <Group gap={4}>
@@ -180,12 +180,12 @@ const ReconciliationTable: React.FC = () => {
                                         </Stack>
                                     </Paper>
                                 ) : (
-                                    <Box 
-                                        h="100%" 
-                                        style={{ 
-                                            border: `1px dashed ${themeColors.figmaTeal[4]}`, 
+                                    <Box
+                                        h="100%"
+                                        style={{
+                                            border: `1px dashed ${themeColors.teal[4]}`,
                                             borderRadius: '8px',
-                                            backgroundColor: themeColors.figmaTeal[0],
+                                            backgroundColor: themeColors.teal[0],
                                             display: 'flex',
                                             flexDirection: 'column',
                                             alignItems: 'center',
@@ -196,10 +196,10 @@ const ReconciliationTable: React.FC = () => {
                                         onClick={() => openReconModal(bankStatement)}
                                     >
                                         <Group gap={6}>
-                                            <MagnifyingGlass size={20} weight="bold" color={themeColors.figmaTeal[5]} />
-                                            <Text size="sm" fw={600} c={themeColors.figmaTeal[6]}>Cari & Cocokkan</Text>
+                                            <MagnifyingGlass size={20} weight="bold" color={themeColors.teal[5]} />
+                                            <Text size="sm" fw={600} c={themeColors.teal[6]}>Cari & Cocokkan</Text>
                                         </Group>
-                                        <Text size="xs" c={themeColors.figmaTeal[6]} fw={500}>Pilih jurnal untuk dipasangkan</Text>
+                                        <Text size="xs" c={themeColors.teal[6]} fw={500}>Pilih jurnal untuk dipasangkan</Text>
                                     </Box>
                                 )}
                             </Box>
@@ -211,17 +211,17 @@ const ReconciliationTable: React.FC = () => {
             {/* Footer Buttons */}
             <Group justify="flex-end" mt="xl">
                 <Button variant="subtle" color="gray" fw={500}>Reset</Button>
-                <Button 
-                    disabled={rows.every(r => !r.journalTransaction)} 
+                <Button
+                    disabled={rows.every(r => !r.journalTransaction)}
                     leftSection={<ArrowsCounterClockwise size={16} />}
                     variant="filled"
-                    bg={themeColors.grey[2]}
+                    bg={themeColors.gray[2]}
                     styles={{
                         root: {
-                            '--button-color': themeColors.grey[2],
+                            '--button-color': themeColors.gray[2],
                             '&:disabled': {
-                                backgroundColor: themeColors.grey[2],
-                                color: themeColors.grey[5],
+                                backgroundColor: themeColors.gray[2],
+                                color: themeColors.gray[5],
                             }
                         }
                     }}

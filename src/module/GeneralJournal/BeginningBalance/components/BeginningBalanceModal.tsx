@@ -5,7 +5,7 @@ import { DatePickerInput } from "@mantine/dates"
 import { IconCalendar, IconInfoCircle } from "@tabler/icons-react"
 import { dateTimeNow } from "@/utils/DateTimeNow"
 import CustomConfirmModal from "@/components/Modals/ConfirmModal"
-import { routes } from "@/router"
+import { routes } from "@/router/routes"
 import { closeAllModals } from "@mantine/modals"
 import { notifications } from "@mantine/notifications"
 import { useNavigate } from "react-router-dom"
@@ -20,12 +20,12 @@ interface BeginningBalanceModalProps {
 
 export const BeginningBalanceModal: React.FC<BeginningBalanceModalProps> = ({ opened, onClose }) => {
     const navigate = useNavigate();
-    const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+    const [selectedDate, setSelectedDate] = useState<string | null>(null);
     const { setConverstion } = useInitialBalanceStore()
 
     const handleFinalConfirmCheck = () => {
         if (selectedDate) {
-            setConverstion(selectedDate);
+            setConverstion(new Date(selectedDate));
             closeAllModals();
             navigate(routes.generalJournal.beginningBalance);
         } else {
@@ -48,7 +48,7 @@ export const BeginningBalanceModal: React.FC<BeginningBalanceModalProps> = ({ op
             labels={{
                 confirm:
                     <Button variant="gradient" gradient={buttonGradient.gradient} onClick={handleFinalConfirmCheck}>Set Date</Button>,
-                cancel: <Button variant="light" color={themeColors.grey[7]} onClick={onClose}>Cancel</Button>
+                cancel: <Button variant="light" color={themeColors.gray[7]} onClick={onClose}>Cancel</Button>
             }}
         >
             <Stack gap='md' align="stretch" justify="center">
@@ -58,7 +58,7 @@ export const BeginningBalanceModal: React.FC<BeginningBalanceModalProps> = ({ op
                     label="Conversion Date"
                     rightSection={<IconCalendar />}
                     description={selectedDate
-                        ? `Your initial balance is as of ${formatDate(selectedDate)}`
+                        ? `Your initial balance is as of ${formatDate(new Date(selectedDate))}`
                         : 'Please select a conversion date'}
                     withAsterisk
                     onChange={setSelectedDate}

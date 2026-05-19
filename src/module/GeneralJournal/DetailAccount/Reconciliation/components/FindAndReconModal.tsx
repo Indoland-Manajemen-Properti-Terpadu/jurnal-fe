@@ -37,7 +37,7 @@ export const FindAndReconModal: React.FC<FindAndReconModalProps> = ({ opened, on
         const matchesDate =
             !selectedDate ||
             (item.transactionDate && new Date(item.transactionDate)
-                .toDateString() === selectedDate.toDateString());
+                .toDateString() === new Date(selectedDate).toDateString());
 
         return matchesQuery && matchesDate;
     });
@@ -51,27 +51,27 @@ export const FindAndReconModal: React.FC<FindAndReconModalProps> = ({ opened, on
     const columns = [
         {
             accessor: 'transactionNumber',
-            title: <Text size="sm" fw={600} c={themeColors.defaultBlack[10]}>No Transaksi</Text>,
+            title: <Text size="sm" fw={600} c={themeColors.black[9]}>No Transaksi</Text>,
             render: (element: any) => (
-                <Text size="sm" c={themeColors.figmaTeal[6]} fw={500} style={{ textDecoration: 'underline', cursor: 'pointer' }}>
+                <Text size="sm" c={themeColors.teal[6]} fw={500} style={{ textDecoration: 'underline', cursor: 'pointer' }}>
                     Jurnal Transaksi #{element.transactionNumber}
                 </Text>
             ),
         },
         {
             accessor: 'transactionDate',
-            title: <Text size="sm" fw={600} c={themeColors.defaultBlack[10]}>Tanggal</Text>,
-            render: (element: any) => <Text size="sm" c={themeColors.defaultBlack[10]}>{dateFormatV1(element.transactionDate)}</Text>,
+            title: <Text size="sm" fw={600} c={themeColors.black[9]}>Tanggal</Text>,
+            render: (element: any) => <Text size="sm" c={themeColors.black[9]}>{dateFormatV1(element.transactionDate)}</Text>,
         },
         {
             accessor: 'debit',
-            title: <Text size="sm" fw={600} c={themeColors.defaultBlack[10]}>Debit (Dalam Rp)</Text>,
-            render: (element: any) => <Text size="sm" c={themeColors.defaultBlack[10]}>{formatCurrency(element.debit || 0)}</Text>,
+            title: <Text size="sm" fw={600} c={themeColors.black[9]}>Debit (Dalam Rp)</Text>,
+            render: (element: any) => <Text size="sm" c={themeColors.black[9]}>{formatCurrency(element.debit || 0)}</Text>,
         },
         {
             accessor: 'credit',
-            title: <Text size="sm" fw={600} c={themeColors.defaultBlack[10]}>Kredit (Dalam Rp)</Text>,
-            render: (element: any) => <Text size="sm" c={themeColors.defaultBlack[10]}>{formatCurrency(element.credit || 0)}</Text>,
+            title: <Text size="sm" fw={600} c={themeColors.black[9]}>Kredit (Dalam Rp)</Text>,
+            render: (element: any) => <Text size="sm" c={themeColors.black[9]}>{formatCurrency(element.credit || 0)}</Text>,
         }
     ];
 
@@ -81,16 +81,16 @@ export const FindAndReconModal: React.FC<FindAndReconModalProps> = ({ opened, on
             opened={opened}
             onClose={onClose}
             withCloseButton={true}
-            title={<Text fw={700} fz={18} c={themeColors.defaultBlack[10]}>Cocokkan dengan Rekening Koran</Text>}
+            title={<Text fw={700} fz={18} c={themeColors.black[9]}>Cocokkan dengan Rekening Koran</Text>}
             labels={{
                 confirm:
                     <Button
                         variant="filled"
-                        bg={shortageNominal === 0 ? themeColors.grey[2] : themeColors.grey[1]}
+                        bg={shortageNominal === 0 ? themeColors.gray[2] : themeColors.gray[1]}
                         onClick={onClose}
                         disabled={shortageNominal !== 0}
-                        style={{ 
-                            color: shortageNominal === 0 ? themeColors.defaultBlack[10] : themeColors.grey[5] 
+                        style={{
+                            color: shortageNominal === 0 ? themeColors.black[9] : themeColors.gray[5]
                         }}
                     >
                         Cocokkan
@@ -111,15 +111,15 @@ export const FindAndReconModal: React.FC<FindAndReconModalProps> = ({ opened, on
                 {SelectedBankStatament && (
                     <Paper withBorder p="md" radius="sm" bg="white">
                         <Stack gap="xs">
-                            <Text size="xs" fw={600} c={themeColors.defaultBlack[10]}>Rekening Koran</Text>
+                            <Text size="xs" fw={600} c={themeColors.black[9]}>Rekening Koran</Text>
                             <Group justify="space-between" align="flex-start">
                                 <Stack gap={2}>
-                                    <Text size="xs" c={themeColors.grey[6]}>{dateFormatV1(SelectedBankStatament.date)}</Text>
-                                    <Text size="sm" fw={600} c={themeColors.defaultBlack[10]}>{SelectedBankStatament.description}</Text>
+                                    <Text size="xs" c={themeColors.gray[6]}>{dateFormatV1(SelectedBankStatament.date)}</Text>
+                                    <Text size="sm" fw={600} c={themeColors.black[9]}>{SelectedBankStatament.description}</Text>
                                 </Stack>
                                 <Stack align="flex-end" gap={4}>
-                                    <Badge 
-                                        variant="light" 
+                                    <Badge
+                                        variant="light"
                                         color={SelectedBankStatament.amount > 0 ? "green" : "red"}
                                         leftSection={SelectedBankStatament.amount > 0 ? <ArrowCircleDown size={14} /> : <ArrowCircleUp size={14} />}
                                     >
@@ -127,31 +127,31 @@ export const FindAndReconModal: React.FC<FindAndReconModalProps> = ({ opened, on
                                             {SelectedBankStatament.amount > 0 ? "Diterima" : "Dikirim"}
                                         </Text>
                                     </Badge>
-                                    <Text size="sm" fw={700} c={themeColors.defaultBlack[10]}>{formatCurrency(Math.abs(SelectedBankStatament.amount))}</Text>
+                                    <Text size="sm" fw={700} c={themeColors.black[9]}>{formatCurrency(Math.abs(SelectedBankStatament.amount))}</Text>
                                 </Stack>
                             </Group>
                         </Stack>
                     </Paper>
                 )}
 
-                <Text fw={600} size="sm" c={themeColors.defaultBlack[10]}>Cari Jurnal Transaksi</Text>
+                <Text fw={600} size="sm" c={themeColors.black[9]}>Cari Jurnal Transaksi</Text>
 
                 {/* Filters */}
                 <Group grow>
                     <Input
                         placeholder="Cari kode atau nama akun..."
-                        leftSection={<MagnifyingGlass size={16} color={themeColors.grey[6]} />}
+                        leftSection={<MagnifyingGlass size={16} color={themeColors.gray[6]} />}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        styles={{ input: { color: themeColors.defaultBlack[10] } }}
+                        styles={{ input: { color: themeColors.black[9] } }}
                     />
                     <DatePickerInput
                         placeholder="Semua Tanggal"
-                        leftSection={<IconCalendar size={18} color={themeColors.grey[6]} />}
+                        leftSection={<IconCalendar size={18} color={themeColors.gray[6]} />}
                         value={selectedDate}
                         onChange={setSelectedDate}
                         clearable
-                        styles={{ input: { color: themeColors.defaultBlack[10] } }}
+                        styles={{ input: { color: themeColors.black[9] } }}
                     />
                 </Group>
 
@@ -165,10 +165,8 @@ export const FindAndReconModal: React.FC<FindAndReconModalProps> = ({ opened, on
                     selectedRecords={selectedRecords}
                     onSelectedRecordsChange={setSelectedRecords}
                     minHeight={200}
-                    paginationColor="teal"
                     styles={{
-                        header: { color: themeColors.defaultBlack[10] },
-                        row: { color: themeColors.defaultBlack[10] }
+                        header: { color: themeColors.black[9] }
                     }}
                 />
 
@@ -176,16 +174,16 @@ export const FindAndReconModal: React.FC<FindAndReconModalProps> = ({ opened, on
                 <Group justify="space-between" mt="sm">
                     <Group gap="lg">
                         <Group gap={4}>
-                            <Text size="sm" fw={500} c={themeColors.defaultBlack[10]}>Total Nominal:</Text>
-                            <Text size="sm" fw={700} c={themeColors.defaultBlack[10]}>{formatCurrency(totalNominal)}</Text>
+                            <Text size="sm" fw={500} c={themeColors.black[9]}>Total Nominal:</Text>
+                            <Text size="sm" fw={700} c={themeColors.black[9]}>{formatCurrency(totalNominal)}</Text>
                         </Group>
                         <Group gap={4}>
-                            <Text size="sm" fw={500} c={themeColors.defaultBlack[10]}>Dipilih:</Text>
-                            <Text size="sm" fw={700} c={themeColors.defaultBlack[10]}>{formatCurrency(selectedNominal)}</Text>
+                            <Text size="sm" fw={500} c={themeColors.black[9]}>Dipilih:</Text>
+                            <Text size="sm" fw={700} c={themeColors.black[9]}>{formatCurrency(selectedNominal)}</Text>
                         </Group>
                         <Group gap={4}>
-                            <Text size="sm" fw={500} c={themeColors.defaultBlack[10]}>Kekurangan:</Text>
-                            <Text size="sm" fw={700} c={shortageNominal > 0 ? themeColors.red[7] : themeColors.figmaTeal[6]}>
+                            <Text size="sm" fw={500} c={themeColors.black[9]}>Kekurangan:</Text>
+                            <Text size="sm" fw={700} c={shortageNominal > 0 ? themeColors.red[7] : themeColors.teal[6]}>
                                 {formatCurrency(Math.abs(shortageNominal))}
                             </Text>
                         </Group>

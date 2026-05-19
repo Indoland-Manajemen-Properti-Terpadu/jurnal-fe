@@ -31,7 +31,7 @@ import { useEffect, useState } from 'react';
 
 // Shared imports using barrel exports
 import { ConfirmModal, PageHeader } from '@/components';
-import { routes } from '@/router';
+import { routes } from '@/router/routes';
 import { useAccountStore, useJournalAccountStore } from '@/store';
 import classes from './GeneralJournal.module.css';
 

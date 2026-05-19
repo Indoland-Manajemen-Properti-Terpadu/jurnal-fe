@@ -1,6 +1,7 @@
 import { API_ACCOUNT } from '@/services/endpoint';
 import { useQuery } from '@tanstack/react-query';
 import { get } from '@/services/apiClient';
+import type { TransactionByAccountModel } from '../types/TransactionByAccountModel';
 
 interface TransactionByAccountParams {
   idAccount: string;

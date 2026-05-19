@@ -60,7 +60,7 @@ export const SettingAccountModal: React.FC<SettingAccountModalProps> = ({ opened
                         </Button>
                     ),
                     cancel: (
-                        <Button variant="light" color={themeColors.grey[7]} onClick={onClose}>
+                        <Button variant="light" color={themeColors.gray[7]} onClick={onClose}>
                             Cancel
                         </Button>
                     ),

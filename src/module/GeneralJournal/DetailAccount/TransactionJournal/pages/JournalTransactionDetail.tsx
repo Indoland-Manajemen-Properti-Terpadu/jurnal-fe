@@ -10,7 +10,8 @@ import {
 } from '@mantine/core';
 import { useNavigate, useParams } from 'react-router-dom';
 import { TextMediumGR } from '@/components/Text/CustomText';
-import { navigate, routes } from '@/router';
+import { navigate } from '@/router';
+import { routes } from '@/router/routes';
 import { PageHeader } from '@/components';
 import { TextWithSubObject, TextWithSubText } from '@/components/Text/TextwithSubText';
 import { gradientColors, themeColors } from '@/theme';
