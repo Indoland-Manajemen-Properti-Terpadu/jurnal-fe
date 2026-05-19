@@ -14,15 +14,15 @@ import { themeColors } from '@/theme';
  */
 // export const tableStyles = {
 //   head: {
-//     borderColor: themeColors.grey[1],
+//     borderColor: themeColors.gray[1],
 //     borderWidth: '1px',
 //     borderStyle: 'solid' as const,
 //     fontWeight: 500,
 //     fontSize: 14,
-//     backgroundColor: themeColors.grey[0],
+//     backgroundColor: themeColors.gray[0],
 //   },
 //   row: {
-//     borderColor: themeColors.grey[1],
+//     borderColor: themeColors.gray[1],
 //     borderWidth: '1px',
 //     borderStyle: 'solid' as const,
 //     transition: 'background-color 150ms ease',
@@ -128,18 +128,18 @@ export const figmaSpacing = {
   xl6: rem(72),
 } as const;
 
-export const figmaRadius = {
-  none: rem(0),
-  sm: rem(2),
-  md: rem(4),
-  lg: rem(8),
-  xl: rem(12),
-  '2xl': rem(16),
-  '3xl': rem(24),
-  '4xl': rem(32),
-  '5xl': rem(48),
-  full: '999px',
-} as const;
+// export const figmaRadius = {
+//   none: rem(0),
+//   sm: rem(2),
+//   md: rem(4),
+//   lg: rem(8),
+//   xl: rem(12),
+//   '2xl': rem(16),
+//   '3xl': rem(24),
+//   '4xl': rem(32),
+//   '5xl': rem(48),
+//   full: '999px',
+// } as const;
 
 export const figmaTypography = {
   fontFamily: 'Figtree, sans-serif',

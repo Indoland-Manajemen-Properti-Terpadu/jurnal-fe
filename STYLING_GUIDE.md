@@ -51,7 +51,7 @@ import { themeColors } from '@/theme';
 
 ```tsx
 const rowStyle = {
-    borderColor: themeColors.grey[1],
+    borderColor: themeColors.gray[1],
     borderWidth: '1px',
     borderStyle: 'solid',
 };

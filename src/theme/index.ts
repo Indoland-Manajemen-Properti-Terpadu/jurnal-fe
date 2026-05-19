@@ -1,5 +1,5 @@
 import { themeColors } from '@/theme';
-import { figmaRadius, figmaSpacing, figmaTypography, semanticColors } from './constants';
+import { figmaSpacing, figmaTypography, semanticColors } from './constants';
 import {
   ActionIcon,
   Button,
@@ -19,7 +19,7 @@ import {
  * No more sx prop or styles API
  */
 export const myTheme = createTheme({
-  primaryColor: 'figmaCyan',
+  primaryColor: 'cyan',
   fontSmoothing: true,
   defaultRadius: 'md',
   fontFamily: figmaTypography.fontFamily,
@@ -75,14 +75,6 @@ export const myTheme = createTheme({
     md: figmaSpacing.base,
     lg: figmaSpacing.md,
     xl: figmaSpacing.lg,
-  },
-
-  radius: {
-    xs: figmaRadius.sm,
-    sm: figmaRadius.md,
-    md: figmaRadius.lg,
-    lg: figmaRadius.xl,
-    xl: figmaRadius['2xl'],
   },
 
   shadows: {
@@ -173,7 +165,7 @@ export const myTheme = createTheme({
   other: {
     figma: {
       spacing: figmaSpacing,
-      radius: figmaRadius,
+
       typography: figmaTypography,
       colors: semanticColors,
     },
