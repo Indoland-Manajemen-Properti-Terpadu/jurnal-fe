@@ -75,7 +75,7 @@ function LoginPage() {
                 opacity={0.85}
                 zIndex={1}
               />
-              <Text c={themeColors.defaultBlack[10]}>
+              <Text c={themeColors.black[9]}>
                 Optimize Your
                 Building Management
                 with ProApps!
@@ -84,7 +84,7 @@ function LoginPage() {
           ))}
         </Carousel>
       </Grid.Col>
-      <Grid.Col span={6} bg={themeColors.grey[1]} style={{
+      <Grid.Col span={6} bg={themeColors.gray[1]} style={{
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',

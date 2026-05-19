@@ -18,9 +18,9 @@ export default function OAuthCallback() {
 
   return (
     <Center h="100vh" bg="gray.0">
-      <Stack align="center" spacing="md">
+      <Stack align="center" gap="md">
         <Loader size="xl" variant="dots" />
-        <Text size="lg" weight={500} color="dimmed">
+        <Text size="lg" fw={500} c="dimmed">
           {!code ? "Invalid OAuth Code" : "Authenticating, please wait..."}
         </Text>
       </Stack>
