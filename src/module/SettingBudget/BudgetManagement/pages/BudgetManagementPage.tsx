@@ -22,7 +22,7 @@ import {
 } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { PageHeader } from '@/components';
-import { routes } from '@/router';
+import { routes } from '@/router/routes';
 import { gradientColors, themeColors } from '@/theme';
 import { useEffect, useState } from 'react';
 import { BeginningBalanceModal } from '@/module/GeneralJournal/BeginningBalance/components/BeginningBalanceModal';

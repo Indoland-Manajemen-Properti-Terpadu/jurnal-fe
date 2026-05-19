@@ -6,8 +6,8 @@ import { IconInfoCircle } from "@tabler/icons-react";
 import { GetDefaultRole } from "../../Service/Role.service";
 
 const headTableStyle = {
-  bg: themeColors.primary[0],
-  borderColor: themeColors.grey[1],
+  bg: themeColors.teal[0],
+  borderColor: themeColors.gray[1],
   borderWidth: '1px',
   borderStyle: 'solid',
   borderCollapse: 'collapse' as const,
@@ -32,7 +32,7 @@ const DefaultRoleTable: React.FC = () => {
   return (
     <Stack align='center'>
       <Table highlightOnHover style={{
-        borderColor: themeColors.grey[3],
+        borderColor: themeColors.gray[3],
         borderWidth: '1px',
         borderStyle: 'solid',
         borderTop: 0
@@ -58,7 +58,7 @@ const DefaultRoleTable: React.FC = () => {
           ))}
         </Table.Tbody>
       </Table>
-      {/* <Pagination total={2} withEdges size='sm' color={themeColors.primary[6]} /> */}
+      {/* <Pagination total={2} withEdges size='sm' color={themeColors.teal[6]} /> */}
     </Stack >
   );
 };

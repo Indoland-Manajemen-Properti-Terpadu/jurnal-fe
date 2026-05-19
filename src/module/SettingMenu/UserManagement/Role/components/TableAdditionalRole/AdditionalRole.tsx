@@ -9,7 +9,7 @@ import DeleteTransactionModal from "@/module/GeneralJournal/DetailAccount/Main/c
 import { GetRoles } from "../../Service/Role.service";
 
 const rowStyle = {
-  borderColor: themeColors.grey[1],
+  borderColor: themeColors.gray[1],
   borderWidth: "1px",
   borderStyle: "solid",
 };
@@ -52,7 +52,7 @@ const AdditionalRoleTable: React.FC = () => {
       <Table
         highlightOnHover
         style={{
-          borderColor: themeColors.grey[3],
+          borderColor: themeColors.gray[3],
           borderWidth: "1px",
           borderStyle: "solid",
           borderTop: 0,
@@ -120,7 +120,7 @@ const AdditionalRoleTable: React.FC = () => {
           ))}
         </Table.Tbody>
       </Table>
-      {/* <Pagination total={2} withEdges size="sm" color={themeColors.primary[6]} /> */}
+      {/* <Pagination total={2} withEdges size="sm" color={themeColors.teal[6]} /> */}
       <DeleteTransactionModal
         opened={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}

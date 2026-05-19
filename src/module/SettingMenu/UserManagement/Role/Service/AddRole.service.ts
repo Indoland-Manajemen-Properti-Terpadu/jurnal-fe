@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
-import { routes } from '@/router';
+import { routes } from '@/router/routes';
 import { useNavigate } from 'react-router-dom';
 import { API_ACCOUNT } from '@/services/endpoint';
 import { post } from '@/services/apiClient';

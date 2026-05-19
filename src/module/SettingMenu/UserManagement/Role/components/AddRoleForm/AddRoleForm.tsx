@@ -21,7 +21,7 @@ import UserRole from '@/../public/mocks/Role.json';
 import { gradientColors, themeColors } from '@/theme';
 import classes from './AddRoleForm.module.css';
 import AddRoleFormLayout from './Layout';
-import { routes } from '@/router';
+import { routes } from '@/router/routes';
 import { IconChevronDown, IconChevronRight } from '@tabler/icons-react';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
@@ -197,14 +197,14 @@ const AddRoleForm = () => {
                     <Group justify="space-between" style={{ flex: 1 }}>
                         <Switch
                             defaultChecked
-                            color={themeColors.primary[6]}
+                            color={themeColors.teal[6]}
                             label="Active"
                             size="lg"
                         />
                         <Group>
                             <Button
                                 variant='light'
-                                color={themeColors.grey[7]}
+                                color={themeColors.gray[7]}
                                 onClick={() => navigate(routes.userManagement.main)}
                             >
                                 Cancel
@@ -254,7 +254,7 @@ const AddRoleForm = () => {
                             <Table.Tbody>
                                 {menus.map((menu) => {
                                     return <React.Fragment key={menu.name}>
-                                        <Table.Tr style={{ backgroundColor: themeColors.primary[0], cursor: 'pointer' }}>
+                                        <Table.Tr style={{ backgroundColor: themeColors.teal[0], cursor: 'pointer' }}>
                                             <Table.Td onClick={() => {
                                                 if (menu.menus && menu.menus.length > 0) {
                                                     handleRowClick(menu.name);
@@ -272,7 +272,7 @@ const AddRoleForm = () => {
                                                         </Group>
                                                     ) : (
                                                         <>
-                                                            <Text pl={30} c={themeColors.defaultBlack[10]} fz={14}>
+                                                            <Text pl={30} c={themeColors.black[9]} fz={14}>
                                                                 {menu.name}
                                                             </Text>
                                                         </>

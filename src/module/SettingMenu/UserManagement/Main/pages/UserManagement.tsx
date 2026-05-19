@@ -55,7 +55,7 @@ const UserManagement = () => {
                 {
                   label: "Add Role",
                   variant: "light",
-                  color: themeColors.grey[7],
+                  color: themeColors.gray[7],
                   onClick: () => navigate(routes.userManagement.addRole),
                 },
                 {
@@ -68,7 +68,7 @@ const UserManagement = () => {
             />
           </Paper>
           <Paper {...PAPER_PROPS}>
-            <Tabs value={activeTabUser} onChange={(value) => setActiveTabUser(value!)} color={themeColors.primary[6]} >
+            <Tabs value={activeTabUser} onChange={(value) => setActiveTabUser(value!)} color={themeColors.teal[6]} >
               <Tabs.List>
                 <Tabs.Tab value="ListUser" leftSection={<IconUsers size={14} />}>
                   List User

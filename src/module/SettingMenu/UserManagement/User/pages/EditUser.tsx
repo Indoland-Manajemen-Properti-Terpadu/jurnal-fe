@@ -20,7 +20,8 @@ import {
 import { useRef, useState } from 'react';
 import { IconCards, IconChevronDown, IconUsers } from '@tabler/icons-react';
 import { PageHeader } from '@/components';
-import { navigate, routes } from '@/router';
+import { navigate } from '@/router';
+import { routes } from '@/router/routes';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { gradientColors, themeColors } from '@/theme';
 import UserType from '@/../public/mocks/UserType.json';
@@ -102,14 +103,14 @@ function EditUserForm() {
                     <Group justify="space-between" style={{ flex: 1 }}>
                         <Switch
                             defaultChecked
-                            color={themeColors.primary[6]}
+                            color={themeColors.teal[6]}
                             label="Active"
                             size="lg"
                         />
                         <Group >
                             <Button
                                 variant="light"
-                                color={themeColors.grey[7]}
+                                color={themeColors.gray[7]}
                                 onClick={() => navigate(-1)}
                             >
                                 Cancel
@@ -179,8 +180,8 @@ function EditUserForm() {
                                 variant="outline"
                                 value={activeTabRole}
                                 onChange={(value) => setActiveTabRole(value!)}
-                                color={themeColors.primary[6]}
-                                styles={{ tabLabel: { color: themeColors.primary[6] } }}
+                                color={themeColors.teal[6]}
+                                styles={{ tabLabel: { color: themeColors.teal[6] } }}
                             >
                                 <Tabs.List>
                                     <Tabs.Tab value="DefaultRole" leftSection={<IconUsers size={14} />}>
