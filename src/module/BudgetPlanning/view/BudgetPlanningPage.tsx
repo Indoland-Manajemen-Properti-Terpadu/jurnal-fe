@@ -1,5 +1,5 @@
 import BaseModulePage from '@/components/BaseModulePage';
-import { routes } from '@/router';
+import { routes } from '@/router/routes';
 import BudgetPlanningLayout from './Layout';
 
 function BudgetPlanningPage() {

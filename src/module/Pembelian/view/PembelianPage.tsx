@@ -1,5 +1,5 @@
 import BaseModulePage from '@/components/BaseModulePage';
-import { routes } from '@/router';
+import { routes } from '@/router/routes';
 import PembelianLayout from './Layout';
 
 function PembelianPage() {
