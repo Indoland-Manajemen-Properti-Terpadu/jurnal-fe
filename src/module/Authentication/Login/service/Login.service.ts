@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { notifications } from '@mantine/notifications';
 import { post } from '@/services/apiClient';
 import { API_AUTH } from '@/services/endpoint';
-import { routes } from '@/router';
+import { routes } from '@/router/routes';
 import { useAuthStore } from '@/store/useAuthentications';
 import { LoginModelResponse } from '../types/LoginModelResponse';
 

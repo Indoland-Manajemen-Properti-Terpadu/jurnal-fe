@@ -279,7 +279,7 @@ Contoh alias import:
 ```ts
 import { Button } from '@/components';
 import { axiosInstance } from '@/lib/axios';
-import { routes } from '@/router';
+import { routes } from '@/router/routes';
 ```
 
 ---

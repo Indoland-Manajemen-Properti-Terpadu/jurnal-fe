@@ -1,11 +1,11 @@
-import { useMutation } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
-import { notifications } from "@mantine/notifications";
-import { post } from "@/services/apiClient";
-import { API_AUTH } from "@/services/endpoint";
-import { routes } from "@/router";
-import { useAuthStore } from "@/store/useAuthentications";
-import { LoginModelResponse } from "../types/LoginModelResponse";
+import { useMutation } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
+import { notifications } from '@mantine/notifications';
+import { post } from '@/services/apiClient';
+import { API_AUTH } from '@/services/endpoint';
+import { routes } from '@/router/routes';
+import { useAuthStore } from '@/store/useAuthentications';
+import { LoginModelResponse } from '../types/LoginModelResponse';
 
 export const useOAuthExchange = () => {
   const navigate = useNavigate();
@@ -21,19 +21,19 @@ export const useOAuthExchange = () => {
       setTokens(tokens.access.token, tokens.refresh.token);
       setUserName(user.name);
       notifications.show({
-        color: "cyan",
+        color: 'cyan',
         autoClose: 3000,
-        title: "Login Successful!",
-        message: "Welcome to Journal Proapps. Let’s get started!",
+        title: 'Login Successful!',
+        message: 'Welcome to Journal Proapps. Let’s get started!',
       });
       navigate(routes.dashboard);
     },
     onError: (error) => {
       notifications.show({
-        color: "red",
+        color: 'red',
         autoClose: 3000,
-        title: "Authentication Failed",
-        message: "Unable to authenticate with Jurnal. Please try again.",
+        title: 'Authentication Failed',
+        message: 'Unable to authenticate with Jurnal. Please try again.',
       });
       navigate(routes.login);
     },
