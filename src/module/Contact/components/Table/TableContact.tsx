@@ -10,7 +10,7 @@ import EmptyState from '@/components/EmptyState/EmptyTable';
 import { formatCurrency } from '@/utils/FormatCurrency';
 import { JournalAccounts } from '@/module/GeneralJournal/JournalAccount/types/JournalAccountModel';
 import { DataTable } from 'mantine-datatable';
-import { routes } from '@/router';
+import { routes } from '@/router/routes';
 
 
 const PAPER_PROPS: PaperProps = {
@@ -60,14 +60,14 @@ export default function TableContact() {
     const columns = [
         {
             accessor: 'transactionName',
-            title: <Text size="sm" fz={14} fw={500} c={themeColors.defaultBlack[10]} >Contact Name</Text>,
+            title: <Text size="sm" fz={14} fw={500} c={themeColors.black[9]} >Contact Name</Text>,
             render: (element: JournalAccounts) => (
                 <Anchor
                     underline="never"
                     onClick={() =>
                         navigate(routes.Contact.DetailContact.replace(':idAccount', element.id))
                     }>
-                    <Text c={themeColors.primary[6]} size="sm">
+                    <Text c={themeColors.teal[6]} size="sm">
                         Aditya Santoso
                     </Text>
                 </Anchor>
@@ -75,54 +75,54 @@ export default function TableContact() {
         },
         {
             accessor: 'transactionDate',
-            title: <Text size="sm" fz={14} fw={500} ta='center' c={themeColors.defaultBlack[10]} >Type</Text>,
+            title: <Text size="sm" fz={14} fw={500} ta='center' c={themeColors.black[9]} >Type</Text>,
             render: (element: JournalAccounts) => (
-                <Text size="sm" fz={14} fw={400} c={themeColors.defaultBlack[10]} ta='center'>
+                <Text size="sm" fz={14} fw={400} c={themeColors.black[9]} ta='center'>
                     Other
                 </Text>
             ),
         },
         {
             accessor: 'transactionName',
-            title: <Text size="sm" fz={14} fw={500} c={themeColors.defaultBlack[10]} >Company Name</Text>,
+            title: <Text size="sm" fz={14} fw={500} c={themeColors.black[9]} >Company Name</Text>,
             render: (element: JournalAccounts) => (
-                <Text c={themeColors.defaultBlack[10]} size="sm">
+                <Text c={themeColors.black[9]} size="sm">
                     PT. Sinar Jaya
                 </Text>
             ),
         },
         {
             accessor: 'transactionName',
-            title: <Text size="sm" fz={14} fw={500} c={themeColors.defaultBlack[10]} >Email</Text>,
+            title: <Text size="sm" fz={14} fw={500} c={themeColors.black[9]} >Email</Text>,
             render: (element: JournalAccounts) => (
-                <Text c={themeColors.defaultBlack[10]} size="sm">
+                <Text c={themeColors.black[9]} size="sm">
                     Sinarjaya@company.id
                 </Text>
             ),
         },
         {
             accessor: 'credit',
-            title: <Text size="sm" fz={14} fw={500} c={themeColors.defaultBlack[10]} >Phone Number</Text>,
+            title: <Text size="sm" fz={14} fw={500} c={themeColors.black[9]} >Phone Number</Text>,
             render: (element: JournalAccounts) => (
-                <Text size="sm" fz={14} fw={400} c={themeColors.defaultBlack[10]} >0877818472723</Text>
+                <Text size="sm" fz={14} fw={400} c={themeColors.black[9]} >0877818472723</Text>
             ),
         },
         {
             accessor: 'balance',
-            title: <Text size="sm" fz={14} fw={500} c={themeColors.defaultBlack[10]} >Balance</Text>,
+            title: <Text size="sm" fz={14} fw={500} c={themeColors.black[9]} >Balance</Text>,
             render: (element: JournalAccounts) => (
-                <Text size="sm" fz={14} fw={400} c={themeColors.defaultBlack[10]} >{formatCurrency(element.debit || 0)}</Text>
+                <Text size="sm" fz={14} fw={400} c={themeColors.black[9]} >{formatCurrency(element.debit || 0)}</Text>
             ),
         },
         {
             accessor: 'action',
-            title: <Text size="sm" fz={14} fw={500} ta='center' c={themeColors.defaultBlack[10]} >Action</Text>,
+            title: <Text size="sm" fz={14} fw={500} ta='center' c={themeColors.black[9]} >Action</Text>,
             render: (element: JournalAccounts) =>
                 <Center>
                     <Menu position="bottom-end">
                         <Menu.Target>
-                            <ActionIcon bg={themeColors.grey[0]}>
-                                <IconDots size={14} color={themeColors.grey[6]} />
+                            <ActionIcon bg={themeColors.gray[0]}>
+                                <IconDots size={14} color={themeColors.gray[6]} />
                             </ActionIcon>
                         </Menu.Target>
                         <Menu.Dropdown>

@@ -15,7 +15,7 @@ const ContactInformationForm: React.FC = () => {
     const [sameAsBillingAddress, setSameAsBillingAddress] = useState(false);
     return (
         <Stack gap='md'>
-            <Text c={themeColors.primary[6]} fz={18} fw={500}>Add Contact Information</Text>
+            <Text c={themeColors.teal[6]} fz={18} fw={500}>Add Contact Information</Text>
             <TextInput
                 label="Display Name"
                 withAsterisk
@@ -133,7 +133,7 @@ const ContactInformationForm: React.FC = () => {
                     resize="vertical"
                 />
             )}
-            {sameAsBillingAddress && (<Text fw={500} fz={14} c={themeColors.defaultBlack[10]}>
+            {sameAsBillingAddress && (<Text fw={500} fz={14} c={themeColors.black[9]}>
                 Shipping Address <span style={{ color: 'red' }}>*</span>
             </Text>)}
             <Checkbox

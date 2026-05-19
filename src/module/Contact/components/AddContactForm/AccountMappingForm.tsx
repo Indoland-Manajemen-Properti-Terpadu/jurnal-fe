@@ -10,7 +10,7 @@ import { JournalAccounts } from "@/module/GeneralJournal/JournalAccount/types/Jo
 const AccountMappingForm: React.FC = () => {
     return (
         <Stack gap='md'>
-            <Text c={themeColors.primary[6]} fz={18} fw={500}>Add Account Mapping</Text>
+            <Text c={themeColors.teal[6]} fz={18} fw={500}>Add Account Mapping</Text>
             <Select
                 label="Accounts Receivable"
                 withAsterisk

@@ -10,7 +10,7 @@ import EmptyState from '@/components/EmptyState/EmptyTable';
 import { formatCurrency } from '@/utils/FormatCurrency';
 import { JournalAccounts } from '@/module/GeneralJournal/JournalAccount/types/JournalAccountModel';
 import { DataTable } from 'mantine-datatable';
-import { routes } from '@/router';
+import { routes } from '@/router/routes';
 import { capitalize } from '@/utils/Capitalize';
 interface StatusBadgeProps {
     status: 'paid' | 'unpaid' | 'partiallypaid' | 'duedate';
@@ -23,7 +23,7 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
             badgeColor = themeColors.green[6];
             break;
         case 'unpaid':
-            badgeColor = themeColors.grey[6];
+            badgeColor = themeColors.gray[6];
             break;
         case 'partiallypaid':
             badgeColor = themeColors.orange[6];
@@ -32,7 +32,7 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
             badgeColor = themeColors.red[6];
             break;
         default:
-            badgeColor = themeColors.grey[6];
+            badgeColor = themeColors.gray[6];
     }
     return (
         <Badge size="sm" fw={500} variant="light" color={badgeColor}>
@@ -83,7 +83,7 @@ export default function TableTransactionByContact() {
     const columns = [
         {
             accessor: 'transaction',
-            title: <Text size="sm" fz={14} fw={500} c={themeColors.defaultBlack[10]} >Transaction</Text>,
+            title: <Text size="sm" fz={14} fw={500} c={themeColors.black[9]} >Transaction</Text>,
             render: (element: JournalAccounts) => (
                 <Anchor
                     underline="never"
@@ -91,7 +91,7 @@ export default function TableTransactionByContact() {
                 //     navigate(routes.Contact.DetailContact.replace(':idAccount', element.id))
                 // }
                 >
-                    <Text c={themeColors.primary[6]} size="sm">
+                    <Text c={themeColors.teal[6]} size="sm">
                         Credit Memo #{accountBankAndCash.length}
                     </Text>
                 </Anchor>
@@ -99,45 +99,45 @@ export default function TableTransactionByContact() {
         },
         {
             accessor: 'transactionDate',
-            title: <Text size="sm" fz={14} fw={500} ta='center' c={themeColors.defaultBlack[10]} >Transaction Date</Text>,
+            title: <Text size="sm" fz={14} fw={500} ta='center' c={themeColors.black[9]} >Transaction Date</Text>,
             render: (element: JournalAccounts) => (
-                <Text size="sm" fz={14} fw={400} c={themeColors.defaultBlack[10]} ta='center'>
+                <Text size="sm" fz={14} fw={400} c={themeColors.black[9]} ta='center'>
                     12/01/2025
                 </Text>
             ),
         },
         {
             accessor: 'dueDate',
-            title: <Text size="sm" fz={14} fw={500} c={themeColors.defaultBlack[10]} >Due Date</Text>,
+            title: <Text size="sm" fz={14} fw={500} c={themeColors.black[9]} >Due Date</Text>,
             render: (element: JournalAccounts) => (
-                <Text c={themeColors.defaultBlack[10]} size="sm">
+                <Text c={themeColors.black[9]} size="sm">
                     15/01/2025
                 </Text>
             ),
         },
         {
             accessor: 'Status',
-            title: <Text size="sm" fz={14} fw={500} c={themeColors.defaultBlack[10]} >Status</Text>,
+            title: <Text size="sm" fz={14} fw={500} c={themeColors.black[9]} >Status</Text>,
             render: (element: JournalAccounts) => (
                 <StatusBadge status="partiallypaid" />
             ),
         },
         {
             accessor: 'balance',
-            title: <Text size="sm" fz={14} fw={500} c={themeColors.defaultBlack[10]} >Balance</Text>,
+            title: <Text size="sm" fz={14} fw={500} c={themeColors.black[9]} >Balance</Text>,
             render: (element: JournalAccounts) => (
-                <Text size="sm" fz={14} fw={400} c={themeColors.defaultBlack[10]} >{formatCurrency(element.debit || 0)}</Text>
+                <Text size="sm" fz={14} fw={400} c={themeColors.black[9]} >{formatCurrency(element.debit || 0)}</Text>
             ),
         },
         {
             accessor: 'action',
-            title: <Text size="sm" fz={14} fw={500} ta='center' c={themeColors.defaultBlack[10]} >Action</Text>,
+            title: <Text size="sm" fz={14} fw={500} ta='center' c={themeColors.black[9]} >Action</Text>,
             render: (element: JournalAccounts) =>
                 <Center>
                     <Menu position="bottom-end">
                         <Menu.Target>
-                            <ActionIcon bg={themeColors.grey[0]}>
-                                <IconDots size={14} color={themeColors.grey[6]} />
+                            <ActionIcon bg={themeColors.gray[0]}>
+                                <IconDots size={14} color={themeColors.gray[6]} />
                             </ActionIcon>
                         </Menu.Target>
                         <Menu.Dropdown>

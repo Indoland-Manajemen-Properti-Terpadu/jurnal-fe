@@ -95,7 +95,7 @@ const BankInformationForm: React.FC = () => {
     const columns = [
         {
             accessor: "bank",
-            title: <Text size="sm" fz={14} fw={600} c={themeColors.defaultBlack[10]} >Bank</Text>,
+            title: <Text size="sm" fz={14} fw={600} c={themeColors.black[9]} >Bank</Text>,
             render: (record: BankData) =>
                 editingRow && editingRow.id === record.id ? (
                     <Select
@@ -112,7 +112,7 @@ const BankInformationForm: React.FC = () => {
         },
         {
             accessor: "branch",
-            title: <Text size="sm" fz={14} fw={600} c={themeColors.defaultBlack[10]} >Branch</Text>,
+            title: <Text size="sm" fz={14} fw={600} c={themeColors.black[9]} >Branch</Text>,
             render: (record: BankData) =>
                 editingRow && editingRow.id === record.id ? (
                     <TextInput
@@ -127,7 +127,7 @@ const BankInformationForm: React.FC = () => {
         },
         {
             accessor: "accountHolder",
-            title: <Text size="sm" fz={14} fw={600} c={themeColors.defaultBlack[10]} >Account Holder</Text>,
+            title: <Text size="sm" fz={14} fw={600} c={themeColors.black[9]} >Account Holder</Text>,
             render: (record: BankData) =>
                 editingRow && editingRow.id === record.id ? (
                     <TextInput
@@ -142,7 +142,7 @@ const BankInformationForm: React.FC = () => {
         },
         {
             accessor: "accountNumber",
-            title: <Text size="sm" fz={14} fw={600} c={themeColors.defaultBlack[10]} >Account Number</Text>,
+            title: <Text size="sm" fz={14} fw={600} c={themeColors.black[9]} >Account Number</Text>,
             render: (record: BankData) =>
                 editingRow && editingRow.id === record.id ? (
                     <TextInput
@@ -157,7 +157,7 @@ const BankInformationForm: React.FC = () => {
         },
         {
             accessor: "actions",
-            title: <Text size="sm" fz={14} fw={600} ta='center' c={themeColors.defaultBlack[10]} >Action</Text>,
+            title: <Text size="sm" fz={14} fw={600} ta='center' c={themeColors.black[9]} >Action</Text>,
             render: (record: BankData) =>
                 editingRow && editingRow.id === record.id ? (
                     <Center>
@@ -197,11 +197,11 @@ const BankInformationForm: React.FC = () => {
     return (
         <Stack gap='md'>
             <Group justify="space-between">
-                <Text c={themeColors.primary[6]} fz={18} fw={500}>Add Bank Information</Text>
+                <Text c={themeColors.teal[6]} fz={18} fw={500}>Add Bank Information</Text>
                 <Button
                     variant="filled"
                     size='xs'
-                    color={themeColors.defaultBlack[10]}
+                    color={themeColors.black[9]}
                     leftSection={<IconPlus size={14} />}
                     onClick={saveAddData}
                 >
@@ -251,7 +251,7 @@ const BankInformationForm: React.FC = () => {
                     />
                 </Grid.Col>
             </Grid>
-            <Text c={themeColors.primary[6]} fz={18} fw={500}>List Bank</Text>
+            <Text c={themeColors.teal[6]} fz={18} fw={500}>List Bank</Text>
             {isEmpty(bankData) ? (
                 <Container fluid p='xl'>
                     <EmptyState />

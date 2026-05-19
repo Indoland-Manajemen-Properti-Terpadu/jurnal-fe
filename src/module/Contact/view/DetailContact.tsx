@@ -21,7 +21,8 @@ import {
 import { IconArchive, IconBuildingBank, IconChevronUp, IconFileDollar, IconPencil, IconReportSearch, IconUser } from "@tabler/icons-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { gradientColors, themeColors } from "@/theme";
-import { navigate, routes } from "@/router";
+import { navigate } from "@/router";
+import { routes } from "@/router/routes";
 import ContactPageLayout from "./Layout";
 
 const breadcrumbData = [
@@ -37,7 +38,7 @@ const breadcrumbItems = breadcrumbData.map((item, index) => (
         gradient={index === breadcrumbData.length - 1 ? gradientColors.gradient : undefined}
         fz={14}
         fw={400}
-        c={index === breadcrumbData.length - 1 ? themeColors.defaultBlack[10] : "inherit"}
+        c={index === breadcrumbData.length - 1 ? themeColors.black[9] : "inherit"}
         onClick={(e) => {
             if (index !== breadcrumbData.length - 1 && item.href) {
                 e.preventDefault();
@@ -104,7 +105,7 @@ const DetailContactPage = () => {
                                 <Group justify="flex-end">
                                     <Menu position="bottom-end" offset={5} withArrow>
                                         <Menu.Target>
-                                            <Button variant="light" size="sm" color={themeColors.grey[7]} rightSection={<IconChevronUp style={{ width: rem(14), height: rem(14) }} />}>
+                                            <Button variant="light" size="sm" color={themeColors.gray[7]} rightSection={<IconChevronUp style={{ width: rem(14), height: rem(14) }} />}>
                                                 Other Action
                                             </Button>
                                         </Menu.Target>
@@ -117,7 +118,7 @@ const DetailContactPage = () => {
 
                                     <Button
                                         variant="filled"
-                                        bg={themeColors.primary[6]}
+                                        bg={themeColors.teal[6]}
                                         onClick={() => navigate(routes.Contact.TransactionDetailByContact.replace(':idAccount', idAccount!))}
                                     >
                                         Transaction Contract
@@ -131,24 +132,24 @@ const DetailContactPage = () => {
                     <Paper p="md" shadow="md" radius="md">
                         <Stack>
                             <Group>
-                                <Text c={themeColors.primary[6]} fz={18} fw={500}>
+                                <Text c={themeColors.teal[6]} fz={18} fw={500}>
                                     Contact Information
                                 </Text>
-                                <IconUser size={20} color={themeColors.primary[6]} />
+                                <IconUser size={20} color={themeColors.teal[6]} />
                             </Group>
                             <Grid justify="space-between" align="center">
                                 <Grid.Col span={6}>
                                     <Stack gap={0}>
-                                        <Text c={themeColors.defaultBlack[10]} fz={18} fw={500}>Raga Mekanik Las</Text>
-                                        <Text c={themeColors.grey[6]} fz={14} fw={500}>CV. Raga Bubut Jaya</Text>
+                                        <Text c={themeColors.black[9]} fz={18} fw={500}>Raga Mekanik Las</Text>
+                                        <Text c={themeColors.gray[6]} fz={14} fw={500}>CV. Raga Bubut Jaya</Text>
                                     </Stack>
                                 </Grid.Col>
                                 <Grid.Col span={6}>
                                     <Group>
-                                        <Badge variant="light" color={themeColors.grey[6]} leftSection={<IconUser size={14} />}>
+                                        <Badge variant="light" color={themeColors.gray[6]} leftSection={<IconUser size={14} />}>
                                             Customer
                                         </Badge>
-                                        <Badge variant="light" color={themeColors.grey[6]} leftSection={<IconUser size={14} />}>
+                                        <Badge variant="light" color={themeColors.gray[6]} leftSection={<IconUser size={14} />}>
                                             Supplier
                                         </Badge>
                                     </Group>
@@ -159,12 +160,12 @@ const DetailContactPage = () => {
                             {contactDetails.map((detail, index) => (
                                 <Grid justify="space-between" align="center" key={index}>
                                     <Grid.Col span={6}>
-                                        <Text c={themeColors.grey[6]} fz={14} fw={400}>
+                                        <Text c={themeColors.gray[6]} fz={14} fw={400}>
                                             {detail.label}
                                         </Text>
                                     </Grid.Col>
                                     <Grid.Col span={6}>
-                                        <Text c={themeColors.defaultBlack[10]} fz={14} fw={500}>
+                                        <Text c={themeColors.black[9]} fz={14} fw={500}>
                                             {detail.value}
                                         </Text>
                                     </Grid.Col>
@@ -175,12 +176,12 @@ const DetailContactPage = () => {
                             {addressDetail.map((detail, index) => (
                                 <Grid justify="space-between" align="center" key={index}>
                                     <Grid.Col span={6}>
-                                        <Text c={themeColors.grey[6]} fz={14} fw={400}>
+                                        <Text c={themeColors.gray[6]} fz={14} fw={400}>
                                             {detail.label}
                                         </Text>
                                     </Grid.Col>
                                     <Grid.Col span={6}>
-                                        <Text c={themeColors.defaultBlack[10]} fz={14} fw={500}>
+                                        <Text c={themeColors.black[9]} fz={14} fw={500}>
                                             {detail.value}
                                         </Text>
                                     </Grid.Col>
@@ -189,10 +190,10 @@ const DetailContactPage = () => {
 
                             <Divider my="xs" />
                             <Group>
-                                <Text c={themeColors.primary[6]} fz={18} fw={500}>
+                                <Text c={themeColors.teal[6]} fz={18} fw={500}>
                                     Bank Information
                                 </Text>
-                                <IconBuildingBank size={20} color={themeColors.primary[6]} />
+                                <IconBuildingBank size={20} color={themeColors.teal[6]} />
                             </Group>
 
                             <Table highlightOnHover withTableBorder>
@@ -209,20 +210,20 @@ const DetailContactPage = () => {
 
                             <Divider my="xs" />
                             <Group>
-                                <Text c={themeColors.primary[6]} fz={18} fw={500}>
+                                <Text c={themeColors.teal[6]} fz={18} fw={500}>
                                     Account Mapping
                                 </Text>
-                                <IconFileDollar size={20} color={themeColors.primary[6]} />
+                                <IconFileDollar size={20} color={themeColors.teal[6]} />
                             </Group>
                             {accountMappings.map((mapping, index) => (
                                 <Grid justify="space-between" align="center" key={index}>
                                     <Grid.Col span={6}>
-                                        <Text c={themeColors.grey[6]} fz={14} fw={400}>
+                                        <Text c={themeColors.gray[6]} fz={14} fw={400}>
                                             {mapping.label}
                                         </Text>
                                     </Grid.Col>
                                     <Grid.Col span={6}>
-                                        <Text c={themeColors.defaultBlack[10]} fz={14} fw={500}>
+                                        <Text c={themeColors.black[9]} fz={14} fw={500}>
                                             {mapping.value}
                                         </Text>
                                     </Grid.Col>

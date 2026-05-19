@@ -3,7 +3,8 @@ import { gradientColors, themeColors } from '@/theme';
 import ContactPageLayout from './Layout';
 import { IconExchange, IconPlus, IconTransferIn, IconTransferOut } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
-import { navigate, routes } from '@/router';
+import { navigate } from '@/router';
+import { routes } from '@/router/routes';
 import useFetchData from '../../../../hooks/useFetchData';
 import StatsContactGrid from '../components/StatsBankCashGrid/StatsBankCashGrid';
 import TableContact from '../components/Table/TableContact';
@@ -43,7 +44,7 @@ function ContactMainPage() {
                                 <Button
                                     variant="filled"
                                     size="sm"
-                                    bg={themeColors.primary[6]}
+                                    bg={themeColors.teal[6]}
                                     onClick={() => navigate(routes.Contact.AddContact)}
                                 >
                                     Add Contact
@@ -52,7 +53,7 @@ function ContactMainPage() {
                         </Group>
                     </Paper>
                     <Paper {...PAPER_PROPS}>
-                        <Tabs color={themeColors.primary[6]} radius="xs" defaultValue="all-contact" styles={{ panel: { paddingTop: 16 } }}>
+                        <Tabs color={themeColors.teal[6]} radius="xs" defaultValue="all-contact" styles={{ panel: { paddingTop: 16 } }}>
                             <Tabs.List>
                                 <Tabs.Tab value="all-contact" >
                                     All Contact

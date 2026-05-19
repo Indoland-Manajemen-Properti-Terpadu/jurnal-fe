@@ -53,34 +53,34 @@ function TransactionDetailByContact() {
                     <Paper {...PAPER_PROPS}>
                         <Stack>
                             <Group>
-                                <Text c={themeColors.primary[6]} fz={18} fw={500}>
+                                <Text c={themeColors.teal[6]} fz={18} fw={500}>
                                     Contact Information
                                 </Text>
-                                <IconUser size={20} color={themeColors.primary[6]} />
+                                <IconUser size={20} color={themeColors.teal[6]} />
                             </Group>
 
                             <Group justify="space-between" align="center">
                                 <Group>
                                     <Group align="flex-end">
                                         <Stack gap={0}>
-                                            <Text c={themeColors.defaultBlack[10]} fz={18} fw={500}>Raga Mekanik Las</Text>
-                                            <Text c={themeColors.grey[6]} fz={14} fw={500}>CV. Raga Bubut Jaya</Text>
+                                            <Text c={themeColors.black[9]} fz={18} fw={500}>Raga Mekanik Las</Text>
+                                            <Text c={themeColors.gray[6]} fz={14} fw={500}>CV. Raga Bubut Jaya</Text>
                                         </Stack>
-                                        <Badge variant="light" color={themeColors.grey[6]} leftSection={<IconUser size={14} />}>
+                                        <Badge variant="light" color={themeColors.gray[6]} leftSection={<IconUser size={14} />}>
                                             Customer
                                         </Badge>
-                                        <Badge variant="light" color={themeColors.grey[6]} leftSection={<IconUser size={14} />}>
+                                        <Badge variant="light" color={themeColors.gray[6]} leftSection={<IconUser size={14} />}>
                                             Supplier
                                         </Badge>
                                     </Group>
                                 </Group>
                                 <Group>
-                                    <Button variant="filled" bg={themeColors.primary[6]}>Transaction Contact</Button>
+                                    <Button variant="filled" bg={themeColors.teal[6]}>Transaction Contact</Button>
                                 </Group>
                             </Group>
                             {status ? (
                                 <Tabs
-                                    color={themeColors.primary[6]}
+                                    color={themeColors.teal[6]}
                                     radius="xs"
                                     defaultValue="payable"
                                     styles={{ panel: { paddingTop: 16 } }}

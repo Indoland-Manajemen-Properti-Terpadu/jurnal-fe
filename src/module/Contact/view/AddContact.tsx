@@ -24,14 +24,14 @@ const AddContactPage = () => {
                     <Group justify="flex-end" gap="xs" >
                         <Button
                             variant="light"
-                            color={themeColors.grey[7]}
+                            color={themeColors.gray[7]}
                             onClick={() => navigate(-1)}
                         >
                             Cancel
                         </Button>
                         <Button
                             variant="filled"
-                            bg={themeColors.primary[6]}
+                            bg={themeColors.teal[6]}
                         >
                             Add Contact
                         </Button>
