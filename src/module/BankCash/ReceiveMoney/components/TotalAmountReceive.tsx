@@ -24,7 +24,7 @@ const TotalReceive = () => {
                 <Switch
                     key='WithTax'
                     defaultChecked
-                    color={themeColors.primary[6]}
+                    color={themeColors.teal[6]}
                     labelPosition="left"
                     label="With Tax"
                     size="md"
@@ -41,9 +41,9 @@ const TotalReceive = () => {
                     key="totalReceive"
                     amount={`Rp ${formatCurrency(totalReceive)}`}
                     mainColor="grey"
-                    colorTextAmont={themeColors.defaultBlack[10]}
+                    colorTextAmont={themeColors.black[9]}
                 >
-                    <Text fz={14} fw={400} c={themeColors.grey[7]}>Total Amount</Text>
+                    <Text fz={14} fw={400} c={themeColors.gray[7]}>Total Amount</Text>
                 </TextAmount>
             </Flex>
         </Flex>

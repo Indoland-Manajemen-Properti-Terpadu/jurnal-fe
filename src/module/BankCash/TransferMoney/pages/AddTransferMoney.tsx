@@ -12,7 +12,7 @@ import TransactionForm from "@/module/GeneralJournal/DetailAccount/TransactionJo
 import ImportFiles from "@/module/GeneralJournal/DetailAccount/TransactionJournal/components/ImportFile";
 import { useFileStore } from "@/store/GeneralJournal/useFileStore";
 import { notifications } from "@mantine/notifications";
-import { routes } from "@/router";
+import { routes } from "@/router/routes";
 import TransferMoneyForm from "../components/TransferMoneyForm";
 
 
@@ -58,7 +58,7 @@ const AddTransferMoneyPage = () => {
                     <Group justify="flex-end" gap="xs" >
                         <Button
                             variant="light"
-                            color={themeColors.grey[7]}
+                            color={themeColors.gray[7]}
                             onClick={() => navigate(-1)}
                         >
                             Cancel

@@ -74,7 +74,7 @@ const AddSentMoneyPage = () => {
                     <TextMediumGR>Sent Money</TextMediumGR>
                     <Button
                         variant="filled"
-                        color={themeColors.defaultBlack[10]}
+                        color={themeColors.black[9]}
                         size="xs"
                         leftSection={<IconPlus size={14} />}
                         onClick={() => addTransaction()}
@@ -82,7 +82,7 @@ const AddSentMoneyPage = () => {
                         Add Account
                     </Button>
                 </Group>
-                <Box bg={themeColors.grey[0]} bd="sm" p={10} style={{ borderRadius: 8 }}>
+                <Box bg={themeColors.gray[0]} bd="sm" p={10} style={{ borderRadius: 8 }}>
                     <TotalAmountSent />
                 </Box>
                 <SentMoneyForm />
@@ -111,7 +111,7 @@ const AddSentMoneyPage = () => {
                     <TextMediumGR>Sent Money Expense</TextMediumGR>
                     <Button
                         variant="filled"
-                        color={themeColors.defaultBlack[10]}
+                        color={themeColors.black[9]}
                         size="xs"
                         leftSection={<IconPlus size={14} />}
                         onClick={() => addTransaction()}
@@ -119,7 +119,7 @@ const AddSentMoneyPage = () => {
                         Add Account
                     </Button>
                 </Group>
-                <Box bg={themeColors.grey[0]} bd="sm" p={10} style={{ borderRadius: 8 }}>
+                <Box bg={themeColors.gray[0]} bd="sm" p={10} style={{ borderRadius: 8 }}>
                     <TotalAmountSent />
                 </Box>
                 <SentMoneyForm />
@@ -153,7 +153,7 @@ const AddSentMoneyPage = () => {
                 <Group justify="flex-end" gap="xs" >
                     <Button
                         variant="light"
-                        color={themeColors.grey[7]}
+                        color={themeColors.gray[7]}
                         onClick={() => navigate(-1)}
                     >
                         Cancel
@@ -226,7 +226,7 @@ const AddSentMoneyPage = () => {
                         </Stack>
                     </Paper>
                     <Paper p="md" shadow="md" radius="md">
-                        <Tabs defaultValue="paymentForAccount" color={themeColors.primary[6]}>
+                        <Tabs defaultValue="paymentForAccount" color={themeColors.teal[6]}>
                             <Tabs.List>
                                 <Tabs.Tab value="paymentForAccount">
                                     Payment For Account

@@ -12,7 +12,8 @@ import TransactionForm from "@/module/GeneralJournal/DetailAccount/TransactionJo
 import ImportFiles from "@/module/GeneralJournal/DetailAccount/TransactionJournal/components/ImportFile";
 import { useFileStore } from "@/store/GeneralJournal/useFileStore";
 import { notifications } from "@mantine/notifications";
-import { navigate, routes } from "@/router";
+import { navigate } from "@/router";
+import { routes } from "@/router/routes";
 import ReceiveMoneyLayout from "./Layout";
 import ReceiveMoneyForm from "../components/ReceiveMoneyForm";
 import dayjs from "dayjs";
@@ -81,7 +82,7 @@ const AddReceiveMoneyPage = () => {
                     <Group justify="flex-end" gap="xs" >
                         <Button
                             variant="light"
-                            color={themeColors.grey[7]}
+                            color={themeColors.gray[7]}
                             onClick={() => navigate(-1)}
                         >
                             Cancel
@@ -159,7 +160,7 @@ const AddReceiveMoneyPage = () => {
                                     <TextMediumGR>Receive Money</TextMediumGR>
                                     <Button
                                         variant="filled"
-                                        color={themeColors.defaultBlack[10]}
+                                        color={themeColors.black[9]}
                                         size="xs"
                                         leftSection={<IconPlus size={14} />}
                                         onClick={() => addTransaction()}
@@ -167,7 +168,7 @@ const AddReceiveMoneyPage = () => {
                                         Add Account
                                     </Button>
                                 </Group>
-                                <Box bg={themeColors.grey[0]} bd="sm" p={10} style={{ borderRadius: 8 }}>
+                                <Box bg={themeColors.gray[0]} bd="sm" p={10} style={{ borderRadius: 8 }}>
                                     <TotalAmountReceive />
                                 </Box>
                                 <ReceiveMoneyForm />

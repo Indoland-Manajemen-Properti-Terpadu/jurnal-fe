@@ -6,7 +6,7 @@ import StatsBankCashGrid from '../components/StatsBankCashGrid/StatsBankCashGrid
 import BankAndCashTable from '../components/Table/TableBankCash';
 import { IconExchange, IconPlus, IconTransferIn, IconTransferOut } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
-import { routes } from '@/router';
+import { routes } from '@/router/routes';
 
 const items = [
     { title: 'Settings', href: '#' },
@@ -35,7 +35,7 @@ function BankAndCashMainPage() {
     const AddTransactionMenu = () => (
         <Menu position="bottom-end" offset={5} withArrow>
             <Menu.Target>
-                <Button variant="light" size="sm" color={themeColors.grey[7]}>
+                <Button variant="light" size="sm" color={themeColors.gray[7]}>
                     Add Transaction
                 </Button>
             </Menu.Target>

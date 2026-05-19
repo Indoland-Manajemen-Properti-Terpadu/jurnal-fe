@@ -8,13 +8,13 @@ import { NotFound } from "@/components/ErrorPage/NotFound";
 import EmptyState from "@/components/EmptyState/EmptyTable";
 
 const rowStyle = {
-    borderColor: themeColors.grey[1],
+    borderColor: themeColors.gray[1],
     borderWidth: '1px',
     borderStyle: 'solid',
 };
 
 const headTableStyle = {
-    borderColor: themeColors.grey[1],
+    borderColor: themeColors.gray[1],
     borderWidth: '1px',
     borderStyle: 'solid',
 };
@@ -60,8 +60,8 @@ const BankAndCashTable: React.FC = () => {
                             <Table.Td colSpan={1} style={{ textAlign: "center", fontWeight: 400 }}>
                                 <Menu position="bottom-end">
                                     <Menu.Target>
-                                        <ActionIcon bg={themeColors.grey[0]}>
-                                            <IconDots size={14} color={themeColors.grey[6]} />
+                                        <ActionIcon bg={themeColors.gray[0]}>
+                                            <IconDots size={14} color={themeColors.gray[6]} />
                                         </ActionIcon>
                                     </Menu.Target>
                                     <Menu.Dropdown>
