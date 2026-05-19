@@ -48,6 +48,8 @@ export const API_ACCOUNT = {
   POST_IMPORT_ACCOUNT: `${BASE_URL}/v1/accounts/import`,
 
   GET_RECONCILIATION: `${BASE_URL}/v1/reconciliation/`,
+  MATCH_RECONCILIATION: `${BASE_URL}/v1/reconciliation/match`,
+  GET_JOURNAL_DETAILS_FOR_RECON: `${BASE_URL}/v1/reconciliation/bank-statements/:bankStatementId/journal-details`,
 
   ARCHIVE_ACCOUNT: `${BASE_URL}/v1/accounts/:accountId/archive`,
 

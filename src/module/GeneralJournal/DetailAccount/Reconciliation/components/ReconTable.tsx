@@ -12,26 +12,37 @@ import { FindAndReconModal } from "./FindAndReconModal";
 import { BankStatementData } from "../types/GetReconciliationModel";
 import ImportBankStatementModal from "../../BankStatement/components/ImportBankStatementModal";
 import { useDetailAccount } from "../../Main/hooks/useDetailAccount";
+import { useMatchReconciliation } from "../services/MatchReconciliation.service";
 
 const ReconciliationTable: React.FC = () => {
     const { idAccount } = useParams<{ idAccount: string }>();
     const [modalOpened, setModalOpened] = useState(false);
     const [isImportModalOpen, setIsImportModalOpen] = useState(false);
     const [selectedBankStatement, setSelectedBankStatement] = useState<BankStatementData | null>(null);
+    const [selectedIds, setSelectedIds] = useState<string[]>([]);
+    const [manualMatches, setManualMatches] = useState<Record<string, any>>({});
+    const [removedRecommendations, setRemovedRecommendations] = useState<string[]>([]);
     
     const { accountDetail } = useDetailAccount(idAccount!);
     let { data: ReconData, isLoading, isError, refetch } = GetReconciliation(idAccount!);
+    const { mutate: matchRecon, isPending: isMatching } = useMatchReconciliation();
 
     console.log("Reconciliation Data Log:", ReconData);
 
     const handleOpenImportModal = () => setIsImportModalOpen(true);
     const handleCloseImportModal = () => setIsImportModalOpen(false);
 
+    const toggleSelection = (id: string) => {
+        setSelectedIds(current => 
+            current.includes(id) ? current.filter(item => item !== id) : [...current, id]
+        );
+    };
+
     if (isError) {
         return <NotFound />;
     }
     if (isLoading) {
-        return <Text c="red">Failed to load data.</Text>;
+        return <Text c={themeColors.red[6]}>Loading data...</Text>;
     }
 
     if (!ReconData || !ReconData.bankStatements || !ReconData.journalDetails || (ReconData.bankStatements.length === 0 && ReconData.journalDetails.length === 0)) {
@@ -59,11 +70,35 @@ const ReconciliationTable: React.FC = () => {
         setModalOpened(true);
     };
 
+    const handleManualMatch = (journal: any) => {
+        if (selectedBankStatement) {
+            setManualMatches(prev => ({
+                ...prev,
+                [selectedBankStatement.id]: journal
+            }));
+            // Automatically select the row when matched
+            if (!selectedIds.includes(selectedBankStatement.id)) {
+                setSelectedIds(prev => [...prev, selectedBankStatement.id]);
+            }
+        }
+    };
+
+    const handleRemoveMatch = (bsId: string) => {
+        setManualMatches(prev => {
+            const next = { ...prev };
+            delete next[bsId];
+            return next;
+        });
+        setRemovedRecommendations(prev => [...prev, bsId]);
+        // Automatically unselect the row when match is removed
+        setSelectedIds(prev => prev.filter(id => id !== bsId));
+    };
+
     const rows = ReconData.bankStatements.map((BS) => {
-        let matchingJournal = BS.matchedJournalDetail || null;
+        let matchingJournal = BS.matchedJournalDetail || manualMatches[BS.id] || null;
         let isRecommendation = false;
 
-        if (!matchingJournal && BS.recommendations && BS.recommendations.length > 0) {
+        if (!matchingJournal && BS.recommendations && BS.recommendations.length > 0 && !removedRecommendations.includes(BS.id)) {
             matchingJournal = BS.recommendations[0].journalDetail;
             isRecommendation = true;
         }
@@ -71,9 +106,29 @@ const ReconciliationTable: React.FC = () => {
         return { bankStatement: BS, journalTransaction: matchingJournal, isRecommendation };
     });
 
+    const handleMatch = () => {
+        const matches = rows
+            .filter(r => selectedIds.includes(r.bankStatement.id) && r.journalTransaction)
+            .map(r => ({
+                bankStatementId: r.bankStatement.id,
+                journalDetailId: r.journalTransaction!.id
+            }));
+
+        if (matches.length > 0) {
+            matchRecon({ matches }, {
+                onSuccess: () => {
+                    setManualMatches({});
+                    setRemovedRecommendations([]);
+                    setSelectedIds([]);
+                    refetch();
+                }
+            });
+        }
+    };
+
     return (
         <Stack gap="md" mt="md">
-            <Paper withBorder radius="sm" style={{ overflow: 'hidden' }}>
+            <Paper withBorder radius="md" style={{ overflow: 'hidden' }}>
                 {/* Header Section */}
                 <SimpleGrid cols={2} spacing={0}>
                     <Box bg={themeColors.blue[1]} p="md">
@@ -84,7 +139,7 @@ const ReconciliationTable: React.FC = () => {
                             </Stack>
                             <Stack gap={0} align="flex-end">
                                 <Text size="xs" fw={500} c={themeColors.grey[6]}>Saldo</Text>
-                                <Text size="sm" fw={600} c={themeColors.defaultBlack[10]}>{formatCurrency(accountDetail?.draftAmount || 0)}</Text>
+                                <Text size="sm" fw={600} c={themeColors.defaultBlack[10]}>({formatCurrency(accountDetail?.draftAmount || 0)})</Text>
                             </Stack>
                         </Group>
                     </Box>
@@ -108,9 +163,24 @@ const ReconciliationTable: React.FC = () => {
                         <SimpleGrid key={index} cols={2} spacing={0} style={{ borderTop: `1px solid ${themeColors.grey[1]}` }}>
                             {/* Left Side: Bank Statement (Sumber Data) */}
                             <Box p="md" bg={themeColors.blue[0]} style={{ position: 'relative' }}>
-                                <Group wrap="nowrap" align="flex-start" gap="md">
-                                    <Checkbox mt="xs" styles={{ input: { backgroundColor: 'white' } }} />
-                                    <Paper withBorder p="sm" radius="sm" flex={1} bg="white" style={{ borderLeft: `4px solid ${themeColors.blue[6]}` }}>
+                                <Group wrap="nowrap" align="center" gap="md">
+                                    <Checkbox 
+                                        size="xs"
+                                        radius="xs"
+                                        disabled={!journalTransaction}
+                                        checked={selectedIds.includes(bankStatement.id)}
+                                        onChange={() => toggleSelection(bankStatement.id)}
+                                        color={themeColors.figmaTeal[6]}
+                                        styles={{ 
+                                            input: { 
+                                                cursor: !journalTransaction ? 'not-allowed' : 'pointer',
+                                                '&:not(:checked)': {
+                                                    backgroundColor: 'white',
+                                                },
+                                            },
+                                        }} 
+                                    />
+                                    <Paper withBorder p="sm" radius="md" flex={1} bg="white" style={{ borderLeft: `4px solid ${themeColors.blue[6]}` }}>
                                         <Stack gap="xs">
                                             <Group justify="space-between" align="flex-start">
                                                 <Stack gap={0}>
@@ -124,9 +194,11 @@ const ReconciliationTable: React.FC = () => {
                                                         leftSection={bankStatement.amount > 0 ? <ArrowCircleDown size={14} /> : <ArrowCircleUp size={14} />}
                                                         style={{ textTransform: 'capitalize' }}
                                                     >
-                                                        {bankStatement.amount > 0 ? "Diterima" : "Dikirim"}
+                                                        <Text size="xs" fw={700} c={bankStatement.amount > 0 ? themeColors.green[8] : themeColors.red[8]}>
+                                                            {bankStatement.amount > 0 ? "Diterima" : "Dikirim"}
+                                                        </Text>
                                                     </Badge>
-                                                    <Text size="sm" fw={700} c={themeColors.defaultBlack[10]}>{formatCurrency(Math.abs(bankStatement.amount))}</Text>
+                                                    <Text size="md" fw={700} c={themeColors.defaultBlack[10]}>{formatCurrency(Math.abs(bankStatement.amount))}</Text>
                                                 </Stack>
                                             </Group>
                                             <Group justify="space-between" align="flex-end">
@@ -138,13 +210,18 @@ const ReconciliationTable: React.FC = () => {
                                                         </Text>
                                                     </Group>
                                                 ) : (
-                                                    <Group gap={4} style={{ cursor: 'pointer' }}>
+                                                    <Group gap={4} style={{ cursor: 'pointer' }} onClick={() => openReconModal(bankStatement)}>
                                                         <MagnifyingGlass size={16} color={themeColors.grey[5]} />
                                                         <Text size="xs" c={themeColors.grey[6]} fw={500}>Belum dipasangkan</Text>
                                                     </Group>
                                                 )}
-                                                <ActionIcon variant="subtle" color="gray" size="sm">
-                                                    <Trash size={18} weight="regular" />
+                                                <ActionIcon 
+                                                    variant="subtle" 
+                                                    color="gray" 
+                                                    size="sm"
+                                                    onClick={() => handleRemoveMatch(bankStatement.id)}
+                                                >
+                                                    <Trash size={18} weight="regular" color={themeColors.grey[5]} />
                                                 </ActionIcon>
                                             </Group>
                                         </Stack>
@@ -155,7 +232,7 @@ const ReconciliationTable: React.FC = () => {
                             {/* Right Side: Journal Match (Pembukuan) */}
                             <Box p="md" bg={themeColors.figmaTeal[0]} style={{ borderLeft: `1px solid ${themeColors.grey[1]}` }}>
                                 {journalTransaction ? (
-                                    <Paper withBorder p="sm" radius="sm" bg="white" style={{ borderLeft: `4px solid ${themeColors.figmaTeal[6]}`, height: '100%' }}>
+                                    <Paper withBorder p="sm" radius="md" bg="white" style={{ borderLeft: `4px solid ${themeColors.figmaTeal[6]}`, height: '100%' }}>
                                         <Stack gap="xs" h="100%" justify="center">
                                             <Group justify="space-between" align="flex-start">
                                                 <Stack gap={0}>
@@ -164,7 +241,7 @@ const ReconciliationTable: React.FC = () => {
                                                         {journalTransaction.transactionNumber ? `Jurnal Transaksi #${journalTransaction.transactionNumber}` : journalTransaction.description}
                                                     </Text>
                                                 </Stack>
-                                                <Text size="sm" fw={700} c={themeColors.defaultBlack[10]}>{formatCurrency(journalTransaction.credit || journalTransaction.debit)}</Text>
+                                                <Text size="md" fw={700} c={themeColors.defaultBlack[10]}>{formatCurrency(journalTransaction.credit || journalTransaction.debit)}</Text>
                                             </Group>
                                             <Group justify="space-between" align="flex-end">
                                                 <Group gap={4}>
@@ -173,8 +250,13 @@ const ReconciliationTable: React.FC = () => {
                                                         Cocok dengan {bankStatement.description}
                                                     </Text>
                                                 </Group>
-                                                <ActionIcon variant="subtle" color="gray" size="sm">
-                                                    <Trash size={18} weight="regular" />
+                                                <ActionIcon 
+                                                    variant="subtle" 
+                                                    color="gray" 
+                                                    size="sm"
+                                                    onClick={() => handleRemoveMatch(bankStatement.id)}
+                                                >
+                                                    <Trash size={18} weight="regular" color={themeColors.grey[5]} />
                                                 </ActionIcon>
                                             </Group>
                                         </Stack>
@@ -184,7 +266,7 @@ const ReconciliationTable: React.FC = () => {
                                         h="100%" 
                                         style={{ 
                                             border: `1px dashed ${themeColors.figmaTeal[4]}`, 
-                                            borderRadius: '8px',
+                                            borderRadius: '12px',
                                             backgroundColor: themeColors.figmaTeal[0],
                                             display: 'flex',
                                             flexDirection: 'column',
@@ -210,29 +292,35 @@ const ReconciliationTable: React.FC = () => {
 
             {/* Footer Buttons */}
             <Group justify="flex-end" mt="xl">
-                <Button variant="subtle" color="gray" fw={500}>Reset</Button>
+                <Button variant="subtle" color="gray" fw={500} onClick={() => {
+                    setSelectedIds([]);
+                    setManualMatches({});
+                    setRemovedRecommendations([]);
+                }}>Reset</Button>
                 <Button 
-                    disabled={rows.every(r => !r.journalTransaction)} 
+                    loading={isMatching}
+                    disabled={selectedIds.length === 0} 
                     leftSection={<ArrowsCounterClockwise size={16} />}
                     variant="filled"
-                    bg={themeColors.grey[2]}
+                    bg={selectedIds.length > 0 ? themeColors.figmaTeal[5] : themeColors.grey[2]}
+                    onClick={handleMatch}
                     styles={{
                         root: {
-                            '--button-color': themeColors.grey[2],
+                            color: selectedIds.length > 0 ? 'white' : themeColors.grey[5],
                             '&:disabled': {
                                 backgroundColor: themeColors.grey[2],
-                                color: themeColors.grey[5],
                             }
                         }
                     }}
                 >
-                    Rekonsiliasi
+                    Rekonsiliasi {selectedIds.length > 0 ? `(${selectedIds.length})` : ''}
                 </Button>
             </Group>
 
             <FindAndReconModal
                 opened={modalOpened}
                 onClose={() => setModalOpened(false)}
+                onConfirm={handleManualMatch}
                 SelectedBankStatament={selectedBankStatement}
             />
             <ImportBankStatementModal

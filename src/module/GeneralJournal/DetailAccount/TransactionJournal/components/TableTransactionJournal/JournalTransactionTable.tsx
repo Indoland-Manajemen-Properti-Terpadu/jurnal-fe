@@ -37,8 +37,9 @@ function TableJournalTransaction({ selectedRecords, setSelectedRecords, noRecord
 
         const matchesDate =
             !selectedDate ||
-            (item.transactionDate && new Date(item.transactionDate)
-                .toDateString() === selectedDate.toDateString());
+            (item.transactionDate && 
+             selectedDate instanceof Date && 
+             new Date(item.transactionDate).toDateString() === selectedDate.toDateString());
 
         return matchesQuery && matchesDate;
     });

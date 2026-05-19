@@ -6,38 +6,37 @@ import { useState } from "react"
 import { DataTable } from "mantine-datatable"
 import { formatCurrency } from "@/utils/FormatCurrency"
 import { DatePickerInput } from "@mantine/dates"
-import { GetTransactionByAccountRecon } from "../services/TransactionByAccountRecon.service"
 import { useParams } from "react-router-dom"
 import { dateFormatV1 } from "@/utils/FormatDate"
 import { BankStatementData } from "../types/GetReconciliationModel"
 import { ArrowCircleDown, ArrowCircleUp, MagnifyingGlass } from "@phosphor-icons/react"
 import useFilterTransaction from "../../Main/store/FilterTransaction"
+import { useGetJournalDetailsForRecon } from "../services/GetJournalDetailsForRecon.service"
 
 interface FindAndReconModalProps {
     opened: boolean;
     onClose: () => void;
+    onConfirm: (journal: any) => void;
     SelectedBankStatament: BankStatementData | null;
 }
 
-export const FindAndReconModal: React.FC<FindAndReconModalProps> = ({ opened, onClose, SelectedBankStatament }) => {
-    const { idAccount } = useParams<{ idAccount: string }>();
+export const FindAndReconModal: React.FC<FindAndReconModalProps> = ({ opened, onClose, onConfirm, SelectedBankStatament }) => {
     const { searchQuery, setSearchQuery, selectedDate, setSelectedDate } = useFilterTransaction();
-    const { data: ReconTransaction } = GetTransactionByAccountRecon(idAccount!, false);
+    const { data: ReconTransaction, isLoading } = useGetJournalDetailsForRecon(SelectedBankStatament?.id || null);
     const [selectedRecords, setSelectedRecords] = useState<any[]>([]);
 
     const filteredTransaction = ReconTransaction?.filter((item: any) => {
+        const query = searchQuery.toLowerCase();
         const matchesQuery =
-            (item.transactionNumber && String(item.transactionNumber)
-                .toLowerCase()
-                .includes(searchQuery.toLowerCase())) ||
-            (dateFormatV1(item.transactionDate) && dateFormatV1(item.transactionDate)
-                .toLowerCase()
-                .includes(searchQuery.toLowerCase()));
+            (item.transactionNumber && String(item.transactionNumber).toLowerCase().includes(query)) ||
+            (item.description && item.description.toLowerCase().includes(query)) ||
+            (dateFormatV1(item.transactionDate) && dateFormatV1(item.transactionDate).toLowerCase().includes(query));
 
         const matchesDate =
             !selectedDate ||
-            (item.transactionDate && new Date(item.transactionDate)
-                .toDateString() === selectedDate.toDateString());
+            (item.transactionDate && 
+             selectedDate instanceof Date &&
+             new Date(item.transactionDate).toDateString() === selectedDate.toDateString());
 
         return matchesQuery && matchesDate;
     });
@@ -54,7 +53,7 @@ export const FindAndReconModal: React.FC<FindAndReconModalProps> = ({ opened, on
             title: <Text size="sm" fw={600} c={themeColors.defaultBlack[10]}>No Transaksi</Text>,
             render: (element: any) => (
                 <Text size="sm" c={themeColors.figmaTeal[6]} fw={500} style={{ textDecoration: 'underline', cursor: 'pointer' }}>
-                    Jurnal Transaksi #{element.transactionNumber}
+                    {element.transactionNumber ? `Jurnal Transaksi #${element.transactionNumber}` : element.description || '-'}
                 </Text>
             ),
         },
@@ -75,6 +74,13 @@ export const FindAndReconModal: React.FC<FindAndReconModalProps> = ({ opened, on
         }
     ];
 
+    const handleConfirm = () => {
+        if (selectedRecords.length > 0) {
+            onConfirm(selectedRecords[0]);
+            onClose();
+        }
+    };
+
     return (
         <CustomConfirmModal
             size="65rem"
@@ -87,8 +93,8 @@ export const FindAndReconModal: React.FC<FindAndReconModalProps> = ({ opened, on
                     <Button
                         variant="filled"
                         bg={shortageNominal === 0 ? themeColors.grey[2] : themeColors.grey[1]}
-                        onClick={onClose}
-                        disabled={shortageNominal !== 0}
+                        onClick={handleConfirm}
+                        disabled={shortageNominal !== 0 || selectedRecords.length === 0}
                         style={{ 
                             color: shortageNominal === 0 ? themeColors.defaultBlack[10] : themeColors.grey[5] 
                         }}
@@ -165,6 +171,8 @@ export const FindAndReconModal: React.FC<FindAndReconModalProps> = ({ opened, on
                     selectedRecords={selectedRecords}
                     onSelectedRecordsChange={setSelectedRecords}
                     minHeight={200}
+                    fetching={isLoading}
+                    loaderColor="teal"
                     paginationColor="teal"
                     styles={{
                         header: { color: themeColors.defaultBlack[10] },
