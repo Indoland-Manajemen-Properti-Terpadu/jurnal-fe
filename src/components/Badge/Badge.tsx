@@ -68,8 +68,8 @@ export const KeyStatusLockBagde = () => {
       leftSection={icon}
       color="grey"
       radius="sm"
-      bg={themeColors.grey[0]}
-      c={themeColors.grey[6]}
+      bg={themeColors.gray[0]}
+      c={themeColors.gray[6]}
       className={classes.badgeText}
     >
       Lock

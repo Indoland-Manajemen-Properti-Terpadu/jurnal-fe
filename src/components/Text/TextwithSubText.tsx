@@ -20,8 +20,8 @@ type CustomTextProps = {
 export const TextWithSubText: React.FC<CustomTextProps> = ({
     mainText,
     subText,
-    mainColor = themeColors.dark[6],
-    subColor = themeColors.defaultBlack[10],
+    mainColor = themeColors.slate[6],
+    subColor = themeColors.black[9],
     required = false,
     mainfw = 600,
     subfw = 400,
@@ -41,7 +41,7 @@ export const TextWithSubText: React.FC<CustomTextProps> = ({
 export const TextWithSubObject: React.FC<CustomTextProps> = ({
     mainText,
     subObject,
-    mainColor = themeColors.dark[6],
+    mainColor = themeColors.slate[6],
     required = false,
     mainfw = 600,
     mainFz = 14,

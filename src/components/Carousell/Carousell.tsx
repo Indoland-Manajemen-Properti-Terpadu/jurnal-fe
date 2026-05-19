@@ -12,11 +12,9 @@ export function CarouselCompanyProfile() {
       slideSize="33.333%" // Ensures three images fit in the carousel view
       height={200}
       slideGap="md"
-      align="start"
       controlsOffset="xs"
       withControls
       withIndicators
-      loop
     >
       <Carousel.Slide>
         <img

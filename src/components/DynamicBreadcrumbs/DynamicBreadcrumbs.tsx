@@ -51,7 +51,7 @@ const DynamicBreadcrumbs: React.FC<DynamicBreadcrumbsProps> = ({
       const displayName = mergedSegmentMap[name] || name.charAt(0).toUpperCase() + name.slice(1);
 
       return isLast ? (
-        <MantineText fz={12} key={displayName} c={themeColors.figmaTeal[5]}>
+        <MantineText fz={12} key={displayName} c={themeColors.teal[5]}>
           {displayName}
         </MantineText>
       ) : (
@@ -60,7 +60,7 @@ const DynamicBreadcrumbs: React.FC<DynamicBreadcrumbsProps> = ({
           to={routeTo}
           key={displayName}
           fz={12}
-          style={{ color: themeColors.defaultBlack[9] }}
+          style={{ color: themeColors.black[9] }}
         >
           {displayName}
         </Anchor>
@@ -68,7 +68,7 @@ const DynamicBreadcrumbs: React.FC<DynamicBreadcrumbsProps> = ({
     });
 
     const homeItem = includeHome ? (
-      <Anchor component={Link} to={homeLink} key="home" fz={12} style={{ color: themeColors.defaultBlack[9] }}>
+      <Anchor component={Link} to={homeLink} key="home" fz={12} style={{ color: themeColors.black[9] }}>
         {homeLabel}
       </Anchor>
     ) : null;

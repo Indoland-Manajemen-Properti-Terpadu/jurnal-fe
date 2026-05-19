@@ -26,11 +26,11 @@ export const TextwithAsterisk: React.FC<CustomTextProps> = ({
   ff = 'Figtree',
 }) => (
   <Stack gap="xs">
-    <Text fw={fw} fz={fz} ff={ff} c={themeColors.dark[6]} mb={1}>
+    <Text fw={fw} fz={fz} ff={ff} c={themeColors.slate[6]} mb={1}>
       {mainText}
       {required && <span style={{ color: 'red' }}> *</span>}
     </Text>
-    <Text fw={fwP} fz={fzP} ff={ff} c={themeColors.grey[6]} mt={0}>
+    <Text fw={fwP} fz={fzP} ff={ff} c={themeColors.gray[6]} mt={0}>
       {subText}
     </Text>
   </Stack>

@@ -28,7 +28,7 @@ import {
 } from '@phosphor-icons/react';
 import { useMediaQuery } from '@mantine/hooks';
 import { useNavigate } from 'react-router-dom';
-import { routes } from '@/router';
+import { routes } from '@/router/routes';
 import { themeColors } from '@/theme';
 import { useGetAllUser } from '@/module/SettingMenu/UserManagement/User/service/User.service';
 import { useLogin } from '@/module/Authentication/Login/service/Login.service';
@@ -142,12 +142,12 @@ const HeaderNav = (props: HeaderNavProps) => {
   const { userName, clearTokens } = useAuthStore();
   const { desktopOpened, toggleDesktop, toggleMobile, mobileOpened } = props;
   const theme = useMantineTheme();
-  const iconColor = theme.colors.defaultBlack[10];
-  const brandColor = theme.colors.primary[6];
-  const borderColor = theme.colors.grey[2];
-  const mutedColor = theme.colors.grey[5];
-  const surfaceHoverColor = theme.colors.figmaGray[0];
-  const userButtonBorderColor = theme.colors.grey[6];
+  const iconColor = themeColors.black[9];
+  const brandColor = themeColors.slate[6];
+  const borderColor = themeColors.slate[4];
+  const mutedColor = themeColors.gray[5];
+  const surfaceHoverColor = themeColors.gray[0];
+  const userButtonBorderColor = themeColors.gray[6];
   const { setColorScheme, colorScheme } = useMantineColorScheme();
   const laptop_match = useMediaQuery('(max-width: 992px)');
   const tablet_match = useMediaQuery('(max-width: 768px)');

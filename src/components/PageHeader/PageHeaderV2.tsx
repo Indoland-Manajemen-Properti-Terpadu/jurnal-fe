@@ -69,7 +69,7 @@ const PageHeaderV2 = ({
           gradient={index === breadcrumbItems.length - 1 ? gradientColors.gradient : undefined}
           fz={14}
           fw={400}
-          c={index === breadcrumbItems.length - 1 ? themeColors.defaultBlack[10] : 'inherit'}
+          c={index === breadcrumbItems.length - 1 ? themeColors.black[9] : 'inherit'}
           onClick={(e) => {
             if (index !== breadcrumbItems.length - 1 && item.href) {
               e.preventDefault();

@@ -57,8 +57,8 @@ const BankAndCashTableRefactored: React.FC = () => {
                             <Table.Td ta="center">
                                 <Menu position="bottom-end" shadow="md">
                                     <Menu.Target>
-                                        <ActionIcon bg={themeColors.grey[0]}>
-                                            <IconDots {...iconSizes.sm} color={themeColors.grey[6]} />
+                                        <ActionIcon bg={themeColors.gray[0]}>
+                                            <IconDots {...iconSizes.sm} color={themeColors.gray[6]} />
                                         </ActionIcon>
                                     </Menu.Target>
                                     <Menu.Dropdown>

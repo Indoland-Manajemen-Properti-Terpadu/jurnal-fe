@@ -25,7 +25,7 @@ import {
   ShoppingCart,
   Storefront,
   HouseLine,
-  SidebarSimple,
+  SidebarSimpleIcon,
 } from '@phosphor-icons/react';
 import { LinksGroup } from './Links/page';
 import classes from './page.module.css';
@@ -121,7 +121,7 @@ const NavbarComponent = ({ onClose, collapsed = false, desktopOpened = true, tog
         <LinksGroup {...linkItem} key={linkItem.label} closeSidebar={onClose} collapsed={collapsed} />
 
       ))}
-      {index < mockdata.length - 1 && <Divider className={classes.sectionDivider} my={12} />}
+      {index < mockdata.length - 1 && <Divider color={themeColors.slate[4]} my={12} size="xs" />}
     </Box>
   ));
 
@@ -140,7 +140,7 @@ const NavbarComponent = ({ onClose, collapsed = false, desktopOpened = true, tog
               size={36}
               ml={collapsed ? 'auto' : 0}
             >
-              <SidebarSimple
+              <SidebarSimpleIcon
                 size={20}
                 weight="duotone"
                 style={{ transform: desktopOpened ? 'none' : 'scaleX(-1)' }}

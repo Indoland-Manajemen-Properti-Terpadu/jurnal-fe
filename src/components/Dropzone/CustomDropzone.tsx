@@ -61,13 +61,13 @@ const CustomDropzone: React.FC<DropzoneComponentProps> = ({
         <Dropzone.Idle>
           <IconCloudUpload
             style={{ width: rem(52), height: rem(52) }}
-            color={themeColors.defaultBlack[9]}
+            color={themeColors.black[9]}
             stroke={1.5}
           />
         </Dropzone.Idle>
 
         <div>
-          <Text size="lg" inline c={themeColors.defaultBlack[9]} ta="center">
+          <Text size="lg" inline c={themeColors.black[9]} ta="center">
             Drag file here or click to select files
           </Text>
           <Text size="sm" c="dimmed" inline mt={10}>

@@ -76,7 +76,7 @@ export function LinksGroup(props: LinksGroupProps) {
         >
           <Group justify="space-between" gap={12} wrap="nowrap" w="100%">
             <Group gap={12} wrap="nowrap" justify={collapsed ? 'center' : 'flex-start'} w={collapsed ? '100%' : undefined}>
-              {Icon && <Icon size={24} color={isActive ? themeColors.primary[5] : 'currentColor'} weight="duotone" />}
+              {Icon && <Icon size={24} color={isActive ? themeColors.teal[5] : 'currentColor'} weight="duotone" />}
               {!collapsed && <Box className={classes.label}>{label}</Box>}
             </Group>
             {hasLinks && !collapsed && (

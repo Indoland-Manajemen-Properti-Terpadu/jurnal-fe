@@ -58,9 +58,7 @@ export function CarouselLoginComponent() {
           orientation="horizontal"
           withControls={false}
           withIndicators
-          align="start"
           draggable
-          loop
         >
           {slides}
         </Carousel>

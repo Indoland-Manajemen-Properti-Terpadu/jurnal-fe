@@ -46,7 +46,6 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
       padding="0"
       styles={{
         inner: { padding: 0 },
-        section: { padding: 0 },
         content: { padding: 0, '--modal-padding': '0px' } as React.CSSProperties,
         body: { padding: 0 },
       }}
