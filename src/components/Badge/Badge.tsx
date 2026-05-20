@@ -34,7 +34,7 @@ export const ActiveBadge = () => (
 export const InactiveBadge = () => (
   <Badge
     variant="dot"
-    color="grey"
+    color="gray"
     radius="sm"
     style={{
       backgroundColor: STATUS_STYLES.inactive.bg,
@@ -66,7 +66,7 @@ export const KeyStatusLockBagde = () => {
   return (
     <Badge
       leftSection={icon}
-      color="grey"
+      color="gray"
       radius="sm"
       bg={themeColors.gray[0]}
       c={themeColors.gray[6]}

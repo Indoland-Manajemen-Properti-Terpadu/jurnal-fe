@@ -141,7 +141,7 @@ export const figmaSpacing = {
 //   full: '999px',
 // } as const;
 
-export const figmaTypography = {
+export const themeText = {
   fontFamily: 'Figtree, sans-serif',
   heading: {
     h1: { fontSize: rem(56), lineHeight: '68px', fontWeight: 600, letterSpacing: rem(-0.5) },

@@ -49,7 +49,7 @@
 :root {
   --text-color: var(--jurnal-color-surface);
   --text-size: 2.25rem;
-  --background-blue: var(--mantine-color-figmaBlue-8);
+  --background-blue: var(--mantine-color-blue-8);
   --background-black: var(--mantine-color-black);
 }
 

@@ -1,5 +1,5 @@
 import { themeColors } from '@/theme';
-import { figmaSpacing, figmaTypography, semanticColors } from './constants';
+import { figmaSpacing, themeText, semanticColors } from './constants';
 import {
   ActionIcon,
   Button,
@@ -22,51 +22,51 @@ export const myTheme = createTheme({
   primaryColor: 'cyan',
   fontSmoothing: true,
   defaultRadius: 'md',
-  fontFamily: figmaTypography.fontFamily,
+  fontFamily: themeText.fontFamily,
 
   headings: {
-    fontFamily: figmaTypography.fontFamily,
+    fontFamily: themeText.fontFamily,
     fontWeight: '600',
     sizes: {
       h1: {
-        fontSize: figmaTypography.heading.h1.fontSize,
-        lineHeight: figmaTypography.heading.h1.lineHeight,
+        fontSize: themeText.heading.h1.fontSize,
+        lineHeight: themeText.heading.h1.lineHeight,
         fontWeight: '600',
       },
       h2: {
-        fontSize: figmaTypography.heading.h2.fontSize,
-        lineHeight: figmaTypography.heading.h2.lineHeight,
+        fontSize: themeText.heading.h2.fontSize,
+        lineHeight: themeText.heading.h2.lineHeight,
         fontWeight: '600',
       },
       h3: {
-        fontSize: figmaTypography.heading.h3.fontSize,
-        lineHeight: figmaTypography.heading.h3.lineHeight,
+        fontSize: themeText.heading.h3.fontSize,
+        lineHeight: themeText.heading.h3.lineHeight,
         fontWeight: '600',
       },
       h4: {
-        fontSize: figmaTypography.heading.h4.fontSize,
-        lineHeight: figmaTypography.heading.h4.lineHeight,
+        fontSize: themeText.heading.h4.fontSize,
+        lineHeight: themeText.heading.h4.lineHeight,
         fontWeight: '600',
       },
       h5: {
-        fontSize: figmaTypography.heading.h5.fontSize,
-        lineHeight: figmaTypography.heading.h5.lineHeight,
+        fontSize: themeText.heading.h5.fontSize,
+        lineHeight: themeText.heading.h5.lineHeight,
         fontWeight: '600',
       },
       h6: {
-        fontSize: figmaTypography.heading.h6.fontSize,
-        lineHeight: figmaTypography.heading.h6.lineHeight,
+        fontSize: themeText.heading.h6.fontSize,
+        lineHeight: themeText.heading.h6.lineHeight,
         fontWeight: '600',
       },
     },
   },
 
   fontSizes: {
-    xs: figmaTypography.body.body4.fontSize,
-    sm: figmaTypography.body.body3.fontSize,
-    md: figmaTypography.body.body2.fontSize,
-    lg: figmaTypography.body.body1.fontSize,
-    xl: figmaTypography.heading.h6.fontSize,
+    xs: themeText.body.body4.fontSize,
+    sm: themeText.body.body3.fontSize,
+    md: themeText.body.body2.fontSize,
+    lg: themeText.body.body1.fontSize,
+    xl: themeText.heading.h6.fontSize,
   },
 
   spacing: {
@@ -166,7 +166,7 @@ export const myTheme = createTheme({
     figma: {
       spacing: figmaSpacing,
 
-      typography: figmaTypography,
+      typography: themeText,
       colors: semanticColors,
     },
   },

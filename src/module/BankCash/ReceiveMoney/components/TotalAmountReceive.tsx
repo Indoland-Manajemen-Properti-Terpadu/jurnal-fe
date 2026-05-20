@@ -40,7 +40,7 @@ const TotalReceive = () => {
                 <TextAmount
                     key="totalReceive"
                     amount={`Rp ${formatCurrency(totalReceive)}`}
-                    mainColor="grey"
+                    mainColor="gray"
                     colorTextAmont={themeColors.black[9]}
                 >
                     <Text fz={14} fw={400} c={themeColors.gray[7]}>Total Amount</Text>

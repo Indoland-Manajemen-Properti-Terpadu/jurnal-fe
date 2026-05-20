@@ -56,6 +56,11 @@ export const API_ACCOUNT = {
   POST_ADD_ROLE: `${BASE_URL}/v1/access-role/`,
 };
 
+export const API_TAGS = {
+  GET_ALL_TAGS: `/v1/tags`,
+  POST_TAG: `/v1/tags`,
+};
+
 export const API_REPORT = {
   GET_JOURNAL_ENTRY_REPORT: `${BASE_URL}/v1/report/journal-entry`,
   GET_BALANCE_SHEET_REPORT: `${BASE_URL}/v1/report/balance`,

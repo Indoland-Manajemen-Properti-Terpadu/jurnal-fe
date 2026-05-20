@@ -40,7 +40,7 @@ const TotalSent = () => {
                 <TextAmount
                     key="totalSent"
                     amount={`Rp ${formatCurrency(totalSent)}`}
-                    mainColor="grey"
+                    mainColor="gray"
                     colorTextAmont={themeColors.black[9]}
                 >
                     <Text fz={14} fw={400} c={themeColors.gray[7]}>Total Amount</Text>

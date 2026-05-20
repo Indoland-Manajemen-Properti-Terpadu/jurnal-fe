@@ -35,8 +35,7 @@ export const FindAndReconModal: React.FC<FindAndReconModalProps> = ({ opened, on
         const matchesDate =
             !selectedDate ||
             (item.transactionDate &&
-                selectedDate instanceof Date &&
-                new Date(item.transactionDate).toDateString() === selectedDate.toDateString());
+                new Date(item.transactionDate).toDateString() === new Date(selectedDate).toDateString());
 
         return matchesQuery && matchesDate;
     });
@@ -173,7 +172,6 @@ export const FindAndReconModal: React.FC<FindAndReconModalProps> = ({ opened, on
                     minHeight={200}
                     fetching={isLoading}
                     loaderColor="teal"
-                    paginationColor="teal"
                     styles={{
                         header: { color: themeColors.black[9] }
                     }}

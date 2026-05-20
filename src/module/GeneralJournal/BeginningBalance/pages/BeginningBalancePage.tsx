@@ -239,7 +239,7 @@ const BeginningBalancePage = () => {
                                     <Grid.Col span="auto">
                                         <TextAmount
                                             key='totalDebit'
-                                            mainColor="grey"
+                                            mainColor="gray"
                                             colorTextAmont="black"
                                         >
                                             Total Debit {formatCurrency(totalDebit)}
@@ -248,7 +248,7 @@ const BeginningBalancePage = () => {
                                     <Grid.Col span="auto">
                                         <TextAmount
                                             key='totalCredit'
-                                            mainColor="grey"
+                                            mainColor="gray"
                                             colorTextAmont="black"
                                         >
                                             Total Credit {formatCurrency(totalCredit)}

@@ -25,6 +25,9 @@ const submitTransactionJournal = async (data: TransactionJournalPayload) => {
   data.attachments.forEach((file) => {
     formData.append('attachments', file);
   });
+  data.tags.forEach((tag) => {
+    formData.append('tags', tag);
+  });
 
   const response = await postV2(API_ACCOUNT.POST_TRANSACTION_ACCOUNT, formData);
   if (!response || response?.status !== 200) {

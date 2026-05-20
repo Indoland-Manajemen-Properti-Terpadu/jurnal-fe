@@ -22,7 +22,7 @@ export const useMatchReconciliation = () => {
       notifications.show({
         title: 'Sukses',
         message: 'Transaksi berhasil direkonsiliasi',
-        color: themeColors.figmaTeal[6],
+        color: themeColors.teal[6],
       });
       queryClient.invalidateQueries({ queryKey: ['get_reconciliation'] });
     },

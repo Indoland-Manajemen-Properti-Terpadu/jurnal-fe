@@ -8,36 +8,28 @@ import {
   Box,
   Textarea,
   Button,
-  Anchor,
-  TagsInput,
+  ActionIcon,
+  Text,
+  Badge,
 } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
-import { IconCalendar, IconPlus, IconSearch } from '@tabler/icons-react';
+import { IconCalendar, IconArrowLeft, IconPlus, IconTag } from '@tabler/icons-react';
 import { DatePickerInput } from '@mantine/dates';
 import { notifications } from '@mantine/notifications';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
-import { TextMediumGR } from '@/components/Text/CustomText';
-import { navigate } from '@/router';
-import { routes } from '@/router/routes';
-import { PageHeader } from '@/components';
-import { gradientColors, themeColors } from '@/theme';
+import { themeColors } from '@/theme';
+import { themeText } from '@/theme/constants';
 import { useTransactionStore } from '@/store/GeneralJournal/useTransactionStore';
 import { useFileStore } from '@/store/GeneralJournal/useFileStore';
 import TransactionForm from './TransactionForm';
-import ImportFiles from '../ImportFile';
 import TotalAmount from '../Amounts';
+import { TagInput } from './TagInput';
 import CustomDropzone from '@/components/Dropzone/CustomDropzone';
 import TransactionJournalFormLayout from '../../pages/Layout';
 import { useSubmitTransactionJournal } from '../../services/CreateTransactionAccount.service';
 import { TransactionJournalPayload } from '@/module/GeneralJournal/DetailAccount/TransactionJournal/types/AddTransactionPayload';
 import { IMAGE_MIME_TYPE, PDF_MIME_TYPE } from '@mantine/dropzone';
-import PageHeaderV2 from '@/components/PageHeader/PageHeaderV2';
-
-const items = [
-  { title: 'General Journal', href: () => navigate(-1) },
-  { title: 'Add Transaction', href: undefined }
-]
 
 const AddJournalTransactionForm = () => {
   const navigate = useNavigate();
@@ -45,6 +37,7 @@ const AddJournalTransactionForm = () => {
   const disableTransaction = useTransactionStore((state) => state.disableTransaction());
   const [transactionNumber, setTransactionNumber] = useState('');
   const [transactionDate, setTransactionDate] = useState(dayjs().format('YYYY-MM-DD'));
+  const [tags, setTags] = useState<string[]>([]);
   const { mutate } = useSubmitTransactionJournal();
 
   const [files, setFiles, clearFiles] = useFileStore((state) => [
@@ -78,6 +71,7 @@ const AddJournalTransactionForm = () => {
       })),
       notes,
       attachments: files,
+      tags,
     };
 
     mutate(payload);
@@ -93,94 +87,106 @@ const AddJournalTransactionForm = () => {
   return (
     <TransactionJournalFormLayout
       footer={
-        <Group h="100%" px="xl" >
-          <Group justify="space-between" style={{ flex: 1 }}>
-            <TagsInput
-              key="tags"
-              placeholder="Tags"
-              data={['React', 'Angular', 'Svelte']}
-              rightSection={<IconSearch size={14} />}
-            />
-            <Group >
-              <Button
-                variant="light"
-                color={themeColors.gray[7]}
-                onClick={() => navigate(-1)}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="gradient"
-                gradient={gradientColors.gradient}
-                onClick={handleSubmit}
-                disabled={disableTransaction}
-              >
-                Add Transaction
-              </Button>
-            </Group>
-          </Group>
+        <Group h="100%" px="xl" justify="flex-end">
+          <Button
+            variant="filled"
+            bg={themeColors.gray[0]}
+            c={themeColors.black[9]}
+            onClick={() => navigate(-1)}
+          >
+            Cancel
+          </Button>
+          <Button
+            c={themeColors.white[0]}
+            bg={themeColors.teal[5]}
+            onClick={handleSubmit}
+            disabled={disableTransaction}
+            leftSection={<IconPlus size={16} />}
+          >
+            Tambah
+          </Button>
         </Group>
       }
     >
-      <Container fluid>
+      <Container fluid >
         <Stack gap="lg">
-          <Paper p="md" shadow="md" radius="md">
-            <PageHeaderV2 type='withBreadcrumbs' title="Add Transaction Journal" breadcrumbItems={items} />
-          </Paper>
-          <Paper p="md" shadow="md" radius="md">
-            <Group grow>
-              <TextInput
-                key="transactionNumber"
-                label="Transaction Number"
-                placeholder="Add name"
-                withAsterisk
-                onChange={(e) => setTransactionNumber(e.target.value)}
-                value={transactionNumber}
-              />
-              <DatePickerInput
-                label="Transaction Date"
-                dropdownType="popover"
-                value={dayjs(transactionDate).toDate()}
-                onChange={(date) => setTransactionDate(dayjs(date).format('YYYY-MM-DD'))}
-                withAsterisk
-                maxDate={new Date()}
-                placeholder="Add Date"
-                rightSection={<IconCalendar size={14} />}
-              />
+          {/* Header Section */}
+          <Paper withBorder p="lg" radius="sm">
+            <Group align="flex-start" wrap="nowrap">
+              <ActionIcon variant="subtle" color="gray" onClick={() => navigate(-1)} mt={5}>
+                <IconArrowLeft size={20} />
+              </ActionIcon>
+              <Stack gap={4}>
+                <Text fw={700} fz={18} c={themeColors.black[9]}>Tambah Transaksi</Text>
+                <Text style={themeText.label.label3} c={themeColors.slate[5]}>Catat transaksi jurnal baru ke dalam daftar akun yang tersedia.</Text>
+              </Stack>
+            </Group>
+
+            <Group grow mt="xl" align="flex-start">
+              <Stack gap={4}>
+                <TextInput
+                  label='Nomor Transaksi'
+                  placeholder="20"
+                  onChange={(e) => setTransactionNumber(e.target.value)}
+                  value={transactionNumber}
+                  styles={{ input: { height: 42 } }}
+                />
+                <Text style={themeText.label.label3} c={themeColors.slate[5]}>Biarkan kosong untuk generate nomor otomatis, atau isi manual sesuai kebutuhan.</Text>
+              </Stack>
+              <Stack gap={4}>
+                <DatePickerInput
+                  withAsterisk
+                  label='Tanggal Transaksi'
+                  value={dayjs(transactionDate).toDate()}
+                  onChange={(date) => setTransactionDate(dayjs(date).format('YYYY-MM-DD'))}
+                  maxDate={new Date()}
+                  placeholder="28/05/2026"
+                  rightSection={<IconCalendar size={18} color={themeColors.gray[5]} />}
+                  styles={{ input: { height: 42 } }}
+                />
+              </Stack>
             </Group>
           </Paper>
-          <Paper p="md" shadow="md" radius="md">
-            <Stack align="stretch" justify="flex-start" gap="sm">
-              <Group justify="space-between">
-                <TextMediumGR>Transaction Account</TextMediumGR>
-                <Button
-                  variant="filled"
-                  color={themeColors.black[9]}
-                  size="xs"
-                  leftSection={<IconPlus size={14} />}
-                  onClick={() => addTransaction()}
-                >
-                  Add Account
-                </Button>
+
+          {/* Journal Lines Section */}
+          <Paper withBorder p="lg" radius="sm">
+            <Stack gap="md">
+              <Group justify="space-between" align="center">
+                <Stack gap={0}>
+                  <Text fw={700} fz={16} c={themeColors.black[9]}>Baris Jurnal</Text>
+                  <Text fz="xs" c={themeColors.gray[6]}>Tambah baris untuk setiap akun yang terlibat. Debit & kredit harus seimbang.</Text>
+                </Stack>
+                <TagInput value={tags} onChange={setTags} />
               </Group>
-              <Box bg={themeColors.gray[0]} bd="sm" p={10}>
-                <TotalAmount />
+
+              <Box>
+                <TransactionForm />
               </Box>
-              <TransactionForm />
+
+              <Stack gap="xs" mt="md">
+                <CustomDropzone
+                  title='Lampiran'
+                  onDrop={handleDrop}
+                  onReject={handleReject}
+                  accept={[...IMAGE_MIME_TYPE, ...PDF_MIME_TYPE]}
+                  description={
+                    <Stack align="center" gap={4}>
+                      <Text fz="xs" fw={600} c={themeColors.black[9]}>Seret file ke sini atau klik untuk memilih file</Text>
+                      <Text fz="10px" c={themeColors.gray[5]}>Anda dapat mengunggah beberapa file sekaligus, dengan ukuran maksimal 30 MB per file.</Text>
+                    </Stack>
+                  }
+                />
+              </Stack>
+
               <Textarea
-                label="Notes"
-                placeholder="Add Notes"
-                resize="vertical"
+                label='Memo'
+                placeholder="pembayaran invoice bulanan unit A0101"
+                minRows={3}
+                mt="md"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
+                styles={{ input: { fontSize: 13 } }}
               />
-              <CustomDropzone
-                onDrop={handleDrop}
-                onReject={handleReject}
-                accept={[...IMAGE_MIME_TYPE, ...PDF_MIME_TYPE]}
-                description="Attach images or documents, each file should not exceed 5mb"
-              />
-              <ImportFiles />
             </Stack>
           </Paper>
         </Stack>

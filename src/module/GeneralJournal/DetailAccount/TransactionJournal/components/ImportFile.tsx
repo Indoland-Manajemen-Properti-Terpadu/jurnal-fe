@@ -1,6 +1,5 @@
-import { Grid, Group, Text, Container, Stack, ActionIcon } from '@mantine/core';
-import { IconEye, IconTrash } from '@tabler/icons-react';
-import IconFiles from '@/assets/img/Document-File.svg';
+import { Group, Text, Stack, ActionIcon, Paper, Box } from '@mantine/core';
+import { IconTrash, IconFileText } from '@tabler/icons-react';
 import { themeColors } from '@/theme';
 import { useFileStore } from '@/store/GeneralJournal/useFileStore';
 
@@ -10,64 +9,32 @@ const ImportFiles = () => {
         removeFile: state.removeFile,
     }));
     return (
-        <>
+        <Stack gap="xs">
             {files.length > 0 ? (
                 files.map((file) => (
-                    <Group grow key={file.name}>
-                        <Container
-                            fluid
-                            styles={(theme) => ({
-                                root: {
-                                    border: `1px solid ${theme.colors.dark[0]}`,
-                                    borderRadius: theme.radius.md,
-                                    padding: theme.spacing.md,
-                                },
-                            })}
-                        >
-                            <Grid>
-                                <Grid.Col span={6}>
-                                    <Group>
-                                        <img src={IconFiles} alt='icons-files' />
-                                        <Stack gap={5}>
-                                            <Text size='12px' c={themeColors.black[9]}>{file.name}</Text>
-                                            <Text size='12px' c={themeColors.gray[5]}>{(file.size / 1024 / 1024).toFixed(2)} MB</Text>
-                                        </Stack>
-                                    </Group>
-                                </Grid.Col>
-                                <Grid.Col span={3} offset={3}>
-                                    <Group justify="flex-end">
-                                        <ActionIcon
-                                            variant="light"
-                                            color="gray"
-                                            aria-label="View"
-                                            size="lg"
-                                            onClick={() => window.open(file.url, '_blank')}
-                                        >
-                                            <IconEye
-                                                style={{ width: '70%', height: '70%' }}
-                                                stroke={1.5}
-                                                color="gray"
-                                            />
-                                        </ActionIcon>
-                                        <ActionIcon
-                                            variant="light"
-                                            color="gray"
-                                            aria-label="Delete"
-                                            size="lg"
-                                            onClick={() => removeFile(file.name)}
-                                        >
-                                            <IconTrash style={{ width: '70%', height: '70%' }} stroke={1.5} color="red" />
-                                        </ActionIcon>
-                                    </Group>
-                                </Grid.Col>
-                            </Grid>
-                        </Container>
-                    </Group>
+                    <Paper withBorder p="xs" radius="sm" key={file.name}>
+                        <Group justify="space-between" wrap="nowrap">
+                            <Group gap="sm" wrap="nowrap">
+                                <Box bg={themeColors.blue[0]} p={8} style={{ borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <IconFileText size={20} color={themeColors.blue[6]} />
+                                </Box>
+                                <Stack gap={2}>
+                                    <Text size='sm' fw={500} c={themeColors.black[9]}>{file.name}</Text>
+                                    <Text size='10px' c={themeColors.gray[5]}>{(file.size / 1024 / 1024).toFixed(0)} mb | 100% • Complete</Text>
+                                </Stack>
+                            </Group>
+                            <ActionIcon
+                                variant="subtle"
+                                color="gray"
+                                onClick={() => removeFile(file.name)}
+                            >
+                                <IconTrash size={18} color={themeColors.gray[3]} />
+                            </ActionIcon>
+                        </Group>
+                    </Paper>
                 ))
-            ) : (
-                undefined
-            )}
-        </>
+            ) : null}
+        </Stack>
     );
 };
 

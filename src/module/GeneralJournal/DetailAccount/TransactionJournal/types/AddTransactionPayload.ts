@@ -11,4 +11,5 @@ export type TransactionJournalPayload = {
   transactionDetail: TransactionDetail[];
   notes: string;
   attachments: File[];
+  tags: string[];
 };

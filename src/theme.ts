@@ -358,19 +358,6 @@ export const themeColors = {
   }),
 } as const;
 
-// export const themeColors = {
-//   ...tailwindColors,
-//   primary: tailwindColors.teal,
-//   dark: tailwindColors.slate,
-//   grey: tailwindColors.gray,
-//   defaultBlack: tailwindColors.neutral,
-//   figmaTeal: tailwindColors.teal,
-//   figmaCyan: tailwindColors.cyan,
-//   figmaGray: tailwindColors.gray,
-//   figmaBlue: tailwindColors.blue,
-//   figmaRed: tailwindColors.red,
-// } as const;
-
 export const gradientColors = {
   primaryGradient: 'linear-gradient(200deg, #00b194, #1c8fd4)',
   gradient: { from: '#00b194', to: '#1c8fd4', deg: 90 },

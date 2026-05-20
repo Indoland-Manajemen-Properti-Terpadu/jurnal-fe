@@ -21,6 +21,7 @@ interface TransactionState {
   addTransaction: () => void;
   updateTransaction: (index: number, field: string, value: any) => void;
   removeTransaction: (index: number) => void;
+  reorderTransaction: (fromIndex: number, toIndex: number) => void;
 }
 
 const initialState = {
@@ -84,5 +85,23 @@ export const useTransactionStore = create<TransactionState>((set, get) => ({
         return { transactions: updatedTransactions, totalDebit, totalCredit };
       });
     }
+  },
+  reorderTransaction: (fromIndex, toIndex) => {
+    if (fromIndex === toIndex) {
+      return;
+    }
+
+    set((state) => {
+      const updatedTransactions = [...state.transactions];
+      const [movedTransaction] = updatedTransactions.splice(fromIndex, 1);
+
+      if (!movedTransaction) {
+        return state;
+      }
+
+      updatedTransactions.splice(toIndex, 0, movedTransaction);
+
+      return { transactions: updatedTransactions };
+    });
   },
 }));

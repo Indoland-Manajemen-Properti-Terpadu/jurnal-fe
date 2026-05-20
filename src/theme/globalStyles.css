@@ -1,7 +1,7 @@
 /* Tailwind v4 CSS (Without Preflight to avoid conflicts with Mantine) */
 @layer theme, base, components, utilities;
-@import "tailwindcss/theme.css" layer(theme);
-@import "tailwindcss/utilities.css" layer(utilities);
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/utilities.css' layer(utilities);
 
 /* =============================================
    Mantine v8 Component Styles
@@ -30,7 +30,8 @@
 .input-label {
   font-size: 14px;
   font-weight: 500;
-  margin-bottom: 8px;
+  /* border-color: var(--jurnal-color-border-muted); */
+  /* margin-bottom: 8px; */
 }
 
 /* Paper Styles */
@@ -123,13 +124,13 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--mantine-color-grey-5);
+  background: var(--mantine-color-gray-5);
   border-radius: var(--jurnal-radius-md);
   transition: background 150ms ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--mantine-color-grey-6);
+  background: var(--mantine-color-gray-6);
 }
 
 /* =============================================
@@ -244,19 +245,19 @@
   --jurnal-color-primary-subtle: var(--mantine-color-primary-0);
   --jurnal-color-text-primary: #111827;
   --jurnal-color-text-secondary: #6b7280;
-  --jurnal-color-text-muted: var(--mantine-color-grey-5);
+  --jurnal-color-text-muted: var(--mantine-color-gray-5);
   --jurnal-color-border-subtle: #e5e7eb;
-  --jurnal-color-border-muted: var(--mantine-color-grey-2);
-  --jurnal-color-border-strong: var(--mantine-color-grey-4);
+  --jurnal-color-border-muted: var(--mantine-color-gray-2);
+  --jurnal-color-border-strong: var(--mantine-color-gray-4);
   --jurnal-color-bg-subtle: #f9fafb;
   --jurnal-color-surface: var(--mantine-color-white);
-  --jurnal-color-surface-hover: var(--mantine-color-figmaGray-0);
-  --jurnal-color-surface-muted: var(--mantine-color-grey-1);
+  --jurnal-color-surface-hover: var(--mantine-color-gray-0);
+  --jurnal-color-surface-muted: var(--mantine-color-gray-1);
   --jurnal-color-success: #22c55e;
   --jurnal-color-success-subtle: var(--mantine-color-green-0);
   --jurnal-color-warning: #f59e0b;
   --jurnal-color-danger: #ef4444;
-  --jurnal-color-danger-subtle: var(--mantine-color-figmaRed-0);
+  --jurnal-color-danger-subtle: var(--mantine-color-red-0);
   --jurnal-color-info: #0ea5e9;
   --jurnal-gradient-brand: linear-gradient(90deg, #00b194, #1c8fd4);
   --jurnal-gradient-teal-overlay: linear-gradient(
