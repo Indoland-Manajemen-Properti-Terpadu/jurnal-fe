@@ -19,6 +19,7 @@ interface DropzoneComponentProps extends Partial<DropzoneProps> {
   onReject?: (files: FileRejection[]) => void;
   handleDrop?: (files: FileWithPath[]) => void;
   description?: React.ReactNode;
+  subDescription?: React.ReactNode;
   uploadedTitle?: string;
   showUploadedFiles?: boolean;
 }
@@ -30,6 +31,7 @@ const CustomDropzone: React.FC<DropzoneComponentProps> = ({
   onReject,
   handleDrop,
   description = 'Attach csv file, the file should not exceed 5mb',
+  subDescription,
   uploadedTitle = 'File Terunggah',
   showUploadedFiles = true,
   ...props
@@ -76,15 +78,14 @@ const CustomDropzone: React.FC<DropzoneComponentProps> = ({
               weight="duotone"
             />
           </Dropzone.Idle>
-
-          <div>
-            <Text size="lg" inline c={themeColors.black[9]} ta="center">
-              Drag file here or click to select files
+          <Text style={themeText.label.label2} c={themeColors.black[9]}>
+            {description}
+          </Text>
+          {subDescription && (
+            <Text style={themeText.label.label2} c={themeColors.gray[5]}>
+              {subDescription}
             </Text>
-            <Text size="sm" c="dimmed" inline mt={10}>
-              {description}
-            </Text>
-          </div>
+          )}
         </Stack>
       </Dropzone>
 

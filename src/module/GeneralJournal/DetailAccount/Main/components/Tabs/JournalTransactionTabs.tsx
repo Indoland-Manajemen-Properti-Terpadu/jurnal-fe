@@ -37,44 +37,14 @@ const JournalTransactionTab = ({ selectedRecords, setSelectedRecords, noRecordsC
     if (isError) return <Text>Error loading data</Text>;
 
     return (
-        <Stack gap="md">
-            {transaction && transaction.length > 0 && (
-                <Flex justify="flex-end" align="center" mt="md">
-                    <Menu position="bottom-end" offset={5}>
-                        <Menu.Target>
-                            <Button
-                                size="xs"
-                                variant="filled"
-                                bg={themeColors.teal[6]}
-                                rightSection={<IconPlus size={16} />}
-                            >
-                                Add Transaction
-                            </Button>
-                        </Menu.Target>
-                        <Menu.Dropdown>
-                            <Menu.Item
-                                leftSection={<IconPlus size={14} />}
-                                onClick={() => navigate(routes.generalJournal.addTransactionJournal)}
-                            >
-                                Transaction Journal
-                            </Menu.Item>
-                            <Menu.Item
-                                leftSection={<IconPlus size={14} />}
-                                onClick={() => navigate(routes.BankAndCash.AddTransferMoney)}
-                            >
-                                Transfer Money
-                            </Menu.Item>
-                        </Menu.Dropdown>
-                    </Menu>
-                </Flex>
-            )}
-            <TableJournalTransaction
-                selectedRecords={selectedRecords}
-                setSelectedRecords={setSelectedRecords}
-                data={transaction}
-                noRecordsContent={noRecordsContent}
-            />
-        </Stack>
+
+        <TableJournalTransaction
+            selectedRecords={selectedRecords}
+            setSelectedRecords={setSelectedRecords}
+            data={transaction}
+            noRecordsContent={noRecordsContent}
+        />
+
     );
 };
 

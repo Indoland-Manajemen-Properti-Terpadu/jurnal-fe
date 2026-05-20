@@ -9,6 +9,7 @@ import {
     Menu,
 } from '@mantine/core';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useDisclosure } from '@mantine/hooks';
 import { TextMediumGR } from '@/components/Text/CustomText';
 import { navigate } from '@/router';
 import { routes } from '@/router/routes';
@@ -17,11 +18,13 @@ import { TextWithSubObject, TextWithSubText } from '@/components/Text/TextwithSu
 import { gradientColors, themeColors } from '@/theme';
 import { IconDots, IconPencil, IconTrash } from '@tabler/icons-react';
 import { useDetailTransaction } from '../hooks/useDetailTransaction';
+import { useDeleteJournalTransaction } from '../services/DeleteTransactionAccount.service';
 import { dateFormatV1 } from '@/utils/FormatDate';
 import TransactionJournalFormLayout from './Layout';
 import JournalTransactionDetailTable from '../components/TableTransactionJournal/JournalTransactionDetailTable';
 import FileAttachments from '../components/FileAttachment';
 import PageHeaderV2 from '@/components/PageHeader/PageHeaderV2';
+import DeleteTransactionModal from '../../Main/components/DeleteTransactionModal';
 
 
 const items = [
@@ -34,6 +37,18 @@ const JournalTransactionDetailPage = () => {
     const navigate = useNavigate();
     const { idTransaction } = useParams<{ idTransaction: string }>();
     const { detailTransaction, isError, isLoading } = useDetailTransaction(idTransaction!);
+    const [deleteOpened, { open: openDelete, close: closeDelete }] = useDisclosure(false);
+    const deleteMutation = useDeleteJournalTransaction();
+
+    const handleConfirmDelete = () => {
+        if (!idTransaction) return;
+        deleteMutation.mutate(idTransaction, {
+            onSuccess: () => {
+                closeDelete();
+                navigate(routes.generalJournal.main);
+            },
+        });
+    };
 
     return (
         <TransactionJournalFormLayout
@@ -61,7 +76,8 @@ const JournalTransactionDetailPage = () => {
                                 variant="light"
                                 color={themeColors.red[6]}
                                 leftSection={<IconTrash size={14} />}
-                                onClick={() => navigate(routes.generalJournal.main)}
+                                loading={deleteMutation.isPending}
+                                onClick={openDelete}
                             >
                                 Delete
                             </Button>
@@ -119,6 +135,11 @@ const JournalTransactionDetailPage = () => {
                     </Paper>
                 </Stack>
             </Container>
+            <DeleteTransactionModal
+                opened={deleteOpened}
+                onClose={closeDelete}
+                onDelete={handleConfirmDelete}
+            />
         </TransactionJournalFormLayout>
     );
 };

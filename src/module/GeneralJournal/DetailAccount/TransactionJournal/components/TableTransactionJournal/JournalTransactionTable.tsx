@@ -8,6 +8,7 @@ import EmptyState from '@/components/EmptyState/EmptyTable';
 import { dateFormatV1 } from '@/utils/FormatDate';
 import useFilterTransaction from '../../../Main/store/FilterTransaction';
 import type { TransactionByAccountModel } from '../../types/TransactionByAccountModel';
+import { ArrowClockwiseIcon } from '@phosphor-icons/react';
 
 interface TableJournalTransactionProps {
     selectedRecords: TransactionByAccountModel[];
@@ -93,8 +94,8 @@ function TableJournalTransaction({ selectedRecords, setSelectedRecords, noRecord
             ),
         },
         {
-            accessor: 'balance',
-            title: <Text style={headTableStyle}>Saldo</Text>,
+            accessor: 'status',
+            title: <Text style={headTableStyle}>Status</Text>,
             render: (row: TransactionByAccountModel) => (
                 <Text c={themeColors.black[9]} fz={14}>
                     {row.balance! >= 0
@@ -102,6 +103,30 @@ function TableJournalTransaction({ selectedRecords, setSelectedRecords, noRecord
                         : `(${formatCurrency(Math.abs(row.balance ?? 0))})`}</Text>
             ),
         },
+        {
+            accessor: 'aksi',
+            title: <Text style={headTableStyle}>Aksi</Text>,
+            render: (row: TransactionByAccountModel) => (
+                <ArrowClockwiseIcon
+                    weight='duotone'
+                    size={20}
+                    color={themeColors.slate[5]}
+                // onClick={() =>
+                //     navigate(routes.generalJournal.detailTransactionJournal.replace(':idTransaction', row.id))
+                // }
+                />
+            ),
+        },
+        // {
+        //     accessor: 'balance',
+        //     title: <Text style={headTableStyle}>Saldo</Text>,
+        //     render: (row: TransactionByAccountModel) => (
+        //         <Text c={themeColors.black[9]} fz={14}>
+        //             {row.balance! >= 0
+        //                 ? formatCurrency(row.balance ?? 0)
+        //                 : `(${formatCurrency(Math.abs(row.balance ?? 0))})`}</Text>
+        //     ),
+        // },
     ];
 
     return (

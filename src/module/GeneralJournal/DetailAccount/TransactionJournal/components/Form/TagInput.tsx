@@ -81,12 +81,12 @@ export function TagInput({ value, onChange }: TagInputProps) {
     <Combobox store={combobox} onOptionSubmit={handleValueSelect}>
       <Combobox.DropdownTarget>
         <PillsInput
-          onClick={() => combobox.toggleDropdown()}
+          onClick={() => combobox.openDropdown()}
           rightSection={<IconTag size={16} color={themeColors.gray[5]} />}
           styles={{
             input: {
               minHeight: 38,
-              width: 200,
+              // maxWidth: '70%',
             },
           }}
         >
@@ -134,6 +134,7 @@ export function TagInput({ value, onChange }: TagInputProps) {
               placeholder="Add new tag"
               value={newTagValue}
               onChange={(event) => setNewTagValue(event.currentTarget.value)}
+              onMouseDown={(event) => event.stopPropagation()}
               onKeyDown={(event) => {
                 event.stopPropagation();
                 if (event.key === 'Enter') {
@@ -141,7 +142,7 @@ export function TagInput({ value, onChange }: TagInputProps) {
                   handleCreateTag();
                 }
               }}
-              onClick={(e) => e.stopPropagation()}
+              onClick={(event) => event.stopPropagation()}
               data-combobox-ignore
               size="xs"
               style={{ flex: 1 }}
@@ -149,8 +150,9 @@ export function TagInput({ value, onChange }: TagInputProps) {
             <ActionIcon
               variant="light"
               color="teal"
-              onClick={(e) => {
-                e.stopPropagation();
+              onMouseDown={(event) => event.stopPropagation()}
+              onClick={(event) => {
+                event.stopPropagation();
                 handleCreateTag();
               }}
               loading={createTagMutation.isPending}

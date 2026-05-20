@@ -151,7 +151,7 @@ const AddJournalTransactionForm = () => {
           {/* Journal Lines Section */}
           <Paper withBorder p="lg" radius="sm">
             <Stack gap="md">
-              <Group justify="space-between" align="center">
+              <Group grow align="flex-start">
                 <Stack gap={0}>
                   <Text fw={700} fz={16} c={themeColors.black[9]}>Baris Jurnal</Text>
                   <Text fz="xs" c={themeColors.gray[6]}>Tambah baris untuk setiap akun yang terlibat. Debit & kredit harus seimbang.</Text>
