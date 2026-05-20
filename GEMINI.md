@@ -161,3 +161,8 @@ export const useGetContacts = (params?: ContactParams) => {
   });
 };
 ```
+
+### yarn 
+- Gunakan `yarn` untuk manajemen paket, bukan `npm`.
+- Semua dependensi harus ditambahkan ke `package.json` dengan `yarn add [package-name]` dan bukan dengan `npm install`.
+- Pastikan untuk menjalankan `yarn install` setelah menerima perubahan pada `package.json` untuk memastikan semua dependensi terinstal dengan benar.  

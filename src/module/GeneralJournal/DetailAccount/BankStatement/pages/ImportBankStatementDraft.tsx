@@ -1,15 +1,30 @@
-import { Container, Paper, Stack, Title, Text, Group, Button, Flex, Tabs, Badge, Alert, List, ActionIcon, SimpleGrid } from "@mantine/core";
-import { gradientColors, themeColors } from "@/theme";
-import { IconInfoCircle, IconTrash } from "@tabler/icons-react";
-import { ArrowLeftIcon } from "@phosphor-icons/react";
-import BankStatementLayout from "./Layout";
-import ImportBankStatementDraftTable from "../components/ImportBankStatementDraftTable";
-import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { useBankStatementStore } from "../store/useBankStatement.store";
-import { getConfirmImportBankStatement } from "../services/ImportBankStatement.service";
-import { BankStatementPreviewItem } from "../types/ImportBankStatement.model";
-import { ConfirmModal } from "@/components";
+import {
+  Container,
+  Paper,
+  Stack,
+  Title,
+  Text,
+  Group,
+  Button,
+  Flex,
+  Tabs,
+  Badge,
+  Alert,
+  List,
+  ActionIcon,
+  SimpleGrid,
+} from '@mantine/core';
+import { gradientColors, themeColors } from '@/theme';
+import { IconInfoCircle, IconTrash } from '@tabler/icons-react';
+import { ArrowLeftIcon, PlusIcon } from '@phosphor-icons/react';
+import BankStatementLayout from './Layout';
+import ImportBankStatementDraftTable from '../components/ImportBankStatementDraftTable';
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useBankStatementStore } from '../store/useBankStatement.store';
+import { getConfirmImportBankStatement } from '../services/ImportBankStatement.service';
+import { BankStatementPreviewItem } from '../types/ImportBankStatement.model';
+import { ConfirmModal } from '@/components';
 import importModalImage from '@/assets/img/vectors/import.svg'; // Reuse existing or use appropriate image
 
 const PAPER_PROPS = {
@@ -20,10 +35,10 @@ const PAPER_PROPS = {
 };
 
 const ImportBankStatementDraft = () => {
-  const { idAccount } = useParams<{ idAccount: string }>();
   const navigate = useNavigate();
   const [selectedRecords, setSelectedRecords] = useState<BankStatementPreviewItem[]>([]);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const { idAccount } = useParams<{ idAccount: string }>();
 
   const {
     showAlert,
@@ -36,10 +51,12 @@ const ImportBankStatementDraft = () => {
     totalCorrectData,
     errorMessages,
     setImportData,
-    deleteItem
-  } = useBankStatementStore()
+    deleteItem,
+  } = useBankStatementStore();
 
-  const { mutate: confirmImport, isPending: isConfirming } = getConfirmImportBankStatement(idAccount || '')
+  const { mutate: confirmImport, isPending: isConfirming } = getConfirmImportBankStatement(
+    idAccount || ''
+  );
 
   useEffect(() => {
     const storedBankStatementData = localStorage.getItem('bankStatementData');
@@ -50,7 +67,7 @@ const ImportBankStatementDraft = () => {
         const previewData = parsedResponse.data?.preview || [];
         setImportData(previewData);
       } catch (error) {
-        console.error("Failed to parse bank statement data", error);
+        console.error('Failed to parse bank statement data', error);
       }
     }
   }, [setImportData]);
@@ -60,16 +77,16 @@ const ImportBankStatementDraft = () => {
       accountId: idAccount,
       statements: totalData.map(({ TransactionDate, Received, Spent, Description }) => ({
         TransactionDate,
-        Received: String(Received || "0"),
-        Spent: String(Spent || "0"),
-        Description: Description || ""
-      }))
-    }
-    confirmImport(payload)
-  }
+        Received: String(Received || '0'),
+        Spent: String(Spent || '0'),
+        Description: Description || '',
+      })),
+    };
+    confirmImport(payload);
+  };
 
   const handleDeleteSelected = () => {
-    selectedRecords.forEach(record => {
+    selectedRecords.forEach((record) => {
       deleteItem(record.rowIndex);
     });
     setSelectedRecords([]);
@@ -79,11 +96,7 @@ const ImportBankStatementDraft = () => {
     <BankStatementLayout
       footer={
         <Group p="md" justify="flex-end" bg="white" style={{ borderTop: '1px solid #E9ECEF' }}>
-          <Button
-            variant="light"
-            color={themeColors.gray[7]}
-            onClick={() => navigate(-1)}
-          >
+          <Button variant="light" color={themeColors.gray[7]} onClick={() => navigate(-1)}>
             Cancel
           </Button>
           <Button
@@ -108,7 +121,8 @@ const ImportBankStatementDraft = () => {
                   <Stack gap={2}>
                     <Title order={5}>Validasi Data Impor</Title>
                     <Text c={themeColors.gray[6]} fz={14}>
-                      Periksa kembali data yang telah anda impor dan lakukan penyesuaian jika diperlukan.
+                      Periksa kembali data yang telah anda impor dan lakukan penyesuaian jika
+                      diperlukan.
                     </Text>
                   </Stack>
                 </Group>
@@ -121,7 +135,7 @@ const ImportBankStatementDraft = () => {
                   styles={{
                     tab: {
                       fontWeight: 500,
-                      '&[data-active]': {
+                      '&[dataActive]': {
                         backgroundColor: themeColors.teal[0],
                         color: themeColors.teal[6],
                       },
@@ -242,14 +256,17 @@ const ImportBankStatementDraft = () => {
             )}
           </>
         }
-        helperText="Data yang diimpor tidak dapat diubah kembali setelah
- proses berjalan."
-        confirmLabel="Import Data"
+        helperText="Data yang diimpor tidak dapat diubah kembali setelahproses berjalan."
+        confirmLabel="Tambah Data"
         cancelLabel="Batal"
         confirmLoading={isConfirming}
         imageSrc={importModalImage}
+        confirmButtonProps={{
+          color: themeColors.teal[5],
+          leftSection: <PlusIcon size={18} weight="duotone" />,
+        }}
       />
     </BankStatementLayout>
   );
-}
+};
 export default ImportBankStatementDraft;

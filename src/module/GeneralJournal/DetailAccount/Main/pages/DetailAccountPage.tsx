@@ -70,8 +70,7 @@ const DetailAccount = () => {
     (accountDetail as any)?.data?.data || (accountDetail as any)?.data || accountDetail;
   const accountData = accountDetailData(rawData);
 
-  const unreconciledCount = reconData?.bankStatements?.filter(bs => !bs.isReconciled).length || 0;
-
+  const unreconciledCount = reconData?.bankStatements?.filter((bs) => !bs.isReconciled).length || 0;
 
   const journalSelection = useSelectionHandler<TransactionByAccountModel>();
   const bankStatementSelection = useSelectionHandler<Result>();
@@ -163,12 +162,7 @@ const DetailAccount = () => {
                       Kas & Bank
                     </Text>
                     <Group align="flex-start" wrap="nowrap">
-                      <ActionIcon
-                        variant="subtle"
-                        color="gray"
-                        onClick={() => navigate(-1)}
-                        mt={4}
-                      >
+                      <ActionIcon variant="subtle" color="gray" onClick={() => navigate(-1)} mt={4}>
                         <ArrowLeftIcon size={24} weight="bold" />
                       </ActionIcon>
                       <Stack gap={0}>
@@ -292,7 +286,7 @@ const DetailAccount = () => {
                   styles={{
                     tab: {
                       fontWeight: 500,
-                      '&[data-active]': {
+                      '&[dataActive]': {
                         backgroundColor: themeColors.teal[0],
                         color: themeColors.teal[6],
                       },
@@ -309,7 +303,15 @@ const DetailAccount = () => {
                       value="reconciliation"
                       rightSection={
                         unreconciledCount > 0 ? (
-                          <Badge w={20} h={20} p={0} variant="filled" color="teal.6" size="xs" circle>
+                          <Badge
+                            w={20}
+                            h={20}
+                            p={0}
+                            variant="filled"
+                            color="teal.6"
+                            size="xs"
+                            circle
+                          >
                             {unreconciledCount}
                           </Badge>
                         ) : null

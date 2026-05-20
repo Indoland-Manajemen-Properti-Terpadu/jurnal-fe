@@ -49,6 +49,8 @@ export const themeColors = {
     100: '#f1f5f9',
     200: '#e2e8f0',
     300: '#cbd5e1',
+    white: '#FFFFFF',
+
     400: '#94a3b8',
     500: '#64748b',
     600: '#475569',

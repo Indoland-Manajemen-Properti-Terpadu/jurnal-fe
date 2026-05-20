@@ -109,211 +109,211 @@ const ImportBankStatementModal: React.FC<ImportBankStatementModalProps> = ({ idA
     return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
   };
 
-  const handleDownloadTemplate = () => {
-    const link = document.createElement('a');
-    link.href = '/templates/csv/Bank Statement Template ProApps.csv';
-    link.download = 'Bank Statement Template ProApps.csv';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }
-  return (
-    <CustomConfirmModal
-      size="55rem"
-      opened={isOpen}
-      onClose={onClose}
-      withCloseButton={true}
-      title={
-        <Text fw={600} fz={18} c={themeColors.black[9]}>
-          Import Rekening Koran
-        </Text>
-      }
-      labels={{
-        confirm: (
-          <Button
+    const handleDownloadTemplate = () => {
+        const link = document.createElement('a');
+        link.href = '/templates/csv/Bank Statement Template ProApps.csv';
+        link.download = 'Bank Statement Template ProApps.csv';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+    return (
+      <CustomConfirmModal
+        size="55rem"
+        opened={isOpen}
+        onClose={onClose}
+        withCloseButton={true}
+        title={
+          <Text fw={600} fz={18} c={themeColors.black[9]}>
+            Impor Rekening Koran
+          </Text>
+        }
+        labels={{
+          confirm: (
+            <Button
+              color={themeColors.teal[5]}
+              onClick={handleCloseModal}
+              disabled={uploading || (active === 2 && files.length === 0)}
+              loading={isPending}
+              rightSection={<ArrowRight size={18} weight="duotone" />}
+            >
+              Selanjutnya
+            </Button>
+          ),
+          cancel: (
+            <Button
+              variant="light"
+              color={themeColors.gray[7]}
+              onClick={handlePreviousStep}
+              disabled={uploading || isPending}
+            >
+              Batal
+            </Button>
+          ),
+        }}
+      >
+        <Stack gap="lg" align="stretch" justify="center">
+          <Stepper
+            active={active}
+            onStepClick={!uploading ? setActive : undefined}
             color={themeColors.teal[5]}
-            onClick={handleCloseModal}
-            disabled={uploading || (active === 2 && files.length === 0)}
-            loading={isPending}
-            rightSection={<ArrowRight size={18} weight="duotone" />}
+            radius="md"
+            styles={{
+              stepIcon: {
+                borderWidth: 2,
+              },
+            }}
           >
-            Selanjutnya
-          </Button>
-        ),
-        cancel: (
-          <Button
-            variant="light"
-            color={themeColors.gray[7]}
-            onClick={handlePreviousStep}
-            disabled={uploading || isPending}
-          >
-            Batal
-          </Button>
-        ),
-      }}
-    >
-      <Stack gap="lg" align="stretch" justify="center">
-        <Stepper
-          active={active}
-          onStepClick={!uploading ? setActive : undefined}
-          color={themeColors.teal[5]}
-          radius="md"
-          styles={{
-            stepIcon: {
-              borderWidth: 2,
-            },
-          }}
-        >
-          <Stepper.Step
-            icon={
-              <Flex align="center" justify="center">
-                <FileCsv size={18} weight="bold" />
-              </Flex>
-            }
-            completedIcon={
-              <Flex align="center" justify="center">
-                <FileCsv size={18} weight="bold" />
-              </Flex>
-            }
-            progressIcon={
-              <Flex align="center" justify="center">
-                <FileCsv size={18} weight="bold" />
-              </Flex>
-            }
-            label={
-              <Text fw={600} c={themeColors.black[9]}>
-                Unduh Template
-              </Text>
-            }
-          >
-            <Container fluid pt={40} pb={20}>
-              <Flex gap="md" justify="center" align="center" direction="column">
-                <Image
-                  src={importTemplateImage}
-                  w={200}
-                  h="auto"
-                  fallbackSrc="https://placehold.co/200x200?text=Illustration"
-                />
-                <Text ta="center" fw={600} fz={18} c={themeColors.black[9]}>
-                  Unduh Template Terlebih Dahulu
-                </Text>
-                <Text ta="center" fw={400} fz={14} c={themeColors.gray[7]} maw={800}>
-                  Mulai dengan mengunduh template file CSV (Comma Separated Values) rekening koran
-                  terlebih dahulu. template ini sudah dilengkapi kolom yang sesuai untuk
-                  memudahkan proses impor data rekening koran.
-                </Text>
-                <Button
-                  mt="md"
-                  color={themeColors.blue[6]}
-                  leftSection={<IconDownload size={18} />}
-                  onClick={handleDownloadTemplate}
-                >
+            <Stepper.Step
+              icon={
+                <Flex align="center" justify="center">
+                  <FileCsv size={18} weight="bold" />
+                </Flex>
+              }
+              completedIcon={
+                <Flex align="center" justify="center">
+                  <FileCsv size={18} weight="bold" />
+                </Flex>
+              }
+              progressIcon={
+                <Flex align="center" justify="center">
+                  <FileCsv size={18} weight="bold" />
+                </Flex>
+              }
+              label={
+                <Text fw={600} c={themeColors.black[9]}>
                   Unduh Template
-                </Button>
-              </Flex>
-            </Container>
-          </Stepper.Step>
-          <Stepper.Step
-            icon={
-              <Flex align="center" justify="center">
-                <NotePencil size={18} weight="bold" />
-              </Flex>
-            }
-            completedIcon={
-              <Flex align="center" justify="center">
-                <NotePencil size={18} weight="bold" />
-              </Flex>
-            }
-            progressIcon={
-              <Flex align="center" justify="center">
-                <NotePencil size={18} weight="bold" />
-              </Flex>
-            }
-            label={
-              <Text fw={600} c={themeColors.black[9]}>
-                Cara Mengisi
-              </Text>
-            }
-          >
-            <Container fluid pt={20} pb={20}>
-              <Stack gap="xl">
-                <Flex gap="xs" justify="center" align="center" direction="column">
+                </Text>
+              }
+            >
+              <Container fluid pt={40} pb={20}>
+                <Flex gap="md" justify="center" align="center" direction="column">
+                  <Image
+                    src={importTemplateImage}
+                    w={200}
+                    h="auto"
+                    fallbackSrc="https://placehold.co/200x200?text=Illustration"
+                  />
                   <Text ta="center" fw={600} fz={18} c={themeColors.black[9]}>
-                    Panduan Mengisi Template CSV
+                    Unduh Template Terlebih Dahulu
                   </Text>
                   <Text ta="center" fw={400} fz={14} c={themeColors.gray[7]} maw={800}>
-                    Ekspor data rekening koran dari sistem sebelumnya dalam format CSV, lalu buka
-                    file tersebut menggunakan Excel atau aplikasi spreadsheet lainnya. Setelah
-                    itu, salin data dan tempelkan ke template yang telah diunduh. Pastikan setiap
-                    data ditempatkan sesuai nama kolom yang tersedia pada template agar proses
-                    import berjalan dengan benar.
+                    Mulai dengan mengunduh template file CSV (Comma Separated Values) rekening koran
+                    terlebih dahulu. template ini sudah dilengkapi kolom yang sesuai untuk
+                    memudahkan proses impor data rekening koran.
                   </Text>
+                  <Button
+                    mt="md"
+                    color={themeColors.blue[6]}
+                    leftSection={<IconDownload size={18} />}
+                    onClick={handleDownloadTemplate}
+                  >
+                    Unduh Template
+                  </Button>
                 </Flex>
-                <InformationAlert
-                  title="Informasi Penting"
-                  color="blue"
-                  items={[
-                    'Format tanggal harus menggunakan dd/mm/yyyy (English - Canada)',
-                    'Maksimal transaksi per file: 1.000 baris (disarankan untuk performa optimal)',
-                    'Jangan gunakan pemisah ribuan seperti koma (,) atau titik (.)',
-                    'Gunakan titik (.) sebagai pemisah desimal',
-                    'Jangan masukkan simbol mata uang seperti Rp, $, dan lainnya',
-                    'Jangan mengubah format atau nama kolom yang sudah disediakan pada template',
-                  ]}
-                />
-                <InformationAlert
-                  title="Tips"
-                  color="yellow"
-                  variant="normal"
-                  icon={<IconBulb />}
-                  items={[
-                    "Jika Anda menggunakan Microsoft Excel, tambahkan tanda apostrof (') di depan data yang mengandung angka atau format khusus agar nilainya tidak berubah otomatis. Contoh: '6-6003 dan '11-02-2016.",
-                  ]}
-                />
-              </Stack>
-            </Container>
-          </Stepper.Step>
-          <Stepper.Step
-            icon={
-              <Flex align="center" justify="center">
-                <NotePencil size={18} weight="bold" />
-              </Flex>
-            }
-            completedIcon={
-              <Flex align="center" justify="center">
-                <NotePencil size={18} weight="bold" />
-              </Flex>
-            }
-            progressIcon={
-              <Flex align="center" justify="center">
-                <NotePencil size={18} weight="bold" />
-              </Flex>
-            }
-            label={
-              <Text fw={600} c={themeColors.black[9]}>
-                Unggah File
-              </Text>
-            }
-          >
-            <Container fluid pt={20} pb={20}>
-              <Stack gap="xl">
-                <Group align="center" wrap="nowrap" gap="xl">
-                  <Image
-                    src={uploadTemplateImage}
-                    w={150}
-                    h="auto"
-                    fallbackSrc="https://placehold.co/150x150?text=Illustration"
+              </Container>
+            </Stepper.Step>
+            <Stepper.Step
+              icon={
+                <Flex align="center" justify="center">
+                  <NotePencil size={18} weight="bold" />
+                </Flex>
+              }
+              completedIcon={
+                <Flex align="center" justify="center">
+                  <NotePencil size={18} weight="bold" />
+                </Flex>
+              }
+              progressIcon={
+                <Flex align="center" justify="center">
+                  <NotePencil size={18} weight="bold" />
+                </Flex>
+              }
+              label={
+                <Text fw={600} c={themeColors.black[9]}>
+                  Cara Mengisi
+                </Text>
+              }
+            >
+              <Container fluid pt={20} pb={20}>
+                <Stack gap="xl">
+                  <Flex gap="xs" justify="center" align="center" direction="column">
+                    <Text ta="center" fw={600} fz={18} c={themeColors.black[9]}>
+                      Panduan Mengisi Template CSV
+                    </Text>
+                    <Text ta="center" fw={400} fz={14} c={themeColors.gray[7]} maw={800}>
+                      Ekspor data rekening koran dari sistem sebelumnya dalam format CSV, lalu buka
+                      file tersebut menggunakan Excel atau aplikasi spreadsheet lainnya. Setelah
+                      itu, salin data dan tempelkan ke template yang telah diunduh. Pastikan setiap
+                      data ditempatkan sesuai nama kolom yang tersedia pada template agar proses
+                      import berjalan dengan benar.
+                    </Text>
+                  </Flex>
+                  <InformationAlert
+                    title="Informasi Penting"
+                    color="blue"
+                    items={[
+                      'Format tanggal harus menggunakan dd/mm/yyyy (English - Canada)',
+                      'Maksimal transaksi per file: 1.000 baris (disarankan untuk performa optimal)',
+                      'Jangan gunakan pemisah ribuan seperti koma (,) atau titik (.)',
+                      'Gunakan titik (.) sebagai pemisah desimal',
+                      'Jangan masukkan simbol mata uang seperti Rp, $, dan lainnya',
+                      'Jangan mengubah format atau nama kolom yang sudah disediakan pada template',
+                    ]}
                   />
-                  <Stack gap="xs">
-                    <Text fw={600} fz={18} c={themeColors.black[9]}>
-                      Unggah Template CSV
-                    </Text>
-                    <Text fw={400} fz={14} c={themeColors.gray[7]}>
-                      Setelah selesai melakukan perubahan, silakan unggah file template yang telah
-                      diperbarui. Pastikan file menggunakan format CSV, XLSX, atau XLS.
-                    </Text>
-                  </Stack>
-                </Group>
+                  <InformationAlert
+                    title="Tips"
+                    color="yellow"
+                    variant="normal"
+                    icon={<IconBulb />}
+                    items={[
+                      "Jika Anda menggunakan Microsoft Excel, tambahkan tanda apostrof (') di depan data yang mengandung angka atau format khusus agar nilainya tidak berubah otomatis. Contoh: '6-6003 dan '11-02-2016.",
+                    ]}
+                  />
+                </Stack>
+              </Container>
+            </Stepper.Step>
+            <Stepper.Step
+              icon={
+                <Flex align="center" justify="center">
+                  <NotePencil size={18} weight="bold" />
+                </Flex>
+              }
+              completedIcon={
+                <Flex align="center" justify="center">
+                  <NotePencil size={18} weight="bold" />
+                </Flex>
+              }
+              progressIcon={
+                <Flex align="center" justify="center">
+                  <NotePencil size={18} weight="bold" />
+                </Flex>
+              }
+              label={
+                <Text fw={600} c={themeColors.black[9]}>
+                  Unggah File
+                </Text>
+              }
+            >
+              <Container fluid pt={20} pb={20}>
+                <Stack gap="xl">
+                  <Group align="center" wrap="nowrap" gap="xl">
+                    <Image
+                      src={uploadTemplateImage}
+                      w={150}
+                      h="auto"
+                      fallbackSrc="https://placehold.co/150x150?text=Illustration"
+                    />
+                    <Stack gap="xs">
+                      <Text fw={600} fz={18} c={themeColors.black[9]}>
+                        Unggah Template CSV
+                      </Text>
+                      <Text fw={400} fz={14} c={themeColors.gray[7]}>
+                        Setelah selesai melakukan perubahan, silakan unggah file template yang telah
+                        diperbarui. Pastikan file menggunakan format CSV, XLSX, atau XLS.
+                      </Text>
+                    </Stack>
+                  </Group>
 
                 <Dropzone
                   onDrop={handleDrop}
