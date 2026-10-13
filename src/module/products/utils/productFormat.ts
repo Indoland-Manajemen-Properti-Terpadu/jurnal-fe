@@ -15,7 +15,8 @@ const dateFormatter = new Intl.DateTimeFormat('id-ID', {
 export const formatPrice = (value: number | null): string =>
   value === null ? '—' : priceFormatter.format(value);
 
-export const formatDate = (iso: string): string => {
+export const formatDate = (iso?: string | null): string => {
+  if (!iso) return '—';
   const date = new Date(iso);
   return Number.isNaN(date.getTime()) ? '—' : dateFormatter.format(date);
 };

@@ -485,7 +485,7 @@ function ProductFormComponent({
                     <Dropzone.Idle>
                       <IconPhoto size={28} color="var(--mantine-color-gray-5)" />
                     </Dropzone.Idle>
-                    <Text size="xs" fw={600} ta="center">
+                    <Text size="xs" fw={600} ta="center" c="dark.8">
                       Tarik gambar ke sini
                     </Text>
                     <Text size="xs" c="dimmed" ta="center">

@@ -148,7 +148,7 @@ export function MasterDataPanel({
             <EntityIcon size={18} />
           </ThemeIcon>
           <div>
-            <Text fw={600} size="sm">
+            <Text fw={600} size="sm" c="dark.8">
               {items.length} {entityLabel.toLowerCase()} terdaftar
             </Text>
             <Text size="xs" c="dimmed">
@@ -239,7 +239,7 @@ export function MasterDataPanel({
         </Table>
         {!isLoading && filtered.length === 0 && (
           <Stack align="center" gap={4} py={48}>
-            <Text fw={600}>
+            <Text fw={600} c="dark.8">
               {keyword ? 'Tidak ada hasil' : `Belum ada ${entityLabel.toLowerCase()}`}
             </Text>
             <Text size="sm" c="dimmed">

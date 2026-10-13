@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import {
+  ActionIcon,
   Alert,
   Avatar,
   Badge,
@@ -7,6 +8,7 @@ import {
   Button,
   Card,
   Container,
+  CopyButton,
   Divider,
   Grid,
   Group,
@@ -19,10 +21,13 @@ import {
   Text,
   ThemeIcon,
   Title,
+  Tooltip,
 } from '@mantine/core';
 import {
   IconArrowLeft,
   IconBuildingWarehouse,
+  IconCheck,
+  IconCopy,
   IconEdit,
   IconInfoCircle,
   IconPackage,
@@ -168,34 +173,44 @@ export function ProductDetailPage() {
       <Box p={{ base: 'md', sm: 'xl' }}>
         <Stack gap="lg">
           {/* Top Bar Navigation & Actions */}
-          <Group justify="space-between" align="center" wrap="wrap" gap="sm">
-            <Button
-              variant="subtle"
-              color="gray"
-              leftSection={<IconArrowLeft size={18} />}
-              onClick={() => navigate(routes.baseModules.products)}
-            >
-              Kembali ke Daftar Produk
-            </Button>
+          <Paper
+            withBorder
+            radius="lg"
+            p={{ base: 'md', sm: 'xl' }}
+            style={{
+              background:
+                'linear-gradient(135deg, var(--mantine-color-white) 60%, var(--mantine-color-secondary-0) 100%)',
+            }}
+          >
+            <Group justify="space-between" align="center" wrap="wrap" gap="sm">
+              <Button
+                variant="subtle"
+                color="gray"
+                leftSection={<IconArrowLeft size={18} />}
+                onClick={() => navigate(routes.baseModules.products)}
+              >
+                Kembali ke Daftar Produk
+              </Button>
 
-            <Group gap="xs">
-              <Button
-                variant="outline"
-                color="red"
-                leftSection={<IconTrash size={16} />}
-                onClick={() => setDeleteConfirmOpened(true)}
-              >
-                Hapus
-              </Button>
-              <Button
-                color="primary"
-                leftSection={<IconEdit size={16} />}
-                onClick={() => setEditModalOpened(true)}
-              >
-                Ubah Produk
-              </Button>
+              <Group gap="xs">
+                <Button
+                  variant="outline"
+                  color="red"
+                  leftSection={<IconTrash size={16} />}
+                  onClick={() => setDeleteConfirmOpened(true)}
+                >
+                  Hapus
+                </Button>
+                <Button
+                  color="primary"
+                  leftSection={<IconEdit size={16} />}
+                  onClick={() => setEditModalOpened(true)}
+                >
+                  Ubah Produk
+                </Button>
+              </Group>
             </Group>
-          </Group>
+          </Paper>
 
           {/* Hero Profile Banner */}
           <Paper
@@ -483,67 +498,133 @@ export function ProductDetailPage() {
                   </Text>
 
                   <Stack gap="sm">
-                    <Group justify="space-between" wrap="nowrap">
+                    {/* ID Sistem */}
+                    <Group justify="space-between" wrap="nowrap" align="center">
                       <Text size="xs" c="dimmed">
                         ID Sistem (MongoDB)
                       </Text>
-                      <Text size="xs" ff="monospace" c="dark.7">
-                        {product.id}
-                      </Text>
+                      <Group gap={4} wrap="nowrap">
+                        <Text size="xs" ff="monospace" c="dark.7" fw={500}>
+                          {product.id}
+                        </Text>
+                        <CopyButton value={product.id} timeout={2000}>
+                          {({ copied, copy }) => (
+                            <Tooltip label={copied ? 'Tersalin' : 'Salin ID'} withArrow position="top">
+                              <ActionIcon
+                                color={copied ? 'teal' : 'gray'}
+                                variant="subtle"
+                                size="xs"
+                                onClick={copy}
+                                aria-label="Salin ID Sistem"
+                              >
+                                {copied ? <IconCheck size={12} /> : <IconCopy size={12} />}
+                              </ActionIcon>
+                            </Tooltip>
+                          )}
+                        </CopyButton>
+                      </Group>
                     </Group>
 
                     <Divider />
 
-                    <Group justify="space-between" wrap="nowrap">
+                    {/* SKU */}
+                    <Group justify="space-between" wrap="nowrap" align="center">
                       <Text size="xs" c="dimmed">
                         SKU
                       </Text>
-                      <Text size="xs" ff="monospace" fw={600}>
-                        {product.sku}
-                      </Text>
+                      <Group gap={4} wrap="nowrap">
+                        <Text size="xs" ff="monospace" fw={600} c="dark.8">
+                          {product.sku || '—'}
+                        </Text>
+                        {product.sku && (
+                          <CopyButton value={product.sku} timeout={2000}>
+                            {({ copied, copy }) => (
+                              <Tooltip label={copied ? 'Tersalin' : 'Salin SKU'} withArrow position="top">
+                                <ActionIcon
+                                  color={copied ? 'teal' : 'gray'}
+                                  variant="subtle"
+                                  size="xs"
+                                  onClick={copy}
+                                  aria-label="Salin SKU"
+                                >
+                                  {copied ? <IconCheck size={12} /> : <IconCopy size={12} />}
+                                </ActionIcon>
+                              </Tooltip>
+                            )}
+                          </CopyButton>
+                        )}
+                      </Group>
                     </Group>
 
                     {product.externalCode && (
                       <>
                         <Divider />
-                        <Group justify="space-between" wrap="nowrap">
+                        <Group justify="space-between" wrap="nowrap" align="center">
                           <Text size="xs" c="dimmed">
                             Kode Eksternal
                           </Text>
-                          <Text size="xs" ff="monospace">
-                            {product.externalCode}
-                          </Text>
+                          <Group gap={4} wrap="nowrap">
+                            <Text size="xs" ff="monospace" c="dark.8" fw={500}>
+                              {product.externalCode}
+                            </Text>
+                            <CopyButton value={product.externalCode} timeout={2000}>
+                              {({ copied, copy }) => (
+                                <Tooltip
+                                  label={copied ? 'Tersalin' : 'Salin Kode Eksternal'}
+                                  withArrow
+                                  position="top"
+                                >
+                                  <ActionIcon
+                                    color={copied ? 'teal' : 'gray'}
+                                    variant="subtle"
+                                    size="xs"
+                                    onClick={copy}
+                                    aria-label="Salin Kode Eksternal"
+                                  >
+                                    {copied ? <IconCheck size={12} /> : <IconCopy size={12} />}
+                                  </ActionIcon>
+                                </Tooltip>
+                              )}
+                            </CopyButton>
+                          </Group>
                         </Group>
                       </>
                     )}
 
                     <Divider />
 
-                    <Group justify="space-between" wrap="nowrap">
+                    {/* Kategori */}
+                    <Group justify="space-between" wrap="nowrap" align="center">
                       <Text size="xs" c="dimmed">
                         Kategori
                       </Text>
-                      <Text size="xs" fw={500}>
-                        {product.category?.name ?? '—'}
+                      <Text size="xs" fw={600} c="dark.8">
+                        {product.category?.name || '—'}
                       </Text>
                     </Group>
 
                     <Divider />
 
-                    <Group justify="space-between" wrap="nowrap">
+                    {/* Dibuat */}
+                    <Group justify="space-between" wrap="nowrap" align="center">
                       <Text size="xs" c="dimmed">
                         Dibuat
                       </Text>
-                      <Text size="xs">{formatDate(product.createdAt)}</Text>
+                      <Text size="xs" fw={500} c="dark.8">
+                        {formatDate(product.createdAt)}
+                      </Text>
                     </Group>
 
                     <Divider />
 
-                    <Group justify="space-between" wrap="nowrap">
+                    {/* Terakhir Diperbarui */}
+                    <Group justify="space-between" wrap="nowrap" align="center">
                       <Text size="xs" c="dimmed">
                         Terakhir Diperbarui
                       </Text>
-                      <Text size="xs">{formatDate(product.updatedAt)}</Text>
+                      <Text size="xs" fw={500} c="dark.8">
+                        {formatDate(product.updatedAt)}
+                      </Text>
                     </Group>
                   </Stack>
                 </Paper>

@@ -73,36 +73,42 @@ const extractId = (val: unknown): string | null => {
   return null;
 };
 
-const mapProduct = (dto: ProductDto): Product => ({
-  id: dto.id,
-  name: dto.name,
-  sku: dto.sku,
-  image: dto.image,
-  externalCode: dto.external_code ?? null,
-  category: dto.productCategory
-    ? { id: dto.productCategory.id, name: dto.productCategory.name }
-    : null,
-  buyingInfo: {
-    isPurchased: dto.buyingInfo?.isPurchased ?? false,
-    unitPrice: dto.buyingInfo?.unitPrice ?? null,
-    purchaseAccount: extractId(dto.buyingInfo?.purchaseAccount),
-    purchaseTax: extractId(dto.buyingInfo?.purchaseTax),
-  },
-  sellingInfo: {
-    isSold: dto.sellingInfo?.isSold ?? false,
-    unitPrice: dto.sellingInfo?.unitPrice ?? null,
-    salesAccount: extractId(dto.sellingInfo?.salesAccount),
-    accountReceivable: extractId(dto.sellingInfo?.accountReceivable),
-    salesTax: extractId(dto.sellingInfo?.salesTax),
-  },
-  inventoryInfo: {
-    isTracked: dto.inventoryInfo?.isTracked ?? false,
-    inventoryAccount: extractId(dto.inventoryInfo?.inventoryAccount),
-    minStock: dto.inventoryInfo?.minStock ?? 0,
-  },
-  createdAt: dto.createdAt,
-  updatedAt: dto.updatedAt,
-});
+const mapProduct = (dto: ProductDto & Record<string, any>): Product => {
+  const categoryRaw = dto.productCategory || dto.category;
+  return {
+    id: dto.id || dto._id || '',
+    name: dto.name || '',
+    sku: dto.sku || dto.SKU || '',
+    image: dto.image ?? null,
+    externalCode: dto.external_code ?? dto.externalCode ?? null,
+    category: categoryRaw
+      ? {
+          id: categoryRaw.id || categoryRaw._id || '',
+          name: categoryRaw.name || '',
+        }
+      : null,
+    buyingInfo: {
+      isPurchased: dto.buyingInfo?.isPurchased ?? false,
+      unitPrice: dto.buyingInfo?.unitPrice ?? null,
+      purchaseAccount: extractId(dto.buyingInfo?.purchaseAccount),
+      purchaseTax: extractId(dto.buyingInfo?.purchaseTax),
+    },
+    sellingInfo: {
+      isSold: dto.sellingInfo?.isSold ?? false,
+      unitPrice: dto.sellingInfo?.unitPrice ?? null,
+      salesAccount: extractId(dto.sellingInfo?.salesAccount),
+      accountReceivable: extractId(dto.sellingInfo?.accountReceivable),
+      salesTax: extractId(dto.sellingInfo?.salesTax),
+    },
+    inventoryInfo: {
+      isTracked: dto.inventoryInfo?.isTracked ?? false,
+      inventoryAccount: extractId(dto.inventoryInfo?.inventoryAccount),
+      minStock: dto.inventoryInfo?.minStock ?? 0,
+    },
+    createdAt: dto.createdAt || dto.created_at || '',
+    updatedAt: dto.updatedAt || dto.updated_at || '',
+  };
+};
 
 const mapPaginated = <D, T>(dto: PaginatedDto<D>, map: (d: D) => T): Paginated<T> => ({
   items: (dto.data ?? []).map(map),

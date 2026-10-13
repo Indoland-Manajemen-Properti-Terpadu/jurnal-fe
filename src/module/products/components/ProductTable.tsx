@@ -47,7 +47,7 @@ function PriceCell({ enabled, value }: Readonly<{ enabled: boolean; value: numbe
     );
   }
   return (
-    <Text size="sm" fw={500} style={{ fontVariantNumeric: 'tabular-nums' }}>
+    <Text size="sm" fw={500} c="dark.8" style={{ fontVariantNumeric: 'tabular-nums' }}>
       {formatPrice(value)}
     </Text>
   );
@@ -171,7 +171,7 @@ export function ProductTable({
           <ThemeIcon size={56} radius="xl" variant="light" color="primary">
             <IconPackage size={28} />
           </ThemeIcon>
-          <Text fw={600} mt="xs">
+          <Text fw={600} mt="xs" c="dark.8">
             Belum ada produk yang cocok
           </Text>
           <Text size="sm" c="dimmed" ta="center" maw={360}>
