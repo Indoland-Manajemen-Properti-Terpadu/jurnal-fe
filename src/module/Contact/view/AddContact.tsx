@@ -1,92 +1,54 @@
-import { Button, Container, Group, Paper, Stack, Tabs } from "@mantine/core";
-import { IconBuildingBank, IconFileDollar, IconUser } from "@tabler/icons-react";
-import { useNavigate } from "react-router-dom";
-import { themeColors } from "@/theme";
-import { navigate } from "@/router";
-import ContactFormLayout from "./FormLayout";
-import PageHeaderV2 from "@/components/PageHeader/PageHeaderV2";
-import BankInformationForm from "../components/AddContactForm/BankInformationForm";
-import AccountMappingForm from "../components/AddContactForm/AccountMappingForm";
-import ContactInformationForm from "../components/AddContactForm/ContactInformationForm";
+import { useNavigate } from 'react-router-dom';
+import { Box, Button, Group, Paper, Stack } from '@mantine/core';
+import { IconArrowLeft, IconUserPlus } from '@tabler/icons-react';
+import AppShellLayout from '@/components/AppShellLayout';
+import ModuleHeader from '@/components/ModuleHeader/ModuleHeader';
+import { routes } from '@/router/routes';
+import { ContactFormModal } from '../components/ContactFormModal';
+import { useSaveContact } from '../hooks/useContactQueries';
+import type { ContactFormValues } from '../types/contact';
 
+export function AddContactPage() {
+  const navigate = useNavigate();
+  const saveMutation = useSaveContact();
 
-const items = [
-    { title: 'Contact', href: () => navigate(-1) },
-    { title: 'Add Contact', href: undefined },
-]
+  const handleFormSubmit = async (values: ContactFormValues) => {
+    const created = await saveMutation.mutateAsync(values);
+    navigate(routes.Contact.DetailContact.replace(':idAccount', created.id));
+  };
 
-const AddContactPage = () => {
-    const navigate = useNavigate();
-    return (
-        <>
-            <ContactFormLayout footer={
-                <Group grow justify="flex-end" p='md'>
-                    <Group justify="flex-end" gap="xs" >
-                        <Button
-                            variant="light"
-                            color={themeColors.gray[7]}
-                            onClick={() => navigate(-1)}
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            variant="filled"
-                            bg={themeColors.primary[6]}
-                        >
-                            Add Contact
-                        </Button>
-                    </Group>
-                </Group>
+  return (
+    <AppShellLayout>
+      <Box p={{ base: 'md', sm: 'xl' }}>
+        <Stack gap="lg">
+          <ModuleHeader
+            icon={IconUserPlus}
+            title="Tambah Kontak Baru"
+            description="Daftarkan entitas pelanggan, pemasok, atau karyawan ke dalam buku besar akuntansi."
+            actions={
+              <Button
+                variant="default"
+                leftSection={<IconArrowLeft size={16} />}
+                onClick={() => navigate(routes.Contact.Main)}
+              >
+                Kembali
+              </Button>
             }
-            >
-                <Container fluid>
-                    <Stack gap="lg">
-                        <Paper p="md" shadow="md" radius="md">
-                            <PageHeaderV2
-                                type='withBreadcrumbs'
-                                title="Add Contact"
-                                breadcrumbItems={items}
-                            />
-                        </Paper>
-                        <Paper p="md" shadow="md" radius="md">
-                            <Tabs defaultValue="contact-information" styles={{ panel: { paddingTop: 16 } }}>
-                                <Tabs.List>
-                                    <Tabs.Tab
-                                        value="contact-information"
-                                        leftSection={<IconUser size={12} />}
-                                    >
-                                        Contact Information
-                                    </Tabs.Tab>
-                                    <Tabs.Tab
-                                        value="bank-information"
-                                        leftSection={<IconBuildingBank size={12} />}
-                                    >
-                                        Bank Information
-                                    </Tabs.Tab>
-                                    <Tabs.Tab
-                                        value="account-mapping"
-                                        leftSection={<IconFileDollar size={12} />}
-                                    >
-                                        Account Mapping
-                                    </Tabs.Tab>
-                                </Tabs.List>
+          />
 
-                                <Tabs.Panel value="contact-information">
-                                    <ContactInformationForm />
-                                </Tabs.Panel>
-                                <Tabs.Panel value="bank-information">
-                                    <BankInformationForm />
-                                </Tabs.Panel>
-                                <Tabs.Panel value="account-mapping">
-                                    <AccountMappingForm />
-                                </Tabs.Panel>
-                            </Tabs>
-                        </Paper>
-                    </Stack>
-                </Container>
-            </ContactFormLayout>
-        </>
-    );
+          <Paper withBorder radius="md" p="xl" bg="white">
+            {/* Embedded Form modal container */}
+            <ContactFormModal
+              opened
+              isSubmitting={saveMutation.isPending}
+              onClose={() => navigate(routes.Contact.Main)}
+              onSubmit={handleFormSubmit}
+            />
+          </Paper>
+        </Stack>
+      </Box>
+    </AppShellLayout>
+  );
 }
 
 export default AddContactPage;

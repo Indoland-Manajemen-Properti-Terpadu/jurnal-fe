@@ -1,4 +1,4 @@
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom';
 import { routes } from './routes';
 
 // General Journal Module
@@ -282,7 +282,7 @@ const router = createBrowserRouter([
   },
   {
     path: routes.baseModules.contactsMaster,
-    element: <KontakPage />,
+    element: <Navigate to={routes.Contact.Main} replace />,
   },
   {
     path: routes.baseModules.companySetting,
