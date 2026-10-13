@@ -66,6 +66,7 @@ const toInitialValues = (product?: Product): ProductFormValues => ({
     isSold: true,
     unitPrice: null,
     salesAccount: null,
+    accountReceivable: null,
     salesTax: null,
   },
   inventoryInfo: product?.inventoryInfo ?? {
@@ -145,6 +146,8 @@ function ProductFormComponent({
           requiredWhen(values.sellingInfo.isSold, value, 'Harga jual wajib diisi'),
         salesAccount: (value, values) =>
           requiredWhen(values.sellingInfo.isSold, value, 'Pilih akun penjualan'),
+        accountReceivable: (value, values) =>
+          requiredWhen(values.sellingInfo.isSold, value, 'Pilih akun piutang'),
       },
       inventoryInfo: {
         inventoryAccount: (value, values) =>
@@ -263,7 +266,7 @@ function ProductFormComponent({
               <Collapse in={values.sellingInfo.isSold}>
                 <Box mt="sm" pt="xs" style={{ borderTop: '1px solid var(--mantine-color-gray-1)' }}>
                   <Grid gutter="sm">
-                    <Grid.Col span={{ base: 12, sm: 4 }}>
+                    <Grid.Col span={{ base: 12, sm: 6 }}>
                       <NumberInput
                         label="Harga jual / unit"
                         prefix="Rp "
@@ -280,23 +283,33 @@ function ProductFormComponent({
                         value={values.sellingInfo.unitPrice ?? ''}
                       />
                     </Grid.Col>
-                    <Grid.Col span={{ base: 12, sm: 4 }}>
-                      <Select
-                        label="Akun penjualan"
-                        placeholder="Pilih akun"
-                        withAsterisk
-                        data={accountData}
-                        {...selectProps}
-                        {...form.getInputProps('sellingInfo.salesAccount')}
-                      />
-                    </Grid.Col>
-                    <Grid.Col span={{ base: 12, sm: 4 }}>
+                    <Grid.Col span={{ base: 12, sm: 6 }}>
                       <Select
                         label="Pajak penjualan"
                         placeholder="Tanpa pajak"
                         data={taxData}
                         {...selectProps}
                         {...form.getInputProps('sellingInfo.salesTax')}
+                      />
+                    </Grid.Col>
+                    <Grid.Col span={{ base: 12, sm: 6 }}>
+                      <Select
+                        label="Akun penjualan"
+                        placeholder="Pilih akun penjualan"
+                        withAsterisk
+                        data={accountData}
+                        {...selectProps}
+                        {...form.getInputProps('sellingInfo.salesAccount')}
+                      />
+                    </Grid.Col>
+                    <Grid.Col span={{ base: 12, sm: 6 }}>
+                      <Select
+                        label="Akun piutang"
+                        placeholder="Pilih akun piutang"
+                        withAsterisk
+                        data={accountData}
+                        {...selectProps}
+                        {...form.getInputProps('sellingInfo.accountReceivable')}
                       />
                     </Grid.Col>
                   </Grid>

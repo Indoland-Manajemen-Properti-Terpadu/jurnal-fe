@@ -84,6 +84,7 @@ const mapProduct = (dto: ProductDto): Product => ({
     isSold: dto.sellingInfo?.isSold ?? false,
     unitPrice: dto.sellingInfo?.unitPrice ?? null,
     salesAccount: dto.sellingInfo?.salesAccount ?? null,
+    accountReceivable: dto.sellingInfo?.accountReceivable ?? null,
     salesTax: dto.sellingInfo?.salesTax ?? null,
   },
   inventoryInfo: {
@@ -155,6 +156,7 @@ const toProductFormData = (values: ProductFormValues): FormData => {
   if (s.isSold) {
     appendIfPresent(form, 'sellingInfo[unitPrice]', s.unitPrice);
     appendIfPresent(form, 'sellingInfo[salesAccount]', s.salesAccount);
+    appendIfPresent(form, 'sellingInfo[accountReceivable]', s.accountReceivable);
     appendIfPresent(form, 'sellingInfo[salesTax]', s.salesTax);
   }
 

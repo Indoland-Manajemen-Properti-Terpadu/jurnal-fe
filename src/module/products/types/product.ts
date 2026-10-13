@@ -48,6 +48,7 @@ export type SellingInfo = {
   isSold: boolean;
   unitPrice: number | null;
   salesAccount: string | null;
+  accountReceivable: string | null;
   salesTax: string | null;
 };
 
