@@ -306,7 +306,6 @@ export const FindAndReconModal: React.FC<FindAndReconModalProps> = ({
             minHeight={200}
             fetching={isLoading}
             loaderColor="primary"
-            paginationColor="primary"
             styles={{
               header: { color: themeColors.black[9] },
             }}
