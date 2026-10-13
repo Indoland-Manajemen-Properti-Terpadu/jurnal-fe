@@ -45,7 +45,7 @@ import BudgetPlanningPage from '@/module/BudgetPlanning/view/BudgetPlanningPage'
 import PembelianPage from '@/module/Pembelian/view/PembelianPage';
 import CostPage from '@/module/Cost/view/CostPage';
 import ProductsPage from '@/module/products/pages/ProductsPage';
-import ProductionPage from '@/module/production/view/ProductionPage';
+import ProductionPage from '@/module/Production/view/ProductionPage';
 import FulfillmentPage from '@/module/Fulfillment/view/FulfillmentPage';
 import AssetPage from '@/module/Asset/view/AssetPage';
 import KontakPage from '@/module/Kontak/view/KontakPage';
