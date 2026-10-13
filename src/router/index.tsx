@@ -45,6 +45,7 @@ import BudgetPlanningPage from '@/module/BudgetPlanning/view/BudgetPlanningPage'
 import PembelianPage from '@/module/Pembelian/view/PembelianPage';
 import CostPage from '@/module/Cost/view/CostPage';
 import ProductsPage from '@/module/products/pages/ProductsPage';
+import ProductDetailPage from '@/module/products/pages/ProductDetailPage';
 import ProductionPage from '@/module/Production/view/ProductionPage';
 import FulfillmentPage from '@/module/Fulfillment/view/FulfillmentPage';
 import AssetPage from '@/module/Asset/view/AssetPage';
@@ -258,6 +259,10 @@ const router = createBrowserRouter([
   {
     path: routes.baseModules.products,
     element: <ProductsPage />,
+  },
+  {
+    path: routes.baseModules.productDetail,
+    element: <ProductDetailPage />,
   },
   {
     path: routes.baseModules.production,

@@ -75,11 +75,17 @@ export const routes = {
     budgetManagement: '/result-reports/business-overview/budget-management',
   },
 
+  products: {
+    main: '/products',
+    detail: '/products/:id',
+  },
+
   baseModules: {
     budgetPlanning: '/budget-planning',
     pembelian: '/pembelian',
     cost: '/finance/cost',
     products: '/products',
+    productDetail: '/products/:id',
     production: '/production',
     fulfillment: '/fulfillment',
     assets: '/assets',

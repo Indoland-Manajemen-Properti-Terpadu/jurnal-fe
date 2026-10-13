@@ -28,11 +28,11 @@ import {
   IconSearch,
   IconX,
 } from '@tabler/icons-react';
+import { useNavigate } from 'react-router-dom';
 import ConfirmModal from '@/components/ui/ConfirmModal/ConfirmModal';
 import { ModuleHeader } from '../components/ModuleHeader';
 import { ProductTable } from '../components/ProductTable';
 import { ProductForm } from '../components/ProductForm';
-import { ProductDetailDrawer } from '../components/ProductDetailDrawer';
 import { MasterDataPanel } from '../components/MasterDataPanel';
 import {
   useCategories,
@@ -47,6 +47,7 @@ import type { Product, ProductFormValues } from '../types/product';
 import AppShellLayout from '@/components/AppShellLayout';
 
 export function ProductsPage() {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<string | null>('products');
 
   // Search & Pagination state
@@ -55,11 +56,9 @@ export function ProductsPage() {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState<number>(10);
 
-  // Modal / Drawer states
+  // Modal states
   const [formModalOpened, setFormModalOpened] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | undefined>(undefined);
-  const [selectedDetail, setSelectedDetail] = useState<Product | null>(null);
-  const [detailOpened, setDetailOpened] = useState(false);
   const [deleteProductTarget, setDeleteProductTarget] = useState<Product | null>(null);
 
   // Queries
@@ -95,18 +94,13 @@ export function ProductsPage() {
   };
 
   const handleOpenDetail = (product: Product) => {
-    setSelectedDetail(product);
-    setDetailOpened(true);
+    navigate(`/products/${product.id}`);
   };
 
   const handleDeleteProductConfirm = async () => {
     if (!deleteProductTarget) return;
     await deleteProductMutation.mutateAsync(deleteProductTarget.id);
     setDeleteProductTarget(null);
-    if (selectedDetail?.id === deleteProductTarget.id) {
-      setDetailOpened(false);
-      setSelectedDetail(null);
-    }
   };
 
   const paginationData = productsQuery.data?.pagination;
@@ -375,20 +369,6 @@ export function ProductsPage() {
           )}
         </Box>
       </Modal>
-
-      {/* Product Detail Drawer */}
-      <ProductDetailDrawer
-        product={selectedDetail}
-        opened={detailOpened}
-        onClose={() => {
-          setDetailOpened(false);
-          setSelectedDetail(null);
-        }}
-        onEdit={(prod) => handleOpenEdit(prod)}
-        onDelete={(prod) => {
-          setDeleteProductTarget(prod);
-        }}
-      />
 
       {/* Delete Product Confirmation */}
       <ConfirmModal
