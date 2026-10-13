@@ -131,16 +131,16 @@ const ImportBankStatementDraft = () => {
               <Stack p="md" gap="md">
                 <Tabs
                   defaultValue="all"
-                  color={themeColors.teal[5]}
+                  color={themeColors.primary[5]}
                   styles={{
                     tab: {
                       fontWeight: 500,
                       '&[dataActive]': {
-                        backgroundColor: themeColors.teal[0],
-                        color: themeColors.teal[6],
+                        backgroundColor: themeColors.primary[0],
+                        color: themeColors.primary[6],
                       },
                       '&:hover': {
-                        backgroundColor: themeColors.teal[0],
+                        backgroundColor: themeColors.primary[0],
                       },
                     },
                   }}
@@ -262,7 +262,7 @@ const ImportBankStatementDraft = () => {
         confirmLoading={isConfirming}
         imageSrc={importModalImage}
         confirmButtonProps={{
-          color: themeColors.teal[5],
+          color: themeColors.primary[5],
           leftSection: <PlusIcon size={18} weight="duotone" />,
         }}
       />

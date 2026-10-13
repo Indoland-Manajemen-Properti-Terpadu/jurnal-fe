@@ -24,7 +24,7 @@ const TotalSent = () => {
                 <Switch
                     key='WithTax'
                     defaultChecked
-                    color={themeColors.teal[6]}
+                    color={themeColors.primary[6]}
                     labelPosition="left"
                     label="With Tax"
                     size="md"

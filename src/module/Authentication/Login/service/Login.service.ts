@@ -27,7 +27,7 @@ export const useLogin = (p0: {}) => {
       setTokens(tokens.access.token, tokens.refresh.token);
       setUserName(user.name);
       notifications.show({
-        color: 'cyan',
+        color: 'green',
         autoClose: 3000,
         title: 'Login Successful!',
         message: `Hey ${user.name}, Welcome to Journal Proapps. Let’s get started!`,

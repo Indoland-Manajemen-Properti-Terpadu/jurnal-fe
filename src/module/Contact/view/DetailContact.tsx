@@ -118,7 +118,7 @@ const DetailContactPage = () => {
 
                                     <Button
                                         variant="filled"
-                                        bg={themeColors.teal[6]}
+                                        bg={themeColors.primary[6]}
                                         onClick={() => navigate(routes.Contact.TransactionDetailByContact.replace(':idAccount', idAccount!))}
                                     >
                                         Transaction Contract
@@ -132,10 +132,10 @@ const DetailContactPage = () => {
                     <Paper p="md" shadow="md" radius="md">
                         <Stack>
                             <Group>
-                                <Text c={themeColors.teal[6]} fz={18} fw={500}>
+                                <Text c={themeColors.primary[6]} fz={18} fw={500}>
                                     Contact Information
                                 </Text>
-                                <IconUser size={20} color={themeColors.teal[6]} />
+                                <IconUser size={20} color={themeColors.primary[6]} />
                             </Group>
                             <Grid justify="space-between" align="center">
                                 <Grid.Col span={6}>
@@ -190,10 +190,10 @@ const DetailContactPage = () => {
 
                             <Divider my="xs" />
                             <Group>
-                                <Text c={themeColors.teal[6]} fz={18} fw={500}>
+                                <Text c={themeColors.primary[6]} fz={18} fw={500}>
                                     Bank Information
                                 </Text>
-                                <IconBuildingBank size={20} color={themeColors.teal[6]} />
+                                <IconBuildingBank size={20} color={themeColors.primary[6]} />
                             </Group>
 
                             <Table highlightOnHover withTableBorder>
@@ -210,10 +210,10 @@ const DetailContactPage = () => {
 
                             <Divider my="xs" />
                             <Group>
-                                <Text c={themeColors.teal[6]} fz={18} fw={500}>
+                                <Text c={themeColors.primary[6]} fz={18} fw={500}>
                                     Account Mapping
                                 </Text>
-                                <IconFileDollar size={20} color={themeColors.teal[6]} />
+                                <IconFileDollar size={20} color={themeColors.primary[6]} />
                             </Group>
                             {accountMappings.map((mapping, index) => (
                                 <Grid justify="space-between" align="center" key={index}>

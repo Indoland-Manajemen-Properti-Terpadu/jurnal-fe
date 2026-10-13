@@ -73,7 +73,7 @@ const FinancialstatementPage = () => {
                     </Paper>
                     <Paper {...PAPER_PROPS}>
                         <Stack align="stretch" justify="flex-start" gap="sm">
-                            <Tabs color={themeColors.teal[6]} defaultValue="trial-balance">
+                            <Tabs color={themeColors.primary[6]} defaultValue="trial-balance">
                                 <Tabs.List>
                                     <Tabs.Tab value="trial-balance" leftSection={<IconScale style={iconStyle} />}>
                                         Trial Balance

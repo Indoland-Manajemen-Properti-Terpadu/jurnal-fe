@@ -97,7 +97,7 @@ const DetailAccount = () => {
     try {
       await archiveAccount(idAccount);
       notifications.show({
-        color: themeColors.teal[6],
+        color: themeColors.primary[6],
         autoClose: 3000,
         title: 'Success',
         message: accountData.isArchived ? 'Account has been restored' : 'Account has been archived',
@@ -143,7 +143,7 @@ const DetailAccount = () => {
     return (
       <DetailAccountLayout>
         <Center h={300}>
-          <Loader color={themeColors.teal[6]} />
+          <Loader color={themeColors.primary[6]} />
         </Center>
       </DetailAccountLayout>
     );
@@ -158,7 +158,7 @@ const DetailAccount = () => {
               <Stack gap={0}>
                 <SimpleGrid cols={2} p="md">
                   <Stack gap={4}>
-                    <Text size="xs" fw={500} c={themeColors.teal[6]} ml={40}>
+                    <Text size="xs" fw={500} c={themeColors.primary[6]} ml={40}>
                       Kas & Bank
                     </Text>
                     <Group align="flex-start" wrap="nowrap">
@@ -169,7 +169,7 @@ const DetailAccount = () => {
                         <Group>
                           <Title order={4} fw={600}>
                             {accountData.name}{' '}
-                            <Text span c={themeColors.teal[6]} inherit fw={600}>
+                            <Text span c={themeColors.primary[6]} inherit fw={600}>
                               ({accountData.accountNumber})
                             </Text>
                           </Title>
@@ -257,7 +257,7 @@ const DetailAccount = () => {
                           variant="filled"
                           size="sm"
                           leftSection={<MoneyWavyIcon size={16} />}
-                          color={themeColors.teal[5]}
+                          color={themeColors.primary[5]}
                         >
                           Buat Transaksi
                         </Button>
@@ -281,17 +281,17 @@ const DetailAccount = () => {
                 </SimpleGrid>
                 <Tabs
                   defaultValue="transaction"
-                  color={themeColors.teal[5]}
+                  color={themeColors.primary[5]}
                   p="md"
                   styles={{
                     tab: {
                       fontWeight: 500,
                       '&[dataActive]': {
-                        backgroundColor: themeColors.teal[0],
-                        color: themeColors.teal[6],
+                        backgroundColor: themeColors.primary[0],
+                        color: themeColors.primary[6],
                       },
                       '&:hover': {
-                        backgroundColor: themeColors.teal[0],
+                        backgroundColor: themeColors.primary[0],
                       },
                     },
                   }}
@@ -308,7 +308,7 @@ const DetailAccount = () => {
                             h={20}
                             p={0}
                             variant="filled"
-                            color="teal.6"
+                            color="primary.6"
                             size="xs"
                             circle
                           >

@@ -83,7 +83,7 @@ const DetailAccountNonCashBank = () => {
     try {
       await archiveAccount(idAccount);
       notifications.show({
-        color: themeColors.teal[6],
+        color: themeColors.primary[6],
         autoClose: 3000,
         title: 'Success',
         message: accountData.isArchived ? 'Account has been restored' : 'Account has been archived',
@@ -125,7 +125,7 @@ const DetailAccountNonCashBank = () => {
     return (
       <DetailAccountLayout>
         <Center h={300}>
-          <Loader color={themeColors.teal[6]} />
+          <Loader color={themeColors.primary[6]} />
         </Center>
       </DetailAccountLayout>
     );
@@ -147,7 +147,7 @@ const DetailAccountNonCashBank = () => {
                       <Group>
                         <Title order={5}>
                           {accountData.name}{' '}
-                          <Text span c={themeColors.teal[6]} inherit>
+                          <Text span c={themeColors.primary[6]} inherit>
                             ({accountData.accountNumber})
                           </Text>
                         </Title>

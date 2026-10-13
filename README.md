@@ -197,6 +197,8 @@ http://localhost:5173
 
 ## Struktur Proyek
 
+Pohon berikut merangkum struktur yang sudah ada di repository. Struktur target untuk perubahan baru dan aturan migrasi bertahap dijelaskan di [konteks project agent](.codex/PROJECT_CONTEXT.md).
+
 ```text
 jurnal-fe/
 ├── public/                 # Asset publik, mock data, dan template CSV
@@ -252,61 +254,17 @@ https://api-jurnal.proapps.id/
 https://jurnal-api.proapps.id
 ```
 
-Catatan penting:
-
-- Gunakan satu sumber konfigurasi base URL bila memungkinkan.
-- Hindari hardcode endpoint baru di dalam komponen.
-- Simpan deklarasi endpoint di layer service agar mudah dirawat.
-- Pastikan token, kredensial, dan data sensitif tidak disimpan di repository.
+Aturan akses API, konfigurasi endpoint, dan penanganan kredensial dipusatkan di [konteks project agent](.codex/PROJECT_CONTEXT.md).
 
 ---
 
 ## Standar Kode
 
-Proyek menggunakan beberapa standar utama:
-
-- TypeScript strict mode.
-- Import alias berbasis `@/` dan alias domain lain dari `tsconfig.json`.
-- Komponen UI reusable di folder `src/components`.
-- Modul fitur dipisah dalam folder `src/module`.
-- Logic API dipisahkan dari komponen UI melalui layer `services` dan `hooks`.
-- Styling menggunakan CSS Module dan stylesheet global terkontrol.
-- Format kode dijaga dengan Prettier.
-- Kualitas kode dijaga dengan ESLint dan Stylelint.
-
-Contoh alias import:
-
-```ts
-import { Button } from '@/components';
-import { axiosInstance } from '@/lib/axios';
-import { routes } from '@/router/routes';
-```
-
----
+Seluruh aturan arsitektur, penamaan, state management, akses API, testing, dan UI dipusatkan di [konteks project agent](.codex/PROJECT_CONTEXT.md). Workflow tugas agent tersedia di [`.codex/workflows/`](.codex/README.md). README ini berisi dokumentasi produk, setup, dan perintah yang tersedia.
 
 ## Testing dan Quality Gate
 
-Sebelum membuka pull request atau melakukan merge, jalankan:
-
-```bash
-yarn test
-```
-
-Perintah ini menjalankan rangkaian validasi:
-
-1. TypeScript typecheck.
-2. Prettier check.
-3. ESLint dan Stylelint.
-4. Unit test dengan Vitest.
-5. Build produksi.
-
-Untuk validasi bertahap saat pengembangan:
-
-```bash
-yarn typecheck
-yarn lint
-yarn vitest
-```
+Aturan verifikasi dipusatkan di [konteks project agent](.codex/PROJECT_CONTEXT.md). Daftar script yang tersedia ada di bagian [Script Tersedia](#script-tersedia); konfigurasi CI yang aktif ada di [`.github/workflows/`](.github/workflows).
 
 ---
 
@@ -324,84 +282,25 @@ Preview hasil build:
 yarn preview
 ```
 
-Pastikan build berhasil sebelum deployment ke environment perusahaan.
+Gunakan [workflow kesiapan deployment](.codex/workflows/deployment-readiness.md) sebelum menyiapkan perubahan untuk deployment.
 
 ---
 
 ## Panduan Kontribusi
 
-Gunakan alur kerja berikut untuk kontribusi internal:
-
-1. Buat branch dari branch utama pengembangan.
-2. Gunakan nama branch yang jelas, misalnya `feature/nama-fitur` atau `fix/nama-bug`.
-3. Install dependency dengan `yarn install`.
-4. Jalankan aplikasi dengan `yarn dev`.
-5. Lakukan perubahan sesuai scope task.
-6. Jalankan `yarn test` sebelum membuat pull request.
-7. Buat pull request dengan deskripsi perubahan, bukti testing, dan catatan risiko bila ada.
-8. Tunggu review dan selesaikan komentar reviewer sebelum merge.
+Aturan scope, arsitektur, dan perubahan dipusatkan di [konteks project agent](.codex/PROJECT_CONTEXT.md).
 
 ---
 
 ## Catatan Pengembangan
 
-- Proyek saat ini menggunakan Mantine v8.
-- Prioritas stabilitas dan konsistensi UI lebih diutamakan daripada upgrade mayor framework.
+- Stack yang digunakan tercatat di bagian [Teknologi](#teknologi). Aturan penggunaan dan perubahan stack ada di [konteks project agent](.codex/PROJECT_CONTEXT.md).
 
 ---
 
 ## Design Guardrail untuk AI Agent
 
-Tujuan section ini: memastikan semua output AI tetap konsisten dengan design system proyek dan tidak keluar konteks.
-
-### Sumber kebenaran (source of truth)
-
-Wajib rujuk urutan berikut:
-
-1. Figma tokens resmi proyek:
-   - Color: https://www.figma.com/design/I3tHoLYN005e1bUjQWlkAL/Jurnal-Figma-Fix?node-id=2-493&m=dev
-   - Text Style: https://www.figma.com/design/I3tHoLYN005e1bUjQWlkAL/Jurnal-Figma-Fix?node-id=2-4400&m=dev
-   - Spacing: https://www.figma.com/design/I3tHoLYN005e1bUjQWlkAL/Jurnal-Figma-Fix?node-id=2-5511&m=dev
-   - Radius: https://www.figma.com/design/I3tHoLYN005e1bUjQWlkAL/Jurnal-Figma-Fix?node-id=2-6791&m=dev
-2. Theme lokal repo:
-   - [src/theme.ts](src/theme.ts)
-   - [src/theme/index.ts](src/theme/index.ts)
-   - [src/theme/constants.ts](src/theme/constants.ts)
-   - [src/theme/globalStyles.css](src/theme/globalStyles.css)
-3. Komponen reusable existing di `src/components`.
-
-### Aturan wajib implementasi AI
-
-- Wajib gunakan Mantine v8. Dilarang API/pola Mantine v9.
-- Wajib pakai token dari theme. Hindari hardcode hex, spacing px, radius px kalau token sudah ada.
-- Wajib pakai `themeColors`, `spacing`, `radius`, `fontSizes`, `headings` dari konfigurasi theme.
-- Wajib konsisten typography `Figtree` sesuai theme.
-- Wajib konsisten icon style untuk area app shell: Phosphor `weight="duotone"`.
-- Wajib gunakan CSS Modules atau classNames API Mantine sesuai pola proyek.
-- Wajib sediakan state `loading`, `empty`, `error` untuk komponen berbasis data.
-- Wajib reuse komponen existing sebelum membuat komponen baru.
-
-### Checklist review sebelum merge
-
-- [ ] Tidak ada literal style yang melanggar token design system.
-- [ ] Tidak ada penggunaan API Mantine v9.
-- [ ] Header/sidebar mengikuti pola AppShell terbaru (desktop collapse = icon rail).
-- [ ] Typecheck, lint, test minimum untuk area yang berubah sudah dijalankan.
-- [ ] Visual hasil implementasi sesuai referensi Figma node terkait.
-
-### Fallback saat akses Figma MCP gagal
-
-Jika AI tidak bisa menarik context Figma secara otomatis (mis. unauthorized), AI tetap harus:
-
-1. Menggunakan URL Figma di atas sebagai referensi manual.
-2. Mengutamakan token dari file theme lokal sebagai sumber implementasi.
-3. Menolak membuat style baru yang bertentangan dengan token eksisting kecuali diminta eksplisit.
-
----
-
-## Status Proyek
-
-Proyek ini berada pada branch pengembangan `mantine-v8` dan menggunakan Mantine versi 8 sebagai standar UI terbaru.
+Aturan desain dan implementasi UI untuk agent dipusatkan di [konteks project agent](.codex/PROJECT_CONTEXT.md), termasuk sumber referensi Figma dan token theme lokal. `AGENTS.md`, `GEMINI.md`, dan `STYLING_GUIDE.md` hanya menunjuk ke aturan tersebut agar tidak ada standar yang saling bertentangan.
 
 ---
 

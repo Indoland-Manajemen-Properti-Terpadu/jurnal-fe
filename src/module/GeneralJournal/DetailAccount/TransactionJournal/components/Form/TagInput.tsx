@@ -149,7 +149,7 @@ export function TagInput({ value, onChange }: TagInputProps) {
             />
             <ActionIcon
               variant="light"
-              color="teal"
+              color="primary"
               onMouseDown={(event) => event.stopPropagation()}
               onClick={(event) => {
                 event.stopPropagation();

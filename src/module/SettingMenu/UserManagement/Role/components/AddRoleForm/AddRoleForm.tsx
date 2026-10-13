@@ -197,7 +197,7 @@ const AddRoleForm = () => {
                     <Group justify="space-between" style={{ flex: 1 }}>
                         <Switch
                             defaultChecked
-                            color={themeColors.teal[6]}
+                            color={themeColors.primary[6]}
                             label="Active"
                             size="lg"
                         />
@@ -254,7 +254,7 @@ const AddRoleForm = () => {
                             <Table.Tbody>
                                 {menus.map((menu) => {
                                     return <React.Fragment key={menu.name}>
-                                        <Table.Tr style={{ backgroundColor: themeColors.teal[0], cursor: 'pointer' }}>
+                                        <Table.Tr style={{ backgroundColor: themeColors.primary[0], cursor: 'pointer' }}>
                                             <Table.Td onClick={() => {
                                                 if (menu.menus && menu.menus.length > 0) {
                                                     handleRowClick(menu.name);

@@ -12,7 +12,7 @@ export const useAddAccount = () => {
     mutationFn: async (payload: AddAccountPayload) => post(API_ACCOUNT.ADD_ACCOUNT, payload),
     onSuccess: () => {
       notifications.show({
-        color: 'cyan',
+        color: 'green',
         autoClose: 3000,
         title: 'Account Created Successfully!',
         message: `You can view the account in the journal list.`,

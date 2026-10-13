@@ -37,7 +37,7 @@ const JournalTransactionTable = () => {
     return (
         <Table style={rowStyle} >
             <Table.Thead>
-                <Table.Tr style={{ backgroundColor: themeColors.teal[0] }}>
+                <Table.Tr style={{ backgroundColor: themeColors.primary[0] }}>
                     <Table.Th colSpan={8} ta='left' c={themeColors.black[9]} >
                         Transaction Account
                     </Table.Th>

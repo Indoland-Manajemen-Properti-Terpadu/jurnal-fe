@@ -173,7 +173,7 @@ const AddAccountLedgerPage = () => {
 
   const SectionHeader = ({ icon: Icon, title }: { icon: any; title: string }) => (
     <Group gap="sm" px="md" py="xs" bg="#F4FAF8" style={{ borderTop: '1px solid #E9ECEF', borderBottom: '1px solid #E9ECEF' }}>
-      <Icon size={20} color={themeColors.teal[6]} />
+      <Icon size={20} color={themeColors.primary[6]} />
       <Text fw={600} fz={14} c={themeColors.slate[8]}>{title}</Text>
     </Group>
   );
@@ -244,7 +244,7 @@ const AddAccountLedgerPage = () => {
                 <Group gap={4}>
                   <Checkbox
                     label={<Text span fz={12} c={themeColors.slate[6]}>Akun Contra</Text>}
-                    color={themeColors.teal[6]}
+                    color={themeColors.primary[6]}
                     size="xs"
                     {...form.getInputProps('isContra', { type: 'checkbox' })}
                   />
@@ -256,7 +256,7 @@ const AddAccountLedgerPage = () => {
                 {/* <Group gap={4}>
                   <Checkbox
                     label={<Text span fz={12} c={themeColors.slate[6]}>Kas & Bank</Text>}
-                    color={themeColors.teal[6]}
+                    color={themeColors.primary[6]}
                     size="xs"
                     {...form.getInputProps('isBankAndCash', { type: 'checkbox' })}
                   />
@@ -302,9 +302,9 @@ const AddAccountLedgerPage = () => {
                   name="accountType"
                 >
                   <Group gap="lg">
-                    <Radio color={themeColors.teal[6]} value="SingleAccount" label={<Text span fz={13} c={themeColors.slate[8]}>Akun Mandiri</Text>} />
-                    <Radio color={themeColors.teal[6]} value="SubAccount" label={<Text span fz={13} c={themeColors.slate[8]}>Sub Akun</Text>} />
-                    <Radio color={themeColors.teal[6]} value="HeaderAccount" label={<Text span fz={13} c={themeColors.slate[8]}>Akun Induk</Text>} />
+                    <Radio color={themeColors.primary[6]} value="SingleAccount" label={<Text span fz={13} c={themeColors.slate[8]}>Akun Mandiri</Text>} />
+                    <Radio color={themeColors.primary[6]} value="SubAccount" label={<Text span fz={13} c={themeColors.slate[8]}>Sub Akun</Text>} />
+                    <Radio color={themeColors.primary[6]} value="HeaderAccount" label={<Text span fz={13} c={themeColors.slate[8]}>Akun Induk</Text>} />
                   </Group>
                 </Radio.Group>
               </Group>
@@ -356,9 +356,9 @@ const AddAccountLedgerPage = () => {
                   disabled={selectedAccountType !== 'SingleAccount'}
                 >
                   <Group gap="lg">
-                    <Radio color={themeColors.teal[6]} value="AllUsers" label={<Text span fz={13} c={themeColors.slate[8]}>Semua Pengguna</Text>} />
-                    <Radio color={themeColors.teal[6]} value="SpecialUsers" label={<Text span fz={13} c={themeColors.slate[8]}>Pengguna Tertentu</Text>} />
-                    <Radio color={themeColors.teal[6]} value="CertainRoles" label={<Text span fz={13} c={themeColors.slate[8]}>Role Tertentu</Text>} />
+                    <Radio color={themeColors.primary[6]} value="AllUsers" label={<Text span fz={13} c={themeColors.slate[8]}>Semua Pengguna</Text>} />
+                    <Radio color={themeColors.primary[6]} value="SpecialUsers" label={<Text span fz={13} c={themeColors.slate[8]}>Pengguna Tertentu</Text>} />
+                    <Radio color={themeColors.primary[6]} value="CertainRoles" label={<Text span fz={13} c={themeColors.slate[8]}>Role Tertentu</Text>} />
                   </Group>
                 </Radio.Group>
               </Group>
@@ -412,7 +412,7 @@ const AddAccountLedgerPage = () => {
               </Button>
               <Button
                 variant="filled"
-                color={themeColors.teal[5]}
+                color={themeColors.primary[5]}
                 onClick={handleAddAccount}
                 disabled={!isFormValid || (selectedAccountType === 'SubAccount' && !subAccounts)}
               >

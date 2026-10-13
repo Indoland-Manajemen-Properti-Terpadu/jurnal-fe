@@ -20,7 +20,7 @@ const BaseModulePage = ({ title, description, routePath }: BaseModulePageProps) 
                     <Stack gap="sm">
                         <Title order={4}>{title}</Title>
                         <Text c="dimmed">{description}</Text>
-                        <Alert icon={<IconInfoCircle size={16} />} color="teal" variant="light" title="Informasi Dasar Modul">
+                        <Alert icon={<IconInfoCircle size={16} />} color="primary" variant="light" title="Informasi Dasar Modul">
                             Rute aktif: {routePath}
                         </Alert>
                     </Stack>

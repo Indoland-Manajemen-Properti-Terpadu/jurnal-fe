@@ -215,18 +215,31 @@ export const themeColors = {
     900: '#134e4a',
     950: '#042f2e',
   }),
-  cyan: defineTailwindColor({
-    50: '#ecfeff',
-    100: '#cffafe',
-    200: '#a5f3fc',
-    300: '#67e8f9',
-    400: '#22d3ee',
-    500: '#06b6d4',
-    600: '#0891b2',
-    700: '#0e7490',
-    800: '#155e75',
-    900: '#164e63',
-    950: '#083344',
+  primary: defineTailwindColor({
+    50: '#f5f7fa',
+    100: '#ebeef4',
+    200: '#d7deea',
+    300: '#b9c5d9',
+    400: '#8ea2c3',
+    500: '#506ea1',
+    600: '#053079',
+    700: '#042a6a',
+    800: '#04245c',
+    900: '#031d49',
+    950: '#021636',
+  }),
+  secondary: defineTailwindColor({
+    50: '#f5fcff',
+    100: '#ebf9ff',
+    200: '#d8f3ff',
+    300: '#bae9ff',
+    400: '#90dcff',
+    500: '#53c9ff',
+    600: '#09B2FF',
+    700: '#089de0',
+    800: '#0787c2',
+    900: '#056b99',
+    950: '#045073',
   }),
   sky: defineTailwindColor({
     50: '#f0f9ff',
@@ -361,16 +374,16 @@ export const themeColors = {
 } as const;
 
 export const gradientColors = {
-  primaryGradient: 'linear-gradient(200deg, #00b194, #1c8fd4)',
-  gradient: { from: '#00b194', to: '#1c8fd4', deg: 90 },
-  indigoCyan: { from: '#4871eb', to: '#009dc6', deg: 90 },
+  primaryGradient: 'linear-gradient(200deg, var(--jurnal-color-primary), var(--mantine-color-secondary-9))',
+  gradient: { from: 'primary', to: 'secondary.9', deg: 90 },
+  primarySecondary: { from: 'primary', to: 'secondary.9', deg: 90 },
   limeGreen: { from: '#00bb7d', to: '#68c937', deg: 90 },
   peach: { from: '#f27794', to: '#f08779', deg: 90 },
-  mainGR: { from: 'cyan', to: 'blue', deg: 90 },
+  mainGR: { from: 'primary', to: 'secondary.9', deg: 90 },
 };
 
 export const buttonGradient = {
-  gradient: { from: 'blue', to: 'cyan', deg: 90 },
+  gradient: { from: 'primary', to: 'secondary.9', deg: 90 },
 };
 
 export const primaryColor = {

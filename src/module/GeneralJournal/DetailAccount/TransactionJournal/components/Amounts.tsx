@@ -9,7 +9,7 @@ const TotalAmount = () => {
 
     return (
         <Box
-            bg={themeColors.teal[0]}
+            bg={themeColors.primary[0]}
             py={8} px="xs"
             style={{
                 borderRadius: 8,
@@ -23,12 +23,12 @@ const TotalAmount = () => {
                 <Grid.Col span={7} />
                 <Grid.Col span={4}>
                     <Text style={{ ...themeText.label.label2, textAlign: 'right' }} c={themeColors.black[9]} >
-                        Total Debit <Text component="span" c={themeColors.teal[6]} style={themeText.label.label2} ml='md'>Rp {totalDebit.toLocaleString('id-ID', { minimumFractionDigits: 2 })}</Text>
+                        Total Debit <Text component="span" c={themeColors.primary[6]} style={themeText.label.label2} ml='md'>Rp {totalDebit.toLocaleString('id-ID', { minimumFractionDigits: 2 })}</Text>
                     </Text>
                 </Grid.Col>
                 <Grid.Col span={4}>
                     <Text style={{ ...themeText.label.label2, textAlign: 'right' }} c={themeColors.black[9]}>
-                        Total Kredit <Text component="span" c={themeColors.teal[6]} style={themeText.label.label2} ml='md'>Rp {totalCredit.toLocaleString('id-ID', { minimumFractionDigits: 2 })}</Text>
+                        Total Kredit <Text component="span" c={themeColors.primary[6]} style={themeText.label.label2} ml='md'>Rp {totalCredit.toLocaleString('id-ID', { minimumFractionDigits: 2 })}</Text>
                     </Text>
                 </Grid.Col>
                 <Grid.Col span={1} />

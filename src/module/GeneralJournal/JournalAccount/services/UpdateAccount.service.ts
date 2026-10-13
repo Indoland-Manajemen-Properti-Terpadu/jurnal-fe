@@ -13,7 +13,7 @@ export const useUpdateAccount = (accountId: string) => {
       patch(`${API_ACCOUNT.ADD_ACCOUNT}/${accountId}`, payload),
     onSuccess: () => {
       notifications.show({
-        color: 'cyan',
+        color: 'green',
         autoClose: 3000,
         title: 'Account Updated Successfully!',
         message: `Account details have been updated.`,

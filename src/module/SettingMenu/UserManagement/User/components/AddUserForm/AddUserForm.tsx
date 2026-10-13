@@ -90,7 +90,7 @@ export default function AddUserForm() {
           <Group justify="space-between" style={{ flex: 1 }}>
             <Switch
               defaultChecked
-              color={themeColors.teal[6]}
+              color={themeColors.primary[6]}
               label="Active"
               size="lg"
             />
@@ -171,7 +171,7 @@ export default function AddUserForm() {
                 variant="outline"
                 value={activeTabUser}
                 onChange={(value) => setActiveTabUser(value!)}
-                color="cyan"
+                color="primary"
               >
                 <Tabs.List>
                   <Tabs.Tab value="ListUser" leftSection={<IconUsers size={14} />}>

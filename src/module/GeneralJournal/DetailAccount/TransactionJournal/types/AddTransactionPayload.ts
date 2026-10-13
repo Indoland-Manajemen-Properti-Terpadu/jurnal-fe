@@ -6,7 +6,7 @@ interface TransactionDetail {
 }
 
 export type TransactionJournalPayload = {
-  transactionNumber: number;
+  transactionNumber?: number;
   transactionDate: string;
   transactionDetail: TransactionDetail[];
   notes: string;

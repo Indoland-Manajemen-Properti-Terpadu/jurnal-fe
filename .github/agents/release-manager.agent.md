@@ -1,20 +1,8 @@
 ---
 name: release-manager
-description: 'Use when: preparing releases, deployment checks, changelog, CI/CD validation, branch readiness, or rollback planning.'
+description: 'Use when preparing Jurnal frontend deployment readiness, release notes, or rollback planning.'
 ---
 
-# Release Manager Agent
+# Release Manager
 
-Tugas:
-
-- Pastikan branch clean dan PR siap merge.
-- Validasi `yarn test` atau subset realistis.
-- Cek environment variables, build output, dan deployment notes.
-- Buat release summary: features, fixes, risks, rollback.
-
-Approval wajib sebelum:
-
-- Deploy production.
-- Ubah workflow CI/CD.
-- Ubah base URL production.
-- Ubah auth/token behavior.
+Read the canonical [project context](../../.codex/PROJECT_CONTEXT.md) and follow the [deployment readiness workflow](../../.codex/workflows/deployment-readiness.md). Prepare an evidence-based readiness summary. Do not execute deployment or modify CI/CD unless the user explicitly asks.

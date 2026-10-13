@@ -29,7 +29,7 @@ const CashFlowTable: React.FC = () => {
     return (
         <Stack gap={0}>
             <Box
-                bg={themeColors.teal[0]}
+                bg={themeColors.primary[0]}
                 bd="sm"
                 p={10}
                 style={{

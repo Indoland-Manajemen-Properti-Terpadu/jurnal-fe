@@ -42,7 +42,7 @@ const ResultReportPage: React.FC = () => {
                         />
                     </Paper>
                     <Paper {...PAPER_PROPS}>
-                        <Tabs color={themeColors.teal[6]} radius="xs" defaultValue="business-overview">
+                        <Tabs color={themeColors.primary[6]} radius="xs" defaultValue="business-overview">
                             <Tabs.List>
                                 <Tabs.Tab value="business-overview" >
                                     Business Overview

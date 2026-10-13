@@ -21,7 +21,7 @@ export const useOAuthExchange = () => {
       setTokens(tokens.access.token, tokens.refresh.token);
       setUserName(user.name);
       notifications.show({
-        color: 'cyan',
+        color: 'green',
         autoClose: 3000,
         title: 'Login Successful!',
         message: 'Welcome to Journal Proapps. Let’s get started!',

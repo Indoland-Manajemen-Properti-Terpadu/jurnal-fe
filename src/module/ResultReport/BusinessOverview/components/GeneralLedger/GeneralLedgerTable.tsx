@@ -53,7 +53,7 @@ const GeneralLedgerTable: React.FC<GeneralLedgerTableProps> = ({ fromDate, toDat
         <Table>
             <Table.Thead>
                 <Table.Tr style={{
-                    backgroundColor: themeColors.teal[0],
+                    backgroundColor: themeColors.primary[0],
                     borderColor: themeColors.gray[1],
                     borderWidth: '1px',
                     borderStyle: 'solid',

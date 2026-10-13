@@ -131,7 +131,7 @@ const ImportBankStatementModal: React.FC<ImportBankStatementModalProps> = ({ idA
         labels={{
           confirm: (
             <Button
-              color={themeColors.teal[5]}
+              color={themeColors.primary[5]}
               onClick={handleCloseModal}
               disabled={uploading || (active === 2 && files.length === 0)}
               loading={isPending}
@@ -156,7 +156,7 @@ const ImportBankStatementModal: React.FC<ImportBankStatementModalProps> = ({ idA
           <Stepper
             active={active}
             onStepClick={!uploading ? setActive : undefined}
-            color={themeColors.teal[5]}
+            color={themeColors.primary[5]}
             radius="md"
             styles={{
               stepIcon: {
@@ -329,7 +329,7 @@ const ImportBankStatementModal: React.FC<ImportBankStatementModalProps> = ({ idA
                       cursor: 'pointer',
                       transition: 'background-color 0.2s ease',
                       '&:hover': {
-                        backgroundColor: themeColors.teal[0],
+                        backgroundColor: themeColors.primary[0],
                       },
                     },
                   })}
@@ -340,7 +340,7 @@ const ImportBankStatementModal: React.FC<ImportBankStatementModalProps> = ({ idA
                     mih={180}
                     style={{ pointerEvents: 'none', flexDirection: 'column' }}
                   >
-                    <CloudArrowUp size={56} color={themeColors.teal[5]} weight="bold" />
+                    <CloudArrowUp size={56} color={themeColors.primary[5]} weight="bold" />
                     <Text size="md" fw={600} c={themeColors.black[9]} mt="md" ta="center">
                       Seret file ke sini atau klik untuk memilih file
                     </Text>
@@ -410,7 +410,7 @@ const ImportBankStatementModal: React.FC<ImportBankStatementModalProps> = ({ idA
                           </Group>
                           <Progress
                             value={progress}
-                            color={themeColors.teal[5]}
+                            color={themeColors.primary[5]}
                             size="md"
                             radius="xl"
                             animated={uploading}

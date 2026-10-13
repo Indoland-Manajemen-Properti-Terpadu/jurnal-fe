@@ -22,7 +22,7 @@ const AcordionRoleAccess = ({ roles }: AcordionRoleAccessProps) => {
                                 {item.name}
                             </div>
                             <Switch
-                                color="cyan"
+                                color="primary"
                                 size="sm"
                                 className={classes.switch}
                             />

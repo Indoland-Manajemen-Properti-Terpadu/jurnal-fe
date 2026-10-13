@@ -224,13 +224,13 @@ const ReconciliationTable: React.FC = () => {
             </Group>
           </Box>
           <Box
-            bg={themeColors.teal[1]}
+            bg={themeColors.primary[1]}
             p="md"
             style={{ borderLeft: `1px solid ${themeColors.gray[1]}` }}
           >
             <Group justify="space-between" align="flex-start">
               <Stack gap={0}>
-                <Text size="xs" fw={500} c={themeColors.teal[6]}>
+                <Text size="xs" fw={500} c={themeColors.primary[6]}>
                   Pembukuan
                 </Text>
                 <Text size="sm" fw={600} c={themeColors.black[9]}>
@@ -277,7 +277,7 @@ const ReconciliationTable: React.FC = () => {
                       disabled={!hasJournals}
                       checked={selectedIds.includes(bankStatement.id)}
                       onChange={() => toggleSelection(bankStatement.id)}
-                      color={themeColors.teal[6]}
+                      color={themeColors.primary[6]}
                       styles={{
                         input: {
                           cursor: !hasJournals ? 'not-allowed' : 'pointer',
@@ -372,7 +372,7 @@ const ReconciliationTable: React.FC = () => {
                 {/* Right Side: Journal Match (Pembukuan) */}
                 <Box
                   p="md"
-                  bg={themeColors.teal[0]}
+                  bg={themeColors.primary[0]}
                   style={{ borderLeft: `1px solid ${themeColors.gray[1]}` }}
                 >
                   {hasJournals ? (
@@ -384,7 +384,7 @@ const ReconciliationTable: React.FC = () => {
                           p="sm"
                           radius="md"
                           bg="white"
-                          style={{ borderLeft: `4px solid ${themeColors.teal[6]}` }}
+                          style={{ borderLeft: `4px solid ${themeColors.primary[6]}` }}
                         >
                           <Stack gap="xs">
                             <Group justify="space-between" align="flex-start">
@@ -457,9 +457,9 @@ const ReconciliationTable: React.FC = () => {
                     <Box
                       h="100%"
                       style={{
-                        border: `1px dashed ${themeColors.teal[4]}`,
+                        border: `1px dashed ${themeColors.primary[4]}`,
                         borderRadius: '12px',
-                        backgroundColor: themeColors.teal[0],
+                        backgroundColor: themeColors.primary[0],
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
@@ -470,12 +470,12 @@ const ReconciliationTable: React.FC = () => {
                       onClick={() => openReconModal(bankStatement)}
                     >
                       <Group gap={6}>
-                        <MagnifyingGlass size={20} weight="bold" color={themeColors.teal[5]} />
-                        <Text size="sm" fw={600} c={themeColors.teal[6]}>
+                        <MagnifyingGlass size={20} weight="bold" color={themeColors.primary[5]} />
+                        <Text size="sm" fw={600} c={themeColors.primary[6]}>
                           Cari & Cocokkan
                         </Text>
                       </Group>
-                      <Text size="xs" c={themeColors.teal[6]} fw={500}>
+                      <Text size="xs" c={themeColors.primary[6]} fw={500}>
                         Pilih jurnal untuk dipasangkan
                       </Text>
                     </Box>
@@ -506,7 +506,7 @@ const ReconciliationTable: React.FC = () => {
           disabled={selectedIds.length === 0}
           leftSection={<PuzzlePieceIcon size={16} weight="duotone" />}
           variant="filled"
-          bg={selectedIds.length > 0 ? themeColors.teal[8] : themeColors.gray[2]}
+          bg={selectedIds.length > 0 ? themeColors.primary[8] : themeColors.gray[2]}
           onClick={handleMatch}
           styles={{
             root: {

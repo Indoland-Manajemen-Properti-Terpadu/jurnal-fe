@@ -57,7 +57,7 @@ function TableJournalTransaction({ selectedRecords, setSelectedRecords, noRecord
                         navigate(routes.generalJournal.detailTransactionJournal.replace(':idTransaction', row.id))
                     }
                 >
-                    <Text c={themeColors.teal[6]} fz={14}>
+                    <Text c={themeColors.primary[6]} fz={14}>
                         {row.transactionNumber === 0
                             ? "Saldo Awal #1"
                             : `Jurnal Transaksi #${row.transactionNumber}`}

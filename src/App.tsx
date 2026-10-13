@@ -13,7 +13,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Notifications } from '@mantine/notifications';
 import { Router } from './router/index';
 import { myTheme } from './theme/index';
-
+import { ApiLoadingBar } from '@/components/ApiLoadingBar';
 
 const queryClient = new QueryClient();
 
@@ -22,6 +22,7 @@ export default function App() {
     <MantineProvider forceColorScheme="light" theme={myTheme}>
       <QueryClientProvider client={queryClient}>
         <ModalsProvider>
+          <ApiLoadingBar />
           <Notifications />
           <Router />
         </ModalsProvider>

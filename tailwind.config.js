@@ -12,6 +12,7 @@ export default {
         jurnal: {
           primary: 'var(--jurnal-color-primary)',
           'primary-subtle': 'var(--jurnal-color-primary-subtle)',
+          secondary: 'var(--jurnal-color-secondary)',
           success: 'var(--jurnal-color-success)',
           warning: 'var(--jurnal-color-warning)',
           danger: 'var(--jurnal-color-danger)',

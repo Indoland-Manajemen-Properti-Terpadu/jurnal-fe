@@ -86,7 +86,7 @@ export const getSubmitImportBankStatement = (idAccount: string) => {
     },
     onError: () => {
       notifications.show({
-        color: 'cyan',
+        color: 'red',
         title: 'Failed asdasd',
         message: 'Bank statement failed to import adasd.',
       });

@@ -37,7 +37,7 @@ export default function Slider() {
                     <Carousel.Slide key={item.id}>
                         <Image src={item.src} p={0} m={0} />
                         <Overlay
-                            gradient="var(--jurnal-gradient-teal-overlay)"
+                            gradient="var(--jurnal-gradient-brand-overlay)"
                             opacity={0.85}
                         />
                         <Center>

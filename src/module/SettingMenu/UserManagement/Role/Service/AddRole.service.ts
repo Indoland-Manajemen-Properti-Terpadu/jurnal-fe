@@ -12,7 +12,7 @@ export const useAddRole = () => {
     mutationFn: async (data: AddRolePayload) => post(API_ACCOUNT.POST_ADD_ROLE, data),
     onSuccess: () => {
       notifications.show({
-        color: 'cyan',
+        color: 'green',
         autoClose: 3000,
         title: 'Role Created Successfully!',
         message: `You can view the role in additional role list.`,

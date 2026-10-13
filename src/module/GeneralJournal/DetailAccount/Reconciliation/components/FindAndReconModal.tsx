@@ -107,7 +107,7 @@ export const FindAndReconModal: React.FC<FindAndReconModalProps> = ({
       render: (element: any) => (
         <Text
           size="sm"
-          c={themeColors.teal[6]}
+          c={themeColors.primary[6]}
           fw={500}
           style={{ textDecoration: 'underline', cursor: 'pointer' }}
         >
@@ -186,7 +186,7 @@ export const FindAndReconModal: React.FC<FindAndReconModalProps> = ({
               variant="filled"
               bg={
                 selectedNominal === totalNominal && selectedRecords.length > 0
-                  ? themeColors.teal[5]
+                  ? themeColors.primary[5]
                   : themeColors.gray[2]
               }
               onClick={handleConfirm}
@@ -202,7 +202,7 @@ export const FindAndReconModal: React.FC<FindAndReconModalProps> = ({
               <Group gap={6}>
                 Rekonsiliasi
                 {selectedRecords.length > 0 && (
-                  <Badge color={themeColors.teal[8]} variant="filled" size="sm">
+                  <Badge color={themeColors.primary[8]} variant="filled" size="sm">
                     {selectedRecords.length}
                   </Badge>
                 )}
@@ -305,8 +305,8 @@ export const FindAndReconModal: React.FC<FindAndReconModalProps> = ({
             onSelectedRecordsChange={setSelectedRecords}
             minHeight={200}
             fetching={isLoading}
-            loaderColor="teal"
-            paginationColor="teal"
+            loaderColor="primary"
+            paginationColor="primary"
             styles={{
               header: { color: themeColors.black[9] },
             }}
@@ -338,7 +338,7 @@ export const FindAndReconModal: React.FC<FindAndReconModalProps> = ({
                 <Text
                   size="sm"
                   fw={700}
-                  c={shortageNominal > 0 ? themeColors.red[7] : themeColors.teal[6]}
+                  c={shortageNominal > 0 ? themeColors.red[7] : themeColors.green[6]}
                 >
                   {formatCurrency(Math.max(0, shortageNominal))}
                 </Text>
@@ -350,7 +350,7 @@ export const FindAndReconModal: React.FC<FindAndReconModalProps> = ({
                 <Text
                   size="sm"
                   fw={700}
-                  c={excessNominal > 0 ? themeColors.red[7] : themeColors.teal[6]}
+                  c={excessNominal > 0 ? themeColors.red[7] : themeColors.green[6]}
                 >
                   {formatCurrency(Math.max(0, excessNominal))}
                 </Text>
@@ -371,7 +371,7 @@ export const FindAndReconModal: React.FC<FindAndReconModalProps> = ({
         cancelLabel="Batal"
         imageSrc={uploadTemplateImage}
         confirmButtonProps={{
-          bg: themeColors.teal[5],
+          bg: themeColors.primary[5],
           leftSection: <PuzzlePieceIcon size={16} weight="duotone" />,
         }}
       />

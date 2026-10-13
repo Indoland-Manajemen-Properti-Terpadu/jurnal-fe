@@ -13,24 +13,24 @@
 }
 
 .tabLabel {
-  color: var(--mantine-color-cyan-cyan-6);
+  color: var(--jurnal-color-primary);
 }
 
 .pagination {
-  color: var(--mantine-color-cyan-6);
+  color: var(--jurnal-color-primary);
   display: flex;
   justify-content: space-between;
   position: relative;
   button {
     background: transparent;
-    color: var(--mantine-color-cyan-6);
-    border-color: var(--mantine-color-cyan-6);
+    color: var(--jurnal-color-primary);
+    border-color: var(--jurnal-color-primary);
 
     &[data-active='true'] {
       color: var(--mantine-color-white);
       border: transparent;
       background-color: 'grape';
-      background: var(--TealBLue, linear-gradient(90deg, #00b194 0%, #1c8fd4 100%));
+      background: var(--jurnal-gradient-brand);
     }
   }
 }

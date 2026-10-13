@@ -91,7 +91,7 @@ export default function TableTransactionByContact() {
                 //     navigate(routes.Contact.DetailContact.replace(':idAccount', element.id))
                 // }
                 >
-                    <Text c={themeColors.teal[6]} size="sm">
+                    <Text c={themeColors.primary[6]} size="sm">
                         Credit Memo #{accountBankAndCash.length}
                     </Text>
                 </Anchor>

@@ -18,7 +18,7 @@ import {
 import { useForm } from '@mantine/form';
 import { useLogin } from '../service/Login.service';
 import classes from './page.module.css';
-import LogoProapps from '@/assets/img/proapps-md-teal.svg';
+import LogoProapps from '@/assets/img/proapps-logo.svg';
 import { Carousel } from '@mantine/carousel';
 import { useRef } from 'react';
 import Slider1 from '@/assets/img/Slider/tower.png';
@@ -71,7 +71,7 @@ function LoginPage() {
                 height="100%"
               />
               <Overlay
-                gradient="var(--jurnal-gradient-teal-overlay)"
+                gradient="var(--jurnal-gradient-brand-overlay)"
                 opacity={0.85}
                 zIndex={1}
               />

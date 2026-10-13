@@ -159,7 +159,7 @@ const BudgetManagementPage: React.FC = () => {
                                             <Checkbox
                                                 defaultChecked
                                                 label="Show Archive"
-                                                color="cyan"
+                                                color="primary"
                                                 variant="outline"
                                                 size="xs"
                                             />

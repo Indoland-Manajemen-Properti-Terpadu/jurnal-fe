@@ -31,7 +31,7 @@ const AddContactPage = () => {
                         </Button>
                         <Button
                             variant="filled"
-                            bg={themeColors.teal[6]}
+                            bg={themeColors.primary[6]}
                         >
                             Add Contact
                         </Button>

@@ -8,7 +8,7 @@ import { ReportJournalEntryModel } from "../../types/JournalEntry.types";
 
 
 const headTableStyle = {
-    backgroundColor: themeColors.teal[0],
+    backgroundColor: themeColors.primary[0],
     borderColor: themeColors.gray[1],
     borderWidth: '1px',
     borderStyle: 'solid',

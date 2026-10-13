@@ -19,7 +19,8 @@ import {
  * No more sx prop or styles API
  */
 export const myTheme = createTheme({
-  primaryColor: 'cyan',
+  primaryColor: 'primary',
+  primaryShade: 6,
   fontSmoothing: true,
   defaultRadius: 'md',
   fontFamily: themeText.fontFamily,

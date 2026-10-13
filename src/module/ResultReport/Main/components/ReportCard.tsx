@@ -27,7 +27,7 @@ const ReportCard: React.FC<ReportCardProps> = ({ title, description, route }) =>
                 <Group justify='flex-end'>
                     <Button
                         variant="outline"
-                        color={themeColors.teal[6]}
+                        color={themeColors.primary[6]}
                         p="xs"
                         radius="md"
                         rightSection={<IconArrowUpRight size={16} />}

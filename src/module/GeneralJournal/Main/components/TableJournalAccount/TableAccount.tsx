@@ -109,7 +109,7 @@ const TableAccounts = ({
             }}
             className={classes.accountNameColumn}
           >
-            <Text c={themeColors.teal[6]} className={classes.accountNameColumn}>
+            <Text c={themeColors.primary[6]} className={classes.accountNameColumn}>
               {item.name}
             </Text>
           </Anchor>
@@ -220,7 +220,7 @@ const TableAccounts = ({
                 }}
                 className={classes.accountNameColumn}
               >
-                <Text c={themeColors.teal[6]} className={classes.accountNameColumn}>
+                <Text c={themeColors.primary[6]} className={classes.accountNameColumn}>
                   {item.name}
                 </Text>
               </Anchor>

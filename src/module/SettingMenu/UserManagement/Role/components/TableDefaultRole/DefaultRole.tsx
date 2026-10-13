@@ -6,7 +6,7 @@ import { IconInfoCircle } from "@tabler/icons-react";
 import { GetDefaultRole } from "../../Service/Role.service";
 
 const headTableStyle = {
-  bg: themeColors.teal[0],
+  bg: themeColors.primary[0],
   borderColor: themeColors.gray[1],
   borderWidth: '1px',
   borderStyle: 'solid',
@@ -58,7 +58,7 @@ const DefaultRoleTable: React.FC = () => {
           ))}
         </Table.Tbody>
       </Table>
-      {/* <Pagination total={2} withEdges size='sm' color={themeColors.teal[6]} /> */}
+      {/* <Pagination total={2} withEdges size='sm' color={themeColors.primary[6]} /> */}
     </Stack >
   );
 };

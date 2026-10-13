@@ -200,7 +200,7 @@ const ImportBankStatementDraftTable = ({
                         <Button variant="light" color="gray" onClick={() => setEditModalOpened(false)}>Batal</Button>
                         <Button
                             variant="filled"
-                            color={themeColors.teal[5]}
+                            color={themeColors.primary[5]}
                             onClick={handleSaveChange}
                             leftSection={<IconPencil size={16} />}
                             disabled={!isChanged}

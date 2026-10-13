@@ -51,7 +51,7 @@ const DynamicBreadcrumbs: React.FC<DynamicBreadcrumbsProps> = ({
       const displayName = mergedSegmentMap[name] || name.charAt(0).toUpperCase() + name.slice(1);
 
       return isLast ? (
-        <MantineText fz={12} key={displayName} c={themeColors.teal[5]}>
+        <MantineText fz={12} key={displayName} c={themeColors.primary[5]}>
           {displayName}
         </MantineText>
       ) : (

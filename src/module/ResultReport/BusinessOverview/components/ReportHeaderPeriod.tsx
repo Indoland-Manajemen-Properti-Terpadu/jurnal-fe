@@ -10,7 +10,7 @@ interface ReportHeaderPeriodProps {
 const ReportHeaderPeriod: React.FC<ReportHeaderPeriodProps> = ({ fromDate, toDate }) => {
     return (
         <Box
-            bg={themeColors.teal[0]}
+            bg={themeColors.primary[0]}
             bd="sm"
             p={10}
             style={{

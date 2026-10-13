@@ -103,7 +103,7 @@ function EditUserForm() {
                     <Group justify="space-between" style={{ flex: 1 }}>
                         <Switch
                             defaultChecked
-                            color={themeColors.teal[6]}
+                            color={themeColors.primary[6]}
                             label="Active"
                             size="lg"
                         />
@@ -180,8 +180,8 @@ function EditUserForm() {
                                 variant="outline"
                                 value={activeTabRole}
                                 onChange={(value) => setActiveTabRole(value!)}
-                                color={themeColors.teal[6]}
-                                styles={{ tabLabel: { color: themeColors.teal[6] } }}
+                                color={themeColors.primary[6]}
+                                styles={{ tabLabel: { color: themeColors.primary[6] } }}
                             >
                                 <Tabs.List>
                                     <Tabs.Tab value="DefaultRole" leftSection={<IconUsers size={14} />}>

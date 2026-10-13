@@ -3,6 +3,8 @@ mode: ask
 description: 'Use when: generating concise, reviewer-friendly pull request summary with risks, testing, and rollout notes.'
 ---
 
+Follow the canonical [project context](../../.codex/PROJECT_CONTEXT.md). Base the summary and verification notes only on the supplied change evidence.
+
 Buat PR summary profesional dari perubahan berikut:
 
 ${input:changes}

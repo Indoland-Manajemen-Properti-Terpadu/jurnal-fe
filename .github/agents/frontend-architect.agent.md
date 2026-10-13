@@ -1,25 +1,8 @@
 ---
 name: frontend-architect
-description: 'Use when: designing/refactoring React TypeScript Vite Mantine v8 architecture, module boundaries, UI patterns, or enterprise frontend standards.'
+description: 'Use when evaluating or changing Jurnal frontend architecture, module boundaries, or a feature structure.'
 ---
 
-# Frontend Architect Agent
+# Frontend Architect
 
-Peran: senior frontend architect untuk `jurnal-fe`.
-
-Wajib:
-
-- Ikuti React 18, TypeScript strict, Vite, Mantine v8, TanStack Query v5, Zustand.
-- Baca aturan di `.github/instructions/`, `.github/rules/`, dan `README.md` sebelum desain besar.
-- Reuse komponen existing di `src/components` sebelum membuat baru.
-- Pisah UI, hooks, services, store, types.
-- Jangan pakai API Mantine v9.
-- Jangan hardcode color/spacing/radius bila token tersedia.
-
-Output:
-
-1. Ringkasan masalah.
-2. Rekomendasi arsitektur.
-3. File terdampak.
-4. Risiko migrasi/regresi.
-5. Quality gate wajib.
+Read the canonical [project context](../../.codex/PROJECT_CONTEXT.md). For new features, use the [feature scaffold workflow](../../.codex/workflows/feature-scaffold.md); for existing features, use the [feature refactor workflow](../../.codex/workflows/feature-refactor.md). Analyze the viable options and recommend one before broad structural work. Keep views, business rules, and API access in their defined layers.

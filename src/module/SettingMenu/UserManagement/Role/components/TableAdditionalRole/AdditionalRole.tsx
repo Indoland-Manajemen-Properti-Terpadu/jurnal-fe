@@ -120,7 +120,7 @@ const AdditionalRoleTable: React.FC = () => {
           ))}
         </Table.Tbody>
       </Table>
-      {/* <Pagination total={2} withEdges size="sm" color={themeColors.teal[6]} /> */}
+      {/* <Pagination total={2} withEdges size="sm" color={themeColors.primary[6]} /> */}
       <DeleteTransactionModal
         opened={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}

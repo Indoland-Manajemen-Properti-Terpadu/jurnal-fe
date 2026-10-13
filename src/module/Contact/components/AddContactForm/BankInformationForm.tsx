@@ -197,7 +197,7 @@ const BankInformationForm: React.FC = () => {
     return (
         <Stack gap='md'>
             <Group justify="space-between">
-                <Text c={themeColors.teal[6]} fz={18} fw={500}>Add Bank Information</Text>
+                <Text c={themeColors.primary[6]} fz={18} fw={500}>Add Bank Information</Text>
                 <Button
                     variant="filled"
                     size='xs'
@@ -251,7 +251,7 @@ const BankInformationForm: React.FC = () => {
                     />
                 </Grid.Col>
             </Grid>
-            <Text c={themeColors.teal[6]} fz={18} fw={500}>List Bank</Text>
+            <Text c={themeColors.primary[6]} fz={18} fw={500}>List Bank</Text>
             {isEmpty(bankData) ? (
                 <Container fluid p='xl'>
                     <EmptyState />

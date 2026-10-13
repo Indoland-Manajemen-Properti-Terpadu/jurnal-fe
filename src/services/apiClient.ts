@@ -4,6 +4,7 @@ import { navigate } from '@/router';
 import { routes } from '@/router/routes';
 import { BASE_URL } from './endpoint';
 import { useAuthStore } from '@/store/useAuthentications';
+import { useApiLoadingStore } from '@/store/useApiLoading';
 
 const apiClient = axios.create({
   baseURL: BASE_URL,
@@ -23,18 +24,28 @@ const onRefreshed = (token: string) => {
 
 apiClient.interceptors.request.use(
   (config) => {
+    useApiLoadingStore.getState().startRequest();
+
     const token = localStorage.getItem('accessToken');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => {
+    useApiLoadingStore.getState().finishRequest();
+    return Promise.reject(error);
+  }
 );
 
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    useApiLoadingStore.getState().finishRequest();
+    return response;
+  },
   async (error) => {
+    useApiLoadingStore.getState().finishRequest();
+
     const { config, response } = error;
     const originalRequest = config;
 

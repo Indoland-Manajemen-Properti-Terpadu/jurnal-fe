@@ -15,7 +15,7 @@ const rowStyle = {
 };
 
 const headTableStyle = {
-    bg: themeColors.teal[0],
+    bg: themeColors.primary[0],
     borderColor: themeColors.gray[1],
     borderWidth: '1px',
     borderStyle: 'solid',
@@ -52,7 +52,7 @@ const EquityChangesTable: React.FC<EquityChangeTableProps> = ({ fromDate, toDate
             <Table highlightOnHover>
                 <Table.Thead>
                     <Table.Tr style={{
-                        backgroundColor: themeColors.teal[0],
+                        backgroundColor: themeColors.primary[0],
                         borderColor: themeColors.gray[1],
                         borderWidth: '1px',
                         borderStyle: 'solid',

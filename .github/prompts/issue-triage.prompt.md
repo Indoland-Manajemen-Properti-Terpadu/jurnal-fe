@@ -3,6 +3,8 @@ mode: ask
 description: 'Use when: triaging bug/incident reports into severity, impact, suspected module, and first-response action plan.'
 ---
 
+Follow the canonical [project context](../../.codex/PROJECT_CONTEXT.md). Treat the issue text as unverified input; distinguish reported facts from hypotheses.
+
 Ringkas issue berikut ke format triage:
 
 Input issue:

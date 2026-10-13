@@ -29,7 +29,7 @@ const TrialBalanceTable: React.FC = () => {
             <Table withTableBorder highlightOnHover>
                 <Table.Thead>
                     <Table.Tr style={{
-                        backgroundColor: themeColors.teal[0],
+                        backgroundColor: themeColors.primary[0],
                     }}>
                         <Table.Th colSpan={2} rowSpan={2} ta='center' style={{ border: `1px solid ${themeColors.gray[2]}` }}>Account Name</Table.Th>
                         <Table.Th colSpan={2} rowSpan={1} ta='center' style={{ border: `1px solid ${themeColors.gray[2]}` }}>Beginning Balance</Table.Th>
@@ -37,7 +37,7 @@ const TrialBalanceTable: React.FC = () => {
                         <Table.Th colSpan={2} rowSpan={1} ta='center' style={{ border: `1px solid ${themeColors.gray[2]}` }}>Closing Balance</Table.Th>
                     </Table.Tr>
                     <Table.Tr style={{
-                        backgroundColor: themeColors.teal[0],
+                        backgroundColor: themeColors.primary[0],
                     }}>
                         <Table.Th ta='center' style={{ border: `1px solid ${themeColors.gray[2]}` }}>Debit</Table.Th>
                         <Table.Th ta='center' style={{ border: `1px solid ${themeColors.gray[2]}` }}>Credit</Table.Th>

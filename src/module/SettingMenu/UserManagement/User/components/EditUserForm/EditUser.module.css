@@ -1,8 +1,8 @@
 .root {
   position: relative;
-  --text-gradient: linear-gradient(90deg, #00b194, #1c8fd4);
+  --text-gradient: var(--jurnal-gradient-brand);
   --text-fz: 18px;
-  color: linear-gradient(90deg, #00b194, #1c8fd4);
+  color: var(--jurnal-color-primary);
   font-size: var(--mantine-font-size-md);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;

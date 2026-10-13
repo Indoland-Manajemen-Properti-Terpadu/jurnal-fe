@@ -53,10 +53,10 @@ function TransactionDetailByContact() {
                     <Paper {...PAPER_PROPS}>
                         <Stack>
                             <Group>
-                                <Text c={themeColors.teal[6]} fz={18} fw={500}>
+                                <Text c={themeColors.primary[6]} fz={18} fw={500}>
                                     Contact Information
                                 </Text>
-                                <IconUser size={20} color={themeColors.teal[6]} />
+                                <IconUser size={20} color={themeColors.primary[6]} />
                             </Group>
 
                             <Group justify="space-between" align="center">
@@ -75,12 +75,12 @@ function TransactionDetailByContact() {
                                     </Group>
                                 </Group>
                                 <Group>
-                                    <Button variant="filled" bg={themeColors.teal[6]}>Transaction Contact</Button>
+                                    <Button variant="filled" bg={themeColors.primary[6]}>Transaction Contact</Button>
                                 </Group>
                             </Group>
                             {status ? (
                                 <Tabs
-                                    color={themeColors.teal[6]}
+                                    color={themeColors.primary[6]}
                                     radius="xs"
                                     defaultValue="payable"
                                     styles={{ panel: { paddingTop: 16 } }}

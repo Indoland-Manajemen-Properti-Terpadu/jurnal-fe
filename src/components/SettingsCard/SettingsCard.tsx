@@ -41,7 +41,7 @@ const SettingsCard = ({ data, ...others }: SettingsCardProps) => {
         <Container
           fluid
           bg={themeColors.gray[0]}
-          c={themeColors.teal[6]}
+          c={themeColors.primary[6]}
           p={16}
           className={classes.container}
         >

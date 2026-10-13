@@ -32,7 +32,7 @@ import { useEffect, useState } from 'react';
 // Shared imports using barrel exports
 import { ConfirmModal, PageHeader } from '@/components';
 import { routes } from '@/router/routes';
-import { useAccountStore, useJournalAccountStore } from '@/store';
+import { useAccountStore } from '@/store';
 import classes from './GeneralJournal.module.css';
 
 // Feature imports
@@ -159,7 +159,7 @@ const GeneralJournalPage: React.FC = () => {
                   <Button
                     variant="filled"
                     leftSection={<PlusIcon size={14} />}
-                    color={themeColors.teal[5]}
+                    color={themeColors.primary[5]}
                     onClick={() => navigate(routes.generalJournal.addAccountJournal)}
                   >
                     Tambah Akun
@@ -211,7 +211,7 @@ const GeneralJournalPage: React.FC = () => {
                         checked={showArchived}
                         onChange={(e) => setShowArchived(e.currentTarget.checked)}
                         label="Lihat Diarsipkan"
-                        color="teal"
+                        color="primary"
                         variant="outline"
                         size="xs"
                       />

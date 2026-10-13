@@ -28,7 +28,7 @@ export const useMatchReconciliation = () => {
       notifications.show({
         title: 'Sukses',
         message: 'Transaksi berhasil direkonsiliasi',
-        color: themeColors.teal[6],
+        color: themeColors.green[6],
       });
       // Invalidate ALL reconciliation data queries regardless of idAccount
       queryClient.invalidateQueries({

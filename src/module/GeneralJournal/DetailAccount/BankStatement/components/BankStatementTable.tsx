@@ -105,7 +105,7 @@ export default function BankStatementTable({
       ),
       render: (element: Result) => (
         <Anchor underline="never" onClick={() => navigate(`/transaction/${element.id}`)}>
-          <Text c={themeColors.teal[6]} size="sm">
+          <Text c={themeColors.primary[6]} size="sm">
             {element.transactionName}
           </Text>
         </Anchor>
@@ -224,7 +224,7 @@ export default function BankStatementTable({
         </Group>
         <Button
           size="xs"
-          color={themeColors.teal[5]}
+          color={themeColors.primary[5]}
           leftSection={<CloudArrowUp size={16} />}
           onClick={handleOpenModal}
         >

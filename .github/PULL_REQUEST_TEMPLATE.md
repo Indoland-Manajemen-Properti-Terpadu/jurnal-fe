@@ -1,10 +1,8 @@
-## Deskripsi Perubahan
+## Ringkasan
 
-<!-- Jelaskan secara singkat apa yang diubah, diperbaiki, atau ditambahkan pada PR ini -->
+<!-- Jelaskan perubahan dan alasan utamanya. -->
 
--
-
-## Modul yang Terdampak
+## Area Terdampak
 
 - [ ] Authentication
 - [ ] GeneralJournal
@@ -12,20 +10,18 @@
 - [ ] ResultReport
 - [ ] Lainnya: ...
 
-## Checklist Design Guardrail (WAJIB)
+## Catatan Implementasi
 
-- [ ] Saya menggunakan Mantine v8 (TIDAK ADA API v9).
-- [ ] Saya tidak menggunakan hardcode HEX color/pixel, semua mengambil dari token theme lokal.
-- [ ] Typography menggunakan Figtree dan icon AppShell menggunakan Phosphor (duotone).
-- [ ] State `loading`, `empty`, dan `error` sudah diimplementasikan untuk data fetching.
+<!-- Catat dampak API, accounting, UI, atau migrasi yang perlu diketahui reviewer. Tulis "Tidak ada" bila tidak relevan. -->
 
-## Checklist Quality Gate
+## Verifikasi
 
-- [ ] `yarn typecheck` lulus tanpa error.
-- [ ] `yarn lint` lulus tanpa warning/error.
-- [ ] Komponen baru sudah memiliki Unit Test (Vitest) atau Storybook.
-- [ ] Build lokal berhasil (`yarn build`).
+<!-- Cantumkan perintah yang dijalankan dan hasilnya. Jika tidak menjalankan verifikasi, jelaskan alasannya. -->
 
-## Tangkapan Layar (Opsional namun disarankan)
+## Tangkapan Layar
 
-<!-- Masukkan screenshot jika ada perubahan UI -->
+<!-- Tambahkan jika ada perubahan UI. -->
+
+## Referensi
+
+Pastikan perubahan mengikuti [konteks engineering project](../.codex/PROJECT_CONTEXT.md) dan workflow yang relevan.

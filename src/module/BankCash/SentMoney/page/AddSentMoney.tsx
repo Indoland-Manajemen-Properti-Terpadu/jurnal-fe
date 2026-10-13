@@ -226,7 +226,7 @@ const AddSentMoneyPage = () => {
                         </Stack>
                     </Paper>
                     <Paper p="md" shadow="md" radius="md">
-                        <Tabs defaultValue="paymentForAccount" color={themeColors.teal[6]}>
+                        <Tabs defaultValue="paymentForAccount" color={themeColors.primary[6]}>
                             <Tabs.List>
                                 <Tabs.Tab value="paymentForAccount">
                                     Payment For Account

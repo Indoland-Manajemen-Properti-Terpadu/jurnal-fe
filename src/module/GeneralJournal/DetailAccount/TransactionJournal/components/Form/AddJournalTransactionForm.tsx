@@ -97,8 +97,8 @@ const AddJournalTransactionForm = () => {
             Cancel
           </Button>
           <Button
-            c={themeColors.white[0]}
-            bg={themeColors.teal[5]}
+            c={disableTransaction ? undefined : themeColors.white[0]}
+            bg={disableTransaction ? undefined : themeColors.primary[5]}
             onClick={handleSubmit}
             disabled={disableTransaction}
             leftSection={<IconPlus size={16} />}

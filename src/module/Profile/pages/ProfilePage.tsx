@@ -27,12 +27,12 @@ export default function ProfilePage() {
               size={120}
               radius={120}
               mx="auto"
-              color="cyan"
+              color="primary"
             >
               {user?.name?.charAt(0).toUpperCase()}
             </Avatar>
             <Title order={3}>{user?.name}</Title>
-            <Badge color="cyan" variant="light" size="lg">
+            <Badge color="primary" variant="light" size="lg">
               {user?.role}
             </Badge>
           </Stack>

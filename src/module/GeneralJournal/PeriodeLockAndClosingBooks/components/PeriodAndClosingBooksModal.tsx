@@ -34,7 +34,7 @@ export const PeriodAndClosingBooksModal: React.FC<PeriodAndClosingBooksModalProp
 
     const handleFinalConfirmCheck = () => {
         notifications.show({
-            color: themeColors.cyan[6],
+            color: themeColors.green[6],
             autoClose: 3000,
             title: 'Successfully Closing Period',
             message: 'Selected account has been deleted',

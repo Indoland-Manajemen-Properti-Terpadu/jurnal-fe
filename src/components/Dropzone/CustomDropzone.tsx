@@ -74,7 +74,7 @@ const CustomDropzone: React.FC<DropzoneComponentProps> = ({
           <Dropzone.Idle>
             <CloudArrowUpIcon
               style={{ width: rem(52), height: rem(52) }}
-              color={themeColors.teal[5]}
+              color={themeColors.primary[5]}
               weight="duotone"
             />
           </Dropzone.Idle>

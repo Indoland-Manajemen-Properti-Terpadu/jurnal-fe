@@ -243,6 +243,7 @@
   --jurnal-color-black: var(--mantine-color-defaultBlack-10);
   --jurnal-color-primary: var(--mantine-color-primary-6);
   --jurnal-color-primary-subtle: var(--mantine-color-primary-0);
+  --jurnal-color-secondary: var(--mantine-color-secondary-6);
   --jurnal-color-text-primary: #111827;
   --jurnal-color-text-secondary: #6b7280;
   --jurnal-color-text-muted: var(--mantine-color-gray-5);
@@ -259,8 +260,12 @@
   --jurnal-color-danger: #ef4444;
   --jurnal-color-danger-subtle: var(--mantine-color-red-0);
   --jurnal-color-info: #0ea5e9;
-  --jurnal-gradient-brand: linear-gradient(90deg, #00b194, #1c8fd4);
-  --jurnal-gradient-teal-overlay: linear-gradient(
+  --jurnal-gradient-brand: linear-gradient(
+    90deg,
+    var(--jurnal-color-primary),
+    var(--mantine-color-secondary-9)
+  );
+  --jurnal-gradient-brand-overlay: linear-gradient(
     180deg,
     rgba(255, 255, 255, 0) 0%,
     var(--mantine-color-primary-8) 100%

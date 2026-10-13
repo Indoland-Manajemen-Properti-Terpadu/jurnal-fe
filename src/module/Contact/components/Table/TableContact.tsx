@@ -67,7 +67,7 @@ export default function TableContact() {
                     onClick={() =>
                         navigate(routes.Contact.DetailContact.replace(':idAccount', element.id))
                     }>
-                    <Text c={themeColors.teal[6]} size="sm">
+                    <Text c={themeColors.primary[6]} size="sm">
                         Aditya Santoso
                     </Text>
                 </Anchor>
@@ -183,7 +183,7 @@ export default function TableContact() {
                                 <Checkbox
                                     defaultChecked
                                     label="Show Archive"
-                                    color="cyan"
+                                    color="primary"
                                     variant="outline"
                                     size="xs"
                                 />

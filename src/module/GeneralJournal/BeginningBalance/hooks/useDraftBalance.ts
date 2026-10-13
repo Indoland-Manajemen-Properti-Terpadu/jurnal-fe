@@ -33,7 +33,7 @@ export const useSetDraftBalance = () => {
     mutationFn: postDraftBalance,
     onSuccess: () => {
       notifications.show({
-        color: 'cyan',
+        color: 'green',
         autoClose: 3000,
         title: 'Draft has been saved!',
         message: 'Your draft balance has been saved.',
@@ -50,7 +50,7 @@ export const usePublishDraftBalance = () => {
     mutationFn: postPublishDraftBalance,
     onSuccess: () => {
       notifications.show({
-        color: 'cyan',
+        color: 'green',
         autoClose: 3000,
         title: 'Draft has been published!',
         message: 'Your draft balance has been published.',

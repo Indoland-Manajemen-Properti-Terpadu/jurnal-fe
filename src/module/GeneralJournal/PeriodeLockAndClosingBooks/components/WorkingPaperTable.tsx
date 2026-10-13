@@ -35,7 +35,7 @@ const WorkingPaperTable: React.FC = () => {
             <Table withTableBorder highlightOnHover>
                 <Table.Thead>
                     <Table.Tr style={{
-                        backgroundColor: themeColors.teal[0],
+                        backgroundColor: themeColors.primary[0],
                     }}>
                         <Table.Th colSpan={2} rowSpan={2} ta='center' style={HeaderTableStyle}>Code</Table.Th>
                         <Table.Th colSpan={2} rowSpan={2} ta='center' style={HeaderTableStyle}>Account Name</Table.Th>
@@ -44,7 +44,7 @@ const WorkingPaperTable: React.FC = () => {
                         <Table.Th colSpan={2} rowSpan={1} ta='center' style={HeaderTableStyle}>Balance Sheet</Table.Th>
                     </Table.Tr>
                     <Table.Tr style={{
-                        backgroundColor: themeColors.teal[0],
+                        backgroundColor: themeColors.primary[0],
                     }}>
                         <Table.Th ta='center' style={HeaderTableStyle}>Debit</Table.Th>
                         <Table.Th ta='center' style={HeaderTableStyle}>Credit</Table.Th>

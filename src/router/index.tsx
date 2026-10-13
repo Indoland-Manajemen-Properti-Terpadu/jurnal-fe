@@ -44,8 +44,8 @@ import TransactionDetailByContact from '@/module/Contact/view/TransactionDetailB
 import BudgetPlanningPage from '@/module/BudgetPlanning/view/BudgetPlanningPage';
 import PembelianPage from '@/module/Pembelian/view/PembelianPage';
 import CostPage from '@/module/Cost/view/CostPage';
-import ProdukPage from '@/module/Produk/view/ProdukPage';
-import ProductionPage from '@/module/Production/view/ProductionPage';
+import ProductsPage from '@/module/products/pages/ProductsPage';
+import ProductionPage from '@/module/production/view/ProductionPage';
 import FulfillmentPage from '@/module/Fulfillment/view/FulfillmentPage';
 import AssetPage from '@/module/Asset/view/AssetPage';
 import KontakPage from '@/module/Kontak/view/KontakPage';
@@ -80,11 +80,10 @@ const router = createBrowserRouter([
     element: <ProfilePage />,
   },
 
-
   //Bank And Cash Routes
   {
     path: routes.BankAndCash.Main,
-    element: <BankAndCashMainPage />
+    element: <BankAndCashMainPage />,
   },
   {
     path: routes.BankAndCash.AddTransferMoney,
@@ -103,9 +102,8 @@ const router = createBrowserRouter([
 
   {
     path: routes.SettingBudget.BudgetManagement,
-    element: <BudgetManagementPage />
+    element: <BudgetManagementPage />,
   },
-
 
   // General Journal Routes
   {
@@ -175,8 +173,6 @@ const router = createBrowserRouter([
     path: routes.Contact.TransactionDetailByContact,
     element: <TransactionDetailByContact />,
   },
-
-
 
   // User Management Routes
   {
@@ -261,7 +257,7 @@ const router = createBrowserRouter([
   },
   {
     path: routes.baseModules.products,
-    element: <ProdukPage />,
+    element: <ProductsPage />,
   },
   {
     path: routes.baseModules.production,

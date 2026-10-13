@@ -15,7 +15,7 @@ const ContactInformationForm: React.FC = () => {
     const [sameAsBillingAddress, setSameAsBillingAddress] = useState(false);
     return (
         <Stack gap='md'>
-            <Text c={themeColors.teal[6]} fz={18} fw={500}>Add Contact Information</Text>
+            <Text c={themeColors.primary[6]} fz={18} fw={500}>Add Contact Information</Text>
             <TextInput
                 label="Display Name"
                 withAsterisk
