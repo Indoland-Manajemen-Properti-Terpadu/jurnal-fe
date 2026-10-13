@@ -80,6 +80,30 @@ export function ProductDetailPage() {
     return map;
   }, [taxesQuery.data]);
 
+  const resolveAccount = (acc: unknown): string => {
+    if (!acc) return 'Belum diatur';
+    if (typeof acc === 'string') return accountMap.get(acc) ?? acc;
+    if (typeof acc === 'object') {
+      const obj = acc as { name?: string; accountNumber?: string; id?: string };
+      if (obj.name) {
+        return obj.accountNumber ? `${obj.accountNumber} · ${obj.name}` : obj.name;
+      }
+      if (obj.id) return accountMap.get(obj.id) ?? obj.id;
+    }
+    return 'Belum diatur';
+  };
+
+  const resolveTax = (tax: unknown): string => {
+    if (!tax) return 'Bebas Pajak (0%)';
+    if (typeof tax === 'string') return taxMap.get(tax) ?? tax;
+    if (typeof tax === 'object') {
+      const obj = tax as { name?: string; rate?: number; id?: string };
+      if (obj.name) return `${obj.name} (${obj.rate ?? 0}%)`;
+      if (obj.id) return taxMap.get(obj.id) ?? obj.id;
+    }
+    return 'Bebas Pajak (0%)';
+  };
+
   const handleEditSubmit = async (values: ProductFormValues) => {
     await saveProductMutation.mutateAsync(values);
     setEditModalOpened(false);
@@ -301,10 +325,7 @@ export function ProductDetailPage() {
                           Akun Penjualan (Kredit)
                         </Text>
                         <Text size="sm" fw={600} c="primary.9" mt={4}>
-                          {product.sellingInfo.salesAccount
-                            ? (accountMap.get(product.sellingInfo.salesAccount) ??
-                              product.sellingInfo.salesAccount)
-                            : 'Belum diatur'}
+                          {resolveAccount(product.sellingInfo.salesAccount)}
                         </Text>
                       </Paper>
 
@@ -313,10 +334,7 @@ export function ProductDetailPage() {
                           Akun Piutang (Debit)
                         </Text>
                         <Text size="sm" fw={600} c="primary.9" mt={4}>
-                          {product.sellingInfo.accountReceivable
-                            ? (accountMap.get(product.sellingInfo.accountReceivable) ??
-                              product.sellingInfo.accountReceivable)
-                            : 'Belum diatur'}
+                          {resolveAccount(product.sellingInfo.accountReceivable)}
                         </Text>
                       </Paper>
 
@@ -325,10 +343,7 @@ export function ProductDetailPage() {
                           Tarif Pajak Penjualan
                         </Text>
                         <Text size="sm" fw={600} c="dark.7" mt={4}>
-                          {product.sellingInfo.salesTax
-                            ? (taxMap.get(product.sellingInfo.salesTax) ??
-                              product.sellingInfo.salesTax)
-                            : 'Bebas Pajak (0%)'}
+                          {resolveTax(product.sellingInfo.salesTax)}
                         </Text>
                       </Paper>
 
@@ -376,10 +391,7 @@ export function ProductDetailPage() {
                           Akun Pembelian / Beban (Debit)
                         </Text>
                         <Text size="sm" fw={600} c="primary.9" mt={4}>
-                          {product.buyingInfo.purchaseAccount
-                            ? (accountMap.get(product.buyingInfo.purchaseAccount) ??
-                              product.buyingInfo.purchaseAccount)
-                            : 'Belum diatur'}
+                          {resolveAccount(product.buyingInfo.purchaseAccount)}
                         </Text>
                       </Paper>
 
@@ -388,10 +400,7 @@ export function ProductDetailPage() {
                           Tarif Pajak Pembelian
                         </Text>
                         <Text size="sm" fw={600} c="dark.7" mt={4}>
-                          {product.buyingInfo.purchaseTax
-                            ? (taxMap.get(product.buyingInfo.purchaseTax) ??
-                              product.buyingInfo.purchaseTax)
-                            : 'Bebas Pajak (0%)'}
+                          {resolveTax(product.buyingInfo.purchaseTax)}
                         </Text>
                       </Paper>
 
@@ -442,10 +451,7 @@ export function ProductDetailPage() {
                           Akun Aset Persediaan
                         </Text>
                         <Text size="sm" fw={600} c="primary.9" mt={4}>
-                          {product.inventoryInfo.inventoryAccount
-                            ? (accountMap.get(product.inventoryInfo.inventoryAccount) ??
-                              product.inventoryInfo.inventoryAccount)
-                            : 'Belum diatur'}
+                          {resolveAccount(product.inventoryInfo.inventoryAccount)}
                         </Text>
                       </Paper>
 

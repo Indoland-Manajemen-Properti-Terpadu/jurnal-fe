@@ -65,6 +65,14 @@ const mapCategory = (dto: ProductCategoryDto): ProductCategory => ({
   createdAt: dto.createdAt,
 });
 
+const extractId = (val: unknown): string | null => {
+  if (!val) return null;
+  if (typeof val === 'string') return val;
+  if (typeof val === 'object' && 'id' in val) return String((val as { id: unknown }).id);
+  if (typeof val === 'object' && '_id' in val) return String((val as { _id: unknown })._id);
+  return null;
+};
+
 const mapProduct = (dto: ProductDto): Product => ({
   id: dto.id,
   name: dto.name,
@@ -77,19 +85,19 @@ const mapProduct = (dto: ProductDto): Product => ({
   buyingInfo: {
     isPurchased: dto.buyingInfo?.isPurchased ?? false,
     unitPrice: dto.buyingInfo?.unitPrice ?? null,
-    purchaseAccount: dto.buyingInfo?.purchaseAccount ?? null,
-    purchaseTax: dto.buyingInfo?.purchaseTax ?? null,
+    purchaseAccount: extractId(dto.buyingInfo?.purchaseAccount),
+    purchaseTax: extractId(dto.buyingInfo?.purchaseTax),
   },
   sellingInfo: {
     isSold: dto.sellingInfo?.isSold ?? false,
     unitPrice: dto.sellingInfo?.unitPrice ?? null,
-    salesAccount: dto.sellingInfo?.salesAccount ?? null,
-    accountReceivable: dto.sellingInfo?.accountReceivable ?? null,
-    salesTax: dto.sellingInfo?.salesTax ?? null,
+    salesAccount: extractId(dto.sellingInfo?.salesAccount),
+    accountReceivable: extractId(dto.sellingInfo?.accountReceivable),
+    salesTax: extractId(dto.sellingInfo?.salesTax),
   },
   inventoryInfo: {
     isTracked: dto.inventoryInfo?.isTracked ?? false,
-    inventoryAccount: dto.inventoryInfo?.inventoryAccount ?? null,
+    inventoryAccount: extractId(dto.inventoryInfo?.inventoryAccount),
     minStock: dto.inventoryInfo?.minStock ?? 0,
   },
   createdAt: dto.createdAt,
