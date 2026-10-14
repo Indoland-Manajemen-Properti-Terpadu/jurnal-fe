@@ -12,6 +12,7 @@ import {
   ThemeIcon,
 } from '@mantine/core';
 import { IconDotsVertical, IconEye, IconPackage, IconPencil, IconTrash } from '@tabler/icons-react';
+import { EmptyState } from '@/components/EmptyState';
 import type { Product } from '../types/product';
 import { resolveProductImageUrl } from '../infrastructure/productApi';
 import { formatPrice } from '../utils/productFormat';
@@ -164,22 +165,21 @@ export function ProductTable({
             <Table.Th w={64} />
           </Table.Tr>
         </Table.Thead>
-        <Table.Tbody>{rows}</Table.Tbody>
+        <Table.Tbody>
+          {rows}
+          {!isLoading && products.length === 0 && (
+            <Table.Tr>
+              <Table.Td colSpan={6} p={0}>
+                <EmptyState
+                  icon={<IconPackage size={32} stroke={1.6} />}
+                  title="Belum Ada Produk yang Cocok"
+                  description="Coba ubah kata kunci pencarian, atau tambahkan produk baru untuk mulai mencatat transaksi."
+                />
+              </Table.Td>
+            </Table.Tr>
+          )}
+        </Table.Tbody>
       </Table>
-      {!isLoading && products.length === 0 && (
-        <Stack align="center" gap={6} py={56}>
-          <ThemeIcon size={56} radius="xl" variant="light" color="primary">
-            <IconPackage size={28} />
-          </ThemeIcon>
-          <Text fw={600} mt="xs" c="dark.8">
-            Belum ada produk yang cocok
-          </Text>
-          <Text size="sm" c="dimmed" ta="center" maw={360}>
-            Coba ubah kata kunci pencarian, atau tambahkan produk baru untuk mulai mencatat
-            transaksi.
-          </Text>
-        </Stack>
-      )}
     </Table.ScrollContainer>
   );
 }

@@ -16,6 +16,7 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { IconPlus, IconSearch, IconTrash, type Icon } from '@tabler/icons-react';
+import { EmptyState } from '@/components/EmptyState';
 import ConfirmModal from '@/components/ui/ConfirmModal/ConfirmModal';
 import type { MasterDataInput } from '../types/product';
 import { formatDate } from '../utils/productFormat';
@@ -235,20 +236,26 @@ export function MasterDataPanel({
                     </Table.Td>
                   </Table.Tr>
                 ))}
+            {!isLoading && filtered.length === 0 && (
+              <Table.Tr>
+                <Table.Td colSpan={4} p={0}>
+                  <EmptyState
+                    icon={<EntityIcon size={32} stroke={1.6} />}
+                    title={keyword ? 'Tidak Ada Hasil' : `Belum Ada ${entityLabel}`}
+                    description={
+                      keyword
+                        ? 'Coba gunakan kata kunci pencarian yang lain.'
+                        : `Belum ada ${entityLabel.toLowerCase()} yang tercatat. Tambahkan data pertama Anda.`
+                    }
+                    actionLabel={keyword ? undefined : `Tambah ${entityLabel}`}
+                    onAction={keyword ? undefined : () => setModalOpened(true)}
+                    actionIcon={<IconPlus size={16} />}
+                  />
+                </Table.Td>
+              </Table.Tr>
+            )}
           </Table.Tbody>
         </Table>
-        {!isLoading && filtered.length === 0 && (
-          <Stack align="center" gap={4} py={48}>
-            <Text fw={600} c="dark.8">
-              {keyword ? 'Tidak ada hasil' : `Belum ada ${entityLabel.toLowerCase()}`}
-            </Text>
-            <Text size="sm" c="dimmed">
-              {keyword
-                ? 'Coba gunakan kata kunci lain.'
-                : `Tambahkan ${entityLabel.toLowerCase()} pertama Anda.`}
-            </Text>
-          </Stack>
-        )}
       </Table.ScrollContainer>
 
       <MasterDataFormModal
