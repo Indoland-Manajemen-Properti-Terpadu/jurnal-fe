@@ -69,11 +69,11 @@ const TableAccounts = ({
   const columns = [
     {
       accessor: 'accountNumber',
-      title: <Title style={HeadTableFont}>Code</Title>,
+      title: <Title style={HeadTableFont}>KODE AKUN</Title>,
       width: 200,
       render: ({ id = '', subAccount, accountNumber }: JournalAccounts) => (
         <Group justify="space-between">
-          <Text style={ColumnTableFont} c={themeColors.black[9]}>
+          <Text style={ColumnTableFont} c={themeColors.black[9]} fw={600} ff="monospace">
             {accountNumber}
           </Text>
           <IconChevronDown
@@ -87,7 +87,7 @@ const TableAccounts = ({
     },
     {
       accessor: 'isLocked',
-      title: <Title style={HeadTableFont}>Kunci</Title>,
+      title: <Title style={HeadTableFont}>STATUS</Title>,
       width: 120,
       render: (item: JournalAccounts) => (
         <>{item.isLocked ? <KeyStatusLockBagde /> : <KeyStatusOpenBagde />}</>
@@ -95,7 +95,7 @@ const TableAccounts = ({
     },
     {
       accessor: 'name',
-      title: <Title style={HeadTableFont}>Nama Akun</Title>,
+      title: <Title style={HeadTableFont}>NAMA AKUN</Title>,
       width: 250,
       render: (item: JournalAccounts) => (
         <Group gap="xs" wrap="nowrap">
@@ -109,7 +109,7 @@ const TableAccounts = ({
             }}
             className={classes.accountNameColumn}
           >
-            <Text c={themeColors.primary[6]} className={classes.accountNameColumn}>
+            <Text c={themeColors.primary[6]} fw={600} className={classes.accountNameColumn}>
               {item.name}
             </Text>
           </Anchor>
@@ -123,27 +123,32 @@ const TableAccounts = ({
     },
     {
       accessor: 'category',
-      title: <Title style={HeadTableFont}>Kategori</Title>,
-      width: 150,
+      title: <Title style={HeadTableFont}>KATEGORI</Title>,
+      width: 160,
       render: (item: any) => (
         <Text c={themeColors.black[9]} className={classes.categoryColumn}>
-          {item.category?.name}
+          {item.category?.name || '—'}
         </Text>
       ),
     },
     {
       accessor: 'isDebit',
-      title: <Title style={HeadTableFont}>Posisi Saldo</Title>,
+      title: <Title style={HeadTableFont}>POSISI SALDO</Title>,
       width: 120,
       render: (item: any) => (
-        <Text c={themeColors.black[9]} className={classes.categoryColumn}>
+        <Badge
+          color={item.category?.isDebit === true ? 'blue' : 'teal'}
+          variant="light"
+          size="sm"
+          radius="sm"
+        >
           {item.category?.isDebit === true ? 'Debit' : 'Kredit'}
-        </Text>
+        </Badge>
       ),
     },
     {
       accessor: 'isAllUser',
-      title: <Title style={HeadTableFont}>Akses</Title>,
+      title: <Title style={HeadTableFont}>AKSES</Title>,
       width: 120,
       render: (item: JournalAccounts) => (
         <>{item.isAllUser ? <AllRoleBadge /> : <InactiveBadge />}</>
@@ -151,7 +156,7 @@ const TableAccounts = ({
     },
     {
       accessor: 'tax',
-      title: <Title style={HeadTableFont}>Pajak</Title>,
+      title: <Title style={HeadTableFont}>PAJAK</Title>,
       width: 80,
       render: (item: JournalAccounts) => <Text c="dark">{item.tax ?? '-'}</Text>,
     },
@@ -159,12 +164,12 @@ const TableAccounts = ({
       accessor: 'balance',
       title: (
         <Title style={HeadTableFont} ta="right">
-          Balance
+          SALDO AKHIR
         </Title>
       ),
       width: 160,
       render: (item: JournalAccounts) => (
-        <Text c="dark" ta="right">
+        <Text c="dark" fw={600} ff="monospace" ta="right">
           {item.amount >= 0
             ? formatCurrency(item.amount ?? 0)
             : `(${formatCurrency(Math.abs(item.amount ?? 0))})`}
@@ -258,13 +263,17 @@ const TableAccounts = ({
 
   return records.length === 0 ? (
     <EmptyState
-      title="There is no data account available yet"
+      title="Belum ada data akun yang sesuai kriteria"
       imageSrc={defaultEmptyImage}
-      imageAlt="No data found"
+      imageAlt="Tidak ada data akun"
     />
   ) : (
     <DataTable
       withTableBorder
+      highlightOnHover
+      verticalSpacing="sm"
+      horizontalSpacing="md"
+      fetching={loading}
       records={records}
       columns={columns}
       rowExpansion={rowExpansion}
