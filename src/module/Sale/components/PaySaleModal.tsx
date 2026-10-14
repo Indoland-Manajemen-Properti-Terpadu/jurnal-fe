@@ -188,7 +188,21 @@ export function PaySaleModal({
                   data={paymentMethodOptions}
                   searchable
                   required
-                  {...form.getInputProps('paymentMethod')}
+                  value={form.values.paymentMethod}
+                  onChange={(val) => {
+                    form.setFieldValue('paymentMethod', val || '');
+                    if (val) {
+                      const selectedPm = paymentMethodsQuery.data?.find((pm) => pm.id === val);
+                      const defAccId =
+                        typeof selectedPm?.defaultAccount === 'object'
+                          ? selectedPm.defaultAccount?.id
+                          : selectedPm?.defaultAccount;
+                      if (defAccId && !form.values.depositAccount) {
+                        form.setFieldValue('depositAccount', defAccId);
+                      }
+                    }
+                  }}
+                  error={form.errors.paymentMethod}
                 />
               </Grid.Col>
               <Grid.Col span={6}>

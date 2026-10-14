@@ -175,13 +175,14 @@ export type CreateSaleFormValues = {
   attachments?: File[];
 };
 
-/* Payment DTO */
 export type SalePaymentMethod = {
   id: string;
   name: string;
   adminFee?: number;
   external_id?: string;
   isDefault?: boolean;
+  defaultAccount?: any;
+  feeAccount?: any;
 };
 
 export type CreateSalePaymentPayload = {

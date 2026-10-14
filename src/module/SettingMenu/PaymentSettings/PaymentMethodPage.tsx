@@ -1,14 +1,17 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   ActionIcon,
+  Alert,
   Badge,
   Button,
   Card,
   Divider,
+  Grid,
   Group,
   Modal,
   NumberInput,
   Paper,
+  Select,
   Skeleton,
   Stack,
   Table,
@@ -21,9 +24,13 @@ import {
 import { useDisclosure } from '@mantine/hooks';
 import { useForm } from '@mantine/form';
 import {
+  IconAlertCircle,
+  IconBuildingBank,
   IconCreditCard,
   IconEdit,
+  IconInfoCircle,
   IconPlus,
+  IconReceipt2,
   IconRefresh,
   IconSearch,
   IconTrash,
@@ -35,6 +42,7 @@ import {
   usePaymentMethods,
   useUpdatePaymentMethod,
 } from '../hooks/useSettingQueries';
+import { getJournalAccounts } from '@/module/GeneralJournal/JournalAccount/services/AccountJournal.service';
 import type { PaymentMethod } from '../services/settingApi';
 
 export default function PaymentMethodPage() {
@@ -44,6 +52,8 @@ export default function PaymentMethodPage() {
   const deleteMutation = useDeletePaymentMethod();
 
   const [search, setSearch] = useState('');
+  const [accounts, setAccounts] = useState<Array<{ value: string; label: string; group?: string }>>([]);
+  const [isAccountsLoading, setIsAccountsLoading] = useState(false);
 
   // Modal State
   const [modalOpened, { open: openModal, close: closeModal }] = useDisclosure(false);
@@ -53,14 +63,50 @@ export default function PaymentMethodPage() {
   const [deleteModalOpened, { open: openDeleteModal, close: closeDeleteModal }] = useDisclosure(false);
   const [deletingMethod, setDeletingMethod] = useState<PaymentMethod | null>(null);
 
-  const form = useForm({
+  // Load COA accounts
+  useEffect(() => {
+    const loadAccounts = async () => {
+      try {
+        setIsAccountsLoading(true);
+        const res = await getJournalAccounts();
+        setAccounts(
+          res.map((acc: any) => ({
+            value: acc.id,
+            label: `${acc.accountNumber ? `${acc.accountNumber} - ` : ''}${acc.name}`,
+            group: acc.type || acc.category?.name || (acc.isBankAndCash ? 'Kas & Bank' : 'Lainnya'),
+          }))
+        );
+      } catch (err) {
+        console.error('Failed to load accounts for payment methods:', err);
+      } finally {
+        setIsAccountsLoading(false);
+      }
+    };
+    loadAccounts();
+  }, []);
+
+  const form = useForm<{
+    name: string;
+    adminFee: number;
+    defaultAccount: string | null;
+    feeAccount: string | null;
+  }>({
     initialValues: {
       name: '',
       adminFee: 0,
+      defaultAccount: null,
+      feeAccount: null,
     },
     validate: {
       name: (val) => (!val.trim() ? 'Nama metode pembayaran wajib diisi' : null),
       adminFee: (val) => (val === undefined || val < 0 ? 'Biaya admin harus >= 0' : null),
+      feeAccount: (val, values) => {
+        // Accounting Rule: If admin fee is set (> 0), feeAccount must be chosen so the journal knows where to debit the fee
+        if (values.adminFee && values.adminFee > 0 && !val) {
+          return 'Akun Beban Admin wajib dipilih jika terdapat Biaya Admin';
+        }
+        return null;
+      },
     },
   });
 
@@ -72,27 +118,33 @@ export default function PaymentMethodPage() {
 
   const handleOpenEdit = (method: PaymentMethod) => {
     setEditingMethod(method);
+    const defAccId = typeof method.defaultAccount === 'object' ? method.defaultAccount?.id : method.defaultAccount;
+    const feeAccId = typeof method.feeAccount === 'object' ? method.feeAccount?.id : method.feeAccount;
+
     form.setValues({
       name: method.name,
       adminFee: method.adminFee || 0,
+      defaultAccount: defAccId || null,
+      feeAccount: feeAccId || null,
     });
     openModal();
   };
 
   const handleSubmit = async (values: typeof form.values) => {
+    const payload = {
+      name: values.name,
+      adminFee: values.adminFee,
+      defaultAccount: values.defaultAccount || null,
+      feeAccount: values.adminFee > 0 ? values.feeAccount || null : values.feeAccount || null,
+    };
+
     if (editingMethod) {
       await updateMutation.mutateAsync({
         id: editingMethod.id,
-        payload: {
-          name: values.name,
-          adminFee: values.adminFee,
-        },
+        payload,
       });
     } else {
-      await createMutation.mutateAsync({
-        name: values.name,
-        adminFee: values.adminFee,
-      });
+      await createMutation.mutateAsync(payload);
     }
     closeModal();
   };
@@ -107,10 +159,21 @@ export default function PaymentMethodPage() {
     m.name.toLowerCase().includes(search.toLowerCase())
   );
 
+  const getAccountLabel = (acc: any) => {
+    if (!acc) return null;
+    if (typeof acc === 'object') {
+      return `${acc.accountNumber ? `${acc.accountNumber} - ` : ''}${acc.name}`;
+    }
+    const found = accounts.find((a) => a.value === acc);
+    return found ? found.label : acc;
+  };
+
+  const isFeeRequired = form.values.adminFee > 0;
+
   return (
     <SettingsLayout
       title="Metode Pembayaran (Payment Methods)"
-      description="Konfigurasi opsi penerimaan dan pengeluaran dana seperti Transfer Bank, BCA Virtual Account, Midtrans, atau Tunai beserta biaya admin transaksi."
+      description="Konfigurasi opsi penerimaan dan pengeluaran dana seperti Transfer Bank, BCA Virtual Account, Midtrans, atau Tunai beserta akun kas penampung default dan akun beban biaya admin."
       action={
         <Group gap="xs">
           <Button variant="default" leftSection={<IconRefresh size={16} />} onClick={() => refetch()}>
@@ -171,65 +234,103 @@ export default function PaymentMethodPage() {
             <Table highlightOnHover verticalSpacing="sm" horizontalSpacing="md">
               <Table.Thead bg="gray.0">
                 <Table.Tr>
-                  <Table.Th style={{ width: '40%' }}>Nama Metode Pembayaran</Table.Th>
-                  <Table.Th style={{ width: '25%' }}>Biaya Admin (Rp)</Table.Th>
-                  <Table.Th style={{ width: '20%' }}>Status Bawaan</Table.Th>
-                  <Table.Th style={{ width: '15%', textAlign: 'center' }}>Aksi</Table.Th>
+                  <Table.Th style={{ width: '25%' }}>Nama Metode Pembayaran</Table.Th>
+                  <Table.Th style={{ width: '25%' }}>Akun Kas & Bank Default</Table.Th>
+                  <Table.Th style={{ width: '15%' }}>Biaya Admin</Table.Th>
+                  <Table.Th style={{ width: '23%' }}>Akun Beban Admin (Fee Account)</Table.Th>
+                  <Table.Th style={{ width: '12%', textAlign: 'center' }}>Aksi</Table.Th>
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>
-                {filteredMethods.map((method) => (
-                  <Table.Tr key={method.id}>
-                    <Table.Td>
-                      <Text fw={600} size="sm" c="dark.8">
-                        {method.name}
-                      </Text>
-                    </Table.Td>
-                    <Table.Td>
-                      {method.adminFee ? (
-                        <Text size="sm" fw={600} c="dark.7">
-                          Rp {method.adminFee.toLocaleString('id-ID')}
-                        </Text>
-                      ) : (
-                        <Badge color="gray" variant="light" size="xs">
-                          Gratis (Rp 0)
-                        </Badge>
-                      )}
-                    </Table.Td>
-                    <Table.Td>
-                      {method.isDefault ? (
-                        <Badge color="teal" variant="filled" size="xs">
-                          Default
-                        </Badge>
-                      ) : (
-                        <Text size="xs" c="dimmed">
-                          Reguler
-                        </Text>
-                      )}
-                    </Table.Td>
-                    <Table.Td style={{ textAlign: 'center' }}>
-                      <Group gap={4} justify="center">
-                        <Tooltip label="Edit Metode">
-                          <ActionIcon variant="subtle" color="primary" onClick={() => handleOpenEdit(method)}>
-                            <IconEdit size={16} />
-                          </ActionIcon>
-                        </Tooltip>
-                        <Tooltip label="Hapus Metode">
-                          <ActionIcon
-                            variant="subtle"
-                            color="red"
-                            onClick={() => {
-                              setDeletingMethod(method);
-                              openDeleteModal();
-                            }}
-                          >
-                            <IconTrash size={16} />
-                          </ActionIcon>
-                        </Tooltip>
-                      </Group>
-                    </Table.Td>
-                  </Table.Tr>
-                ))}
+                {filteredMethods.map((method) => {
+                  const defLabel = getAccountLabel(method.defaultAccount);
+                  const feeLabel = getAccountLabel(method.feeAccount);
+
+                  return (
+                    <Table.Tr key={method.id}>
+                      <Table.Td>
+                        <Group gap="xs">
+                          <Text fw={600} size="sm" c="dark.8">
+                            {method.name}
+                          </Text>
+                          {method.isDefault && (
+                            <Badge color="teal" variant="filled" size="xs">
+                              Default
+                            </Badge>
+                          )}
+                        </Group>
+                      </Table.Td>
+                      <Table.Td>
+                        {defLabel ? (
+                          <Group gap={6} align="center">
+                            <ThemeIcon size={20} radius="xl" color="teal" variant="light">
+                              <IconBuildingBank size={12} />
+                            </ThemeIcon>
+                            <Text size="xs" fw={500} c="dark.7">
+                              {defLabel}
+                            </Text>
+                          </Group>
+                        ) : (
+                          <Text size="xs" c="dimmed">
+                            — Belum diatur —
+                          </Text>
+                        )}
+                      </Table.Td>
+                      <Table.Td>
+                        {method.adminFee ? (
+                          <Text size="sm" fw={700} c="orange.8" ff="monospace">
+                            Rp {method.adminFee.toLocaleString('id-ID')}
+                          </Text>
+                        ) : (
+                          <Badge color="gray" variant="light" size="xs">
+                            Gratis (Rp 0)
+                          </Badge>
+                        )}
+                      </Table.Td>
+                      <Table.Td>
+                        {feeLabel ? (
+                          <Group gap={6} align="center">
+                            <ThemeIcon size={20} radius="xl" color="orange" variant="light">
+                              <IconReceipt2 size={12} />
+                            </ThemeIcon>
+                            <Text size="xs" fw={500} c="dark.7">
+                              {feeLabel}
+                            </Text>
+                          </Group>
+                        ) : method.adminFee > 0 ? (
+                          <Badge color="red" variant="light" size="xs">
+                            Belum dipetakan!
+                          </Badge>
+                        ) : (
+                          <Text size="xs" c="dimmed">
+                            — Tidak ada —
+                          </Text>
+                        )}
+                      </Table.Td>
+                      <Table.Td style={{ textAlign: 'center' }}>
+                        <Group gap={4} justify="center">
+                          <Tooltip label="Edit Metode">
+                            <ActionIcon variant="subtle" color="primary" onClick={() => handleOpenEdit(method)}>
+                              <IconEdit size={16} />
+                            </ActionIcon>
+                          </Tooltip>
+                          <Tooltip label="Hapus Metode">
+                            <ActionIcon
+                              variant="subtle"
+                              color="red"
+                              onClick={() => {
+                                setDeletingMethod(method);
+                                openDeleteModal();
+                              }}
+                            >
+                              <IconTrash size={16} />
+                            </ActionIcon>
+                          </Tooltip>
+                        </Group>
+                      </Table.Td>
+                    </Table.Tr>
+                  );
+                })}
               </Table.Tbody>
             </Table>
           </Paper>
@@ -251,26 +352,73 @@ export default function PaymentMethodPage() {
           </Group>
         }
         radius="md"
+        size="lg"
       >
         <form onSubmit={form.onSubmit(handleSubmit)}>
           <Stack gap="md">
             <TextInput
-              label="Nama Metode"
-              placeholder="Contoh: Midtrans, BCA Virtual Account, Tunai, Bank Transfer..."
+              label="Nama Metode Pembayaran"
+              placeholder="Contoh: Midtrans, BCA Virtual Account, Tunai, Bank Mandiri..."
               required
               {...form.getInputProps('name')}
             />
 
-            <NumberInput
-              label="Biaya Administrasi Transaksi (Rp)"
-              description="Biaya per transaksi (masukkan 0 jika bebas biaya admin)"
-              placeholder="0"
-              thousandSeparator="."
-              decimalSeparator=","
-              min={0}
-              required
-              {...form.getInputProps('adminFee')}
+            <Select
+              label="Akun Kas & Bank Default (Default Account)"
+              placeholder="Pilih rekening atau akun kas penampung..."
+              description="Opsional: otomatis mengisi akun setor saat mencatat pembayaran penjualan"
+              data={accounts}
+              searchable
+              clearable
+              disabled={isAccountsLoading}
+              leftSection={<IconBuildingBank size={16} />}
+              {...form.getInputProps('defaultAccount')}
             />
+
+            <Divider my="xs" />
+
+            <Grid gutter="sm">
+              <Grid.Col span={{ base: 12, sm: 5 }}>
+                <NumberInput
+                  label="Biaya Admin Transaksi (Rp)"
+                  description="Opsional: masukkan 0 jika bebas biaya"
+                  placeholder="0"
+                  thousandSeparator="."
+                  decimalSeparator=","
+                  min={0}
+                  required
+                  {...form.getInputProps('adminFee')}
+                />
+              </Grid.Col>
+
+              <Grid.Col span={{ base: 12, sm: 7 }}>
+                <Select
+                  label="Akun Beban Biaya Admin (Fee Account)"
+                  placeholder={isFeeRequired ? 'Pilih akun beban admin...' : 'Opsional...'}
+                  description={
+                    isFeeRequired
+                      ? 'Wajib diisi karena biaya admin > Rp 0'
+                      : 'Opsional: tempat mencatat beban biaya admin bank'
+                  }
+                  data={accounts}
+                  searchable
+                  clearable
+                  disabled={isAccountsLoading}
+                  required={isFeeRequired}
+                  leftSection={<IconReceipt2 size={16} />}
+                  {...form.getInputProps('feeAccount')}
+                />
+              </Grid.Col>
+            </Grid>
+
+            {isFeeRequired && (
+              <Alert icon={<IconInfoCircle size={16} />} color="blue" radius="md" py="xs">
+                <Text size="xs">
+                  Setiap transaksi pembayaran yang menggunakan metode ini akan otomatis menjurnal biaya admin sebesar{' '}
+                  <strong>Rp {form.values.adminFee.toLocaleString('id-ID')}</strong> ke akun beban yang dipilih.
+                </Text>
+              </Alert>
+            )}
 
             <Divider />
 

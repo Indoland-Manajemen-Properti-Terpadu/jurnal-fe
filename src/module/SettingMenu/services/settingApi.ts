@@ -19,14 +19,19 @@ export type GeneralSetting = {
 };
 
 export const fetchGeneralSettings = async (): Promise<GeneralSetting> => {
-  const { data } = await apiClient.get<ApiEnvelope<GeneralSetting>>(API_SETTINGS.GET_GENERAL_SETTINGS);
+  const { data } = await apiClient.get<ApiEnvelope<GeneralSetting>>(
+    API_SETTINGS.GET_GENERAL_SETTINGS
+  );
   return data.data;
 };
 
 export const updateGeneralSettings = async (decimalPrecision: number): Promise<GeneralSetting> => {
-  const { data } = await apiClient.put<ApiEnvelope<GeneralSetting>>(API_SETTINGS.PUT_GENERAL_SETTINGS, {
-    decimalPrecision,
-  });
+  const { data } = await apiClient.put<ApiEnvelope<GeneralSetting>>(
+    API_SETTINGS.PUT_GENERAL_SETTINGS,
+    {
+      decimalPrecision,
+    }
+  );
   return data.data;
 };
 
@@ -60,7 +65,9 @@ export type AccountMappingsByGroup = {
 };
 
 export const fetchAccountMappings = async (): Promise<AccountMappingsByGroup> => {
-  const { data } = await apiClient.get<ApiEnvelope<AccountMappingsByGroup>>(API_SETTINGS.GET_ACCOUNT_MAPPINGS);
+  const { data } = await apiClient.get<ApiEnvelope<AccountMappingsByGroup>>(
+    API_SETTINGS.GET_ACCOUNT_MAPPINGS
+  );
   return data.data || {};
 };
 
@@ -68,7 +75,10 @@ export const seedAccountMappings = async (): Promise<void> => {
   await apiClient.post(API_SETTINGS.POST_SEED_ACCOUNT_MAPPINGS);
 };
 
-export const updateAccountMapping = async (id: string, accountId: string): Promise<AccountMappingItem> => {
+export const updateAccountMapping = async (
+  id: string,
+  accountId: string
+): Promise<AccountMappingItem> => {
   const { data } = await apiClient.put<ApiEnvelope<AccountMappingItem>>(
     API_SETTINGS.PUT_ACCOUNT_MAPPING(id),
     { account: accountId }
@@ -120,12 +130,19 @@ export type UpdateNumberFormatPayload = {
 };
 
 export const fetchNumberFormats = async (): Promise<NumberFormat[]> => {
-  const { data } = await apiClient.get<ApiEnvelope<NumberFormat[]>>(API_SETTINGS.GET_NUMBER_FORMATS);
+  const { data } = await apiClient.get<ApiEnvelope<NumberFormat[]>>(
+    API_SETTINGS.GET_NUMBER_FORMATS
+  );
   return Array.isArray(data.data) ? data.data : [];
 };
 
-export const createNumberFormat = async (payload: CreateNumberFormatPayload): Promise<NumberFormat> => {
-  const { data } = await apiClient.post<ApiEnvelope<NumberFormat>>(API_SETTINGS.POST_NUMBER_FORMAT, payload);
+export const createNumberFormat = async (
+  payload: CreateNumberFormatPayload
+): Promise<NumberFormat> => {
+  const { data } = await apiClient.post<ApiEnvelope<NumberFormat>>(
+    API_SETTINGS.POST_NUMBER_FORMAT,
+    payload
+  );
   return data.data;
 };
 
@@ -178,8 +195,13 @@ export const fetchPaymentTerms = async (page = 1): Promise<PaymentTerm[]> => {
   return data.data?.data || [];
 };
 
-export const createPaymentTerm = async (payload: CreatePaymentTermPayload): Promise<PaymentTerm> => {
-  const { data } = await apiClient.post<ApiEnvelope<PaymentTerm>>(API_SETTINGS.POST_PAYMENT_TERM, payload);
+export const createPaymentTerm = async (
+  payload: CreatePaymentTermPayload
+): Promise<PaymentTerm> => {
+  const { data } = await apiClient.post<ApiEnvelope<PaymentTerm>>(
+    API_SETTINGS.POST_PAYMENT_TERM,
+    payload
+  );
   return data.data;
 };
 
@@ -208,6 +230,8 @@ export type PaymentMethod = {
   adminFee: number;
   external_id?: string;
   isDefault?: boolean;
+  defaultAccount?: any;
+  feeAccount?: any;
   deleted?: boolean;
   createdAt?: string;
   updatedAt?: string;
@@ -216,11 +240,15 @@ export type PaymentMethod = {
 export type CreatePaymentMethodPayload = {
   name: string;
   adminFee?: number;
+  defaultAccount?: string | null;
+  feeAccount?: string | null;
 };
 
 export type UpdatePaymentMethodPayload = {
   name?: string;
   adminFee?: number;
+  defaultAccount?: string | null;
+  feeAccount?: string | null;
 };
 
 export const fetchPaymentMethods = async (page = 1): Promise<PaymentMethod[]> => {
@@ -289,7 +317,9 @@ export type UpdateTaxPayload = {
 };
 
 export const fetchTaxes = async (): Promise<Tax[]> => {
-  const { data } = await apiClient.get<ApiEnvelope<{ data: Tax[] } | Tax[]>>(API_SETTINGS.GET_TAXES);
+  const { data } = await apiClient.get<ApiEnvelope<{ data: Tax[] } | Tax[]>>(
+    API_SETTINGS.GET_TAXES
+  );
   if (Array.isArray(data.data)) {
     return data.data;
   }
@@ -346,7 +376,10 @@ export const createTag = async (payload: { name: string; color?: string }): Prom
   return data.data;
 };
 
-export const updateTag = async (id: string, payload: { name: string; color?: string }): Promise<Tag> => {
+export const updateTag = async (
+  id: string,
+  payload: { name: string; color?: string }
+): Promise<Tag> => {
   const { data } = await apiClient.put<ApiEnvelope<Tag>>(API_SETTINGS.PUT_TAG(id), payload);
   return data.data;
 };
@@ -354,4 +387,3 @@ export const updateTag = async (id: string, payload: { name: string; color?: str
 export const deleteTag = async (id: string): Promise<void> => {
   await apiClient.delete(API_SETTINGS.DELETE_TAG(id));
 };
-

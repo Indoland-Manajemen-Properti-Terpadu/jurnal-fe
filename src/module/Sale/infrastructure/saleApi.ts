@@ -347,6 +347,8 @@ export const fetchPaymentMethods = async (): Promise<SalePaymentMethod[]> => {
     adminFee: toNumber(m.adminFee),
     external_id: m.external_id,
     isDefault: Boolean(m.isDefault),
+    defaultAccount: m.defaultAccount,
+    feeAccount: m.feeAccount,
   }));
 };
 
