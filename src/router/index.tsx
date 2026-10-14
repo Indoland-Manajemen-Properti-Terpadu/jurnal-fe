@@ -54,6 +54,14 @@ import AssetPage from '@/module/Asset/view/AssetPage';
 import KontakPage from '@/module/Kontak/view/KontakPage';
 import CompanySettingPage from '@/module/SettingMenu/CompanySetting/view/CompanySettingPage';
 import ApprovalSettingPage from '@/module/SettingMenu/ApprovalSetting/view/ApprovalSettingPage';
+import SettingsHubPage from '@/module/SettingMenu/Hub/SettingsHubPage';
+import GeneralSettingPage from '@/module/SettingMenu/GeneralSetting/GeneralSettingPage';
+import AccountMappingPage from '@/module/SettingMenu/AccountMapping/AccountMappingPage';
+import TaxSettingPage from '@/module/SettingMenu/Tax/TaxSettingPage';
+import PaymentTermPage from '@/module/SettingMenu/PaymentSettings/PaymentTermPage';
+import PaymentMethodPage from '@/module/SettingMenu/PaymentSettings/PaymentMethodPage';
+import NumberFormatPage from '@/module/SettingMenu/NumberFormat/NumberFormatPage';
+import TagSettingPage from '@/module/SettingMenu/Tags/TagSettingPage';
 import { NotFound } from '@/components/ErrorPage/NotFound';
 import LoginPage from '@/module/Authentication/Login/pages/LoginPage';
 import OAuthCallback from '@/module/Authentication/Login/pages/OAuthCallback';
@@ -306,6 +314,38 @@ const router = createBrowserRouter([
   {
     path: routes.baseModules.approvalSetting,
     element: <ApprovalSettingPage />,
+  },
+  {
+    path: routes.settings.main,
+    element: <SettingsHubPage />,
+  },
+  {
+    path: routes.settings.general,
+    element: <GeneralSettingPage />,
+  },
+  {
+    path: routes.settings.accountMapping,
+    element: <AccountMappingPage />,
+  },
+  {
+    path: routes.settings.taxes,
+    element: <TaxSettingPage />,
+  },
+  {
+    path: routes.settings.paymentTerms,
+    element: <PaymentTermPage />,
+  },
+  {
+    path: routes.settings.paymentMethods,
+    element: <PaymentMethodPage />,
+  },
+  {
+    path: routes.settings.numberFormats,
+    element: <NumberFormatPage />,
+  },
+  {
+    path: routes.settings.tags,
+    element: <TagSettingPage />,
   },
 ]);
 

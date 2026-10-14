@@ -77,3 +77,45 @@ export const API_EXPORT_REPORT = {
   EXPORT_REPORT_EC: `${API_REPORT.GET_EQUITY_CHANGE_REPORT}/download`,
   EXPORT_REPORT_GJ: `${API_REPORT.GET_GENERAL_JOURNAL_REPORT}/download`,
 };
+
+export const API_SETTINGS = {
+  // General settings
+  GET_GENERAL_SETTINGS: `/v1/settings/general-settings`,
+  PUT_GENERAL_SETTINGS: `/v1/settings/general-settings`,
+
+  // Account mappings
+  GET_ACCOUNT_MAPPINGS: `/v1/settings/account-mappings`,
+  POST_SEED_ACCOUNT_MAPPINGS: `/v1/settings/account-mappings/seed`,
+  PUT_ACCOUNT_MAPPING: (id: string) => `/v1/settings/account-mappings/${id}`,
+  PUT_ACCOUNT_MAPPING_BATCH: `/v1/settings/account-mappings/batch`,
+
+  // Number formats
+  GET_NUMBER_FORMATS: `/v1/settings/number-formats`,
+  POST_NUMBER_FORMAT: `/v1/settings/number-formats`,
+  PUT_NUMBER_FORMAT: (id: string) => `/v1/settings/number-formats/${id}`,
+  DELETE_NUMBER_FORMAT: (id: string) => `/v1/settings/number-formats/${id}`,
+
+  // Payment terms
+  GET_PAYMENT_TERMS: `/v1/payment-terms`,
+  POST_PAYMENT_TERM: `/v1/payment-terms`,
+  PUT_PAYMENT_TERM: (id: string) => `/v1/payment-terms/${id}`,
+  DELETE_PAYMENT_TERM: (id: string) => `/v1/payment-terms/${id}`,
+
+  // Payment methods
+  GET_PAYMENT_METHODS: `/v1/payment-methods`,
+  POST_PAYMENT_METHOD: `/v1/payment-methods`,
+  PUT_PAYMENT_METHOD: (id: string) => `/v1/payment-methods/${id}`,
+  DELETE_PAYMENT_METHOD: (id: string) => `/v1/payment-methods/${id}`,
+
+  // Taxes
+  GET_TAXES: `/v1/taxes`,
+  POST_TAX: `/v1/taxes`,
+  PUT_TAX: (id: string) => `/v1/taxes/${id}`,
+  DELETE_TAX: (id: string) => `/v1/taxes/${id}`,
+
+  // Tags
+  GET_TAGS: `/v1/tags`,
+  POST_TAG: `/v1/tags`,
+  PUT_TAG: (id: string) => `/v1/tags/${id}`,
+  DELETE_TAG: (id: string) => `/v1/tags/${id}`,
+};

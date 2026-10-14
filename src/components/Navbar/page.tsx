@@ -81,20 +81,51 @@ const mockdata = [
         icon: GearSix,
         links: [
           {
+            label: 'Pusat Pengaturan',
+            link: routes.settings.main,
+          },
+          {
+            label: 'Pengaturan Umum',
+            link: routes.settings.general,
+          },
+          {
+            label: 'Pemetaan Akun',
+            link: routes.settings.accountMapping,
+          },
+          {
+            label: 'Pajak',
+            link: routes.settings.taxes,
+          },
+          {
+            label: 'Syarat Pembayaran',
+            link: routes.settings.paymentTerms,
+          },
+          {
+            label: 'Metode Pembayaran',
+            link: routes.settings.paymentMethods,
+          },
+          {
+            label: 'Format Penomoran',
+            link: routes.settings.numberFormats,
+          },
+          {
+            label: 'Tag Transaksi',
+            link: routes.settings.tags,
+          },
+          {
             label: 'Company Setting',
-            link: '/settings/company-setting',
+            link: routes.baseModules.companySetting,
           },
           {
             label: 'User Management',
-            link: '/settings/user-management',
+            link: routes.userManagement.main,
           },
           {
             label: 'Approval Setting',
-            link: '/settings/approval-setting',
+            link: routes.baseModules.approvalSetting,
           },
         ],
       },
-
     ],
   }
 ];

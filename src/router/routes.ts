@@ -100,6 +100,17 @@ export const routes = {
     companySetting: '/settings/company-setting',
     approvalSetting: '/settings/approval-setting',
   },
+
+  settings: {
+    main: '/settings',
+    general: '/settings/general',
+    accountMapping: '/settings/account-mapping',
+    taxes: '/settings/taxes',
+    paymentTerms: '/settings/payment-terms',
+    paymentMethods: '/settings/payment-methods',
+    numberFormats: '/settings/number-formats',
+    tags: '/settings/tags',
+  },
 } as const;
 
 export type Routes = typeof routes;
