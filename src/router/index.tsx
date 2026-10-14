@@ -16,21 +16,20 @@ import ClosingBooksPage from '@/module/GeneralJournal/PeriodeLockAndClosingBooks
 import UserManagement from '@/module/SettingMenu/UserManagement/Main/pages/UserManagement';
 import AddUserForm from '@/module/SettingMenu/UserManagement/User/components/AddUserForm/AddUserForm';
 import AddRoleForm from '@/module/SettingMenu/UserManagement/Role/components/AddRoleForm/AddRoleForm';
-import ReportCatalogPage from '@/module/result-report/presentation/pages/ReportCatalogPage';
-import BalanceSheetPage from '@/module/result-report/legacy/business-overview/page/BalanceSheetPage';
+import ReportCatalogPage from '@/module/ResultReport/Catalog/pages/ReportCatalogPage';
+import BalanceSheetPage from '@/module/ResultReport/BusinessOverview/page/BalanceSheetPage';
 import ImportBankStatementDraft from '@/module/GeneralJournal/DetailAccount/BankStatement/pages/ImportBankStatementDraft';
-import TrialBalancePage from '@/module/result-report/legacy/business-overview/page/TrialBalancePage';
-import IncomeStatementPage from '@/module/result-report/legacy/business-overview/page/IncomeStatementPage';
-import CashFlowPage from '@/module/result-report/legacy/business-overview/page/CashFlowPage';
-import JournalEntryPage from '@/module/result-report/legacy/business-overview/page/JournalEntryPage';
-import BusinessSumaryPage from '@/module/result-report/legacy/business-overview/page/BusinessSumaryPage';
-import IncomeStatementBudgetPage from '@/module/result-report/legacy/business-overview/page/IncomeStatementBudgetPage';
+import TrialBalancePage from '@/module/ResultReport/BusinessOverview/page/TrialBalancePage';
+import IncomeStatementPage from '@/module/ResultReport/BusinessOverview/page/IncomeStatementPage';
+import CashFlowPage from '@/module/ResultReport/BusinessOverview/page/CashFlowPage';
+import JournalEntryPage from '@/module/ResultReport/BusinessOverview/page/JournalEntryPage';
+import BusinessSumaryPage from '@/module/ResultReport/BusinessOverview/page/BusinessSumaryPage';
+import IncomeStatementBudgetPage from '@/module/ResultReport/BusinessOverview/page/IncomeStatementBudgetPage';
 import FinancialstatementPage from '@/module/GeneralJournal/PeriodeLockAndClosingBooks/pages/FinancialStatement';
 import ListPeriodLockAndClosingBooksPage from '@/module/GeneralJournal/PeriodeLockAndClosingBooks/pages/ListPeriodLockAndClosingBooks';
-import GeneralLedgerPage from '@/module/result-report/presentation/pages/GeneralLedgerPage';
-import { httpGeneralLedgerRepository } from '@/module/result-report/infrastructure/repositories/httpGeneralLedgerRepository';
-import EquityChangesPage from '@/module/result-report/legacy/business-overview/page/EquityChangesPage';
-import BudgetManagementPage from '@/module/result-report/legacy/business-overview/page/BudgetManagementPage';
+import GeneralLedgerPage from '@/module/ResultReport/GeneralLedger/pages/GeneralLedgerPage';
+import EquityChangesPage from '@/module/ResultReport/BusinessOverview/page/EquityChangesPage';
+import BudgetManagementPage from '@/module/ResultReport/BusinessOverview/page/BudgetManagementPage';
 import AddTransferMoneyPage from '@/module/BankCash/TransferMoney/pages/AddTransferMoney';
 import AddReceiveMoneyPage from '@/module/BankCash/ReceiveMoney/page/AddReceiveMoney';
 import BankAndCashMainPage from '@/module/BankCash/Main/pages/BankAndCashMainPage';
@@ -231,7 +230,7 @@ const router = createBrowserRouter([
   },
   {
     path: routes.resultReport.generalLedgerReport,
-    element: <GeneralLedgerPage repository={httpGeneralLedgerRepository} />,
+    element: <GeneralLedgerPage />,
   },
   {
     path: routes.resultReport.equityChanges,
