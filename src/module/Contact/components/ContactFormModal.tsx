@@ -280,44 +280,104 @@ export function ContactFormModal({
     }));
   }, [accountsQuery.data]);
 
-  // Specific AR accounts with fallback to general COA
+  // Specific AR accounts with fallback to general COA (strictly deduplicated)
   const arSelectData = useMemo(() => {
-    const result: Array<{ group: string; items: Array<{ value: string; label: string }> }> = [];
     const filtered = arFilteredQuery.data ?? [];
+    const seenIds = new Set<string>();
+    const result: Array<{ group: string; items: Array<{ value: string; label: string }> }> = [];
+
     if (filtered.length > 0) {
-      result.push({
-        group: 'Akun Piutang Direkomendasikan (AR)',
-        items: filtered.map((a) => ({
-          value: a.id,
-          label: `${a.accountNumber} - ${a.name}`,
-        })),
+      const recItems: Array<{ value: string; label: string }> = [];
+      filtered.forEach((a) => {
+        if (a.id && !seenIds.has(a.id)) {
+          seenIds.add(a.id);
+          recItems.push({
+            value: a.id,
+            label: `${a.accountNumber} - ${a.name}`,
+          });
+        }
       });
+      if (recItems.length > 0) {
+        result.push({
+          group: 'Akun Piutang Direkomendasikan (AR)',
+          items: recItems,
+        });
+      }
     }
-    return [...result, ...accountSelectData];
+
+    accountSelectData.forEach((grp) => {
+      const remainingItems = grp.items.filter((item) => {
+        if (!item.value || seenIds.has(item.value)) return false;
+        seenIds.add(item.value);
+        return true;
+      });
+      if (remainingItems.length > 0) {
+        result.push({
+          group: grp.group,
+          items: remainingItems,
+        });
+      }
+    });
+
+    return result;
   }, [arFilteredQuery.data, accountSelectData]);
 
-  // Specific AP accounts with fallback to general COA
+  // Specific AP accounts with fallback to general COA (strictly deduplicated)
   const apSelectData = useMemo(() => {
-    const result: Array<{ group: string; items: Array<{ value: string; label: string }> }> = [];
     const filtered = apFilteredQuery.data ?? [];
+    const seenIds = new Set<string>();
+    const result: Array<{ group: string; items: Array<{ value: string; label: string }> }> = [];
+
     if (filtered.length > 0) {
-      result.push({
-        group: 'Akun Hutang Direkomendasikan (AP)',
-        items: filtered.map((a) => ({
-          value: a.id,
-          label: `${a.accountNumber} - ${a.name}`,
-        })),
+      const recItems: Array<{ value: string; label: string }> = [];
+      filtered.forEach((a) => {
+        if (a.id && !seenIds.has(a.id)) {
+          seenIds.add(a.id);
+          recItems.push({
+            value: a.id,
+            label: `${a.accountNumber} - ${a.name}`,
+          });
+        }
       });
+      if (recItems.length > 0) {
+        result.push({
+          group: 'Akun Hutang Direkomendasikan (AP)',
+          items: recItems,
+        });
+      }
     }
-    return [...result, ...accountSelectData];
+
+    accountSelectData.forEach((grp) => {
+      const remainingItems = grp.items.filter((item) => {
+        if (!item.value || seenIds.has(item.value)) return false;
+        seenIds.add(item.value);
+        return true;
+      });
+      if (remainingItems.length > 0) {
+        result.push({
+          group: grp.group,
+          items: remainingItems,
+        });
+      }
+    });
+
+    return result;
   }, [apFilteredQuery.data, accountSelectData]);
 
-  // Contact groups options
+  // Contact groups options (strictly deduplicated)
   const groupSelectData = useMemo(() => {
-    return (groupsQuery.data ?? []).map((g) => ({
-      value: g.name,
-      label: g.name,
-    }));
+    const seen = new Set<string>();
+    const opts: Array<{ value: string; label: string }> = [];
+    (groupsQuery.data ?? []).forEach((g) => {
+      if (g.name && !seen.has(g.name)) {
+        seen.add(g.name);
+        opts.push({
+          value: g.name,
+          label: g.name,
+        });
+      }
+    });
+    return opts;
   }, [groupsQuery.data]);
 
   // Payment terms options (deduplicated by days)
