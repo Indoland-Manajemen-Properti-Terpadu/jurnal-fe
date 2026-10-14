@@ -1,27 +1,34 @@
 .control {
+  position: relative;
   width: 100%;
-  height: rem(40px);
+  height: rem(42px);
   display: flex;
   align-items: center;
-  color: var(--jurnal-color-text-secondary);
-  font-size: rem(16px);
-  line-height: rem(22px);
+  color: #475569;
+  font-size: rem(14px);
+  line-height: rem(20px);
   font-weight: 500;
-  padding: rem(8px);
-  border-radius: rem(4px);
-  margin-bottom: rem(8px);
+  padding: rem(8px) rem(10px);
+  border-radius: rem(12px);
+  margin-bottom: rem(4px);
   transition:
-    background-color 120ms ease,
-    color 120ms ease;
-
-  &[data-active] {
-    background-color: var(--jurnal-color-surface-hover);
-    color: var(--jurnal-color-black);
-  }
+    background-color 150ms ease,
+    color 150ms ease,
+    box-shadow 200ms ease,
+    transform 150ms ease;
 
   &:hover {
-    background-color: var(--jurnal-color-bg-subtle);
-    color: var(--jurnal-color-text-primary);
+    background-color: rgba(5, 48, 121, 0.05);
+    color: #0f172a;
+  }
+
+  &[data-active] {
+    color: #ffffff;
+    font-weight: 600;
+    background: linear-gradient(135deg, #053079 0%, #0a4fb5 60%, #09b2ff 140%);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.25) inset,
+      0 10px 22px -10px rgba(5, 48, 121, 0.7);
   }
 }
 
@@ -38,40 +45,44 @@
 }
 
 .link {
+  position: relative;
   display: block;
-  width: calc(100% - rem(24px));
-  min-height: rem(36px);
-  padding: rem(7px) rem(8px) rem(7px) rem(16px);
-  margin-left: rem(24px);
-  margin-bottom: rem(4px);
-  border-left: rem(1px) solid var(--jurnal-color-border-muted);
-  border-radius: rem(4px);
-  color: var(--jurnal-color-text-secondary);
+  width: calc(100% - rem(22px));
+  min-height: rem(34px);
+  padding: rem(7px) rem(10px) rem(7px) rem(16px);
+  margin-left: rem(22px);
+  margin-bottom: rem(2px);
+  border: 0;
+  border-left: rem(2px) solid rgba(15, 23, 42, 0.08);
+  border-radius: 0 rem(10px) rem(10px) 0;
+  color: #64748b;
   background: transparent;
-  border-top: 0;
-  border-right: 0;
-  border-bottom: 0;
   text-align: left;
-  font-size: rem(14px);
+  font-size: rem(13px);
   line-height: rem(20px);
   cursor: pointer;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease,
+    border-color 120ms ease;
 
   &:hover {
-    color: var(--jurnal-color-text-primary);
-    background-color: var(--jurnal-color-bg-subtle);
+    color: #0f172a;
+    background-color: rgba(5, 48, 121, 0.05);
   }
 
   &[data-active] {
-    color: var(--jurnal-color-black);
-    background-color: var(--jurnal-color-surface-hover);
+    color: #053079;
+    font-weight: 600;
+    border-left-color: #09b2ff;
+    background-color: rgba(9, 178, 255, 0.1);
   }
 }
 
 .chevron {
-  color: var(--jurnal-color-text-secondary);
-  transition: transform 120ms ease;
+  transition: transform 150ms ease;
 }
 
 .chevron[data-rotate] {
-  transform: rotate(-90deg);
+  transform: rotate(90deg);
 }

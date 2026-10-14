@@ -1,0 +1,38 @@
+.footerLink {
+  display: inline-flex;
+  align-items: center;
+  padding: rem(6px) rem(10px);
+  border-radius: rem(8px);
+  font-size: rem(12px);
+  font-weight: 500;
+  color: #64748b;
+  text-decoration: none;
+  transition: all 150ms ease;
+}
+
+.footerLink:hover {
+  color: #053079;
+  background-color: rgba(5, 48, 121, 0.05);
+  text-decoration: none;
+}
+
+.linkIcon {
+  color: #94a3b8;
+  transition: color 150ms ease;
+}
+
+.footerLink:hover .linkIcon {
+  color: #09b2ff;
+}
+
+.versionTag {
+  padding: rem(3px) rem(8px);
+  border-radius: rem(6px);
+  font-size: rem(11px);
+  font-family: var(--mantine-font-family-monospace, monospace);
+  font-weight: 600;
+  color: #64748b;
+  background-color: rgba(15, 23, 42, 0.04);
+  border: rem(1px) solid rgba(15, 23, 42, 0.06);
+}
+

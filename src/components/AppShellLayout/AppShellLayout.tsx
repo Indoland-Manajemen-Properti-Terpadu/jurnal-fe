@@ -10,7 +10,7 @@ import { primaryColor } from '@/theme';
 
 export const appShellLayout = {
     headerHeight: 72,
-    footerHeight: 72,
+    footerHeight: 48,
     footerActionHeight: 72,
     navbarExpandedWidth: 280,
     navbarCollapsedWidth: 84,
@@ -51,11 +51,13 @@ const AppShellLayout = ({
             <AppShell.Header
                 style={{
                     height: rem(appShellLayout.headerHeight),
-                    borderBottom: `1px solid ${semanticColors.borderSubtle}`,
-                    background: primaryColor.white,
+                    borderBottom: '1px solid rgba(15, 23, 42, 0.06)',
+                    background: 'rgba(255, 255, 255, 0.78)',
+                    backdropFilter: 'blur(16px) saturate(160%)',
+                    WebkitBackdropFilter: 'blur(16px) saturate(160%)',
                 }}
             >
-                <Container fluid p={appShellLayout.headerPadding}>
+                <Container fluid h="100%" px={{ base: 'md', sm: 'lg' }}>
                     <HeaderNav
                         desktopOpened={desktopOpened}
                         mobileOpened={mobileOpened}
@@ -79,9 +81,18 @@ const AppShellLayout = ({
             </AppShell.Main>
 
             {(withFooter || footer) && (
-                <AppShell.Footer p={footer ? 0 : 'md'} px={footer ? 'lg' : undefined}>
+                <AppShell.Footer
+                    p={footer ? 0 : 0}
+                    px={footer ? 'lg' : undefined}
+                    style={{
+                        borderTop: '1px solid rgba(15, 23, 42, 0.06)',
+                        background: 'rgba(255, 255, 255, 0.82)',
+                        backdropFilter: 'blur(16px) saturate(160%)',
+                        WebkitBackdropFilter: 'blur(16px) saturate(160%)',
+                    }}
+                >
                     {footer ?? (
-                        <Container fluid px="lg">
+                        <Container fluid h="100%" px={{ base: 'md', sm: 'lg' }}>
                             <FooterNav />
                         </Container>
                     )}

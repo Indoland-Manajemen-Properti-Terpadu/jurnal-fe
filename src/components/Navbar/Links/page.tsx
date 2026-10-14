@@ -3,7 +3,6 @@ import { Box, Collapse, Group, Text, Tooltip, UnstyledButton } from '@mantine/co
 import { CaretRight } from '@phosphor-icons/react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import classes from './page.module.css';
-import { themeColors } from '@/theme';
 
 interface LinksGroupProps {
   icon?: any;
@@ -76,7 +75,7 @@ export function LinksGroup(props: LinksGroupProps) {
         >
           <Group justify="space-between" gap={12} wrap="nowrap" w="100%">
             <Group gap={12} wrap="nowrap" justify={collapsed ? 'center' : 'flex-start'} w={collapsed ? '100%' : undefined}>
-              {Icon && <Icon size={24} color={isActive ? themeColors.primary[5] : 'currentColor'} weight="duotone" />}
+              {Icon && <Icon size={22} color="currentColor" weight={isActive ? 'fill' : 'duotone'} />}
               {!collapsed && <Box className={classes.label}>{label}</Box>}
             </Group>
             {hasLinks && !collapsed && (

@@ -8,8 +8,11 @@ import {
   UnstyledButton,
   Tooltip,
   ActionIcon,
-  Divider,
+  Avatar,
 } from '@mantine/core';
+import { useNavigate } from 'react-router-dom';
+import { useAuthStore } from '@/store/useAuthentications';
+import { routes } from '@/router/routes';
 import {
   AddressBook,
   Bank,
@@ -45,7 +48,7 @@ const mockdata = [
     title: 'TRANSAKSI',
     links: [
       { label: 'Kas & Bank', icon: Bank, link: '/bank-cash' },
-      { label: 'Penjualan', icon: Storefront, link: '/setting-budget/budget-management' },
+      { label: 'Penjualan', icon: Storefront, link: '/sales' },
       { label: 'Pembelian', icon: ShoppingCart, link: '/pembelian' },
       { label: 'Biaya', icon: Receipt, link: '/finance/cost' },
     ],
@@ -104,24 +107,29 @@ type NavigationProps = {
 };
 
 const NavbarComponent = ({ onClose, collapsed = false, desktopOpened = true, toggleDesktop }: NavigationProps) => {
-  const links = mockdata.map((item, index) => (
-    <Box pl={0} mb={collapsed ? 'xs' : rem(12)} key={item.title}>
-      <Text
-        tt="uppercase"
-        size="xs"
-        pl={8}
-        fw={500}
-        mb={8}
-        className={classes.linkHeader}
-        ta={collapsed ? 'center' : 'left'}
-      >
-        {collapsed ? item.title.slice(0, 3) : item.title}
+  const navigate = useNavigate();
+  const { userName, clearTokens } = useAuthStore();
+  const displayName = userName || 'Finance';
+  const initials = displayName
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0]?.toUpperCase())
+    .join('');
+
+  const handleLogout = () => {
+    clearTokens();
+    navigate(routes.login);
+  };
+
+  const links = mockdata.map((item) => (
+    <Box mb={collapsed ? 'sm' : rem(18)} key={item.title}>
+      <Text pl={10} mb={8} className={classes.linkHeader} ta={collapsed ? 'center' : 'left'}>
+        {collapsed ? '•••' : item.title}
       </Text>
       {item.links.map((linkItem) => (
         <LinksGroup {...linkItem} key={linkItem.label} closeSidebar={onClose} collapsed={collapsed} />
-
       ))}
-      {index < mockdata.length - 1 && <Divider color={themeColors.slate[4]} my={12} size="xs" />}
     </Box>
   ));
 
@@ -129,19 +137,19 @@ const NavbarComponent = ({ onClose, collapsed = false, desktopOpened = true, tog
     <nav className={classes.navbar} data-collapsed={collapsed || undefined}>
       <div className={classes.header}>
         <Group justify={collapsed ? 'center' : 'space-between'} w="100%" wrap="nowrap">
-          {!collapsed && <Image src={LogoProapps} style={{ width: rem(120) }} />}
-          <Tooltip label="Toggle side navigation" position="right">
+          {!collapsed && <Image src={LogoProapps} style={{ width: rem(118) }} />}
+          <Tooltip label={desktopOpened ? 'Ciutkan menu' : 'Perluas menu'} position="right" withArrow>
             <ActionIcon
               visibleFrom="md"
               onClick={toggleDesktop}
-              variant="subtle"
-              color="gray"
-              radius="sm"
-              size={36}
-              ml={collapsed ? 'auto' : 0}
+              variant="light"
+              color="primary"
+              radius="md"
+              size={34}
+              aria-label="Toggle side navigation"
             >
               <SidebarSimpleIcon
-                size={20}
+                size={18}
                 weight="duotone"
                 style={{ transform: desktopOpened ? 'none' : 'scaleX(-1)' }}
               />
@@ -150,23 +158,38 @@ const NavbarComponent = ({ onClose, collapsed = false, desktopOpened = true, tog
         </Group>
       </div>
 
-      <ScrollArea className={classes.links} type={collapsed ? 'never' : 'auto'}>
+      <ScrollArea className={classes.links} type={collapsed ? 'never' : 'hover'} scrollbarSize={6}>
         <div className={classes.linksInner}>{links}</div>
       </ScrollArea>
 
       <div className={classes.footer}>
-        <Tooltip label="Logout" position="right" disabled={!collapsed}>
-          <UnstyledButton className={classes.user}>
-            <Group justify="center" h={40} px={8} gap="xs">
-              <SignOut size={20} color={themeColors.red[6]} weight="duotone" />
-              {!collapsed && (
-                <Text fz="sm" fw={600} c={themeColors.red[6]}>
-                  Logout
-                </Text>
-              )}
-            </Group>
-          </UnstyledButton>
-        </Tooltip>
+        <div className={classes.userCard}>
+          <Avatar
+            radius="md"
+            size={36}
+            variant="gradient"
+            gradient={{ from: themeColors.primary[7], to: themeColors.primary[4], deg: 135 }}
+          >
+            {initials || 'F'}
+          </Avatar>
+          {!collapsed && (
+            <Box style={{ flex: 1, minWidth: 0 }}>
+              <Text fz="sm" fw={700} c="dark.8" truncate>
+                {displayName}
+              </Text>
+              <Text fz={11} c="dimmed" truncate>
+                Jurnal Accounting
+              </Text>
+            </Box>
+          )}
+          {!collapsed && (
+            <Tooltip label="Keluar" withArrow>
+              <UnstyledButton className={classes.logout} onClick={handleLogout} aria-label="Logout">
+                <SignOut size={18} weight="bold" />
+              </UnstyledButton>
+            </Tooltip>
+          )}
+        </div>
       </div>
     </nav>
   );
