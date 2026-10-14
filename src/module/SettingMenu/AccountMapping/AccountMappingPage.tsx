@@ -75,12 +75,18 @@ export default function AccountMappingPage() {
       try {
         setIsAccountsLoading(true);
         const res = await getJournalAccounts();
-        setAccounts(
-          res.map((acc: any) => ({
-            value: acc.id,
-            label: `${acc.accountNumber ? `${acc.accountNumber} - ` : ''}${acc.name} (${acc.type || acc.category?.name || 'Akun'})`,
-          }))
-        );
+        if (Array.isArray(res)) {
+          const uniqueMap = new Map<string, { value: string; label: string }>();
+          res.forEach((acc: any) => {
+            if (acc?.id && !uniqueMap.has(acc.id)) {
+              uniqueMap.set(acc.id, {
+                value: acc.id,
+                label: `${acc.accountNumber ? `${acc.accountNumber} - ` : ''}${acc.name} (${acc.type || acc.category?.name || 'Akun'})`,
+              });
+            }
+          });
+          setAccounts(Array.from(uniqueMap.values()));
+        }
       } catch (err) {
         console.error('Failed to load accounts for mapping:', err);
       } finally {

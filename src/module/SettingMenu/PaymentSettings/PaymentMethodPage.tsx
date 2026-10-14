@@ -52,7 +52,7 @@ export default function PaymentMethodPage() {
   const deleteMutation = useDeletePaymentMethod();
 
   const [search, setSearch] = useState('');
-  const [accounts, setAccounts] = useState<Array<{ value: string; label: string; group?: string }>>([]);
+  const [accounts, setAccounts] = useState<Array<{ value: string; label: string }>>([]);
   const [isAccountsLoading, setIsAccountsLoading] = useState(false);
 
   // Modal State
@@ -63,19 +63,26 @@ export default function PaymentMethodPage() {
   const [deleteModalOpened, { open: openDeleteModal, close: closeDeleteModal }] = useDisclosure(false);
   const [deletingMethod, setDeletingMethod] = useState<PaymentMethod | null>(null);
 
-  // Load COA accounts
+  // Load COA accounts safely
   useEffect(() => {
     const loadAccounts = async () => {
       try {
         setIsAccountsLoading(true);
         const res = await getJournalAccounts();
-        setAccounts(
-          res.map((acc: any) => ({
-            value: acc.id,
-            label: `${acc.accountNumber ? `${acc.accountNumber} - ` : ''}${acc.name}`,
-            group: acc.type || acc.category?.name || (acc.isBankAndCash ? 'Kas & Bank' : 'Lainnya'),
-          }))
-        );
+        if (Array.isArray(res)) {
+          const uniqueMap = new Map<string, { value: string; label: string }>();
+          res.forEach((acc: any) => {
+            if (acc?.id && !uniqueMap.has(acc.id)) {
+              const cat = acc.type || acc.category?.name || (acc.isBankAndCash ? 'Kas & Bank' : '');
+              const suffix = cat ? ` (${cat})` : '';
+              uniqueMap.set(acc.id, {
+                value: acc.id,
+                label: `${acc.accountNumber ? `${acc.accountNumber} - ` : ''}${acc.name}${suffix}`,
+              });
+            }
+          });
+          setAccounts(Array.from(uniqueMap.values()));
+        }
       } catch (err) {
         console.error('Failed to load accounts for payment methods:', err);
       } finally {
