@@ -32,7 +32,12 @@ import {
   IconUser,
 } from '@tabler/icons-react';
 import type { Contact, ContactFormValues, ContactType } from '../types/contact';
-import { useAccountOptions, usePaymentTerms } from '../hooks/useContactQueries';
+import {
+  useAccountOptions,
+  useContactGroups,
+  useFilteredAccounts,
+  usePaymentTerms,
+} from '../hooks/useContactQueries';
 
 type ContactFormModalProps = {
   opened: boolean;
@@ -86,11 +91,15 @@ export function ContactFormModal({
   const [activeTab, setActiveTab] = useState<string | null>('general');
   const accountsQuery = useAccountOptions();
   const paymentTermsQuery = usePaymentTerms();
+  const groupsQuery = useContactGroups();
+  const arFilteredQuery = useFilteredAccounts('AR');
+  const apFilteredQuery = useFilteredAccounts('AP');
 
   const form = useForm<ContactFormValues>({
     initialValues: {
       displayName: '',
       contactType: ['Pelanggan'],
+      contactGroups: [],
       fullName: {
         prefix: '',
         firstName: '',
@@ -144,6 +153,8 @@ export function ContactFormModal({
         arAccount: null,
         apAccount: null,
         defaultPaymentTerm: 30,
+        maxReceivable: { isActive: false, amount: 0 },
+        maxPayable: { isActive: false, amount: 0 },
       },
     },
     validate: {
@@ -159,6 +170,7 @@ export function ContactFormModal({
         form.setValues({
           displayName: contact.displayName ?? '',
           contactType: contact.contactType.length > 0 ? contact.contactType : ['Pelanggan'],
+          contactGroups: contact.contactGroups ?? [],
           fullName: {
             prefix: contact.fullName?.prefix ?? '',
             firstName: contact.fullName?.firstName ?? '',
@@ -225,6 +237,14 @@ export function ContactFormModal({
               typeof contact.mappingAccount?.defaultPaymentTerm === 'number'
                 ? contact.mappingAccount.defaultPaymentTerm
                 : 30,
+            maxReceivable: contact.mappingAccount?.maxReceivable ?? {
+              isActive: false,
+              amount: 0,
+            },
+            maxPayable: contact.mappingAccount?.maxPayable ?? {
+              isActive: false,
+              amount: 0,
+            },
           },
         });
       } else {
@@ -259,6 +279,46 @@ export function ContactFormModal({
       items,
     }));
   }, [accountsQuery.data]);
+
+  // Specific AR accounts with fallback to general COA
+  const arSelectData = useMemo(() => {
+    const result: Array<{ group: string; items: Array<{ value: string; label: string }> }> = [];
+    const filtered = arFilteredQuery.data ?? [];
+    if (filtered.length > 0) {
+      result.push({
+        group: 'Akun Piutang Direkomendasikan (AR)',
+        items: filtered.map((a) => ({
+          value: a.id,
+          label: `${a.accountNumber} - ${a.name}`,
+        })),
+      });
+    }
+    return [...result, ...accountSelectData];
+  }, [arFilteredQuery.data, accountSelectData]);
+
+  // Specific AP accounts with fallback to general COA
+  const apSelectData = useMemo(() => {
+    const result: Array<{ group: string; items: Array<{ value: string; label: string }> }> = [];
+    const filtered = apFilteredQuery.data ?? [];
+    if (filtered.length > 0) {
+      result.push({
+        group: 'Akun Hutang Direkomendasikan (AP)',
+        items: filtered.map((a) => ({
+          value: a.id,
+          label: `${a.accountNumber} - ${a.name}`,
+        })),
+      });
+    }
+    return [...result, ...accountSelectData];
+  }, [apFilteredQuery.data, accountSelectData]);
+
+  // Contact groups options
+  const groupSelectData = useMemo(() => {
+    return (groupsQuery.data ?? []).map((g) => ({
+      value: g.name,
+      label: g.name,
+    }));
+  }, [groupsQuery.data]);
 
   // Payment terms options (deduplicated by days)
   const paymentTermSelectData = useMemo(() => {
@@ -345,7 +405,7 @@ export function ContactFormModal({
             <Tabs.Panel value="general" pt="md">
               <Stack gap="sm">
                 <Grid gutter="sm">
-                  <Grid.Col span={{ base: 12, sm: 8 }}>
+                  <Grid.Col span={{ base: 12, sm: 5 }}>
                     <TextInput
                       label="Nama Tampilan (Display Name)"
                       placeholder="Contoh: PT. Sumber Makmur Abadi / John Doe"
@@ -360,6 +420,16 @@ export function ContactFormModal({
                       data={CONTACT_TYPE_OPTIONS}
                       withAsterisk
                       {...form.getInputProps('contactType')}
+                    />
+                  </Grid.Col>
+                  <Grid.Col span={{ base: 12, sm: 3 }}>
+                    <MultiSelect
+                      label="Grup Kontak"
+                      placeholder="Pilih grup"
+                      data={groupSelectData}
+                      searchable
+                      clearable
+                      {...form.getInputProps('contactGroups')}
                     />
                   </Grid.Col>
                 </Grid>
@@ -692,7 +762,7 @@ export function ContactFormModal({
                         label="Akun Piutang (Accounts Receivable)"
                         description="Digunakan untuk membukukan tagihan kepada pelanggan ini."
                         placeholder="Pilih akun piutang"
-                        data={accountSelectData}
+                        data={arSelectData}
                         searchable
                         clearable
                         nothingFoundMessage="Akun tidak ditemukan"
@@ -705,7 +775,7 @@ export function ContactFormModal({
                         label="Akun Hutang (Accounts Payable)"
                         description="Digunakan untuk membukukan kewajiban tagihan dari pemasok ini."
                         placeholder="Pilih akun hutang"
-                        data={accountSelectData}
+                        data={apSelectData}
                         searchable
                         clearable
                         nothingFoundMessage="Akun tidak ditemukan"
@@ -748,6 +818,63 @@ export function ContactFormModal({
                         max={365}
                         {...form.getInputProps('mappingAccount.defaultPaymentTerm')}
                       />
+                    </Grid.Col>
+                  </Grid>
+                </Paper>
+
+                <Paper withBorder radius="md" p="md" bg="white">
+                  <Text fw={700} size="sm" c="primary.9" mb="xs">
+                    Batas Kredit Maksimum (Credit Limit)
+                  </Text>
+                  <Grid gutter="md">
+                    <Grid.Col span={{ base: 12, sm: 6 }}>
+                      <Stack gap="xs">
+                        <Switch
+                          label="Aktifkan Batas Maksimum Piutang"
+                          checked={form.values.mappingAccount.maxReceivable?.isActive ?? false}
+                          onChange={(e) =>
+                            form.setFieldValue(
+                              'mappingAccount.maxReceivable.isActive',
+                              e.currentTarget.checked
+                            )
+                          }
+                        />
+                        {form.values.mappingAccount.maxReceivable?.isActive && (
+                          <NumberInput
+                            label="Jumlah Batas Piutang (Rp)"
+                            placeholder="Contoh: 50.000.000"
+                            thousandSeparator="."
+                            decimalSeparator=","
+                            min={0}
+                            {...form.getInputProps('mappingAccount.maxReceivable.amount')}
+                          />
+                        )}
+                      </Stack>
+                    </Grid.Col>
+
+                    <Grid.Col span={{ base: 12, sm: 6 }}>
+                      <Stack gap="xs">
+                        <Switch
+                          label="Aktifkan Batas Maksimum Hutang"
+                          checked={form.values.mappingAccount.maxPayable?.isActive ?? false}
+                          onChange={(e) =>
+                            form.setFieldValue(
+                              'mappingAccount.maxPayable.isActive',
+                              e.currentTarget.checked
+                            )
+                          }
+                        />
+                        {form.values.mappingAccount.maxPayable?.isActive && (
+                          <NumberInput
+                            label="Jumlah Batas Hutang (Rp)"
+                            placeholder="Contoh: 100.000.000"
+                            thousandSeparator="."
+                            decimalSeparator=","
+                            min={0}
+                            {...form.getInputProps('mappingAccount.maxPayable.amount')}
+                          />
+                        )}
+                      </Stack>
                     </Grid.Col>
                   </Grid>
                 </Paper>

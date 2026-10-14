@@ -16,11 +16,14 @@ import { useDebouncedValue } from '@mantine/hooks';
 import {
   IconAddressBook,
   IconBriefcase,
+  IconCategory,
+  IconDownload,
   IconHome2,
   IconPlus,
   IconRefresh,
   IconSearch,
   IconTruckDelivery,
+  IconUpload,
   IconUser,
   IconUserCheck,
   IconX,
@@ -33,10 +36,13 @@ import { routes } from '@/router/routes';
 import { ContactStatsGrid } from '../components/ContactStatsGrid';
 import { ContactTable } from '../components/ContactTable';
 import { ContactFormModal } from '../components/ContactFormModal';
+import { ContactImportModal } from '../components/ContactImportModal';
+import { ContactGroupsModal } from '../components/ContactGroupsModal';
 import {
   useAccountOptions,
   useArchiveContact,
   useContacts,
+  useExportContacts,
   useSaveContact,
 } from '../hooks/useContactQueries';
 import type { Contact, ContactFormValues } from '../types/contact';
@@ -55,6 +61,11 @@ export function ContactMainPage() {
   const [formModalOpened, setFormModalOpened] = useState(false);
   const [editingContact, setEditingContact] = useState<Contact | undefined>(undefined);
   const [archiveTarget, setArchiveTarget] = useState<Contact | null>(null);
+  const [importModalOpened, setImportModalOpened] = useState(false);
+  const [groupsModalOpened, setGroupsModalOpened] = useState(false);
+
+  // Export Mutation
+  const exportContactsMutation = useExportContacts();
 
   // Queries
   const contactsQuery = useContacts({
@@ -146,7 +157,7 @@ export function ContactMainPage() {
             title="Direktori Kontak"
             description="Kelola seluruh profil rekanan bisnis, pelanggan, pemasok, unit properti, dan karyawan. Hubungkan dengan akun piutang dan hutang untuk kemudahan pencatatan transaksi yang konsisten dan akurat."
             actions={
-              <Group gap="xs">
+              <Group gap="xs" wrap="wrap">
                 <Tooltip label="Muat ulang data" withArrow position="top">
                   <ActionIcon
                     variant="default"
@@ -159,6 +170,31 @@ export function ContactMainPage() {
                     <IconRefresh size={18} />
                   </ActionIcon>
                 </Tooltip>
+
+                <Button
+                  variant="default"
+                  leftSection={<IconCategory size={16} />}
+                  onClick={() => setGroupsModalOpened(true)}
+                >
+                  Kelola Grup
+                </Button>
+
+                <Button
+                  variant="default"
+                  leftSection={<IconDownload size={16} />}
+                  loading={exportContactsMutation.isPending}
+                  onClick={() => exportContactsMutation.mutate()}
+                >
+                  Ekspor Data
+                </Button>
+
+                <Button
+                  variant="default"
+                  leftSection={<IconUpload size={16} />}
+                  onClick={() => setImportModalOpened(true)}
+                >
+                  Impor Kontak
+                </Button>
 
                 <Button
                   color="primary"
@@ -290,6 +326,18 @@ export function ContactMainPage() {
         confirmLabel="Arsipkan"
         confirmLoading={archiveMutation.isPending}
         confirmButtonProps={{ color: 'red' }}
+      />
+
+      {/* Import Contacts Modal */}
+      <ContactImportModal
+        opened={importModalOpened}
+        onClose={() => setImportModalOpened(false)}
+      />
+
+      {/* Manage Contact Groups Modal */}
+      <ContactGroupsModal
+        opened={groupsModalOpened}
+        onClose={() => setGroupsModalOpened(false)}
       />
     </AppShellLayout>
   );

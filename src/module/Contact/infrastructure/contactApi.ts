@@ -5,17 +5,30 @@ import type {
   AccountOption,
   Contact,
   ContactFormValues,
+  ContactGroup,
   ContactListParams,
+  FilteredAccount,
   Paginated,
   Pagination,
   PaymentTerm,
 } from '../types/contact';
+import type { Sale } from '@/module/Sale/types/sale';
+import { mapSaleDto } from '@/module/Sale/infrastructure/saleApi';
 
 export const CONTACT_ENDPOINTS = {
   contacts: '/v1/contacts',
   contactDetail: (id: string) => `/v1/contacts/${id}`,
   contactArchive: (id: string) => `/v1/contacts/${id}/archive`,
+  contactGroups: '/v1/contacts/groups',
+  contactGroupDetail: (id: string) => `/v1/contacts/groups/${id}`,
+  contactExport: '/v1/contacts/export',
+  contactTemplate: '/v1/contacts/template/download',
+  contactImport: '/v1/contacts/import',
+  contactSync: '/v1/contacts/sync',
   paymentTerms: '/v1/payment-terms',
+  filteredAccounts: (cat: string) => `/v1/accounts/filtered?category=${cat}`,
+  salesByCustomer: (id: string) => `/v1/sales/customer/${id}`,
+  exportSalesByCustomer: (id: string) => `/v1/sales/customer/${id}/export`,
 } as const;
 
 type ApiEnvelope<T> = { code: number; message: string; data: T };
@@ -152,6 +165,7 @@ export const createContact = async (
       },
     },
     otherInfo: values.otherInfo?.trim() || null,
+    contactGroups: values.contactGroups || [],
     bankAccounts: values.bankAccounts.filter(
       (b) => b.bankName.trim() && b.accountNumber.trim()
     ),
@@ -159,6 +173,12 @@ export const createContact = async (
       arAccount: extractId(values.mappingAccount.arAccount),
       apAccount: extractId(values.mappingAccount.apAccount),
       defaultPaymentTerm: Number(values.mappingAccount.defaultPaymentTerm) || 0,
+      ...(values.mappingAccount.maxReceivable
+        ? { maxReceivable: values.mappingAccount.maxReceivable }
+        : {}),
+      ...(values.mappingAccount.maxPayable
+        ? { maxPayable: values.mappingAccount.maxPayable }
+        : {}),
     },
     ...(values.external_id ? { external_id: values.external_id.trim() } : {}),
   };
@@ -211,6 +231,7 @@ export const updateContact = async (
       },
     },
     otherInfo: values.otherInfo?.trim() || null,
+    contactGroups: values.contactGroups || [],
     bankAccounts: values.bankAccounts.filter(
       (b) => b.bankName.trim() && b.accountNumber.trim()
     ),
@@ -218,6 +239,12 @@ export const updateContact = async (
       arAccount: extractId(values.mappingAccount.arAccount),
       apAccount: extractId(values.mappingAccount.apAccount),
       defaultPaymentTerm: Number(values.mappingAccount.defaultPaymentTerm) || 0,
+      ...(values.mappingAccount.maxReceivable
+        ? { maxReceivable: values.mappingAccount.maxReceivable }
+        : {}),
+      ...(values.mappingAccount.maxPayable
+        ? { maxPayable: values.mappingAccount.maxPayable }
+        : {}),
     },
   };
 
@@ -267,5 +294,171 @@ export const fetchPaymentTerms = async (): Promise<PaymentTerm[]> => {
     { id: 'net30', name: 'Net 30 Hari', days: 30, isDefault: true },
     { id: 'net60', name: 'Net 60 Hari', days: 60, isDefault: false },
   ];
+};
+
+/* ---------- Transactions by Contact (Sales / Invoices) ---------- */
+
+export type ContactTransactionParams = {
+  page?: number;
+  limit?: number;
+  search?: string;
+  status?: string;
+};
+
+export const fetchSalesByCustomer = async (
+  contactId: string,
+  params: ContactTransactionParams = {}
+): Promise<Paginated<Sale>> => {
+  const { data } = await apiClient.get<ApiEnvelope<PaginatedDto<any>>>(
+    CONTACT_ENDPOINTS.salesByCustomer(contactId),
+    {
+      params: {
+        page: params.page || 1,
+        limit: params.limit || 10,
+        search: params.search?.trim() || undefined,
+        status: params.status && params.status !== 'all' ? params.status : undefined,
+      },
+    }
+  );
+
+  const raw = data.data;
+  const items = (raw?.data || []).map(mapSaleDto);
+  return {
+    items,
+    pagination: {
+      total: raw?.pagination?.total ?? items.length,
+      page: raw?.pagination?.page ?? (params.page || 1),
+      limit: raw?.pagination?.limit ?? (params.limit || 10),
+      totalPages: raw?.pagination?.totalPages ?? 1,
+    },
+  };
+};
+
+export const exportSalesByCustomer = async (
+  contactId: string,
+  filename = 'transaksi-kontak.xlsx'
+): Promise<void> => {
+  const response = await apiClient.get(
+    CONTACT_ENDPOINTS.exportSalesByCustomer(contactId),
+    { responseType: 'blob' }
+  );
+
+  const contentType = String(response.headers['content-type'] || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  const blob = new Blob([response.data], { type: contentType });
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  window.URL.revokeObjectURL(url);
+};
+
+/* ---------- Contact Groups ---------- */
+
+export const fetchContactGroups = async (): Promise<ContactGroup[]> => {
+  const { data } = await apiClient.get<ApiEnvelope<ContactGroup[]>>(
+    CONTACT_ENDPOINTS.contactGroups
+  );
+  return Array.isArray(data.data) ? data.data : [];
+};
+
+export const createContactGroup = async (name: string): Promise<ContactGroup> => {
+  const { data } = await apiClient.post<ApiEnvelope<ContactGroup>>(
+    CONTACT_ENDPOINTS.contactGroups,
+    { name: name.trim() }
+  );
+  return data.data;
+};
+
+export const updateContactGroup = async (
+  groupId: string,
+  name: string
+): Promise<ContactGroup> => {
+  const { data } = await apiClient.put<ApiEnvelope<ContactGroup>>(
+    CONTACT_ENDPOINTS.contactGroupDetail(groupId),
+    { name: name.trim() }
+  );
+  return data.data;
+};
+
+export const deleteContactGroup = async (groupId: string): Promise<void> => {
+  await apiClient.delete(CONTACT_ENDPOINTS.contactGroupDetail(groupId));
+};
+
+/* ---------- Export & Import Contacts ---------- */
+
+export const exportContacts = async (
+  filename = 'data-kontak.xlsx'
+): Promise<void> => {
+  const response = await apiClient.get(CONTACT_ENDPOINTS.contactExport, {
+    responseType: 'blob',
+  });
+  const contentType = String(response.headers['content-type'] || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  const blob = new Blob([response.data], { type: contentType });
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  window.URL.revokeObjectURL(url);
+};
+
+export const downloadContactTemplate = async (
+  filename = 'contacts-template.xlsx'
+): Promise<void> => {
+  const response = await apiClient.get(CONTACT_ENDPOINTS.contactTemplate, {
+    responseType: 'blob',
+  });
+  const contentType = String(response.headers['content-type'] || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  const blob = new Blob([response.data], { type: contentType });
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  window.URL.revokeObjectURL(url);
+};
+
+export const importContacts = async (
+  file: File
+): Promise<{ imported: number }> => {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const { data } = await apiClient.post<ApiEnvelope<{ imported: number }>>(
+    CONTACT_ENDPOINTS.contactImport,
+    formData,
+    {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }
+  );
+  return data.data;
+};
+
+/* ---------- Filtered AP / AR Accounts ---------- */
+
+export const fetchFilteredAccounts = async (
+  category: 'AP' | 'AR'
+): Promise<FilteredAccount[]> => {
+  const { data } = await apiClient.get<ApiEnvelope<FilteredAccount[]>>(
+    CONTACT_ENDPOINTS.filteredAccounts(category)
+  );
+  return Array.isArray(data.data) ? data.data : [];
+};
+
+/* ---------- Sync Contact ---------- */
+
+export const syncContact = async (payload: unknown): Promise<Contact> => {
+  const { data } = await apiClient.post<ApiEnvelope<unknown>>(
+    CONTACT_ENDPOINTS.contactSync,
+    payload
+  );
+  return mapContact(data.data);
 };
 

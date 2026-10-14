@@ -23,9 +23,13 @@ import {
   IconEye,
   IconMail,
   IconPhone,
+  IconReceipt2,
   IconUser,
   IconUsers,
 } from '@tabler/icons-react';
+import { useNavigate } from 'react-router-dom';
+import { EmptyState } from '@/components/EmptyState';
+import { routes } from '@/router/routes';
 import type { Contact, ContactType } from '../types/contact';
 import {
   formatContactName,
@@ -69,6 +73,8 @@ export function ContactTable({
   onEdit,
   onArchive,
 }: Readonly<ContactTableProps>) {
+  const navigate = useNavigate();
+
   const rows = useMemo(() => {
     if (isLoading) {
       return Array.from({ length: Math.min(limit, 5) }).map((_, idx) => (
@@ -287,6 +293,19 @@ export function ContactTable({
                   >
                     Ubah Data
                   </Menu.Item>
+                  <Menu.Item
+                    leftSection={<IconReceipt2 size={14} />}
+                    onClick={() =>
+                      navigate(
+                        routes.Contact.TransactionDetailByContact.replace(
+                          ':idAccount',
+                          contact.id
+                        )
+                      )
+                    }
+                  >
+                    Riwayat Transaksi
+                  </Menu.Item>
                   <Menu.Divider />
                   <Menu.Item
                     color="red"
@@ -342,23 +361,21 @@ export function ContactTable({
               </Table.Th>
             </Table.Tr>
           </Table.Thead>
-          <Table.Tbody>{rows}</Table.Tbody>
+          <Table.Tbody>
+            {rows}
+            {!isLoading && contacts.length === 0 && (
+              <Table.Tr>
+                <Table.Td colSpan={6} p={0}>
+                  <EmptyState
+                    icon={<IconUsers size={32} stroke={1.6} />}
+                    title="Belum Ada Kontak yang Cocok"
+                    description="Coba sesuaikan kata kunci pencarian atau filter tipe kontak, atau tambahkan kontak baru untuk mulai mencatat transaksi."
+                  />
+                </Table.Td>
+              </Table.Tr>
+            )}
+          </Table.Tbody>
         </Table>
-
-        {!isLoading && contacts.length === 0 && (
-          <Stack align="center" gap={6} py={56}>
-            <ThemeIcon size={56} radius="xl" variant="light" color="primary">
-              <IconUsers size={28} />
-            </ThemeIcon>
-            <Text fw={600} mt="xs" c="dark.8">
-              Belum ada kontak yang cocok
-            </Text>
-            <Text size="sm" c="dimmed" ta="center" maw={380}>
-              Coba sesuaikan kata kunci pencarian atau filter tipe kontak, atau tambahkan
-              kontak baru untuk mulai mencatat transaksi.
-            </Text>
-          </Stack>
-        )}
       </Table.ScrollContainer>
 
       {/* Footer Pagination */}

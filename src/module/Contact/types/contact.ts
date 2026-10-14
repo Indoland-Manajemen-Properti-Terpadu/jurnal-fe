@@ -152,6 +152,7 @@ export type ContactFormValues = {
     };
   };
   otherInfo: string;
+  contactGroups?: string[];
   bankAccounts: Array<{
     bankName: string;
     branch: string;
@@ -162,6 +163,14 @@ export type ContactFormValues = {
     arAccount: string | null;
     apAccount: string | null;
     defaultPaymentTerm: number;
+    maxReceivable?: {
+      isActive: boolean;
+      amount: number;
+    };
+    maxPayable?: {
+      isActive: boolean;
+      amount: number;
+    };
   };
   external_id?: string;
 };
@@ -180,4 +189,23 @@ export type PaymentTerm = {
   days: number;
   isDefault: boolean;
 };
+
+export type ContactGroup = {
+  id: string;
+  name: string;
+  site?: {
+    id?: string;
+    name?: string;
+  } | string;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+export type FilteredAccount = {
+  id: string;
+  accountNumber: string;
+  name: string;
+  category: string;
+};
+
 
