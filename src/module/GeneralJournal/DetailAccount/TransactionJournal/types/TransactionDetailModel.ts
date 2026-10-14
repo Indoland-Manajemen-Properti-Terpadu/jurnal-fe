@@ -1,14 +1,15 @@
 export interface TransactionDetailModel {
   id?: string;
   transactionNumber?: string | '-';
-  transactionDate?: Date | '-';
+  transactionDate?: Date | string | '-';
+  transactionType?: string;
   transactionDetail?: TransactionDetail[];
   attachments?: Attachment[];
   tags?: string | '-';
   site?: Site;
   deleted?: boolean;
-  createdAt?: Date;
-  updatedAt?: Date;
+  createdAt?: Date | string;
+  updatedAt?: Date | string;
   notes?: string | '-';
 }
 
@@ -32,12 +33,14 @@ export interface Site {
 export interface TransactionDetail {
   id?: string;
   account?: Account;
+  transactionType?: string;
+  transactionDate?: Date | string | '-';
   description?: string | '-';
   debit?: number;
   site?: Site;
   deleted?: boolean;
-  createdAt?: Date;
-  updatedAt?: Date;
+  createdAt?: Date | string;
+  updatedAt?: Date | string;
   credit?: number;
   notes?: string | '-';
 }
@@ -48,6 +51,7 @@ export interface Account {
   name?: string;
   type?: string;
   accountNumber?: string;
+  isBankAndCash?: boolean;
   category?: Category;
   subAccount?: any[];
   amount?: number;

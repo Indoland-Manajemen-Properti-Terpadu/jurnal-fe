@@ -1,89 +1,315 @@
 import React from 'react';
-import { Table, Text } from '@mantine/core';
+import {
+  Badge,
+  Box,
+  CopyButton,
+  Group,
+  Paper,
+  Skeleton,
+  Table,
+  Text,
+  ThemeIcon,
+  Tooltip,
+  ActionIcon,
+} from '@mantine/core';
+import {
+  IconCheck,
+  IconCopy,
+  IconScale,
+  IconAlertCircle,
+  IconArrowUpRight,
+  IconBook2,
+} from '@tabler/icons-react';
+import { useNavigate } from 'react-router-dom';
 import { formatCurrency } from '@/utils/FormatCurrency';
-import { themeColors } from '@/theme';
+import { routes } from '@/router/routes';
 import { TransactionDetail } from '../../types/TransactionDetailModel';
-import { useDetailTransaction } from '../../hooks/useDetailTransaction';
-import { useParams } from 'react-router-dom';
+import { EmptyState } from '@/components/EmptyState';
 
-const rowStyle = {
-    borderColor: themeColors.gray[1],
-    borderWidth: '1px',
-    borderStyle: 'solid',
-};
+interface Props {
+  transactionDetails?: TransactionDetail[];
+  isLoading?: boolean;
+  withBorder?: boolean;
+}
 
-const totalRowStyle = {
-    backgroundColor: themeColors.gray[0],
-    borderColor: themeColors.gray[1],
-    borderWidth: '1px',
-    borderStyle: 'solid',
-};
+export const JournalTransactionDetailTable: React.FC<Props> = ({
+  transactionDetails = [],
+  isLoading = false,
+  withBorder = true,
+}) => {
+  const navigate = useNavigate();
 
-const headTableStyle = {
-    backgroundColor: themeColors.gray[0],
-    borderColor: themeColors.gray[1],
-    borderWidth: '1px',
-    borderStyle: 'solid',
-};
+  const totalDebit = transactionDetails.reduce((sum, item) => sum + (Number(item.debit) || 0), 0);
+  const totalCredit = transactionDetails.reduce((sum, item) => sum + (Number(item.credit) || 0), 0);
+  const isBalanced = Math.abs(totalDebit - totalCredit) < 0.01;
 
-const JournalTransactionTable = () => {
-    const { idTransaction } = useParams<{ idTransaction: string }>();
-    const { detailTransaction, isError, isLoading } = useDetailTransaction(idTransaction!);
-
-    if (isLoading) return <Text>Loading...</Text>;
-    if (isError) return <Text>Error loading transaction data.</Text>;
-    if (!detailTransaction) return <Text>No transaction data available.</Text>;
-
+  if (isLoading) {
     return (
-        <Table style={rowStyle} >
-            <Table.Thead>
-                <Table.Tr style={{ backgroundColor: themeColors.primary[0] }}>
-                    <Table.Th colSpan={8} ta='left' c={themeColors.black[9]} >
-                        Transaction Account
-                    </Table.Th>
-                    <Table.Th colSpan={2} ta='left' >
-                        Description
-                    </Table.Th>
-                    <Table.Th colSpan={2} ta='left' >
-                        Debit
-                    </Table.Th>
-                    <Table.Th colSpan={2} ta='left' >
-                        Credit
-                    </Table.Th>
-                </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>
-                {detailTransaction?.transactionDetail?.map((txn: TransactionDetail) => (
-                    <Table.Tr key={txn.id} style={rowStyle}>
-                        <Table.Td fz="sm" colSpan={8}>
-                            {txn.account?.name} ({txn.account?.accountNumber})
-                        </Table.Td>
-                        <Table.Td fz="sm" style={{ textAlign: "left" }} colSpan={2}>
-                            {txn.description}
-                        </Table.Td>
-                        <Table.Td fz="sm" style={{ textAlign: "left" }} colSpan={2}>
-                            {txn.debit ? formatCurrency(txn.debit) : '-'}
-                        </Table.Td>
-                        <Table.Td fz="sm" style={{ textAlign: "left" }} colSpan={2}>
-                            {txn.credit ? formatCurrency(txn.credit) : '-'}
-                        </Table.Td>
-                    </Table.Tr>
-                ))}
-                <Table.Tr style={totalRowStyle}>
-                    <Table.Td colSpan={10} fz="sm" style={{ fontWeight: 600 }}>
-                        Total Debit & Credit
-                    </Table.Td>
-                    <Table.Td fz="sm" style={{ textAlign: "left", fontWeight: 600 }} colSpan={2}>
-                        {formatCurrency(detailTransaction?.transactionDetail?.reduce((sum, txn) => sum + (txn.debit || 0), 0) || 0)}
-                    </Table.Td>
-                    <Table.Td fz="sm" style={{ textAlign: "left", fontWeight: 600 }} colSpan={2}>
-                        {formatCurrency(detailTransaction?.transactionDetail?.reduce((sum, txn) => sum + (txn.credit || 0), 0) || 0)}
-                    </Table.Td>
-                </Table.Tr>
-            </Table.Tbody>
-
+      <Paper withBorder={withBorder} radius="md" p="md" bg="white">
+        <Table verticalSpacing="md" horizontalSpacing="md">
+          <Table.Thead bg="gray.0">
+            <Table.Tr>
+              <Table.Th style={{ width: '42%' }}>Akun Transaksi</Table.Th>
+              <Table.Th style={{ width: '28%' }}>Keterangan Baris</Table.Th>
+              <Table.Th style={{ width: '15%', textAlign: 'right' }}>Debit</Table.Th>
+              <Table.Th style={{ width: '15%', textAlign: 'right' }}>Kredit</Table.Th>
+            </Table.Tr>
+          </Table.Thead>
+          <Table.Tbody>
+            {Array.from({ length: 4 }).map((_, i) => (
+              // eslint-disable-next-line react/no-array-index-key
+              <Table.Tr key={`skeleton-row-${i}`}>
+                <Table.Td>
+                  <Skeleton height={16} width="60%" mb={4} />
+                  <Skeleton height={12} width="40%" />
+                </Table.Td>
+                <Table.Td>
+                  <Skeleton height={14} width="75%" />
+                </Table.Td>
+                <Table.Td style={{ textAlign: 'right' }}>
+                  <Skeleton height={16} width={80} ml="auto" />
+                </Table.Td>
+                <Table.Td style={{ textAlign: 'right' }}>
+                  <Skeleton height={16} width={80} ml="auto" />
+                </Table.Td>
+              </Table.Tr>
+            ))}
+          </Table.Tbody>
         </Table>
+      </Paper>
     );
+  }
+
+  if (transactionDetails.length === 0) {
+    return (
+      <Paper withBorder={withBorder} radius="md" bg="white" p={0} style={{ overflow: 'hidden' }}>
+        <EmptyState
+          icon={<IconBook2 size={32} stroke={1.6} />}
+          title="Tidak Ada Baris Jurnal"
+          description="Transaksi jurnal ini tidak memiliki rincian debit atau kredit."
+        />
+      </Paper>
+    );
+  }
+
+  return (
+    <Paper withBorder={withBorder} radius="md" bg="white" style={{ overflow: 'hidden' }}>
+      <Table.ScrollContainer minWidth={720}>
+        <Table verticalSpacing="sm" horizontalSpacing="md" highlightOnHover>
+          <Table.Thead bg="gray.0">
+            <Table.Tr>
+              <Table.Th style={{ width: '40%' }}>
+                <Text size="xs" fw={700} c="dimmed" tt="uppercase" lts={0.4}>
+                  Akun Perkiraan (COA)
+                </Text>
+              </Table.Th>
+              <Table.Th style={{ width: '30%' }}>
+                <Text size="xs" fw={700} c="dimmed" tt="uppercase" lts={0.4}>
+                  Deskripsi / Keterangan
+                </Text>
+              </Table.Th>
+              <Table.Th style={{ width: '15%', textAlign: 'right' }}>
+                <Text size="xs" fw={700} c="dimmed" tt="uppercase" lts={0.4}>
+                  Debit
+                </Text>
+              </Table.Th>
+              <Table.Th style={{ width: '15%', textAlign: 'right' }}>
+                <Text size="xs" fw={700} c="dimmed" tt="uppercase" lts={0.4}>
+                  Kredit
+                </Text>
+              </Table.Th>
+            </Table.Tr>
+          </Table.Thead>
+
+          <Table.Tbody>
+            {transactionDetails.map((txn, index) => {
+              const account = txn.account;
+              const hasDebit = (txn.debit || 0) > 0;
+              const hasCredit = (txn.credit || 0) > 0;
+
+              return (
+                <Table.Tr
+                  key={txn.id || `txn-${index}`}
+                  style={{
+                    backgroundColor: index % 2 === 1 ? 'var(--mantine-color-gray-0)' : 'white',
+                  }}
+                >
+                  {/* Account Name & Number with Link to Account */}
+                  <Table.Td>
+                    <Group gap="xs" align="flex-start" wrap="nowrap">
+                      <ThemeIcon
+                        size={28}
+                        radius="md"
+                        variant="light"
+                        color={account?.isBankAndCash ? 'teal' : 'primary'}
+                        mt={2}
+                      >
+                        <IconBook2 size={16} />
+                      </ThemeIcon>
+
+                      <Box style={{ flex: 1, minWidth: 0 }}>
+                        <Group gap={6} align="center" wrap="nowrap">
+                          {account?.id ? (
+                            <Text
+                              size="sm"
+                              fw={600}
+                              c="primary.9"
+                              style={{
+                                cursor: 'pointer',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: 4,
+                              }}
+                              onClick={() => {
+                                const targetRoute = account.isBankAndCash
+                                  ? routes.generalJournal.detailAccount
+                                  : routes.generalJournal.detailAccountNonCB;
+                                navigate(targetRoute.replace(':idAccount', account.id!));
+                              }}
+                            >
+                              {account.name || 'Akun Tidak Dikenal'}
+                              <IconArrowUpRight size={13} style={{ opacity: 0.7 }} />
+                            </Text>
+                          ) : (
+                            <Text size="sm" fw={600} c="dark.8">
+                              {account?.name || '—'}
+                            </Text>
+                          )}
+                        </Group>
+
+                        <Group gap={6} align="center" mt={2} wrap="wrap">
+                          {account?.accountNumber && (
+                            <Group gap={4} wrap="nowrap">
+                              <Badge size="xs" variant="outline" color="gray" radius="sm">
+                                {account.accountNumber}
+                              </Badge>
+                              <CopyButton value={account.accountNumber}>
+                                {({ copied, copy }) => (
+                                  <Tooltip label={copied ? 'Tersalin' : 'Salin Nomor Akun'}>
+                                    <ActionIcon
+                                      size="xs"
+                                      variant="subtle"
+                                      color={copied ? 'teal' : 'gray'}
+                                      onClick={copy}
+                                    >
+                                      {copied ? <IconCheck size={11} /> : <IconCopy size={11} />}
+                                    </ActionIcon>
+                                  </Tooltip>
+                                )}
+                              </CopyButton>
+                            </Group>
+                          )}
+
+                          {account?.category?.name && (
+                            <Text size="xs" c="dimmed">
+                              • {account.category.name}
+                            </Text>
+                          )}
+                        </Group>
+                      </Box>
+                    </Group>
+                  </Table.Td>
+
+                  {/* Description */}
+                  <Table.Td>
+                    <Text size="sm" c={txn.description ? 'dark.7' : 'dimmed'}>
+                      {txn.description || '—'}
+                    </Text>
+                    {txn.notes && txn.notes !== '-' && (
+                      <Text size="xs" c="dimmed" mt={2} fs="italic">
+                        Catatan: {txn.notes}
+                      </Text>
+                    )}
+                  </Table.Td>
+
+                  {/* Debit */}
+                  <Table.Td style={{ textAlign: 'right' }}>
+                    <Text
+                      size="sm"
+                      fw={hasDebit ? 700 : 400}
+                      c={hasDebit ? 'primary.9' : 'dimmed'}
+                      style={{ fontVariantNumeric: 'tabular-nums' }}
+                    >
+                      {hasDebit ? formatCurrency(txn.debit!) : '—'}
+                    </Text>
+                  </Table.Td>
+
+                  {/* Credit */}
+                  <Table.Td style={{ textAlign: 'right' }}>
+                    <Text
+                      size="sm"
+                      fw={hasCredit ? 700 : 400}
+                      c={hasCredit ? 'dark.8' : 'dimmed'}
+                      style={{ fontVariantNumeric: 'tabular-nums' }}
+                    >
+                      {hasCredit ? formatCurrency(txn.credit!) : '—'}
+                    </Text>
+                  </Table.Td>
+                </Table.Tr>
+              );
+            })}
+
+            {/* Total Balance Summary Row */}
+            <Table.Tr
+              style={{
+                backgroundColor: 'var(--mantine-color-gray-1)',
+                borderTop: '2px solid var(--mantine-color-gray-3)',
+              }}
+            >
+              <Table.Td colSpan={2}>
+                <Group justify="space-between" align="center">
+                  <Group gap="xs">
+                    <ThemeIcon
+                      size={26}
+                      radius="xl"
+                      variant="filled"
+                      color={isBalanced ? 'teal' : 'red'}
+                    >
+                      {isBalanced ? <IconScale size={15} /> : <IconAlertCircle size={15} />}
+                    </ThemeIcon>
+                    <Text fw={700} size="sm" c="dark.9">
+                      Total Debit & Kredit
+                    </Text>
+                  </Group>
+
+                  <Badge
+                    size="sm"
+                    radius="sm"
+                    variant="filled"
+                    color={isBalanced ? 'teal' : 'red'}
+                  >
+                    {isBalanced ? 'Seimbang (Balanced)' : 'Tidak Seimbang (Unbalanced)'}
+                  </Badge>
+                </Group>
+              </Table.Td>
+
+              <Table.Td style={{ textAlign: 'right' }}>
+                <Text
+                  fw={800}
+                  size="sm"
+                  c="primary.9"
+                  style={{ fontVariantNumeric: 'tabular-nums' }}
+                >
+                  {formatCurrency(totalDebit)}
+                </Text>
+              </Table.Td>
+
+              <Table.Td style={{ textAlign: 'right' }}>
+                <Text
+                  fw={800}
+                  size="sm"
+                  c="dark.9"
+                  style={{ fontVariantNumeric: 'tabular-nums' }}
+                >
+                  {formatCurrency(totalCredit)}
+                </Text>
+              </Table.Td>
+            </Table.Tr>
+          </Table.Tbody>
+        </Table>
+      </Table.ScrollContainer>
+    </Paper>
+  );
 };
 
-export default JournalTransactionTable;
+export default JournalTransactionDetailTable;
