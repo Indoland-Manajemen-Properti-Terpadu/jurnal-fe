@@ -60,7 +60,9 @@ const SECTION_TITLES: Array<{ prefix: string; title: string; group: string }> = 
   { prefix: '/general-journal', title: 'Daftar Akun', group: 'Master Data' },
   { prefix: '/asset', title: 'Asset', group: 'Master Data' },
   { prefix: '/contact', title: 'Kontak', group: 'Master Data' },
-  { prefix: '/settings', title: 'Pengaturan', group: 'Lainnya' },
+  { prefix: '/settings/company-setting', title: 'Pengaturan Perusahaan', group: 'Pengaturan' },
+  { prefix: '/settings', title: 'Pengaturan', group: 'Pengaturan' },
+  { prefix: '/user-management', title: 'Manajemen Pengguna', group: 'Pengaturan' },
   { prefix: '/profile', title: 'Profil', group: 'Akun' },
 ];
 

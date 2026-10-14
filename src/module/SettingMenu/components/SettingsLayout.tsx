@@ -85,22 +85,16 @@ const SETTINGS_NAV_ITEMS: NavTabItem[] = [
     description: 'Dimensi & label pelaporan transaksi',
   },
   {
-    label: 'User Management',
-    path: routes.userManagement.main,
-    icon: IconUsers,
-    description: 'Akses staf & hak otorisasi',
-  },
-  {
-    label: 'Company Setting',
+    label: 'Pengaturan Perusahaan',
     path: routes.baseModules.companySetting,
     icon: IconBuildingStore,
     description: 'Profil & data legalitas entitas',
   },
   {
-    label: 'Approval Setting',
-    path: routes.baseModules.approvalSetting,
-    icon: IconShieldCheck,
-    description: 'Alur persetujuan transaksi',
+    label: 'Manajemen Pengguna',
+    path: routes.userManagement.main,
+    icon: IconUsers,
+    description: 'Akses staf & hak otorisasi',
   },
 ];
 
@@ -123,12 +117,6 @@ export default function SettingsLayout({
   const isCurrentActive = (itemPath: string) => {
     if (itemPath === routes.settings.main) {
       return location.pathname === routes.settings.main;
-    }
-    if (itemPath === routes.baseModules.approvalSetting) {
-      return (
-        location.pathname.startsWith(routes.baseModules.approvalSetting) ||
-        location.pathname.startsWith(routes.pendingChanges.main)
-      );
     }
     return location.pathname.startsWith(itemPath);
   };

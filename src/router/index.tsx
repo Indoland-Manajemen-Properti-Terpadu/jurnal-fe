@@ -318,7 +318,7 @@ const router = createBrowserRouter([
   },
   {
     path: routes.baseModules.approvalSetting,
-    element: <PendingChangesPage />,
+    element: <Navigate to={routes.pendingChanges.main} replace />,
   },
   {
     path: routes.settings.main,

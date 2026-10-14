@@ -115,17 +115,8 @@ const SETTINGS_CATALOG: SettingCardConfig[] = [
 
   // Akses & Organisasi
   {
-    id: 'user-management',
-    title: 'User Management & Role',
-    description: 'Atur pengguna, hak otorisasi role, dan pembagian hak akses fitur bagi staf akuntansi.',
-    category: 'Akses & Organisasi',
-    path: routes.userManagement.main,
-    icon: IconUsers,
-    color: 'grape',
-  },
-  {
     id: 'company-setting',
-    title: 'Company Setting',
+    title: 'Pengaturan Perusahaan',
     description: 'Informasi entitas bisnis, legalitas, alamat operasional, dan identitas perusahaan.',
     category: 'Akses & Organisasi',
     path: routes.baseModules.companySetting,
@@ -133,13 +124,13 @@ const SETTINGS_CATALOG: SettingCardConfig[] = [
     color: 'gray',
   },
   {
-    id: 'approval-setting',
-    title: 'Approval Setting',
-    description: 'Konfigurasi hierarki persetujuan bertingkat untuk transaksi dan perubahan sistem.',
+    id: 'user-management',
+    title: 'Manajemen Pengguna & Peran',
+    description: 'Atur pengguna, hak otorisasi role, dan pembagian hak akses fitur bagi staf akuntansi.',
     category: 'Akses & Organisasi',
-    path: routes.baseModules.approvalSetting,
-    icon: IconShieldCheck,
-    color: 'red',
+    path: routes.userManagement.main,
+    icon: IconUsers,
+    color: 'grape',
   },
 ];
 

@@ -26,9 +26,9 @@ import PageHeaderV2 from '@/components/PageHeader/PageHeaderV2';
 
 
 const items = [
-  { title: 'Settings', href: () => navigate(-1) },
-  { title: 'User Management', href: undefined },
-]
+  { title: 'Pengaturan', href: () => navigate(-1) },
+  { title: 'Manajemen Pengguna', href: undefined },
+];
 
 const PAPER_PROPS = {
   p: 'md',
@@ -50,7 +50,7 @@ const UserManagement = () => {
 
             <PageHeaderV2
               type='titleActionButton'
-              title="User Management"
+              title="Manajemen Pengguna"
               actionButtons={[
                 {
                   label: "Add Role",

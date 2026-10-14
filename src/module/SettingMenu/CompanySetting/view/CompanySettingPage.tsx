@@ -6,8 +6,8 @@ function CompanySettingPage() {
     return (
         <CompanySettingLayout>
             <BaseModulePage
-                title="Company Setting"
-                description="Modul dasar Company Setting. Fitur detail menyusul tahap pengembangan berikutnya."
+                title="Pengaturan Perusahaan"
+                description="Modul dasar Pengaturan Perusahaan. Fitur detail menyusul tahap pengembangan berikutnya."
                 routePath={routes.baseModules.companySetting}
             />
         </CompanySettingLayout>

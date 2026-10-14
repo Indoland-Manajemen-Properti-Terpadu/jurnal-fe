@@ -81,7 +81,7 @@ const mockdata = [
     title: 'LAINNYA',
     links: [
       {
-        label: 'Settings',
+        label: 'Pengaturan',
         icon: GearSix,
         links: [
           {
@@ -117,16 +117,12 @@ const mockdata = [
             link: routes.settings.tags,
           },
           {
-            label: 'Company Setting',
+            label: 'Pengaturan Perusahaan',
             link: routes.baseModules.companySetting,
           },
           {
-            label: 'User Management',
+            label: 'Manajemen Pengguna',
             link: routes.userManagement.main,
-          },
-          {
-            label: 'Approval Setting',
-            link: routes.pendingChanges.main,
           },
         ],
       },
