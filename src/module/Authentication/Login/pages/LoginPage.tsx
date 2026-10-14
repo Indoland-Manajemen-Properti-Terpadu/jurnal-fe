@@ -123,7 +123,7 @@ export default function LoginPage({ initialMode = 'login' }: LoginPageProps) {
             </Text>
           </Group>
           <Text size="11px" c="gray.5">
-            © 2026 PT Solusi Properti Pintar (ProApps). Seluruh Hak Cipta Dilindungi.
+            © 2026 PT Solusi Digital Properti Manajemen. Seluruh Hak Cipta Dilindungi.
           </Text>
         </Box>
       </Grid.Col>

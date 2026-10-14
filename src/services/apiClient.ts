@@ -2,7 +2,7 @@
 import axios from 'axios';
 import { navigate } from '@/router';
 import { routes } from '@/router/routes';
-import { BASE_URL } from './endpoint';
+import { BASE_URL, API_AUTH } from './endpoint';
 import { useAuthStore } from '@/store/useAuthentications';
 import { useApiLoadingStore } from '@/store/useApiLoading';
 
@@ -11,14 +11,25 @@ const apiClient = axios.create({
 });
 
 let isRefreshing = false;
-let refreshSubscribers: ((token: string) => void)[] = [];
+let refreshSubscribers: Array<{
+  resolve: (token: string) => void;
+  reject: (error: any) => void;
+}> = [];
 
-const subscribeTokenRefresh = (cb: (token: string) => void) => {
-  refreshSubscribers.push(cb);
+const subscribeTokenRefresh = (
+  resolve: (token: string) => void,
+  reject: (error: any) => void
+) => {
+  refreshSubscribers.push({ resolve, reject });
 };
 
 const onRefreshed = (token: string) => {
-  refreshSubscribers.forEach((cb) => cb(token));
+  refreshSubscribers.forEach(({ resolve }) => resolve(token));
+  refreshSubscribers = [];
+};
+
+const onRefreshError = (error: any) => {
+  refreshSubscribers.forEach(({ reject }) => reject(error));
   refreshSubscribers = [];
 };
 
@@ -49,13 +60,24 @@ apiClient.interceptors.response.use(
     const { config, response } = error;
     const originalRequest = config;
 
-    if (response?.status === 401 && !originalRequest._retry) {
+    const isAuthEndpoint =
+      originalRequest?.url?.includes('/v1/auth/login') ||
+      originalRequest?.url?.includes('/v1/auth/refresh-tokens') ||
+      originalRequest?.url?.includes('/v1/auth/register') ||
+      originalRequest?.url?.includes('/v1/auth/oauth');
+
+    if (response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
       if (isRefreshing) {
-        return new Promise((resolve) => {
-          subscribeTokenRefresh((token: string) => {
-            originalRequest.headers.Authorization = `Bearer ${token}`;
-            resolve(apiClient(originalRequest));
-          });
+        return new Promise((resolve, reject) => {
+          subscribeTokenRefresh(
+            (token: string) => {
+              originalRequest.headers.Authorization = `Bearer ${token}`;
+              resolve(apiClient(originalRequest));
+            },
+            (refreshErr: any) => {
+              reject(refreshErr);
+            }
+          );
         });
       }
 
@@ -72,16 +94,23 @@ apiClient.interceptors.response.use(
       }
 
       try {
-        const refreshResponse = await axios.post(`${BASE_URL}/v1/auth/refresh-tokens`, {
+        const refreshEndpoint = API_AUTH.POST_REFRESH_TOKEN.startsWith('http')
+          ? API_AUTH.POST_REFRESH_TOKEN
+          : `${BASE_URL}${API_AUTH.POST_REFRESH_TOKEN}`;
+
+        const refreshResponse = await axios.post(refreshEndpoint, {
           refreshToken,
         });
 
-        const {
-          tokens: {
-            access: { token: accessToken },
-            refresh: { token: newRefreshToken },
-          },
-        } = refreshResponse.data;
+        const resBody = refreshResponse.data;
+        const payload = resBody?.data || resBody?.tokens || resBody;
+
+        const accessToken = payload?.access?.token;
+        const newRefreshToken = payload?.refresh?.token || refreshToken;
+
+        if (!accessToken) {
+          throw new Error('Refresh token response missing access token');
+        }
 
         // Update Zustand store (this also updates localStorage)
         useAuthStore.getState().setTokens(accessToken, newRefreshToken);
@@ -93,6 +122,7 @@ apiClient.interceptors.response.use(
         return await apiClient(originalRequest);
       } catch (refreshError) {
         isRefreshing = false;
+        onRefreshError(refreshError);
         useAuthStore.getState().clearTokens();
         navigate(routes.login);
         return Promise.reject(refreshError);

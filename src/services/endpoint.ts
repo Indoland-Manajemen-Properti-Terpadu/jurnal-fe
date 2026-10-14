@@ -4,6 +4,7 @@ export const API_AUTH = {
   POST_OAUTH_EXCHANGE: `/v1/auth/oauth/exchange`,
   POST_LOGIN: `/v1/auth/login`,
   POST_REGISTER: `/v1/auth/register`,
+  POST_REFRESH_TOKEN: `/v1/auth/refresh-tokens`,
 };
 
 export const API_USERS = {
