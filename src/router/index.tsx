@@ -17,7 +17,7 @@ import UserManagement from '@/module/SettingMenu/UserManagement/Main/pages/UserM
 import AddUserForm from '@/module/SettingMenu/UserManagement/User/components/AddUserForm/AddUserForm';
 import AddRoleForm from '@/module/SettingMenu/UserManagement/Role/components/AddRoleForm/AddRoleForm';
 import ReportCatalogPage from '@/module/ResultReport/Catalog/pages/ReportCatalogPage';
-import BalanceSheetPage from '@/module/ResultReport/BusinessOverview/page/BalanceSheetPage';
+import BalanceSheetPage from '@/module/ResultReport/BalanceSheet/pages/BalanceSheetPage';
 import ImportBankStatementDraft from '@/module/GeneralJournal/DetailAccount/BankStatement/pages/ImportBankStatementDraft';
 import TrialBalancePage from '@/module/ResultReport/BusinessOverview/page/TrialBalancePage';
 import IncomeStatementPage from '@/module/ResultReport/BusinessOverview/page/IncomeStatementPage';
