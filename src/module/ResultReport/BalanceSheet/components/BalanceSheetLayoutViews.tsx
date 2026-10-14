@@ -278,3 +278,4 @@ export const BalanceSheetLayoutViews: React.FC<BalanceSheetLayoutViewsProps> = (
     </Stack>
   );
 };
+

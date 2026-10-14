@@ -237,3 +237,4 @@ export const BalanceSheetFilterBar: React.FC<BalanceSheetFilterBarProps> = ({
     </Paper>
   );
 };
+

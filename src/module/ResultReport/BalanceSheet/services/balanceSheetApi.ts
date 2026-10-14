@@ -164,10 +164,7 @@ export const balanceSheetApi = {
       const response = await apiClient.get<unknown>('/v1/reports/balance-sheet', {
         params: {
           date: params.startDate,
-          startDate: params.startDate,
-          fromDate: params.startDate,
           endDate: params.endDate,
-          toDate: params.endDate,
         },
       });
       return mapBalanceSheetResponse(response.data, params);
@@ -178,10 +175,10 @@ export const balanceSheetApi = {
 
   async exportReport(params: BalanceSheetQueryParams, type: BalanceSheetExportType): Promise<Blob> {
     try {
-      // Try dedicated export endpoint or fallback
+      // Try dedicated export endpoint
       const response = await apiClient.get<Blob>(`/v1/reports/balance-sheet/export/${type}`, {
         params: {
-          startDate: params.startDate,
+          date: params.startDate,
           endDate: params.endDate,
         },
         responseType: 'blob',
@@ -192,8 +189,8 @@ export const balanceSheetApi = {
       try {
         const fallback = await apiClient.get<Blob>('/v1/report/balance/download', {
           params: {
-            fromDate: params.startDate,
-            toDate: params.endDate,
+            date: params.startDate,
+            endDate: params.endDate,
             type,
           },
           responseType: 'blob',

@@ -122,3 +122,4 @@ export const BalanceSheetAccountTable: React.FC<BalanceSheetAccountTableProps> =
     </Box>
   );
 };
+
