@@ -16,18 +16,23 @@ import {
   Skeleton,
   Stack,
   Table,
+  Tabs,
   Text,
+  TextInput,
   ThemeIcon,
   Title,
   Tooltip,
 } from '@mantine/core';
+import { useDebouncedValue } from '@mantine/hooks';
 import {
   IconAddressBook,
   IconArchive,
   IconArrowLeft,
   IconBuildingBank,
   IconCheck,
+  IconClock,
   IconCopy,
+  IconDownload,
   IconEdit,
   IconFileInvoice,
   IconId,
@@ -35,6 +40,8 @@ import {
   IconMail,
   IconMapPin,
   IconPhone,
+  IconReceipt2,
+  IconSearch,
   IconUser,
   IconX,
 } from '@tabler/icons-react';
@@ -42,11 +49,15 @@ import { useNavigate, useParams } from 'react-router-dom';
 import AppShellLayout from '@/components/AppShellLayout';
 import ConfirmModal from '@/components/ui/ConfirmModal/ConfirmModal';
 import { routes } from '@/router/routes';
+import { formatIDR } from '@/module/Sale/utils/saleFormat';
 import { ContactFormModal } from '../components/ContactFormModal';
+import TableTransactionByContact from '../components/Table/TableTransactionByContact';
 import {
   useAccountOptions,
   useArchiveContact,
   useContact,
+  useContactTransactions,
+  useExportContactTransactions,
   useSaveContact,
 } from '../hooks/useContactQueries';
 import type { ContactFormValues, ContactType } from '../types/contact';
@@ -72,9 +83,81 @@ export function DetailContactPage() {
   const [editModalOpened, setEditModalOpened] = useState(false);
   const [archiveConfirmOpened, setArchiveConfirmOpened] = useState(false);
 
+  // Tab State
+  const [activeTab, setActiveTab] = useState<'profile' | 'transactions'>('profile');
+  const [txPage, setTxPage] = useState(1);
+  const [txLimit, setTxLimit] = useState(10);
+  const [txStatus, setTxStatus] = useState<string>('all');
+  const [txSearch, setTxSearch] = useState('');
+  const [debouncedTxSearch] = useDebouncedValue(txSearch, 400);
+
   // Queries
   const { data: contact, isLoading, isError, refetch } = useContact(idAccount);
   const accountsQuery = useAccountOptions();
+  // Fetch transactions for contact without server-side status to guarantee accurate OVERDUE and DRAFT filtering
+  const transactionsQuery = useContactTransactions(idAccount, {
+    page: 1,
+    limit: 100,
+    search: debouncedTxSearch.trim() || undefined,
+  });
+  const exportTxMutation = useExportContactTransactions(idAccount);
+
+  const rawTxList = transactionsQuery.data?.items ?? [];
+
+  // Filter items in client-side to guarantee accuracy for calculated states like OVERDUE and case-insensitive DRAFT
+  const filteredTxList = useMemo(() => {
+    const now = Date.now();
+    return rawTxList.filter((sale) => {
+      const normStatus = String(sale.status || 'DRAFT').toUpperCase();
+      const isOverdue =
+        (sale.remainingAmount ?? 0) > 0 &&
+        Boolean(sale.dueDate) &&
+        new Date(sale.dueDate!).getTime() < now;
+
+      if (txStatus === 'OVERDUE') {
+        return isOverdue;
+      }
+      if (txStatus === 'UNPAID') {
+        return (
+          normStatus === 'UNPAID' ||
+          normStatus === 'OPEN' ||
+          normStatus === 'PARTIAL' ||
+          ((sale.remainingAmount ?? 0) > 0 && normStatus !== 'DRAFT')
+        );
+      }
+      if (txStatus === 'PAID') {
+        return (
+          normStatus === 'PAID' ||
+          ((sale.remainingAmount ?? 0) <= 0 && (sale.paidAmount ?? 0) > 0)
+        );
+      }
+      if (txStatus === 'DRAFT') {
+        return normStatus === 'DRAFT';
+      }
+      return true;
+    });
+  }, [rawTxList, txStatus]);
+
+  const txTotalCount = rawTxList.length;
+  const filteredTotalCount = filteredTxList.length;
+  const txTotalPages = Math.max(1, Math.ceil(filteredTotalCount / txLimit));
+
+  const paginatedTxList = useMemo(() => {
+    const startIndex = (txPage - 1) * txLimit;
+    return filteredTxList.slice(startIndex, startIndex + txLimit);
+  }, [filteredTxList, txPage, txLimit]);
+
+  const txTotals = useMemo(() => {
+    let finalSum = 0;
+    let paidSum = 0;
+    let remainingSum = 0;
+    rawTxList.forEach((t) => {
+      finalSum += t.finalAmount || 0;
+      paidSum += t.paidAmount || 0;
+      remainingSum += t.remainingAmount || 0;
+    });
+    return { finalSum, paidSum, remainingSum };
+  }, [rawTxList]);
 
   // Mutations
   const saveMutation = useSaveContact(contact?.id);
@@ -265,21 +348,112 @@ export function DetailContactPage() {
                         NPWP: {contact.npwp}
                       </Badge>
                     )}
+
+                    {contact.contactGroups && contact.contactGroups.length > 0 && (
+                      <Badge variant="light" color="grape" size="sm">
+                        Grup: {contact.contactGroups.join(', ')}
+                      </Badge>
+                    )}
                   </Group>
                 </Box>
               </Group>
+
+              {/* Right Side Financial Summary Card */}
+              <Paper
+                withBorder
+                p="md"
+                radius="md"
+                bg="white"
+                style={{
+                  minWidth: 220,
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
+                }}
+              >
+                <Text size="xs" c="dimmed" fw={600} tt="uppercase" lts={0.5}>
+                  Faktur Penjualan Terdaftar
+                </Text>
+                <Group justify="space-between" align="baseline" mt={4}>
+                  <Text size="xl" fw={800} c="primary.9">
+                    {txTotalCount}
+                  </Text>
+                  <Text size="xs" fw={500} c="dimmed">
+                    Transaksi
+                  </Text>
+                </Group>
+
+                <Divider my="xs" />
+
+                <Group justify="space-between" align="center" gap="xs">
+                  <Text size="xs" c="dimmed" fw={500}>
+                    Sisa Piutang:
+                  </Text>
+                  <Text
+                    size="xs"
+                    fw={700}
+                    c={txTotals.remainingSum > 0 ? 'red.7' : 'teal.7'}
+                  >
+                    {formatIDR(txTotals.remainingSum)}
+                  </Text>
+                </Group>
+              </Paper>
             </Group>
           </Paper>
 
-          {/* Detail Grid */}
-          <Grid gutter="lg">
-            {/* Left 8 Cols: Contact Profile & Financial Mapping */}
-            <Grid.Col span={{ base: 12, md: 8 }}>
-              <Stack gap="lg">
-                {/* 1. Informasi Kontak & Identitas */}
-                <Card withBorder radius="md" p="lg" bg="white">
-                  <Group gap="xs" mb="md">
-                    <ThemeIcon size={32} radius="md" color="primary" variant="light">
+          {/* Navigation Tabs wrapped in Paper */}
+          <Tabs
+            value={activeTab}
+            onChange={(val) => setActiveTab((val as 'profile' | 'transactions') ?? 'profile')}
+            variant="pills"
+            radius="md"
+            color="primary"
+          >
+            <Paper
+              withBorder
+              radius="lg"
+              p={6}
+              bg="white"
+              mb="md"
+              style={{
+                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.03)',
+              }}
+            >
+              <Tabs.List style={{ borderBottom: 'none' }}>
+                <Tabs.Tab
+                  value="profile"
+                  leftSection={<IconUser size={16} />}
+                  style={{ fontWeight: 600, padding: '8px 16px' }}
+                >
+                  Profil & Konfigurasi Kontak
+                </Tabs.Tab>
+                <Tabs.Tab
+                  value="transactions"
+                  leftSection={<IconReceipt2 size={16} />}
+                  style={{ fontWeight: 600, padding: '8px 16px' }}
+                  rightSection={
+                    <Badge
+                      size="sm"
+                      variant={activeTab === 'transactions' ? 'filled' : 'light'}
+                      color="primary"
+                    >
+                      {txTotalCount}
+                    </Badge>
+                  }
+                >
+                  Riwayat Transaksi Penjualan
+                </Tabs.Tab>
+              </Tabs.List>
+            </Paper>
+
+            {/* TAB PANEL 1: PROFIL & KONFIGURASI */}
+            <Tabs.Panel value="profile">
+              <Grid gutter="lg">
+                {/* Left 8 Cols: Contact Profile & Financial Mapping */}
+                <Grid.Col span={{ base: 12, md: 8 }}>
+                  <Stack gap="lg">
+                    {/* 1. Informasi Kontak & Identitas */}
+                    <Card withBorder radius="md" p="lg" bg="white">
+                      <Group gap="xs" mb="md">
+                        <ThemeIcon size={32} radius="md" color="primary" variant="light">
                       <IconUser size={18} />
                     </ThemeIcon>
                     <Box>
@@ -780,6 +954,178 @@ export function DetailContactPage() {
               </Stack>
             </Grid.Col>
           </Grid>
+        </Tabs.Panel>
+
+            {/* TAB PANEL 2: RIWAYAT TRANSAKSI PENJUALAN */}
+            <Tabs.Panel value="transactions">
+              <Stack gap="lg">
+                {/* KPI Metrics */}
+                <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} spacing="md">
+                  <Card withBorder radius="md" p="md" bg="white">
+                    <Group justify="space-between" align="flex-start">
+                      <Box>
+                        <Text size="xs" c="dimmed" fw={600}>
+                          Total Nilai Transaksi
+                        </Text>
+                        <Text size="lg" fw={800} c="primary.9" mt={4}>
+                          {formatIDR(txTotals.finalSum)}
+                        </Text>
+                      </Box>
+                      <ThemeIcon size={36} radius="md" color="primary" variant="light">
+                        <IconReceipt2 size={20} />
+                      </ThemeIcon>
+                    </Group>
+                  </Card>
+
+                  <Card withBorder radius="md" p="md" bg="white">
+                    <Group justify="space-between" align="flex-start">
+                      <Box>
+                        <Text size="xs" c="dimmed" fw={600}>
+                          Total Terbayar
+                        </Text>
+                        <Text size="lg" fw={800} c="teal.8" mt={4}>
+                          {formatIDR(txTotals.paidSum)}
+                        </Text>
+                      </Box>
+                      <ThemeIcon size={36} radius="md" color="teal" variant="light">
+                        <IconCheck size={20} />
+                      </ThemeIcon>
+                    </Group>
+                  </Card>
+
+                  <Card withBorder radius="md" p="md" bg="white">
+                    <Group justify="space-between" align="flex-start">
+                      <Box>
+                        <Text size="xs" c="dimmed" fw={600}>
+                          Sisa Piutang (Belum Lunas)
+                        </Text>
+                        <Text size="lg" fw={800} c={txTotals.remainingSum > 0 ? 'red.8' : 'dimmed'} mt={4}>
+                          {formatIDR(txTotals.remainingSum)}
+                        </Text>
+                      </Box>
+                      <ThemeIcon
+                        size={36}
+                        radius="md"
+                        color={txTotals.remainingSum > 0 ? 'red' : 'gray'}
+                        variant="light"
+                      >
+                        <IconClock size={20} />
+                      </ThemeIcon>
+                    </Group>
+                  </Card>
+
+                  <Card withBorder radius="md" p="md" bg="white">
+                    <Group justify="space-between" align="flex-start">
+                      <Box>
+                        <Text size="xs" c="dimmed" fw={600}>
+                          Jumlah Faktur
+                        </Text>
+                        <Text size="lg" fw={800} c="dark.8" mt={4}>
+                          {txTotalCount} Faktur
+                        </Text>
+                      </Box>
+                      <ThemeIcon size={36} radius="md" color="indigo" variant="light">
+                        <IconFileInvoice size={20} />
+                      </ThemeIcon>
+                    </Group>
+                  </Card>
+                </SimpleGrid>
+
+                {/* Filter Bar & Transactions Table */}
+                <Paper withBorder radius="lg" p="md" bg="white">
+                  <Stack gap="md">
+                    <Group justify="space-between" wrap="wrap" gap="sm">
+                      <TextInput
+                        placeholder="Cari nomor faktur penjualan..."
+                        leftSection={<IconSearch size={16} />}
+                        rightSection={
+                          txSearch ? (
+                            <ActionIcon
+                              size="xs"
+                              variant="subtle"
+                              color="gray"
+                              onClick={() => setTxSearch('')}
+                              aria-label="Hapus pencarian"
+                            >
+                              <IconX size={12} />
+                            </ActionIcon>
+                          ) : null
+                        }
+                        value={txSearch}
+                        onChange={(e) => {
+                          setTxSearch(e.currentTarget.value);
+                          setTxPage(1);
+                        }}
+                        w={{ base: '100%', sm: 320 }}
+                      />
+
+                      <Group gap="xs">
+                        <Button
+                          variant="outline"
+                          color="primary"
+                          leftSection={<IconDownload size={16} />}
+                          loading={exportTxMutation.isPending}
+                          onClick={() => exportTxMutation.mutate()}
+                        >
+                          Ekspor Data
+                        </Button>
+
+                        {idAccount && (
+                          <Button
+                            variant="default"
+                            onClick={() =>
+                              navigate(
+                                routes.Contact.TransactionDetailByContact.replace(
+                                  ':idAccount',
+                                  idAccount
+                                )
+                              )
+                            }
+                          >
+                            Buka Halaman Transaksi Penuh
+                          </Button>
+                        )}
+                      </Group>
+                    </Group>
+
+                    {/* Status Filter Tabs */}
+                    <Tabs
+                      value={txStatus}
+                      onChange={(val) => {
+                        setTxStatus(val ?? 'all');
+                        setTxPage(1);
+                      }}
+                      variant="pills"
+                      radius="sm"
+                      color="primary"
+                    >
+                      <Tabs.List>
+                        <Tabs.Tab value="all">Semua Transaksi</Tabs.Tab>
+                        <Tabs.Tab value="UNPAID">Belum Lunas</Tabs.Tab>
+                        <Tabs.Tab value="PAID">Lunas</Tabs.Tab>
+                        <Tabs.Tab value="OVERDUE">Jatuh Tempo</Tabs.Tab>
+                        <Tabs.Tab value="DRAFT">Draft</Tabs.Tab>
+                      </Tabs.List>
+                    </Tabs>
+
+                    <TableTransactionByContact
+                      transactions={paginatedTxList}
+                      isLoading={transactionsQuery.isLoading || transactionsQuery.isFetching}
+                      page={txPage}
+                      limit={txLimit}
+                      total={filteredTotalCount}
+                      totalPages={txTotalPages}
+                      onPageChange={setTxPage}
+                      onLimitChange={(lim) => {
+                        setTxLimit(lim);
+                        setTxPage(1);
+                      }}
+                    />
+                  </Stack>
+                </Paper>
+              </Stack>
+            </Tabs.Panel>
+          </Tabs>
         </Stack>
       </Box>
 

@@ -1,249 +1,419 @@
-import { ActionIcon, Anchor, Button, Center, Checkbox, Text, Flex, Grid, Menu, Paper, PaperProps, rem, Select, Stack, TextInput, Container, Badge } from '@mantine/core';
-import { themeColors } from '@/theme';
-import { IconChevronDown, IconDots, IconInfoCircle, IconSearch, IconTrash } from '@tabler/icons-react';
+import React from 'react';
+import {
+  ActionIcon,
+  Anchor,
+  Badge,
+  Box,
+  CopyButton,
+  Group,
+  Menu,
+  Pagination,
+  Paper,
+  Select,
+  Skeleton,
+  Stack,
+  Table,
+  Text,
+  ThemeIcon,
+  Tooltip,
+} from '@mantine/core';
+import {
+  IconAlertTriangle,
+  IconCheck,
+  IconClock,
+  IconCopy,
+  IconDotsVertical,
+  IconExternalLink,
+  IconEye,
+  IconNotebook,
+  IconReceipt2,
+} from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
-import { useDeleteJurnalAccount } from '@/module/GeneralJournal/JournalAccount/services/DeleteTransaction.service';
-import { useState } from 'react';
-import { useJournalAccounts } from '@/module/GeneralJournal/JournalAccount/hooks/useJournalAccounts';
-import { NotFound } from '@/components/ErrorPage/NotFound';
-import EmptyState from '@/components/EmptyState/EmptyTable';
-import { formatCurrency } from '@/utils/FormatCurrency';
-import { JournalAccounts } from '@/module/GeneralJournal/JournalAccount/types/JournalAccountModel';
-import { DataTable } from 'mantine-datatable';
+import { EmptyState } from '@/components/EmptyState';
 import { routes } from '@/router/routes';
-import { capitalize } from '@/utils/Capitalize';
-interface StatusBadgeProps {
-    status: 'paid' | 'unpaid' | 'partiallypaid' | 'duedate';
-}
+import type { Sale } from '@/module/Sale/types/sale';
+import { formatDate, formatIDR, getSaleStatusConfig } from '@/module/Sale/utils/saleFormat';
 
-const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
-    let badgeColor;
-    switch (status.toLowerCase()) {
-        case 'paid':
-            badgeColor = themeColors.green[6];
-            break;
-        case 'unpaid':
-            badgeColor = themeColors.gray[6];
-            break;
-        case 'partiallypaid':
-            badgeColor = themeColors.orange[6];
-            break;
-        case 'duedate':
-            badgeColor = themeColors.red[6];
-            break;
-        default:
-            badgeColor = themeColors.gray[6];
-    }
-    return (
-        <Badge size="sm" fw={500} variant="light" color={badgeColor}>
-            {capitalize(status)}
-        </Badge>
-    );
+type TableTransactionByContactProps = {
+  transactions: Sale[];
+  isLoading: boolean;
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+  onPageChange: (newPage: number) => void;
+  onLimitChange: (newLimit: number) => void;
 };
 
+export const TableTransactionByContact: React.FC<TableTransactionByContactProps> = ({
+  transactions,
+  isLoading,
+  page,
+  limit,
+  total,
+  totalPages,
+  onPageChange,
+  onLimitChange,
+}) => {
+  const navigate = useNavigate();
 
-export default function TableTransactionByContact() {
-    const navigate = useNavigate();
-    const { accounts, isError, isEmpty } = useJournalAccounts();
-    const JournalAccounts = Array.isArray(accounts) ? accounts : [];
-    const categoryAccounts = Array.from(new Set(JournalAccounts.map((account) => account.category?.name).filter((name): name is string => Boolean(name))));
-    const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-    const [selectedRecords, setSelectedRecords] = useState<JournalAccounts[]>([]);
-    const [searchQuery, setSearchQuery] = useState<string>('');
-    const { mutate: deleteAccount } = useDeleteJurnalAccount();
-
-
-    if (isError) {
-        return <NotFound />;
-    }
-
-    if (isEmpty) {
-        return <EmptyState />;
-    }
-
-    const accountBankAndCash = JournalAccounts.filter((account) => account.isBankAndCash === true);
-
-    const searchData = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setSearchQuery(event.currentTarget.value);
-    };
-
-    const filterData = (value: string | null) => {
-        setSelectedCategory(value);
-    };
-
-    const handleDeleteAccount = () => {
-        const ids = {
-            accountIds: selectedRecords.map((item) => item.id),
-        };
-        deleteAccount(ids);
-    };
-
-
-
-    const columns = [
-        {
-            accessor: 'transaction',
-            title: <Text size="sm" fz={14} fw={500} c={themeColors.black[9]} >Transaction</Text>,
-            render: (element: JournalAccounts) => (
-                <Anchor
-                    underline="never"
-                // onClick={() =>
-                //     navigate(routes.Contact.DetailContact.replace(':idAccount', element.id))
-                // }
-                >
-                    <Text c={themeColors.primary[6]} size="sm">
-                        Credit Memo #{accountBankAndCash.length}
-                    </Text>
-                </Anchor>
-            ),
-        },
-        {
-            accessor: 'transactionDate',
-            title: <Text size="sm" fz={14} fw={500} ta='center' c={themeColors.black[9]} >Transaction Date</Text>,
-            render: (element: JournalAccounts) => (
-                <Text size="sm" fz={14} fw={400} c={themeColors.black[9]} ta='center'>
-                    12/01/2025
-                </Text>
-            ),
-        },
-        {
-            accessor: 'dueDate',
-            title: <Text size="sm" fz={14} fw={500} c={themeColors.black[9]} >Due Date</Text>,
-            render: (element: JournalAccounts) => (
-                <Text c={themeColors.black[9]} size="sm">
-                    15/01/2025
-                </Text>
-            ),
-        },
-        {
-            accessor: 'Status',
-            title: <Text size="sm" fz={14} fw={500} c={themeColors.black[9]} >Status</Text>,
-            render: (element: JournalAccounts) => (
-                <StatusBadge status="partiallypaid" />
-            ),
-        },
-        {
-            accessor: 'balance',
-            title: <Text size="sm" fz={14} fw={500} c={themeColors.black[9]} >Balance</Text>,
-            render: (element: JournalAccounts) => (
-                <Text size="sm" fz={14} fw={400} c={themeColors.black[9]} >{formatCurrency(element.debit || 0)}</Text>
-            ),
-        },
-        {
-            accessor: 'action',
-            title: <Text size="sm" fz={14} fw={500} ta='center' c={themeColors.black[9]} >Action</Text>,
-            render: (element: JournalAccounts) =>
-                <Center>
-                    <Menu position="bottom-end">
-                        <Menu.Target>
-                            <ActionIcon bg={themeColors.gray[0]}>
-                                <IconDots size={14} color={themeColors.gray[6]} />
-                            </ActionIcon>
-                        </Menu.Target>
-                        <Menu.Dropdown>
-                            <Menu.Item
-                                leftSection={<IconInfoCircle style={{ width: rem(14), height: rem(14) }} />}
-                                component="a"
-                                onClick={() =>
-                                    navigate(routes.Contact.DetailContact.replace(':idAccount', element.id))
-                                }
-                            >
-                                Detail
-                            </Menu.Item>
-                            <Menu.Item
-                                leftSection={<IconTrash style={{ width: rem(14), height: rem(14) }} />}
-                                component="a"
-                                c={themeColors.red[6]}
-                                target="_blank"
-                            >
-                                Delete
-                            </Menu.Item>
-                        </Menu.Dropdown>
-                    </Menu>
-                </Center>
-        }
-
-    ];
-
+  if (isLoading) {
     return (
-        <Stack gap="md">
-            <Flex gap="xs" justify="space-between" align="center" direction="row" wrap="wrap">
-                <Grid columns={24} gutter="sm">
-                    <Grid.Col span={8}>
-                        <TextInput
-                            leftSectionPointerEvents="none"
-                            leftSection={<IconSearch size={16} />}
-                            placeholder="Find Transaction"
-                            size='xs'
-                            value={searchQuery}
-                            onChange={searchData}
-                        />
-                    </Grid.Col>
-                    <Grid.Col span={8}>
-                        <Select
-                            placeholder="All Type"
-                            data={categoryAccounts}
-                            value={selectedCategory}
-                            onChange={filterData}
-                            clearable={!!selectedCategory}
-                            defaultValue={"Current Assets"}
-                            size='xs'
-                            rightSection={!selectedCategory ? <IconChevronDown size={16} /> : null}
-                            comboboxProps={{ width: 400, position: 'bottom-start' }}
-                        />
-                    </Grid.Col>
-                    <Grid.Col span={8}>
-                        <Select
-                            placeholder="All Status"
-                            data={categoryAccounts}
-                            value={selectedCategory}
-                            onChange={filterData}
-                            clearable={!!selectedCategory}
-                            defaultValue={"Current Assets"}
-                            size='xs'
-                            rightSection={!selectedCategory ? <IconChevronDown size={16} /> : null}
-                            comboboxProps={{ width: 400, position: 'bottom-start' }}
-                        />
-                    </Grid.Col>
-                </Grid>
-                <Grid columns={6}>
-                    {selectedRecords.length > 0 && (
-                        <Grid.Col span={3}>
-                            <Button
-                                onClick={handleDeleteAccount}
-                                color={themeColors.red[6]}
-                                size='xs'
-                                leftSection={<IconTrash size={16}
-                                />}
-                            >
-                                Delete Account
-                            </Button>
-                        </Grid.Col>
-                    )}
-                </Grid>
-            </Flex>
-            <>
-                {isEmpty ? (
-                    <>
-                        <Container fluid p='xl'>
-                            <EmptyState />
-                        </Container>
-                    </>
-                ) : (
-                    <DataTable
-                        withTableBorder
-                        borderRadius="md"
-                        highlightOnHover
-                        fz="sm"
-                        selectedRecords={selectedRecords}
-                        onSelectedRecordsChange={setSelectedRecords}
-                        columns={columns}
-                        records={accountBankAndCash}
-                    />
-                )
-                }
-            </>
-        </Stack>
+      <Paper withBorder radius="md" p="md" bg="white">
+        <Table verticalSpacing="sm" horizontalSpacing="md">
+          <Table.Thead bg="gray.0">
+            <Table.Tr>
+              <Table.Th>Nomor Transaksi</Table.Th>
+              <Table.Th>Tanggal & Jatuh Tempo</Table.Th>
+              <Table.Th>Ringkasan Produk</Table.Th>
+              <Table.Th ta="center">Status</Table.Th>
+              <Table.Th ta="right">Total Tagihan</Table.Th>
+              <Table.Th ta="right">Sisa Tagihan</Table.Th>
+              <Table.Th ta="center">Aksi</Table.Th>
+            </Table.Tr>
+          </Table.Thead>
+          <Table.Tbody>
+            {Array.from({ length: Math.min(limit, 5) }).map((_, idx) => (
+              // eslint-disable-next-line react/no-array-index-key
+              <Table.Tr key={`skeleton-row-${idx}`}>
+                <Table.Td>
+                  <Skeleton height={16} width="80%" mb={4} />
+                  <Skeleton height={12} width="40%" />
+                </Table.Td>
+                <Table.Td>
+                  <Skeleton height={14} width="70%" mb={4} />
+                  <Skeleton height={12} width="50%" />
+                </Table.Td>
+                <Table.Td>
+                  <Skeleton height={14} width="85%" />
+                </Table.Td>
+                <Table.Td ta="center">
+                  <Skeleton height={20} width={70} radius="sm" mx="auto" />
+                </Table.Td>
+                <Table.Td ta="right">
+                  <Skeleton height={16} width={80} ml="auto" />
+                </Table.Td>
+                <Table.Td ta="right">
+                  <Skeleton height={16} width={80} ml="auto" />
+                </Table.Td>
+                <Table.Td ta="center">
+                  <Skeleton height={24} width={24} radius="sm" mx="auto" />
+                </Table.Td>
+              </Table.Tr>
+            ))}
+          </Table.Tbody>
+        </Table>
+      </Paper>
     );
-}
+  }
 
+  if (transactions.length === 0) {
+    return (
+      <Paper withBorder radius="md" bg="white" p={0} style={{ overflow: 'hidden' }}>
+        <EmptyState
+          icon={<IconReceipt2 size={36} stroke={1.6} />}
+          title="Belum Ada Transaksi"
+          description="Kontak ini belum memiliki catatan riwayat transaksi penjualan atau faktur."
+        />
+      </Paper>
+    );
+  }
+
+  const startRecord = (page - 1) * limit + 1;
+  const endRecord = Math.min(page * limit, total);
+
+  return (
+    <Paper withBorder radius="md" bg="white" style={{ overflow: 'hidden' }}>
+      <Table.ScrollContainer minWidth={760}>
+        <Table verticalSpacing="sm" horizontalSpacing="md" highlightOnHover>
+          <Table.Thead bg="gray.0">
+            <Table.Tr>
+              <Table.Th style={{ width: '22%' }}>
+                <Text size="xs" fw={700} c="dimmed" tt="uppercase" lts={0.4}>
+                  Nomor Faktur / Transaksi
+                </Text>
+              </Table.Th>
+              <Table.Th style={{ width: '18%' }}>
+                <Text size="xs" fw={700} c="dimmed" tt="uppercase" lts={0.4}>
+                  Tanggal & Jatuh Tempo
+                </Text>
+              </Table.Th>
+              <Table.Th style={{ width: '24%' }}>
+                <Text size="xs" fw={700} c="dimmed" tt="uppercase" lts={0.4}>
+                  Ringkasan Item Produk
+                </Text>
+              </Table.Th>
+              <Table.Th ta="center" style={{ width: '12%' }}>
+                <Text size="xs" fw={700} c="dimmed" tt="uppercase" lts={0.4}>
+                  Status
+                </Text>
+              </Table.Th>
+              <Table.Th ta="right" style={{ width: '12%' }}>
+                <Text size="xs" fw={700} c="dimmed" tt="uppercase" lts={0.4}>
+                  Total Tagihan
+                </Text>
+              </Table.Th>
+              <Table.Th ta="right" style={{ width: '12%' }}>
+                <Text size="xs" fw={700} c="dimmed" tt="uppercase" lts={0.4}>
+                  Sisa Tagihan
+                </Text>
+              </Table.Th>
+              <Table.Th ta="center" style={{ width: '6%' }}>
+                <Text size="xs" fw={700} c="dimmed" tt="uppercase" lts={0.4}>
+                  Aksi
+                </Text>
+              </Table.Th>
+            </Table.Tr>
+          </Table.Thead>
+
+          <Table.Tbody>
+            {transactions.map((tx) => {
+              const statusCfg = getSaleStatusConfig(tx.status);
+              const isOverdue =
+                tx.remainingAmount > 0 &&
+                tx.dueDate &&
+                new Date(tx.dueDate).getTime() < Date.now();
+
+              const firstItemWithJournal = tx.items?.find((i) => Boolean(i.journalTransaction));
+              const journalTxId =
+                firstItemWithJournal?.journalTransaction ||
+                (tx as any).journalTransaction ||
+                tx.journalId ||
+                tx.transactionId;
+
+              return (
+                <Table.Tr
+                  key={tx.id}
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => navigate(routes.sales.detail.replace(':id', tx.id))}
+                >
+                  {/* 1. Transaction Number */}
+                  <Table.Td>
+                    <Group gap="xs" wrap="nowrap" align="center">
+                      <ThemeIcon size={28} radius="md" variant="light" color="primary">
+                        <IconReceipt2 size={16} />
+                      </ThemeIcon>
+                      <Box style={{ minWidth: 0 }}>
+                        <Group gap={4} wrap="nowrap" align="center">
+                          <Text
+                            size="sm"
+                            fw={700}
+                            c="primary.9"
+                            truncate
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(routes.sales.detail.replace(':id', tx.id));
+                            }}
+                          >
+                            {tx.transactionNumber}
+                          </Text>
+                          <CopyButton value={tx.transactionNumber}>
+                            {({ copied, copy }) => (
+                              <Tooltip label={copied ? 'Tersalin' : 'Salin Nomor'}>
+                                <ActionIcon
+                                  size="xs"
+                                  variant="subtle"
+                                  color={copied ? 'teal' : 'gray'}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    copy();
+                                  }}
+                                >
+                                  {copied ? <IconCheck size={11} /> : <IconCopy size={11} />}
+                                </ActionIcon>
+                              </Tooltip>
+                            )}
+                          </CopyButton>
+                        </Group>
+
+                        {tx.customerRefNumber && (
+                          <Text size="xs" c="dimmed">
+                            Ref: {tx.customerRefNumber}
+                          </Text>
+                        )}
+                      </Box>
+                    </Group>
+                  </Table.Td>
+
+                  {/* 2. Tanggal Transaksi & Jatuh Tempo */}
+                  <Table.Td>
+                    <Text size="xs" fw={600} c="dark.8">
+                      {formatDate(tx.transactionDate)}
+                    </Text>
+                    <Group gap={4} mt={2}>
+                      <IconClock
+                        size={12}
+                        color={isOverdue ? 'var(--mantine-color-red-6)' : 'var(--mantine-color-gray-6)'}
+                      />
+                      <Text size="xs" c={isOverdue ? 'red.7' : 'dimmed'} fw={isOverdue ? 600 : 400}>
+                        {formatDate(tx.dueDate)}
+                      </Text>
+                    </Group>
+                  </Table.Td>
+
+                  {/* 3. Items Summary */}
+                  <Table.Td>
+                    <Text size="xs" fw={500} c="dark.8" lineClamp={1}>
+                      {tx.items && tx.items.length > 0
+                        ? tx.items
+                            .map((i) => i.product?.name || i.description || 'Item')
+                            .join(', ')
+                        : '—'}
+                    </Text>
+                    <Group gap={4} mt={2}>
+                      <Badge size="xs" variant="outline" color="gray">
+                        {tx.items?.length || 0} Produk
+                      </Badge>
+
+                      {journalTxId && (
+                        <Anchor
+                          size="xs"
+                          c="primary.8"
+                          fw={600}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(
+                              routes.generalJournal.detailTransactionJournal.replace(
+                                ':idTransaction',
+                                journalTxId
+                              )
+                            );
+                          }}
+                          style={{ display: 'inline-flex', alignItems: 'center', gap: 3 }}
+                        >
+                          <IconNotebook size={12} />
+                          Jurnal Transaksi
+                        </Anchor>
+                      )}
+                    </Group>
+                  </Table.Td>
+
+                  {/* 4. Status */}
+                  <Table.Td ta="center">
+                    <Stack gap={2} align="center">
+                      <Badge
+                        size="sm"
+                        radius="sm"
+                        color={statusCfg.color}
+                        variant={statusCfg.variant || 'light'}
+                      >
+                        {statusCfg.label}
+                      </Badge>
+                      {isOverdue && (
+                        <Badge size="xs" color="red" variant="filled">
+                          Lewat Tempo
+                        </Badge>
+                      )}
+                    </Stack>
+                  </Table.Td>
+
+                  {/* 5. Total Tagihan */}
+                  <Table.Td ta="right">
+                    <Text
+                      size="sm"
+                      fw={700}
+                      c="primary.9"
+                      style={{ fontVariantNumeric: 'tabular-nums' }}
+                    >
+                      {formatIDR(tx.finalAmount)}
+                    </Text>
+                    {tx.paidAmount > 0 && (
+                      <Text size="xs" c="teal.7" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                        Lunas: {formatIDR(tx.paidAmount)}
+                      </Text>
+                    )}
+                  </Table.Td>
+
+                  {/* 6. Sisa Tagihan */}
+                  <Table.Td ta="right">
+                    <Text
+                      size="sm"
+                      fw={tx.remainingAmount > 0 ? 700 : 400}
+                      c={tx.remainingAmount > 0 ? 'orange.8' : 'dimmed'}
+                      style={{ fontVariantNumeric: 'tabular-nums' }}
+                    >
+                      {formatIDR(tx.remainingAmount)}
+                    </Text>
+                  </Table.Td>
+
+                  {/* 7. Action Menu */}
+                  <Table.Td
+                    ta="center"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                    }}
+                  >
+                    <Menu position="bottom-end" shadow="md" withinPortal>
+                      <Menu.Target>
+                        <ActionIcon variant="subtle" color="gray" size="sm">
+                          <IconDotsVertical size={16} />
+                        </ActionIcon>
+                      </Menu.Target>
+                      <Menu.Dropdown>
+                        <Menu.Item
+                          leftSection={<IconEye size={14} />}
+                          onClick={() => navigate(routes.sales.detail.replace(':id', tx.id))}
+                        >
+                          Buka Faktur Penjualan
+                        </Menu.Item>
+                        {journalTxId && (
+                          <Menu.Item
+                            leftSection={<IconNotebook size={14} />}
+                            onClick={() =>
+                              navigate(
+                                routes.generalJournal.detailTransactionJournal.replace(
+                                  ':idTransaction',
+                                  journalTxId
+                                )
+                              )
+                            }
+                          >
+                            Lihat Jurnal Transaksi
+                          </Menu.Item>
+                        )}
+                      </Menu.Dropdown>
+                    </Menu>
+                  </Table.Td>
+                </Table.Tr>
+              );
+            })}
+          </Table.Tbody>
+        </Table>
+      </Table.ScrollContainer>
+
+      {/* Pagination Footer */}
+      <Box p="md" style={{ borderTop: '1px solid var(--mantine-color-gray-2)' }}>
+        <Group justify="space-between" align="center" wrap="wrap" gap="sm">
+          <Group gap="xs" align="center">
+            <Text size="xs" c="dimmed">
+              Menampilkan {startRecord} - {endRecord} dari {total} transaksi
+            </Text>
+            <Select
+              size="xs"
+              w={75}
+              value={String(limit)}
+              onChange={(val) => onLimitChange(Number(val) || 10)}
+              data={[
+                { value: '5', label: '5' },
+                { value: '10', label: '10' },
+                { value: '25', label: '25' },
+                { value: '50', label: '50' },
+              ]}
+              aria-label="Jumlah transaksi per halaman"
+            />
+          </Group>
+
+          <Pagination
+            size="sm"
+            value={page}
+            total={totalPages}
+            onChange={onPageChange}
+            color="primary"
+          />
+        </Group>
+      </Box>
+    </Paper>
+  );
+};
+
+export default TableTransactionByContact;
