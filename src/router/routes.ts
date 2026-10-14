@@ -8,6 +8,7 @@ export const routes = {
   notFound: '*',
   landingPage: '/',
   login: '/login',
+  forgotPassword: '/forgot-password',
   oauthCallback: '/callback',
   dashboard: '/dashboard',
   profile: '/profile',

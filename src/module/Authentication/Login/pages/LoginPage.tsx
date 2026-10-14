@@ -1,155 +1,132 @@
+import React, { useState } from 'react';
 import {
-  Paper,
-  TextInput,
-  PasswordInput,
-  Checkbox,
-  Button,
-  Text,
-  Anchor,
-  Image,
-  Center,
-  Stack,
   AspectRatio,
-  Overlay,
-  Flex,
-  Title,
+  Box,
+  Center,
   Grid,
+  Group,
+  Image,
+  Paper,
+  Stack,
+  Text,
 } from '@mantine/core';
-import { useForm } from '@mantine/form';
-import { useLogin } from '../service/Login.service';
-import classes from './page.module.css';
+import { IconShieldCheck } from '@tabler/icons-react';
+import { useLocation } from 'react-router-dom';
 import LogoProapps from '@/assets/img/proapps-logo.svg';
-import { Carousel } from '@mantine/carousel';
-import { useRef } from 'react';
-import Slider1 from '@/assets/img/Slider/tower.png';
-import Slider2 from '@/assets/img/Slider/accounting.png';
-import { gradientColors, themeColors } from '@/theme';
+import { useLogin } from '../service/Login.service';
+import { AuthVisualSide } from '../components/AuthVisualSide';
+import { LoginForm } from '../components/LoginForm';
+import { ForgotPasswordForm } from '../components/ForgotPasswordForm';
 
-function LoginPage() {
-  const { mutate: login } = useLogin({});
-  const loginForm = useForm({
-    mode: 'uncontrolled',
-    initialValues: { email: '', password: '' },
-    validate: {
-      email: (value) => (/^\S+@\S+$/.test(value) ? null : 'Invalid email'),
-      password: (value) => (value.length < 8 ? 'Your password must be at least 8 to login' : null),
-    },
-  });
+interface LoginPageProps {
+  initialMode?: 'login' | 'forgot';
+}
 
-  const sliderImages = [
-    { src: Slider1, alt: "Slider Image 1" },
-    { src: Slider2, alt: "Slider Image 2" },
-  ];
+export default function LoginPage({ initialMode = 'login' }: LoginPageProps) {
+  const location = useLocation();
+  const isForgotPath = location.pathname.includes('forgot-password');
+  const [mode, setMode] = useState<'login' | 'forgot'>(
+    isForgotPath || initialMode === 'forgot' ? 'forgot' : 'login'
+  );
+  const [presetEmail, setPresetEmail] = useState('');
 
-  const handleSubmit = (values: any) => {
+  const { mutate: login, isPending } = useLogin({});
+
+  const handleLoginSubmit = (values: { email: string; password: string }) => {
     login(values);
   };
 
-  const carouselRef = useRef(null);
+  const handleOpenForgotPassword = (currentEmail?: string) => {
+    if (currentEmail) setPresetEmail(currentEmail);
+    setMode('forgot');
+  };
 
   return (
-    <Grid style={{
-      height: '100vh',
-      display: 'flex',
-      flexDirection: 'row',
-      overflow: 'hidden'
-    }}>
-      <Grid.Col span={6} p={0}  >
-        <Carousel
-          ref={carouselRef}
-          emblaOptions={{ loop: true }}
-          height="100%"
-          withControls={false}
-          withIndicators
-        >
-          {sliderImages.map((image, index) => (
-            <Carousel.Slide key={index}>
-              <Image
-                src={image.src}
-                alt={image.alt}
-                fit="cover"
-                height="100%"
-              />
-              <Overlay
-                gradient="var(--jurnal-gradient-brand-overlay)"
-                opacity={0.85}
-                zIndex={1}
-              />
-              <Text c={themeColors.black[9]}>
-                Optimize Your
-                Building Management
-                with ProApps!
-              </Text>
-            </Carousel.Slide>
-          ))}
-        </Carousel>
+    <Grid
+      gutter={0}
+      style={{
+        minHeight: '100vh',
+        height: '100vh',
+        margin: 0,
+        overflow: 'hidden',
+        backgroundColor: '#ffffff',
+      }}
+    >
+      {/* Left Column: Visual Branding & Product Showcase (Side-by-side) */}
+      <Grid.Col
+        span={{ base: 0, lg: 6.5, xl: 7 }}
+        style={{
+          display: 'block',
+          height: '100vh',
+        }}
+        visibleFrom="lg"
+      >
+        <AuthVisualSide />
       </Grid.Col>
-      <Grid.Col span={6} bg={themeColors.gray[1]} style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100%',
-      }}>
-        <Paper
-          withBorder
-          radius="md"
-          px={40}
-          py={30}
-          style={{ width: 500, border: 0 }}
-          className={classes.card}
-        >
-          <Center mb="lg">
-            <AspectRatio ratio={5 / 3} style={{ width: 120 }}>
-              <Image src={LogoProapps} fit="contain" />
-            </AspectRatio>
-          </Center>
-          <Title order={3} ta="center" mb="md">
-            LOGIN FIRST TO YOUR ACCOUNT
-          </Title>
-          <form onSubmit={loginForm.onSubmit(handleSubmit)}>
-            <TextInput
-              label="Email"
-              placeholder="Your email"
-              required
-              {...loginForm.getInputProps('email')}
-            />
-            <PasswordInput
-              label="Password"
-              placeholder="Your password"
-              required
-              mt="md"
-              {...loginForm.getInputProps('password')}
-            />
-            <Flex align="center" justify="space-between" mt="md">
-              <Checkbox label="Remember me" />
-              <Anchor fz={14} fw={600} size="sm" href="#">
-                Forgot password?
-              </Anchor>
-            </Flex>
-            <Stack gap='md'>
-              <Button
-                type="submit"
-                variant='gradient'
-                fullWidth
-                mt="xl"
-                gradient={gradientColors.gradient}
-              >
-                Login
-              </Button>
-              <Button
-                type='button'
-                variant='outline'
-                fullWidth
-                gradient={gradientColors.gradient}
-              >
-                Back
-              </Button>
-            </Stack>
-          </form>
-        </Paper>
+
+      {/* Right Column: Authentication Card Form */}
+      <Grid.Col
+        span={{ base: 12, lg: 5.5, xl: 5 }}
+        style={{
+          height: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          overflowY: 'auto',
+          backgroundColor: '#f8fafc',
+          padding: '24px',
+        }}
+      >
+        <Box my="auto" py={{ base: 'md', sm: 'xl' }}>
+          <Paper
+            withBorder
+            radius="xl"
+            p={{ base: 'xl', sm: 36 }}
+            bg="white"
+            shadow="xs"
+            mx="auto"
+            style={{
+              maxWidth: 460,
+              width: '100%',
+              borderColor: 'var(--mantine-color-gray-2)',
+            }}
+          >
+            {/* Logo */}
+            <Center mb="xl">
+              <AspectRatio ratio={230 / 64} style={{ width: 140 }}>
+                <Image src={LogoProapps} fit="contain" alt="Proapps Jurnal Logo" />
+              </AspectRatio>
+            </Center>
+
+            {/* Dynamic View: Login vs Forgot Password */}
+            {mode === 'login' ? (
+              <LoginForm
+                onForgotPassword={handleOpenForgotPassword}
+                onSubmit={handleLoginSubmit}
+                isPending={isPending}
+              />
+            ) : (
+              <ForgotPasswordForm
+                onBackToLogin={() => setMode('login')}
+                defaultEmail={presetEmail}
+              />
+            )}
+          </Paper>
+        </Box>
+
+        {/* Security & Copyright Footer */}
+        <Box ta="center" pt="md">
+          <Group justify="center" gap={6} align="center" mb={4}>
+            <IconShieldCheck size={16} color="#10b981" />
+            <Text size="xs" c="dimmed" fw={500}>
+              Koneksi Terenkripsi SSL 256-Bit & Aman
+            </Text>
+          </Group>
+          <Text size="11px" c="gray.5">
+            © 2026 PT Solusi Properti Pintar (ProApps). Seluruh Hak Cipta Dilindungi.
+          </Text>
+        </Box>
       </Grid.Col>
     </Grid>
   );
 }
-
-export default LoginPage;

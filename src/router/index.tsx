@@ -68,7 +68,11 @@ const router = createBrowserRouter([
   },
   {
     path: routes.login,
-    element: <LoginPage />,
+    element: <LoginPage initialMode="login" />,
+  },
+  {
+    path: routes.forgotPassword,
+    element: <LoginPage initialMode="forgot" />,
   },
   {
     path: routes.oauthCallback,
