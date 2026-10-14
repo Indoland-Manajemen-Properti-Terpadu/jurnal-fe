@@ -62,6 +62,7 @@ import PaymentTermPage from '@/module/SettingMenu/PaymentSettings/PaymentTermPag
 import PaymentMethodPage from '@/module/SettingMenu/PaymentSettings/PaymentMethodPage';
 import NumberFormatPage from '@/module/SettingMenu/NumberFormat/NumberFormatPage';
 import TagSettingPage from '@/module/SettingMenu/Tags/TagSettingPage';
+import PendingChangesPage from '@/module/PendingChanges/pages/PendingChangesPage';
 import { NotFound } from '@/components/ErrorPage/NotFound';
 import LoginPage from '@/module/Authentication/Login/pages/LoginPage';
 import OAuthCallback from '@/module/Authentication/Login/pages/OAuthCallback';
@@ -312,8 +313,12 @@ const router = createBrowserRouter([
     element: <CompanySettingPage />,
   },
   {
+    path: routes.pendingChanges.main,
+    element: <PendingChangesPage />,
+  },
+  {
     path: routes.baseModules.approvalSetting,
-    element: <ApprovalSettingPage />,
+    element: <PendingChangesPage />,
   },
   {
     path: routes.settings.main,

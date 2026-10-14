@@ -9,6 +9,7 @@ interface LinksGroupProps {
   label: string;
   initiallyOpened?: boolean;
   link?: string;
+  badge?: React.ReactNode;
   links?: {
     label: string;
     link: string;
@@ -18,7 +19,7 @@ interface LinksGroupProps {
 }
 
 export function LinksGroup(props: LinksGroupProps) {
-  const { icon: Icon, label, initiallyOpened, link, links, closeSidebar, collapsed = false } = props;
+  const { icon: Icon, label, initiallyOpened, link, badge, links, closeSidebar, collapsed = false } = props;
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -73,18 +74,23 @@ export function LinksGroup(props: LinksGroupProps) {
           data-active={isActive || undefined}
           data-collapsed={collapsed || undefined}
         >
-          <Group justify="space-between" gap={12} wrap="nowrap" w="100%">
-            <Group gap={12} wrap="nowrap" justify={collapsed ? 'center' : 'flex-start'} w={collapsed ? '100%' : undefined}>
+          <Group justify="space-between" gap={8} wrap="nowrap" w="100%">
+            <Group gap={12} wrap="nowrap" justify={collapsed ? 'center' : 'flex-start'} w={collapsed ? '100%' : undefined} style={{ minWidth: 0, flex: 1 }}>
               {Icon && <Icon size={22} color="currentColor" weight={isActive ? 'fill' : 'duotone'} />}
               {!collapsed && <Box className={classes.label}>{label}</Box>}
             </Group>
-            {hasLinks && !collapsed && (
-              <CaretRight
-                className={classes.chevron}
-                data-rotate={opened || undefined}
-                size={16}
-                weight="duotone"
-              />
+            {!collapsed && (
+              <Group gap={6} wrap="nowrap">
+                {badge}
+                {hasLinks && (
+                  <CaretRight
+                    className={classes.chevron}
+                    data-rotate={opened || undefined}
+                    size={16}
+                    weight="duotone"
+                  />
+                )}
+              </Group>
             )}
           </Group>
         </UnstyledButton>

@@ -124,6 +124,12 @@ export default function SettingsLayout({
     if (itemPath === routes.settings.main) {
       return location.pathname === routes.settings.main;
     }
+    if (itemPath === routes.baseModules.approvalSetting) {
+      return (
+        location.pathname.startsWith(routes.baseModules.approvalSetting) ||
+        location.pathname.startsWith(routes.pendingChanges.main)
+      );
+    }
     return location.pathname.startsWith(itemPath);
   };
 

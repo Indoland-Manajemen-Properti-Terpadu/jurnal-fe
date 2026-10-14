@@ -111,6 +111,10 @@ export const routes = {
     numberFormats: '/settings/number-formats',
     tags: '/settings/tags',
   },
+
+  pendingChanges: {
+    main: '/pending-changes',
+  },
 } as const;
 
 export type Routes = typeof routes;

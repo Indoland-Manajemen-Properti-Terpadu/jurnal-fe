@@ -9,10 +9,12 @@ import {
   Tooltip,
   ActionIcon,
   Avatar,
+  Badge,
 } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/useAuthentications';
 import { routes } from '@/router/routes';
+import { usePendingChangesCount } from '@/module/PendingChanges/hooks/usePendingChangesQueries';
 import {
   AddressBook,
   Bank,
@@ -29,6 +31,7 @@ import {
   Storefront,
   HouseLine,
   SidebarSimpleIcon,
+  ShieldCheck,
 } from '@phosphor-icons/react';
 import { LinksGroup } from './Links/page';
 import classes from './page.module.css';
@@ -51,6 +54,7 @@ const mockdata = [
       { label: 'Penjualan', icon: Storefront, link: '/sales' },
       { label: 'Pembelian', icon: ShoppingCart, link: '/pembelian' },
       { label: 'Biaya', icon: Receipt, link: '/finance/cost' },
+      { label: 'Persetujuan Perubahan', icon: ShieldCheck, link: routes.pendingChanges.main },
     ],
   },
   {
@@ -122,7 +126,7 @@ const mockdata = [
           },
           {
             label: 'Approval Setting',
-            link: routes.baseModules.approvalSetting,
+            link: routes.pendingChanges.main,
           },
         ],
       },
@@ -148,6 +152,10 @@ const NavbarComponent = ({ onClose, collapsed = false, desktopOpened = true, tog
     .map((w) => w[0]?.toUpperCase())
     .join('');
 
+  const pendingCountQuery = usePendingChangesCount();
+  const rawCount = pendingCountQuery.data;
+  const pendingCount = typeof rawCount === 'number' ? rawCount : (rawCount as any)?.data?.count ?? 0;
+
   const handleLogout = () => {
     clearTokens();
     navigate(routes.login);
@@ -158,9 +166,24 @@ const NavbarComponent = ({ onClose, collapsed = false, desktopOpened = true, tog
       <Text pl={10} mb={8} className={classes.linkHeader} ta={collapsed ? 'center' : 'left'}>
         {collapsed ? '•••' : item.title}
       </Text>
-      {item.links.map((linkItem) => (
-        <LinksGroup {...linkItem} key={linkItem.label} closeSidebar={onClose} collapsed={collapsed} />
-      ))}
+      {item.links.map((linkItem) => {
+        const isPendingChanges = 'link' in linkItem && linkItem.link === routes.pendingChanges.main;
+        const badge = isPendingChanges && pendingCount > 0 ? (
+          <Badge size="xs" color="orange" variant="filled" circle>
+            {pendingCount > 99 ? '99+' : pendingCount}
+          </Badge>
+        ) : undefined;
+
+        return (
+          <LinksGroup
+            {...linkItem}
+            badge={badge}
+            key={linkItem.label}
+            closeSidebar={onClose}
+            collapsed={collapsed}
+          />
+        );
+      })}
     </Box>
   ));
 

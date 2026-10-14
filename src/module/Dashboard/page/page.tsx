@@ -275,7 +275,7 @@ function MainDashboard() {
                       color: (pendingQ.data ?? 0) > 0 ? 'orange' : 'teal',
                       label: 'Persetujuan tertunda',
                       value: pendingQ.isLoading ? '…' : String(pendingQ.data ?? 0),
-                      onClick: () => navigate('/settings/approval-setting'),
+                      onClick: () => navigate(routes.pendingChanges.main),
                     },
                     {
                       icon: IconFileInvoice,

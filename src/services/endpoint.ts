@@ -119,3 +119,10 @@ export const API_SETTINGS = {
   PUT_TAG: (id: string) => `/v1/tags/${id}`,
   DELETE_TAG: (id: string) => `/v1/tags/${id}`,
 };
+
+export const API_PENDING_CHANGES = {
+  GET_ALL: `/v1/pending-changes`,
+  GET_COUNT: `/v1/pending-changes/count`,
+  APPROVE_CHANGE: (changeId: string) => `/v1/pending-changes/${changeId}/approve`,
+  APPROVE_ALL: `/v1/pending-changes/approve-all`,
+};
