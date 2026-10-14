@@ -51,6 +51,7 @@ const SECTION_TITLES: Array<{ prefix: string; title: string; group: string }> = 
   { prefix: '/setting-budget', title: 'Penjualan', group: 'Transaksi' },
   { prefix: '/pembelian', title: 'Pembelian', group: 'Transaksi' },
   { prefix: '/finance/cost', title: 'Biaya', group: 'Transaksi' },
+  { prefix: '/pending-changes', title: 'Persetujuan Perubahan', group: 'Transaksi' },
   { prefix: '/products', title: 'Produk', group: 'Operasional' },
   { prefix: '/production', title: 'Produksi', group: 'Operasional' },
   { prefix: '/fulfillment', title: 'Pemenuhan', group: 'Operasional' },

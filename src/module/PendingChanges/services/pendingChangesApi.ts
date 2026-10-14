@@ -71,3 +71,4 @@ export const approveAllPendingChanges = async (type?: string): Promise<any> => {
   );
   return data.data;
 };
+
