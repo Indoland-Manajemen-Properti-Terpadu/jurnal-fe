@@ -41,6 +41,11 @@ export const routes = {
     bankStatementDraftImport: '/general-journal/bank-statement/:idAccount/import',
   },
 
+  sales: {
+    main: '/sales',
+    detail: '/sales/:id',
+  },
+
   SettingBudget: {
     BudgetManagement: '/setting-budget/budget-management',
     BudgetIS: '/setting-budget/budget-IS',
