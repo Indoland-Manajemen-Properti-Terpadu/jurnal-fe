@@ -25,6 +25,7 @@ export type PendingChangeItem = {
   referenceModel: string;
   referenceId: string;
   payload: Record<string, any>;
+  notes?: string;
   status: PendingChangeStatus;
   deleted?: boolean;
   createdAt?: string;
@@ -54,4 +55,3 @@ export type PendingChangeListResponse = {
 export type PendingChangeCountResponse = {
   count: number;
 };
-

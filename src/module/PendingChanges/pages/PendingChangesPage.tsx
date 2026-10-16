@@ -49,6 +49,7 @@ import {
   usePendingChangesCount,
 } from '../hooks/usePendingChangesQueries';
 import type { PendingChangeItem } from '../types/pendingChange';
+import { useTranslation } from '@/i18n';
 
 const formatIDR = (val: number | string | undefined | null) => {
   const num = typeof val === 'string' ? parseFloat(val) : val;
@@ -56,11 +57,11 @@ const formatIDR = (val: number | string | undefined | null) => {
   return `Rp ${num.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 };
 
-const formatDateTime = (dateStr: string | null | undefined) => {
+const formatDateTime = (dateStr: string | null | undefined, lang: string = 'id') => {
   if (!dateStr) return '—';
   try {
     const d = new Date(dateStr);
-    return d.toLocaleString('id-ID', {
+    return d.toLocaleString(lang === 'id' ? 'id-ID' : 'en-US', {
       day: '2-digit',
       month: 'short',
       year: 'numeric',
@@ -72,8 +73,154 @@ const formatDateTime = (dateStr: string | null | undefined) => {
   }
 };
 
+const parseChangeNotes = (notes?: string) => {
+  if (!notes) return { invoiceNo: null, customerCode: null, description: null };
+  const invoiceMatch = notes.match(/Invoice:\s*([^\s,;]+)/i);
+  const customerMatch = notes.match(/Pelanggan:\s*([^\s,;]+)/i);
+
+  let description = notes;
+  if (invoiceMatch || customerMatch) {
+    description = notes
+      .replace(/Pelanggan:\s*[^\s,;]+,?\s*/i, '')
+      .replace(/Invoice:\s*[^\s,;]+[\.\,]?\s*/i, '')
+      .trim();
+  }
+
+  return {
+    invoiceNo: invoiceMatch ? invoiceMatch[1] : null,
+    customerCode: customerMatch ? customerMatch[1] : null,
+    description: description || notes,
+  };
+};
+
+const renderChangeDetails = (
+  change: PendingChangeItem,
+  t: (key: string, options?: any) => string,
+  lang: string
+) => {
+  const payload = change.payload || {};
+  const isFine = change.type === 'FINE';
+  const isPayment = change.type === 'SALE_PAYMENT';
+  const isDelete =
+    change.type?.toUpperCase().includes('DELETE') ||
+    change.type?.toUpperCase().includes('VOID') ||
+    payload.action === 'DELETE' ||
+    change.deleted === true;
+
+  // 1. Denda Keterlambatan
+  if (isFine) {
+    const amount = payload.newLateFeeAmount ?? payload.amount;
+    return (
+      <Stack gap={2}>
+        <Text size="sm" fw={800} c="orange.9" ff="monospace">
+          +{formatIDR(amount)}
+        </Text>
+        <Text fz={11} c="dimmed">
+          {t('lateFeeFine')}
+        </Text>
+      </Stack>
+    );
+  }
+
+  // 2. Pembayaran Masuk
+  if (isPayment) {
+    return (
+      <Stack gap={2}>
+        <Text size="sm" fw={800} c="teal.9" ff="monospace">
+          {formatIDR(payload.amount)}
+        </Text>
+        <Group gap={6} wrap="wrap">
+          {payload.paymentMethod && (
+            <Badge size="xs" variant="light" color="teal">
+              {payload.paymentMethod}
+            </Badge>
+          )}
+          {payload.transactionNumber && (
+            <Text fz={11} c="dark.6">
+              #{payload.transactionNumber}
+            </Text>
+          )}
+        </Group>
+      </Stack>
+    );
+  }
+
+  // 3. Penghapusan / Void Faktur
+  if (isDelete) {
+    return (
+      <Stack gap={2}>
+        <Badge color="red" variant="light" size="sm" radius="sm">
+          {lang === 'id' ? 'Penghapusan / Void' : 'Deletion / Void'}
+        </Badge>
+        {payload.originalAmount !== undefined && (
+          <Text fz={11} c="dimmed" ff="monospace">
+            {lang === 'id' ? 'Nilai Faktur:' : 'Invoice Amount:'}{' '}
+            {formatIDR(payload.originalAmount)}
+          </Text>
+        )}
+        {payload.reason && (
+          <Text fz={11} c="dark.7" lineClamp={1}>
+            {payload.reason}
+          </Text>
+        )}
+      </Stack>
+    );
+  }
+
+  // 4. Perubahan Nominal Umum
+  if (
+    payload.amount !== undefined ||
+    payload.nominal !== undefined ||
+    payload.total !== undefined
+  ) {
+    const val = payload.amount ?? payload.nominal ?? payload.total;
+    return (
+      <Stack gap={2}>
+        <Text size="sm" fw={800} c="dark.8" ff="monospace">
+          {formatIDR(val)}
+        </Text>
+        <Text fz={11} c="dimmed">
+          {payload.description || payload.note || change.type}
+        </Text>
+      </Stack>
+    );
+  }
+
+  // 5. Perubahan Non-Nominal (Status / Field Updates)
+  const entries = Object.entries(payload).filter(
+    ([k]) => !['syncDate', '_id', 'id', 'site', '__v', 'createdAt', 'updatedAt'].includes(k)
+  );
+
+  if (entries.length === 0) {
+    return (
+      <Text fz="xs" c="dimmed" fs="italic">
+        —
+      </Text>
+    );
+  }
+
+  return (
+    <Stack gap={2}>
+      {entries.slice(0, 2).map(([key, val]) => (
+        <Text key={key} fz={11} c="dark.7" truncate>
+          <Text span fw={600} c="dimmed">
+            {key}:
+          </Text>{' '}
+          {typeof val === 'object' ? JSON.stringify(val) : String(val)}
+        </Text>
+      ))}
+      {entries.length > 2 && (
+        <Text fz={10} c="dimmed">
+          +{entries.length - 2} field
+        </Text>
+      )}
+    </Stack>
+  );
+};
+
 export default function PendingChangesPage() {
   const navigate = useNavigate();
+  const { t, currentLanguage } = useTranslation('pendingChanges');
 
   const [activeTab, setActiveTab] = useState<string>('all');
   const [search, setSearch] = useState<string>('');
@@ -83,9 +230,14 @@ export default function PendingChangesPage() {
   // Queries & Mutations
   const { data: countData = 0, refetch: refetchCount } = usePendingChangesCount();
   const rawCount = countData;
-  const totalPending = typeof rawCount === 'number' ? rawCount : (rawCount as any)?.data?.count ?? 0;
+  const totalPending =
+    typeof rawCount === 'number' ? rawCount : ((rawCount as any)?.data?.count ?? 0);
 
-  const { data: changesData, isLoading, refetch: refetchList } = usePendingChanges({
+  const {
+    data: changesData,
+    isLoading,
+    refetch: refetchList,
+  } = usePendingChanges({
     page,
     limit: Number(pageSize),
     type: activeTab === 'all' ? undefined : activeTab,
@@ -96,12 +248,15 @@ export default function PendingChangesPage() {
   const approveAllMutation = useApproveAllPendingChanges();
 
   // Approve Single Confirmation Modal
-  const [singleModalOpened, { open: openSingleModal, close: closeSingleModal }] = useDisclosure(false);
+  const [singleModalOpened, { open: openSingleModal, close: closeSingleModal }] =
+    useDisclosure(false);
   const [selectedChange, setSelectedChange] = useState<PendingChangeItem | null>(null);
 
   // Approve All Confirmation Modal
   const [allModalOpened, { open: openAllModal, close: closeAllModal }] = useDisclosure(false);
-  const [targetTypeForApproveAll, setTargetTypeForApproveAll] = useState<string | undefined>(undefined);
+  const [targetTypeForApproveAll, setTargetTypeForApproveAll] = useState<string | undefined>(
+    undefined
+  );
 
   const handleRefresh = () => {
     refetchCount();
@@ -134,18 +289,18 @@ export default function PendingChangesPage() {
           {/* Module Header - Consistent with Kontak & Produk */}
           <ModuleHeader
             icon={IconShieldCheck}
-            title="Pusat Persetujuan Perubahan (Pending Changes)"
-            description="Tinjau dan setujui penyesuaian invoice serta pembayaran dari aplikasi ProApps agar pembukuan akuntansi tetap sinkron."
+            title={t('title')}
+            description={t('subtitle')}
             actions={
               <Group gap="xs" wrap="wrap">
-                <Tooltip label="Muat ulang antrean" withArrow position="top">
+                <Tooltip label={t('refreshTooltip')} withArrow position="top">
                   <ActionIcon
                     variant="default"
                     size="lg"
                     radius="md"
                     onClick={handleRefresh}
                     loading={isLoading}
-                    aria-label="Segarkan data"
+                    aria-label={t('refreshTooltip')}
                   >
                     <IconRefresh size={18} />
                   </ActionIcon>
@@ -161,7 +316,9 @@ export default function PendingChangesPage() {
                     }}
                     loading={approveAllMutation.isPending}
                   >
-                    Setujui Semua {activeTab !== 'all' ? `(${activeTab})` : ''}
+                    {activeTab === 'all'
+                      ? t('approveAll')
+                      : t('approveAllWithType', { type: activeTab })}
                   </Button>
                 )}
               </Group>
@@ -180,15 +337,19 @@ export default function PendingChangesPage() {
               <Group justify="space-between" align="flex-start">
                 <div>
                   <Text size="xs" c="dimmed" fw={600} tt="uppercase" lts={0.5}>
-                    Total Menunggu Persetujuan
+                    {t('totalPending')}
                   </Text>
-                  <Text fz={26} fw={800} c={totalPending > 0 ? 'orange.8' : 'dark.8'} mt={4} lh={1.1}>
-                    {totalPending.toLocaleString('id-ID')}
+                  <Text
+                    fz={26}
+                    fw={800}
+                    c={totalPending > 0 ? 'orange.8' : 'dark.8'}
+                    mt={4}
+                    lh={1.1}
+                  >
+                    {totalPending.toLocaleString(currentLanguage === 'id' ? 'id-ID' : 'en-US')}
                   </Text>
                   <Text size="xs" c="dimmed" mt={4}>
-                    {totalPending > 0
-                      ? 'Perlu persetujuan akuntan'
-                      : 'Semua perubahan data telah sinkron'}
+                    {totalPending > 0 ? t('needAccountantApproval') : t('allSynced')}
                   </Text>
                 </div>
                 <ThemeIcon
@@ -212,13 +373,13 @@ export default function PendingChangesPage() {
               <Group justify="space-between" align="flex-start">
                 <div>
                   <Text size="xs" c="dimmed" fw={600} tt="uppercase" lts={0.5}>
-                    Denda Keterlambatan (FINE)
+                    {t('lateFeeFine')}
                   </Text>
                   <Text fz={26} fw={800} c="dark.8" mt={4} lh={1.1}>
-                    {fineCount.toLocaleString('id-ID')}
+                    {fineCount.toLocaleString(currentLanguage === 'id' ? 'id-ID' : 'en-US')}
                   </Text>
                   <Text size="xs" c="dimmed" mt={4}>
-                    Penalti sewa & utilitas ProApps
+                    {t('lateFeeDesc')}
                   </Text>
                 </div>
                 <ThemeIcon size={40} radius="md" variant="light" color="red">
@@ -237,13 +398,13 @@ export default function PendingChangesPage() {
               <Group justify="space-between" align="flex-start">
                 <div>
                   <Text size="xs" c="dimmed" fw={600} tt="uppercase" lts={0.5}>
-                    Pembayaran Masuk (SALE_PAYMENT)
+                    {t('incomingPayment')}
                   </Text>
                   <Text fz={26} fw={800} c="dark.8" mt={4} lh={1.1}>
-                    {paymentCount.toLocaleString('id-ID')}
+                    {paymentCount.toLocaleString(currentLanguage === 'id' ? 'id-ID' : 'en-US')}
                   </Text>
                   <Text size="xs" c="dimmed" mt={4}>
-                    Penerimaan via tenant portal / gateway
+                    {t('incomingPaymentDesc')}
                   </Text>
                 </div>
                 <ThemeIcon size={40} radius="md" variant="light" color="teal">
@@ -267,13 +428,13 @@ export default function PendingChangesPage() {
             >
               <Tabs.List mb="md">
                 <Tabs.Tab value="all" leftSection={<IconShieldCheck size={16} />}>
-                  Semua Perubahan ({pagination.total})
+                  {t('tabAll')} ({pagination.total})
                 </Tabs.Tab>
                 <Tabs.Tab value="FINE" leftSection={<IconAlertCircle size={16} />}>
-                  Denda Keterlambatan ({fineCount})
+                  {t('tabFine')} ({fineCount})
                 </Tabs.Tab>
                 <Tabs.Tab value="SALE_PAYMENT" leftSection={<IconReceipt2 size={16} />}>
-                  Pembayaran ({paymentCount})
+                  {t('tabPayment')} ({paymentCount})
                 </Tabs.Tab>
               </Tabs.List>
 
@@ -281,7 +442,7 @@ export default function PendingChangesPage() {
                 {/* Search & Filter Bar */}
                 <Group justify="space-between" wrap="wrap" gap="md">
                   <TextInput
-                    placeholder="Cari ID faktur / referensi..."
+                    placeholder={t('searchPlaceholder')}
                     leftSection={<IconSearch size={16} />}
                     value={search}
                     onChange={(e) => {
@@ -295,7 +456,7 @@ export default function PendingChangesPage() {
 
                   <Group gap="xs">
                     <Text size="xs" c="dimmed">
-                      Tampilkan:
+                      {t('showRows')}
                     </Text>
                     <Select
                       data={['10', '25', '50']}
@@ -314,7 +475,7 @@ export default function PendingChangesPage() {
                 {/* Inbound Notice Alert */}
                 <Alert icon={<IconInfoCircle size={18} />} color="blue" radius="md" variant="light">
                   <Text size="xs" lh={1.5}>
-                    <strong>Mengapa tidak ada tombol Tolak (Reject)?</strong> Perubahan data ini berasal dari kejadian operasional riil di sistem ProApps (misal penghuni membayar sewa atau denda jatuh tempo dihitung). Menolak sepihak di jurnal akan mengakibatkan ketidaksinkronan data keuangan dengan operasional properti. Tinjau rincian perubahan di bawah lalu klik <strong>Setujui</strong>.
+                    <strong>{t('whyNoRejectTitle')}</strong> {t('whyNoRejectDesc')}
                   </Text>
                 </Alert>
 
@@ -328,155 +489,192 @@ export default function PendingChangesPage() {
                 ) : items.length === 0 ? (
                   <EmptyState
                     icon={<IconShieldCheck size={32} stroke={1.6} />}
-                    title="Semua Perubahan Data Sudah Sinkron!"
-                    description="Tidak ada antrean perubahan data dari ProApps yang tertunda. Seluruh tagihan dan pembayaran telah disinkronkan ke pembukuan."
+                    title={t('emptyTitle')}
+                    description={t('emptyDesc')}
                     color="teal"
                     py={48}
                   />
                 ) : (
                   <Box style={{ overflowX: 'auto' }}>
-                    <Table highlightOnHover verticalSpacing="md" horizontalSpacing="md">
+                    <Table highlightOnHover verticalSpacing="sm" horizontalSpacing="md">
                       <Table.Thead bg="gray.0">
                         <Table.Tr>
-                          <Table.Th style={{ width: '15%' }}>TIPE PERUBAHAN</Table.Th>
-                          <Table.Th style={{ width: '22%' }}>DOKUMEN REFERENSI</Table.Th>
-                          <Table.Th style={{ width: '38%' }}>RINCIAN PERUBAHAN (PAYLOAD PROAPPS)</Table.Th>
-                          <Table.Th style={{ width: '13%' }}>WAKTU PENGAJUAN</Table.Th>
-                          <Table.Th style={{ width: '12%', textAlign: 'center' }}>PERSETUJUAN</Table.Th>
+                          <Table.Th style={{ width: '26%' }}>{t('colType')}</Table.Th>
+                          <Table.Th style={{ width: '32%' }}>{t('colDoc')}</Table.Th>
+                          <Table.Th style={{ width: '18%' }}>{t('colPayload')}</Table.Th>
+                          <Table.Th style={{ width: '12%' }}>{t('colTime')}</Table.Th>
+                          <Table.Th style={{ width: '12%', textAlign: 'center' }}>
+                            {t('colAction')}
+                          </Table.Th>
                         </Table.Tr>
                       </Table.Thead>
                       <Table.Tbody>
                         {items.map((change) => {
                           const isFine = change.type === 'FINE';
                           const isPayment = change.type === 'SALE_PAYMENT';
-                          const payload = change.payload || {};
+                          const isDelete =
+                            change.type?.toUpperCase().includes('DELETE') ||
+                            change.type?.toUpperCase().includes('VOID') ||
+                            change.payload?.action === 'DELETE' ||
+                            change.deleted === true;
+                          const isApproved = change.status === 'APPROVED';
+                          const { invoiceNo, customerCode, description } = parseChangeNotes(
+                            change.notes
+                          );
 
                           return (
                             <Table.Tr key={change.id}>
+                              {/* Kolom 1: Transaksi / Dokumen Referensi */}
                               <Table.Td>
-                                <Stack gap={4} align="flex-start">
-                                  <Badge
-                                    color={isFine ? 'red' : isPayment ? 'teal' : 'blue'}
-                                    variant="light"
-                                    size="md"
-                                  >
-                                    {isFine ? 'Denda (FINE)' : isPayment ? 'Pembayaran' : change.type}
-                                  </Badge>
-                                  <Badge color="orange" variant="dot" size="xs">
-                                    {change.status}
-                                  </Badge>
+                                <Stack gap={4}>
+                                  <Group gap={6} align="center" wrap="nowrap">
+                                    <Badge
+                                      color={
+                                        isDelete
+                                          ? 'red'
+                                          : isFine
+                                            ? 'orange'
+                                            : isPayment
+                                              ? 'teal'
+                                              : 'blue'
+                                      }
+                                      variant="light"
+                                      size="xs"
+                                      radius="sm"
+                                      style={{ fontWeight: 700 }}
+                                    >
+                                      {isDelete
+                                        ? currentLanguage === 'id'
+                                          ? 'Penghapusan (VOID)'
+                                          : 'Deletion (VOID)'
+                                        : isFine
+                                          ? 'Denda (FINE)'
+                                          : isPayment
+                                            ? currentLanguage === 'id'
+                                              ? 'Pembayaran (SALE_PAYMENT)'
+                                              : 'Payment (SALE_PAYMENT)'
+                                            : change.type}
+                                    </Badge>
+
+                                    {customerCode && (
+                                      <Badge size="xs" variant="outline" color="gray" radius="sm">
+                                        {customerCode}
+                                      </Badge>
+                                    )}
+                                  </Group>
+
+                                  <Group gap={6} align="center">
+                                    {invoiceNo ? (
+                                      <Text
+                                        size="sm"
+                                        fw={700}
+                                        c={
+                                          change.referenceModel === 'Sale' ? 'primary.7' : 'dark.8'
+                                        }
+                                        style={{
+                                          cursor:
+                                            change.referenceModel === 'Sale'
+                                              ? 'pointer'
+                                              : 'default',
+                                          textDecoration:
+                                            change.referenceModel === 'Sale' ? 'underline' : 'none',
+                                          textUnderlineOffset: 2,
+                                        }}
+                                        onClick={() => {
+                                          if (change.referenceModel === 'Sale') {
+                                            navigate(`/sales/${change.referenceId}`);
+                                          }
+                                        }}
+                                      >
+                                        {invoiceNo}
+                                      </Text>
+                                    ) : (
+                                      <Text size="sm" fw={700} c="dark.8">
+                                        {change.referenceModel}
+                                      </Text>
+                                    )}
+
+                                    {change.referenceModel === 'Sale' && (
+                                      <Tooltip label={t('openInvoice')}>
+                                        <ActionIcon
+                                          size="xs"
+                                          color="primary"
+                                          variant="subtle"
+                                          onClick={() => navigate(`/sales/${change.referenceId}`)}
+                                        >
+                                          <IconArrowRight size={13} />
+                                        </ActionIcon>
+                                      </Tooltip>
+                                    )}
+                                  </Group>
                                 </Stack>
                               </Table.Td>
 
+                              {/* Kolom 2: Catatan Operasional */}
+                              <Table.Td>
+                                {description ? (
+                                  <Text size="xs" c="dark.7" lh={1.45} style={{ maxWidth: 360 }}>
+                                    {description}
+                                  </Text>
+                                ) : (
+                                  <Text size="xs" c="dimmed" fs="italic">
+                                    —
+                                  </Text>
+                                )}
+                              </Table.Td>
+
+                              {/* Kolom 3: Detail Perubahan (Polymorphic) */}
+                              <Table.Td>{renderChangeDetails(change, t, currentLanguage)}</Table.Td>
+
+                              {/* Kolom 4: Waktu */}
                               <Table.Td>
                                 <Stack gap={2}>
-                                  <Group gap={4}>
-                                    <Text size="xs" fw={700} c="dark.8">
-                                      {change.referenceModel}
-                                    </Text>
-                                    <CopyButton value={change.referenceId} timeout={2000}>
-                                      {({ copied, copy }) => (
-                                        <Tooltip label={copied ? 'Tersalin' : 'Salin ID'}>
-                                          <ActionIcon size="xs" color="gray" variant="subtle" onClick={copy}>
-                                            <IconCopy size={12} />
-                                          </ActionIcon>
-                                        </Tooltip>
-                                      )}
-                                    </CopyButton>
-                                  </Group>
-
-                                  <Text size="xs" c="dimmed" ff="monospace" lineClamp={1}>
-                                    {change.referenceId}
+                                  <Text size="xs" fw={600} c="dark.8">
+                                    {formatDateTime(change.createdAt, currentLanguage)}
                                   </Text>
-
-                                  {change.referenceModel === 'Sale' && (
-                                    <Button
-                                      variant="subtle"
-                                      color="primary"
-                                      size="compact-xs"
-                                      p={0}
-                                      justify="flex-start"
-                                      rightSection={<IconArrowRight size={12} />}
-                                      onClick={() => navigate(`/sales/${change.referenceId}`)}
-                                    >
-                                      Buka Faktur
-                                    </Button>
+                                  {change.updatedAt && change.updatedAt !== change.createdAt && (
+                                    <Text fz={11} c="dimmed">
+                                      Upd: {formatDateTime(change.updatedAt, currentLanguage)}
+                                    </Text>
                                   )}
                                 </Stack>
                               </Table.Td>
 
-                              <Table.Td>
-                                {isFine && (
-                                  <Paper withBorder p="xs" radius="sm" bg="red.0">
-                                    <Group justify="space-between" align="center">
-                                      <div>
-                                        <Text size="xs" c="dimmed">
-                                          Penambahan Nilai Denda:
-                                        </Text>
-                                        <Text size="sm" fw={700} c="red.8" ff="monospace">
-                                          +{formatIDR(payload.newLateFeeAmount)}
-                                        </Text>
-                                      </div>
-                                      {payload.syncDate && (
-                                        <Text size="xs" c="dimmed">
-                                          Sync: {formatDateTime(payload.syncDate)}
-                                        </Text>
-                                      )}
-                                    </Group>
-                                  </Paper>
-                                )}
-
-                                {isPayment && (
-                                  <Paper withBorder p="xs" radius="sm" bg="teal.0">
-                                    <Stack gap={2}>
-                                      <Group justify="space-between">
-                                        <Text size="xs" c="dimmed">
-                                          Nominal Pembayaran Masuk:
-                                        </Text>
-                                        <Text size="sm" fw={700} c="teal.9" ff="monospace">
-                                          {formatIDR(payload.amount)}
-                                        </Text>
-                                      </Group>
-                                      {payload.transactionNumber && (
-                                        <Text size="xs" c="dark.7">
-                                          No. Bukti: <strong>{payload.transactionNumber}</strong>
-                                        </Text>
-                                      )}
-                                      {payload.paymentDate && (
-                                        <Text size="xs" c="dimmed">
-                                          Tgl Bayar: {formatDateTime(payload.paymentDate)}
-                                        </Text>
-                                      )}
-                                    </Stack>
-                                  </Paper>
-                                )}
-
-                                {!isFine && !isPayment && (
-                                  <Text size="xs" ff="monospace" c="dark.7">
-                                    {JSON.stringify(payload)}
-                                  </Text>
-                                )}
-                              </Table.Td>
-
-                              <Table.Td>
-                                <Text size="xs" c="dark.8">
-                                  {formatDateTime(change.createdAt)}
-                                </Text>
-                              </Table.Td>
-
+                              {/* Kolom 5: Aksi Persetujuan */}
                               <Table.Td style={{ textAlign: 'center' }}>
-                                <Button
-                                  size="xs"
-                                  color="primary"
-                                  leftSection={<IconCheck size={14} />}
-                                  onClick={() => {
-                                    setSelectedChange(change);
-                                    openSingleModal();
-                                  }}
-                                  loading={approveMutation.isPending && selectedChange?.id === change.id}
-                                >
-                                  Setujui
-                                </Button>
+                                {isApproved ? (
+                                  <Badge
+                                    color="teal"
+                                    variant="light"
+                                    size="sm"
+                                    radius="md"
+                                    leftSection={<IconCheck size={12} stroke={3} />}
+                                    style={{
+                                      backgroundColor: '#ecfdf5',
+                                      color: '#047857',
+                                      border: '1px solid #a7f3d0',
+                                      fontWeight: 700,
+                                    }}
+                                  >
+                                    {t('statusApproved')}
+                                  </Badge>
+                                ) : (
+                                  <Button
+                                    size="xs"
+                                    color="primary"
+                                    radius="md"
+                                    leftSection={<IconCheck size={14} />}
+                                    onClick={() => {
+                                      setSelectedChange(change);
+                                      openSingleModal();
+                                    }}
+                                    loading={
+                                      approveMutation.isPending && selectedChange?.id === change.id
+                                    }
+                                  >
+                                    {t('approveBtn')}
+                                  </Button>
+                                )}
                               </Table.Td>
                             </Table.Tr>
                           );
@@ -490,8 +688,15 @@ export default function PendingChangesPage() {
                 {pagination.totalPages > 1 && (
                   <Group justify="space-between" mt="md" wrap="wrap">
                     <Text size="xs" c="dimmed">
-                      Menampilkan {(page - 1) * Number(pageSize) + 1}–
-                      {Math.min(page * Number(pageSize), pagination.total)} dari {pagination.total} data
+                      {currentLanguage === 'id'
+                        ? `Menampilkan ${(page - 1) * Number(pageSize) + 1}–${Math.min(
+                            page * Number(pageSize),
+                            pagination.total
+                          )} dari ${pagination.total} data`
+                        : `Showing ${(page - 1) * Number(pageSize) + 1}–${Math.min(
+                            page * Number(pageSize),
+                            pagination.total
+                          )} of ${pagination.total} entries`}
                     </Text>
                     <Pagination
                       total={pagination.totalPages}
@@ -516,10 +721,10 @@ export default function PendingChangesPage() {
         title={
           <Group gap="xs">
             <ThemeIcon size={28} radius="md" color="primary" variant="light">
-              <IconShieldCheck size={16} />
+              <IconCheck size={16} />
             </ThemeIcon>
             <Text fw={700} c="dark.8">
-              Konfirmasi Persetujuan Perubahan
+              {t('singleModalTitle')}
             </Text>
           </Group>
         }
@@ -527,15 +732,13 @@ export default function PendingChangesPage() {
       >
         {selectedChange && (
           <Stack gap="md">
-            <Text size="sm">
-              Apakah Anda yakin ingin menyetujui perubahan berikut ke dalam sistem pembukuan akuntansi?
-            </Text>
+            <Text size="sm">{t('singleModalPrompt')}</Text>
 
             <Paper withBorder p="sm" radius="md" bg="gray.0">
               <Stack gap={4}>
                 <Group justify="space-between">
                   <Text size="xs" c="dimmed">
-                    Tipe:
+                    {t('typeLabel')}
                   </Text>
                   <Badge size="sm" color={selectedChange.type === 'FINE' ? 'red' : 'teal'}>
                     {selectedChange.type}
@@ -543,7 +746,7 @@ export default function PendingChangesPage() {
                 </Group>
                 <Group justify="space-between">
                   <Text size="xs" c="dimmed">
-                    Target Dokumen:
+                    {t('targetDocLabel')}
                   </Text>
                   <Text size="xs" fw={600}>
                     {selectedChange.referenceModel}
@@ -552,7 +755,7 @@ export default function PendingChangesPage() {
                 {selectedChange.type === 'FINE' && (
                   <Group justify="space-between">
                     <Text size="xs" c="dimmed">
-                      Nominal Denda:
+                      {t('fineAmountLabel')}
                     </Text>
                     <Text size="xs" fw={700} c="red.8">
                       +{formatIDR(selectedChange.payload?.newLateFeeAmount)}
@@ -562,10 +765,20 @@ export default function PendingChangesPage() {
                 {selectedChange.type === 'SALE_PAYMENT' && (
                   <Group justify="space-between">
                     <Text size="xs" c="dimmed">
-                      Nominal Bayar:
+                      {t('paymentAmountLabel')}
                     </Text>
                     <Text size="xs" fw={700} c="teal.9">
                       {formatIDR(selectedChange.payload?.amount)}
+                    </Text>
+                  </Group>
+                )}
+                {selectedChange.notes && (
+                  <Group justify="space-between" align="flex-start">
+                    <Text size="xs" c="dimmed">
+                      {t('notesLabel')}
+                    </Text>
+                    <Text size="xs" fw={600} style={{ maxWidth: '75%', textAlign: 'right' }}>
+                      {selectedChange.notes}
                     </Text>
                   </Group>
                 )}
@@ -573,14 +786,14 @@ export default function PendingChangesPage() {
             </Paper>
 
             <Alert icon={<IconAlertTriangle size={16} />} color="orange" radius="md">
-              Setelah disetujui, perubahan ini langsung diperbarui di saldo faktur dan jurnal pembukuan.
+              {t('singleModalAlert')}
             </Alert>
 
             <Divider />
 
             <Group justify="flex-end" gap="xs">
               <Button variant="default" onClick={closeSingleModal}>
-                Batal
+                {t('cancel')}
               </Button>
               <Button
                 color="primary"
@@ -588,7 +801,7 @@ export default function PendingChangesPage() {
                 onClick={handleConfirmApproveSingle}
                 loading={approveMutation.isPending}
               >
-                Ya, Setujui Perubahan
+                {t('confirmApproveSingle')}
               </Button>
             </Group>
           </Stack>
@@ -605,7 +818,7 @@ export default function PendingChangesPage() {
               <IconSparkles size={16} />
             </ThemeIcon>
             <Text fw={700} c="dark.8">
-              Persetujuan Perubahan Massal
+              {t('allModalTitle')}
             </Text>
           </Group>
         }
@@ -613,26 +826,42 @@ export default function PendingChangesPage() {
       >
         <Stack gap="md">
           <Text size="sm">
-            Apakah Anda yakin ingin menyetujui <strong>semua</strong> perubahan data{' '}
-            {targetTypeForApproveAll ? (
-              <Badge color="orange" size="sm">
-                {targetTypeForApproveAll}
-              </Badge>
+            {currentLanguage === 'id' ? (
+              <>
+                Apakah Anda yakin ingin menyetujui <strong>semua</strong> perubahan data{' '}
+                {targetTypeForApproveAll ? (
+                  <Badge color="orange" size="sm">
+                    {targetTypeForApproveAll}
+                  </Badge>
+                ) : (
+                  'yang saat ini berstatus PENDING'
+                )}
+                ?
+              </>
             ) : (
-              'yang saat ini berstatus PENDING'
+              <>
+                Are you sure you want to approve <strong>all</strong> changes{' '}
+                {targetTypeForApproveAll ? (
+                  <Badge color="orange" size="sm">
+                    {targetTypeForApproveAll}
+                  </Badge>
+                ) : (
+                  'currently marked as PENDING'
+                )}
+                ?
+              </>
             )}
-            ?
           </Text>
 
           <Alert icon={<IconAlertTriangle size={16} />} color="orange" radius="md">
-            Seluruh invoice terkait akan diperbarui secara serentak sesuai angka penyesuaian dari ProApps.
+            {t('allModalAlert')}
           </Alert>
 
           <Divider />
 
           <Group justify="flex-end" gap="xs">
             <Button variant="default" onClick={closeAllModal}>
-              Batal
+              {t('cancel')}
             </Button>
             <Button
               color="primary"
@@ -640,7 +869,7 @@ export default function PendingChangesPage() {
               onClick={handleConfirmApproveAll}
               loading={approveAllMutation.isPending}
             >
-              Ya, Setujui Semua
+              {t('confirmApproveAll')}
             </Button>
           </Group>
         </Stack>

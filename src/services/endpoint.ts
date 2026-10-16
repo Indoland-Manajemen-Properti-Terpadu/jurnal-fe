@@ -39,6 +39,7 @@ export const API_ACCOUNT = {
   GET_CATEGORY_INFO: `${BASE_URL}/v1/accounts/category-info`,
 
   GET_DRAFT_BALANCE: `${BASE_URL}/v1/accounts/get/draft-start-amount`,
+  GET_DRAFT_BALANCE_LOGS: `${BASE_URL}/v1/accounts/get/draft-start-amount/logs`,
   POST_DRAFT_BALANCE: `${BASE_URL}/v1/accounts/set/draft-start-amount`,
   POST_PUBLISH_DRAFT_BALANCE: `${BASE_URL}/v1/accounts/set/save-start-amount`,
 
@@ -47,6 +48,10 @@ export const API_ACCOUNT = {
   POST_COMMIT_IMPORT_BANK_STATEMENT: `${BASE_URL}/v1/bank-statement/`,
   POST_CONFIRM_IMPORT_BANK_STATEMENT: `${BASE_URL}/v1/bank-statements/import/confirm`,
   POST_IMPORT_ACCOUNT: `${BASE_URL}/v1/accounts/import`,
+  POST_COMMIT_IMPORT_ACCOUNT: `${BASE_URL}/v1/accounts/commit/import`,
+  GET_IMPORT_TEMPLATE_ACCOUNT: `${BASE_URL}/v1/accounts/import/template`,
+  GET_EXPORT_ACCOUNT: `${BASE_URL}/v1/accounts/export`,
+  POST_RESET_ACCOUNT: `${BASE_URL}/v1/accounts/reset`,
 
   GET_RECONCILIATION: `${BASE_URL}/v1/reconciliation/`,
   MATCH_RECONCILIATION: `${BASE_URL}/v1/reconciliation/match-multiple`,

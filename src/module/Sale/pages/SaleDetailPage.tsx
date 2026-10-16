@@ -2,11 +2,9 @@ import { useState } from 'react';
 import {
   ActionIcon,
   Anchor,
-  Avatar,
   Badge,
   Box,
   Button,
-  Card,
   CopyButton,
   Divider,
   Grid,
@@ -24,26 +22,23 @@ import {
 import {
   IconArrowLeft,
   IconArrowUpRight,
-  IconCalendar,
   IconCheck,
-  IconClock,
   IconCopy,
   IconDownload,
   IconExternalLink,
   IconFileText,
   IconLink,
-  IconMail,
-  IconMapPin,
   IconNotebook,
   IconPaperclip,
-  IconPhone,
   IconReceipt2,
   IconTag,
   IconUser,
   IconX,
 } from '@tabler/icons-react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import AppShellLayout from '@/components/AppShellLayout';
+import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
+import { useTranslation } from '@/i18n';
 import { routes } from '@/router/routes';
 import { PaySaleModal } from '../components/PaySaleModal';
 import {
@@ -52,16 +47,427 @@ import {
   useGenerateInvoiceLink,
   useSaleDetail,
 } from '../hooks/useSaleQueries';
-import type { CreateSalePaymentPayload } from '../types/sale';
-import { formatDate, formatDateTime, formatIDR, getSaleStatusConfig } from '../utils/saleFormat';
+import type { CreateSalePaymentPayload, Sale, SaleItem } from '../types/sale';
+import { getSaleStatusConfig } from '../utils/saleFormat';
+import classes from './SaleDetailPage.module.css';
+
+type Translate = (key: string, params?: Record<string, string | number>) => string;
+
+function useSaleDisplay() {
+  const { t, i18n } = useTranslation('saleDetail');
+  const locale = i18n.language === 'en' ? 'en-US' : 'id-ID';
+  const currency = new Intl.NumberFormat(locale, {
+    style: 'currency',
+    currency: 'IDR',
+    maximumFractionDigits: 0,
+  });
+  const date = new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short', year: 'numeric' });
+  const dateTime = new Intl.DateTimeFormat(locale, {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+  return {
+    t,
+    money: (value: number) => currency.format(value),
+    date: (value: string | null) => (value ? date.format(new Date(value)) : '—'),
+    dateTime: (value: string | null) => (value ? dateTime.format(new Date(value)) : '—'),
+    number: (value: number) => new Intl.NumberFormat(locale).format(value),
+  };
+}
+
+function DetailField({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <Box className={classes.detailField}>
+      <Text size="xs" c="dimmed" fw={600}>
+        {label}
+      </Text>
+      <Text size="sm" fw={600} className={classes.fieldValue}>
+        {children || '—'}
+      </Text>
+    </Box>
+  );
+}
+
+function AmountRow({
+  label,
+  amount,
+  emphasis = false,
+}: {
+  label: string;
+  amount: string;
+  emphasis?: boolean;
+}) {
+  return (
+    <Group
+      justify="space-between"
+      align="baseline"
+      wrap="nowrap"
+      gap="md"
+      className={classes.amountRow}
+    >
+      <Text size="sm" fw={emphasis ? 700 : 500} c={emphasis ? 'primary.9' : 'dimmed'}>
+        {label}
+      </Text>
+      <Text
+        size={emphasis ? 'lg' : 'sm'}
+        fw={emphasis ? 800 : 600}
+        c={emphasis ? 'primary.9' : undefined}
+        className={classes.amount}
+      >
+        {amount}
+      </Text>
+    </Group>
+  );
+}
+
+function SaleItems({
+  sale,
+  t,
+  money,
+  number,
+}: {
+  sale: Sale;
+  t: Translate;
+  money: (value: number) => string;
+  number: (value: number) => string;
+}) {
+  const itemContent = (item: SaleItem) => {
+    const journalId =
+      item.journalTransaction ||
+      item.journalId ||
+      item.transactionId ||
+      sale.journalId ||
+      sale.transactionId;
+    return (
+      <Stack gap={2}>
+        {item.product?.id ? (
+          <Anchor
+            component={Link}
+            to={routes.baseModules.productDetail.replace(':id', item.product.id)}
+            size="sm"
+            fw={700}
+            c="primary.9"
+            className={classes.inlineLink}
+          >
+            {item.product.name}
+            <IconArrowUpRight size={14} aria-hidden="true" />
+          </Anchor>
+        ) : (
+          <Text size="sm" fw={700}>
+            {item.product?.name || item.description || '—'}
+          </Text>
+        )}
+        {item.product?.productCode && (
+          <Text size="xs" c="dimmed">
+            {item.product.productCode}
+          </Text>
+        )}
+        {item.description && item.product?.name && (
+          <Text size="xs" c="dimmed">
+            {item.description}
+          </Text>
+        )}
+        {journalId && (
+          <Anchor
+            component={Link}
+            to={routes.generalJournal.detailTransactionJournal.replace(':idTransaction', journalId)}
+            size="xs"
+            fw={600}
+            className={classes.inlineLink}
+          >
+            <IconNotebook size={14} aria-hidden="true" />
+            {t('viewJournal')}
+          </Anchor>
+        )}
+      </Stack>
+    );
+  };
+
+  return (
+    <Paper withBorder radius="lg" p={{ base: 'md', sm: 'lg' }} bg="white">
+      <Group justify="space-between" mb="lg" align="center">
+        <Box>
+          <Title order={3} size="md">
+            {t('itemsTitle')}
+          </Title>
+          <Text size="xs" c="dimmed" mt={3}>
+            {t('itemsCount', { count: sale.items.length })}
+          </Text>
+        </Box>
+        <ThemeIcon size={36} radius="md" color="primary" variant="light">
+          <IconReceipt2 size={19} />
+        </ThemeIcon>
+      </Group>
+      <div className={classes.desktopItems}>
+        <Table.ScrollContainer minWidth={620}>
+          <Table verticalSpacing="md" horizontalSpacing="sm">
+            <Table.Thead className={classes.tableHead}>
+              <Table.Tr>
+                <Table.Th>{t('item')}</Table.Th>
+                <Table.Th ta="right">{t('quantity')}</Table.Th>
+                <Table.Th ta="right">{t('unitPrice')}</Table.Th>
+                <Table.Th>{t('tax')}</Table.Th>
+                <Table.Th ta="right">{t('amount')}</Table.Th>
+              </Table.Tr>
+            </Table.Thead>
+            <Table.Tbody>
+              {sale.items.length ? (
+                sale.items.map((item, index) => (
+                  <Table.Tr key={item.id || index}>
+                    <Table.Td>{itemContent(item)}</Table.Td>
+                    <Table.Td ta="right" className={classes.amount}>
+                      {number(item.quantity)}
+                    </Table.Td>
+                    <Table.Td ta="right" className={classes.amount}>
+                      {money(item.unitPrice)}
+                    </Table.Td>
+                    <Table.Td>
+                      <Text size="sm">{item.tax?.name || '—'}</Text>
+                    </Table.Td>
+                    <Table.Td ta="right" fw={700} className={classes.amount}>
+                      {money(item.amount)}
+                    </Table.Td>
+                  </Table.Tr>
+                ))
+              ) : (
+                <Table.Tr>
+                  <Table.Td colSpan={5}>
+                    <Text ta="center" c="dimmed" py="xl">
+                      {t('noItems')}
+                    </Text>
+                  </Table.Td>
+                </Table.Tr>
+              )}
+            </Table.Tbody>
+          </Table>
+        </Table.ScrollContainer>
+      </div>
+      <Stack gap={0} className={classes.mobileItems}>
+        {sale.items.length ? (
+          sale.items.map((item, index) => (
+            <Box key={item.id || index} className={classes.mobileItem}>
+              {itemContent(item)}
+              <Group justify="space-between" align="end" mt="sm" gap="xs">
+                <Text size="xs" c="dimmed">
+                  {number(item.quantity)} × {money(item.unitPrice)}
+                  {item.tax?.name ? ` · ${item.tax.name}` : ''}
+                </Text>
+                <Text size="sm" fw={700} className={classes.amount}>
+                  {money(item.amount)}
+                </Text>
+              </Group>
+            </Box>
+          ))
+        ) : (
+          <Text ta="center" c="dimmed" py="xl">
+            {t('noItems')}
+          </Text>
+        )}
+      </Stack>
+      <Divider my="lg" />
+      <Box className={classes.totals}>
+        <AmountRow label={t('subtotal')} amount={money(sale.subtotal)} />
+        {!!sale.discountAmount && sale.discountAmount > 0 && (
+          <AmountRow
+            label={`${t('discount')}${sale.discountType === 'percentage' ? ` (${sale.discountValue}%)` : ''}`}
+            amount={`−${money(sale.discountAmount)}`}
+          />
+        )}
+        {!!sale.taxAmount && sale.taxAmount > 0 && (
+          <AmountRow label={t('taxTotal')} amount={`+${money(sale.taxAmount)}`} />
+        )}
+        {!!sale.withholdingAmount && sale.withholdingAmount > 0 && (
+          <AmountRow
+            label={`${t('withholding')}${sale.withholdingAccount?.name ? ` · ${sale.withholdingAccount.name}` : ''}`}
+            amount={`−${money(sale.withholdingAmount)}`}
+          />
+        )}
+        <Divider my="xs" />
+        <AmountRow label={t('invoiceTotal')} amount={money(sale.finalAmount)} emphasis />
+        <AmountRow label={t('paid')} amount={money(sale.paidAmount)} />
+        <AmountRow label={t('remaining')} amount={money(sale.remainingAmount)} emphasis />
+      </Box>
+    </Paper>
+  );
+}
+
+function SaleSidebar({
+  sale,
+  t,
+  dateTime,
+}: {
+  sale: Sale;
+  t: Translate;
+  dateTime: (value: string | null) => string;
+}) {
+  return (
+    <Stack gap="lg">
+      <Paper withBorder radius="lg" p={{ base: 'md', sm: 'lg' }} bg="white">
+        <Group gap="sm" mb="md">
+          <ThemeIcon size={36} radius="md" color="primary" variant="light">
+            <IconUser size={19} />
+          </ThemeIcon>
+          <Title order={3} size="md">
+            {t('customerTitle')}
+          </Title>
+        </Group>
+        <Stack gap="sm">
+          <DetailField label={t('customer')}>{sale.customer?.displayName}</DetailField>
+          <DetailField label={t('billingEmail')}>
+            {sale.emails?.[0] || sale.customer?.emails?.[0]}
+          </DetailField>
+          <DetailField label={t('billingAddress')}>
+            {sale.billingAddress || sale.customer?.billingAddress}
+          </DetailField>
+          <DetailField label={t('paymentTerm')}>{sale.paymentTerm?.name}</DetailField>
+        </Stack>
+      </Paper>
+      <Paper withBorder radius="lg" p={{ base: 'md', sm: 'lg' }} bg="white">
+        <Group gap="sm" mb="md">
+          <ThemeIcon size={36} radius="md" color="primary" variant="light">
+            <IconFileText size={19} />
+          </ThemeIcon>
+          <Title order={3} size="md">
+            {t('documentsTitle')}
+          </Title>
+        </Group>
+        <Stack gap="md">
+          {sale.invoiceLink ? (
+            <Box className={classes.linkPanel}>
+              <Text size="xs" fw={700}>
+                {t('invoiceLink')}
+              </Text>
+              <Text size="xs" c="dimmed" truncate mt={3}>
+                {sale.invoiceLink}
+              </Text>
+              <Group gap="xs" mt="sm">
+                <Button
+                  component="a"
+                  href={sale.invoiceLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  size="xs"
+                  variant="light"
+                  color="primary"
+                  leftSection={<IconExternalLink size={15} />}
+                >
+                  {t('openLink')}
+                </Button>
+                <CopyButton value={sale.invoiceLink}>
+                  {({ copied, copy }) => (
+                    <Button
+                      size="xs"
+                      variant="subtle"
+                      color="primary"
+                      onClick={copy}
+                      leftSection={copied ? <IconCheck size={15} /> : <IconCopy size={15} />}
+                    >
+                      {copied ? t('copied') : t('copyLink')}
+                    </Button>
+                  )}
+                </CopyButton>
+              </Group>
+            </Box>
+          ) : (
+            <Text size="sm" c="dimmed">
+              {t('noInvoiceLink')}
+            </Text>
+          )}
+          {sale.attachments?.length > 0 && (
+            <>
+              <Divider />
+              <Text size="xs" fw={700} c="dimmed">
+                {t('attachments', { count: sale.attachments.length })}
+              </Text>
+              {sale.attachments.map((attachment, index) => {
+                const fileUrl = attachment.filePath?.startsWith('http')
+                  ? attachment.filePath
+                  : `/${attachment.filePath?.replace(/^\//, '')}`;
+                return (
+                  <Group
+                    key={attachment.id || index}
+                    justify="space-between"
+                    wrap="nowrap"
+                    gap="xs"
+                  >
+                    <Group gap="xs" wrap="nowrap" className={classes.fileName}>
+                      <IconPaperclip size={16} aria-hidden="true" />
+                      <Text size="sm" truncate>
+                        {attachment.fileName || t('attachment')}
+                      </Text>
+                    </Group>
+                    {attachment.filePath && (
+                      <Tooltip label={t('openAttachment')}>
+                        <ActionIcon
+                          component="a"
+                          href={fileUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label={`${t('openAttachment')}: ${attachment.fileName || t('attachment')}`}
+                          variant="subtle"
+                          color="primary"
+                          size="lg"
+                        >
+                          <IconExternalLink size={17} />
+                        </ActionIcon>
+                      </Tooltip>
+                    )}
+                  </Group>
+                );
+              })}
+            </>
+          )}
+        </Stack>
+      </Paper>
+      {(sale.tags?.length > 0 || sale.customerRefNumber || sale.createdAt || sale.updatedAt) && (
+        <Paper withBorder radius="lg" p={{ base: 'md', sm: 'lg' }} bg="white">
+          <Group gap="sm" mb="md">
+            <ThemeIcon size={36} radius="md" color="primary" variant="light">
+              <IconTag size={19} />
+            </ThemeIcon>
+            <Title order={3} size="md">
+              {t('additionalTitle')}
+            </Title>
+          </Group>
+          <Stack gap="md">
+            {sale.customerRefNumber && (
+              <DetailField label={t('customerReference')}>{sale.customerRefNumber}</DetailField>
+            )}
+            {sale.tags?.length > 0 && (
+              <Box>
+                <Text size="xs" c="dimmed" fw={600} mb="xs">
+                  {t('tags')}
+                </Text>
+                <Group gap={6}>
+                  {sale.tags.map((tag, index) => (
+                    <Badge key={tag.id || index} color="primary" variant="light" tt="none">
+                      {tag.name}
+                    </Badge>
+                  ))}
+                </Group>
+              </Box>
+            )}
+            {sale.createdAt && (
+              <DetailField label={t('createdAt')}>{dateTime(sale.createdAt)}</DetailField>
+            )}
+            {sale.updatedAt && (
+              <DetailField label={t('updatedAt')}>{dateTime(sale.updatedAt)}</DetailField>
+            )}
+          </Stack>
+        </Paper>
+      )}
+    </Stack>
+  );
+}
 
 export function SaleDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-
+  const { t, money, date, dateTime, number } = useSaleDisplay();
   const [payModalOpened, setPayModalOpened] = useState(false);
-
-  // Queries & Mutations
   const { data: sale, isLoading, isError, refetch } = useSaleDetail(id);
   const payMutation = useCreateSalePayment(id);
   const generateLinkMutation = useGenerateInvoiceLink();
@@ -72,13 +478,11 @@ export function SaleDetailPage() {
     setPayModalOpened(false);
     refetch();
   };
-
   const handleGenerateLink = async () => {
     if (!sale) return;
     await generateLinkMutation.mutateAsync(sale.id);
     refetch();
   };
-
   const handleDownloadPdf = async () => {
     if (!sale) return;
     await downloadPdfMutation.mutateAsync({
@@ -92,14 +496,14 @@ export function SaleDetailPage() {
       <AppShellLayout>
         <Box p={{ base: 'md', sm: 'xl' }}>
           <Stack gap="lg">
-            <Skeleton height={50} radius="md" />
-            <Skeleton height={160} radius="lg" />
+            <Skeleton height={110} radius="lg" />
+            <Skeleton height={170} radius="lg" />
             <Grid gutter="lg">
-              <Grid.Col span={{ base: 12, md: 8 }}>
-                <Skeleton height={350} radius="md" />
+              <Grid.Col span={{ base: 12, lg: 8 }}>
+                <Skeleton height={440} radius="lg" />
               </Grid.Col>
-              <Grid.Col span={{ base: 12, md: 4 }}>
-                <Skeleton height={350} radius="md" />
+              <Grid.Col span={{ base: 12, lg: 4 }}>
+                <Skeleton height={300} radius="lg" />
               </Grid.Col>
             </Grid>
           </Stack>
@@ -107,768 +511,176 @@ export function SaleDetailPage() {
       </AppShellLayout>
     );
   }
-
   if (isError || !sale) {
     return (
       <AppShellLayout>
         <Box p={{ base: 'md', sm: 'xl' }}>
-          <Paper withBorder p="xl" radius="lg" ta="center" bg="white">
-            <ThemeIcon size={64} radius="xl" color="red" variant="light" mx="auto" mb="md">
-              <IconX size={32} />
+          <Paper withBorder radius="lg" p="xl" ta="center">
+            <ThemeIcon size={56} radius="xl" color="red" variant="light" mx="auto" mb="md">
+              <IconX size={26} />
             </ThemeIcon>
-            <Title order={3} c="dark.8">
-              Faktur Penjualan Tidak Ditemukan
+            <Title order={2} size="lg">
+              {t('notFoundTitle')}
             </Title>
-            <Text c="dimmed" size="sm" mt="xs" mb="lg">
-              Data faktur mungkin telah dihapus atau ID transaksi tidak valid di sistem.
+            <Text size="sm" c="dimmed" mt="xs" mb="lg">
+              {t('notFoundDescription')}
             </Text>
-            <Button
-              variant="default"
-              leftSection={<IconArrowLeft size={16} />}
-              onClick={() => navigate(routes.sales.main)}
-            >
-              Kembali ke Daftar Penjualan
-            </Button>
+            <Group justify="center">
+              <Button
+                variant="default"
+                leftSection={<IconArrowLeft size={16} />}
+                onClick={() => navigate(routes.sales.main)}
+              >
+                {t('back')}
+              </Button>
+              <Button variant="light" onClick={() => refetch()}>
+                {t('retry')}
+              </Button>
+            </Group>
           </Paper>
         </Box>
       </AppShellLayout>
     );
   }
 
-  const statusCfg = getSaleStatusConfig(sale.status);
-  const isOverdue =
-    sale.remainingAmount > 0 &&
-    sale.dueDate &&
-    new Date(sale.dueDate).getTime() < Date.now();
-
+  const status = getSaleStatusConfig(sale.status);
   return (
     <AppShellLayout>
       <Box p={{ base: 'md', sm: 'xl' }}>
         <Stack gap="lg">
-          {/* Top Bar Navigation & Actions */}
-          <Paper
-            withBorder
-            radius="lg"
-            p={{ base: 'md', sm: 'lg' }}
-            style={{
-              background:
-                'linear-gradient(135deg, var(--mantine-color-white) 60%, var(--mantine-color-secondary-0) 100%)',
-            }}
-          >
-            <Group justify="space-between" align="center" wrap="wrap" gap="sm">
+          <ModuleHeader
+            icon={IconReceipt2}
+            title={t('title')}
+            description={t('description')}
+            breadcrumbs={[
+              { label: t('sales'), to: routes.sales.main },
+              { label: sale.transactionNumber },
+            ]}
+            actions={
               <Button
-                variant="subtle"
-                color="gray"
-                leftSection={<IconArrowLeft size={18} />}
+                variant="default"
+                leftSection={<IconArrowLeft size={16} />}
                 onClick={() => navigate(routes.sales.main)}
               >
-                Kembali ke Daftar Penjualan
+                {t('back')}
               </Button>
-
-              <Group gap="xs">
-                <Button
-                  variant="default"
-                  leftSection={<IconDownload size={16} />}
-                  onClick={handleDownloadPdf}
-                  loading={downloadPdfMutation.isPending}
-                >
-                  Unduh Faktur PDF
-                </Button>
-
-                <Button
-                  variant="outline"
-                  color="blue"
-                  leftSection={<IconLink size={16} />}
-                  onClick={handleGenerateLink}
-                  loading={generateLinkMutation.isPending}
-                >
-                  {sale.invoiceLink ? 'Salin / Perbarui Tautan' : 'Generate Tautan Invoice'}
-                </Button>
-
-                {sale.remainingAmount > 0 && (
-                  <Button
-                    color="primary"
-                    leftSection={<IconReceipt2 size={16} />}
-                    onClick={() => setPayModalOpened(true)}
-                  >
-                    Catat Pembayaran
-                  </Button>
-                )}
-              </Group>
-            </Group>
-          </Paper>
-
-          {/* Hero Invoice Banner (Enhanced Spatial Layout) */}
+            }
+          />
           <Paper
             withBorder
             radius="lg"
             p={{ base: 'md', sm: 'xl' }}
-            style={{
-              background:
-                'linear-gradient(135deg, var(--mantine-color-white) 65%, var(--mantine-color-secondary-0) 100%)',
-              boxShadow: '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
-            }}
+            bg="white"
+            className={classes.overview}
           >
-            <Stack gap="md">
-              <Group justify="space-between" align="flex-start" wrap="wrap" gap="lg">
-                <Group gap="lg" align="flex-start">
-                  <Avatar
-                    size={84}
-                    radius="md"
-                    color="primary"
-                    variant="light"
-                    style={{
-                      border: '2px solid var(--mantine-color-gray-2)',
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
-                    }}
-                  >
-                    <IconReceipt2 size={40} />
-                  </Avatar>
-
-                  <Box>
-                    <Group gap="xs" align="center" wrap="wrap">
-                      <Title order={2} fz={{ base: 22, sm: 28 }} c="primary.9" fw={800}>
-                        {sale.transactionNumber}
-                      </Title>
-
-                      <CopyButton value={sale.transactionNumber}>
-                        {({ copied, copy }) => (
-                          <Tooltip label={copied ? 'Tersalin' : 'Salin Nomor Faktur'}>
-                            <ActionIcon
-                              variant="subtle"
-                              color={copied ? 'teal' : 'gray'}
-                              size="sm"
-                              onClick={copy}
-                            >
-                              {copied ? <IconCheck size={14} /> : <IconCopy size={14} />}
-                            </ActionIcon>
-                          </Tooltip>
-                        )}
-                      </CopyButton>
-
-                      <Badge
-                        size="md"
-                        radius="sm"
-                        color={statusCfg.color}
-                        variant={statusCfg.variant || 'light'}
-                        fw={700}
-                      >
-                        {statusCfg.label}
-                      </Badge>
-
-                      {isOverdue && (
-                        <Badge size="md" color="red" variant="filled" radius="sm">
-                          Lewat Jatuh Tempo
-                        </Badge>
-                      )}
-
-                      {sale.customerRefNumber && (
-                        <Badge size="md" radius="sm" variant="outline" color="gray">
-                          Ref: {sale.customerRefNumber}
-                        </Badge>
-                      )}
-                    </Group>
-
-                    {/* Metadata chips with clear icons */}
-                    <Group gap="md" mt={10} wrap="wrap">
-                      <Group gap={6} align="center">
-                        <ThemeIcon size={20} radius="xl" variant="light" color="gray">
-                          <IconUser size={12} />
-                        </ThemeIcon>
-                        <Text size="sm" c="dimmed">
-                          Pelanggan: <Text span fw={700} c="dark.8">{sale.customer?.displayName || '—'}</Text>
-                        </Text>
-                      </Group>
-
-                      <Group gap={6} align="center">
-                        <ThemeIcon size={20} radius="xl" variant="light" color="gray">
-                          <IconCalendar size={12} />
-                        </ThemeIcon>
-                        <Text size="sm" c="dimmed">
-                          Tanggal: <Text span fw={600} c="dark.8">{formatDate(sale.transactionDate)}</Text>
-                        </Text>
-                      </Group>
-
-                      <Group gap={6} align="center">
-                        <ThemeIcon size={20} radius="xl" variant="light" color={isOverdue ? 'red' : 'gray'}>
-                          <IconClock size={12} />
-                        </ThemeIcon>
-                        <Text size="sm" c="dimmed">
-                          Jatuh Tempo: <Text span fw={600} c={isOverdue ? 'red.7' : 'dark.8'}>{formatDate(sale.dueDate)}</Text>
-                        </Text>
-                      </Group>
-
-                      {sale.paymentTerm && (
-                        <Group gap={6} align="center">
-                          <ThemeIcon size={20} radius="xl" variant="light" color="gray">
-                            <IconNotebook size={12} />
-                          </ThemeIcon>
-                          <Text size="sm" c="dimmed">
-                            Termin: <Text span fw={600} c="dark.8">{sale.paymentTerm.name}</Text>
-                          </Text>
-                        </Group>
-                      )}
-                    </Group>
-                  </Box>
-                </Group>
-
-                {/* Financial Summary Pill on Hero */}
-                <Paper
-                  withBorder
-                  p="md"
-                  radius="md"
-                  bg="white"
-                  style={{
-                    minWidth: 260,
-                    boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
-                    border: '1px solid var(--mantine-color-gray-2)',
-                  }}
-                >
-                  <Stack gap={4} ta={{ base: 'left', sm: 'right' }}>
-                    <Text size="xs" c="dimmed" fw={700} tt="uppercase" lts={0.5}>
-                      Total Tagihan Akhir
-                    </Text>
-                    <Text fz={26} fw={800} c="primary.9" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                      {formatIDR(sale.finalAmount)}
-                    </Text>
-                    <Group gap="xs" justify="flex-end" wrap="wrap" mt={2}>
-                      <Badge size="sm" variant="light" color="teal">
-                        Lunas: {formatIDR(sale.paidAmount)}
-                      </Badge>
-                      <Badge
-                        size="sm"
-                        variant="light"
-                        color={sale.remainingAmount > 0 ? 'orange' : 'teal'}
-                      >
-                        Sisa: {formatIDR(sale.remainingAmount)}
-                      </Badge>
-                    </Group>
-                  </Stack>
-                </Paper>
-              </Group>
-
-              {/* Public Invoice Link Interactive Pill */}
-              {sale.invoiceLink && (
-                <Paper
-                  withBorder
-                  radius="md"
-                  p="sm"
-                  style={{
-                    backgroundColor: 'rgba(16, 185, 129, 0.05)',
-                    borderColor: 'var(--mantine-color-teal-2)',
-                  }}
-                >
-                  <Group justify="space-between" align="center" wrap="wrap" gap="sm">
-                    <Group gap="xs" wrap="nowrap" style={{ minWidth: 0, flex: 1 }}>
-                      <ThemeIcon size={28} radius="md" color="teal" variant="light">
-                        <IconLink size={16} />
-                      </ThemeIcon>
-                      <Box style={{ minWidth: 0, flex: 1 }}>
-                        <Text size="xs" fw={700} c="teal.9">
-                          Tautan Faktur Publik Online Aktif
-                        </Text>
-                        <Text size="xs" c="dimmed" ff="monospace" truncate>
-                          {sale.invoiceLink}
-                        </Text>
-                      </Box>
-                    </Group>
-
-                    <Group gap="xs" wrap="nowrap">
-                      <Button
-                        size="xs"
-                        variant="subtle"
-                        color="teal"
-                        leftSection={<IconExternalLink size={14} />}
-                        onClick={() => window.open(sale.invoiceLink!, '_blank')}
-                      >
-                        Buka Faktur
-                      </Button>
-                      <CopyButton value={sale.invoiceLink} timeout={2000}>
-                        {({ copied, copy }) => (
-                          <Button
-                            size="xs"
-                            variant="light"
-                            color={copied ? 'teal' : 'primary'}
-                            leftSection={copied ? <IconCheck size={14} /> : <IconCopy size={14} />}
-                            onClick={copy}
-                          >
-                            {copied ? 'Tersalin!' : 'Salin Tautan'}
-                          </Button>
-                        )}
-                      </CopyButton>
-                    </Group>
-                  </Group>
-                </Paper>
-              )}
-            </Stack>
-          </Paper>
-
-          {/* Detail Content Grid */}
-          <Grid gutter="lg">
-            {/* Left 8 Cols: Items & Calculations Breakdown */}
-            <Grid.Col span={{ base: 12, md: 8 }}>
-              <Stack gap="lg">
-                {/* 1. Rincian Item Penjualan */}
-                <Card withBorder radius="md" p="lg" bg="white">
-                  <Group justify="space-between" align="center" mb="md">
-                    <Group gap="xs">
-                      <ThemeIcon size={28} radius="md" color="primary" variant="light">
-                        <IconReceipt2 size={16} />
-                      </ThemeIcon>
-                      <Text fw={700} size="md" c="primary.9">
-                        Rincian Barang / Jasa
-                      </Text>
-                    </Group>
-                    <Badge size="sm" variant="light" color="primary">
-                      {sale.items.length} Item
-                    </Badge>
-                  </Group>
-
-                  <Table.ScrollContainer minWidth={600}>
-                    <Table verticalSpacing="sm" highlightOnHover>
-                      <Table.Thead bg="gray.0">
-                        <Table.Tr>
-                          <Table.Th style={{ width: '45%' }}>Produk / Deskripsi</Table.Th>
-                          <Table.Th ta="center" style={{ width: '10%' }}>Qty</Table.Th>
-                          <Table.Th ta="right" style={{ width: '15%' }}>Harga Satuan</Table.Th>
-                          <Table.Th ta="center" style={{ width: '15%' }}>Pajak</Table.Th>
-                          <Table.Th ta="right" style={{ width: '15%' }}>Total</Table.Th>
-                        </Table.Tr>
-                      </Table.Thead>
-                      <Table.Tbody>
-                        {sale.items.map((item, idx) => (
-                          <Table.Tr key={item.id || `item-${idx}`}>
-                            <Table.Td>
-                              <Group gap="xs" align="center" wrap="nowrap">
-                                {item.product?.id ? (
-                                  <Anchor
-                                    size="sm"
-                                    fw={600}
-                                    c="primary.9"
-                                    onClick={() =>
-                                      navigate(
-                                        routes.baseModules.productDetail.replace(
-                                          ':id',
-                                          item.product!.id
-                                        )
-                                      )
-                                    }
-                                    style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4 }}
-                                  >
-                                    {item.product.name}
-                                    <IconArrowUpRight size={13} style={{ opacity: 0.7 }} />
-                                  </Anchor>
-                                ) : (
-                                  <Text size="sm" fw={600} c="dark.8">
-                                    {item.product?.name || item.description || '—'}
-                                  </Text>
-                                )}
-                              </Group>
-
-                              {item.product?.productCode && (
-                                <Badge size="xs" variant="outline" color="gray" mt={2}>
-                                  {item.product.productCode}
-                                </Badge>
-                              )}
-
-                              {item.description && item.product?.name && (
-                                <Text size="xs" c="dimmed" mt={2}>
-                                  {item.description}
-                                </Text>
-                              )}
-
-                              {/* Button: Link to Journal Transaction */}
-                              <Group gap={4} mt={6}>
-                                <Button
-                                  size="compact-xs"
-                                  variant="subtle"
-                                  color="primary"
-                                  leftSection={<IconNotebook size={13} />}
-                                  onClick={() => {
-                                    const txId =
-                                      item.journalTransaction ||
-                                      item.journalId ||
-                                      item.transactionId ||
-                                      sale.journalId ||
-                                      sale.transactionId ||
-                                      sale.id;
-                                    navigate(
-                                      routes.generalJournal.detailTransactionJournal.replace(
-                                        ':idTransaction',
-                                        txId
-                                      )
-                                    );
-                                  }}
-                                >
-                                  Lihat Jurnal Transaksi
-                                </Button>
-                              </Group>
-                            </Table.Td>
-                            <Table.Td ta="center">
-                              <Text size="sm" fw={600} c="dark.8">
-                                {item.quantity}
-                              </Text>
-                            </Table.Td>
-                            <Table.Td ta="right">
-                              <Text size="sm" c="dark.8" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                                {formatIDR(item.unitPrice)}
-                              </Text>
-                            </Table.Td>
-                            <Table.Td ta="center">
-                              {item.tax?.name ? (
-                                <Badge size="xs" variant="light" color="blue">
-                                  {item.tax.name}
-                                </Badge>
-                              ) : (
-                                <Text size="xs" c="dimmed">—</Text>
-                              )}
-                            </Table.Td>
-                            <Table.Td ta="right">
-                              <Text size="sm" fw={700} c="primary.9" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                                {formatIDR(item.amount)}
-                              </Text>
-                            </Table.Td>
-                          </Table.Tr>
-                        ))}
-                      </Table.Tbody>
-                    </Table>
-                  </Table.ScrollContainer>
-
-                  {/* Calculations breakdown footer (Revamped Spatial Calculation Panel) */}
-                  <Paper
-                    withBorder
-                    p="md"
-                    radius="md"
-                    mt="md"
-                    style={{
-                      backgroundColor: 'var(--mantine-color-gray-0)',
-                      borderColor: 'var(--mantine-color-gray-2)',
-                    }}
-                  >
-                    <Stack gap="xs">
-                      <Group justify="space-between" align="center">
-                        <Text size="sm" c="dimmed">Subtotal Barang & Jasa</Text>
-                        <Text size="sm" fw={600} c="dark.8" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                          {formatIDR(sale.subtotal)}
-                        </Text>
-                      </Group>
-
-                      {sale.discountAmount && sale.discountAmount > 0 ? (
-                        <Group justify="space-between" align="center">
-                          <Group gap={6}>
-                            <Text size="sm" c="dimmed">Potongan Diskon</Text>
-                            <Badge size="xs" color="red" variant="light">
-                              {sale.discountType === 'percentage' ? `${sale.discountValue}%` : 'Nominal'}
-                            </Badge>
-                          </Group>
-                          <Text size="sm" fw={600} c="red.7" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                            -{formatIDR(sale.discountAmount)}
-                          </Text>
-                        </Group>
-                      ) : null}
-
-                      {sale.taxAmount && sale.taxAmount > 0 ? (
-                        <Group justify="space-between" align="center">
-                          <Group gap={6}>
-                            <Text size="sm" c="dimmed">Pajak Pertambahan Nilai (PPN)</Text>
-                            <Badge size="xs" color="blue" variant="light">PPN</Badge>
-                          </Group>
-                          <Text size="sm" fw={600} c="dark.8" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                            +{formatIDR(sale.taxAmount)}
-                          </Text>
-                        </Group>
-                      ) : null}
-
-                      {sale.withholdingAmount && sale.withholdingAmount > 0 ? (
-                        <Group justify="space-between" align="center">
-                          <Group gap={6}>
-                            <Text size="sm" c="dimmed">
-                              Pajak Penghasilan (PPh) {sale.withholdingAccount?.name ? `· ${sale.withholdingAccount.name}` : ''}
-                            </Text>
-                            <Badge size="xs" color="orange" variant="light">PPh</Badge>
-                          </Group>
-                          <Text size="sm" fw={600} c="red.7" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                            -{formatIDR(sale.withholdingAmount)}
-                          </Text>
-                        </Group>
-                      ) : null}
-
-                      <Divider my={4} />
-
-                      {/* Highlighted Net Final Invoice Row */}
-                      <Paper
-                        p="xs"
-                        radius="sm"
-                        style={{
-                          backgroundColor: 'var(--mantine-color-primary-0)',
-                          border: '1px solid var(--mantine-color-primary-2)',
-                        }}
-                      >
-                        <Group justify="space-between" align="center">
-                          <div>
-                            <Text size="sm" fw={800} c="primary.9">
-                              Total Tagihan Bersih
-                            </Text>
-                            <Text size="xs" c="primary.7">
-                              Total akhir faktur yang ditagihkan
-                            </Text>
-                          </div>
-                          <Text size="xl" fw={800} c="primary.9" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                            {formatIDR(sale.finalAmount)}
-                          </Text>
-                        </Group>
-                      </Paper>
-
-                      <Group justify="space-between" align="center" mt={2}>
-                        <Group gap={6}>
-                          <ThemeIcon size={20} radius="xl" color="teal" variant="light">
-                            <IconCheck size={12} />
-                          </ThemeIcon>
-                          <Text size="sm" c="teal.8" fw={600}>
-                            Total Pembayaran Diterima
-                          </Text>
-                        </Group>
-                        <Text size="sm" c="teal.8" fw={700} style={{ fontVariantNumeric: 'tabular-nums' }}>
-                          {formatIDR(sale.paidAmount)}
-                        </Text>
-                      </Group>
-
-                      <Group justify="space-between" align="center">
-                        <Group gap={6}>
-                          <ThemeIcon
-                            size={20}
-                            radius="xl"
-                            color={sale.remainingAmount > 0 ? 'orange' : 'teal'}
-                            variant="light"
-                          >
-                            {sale.remainingAmount > 0 ? <IconClock size={12} /> : <IconCheck size={12} />}
-                          </ThemeIcon>
-                          <Text
-                            size="sm"
-                            c={sale.remainingAmount > 0 ? 'orange.8' : 'teal.8'}
-                            fw={700}
-                          >
-                            Sisa Tagihan
-                          </Text>
-                        </Group>
-                        <Text
-                          size="md"
-                          c={sale.remainingAmount > 0 ? 'orange.8' : 'teal.8'}
-                          fw={800}
-                          style={{ fontVariantNumeric: 'tabular-nums' }}
+            <Group justify="space-between" align="flex-start" gap="lg" wrap="wrap">
+              <Box className={classes.identity}>
+                <Text size="xs" fw={700} c="dimmed" tt="uppercase" lts={0.6}>
+                  {t('invoiceNumber')}
+                </Text>
+                <Group gap="xs" mt={4} wrap="wrap">
+                  <Title order={1} className={classes.invoiceNumber}>
+                    {sale.transactionNumber}
+                  </Title>
+                  <CopyButton value={sale.transactionNumber}>
+                    {({ copied, copy }) => (
+                      <Tooltip label={copied ? t('copied') : t('copyNumber')}>
+                        <ActionIcon
+                          onClick={copy}
+                          aria-label={copied ? t('copied') : t('copyNumber')}
+                          variant="subtle"
+                          color="primary"
+                          size="lg"
                         >
-                          {formatIDR(sale.remainingAmount)}
-                        </Text>
-                      </Group>
-                    </Stack>
-                  </Paper>
-                </Card>
-
-                {/* 2. Pesan & Memo */}
+                          {copied ? <IconCheck size={17} /> : <IconCopy size={17} />}
+                        </ActionIcon>
+                      </Tooltip>
+                    )}
+                  </CopyButton>
+                </Group>
+                <Group gap="xs" mt="sm">
+                  <Badge color={status.color} variant={status.variant || 'light'} size="lg">
+                    {t(`status.${sale.status}`)}
+                  </Badge>
+                </Group>
+                <Text size="sm" c="dimmed" mt="sm">
+                  {sale.customer?.displayName || t('unknownCustomer')}
+                </Text>
+              </Box>
+              <Group gap="xs" className={classes.actions}>
+                <Button
+                  variant="default"
+                  leftSection={<IconDownload size={17} />}
+                  loading={downloadPdfMutation.isPending}
+                  onClick={handleDownloadPdf}
+                >
+                  {t('downloadPdf')}
+                </Button>
+                <Button
+                  variant="outline"
+                  color="primary"
+                  leftSection={<IconLink size={17} />}
+                  loading={generateLinkMutation.isPending}
+                  onClick={handleGenerateLink}
+                >
+                  {sale.invoiceLink ? t('refreshLink') : t('generateLink')}
+                </Button>
+                {sale.remainingAmount > 0 && (
+                  <Button
+                    color="primary"
+                    leftSection={<IconReceipt2 size={17} />}
+                    onClick={() => setPayModalOpened(true)}
+                  >
+                    {t('recordPayment')}
+                  </Button>
+                )}
+              </Group>
+            </Group>
+            <Divider my="lg" />
+            <SimpleGrid cols={{ base: 2, sm: 4 }} spacing="md" className={classes.facts}>
+              <DetailField label={t('transactionDate')}>{date(sale.transactionDate)}</DetailField>
+              <DetailField label={t('dueDate')}>{date(sale.dueDate)}</DetailField>
+              <DetailField label={t('invoiceTotal')}>{money(sale.finalAmount)}</DetailField>
+              <Box className={classes.balanceFact}>
+                <Text size="xs" fw={700}>
+                  {t('remaining')}
+                </Text>
+                <Text size="lg" fw={800} className={classes.amount}>
+                  {money(sale.remainingAmount)}
+                </Text>
+              </Box>
+            </SimpleGrid>
+          </Paper>
+          <Grid gutter="lg" align="flex-start">
+            <Grid.Col span={{ base: 12, lg: 8 }}>
+              <Stack gap="lg">
+                <SaleItems sale={sale} t={t} money={money} number={number} />
                 {(sale.message || sale.memo) && (
-                  <Card withBorder radius="md" p="lg" bg="white">
-                    <Text fw={700} size="md" c="primary.9" mb="md">
-                      Pesan & Catatan
-                    </Text>
-                    <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
+                  <Paper withBorder radius="lg" p={{ base: 'md', sm: 'lg' }} bg="white">
+                    <Title order={3} size="md" mb="md">
+                      {t('notesTitle')}
+                    </Title>
+                    <SimpleGrid
+                      cols={{ base: 1, sm: sale.message && sale.memo ? 2 : 1 }}
+                      spacing="lg"
+                    >
                       {sale.message && (
-                        <Paper withBorder p="sm" radius="md">
-                          <Text size="xs" c="dimmed" fw={600}>Pesan untuk Pelanggan</Text>
-                          <Text size="sm" c="dark.8" mt={4}>{sale.message}</Text>
-                        </Paper>
+                        <DetailField label={t('customerMessage')}>{sale.message}</DetailField>
                       )}
                       {sale.memo && (
-                        <Paper withBorder p="sm" radius="md" bg="gray.0">
-                          <Text size="xs" c="dimmed" fw={600}>Memo Internal</Text>
-                          <Text size="sm" c="dark.8" mt={4}>{sale.memo}</Text>
-                        </Paper>
+                        <DetailField label={t('internalMemo')}>{sale.memo}</DetailField>
                       )}
                     </SimpleGrid>
-                  </Card>
+                  </Paper>
                 )}
               </Stack>
             </Grid.Col>
-
-            {/* Right 4 Cols: Customer, Tags, Audit & Lampiran */}
-            <Grid.Col span={{ base: 12, md: 4 }}>
-              <Stack gap="lg">
-                {/* 1. Profil Pelanggan */}
-                <Card withBorder radius="md" p="lg" bg="white">
-                  <Group gap="xs" mb="md">
-                    <ThemeIcon size={32} radius="md" color="primary" variant="light">
-                      <IconUser size={18} />
-                    </ThemeIcon>
-                    <Box>
-                      <Text fw={700} size="md" c="primary.9">Profil Pelanggan</Text>
-                      <Text size="xs" c="dimmed">Detail entitas penerima tagihan</Text>
-                    </Box>
-                  </Group>
-
-                  <Stack gap="sm">
-                    <Paper withBorder p="sm" radius="md">
-                      <Text size="xs" c="dimmed" fw={600}>Nama</Text>
-                      <Text size="sm" fw={700} c="dark.8" mt={2}>
-                        {sale.customer?.displayName || '—'}
-                      </Text>
-                    </Paper>
-
-                    <Paper withBorder p="sm" radius="md">
-                      <Text size="xs" c="dimmed" fw={600}>Email Penagihan</Text>
-                      <Text size="sm" fw={500} c="dark.8" mt={2}>
-                        {sale.emails?.[0] || '—'}
-                      </Text>
-                    </Paper>
-
-                    <Paper withBorder p="sm" radius="md">
-                      <Text size="xs" c="dimmed" fw={600}>Alamat Penagihan (Billing)</Text>
-                      <Text size="sm" fw={500} c="dark.8" mt={2} lh={1.4}>
-                        {sale.billingAddress || sale.customer?.billingAddress || '—'}
-                      </Text>
-                    </Paper>
-
-                    <Paper withBorder p="sm" radius="md">
-                      <Text size="xs" c="dimmed" fw={600}>Termin Pembayaran</Text>
-                      <Text size="sm" fw={600} c="dark.8" mt={2}>
-                        {sale.paymentTerm?.name || '—'}
-                      </Text>
-                    </Paper>
-                  </Stack>
-                </Card>
-
-                {/* 2. Section Tags (New Section Added right after Customer Info) */}
-                <Card withBorder radius="md" p="lg" bg="white">
-                  <Group justify="space-between" align="center" mb="sm">
-                    <Group gap="xs">
-                      <ThemeIcon size={32} radius="md" color="indigo" variant="light">
-                        <IconTag size={18} />
-                      </ThemeIcon>
-                      <Box>
-                        <Text fw={700} size="md" c="dark.8">Tag & Kategori</Text>
-                        <Text size="xs" c="dimmed">Label klasifikasi transaksi</Text>
-                      </Box>
-                    </Group>
-                    <Badge size="sm" variant="light" color="indigo">
-                      {sale.tags?.length || 0} Tag
-                    </Badge>
-                  </Group>
-
-                  <Divider mb="sm" />
-
-                  {sale.tags && sale.tags.length > 0 ? (
-                    <Group gap="xs" wrap="wrap">
-                      {sale.tags.map((tag, idx) => (
-                        <Badge
-                          key={tag.id || tag.name || idx}
-                          size="md"
-                          radius="sm"
-                          variant="light"
-                          color="indigo"
-                          leftSection={<IconTag size={12} />}
-                          style={{ textTransform: 'none', fontWeight: 600 }}
-                        >
-                          {tag.name}
-                        </Badge>
-                      ))}
-                    </Group>
-                  ) : (
-                    <Box p="xs" ta="center" bg="gray.0" style={{ borderRadius: 6 }}>
-                      <Text size="xs" c="dimmed">
-                        Belum ada tag yang disematkan pada faktur ini.
-                      </Text>
-                    </Box>
-                  )}
-                </Card>
-
-                {/* 3. Dokumen Lampiran (if any) */}
-                {sale.attachments && sale.attachments.length > 0 && (
-                  <Card withBorder radius="md" p="lg" bg="white">
-                    <Group justify="space-between" align="center" mb="sm">
-                      <Group gap="xs">
-                        <ThemeIcon size={32} radius="md" color="teal" variant="light">
-                          <IconPaperclip size={18} />
-                        </ThemeIcon>
-                        <Box>
-                          <Text fw={700} size="md" c="dark.8">Dokumen Lampiran</Text>
-                          <Text size="xs" c="dimmed">Berkas bukti pendukung</Text>
-                        </Box>
-                      </Group>
-                      <Badge size="sm" variant="light" color="teal">
-                        {sale.attachments.length} Berkas
-                      </Badge>
-                    </Group>
-
-                    <Divider mb="sm" />
-
-                    <Stack gap="xs">
-                      {sale.attachments.map((att, idx) => {
-                        const fileUrl = att.filePath?.startsWith('http')
-                          ? att.filePath
-                          : `/${att.filePath?.replace(/^\//, '')}`;
-                        return (
-                          <Paper key={att.id || idx} withBorder p="xs" radius="sm">
-                            <Group justify="space-between" align="center" wrap="nowrap">
-                              <Group gap="xs" wrap="nowrap" style={{ minWidth: 0 }}>
-                                <IconFileText size={18} color="var(--mantine-color-primary-6)" />
-                                <Text size="xs" fw={600} truncate maw={180}>
-                                  {att.fileName || 'Lampiran'}
-                                </Text>
-                              </Group>
-                              {att.filePath && (
-                                <ActionIcon
-                                  size="xs"
-                                  variant="subtle"
-                                  color="primary"
-                                  onClick={() => window.open(fileUrl, '_blank')}
-                                >
-                                  <IconDownload size={14} />
-                                </ActionIcon>
-                              )}
-                            </Group>
-                          </Paper>
-                        );
-                      })}
-                    </Stack>
-                  </Card>
-                )}
-
-                {/* 4. Audit & Teknis */}
-                <Card withBorder radius="md" p="lg" bg="white">
-                  <Text fw={700} size="sm" c="primary.9" mb="md">
-                    Rincian Audit & Teknis
-                  </Text>
-                  <Stack gap="sm">
-                    <Group justify="space-between">
-                      <Text size="xs" c="dimmed">ID Sistem (MongoDB)</Text>
-                      <Group gap={4}>
-                        <Text size="xs" ff="monospace" c="dark.7">{sale.id}</Text>
-                        <CopyButton value={sale.id} timeout={2000}>
-                          {({ copied, copy }) => (
-                            <ActionIcon size="xs" variant="subtle" color={copied ? 'teal' : 'gray'} onClick={copy}>
-                              {copied ? <IconCheck size={12} /> : <IconCopy size={12} />}
-                            </ActionIcon>
-                          )}
-                        </CopyButton>
-                      </Group>
-                    </Group>
-                    <Divider />
-                    <Group justify="space-between">
-                      <Text size="xs" c="dimmed">Dibuat Pada</Text>
-                      <Text size="xs" fw={500} c="dark.8">{formatDateTime(sale.createdAt)}</Text>
-                    </Group>
-                    <Divider />
-                    <Group justify="space-between">
-                      <Text size="xs" c="dimmed">Terakhir Diperbarui</Text>
-                      <Text size="xs" fw={500} c="dark.8">{formatDateTime(sale.updatedAt)}</Text>
-                    </Group>
-                  </Stack>
-                </Card>
-              </Stack>
+            <Grid.Col span={{ base: 12, lg: 4 }}>
+              <SaleSidebar sale={sale} t={t} dateTime={dateTime} />
             </Grid.Col>
           </Grid>
         </Stack>
       </Box>
-
-      {/* Pay Modal */}
       <PaySaleModal
         opened={payModalOpened}
         sale={sale}

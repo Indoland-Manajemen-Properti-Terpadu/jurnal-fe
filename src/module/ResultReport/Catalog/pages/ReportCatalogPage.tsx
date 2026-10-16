@@ -62,7 +62,8 @@ export default function ReportCatalogPage() {
       if (!matchesCategory) return false;
       if (!query) return true;
 
-      const searchableText = `${report.title} ${report.englishTitle} ${report.description}`.toLowerCase();
+      const searchableText =
+        `${report.title} ${report.englishTitle} ${report.description}`.toLowerCase();
       return searchableText.includes(query);
     });
   }, [activeCategory, searchQuery]);
@@ -76,7 +77,7 @@ export default function ReportCatalogPage() {
             icon={IconBooks}
             title="Pusat Laporan Keuangan"
             description="Akses seluruh ringkasan kinerja keuangan, pergerakan kas, buku besar, dan jurnal transaksi bisnis secara transparan dan terintegrasi."
-            breadcrumbs={[{ label: 'Laporan Keuangan' }]}
+            // breadcrumbs={[{ label: 'Laporan Keuangan' }]}
           />
 
           {/* Fresh Hero Overview Banner */}
@@ -103,7 +104,9 @@ export default function ReportCatalogPage() {
                   Laporan Akurat & Real-Time untuk Keputusan Bisnis Cepat
                 </Title>
                 <Text size="sm" c="gray.7" mt="sm" lh={1.6}>
-                  Dirancang mengikuti Standar Akuntansi Keuangan (SAK) Indonesia. Dapatkan visibilitas penuh atas neraca, arus kas, laba rugi, serta jejak audit mutasi debit-kredit di Buku Besar.
+                  Dirancang mengikuti Standar Akuntansi Keuangan (SAK) Indonesia. Dapatkan
+                  visibilitas penuh atas neraca, arus kas, laba rugi, serta jejak audit mutasi
+                  debit-kredit di Buku Besar.
                 </Text>
 
                 <Group gap="md" mt="lg">
@@ -134,32 +137,48 @@ export default function ReportCatalogPage() {
                     <ThemeIcon variant="light" color="primary" size={36} radius="md" mb="xs">
                       <IconFileAnalytics size={20} />
                     </ThemeIcon>
-                    <Text size="xs" c="dimmed" fw={600}>Total Laporan</Text>
-                    <Text size="xl" fw={800} c="dark.9">{reportCatalogData.length} Modul</Text>
+                    <Text size="xs" c="dimmed" fw={600}>
+                      Total Laporan
+                    </Text>
+                    <Text size="xl" fw={800} c="dark.9">
+                      {reportCatalogData.length} Modul
+                    </Text>
                   </Paper>
 
                   <Paper withBorder radius="md" p="md" bg="white" shadow="xs">
                     <ThemeIcon variant="light" color="teal" size={36} radius="md" mb="xs">
                       <IconDatabase size={20} />
                     </ThemeIcon>
-                    <Text size="xs" c="dimmed" fw={600}>Status Sinkron</Text>
-                    <Text size="xl" fw={800} c="teal.7">Live Sync</Text>
+                    <Text size="xs" c="dimmed" fw={600}>
+                      Status Sinkron
+                    </Text>
+                    <Text size="xl" fw={800} c="teal.7">
+                      Live Sync
+                    </Text>
                   </Paper>
 
                   <Paper withBorder radius="md" p="md" bg="white" shadow="xs">
                     <ThemeIcon variant="light" color="indigo" size={36} radius="md" mb="xs">
                       <IconDownload size={20} />
                     </ThemeIcon>
-                    <Text size="xs" c="dimmed" fw={600}>Format Ekspor</Text>
-                    <Text size="xl" fw={800} c="dark.9">PDF & XLSX</Text>
+                    <Text size="xs" c="dimmed" fw={600}>
+                      Format Ekspor
+                    </Text>
+                    <Text size="xl" fw={800} c="dark.9">
+                      PDF & XLSX
+                    </Text>
                   </Paper>
 
                   <Paper withBorder radius="md" p="md" bg="white" shadow="xs">
                     <ThemeIcon variant="light" color="orange" size={36} radius="md" mb="xs">
                       <IconCheck size={20} />
                     </ThemeIcon>
-                    <Text size="xs" c="dimmed" fw={600}>Standar Buku</Text>
-                    <Text size="xl" fw={800} c="dark.9">Double Entry</Text>
+                    <Text size="xs" c="dimmed" fw={600}>
+                      Standar Buku
+                    </Text>
+                    <Text size="xl" fw={800} c="dark.9">
+                      Double Entry
+                    </Text>
                   </Paper>
                 </SimpleGrid>
               </Grid.Col>

@@ -96,6 +96,7 @@ export const routes = {
     fulfillment: '/fulfillment',
     assets: '/assets',
     assetMaster: '/asset',
+    assetDetail: '/assets/:id',
     contactsMaster: '/kontak',
     companySetting: '/settings/company-setting',
     approvalSetting: '/settings/approval-setting',

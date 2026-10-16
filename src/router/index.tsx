@@ -51,6 +51,7 @@ import ProductDetailPage from '@/module/products/pages/ProductDetailPage';
 import ProductionPage from '@/module/Production/view/ProductionPage';
 import FulfillmentPage from '@/module/Fulfillment/view/FulfillmentPage';
 import AssetPage from '@/module/Asset/view/AssetPage';
+import AssetDetailPage from '@/module/Asset/pages/AssetDetailPage';
 import KontakPage from '@/module/Kontak/view/KontakPage';
 import CompanySettingPage from '@/module/SettingMenu/CompanySetting/view/CompanySettingPage';
 import ApprovalSettingPage from '@/module/SettingMenu/ApprovalSetting/view/ApprovalSettingPage';
@@ -303,6 +304,10 @@ const router = createBrowserRouter([
   {
     path: routes.baseModules.assetMaster,
     element: <AssetPage />,
+  },
+  {
+    path: routes.baseModules.assetDetail,
+    element: <AssetDetailPage />,
   },
   {
     path: routes.baseModules.contactsMaster,
