@@ -28,7 +28,10 @@ export const SALE_ENDPOINTS = {
 } as const;
 
 type ApiEnvelope<T> = { code: number; message: string; data: T };
-type PaginatedDto<T> = { data: T[]; pagination: { total: number; page: number; limit: number; totalPages: number } };
+type PaginatedDto<T> = {
+  data: T[];
+  pagination: { total: number; page: number; limit: number; totalPages: number };
+};
 
 /* Helper converters */
 const toNumber = (v: unknown): number => (typeof v === 'number' && Number.isFinite(v) ? v : 0);
@@ -83,6 +86,11 @@ export const mapSaleDto = (dto: any): Sale => {
           : null,
         taxAmount: toNumber(i.taxAmount),
         amount: toNumber(i.amount),
+        adjustedAmount:
+          i.adjustedAmount !== undefined && i.adjustedAmount !== null
+            ? toNumber(i.adjustedAmount)
+            : undefined,
+        paidAmount: toNumber(i.paidAmount),
         journalTransaction:
           typeof i.journalTransaction === 'string'
             ? i.journalTransaction
@@ -172,6 +180,12 @@ export const mapSaleDto = (dto: any): Sale => {
     discountAmount: toNumber(dto.discountAmount),
     taxAmount: toNumber(dto.taxAmount),
     total: toNumber(dto.total),
+    adjustedAmount:
+      dto.adjustedAmount !== undefined && dto.adjustedAmount !== null
+        ? toNumber(dto.adjustedAmount)
+        : undefined,
+    lateFeeAmount: toNumber(dto.lateFeeAmount),
+    lateFeePaidAmount: toNumber(dto.lateFeePaidAmount),
     withholdingType: dto.withholdingType,
     withholdingValue: toNumber(dto.withholdingValue),
     withholdingAmount: toNumber(dto.withholdingAmount),
@@ -359,4 +373,3 @@ export const getApiErrorMessage = (error: unknown, fallback: string): string => 
   }
   return fallback;
 };
-

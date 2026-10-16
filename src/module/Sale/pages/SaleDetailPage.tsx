@@ -95,10 +95,12 @@ function AmountRow({
   label,
   amount,
   emphasis = false,
+  color,
 }: {
   label: string;
   amount: string;
   emphasis?: boolean;
+  color?: string;
 }) {
   return (
     <Group
@@ -114,7 +116,7 @@ function AmountRow({
       <Text
         size={emphasis ? 'lg' : 'sm'}
         fw={emphasis ? 800 : 600}
-        c={emphasis ? 'primary.9' : undefined}
+        c={color || (emphasis ? 'primary.9' : undefined)}
         className={classes.amount}
       >
         {amount}
@@ -186,9 +188,11 @@ function SaleItems({
     );
   };
 
-  const hasAdjustedAmount = sale.items.some(
-    (item) => item.adjustedAmount !== undefined && item.adjustedAmount !== null
-  );
+  const hasAdjustedAmount =
+    (sale.adjustedAmount !== undefined && sale.adjustedAmount !== 0) ||
+    sale.items.some(
+      (item) => item.adjustedAmount !== undefined && item.adjustedAmount !== 0
+    );
 
   return (
     <Paper withBorder radius="lg" p={{ base: 'md', sm: 'lg' }} bg="white">
@@ -234,11 +238,24 @@ function SaleItems({
                     </Table.Td>
                     {hasAdjustedAmount && (
                       <Table.Td ta="right" className={classes.amount}>
-                        {item.adjustedAmount !== undefined && item.adjustedAmount !== null
-                          ? item.adjustedAmount === 0
-                            ? '—'
-                            : `${item.adjustedAmount > 0 ? '+' : ''}${money(item.adjustedAmount)}`
-                          : '—'}
+                        {item.adjustedAmount !== undefined &&
+                        item.adjustedAmount !== null &&
+                        item.adjustedAmount !== 0 ? (
+                          <Text
+                            component="span"
+                            size="sm"
+                            fw={600}
+                            c={item.adjustedAmount > 0 ? 'teal.7' : 'red.7'}
+                          >
+                            {item.adjustedAmount > 0
+                              ? `+${money(item.adjustedAmount)}`
+                              : `−${money(Math.abs(item.adjustedAmount))}`}
+                          </Text>
+                        ) : (
+                          <Text component="span" size="sm" c="dimmed">
+                            —
+                          </Text>
+                        )}
                       </Table.Td>
                     )}
                     <Table.Td ta="right" fw={700} className={classes.amount}>
@@ -276,8 +293,10 @@ function SaleItems({
                       c={item.adjustedAmount > 0 ? 'teal.7' : 'red.7'}
                       fw={600}
                     >
-                      {t('adjustedAmount')}: {item.adjustedAmount > 0 ? '+' : ''}
-                      {money(item.adjustedAmount)}
+                      {t('adjustedAmount')}:{' '}
+                      {item.adjustedAmount > 0
+                        ? `+${money(item.adjustedAmount)}`
+                        : `−${money(Math.abs(item.adjustedAmount))}`}
                     </Text>
                   )}
                 </Stack>
@@ -308,7 +327,12 @@ function SaleItems({
         {sale.adjustedAmount !== undefined && sale.adjustedAmount !== 0 && (
           <AmountRow
             label={t('adjustedAmountTotal')}
-            amount={`${sale.adjustedAmount > 0 ? '+' : ''}${money(sale.adjustedAmount)}`}
+            amount={
+              sale.adjustedAmount > 0
+                ? `+${money(sale.adjustedAmount)}`
+                : `−${money(Math.abs(sale.adjustedAmount))}`
+            }
+            color={sale.adjustedAmount > 0 ? 'teal.7' : 'red.7'}
           />
         )}
         {!!sale.lateFeeAmount && sale.lateFeeAmount > 0 && (
