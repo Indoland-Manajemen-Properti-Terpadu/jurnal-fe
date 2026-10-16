@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import {
   ActionIcon,
   Alert,
+  Autocomplete,
+  Badge,
   Box,
   Button,
   Divider,
@@ -27,9 +29,11 @@ import {
   IconFileInvoice,
   IconInfoCircle,
   IconMapPin,
+  IconPencil,
   IconPlus,
   IconTrash,
   IconUser,
+  IconUserPlus,
 } from '@tabler/icons-react';
 import type { Contact, ContactFormValues, ContactType } from '../types/contact';
 import {
@@ -38,6 +42,13 @@ import {
   useFilteredAccounts,
   usePaymentTerms,
 } from '../hooks/useContactQueries';
+import { INDONESIA_BANKS } from '@/constants/banks';
+import {
+  INDONESIA_PROVINCES,
+  getCitiesByProvince,
+  findProvinceByCity,
+  ALL_INDONESIA_CITIES,
+} from '@/constants/regionsIndonesia';
 
 type ContactFormModalProps = {
   opened: boolean;
@@ -181,8 +192,7 @@ export function ContactFormModal({
             type: contact.identity?.type ?? 'KTP',
             number: contact.identity?.number ?? '',
           },
-          emails:
-            contact.emails.length > 0 ? contact.emails : [''],
+          emails: contact.emails.length > 0 ? contact.emails : [''],
           companyName: contact.companyName ?? '',
           phones: {
             mobile: contact.phones?.mobile ?? '',
@@ -205,8 +215,7 @@ export function ContactFormModal({
               },
             },
             shipping: {
-              isSameAsBilling:
-                contact.addresses?.shipping?.isSameAsBilling ?? true,
+              isSameAsBilling: contact.addresses?.shipping?.isSameAsBilling ?? true,
               general: contact.addresses?.shipping?.general ?? '',
               detail: {
                 no: contact.addresses?.shipping?.detail?.no ?? '',
@@ -224,11 +233,11 @@ export function ContactFormModal({
           bankAccounts:
             contact.bankAccounts.length > 0
               ? contact.bankAccounts.map((b) => ({
-                  bankName: b.bankName ?? '',
-                  branch: b.branch ?? '',
-                  accountHolder: b.accountHolder ?? '',
-                  accountNumber: b.accountNumber ?? '',
-                }))
+                bankName: b.bankName ?? '',
+                branch: b.branch ?? '',
+                accountHolder: b.accountHolder ?? '',
+                accountNumber: b.accountNumber ?? '',
+              }))
               : [],
           mappingAccount: {
             arAccount: extractId(contact.mappingAccount?.arAccount),
@@ -399,6 +408,104 @@ export function ContactFormModal({
     return options;
   }, [paymentTermsQuery.data]);
 
+  // Master Bank Options for Autocomplete
+  const bankAutocompleteData = useMemo(() => {
+    return INDONESIA_BANKS.map((b) => ({
+      value: b.name,
+      label: `${b.name} (${b.code}) - ${b.category}`,
+    }));
+  }, []);
+
+  // Master Region Options - Billing
+  const billingProvince = form.values.addresses.billing.detail.province;
+  const billingCity = form.values.addresses.billing.detail.city;
+
+  const billingProvinceOptions = useMemo(() => {
+    const list = INDONESIA_PROVINCES.map((p) => ({ value: p, label: p }));
+    if (billingProvince && !INDONESIA_PROVINCES.includes(billingProvince)) {
+      return [{ value: billingProvince, label: billingProvince }, ...list];
+    }
+    return list;
+  }, [billingProvince]);
+
+  const billingCityOptions = useMemo(() => {
+    const cities = billingProvince ? getCitiesByProvince(billingProvince) : ALL_INDONESIA_CITIES;
+    const list = cities.map((c) => ({ value: c, label: c }));
+    if (billingCity && !cities.includes(billingCity)) {
+      return [{ value: billingCity, label: billingCity }, ...list];
+    }
+    return list;
+  }, [billingProvince, billingCity]);
+
+  // Master Region Options - Shipping
+  const shippingProvince = form.values.addresses.shipping.detail.province;
+  const shippingCity = form.values.addresses.shipping.detail.city;
+
+  const shippingProvinceOptions = useMemo(() => {
+    const list = INDONESIA_PROVINCES.map((p) => ({ value: p, label: p }));
+    if (shippingProvince && !INDONESIA_PROVINCES.includes(shippingProvince)) {
+      return [{ value: shippingProvince, label: shippingProvince }, ...list];
+    }
+    return list;
+  }, [shippingProvince]);
+
+  const shippingCityOptions = useMemo(() => {
+    const cities = shippingProvince ? getCitiesByProvince(shippingProvince) : ALL_INDONESIA_CITIES;
+    const list = cities.map((c) => ({ value: c, label: c }));
+    if (shippingCity && !cities.includes(shippingCity)) {
+      return [{ value: shippingCity, label: shippingCity }, ...list];
+    }
+    return list;
+  }, [shippingProvince, shippingCity]);
+
+  const handleBillingProvinceChange = (val: string | null) => {
+    const newProv = val || '';
+    form.setFieldValue('addresses.billing.detail.province', newProv);
+
+    if (newProv) {
+      const citiesInNewProv = getCitiesByProvince(newProv);
+      if (billingCity && !citiesInNewProv.includes(billingCity)) {
+        form.setFieldValue('addresses.billing.detail.city', '');
+      }
+    }
+  };
+
+  const handleBillingCityChange = (val: string | null) => {
+    const newCity = val || '';
+    form.setFieldValue('addresses.billing.detail.city', newCity);
+
+    if (newCity && !billingProvince) {
+      const detected = findProvinceByCity(newCity);
+      if (detected) {
+        form.setFieldValue('addresses.billing.detail.province', detected);
+      }
+    }
+  };
+
+  const handleShippingProvinceChange = (val: string | null) => {
+    const newProv = val || '';
+    form.setFieldValue('addresses.shipping.detail.province', newProv);
+
+    if (newProv) {
+      const citiesInNewProv = getCitiesByProvince(newProv);
+      if (shippingCity && !citiesInNewProv.includes(shippingCity)) {
+        form.setFieldValue('addresses.shipping.detail.city', '');
+      }
+    }
+  };
+
+  const handleShippingCityChange = (val: string | null) => {
+    const newCity = val || '';
+    form.setFieldValue('addresses.shipping.detail.city', newCity);
+
+    if (newCity && !shippingProvince) {
+      const detected = findProvinceByCity(newCity);
+      if (detected) {
+        form.setFieldValue('addresses.shipping.detail.province', detected);
+      }
+    }
+  };
+
   const handleAddBankAccount = () => {
     form.insertListItem('bankAccounts', {
       bankName: '',
@@ -417,75 +524,103 @@ export function ContactFormModal({
       opened={opened}
       onClose={onClose}
       title={
-        <Box>
-          <Text fw={700} size="md" c="primary.9">
-            {contact ? 'Ubah Data Kontak' : 'Tambah Kontak Baru'}
-          </Text>
-          <Text size="xs" c="dimmed">
-            {contact
-              ? `Perbarui profil dan pemetaan akun untuk "${contact.displayName}"`
-              : 'Daftarkan kontak pelanggan, pemasok, atau karyawan ke sistem akuntansi.'}
-          </Text>
-        </Box>
+        <Group gap="sm" align="center">
+          <ThemeIcon size={38} radius="md" variant="light" color="primary">
+            {contact ? <IconPencil size={20} /> : <IconUserPlus size={20} />}
+          </ThemeIcon>
+          <Box>
+            <Text fw={700} size="md" c="dark.8">
+              {contact ? 'Ubah Data Kontak' : 'Tambah Kontak Baru'}
+            </Text>
+            <Text size="xs" c="dimmed">
+              {contact
+                ? `Perbarui profil dan pemetaan akun untuk "${contact.displayName}"`
+                : 'Daftarkan kontak pelanggan, pemasok, atau karyawan ke sistem akuntansi.'}
+            </Text>
+          </Box>
+        </Group>
       }
-      size="xl"
-      radius="md"
+      size="920px"
+      radius="lg"
       centered
-      padding="lg"
+      padding="xl"
+      overlayProps={{
+        backgroundOpacity: 0.5,
+        blur: 3,
+      }}
     >
       <form onSubmit={form.onSubmit(handleSubmit)}>
-        <Stack gap="md">
-          <Tabs value={activeTab} onChange={setActiveTab} color="primary" variant="outline">
-            <Tabs.List>
-              <Tabs.Tab value="general" leftSection={<IconUser size={15} />}>
+        <Stack gap="lg">
+          <Tabs
+            value={activeTab}
+            onChange={setActiveTab}
+            color="primary"
+            variant="outline"
+            radius="md"
+          >
+            <Tabs.List mb="md">
+              <Tabs.Tab value="general" leftSection={<IconUser size={16} />}>
                 Informasi Utama
               </Tabs.Tab>
-              <Tabs.Tab value="address" leftSection={<IconMapPin size={15} />}>
+              <Tabs.Tab value="address" leftSection={<IconMapPin size={16} />}>
                 Alamat
               </Tabs.Tab>
               <Tabs.Tab
                 value="banks"
-                leftSection={<IconBuildingBank size={15} />}
+                leftSection={<IconBuildingBank size={16} />}
                 rightSection={
                   form.values.bankAccounts.length > 0 ? (
-                    <Text size="xs" c="primary.6" fw={700}>
-                      ({form.values.bankAccounts.length})
-                    </Text>
+                    <Badge size="xs" variant="filled" color="primary" circle>
+                      {form.values.bankAccounts.length}
+                    </Badge>
                   ) : null
                 }
               >
                 Rekening Bank
               </Tabs.Tab>
-              <Tabs.Tab value="mapping" leftSection={<IconFileInvoice size={15} />}>
+              <Tabs.Tab value="mapping" leftSection={<IconFileInvoice size={16} />}>
                 Pemetaan Akun
               </Tabs.Tab>
             </Tabs.List>
 
             {/* TAB 1: INFORMASI UTAMA */}
-            <Tabs.Panel value="general" pt="md">
-              <Stack gap="sm">
-                <Grid gutter="sm">
-                  <Grid.Col span={{ base: 12, sm: 5 }}>
+            <Tabs.Panel value="general">
+              <Stack gap="md">
+                {/* 1. Profil & Tipe Kontak */}
+                <Grid gutter="md">
+                  <Grid.Col span={{ base: 12, md: 7 }}>
                     <TextInput
                       label="Nama Tampilan (Display Name)"
+                      description="Nama yang tercetak pada invoice, kwitansi, dan laporan keuangan."
                       placeholder="Contoh: PT. Sumber Makmur Abadi / John Doe"
                       withAsterisk
                       {...form.getInputProps('displayName')}
                     />
                   </Grid.Col>
-                  <Grid.Col span={{ base: 12, sm: 4 }}>
+                  <Grid.Col span={{ base: 12, md: 5 }}>
                     <MultiSelect
                       label="Tipe Kontak"
+                      description="Klasifikasi peran kontak dalam transaksi bisnis."
                       placeholder="Pilih tipe kontak"
                       data={CONTACT_TYPE_OPTIONS}
                       withAsterisk
                       {...form.getInputProps('contactType')}
                     />
                   </Grid.Col>
-                  <Grid.Col span={{ base: 12, sm: 3 }}>
+                </Grid>
+
+                <Grid gutter="md">
+                  <Grid.Col span={{ base: 12, md: 6 }}>
+                    <TextInput
+                      label="Nama Perusahaan / Bisnis"
+                      placeholder="Contoh: PT. Indoland Manajemen Properti"
+                      {...form.getInputProps('companyName')}
+                    />
+                  </Grid.Col>
+                  <Grid.Col span={{ base: 12, md: 6 }}>
                     <MultiSelect
                       label="Grup Kontak"
-                      placeholder="Pilih grup"
+                      placeholder="Pilih grup kontak"
                       data={groupSelectData}
                       searchable
                       clearable
@@ -494,11 +629,20 @@ export function ContactFormModal({
                   </Grid.Col>
                 </Grid>
 
-                <Paper withBorder radius="md" p="sm" bg="gray.0">
-                  <Text size="xs" fw={700} c="primary.9" mb="xs">
-                    Rincian Nama Lengkap
-                  </Text>
-                  <Grid gutter="xs">
+                {/* 2. Rincian Nama Personal / PIC */}
+                <Paper withBorder radius="md" p="md" bg="gray.0">
+                  <Group gap="xs" mb="xs">
+                    <ThemeIcon size={24} radius="sm" variant="light" color="primary">
+                      <IconUser size={14} />
+                    </ThemeIcon>
+                    <Text size="xs" fw={700} c="primary.9">
+                      Kontak Person / PIC (Person In Charge)
+                    </Text>
+                    <Text size="xs" c="dimmed">
+                      (Opsional jika mewakili entitas perusahaan)
+                    </Text>
+                  </Group>
+                  <Grid gutter="sm">
                     <Grid.Col span={{ base: 12, sm: 3 }}>
                       <Select
                         label="Gelar / Sapaan"
@@ -533,7 +677,8 @@ export function ContactFormModal({
                   </Grid>
                 </Paper>
 
-                <Grid gutter="sm">
+                {/* 3. Dokumen Identitas & Pajak */}
+                <Grid gutter="md">
                   <Grid.Col span={{ base: 12, sm: 4 }}>
                     <Select
                       label="Jenis Identitas"
@@ -541,24 +686,14 @@ export function ContactFormModal({
                       {...form.getInputProps('identity.type')}
                     />
                   </Grid.Col>
-                  <Grid.Col span={{ base: 12, sm: 8 }}>
+                  <Grid.Col span={{ base: 12, sm: 4 }}>
                     <TextInput
                       label="Nomor Identitas"
                       placeholder="Nomor KTP / SIM / Paspor"
                       {...form.getInputProps('identity.number')}
                     />
                   </Grid.Col>
-                </Grid>
-
-                <Grid gutter="sm">
-                  <Grid.Col span={{ base: 12, sm: 6 }}>
-                    <TextInput
-                      label="Nama Perusahaan"
-                      placeholder="Contoh: PT. Indoland Manajemen Properti"
-                      {...form.getInputProps('companyName')}
-                    />
-                  </Grid.Col>
-                  <Grid.Col span={{ base: 12, sm: 6 }}>
+                  <Grid.Col span={{ base: 12, sm: 4 }}>
                     <TextInput
                       label="NPWP"
                       placeholder="00.000.000.0-000.000"
@@ -567,7 +702,8 @@ export function ContactFormModal({
                   </Grid.Col>
                 </Grid>
 
-                <Grid gutter="sm">
+                {/* 4. Kontak & Saluran Komunikasi */}
+                <Grid gutter="md">
                   <Grid.Col span={{ base: 12, sm: 4 }}>
                     <TextInput
                       label="Email Utama"
@@ -596,6 +732,7 @@ export function ContactFormModal({
                   </Grid.Col>
                 </Grid>
 
+                {/* 5. Catatan Tambahan */}
                 <Textarea
                   label="Catatan Tambahan (Opsional)"
                   placeholder="Keterangan pendukung atau preferensi komunikasi kontak..."
@@ -606,38 +743,53 @@ export function ContactFormModal({
             </Tabs.Panel>
 
             {/* TAB 2: ALAMAT */}
-            <Tabs.Panel value="address" pt="md">
+            <Tabs.Panel value="address">
               <Stack gap="md">
                 <Paper withBorder radius="md" p="md" bg="white">
                   <Text fw={700} size="sm" c="primary.9" mb="xs">
                     Alamat Penagihan (Billing Address)
                   </Text>
-                  <Stack gap="xs">
+                  <Stack gap="sm">
                     <Textarea
                       label="Alamat Lengkap"
                       placeholder="Jalan, nomor gedung/rumah, kelurahan, kecamatan..."
                       rows={2}
                       {...form.getInputProps('addresses.billing.general')}
                     />
-                    <Grid gutter="xs">
+                    <Grid gutter="sm">
                       <Grid.Col span={{ base: 12, sm: 4 }}>
-                        <TextInput
-                          label="Kota / Kabupaten"
-                          placeholder="Jakarta Selatan"
-                          {...form.getInputProps('addresses.billing.detail.city')}
+                        <Select
+                          label="Provinsi"
+                          placeholder="Pilih provinsi"
+                          data={billingProvinceOptions}
+                          searchable
+                          clearable
+                          nothingFoundMessage="Provinsi tidak ditemukan"
+                          value={form.values.addresses.billing.detail.province || null}
+                          onChange={handleBillingProvinceChange}
                         />
                       </Grid.Col>
                       <Grid.Col span={{ base: 12, sm: 4 }}>
-                        <TextInput
-                          label="Provinsi"
-                          placeholder="DKI Jakarta"
-                          {...form.getInputProps('addresses.billing.detail.province')}
+                        <Select
+                          label="Kota / Kabupaten"
+                          placeholder={
+                            billingProvince
+                              ? `Pilih kota di ${billingProvince}`
+                              : 'Pilih atau cari kota'
+                          }
+                          data={billingCityOptions}
+                          searchable
+                          clearable
+                          nothingFoundMessage="Kota tidak ditemukan"
+                          value={form.values.addresses.billing.detail.city || null}
+                          onChange={handleBillingCityChange}
                         />
                       </Grid.Col>
                       <Grid.Col span={{ base: 12, sm: 4 }}>
                         <TextInput
                           label="Kode Pos"
-                          placeholder="12345"
+                          placeholder="Contoh: 12190"
+                          maxLength={5}
                           {...form.getInputProps('addresses.billing.detail.zipCode')}
                         />
                       </Grid.Col>
@@ -663,32 +815,47 @@ export function ContactFormModal({
                   </Group>
 
                   {!form.values.addresses.shipping.isSameAsBilling ? (
-                    <Stack gap="xs" mt="sm">
+                    <Stack gap="sm" mt="sm">
                       <Textarea
                         label="Alamat Pengiriman Lengkap"
                         placeholder="Alamat gudang / tempat penerimaan barang..."
                         rows={2}
                         {...form.getInputProps('addresses.shipping.general')}
                       />
-                      <Grid gutter="xs">
+                      <Grid gutter="sm">
                         <Grid.Col span={{ base: 12, sm: 4 }}>
-                          <TextInput
-                            label="Kota / Kabupaten"
-                            placeholder="Kota pengiriman"
-                            {...form.getInputProps('addresses.shipping.detail.city')}
+                          <Select
+                            label="Provinsi"
+                            placeholder="Pilih provinsi"
+                            data={shippingProvinceOptions}
+                            searchable
+                            clearable
+                            nothingFoundMessage="Provinsi tidak ditemukan"
+                            value={form.values.addresses.shipping.detail.province || null}
+                            onChange={handleShippingProvinceChange}
                           />
                         </Grid.Col>
                         <Grid.Col span={{ base: 12, sm: 4 }}>
-                          <TextInput
-                            label="Provinsi"
-                            placeholder="Provinsi pengiriman"
-                            {...form.getInputProps('addresses.shipping.detail.province')}
+                          <Select
+                            label="Kota / Kabupaten"
+                            placeholder={
+                              shippingProvince
+                                ? `Pilih kota di ${shippingProvince}`
+                                : 'Pilih atau cari kota'
+                            }
+                            data={shippingCityOptions}
+                            searchable
+                            clearable
+                            nothingFoundMessage="Kota tidak ditemukan"
+                            value={form.values.addresses.shipping.detail.city || null}
+                            onChange={handleShippingCityChange}
                           />
                         </Grid.Col>
                         <Grid.Col span={{ base: 12, sm: 4 }}>
                           <TextInput
                             label="Kode Pos"
-                            placeholder="Kode pos"
+                            placeholder="Contoh: 12190"
+                            maxLength={5}
                             {...form.getInputProps('addresses.shipping.detail.zipCode')}
                           />
                         </Grid.Col>
@@ -704,7 +871,7 @@ export function ContactFormModal({
             </Tabs.Panel>
 
             {/* TAB 3: REKENING BANK */}
-            <Tabs.Panel value="banks" pt="md">
+            <Tabs.Panel value="banks">
               <Stack gap="md">
                 <Group justify="space-between" align="center">
                   <Box>
@@ -767,11 +934,14 @@ export function ContactFormModal({
                           </ActionIcon>
                         </Group>
 
-                        <Grid gutter="xs">
+                        <Grid gutter="sm">
                           <Grid.Col span={{ base: 12, sm: 6 }}>
-                            <TextInput
+                            <Autocomplete
                               label="Nama Bank"
-                              placeholder="BCA / Mandiri / BNI / BRI / CIMB"
+                              placeholder="Cari atau pilih bank (cth: BCA, Mandiri, BRI)"
+                              data={bankAutocompleteData}
+                              limit={8}
+                              maxDropdownHeight={240}
                               {...form.getInputProps(`bankAccounts.${index}.bankName`)}
                             />
                           </Grid.Col>
@@ -857,7 +1027,7 @@ export function ContactFormModal({
                         data={paymentTermSelectData}
                         value={
                           form.values.mappingAccount.defaultPaymentTerm !== null &&
-                          form.values.mappingAccount.defaultPaymentTerm !== undefined
+                            form.values.mappingAccount.defaultPaymentTerm !== undefined
                             ? String(form.values.mappingAccount.defaultPaymentTerm)
                             : null
                         }
@@ -881,63 +1051,6 @@ export function ContactFormModal({
                     </Grid.Col>
                   </Grid>
                 </Paper>
-
-                <Paper withBorder radius="md" p="md" bg="white">
-                  <Text fw={700} size="sm" c="primary.9" mb="xs">
-                    Batas Kredit Maksimum (Credit Limit)
-                  </Text>
-                  <Grid gutter="md">
-                    <Grid.Col span={{ base: 12, sm: 6 }}>
-                      <Stack gap="xs">
-                        <Switch
-                          label="Aktifkan Batas Maksimum Piutang"
-                          checked={form.values.mappingAccount.maxReceivable?.isActive ?? false}
-                          onChange={(e) =>
-                            form.setFieldValue(
-                              'mappingAccount.maxReceivable.isActive',
-                              e.currentTarget.checked
-                            )
-                          }
-                        />
-                        {form.values.mappingAccount.maxReceivable?.isActive && (
-                          <NumberInput
-                            label="Jumlah Batas Piutang (Rp)"
-                            placeholder="Contoh: 50.000.000"
-                            thousandSeparator="."
-                            decimalSeparator=","
-                            min={0}
-                            {...form.getInputProps('mappingAccount.maxReceivable.amount')}
-                          />
-                        )}
-                      </Stack>
-                    </Grid.Col>
-
-                    <Grid.Col span={{ base: 12, sm: 6 }}>
-                      <Stack gap="xs">
-                        <Switch
-                          label="Aktifkan Batas Maksimum Hutang"
-                          checked={form.values.mappingAccount.maxPayable?.isActive ?? false}
-                          onChange={(e) =>
-                            form.setFieldValue(
-                              'mappingAccount.maxPayable.isActive',
-                              e.currentTarget.checked
-                            )
-                          }
-                        />
-                        {form.values.mappingAccount.maxPayable?.isActive && (
-                          <NumberInput
-                            label="Jumlah Batas Hutang (Rp)"
-                            placeholder="Contoh: 100.000.000"
-                            thousandSeparator="."
-                            decimalSeparator=","
-                            min={0}
-                            {...form.getInputProps('mappingAccount.maxPayable.amount')}
-                          />
-                        )}
-                      </Stack>
-                    </Grid.Col>
-                  </Grid>
-                </Paper>
               </Stack>
             </Tabs.Panel>
           </Tabs>
@@ -949,11 +1062,7 @@ export function ContactFormModal({
             <Button variant="default" onClick={onClose} disabled={isSubmitting}>
               Batal
             </Button>
-            <Button
-              type="submit"
-              color="primary"
-              loading={isSubmitting}
-            >
+            <Button type="submit" color="primary" loading={isSubmitting}>
               {contact ? 'Simpan Perubahan' : 'Tambah Kontak'}
             </Button>
           </Group>
@@ -964,4 +1073,3 @@ export function ContactFormModal({
 }
 
 export default ContactFormModal;
-

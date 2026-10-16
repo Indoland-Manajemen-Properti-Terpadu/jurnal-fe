@@ -18,21 +18,20 @@ import {
   Tooltip,
 } from '@mantine/core';
 import {
-  IconAlertTriangle,
   IconCheck,
   IconClock,
   IconCopy,
   IconDotsVertical,
-  IconExternalLink,
   IconEye,
   IconNotebook,
   IconReceipt2,
 } from '@tabler/icons-react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { EmptyState } from '@/components/EmptyState';
+import { useTranslation } from '@/i18n';
 import { routes } from '@/router/routes';
 import type { Sale } from '@/module/Sale/types/sale';
-import { formatDate, formatIDR, getSaleStatusConfig } from '@/module/Sale/utils/saleFormat';
+import { getSaleStatusConfig } from '@/module/Sale/utils/saleFormat';
 
 type TableTransactionByContactProps = {
   transactions: Sale[];
@@ -56,6 +55,23 @@ export const TableTransactionByContact: React.FC<TableTransactionByContactProps>
   onLimitChange,
 }) => {
   const navigate = useNavigate();
+  const { t, currentLanguage } = useTranslation('contactDetail');
+  const locale = currentLanguage === 'id' ? 'id-ID' : 'en-US';
+  const formatDateValue = (value?: string | null) => {
+    if (!value) return '—';
+    const date = new Date(value);
+    return Number.isNaN(date.getTime())
+      ? '—'
+      : new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short', year: 'numeric' }).format(
+          date
+        );
+  };
+  const formatAmount = (value: number) =>
+    new Intl.NumberFormat(locale, {
+      style: 'currency',
+      currency: 'IDR',
+      maximumFractionDigits: 0,
+    }).format(value);
 
   if (isLoading) {
     return (
@@ -63,13 +79,13 @@ export const TableTransactionByContact: React.FC<TableTransactionByContactProps>
         <Table verticalSpacing="sm" horizontalSpacing="md">
           <Table.Thead bg="gray.0">
             <Table.Tr>
-              <Table.Th>Nomor Transaksi</Table.Th>
-              <Table.Th>Tanggal & Jatuh Tempo</Table.Th>
-              <Table.Th>Ringkasan Produk</Table.Th>
-              <Table.Th ta="center">Status</Table.Th>
-              <Table.Th ta="right">Total Tagihan</Table.Th>
-              <Table.Th ta="right">Sisa Tagihan</Table.Th>
-              <Table.Th ta="center">Aksi</Table.Th>
+              <Table.Th>{t('table.number')}</Table.Th>
+              <Table.Th>{t('table.dates')}</Table.Th>
+              <Table.Th>{t('table.items')}</Table.Th>
+              <Table.Th ta="center">{t('table.status')}</Table.Th>
+              <Table.Th ta="right">{t('table.total')}</Table.Th>
+              <Table.Th ta="right">{t('table.remaining')}</Table.Th>
+              <Table.Th ta="center">{t('table.actions')}</Table.Th>
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
@@ -107,19 +123,7 @@ export const TableTransactionByContact: React.FC<TableTransactionByContactProps>
     );
   }
 
-  if (transactions.length === 0) {
-    return (
-      <Paper withBorder radius="md" bg="white" p={0} style={{ overflow: 'hidden' }}>
-        <EmptyState
-          icon={<IconReceipt2 size={36} stroke={1.6} />}
-          title="Belum Ada Transaksi"
-          description="Kontak ini belum memiliki catatan riwayat transaksi penjualan atau faktur."
-        />
-      </Paper>
-    );
-  }
-
-  const startRecord = (page - 1) * limit + 1;
+  const startRecord = transactions.length ? (page - 1) * limit + 1 : 0;
   const endRecord = Math.min(page * limit, total);
 
   return (
@@ -130,49 +134,63 @@ export const TableTransactionByContact: React.FC<TableTransactionByContactProps>
             <Table.Tr>
               <Table.Th style={{ width: '22%' }}>
                 <Text size="xs" fw={700} c="dimmed" tt="uppercase" lts={0.4}>
-                  Nomor Faktur / Transaksi
+                  {t('table.number')}
                 </Text>
               </Table.Th>
               <Table.Th style={{ width: '18%' }}>
                 <Text size="xs" fw={700} c="dimmed" tt="uppercase" lts={0.4}>
-                  Tanggal & Jatuh Tempo
+                  {t('table.dates')}
                 </Text>
               </Table.Th>
               <Table.Th style={{ width: '24%' }}>
                 <Text size="xs" fw={700} c="dimmed" tt="uppercase" lts={0.4}>
-                  Ringkasan Item Produk
+                  {t('table.items')}
                 </Text>
               </Table.Th>
               <Table.Th ta="center" style={{ width: '12%' }}>
                 <Text size="xs" fw={700} c="dimmed" tt="uppercase" lts={0.4}>
-                  Status
+                  {t('table.status')}
                 </Text>
               </Table.Th>
               <Table.Th ta="right" style={{ width: '12%' }}>
                 <Text size="xs" fw={700} c="dimmed" tt="uppercase" lts={0.4}>
-                  Total Tagihan
+                  {t('table.total')}
                 </Text>
               </Table.Th>
               <Table.Th ta="right" style={{ width: '12%' }}>
                 <Text size="xs" fw={700} c="dimmed" tt="uppercase" lts={0.4}>
-                  Sisa Tagihan
+                  {t('table.remaining')}
                 </Text>
               </Table.Th>
               <Table.Th ta="center" style={{ width: '6%' }}>
                 <Text size="xs" fw={700} c="dimmed" tt="uppercase" lts={0.4}>
-                  Aksi
+                  {t('table.actions')}
                 </Text>
               </Table.Th>
             </Table.Tr>
           </Table.Thead>
 
           <Table.Tbody>
+            {transactions.length === 0 && (
+              <Table.Tr>
+                <Table.Td colSpan={7}>
+                  <EmptyState
+                    icon={<IconReceipt2 size={36} stroke={1.6} />}
+                    title={t('table.emptyTitle')}
+                    description={t('table.emptyDescription')}
+                  />
+                </Table.Td>
+              </Table.Tr>
+            )}
             {transactions.map((tx) => {
               const statusCfg = getSaleStatusConfig(tx.status);
+              const normalizedStatus = String(tx.status || 'DRAFT').toUpperCase();
+              const statusKey = `table.saleStatus.${normalizedStatus}`;
+              const translatedStatus = t(statusKey);
+              const statusLabel =
+                translatedStatus === statusKey ? t('table.unknownStatus') : translatedStatus;
               const isOverdue =
-                tx.remainingAmount > 0 &&
-                tx.dueDate &&
-                new Date(tx.dueDate).getTime() < Date.now();
+                tx.remainingAmount > 0 && tx.dueDate && new Date(tx.dueDate).getTime() < Date.now();
 
               const firstItemWithJournal = tx.items?.find((i) => Boolean(i.journalTransaction));
               const journalTxId =
@@ -195,21 +213,19 @@ export const TableTransactionByContact: React.FC<TableTransactionByContactProps>
                       </ThemeIcon>
                       <Box style={{ minWidth: 0 }}>
                         <Group gap={4} wrap="nowrap" align="center">
-                          <Text
+                          <Anchor
+                            component={Link}
+                            to={routes.sales.detail.replace(':id', tx.id)}
                             size="sm"
                             fw={700}
                             c="primary.9"
-                            truncate
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              navigate(routes.sales.detail.replace(':id', tx.id));
-                            }}
+                            onClick={(event) => event.stopPropagation()}
                           >
                             {tx.transactionNumber}
-                          </Text>
+                          </Anchor>
                           <CopyButton value={tx.transactionNumber}>
                             {({ copied, copy }) => (
-                              <Tooltip label={copied ? 'Tersalin' : 'Salin Nomor'}>
+                              <Tooltip label={copied ? t('copied') : t('table.copyNumber')}>
                                 <ActionIcon
                                   size="xs"
                                   variant="subtle"
@@ -218,6 +234,7 @@ export const TableTransactionByContact: React.FC<TableTransactionByContactProps>
                                     e.stopPropagation();
                                     copy();
                                   }}
+                                  aria-label={t('table.copyNumber')}
                                 >
                                   {copied ? <IconCheck size={11} /> : <IconCopy size={11} />}
                                 </ActionIcon>
@@ -228,7 +245,7 @@ export const TableTransactionByContact: React.FC<TableTransactionByContactProps>
 
                         {tx.customerRefNumber && (
                           <Text size="xs" c="dimmed">
-                            Ref: {tx.customerRefNumber}
+                            {t('table.reference')}: {tx.customerRefNumber}
                           </Text>
                         )}
                       </Box>
@@ -238,15 +255,17 @@ export const TableTransactionByContact: React.FC<TableTransactionByContactProps>
                   {/* 2. Tanggal Transaksi & Jatuh Tempo */}
                   <Table.Td>
                     <Text size="xs" fw={600} c="dark.8">
-                      {formatDate(tx.transactionDate)}
+                      {formatDateValue(tx.transactionDate)}
                     </Text>
                     <Group gap={4} mt={2}>
                       <IconClock
                         size={12}
-                        color={isOverdue ? 'var(--mantine-color-red-6)' : 'var(--mantine-color-gray-6)'}
+                        color={
+                          isOverdue ? 'var(--mantine-color-red-6)' : 'var(--mantine-color-gray-6)'
+                        }
                       />
                       <Text size="xs" c={isOverdue ? 'red.7' : 'dimmed'} fw={isOverdue ? 600 : 400}>
-                        {formatDate(tx.dueDate)}
+                        {formatDateValue(tx.dueDate)}
                       </Text>
                     </Group>
                   </Table.Td>
@@ -256,13 +275,13 @@ export const TableTransactionByContact: React.FC<TableTransactionByContactProps>
                     <Text size="xs" fw={500} c="dark.8" lineClamp={1}>
                       {tx.items && tx.items.length > 0
                         ? tx.items
-                            .map((i) => i.product?.name || i.description || 'Item')
+                            .map((i) => i.product?.name || i.description || t('table.item'))
                             .join(', ')
                         : '—'}
                     </Text>
                     <Group gap={4} mt={2}>
                       <Badge size="xs" variant="outline" color="gray">
-                        {tx.items?.length || 0} Produk
+                        {t('table.productCount', { count: tx.items?.length || 0 })}
                       </Badge>
 
                       {journalTxId && (
@@ -282,7 +301,7 @@ export const TableTransactionByContact: React.FC<TableTransactionByContactProps>
                           style={{ display: 'inline-flex', alignItems: 'center', gap: 3 }}
                         >
                           <IconNotebook size={12} />
-                          Jurnal Transaksi
+                          {t('table.journal')}
                         </Anchor>
                       )}
                     </Group>
@@ -297,11 +316,11 @@ export const TableTransactionByContact: React.FC<TableTransactionByContactProps>
                         color={statusCfg.color}
                         variant={statusCfg.variant || 'light'}
                       >
-                        {statusCfg.label}
+                        {statusLabel}
                       </Badge>
                       {isOverdue && (
                         <Badge size="xs" color="red" variant="filled">
-                          Lewat Tempo
+                          {t('status.OVERDUE')}
                         </Badge>
                       )}
                     </Stack>
@@ -315,11 +334,11 @@ export const TableTransactionByContact: React.FC<TableTransactionByContactProps>
                       c="primary.9"
                       style={{ fontVariantNumeric: 'tabular-nums' }}
                     >
-                      {formatIDR(tx.finalAmount)}
+                      {formatAmount(tx.finalAmount)}
                     </Text>
                     {tx.paidAmount > 0 && (
                       <Text size="xs" c="teal.7" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                        Lunas: {formatIDR(tx.paidAmount)}
+                        {t('status.PAID')}: {formatAmount(tx.paidAmount)}
                       </Text>
                     )}
                   </Table.Td>
@@ -332,7 +351,7 @@ export const TableTransactionByContact: React.FC<TableTransactionByContactProps>
                       c={tx.remainingAmount > 0 ? 'orange.8' : 'dimmed'}
                       style={{ fontVariantNumeric: 'tabular-nums' }}
                     >
-                      {formatIDR(tx.remainingAmount)}
+                      {formatAmount(tx.remainingAmount)}
                     </Text>
                   </Table.Td>
 
@@ -345,7 +364,12 @@ export const TableTransactionByContact: React.FC<TableTransactionByContactProps>
                   >
                     <Menu position="bottom-end" shadow="md" withinPortal>
                       <Menu.Target>
-                        <ActionIcon variant="subtle" color="gray" size="sm">
+                        <ActionIcon
+                          variant="subtle"
+                          color="gray"
+                          size="sm"
+                          aria-label={t('table.actions')}
+                        >
                           <IconDotsVertical size={16} />
                         </ActionIcon>
                       </Menu.Target>
@@ -354,7 +378,7 @@ export const TableTransactionByContact: React.FC<TableTransactionByContactProps>
                           leftSection={<IconEye size={14} />}
                           onClick={() => navigate(routes.sales.detail.replace(':id', tx.id))}
                         >
-                          Buka Faktur Penjualan
+                          {t('table.openInvoice')}
                         </Menu.Item>
                         {journalTxId && (
                           <Menu.Item
@@ -368,7 +392,7 @@ export const TableTransactionByContact: React.FC<TableTransactionByContactProps>
                               )
                             }
                           >
-                            Lihat Jurnal Transaksi
+                            {t('table.openJournal')}
                           </Menu.Item>
                         )}
                       </Menu.Dropdown>
@@ -386,7 +410,7 @@ export const TableTransactionByContact: React.FC<TableTransactionByContactProps>
         <Group justify="space-between" align="center" wrap="wrap" gap="sm">
           <Group gap="xs" align="center">
             <Text size="xs" c="dimmed">
-              Menampilkan {startRecord} - {endRecord} dari {total} transaksi
+              {t('table.pagination', { start: startRecord, end: endRecord, total })}
             </Text>
             <Select
               size="xs"
@@ -399,7 +423,7 @@ export const TableTransactionByContact: React.FC<TableTransactionByContactProps>
                 { value: '25', label: '25' },
                 { value: '50', label: '50' },
               ]}
-              aria-label="Jumlah transaksi per halaman"
+              aria-label={t('table.pageSize')}
             />
           </Group>
 

@@ -64,9 +64,7 @@ export const mapContact = (dto: any): Contact => {
       arAccount: mappingRaw.arAccount ?? null,
       apAccount: mappingRaw.apAccount ?? null,
       defaultPaymentTerm:
-        typeof mappingRaw.defaultPaymentTerm === 'number'
-          ? mappingRaw.defaultPaymentTerm
-          : null,
+        typeof mappingRaw.defaultPaymentTerm === 'number' ? mappingRaw.defaultPaymentTerm : null,
       maxReceivable: mappingRaw.maxReceivable ?? undefined,
       maxPayable: mappingRaw.maxPayable ?? undefined,
     },
@@ -87,9 +85,7 @@ export const getApiErrorMessage = (error: unknown, fallback: string): string => 
 
 /* ---------- API Functions ---------- */
 
-export const fetchContacts = async (
-  params: ContactListParams
-): Promise<Paginated<Contact>> => {
+export const fetchContacts = async (params: ContactListParams): Promise<Paginated<Contact>> => {
   const { data } = await apiClient.get<ApiEnvelope<PaginatedDto<unknown>>>(
     CONTACT_ENDPOINTS.contacts,
     {
@@ -119,15 +115,11 @@ export const fetchContacts = async (
 };
 
 export const fetchContact = async (id: string): Promise<Contact> => {
-  const { data } = await apiClient.get<ApiEnvelope<unknown>>(
-    CONTACT_ENDPOINTS.contactDetail(id)
-  );
+  const { data } = await apiClient.get<ApiEnvelope<unknown>>(CONTACT_ENDPOINTS.contactDetail(id));
   return mapContact(data.data);
 };
 
-export const createContact = async (
-  values: ContactFormValues
-): Promise<Contact> => {
+export const createContact = async (values: ContactFormValues): Promise<Contact> => {
   const payload = {
     displayName: values.displayName.trim(),
     contactType: values.contactType,
@@ -166,34 +158,20 @@ export const createContact = async (
     },
     otherInfo: values.otherInfo?.trim() || null,
     contactGroups: values.contactGroups || [],
-    bankAccounts: values.bankAccounts.filter(
-      (b) => b.bankName.trim() && b.accountNumber.trim()
-    ),
+    bankAccounts: values.bankAccounts.filter((b) => b.bankName.trim() && b.accountNumber.trim()),
     mappingAccount: {
       arAccount: extractId(values.mappingAccount.arAccount),
       apAccount: extractId(values.mappingAccount.apAccount),
       defaultPaymentTerm: Number(values.mappingAccount.defaultPaymentTerm) || 0,
-      ...(values.mappingAccount.maxReceivable
-        ? { maxReceivable: values.mappingAccount.maxReceivable }
-        : {}),
-      ...(values.mappingAccount.maxPayable
-        ? { maxPayable: values.mappingAccount.maxPayable }
-        : {}),
     },
     ...(values.external_id ? { external_id: values.external_id.trim() } : {}),
   };
 
-  const { data } = await apiClient.post<ApiEnvelope<unknown>>(
-    CONTACT_ENDPOINTS.contacts,
-    payload
-  );
+  const { data } = await apiClient.post<ApiEnvelope<unknown>>(CONTACT_ENDPOINTS.contacts, payload);
   return mapContact(data.data);
 };
 
-export const updateContact = async (
-  id: string,
-  values: ContactFormValues
-): Promise<Contact> => {
+export const updateContact = async (id: string, values: ContactFormValues): Promise<Contact> => {
   const payload = {
     displayName: values.displayName.trim(),
     contactType: values.contactType,
@@ -232,19 +210,11 @@ export const updateContact = async (
     },
     otherInfo: values.otherInfo?.trim() || null,
     contactGroups: values.contactGroups || [],
-    bankAccounts: values.bankAccounts.filter(
-      (b) => b.bankName.trim() && b.accountNumber.trim()
-    ),
+    bankAccounts: values.bankAccounts.filter((b) => b.bankName.trim() && b.accountNumber.trim()),
     mappingAccount: {
       arAccount: extractId(values.mappingAccount.arAccount),
       apAccount: extractId(values.mappingAccount.apAccount),
       defaultPaymentTerm: Number(values.mappingAccount.defaultPaymentTerm) || 0,
-      ...(values.mappingAccount.maxReceivable
-        ? { maxReceivable: values.mappingAccount.maxReceivable }
-        : {}),
-      ...(values.mappingAccount.maxPayable
-        ? { maxPayable: values.mappingAccount.maxPayable }
-        : {}),
     },
   };
 
@@ -338,12 +308,14 @@ export const exportSalesByCustomer = async (
   contactId: string,
   filename = 'transaksi-kontak.xlsx'
 ): Promise<void> => {
-  const response = await apiClient.get(
-    CONTACT_ENDPOINTS.exportSalesByCustomer(contactId),
-    { responseType: 'blob' }
-  );
+  const response = await apiClient.get(CONTACT_ENDPOINTS.exportSalesByCustomer(contactId), {
+    responseType: 'blob',
+  });
 
-  const contentType = String(response.headers['content-type'] || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  const contentType = String(
+    response.headers['content-type'] ||
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  );
   const blob = new Blob([response.data], { type: contentType });
   const url = window.URL.createObjectURL(blob);
   const link = document.createElement('a');
@@ -372,10 +344,7 @@ export const createContactGroup = async (name: string): Promise<ContactGroup> =>
   return data.data;
 };
 
-export const updateContactGroup = async (
-  groupId: string,
-  name: string
-): Promise<ContactGroup> => {
+export const updateContactGroup = async (groupId: string, name: string): Promise<ContactGroup> => {
   const { data } = await apiClient.put<ApiEnvelope<ContactGroup>>(
     CONTACT_ENDPOINTS.contactGroupDetail(groupId),
     { name: name.trim() }
@@ -389,13 +358,14 @@ export const deleteContactGroup = async (groupId: string): Promise<void> => {
 
 /* ---------- Export & Import Contacts ---------- */
 
-export const exportContacts = async (
-  filename = 'data-kontak.xlsx'
-): Promise<void> => {
+export const exportContacts = async (filename = 'data-kontak.xlsx'): Promise<void> => {
   const response = await apiClient.get(CONTACT_ENDPOINTS.contactExport, {
     responseType: 'blob',
   });
-  const contentType = String(response.headers['content-type'] || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  const contentType = String(
+    response.headers['content-type'] ||
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  );
   const blob = new Blob([response.data], { type: contentType });
   const url = window.URL.createObjectURL(blob);
   const link = document.createElement('a');
@@ -413,7 +383,10 @@ export const downloadContactTemplate = async (
   const response = await apiClient.get(CONTACT_ENDPOINTS.contactTemplate, {
     responseType: 'blob',
   });
-  const contentType = String(response.headers['content-type'] || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  const contentType = String(
+    response.headers['content-type'] ||
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  );
   const blob = new Blob([response.data], { type: contentType });
   const url = window.URL.createObjectURL(blob);
   const link = document.createElement('a');
@@ -425,9 +398,7 @@ export const downloadContactTemplate = async (
   window.URL.revokeObjectURL(url);
 };
 
-export const importContacts = async (
-  file: File
-): Promise<{ imported: number }> => {
+export const importContacts = async (file: File): Promise<{ imported: number }> => {
   const formData = new FormData();
   formData.append('file', file);
 
@@ -443,9 +414,7 @@ export const importContacts = async (
 
 /* ---------- Filtered AP / AR Accounts ---------- */
 
-export const fetchFilteredAccounts = async (
-  category: 'AP' | 'AR'
-): Promise<FilteredAccount[]> => {
+export const fetchFilteredAccounts = async (category: 'AP' | 'AR'): Promise<FilteredAccount[]> => {
   const { data } = await apiClient.get<ApiEnvelope<FilteredAccount[]>>(
     CONTACT_ENDPOINTS.filteredAccounts(category)
   );
@@ -461,4 +430,3 @@ export const syncContact = async (payload: unknown): Promise<Contact> => {
   );
   return mapContact(data.data);
 };
-
