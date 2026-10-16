@@ -12,9 +12,6 @@ import {
   Badge,
 } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
-import { useAuthStore } from '@/store/useAuthentications';
-import { routes } from '@/router/routes';
-import { usePendingChangesCount } from '@/module/PendingChanges/hooks/usePendingChangesQueries';
 import {
   AddressBook,
   Bank,
@@ -33,101 +30,65 @@ import {
   SidebarSimpleIcon,
   ShieldCheck,
 } from '@phosphor-icons/react';
+import { useAuthStore } from '@/store/useAuthentications';
+import { routes } from '@/router/routes';
+import { usePendingChangesCount } from '@/module/PendingChanges/hooks/usePendingChangesQueries';
+import { useTranslation } from '@/i18n';
 import { LinksGroup } from './Links/page';
 import classes from './page.module.css';
-import LogoProapps from '@/assets/img/proapps-md-transparent.svg';
+import LogoProapps from '@/assets/img/proapps-brand-badge.svg';
+import IconProapps from '@/assets/img/proapps-brand-icon.svg';
 import { themeColors } from '@/theme';
 
-const mockdata = [
+const getNavGroups = (t: (key: string) => string) => [
   {
-    title: 'UTAMA',
+    title: t('groupMain').toUpperCase(),
     links: [
-      { label: 'Ringkasan', icon: HouseLine, link: '/dashboard' },
-      { label: 'Laporan Keuangan', icon: ChartPieSlice, link: '/result-reports' },
-      { label: 'Perencanaan Anggaran', icon: Money, link: '/budget-planning' },
+      { label: t('dashboard'), icon: HouseLine, link: '/dashboard' },
+      { label: t('financialReports'), icon: ChartPieSlice, link: '/result-reports' },
+      { label: t('budgetPlanning'), icon: Money, link: '/budget-planning' },
     ],
   },
   {
-    title: 'TRANSAKSI',
+    title: t('groupTransactions').toUpperCase(),
     links: [
-      { label: 'Kas & Bank', icon: Bank, link: '/bank-cash' },
-      { label: 'Penjualan', icon: Storefront, link: '/sales' },
-      { label: 'Pembelian', icon: ShoppingCart, link: '/pembelian' },
-      { label: 'Biaya', icon: Receipt, link: '/finance/cost' },
-      { label: 'Persetujuan Perubahan', icon: ShieldCheck, link: routes.pendingChanges.main },
+      { label: t('cashBank'), icon: Bank, link: '/bank-cash' },
+      { label: t('sales'), icon: Storefront, link: '/sales' },
+      { label: t('purchases'), icon: ShoppingCart, link: '/pembelian' },
+      { label: t('expenses'), icon: Receipt, link: '/finance/cost' },
+      { label: t('pendingChanges'), icon: ShieldCheck, link: routes.pendingChanges.main },
     ],
   },
   {
-    title: 'OPERASIONAL',
+    title: t('groupOperations').toUpperCase(),
     links: [
-      { label: 'Produk', icon: BoundingBox, link: '/products' },
+      { label: t('products'), icon: BoundingBox, link: '/products' },
       {
-        label: 'Produksi',
+        label: t('production'),
         icon: Storefront,
         link: '/production',
       },
-      { label: 'Pemenuhan', icon: Truck, link: '/fulfillment' },
+      { label: t('fulfillment'), icon: Truck, link: '/fulfillment' },
     ],
   },
   {
-    title: 'MASTER DATA',
+    title: t('groupMasterData').toUpperCase(),
     links: [
-      { label: 'Daftar Akun', icon: ListBullets, link: '/general-journal' },
-      { label: 'Asset', icon: Toolbox, link: '/asset' },
-      { label: 'Kontak', icon: AddressBook, link: '/contact' },
+      { label: t('chartOfAccounts'), icon: ListBullets, link: '/general-journal' },
+      { label: t('assets'), icon: Toolbox, link: '/asset' },
+      { label: t('contacts'), icon: AddressBook, link: '/contact' },
     ],
   },
   {
-    title: 'LAINNYA',
+    title: t('groupOthers').toUpperCase(),
     links: [
       {
-        label: 'Pengaturan',
+        label: t('settings'),
         icon: GearSix,
-        links: [
-          {
-            label: 'Pusat Pengaturan',
-            link: routes.settings.main,
-          },
-          {
-            label: 'Pengaturan Umum',
-            link: routes.settings.general,
-          },
-          {
-            label: 'Pemetaan Akun',
-            link: routes.settings.accountMapping,
-          },
-          {
-            label: 'Pajak',
-            link: routes.settings.taxes,
-          },
-          {
-            label: 'Syarat Pembayaran',
-            link: routes.settings.paymentTerms,
-          },
-          {
-            label: 'Metode Pembayaran',
-            link: routes.settings.paymentMethods,
-          },
-          {
-            label: 'Format Penomoran',
-            link: routes.settings.numberFormats,
-          },
-          {
-            label: 'Tag Transaksi',
-            link: routes.settings.tags,
-          },
-          {
-            label: 'Pengaturan Perusahaan',
-            link: routes.baseModules.companySetting,
-          },
-          {
-            label: 'Manajemen Pengguna',
-            link: routes.userManagement.main,
-          },
-        ],
+        link: routes.settings.main,
       },
     ],
-  }
+  },
 ];
 
 type NavigationProps = {
@@ -137,8 +98,15 @@ type NavigationProps = {
   toggleDesktop?: () => void;
 };
 
-const NavbarComponent = ({ onClose, collapsed = false, desktopOpened = true, toggleDesktop }: NavigationProps) => {
+const NavbarComponent = ({
+  onClose,
+  collapsed = false,
+  desktopOpened = true,
+  toggleDesktop,
+}: NavigationProps) => {
   const navigate = useNavigate();
+  const { t } = useTranslation('navigation');
+  const navGroups = getNavGroups(t);
   const { userName, clearTokens } = useAuthStore();
   const displayName = userName || 'Finance';
   const initials = displayName
@@ -150,25 +118,40 @@ const NavbarComponent = ({ onClose, collapsed = false, desktopOpened = true, tog
 
   const pendingCountQuery = usePendingChangesCount();
   const rawCount = pendingCountQuery.data;
-  const pendingCount = typeof rawCount === 'number' ? rawCount : (rawCount as any)?.data?.count ?? 0;
+  const pendingCount =
+    typeof rawCount === 'number' ? rawCount : ((rawCount as any)?.data?.count ?? 0);
 
   const handleLogout = () => {
     clearTokens();
     navigate(routes.login);
   };
 
-  const links = mockdata.map((item) => (
+  const links = navGroups.map((item) => (
     <Box mb={collapsed ? 'sm' : rem(18)} key={item.title}>
       <Text pl={10} mb={8} className={classes.linkHeader} ta={collapsed ? 'center' : 'left'}>
         {collapsed ? '•••' : item.title}
       </Text>
       {item.links.map((linkItem) => {
         const isPendingChanges = 'link' in linkItem && linkItem.link === routes.pendingChanges.main;
-        const badge = isPendingChanges && pendingCount > 0 ? (
-          <Badge size="xs" color="orange" variant="filled" circle>
-            {pendingCount > 99 ? '99+' : pendingCount}
-          </Badge>
-        ) : undefined;
+        const badge =
+          isPendingChanges && pendingCount > 0 ? (
+            <Badge
+              size="xs"
+              color="orange"
+              variant="filled"
+              radius="xl"
+              style={{
+                padding: '0 6px',
+                height: 18,
+                minWidth: 18,
+                fontSize: 10,
+                fontWeight: 700,
+                lineHeight: '18px',
+              }}
+            >
+              {pendingCount > 99 ? '99+' : pendingCount}
+            </Badge>
+          ) : undefined;
 
         return (
           <LinksGroup
@@ -187,24 +170,47 @@ const NavbarComponent = ({ onClose, collapsed = false, desktopOpened = true, tog
     <nav className={classes.navbar} data-collapsed={collapsed || undefined}>
       <div className={classes.header}>
         <Group justify={collapsed ? 'center' : 'space-between'} w="100%" wrap="nowrap">
-          {!collapsed && <Image src={LogoProapps} style={{ width: rem(118) }} />}
-          <Tooltip label={desktopOpened ? 'Ciutkan menu' : 'Perluas menu'} position="right" withArrow>
-            <ActionIcon
-              visibleFrom="md"
-              onClick={toggleDesktop}
-              variant="light"
-              color="primary"
-              radius="md"
-              size={34}
-              aria-label="Toggle side navigation"
+          {collapsed ? (
+            <Tooltip label="Perluas menu" position="right" withArrow>
+              <UnstyledButton
+                onClick={toggleDesktop}
+                style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
+                aria-label="Perluas menu navigasi"
+              >
+                <Image
+                  src={IconProapps}
+                  style={{ width: rem(34), height: rem(34) }}
+                  alt="Proapps Icon"
+                />
+              </UnstyledButton>
+            </Tooltip>
+          ) : (
+            <Image src={LogoProapps} style={{ width: rem(138) }} alt="Proapps Logo" />
+          )}
+
+          {!collapsed && (
+            <Tooltip
+              label={desktopOpened ? 'Ciutkan menu' : 'Perluas menu'}
+              position="right"
+              withArrow
             >
-              <SidebarSimpleIcon
-                size={18}
-                weight="duotone"
-                style={{ transform: desktopOpened ? 'none' : 'scaleX(-1)' }}
-              />
-            </ActionIcon>
-          </Tooltip>
+              <ActionIcon
+                visibleFrom="md"
+                onClick={toggleDesktop}
+                variant="light"
+                color="primary"
+                radius="md"
+                size={34}
+                aria-label="Toggle side navigation"
+              >
+                <SidebarSimpleIcon
+                  size={18}
+                  weight="duotone"
+                  style={{ transform: desktopOpened ? 'none' : 'scaleX(-1)' }}
+                />
+              </ActionIcon>
+            </Tooltip>
+          )}
         </Group>
       </div>
 
@@ -233,7 +239,7 @@ const NavbarComponent = ({ onClose, collapsed = false, desktopOpened = true, tog
             </Box>
           )}
           {!collapsed && (
-            <Tooltip label="Keluar" withArrow>
+            <Tooltip label={t('logout')} withArrow>
               <UnstyledButton className={classes.logout} onClick={handleLogout} aria-label="Logout">
                 <SignOut size={18} weight="bold" />
               </UnstyledButton>

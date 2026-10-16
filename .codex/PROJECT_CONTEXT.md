@@ -12,6 +12,24 @@ This is the single source of truth for project engineering context and rules. Th
 - Do not commit, push, merge, deploy, or change external systems unless the user explicitly asks for that action.
 - Do not disable or weaken lint, typecheck, tests, or CI checks to make a change appear successful.
 
+## Product Vision: User-Friendly Accounting for Non-Accountants & Skeptics
+
+The primary mission of Jurnal Proapps is to **demystify accounting and create an extraordinarily approachable, intuitive, and anxiety-free accounting system**.
+
+Traditional accounting software and legacy desktop ledgers are notorious for being rigid, confusing, jargon-heavy, and intimidating to business owners, operators, and staff who are skeptical of complex financial systems. 
+
+**Strict Rule: Brand Neutrality & Zero Competitor Mentions**:
+- NEVER mention or refer to specific competitor brands (such as Mekari, Accurate, Zahir, SAP, QuickBooks, Xero, etc.) anywhere in the codebase, UI, landing pages, marketing copy, comparison matrices, educational resources, tooltips, or agent communications.
+- ALWAYS use neutral, professional, generic terms such as "Software Akuntansi Konvensional" / "Conventional Accounting Software", "Software Akuntansi Umum" / "Generalist Systems", or "Sistem Pembukuan Standar".
+
+**Our Core Value Proposition**:
+1. **Accounting Without Fear**: Every screen must provide clarity, psychological safety, and clear direction. Users should never feel lost, confused, or worried that a single click might break their company's books.
+2. **Instant Cognitive Clarity**: Demystify complex concepts (such as double-entry, contra accounts, depreciation, normal balances) through real-world examples, contextual tooltips, and interactive guidance cards.
+3. **Prevention Over Punishment (Poka-Yoke)**: Make invalid states difficult or impossible to enter. Show live balance meters, difference indicators, and real-time verification checklists rather than punishing users with cryptic error dialogs after submission.
+4. **Delightful & Modern Polish**: Maintain clean visual hierarchy, generous whitespace, crisp cards, legible typography, and seamless ergonomics (Laws of Design: Proximity, Common Region, Visual Hierarchy, Fitts's Law).
+
+Any agent working on this codebase MUST treat UI/UX not as an afterthought, but as a core functional requirement equal in importance to accounting mathematical correctness.
+
 ## Architecture
 
 Use pragmatic Clean Architecture with feature-first boundaries. Keep the existing `src/module` root while the codebase is migrated incrementally. New features and substantially changed feature areas should use this structure:
@@ -107,13 +125,63 @@ Keep only folders that have a real responsibility; do not create empty layers or
 - Interactive controls need an accessible name, keyboard behavior, visible focus, and a meaningful loading/disabled state where applicable. Data views must handle loading, empty, error, and populated states.
 - Master module list and category tabs must follow consistent pill navigation: `<Tabs color="primary" variant="pills" radius="md">` with `leftSection` icons on each tab inside a top `<Paper withBorder radius="lg" p="md">`, positioned above the search bar and data table. Do not use default underline tabs for primary master data navigation.
 - Empty State Consistency: Tables and list views MUST NOT unmount the table shell or replace the data frame with disparate raw boxes when filtered or empty. Render the standard `<EmptyState>` component inside `<Table.Tbody><Table.Tr><Table.Td colSpan={...}>` (or the unified table container) so that headers, borders, and pagination structures remain stable. The empty state must feature an informative soft-themed icon orb, concise bold title, descriptive instruction text, and an actionable CTA button where relevant (e.g. "Buat Data Baru").
-- **Canonical Feature Page Layout Standard (Kontak, Produk, & Modul Utama)**:
-  All main module and feature listing pages MUST follow the unified design structure:
+- **Canonical Feature Page Layout Standard**:
+  Every feature page MUST strictly follow one of two canonical layout standards to maintain consistency across the entire application:
+  
+  **Standard A: Listing & Master Data Pages (Kontak, Produk, Daftar Akun, Persetujuan Perubahan)**:
   1. **Page Wrapper**: `<AppShellLayout><Box p={{ base: 'md', sm: 'xl' }}><Stack gap="lg">`. Never wrap pages in inconsistent full-width banner wrappers or divergent background boxes.
-  2. **Top Bar HeaderNav Mapping**: When introducing or modifying routes, always register the path prefix in `src/components/HeaderNav/page.tsx`'s `SECTION_TITLES` so the top breadcrumb displays the proper group (e.g. `TRANSAKSI`, `OPERASIONAL`, `MASTER DATA`) and section title, preventing fallback to generic "PROAPPS / Jurnal".
+  2. **Top Bar HeaderNav Mapping**: Register the path prefix in `src/components/HeaderNav/page.tsx`'s `SECTION_TITLES` so the breadcrumb displays the proper group (e.g. `TRANSAKSI`, `OPERASIONAL`, `MASTER DATA`) and section title, preventing fallback to generic "PROAPPS / Jurnal".
   3. **Module Header**: Use the canonical `<ModuleHeader>` (`src/components/ModuleHeader/ModuleHeader.tsx`) featuring a 48px gradient ThemeIcon (`from: 'primary.6', to: 'secondary.6'`), bold title, concise description, and right-aligned actions (e.g. tooltip refresh `ActionIcon` and primary action `Button`).
   4. **Quick Metrics / KPI Stats Grid**: Use `<SimpleGrid cols={{ base: 1, sm: ... }} spacing="md">` with `<Paper withBorder radius="md" p="md" bg="white">` cards. Cards must feature an uppercase dimmed small title (`size="xs" c="dimmed" fw={600} tt="uppercase" lts={0.5}`), large bold count/metric (`fz={26} fw={800} c="dark.8" mt={4} lh={1.1}`), descriptive subtitle (`size="xs" c="dimmed" mt={4}`), and a right-aligned rounded light `<ThemeIcon size={40} radius="md" variant="light">`.
   5. **Main Content Container**: Wrap tabs, search filter, and data table inside a single unified `<Paper withBorder radius="lg" p="md" bg="white">`.
+
+  **Standard B: Form & Transaction Pages (Tambah Akun, Tambah Transaksi Jurnal, Form Entri)**:
+  1. **Page Wrapper & Header**: Same canonical `<AppShellLayout><Box p={{ base: 'md', sm: 'xl' }}><Stack gap="lg">` and `<ModuleHeader>` featuring title, description, and return button (`leftSection={<IconArrowLeft size={16} />}`).
+  2. **Top Metrics / Balance Strip**: A 4-card KPI summary or balance status bar (`JournalBalanceMetrics` / Quick Stats) showing totals, row counts, and live balance status.
+  3. **Responsive 8 / 4 Column Grid Split (`<Grid gutter="lg" align="flex-start">`)**:
+     - **Left Column (`span={{ base: 12, lg: 8 }}`)**:
+       - Structured into semantic Mantine `Paper` cards (`withBorder radius="md" p="lg" bg="white" shadow="xs"`).
+       - Each card starts with a theme icon orb (size 36, light variant), bold 15px section title, and 12px dimmed subtitle (Law of Common Region).
+       - Contextual form fields, modern segmented/radio cards for choices, clear placeholders, and instant error feedback.
+     - **Right Column (`span={{ base: 12, lg: 4 }}`)**:
+       - Sticky sidebar (`pos="sticky" top={20}`) containing:
+         - **Interactive Live Preview or Verification Checklist Card**: Live representation of what is being created (e.g. `AccountPreviewCard` with normal balance calculation, or `JournalValidationCard` with real-time pass/fail checks).
+         - **Accounting Standards & Tips Card**: Accordion with practical real-world rules (`AccountingGuideCard`, `JournalDoubleEntryGuide`).
+         - **Sticky Actions Card**: Primary action button (with icon and loading state) and subtle cancel button.
+
+- **The 6 Golden Rules of Accounting UI/UX (Mandatory for Every Agent)**:
+  1. **Demystification & In-Context Guidance (Law of Clarity)**: Never present raw accounting jargon without an intuitive explanation and concrete real-world examples. Always provide helper tips or accordion guides.
+  2. **Instant Cause-and-Effect Feedback**: Users must see the exact financial effect of their input in real-time (normal balance position, debit vs credit balance, difference badges).
+  3. **Poka-Yoke (Mistake-Proofing by Design)**: Prevent impossible financial states in the UI (e.g. mutual exclusion of debit/credit on the same row, auto-suggesting valid account codes, disabling submit with clear tooltips until double-entry balance is achieved).
+  4. **Psychological Safety for Skeptics**: Replace feelings of anxiety and headache with reassuring, clean, calm design—clear badges, celebratory "Siap Dibukukan" checks, and generous whitespace.
+  5. **Warm, Polite, & Actionable Copy (Bilingual)**: Use clear, professional Bahasa Indonesia as primary, and standard international English as secondary. Never display raw technical error codes, stack traces, or unformatted API responses.
+  6. **Zero Structural Divergence**: Never create random bespoke full-screen wrappers, floating bottom bars, or conflicting tab systems. Strictly obey Standard A or Standard B.
+
+- **Bilingual Architecture & Mandatory Dual-Language Standard (i18n)**:
+  - **Core Rule**: Every feature, module, modal, and page created or modified MUST support both **Bahasa Indonesia (`id`)** and **English (`en`)**.
+  - **Implementation Hook**: Use the centralized lightweight hook `const { t, i18n } = useTranslation('namespace');` from `@/i18n`.
+  - **Accounting Terminology Standard**:
+    - Buku Besar $\leftrightarrow$ General Ledger
+    - Bagan Akun (COA) $\leftrightarrow$ Chart of Accounts
+    - Saldo Awal $\leftrightarrow$ Beginning Balance
+    - Jurnal Transaksi $\leftrightarrow$ Journal Entry
+    - Kas & Bank $\leftrightarrow$ Cash & Bank
+    - Rekening Koran $\leftrightarrow$ Bank Statement
+    - Rekonsiliasi Bank $\leftrightarrow$ Bank Reconciliation
+    - Piutang Usaha $\leftrightarrow$ Accounts Receivable (A/R)
+    - Hutang Usaha $\leftrightarrow$ Accounts Payable (A/P)
+    - Saldo Normal $\leftrightarrow$ Normal Balance (Debit / Credit)
+    - Seimbang $\leftrightarrow$ Balanced
+    - Selisih $\leftrightarrow$ Difference / Out of Balance
+    - Laba Rugi $\leftrightarrow$ Income Statement
+    - Neraca $\leftrightarrow$ Balance Sheet
+    - Arus Kas $\leftrightarrow$ Cash Flow
+    - Draf $\leftrightarrow$ Draft
+    - Terpublikasi $\leftrightarrow$ Published
+    - Tutup Buku $\leftrightarrow$ Closing Books
+  - **Zero-Crash Fallback**: The i18n engine must gracefully fallback to Indonesian if an English key is missing during iterative feature rollout.
+  - **Formatting Synchronization**: Date formatting (`dayjs`) and currency formatting must automatically sync with the active language (`id` $\leftrightarrow$ `en`).
+
 - Do not fabricate product claims, accounting data, user identities, or API results in production UI.
 
 ## Testing and Verification

@@ -28,10 +28,10 @@
 }
 
 .input-label {
-  font-size: 14px;
-  font-weight: 500;
-  /* border-color: var(--jurnal-color-border-muted); */
-  /* margin-bottom: 8px; */
+  font-size: 13px;
+  font-weight: 600;
+  color: #212529;
+  margin-bottom: 4px;
 }
 
 /* Paper Styles */

@@ -7,11 +7,16 @@ import {
   Input,
   Loader,
   Modal,
+  NumberInput,
   Paper,
+  PasswordInput,
+  Select,
   Table,
   TextInput,
+  Textarea,
   rem,
 } from '@mantine/core';
+import { DateInput, DatePickerInput } from '@mantine/dates';
 
 /**
  * Mantine v8 Theme Configuration
@@ -119,7 +124,61 @@ export const myTheme = createTheme({
 
     TextInput: TextInput.extend({
       defaultProps: {
-        size: 'md',
+        size: 'sm',
+      },
+      classNames: {
+        label: 'input-label',
+      },
+    }),
+
+    Select: Select.extend({
+      defaultProps: {
+        size: 'sm',
+      },
+      classNames: {
+        label: 'input-label',
+      },
+    }),
+
+    NumberInput: NumberInput.extend({
+      defaultProps: {
+        size: 'sm',
+      },
+      classNames: {
+        label: 'input-label',
+      },
+    }),
+
+    Textarea: Textarea.extend({
+      defaultProps: {
+        size: 'sm',
+      },
+      classNames: {
+        label: 'input-label',
+      },
+    }),
+
+    PasswordInput: PasswordInput.extend({
+      defaultProps: {
+        size: 'sm',
+      },
+      classNames: {
+        label: 'input-label',
+      },
+    }),
+
+    DateInput: DateInput.extend({
+      defaultProps: {
+        size: 'sm',
+      },
+      classNames: {
+        label: 'input-label',
+      },
+    }),
+
+    DatePickerInput: DatePickerInput.extend({
+      defaultProps: {
+        size: 'sm',
       },
       classNames: {
         label: 'input-label',
