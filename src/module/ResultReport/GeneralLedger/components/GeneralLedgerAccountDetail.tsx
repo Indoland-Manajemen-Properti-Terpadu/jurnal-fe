@@ -282,7 +282,7 @@ export const GeneralLedgerAccountDetail: React.FC<GeneralLedgerAccountDetailProp
                         <Text
                           size="xs"
                           fw={tx.credit > 0 ? 600 : 400}
-                          c={tx.credit > 0 ? 'indigo.7' : 'dimmed'}
+                          c={tx.credit > 0 ? 'red.7' : 'dimmed'}
                           style={{ fontVariantNumeric: 'tabular-nums' }}
                         >
                           {tx.credit > 0 ? formatMoney(tx.credit) : '-'}
@@ -319,7 +319,7 @@ export const GeneralLedgerAccountDetail: React.FC<GeneralLedgerAccountDetailProp
                     </Text>
                   </Table.Th>
                   <Table.Th ta="right">
-                    <Text size="xs" fw={800} c="indigo.8" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                    <Text size="xs" fw={800} c="red.8" style={{ fontVariantNumeric: 'tabular-nums' }}>
                       {formatMoney(account.periodCredit)}
                     </Text>
                   </Table.Th>

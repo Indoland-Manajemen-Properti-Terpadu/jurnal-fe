@@ -509,7 +509,7 @@ export const AddAccountJournalPage: React.FC = () => {
                   <Text
                     fz={17}
                     fw={800}
-                    c={effectiveDebit ? 'blue.8' : 'violet.8'}
+                    c={effectiveDebit ? 'teal.8' : 'red.8'}
                     mt={4}
                     lh={1.2}
                     truncate
@@ -530,7 +530,7 @@ export const AddAccountJournalPage: React.FC = () => {
                   size={40}
                   radius="md"
                   variant="light"
-                  color={effectiveDebit ? 'blue' : 'violet'}
+                  color={effectiveDebit ? 'teal' : 'red'}
                 >
                   <IconScale size={20} />
                 </ThemeIcon>

@@ -338,7 +338,7 @@ export const JournalTransactionDetailPage: React.FC = () => {
                       <Text
                         size="sm"
                         fw={700}
-                        c="primary.9"
+                        c="teal.8"
                         style={{ fontVariantNumeric: 'tabular-nums' }}
                       >
                         {formatCurrency(totalDebit)}
@@ -352,7 +352,7 @@ export const JournalTransactionDetailPage: React.FC = () => {
                       <Text
                         size="sm"
                         fw={700}
-                        c="dark.8"
+                        c="red.8"
                         style={{ fontVariantNumeric: 'tabular-nums' }}
                       >
                         {formatCurrency(totalCredit)}

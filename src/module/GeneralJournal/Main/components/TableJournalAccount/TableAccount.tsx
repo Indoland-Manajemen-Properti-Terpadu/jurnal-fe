@@ -3,6 +3,7 @@ import { Anchor, Group, Text, Title, Badge } from '@mantine/core';
 import { useEffect, useState } from 'react';
 import { IconChevronDown } from '@tabler/icons-react';
 import clsx from 'clsx';
+import { useNavigate } from 'react-router-dom';
 import {
   AllRoleBadge,
   InactiveBadge,
@@ -11,7 +12,6 @@ import {
 } from '@/components/Badge/Badge';
 import { themeColors } from '@/theme';
 import { formatCurrency } from '@/utils/FormatCurrency';
-import { Link, useNavigate } from 'react-router-dom';
 import { routes } from '@/router/routes';
 import { JournalAccounts } from '@/module/GeneralJournal/JournalAccount/types/JournalAccountModel';
 import classes from '../../pages/GeneralJournal.module.css';
@@ -38,7 +38,6 @@ const ColumnTableFont = {
 };
 const TableAccounts = ({
   data,
-  error,
   loading,
   selectedCategory,
   searchQuery,
@@ -137,7 +136,7 @@ const TableAccounts = ({
       width: 120,
       render: (item: any) => (
         <Badge
-          color={item.category?.isDebit === true ? 'blue' : 'teal'}
+          color={item.category?.isDebit === true ? 'teal' : 'red'}
           variant="light"
           size="sm"
           radius="sm"
@@ -250,7 +249,7 @@ const TableAccounts = ({
       columns={subAccountColumns}
       selectedRecords={selectedRecords}
       onSelectedRecordsChange={setSelectedRecords}
-      isRecordSelectable={(record) => !record.isLocked}
+      isRecordSelectable={(subRec) => !subRec.isLocked}
     />
   );
 
@@ -259,7 +258,6 @@ const TableAccounts = ({
     expanded: { recordIds: expandedAccountIds, onRecordIdsChange: setExpandedAccountIds },
     content: expansionContent,
   };
-
 
   return records.length === 0 ? (
     <EmptyState

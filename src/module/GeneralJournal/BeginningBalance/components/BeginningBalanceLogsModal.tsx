@@ -164,7 +164,7 @@ export const BeginningBalanceLogsModal: React.FC<BeginningBalanceLogsModalProps>
                           <Text size="xs" fw={600} c="teal.7">
                             Debit: {formatCurrency(totalDebit)}
                           </Text>
-                          <Text size="xs" fw={600} c="indigo.7">
+                          <Text size="xs" fw={600} c="red.7">
                             Kredit: {formatCurrency(totalCredit)}
                           </Text>
                         </Group>

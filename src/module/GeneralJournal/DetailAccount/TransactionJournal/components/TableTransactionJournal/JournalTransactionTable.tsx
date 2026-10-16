@@ -108,7 +108,7 @@ function TableJournalTransaction({
       titleStyle: { textAlign: 'right' as const },
       render: (row: TransactionByAccountModel) => (
         <Text
-          c={row.debit && row.debit > 0 ? 'teal.7' : 'dark.7'}
+          c={row.debit && row.debit > 0 ? 'teal.7' : 'dimmed'}
           fw={row.debit && row.debit > 0 ? 600 : 400}
           fz={13}
           ta="right"
@@ -126,7 +126,7 @@ function TableJournalTransaction({
       titleStyle: { textAlign: 'right' as const },
       render: (row: TransactionByAccountModel) => (
         <Text
-          c={row.credit && row.credit > 0 ? 'dark.8' : 'dimmed'}
+          c={row.credit && row.credit > 0 ? 'red.7' : 'dimmed'}
           fw={row.credit && row.credit > 0 ? 600 : 400}
           fz={13}
           ta="right"

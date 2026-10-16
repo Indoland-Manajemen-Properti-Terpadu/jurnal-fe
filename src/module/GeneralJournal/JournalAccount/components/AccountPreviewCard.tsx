@@ -63,7 +63,7 @@ export const AccountPreviewCard: React.FC<AccountPreviewCardProps> = ({
   // Determine effective balance position (accounting logic)
   const effectiveDebit = isContra ? !isDebit : isDebit;
   const normalBalanceLabel = effectiveDebit ? 'Debit' : 'Kredit';
-  const normalBalanceColor = effectiveDebit ? 'blue' : 'violet';
+  const normalBalanceColor = effectiveDebit ? 'teal' : 'red';
 
   let accountTypeLabel = t('typeSingleTitle');
   let accountTypeColor = 'gray';
@@ -115,7 +115,7 @@ export const AccountPreviewCard: React.FC<AccountPreviewCardProps> = ({
         bg="var(--mantine-color-gray-0)"
         style={{
           borderLeft: `4px solid ${
-            effectiveDebit ? themeColors.primary[6] : themeColors.secondary[6]
+            effectiveDebit ? 'var(--mantine-color-teal-6)' : 'var(--mantine-color-red-6)'
           }`,
         }}
       >

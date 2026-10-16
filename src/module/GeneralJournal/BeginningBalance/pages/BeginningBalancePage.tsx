@@ -402,7 +402,7 @@ const BeginningBalancePage: React.FC = () => {
                     <Text size="xs" c="dimmed" fw={600} tt="uppercase" lts={0.5}>
                       {t('totalCredit')}
                     </Text>
-                    <Text fz={22} fw={800} c="dark.8" mt={4} lh={1.1} ff="monospace">
+                    <Text fz={22} fw={800} c="red.8" mt={4} lh={1.1} ff="monospace">
                       {formatCurrency(totalCredit)}
                     </Text>
                     <Text size="xs" c="dimmed" mt={4}>
@@ -411,7 +411,7 @@ const BeginningBalancePage: React.FC = () => {
                         : 'Total accumulated credit balance'}
                     </Text>
                   </div>
-                  <ThemeIcon size={40} radius="md" variant="light" color="indigo">
+                  <ThemeIcon size={40} radius="md" variant="light" color="red">
                     <IconArrowUpRight size={20} />
                   </ThemeIcon>
                 </Group>

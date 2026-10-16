@@ -227,7 +227,7 @@ export const JournalTransactionDetailTable: React.FC<Props> = ({
                     <Text
                       size="sm"
                       fw={hasDebit ? 700 : 400}
-                      c={hasDebit ? 'primary.9' : 'dimmed'}
+                      c={hasDebit ? 'teal.8' : 'dimmed'}
                       style={{ fontVariantNumeric: 'tabular-nums' }}
                     >
                       {hasDebit ? formatCurrency(txn.debit!) : '—'}
@@ -239,7 +239,7 @@ export const JournalTransactionDetailTable: React.FC<Props> = ({
                     <Text
                       size="sm"
                       fw={hasCredit ? 700 : 400}
-                      c={hasCredit ? 'dark.8' : 'dimmed'}
+                      c={hasCredit ? 'red.8' : 'dimmed'}
                       style={{ fontVariantNumeric: 'tabular-nums' }}
                     >
                       {hasCredit ? formatCurrency(txn.credit!) : '—'}
@@ -281,7 +281,7 @@ export const JournalTransactionDetailTable: React.FC<Props> = ({
                 <Text
                   fw={800}
                   size="sm"
-                  c="primary.9"
+                  c="teal.8"
                   style={{ fontVariantNumeric: 'tabular-nums' }}
                 >
                   {formatCurrency(totalDebit)}
@@ -289,7 +289,7 @@ export const JournalTransactionDetailTable: React.FC<Props> = ({
               </Table.Td>
 
               <Table.Td style={{ textAlign: 'right' }}>
-                <Text fw={800} size="sm" c="dark.9" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                <Text fw={800} size="sm" c="red.8" style={{ fontVariantNumeric: 'tabular-nums' }}>
                   {formatCurrency(totalCredit)}
                 </Text>
               </Table.Td>

@@ -35,7 +35,7 @@ export const JournalDoubleEntryGuide: React.FC = () => {
                     Aset & Beban
                   </Text>
                 </Text>
-                <Badge size="xs" variant="light" color="blue">
+                <Badge size="xs" variant="light" color="teal">
                   + Debit / - Kredit
                 </Badge>
               </Group>
@@ -45,7 +45,7 @@ export const JournalDoubleEntryGuide: React.FC = () => {
                     Kewajiban & Ekuitas
                   </Text>
                 </Text>
-                <Badge size="xs" variant="light" color="violet">
+                <Badge size="xs" variant="light" color="red">
                   + Kredit / - Debit
                 </Badge>
               </Group>
@@ -55,7 +55,7 @@ export const JournalDoubleEntryGuide: React.FC = () => {
                     Pendapatan
                   </Text>
                 </Text>
-                <Badge size="xs" variant="light" color="violet">
+                <Badge size="xs" variant="light" color="red">
                   + Kredit / - Debit
                 </Badge>
               </Group>

@@ -151,11 +151,11 @@ export const GeneralLedgerSummaryCards: React.FC<GeneralLedgerSummaryCardsProps>
               <Text size="xs" fw={600} c="dimmed" tt="uppercase">
                 Total Mutasi Kredit
               </Text>
-              <Text size="xl" fw={800} c="indigo.7" mt={4}>
+              <Text size="xl" fw={800} c="red.7" mt={4}>
                 {formatMoney(report.periodCreditTotal)}
               </Text>
             </Box>
-            <ThemeIcon variant="light" color="indigo" size={38} radius="md">
+            <ThemeIcon variant="light" color="red" size={38} radius="md">
               <IconArrowUpRight size={20} />
             </ThemeIcon>
           </Group>

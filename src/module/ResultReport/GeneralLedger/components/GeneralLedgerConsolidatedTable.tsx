@@ -167,7 +167,7 @@ export const GeneralLedgerConsolidatedTable: React.FC<GeneralLedgerConsolidatedT
                       <Text
                         size="xs"
                         fw={acc.periodCredit > 0 ? 600 : 400}
-                        c={acc.periodCredit > 0 ? 'indigo.7' : 'dimmed'}
+                        c={acc.periodCredit > 0 ? 'red.7' : 'dimmed'}
                         style={{ fontVariantNumeric: 'tabular-nums' }}
                       >
                         {acc.periodCredit > 0 ? formatMoney(acc.periodCredit) : '-'}
@@ -220,7 +220,7 @@ export const GeneralLedgerConsolidatedTable: React.FC<GeneralLedgerConsolidatedT
                     </Text>
                   </Table.Th>
                   <Table.Th ta="right">
-                    <Text size="xs" fw={800} c="indigo.8" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                    <Text size="xs" fw={800} c="red.8" style={{ fontVariantNumeric: 'tabular-nums' }}>
                       {formatMoney(totals.periodCredit)}
                     </Text>
                   </Table.Th>

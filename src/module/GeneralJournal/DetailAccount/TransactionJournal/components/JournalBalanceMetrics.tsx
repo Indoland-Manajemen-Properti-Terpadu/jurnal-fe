@@ -9,7 +9,6 @@ import {
   IconScale,
 } from '@tabler/icons-react';
 import { useTransactionStore } from '@/store/GeneralJournal/useTransactionStore';
-import { themeColors } from '@/theme';
 
 export const JournalBalanceMetrics: React.FC = () => {
   const { totalDebit, totalCredit, transactions } = useTransactionStore();
@@ -26,14 +25,14 @@ export const JournalBalanceMetrics: React.FC = () => {
             <Text size="xs" c="dimmed" fw={700} tt="uppercase" lts={0.5}>
               Total Debit
             </Text>
-            <Text fz={20} fw={800} c={themeColors.primary[7]} mt={4} lh={1.2}>
+            <Text fz={20} fw={800} c="teal.8" mt={4} lh={1.2}>
               Rp {totalDebit.toLocaleString('id-ID', { minimumFractionDigits: 2 })}
             </Text>
             <Text size="xs" c="dimmed" mt={4}>
               Akumulasi entri sisi debit
             </Text>
           </Box>
-          <ThemeIcon size={38} radius="md" variant="light" color="primary">
+          <ThemeIcon size={38} radius="md" variant="light" color="teal">
             <IconArrowUpRight size={20} />
           </ThemeIcon>
         </Group>
@@ -46,14 +45,14 @@ export const JournalBalanceMetrics: React.FC = () => {
             <Text size="xs" c="dimmed" fw={700} tt="uppercase" lts={0.5}>
               Total Kredit
             </Text>
-            <Text fz={20} fw={800} c={themeColors.secondary[7]} mt={4} lh={1.2}>
+            <Text fz={20} fw={800} c="red.8" mt={4} lh={1.2}>
               Rp {totalCredit.toLocaleString('id-ID', { minimumFractionDigits: 2 })}
             </Text>
             <Text size="xs" c="dimmed" mt={4}>
               Akumulasi entri sisi kredit
             </Text>
           </Box>
-          <ThemeIcon size={38} radius="md" variant="light" color="cyan">
+          <ThemeIcon size={38} radius="md" variant="light" color="red">
             <IconArrowDownLeft size={20} />
           </ThemeIcon>
         </Group>

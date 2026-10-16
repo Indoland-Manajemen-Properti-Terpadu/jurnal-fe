@@ -70,7 +70,7 @@ const TotalAmount: React.FC = () => {
             <Text fz={11} c="dimmed" fw={600} tt="uppercase">
               Total Debit
             </Text>
-            <Text fw={700} fz={14} c={themeColors.primary[7]}>
+            <Text fw={700} fz={14} c="teal.8">
               Rp {totalDebit.toLocaleString('id-ID', { minimumFractionDigits: 2 })}
             </Text>
           </Box>
@@ -80,7 +80,7 @@ const TotalAmount: React.FC = () => {
             <Text fz={11} c="dimmed" fw={600} tt="uppercase">
               Total Kredit
             </Text>
-            <Text fw={700} fz={14} c={themeColors.primary[7]}>
+            <Text fw={700} fz={14} c="red.8">
               Rp {totalCredit.toLocaleString('id-ID', { minimumFractionDigits: 2 })}
             </Text>
           </Box>

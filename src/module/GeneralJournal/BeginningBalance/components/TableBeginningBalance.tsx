@@ -168,7 +168,7 @@ const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
               <Badge
                 size="xs"
                 variant="light"
-                color={normalDebit ? 'teal' : 'violet'}
+                color={normalDebit ? 'teal' : 'red'}
                 radius="sm"
                 leftSection={
                   normalDebit ? <IconArrowDownRight size={11} /> : <IconArrowUpRight size={11} />
@@ -258,7 +258,7 @@ const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
       accessor: 'credit',
       title: (
         <Group justify="flex-end" gap={6}>
-          <ThemeIcon size={20} radius="xl" color="indigo" variant="light">
+          <ThemeIcon size={20} radius="xl" color="red" variant="light">
             <IconArrowUpRight size={13} />
           </ThemeIcon>
           <Text fw={700} fz={13} c="dark.8">
@@ -285,7 +285,7 @@ const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
                 <Text
                   size="xs"
                   fw={600}
-                  c={hasVal ? 'indigo.7' : isNormalCredit ? 'indigo.6' : 'dimmed'}
+                  c={hasVal ? 'red.7' : isNormalCredit ? 'red.6' : 'dimmed'}
                 >
                   Rp
                 </Text>
@@ -303,21 +303,21 @@ const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
                   fontFamily: 'monospace',
                   fontWeight: hasVal ? 700 : 400,
                   fontSize: 13,
-                  color: hasVal ? 'var(--mantine-color-indigo-8)' : 'inherit',
+                  color: hasVal ? 'var(--mantine-color-red-8)' : 'inherit',
                   backgroundColor: hasVal
-                    ? 'var(--mantine-color-indigo-0)'
+                    ? 'var(--mantine-color-red-0)'
                     : isNormalCredit
                       ? '#FFFFFF'
                       : '#F8FAFC',
                   borderColor: hasVal
-                    ? 'var(--mantine-color-indigo-5)'
+                    ? 'var(--mantine-color-red-5)'
                     : isNormalCredit
-                      ? 'var(--mantine-color-indigo-2)'
+                      ? 'var(--mantine-color-red-2)'
                       : 'var(--mantine-color-gray-3)',
                   boxShadow: isNormalCredit ? '0 1px 2px rgba(0,0,0,0.02)' : 'none',
                   transition: 'all 150ms ease',
                   '&:focus': {
-                    borderColor: 'var(--mantine-color-indigo-6)',
+                    borderColor: 'var(--mantine-color-red-6)',
                     backgroundColor: '#FFFFFF',
                   },
                 },

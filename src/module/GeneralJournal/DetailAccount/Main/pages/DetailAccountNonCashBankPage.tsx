@@ -380,7 +380,7 @@ const DetailAccountNonCashBank: React.FC = () => {
                     <Text
                       fz={22}
                       fw={800}
-                      c={normalBalance === 'Debit' ? 'teal.8' : 'violet.8'}
+                      c={normalBalance === 'Debit' ? 'teal.8' : 'red.8'}
                       mt={4}
                       lh={1.1}
                     >
@@ -394,7 +394,7 @@ const DetailAccountNonCashBank: React.FC = () => {
                     size={40}
                     radius="md"
                     variant="light"
-                    color={normalBalance === 'Debit' ? 'teal' : 'violet'}
+                    color={normalBalance === 'Debit' ? 'teal' : 'red'}
                   >
                     <IconBookmarks size={20} />
                   </ThemeIcon>
@@ -426,14 +426,14 @@ const DetailAccountNonCashBank: React.FC = () => {
                     <Text size="xs" c="dimmed" fw={600} tt="uppercase" lts={0.5}>
                       Total Mutasi Kredit
                     </Text>
-                    <Text fz={22} fw={800} c="dark.8" mt={4} lh={1.1} ff="monospace">
+                    <Text fz={22} fw={800} c="red.8" mt={4} lh={1.1} ff="monospace">
                       {formatCurrency(metrics.totalCredit)}
                     </Text>
                     <Text size="xs" c="dimmed" mt={4}>
                       {metrics.creditCount} transaksi pada sisi kredit
                     </Text>
                   </div>
-                  <ThemeIcon size={40} radius="md" variant="light" color="indigo">
+                  <ThemeIcon size={40} radius="md" variant="light" color="red">
                     <IconArrowUpRight size={20} />
                   </ThemeIcon>
                 </Group>
@@ -657,7 +657,7 @@ const DetailAccountNonCashBank: React.FC = () => {
                             Posisi Saldo Normal
                           </Text>
                           <Badge
-                            color={normalBalance === 'Debit' ? 'teal' : 'violet'}
+                            color={normalBalance === 'Debit' ? 'teal' : 'red'}
                             variant="filled"
                             size="md"
                           >
