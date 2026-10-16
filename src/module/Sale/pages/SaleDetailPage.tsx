@@ -603,6 +603,11 @@ export function SaleDetailPage() {
   }
 
   const status = getSaleStatusConfig(sale.status);
+  const statusTranslation = t(`status.${sale.status}`);
+  const statusLabel =
+    statusTranslation && !statusTranslation.startsWith('status.')
+      ? statusTranslation
+      : status.label || sale.status;
   return (
     <AppShellLayout>
       <Box p={{ base: 'md', sm: 'xl' }}>
@@ -659,7 +664,7 @@ export function SaleDetailPage() {
                 </Group>
                 <Group gap="xs" mt="sm">
                   <Badge color={status.color} variant={status.variant || 'light'} size="lg">
-                    {t(`status.${sale.status}`)}
+                    {statusLabel}
                   </Badge>
                 </Group>
                 <Text size="sm" c="dimmed" mt="sm">

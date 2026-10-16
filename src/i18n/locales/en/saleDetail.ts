@@ -61,6 +61,7 @@ export const saleDetail = {
     DRAFT: 'Draft',
     UNPAID: 'Unpaid',
     OPEN: 'Open',
+    SENT: 'Sent',
     PARTIAL: 'Partially paid',
     PARTIALLY_PAID: 'Partially paid',
     PAID: 'Paid',

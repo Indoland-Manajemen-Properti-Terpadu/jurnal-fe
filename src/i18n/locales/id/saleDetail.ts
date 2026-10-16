@@ -61,6 +61,7 @@ export const saleDetail = {
     DRAFT: 'Draf',
     UNPAID: 'Belum dibayar',
     OPEN: 'Terbuka',
+    SENT: 'Terkirim',
     PARTIAL: 'Dibayar sebagian',
     PARTIALLY_PAID: 'Dibayar sebagian',
     PAID: 'Lunas',

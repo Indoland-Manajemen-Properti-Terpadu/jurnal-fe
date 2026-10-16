@@ -1,5 +1,6 @@
 export type SaleStatus =
   | 'DRAFT'
+  | 'SENT'
   | 'UNPAID'
   | 'OPEN'
   | 'PARTIAL'

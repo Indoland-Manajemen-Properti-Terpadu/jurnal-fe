@@ -60,6 +60,8 @@ export const getSaleStatusConfig = (
     case 'OPEN':
     case 'UNPAID':
       return { color: 'blue', label: 'Belum Dibayar', variant: 'light' };
+    case 'SENT':
+      return { color: 'blue', label: 'Terkirim', variant: 'light' };
     case 'OVERDUE':
       return { color: 'red', label: 'Jatuh Tempo', variant: 'filled' };
     case 'VOID':
@@ -69,4 +71,3 @@ export const getSaleStatusConfig = (
       return { color: 'gray', label: 'Draft', variant: 'light' };
   }
 };
-
