@@ -14,3 +14,8 @@ export const postDraftBalance = async (data: unknown) => {
 export const postPublishDraftBalance = async (data: unknown) => {
   return post(`${API_ACCOUNT.POST_PUBLISH_DRAFT_BALANCE}`, data);
 };
+
+export const getDraftBalanceLogs = async () => {
+  const result = await get(API_ACCOUNT.GET_DRAFT_BALANCE_LOGS);
+  return result?.data || result;
+};

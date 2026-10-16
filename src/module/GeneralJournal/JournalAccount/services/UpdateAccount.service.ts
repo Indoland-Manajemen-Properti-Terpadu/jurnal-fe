@@ -1,4 +1,4 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 import { routes } from '@/router/routes';
 import { useNavigate } from 'react-router-dom';
@@ -8,15 +8,19 @@ import { AddAccountPayload } from '../types/AddAccountPayload';
 
 export const useUpdateAccount = (accountId: string) => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: async (payload: AddAccountPayload) =>
       patch(`${API_ACCOUNT.ADD_ACCOUNT}/${accountId}`, payload),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['accounts'] });
+      queryClient.invalidateQueries({ queryKey: ['detail_account', accountId] });
       notifications.show({
         color: 'green',
-        autoClose: 3000,
-        title: 'Account Updated Successfully!',
-        message: `Account details have been updated.`,
+        autoClose: 3500,
+        title: 'Perubahan Akun Berhasil Disimpan',
+        message: 'Informasi akun jurnal telah berhasil diperbarui dalam Chart of Accounts.',
       });
       navigate(routes.generalJournal.main);
     },
@@ -25,9 +29,11 @@ export const useUpdateAccount = (accountId: string) => {
       notifications.show({
         color: 'red',
         autoClose: 5000,
-        title: 'Update Failed',
+        title: 'Gagal Memperbarui Akun',
         message:
-          error?.response?.data?.message || 'Something went wrong while updating the account.',
+          error?.response?.data?.message ||
+          error?.message ||
+          'Terjadi kesalahan sistem saat memperbarui akun.',
       });
     },
   });

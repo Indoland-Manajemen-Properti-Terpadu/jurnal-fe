@@ -160,7 +160,7 @@ const GeneralJournalPage: React.FC = () => {
           {/* Module Header - Consistent with Kontak & Produk */}
           <ModuleHeader
             icon={IconNotebook}
-            title="Daftar Akun (Chart of Accounts)"
+            title="Daftar Akun"
             description="Kelola seluruh bagan akun standar, hierarki akun induk dan sub-akun, klasifikasi kategori posisi saldo, serta kontrol penguncian buku besar akuntansi."
             actions={
               <Group gap="xs" wrap="wrap">
@@ -332,7 +332,13 @@ const GeneralJournalPage: React.FC = () => {
                   <Text size="xs" c="dimmed" fw={600} tt="uppercase" lts={0.5}>
                     Akun Terkunci
                   </Text>
-                  <Text fz={26} fw={800} c={stats.locked > 0 ? 'orange.8' : 'dark.8'} mt={4} lh={1.1}>
+                  <Text
+                    fz={26}
+                    fw={800}
+                    c={stats.locked > 0 ? 'orange.8' : 'dark.8'}
+                    mt={4}
+                    lh={1.1}
+                  >
                     {stats.locked.toLocaleString('id-ID')}
                   </Text>
                   <Text size="xs" c="dimmed" mt={4}>
@@ -443,6 +449,7 @@ const GeneralJournalPage: React.FC = () => {
       <SettingAccountModal
         opened={modals.settingAccount}
         onClose={() => closeModal('settingAccount')}
+        totalAccounts={journalAccounts.length}
       />
       <BeginningBalanceModal
         opened={modals.beginningBalance}

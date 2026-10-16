@@ -100,7 +100,8 @@ export const JournalTransactionDetailPage: React.FC = () => {
               Transaksi Jurnal Tidak Ditemukan
             </Title>
             <Text c="dimmed" size="sm" mt="xs" mb="lg">
-              Data transaksi jurnal ini mungkin telah dihapus atau ID transaksi tidak valid di sistem.
+              Data transaksi jurnal ini mungkin telah dihapus atau ID transaksi tidak valid di
+              sistem.
             </Text>
             <Button
               variant="default"
@@ -216,9 +217,11 @@ export const JournalTransactionDetailPage: React.FC = () => {
                       radius="sm"
                       color={isBalanced ? 'teal' : 'red'}
                       variant="light"
-                      leftSection={isBalanced ? <IconCheck size={12} /> : <IconAlertTriangle size={12} />}
+                      leftSection={
+                        isBalanced ? <IconCheck size={12} /> : <IconAlertTriangle size={12} />
+                      }
                     >
-                      {isBalanced ? 'Seimbang (Balanced)' : 'Tidak Seimbang'}
+                      {isBalanced ? 'Seimbang' : 'Tidak Seimbang'}
                     </Badge>
 
                     <Badge size="md" radius="sm" variant="outline" color="gray">
@@ -228,7 +231,8 @@ export const JournalTransactionDetailPage: React.FC = () => {
 
                   <Group gap="md" mt={8} wrap="wrap">
                     <Text size="sm" c="dimmed">
-                      Tanggal: <Text span fw={600} c="dark.8">
+                      Tanggal:{' '}
+                      <Text span fw={600} c="dark.8">
                         {detailTransaction.transactionDate
                           ? dateFormatV1(detailTransaction.transactionDate.toString())
                           : '—'}
@@ -236,42 +240,30 @@ export const JournalTransactionDetailPage: React.FC = () => {
                     </Text>
 
                     <Text size="sm" c="dimmed">
-                      Entitas / Lokasi: <Text span fw={600} c="dark.8">
+                      Entitas / Lokasi:{' '}
+                      <Text span fw={600} c="dark.8">
                         {detailTransaction.site?.name || 'Kantor Pusat'}
                       </Text>
                     </Text>
 
                     {detailTransaction.tags && detailTransaction.tags !== '-' && (
                       <Text size="sm" c="dimmed">
-                        Tag: <Text span fw={600} c="dark.8">{detailTransaction.tags}</Text>
+                        Tag:{' '}
+                        <Text span fw={600} c="dark.8">
+                          {detailTransaction.tags}
+                        </Text>
                       </Text>
                     )}
 
                     <Text size="sm" c="dimmed">
-                      ID Sistem: <Text span fw={500} c="dark.6" ff="monospace">{detailTransaction.id}</Text>
+                      ID Sistem:{' '}
+                      <Text span fw={500} c="dark.6" ff="monospace">
+                        {detailTransaction.id}
+                      </Text>
                     </Text>
                   </Group>
                 </Box>
               </Group>
-
-              {/* Financial Summary Pill on Hero */}
-              <Paper withBorder p="md" radius="md" bg="gray.0" style={{ minWidth: 260 }}>
-                <Stack gap={2} ta={{ base: 'left', sm: 'right' }}>
-                  <Text size="xs" c="dimmed" fw={600} tt="uppercase">
-                    Total Mutasi Debit & Kredit
-                  </Text>
-                  <Text fz={24} fw={800} c="primary.9" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                    {formatCurrency(totalDebit)}
-                  </Text>
-                  <Group gap="xs" justify="flex-end">
-                    <Text size="xs" c={isBalanced ? 'teal.7' : 'red.7'} fw={700}>
-                      {isBalanced
-                        ? '✓ Debit = Kredit (0 Selisih)'
-                        : `Selisih: ${formatCurrency(Math.abs(totalDebit - totalCredit))}`}
-                    </Text>
-                  </Group>
-                </Stack>
-              </Paper>
             </Group>
           </Paper>
 
@@ -340,21 +332,37 @@ export const JournalTransactionDetailPage: React.FC = () => {
 
                   <Stack gap="xs">
                     <Group justify="space-between" align="center">
-                      <Text size="sm" c="dimmed">Total Debit</Text>
-                      <Text size="sm" fw={700} c="primary.9" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                      <Text size="sm" c="dimmed">
+                        Total Debit
+                      </Text>
+                      <Text
+                        size="sm"
+                        fw={700}
+                        c="primary.9"
+                        style={{ fontVariantNumeric: 'tabular-nums' }}
+                      >
                         {formatCurrency(totalDebit)}
                       </Text>
                     </Group>
 
                     <Group justify="space-between" align="center">
-                      <Text size="sm" c="dimmed">Total Kredit</Text>
-                      <Text size="sm" fw={700} c="dark.8" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                      <Text size="sm" c="dimmed">
+                        Total Kredit
+                      </Text>
+                      <Text
+                        size="sm"
+                        fw={700}
+                        c="dark.8"
+                        style={{ fontVariantNumeric: 'tabular-nums' }}
+                      >
                         {formatCurrency(totalCredit)}
                       </Text>
                     </Group>
 
                     <Group justify="space-between" align="center">
-                      <Text size="sm" c="dimmed">Selisih Keseimbangan</Text>
+                      <Text size="sm" c="dimmed">
+                        Selisih Keseimbangan
+                      </Text>
                       <Text
                         size="sm"
                         fw={700}
@@ -363,20 +371,6 @@ export const JournalTransactionDetailPage: React.FC = () => {
                       >
                         {formatCurrency(Math.abs(totalDebit - totalCredit))}
                       </Text>
-                    </Group>
-
-                    <Divider my={4} />
-
-                    <Group justify="space-between" align="center">
-                      <Text size="sm" fw={600} c="dark.8">Status Jurnal</Text>
-                      <Badge
-                        size="sm"
-                        radius="sm"
-                        color={isBalanced ? 'teal' : 'red'}
-                        variant="filled"
-                      >
-                        {isBalanced ? 'Seimbang (Valid)' : 'Tidak Seimbang'}
-                      </Badge>
                     </Group>
                   </Stack>
                 </Card>
@@ -390,14 +384,18 @@ export const JournalTransactionDetailPage: React.FC = () => {
 
                   <Stack gap="xs">
                     <Group justify="space-between" align="center">
-                      <Text size="sm" c="dimmed">Entitas / Proyek</Text>
+                      <Text size="sm" c="dimmed">
+                        Entitas / Proyek
+                      </Text>
                       <Text size="sm" fw={600} c="dark.8">
                         {detailTransaction.site?.name || 'Kantor Pusat'}
                       </Text>
                     </Group>
 
                     <Group justify="space-between" align="center">
-                      <Text size="sm" c="dimmed">Tanggal Transaksi</Text>
+                      <Text size="sm" c="dimmed">
+                        Tanggal Transaksi
+                      </Text>
                       <Text size="sm" fw={600} c="dark.8">
                         {detailTransaction.transactionDate
                           ? dateFormatV1(detailTransaction.transactionDate.toString())
@@ -406,28 +404,38 @@ export const JournalTransactionDetailPage: React.FC = () => {
                     </Group>
 
                     <Group justify="space-between" align="center">
-                      <Text size="sm" c="dimmed">Tag Transaksi</Text>
+                      <Text size="sm" c="dimmed">
+                        Tag Transaksi
+                      </Text>
                       <div>
                         {detailTransaction.tags && detailTransaction.tags !== '-' ? (
                           <Badge size="xs" variant="light" color="primary">
                             {detailTransaction.tags}
                           </Badge>
                         ) : (
-                          <Text size="sm" c="dimmed">—</Text>
+                          <Text size="sm" c="dimmed">
+                            —
+                          </Text>
                         )}
                       </div>
                     </Group>
 
                     <Group justify="space-between" align="center">
-                      <Text size="sm" c="dimmed">Waktu Dibuat</Text>
+                      <Text size="sm" c="dimmed">
+                        Waktu Dibuat
+                      </Text>
                       <Text size="xs" c="dark.7">
-                        {detailTransaction.createdAt ? dateFormatTimeZone(detailTransaction.createdAt) : '—'}
+                        {detailTransaction.createdAt
+                          ? dateFormatTimeZone(detailTransaction.createdAt)
+                          : '—'}
                       </Text>
                     </Group>
 
                     {detailTransaction.updatedAt && (
                       <Group justify="space-between" align="center">
-                        <Text size="sm" c="dimmed">Diperbarui</Text>
+                        <Text size="sm" c="dimmed">
+                          Diperbarui
+                        </Text>
                         <Text size="xs" c="dark.7">
                           {dateFormatTimeZone(detailTransaction.updatedAt)}
                         </Text>

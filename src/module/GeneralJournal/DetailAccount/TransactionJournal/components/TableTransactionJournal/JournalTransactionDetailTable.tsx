@@ -257,29 +257,23 @@ export const JournalTransactionDetailTable: React.FC<Props> = ({
               }}
             >
               <Table.Td colSpan={2}>
-                <Group justify="space-between" align="center">
-                  <Group gap="xs">
-                    <ThemeIcon
-                      size={26}
-                      radius="xl"
-                      variant="filled"
-                      color={isBalanced ? 'teal' : 'red'}
-                    >
-                      {isBalanced ? <IconScale size={15} /> : <IconAlertCircle size={15} />}
-                    </ThemeIcon>
-                    <Text fw={700} size="sm" c="dark.9">
-                      Total Debit & Kredit
-                    </Text>
-                  </Group>
-
-                  <Badge
-                    size="sm"
-                    radius="sm"
-                    variant="filled"
+                <Group gap="xs">
+                  <ThemeIcon
+                    size={24}
+                    radius="md"
+                    variant="light"
                     color={isBalanced ? 'teal' : 'red'}
                   >
-                    {isBalanced ? 'Seimbang (Balanced)' : 'Tidak Seimbang (Unbalanced)'}
-                  </Badge>
+                    {isBalanced ? <IconScale size={14} /> : <IconAlertCircle size={14} />}
+                  </ThemeIcon>
+                  <Text fw={700} size="sm" c="dark.9">
+                    Total
+                  </Text>
+                  {!isBalanced && (
+                    <Badge size="xs" color="red" variant="filled">
+                      Selisih: {formatCurrency(Math.abs(totalDebit - totalCredit))}
+                    </Badge>
+                  )}
                 </Group>
               </Table.Td>
 
@@ -295,12 +289,7 @@ export const JournalTransactionDetailTable: React.FC<Props> = ({
               </Table.Td>
 
               <Table.Td style={{ textAlign: 'right' }}>
-                <Text
-                  fw={800}
-                  size="sm"
-                  c="dark.9"
-                  style={{ fontVariantNumeric: 'tabular-nums' }}
-                >
+                <Text fw={800} size="sm" c="dark.9" style={{ fontVariantNumeric: 'tabular-nums' }}>
                   {formatCurrency(totalCredit)}
                 </Text>
               </Table.Td>

@@ -22,6 +22,7 @@ interface TransactionState {
   updateTransaction: (index: number, field: string, value: any) => void;
   removeTransaction: (index: number) => void;
   reorderTransaction: (fromIndex: number, toIndex: number) => void;
+  resetTransactions: () => void;
 }
 
 const initialState = {
@@ -104,4 +105,14 @@ export const useTransactionStore = create<TransactionState>((set, get) => ({
       return { transactions: updatedTransactions };
     });
   },
+  resetTransactions: () =>
+    set({
+      transactions: [
+        { account: '', description: '', debit: 0, credit: 0, key: randomId() },
+        { account: '', description: '', debit: 0, credit: 0, key: randomId() },
+      ],
+      notes: '',
+      totalDebit: 0,
+      totalCredit: 0,
+    }),
 }));

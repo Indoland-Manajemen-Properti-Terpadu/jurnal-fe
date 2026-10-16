@@ -1,6 +1,7 @@
 export interface GetReconciliationModel {
   bankStatements: BankStatementData[];
   journalDetails: JournalDetail[];
+  balance?: number;
 }
 
 export interface BankStatementData {

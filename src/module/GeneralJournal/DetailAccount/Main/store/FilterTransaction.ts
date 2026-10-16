@@ -5,6 +5,7 @@ interface FilterState {
   selectedDate: string | null;
   setSearchQuery: (query: string) => void;
   setSelectedDate: (date: string | null) => void;
+  resetSelection: () => void;
 }
 
 const useFilterTransaction = create<FilterState>((set) => ({
