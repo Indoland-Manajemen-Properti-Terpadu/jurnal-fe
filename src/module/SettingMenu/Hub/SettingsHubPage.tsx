@@ -1,278 +1,177 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Badge,
-  Card,
-  Grid,
-  Group,
+  Box,
   Paper,
   SimpleGrid,
   Stack,
   Text,
   TextInput,
-  ThemeIcon,
-  Title,
   UnstyledButton,
 } from '@mantine/core';
-import {
-  IconArrowRight,
-  IconBuildingStore,
-  IconClock,
-  IconCreditCard,
-  IconHash,
-  IconPercentage,
-  IconSearch,
-  IconSettings,
-  IconShieldCheck,
-  IconSitemap,
-  IconTag,
-  IconUsers,
-} from '@tabler/icons-react';
+import { IconArrowUpRight, IconSearch } from '@tabler/icons-react';
+import { useTranslation } from '@/i18n';
 import SettingsLayout from '../components/SettingsLayout';
-import { routes } from '@/router/routes';
-
-type SettingCardConfig = {
-  id: string;
-  title: string;
-  description: string;
-  category: 'Akuntansi & Finansial' | 'Penjualan & Kas' | 'Preferensi Sistem' | 'Akses & Organisasi';
-  path: string;
-  icon: typeof IconSettings;
-  color: string;
-  badge?: string;
-};
-
-const SETTINGS_CATALOG: SettingCardConfig[] = [
-  // Akuntansi & Finansial
-  {
-    id: 'account-mapping',
-    title: 'Pemetaan Akun (Default Account)',
-    description: 'Atur akun default otomatis untuk piutang, hutang, penjualan, pembelian, dan persediaan.',
-    category: 'Akuntansi & Finansial',
-    path: routes.settings.accountMapping,
-    icon: IconSitemap,
-    color: 'indigo',
-    badge: 'Core Accounting',
-  },
-  {
-    id: 'taxes',
-    title: 'Master Pajak (Taxes)',
-    description: 'Kelola tarif pajak (PPN, PPh) dan tautkan akun penjualan (keluaran) & pembelian (masukan).',
-    category: 'Akuntansi & Finansial',
-    path: routes.settings.taxes,
-    icon: IconPercentage,
-    color: 'teal',
-  },
-  {
-    id: 'number-formats',
-    title: 'Format Nomor Dokumen',
-    description: 'Kustomisasi penomoran otomatis transaksi dan faktur penjualan (prefix, suffix, start number).',
-    category: 'Akuntansi & Finansial',
-    path: routes.settings.numberFormats,
-    icon: IconHash,
-    color: 'blue',
-  },
-
-  // Penjualan & Kas
-  {
-    id: 'payment-terms',
-    title: 'Syarat Pembayaran (Termin)',
-    description: 'Atur termin jatuh tempo faktur seperti COD (Cash on Delivery), Net 15, Net 30, atau Net 60.',
-    category: 'Penjualan & Kas',
-    path: routes.settings.paymentTerms,
-    icon: IconClock,
-    color: 'orange',
-  },
-  {
-    id: 'payment-methods',
-    title: 'Metode Pembayaran',
-    description: 'Kelola cara pembayaran pelanggan (Transfer Bank, Midtrans, VA) beserta biaya admin.',
-    category: 'Penjualan & Kas',
-    path: routes.settings.paymentMethods,
-    icon: IconCreditCard,
-    color: 'cyan',
-  },
-
-  // Preferensi Sistem
-  {
-    id: 'general',
-    title: 'Pengaturan Umum',
-    description: 'Konfigurasi presisi desimal untuk pembulatan angka dan tampilan nilai mata uang pada sistem.',
-    category: 'Preferensi Sistem',
-    path: routes.settings.general,
-    icon: IconSettings,
-    color: 'violet',
-  },
-  {
-    id: 'tags',
-    title: 'Tag Transaksi',
-    description: 'Buat label analitis dengan penanda warna untuk mengelompokkan transaksi lintas modul.',
-    category: 'Preferensi Sistem',
-    path: routes.settings.tags,
-    icon: IconTag,
-    color: 'pink',
-  },
-
-  // Akses & Organisasi
-  {
-    id: 'company-setting',
-    title: 'Pengaturan Perusahaan',
-    description: 'Informasi entitas bisnis, legalitas, alamat operasional, dan identitas perusahaan.',
-    category: 'Akses & Organisasi',
-    path: routes.baseModules.companySetting,
-    icon: IconBuildingStore,
-    color: 'gray',
-  },
-  {
-    id: 'user-management',
-    title: 'Manajemen Pengguna & Peran',
-    description: 'Atur pengguna, hak otorisasi role, dan pembagian hak akses fitur bagi staf akuntansi.',
-    category: 'Akses & Organisasi',
-    path: routes.userManagement.main,
-    icon: IconUsers,
-    color: 'grape',
-  },
-];
+import { settingsGroups } from '../settingsNavigation';
+import { useSettingsOverview, OverviewStatus } from './useSettingsOverview';
+import classes from './SettingsHubPage.module.css';
 
 export default function SettingsHubPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation('settings');
   const [search, setSearch] = useState('');
+  const overview = useSettingsOverview();
+  const label = (value: OverviewStatus, readyKey: string) => {
+    if (value.state === 'loading') return t('status.loading');
+    if (value.state === 'error') return t('status.loadError');
+    return t(readyKey, { count: value.count });
+  };
+  const mappingLabel = () => {
+    if (overview.mappings.state !== 'ready')
+      return label(overview.mappings, 'status.mappingMissing');
+    if (overview.mappingTotal === 0) return t('status.noMappings');
+    if (overview.mappings.count === 0) return t('status.mappingComplete');
+    return t('status.mappingMissing', { count: overview.mappings.count });
+  };
+  const status = {
+    general: label(overview.precision, 'status.precision'),
+    accountMapping: mappingLabel(),
+    numberFormats: label(overview.activeFormats, 'status.activeFormats'),
+    taxes: label(overview.taxRates, 'status.taxCount'),
+  };
 
-  const filteredCatalog = SETTINGS_CATALOG.filter(
-    (item) =>
-      item.title.toLowerCase().includes(search.toLowerCase()) ||
-      item.description.toLowerCase().includes(search.toLowerCase()) ||
-      item.category.toLowerCase().includes(search.toLowerCase())
+  const groups = useMemo(
+    () =>
+      settingsGroups
+        .map((group) => ({
+          ...group,
+          items: group.items.filter((item) => {
+            const query = search.trim().toLocaleLowerCase();
+            return (
+              !query ||
+              `${t(`item.${item.key}`)} ${t(`description.${item.key}`)}`
+                .toLocaleLowerCase()
+                .includes(query)
+            );
+          }),
+        }))
+        .filter((group) => group.items.length > 0),
+    [search, t]
   );
 
-  const categories = Array.from(new Set(filteredCatalog.map((item) => item.category)));
-
   return (
-    <SettingsLayout
-      title="Pusat Pengaturan Sistem"
-      description="Konfigurasi parameter akuntansi, aturan transaksi, format penomoran, hingga hak otorisasi organisasi."
-    >
-      <Stack gap="xl">
-        {/* Banner Search Bar */}
-        <Paper
-          p={{ base: 'md', sm: 'xl' }}
-          radius="lg"
-          withBorder
-          style={{
-            background: 'linear-gradient(135deg, #1E293B 0%, #0F172A 100%)',
-            color: '#FFFFFF',
-          }}
-        >
-          <Grid align="center" gutter="md">
-            <Grid.Col span={{ base: 12, md: 8 }}>
-              <Title order={3} c="white" fw={700}>
-                Konfigurasi Parameter Akuntansi & Operasional
-              </Title>
-              <Text size="sm" c="gray.4" mt={4}>
-                Semua parameter terintegrasi langsung dengan modul Jurnal Umum, Faktur Penjualan, Kas & Bank, dan Pelaporan Keuangan.
-              </Text>
-            </Grid.Col>
-            <Grid.Col span={{ base: 12, md: 4 }}>
-              <TextInput
-                placeholder="Cari pengaturan (contoh: pajak, termin, akun)..."
-                leftSection={<IconSearch size={16} />}
-                value={search}
-                onChange={(e) => setSearch(e.currentTarget.value)}
-                radius="md"
-                size="md"
-              />
-            </Grid.Col>
-          </Grid>
+    <SettingsLayout title={t('hubTitle')} description={t('hubDescription')}>
+      <Stack gap="lg">
+        <Paper withBorder radius="lg" p={{ base: 'md', sm: 'xl' }} className={classes.intro}>
+          <Text fz="xs" fw={700} tt="uppercase" lts="0.08em" c="primary.7">
+            {t('configurationOverview')}
+          </Text>
+          <Text fz={{ base: 22, sm: 28 }} fw={750} lh={1.2} mt={8}>
+            {t('overviewTitle')}
+          </Text>
+          <Text c="dimmed" maw={650} mt="xs">
+            {t('overviewDescription')}
+          </Text>
+          <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="md" mt="xl">
+            <div>
+              <Text className={classes.summaryLabel}>{t('item.general')}</Text>
+              <Text fw={700}>{status.general}</Text>
+            </div>
+            <div>
+              <Text className={classes.summaryLabel}>{t('item.accountMapping')}</Text>
+              <Text fw={700}>{status.accountMapping}</Text>
+            </div>
+            <div>
+              <Text className={classes.summaryLabel}>{t('item.numberFormats')}</Text>
+              <Text fw={700}>{status.numberFormats}</Text>
+            </div>
+          </SimpleGrid>
         </Paper>
 
-        {/* Grouped Cards */}
-        {categories.map((cat) => {
-          const items = filteredCatalog.filter((item) => item.category === cat);
-          return (
-            <Stack key={cat} gap="md">
-              <Group gap="xs" align="center">
-                <Text fw={700} size="md" c="dark.7" tt="uppercase" lts={0.5}>
-                  {cat}
-                </Text>
-                <Badge variant="light" color="gray" size="sm">
-                  {items.length} Menu
-                </Badge>
-              </Group>
+        <TextInput
+          aria-label={t('searchSettings')}
+          placeholder={t('searchSettings')}
+          leftSection={<IconSearch size={17} />}
+          value={search}
+          onChange={(event) => setSearch(event.currentTarget.value)}
+        />
 
-              <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="md">
-                {items.map((item) => {
+        {groups.length ? (
+          groups.map((group) => (
+            <section key={group.key} aria-label={t(`group.${group.key}`)}>
+              <Text fw={700} fz="sm" mb="sm">
+                {t(`group.${group.key}`)}
+              </Text>
+              <Paper withBorder radius="lg" className={classes.list}>
+                {group.items.map((item) => {
                   const Icon = item.icon;
-                  return (
+                  const { path } = item;
+                  const itemStatus =
+                    item.key in status
+                      ? status[item.key as keyof typeof status]
+                      : path
+                        ? t('status.manage')
+                        : t('notAvailable');
+                  return path ? (
                     <UnstyledButton
-                      key={item.id}
-                      onClick={() => navigate(item.path)}
-                      style={{ height: '100%' }}
+                      key={item.key}
+                      className={classes.row}
+                      onClick={() => navigate(path)}
                     >
-                      <Card
-                        withBorder
-                        padding="lg"
-                        radius="md"
-                        bg="white"
-                        style={{
-                          height: '100%',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          justifyContent: 'space-between',
-                          transition: 'all 0.2s ease',
-                          cursor: 'pointer',
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.transform = 'translateY(-2px)';
-                          e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.08)';
-                          e.currentTarget.style.borderColor = '#CBD5E1';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.transform = 'translateY(0)';
-                          e.currentTarget.style.boxShadow = 'none';
-                          e.currentTarget.style.borderColor = '#E2E8F0';
-                        }}
+                      <Box className={classes.icon}>
+                        <Icon size={20} stroke={1.7} />
+                      </Box>
+                      <Box className={classes.rowCopy}>
+                        <Text fw={650} fz="sm">
+                          {t(`item.${item.key}`)}
+                        </Text>
+                        <Text fz="xs" c="dimmed">
+                          {t(`description.${item.key}`)}
+                        </Text>
+                      </Box>
+                      <Badge
+                        variant="light"
+                        color={
+                          item.key === 'accountMapping' &&
+                          overview.mappings.state === 'ready' &&
+                          overview.mappings.count > 0
+                            ? 'orange'
+                            : 'gray'
+                        }
+                        className={classes.badge}
                       >
-                        <Stack gap="sm">
-                          <Group justify="space-between" align="flex-start">
-                            <ThemeIcon size={40} radius="md" color={item.color} variant="light">
-                              <Icon size={22} stroke={1.8} />
-                            </ThemeIcon>
-                            {item.badge && (
-                              <Badge size="xs" color="indigo" variant="light">
-                                {item.badge}
-                              </Badge>
-                            )}
-                          </Group>
-
-                          <div>
-                            <Text fw={700} size="sm" c="dark.8">
-                              {item.title}
-                            </Text>
-                            <Text size="xs" c="dimmed" mt={4} lineClamp={2}>
-                              {item.description}
-                            </Text>
-                          </div>
-                        </Stack>
-
-                        <Group justify="flex-end" mt="md" gap={4}>
-                          <Text size="xs" fw={600} c="primary.8">
-                            Buka Pengaturan
-                          </Text>
-                          <IconArrowRight size={14} color="#0F766E" />
-                        </Group>
-                      </Card>
+                        {itemStatus}
+                      </Badge>
+                      <IconArrowUpRight size={17} className={classes.arrow} />
                     </UnstyledButton>
+                  ) : (
+                    <div key={item.key} className={classes.row} aria-disabled="true">
+                      <Box className={classes.icon}>
+                        <Icon size={20} stroke={1.7} />
+                      </Box>
+                      <Box className={classes.rowCopy}>
+                        <Text fw={650} fz="sm">
+                          {t(`item.${item.key}`)}
+                        </Text>
+                        <Text fz="xs" c="dimmed">
+                          {t(`description.${item.key}`)}
+                        </Text>
+                      </Box>
+                      <Badge variant="light" color="gray" className={classes.badge}>
+                        {itemStatus}
+                      </Badge>
+                    </div>
                   );
                 })}
-              </SimpleGrid>
-            </Stack>
-          );
-        })}
-
-        {filteredCatalog.length === 0 && (
-          <Paper withBorder p="xl" radius="md" ta="center" bg="white">
-            <Text c="dimmed" size="sm">
-              Tidak ada menu pengaturan yang sesuai dengan pencarian &quot;{search}&quot;.
+              </Paper>
+            </section>
+          ))
+        ) : (
+          <Paper withBorder radius="lg" p="xl">
+            <Text fw={700}>{t('noSearchResults')}</Text>
+            <Text c="dimmed" fz="sm">
+              {t('tryAnotherSearch')}
             </Text>
           </Paper>
         )}
@@ -280,4 +179,3 @@ export default function SettingsHubPage() {
     </SettingsLayout>
   );
 }
-

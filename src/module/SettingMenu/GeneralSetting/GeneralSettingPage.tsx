@@ -1,141 +1,112 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   Alert,
-  Box,
-  Button,
-  Card,
-  Divider,
-  Grid,
+  Badge,
   Group,
   NumberInput,
   Paper,
-  Radio,
   SegmentedControl,
   Skeleton,
   Stack,
   Text,
-  ThemeIcon,
-  Title,
 } from '@mantine/core';
-import { IconAlertCircle, IconCheck, IconDeviceFloppy, IconInfoCircle, IconSettings } from '@tabler/icons-react';
+import { IconInfoCircle, IconLock } from '@tabler/icons-react';
+import { useTranslation } from '@/i18n';
 import SettingsLayout from '../components/SettingsLayout';
-import { useGeneralSettings, useUpdateGeneralSettings } from '../hooks/useSettingQueries';
+import { useGeneralSettings } from '../hooks/useSettingQueries';
+
+const previewAmount = 1459200.5678;
 
 export default function GeneralSettingPage() {
-  const { data: generalData, isLoading } = useGeneralSettings();
-  const updateMutation = useUpdateGeneralSettings();
-
-  const [decimalPrecision, setDecimalPrecision] = useState<number>(2);
-
-  useEffect(() => {
-    if (generalData?.decimalPrecision !== undefined) {
-      setDecimalPrecision(generalData.decimalPrecision);
-    }
-  }, [generalData]);
-
-  const handleSave = async () => {
-    await updateMutation.mutateAsync(decimalPrecision);
-  };
-
-  const sampleAmount = 1459200.5678;
-  const formattedSample = sampleAmount.toLocaleString('id-ID', {
-    minimumFractionDigits: decimalPrecision,
-    maximumFractionDigits: decimalPrecision,
-  });
+  const { t, currentLanguage } = useTranslation('settings');
+  const general = useGeneralSettings();
+  const [previewPrecision, setPreviewPrecision] = useState('2');
+  const [amount, setAmount] = useState<number>(previewAmount);
+  const locale = currentLanguage === 'id' ? 'id-ID' : 'en-US';
+  const format = (value: number, digits: number) =>
+    new Intl.NumberFormat(locale, {
+      minimumFractionDigits: digits,
+      maximumFractionDigits: digits,
+    }).format(value);
 
   return (
-    <SettingsLayout
-      title="Pengaturan Umum (General Settings)"
-      description="Konfigurasi preferensi global sistem akuntansi termasuk presisi desimal dan aturan pembulatan."
-    >
-      <Stack gap="lg" maw={900}>
-        {isLoading ? (
-          <Skeleton height={300} radius="md" />
-        ) : (
-          <Card withBorder radius="md" p="xl" bg="white">
-            <Stack gap="lg">
-              <div>
-                <Title order={4} c="dark.8">
-                  Format Presisi Angka & Desimal
-                </Title>
-                <Text size="sm" c="dimmed" mt={4}>
-                  Menentukan berapa banyak digit desimal di belakang koma yang digunakan pada perhitungan nilai uang, kuantitas, dan laporan keuangan.
-                </Text>
-              </div>
+    <SettingsLayout title={t('generalTitle')} description={t('generalDescription')}>
+      <Stack gap="lg">
+        <Paper withBorder radius="lg" p={{ base: 'md', sm: 'xl' }}>
+          <Group justify="space-between" align="flex-start" mb="lg">
+            <div>
+              <Text fw={700} fz="lg">
+                {t('currentPrecision')}
+              </Text>
+              <Text c="dimmed" fz="sm">
+                {t('currentPrecisionDescription')}
+              </Text>
+            </div>
+            <Badge color="primary" variant="light">
+              {t('readOnly')}
+            </Badge>
+          </Group>
+          {general.isPending ? (
+            <Skeleton height={48} width={170} />
+          ) : general.isError ? (
+            <Alert color="red" icon={<IconInfoCircle size={18} />}>
+              {t('loadGeneralError')}
+            </Alert>
+          ) : (
+            <Text fw={750} fz={32} c="primary.8">
+              {t('precisionValue', { count: general.data?.decimalPrecision ?? 0 })}
+            </Text>
+          )}
+          <Alert color="blue" variant="light" icon={<IconLock size={18} />} mt="lg">
+            {t('precisionLockedReason')}
+          </Alert>
+        </Paper>
 
-              <Divider />
-
-              <Grid gutter="xl" align="flex-start">
-                <Grid.Col span={{ base: 12, md: 6 }}>
-                  <Text fw={600} size="sm" c="dark.8" mb={6}>
-                    Pilihan Presisi Desimal (Digit)
-                  </Text>
-                  <SegmentedControl
-                    fullWidth
-                    color="primary"
-                    value={String(decimalPrecision)}
-                    onChange={(val) => setDecimalPrecision(Number(val))}
-                    data={[
-                      { label: '0 Digit (Rp 1.459.201)', value: '0' },
-                      { label: '2 Digit (Standar)', value: '2' },
-                      { label: '3 Digit', value: '3' },
-                      { label: '4 Digit', value: '4' },
-                    ]}
-                  />
-
-                  <Text size="xs" c="dimmed" mt="xs">
-                    *Rekomendasi standar akuntansi Indonesia adalah <strong>2 digit</strong> (contoh: Rp 1.459.200,57).
-                  </Text>
-                </Grid.Col>
-
-                <Grid.Col span={{ base: 12, md: 6 }}>
-                  <Paper withBorder radius="md" p="md" bg="gray.0">
-                    <Text size="xs" fw={700} c="dimmed" tt="uppercase" mb="xs">
-                      Pratinjau Tampilan Nilai (Live Preview)
-                    </Text>
-                    <Stack gap={6}>
-                      <Group justify="space-between">
-                        <Text size="xs" c="dimmed">Nilai Mentah:</Text>
-                        <Text size="xs" ff="monospace">1459200.5678</Text>
-                      </Group>
-                      <Group justify="space-between">
-                        <Text size="xs" c="dimmed">Tampilan Mata Uang:</Text>
-                        <Text size="sm" fw={700} c="primary.9" ff="monospace">
-                          Rp {formattedSample}
-                        </Text>
-                      </Group>
-                      <Group justify="space-between">
-                        <Text size="xs" c="dimmed">Tampilan Satuan Produk:</Text>
-                        <Text size="xs" fw={600} c="dark.7">
-                          {(125.75).toFixed(decimalPrecision)} Unit
-                        </Text>
-                      </Group>
-                    </Stack>
-                  </Paper>
-                </Grid.Col>
-              </Grid>
-
-              <Alert icon={<IconInfoCircle size={16} />} color="blue" radius="md">
-                Perubahan presisi desimal akan diterapkan pada transaksi baru dan cara angka dirender di seluruh tabel transaksi dan ekspor laporan keuangan.
-              </Alert>
-
-              <Divider />
-
-              <Group justify="flex-end">
-                <Button
-                  color="primary"
-                  leftSection={<IconDeviceFloppy size={16} />}
-                  onClick={handleSave}
-                  loading={updateMutation.isPending}
-                >
-                  Simpan Pengaturan
-                </Button>
-              </Group>
-            </Stack>
-          </Card>
-        )}
+        <Paper withBorder radius="lg" p={{ base: 'md', sm: 'xl' }}>
+          <Text fw={700} fz="lg">
+            {t('previewTitle')}
+          </Text>
+          <Text c="dimmed" fz="sm" mb="lg">
+            {t('previewDescription')}
+          </Text>
+          <Stack gap="md">
+            <SegmentedControl
+              aria-label={t('previewPrecision')}
+              data={[0, 2, 3, 4].map((digits) => ({
+                value: String(digits),
+                label: t('precisionValue', { count: digits }),
+              }))}
+              value={previewPrecision}
+              onChange={setPreviewPrecision}
+              fullWidth
+            />
+            <NumberInput
+              label={t('sampleAmount')}
+              value={amount}
+              onChange={(value) => setAmount(Number(value) || 0)}
+              decimalScale={4}
+              thousandSeparator={currentLanguage === 'id' ? '.' : ','}
+              decimalSeparator={currentLanguage === 'id' ? ',' : '.'}
+            />
+            <Paper withBorder radius="md" p="lg" bg="primary.0">
+              <Text fz="xs" fw={700} tt="uppercase" c="dimmed">
+                {t('formattedResult')}
+              </Text>
+              <Text
+                fz={{ base: 25, sm: 32 }}
+                fw={750}
+                c="primary.8"
+                style={{ overflowWrap: 'anywhere' }}
+              >
+                {format(amount, Number(previewPrecision))}
+              </Text>
+              <Text fz="xs" c="dimmed" mt="xs">
+                {t('previewOnly')}
+              </Text>
+            </Paper>
+          </Stack>
+        </Paper>
       </Stack>
     </SettingsLayout>
   );
 }
-
