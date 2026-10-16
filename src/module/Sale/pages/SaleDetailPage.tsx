@@ -186,6 +186,10 @@ function SaleItems({
     );
   };
 
+  const hasAdjustedAmount = sale.items.some(
+    (item) => item.adjustedAmount !== undefined && item.adjustedAmount !== null
+  );
+
   return (
     <Paper withBorder radius="lg" p={{ base: 'md', sm: 'lg' }} bg="white">
       <Group justify="space-between" mb="lg" align="center">
@@ -210,13 +214,14 @@ function SaleItems({
                 <Table.Th ta="right">{t('quantity')}</Table.Th>
                 <Table.Th ta="right">{t('unitPrice')}</Table.Th>
                 <Table.Th>{t('tax')}</Table.Th>
+                {hasAdjustedAmount && <Table.Th ta="right">{t('adjustedAmount')}</Table.Th>}
                 <Table.Th ta="right">{t('amount')}</Table.Th>
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
               {sale.items.length ? (
                 sale.items.map((item, index) => (
-                  <Table.Tr key={item.id || index}>
+                  <Table.Tr key={item.id || item._id || index}>
                     <Table.Td>{itemContent(item)}</Table.Td>
                     <Table.Td ta="right" className={classes.amount}>
                       {number(item.quantity)}
@@ -227,6 +232,15 @@ function SaleItems({
                     <Table.Td>
                       <Text size="sm">{item.tax?.name || '—'}</Text>
                     </Table.Td>
+                    {hasAdjustedAmount && (
+                      <Table.Td ta="right" className={classes.amount}>
+                        {item.adjustedAmount !== undefined && item.adjustedAmount !== null
+                          ? item.adjustedAmount === 0
+                            ? '—'
+                            : `${item.adjustedAmount > 0 ? '+' : ''}${money(item.adjustedAmount)}`
+                          : '—'}
+                      </Table.Td>
+                    )}
                     <Table.Td ta="right" fw={700} className={classes.amount}>
                       {money(item.amount)}
                     </Table.Td>
@@ -234,7 +248,7 @@ function SaleItems({
                 ))
               ) : (
                 <Table.Tr>
-                  <Table.Td colSpan={5}>
+                  <Table.Td colSpan={hasAdjustedAmount ? 6 : 5}>
                     <Text ta="center" c="dimmed" py="xl">
                       {t('noItems')}
                     </Text>
@@ -248,13 +262,25 @@ function SaleItems({
       <Stack gap={0} className={classes.mobileItems}>
         {sale.items.length ? (
           sale.items.map((item, index) => (
-            <Box key={item.id || index} className={classes.mobileItem}>
+            <Box key={item.id || item._id || index} className={classes.mobileItem}>
               {itemContent(item)}
               <Group justify="space-between" align="end" mt="sm" gap="xs">
-                <Text size="xs" c="dimmed">
-                  {number(item.quantity)} × {money(item.unitPrice)}
-                  {item.tax?.name ? ` · ${item.tax.name}` : ''}
-                </Text>
+                <Stack gap={2}>
+                  <Text size="xs" c="dimmed">
+                    {number(item.quantity)} × {money(item.unitPrice)}
+                    {item.tax?.name ? ` · ${item.tax.name}` : ''}
+                  </Text>
+                  {item.adjustedAmount !== undefined && item.adjustedAmount !== 0 && (
+                    <Text
+                      size="xs"
+                      c={item.adjustedAmount > 0 ? 'teal.7' : 'red.7'}
+                      fw={600}
+                    >
+                      {t('adjustedAmount')}: {item.adjustedAmount > 0 ? '+' : ''}
+                      {money(item.adjustedAmount)}
+                    </Text>
+                  )}
+                </Stack>
                 <Text size="sm" fw={700} className={classes.amount}>
                   {money(item.amount)}
                 </Text>
@@ -278,6 +304,15 @@ function SaleItems({
         )}
         {!!sale.taxAmount && sale.taxAmount > 0 && (
           <AmountRow label={t('taxTotal')} amount={`+${money(sale.taxAmount)}`} />
+        )}
+        {sale.adjustedAmount !== undefined && sale.adjustedAmount !== 0 && (
+          <AmountRow
+            label={t('adjustedAmountTotal')}
+            amount={`${sale.adjustedAmount > 0 ? '+' : ''}${money(sale.adjustedAmount)}`}
+          />
+        )}
+        {!!sale.lateFeeAmount && sale.lateFeeAmount > 0 && (
+          <AmountRow label={t('lateFee')} amount={`+${money(sale.lateFeeAmount)}`} />
         )}
         {!!sale.withholdingAmount && sale.withholdingAmount > 0 && (
           <AmountRow

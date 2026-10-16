@@ -62,11 +62,14 @@ export type SaleItem = {
   } | null;
   taxAmount?: number;
   amount: number;
+  adjustedAmount?: number;
+  paidAmount?: number;
   journalTransaction?: string | null;
   journalId?: string | null;
   transactionId?: string | null;
   salesAccount?: string | null;
   accountReceivable?: string | null;
+  _id?: string;
 };
 
 export type SaleAttachment = {
@@ -103,6 +106,9 @@ export type Sale = {
   discountAmount?: number;
   taxAmount?: number;
   total: number;
+  adjustedAmount?: number;
+  lateFeeAmount?: number;
+  lateFeePaidAmount?: number;
   withholdingType?: WithholdingType | null;
   withholdingValue?: number;
   withholdingAmount?: number;
@@ -221,4 +227,3 @@ export type SalePaymentDetail = {
   memo?: string | null;
   createdAt: string | null;
 };
-
