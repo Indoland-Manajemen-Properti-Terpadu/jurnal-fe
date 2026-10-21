@@ -373,21 +373,13 @@ export function SalesTrendChart({
       <Group justify="space-between" align="center" wrap="wrap">
         <Group gap="lg">
           <Group gap={6}>
-            <Box
-              w={11}
-              h={11}
-              style={{ borderRadius: 3, background: 'linear-gradient(180deg,#09B2FF,#053079)' }}
-            />
+            <Box w={11} h={11} style={{ borderRadius: 3, background: '#0a5fbd' }} />
             <Text size="xs" fw={600} c="dark.6">
               {t('legendInvoiced')}
             </Text>
           </Group>
           <Group gap={6}>
-            <Box
-              w={11}
-              h={11}
-              style={{ borderRadius: 3, background: 'linear-gradient(180deg,#34d399,#0f766e)' }}
-            />
+            <Box w={11} h={11} style={{ borderRadius: 3, background: '#168b7a' }} />
             <Text size="xs" fw={600} c="dark.6">
               {t('legendCollected')}
             </Text>
@@ -452,8 +444,7 @@ export function SalesTrendChart({
                     h={`${Math.max(3, (d.invoiced / max) * 100)}%`}
                     style={{
                       borderRadius: '8px 8px 4px 4px',
-                      background: 'linear-gradient(180deg, #09B2FF 0%, #053079 100%)',
-                      boxShadow: '0 8px 16px -6px rgba(5, 48, 121, 0.45)',
+                      background: '#0a5fbd',
                     }}
                   />
                   <Box
@@ -462,8 +453,7 @@ export function SalesTrendChart({
                     h={`${Math.max(3, (d.collected / max) * 100)}%`}
                     style={{
                       borderRadius: '8px 8px 4px 4px',
-                      background: 'linear-gradient(180deg, #34d399 0%, #0f766e 100%)',
-                      boxShadow: '0 8px 16px -6px rgba(15, 118, 110, 0.35)',
+                      background: '#168b7a',
                     }}
                   />
                 </Group>
@@ -651,7 +641,6 @@ export function CompositionDonut({
                     strokeDashoffset={-offset}
                     strokeLinecap="butt"
                     transform="rotate(-90 90 90)"
-                    style={{ filter: `drop-shadow(0 4px 6px ${s.color}44)` }}
                   />
                 );
                 offset += len;
@@ -977,11 +966,9 @@ export function ActionBanner({
         px="md"
         py={10}
         style={{
-          borderRadius: 14,
-          background:
-            'linear-gradient(135deg, rgba(209, 250, 229, 0.7) 0%, rgba(224, 242, 254, 0.7) 100%)',
-          border: '1px solid rgba(20, 184, 166, 0.3)',
-          backdropFilter: 'blur(10px)',
+          borderRadius: 12,
+          background: '#f0fdfa',
+          border: '1px solid #ccfbf1',
         }}
       >
         <Group gap="sm" wrap="nowrap">
@@ -1005,16 +992,19 @@ export function ActionBanner({
     <Box
       p="sm"
       style={{
-        borderRadius: 16,
-        background:
-          'linear-gradient(135deg, rgba(254, 243, 199, 0.82) 0%, rgba(254, 226, 226, 0.82) 100%)',
-        border: '1px solid rgba(245, 158, 11, 0.38)',
-        backdropFilter: 'blur(10px)',
+        borderRadius: 12,
+        background: '#fffbeb',
+        border: '1px solid #fde68a',
       }}
     >
       <Group justify="space-between" align="center" wrap="wrap" gap="sm">
         <Group gap="sm" wrap="nowrap">
-          <ThemeIcon size={34} radius="md" color={overdueCount > 0 ? 'red' : 'orange'} variant="filled">
+          <ThemeIcon
+            size={34}
+            radius="md"
+            color={overdueCount > 0 ? 'red' : 'orange'}
+            variant="filled"
+          >
             <IconAlertCircle size={20} />
           </ThemeIcon>
           <Box>

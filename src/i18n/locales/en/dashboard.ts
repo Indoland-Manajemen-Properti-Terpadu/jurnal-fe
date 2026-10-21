@@ -5,7 +5,7 @@ export const dashboard = {
   greetingNight: 'Good evening',
 
   heroSubtitle:
-    'Your enterprise spatial financial command center — monitor balance sheet equilibrium, real-time cash liquidity, receivable collectibility, and ledger audit trails.',
+    'Track cash position, balance sheet health, receivable quality, and accounting activity in one overview.',
   spatialModeLabel: '3D Spatial Mode',
   spatialModeOn: '3D Spatial Active',
   spatialModeOff: 'Standard View',
@@ -18,7 +18,7 @@ export const dashboard = {
   periodUnlocked: 'Accounting period open (unlocked)',
 
   // Fundamental Accounting Equation
-  equationTitle: 'Fundamental Accounting Equation (Real-Time Equilibrium)',
+  equationTitle: 'Financial Position Overview',
   equationBalanced: 'Books Balanced',
   equationUnbalanced: 'Adjustment Needed',
   totalAssets: 'Total Assets',
@@ -50,13 +50,17 @@ export const dashboard = {
 
   // Section titles
   sectionPulseTitle: 'Core Financial Health Indicators',
-  sectionPulseSubtitle: 'Summary of cash liquidity, active receivables, and current month revenue performance',
+  sectionPulseSubtitle:
+    'Summary of cash liquidity, active receivables, and current month revenue performance',
   sectionAnalyticsTitle: 'Billing Cashflow & Receivable Quality',
-  sectionAnalyticsSubtitle: 'Invoiced amounts vs. collected cash alongside receivable aging distribution',
+  sectionAnalyticsSubtitle:
+    'Invoiced amounts vs. collected cash alongside receivable aging distribution',
   sectionBalanceTitle: 'Cash Liquidity & Balance Sheet Anatomy',
-  sectionBalanceSubtitle: 'Operational bank account distribution and asset, liability, and equity proportions',
+  sectionBalanceSubtitle:
+    'Operational bank account distribution and asset, liability, and equity proportions',
   sectionOperationsTitle: 'Operational Activity & System Controls',
-  sectionOperationsSubtitle: 'Monitor recent invoices, general ledger audit trails, and daily transaction shortcuts',
+  sectionOperationsSubtitle:
+    'Monitor recent invoices, general ledger audit trails, and daily transaction shortcuts',
 
   // KPI Tiles
   kpiCashLabel: 'Cash & Bank Balance',
@@ -83,7 +87,8 @@ export const dashboard = {
   alertBtnDraft: 'Review Drafts',
   alertBtnPending: 'Review Approvals',
   healthyBannerTitle: 'Books & Operations Healthy',
-  healthyBannerDesc: 'No overdue invoices or pending approval items require urgent action right now.',
+  healthyBannerDesc:
+    'No overdue invoices or pending approval items require urgent action right now.',
 
   // Charts & Widgets
   trendTitle: '6-Month Billing & Cash Collection Trend',
@@ -155,4 +160,3 @@ export const dashboard = {
 };
 
 export default dashboard;
-

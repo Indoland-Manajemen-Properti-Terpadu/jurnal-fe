@@ -5,7 +5,7 @@ export const dashboard = {
   greetingNight: 'Selamat malam',
 
   heroSubtitle:
-    ' Pusat kendali finansial spasial perusahaan Anda — pantau keseimbangan neraca, posisi kas aktual, kolektibilitas piutang, dan jejak audit jurnal secara real-time.',
+    'Pantau posisi kas, keseimbangan neraca, kualitas piutang, dan aktivitas pembukuan dalam satu ringkasan.',
   spatialModeLabel: 'Mode Spasial 3D',
   spatialModeOn: 'Spasial 3D Aktif',
   spatialModeOff: 'Mode Standar',
@@ -18,7 +18,7 @@ export const dashboard = {
   periodUnlocked: 'Periode pembukuan terbuka (belum dikunci)',
 
   // Fundamental Accounting Equation
-  equationTitle: 'Persamaan Dasar Akuntansi (Real-Time Equilibrium)',
+  equationTitle: 'Ringkasan Posisi Keuangan',
   equationBalanced: 'Neraca Seimbang',
   equationUnbalanced: 'Perlu Penyesuaian Saldo',
   totalAssets: 'Total Aset',
@@ -52,11 +52,14 @@ export const dashboard = {
   sectionPulseTitle: 'Indikator Kesehatan Finansial Utama',
   sectionPulseSubtitle: 'Ringkasan metrik likuiditas, tagihan aktif, dan pencapaian omzet berjalan',
   sectionAnalyticsTitle: 'Analitik Arus Tagihan & Kualitas Piutang',
-  sectionAnalyticsSubtitle: 'Perbandingan faktur terbit terhadap kas diterima beserta distribusi umur tagihan',
+  sectionAnalyticsSubtitle:
+    'Perbandingan faktur terbit terhadap kas diterima beserta distribusi umur tagihan',
   sectionBalanceTitle: 'Posisi Kas & Struktur Neraca',
-  sectionBalanceSubtitle: 'Komposisi rekening operasional dan proporsi harta, kewajiban, serta modal',
+  sectionBalanceSubtitle:
+    'Komposisi rekening operasional dan proporsi harta, kewajiban, serta modal',
   sectionOperationsTitle: 'Aktivitas Operasional & Kendali Sistem',
-  sectionOperationsSubtitle: 'Pantau faktur terbaru, jejak audit buku besar, dan pintasan transaksi harian',
+  sectionOperationsSubtitle:
+    'Pantau faktur terbaru, jejak audit buku besar, dan pintasan transaksi harian',
 
   // KPI Tiles
   kpiCashLabel: 'Saldo Kas & Bank',
@@ -155,4 +158,3 @@ export const dashboard = {
 };
 
 export default dashboard;
-
