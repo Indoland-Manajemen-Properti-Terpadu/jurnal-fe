@@ -10,22 +10,14 @@ import {
   SimpleGrid,
   Stack,
   Text,
-  Title,
-  Tooltip,
 } from '@mantine/core';
 import {
   IconAlertTriangle,
   IconBuildingBank,
   IconCalendarStats,
-  IconChartPie,
   IconCoin,
   IconFileInvoice,
-  IconLock,
-  IconLockOpen,
   IconNotebook,
-  IconReceipt2,
-  IconRefresh,
-  IconScale,
   IconShieldCheck,
   IconUsers,
   IconWallet,
@@ -37,6 +29,7 @@ import { useAuthStore } from '@/store/useAuthentications';
 import { useTranslation } from '@/i18n';
 import MainDashboardLayout from './layout';
 import classes from '../components/dashboard.module.css';
+import { DashboardHero } from '../components/DashboardHero';
 import {
   ActivityFeed,
   AgingList,
@@ -137,20 +130,6 @@ function MainDashboard() {
     return t('greetingNight');
   }, [currentLanguage]);
 
-  const todayFormatted = useMemo(
-    () =>
-      new Intl.DateTimeFormat(currentLanguage === 'en' ? 'en-US' : 'id-ID', {
-        weekday: 'short',
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric',
-      }).format(new Date()),
-    [currentLanguage]
-  );
-
-  const eqShare = Math.min(100, Math.max(0, health.equityRatio));
-  const liabShare = Math.min(100 - eqShare, Math.max(0, health.liabilityRatio));
-
   return (
     <MainDashboardLayout>
       <Box className={classes.stage}>
@@ -158,440 +137,32 @@ function MainDashboard() {
         <Box className={`${classes.orb} ${classes.orbB}`} />
 
         <Stack gap="lg">
-          {/* ---------- Executive Financial Overview Hero ---------- */}
-          <Box className={`${classes.hero} ${classes.reveal}`} p={{ base: 'lg', md: 28 }}>
-            <Box className={classes.heroGrid} />
-
-            {/* Top Executive Status Bar */}
-            <Group
-              justify="space-between"
-              align="center"
-              wrap="wrap"
-              gap="xs"
-              pos="relative"
-              pb="md"
-              mb="md"
-              style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.14)' }}
-            >
-              <Group gap={8} wrap="wrap">
-                <Badge
-                  variant="filled"
-                  radius="md"
-                  size="md"
-                  leftSection={<IconCalendarStats size={13} />}
-                  style={{
-                    backgroundColor: 'rgba(255, 255, 255, 0.13)',
-                    border: '1px solid rgba(255, 255, 255, 0.22)',
-                    color: '#fff',
-                    textTransform: 'capitalize',
-                    fontWeight: 600,
-                  }}
-                >
-                  {todayFormatted}
-                </Badge>
-
-                <Badge
-                  variant="filled"
-                  radius="md"
-                  size="md"
-                  onClick={() => navigate(routes.PeriodAndClosingBook.ListPLandCB)}
-                  leftSection={
-                    activePeriod?.type === 'LOCK' || activePeriod?.type === 'CLOSE' ? (
-                      <IconLock size={12} />
-                    ) : (
-                      <IconLockOpen size={12} />
-                    )
-                  }
-                  style={{
-                    backgroundColor: 'rgba(9, 178, 255, 0.22)',
-                    border: '1px solid rgba(125, 211, 252, 0.42)',
-                    color: '#f0f9ff',
-                    cursor: 'pointer',
-                    fontWeight: 600,
-                  }}
-                >
-                  {activePeriod
-                    ? t('periodLockedUntil', {
-                        name: activePeriod.name,
-                        date: formatDate(activePeriod.endDate, currentLanguage),
-                      })
-                    : t('periodUnlocked')}
-                </Badge>
-
-                <Badge
-                  variant="filled"
-                  radius="md"
-                  size="md"
-                  leftSection={
-                    <Box
-                      w={7}
-                      h={7}
-                      style={{
-                        borderRadius: '50%',
-                        backgroundColor: health.isBalanced ? '#34d399' : '#fbbf24',
-                        boxShadow: health.isBalanced
-                          ? '0 0 8px #34d399'
-                          : '0 0 8px #fbbf24',
-                      }}
-                    />
-                  }
-                  style={{
-                    backgroundColor: 'rgba(255, 255, 255, 0.11)',
-                    border: '1px solid rgba(255, 255, 255, 0.2)',
-                    color: '#f8fafc',
-                    fontWeight: 600,
-                  }}
-                >
-                  {health.isBalanced ? t('equationBalanced') : t('equationUnbalanced')}
-                </Badge>
-              </Group>
-
-              <Group gap="xs" wrap="nowrap">
-                {(pendingQ.data ?? 0) > 0 && (
-                  <Badge
-                    variant="filled"
-                    radius="md"
-                    size="md"
-                    leftSection={<IconShieldCheck size={13} />}
-                    onClick={() => navigate(routes.pendingChanges.main)}
-                    style={{
-                      backgroundColor: 'rgba(245, 158, 11, 0.28)',
-                      border: '1px solid rgba(252, 211, 77, 0.5)',
-                      color: '#fef3c7',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    {t('alertPendingCount', { count: pendingQ.data ?? 0 })}
-                  </Badge>
-                )}
-
-                <Tooltip label={t('btnRefresh')} withArrow>
-                  <Button
-                    size="compact-sm"
-                    radius="md"
-                    className={classes.heroGlassBtn}
-                    leftSection={<IconRefresh size={14} />}
-                    loading={isFetching}
-                    onClick={() => queryClient.invalidateQueries({ queryKey: dashboardKeys.all })}
-                  >
-                    {t('btnRefresh')}
-                  </Button>
-                </Tooltip>
-              </Group>
-            </Group>
-
-            {/* Main 2-Column Hero Content */}
-            <Grid gutter="xl" align="stretch" pos="relative">
-              {/* Left Column: Executive Greeting, Liquidity Highlights & Quick CTAs */}
-              <Grid.Col span={{ base: 12, lg: 5 }}>
-                <Stack justify="space-between" h="100%" gap="md">
-                  <Box>
-                    <Title
-                      order={2}
-                      c="white"
-                      fz={{ base: 24, md: 30 }}
-                      fw={800}
-                      style={{ letterSpacing: '-0.02em', lineHeight: 1.2 }}
-                    >
-                      {greetingText}, {userName || 'Finance'}
-                    </Title>
-                    <Text c="rgba(255, 255, 255, 0.84)" mt={8} fz={13.5} lh={1.6}>
-                      {t('heroSubtitle')}
-                    </Text>
-                  </Box>
-
-                  {/* Executive Pulse Strip */}
-                  <SimpleGrid cols={2} spacing="sm">
-                    <Box
-                      className={classes.heroMetricPill}
-                      title={formatIDR(health.netWorkingCapital)}
-                    >
-                      <Text
-                        fz={10.5}
-                        fw={700}
-                        c="rgba(255, 255, 255, 0.72)"
-                        tt="uppercase"
-                        lts={0.5}
-                      >
-                        {t('netWorkingCapital')}
-                      </Text>
-                      <Text fw={800} fz={18} c="white" mt={2} lh={1.25}>
-                        {bs ? formatCompact(health.netWorkingCapital) : '—'}
-                      </Text>
-                      <Text
-                        fz={11}
-                        ff="monospace"
-                        c="rgba(255, 255, 255, 0.72)"
-                        mt={2}
-                        truncate
-                      >
-                        {bs ? formatIDR(health.netWorkingCapital) : '—'}
-                      </Text>
-                    </Box>
-
-                    <Box className={classes.heroMetricPill}>
-                      <Text
-                        fz={10.5}
-                        fw={700}
-                        c="rgba(255, 255, 255, 0.72)"
-                        tt="uppercase"
-                        lts={0.5}
-                      >
-                        {t('collectionEfficiency')}
-                      </Text>
-                      <Group gap={8} align="baseline" mt={2}>
-                        <Text fw={800} fz={18} c="#a7f3d0" lh={1.25}>
-                          {kpi.collectionRate.toFixed(1)}%
-                        </Text>
-                        <Badge
-                          size="xs"
-                          radius="sm"
-                          style={{
-                            backgroundColor: 'rgba(255, 255, 255, 0.16)',
-                            color: '#fff',
-                          }}
-                        >
-                          Kas {health.cashRatio.toFixed(0)}%
-                        </Badge>
-                      </Group>
-                      <Text fz={11} c="rgba(255, 255, 255, 0.72)" mt={2} truncate>
-                        {t('equityShare')}: {health.equityRatio.toFixed(1)}%
-                      </Text>
-                    </Box>
-                  </SimpleGrid>
-
-                  {/* Primary Action Buttons */}
-                  <Group gap="sm" wrap="wrap">
-                    <Button
-                      variant="white"
-                      color="primary"
-                      radius="md"
-                      size="sm"
-                      fw={700}
-                      leftSection={<IconNotebook size={16} />}
-                      style={{
-                        boxShadow: '0 8px 20px -6px rgba(2, 16, 43, 0.45)',
-                      }}
-                      onClick={() => navigate(routes.generalJournal.addTransactionJournal)}
-                    >
-                      {t('btnCreateJournal')}
-                    </Button>
-                    <Button
-                      radius="md"
-                      size="sm"
-                      fw={600}
-                      className={classes.heroGlassBtn}
-                      leftSection={<IconFileInvoice size={16} />}
-                      onClick={() => navigate(routes.sales.main)}
-                    >
-                      {t('btnViewAllSales')}
-                    </Button>
-                    <Button
-                      radius="md"
-                      size="sm"
-                      fw={600}
-                      className={classes.heroGlassBtn}
-                      leftSection={<IconScale size={16} />}
-                      onClick={() => navigate(routes.resultReport.balanceSheet)}
-                    >
-                      {t('btnViewBalanceSheet')}
-                    </Button>
-                  </Group>
-                </Stack>
-              </Grid.Col>
-
-              {/* Right Column: Frosted Glass Balance Sheet Equation Terminal */}
-              <Grid.Col span={{ base: 12, lg: 7 }}>
-                <Box className={classes.heroPanel} p={{ base: 'md', sm: 18 }} h="100%">
-                  <Stack justify="space-between" h="100%" gap="sm">
-                    <Group justify="space-between" align="center" wrap="wrap" gap="xs">
-                      <Group gap={8} wrap="nowrap">
-                        <Box
-                          w={26}
-                          h={26}
-                          style={{
-                            borderRadius: 7,
-                            backgroundColor: 'rgba(56, 189, 248, 0.2)',
-                            border: '1px solid rgba(56, 189, 248, 0.4)',
-                            display: 'grid',
-                            placeItems: 'center',
-                          }}
-                        >
-                          <IconScale size={15} color="#7dd3fc" />
-                        </Box>
-                        <Box>
-                          <Text fz={11.5} fw={800} c="white" tt="uppercase" lts={0.6}>
-                            {t('equationTitle')}
-                          </Text>
-                        </Box>
-                      </Group>
-
-                      <Badge
-                        size="sm"
-                        radius="sm"
-                        style={{
-                          backgroundColor: 'rgba(255, 255, 255, 0.14)',
-                          border: '1px solid rgba(255, 255, 255, 0.2)',
-                          color: '#e0f2fe',
-                          fontWeight: 700,
-                        }}
-                      >
-                        {t('totalAssets')} = {t('totalLiabilities')} + {t('totalEquity')}
-                      </Badge>
-                    </Group>
-
-                    <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="sm">
-                      {[
-                        {
-                          label: t('totalAssets'),
-                          hint: t('totalAssetsHint'),
-                          value: bs ? formatCompact(bs.totalAssets) : '—',
-                          fullValue: bs ? formatIDR(bs.totalAssets) : '—',
-                          icon: IconScale,
-                          accent: '#38bdf8',
-                          badgeText: '100%',
-                          symbol: '=',
-                        },
-                        {
-                          label: t('totalLiabilities'),
-                          hint: t('totalLiabilitiesHint'),
-                          value: bs ? formatCompact(bs.totalLiabilities) : '—',
-                          fullValue: bs ? formatIDR(bs.totalLiabilities) : '—',
-                          icon: IconReceipt2,
-                          accent: '#fbbf24',
-                          badgeText: `${health.liabilityRatio.toFixed(0)}%`,
-                          symbol: '+',
-                        },
-                        {
-                          label: t('totalEquity'),
-                          hint: t('totalEquityHint'),
-                          value: bs ? formatCompact(bs.totalEquity) : '—',
-                          fullValue: bs ? formatIDR(bs.totalEquity) : '—',
-                          icon: IconChartPie,
-                          accent: '#34d399',
-                          badgeText: `${health.equityRatio.toFixed(0)}%`,
-                          symbol: null,
-                        },
-                      ].map((m) => (
-                        <Box
-                          key={m.label}
-                          className={classes.heroChip}
-                          p="sm"
-                          title={m.fullValue}
-                          onClick={() => navigate(routes.resultReport.balanceSheet)}
-                          style={{ cursor: 'pointer' }}
-                        >
-                          <Group justify="space-between" wrap="nowrap" gap={4}>
-                            <Group gap={6} c="rgba(255, 255, 255, 0.9)" wrap="nowrap">
-                              <m.icon size={15} color={m.accent} />
-                              <Text size="xs" fw={700} truncate>
-                                {m.label}
-                              </Text>
-                            </Group>
-                            <Group gap={4} wrap="nowrap">
-                              <Badge
-                                size="xs"
-                                radius="sm"
-                                variant="filled"
-                                style={{
-                                  backgroundColor: 'rgba(255, 255, 255, 0.14)',
-                                  color: '#e2e8f0',
-                                }}
-                              >
-                                {m.badgeText}
-                              </Badge>
-                              {m.symbol && (
-                                <Badge
-                                  size="xs"
-                                  radius="xl"
-                                  variant="filled"
-                                  style={{
-                                    backgroundColor: 'rgba(9, 178, 255, 0.32)',
-                                    color: 'white',
-                                  }}
-                                >
-                                  {m.symbol}
-                                </Badge>
-                              )}
-                            </Group>
-                          </Group>
-
-                          <Text fw={800} fz={20} c="white" mt={6} lh={1.2}>
-                            {m.value}
-                          </Text>
-                          <Text
-                            fz={11}
-                            ff="monospace"
-                            c="rgba(255, 255, 255, 0.8)"
-                            mt={2}
-                            truncate
-                          >
-                            {m.fullValue}
-                          </Text>
-                          <Text fz={10.5} c="rgba(255, 255, 255, 0.62)" mt={4} truncate>
-                            {m.hint}
-                          </Text>
-                        </Box>
-                      ))}
-                    </SimpleGrid>
-
-                    {/* Visual Capital Structure Proportion Bar */}
-                    <Box pt={4}>
-                      <Group justify="space-between" mb={5} wrap="wrap" gap={6}>
-                        <Group gap={6}>
-                          <Box
-                            w={8}
-                            h={8}
-                            style={{ borderRadius: 2, backgroundColor: '#34d399' }}
-                          />
-                          <Text fz={11} fw={600} c="rgba(255, 255, 255, 0.85)">
-                            {t('totalEquity')}: {health.equityRatio.toFixed(1)}%
-                          </Text>
-                        </Group>
-                        <Group gap={6}>
-                          <Box
-                            w={8}
-                            h={8}
-                            style={{ borderRadius: 2, backgroundColor: '#fbbf24' }}
-                          />
-                          <Text fz={11} fw={600} c="rgba(255, 255, 255, 0.85)">
-                            {t('totalLiabilities')}: {health.liabilityRatio.toFixed(1)}%
-                          </Text>
-                        </Group>
-                      </Group>
-                      <Box
-                        h={7}
-                        w="100%"
-                        style={{
-                          borderRadius: 999,
-                          backgroundColor: 'rgba(255, 255, 255, 0.14)',
-                          overflow: 'hidden',
-                          display: 'flex',
-                        }}
-                      >
-                        <Box
-                          h="100%"
-                          w={`${eqShare}%`}
-                          style={{
-                            background: 'linear-gradient(90deg, #10b981 0%, #34d399 100%)',
-                            transition: 'width 400ms ease',
-                          }}
-                        />
-                        <Box
-                          h="100%"
-                          w={`${liabShare}%`}
-                          style={{
-                            background: 'linear-gradient(90deg, #f59e0b 0%, #fbbf24 100%)',
-                            transition: 'width 400ms ease',
-                          }}
-                        />
-                      </Box>
-                    </Box>
-                  </Stack>
-                </Box>
-              </Grid.Col>
-            </Grid>
-          </Box>
+          {/* ---------- Financial overview hero ---------- */}
+          <DashboardHero
+            greeting={greetingText}
+            userName={userName || 'Finance'}
+            periodLabel={
+              activePeriod
+                ? t('periodLockedUntil', {
+                    name: activePeriod.name,
+                    date: formatDate(activePeriod.endDate, currentLanguage),
+                  })
+                : t('periodUnlocked')
+            }
+            isPeriodLocked={activePeriod?.type === 'LOCK' || activePeriod?.type === 'CLOSE'}
+            isBalanced={health.isBalanced}
+            hasData={Boolean(bs)}
+            totalAssets={health.totalAssets}
+            totalLiabilities={health.totalLiabilities}
+            totalEquity={health.totalEquity}
+            liabilityRatio={health.liabilityRatio}
+            equityRatio={health.equityRatio}
+            isRefreshing={isFetching}
+            onRefresh={() => queryClient.invalidateQueries({ queryKey: dashboardKeys.all })}
+            onOpenPeriod={() => navigate(routes.PeriodAndClosingBook.ListPLandCB)}
+            onOpenBalanceSheet={() => navigate(routes.resultReport.balanceSheet)}
+            onCreateJournal={() => navigate(routes.generalJournal.addTransactionJournal)}
+          />
 
           <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }} spacing="lg">
             <KpiTile
