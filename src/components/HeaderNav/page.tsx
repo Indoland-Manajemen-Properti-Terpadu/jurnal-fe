@@ -48,6 +48,7 @@ const SECTION_DEFS: Array<{ prefix: string; titleKey: string; groupKey: string }
   { prefix: '/dashboard', titleKey: 'dashboard', groupKey: 'groupMain' },
   { prefix: '/result-reports', titleKey: 'financialReports', groupKey: 'groupMain' },
   { prefix: '/budget-planning', titleKey: 'budgetPlanning', groupKey: 'groupMain' },
+  { prefix: '/bank-cash/petty-cash', titleKey: 'pettyCash', groupKey: 'groupTransactions' },
   { prefix: '/bank-cash', titleKey: 'cashBank', groupKey: 'groupTransactions' },
   { prefix: '/sales', titleKey: 'sales', groupKey: 'groupTransactions' },
   { prefix: '/setting-budget', titleKey: 'sales', groupKey: 'groupTransactions' },

@@ -29,6 +29,8 @@ import {
   HouseLine,
   SidebarSimpleIcon,
   ShieldCheck,
+  Coins,
+  Wallet,
 } from '@phosphor-icons/react';
 import { useAuthStore } from '@/store/useAuthentications';
 import { routes } from '@/router/routes';
@@ -52,7 +54,15 @@ const getNavGroups = (t: (key: string) => string) => [
   {
     title: t('groupTransactions').toUpperCase(),
     links: [
-      { label: t('cashBank'), icon: Bank, link: '/bank-cash' },
+      {
+        label: t('cashBank'),
+        icon: Bank,
+        link: routes.BankAndCash.Main,
+        links: [
+          { label: t('cashBankAccounts'), icon: Wallet, link: routes.BankAndCash.Main },
+          { label: t('pettyCash'), icon: Coins, link: routes.BankAndCash.PettyCash },
+        ],
+      },
       { label: t('sales'), icon: Storefront, link: '/sales' },
       { label: t('purchases'), icon: ShoppingCart, link: '/pembelian' },
       { label: t('expenses'), icon: Receipt, link: '/finance/cost' },
@@ -107,6 +117,9 @@ const NavbarComponent = ({
   const navigate = useNavigate();
   const { t } = useTranslation('navigation');
   const navGroups = getNavGroups(t);
+  const navigationLinks = navGroups.flatMap((group) =>
+    group.links.flatMap((item) => ('link' in item && item.link ? [item.link] : []))
+  );
   const { userName, clearTokens } = useAuthStore();
   const displayName = userName || 'Finance';
   const initials = displayName
@@ -160,6 +173,7 @@ const NavbarComponent = ({
             key={linkItem.label}
             closeSidebar={onClose}
             collapsed={collapsed}
+            siblingLinks={navigationLinks}
           />
         );
       })}

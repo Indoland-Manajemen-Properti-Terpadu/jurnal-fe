@@ -14,6 +14,8 @@ export const navigation = {
   financialReports: 'Financial Reports',
   budgetPlanning: 'Budget Planning',
   cashBank: 'Cash & Bank',
+  cashBankAccounts: 'Cash & Bank Accounts',
+  pettyCash: 'Petty Cash',
   sales: 'Sales',
   purchases: 'Purchases',
   expenses: 'Expenses',

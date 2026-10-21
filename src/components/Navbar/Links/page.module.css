@@ -23,7 +23,7 @@
   }
 
   &[data-active] {
-    color: #ffffff;
+    color: #fff;
     font-weight: 600;
     background: linear-gradient(135deg, #053079 0%, #0a4fb5 60%, #09b2ff 140%);
     box-shadow:
@@ -44,39 +44,131 @@
   text-overflow: ellipsis;
 }
 
-.link {
+.subtree {
   position: relative;
-  display: block;
-  width: calc(100% - rem(22px));
-  min-height: rem(34px);
-  padding: rem(7px) rem(10px) rem(7px) rem(16px);
-  margin-left: rem(22px);
-  margin-bottom: rem(2px);
-  border: 0;
-  border-left: rem(2px) solid rgba(15, 23, 42, 0.08);
-  border-radius: 0 rem(10px) rem(10px) 0;
+  margin: rem(3px) 0 rem(6px) rem(21px);
+  padding-left: rem(14px);
+  display: flex;
+  flex-direction: column;
+  gap: rem(2px);
+}
+
+.subtree::before {
+  position: absolute;
+  top: rem(2px);
+  bottom: rem(4px);
+  left: 0;
+  width: rem(1.5px);
+  background: linear-gradient(
+    180deg,
+    rgba(5, 48, 121, 0.22) 0%,
+    rgba(203, 213, 225, 0.45) 100%
+  );
+  border-radius: rem(2px);
+  content: '';
+}
+
+.subLink {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: rem(36px);
+  padding: rem(7px) rem(12px) rem(7px) rem(10px);
+  border-radius: rem(9px);
   color: #64748b;
-  background: transparent;
-  text-align: left;
   font-size: rem(13px);
-  line-height: rem(20px);
+  line-height: rem(18px);
+  font-weight: 500;
+  text-decoration: none;
+  background-color: transparent;
+  border: rem(1px) solid transparent;
   cursor: pointer;
   transition:
-    background-color 120ms ease,
-    color 120ms ease,
-    border-color 120ms ease;
+    background-color 140ms ease,
+    color 140ms ease,
+    border-color 140ms ease,
+    box-shadow 140ms ease,
+    transform 140ms ease;
 
   &:hover {
     color: #0f172a;
-    background-color: rgba(5, 48, 121, 0.05);
+    background-color: rgba(5, 48, 121, 0.04);
+    transform: translateX(rem(2px));
+
+    .subIcon {
+      color: #053079;
+    }
+
+    .bullet {
+      background-color: #64748b;
+      transform: scale(1.15);
+    }
   }
 
   &[data-active] {
     color: #053079;
     font-weight: 600;
-    border-left-color: #09b2ff;
-    background-color: rgba(9, 178, 255, 0.1);
+    background: linear-gradient(90deg, rgba(5, 48, 121, 0.08) 0%, rgba(9, 178, 255, 0.04) 100%);
+    border-color: rgba(5, 48, 121, 0.14);
+    box-shadow: 0 rem(2px) rem(6px) -rem(2px) rgba(5, 48, 121, 0.08);
+
+    .subIcon {
+      color: #053079;
+    }
+
+    .bullet {
+      background-color: #053079;
+      transform: scale(1.2);
+      box-shadow: 0 0 0 rem(3px) rgba(9, 178, 255, 0.25);
+    }
   }
+}
+
+.subLink[data-active]::before {
+  position: absolute;
+  left: rem(-15px);
+  top: 50%;
+  transform: translateY(-50%);
+  width: rem(3px);
+  height: rem(16px);
+  background: linear-gradient(180deg, #053079 0%, #09b2ff 100%);
+  border-radius: rem(4px);
+  box-shadow: 0 0 rem(6px) rgba(5, 48, 121, 0.35);
+  content: '';
+}
+
+.subIcon {
+  color: #94a3b8;
+  flex-shrink: 0;
+  transition:
+    color 140ms ease,
+    transform 140ms ease;
+}
+
+.bullet {
+  display: inline-block;
+  width: rem(6px);
+  height: rem(6px);
+  border-radius: 50%;
+  background-color: #cbd5e1;
+  flex-shrink: 0;
+  transition:
+    background-color 140ms ease,
+    transform 140ms ease,
+    box-shadow 140ms ease;
+}
+
+.subLabel {
+  flex: 1;
+  font-size: rem(13px);
+  line-height: rem(18px);
+  color: inherit;
+  font-weight: inherit;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .chevron {

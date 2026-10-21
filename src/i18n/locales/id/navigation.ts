@@ -14,6 +14,8 @@ export const navigation = {
   financialReports: 'Laporan Keuangan',
   budgetPlanning: 'Perencanaan Anggaran',
   cashBank: 'Kas & Bank',
+  cashBankAccounts: 'Akun Kas & Bank',
+  pettyCash: 'Kas Kecil',
   sales: 'Penjualan',
   purchases: 'Pembelian',
   expenses: 'Biaya',
