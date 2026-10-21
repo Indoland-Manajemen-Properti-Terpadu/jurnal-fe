@@ -1,14 +1,14 @@
-import { Box, Group, Paper, SimpleGrid, Skeleton, Stack, Text, ThemeIcon } from '@mantine/core';
-import { IconBuildingBank, IconCoins, IconWallet, IconChecks } from '@tabler/icons-react';
+import { Box, Group, Paper, SimpleGrid, Skeleton, Stack, Text } from '@mantine/core';
 import { formatCurrency } from '@/utils/FormatCurrency';
-import { JournalAccounts } from '@/module/GeneralJournal/JournalAccount/types/JournalAccountModel';
+import type { JournalAccounts } from '@/module/GeneralJournal/JournalAccount/types/JournalAccountModel';
 import { useTranslation } from '@/i18n';
+import classes from './StatsBankCashGrid.module.css';
 
 export const isBankAccount = (account: JournalAccounts): boolean => {
   const name = (account.name || '').toLowerCase();
-  const catName = (account.category?.name || '').toLowerCase();
+  const categoryName = (account.category?.name || '').toLowerCase();
   return (
-    catName.includes('bank') ||
+    categoryName.includes('bank') ||
     name.includes('bank') ||
     name.includes('bca') ||
     name.includes('mandiri') ||
@@ -23,6 +23,29 @@ export const isBankAccount = (account: JournalAccounts): boolean => {
   );
 };
 
+export function summarizeBankCashAccounts(accounts: JournalAccounts[]) {
+  const managedAccounts = (accounts || []).filter((account) => account.isBankAndCash);
+  const bankAccounts = managedAccounts.filter(isBankAccount);
+  const cashAccounts = managedAccounts.filter((account) => !isBankAccount(account));
+  const totalBankBalance = bankAccounts.reduce(
+    (total, account) => total + (Number(account.amount) || 0),
+    0
+  );
+  const totalCashBalance = cashAccounts.reduce(
+    (total, account) => total + (Number(account.amount) || 0),
+    0
+  );
+
+  return {
+    totalLiquidity: totalBankBalance + totalCashBalance,
+    totalBankBalance,
+    totalCashBalance,
+    bankAccountCount: bankAccounts.length,
+    cashAccountCount: cashAccounts.length,
+    accountCount: managedAccounts.length,
+  };
+}
+
 export type StatsBankCashGridProps = {
   accounts: JournalAccounts[];
   loading?: boolean;
@@ -30,123 +53,69 @@ export type StatsBankCashGridProps = {
 
 export default function StatsBankCashGrid({ accounts, loading }: StatsBankCashGridProps) {
   const { t } = useTranslation('journal');
-
-  const cashAndBankAccounts = (accounts || []).filter((acc) => acc.isBankAndCash);
-
-  const totalLiquidity = cashAndBankAccounts.reduce(
-    (sum, acc) => sum + (Number(acc.amount) || 0),
-    0
-  );
-
-  const bankAccounts = cashAndBankAccounts.filter(isBankAccount);
-  const totalBankBalance = bankAccounts.reduce((sum, acc) => sum + (Number(acc.amount) || 0), 0);
-
-  const cashAccounts = cashAndBankAccounts.filter((acc) => !isBankAccount(acc));
-  const totalCashBalance = cashAccounts.reduce((sum, acc) => sum + (Number(acc.amount) || 0), 0);
-
-  const activeAccountsCount = cashAndBankAccounts.length;
-
-  const stats = [
-    {
-      title: t('totalLiquidity'),
-      value: formatCurrency(totalLiquidity),
-      subtitle: t('totalLiquiditySubtitle'),
-      icon: IconCoins,
-      color: totalLiquidity < 0 ? 'red' : 'primary',
-      badgeColor: totalLiquidity < 0 ? 'red' : 'teal',
-    },
-    {
-      title: t('totalBankAccounts'),
-      value: formatCurrency(totalBankBalance),
-      subtitle: t('bankAccountsSubtitle', {
-        count: bankAccounts.length,
-      }),
-      icon: IconBuildingBank,
-      color: 'blue',
-      badgeColor: 'blue',
-    },
-    {
-      title: t('totalCashAccounts'),
-      value: formatCurrency(totalCashBalance),
-      subtitle: t('cashAccountsSubtitle', {
-        count: cashAccounts.length,
-      }),
-      icon: IconWallet,
-      color: 'teal',
-      badgeColor: 'teal',
-    },
-    {
-      title: t('activeAccountsCount'),
-      value: `${activeAccountsCount} Akun`,
-      subtitle: t('activeAccountsCountSubtitle'),
-      icon: IconChecks,
-      color: 'indigo',
-      badgeColor: 'indigo',
-    },
-  ];
+  const summary = summarizeBankCashAccounts(accounts);
 
   if (loading) {
     return (
-      <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }} spacing="md">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <Paper key={`skeleton-${i}`} withBorder radius="md" p="md" bg="white">
-            <Skeleton height={12} width="60%" radius="sm" mb="sm" />
-            <Skeleton height={28} width="85%" radius="sm" mb="xs" />
-            <Skeleton height={10} width="70%" radius="sm" />
-          </Paper>
-        ))}
-      </SimpleGrid>
+      <Paper withBorder radius="lg" p={{ base: 'md', sm: 'xl' }}>
+        <Skeleton height={12} width={150} mb="md" />
+        <Skeleton height={42} width={260} mb="xl" />
+        <SimpleGrid cols={{ base: 1, sm: 3 }}>
+          {Array.from({ length: 3 }).map((_, index) => (
+            <Skeleton key={index} height={54} />
+          ))}
+        </SimpleGrid>
+      </Paper>
     );
   }
 
-  return (
-    <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }} spacing="md">
-      {stats.map((stat) => {
-        const IconComponent = stat.icon;
-        return (
-          <Paper
-            key={stat.title}
-            withBorder
-            radius="md"
-            p="md"
-            bg="white"
-            style={{
-              transition: 'transform 150ms ease, box-shadow 150ms ease',
-            }}
-          >
-            <Group justify="space-between" align="flex-start" wrap="nowrap">
-              <Box style={{ flex: 1 }}>
-                <Text size="xs" c="dimmed" fw={600} tt="uppercase" lts={0.5}>
-                  {stat.title}
-                </Text>
-                <Text
-                  fz={{ base: 20, sm: 22 }}
-                  fw={800}
-                  c="dark.8"
-                  mt={4}
-                  lh={1.2}
-                  style={{ fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.3px' }}
-                >
-                  {stat.value}
-                </Text>
-                <Text size="xs" c="dimmed" mt={4} lineClamp={1}>
-                  {stat.subtitle}
-                </Text>
-              </Box>
+  const details = [
+    {
+      label: t('availableBankBalance'),
+      value: formatCurrency(summary.totalBankBalance),
+      hint: t('bankAccountsSubtitle', { count: summary.bankAccountCount }),
+    },
+    {
+      label: t('cashBalance'),
+      value: formatCurrency(summary.totalCashBalance),
+      hint: t('cashAccountsSubtitle', { count: summary.cashAccountCount }),
+    },
+    {
+      label: t('managedAccounts'),
+      value: String(summary.accountCount),
+      hint: t('activeAccountsCountSubtitle'),
+    },
+  ];
 
-              <ThemeIcon
-                size={42}
-                radius="md"
-                variant="light"
-                color={stat.color}
-                style={{ flexShrink: 0 }}
-              >
-                <IconComponent size={22} stroke={1.8} />
-              </ThemeIcon>
-            </Group>
-          </Paper>
-        );
-      })}
-    </SimpleGrid>
+  return (
+    <Paper className={classes.summary} withBorder radius="lg">
+      <Group className={classes.layout} align="stretch" wrap="nowrap">
+        <Box className={classes.primaryMetric}>
+          <Text fz="sm" c="dimmed" fw={600}>
+            {t('totalLiquidity')}
+          </Text>
+          <Text className={classes.value}>{formatCurrency(summary.totalLiquidity)}</Text>
+          <Text fz="xs" c="dimmed" mt={8}>
+            {t('totalLiquiditySubtitle')}
+          </Text>
+        </Box>
+
+        <SimpleGrid className={classes.details} cols={{ base: 1, sm: 3 }} spacing={0}>
+          {details.map((detail) => (
+            <Stack className={classes.detail} key={detail.label} gap={4}>
+              <Text fz="xs" c="dimmed">
+                {detail.label}
+              </Text>
+              <Text fz="lg" fw={650} c="dark.9" className={classes.tabular}>
+                {detail.value}
+              </Text>
+              <Text fz={11} c="dimmed">
+                {detail.hint}
+              </Text>
+            </Stack>
+          ))}
+        </SimpleGrid>
+      </Group>
+    </Paper>
   );
 }

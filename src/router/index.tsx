@@ -34,6 +34,9 @@ import AddTransferMoneyPage from '@/module/BankCash/TransferMoney/pages/AddTrans
 import AddReceiveMoneyPage from '@/module/BankCash/ReceiveMoney/page/AddReceiveMoney';
 import BankAndCashMainPage from '@/module/BankCash/Main/pages/BankAndCashMainPage';
 import AddSentMoneyPage from '@/module/BankCash/SentMoney/page/AddSentMoney';
+import PettyCashPage from '@/module/BankCash/PettyCash/pages/PettyCashPage';
+import PettyCashDetailPage from '@/module/BankCash/PettyCash/pages/PettyCashDetailPage';
+import PettyCashRouteScope from '@/module/BankCash/PettyCash/pages/PettyCashRouteScope';
 import EditUserForm from '@/module/SettingMenu/UserManagement/User/pages/EditUser';
 import ContactMainPage from '@/module/Contact/view/ContactMainPage';
 import AddContactPage from '@/module/Contact/view/AddContact';
@@ -52,9 +55,7 @@ import ProductionPage from '@/module/Production/view/ProductionPage';
 import FulfillmentPage from '@/module/Fulfillment/view/FulfillmentPage';
 import AssetPage from '@/module/Asset/view/AssetPage';
 import AssetDetailPage from '@/module/Asset/pages/AssetDetailPage';
-import KontakPage from '@/module/Kontak/view/KontakPage';
 import CompanySettingPage from '@/module/SettingMenu/CompanySetting/view/CompanySettingPage';
-import ApprovalSettingPage from '@/module/SettingMenu/ApprovalSetting/view/ApprovalSettingPage';
 import SettingsHubPage from '@/module/SettingMenu/Hub/SettingsHubPage';
 import GeneralSettingPage from '@/module/SettingMenu/GeneralSetting/GeneralSettingPage';
 import AccountMappingPage from '@/module/SettingMenu/AccountMapping/AccountMappingPage';
@@ -113,6 +114,14 @@ const router = createBrowserRouter([
   {
     path: routes.BankAndCash.AddSentMoney,
     element: <AddSentMoneyPage />,
+  },
+  {
+    path: routes.BankAndCash.PettyCash,
+    element: <PettyCashRouteScope />,
+    children: [
+      { index: true, element: <PettyCashPage /> },
+      { path: ':fundId', element: <PettyCashDetailPage /> },
+    ],
   },
 
   // Setting Budget Routes

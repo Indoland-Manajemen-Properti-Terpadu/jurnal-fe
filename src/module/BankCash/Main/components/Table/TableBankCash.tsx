@@ -3,11 +3,9 @@ import {
   ActionIcon,
   Badge,
   Box,
-  Button,
   Group,
   Menu,
   Pagination,
-  Paper,
   Select,
   Skeleton,
   Stack,
@@ -15,7 +13,6 @@ import {
   Tabs,
   Text,
   TextInput,
-  ThemeIcon,
   Tooltip,
 } from '@mantine/core';
 import {
@@ -24,7 +21,6 @@ import {
   IconArrowsShuffle,
   IconArrowUpRight,
   IconBuildingBank,
-  IconCheck,
   IconCoins,
   IconDots,
   IconLock,
@@ -43,6 +39,7 @@ import { JournalAccounts } from '@/module/GeneralJournal/JournalAccount/types/Jo
 import { isBankAccount } from '../StatsBankCashGrid/StatsBankCashGrid';
 import { useTranslation } from '@/i18n';
 import EmptyState from '@/components/EmptyState/EmptyState';
+import classes from './TableBankCash.module.css';
 
 export type TableBankCashProps = {
   accounts: JournalAccounts[];
@@ -66,9 +63,10 @@ export const TableBankCash: React.FC<TableBankCashProps> = ({
   const [page, setPage] = useState<number>(1);
 
   // Filter accounts where isBankAndCash is true
-  const cashAndBankAccounts = useMemo(() => {
-    return (accounts || []).filter((account) => account.isBankAndCash);
-  }, [accounts]);
+  const cashAndBankAccounts = useMemo(
+    () => (accounts || []).filter((account) => account.isBankAndCash),
+    [accounts]
+  );
 
   // Compute category counts
   const categoryCounts = useMemo(() => {
@@ -138,51 +136,58 @@ export const TableBankCash: React.FC<TableBankCashProps> = ({
   };
 
   return (
-    <Stack gap="md">
-      {/* Category Pills & Filter Bar */}
-      <Group justify="space-between" align="center" wrap="wrap" gap="md">
+    <Stack gap="lg">
+      <Group justify="space-between" align="flex-start" gap="md" wrap="wrap">
+        <Box>
+          <Text fz="md" fw={650} c="dark.9">
+            {t('cashBankAccountList')}
+          </Text>
+          <Text fz="xs" c="dimmed" mt={3}>
+            {t('cashBankAccountListDescription')}
+          </Text>
+        </Box>
+
+        {onRefresh && (
+          <Tooltip label={t('refresh')} withArrow>
+            <ActionIcon
+              variant="default"
+              size="lg"
+              radius="md"
+              onClick={onRefresh}
+              loading={loading}
+              aria-label={t('refresh')}
+            >
+              <IconRefresh size={16} />
+            </ActionIcon>
+          </Tooltip>
+        )}
+      </Group>
+
+      <Group
+        className={classes.toolbar}
+        justify="space-between"
+        align="flex-end"
+        wrap="wrap"
+        gap="md"
+      >
         <Tabs
           value={categoryFilter}
           onChange={(val) => {
             setCategoryFilter(val || 'all');
             setPage(1);
           }}
-          variant="pills"
-          radius="md"
+          variant="default"
           color="primary"
         >
-          <Tabs.List>
-            <Tabs.Tab
-              value="all"
-              rightSection={
-                <Badge size="xs" variant="light" color="primary" circle={false}>
-                  {categoryCounts.all}
-                </Badge>
-              }
-            >
-              {t('allAccounts')}
+          <Tabs.List className={classes.categories}>
+            <Tabs.Tab value="all">
+              {t('allAccounts')} · {categoryCounts.all}
             </Tabs.Tab>
-            <Tabs.Tab
-              value="bank"
-              leftSection={<IconBuildingBank size={15} />}
-              rightSection={
-                <Badge size="xs" variant="light" color="blue" circle={false}>
-                  {categoryCounts.bank}
-                </Badge>
-              }
-            >
-              {t('bankAccounts')}
+            <Tabs.Tab value="bank">
+              {t('bankAccounts')} · {categoryCounts.bank}
             </Tabs.Tab>
-            <Tabs.Tab
-              value="cash"
-              leftSection={<IconWallet size={15} />}
-              rightSection={
-                <Badge size="xs" variant="light" color="teal" circle={false}>
-                  {categoryCounts.cash}
-                </Badge>
-              }
-            >
-              {t('cashAccounts')}
+            <Tabs.Tab value="cash">
+              {t('cashAccounts')} · {categoryCounts.cash}
             </Tabs.Tab>
           </Tabs.List>
         </Tabs>
@@ -227,33 +232,11 @@ export const TableBankCash: React.FC<TableBankCashProps> = ({
             w={180}
             comboboxProps={{ position: 'bottom-end', shadow: 'md' }}
           />
-
-          {onRefresh && (
-            <Tooltip label={t('refresh')} withArrow>
-              <ActionIcon
-                variant="light"
-                color="primary"
-                size="input-sm"
-                radius="md"
-                onClick={onRefresh}
-                loading={loading}
-              >
-                <IconRefresh size={16} />
-              </ActionIcon>
-            </Tooltip>
-          )}
         </Group>
       </Group>
 
       {/* Main Table */}
-      <Box
-        style={{
-          border: '1px solid var(--mantine-color-gray-2)',
-          borderRadius: 'var(--mantine-radius-md)',
-          overflow: 'hidden',
-          backgroundColor: 'white',
-        }}
-      >
+      <Box className={classes.tableFrame}>
         <Table
           highlightOnHover
           verticalSpacing="sm"
@@ -364,19 +347,9 @@ export const TableBankCash: React.FC<TableBankCashProps> = ({
                     {/* Account Name & Code */}
                     <Table.Td>
                       <Group gap="sm" wrap="nowrap">
-                        <ThemeIcon
-                          size={38}
-                          radius="md"
-                          variant="light"
-                          color={isBank ? 'blue' : 'teal'}
-                          style={{ flexShrink: 0 }}
-                        >
-                          {isBank ? (
-                            <IconBuildingBank size={20} stroke={1.8} />
-                          ) : (
-                            <IconWallet size={20} stroke={1.8} />
-                          )}
-                        </ThemeIcon>
+                        <Box className={classes.accountIcon} aria-hidden="true">
+                          {isBank ? <IconBuildingBank size={18} /> : <IconWallet size={18} />}
+                        </Box>
 
                         <Box style={{ minWidth: 0 }}>
                           <Group gap="xs" wrap="nowrap" align="center">
@@ -412,17 +385,9 @@ export const TableBankCash: React.FC<TableBankCashProps> = ({
                           </Group>
 
                           <Group gap={6} mt={2} align="center">
-                            <Badge
-                              size="xs"
-                              variant="outline"
-                              color="gray"
-                              radius="sm"
-                              ff="monospace"
-                              fw={600}
-                              styles={{ label: { textTransform: 'none' } }}
-                            >
+                            <Text size="xs" c="dimmed" ff="monospace">
                               {account.accountNumber || '—'}
-                            </Badge>
+                            </Text>
 
                             {account.category?.name && account.category.name !== 'Kas & Bank' && (
                               <Text size="xs" c="dimmed">
@@ -436,17 +401,9 @@ export const TableBankCash: React.FC<TableBankCashProps> = ({
 
                     {/* Account Type */}
                     <Table.Td>
-                      <Badge
-                        variant="light"
-                        color={isBank ? 'blue' : 'teal'}
-                        radius="sm"
-                        size="sm"
-                        leftSection={
-                          isBank ? <IconBuildingBank size={12} /> : <IconWallet size={12} />
-                        }
-                      >
+                      <Text size="sm" c="dark.7">
                         {isBank ? t('accountTypeBank') : t('accountTypeCash')}
-                      </Badge>
+                      </Text>
                     </Table.Td>
 
                     {/* Ledger Balance */}
@@ -466,21 +423,16 @@ export const TableBankCash: React.FC<TableBankCashProps> = ({
 
                     {/* Reconciliation Status */}
                     <Table.Td style={{ textAlign: 'center' }}>
-                      {isBank ? (
-                        <Badge
-                          variant="light"
-                          color="indigo"
-                          size="sm"
-                          radius="sm"
-                          leftSection={<IconArrowsShuffle size={12} />}
-                        >
-                          {t('reconciledReady')}
-                        </Badge>
-                      ) : (
-                        <Badge variant="subtle" color="gray" size="sm" radius="sm">
-                          {t('accountTypeCash')}
-                        </Badge>
-                      )}
+                      <Group gap={7} justify="center" wrap="nowrap">
+                        <span
+                          className={classes.statusDot}
+                          data-tone={isBank ? 'ready' : 'neutral'}
+                          aria-hidden="true"
+                        />
+                        <Text size="xs" c="gray.7" fw={550}>
+                          {isBank ? t('reconciledReady') : t('notApplicable')}
+                        </Text>
+                      </Group>
                     </Table.Td>
 
                     {/* Quick Action Menu */}

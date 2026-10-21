@@ -18,6 +18,8 @@ export const routes = {
     AddTransferMoney: '/bank-cash/add-transfer-money',
     AddReceiveMoney: '/bank-cash/add-receive-money',
     AddSentMoney: '/bank-cash/add-sent-money',
+    PettyCash: '/bank-cash/petty-cash',
+    PettyCashDetail: '/bank-cash/petty-cash/:fundId',
   },
 
   Contact: {

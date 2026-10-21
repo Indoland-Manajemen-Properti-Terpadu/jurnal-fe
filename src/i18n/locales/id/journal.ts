@@ -65,6 +65,9 @@ export const journal = {
   addCashBankAccount: 'Tambah Akun Kas / Bank',
   totalLiquidity: 'Total Saldo Likuid (Kas & Bank)',
   totalLiquiditySubtitle: 'Akumulasi saldo kas fisik dan rekening bank',
+  availableBankBalance: 'Saldo rekening bank',
+  cashBalance: 'Saldo kas',
+  managedAccounts: 'Akun dikelola',
   totalBankAccounts: 'Total Saldo Rekening Bank',
   bankAccountsSubtitle: '{{count}} rekening bank operasional',
   totalCashAccounts: 'Total Kas & Kas Kecil',
@@ -72,6 +75,9 @@ export const journal = {
   activeAccountsCount: 'Akun Terdaftar',
   activeAccountsCountSubtitle: 'Terhubung langsung dengan buku besar',
   allAccounts: 'Semua Akun',
+  cashBankAccountList: 'Daftar akun',
+  cashBankAccountListDescription: 'Pantau saldo buku besar dan lanjutkan ke mutasi setiap akun.',
+  notApplicable: 'Tidak berlaku',
   bankAccounts: 'Rekening Bank',
   cashAccounts: 'Kas & Kas Kecil',
   searchAccountPlaceholder: 'Cari berdasarkan nama atau kode akun (misal: BCA, 1-10001)...',
@@ -140,7 +146,8 @@ export const journal = {
 
   // Section 1
   sec1Title: 'Identitas & Klasifikasi Akun',
-  sec1Subtitle: 'Tentukan kategori akuntansi, nomor kode akun, nama akun, serta atribut perilaku saldo',
+  sec1Subtitle:
+    'Tentukan kategori akuntansi, nomor kode akun, nama akun, serta atribut perilaku saldo',
   fieldCategoryLabel: 'Kategori Akun',
   fieldCategoryPlaceholder: 'Pilih kategori klasifikasi akun...',
   fieldCategoryDesc: 'Menentukan posisi laporan & kode awal otomatis',
@@ -150,7 +157,8 @@ export const journal = {
   useSuggestedCode: 'Gunakan saran: {{code}}',
   fieldNameLabel: 'Nama Akun',
   fieldNamePlaceholder: 'Contoh: Bank Operasional Utama, Kas Kecil Kantor, Beban Sewa Gedung',
-  fieldNameDesc: 'Gunakan nama yang spesifik dan mudah dikenali oleh tim operasional maupun akuntan',
+  fieldNameDesc:
+    'Gunakan nama yang spesifik dan mudah dikenali oleh tim operasional maupun akuntan',
 
   // Dual Attribute Cards (Bank/Cash & Contra)
   attrBankCashTitle: 'Integrasi Modul Kas & Bank',
@@ -173,7 +181,8 @@ export const journal = {
 
   // Section 2
   sec2Title: 'Struktur & Hierarki Bagan Akun',
-  sec2Subtitle: 'Atur apakah akun ini berdiri mandiri, menjadi sub-akun turunan, atau menjadi akun induk',
+  sec2Subtitle:
+    'Atur apakah akun ini berdiri mandiri, menjadi sub-akun turunan, atau menjadi akun induk',
   typeSingleTitle: 'Akun Mandiri',
   typeSingleBadge: 'Standar',
   typeSingleDesc: 'Berdiri sendiri untuk pencatatan transaksi langsung tanpa ikatan induk/anak.',
@@ -185,22 +194,27 @@ export const journal = {
   typeHeaderDesc: 'Merangkum akumulasi saldo dari beberapa sub-akun di bawahnya pada laporan.',
   selectParentLabel: 'Pilih Akun Induk (Parent Account)',
   selectParentPlaceholder: 'Cari dan pilih akun induk...',
-  selectParentHelper: 'Saldo akun baru ini akan otomatis dikonsolidasikan ke dalam Akun Induk yang dipilih.',
+  selectParentHelper:
+    'Saldo akun baru ini akan otomatis dikonsolidasikan ke dalam Akun Induk yang dipilih.',
   selectChildLabel: 'Hubungkan Sub Akun Terkait (Opsional)',
   selectChildPlaceholder: 'Cari dan pilih sub akun...',
   selectChildHelper: 'Anda dapat menautkan sub-akun sekarang atau menambahkannya di kemudian hari.',
-  selectCategoryFirstAlert: 'Pilih Kategori Akun terlebih dahulu pada bagian atas untuk memuat daftar kandidat Akun Induk / Sub Akun yang sejenis.',
+  selectCategoryFirstAlert:
+    'Pilih Kategori Akun terlebih dahulu pada bagian atas untuk memuat daftar kandidat Akun Induk / Sub Akun yang sejenis.',
   hierarchyVisualLabel: 'Visualisasi Struktur Pohon Akun:',
 
   // Section 3
   sec3Title: 'Hak Akses & Otorisasi Pengguna',
   sec3Subtitle: 'Kendalikan siapa saja yang dapat melihat dan memilih akun ini saat membuat jurnal',
   accessAllTitle: 'Semua Pengguna',
-  accessAllDesc: 'Seluruh staf keuangan dan pengguna aktif di entitas ini dapat menggunakan akun ini.',
+  accessAllDesc:
+    'Seluruh staf keuangan dan pengguna aktif di entitas ini dapat menggunakan akun ini.',
   accessUsersTitle: 'Pengguna Spesifik',
-  accessUsersDesc: 'Batasi visibilitas akun hanya untuk personel tertentu yang dipilih secara manual.',
+  accessUsersDesc:
+    'Batasi visibilitas akun hanya untuk personel tertentu yang dipilih secara manual.',
   accessRolesTitle: 'Role Otorisasi Tertentu',
-  accessRolesDesc: 'Izinkan akses berdasarkan jabatan/peran (misal: hanya Manajer Keuangan & Akuntan).',
+  accessRolesDesc:
+    'Izinkan akses berdasarkan jabatan/peran (misal: hanya Manajer Keuangan & Akuntan).',
   centralizedAccessTitle: 'Otorisasi Terpusat Otomatis',
   centralizedAccessDesc:
     'Untuk menjaga keutuhan konsolidasi saldo pada struktur berjenjang, akses Akun Induk dan Sub Akun otomatis dibuka untuk Semua Pengguna.',
@@ -229,6 +243,74 @@ export const journal = {
   checkHierarchyAndAccess: 'Aturan hierarki & otorisasi valid',
   saveAccountBtn: 'Simpan Akun ke COA',
   cancelBtn: 'Batal',
+
+  // Petty Cash
+  pettyCash: 'Kas Kecil (Petty Cash)',
+  cashBankAccounts: 'Akun Kas & Bank',
+  pettyCashSubtitle:
+    'Kelola dana operasional harian, pengisian kembali, dan pemeriksaan kas dalam satu alur yang tertib.',
+  pettyCashRecordExpense: 'Catat Pengeluaran',
+  pettyCashFund: 'Dana kas kecil',
+  pettyCashMoreActions: 'Tindakan lainnya',
+  pettyCashRequestReplenishment: 'Ajukan pengisian kembali',
+  pettyCashCountCash: 'Lakukan opname kas',
+  pettyCashAvailable: 'Saldo tersedia',
+  pettyCashCeiling: 'Pagu tetap',
+  pettyCashUnreimbursed: 'Belum diganti',
+  pettyCashAccountability: 'Total pertanggungjawaban',
+  pettyCashUsed: 'Dana terpakai',
+  pettyCashExpenses: 'Pengeluaran',
+  pettyCashReplenishments: 'Pengisian Kembali',
+  pettyCashCounts: 'Opname',
+  pettyCashDocument: 'Dokumen',
+  pettyCashDate: 'Tanggal',
+  pettyCashVoucherCount: 'Voucher',
+  pettyCashAmount: 'Jumlah',
+  pettyCashStatus: 'Status',
+  pettyCashAction: 'Tindakan',
+  pettyCashDisbursed: 'Sudah dicairkan',
+  pettyCashSubmitted: 'Menunggu pencairan',
+  pettyCashMarkDisbursed: 'Catat pencairan',
+  pettyCashDisbursementRecorded: 'Pencairan berhasil dicatat',
+  pettyCashNoAction: 'Tidak ada tindakan',
+  pettyCashPhysical: 'Kas fisik',
+  pettyCashVariance: 'Selisih',
+  pettyCashFundNotFound: 'Dana kas kecil tidak ditemukan',
+  pettyCashFundNotFoundDescription:
+    'Dana mungkin sudah dipindahkan, ditutup, atau alamat halaman tidak tepat.',
+  pettyCashBack: 'Kembali ke Kas Kecil',
+  pettyCashFixedFund: 'Metode dana tetap',
+  pettyCashCustodian: 'Pemegang dana',
+  pettyCashSourceBank: 'Rekening bank sumber',
+  pettyCashLastCount: 'Opname terakhir',
+  pettyCashRecentExpenses: 'Pengeluaran terbaru',
+  pettyCashLowBalance: 'Saldo di bawah batas minimum',
+  pettyCashAvailableStatus: 'Dana operasional tersedia',
+  pettyCashStatusDraft: 'Draf',
+  pettyCashStatusApproved: 'Disetujui',
+  pettyCashStatusPaid: 'Sudah dibayar',
+  pettyCashStatusReplenishing: 'Dalam pengisian',
+  pettyCashStatusReimbursed: 'Selesai diganti',
+  pettyCashStatusVoid: 'Dibatalkan',
+  pettyCashStatusSubmitted: 'Diajukan',
+  pettyCashStatusRejected: 'Ditolak',
+  pettyCashSearchVoucher: 'Cari no. voucher, penerima, atau keterangan...',
+  pettyCashFilterFund: 'Filter dana kas kecil',
+  pettyCashFilterStatus: 'Filter status',
+  pettyCashAllStatuses: 'Semua status',
+  pettyCashShowing: 'Menampilkan',
+  pettyCashExpenseVouchers: 'voucher pengeluaran',
+  pettyCashSelectAllRows: 'Pilih semua baris',
+  pettyCashVoucherNumber: 'No. voucher',
+  pettyCashBeneficiaryFund: 'Penerima & kas kecil',
+  pettyCashExpenseAccount: 'Akun beban (COA)',
+  pettyCashExpenseDescription: 'Deskripsi pengeluaran',
+  pettyCashNoVouchers: 'Belum ada voucher pengeluaran',
+  pettyCashNoFilteredVouchers: 'Tidak ada voucher yang sesuai dengan filter pencarian.',
+  pettyCashNoVouchersDescription: 'Belum ada bukti pengeluaran kas kecil yang dicatat.',
+  pettyCashSelect: 'Pilih',
+  pettyCashEvidence: 'Bukti',
+  pettyCashViewVoucher: 'Lihat rincian voucher',
 };
 
 export default journal;

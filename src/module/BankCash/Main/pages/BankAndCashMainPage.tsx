@@ -1,5 +1,5 @@
 import React from 'react';
-import { ActionIcon, Alert, Box, Button, Group, Menu, Paper, Stack, Tooltip } from '@mantine/core';
+import { Alert, Box, Button, Group, Menu, Paper, Stack } from '@mantine/core';
 import {
   IconAlertCircle,
   IconArrowDownRight,
@@ -9,16 +9,16 @@ import {
   IconChevronDown,
   IconFileSpreadsheet,
   IconPlus,
-  IconRefresh,
 } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { routes } from '@/router/routes';
 import ModuleHeader from '@/components/ModuleHeader/ModuleHeader';
 import BankAndCashLayout from './Layout';
 import StatsBankCashGrid from '../components/StatsBankCashGrid/StatsBankCashGrid';
-import TableBankCash from '../components/Table/TableBankCash';
+import { TableBankCash } from '../components/Table/TableBankCash';
 import { useJournalAccounts } from '@/module/GeneralJournal/JournalAccount/hooks/useJournalAccounts';
 import { useTranslation } from '@/i18n';
+import classes from './BankAndCashMainPage.module.css';
 
 export function BankAndCashMainPage() {
   const navigate = useNavigate();
@@ -27,28 +27,14 @@ export function BankAndCashMainPage() {
 
   return (
     <BankAndCashLayout>
-      <Box p={{ base: 'md', sm: 'xl' }}>
-        <Stack gap="lg">
-          {/* Canonical Module Header */}
+      <Box className={classes.page} p={{ base: 'md', sm: 'xl' }}>
+        <Stack className={classes.workspace} gap="lg">
           <ModuleHeader
             icon={IconBuildingBank}
             title={t('cashBankTitle')}
             description={t('cashBankSubtitle')}
             actions={
               <Group gap="sm" wrap="wrap">
-                <Tooltip label={t('refresh')} withArrow>
-                  <ActionIcon
-                    variant="default"
-                    size="lg"
-                    radius="md"
-                    onClick={() => refetch()}
-                    loading={isLoading}
-                  >
-                    <IconRefresh size={18} />
-                  </ActionIcon>
-                </Tooltip>
-
-                {/* Dropdown Catat Transaksi */}
                 <Menu position="bottom-end" shadow="md" width={240} withArrow>
                   <Menu.Target>
                     <Button
@@ -89,10 +75,8 @@ export function BankAndCashMainPage() {
                   </Menu.Dropdown>
                 </Menu>
 
-                {/* Primary Button: Tambah Akun Kas/Bank */}
                 <Button
-                  variant="gradient"
-                  gradient={{ from: 'primary.6', to: 'secondary.6', deg: 135 }}
+                  color="primary"
                   size="sm"
                   radius="md"
                   leftSection={<IconPlus size={16} />}
@@ -110,11 +94,9 @@ export function BankAndCashMainPage() {
             </Alert>
           )}
 
-          {/* Quick Metrics KPI Stats Grid */}
           <StatsBankCashGrid accounts={accounts} loading={isLoading} />
 
-          {/* Main Content Container with Table */}
-          <Paper withBorder radius="lg" p="md" bg="white">
+          <Paper className={classes.accounts} withBorder radius="lg" p={{ base: 'md', sm: 'lg' }}>
             <TableBankCash accounts={accounts} loading={isLoading} onRefresh={() => refetch()} />
           </Paper>
         </Stack>
