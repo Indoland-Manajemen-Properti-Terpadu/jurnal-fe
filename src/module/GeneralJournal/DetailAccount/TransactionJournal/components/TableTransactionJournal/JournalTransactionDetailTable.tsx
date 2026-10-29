@@ -24,8 +24,8 @@ import { useNavigate } from 'react-router-dom';
 import { isJournalBalanced } from '@/lib/accounting/journalBalance';
 import { formatCurrency } from '@/utils/FormatCurrency';
 import { routes } from '@/router/routes';
-import { TransactionDetail } from '../../types/TransactionDetailModel';
 import { EmptyState } from '@/components/EmptyState';
+import { TransactionDetail } from '../../types/TransactionDetailModel';
 
 interface Props {
   transactionDetails?: TransactionDetail[];
@@ -124,7 +124,7 @@ export const JournalTransactionDetailTable: React.FC<Props> = ({
 
           <Table.Tbody>
             {transactionDetails.map((txn, index) => {
-              const account = txn.account;
+              const { account } = txn;
               const hasDebit = (txn.debit || 0) > 0;
               const hasCredit = (txn.credit || 0) > 0;
 

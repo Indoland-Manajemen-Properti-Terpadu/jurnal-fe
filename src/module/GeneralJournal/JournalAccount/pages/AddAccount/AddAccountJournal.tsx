@@ -51,10 +51,10 @@ import { themeColors } from '@/theme';
 import { useTranslation } from '@/i18n';
 import { useGetAllUser } from '@/module/SettingMenu/UserManagement/User/service/User.service';
 import { GetRoles } from '@/module/SettingMenu/UserManagement/Role/Service/Role.service';
-import { GetCategoryAccount } from '../../services/GetCategoryAccount.service';
-import { useGetCategoryInfo } from '../../services/GetCategoryInfo.service';
 import { getCategoryPrefix } from '@/lib/accounting/accountTypes';
 import { isDebitNormal } from '@/lib/accounting/normalBalance';
+import { GetCategoryAccount } from '../../services/GetCategoryAccount.service';
+import { useGetCategoryInfo } from '../../services/GetCategoryInfo.service';
 import { useAddAccount } from '../../services/AddAccount.service';
 import { AddAccountPayload } from '../../types/AddAccountPayload';
 import { AccountPreviewCard, AccountingGuideCard } from '../../components';
@@ -69,9 +69,8 @@ const TAX_OPTIONS = [
 export { getCategoryPrefix };
 
 /** Effective normal side of the account being created: the category flag, flipped by contra. */
-export const resolveEffectiveDebit = (categoryIsDebit: boolean | undefined, isContra: boolean) => {
-  return isDebitNormal({ isDebit: categoryIsDebit ?? true, isContra });
-};
+export const resolveEffectiveDebit = (categoryIsDebit: boolean | undefined, isContra: boolean) =>
+  isDebitNormal({ isDebit: categoryIsDebit ?? true, isContra });
 
 /**
  * Shared input styles to guarantee 100% pixel-aligned side-by-side 2-column form inputs.
@@ -277,9 +276,10 @@ export const AddAccountJournalPage: React.FC = () => {
 
   const isIncomeStatementCategory = useMemo(() => Number(activePrefix) >= 4, [activePrefix]);
 
-  const effectiveDebit = useMemo(() => {
-    return resolveEffectiveDebit(selectedCategoryObj?.isDebit, form.values.isContra);
-  }, [selectedCategoryObj?.isDebit, form.values.isContra]);
+  const effectiveDebit = useMemo(
+    () => resolveEffectiveDebit(selectedCategoryObj?.isDebit, form.values.isContra),
+    [selectedCategoryObj?.isDebit, form.values.isContra]
+  );
 
   // Readiness Checks
   const hasCategory = Boolean(form.values.category);

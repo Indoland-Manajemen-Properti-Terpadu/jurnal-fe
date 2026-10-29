@@ -45,6 +45,8 @@ import ModuleHeader from '@/components/ModuleHeader/ModuleHeader';
 import { ConfirmModal } from '@/components';
 import deleteModalImage from '@/assets/img/vectors/delete_modal.svg';
 
+import { useInitialBalanceStore } from '@/store/GeneralJournal/initialBalanceAccount';
+import { useTranslation } from '@/i18n';
 import BeginningBalancePageLayout from './Layout';
 import TableBeginningBalance from '../components/TableBeginningBalance';
 import BeginningBalanceLogsModal from '../components/BeginningBalanceLogsModal';
@@ -55,8 +57,6 @@ import {
 } from '../hooks/useDraftBalance';
 import { useJournalAccounts } from '../../JournalAccount/hooks/useJournalAccounts';
 import { JournalAccounts } from '../../JournalAccount/types/JournalAccountModel';
-import { useInitialBalanceStore } from '@/store/GeneralJournal/initialBalanceAccount';
-import { useTranslation } from '@/i18n';
 
 type OpeningRow = { debit?: unknown; credit?: unknown };
 
@@ -155,9 +155,10 @@ const BeginningBalancePage: React.FC = () => {
   };
 
   // Calculate totals
-  const { totalDebit, totalCredit, difference, isBalanced } = useMemo(() => {
-    return summarizeOpeningBalance(listAccounts);
-  }, [listAccounts]);
+  const { totalDebit, totalCredit, difference, isBalanced } = useMemo(
+    () => summarizeOpeningBalance(listAccounts),
+    [listAccounts]
+  );
 
   // Categories list for filtering
   const categoryOptions = useMemo(() => {

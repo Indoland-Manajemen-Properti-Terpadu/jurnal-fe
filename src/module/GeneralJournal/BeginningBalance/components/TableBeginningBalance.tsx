@@ -43,24 +43,26 @@ const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
   selectedCategory = null,
 }) => {
   // Filter records based on search and category
-  const filteredRecords = useMemo(() => {
-    return data.filter((item) => {
-      const q = searchQuery.toLowerCase().trim();
-      const matchesSearch =
-        !q ||
-        (item.name && item.name.toLowerCase().includes(q)) ||
-        (item.accountNumber && item.accountNumber.toLowerCase().includes(q)) ||
-        (item.category?.name && item.category.name.toLowerCase().includes(q));
+  const filteredRecords = useMemo(
+    () =>
+      data.filter((item) => {
+        const q = searchQuery.toLowerCase().trim();
+        const matchesSearch =
+          !q ||
+          (item.name && item.name.toLowerCase().includes(q)) ||
+          (item.accountNumber && item.accountNumber.toLowerCase().includes(q)) ||
+          (item.category?.name && item.category.name.toLowerCase().includes(q));
 
-      const matchesCategory =
-        !selectedCategory ||
-        selectedCategory === 'all' ||
-        item.category?.name?.toLowerCase() === selectedCategory.toLowerCase() ||
-        item.category?.categoryID === selectedCategory;
+        const matchesCategory =
+          !selectedCategory ||
+          selectedCategory === 'all' ||
+          item.category?.name?.toLowerCase() === selectedCategory.toLowerCase() ||
+          item.category?.categoryID === selectedCategory;
 
-      return matchesSearch && matchesCategory;
-    });
-  }, [data, searchQuery, selectedCategory]);
+        return matchesSearch && matchesCategory;
+      }),
+    [data, searchQuery, selectedCategory]
+  );
 
   const handleValueChange = (accountId: string, field: 'debit' | 'credit', rawString: string) => {
     const cleanNumbers = rawString.replace(/\D/g, '');

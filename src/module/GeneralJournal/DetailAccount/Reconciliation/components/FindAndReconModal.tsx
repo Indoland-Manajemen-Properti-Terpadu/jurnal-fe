@@ -10,7 +10,6 @@ import { formatCurrency } from '@/utils/FormatCurrency';
 import { DatePickerInput } from '@mantine/dates';
 import { useParams } from 'react-router-dom';
 import { dateFormatV1 } from '@/utils/FormatDate';
-import { BankStatementData } from '../types/GetReconciliationModel';
 import uploadTemplateImage from '@/assets/img/vectors/rekon.svg';
 
 import {
@@ -19,6 +18,7 @@ import {
   MagnifyingGlass,
   PuzzlePieceIcon,
 } from '@phosphor-icons/react';
+import { BankStatementData } from '../types/GetReconciliationModel';
 import useFilterTransaction from '../../Main/store/FilterTransaction';
 import { useGetJournalDetailsForRecon } from '../services/GetJournalDetailsForRecon.service';
 
@@ -98,9 +98,10 @@ export const FindAndReconModal: React.FC<FindAndReconModalProps> = ({
   });
 
   const totalNominal = Math.abs(SelectedBankStatament?.amount || 0);
-  const selectedNominal = selectedRecords.reduce((total, record) => {
-    return total + (record.debit || record.credit || 0);
-  }, 0);
+  const selectedNominal = selectedRecords.reduce(
+    (total, record) => total + (record.debit || record.credit || 0),
+    0
+  );
   const shortageNominal = totalNominal - selectedNominal;
   const excessNominal = selectedNominal - totalNominal;
 
@@ -182,7 +183,7 @@ export const FindAndReconModal: React.FC<FindAndReconModalProps> = ({
         size="65rem"
         opened={opened}
         onClose={onClose}
-        withCloseButton={true}
+        withCloseButton
         title={
           <Text fw={700} fz={18} c={themeColors.black[9]}>
             Cocokkan dengan Rekening Koran
