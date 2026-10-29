@@ -29,7 +29,7 @@ Namespace `pendingChanges` (`id` primary, `en`), in `src/i18n/locales/{id,en}/pe
 
 ## Known gaps
 
-- `src/components/Navbar/page.tsx` (a shared component) imports this feature module for the badge count, which breaks the rule that `src/components` never imports `src/module`. It shows up as `import/no-cycle` (Navbar, AppShellLayout, this page) in the lint baseline. To be fixed with the layout move in M4.
+- `src/components/Navbar/page.tsx` (a shared component) imports this feature module for the badge count, which breaks the rule that `src/components` never imports `src/module`. The page itself does not render `AppShellLayout`: the router wraps it, which keeps `AppShellLayout -> Navbar -> this module -> page -> AppShellLayout` from becoming an import cycle. To be fixed properly with the layout move in M4.
 - The stat cards and tab counts for fines and payments only count the items of the current page, not the whole queue (unchanged behavior).
 - The `status` filter exists in the API call but the page never sets it.
 - The invoice link navigates to a hard-coded `/sales/:id` instead of a route constant.

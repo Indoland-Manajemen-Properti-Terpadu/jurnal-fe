@@ -14,7 +14,6 @@ import {
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { IconCheck, IconInfoCircle, IconRefresh, IconShieldCheck } from '@tabler/icons-react';
-import AppShellLayout from '@/components/AppShellLayout';
 import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
 import { EmptyState } from '@/components/EmptyState/EmptyState';
 import { useTranslation } from '@/i18n';
@@ -96,7 +95,7 @@ export default function PendingChangesPage() {
   const { fine: fineCount, payment: paymentCount } = countByType(items);
 
   return (
-    <AppShellLayout>
+    <>
       <Box p={{ base: 'md', sm: 'xl' }}>
         <Stack gap="lg">
           <ModuleHeader
@@ -231,6 +230,6 @@ export default function PendingChangesPage() {
         onClose={closeAllModal}
         onConfirm={handleConfirmApproveAll}
       />
-    </AppShellLayout>
+    </>
   );
 }

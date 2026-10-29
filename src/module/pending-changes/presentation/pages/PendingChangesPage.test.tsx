@@ -5,10 +5,6 @@ import { render, screen } from '@test-utils';
 import { useI18nStore } from '@/i18n/store';
 import PendingChangesPage from './PendingChangesPage';
 
-vi.mock('@/components/AppShellLayout', () => ({
-  default: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-}));
-
 const approveMutateAsync = vi.fn();
 const approveAllMutateAsync = vi.fn();
 
