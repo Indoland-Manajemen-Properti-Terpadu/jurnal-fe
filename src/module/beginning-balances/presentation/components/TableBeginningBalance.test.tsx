@@ -1,7 +1,7 @@
 import { vi } from 'vitest';
 import { fireEvent, render, screen } from '@test-utils';
-import TableBeginningBalance, { isNormalDebit } from './TableBeginningBalance';
-import { JournalAccounts } from '../../JournalAccount/types/JournalAccountModel';
+import { JournalAccounts } from '@/module/chart-of-accounts';
+import TableBeginningBalance from './TableBeginningBalance';
 
 type MockColumn = { accessor: string; render?: (item: JournalAccounts) => React.ReactNode };
 
@@ -19,32 +19,6 @@ vi.mock('mantine-datatable', () => ({
     </div>
   ),
 }));
-
-describe('I5 isNormalDebit in TableBeginningBalance (characterization)', () => {
-  it('uses the backend flag first, even against a credit keyword', () => {
-    expect(isNormalDebit('Hutang Usaha', true)).toBe(true);
-    expect(isNormalDebit('Kas', false)).toBe(false);
-  });
-
-  it.each(['kewajiban', 'hutang', 'liabilitas', 'modal', 'ekuitas', 'pendapatan', 'penjualan'])(
-    'falls back to credit for the keyword %s, in any case',
-    (word) => {
-      expect(isNormalDebit(word)).toBe(false);
-      expect(isNormalDebit(`Total ${word.toUpperCase()} Lancar`)).toBe(false);
-    }
-  );
-
-  it('falls back to debit for other or empty categories', () => {
-    expect(isNormalDebit('Kas & Bank')).toBe(true);
-    expect(isNormalDebit('Beban Gaji')).toBe(true);
-    expect(isNormalDebit('')).toBe(true);
-    expect(isNormalDebit(undefined)).toBe(true);
-  });
-
-  it('has no contra handling', () => {
-    expect(isNormalDebit('Kas', undefined)).toBe(true);
-  });
-});
 
 const account = (over: Partial<JournalAccounts> = {}): JournalAccounts => ({
   id: 'acc-1',

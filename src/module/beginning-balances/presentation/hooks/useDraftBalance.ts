@@ -1,60 +1,54 @@
 import { notifications } from '@mantine/notifications';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { t } from '@/i18n';
 import {
-  getDraftAccount,
-  getDraftBalanceLogs,
-  postDraftBalance,
-  postPublishDraftBalance,
-} from '../services/SetDraftBalance.service';
+  fetchDraftBalance,
+  errorMessage,
+  fetchDraftBalanceLogs,
+  publishBalance,
+  saveDraftBalance,
+} from '../../infrastructure/draftBalanceApi';
+
+const tr = (key: string, params?: Record<string, string | number>) =>
+  t(key, params, 'beginningBalances');
 
 export const useDraftAccount = () => {
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['draftAccounts'],
-    queryFn: getDraftAccount,
+    queryFn: fetchDraftBalance,
   });
 
-  const rawData: any = data?.data || data;
-
-  return {
-    draftAccounts: rawData,
-    rawResponse: data,
-    isLoading,
-    isError,
-    refetch,
-  };
+  return { draftAccounts: data, isLoading, isError, refetch };
 };
 
-export const useDraftBalanceLogs = (enabled: boolean = true) => {
-  return useQuery({
+export const useDraftBalanceLogs = (enabled: boolean = true) =>
+  useQuery({
     queryKey: ['draftBalanceLogs'],
-    queryFn: getDraftBalanceLogs,
+    queryFn: fetchDraftBalanceLogs,
     enabled,
   });
-};
 
 export const useSetDraftBalance = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: postDraftBalance,
+    mutationFn: saveDraftBalance,
     onSuccess: () => {
       notifications.show({
         color: 'teal',
         autoClose: 3500,
-        title: 'Draf Berhasil Disimpan',
-        message: 'Data saldo awal buku besar telah berhasil disimpan sebagai draf.',
+        title: tr('toast.draftSavedTitle'),
+        message: tr('toast.draftSavedMessage'),
       });
       queryClient.invalidateQueries({ queryKey: ['draftAccounts'] });
       queryClient.invalidateQueries({ queryKey: ['draftBalanceLogs'] });
       queryClient.invalidateQueries({ queryKey: ['accounts'] });
     },
-    onError: (error: any) => {
-      console.error('Error saving draft balance:', error);
+    onError: (error: unknown) => {
       notifications.show({
         color: 'red',
         autoClose: 4000,
-        title: 'Gagal Menyimpan Draf',
-        message:
-          error?.response?.data?.message || 'Terjadi kesalahan saat menyimpan draf saldo awal.',
+        title: tr('toast.draftFailedTitle'),
+        message: errorMessage(error, tr('toast.draftFailedMessage')),
       });
     },
   });
@@ -63,28 +57,25 @@ export const useSetDraftBalance = () => {
 export const usePublishDraftBalance = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: postPublishDraftBalance,
+    mutationFn: publishBalance,
     onSuccess: () => {
       notifications.show({
         color: 'teal',
         autoClose: 4000,
-        title: 'Saldo Awal Berhasil Dipublikasikan!',
-        message: 'Saldo awal telah dicatat ke dalam buku besar akun.',
+        title: tr('toast.publishedTitle'),
+        message: tr('toast.publishedMessage'),
       });
       queryClient.invalidateQueries({ queryKey: ['draftAccounts'] });
       queryClient.invalidateQueries({ queryKey: ['draftBalanceLogs'] });
       queryClient.invalidateQueries({ queryKey: ['accounts'] });
       queryClient.invalidateQueries({ queryKey: ['journalAccounts'] });
     },
-    onError: (error: any) => {
-      console.error('Error publishing draft balance:', error);
+    onError: (error: unknown) => {
       notifications.show({
         color: 'red',
         autoClose: 4000,
-        title: 'Gagal Mempublikasikan Saldo Awal',
-        message:
-          error?.response?.data?.message ||
-          'Terjadi kesalahan saat mempublikasikan saldo awal ke buku besar.',
+        title: tr('toast.publishFailedTitle'),
+        message: errorMessage(error, tr('toast.publishFailedMessage')),
       });
     },
   });

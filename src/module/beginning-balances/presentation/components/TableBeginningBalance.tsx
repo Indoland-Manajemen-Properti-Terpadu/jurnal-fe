@@ -9,20 +9,19 @@ import {
   ThemeIcon,
   Tooltip,
   ActionIcon,
-  Box,
 } from '@mantine/core';
-import {
-  IconArrowDownRight,
-  IconArrowUpRight,
-  IconX,
-  IconAlertCircle,
-  IconSparkles,
-} from '@tabler/icons-react';
-import { isDebitNormal } from '@/lib/accounting/normalBalance';
-import { formatCurrency, numberFormat } from '@/utils/FormatCurrency';
+import { IconArrowDownRight, IconArrowUpRight, IconX } from '@tabler/icons-react';
+import { numberFormat } from '@/utils/FormatCurrency';
 import EmptyState from '@/components/EmptyState/EmptyTable';
 import defaultEmptyImage from '@/assets/img/Empty-Dataa.svg';
-import { JournalAccounts } from '../../JournalAccount/types/JournalAccountModel';
+import type { JournalAccounts } from '@/module/chart-of-accounts';
+import { useTranslation } from '@/i18n';
+import {
+  accountKey,
+  applyAmountEntry,
+  clearAccountRow,
+  isNormalDebit,
+} from '../../domain/openingBalanceRules';
 
 type TableBeginningBalanceProps = {
   data: JournalAccounts[];
@@ -31,17 +30,13 @@ type TableBeginningBalanceProps = {
   selectedCategory?: string | null;
 };
 
-/** Determine normal balance position from category standard */
-export function isNormalDebit(categoryName?: string, isDebit?: boolean): boolean {
-  return isDebitNormal({ isDebit, categoryName });
-}
-
 const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
   data,
   onChange,
   searchQuery = '',
   selectedCategory = null,
 }) => {
+  const { t } = useTranslation('beginningBalances');
   // Filter records based on search and category
   const filteredRecords = useMemo(
     () =>
@@ -65,37 +60,11 @@ const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
   );
 
   const handleValueChange = (accountId: string, field: 'debit' | 'credit', rawString: string) => {
-    const cleanNumbers = rawString.replace(/\D/g, '');
-    const numValue = cleanNumbers ? parseInt(cleanNumbers, 10) : 0;
-    const oppositeField = field === 'debit' ? 'credit' : 'debit';
-
-    const updated = data.map((acc) => {
-      if (acc.id === accountId || (acc as any)._id === accountId) {
-        return {
-          ...acc,
-          [field]: numValue,
-          // Auto-mutual exclusion: automatically clear opposite side when typing a value > 0
-          [oppositeField]: numValue > 0 ? 0 : acc[oppositeField] || 0,
-        };
-      }
-      return acc;
-    });
-
-    onChange(updated);
+    onChange(applyAmountEntry(data, accountId, field, rawString));
   };
 
   const handleClearRow = (accountId: string) => {
-    const updated = data.map((acc) => {
-      if (acc.id === accountId || (acc as any)._id === accountId) {
-        return {
-          ...acc,
-          debit: 0,
-          credit: 0,
-        };
-      }
-      return acc;
-    });
-    onChange(updated);
+    onChange(clearAccountRow(data, accountId));
   };
 
   const columns = [
@@ -103,7 +72,7 @@ const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
       accessor: 'accountNumber',
       title: (
         <Text fw={700} fz={13} c="dark.8">
-          Kode Akun
+          {t('table.code')}
         </Text>
       ),
       width: 140,
@@ -129,7 +98,7 @@ const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
       accessor: 'name',
       title: (
         <Text fw={700} fz={13} c="dark.8">
-          Nama Akun & Posisi Normal
+          {t('table.nameAndNormal')}
         </Text>
       ),
       render: (item: JournalAccounts) => {
@@ -144,13 +113,13 @@ const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
               </Text>
               {!isSub && (
                 <Badge size="xs" variant="light" color="indigo" radius="sm">
-                  Induk
+                  {t('table.parent')}
                 </Badge>
               )}
             </Group>
             <Group gap={6} wrap="wrap" align="center">
               <Text size="xs" c="dimmed">
-                {item.category?.name || 'Buku Besar'}
+                {item.category?.name || t('table.defaultCategory')}
               </Text>
               <Text size="xs" c="dimmed">
                 •
@@ -164,7 +133,7 @@ const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
                   normalDebit ? <IconArrowDownRight size={11} /> : <IconArrowUpRight size={11} />
                 }
               >
-                Disarankan: {normalDebit ? 'Debit' : 'Kredit'}
+                {normalDebit ? t('table.suggestedDebit') : t('table.suggestedCredit')}
               </Badge>
             </Group>
           </Stack>
@@ -179,7 +148,7 @@ const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
             <IconArrowDownRight size={13} />
           </ThemeIcon>
           <Text fw={700} fz={13} c="dark.8">
-            Debit (Rp)
+            {t('table.debit')}
           </Text>
         </Group>
       ),
@@ -194,7 +163,7 @@ const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
         return (
           <Stack gap={2} align="flex-end">
             <TextInput
-              placeholder={normalDebit ? '0 (Disarankan)' : '0'}
+              placeholder={normalDebit ? t('table.placeholderSuggested') : '0'}
               size="xs"
               radius="md"
               leftSection={
@@ -203,9 +172,7 @@ const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
                 </Text>
               }
               value={hasVal ? numberFormat(debitVal) : ''}
-              onChange={(e) =>
-                handleValueChange(item.id || (item as any)._id, 'debit', e.target.value)
-              }
+              onChange={(e) => handleValueChange(accountKey(item), 'debit', e.target.value)}
               styles={{
                 root: {
                   width: '100%',
@@ -237,7 +204,7 @@ const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
             />
             {isContraFilled && (
               <Badge size="xs" color="orange" variant="light" radius="xs">
-                Sisi Kontra
+                {t('table.contraSide')}
               </Badge>
             )}
           </Stack>
@@ -252,7 +219,7 @@ const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
             <IconArrowUpRight size={13} />
           </ThemeIcon>
           <Text fw={700} fz={13} c="dark.8">
-            Kredit (Rp)
+            {t('table.credit')}
           </Text>
         </Group>
       ),
@@ -268,7 +235,7 @@ const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
         return (
           <Stack gap={2} align="flex-end">
             <TextInput
-              placeholder={isNormalCredit ? '0 (Disarankan)' : '0'}
+              placeholder={isNormalCredit ? t('table.placeholderSuggested') : '0'}
               size="xs"
               radius="md"
               leftSection={
@@ -277,9 +244,7 @@ const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
                 </Text>
               }
               value={hasVal ? numberFormat(creditVal) : ''}
-              onChange={(e) =>
-                handleValueChange(item.id || (item as any)._id, 'credit', e.target.value)
-              }
+              onChange={(e) => handleValueChange(accountKey(item), 'credit', e.target.value)}
               styles={{
                 root: {
                   width: '100%',
@@ -311,7 +276,7 @@ const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
             />
             {isContraFilled && (
               <Badge size="xs" color="orange" variant="light" radius="xs">
-                Sisi Kontra
+                {t('table.contraSide')}
               </Badge>
             )}
           </Stack>
@@ -328,13 +293,13 @@ const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
         if (!hasAny) return null;
 
         return (
-          <Tooltip label="Kosongkan Baris Ini">
+          <Tooltip label={t('table.clearRow')}>
             <ActionIcon
               variant="subtle"
               color="gray"
               size="sm"
               radius="md"
-              onClick={() => handleClearRow(item.id || (item as any)._id)}
+              onClick={() => handleClearRow(accountKey(item))}
             >
               <IconX size={14} />
             </ActionIcon>
@@ -353,12 +318,12 @@ const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
       columns={columns}
       minHeight={320}
       verticalSpacing="sm"
-      noRecordsText="Tidak ada akun yang sesuai dengan filter atau kata kunci pencarian."
+      noRecordsText={t('table.noRecords')}
       emptyState={
         <EmptyState
-          title="Tidak ada data akun yang tersedia"
+          title={t('table.emptyTitle')}
           imageSrc={defaultEmptyImage}
-          imageAlt="Data akun kosong"
+          imageAlt={t('table.emptyImageAlt')}
         />
       }
     />
