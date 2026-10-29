@@ -39,13 +39,13 @@ import {
   IconTrash,
   IconUpload,
 } from '@tabler/icons-react';
-import { useAccountSettings } from '../../hooks/useAccountSettings';
 import {
   AccountImportItem,
   AccountImportParsedData,
   WrongDataItem,
-} from '../../../domain/settingAccount';
+} from '@/module/chart-of-accounts/domain/settingAccount';
 import { formatCurrency } from '@/utils/FormatCurrency';
+import { useAccountSettings } from '../../hooks/useAccountSettings';
 
 interface ImportAccountWizardModalProps {
   opened: boolean;

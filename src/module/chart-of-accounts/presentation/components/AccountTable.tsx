@@ -13,11 +13,11 @@ import {
 import { themeColors } from '@/theme';
 import { formatCurrency } from '@/utils/FormatCurrency';
 import { routes } from '@/router/routes';
+import EmptyState from '@/components/EmptyState/EmptyTable';
+import defaultEmptyImage from '@/assets/img/Empty-Data.svg';
 import { JournalAccounts } from '../../domain/journalAccount';
 import classes from '../pages/AccountList.module.css';
 import useAccountStore from '../hooks/useAccountStore';
-import EmptyState from '@/components/EmptyState/EmptyTable';
-import defaultEmptyImage from '@/assets/img/Empty-Data.svg';
 
 type TableAccountsProps = {
   data: JournalAccounts[];

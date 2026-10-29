@@ -2,7 +2,7 @@
 
 Chart of accounts: account list, add/edit account forms, account detail query, settings (import, export, restore) and the cash mapping tab. Task 6 PR (a) moved everything here from `GeneralJournal`; rules extraction, form split, i18n and the throwing calls follow in PRs (b) and (c).
 
-- **Public API (`index.ts`):** `useJournalAccounts`, `getJournalAccounts`, `JournalAccounts`, `useDeleteAccount` (was `useDeleteJurnalAccount`), `useDetailAccount`, `archiveAccount`, `accountDetailData`, `DetailAccountModel`, `useAccountStore`, pages `AccountListPage`, `AddAccountPage`, `EditAccountPage`, and `CashMapping`.
+- **Public API (`index.ts`):** `useJournalAccounts`, `getJournalAccounts`, `JournalAccounts`, `useDeleteAccount` (was `useDeleteJurnalAccount`), `useDetailAccount`, `archiveAccount`, `accountDetailData`, `DetailAccountModel`, `useAccountStore` and `CashMapping`. The three route pages are imported by the router from `presentation/pages/*` directly (exporting them from the index creates a cycle with `beginning-balances`).
 - **Layout:** `domain/` (types), `infrastructure/` (`accountApi`, `accountDetailApi`, `accountSettingApi`), `presentation/{pages,components,hooks}`.
 - **Routes:** unchanged; the router imports the three pages from the index.
 - **Endpoints:** `API_ACCOUNT.*` (list, detail, archive, delete, category, create, update, import/export/restore).

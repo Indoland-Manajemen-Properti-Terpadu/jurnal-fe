@@ -38,15 +38,15 @@ import { useNavigate } from 'react-router-dom';
 import ModuleHeader from '@/components/ModuleHeader/ModuleHeader';
 import { ConfirmModal } from '@/components';
 import { routes } from '@/router/routes';
-import useAccountStore from '../hooks/useAccountStore';
-import { useDeleteAccount } from '../hooks/useDeleteAccount';
 import { useDraftAccount, BeginningBalanceModal } from '@/module/beginning-balances';
 import { PeriodAndClosingBooksModal } from '@/module/period-closing';
+import deleteModalImage from '@/assets/img/vectors/delete_modal.svg';
+import useAccountStore from '../hooks/useAccountStore';
+import { useDeleteAccount } from '../hooks/useDeleteAccount';
 import { SettingAccountModal } from './SettingAccountModal';
 import TableAccounts from '../components/AccountTable';
 import GeneralJournalLayout from './AccountListLayout';
 import { useJournalAccounts } from '../hooks/useJournalAccounts';
-import deleteModalImage from '@/assets/img/vectors/delete_modal.svg';
 import type { JournalAccounts } from '../../domain/journalAccount';
 
 const GeneralJournalPage: React.FC = () => {
@@ -59,15 +59,17 @@ const GeneralJournalPage: React.FC = () => {
   const { accounts, isError, isLoading, refetch } = useJournalAccounts(showArchived);
   const journalAccounts = useMemo(() => (Array.isArray(accounts) ? accounts : []), [accounts]);
 
-  const categoryAccounts = useMemo(() => {
-    return Array.from(
-      new Set(
-        journalAccounts
-          .map((account) => account.category?.name)
-          .filter((name): name is string => Boolean(name))
-      )
-    );
-  }, [journalAccounts]);
+  const categoryAccounts = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          journalAccounts
+            .map((account) => account.category?.name)
+            .filter((name): name is string => Boolean(name))
+        )
+      ),
+    [journalAccounts]
+  );
 
   const { selectedRecords } = useAccountStore();
   const { mutate: deleteAccount, isPending: isDeleting } = useDeleteAccount();

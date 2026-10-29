@@ -49,10 +49,10 @@ import { GetCategoryAccount } from '../hooks/useCategoryAccounts';
 import { useGetCategoryInfo } from '../hooks/useCategoryInfo';
 import { useUpdateAccount } from '../hooks/useUpdateAccount';
 import { useDetailAccount } from '../hooks/useDetailAccount';
-import { useGetAllUser } from '@/module/SettingMenu/UserManagement/User/service/User.service';
-import { GetRoles } from '@/module/SettingMenu/UserManagement/Role/Service/Role.service';
 import { AddAccountPayload } from '../../domain/addAccountPayload';
 import { AccountPreviewCard, AccountingGuideCard } from '../components';
+import { useGetAllUser } from '@/module/SettingMenu/UserManagement/User/service/User.service';
+import { GetRoles } from '@/module/SettingMenu/UserManagement/Role/Service/Role.service';
 
 export const EditAccountJournalPage: React.FC = () => {
   const navigate = useNavigate();
