@@ -64,6 +64,23 @@ Measured on `develop-frontend` on 2026-10-29. Migrated: `costs`, `production`, `
 
 Deploy: the SSH step still fails for `staging` and `main-frontend` (server side, see above). R1 was promoted to `staging` (PR #15); the image builds and pushes, the container is not updated.
 
+## After Milestone 3 (ledger, R2)
+
+Measured on `develop-frontend` on 2026-10-30. `src/module/GeneralJournal` is gone; the seven ledger modules are `chart-of-accounts`, `journal-entries`, `account-ledger`, `bank-statements`, `reconciliation`, `beginning-balances`, `period-closing`, on the accounting kernel `src/lib/accounting`. Not yet: `sales`, `dashboard`, `contacts` (R3).
+
+| Metric | After M1 | Now |
+|---|---|---|
+| ESLint ratchet total | 1040 | 666 |
+| `import/no-cycle` | 13 | 9 |
+| `no-explicit-any` | 183 | 98 |
+| `no-unused-vars` | 402 | 277 |
+| `import/no-restricted-paths` | 37 | 12 |
+| `max-lines` | 27 | 16 |
+| `no-console` | n/a | 7 |
+| Test files | 50 | 91 |
+
+Not enforced today and left for a decision (see the M3 plan): closed-period or lock-date check, account code uniqueness, posting to header or archived accounts, journal edit or reversal, opening-balance cut-off, double counting of parent and child accounts in beginning balances, and the `period-closing` prototype that has no backend.
+
 ## Out of scope for Milestone 0
 
 - The SSH deploy failure is a server-side or secret problem, not a code problem. It needs whoever owns the deployment server. Until it is fixed, a merge to `main-frontend` builds and publishes the image but does not update the running container.

@@ -107,11 +107,13 @@ describe('<ProfilePage />', () => {
     await actor.type(screen.getByLabelText(/Nama Lengkap/), '   ');
     await actor.click(screen.getByRole('button', { name: 'Simpan Perubahan' }));
 
-    expect(showMock).toHaveBeenCalledWith({
-      color: 'red',
-      title: 'Validasi Gagal',
-      message: 'Nama dan email tidak boleh kosong.',
-    });
+    await waitFor(() =>
+      expect(showMock).toHaveBeenCalledWith({
+        color: 'red',
+        title: 'Validasi Gagal',
+        message: 'Nama dan email tidak boleh kosong.',
+      })
+    );
     expect(patchMock).not.toHaveBeenCalled();
   });
 
