@@ -5,24 +5,20 @@ import {
   Box,
   Group,
   Menu,
-  Pagination,
   Progress,
-  Stack,
   Table,
   Text,
   ThemeIcon,
-  Tooltip,
 } from '@mantine/core';
 import {
   IconCalendar,
   IconCheck,
-  IconClock,
   IconDots,
   IconReceipt2,
   IconTrash,
   IconUser,
 } from '@tabler/icons-react';
-import EmptyState from '@/components/EmptyState/EmptyState';
+import { EmptyState } from '@/components/EmptyState/EmptyState';
 import { formatCurrency } from '@/utils/FormatCurrency';
 import { PurchaseBill } from '@/module/purchases/domain/purchase';
 import { paidPercent } from '@/module/purchases/domain/purchaseTotals';

@@ -23,7 +23,7 @@ import {
   IconShoppingCart,
   IconX,
 } from '@tabler/icons-react';
-import ModuleHeader from '@/components/ModuleHeader/ModuleHeader';
+import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
 import ConfirmModal from '@/components/ui/ConfirmModal/ConfirmModal';
 import AppShellLayout from '@/components/AppShellLayout';
 import { PurchaseStatsGrid } from '@/module/purchases/presentation/components/PurchaseStatsGrid';

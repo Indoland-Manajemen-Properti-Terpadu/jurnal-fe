@@ -7,7 +7,9 @@ import { INITIAL_PURCHASE_BILLS } from './purchaseSeed';
 
 describe('localStoragePurchaseRepository', () => {
   beforeEach(() => localStorage.clear());
-  afterEach(() => vi.restoreAllMocks());
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
 
   it('keeps the legacy storage key', () => {
     expect(PURCHASE_STORAGE_KEY).toBe('jurnal_purchase_bills_data');
