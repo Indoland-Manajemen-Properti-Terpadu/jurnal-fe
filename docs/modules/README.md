@@ -9,7 +9,7 @@ Status per module: [../migration/STATUS.md](../migration/STATUS.md).
 | `contacts` | `src/module/Contact`, `src/module/Kontak` | pending (M1) |
 | `products` | `src/module/products` | pending (M1) |
 | `sales` | `src/module/Sale` | pending (M1) |
-| `purchases` | `src/module/Pembelian` | pending (M1) |
+| `purchases` | `src/module/purchases` | [README](../../src/module/purchases/README.md) |
 | `assets` | `src/module/Asset` | pending (M1) |
 | `pending-changes` | `src/module/pending-changes` | [README](../../src/module/pending-changes/README.md) |
 | `profile` | `src/module/profile` | [README](../../src/module/profile/README.md) |

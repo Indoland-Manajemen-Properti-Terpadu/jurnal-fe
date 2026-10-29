@@ -21,7 +21,7 @@ Columns: **Structure** (layout and layers), **Names** (English, kebab-case paths
 | `Contact` + `Kontak` to `contacts` | todo | todo | todo | todo | todo | R1 |
 | `products` | todo | todo | todo | todo | todo | R1 |
 | `Sale` to `sales` | todo | todo | todo | todo | todo | R1 |
-| `Pembelian` to `purchases` | todo | todo | todo | todo | todo | R1 |
+| `Pembelian` to `purchases` | done | done | done | done | done | R1 |
 | `Asset` to `assets` | todo | todo | todo | todo | todo | R1 |
 | `PendingChanges` to `pending-changes` | done | done | done | done | done | R1 |
 | `Profile` to `profile` | done | done | done | done | done | R1 |
