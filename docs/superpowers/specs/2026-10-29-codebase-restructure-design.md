@@ -188,9 +188,9 @@ A feature is Done when: layout and names match sections 4 to 5; no cross-feature
 | Milestone | Content | Release |
 |---|---|---|
 | **M0 Foundation** | Branch model, CI, guardrails, baseline record, repo hygiene, shared layer consolidation (section 6), docs skeleton | with R1 |
-| **M1 Small and isolated** | `contacts` (merge `Kontak`), `products`, `sales`, `purchases`, `assets`, `pending-changes`, `profile`, `landing`, `dashboard`, `budgeting`, `costs`, `production`, `fulfillment` | **R1** |
-| **M2 Cash and reporting** | `bank-cash`, `petty-cash`, `reports` | **R2** |
-| **M3 Core ledger** | The seven modules split out of `GeneralJournal` | **R3** |
+| **M1 Small and isolated** | `contacts` (merge `Kontak`), `products`, `sales`, `purchases`, `assets`, `pending-changes`, `profile`, `landing`, `dashboard`, `budgeting`, `costs`, `production`, `fulfillment` | **R1** for the ten finished modules; `contacts`, `sales`, `dashboard` move to **R3** (revised, see STATUS.md) |
+| **M2 Cash and reporting** | `bank-cash`, `petty-cash`, `reports` | **R3** (revised, see STATUS.md) |
+| **M3 Core ledger** | The seven modules split out of `GeneralJournal` | **R2** (revised, see STATUS.md) |
 | **M4 Platform** | `settings`, `user-management`, `authentication`, final audit, docs finalization, ratchets turned to `error` repo-wide | **R4 (final)** |
 
 Order inside a milestone goes from least to most connected. `authentication` is last on purpose: it is the highest-risk flow and benefits from every guardrail already being in place.
