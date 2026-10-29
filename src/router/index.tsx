@@ -6,8 +6,8 @@ import GeneralJournalPage from '@/module/chart-of-accounts/presentation/pages/Ac
 import AddAccountjournalPage from '@/module/chart-of-accounts/presentation/pages/AddAccountPage';
 import EditAccountJournalPage from '@/module/chart-of-accounts/presentation/pages/EditAccountPage';
 import { AddJournalEntryPage, JournalEntryDetailPage } from '@/module/journal-entries';
-import DetailAccount from '@/module/GeneralJournal/DetailAccount/Main/pages/DetailAccountPage';
-import DetailAccountNonCashBank from '@/module/GeneralJournal/DetailAccount/Main/pages/DetailAccountNonCashBankPage';
+import DetailAccount from '@/module/account-ledger/presentation/pages/DetailAccountPage';
+import DetailAccountNonCashBank from '@/module/account-ledger/presentation/pages/DetailAccountNonCashBankPage';
 import { BeginningBalancePage } from '@/module/beginning-balances';
 import {
   ClosingBooksPage,
