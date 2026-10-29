@@ -47,11 +47,11 @@ app composition root -> everything
 
 ## State ownership
 
-| State | Owner |
-|---|---|
-| Server data, request lifecycle, caching, invalidation | TanStack Query, hooks next to the feature |
-| Client state shared across pages | Zustand store in the feature's `presentation/stores`, or `src/store` when shared across features |
-| Local input and view state | React or Mantine form state |
+| State                                                 | Owner                                                                                            |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| Server data, request lifecycle, caching, invalidation | TanStack Query, hooks next to the feature                                                        |
+| Client state shared across pages                      | Zustand store in the feature's `presentation/stores`, or `src/store` when shared across features |
+| Local input and view state                            | React or Mantine form state                                                                      |
 
 Server responses are never mirrored in Zustand. Financial mutations are not optimistic.
 
@@ -63,17 +63,19 @@ All HTTP goes through `src/lib/http/apiClient.ts` (Bearer token, 401 refresh wit
 
 Money math uses integer minor units through `src/lib/money` (`toMinor`, `fromMinor`, `sumMinor`). See [ADR 0005](adr/0005-integer-money-and-localstorage-tokens.md) and [migration/money-audit.md](migration/money-audit.md).
 
-## Guardrails (enforced in CI)
+## Guardrails (checked by CI on every PR)
 
-| Rule | Where | Enforced by |
-|---|---|---|
-| No cross-feature internals | `.eslintrc.cjs` zones generated from `src/module/*` | `import/no-restricted-paths` |
-| Domain does not import presentation or infrastructure | per-feature zones | `import/no-restricted-paths` |
-| Shared components do not import features | `src/components` zone | `import/no-restricted-paths` |
-| Axios only in infrastructure and `lib` | overrides in `.eslintrc.cjs` | `no-restricted-imports` |
-| No `../../../` chains | pattern | `no-restricted-imports` |
-| No `any`, no `console.log`, files at most 400 lines | rules | `@typescript-eslint/no-explicit-any`, `no-console`, `max-lines` |
-| Every route constant resolves to a page | `src/router/routes.test.ts` | Vitest |
+| Rule                                                  | Where                                               | Enforced by                                                     |
+| ----------------------------------------------------- | --------------------------------------------------- | --------------------------------------------------------------- |
+| No cross-feature internals                            | `.eslintrc.cjs` zones generated from `src/module/*` | `import/no-restricted-paths`                                    |
+| Domain does not import presentation or infrastructure | per-feature zones                                   | `import/no-restricted-paths`                                    |
+| Shared components do not import features              | `src/components` zone                               | `import/no-restricted-paths`                                    |
+| Axios only in infrastructure and `lib`                | overrides in `.eslintrc.cjs`                        | `no-restricted-imports`                                         |
+| No `../../../` chains                                 | pattern                                             | `no-restricted-imports`                                         |
+| No `any`, no `console.log`, files at most 400 lines   | rules                                               | `@typescript-eslint/no-explicit-any`, `no-console`, `max-lines` |
+| Every route constant resolves to a page               | `src/router/routes.test.ts`                         | Vitest                                                          |
+
+CI runs these checks on every PR into `develop-frontend`, `staging` and `main-frontend`. They become a hard merge requirement once the required status check is applied to branch protection (see [`.github/branch-protection/README.md`](../.github/branch-protection/README.md)); until then reviewers must not merge a red PR. Axios is also allowed in legacy `services/` and `service/` folders until they migrate.
 
 Existing violations are counted in [migration/eslint-baseline.json](migration/eslint-baseline.json). `npm run lint:ratchet` fails when any rule's count rises. When a migration lowers counts, run `node scripts/eslintRatchet.mjs --write-baseline` and commit the new baseline; reviewers must reject a baseline that goes up.
 

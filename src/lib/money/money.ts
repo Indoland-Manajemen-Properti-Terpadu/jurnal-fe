@@ -9,6 +9,9 @@
 
 const DECIMAL_STRING = /^(-?)(\d+)(?:\.(\d{1,2}))?$/;
 const FLOAT_TOLERANCE = 1e-6;
+// A double near 1e11 hundredths is only exact to about 1e-5, so the tolerance must grow with
+// magnitude or valid two-decimal amounts of a billion and above would be rejected.
+const RELATIVE_TOLERANCE = Number.EPSILON * 4;
 
 const assertSafeInteger = (value: number, input: unknown): number => {
   if (!Number.isSafeInteger(value)) {
@@ -33,7 +36,8 @@ export function toMinor(amount: number | string): number {
   }
   const scaled = amount * 100;
   const rounded = Math.round(scaled);
-  if (Math.abs(scaled - rounded) > FLOAT_TOLERANCE) {
+  const tolerance = Math.max(FLOAT_TOLERANCE, Math.abs(scaled) * RELATIVE_TOLERANCE);
+  if (Math.abs(scaled - rounded) > tolerance) {
     throw new RangeError(`Amount has more than two decimal places: ${amount}`);
   }
   return assertSafeInteger(rounded, amount);

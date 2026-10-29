@@ -12,30 +12,21 @@ env:
 
 jobs:
   # Enforces the promotion order that branch protection cannot express:
-  # develop-frontend -> staging -> main-frontend, or hotfix/* into either.
+  # develop-frontend -> staging -> main-frontend, hotfix/* into either, and the
+  # main-frontend -> staging hotfix back-merge. Logic and tests: scripts/lib/deployGuard.mjs.
   guard:
     runs-on: ubuntu-latest
     permissions:
       contents: read
       pull-requests: read
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Require a merged PR from an allowed source branch
         env:
           GH_TOKEN: ${{ github.token }}
-        run: |
-          prs=$(gh api "repos/${{ github.repository }}/commits/${{ github.sha }}/pulls" \
-            --jq '[.[] | select(.merged_at != null) | {base: .base.ref, head: .head.ref}]')
-          echo "Merged PRs for ${{ github.sha }}: $prs"
-          case "${{ github.ref_name }}" in
-            main-frontend) allowed='(.base == "main-frontend") and (.head == "staging" or (.head | startswith("hotfix/")))' ;;
-            staging) allowed='(.base == "staging") and (.head == "develop-frontend" or (.head | startswith("hotfix/")))' ;;
-            *) echo "Unexpected branch ${{ github.ref_name }}"; exit 1 ;;
-          esac
-          ok=$(echo "$prs" | jq "any(.[]; $allowed)")
-          if [ "$ok" != "true" ]; then
-            echo "::error::${{ github.ref_name }} accepts only merged PRs from the allowed source branches (see docs/branching-and-release.md)."
-            exit 1
-          fi
+        run: node scripts/deployGuard.mjs "${{ github.ref_name }}" "${{ github.sha }}" "${{ github.repository }}"
 
   build-and-deploy:
     needs: guard

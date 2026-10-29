@@ -17,6 +17,17 @@ describe('toMinor', () => {
     expect(toMinor('7')).toBe(700);
   });
 
+  it('accepts valid two-decimal amounts of large magnitude', () => {
+    expect(toMinor(1234567890.12)).toBe(123456789012);
+    expect(toMinor(12345678901.23)).toBe(1234567890123);
+    expect(toMinor(-1234567890.12)).toBe(-123456789012);
+  });
+
+  it('still rejects a third decimal at large magnitude', () => {
+    expect(() => toMinor(1234567890.125)).toThrow(RangeError);
+    expect(() => toMinor(1234567890.1201)).toThrow(RangeError);
+  });
+
   it('returns +0 for negative zero', () => {
     expect(Object.is(toMinor('-0'), 0)).toBe(true);
     expect(Object.is(toMinor(-0), 0)).toBe(true);
