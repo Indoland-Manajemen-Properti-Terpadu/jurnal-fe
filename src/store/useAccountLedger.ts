@@ -1,4 +1,4 @@
-import { JournalAccounts } from '@/module/chart-of-accounts';
+import { JournalAccounts } from '@/module/chart-of-accounts/domain/journalAccount';
 import create from 'zustand';
 
 interface AccountStoreState {
