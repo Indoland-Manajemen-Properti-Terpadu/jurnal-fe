@@ -1,29 +1,18 @@
 import React from 'react';
 import {
-  Alert,
   Badge,
   Box,
   Button,
-  Grid,
   Group,
   Modal,
   Paper,
-  Progress,
   SimpleGrid,
   Stack,
   Table,
   Text,
   ThemeIcon,
 } from '@mantine/core';
-import {
-  IconCalendarStats,
-  IconCoins,
-  IconInfoCircle,
-  IconMapPin,
-  IconScale,
-  IconTimeline,
-  IconTrendingDown,
-} from '@tabler/icons-react';
+import { IconCalendarStats, IconMapPin, IconTimeline } from '@tabler/icons-react';
 import { formatCurrency } from '@/utils/FormatCurrency';
 import { AssetItem } from '@/module/assets/domain/asset';
 import {

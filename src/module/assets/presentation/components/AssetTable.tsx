@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Box, Stack, Table, Text } from '@mantine/core';
 import { IconCoins, IconPlus, IconSearch } from '@tabler/icons-react';
-import EmptyState from '@/components/EmptyState/EmptyState';
+import { EmptyState } from '@/components/EmptyState/EmptyState';
 import { useTranslation } from '@/i18n';
 import { AssetItem } from '@/module/assets/domain/asset';
 import {
@@ -10,10 +10,10 @@ import {
   filterAssets,
   sortAssets,
 } from '@/module/assets/domain/assetFilters';
-import AssetTableFooter from '@/module/assets/presentation/components/AssetTableFooter';
-import AssetTableSkeletonRows from '@/module/assets/presentation/components/AssetTableSkeletonRows';
-import AssetTableFilters from '@/module/assets/presentation/components/AssetTableFilters';
-import AssetTableRow from '@/module/assets/presentation/components/AssetTableRow';
+import { AssetTableFooter } from '@/module/assets/presentation/components/AssetTableFooter';
+import { AssetTableSkeletonRows } from '@/module/assets/presentation/components/AssetTableSkeletonRows';
+import { AssetTableFilters } from '@/module/assets/presentation/components/AssetTableFilters';
+import { AssetTableRow } from '@/module/assets/presentation/components/AssetTableRow';
 
 export type AssetTableProps = {
   assets: AssetItem[];

@@ -3,9 +3,9 @@ import { Box, Button, Group, Modal, Stack, Text, ThemeIcon } from '@mantine/core
 import { IconBuildingWarehouse, IconPlus } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import { AssetFormValues, AssetItem } from '@/module/assets/domain/asset';
-import AssetFormAccountingSection from '@/module/assets/presentation/components/AssetFormAccountingSection';
-import AssetFormIdentitySection from '@/module/assets/presentation/components/AssetFormIdentitySection';
-import AssetFormPreview from '@/module/assets/presentation/components/AssetFormPreview';
+import { AssetFormAccountingSection } from '@/module/assets/presentation/components/AssetFormAccountingSection';
+import { AssetFormIdentitySection } from '@/module/assets/presentation/components/AssetFormIdentitySection';
+import { AssetFormPreview } from '@/module/assets/presentation/components/AssetFormPreview';
 import { useAssetForm } from '@/module/assets/presentation/hooks/useAssetForm';
 
 export type AssetFormModalProps = {

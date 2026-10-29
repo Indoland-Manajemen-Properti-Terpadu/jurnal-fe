@@ -29,7 +29,7 @@ const CATEGORY_TABS = [
   { value: 'land', labelKey: 'categoryLand' },
 ] as const;
 
-export default function AssetTableFilters({
+export function AssetTableFilters({
   categoryFilter,
   onCategoryChange,
   counts,
@@ -129,3 +129,5 @@ export default function AssetTableFilters({
     </Group>
   );
 }
+
+export default AssetTableFilters;

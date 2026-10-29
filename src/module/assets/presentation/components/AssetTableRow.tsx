@@ -45,7 +45,7 @@ function StatusBadge({ status }: Readonly<{ status: AssetItem['status'] }>) {
   );
 }
 
-export default function AssetTableRow({
+export function AssetTableRow({
   asset,
   onViewSchedule,
   onViewDetail,
@@ -192,3 +192,5 @@ export default function AssetTableRow({
     </Table.Tr>
   );
 }
+
+export default AssetTableRow;

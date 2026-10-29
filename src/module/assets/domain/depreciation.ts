@@ -99,7 +99,7 @@ export const calculateAssetDepreciation = (
     const fullYears = Math.floor(yearsElapsed);
     const partialYearFraction = yearsElapsed - fullYears;
 
-    for (let y = 0; y < fullYears; y++) {
+    for (let y = 0; y < fullYears; y += 1) {
       const depYear = currentBookValue * annualRate;
       currentBookValue = Math.max(residual, currentBookValue - depYear);
     }
@@ -149,7 +149,7 @@ export const generateDepreciationSchedule = (asset: AssetItem): DepreciationSche
     depreciationMethod === 'straight_line' ? Math.round(depreciableAmount / usefulLifeYears) : 0;
   const rate = 2 / usefulLifeYears;
 
-  for (let i = 1; i <= usefulLifeYears; i++) {
+  for (let i = 1; i <= usefulLifeYears; i += 1) {
     const isLastYear = i === usefulLifeYears;
     let expense: number;
     if (depreciationMethod === 'straight_line') {

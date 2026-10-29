@@ -10,7 +10,7 @@ export type AssetStatsGridProps = {
   loading?: boolean;
 };
 
-export default function AssetStatsGrid({ assets = [], loading }: AssetStatsGridProps) {
+export function AssetStatsGrid({ assets = [], loading }: AssetStatsGridProps) {
   const { t } = useTranslation('assets');
 
   const totals = summarizeAssets(assets);
@@ -111,3 +111,5 @@ export default function AssetStatsGrid({ assets = [], loading }: AssetStatsGridP
     </SimpleGrid>
   );
 }
+
+export default AssetStatsGrid;

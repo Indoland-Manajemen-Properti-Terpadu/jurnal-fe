@@ -3,7 +3,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { render, screen } from '@test-utils';
 import { useI18nStore } from '@/i18n/store';
-import AssetPage from './AssetPage';
+import { AssetPage } from './AssetPage';
 
 const renderPage = () =>
   render(

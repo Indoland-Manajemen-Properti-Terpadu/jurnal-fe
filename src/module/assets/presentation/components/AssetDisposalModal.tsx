@@ -4,19 +4,17 @@ import {
   Badge,
   Box,
   Button,
-  Grid,
   Group,
   Modal,
   NumberInput,
   Paper,
   Stack,
   Text,
-  TextInput,
   ThemeIcon,
 } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import dayjs from 'dayjs';
-import { IconAlertTriangle, IconCalendar, IconCash, IconScale } from '@tabler/icons-react';
+import { IconAlertTriangle, IconCalendar, IconScale } from '@tabler/icons-react';
 import { formatCurrency } from '@/utils/FormatCurrency';
 import { AssetItem } from '@/module/assets/domain/asset';
 import { calculateDisposalGainLoss } from '@/module/assets/domain/depreciation';

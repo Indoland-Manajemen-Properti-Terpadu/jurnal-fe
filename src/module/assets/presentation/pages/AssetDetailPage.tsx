@@ -6,17 +6,17 @@ import { useTranslation } from '@/i18n';
 import { routes } from '@/router/routes';
 import { AssetItem } from '@/module/assets/domain/asset';
 import { generateDepreciationSchedule } from '@/module/assets/domain/depreciation';
-import AssetDetailActionBar from '@/module/assets/presentation/components/AssetDetailActionBar';
-import AssetDetailHero from '@/module/assets/presentation/components/AssetDetailHero';
-import AssetDetailScheduleCard from '@/module/assets/presentation/components/AssetDetailScheduleCard';
+import { AssetDetailActionBar } from '@/module/assets/presentation/components/AssetDetailActionBar';
+import { AssetDetailHero } from '@/module/assets/presentation/components/AssetDetailHero';
+import { AssetDetailScheduleCard } from '@/module/assets/presentation/components/AssetDetailScheduleCard';
 import {
   AssetDetailSkeleton,
   AssetNotFound,
 } from '@/module/assets/presentation/components/AssetDetailStates';
-import AssetDetailSummary from '@/module/assets/presentation/components/AssetDetailSummary';
-import AssetDisposalModal from '@/module/assets/presentation/components/AssetDisposalModal';
-import AssetDisposalNotice from '@/module/assets/presentation/components/AssetDisposalNotice';
-import AssetFormModal from '@/module/assets/presentation/components/AssetFormModal';
+import { AssetDetailSummary } from '@/module/assets/presentation/components/AssetDetailSummary';
+import { AssetDisposalModal } from '@/module/assets/presentation/components/AssetDisposalModal';
+import { AssetDisposalNotice } from '@/module/assets/presentation/components/AssetDisposalNotice';
+import { AssetFormModal } from '@/module/assets/presentation/components/AssetFormModal';
 import { useAssets } from '@/module/assets/presentation/hooks/useAssets';
 
 /** Route `/assets/:id`. The router wraps it in `AppShellLayout`. */
