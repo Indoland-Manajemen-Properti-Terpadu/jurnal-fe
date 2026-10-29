@@ -32,7 +32,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useDisclosure } from '@mantine/hooks';
 import AppShellLayout from '@/components/AppShellLayout';
 import { routes } from '@/router/routes';
-import { isJournalBalanced } from '@/lib/accounting/journalBalance';
+import { isJournalBalancedForDisplay } from '@/lib/accounting/journalBalance';
 import { formatCurrency } from '@/utils/FormatCurrency';
 import { dateFormatV1, dateFormatTimeZone } from '@/utils/FormatDate';
 import { useDetailTransaction } from '../hooks/useDetailTransaction';
@@ -43,7 +43,7 @@ import DeleteTransactionModal from '../../Main/components/DeleteTransactionModal
 
 /** View tolerance: a journal reads as balanced when debit and credit differ by less than 0.01. */
 export const isDetailBalanced = (totalDebit: number, totalCredit: number): boolean =>
-  isJournalBalanced([{ debit: totalDebit, credit: totalCredit }]);
+  isJournalBalancedForDisplay([{ debit: totalDebit, credit: totalCredit }]);
 
 export const JournalTransactionDetailPage: React.FC = () => {
   const navigate = useNavigate();
