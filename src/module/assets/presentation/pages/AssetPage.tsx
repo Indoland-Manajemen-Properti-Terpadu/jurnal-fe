@@ -2,17 +2,16 @@ import React, { useState } from 'react';
 import { ActionIcon, Box, Button, Group, Paper, Stack, Tooltip } from '@mantine/core';
 import { IconBuildingWarehouse, IconPlus, IconRefresh } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
-import ModuleHeader from '@/components/ModuleHeader/ModuleHeader';
+import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
 import ConfirmModal from '@/components/ui/ConfirmModal/ConfirmModal';
 import { routes } from '@/router/routes';
-import AssetLayout from './Layout';
-import AssetStatsGrid from '../components/AssetStatsGrid';
-import AssetTable from '../components/AssetTable';
-import AssetFormModal from '../components/AssetFormModal';
-import AssetScheduleModal from '../components/AssetScheduleModal';
-import AssetDisposalModal from '../components/AssetDisposalModal';
-import { useAssets } from '../hooks/useAssets';
-import { AssetItem } from '../types/asset';
+import { AssetStatsGrid } from '@/module/assets/presentation/components/AssetStatsGrid';
+import { AssetTable } from '@/module/assets/presentation/components/AssetTable';
+import { AssetFormModal } from '@/module/assets/presentation/components/AssetFormModal';
+import { AssetScheduleModal } from '@/module/assets/presentation/components/AssetScheduleModal';
+import { AssetDisposalModal } from '@/module/assets/presentation/components/AssetDisposalModal';
+import { useAssets } from '@/module/assets/presentation/hooks/useAssets';
+import { AssetItem } from '@/module/assets/domain/asset';
 import { useTranslation } from '@/i18n';
 
 export function AssetPage() {
@@ -68,7 +67,7 @@ export function AssetPage() {
   };
 
   return (
-    <AssetLayout>
+    <>
       <Box p={{ base: 'md', sm: 'xl' }}>
         <Stack gap="lg">
           {/* Canonical Module Header */}
@@ -78,7 +77,7 @@ export function AssetPage() {
             description={t('moduleSubtitle')}
             actions={
               <Group gap="sm" wrap="wrap">
-                <Tooltip label="Segarkan Data" withArrow>
+                <Tooltip label={t('refreshData')} withArrow>
                   <ActionIcon
                     variant="default"
                     size="lg"
@@ -158,14 +157,12 @@ export function AssetPage() {
         }}
         onConfirm={handleConfirmDelete}
         title={t('confirmDeleteTitle')}
-        message={
-          assetToDelete ? `Apakah Anda yakin ingin menghapus aset "${assetToDelete.name}"?` : ''
-        }
-        helperText="Data perolehan dan simulasi penyusutan aset ini akan dihapus permanen dari sistem."
+        message={assetToDelete ? t('confirmDeleteMessage', { name: assetToDelete.name }) : ''}
+        helperText={t('confirmDeleteHelper')}
         confirmLabel={t('deleteAsset')}
-        cancelLabel="Batal"
+        cancelLabel={t('cancel')}
       />
-    </AssetLayout>
+    </>
   );
 }
 

@@ -4,21 +4,20 @@ import {
   Badge,
   Box,
   Button,
-  Grid,
   Group,
   Modal,
   NumberInput,
   Paper,
   Stack,
   Text,
-  TextInput,
   ThemeIcon,
 } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import dayjs from 'dayjs';
-import { IconAlertTriangle, IconCalendar, IconCash, IconScale } from '@tabler/icons-react';
+import { IconAlertTriangle, IconCalendar, IconScale } from '@tabler/icons-react';
 import { formatCurrency } from '@/utils/FormatCurrency';
-import { AssetItem } from '../types/asset';
+import { AssetItem } from '@/module/assets/domain/asset';
+import { calculateDisposalGainLoss } from '@/module/assets/domain/depreciation';
 import { useTranslation } from '@/i18n';
 
 export type AssetDisposalModalProps = {
@@ -49,7 +48,7 @@ export const AssetDisposalModal: React.FC<AssetDisposalModalProps> = ({
   if (!asset) return null;
 
   const nbv = asset.netBookValue;
-  const gainLoss = disposalPrice - nbv;
+  const gainLoss = calculateDisposalGainLoss(disposalPrice, nbv);
   const isGain = gainLoss > 0;
   const isLoss = gainLoss < 0;
 
@@ -81,7 +80,7 @@ export const AssetDisposalModal: React.FC<AssetDisposalModalProps> = ({
           <Group justify="space-between" align="center">
             <Box>
               <Text size="xs" c="dimmed">
-                Aset yang dilepas:
+                {t('disposalAssetLabel')}
               </Text>
               <Text size="sm" fw={700} c="dark.8">
                 {asset.name}
@@ -103,7 +102,7 @@ export const AssetDisposalModal: React.FC<AssetDisposalModalProps> = ({
 
         <DateInput
           label={t('disposalDate')}
-          placeholder="Pilih tanggal pelepasan"
+          placeholder={t('disposalDatePlaceholder')}
           valueFormat="DD/MM/YYYY"
           required
           size="sm"
@@ -114,7 +113,7 @@ export const AssetDisposalModal: React.FC<AssetDisposalModalProps> = ({
 
         <NumberInput
           label={t('disposalPrice')}
-          description="Nominal kas/piutang yang diterima dari penjualan aset (isi 0 jika rusak/afkir)"
+          description={t('disposalPriceDesc')}
           thousandSeparator="."
           decimalSeparator=","
           prefix="Rp "
@@ -150,10 +149,10 @@ export const AssetDisposalModal: React.FC<AssetDisposalModalProps> = ({
               </ThemeIcon>
               <Box>
                 <Text size="xs" c="dimmed">
-                  Hasil Perhitungan Pelepasan:
+                  {t('disposalResultLabel')}
                 </Text>
                 <Text size="sm" fw={700} c={isGain ? 'teal.8' : isLoss ? 'red.8' : 'dark.7'}>
-                  {isGain ? t('gain') : isLoss ? t('loss') : 'Impas (Tanpa Laba/Rugi)'}
+                  {isGain ? t('gain') : isLoss ? t('loss') : t('breakEven')}
                 </Text>
               </Box>
             </Group>
@@ -170,12 +169,12 @@ export const AssetDisposalModal: React.FC<AssetDisposalModalProps> = ({
         </Paper>
 
         <Alert icon={<IconAlertTriangle size={16} />} color="orange" variant="light" radius="md">
-          Setelah pelepasan diproses, aset akan berstatus non-aktif dan beban penyusutan dihentikan.
+          {t('disposalWarning')}
         </Alert>
 
         <Group justify="flex-end" mt="xs">
           <Button variant="default" onClick={onClose}>
-            Batal
+            {t('cancel')}
           </Button>
           <Button color="red" variant="filled" onClick={handleConfirm}>
             {t('processDisposal')}

@@ -1,32 +1,27 @@
 import React from 'react';
 import {
-  Alert,
   Badge,
   Box,
   Button,
-  Grid,
   Group,
   Modal,
   Paper,
-  Progress,
   SimpleGrid,
   Stack,
   Table,
   Text,
   ThemeIcon,
 } from '@mantine/core';
-import {
-  IconCalendarStats,
-  IconCoins,
-  IconInfoCircle,
-  IconMapPin,
-  IconScale,
-  IconTimeline,
-  IconTrendingDown,
-} from '@tabler/icons-react';
+import { IconCalendarStats, IconMapPin, IconTimeline } from '@tabler/icons-react';
 import { formatCurrency } from '@/utils/FormatCurrency';
-import { AssetItem } from '../types/asset';
-import { generateDepreciationSchedule } from '../services/assetStorage';
+import { AssetItem } from '@/module/assets/domain/asset';
+import {
+  depreciationPercent,
+  generateDepreciationSchedule,
+  isNonDepreciable,
+  remainingPercentOfCost,
+  toSafeNumber,
+} from '@/module/assets/domain/depreciation';
 import { useTranslation } from '@/i18n';
 
 export type AssetScheduleModalProps = {
@@ -44,14 +39,14 @@ export const AssetScheduleModal: React.FC<AssetScheduleModalProps> = ({
 
   if (!asset) return null;
 
-  const isNonDepreciable = asset.depreciationMethod === 'none' || asset.usefulLifeYears <= 0;
+  const nonDepreciable = isNonDepreciable(asset);
   const schedule = generateDepreciationSchedule(asset);
 
-  const cost = Number(asset.acquisitionCost) || 0;
-  const residual = Number(asset.residualValue) || 0;
-  const accum = Number(asset.accumulatedDepreciation) || 0;
-  const nbv = Number(asset.netBookValue) || 0;
-  const depPercent = cost > 0 ? Math.min(100, Math.round((accum / cost) * 100)) : 0;
+  const cost = toSafeNumber(asset.acquisitionCost);
+  const residual = toSafeNumber(asset.residualValue);
+  const accum = toSafeNumber(asset.accumulatedDepreciation);
+  const nbv = toSafeNumber(asset.netBookValue);
+  const depPercent = depreciationPercent(cost, accum);
 
   return (
     <Modal
@@ -69,7 +64,7 @@ export const AssetScheduleModal: React.FC<AssetScheduleModalProps> = ({
           </ThemeIcon>
           <Box>
             <Text fw={700} size="md" c="dark.9" lh={1.2}>
-              Jadwal & Simulasi Penyusutan Aset
+              {t('scheduleModalTitle')}
             </Text>
             <Text size="xs" c="dimmed" mt={2}>
               {asset.name} •{' '}
@@ -90,7 +85,7 @@ export const AssetScheduleModal: React.FC<AssetScheduleModalProps> = ({
         <SimpleGrid cols={{ base: 2, sm: 4 }} spacing="sm">
           <Paper withBorder radius="md" p="sm" bg="gray.0">
             <Text size="xs" c="dimmed" fw={600} tt="uppercase" lts={0.5}>
-              Nilai Perolehan
+              {t('acquisitionCost')}
             </Text>
             <Text
               size="sm"
@@ -102,13 +97,13 @@ export const AssetScheduleModal: React.FC<AssetScheduleModalProps> = ({
               {formatCurrency(cost)}
             </Text>
             <Text size="xs" c="dimmed" mt={2}>
-              Biaya akuisisi awal
+              {t('acquisitionCostHint')}
             </Text>
           </Paper>
 
           <Paper withBorder radius="md" p="sm" bg="gray.0">
             <Text size="xs" c="dimmed" fw={600} tt="uppercase" lts={0.5}>
-              Nilai Residu (Sisa)
+              {t('residualValueShort')}
             </Text>
             <Text
               size="sm"
@@ -120,29 +115,31 @@ export const AssetScheduleModal: React.FC<AssetScheduleModalProps> = ({
               {formatCurrency(residual)}
             </Text>
             <Text size="xs" c="dimmed" mt={2}>
-              Batas bawah penyusutan
+              {t('residualValueHint')}
             </Text>
           </Paper>
 
           <Paper withBorder radius="md" p="sm" bg="gray.0">
             <Text size="xs" c="dimmed" fw={600} tt="uppercase" lts={0.5}>
-              Masa Manfaat
+              {t('usefulLife')}
             </Text>
             <Text size="sm" fw={800} c="primary.8" mt={4}>
-              {isNonDepreciable ? 'Bebas Susut' : `${asset.usefulLifeYears} Tahun`}
+              {nonDepreciable
+                ? t('noDepreciation')
+                : t('yearsValue', { years: asset.usefulLifeYears })}
             </Text>
-            <Badge size="xs" variant="light" color={isNonDepreciable ? 'gray' : 'primary'} mt={2}>
+            <Badge size="xs" variant="light" color={nonDepreciable ? 'gray' : 'primary'} mt={2}>
               {asset.depreciationMethod === 'straight_line'
-                ? 'Garis Lurus'
+                ? t('methodShortStraightLine')
                 : asset.depreciationMethod === 'double_declining'
-                  ? 'Saldo Menurun'
-                  : 'Tanpa Penyusutan'}
+                  ? t('methodShortDeclining')
+                  : t('methodShortNone')}
             </Badge>
           </Paper>
 
           <Paper withBorder radius="md" p="sm" bg="gray.0">
             <Text size="xs" c="dimmed" fw={600} tt="uppercase" lts={0.5}>
-              Nilai Buku Bersih (NBV)
+              {t('netBookValue')}
             </Text>
             <Text
               size="sm"
@@ -154,13 +151,15 @@ export const AssetScheduleModal: React.FC<AssetScheduleModalProps> = ({
               {formatCurrency(nbv)}
             </Text>
             <Text size="xs" c="teal.7" fw={600} mt={2}>
-              {isNonDepreciable ? '100% Utuh' : `Sisa ${100 - depPercent}% nilai`}
+              {nonDepreciable
+                ? t('fullyIntact')
+                : t('remainingValue', { percent: 100 - depPercent })}
             </Text>
           </Paper>
         </SimpleGrid>
 
         {/* Informative Guidance Banner for Non-Depreciable Assets (like Tanah) */}
-        {isNonDepreciable ? (
+        {nonDepreciable ? (
           <Paper
             withBorder
             radius="md"
@@ -183,17 +182,13 @@ export const AssetScheduleModal: React.FC<AssetScheduleModalProps> = ({
               </ThemeIcon>
               <Box style={{ flex: 1 }}>
                 <Text size="sm" fw={700} c="green.9">
-                  Aset Tetap Tidak Mengalami Penyusutan (PSAK 16)
+                  {t('psakTitle')}
                 </Text>
                 <Text size="xs" c="green.9" mt={4} lh={1.6}>
-                  Berdasarkan Standar Akuntansi Keuangan, aktiva tetap berwujud kategori{' '}
-                  <b>Tanah</b> memiliki masa manfaat ekonomis yang tidak terbatas dan nilai
-                  ekonomisnya tidak berkurang seiring berjalannya waktu.
+                  {t('psakBodyPrefix')} <b>{t('psakLandWord')}</b> {t('psakBodySuffix')}
                 </Text>
                 <Text size="xs" c="dimmed" mt={6}>
-                  Oleh karena itu, nilai buku di Neraca (Balance Sheet) akan selalu tercatat konstan
-                  sebesar <b>{formatCurrency(cost)}</b> tanpa ada pengakuan Beban Penyusutan tahunan
-                  maupun bulanan.
+                  {t('psakNoteBefore')} <b>{formatCurrency(cost)}</b> {t('psakNoteAfter')}
                 </Text>
               </Box>
             </Group>
@@ -206,11 +201,11 @@ export const AssetScheduleModal: React.FC<AssetScheduleModalProps> = ({
                   <IconTimeline size={14} />
                 </ThemeIcon>
                 <Text size="xs" fw={700} tt="uppercase" c="dimmed" lts={0.5}>
-                  Tabel Rincian Jadwal Alokasi Penyusutan Tahunan
+                  {t('scheduleTableTitle')}
                 </Text>
               </Group>
               <Text size="xs" c="dimmed">
-                Total {schedule.length} periode masa manfaat
+                {t('schedulePeriodsTotal', { count: schedule.length })}
               </Text>
             </Group>
 
@@ -228,27 +223,27 @@ export const AssetScheduleModal: React.FC<AssetScheduleModalProps> = ({
                   <Table.Tr>
                     <Table.Th style={{ width: '25%' }}>
                       <Text size="xs" fw={700} c="dimmed" tt="uppercase" lts={0.5}>
-                        Periode / Tahun
+                        {t('colPeriodYear')}
                       </Text>
                     </Table.Th>
                     <Table.Th style={{ width: '20%', textAlign: 'right' }}>
                       <Text size="xs" fw={700} c="dimmed" tt="uppercase" lts={0.5}>
-                        Nilai Buku Awal
+                        {t('beginningBookValue')}
                       </Text>
                     </Table.Th>
                     <Table.Th style={{ width: '20%', textAlign: 'right' }}>
                       <Text size="xs" fw={700} c="dimmed" tt="uppercase" lts={0.5}>
-                        Beban Susut Tahun Ini
+                        {t('colExpenseThisYear')}
                       </Text>
                     </Table.Th>
                     <Table.Th style={{ width: '18%', textAlign: 'right' }}>
                       <Text size="xs" fw={700} c="dimmed" tt="uppercase" lts={0.5}>
-                        Akumulasi Susut
+                        {t('accumulatedDepreciation')}
                       </Text>
                     </Table.Th>
                     <Table.Th style={{ width: '17%', textAlign: 'right' }}>
                       <Text size="xs" fw={700} c="dimmed" tt="uppercase" lts={0.5}>
-                        Nilai Buku Akhir
+                        {t('endingBookValue')}
                       </Text>
                     </Table.Th>
                   </Table.Tr>
@@ -256,7 +251,7 @@ export const AssetScheduleModal: React.FC<AssetScheduleModalProps> = ({
                 <Table.Tbody>
                   {schedule.map((row) => {
                     const yearEnding = row.endingBookValue;
-                    const percentRemain = cost > 0 ? Math.round((yearEnding / cost) * 100) : 0;
+                    const percentRemain = remainingPercentOfCost(cost, yearEnding);
 
                     return (
                       <Table.Tr key={`schedule-yr-${row.yearNumber}`}>
@@ -270,10 +265,10 @@ export const AssetScheduleModal: React.FC<AssetScheduleModalProps> = ({
                               radius="sm"
                               styles={{ label: { textTransform: 'none', fontWeight: 600 } }}
                             >
-                              Tahun ke-{row.yearNumber}
+                              {t('yearOrdinal', { number: row.yearNumber })}
                             </Badge>
                             <Text size="xs" fw={600} c="dark.7">
-                              Tahun {row.yearDate}
+                              {t('yearLabel', { year: row.yearDate })}
                             </Text>
                           </Group>
                         </Table.Td>
@@ -319,7 +314,7 @@ export const AssetScheduleModal: React.FC<AssetScheduleModalProps> = ({
                             {formatCurrency(row.endingBookValue)}
                           </Text>
                           <Text size="10px" c="dimmed">
-                            Sisa {percentRemain}%
+                            {t('remainingShort', { percent: percentRemain })}
                           </Text>
                         </Table.Td>
                       </Table.Tr>
@@ -333,7 +328,7 @@ export const AssetScheduleModal: React.FC<AssetScheduleModalProps> = ({
 
         <Group justify="flex-end">
           <Button variant="default" onClick={onClose} size="sm" radius="md">
-            Tutup
+            {t('close')}
           </Button>
         </Group>
       </Stack>
