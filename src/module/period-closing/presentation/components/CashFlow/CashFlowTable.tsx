@@ -3,7 +3,11 @@ import { Box, Group, Stack, Table, Text } from '@mantine/core';
 import { themeColors } from '@/theme';
 import { useTranslation } from '@/i18n';
 import { formatCurrency } from '@/utils/FormatCurrency';
-import { PROTOTYPE_BALANCE_SHEET_TOTAL, PROTOTYPE_CASH_FLOW_TOTAL, PROTOTYPE_REPORT_DATE } from '@/module/period-closing/domain/prototypeData';
+import {
+  PROTOTYPE_BALANCE_SHEET_TOTAL,
+  PROTOTYPE_CASH_FLOW_TOTAL,
+  PROTOTYPE_REPORT_DATE,
+} from '@/module/period-closing/domain/prototypeData';
 import { CashFlowfromFA, CashFlowfromIA, CashFlowfromOA, EndingCashPosition } from './TableRow';
 
 const rowStyle = {

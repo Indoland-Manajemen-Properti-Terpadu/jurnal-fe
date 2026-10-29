@@ -73,7 +73,8 @@ export const periodClosing = {
     toDate: 'To Date',
     pickDate: 'Pick date',
     setDate: 'Set Date',
-    lockNotice: 'After the locked period, you cannot create, modify, or delete transactions before {date}.',
+    lockNotice:
+      'After the locked period, you cannot create, modify, or delete transactions before {date}.',
     lockNoticeLead:
       'After the locked period, you cannot create, modify, or delete transactions before',
     checkTitle: 'Check',

@@ -10,7 +10,7 @@ import { InformationAlert } from '@/components/Alert/Alert';
 import CustomConfirmModal from '@/components/Modals/ConfirmModal';
 import { useTranslation } from '@/i18n';
 import KeyPeriodeImage from '@/assets/img/closing_period.svg';
-import { PROTOTYPE_LOCK_DATE } from "../../domain/prototypeData";
+import { PROTOTYPE_LOCK_DATE } from '../../domain/prototypeData';
 import usePeriodModalStore from '../store/usePeriodModals';
 
 interface PeriodAndClosingBooksModalProps {
@@ -145,7 +145,11 @@ export const PeriodAndClosingBooksModal: React.FC<PeriodAndClosingBooksModalProp
             color="yellow"
             items={[t('modal.importantItem1'), t('modal.importantItem2')]}
           />
-          <InformationAlert title={t('modal.lockBenefitsTitle')} color="blue" items={benefitItems} />
+          <InformationAlert
+            title={t('modal.lockBenefitsTitle')}
+            color="blue"
+            items={benefitItems}
+          />
           <InformationAlert
             title={t('modal.closingBenefitsTitle')}
             color="blue"

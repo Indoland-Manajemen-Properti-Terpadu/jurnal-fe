@@ -24,10 +24,30 @@ const FinancialStatementPage = () => {
   const navigate = useNavigate();
   const iconStyle = { width: rem(12), height: rem(12) };
   const panels = [
-    { value: 'trial-balance', label: t('financialStatement.trialBalance'), icon: IconScale, body: <TrialBalanceTable /> },
-    { value: 'income-statement', label: t('financialStatement.incomeStatement'), icon: IconChartBar, body: <IncomeStatementTable /> },
-    { value: 'balance-sheet', label: t('financialStatement.balanceSheet'), icon: IconFileDollar, body: <BalanceSheetTable /> },
-    { value: 'cash-flow', label: t('financialStatement.cashFlow'), icon: IconExchange, body: <CashFlowTable /> },
+    {
+      value: 'trial-balance',
+      label: t('financialStatement.trialBalance'),
+      icon: IconScale,
+      body: <TrialBalanceTable />,
+    },
+    {
+      value: 'income-statement',
+      label: t('financialStatement.incomeStatement'),
+      icon: IconChartBar,
+      body: <IncomeStatementTable />,
+    },
+    {
+      value: 'balance-sheet',
+      label: t('financialStatement.balanceSheet'),
+      icon: IconFileDollar,
+      body: <BalanceSheetTable />,
+    },
+    {
+      value: 'cash-flow',
+      label: t('financialStatement.cashFlow'),
+      icon: IconExchange,
+      body: <CashFlowTable />,
+    },
   ];
 
   return (

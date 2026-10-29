@@ -54,7 +54,9 @@ describe('period closing pages', () => {
       expect(screen.getByText('Kertas Kerja Neraca Saldo')).toBeInTheDocument();
       expect(screen.getByText('Dari awal sampai 31/07/2024')).toBeInTheDocument();
       fireEvent.click(screen.getByRole('button', { name: 'Lanjutkan' }));
-      expect(navigate).toHaveBeenCalledWith('/settings/general-journal/period-lock/financial-statement');
+      expect(navigate).toHaveBeenCalledWith(
+        '/settings/general-journal/period-lock/financial-statement'
+      );
     });
 
     it('renders in English and goes back to the general journal', () => {
@@ -76,7 +78,9 @@ describe('period closing pages', () => {
         expect(screen.getByRole('tab', { name: label })).toBeInTheDocument();
       });
       fireEvent.click(screen.getByRole('button', { name: 'Konfirmasi' }));
-      expect(navigate).toHaveBeenCalledWith('/settings/general-journal/closing-books/list/period-lock');
+      expect(navigate).toHaveBeenCalledWith(
+        '/settings/general-journal/closing-books/list/period-lock'
+      );
     });
 
     it('renders the four tabs in English and goes back', () => {
@@ -118,7 +122,9 @@ describe('period closing pages', () => {
     it('shows the intro in English', async () => {
       act(() => useI18nStore.getState().setLanguage('en'));
       inRouter(<PeriodAndClosingBooksModal opened onClose={vi.fn()} />);
-      expect(await screen.findByText('Period Lock & Closing Books Functionality')).toBeInTheDocument();
+      expect(
+        await screen.findByText('Period Lock & Closing Books Functionality')
+      ).toBeInTheDocument();
     });
   });
 });
