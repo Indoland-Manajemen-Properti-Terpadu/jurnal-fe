@@ -11,6 +11,7 @@ import { costs } from './costs';
 import { production } from './production';
 import { fulfillment } from './fulfillment';
 import { budgeting } from './budgeting';
+import { landing } from './landing';
 
 export const en = {
   common,
@@ -26,6 +27,7 @@ export const en = {
   production,
   fulfillment,
   budgeting,
+  landing,
 };
 
 export default en;

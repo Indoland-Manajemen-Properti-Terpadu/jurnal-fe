@@ -4,7 +4,7 @@ import { vi } from 'vitest';
 import { render, screen } from '@test-utils';
 import { useI18nStore } from '@/i18n/store';
 import { routes } from '@/router/routes';
-import LandingPage from './LandingPage';
+import { LandingPage } from './LandingPage';
 
 const navigateMock = vi.fn();
 
