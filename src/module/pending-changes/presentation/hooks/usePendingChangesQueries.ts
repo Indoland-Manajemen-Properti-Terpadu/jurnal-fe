@@ -1,12 +1,16 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
+import { t } from '@/i18n';
 import {
   approveAllPendingChanges,
   approvePendingChange,
   fetchPendingChanges,
   fetchPendingChangesCount,
-} from '@/module/pending-changes/infrastructure/pendingChangesApi';
-import type { PendingChangeListParams } from '@/module/pending-changes/domain/pendingChange';
+  getApiErrorMessage,
+} from '../../infrastructure/pendingChangesApi';
+import type { PendingChangeListParams } from '../../domain/pendingChange';
+
+const NAMESPACE = 'pendingChanges';
 
 export const pendingChangesKeys = {
   all: ['pending-changes'] as const,
@@ -41,15 +45,15 @@ export const useApprovePendingChange = () => {
       queryClient.invalidateQueries({ queryKey: ['dashboard'] });
       notifications.show({
         color: 'teal',
-        title: 'Perubahan Disetujui',
-        message: 'Perubahan data berhasil disetujui dan disinkronkan ke pembukuan.',
+        title: t('approvedTitle', undefined, NAMESPACE),
+        message: t('approvedMessage', undefined, NAMESPACE),
       });
     },
-    onError: (err: any) => {
+    onError: (err: unknown) => {
       notifications.show({
         color: 'red',
-        title: 'Gagal Menyetujui',
-        message: err?.response?.data?.message || 'Terjadi kesalahan saat memproses persetujuan.',
+        title: t('approveFailedTitle', undefined, NAMESPACE),
+        message: getApiErrorMessage(err) || t('approveFailedMessage', undefined, NAMESPACE),
       });
     },
   });
@@ -66,19 +70,18 @@ export const useApproveAllPendingChanges = () => {
       queryClient.invalidateQueries({ queryKey: ['dashboard'] });
       notifications.show({
         color: 'teal',
-        title: 'Semua Perubahan Disetujui',
+        title: t('approvedAllTitle', undefined, NAMESPACE),
         message: type
-          ? `Seluruh antrean ${type} berhasil disetujui.`
-          : 'Seluruh antrean perubahan berhasil disetujui.',
+          ? t('approvedAllTypeMessage', { type }, NAMESPACE)
+          : t('approvedAllMessage', undefined, NAMESPACE),
       });
     },
-    onError: (err: any) => {
+    onError: (err: unknown) => {
       notifications.show({
         color: 'red',
-        title: 'Gagal Menyetujui Massal',
-        message: err?.response?.data?.message || 'Terjadi kesalahan saat persetujuan massal.',
+        title: t('approveAllFailedTitle', undefined, NAMESPACE),
+        message: getApiErrorMessage(err) || t('approveAllFailedMessage', undefined, NAMESPACE),
       });
     },
   });
 };
-

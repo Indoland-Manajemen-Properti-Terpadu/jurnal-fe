@@ -1,21 +1,30 @@
-export type PendingChangeType = 'FINE' | 'SALE_PAYMENT' | string;
-export type PendingChangeStatus = 'PENDING' | 'APPROVED' | string;
+export const PENDING_CHANGE_TYPES = {
+  fine: 'FINE',
+  salePayment: 'SALE_PAYMENT',
+} as const;
 
-export type PendingChangeFinePayload = {
-  newLateFeeAmount?: number;
-  syncDate?: string;
-  [key: string]: any;
-};
+export const PENDING_CHANGE_STATUSES = ['PENDING', 'APPROVED', 'REJECTED'] as const;
 
-export type PendingChangePaymentPayload = {
-  sale?: string;
-  depositAccount?: string;
+export type PendingChangeStatus = (typeof PENDING_CHANGE_STATUSES)[number];
+
+/** The API sends further type names (for example void or delete types), so the type stays a string. */
+export type PendingChangeType = string;
+
+export type PendingChangeAmount = number | string | null;
+
+export type PendingChangePayload = {
+  newLateFeeAmount?: PendingChangeAmount;
+  amount?: PendingChangeAmount;
+  nominal?: PendingChangeAmount;
+  total?: PendingChangeAmount;
+  originalAmount?: PendingChangeAmount;
   paymentMethod?: string;
-  paymentDate?: string;
-  amount?: number;
   transactionNumber?: string;
-  memo?: string | null;
-  [key: string]: any;
+  description?: string;
+  note?: string;
+  reason?: string;
+  action?: string;
+  [key: string]: unknown;
 };
 
 export type PendingChangeItem = {
@@ -24,7 +33,7 @@ export type PendingChangeItem = {
   type: PendingChangeType;
   referenceModel: string;
   referenceId: string;
-  payload: Record<string, any>;
+  payload: PendingChangePayload;
   notes?: string;
   status: PendingChangeStatus;
   deleted?: boolean;
@@ -47,11 +56,7 @@ export type PendingChangePagination = {
   totalPages: number;
 };
 
-export type PendingChangeListResponse = {
+export type PendingChangeListResult = {
   data: PendingChangeItem[];
   pagination: PendingChangePagination;
-};
-
-export type PendingChangeCountResponse = {
-  count: number;
 };
