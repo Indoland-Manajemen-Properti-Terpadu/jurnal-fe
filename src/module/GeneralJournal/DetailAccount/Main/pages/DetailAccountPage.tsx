@@ -57,7 +57,7 @@ import { useBankStatement, type BankStatementRow } from '@/module/bank-statement
 import { JournalEmptyState } from '@/components/EmptyState/JournalEmptyState';
 import { useJournalEntriesByAccount } from '@/module/journal-entries';
 import type { JournalEntryByAccount } from '@/module/journal-entries';
-import { GetReconciliation } from '../../Reconciliation/services/GetReconciliation.service';
+import { useReconciliation } from '@/module/reconciliation';
 
 import DetailAccountLayout from './Layout';
 import JournalTransactionTab from '../components/Tabs/JournalTransactionTabs';
@@ -71,7 +71,7 @@ const DetailAccountPage: React.FC = () => {
   const queryClient = useQueryClient();
 
   const { accountDetail, isLoading: isLoadingAccount } = useDetailAccount(idAccount!);
-  const { data: reconData, isLoading: isLoadingRecon } = GetReconciliation(idAccount!);
+  const { data: reconData, isLoading: isLoadingRecon } = useReconciliation(idAccount!);
   const { data: bankStatementData } = useBankStatement(idAccount!);
   const { data: transactions } = useJournalEntriesByAccount(idAccount!);
   const { mutate: deleteAccount, isPending: isDeleting } = useDeleteAccount();

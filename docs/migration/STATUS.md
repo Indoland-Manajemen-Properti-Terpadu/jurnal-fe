@@ -59,7 +59,7 @@ Priority changed: the ledger (`GeneralJournal`) goes before the remaining small 
 | `journal-entries` | done | done | done | done | done | R2 |
 | `account-ledger` | todo | todo | todo | todo | todo | R2 |
 | `bank-statements` | done | done | done | done | done | R2 |
-| `reconciliation` | todo | todo | todo | todo | todo | R2 |
+| `reconciliation` | done | done | done | done | done | R2 |
 | `beginning-balances` | done | done | done | done | done | R2 |
 | `period-closing` | done | done | done | done | done | R2 |
 
