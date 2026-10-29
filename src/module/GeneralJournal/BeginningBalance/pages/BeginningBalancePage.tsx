@@ -57,6 +57,30 @@ import { JournalAccounts } from '../../JournalAccount/types/JournalAccountModel'
 import { useInitialBalanceStore } from '@/store/GeneralJournal/initialBalanceAccount';
 import { useTranslation } from '@/i18n';
 
+type OpeningRow = { debit?: unknown; credit?: unknown };
+
+/** Opening balance totals as the page shows them; the publish gate needs equal totals above zero. */
+export const summarizeOpeningBalance = (rows: OpeningRow[]) => {
+  const sumDebit = rows.reduce((sum, acc) => sum + (Number(acc.debit) || 0), 0);
+  const sumCredit = rows.reduce((sum, acc) => sum + (Number(acc.credit) || 0), 0);
+  return {
+    totalDebit: sumDebit,
+    totalCredit: sumCredit,
+    difference: Math.abs(sumDebit - sumCredit),
+    isBalanced: sumDebit === sumCredit && sumDebit > 0,
+  };
+};
+
+/** Pre-publish validation order: empty first, then unbalanced, otherwise ready. */
+export const checkOpeningPublish = (
+  totalDebit: number,
+  totalCredit: number
+): 'empty' | 'unbalanced' | 'ready' => {
+  if (totalDebit === 0 && totalCredit === 0) return 'empty';
+  if (totalDebit !== totalCredit) return 'unbalanced';
+  return 'ready';
+};
+
 const BeginningBalancePage: React.FC = () => {
   const navigate = useNavigate();
   const { t, currentLanguage } = useTranslation('journal');
@@ -131,17 +155,7 @@ const BeginningBalancePage: React.FC = () => {
 
   // Calculate totals
   const { totalDebit, totalCredit, difference, isBalanced } = useMemo(() => {
-    const sumDebit = listAccounts.reduce((sum, acc) => sum + (Number(acc.debit) || 0), 0);
-    const sumCredit = listAccounts.reduce((sum, acc) => sum + (Number(acc.credit) || 0), 0);
-    const diff = Math.abs(sumDebit - sumCredit);
-    const balanced = sumDebit === sumCredit && sumDebit > 0;
-
-    return {
-      totalDebit: sumDebit,
-      totalCredit: sumCredit,
-      difference: diff,
-      isBalanced: balanced,
-    };
+    return summarizeOpeningBalance(listAccounts);
   }, [listAccounts]);
 
   // Categories list for filtering
@@ -200,7 +214,7 @@ const BeginningBalancePage: React.FC = () => {
 
   // Pre-publish validation
   const handleInitiatePublish = () => {
-    if (totalDebit === 0 && totalCredit === 0) {
+    if (checkOpeningPublish(totalDebit, totalCredit) === 'empty') {
       notifications.show({
         color: 'red',
         title: 'Saldo Awal Masih Kosong',
@@ -209,7 +223,7 @@ const BeginningBalancePage: React.FC = () => {
       return;
     }
 
-    if (totalDebit !== totalCredit) {
+    if (checkOpeningPublish(totalDebit, totalCredit) === 'unbalanced') {
       notifications.show({
         color: 'orange',
         autoClose: 5000,

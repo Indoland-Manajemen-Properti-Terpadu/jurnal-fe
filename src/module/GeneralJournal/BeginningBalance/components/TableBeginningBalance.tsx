@@ -31,7 +31,7 @@ type TableBeginningBalanceProps = {
 };
 
 /** Determine normal balance position from category standard */
-function isNormalDebit(categoryName?: string, isDebit?: boolean): boolean {
+export function isNormalDebit(categoryName?: string, isDebit?: boolean): boolean {
   if (typeof isDebit === 'boolean') return isDebit;
   const cat = (categoryName || '').toLowerCase();
   if (
@@ -282,11 +282,7 @@ const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
               size="xs"
               radius="md"
               leftSection={
-                <Text
-                  size="xs"
-                  fw={600}
-                  c={hasVal ? 'red.7' : isNormalCredit ? 'red.6' : 'dimmed'}
-                >
+                <Text size="xs" fw={600} c={hasVal ? 'red.7' : isNormalCredit ? 'red.6' : 'dimmed'}>
                   Rp
                 </Text>
               }

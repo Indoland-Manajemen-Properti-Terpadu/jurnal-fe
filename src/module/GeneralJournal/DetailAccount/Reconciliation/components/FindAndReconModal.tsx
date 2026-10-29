@@ -21,6 +21,20 @@ import {
 import useFilterTransaction from '../../Main/store/FilterTransaction';
 import { useGetJournalDetailsForRecon } from '../services/GetJournalDetailsForRecon.service';
 
+/** Positive bank amount (received) matches journal debit, negative (sent) matches credit. */
+export const matchesBankDirection = (
+  bankAmount: number,
+  line: { debit?: number; credit?: number }
+): boolean => {
+  if (bankAmount > 0) return (line.debit as number) > 0;
+  if (bankAmount < 0) return (line.credit as number) > 0;
+  return true;
+};
+
+/** Manual match is allowed only when the selected total equals the absolute bank amount. */
+export const isMatchAmountEqual = (selectedNominal: number, totalNominal: number): boolean =>
+  selectedNominal === totalNominal;
+
 interface FindAndReconModalProps {
   opened: boolean;
   onClose: () => void;
@@ -69,15 +83,8 @@ export const FindAndReconModal: React.FC<FindAndReconModalProps> = ({
     }
 
     // Match debit with debit and credit with credit
-    let matchesType = true;
     const bankAmount = SelectedBankStatament?.amount || 0;
-    if (bankAmount > 0) {
-      // Bank statement Diterima (positive) → match dengan journal debit (uang masuk)
-      matchesType = item.debit > 0;
-    } else if (bankAmount < 0) {
-      // Bank statement Dikirim (negative) → match dengan journal credit (uang keluar)
-      matchesType = item.credit > 0;
-    }
+    const matchesType = matchesBankDirection(bankAmount, item);
 
     return matchesQuery && matchesDate && matchesType;
   });
@@ -157,7 +164,7 @@ export const FindAndReconModal: React.FC<FindAndReconModalProps> = ({
   ];
 
   const handleConfirm = () => {
-    if (selectedRecords.length > 0 && selectedNominal === totalNominal) {
+    if (selectedRecords.length > 0 && isMatchAmountEqual(selectedNominal, totalNominal)) {
       setShowConfirmation(true);
     }
   };

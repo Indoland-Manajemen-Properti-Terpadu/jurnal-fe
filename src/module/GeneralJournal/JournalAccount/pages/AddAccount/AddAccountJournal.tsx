@@ -68,7 +68,7 @@ const TAX_OPTIONS = [
 /**
  * Maps a category model to one of the 8 standard COA numbering prefixes (1–8).
  */
-const getCategoryPrefix = (cat?: CategoryAccountModel): string => {
+export const getCategoryPrefix = (cat?: CategoryAccountModel): string => {
   if (!cat) return '';
   const code = (cat.categoryID || '').toUpperCase();
   const name = (cat.name || '').toLowerCase();
@@ -97,6 +97,12 @@ const getCategoryPrefix = (cat?: CategoryAccountModel): string => {
 /**
  * Shared input styles to guarantee 100% pixel-aligned side-by-side 2-column form inputs.
  */
+/** Effective normal side of the account being created: the category flag, flipped by contra. */
+export const resolveEffectiveDebit = (categoryIsDebit: boolean | undefined, isContra: boolean) => {
+  const baseDebit = categoryIsDebit ?? true;
+  return isContra ? !baseDebit : baseDebit;
+};
+
 const SYMMETRIC_INPUT_STYLES = {
   label: {
     display: 'inline-block',
@@ -296,14 +302,10 @@ export const AddAccountJournalPage: React.FC = () => {
     return getCategoryPrefix(selectedCategoryObj);
   }, [form.values.accountNumber, selectedCategoryObj]);
 
-  const isIncomeStatementCategory = useMemo(
-    () => Number(activePrefix) >= 4,
-    [activePrefix]
-  );
+  const isIncomeStatementCategory = useMemo(() => Number(activePrefix) >= 4, [activePrefix]);
 
   const effectiveDebit = useMemo(() => {
-    const baseDebit = selectedCategoryObj?.isDebit ?? true;
-    return form.values.isContra ? !baseDebit : baseDebit;
+    return resolveEffectiveDebit(selectedCategoryObj?.isDebit, form.values.isContra);
   }, [selectedCategoryObj?.isDebit, form.values.isContra]);
 
   // Readiness Checks
@@ -336,8 +338,7 @@ export const AddAccountJournalPage: React.FC = () => {
       categoryAccounts.find((c) =>
         keywords.some(
           (kw) =>
-            (c.name || '').toLowerCase().includes(kw) ||
-            (c.categoryID || '').toLowerCase() === kw
+            (c.name || '').toLowerCase().includes(kw) || (c.categoryID || '').toLowerCase() === kw
         )
       );
 

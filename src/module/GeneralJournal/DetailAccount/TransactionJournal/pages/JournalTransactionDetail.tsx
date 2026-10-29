@@ -40,6 +40,10 @@ import JournalTransactionDetailTable from '../components/TableTransactionJournal
 import FileAttachments from '../components/FileAttachment';
 import DeleteTransactionModal from '../../Main/components/DeleteTransactionModal';
 
+/** View tolerance: a journal reads as balanced when debit and credit differ by less than 0.01. */
+export const isDetailBalanced = (totalDebit: number, totalCredit: number): boolean =>
+  Math.abs(totalDebit - totalCredit) < 0.01;
+
 export const JournalTransactionDetailPage: React.FC = () => {
   const navigate = useNavigate();
   const { idTransaction } = useParams<{ idTransaction: string }>();
@@ -65,7 +69,7 @@ export const JournalTransactionDetailPage: React.FC = () => {
   const transactionDetails = detailTransaction?.transactionDetail || [];
   const totalDebit = transactionDetails.reduce((sum, item) => sum + (Number(item.debit) || 0), 0);
   const totalCredit = transactionDetails.reduce((sum, item) => sum + (Number(item.credit) || 0), 0);
-  const isBalanced = Math.abs(totalDebit - totalCredit) < 0.01;
+  const isBalanced = isDetailBalanced(totalDebit, totalCredit);
 
   if (isLoading) {
     return (

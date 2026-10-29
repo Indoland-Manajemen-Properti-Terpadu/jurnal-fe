@@ -64,7 +64,7 @@ import deleteModalImage from '@/assets/img/vectors/delete_modal.svg';
 import arsipkanIcon from '@/assets/img/vectors/arsipkan.svg';
 
 /** Helper to determine the normal accounting balance (Debit vs Kredit) */
-function getNormalBalance(categoryName?: string, type?: string): 'Debit' | 'Kredit' {
+export function getNormalBalance(categoryName?: string, type?: string): 'Debit' | 'Kredit' {
   const cat = (categoryName || type || '').toLowerCase();
   if (
     cat.includes('kewajiban') ||
