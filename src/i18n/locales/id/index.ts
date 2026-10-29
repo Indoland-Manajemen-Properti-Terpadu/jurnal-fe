@@ -15,6 +15,7 @@ import { landing } from './landing';
 import { profile } from './profile';
 import { purchases } from './purchases';
 import { products } from './products';
+import { periodClosing } from './periodClosing';
 
 export const id = {
   common,
@@ -34,6 +35,7 @@ export const id = {
   profile,
   purchases,
   products,
+  periodClosing,
 };
 
 export default id;

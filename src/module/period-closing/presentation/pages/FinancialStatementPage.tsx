@@ -1,153 +1,80 @@
-import { Anchor, Button, Container, Group, Paper, rem, Stack, Tabs, Title, Text, Box } from "@mantine/core";
-import { IconChartBar, IconExchange, IconFileDollar, IconMessageCircle, IconPhoto, IconScale, IconSettings } from "@tabler/icons-react";
-import PeriodClosingLayout from "./PeriodClosingLayout";
-import { uuID } from "@/utils/uuid";
-import { gradientColors, themeColors } from "@/theme";
-import { useNavigate } from "react-router-dom";
-import { routes } from "@/router/routes";
-import WorkingPaperTable from "../components/WorkingPaperTable";
-import TrialBalanceTable from "../components/TrialBalanceTable";
-import IncomeStatementTable from "../components/IncomeStatement/IncomeStatementTable";
-import { formatCurrency } from "@/utils/FormatCurrency";
-import BalanceSheetTable from "../components/BalanceSheet/BalanceSheetTable";
-import CashFlowTable from "../components/CashFlow/CashFlowTable";
-import { useState } from "react";
-import SaveAsDraftModal from "../components/ModalSaveAsDraft";
-import { notifications } from "@mantine/notifications";
+import { Container, Paper, rem, Stack, Tabs, Text, Title } from '@mantine/core';
+import { IconChartBar, IconExchange, IconFileDollar, IconScale } from '@tabler/icons-react';
+import { useNavigate } from 'react-router-dom';
+import { useTranslation } from '@/i18n';
+import { routes } from '@/router/routes';
+import { themeColors } from '@/theme';
+import { PROTOTYPE_PERIOD_END } from '../../domain/prototypeData';
+import BalanceSheetTable from '../components/BalanceSheet/BalanceSheetTable';
+import CashFlowTable from '../components/CashFlow/CashFlowTable';
+import IncomeStatementTable from '../components/IncomeStatement/IncomeStatementTable';
+import PeriodFooter from '../components/PeriodFooter';
+import ReportPanelHeader from '../components/ReportPanelHeader';
+import TrialBalanceTable from '../components/TrialBalanceTable';
+import PeriodClosingLayout from './PeriodClosingLayout';
 
-const items = [
-    { title: 'Settings', href: '#' },
-    { title: 'General Journal', href: '#' },
-    { title: 'Add Account', href: '#' },
-].map((item) => (
-    <Anchor href={item.href} key={uuID}>
-        {item.title}
-    </Anchor>
-));
-
+const PAPER_PROPS = {
+  p: 'md',
+  shadow: 'md',
+  radius: 'md',
+};
 
 const FinancialStatementPage = () => {
-    const navigate = useNavigate();
-    const iconStyle = { width: rem(12), height: rem(12) };
+  const { t } = useTranslation('periodClosing');
+  const navigate = useNavigate();
+  const iconStyle = { width: rem(12), height: rem(12) };
+  const panels = [
+    { value: 'trial-balance', label: t('financialStatement.trialBalance'), icon: IconScale, body: <TrialBalanceTable /> },
+    { value: 'income-statement', label: t('financialStatement.incomeStatement'), icon: IconChartBar, body: <IncomeStatementTable /> },
+    { value: 'balance-sheet', label: t('financialStatement.balanceSheet'), icon: IconFileDollar, body: <BalanceSheetTable /> },
+    { value: 'cash-flow', label: t('financialStatement.cashFlow'), icon: IconExchange, body: <CashFlowTable /> },
+  ];
 
-
-    const PAPER_PROPS = {
-        p: 'md',
-        shadow: 'md',
-        radius: 'md',
-    };
-
-    return (
-        <PeriodClosingLayout
-            footer={
-                <Container fluid px="lg">
-                    <Group grow>
-                        <Group justify="flex-end" gap="xs" mt='md'>
-                            <Button
-                                variant="light"
-                                color={themeColors.gray[7]}
-                                onClick={() => navigate(-1)}
-                            >
-                                Back
-                            </Button>
-                            <Button
-                                variant="gradient"
-                                gradient={gradientColors.gradient}
-                                onClick={() => navigate(routes.PeriodAndClosingBook.ListPLandCB)}
-                            >
-                                Confirm
-                            </Button>
-                        </Group>
-                    </Group>
-                </Container>
-            }
-        >
-            <Container fluid>
-                <Stack gap="lg">
-                    <Paper {...PAPER_PROPS}>
-                        <Stack gap={2}>
-                            <Title order={3}>Financial Statement</Title>
-                            <Text c={themeColors.gray[6]} fz={14}>
-                                From start to 31/07/2024
-                            </Text>
-                        </Stack>
-                    </Paper>
-                    <Paper {...PAPER_PROPS}>
-                        <Stack align="stretch" justify="flex-start" gap="sm">
-                            <Tabs color={themeColors.primary[6]} defaultValue="trial-balance">
-                                <Tabs.List>
-                                    <Tabs.Tab value="trial-balance" leftSection={<IconScale style={iconStyle} />}>
-                                        Trial Balance
-                                    </Tabs.Tab>
-                                    <Tabs.Tab value="income-statement" leftSection={<IconChartBar style={iconStyle} />}>
-                                        Income Statement
-                                    </Tabs.Tab>
-                                    <Tabs.Tab value="balance-sheet" leftSection={<IconFileDollar style={iconStyle} />}>
-                                        Balance Sheet
-                                    </Tabs.Tab>
-                                    <Tabs.Tab value="cash-flow" leftSection={<IconExchange style={iconStyle} />}>
-                                        Cash Flow
-                                    </Tabs.Tab>
-                                </Tabs.List>
-
-                                <Tabs.Panel value="trial-balance">
-                                    <Stack gap='md' mt='md'>
-                                        <Group justify='space-between'>
-                                            <Stack gap={1}>
-                                                <Text fw={500} fz={18} c={themeColors.slate[8]}> Trial Balance</Text>
-                                                <Text fw={400} fz={14} c={themeColors.gray[6]}> Period 31/07/2024</Text>
-                                            </Stack>
-                                            <Text fw={500} fz={18} c={themeColors.slate[8]}> PT Kolang Kaling Keliling</Text>
-                                        </Group>
-                                        <TrialBalanceTable />
-                                    </Stack>
-                                </Tabs.Panel>
-
-                                <Tabs.Panel value="income-statement">
-                                    <Stack gap='md' mt='md'>
-                                        <Group justify='space-between'>
-                                            <Stack gap={1}>
-                                                <Text fw={500} fz={18} c={themeColors.slate[8]}> Income Statement</Text>
-                                                <Text fw={400} fz={14} c={themeColors.gray[6]}> Period 31/07/2024</Text>
-                                            </Stack>
-                                            <Text fw={500} fz={18} c={themeColors.slate[8]}> PT Kolang Kaling Keliling</Text>
-                                        </Group>
-                                        <IncomeStatementTable />
-                                    </Stack>
-                                </Tabs.Panel>
-
-                                <Tabs.Panel value="balance-sheet">
-                                    <Stack gap='md' mt='md'>
-                                        <Group justify='space-between'>
-                                            <Stack gap={1}>
-                                                <Text fw={500} fz={18} c={themeColors.slate[8]}> Balance Sheet</Text>
-                                                <Text fw={400} fz={14} c={themeColors.gray[6]}> Period 31/07/2024</Text>
-                                            </Stack>
-                                            <Text fw={500} fz={18} c={themeColors.slate[8]}> PT Kolang Kaling Keliling</Text>
-                                        </Group>
-                                        <BalanceSheetTable />
-                                    </Stack>
-                                </Tabs.Panel>
-                                <Tabs.Panel value="cash-flow">
-                                    <Stack gap='md' mt='md'>
-                                        <Group justify='space-between'>
-                                            <Stack gap={1}>
-                                                <Text fw={500} fz={18} c={themeColors.slate[8]}> Cash Flow</Text>
-                                                <Text fw={400} fz={14} c={themeColors.gray[6]}> Period 31/07/2024</Text>
-                                            </Stack>
-                                            <Text fw={500} fz={18} c={themeColors.slate[8]}> PT Kolang Kaling Keliling</Text>
-                                        </Group>
-                                        <CashFlowTable />
-                                    </Stack>
-                                </Tabs.Panel>
-                            </Tabs>
-                        </Stack>
-                    </Paper>
-                </Stack>
-            </Container>
-        </PeriodClosingLayout>
-
-    );
-}
+  return (
+    <PeriodClosingLayout
+      footer={
+        <PeriodFooter
+          onBack={() => navigate(-1)}
+          onNext={() => navigate(routes.PeriodAndClosingBook.ListPLandCB)}
+          nextLabel={t('common.confirm')}
+        />
+      }
+    >
+      <Container fluid>
+        <Stack gap="lg">
+          <Paper {...PAPER_PROPS}>
+            <Stack gap={2}>
+              <Title order={3}>{t('financialStatement.title')}</Title>
+              <Text c={themeColors.gray[6]} fz={14}>
+                {t('financialStatement.subtitle', { date: PROTOTYPE_PERIOD_END })}
+              </Text>
+            </Stack>
+          </Paper>
+          <Paper {...PAPER_PROPS}>
+            <Stack align="stretch" justify="flex-start" gap="sm">
+              <Tabs color={themeColors.primary[6]} defaultValue="trial-balance">
+                <Tabs.List>
+                  {panels.map(({ value, label, icon: Icon }) => (
+                    <Tabs.Tab key={value} value={value} leftSection={<Icon style={iconStyle} />}>
+                      {label}
+                    </Tabs.Tab>
+                  ))}
+                </Tabs.List>
+                {panels.map(({ value, label, body }) => (
+                  <Tabs.Panel key={value} value={value}>
+                    <Stack gap="md" mt="md">
+                      <ReportPanelHeader title={label} />
+                      {body}
+                    </Stack>
+                  </Tabs.Panel>
+                ))}
+              </Tabs>
+            </Stack>
+          </Paper>
+        </Stack>
+      </Container>
+    </PeriodClosingLayout>
+  );
+};
 
 export default FinancialStatementPage;

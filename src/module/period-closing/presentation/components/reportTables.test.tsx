@@ -1,5 +1,7 @@
+import { act } from '@testing-library/react';
 import { vi } from 'vitest';
 import { render, screen, within } from '@test-utils';
+import { useI18nStore } from '@/i18n/store';
 import BalanceSheetTable from './BalanceSheet/BalanceSheetTable';
 import IncomeStatementTable from './IncomeStatement/IncomeStatementTable';
 import TrialBalanceTable from './TrialBalanceTable';
@@ -42,8 +44,11 @@ const rowOf = (label: string) => {
   return row;
 };
 
-describe('period closing report tables (characterization)', () => {
+describe('period closing report tables', () => {
+  afterEach(() => act(() => useI18nStore.getState().setLanguage('id')));
+
   beforeEach(() => {
+    act(() => useI18nStore.getState().setLanguage('en'));
     mockState.accounts = [];
     mockState.isError = false;
   });

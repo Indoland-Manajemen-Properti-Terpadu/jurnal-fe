@@ -1,131 +1,94 @@
 import {
-    Anchor,
-    Button,
-    Container,
-    Group,
-    Paper,
-    Stack,
-    Title,
-    Text,
-    Select,
-    Input,
-    NumberInput,
-    Divider,
-    Textarea
+  Button,
+  Container,
+  Divider,
+  Group,
+  NumberInput,
+  Paper,
+  Select,
+  Stack,
+  Text,
+  Textarea,
+  Title,
 } from '@mantine/core';
-import { useNavigate } from 'react-router-dom';
-import { gradientColors, themeColors } from '@/theme';
-import { TextMediumGR } from '@/components/Text/CustomText';
-import { uuID } from '@/utils/uuid';
-import { useState } from 'react';
-import { routes } from '@/router/routes';
-import WorkingPaperTable from '../components/WorkingPaperTable';
 import { IconChevronDown } from '@tabler/icons-react';
+import { useNavigate } from 'react-router-dom';
+import { TextMediumGR } from '@/components/Text/CustomText';
+import { useTranslation } from '@/i18n';
+import { routes } from '@/router/routes';
+import { themeColors } from '@/theme';
+import { PROTOTYPE_ACCOUNT_OPTIONS, PROTOTYPE_PERIOD_END } from '../../domain/prototypeData';
+import PeriodFooter from '../components/PeriodFooter';
+import WorkingPaperTable from '../components/WorkingPaperTable';
 import PeriodClosingLayout from './PeriodClosingLayout';
 
-const items = [
-    { title: 'Settings', href: '#' },
-    { title: 'General Journal', href: '#' },
-    { title: 'Add Account', href: '#' },
-].map((item) => (
-    <Anchor href={item.href} key={uuID}>
-        {item.title}
-    </Anchor>
-));
-
 const PAPER_PROPS = {
-    p: 'md',
-    shadow: 'md',
-    radius: 'md',
+  p: 'md',
+  shadow: 'md',
+  radius: 'md',
 };
 
 const ClosingBooksPage = () => {
-    const navigate = useNavigate();
+  const { t } = useTranslation('periodClosing');
+  const navigate = useNavigate();
+  const accountSelect = (label: string) => (
+    <Select
+      withAsterisk
+      label={label}
+      placeholder={t('closingBooks.chooseAccount')}
+      data={PROTOTYPE_ACCOUNT_OPTIONS}
+      rightSection={<IconChevronDown size={16} />}
+    />
+  );
 
-    return (
-        <PeriodClosingLayout
-            footer={
-                <Container fluid px="lg">
-                    <Group grow>
-                        <Group justify="flex-end" gap="xs" mt='md'>
-                            <Button
-                                variant="light"
-                                color={themeColors.gray[7]}
-                                onClick={() => navigate(routes.generalJournal.main)}
-                            >
-                                Back
-                            </Button>
-                            <Button
-                                variant="gradient"
-                                gradient={gradientColors.gradient}
-                                onClick={() => navigate(routes.PeriodAndClosingBook.FinancialStatement)}
-                            >
-                                Continue
-                            </Button>
-                        </Group>
-                    </Group>
-                </Container>
-            }
-        >
-            <Container fluid>
-                <Stack gap="lg">
-                    <Paper {...PAPER_PROPS}>
-                        <Stack gap={2}>
-                            <Title order={3}>Trial Balance Working Paper</Title>
-                            <Text c={themeColors.gray[6]} fz={14}>
-                                From start to 31/07/2024
-                            </Text>
-                        </Stack>
-                    </Paper>
-                    <Paper {...PAPER_PROPS}>
-                        <Stack align="stretch" justify="flex-start" gap="sm">
-                            <TextMediumGR>Working Paper</TextMediumGR>
-                            <WorkingPaperTable />
-                            <TextMediumGR > Tax Expense & Payable</TextMediumGR>
-                            <Group grow>
-                                <Select
-                                    withAsterisk
-                                    label="Tax Expense Account"
-                                    placeholder="Chose account"
-                                    data={['React', 'Angular', 'Vue', 'Svelte']}
-                                    rightSection={<IconChevronDown size={16} />}
-                                />
-                                <Select
-                                    withAsterisk
-                                    label="Tax Expense Payable"
-                                    placeholder="Chose account"
-                                    data={['React', 'Angular', 'Vue', 'Svelte']}
-                                    rightSection={<IconChevronDown size={16} />}
-                                />
-                            </Group>
-                            <TextMediumGR > Net Profit/Loss After Tax</TextMediumGR>
-                            <Select
-                                withAsterisk
-                                label="Retained Earnings Account"
-                                placeholder="Chose account"
-                                data={['React', 'Angular', 'Vue', 'Svelte']}
-                                rightSection={<IconChevronDown size={16} />}
-                            />
-                            <TextMediumGR > Net Profit/Loss After Tax</TextMediumGR>
-                            <Group grow>
-                                <NumberInput
-                                    label="Total"
-                                    withAsterisk
-                                    placeholder="0,00"
-                                    rightSection={<IconChevronDown size={16} />}
-                                />
-                            </Group>
-                            <Divider />
-                            <Textarea
-                                label="Notes"
-                                placeholder="Add Notes"
-                            />
-                        </Stack>
-                    </Paper>
-                </Stack>
-            </Container>
-        </PeriodClosingLayout>
-    );
+  return (
+    <PeriodClosingLayout
+      footer={
+        <PeriodFooter
+          onBack={() => navigate(routes.generalJournal.main)}
+          onNext={() => navigate(routes.PeriodAndClosingBook.FinancialStatement)}
+          nextLabel={t('common.continue')}
+        />
+      }
+    >
+      <Container fluid>
+        <Stack gap="lg">
+          <Paper {...PAPER_PROPS}>
+            <Stack gap={2}>
+              <Title order={3}>{t('closingBooks.title')}</Title>
+              <Text c={themeColors.gray[6]} fz={14}>
+                {t('closingBooks.subtitle', { date: PROTOTYPE_PERIOD_END })}
+              </Text>
+            </Stack>
+          </Paper>
+          <Paper {...PAPER_PROPS}>
+            <Stack align="stretch" justify="flex-start" gap="sm">
+              <TextMediumGR>{t('closingBooks.workingPaper')}</TextMediumGR>
+              <WorkingPaperTable />
+              <TextMediumGR>{t('closingBooks.taxSection')}</TextMediumGR>
+              <Group grow>
+                {accountSelect(t('closingBooks.taxExpenseAccount'))}
+                {accountSelect(t('closingBooks.taxExpensePayable'))}
+              </Group>
+              <TextMediumGR>{t('closingBooks.netProfit')}</TextMediumGR>
+              {accountSelect(t('closingBooks.retainedEarnings'))}
+              <TextMediumGR>{t('closingBooks.netProfit')}</TextMediumGR>
+              <Group grow>
+                <NumberInput
+                  label={t('closingBooks.total')}
+                  withAsterisk
+                  placeholder="0,00"
+                  rightSection={<IconChevronDown size={16} />}
+                />
+              </Group>
+              <Divider />
+              <Textarea label={t('closingBooks.notes')} placeholder={t('closingBooks.addNotes')} />
+            </Stack>
+          </Paper>
+        </Stack>
+      </Container>
+    </PeriodClosingLayout>
+  );
 };
 
 export default ClosingBooksPage;
