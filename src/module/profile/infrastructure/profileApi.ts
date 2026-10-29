@@ -1,52 +1,36 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { get, patch } from '@/lib/http/apiClient';
+import axios from 'axios';
+import apiClient from '@/lib/http/apiClient';
 import { API_USERS } from '@/services/endpoint';
-import { User } from '@/module/Authentication/Login/types/LoginModelResponse';
-import { notifications } from '@mantine/notifications';
+import type { Profile, UpdateProfileInput } from '../domain/profile';
+import type { ApiMessageDto, ProfileDto } from './profileDto';
+import { toProfile, toUpdateRequest } from './profileMapper';
 
-export const useGetProfile = () => {
-  return useQuery({
-    queryKey: ['profile'],
-    queryFn: async () => {
-      const result = await get(API_USERS.GET_USER_DETAIL);
-      return result as User;
-    },
-  });
+const bodyMessage = (body?: ApiMessageDto): string | undefined =>
+  body?.data?.message || body?.message;
+
+export const fetchProfile = async (): Promise<Profile> => {
+  const response = await apiClient.get<ProfileDto>(API_USERS.GET_USER_DETAIL);
+  return toProfile(response.data);
 };
 
-export interface UpdateProfilePayload {
-  id: string;
-  name?: string;
-  email?: string;
-  password?: string;
-  accessRole?: any[];
-}
-
-export const useUpdateProfile = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({ id, ...payload }: UpdateProfilePayload) => {
-      const result = await patch(`/v1/users/${id}`, payload);
-      if (result && (result.status >= 400 || result.code >= 400)) {
-        throw new Error(result.data?.message || result.message || 'Gagal memperbarui profil');
-      }
-      return result;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['profile'] });
-      notifications.show({
-        color: 'teal',
-        title: 'Berhasil',
-        message: 'Perubahan profil berhasil disimpan.',
-      });
-    },
-    onError: (error: any) => {
-      notifications.show({
-        color: 'red',
-        title: 'Gagal',
-        message: error?.message || 'Terjadi kesalahan saat memperbarui profil.',
-      });
-    },
-  });
+/**
+ * Throws an `Error` whose message is the server message, or an empty string when the
+ * server sent none (the caller supplies the localized fallback).
+ */
+export const updateProfile = async (input: UpdateProfileInput): Promise<void> => {
+  try {
+    const response = await apiClient.patch<ApiMessageDto>(
+      `/v1/users/${input.id}`,
+      toUpdateRequest(input)
+    );
+    const body = response.data;
+    if (body && (response.status >= 400 || (body.code ?? 0) >= 400)) {
+      throw new Error(bodyMessage(body) ?? '');
+    }
+  } catch (error) {
+    if (axios.isAxiosError<ApiMessageDto>(error)) {
+      throw new Error(error.response?.data?.message || error.message || '');
+    }
+    throw error;
+  }
 };
