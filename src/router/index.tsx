@@ -10,7 +10,7 @@ import AddJournalTransactionForm from '@/module/GeneralJournal/DetailAccount/Tra
 import JournalTransactionDetailPage from '@/module/GeneralJournal/DetailAccount/TransactionJournal/pages/JournalTransactionDetail';
 import DetailAccount from '@/module/GeneralJournal/DetailAccount/Main/pages/DetailAccountPage';
 import DetailAccountNonCashBank from '@/module/GeneralJournal/DetailAccount/Main/pages/DetailAccountNonCashBankPage';
-import BeginningBalancePage from '@/module/GeneralJournal/BeginningBalance/pages/BeginningBalancePage';
+import { BeginningBalancePage } from '@/module/beginning-balances';
 import {
   ClosingBooksPage,
   FinancialStatementPage,

@@ -11,4 +11,4 @@ export { default as useForms } from './useForms';
 // Feature stores (General Journal)
 export { useTransactionStore } from './GeneralJournal/useTransactionStore';
 export { useFileStore } from './GeneralJournal/useFileStore';
-export { useDraftAccountStore } from '../module/GeneralJournal/BeginningBalance/store/useBeginingBalance';
+export { useDraftAccountStore } from '../module/beginning-balances/presentation/store/useBeginingBalance';

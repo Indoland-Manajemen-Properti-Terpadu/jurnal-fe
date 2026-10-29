@@ -5,7 +5,7 @@ import {
   getDraftBalanceLogs,
   postDraftBalance,
   postPublishDraftBalance,
-} from '../services/SetDraftBalance.service';
+} from '../../infrastructure/SetDraftBalance.service';
 
 export const useDraftAccount = () => {
   const { data, isLoading, isError, refetch } = useQuery({

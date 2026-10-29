@@ -1,7 +1,7 @@
 
 
 import { create } from 'zustand';
-import { DraftAccount } from '../types/DraftAccount.types';
+import { DraftAccount } from '../../domain/DraftAccount.types';
 
 interface DraftJournalStore {
     draftAccounts: DraftAccount[] | null;

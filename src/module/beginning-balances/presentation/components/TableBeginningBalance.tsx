@@ -22,7 +22,7 @@ import { isDebitNormal } from '@/lib/accounting/normalBalance';
 import { formatCurrency, numberFormat } from '@/utils/FormatCurrency';
 import EmptyState from '@/components/EmptyState/EmptyTable';
 import defaultEmptyImage from '@/assets/img/Empty-Dataa.svg';
-import { JournalAccounts } from '../../JournalAccount/types/JournalAccountModel';
+import { JournalAccounts } from '@/module/chart-of-accounts';
 
 type TableBeginningBalanceProps = {
   data: JournalAccounts[];

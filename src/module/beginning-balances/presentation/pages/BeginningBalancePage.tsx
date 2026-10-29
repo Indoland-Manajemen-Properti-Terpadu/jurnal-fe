@@ -45,7 +45,7 @@ import ModuleHeader from '@/components/ModuleHeader/ModuleHeader';
 import { ConfirmModal } from '@/components';
 import deleteModalImage from '@/assets/img/vectors/delete_modal.svg';
 
-import { useInitialBalanceStore } from '@/store/GeneralJournal/initialBalanceAccount';
+import { useInitialBalanceStore } from '../store/initialBalanceAccount';
 import { useTranslation } from '@/i18n';
 import BeginningBalancePageLayout from './Layout';
 import TableBeginningBalance from '../components/TableBeginningBalance';
@@ -55,8 +55,7 @@ import {
   usePublishDraftBalance,
   useSetDraftBalance,
 } from '../hooks/useDraftBalance';
-import { useJournalAccounts } from '../../JournalAccount/hooks/useJournalAccounts';
-import { JournalAccounts } from '../../JournalAccount/types/JournalAccountModel';
+import { useJournalAccounts, type JournalAccounts } from '@/module/chart-of-accounts';
 
 type OpeningRow = { debit?: unknown; credit?: unknown };
 

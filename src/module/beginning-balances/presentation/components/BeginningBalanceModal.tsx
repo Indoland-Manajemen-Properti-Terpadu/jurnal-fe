@@ -7,7 +7,7 @@ import { notifications } from '@mantine/notifications';
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 import { formatDate, dateFormatV1 } from '@/utils/FormatDate';
-import { useInitialBalanceStore } from '@/store/GeneralJournal/initialBalanceAccount';
+import { useInitialBalanceStore } from '../store/initialBalanceAccount';
 
 interface BeginningBalanceModalProps {
   opened: boolean;

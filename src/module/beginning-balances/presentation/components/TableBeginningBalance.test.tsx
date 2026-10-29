@@ -1,7 +1,7 @@
 import { vi } from 'vitest';
 import { fireEvent, render, screen } from '@test-utils';
 import TableBeginningBalance, { isNormalDebit } from './TableBeginningBalance';
-import { JournalAccounts } from '../../JournalAccount/types/JournalAccountModel';
+import { JournalAccounts } from '@/module/chart-of-accounts';
 
 type MockColumn = { accessor: string; render?: (item: JournalAccounts) => React.ReactNode };
 

@@ -1,4 +1,4 @@
-import { JournalAccounts } from '../../JournalAccount/types/JournalAccountModel';
+import { JournalAccounts } from '@/module/chart-of-accounts';
 
 export interface DraftAccount {
   id?: string;
