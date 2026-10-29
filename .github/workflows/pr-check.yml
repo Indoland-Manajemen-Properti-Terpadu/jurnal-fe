@@ -31,7 +31,11 @@ jobs:
       - name: Run Linting (ESLint ratchet & Stylelint)
         run: npm run lint
 
+      # Promotion PRs (develop-frontend to staging, staging to main-frontend) are diffed against a
+      # much older base, so "changed files" would be the whole history. Their content was already
+      # checked when it was a feature PR.
       - name: Check Formatting (changed files only)
+        if: ${{ github.head_ref != 'develop-frontend' && github.head_ref != 'staging' }}
         run: node scripts/prettierChanged.mjs "origin/${{ github.base_ref }}"
 
       - name: Run Unit Tests (Vitest)
