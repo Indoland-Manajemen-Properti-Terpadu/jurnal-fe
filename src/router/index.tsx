@@ -48,7 +48,7 @@ import SaleDetailPage from '@/module/Sale/pages/SaleDetailPage';
 
 // Base Module Routes
 import { BudgetPlanningPage } from '@/module/budgeting';
-import PembelianPage from '@/module/Pembelian/view/PembelianPage';
+import PembelianPage from '@/module/purchases/presentation/pages/PembelianPage';
 import { CostPage } from '@/module/costs';
 import ProductsPage from '@/module/products/pages/ProductsPage';
 import ProductDetailPage from '@/module/products/pages/ProductDetailPage';

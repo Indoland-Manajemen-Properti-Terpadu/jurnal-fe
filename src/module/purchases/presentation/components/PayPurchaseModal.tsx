@@ -15,7 +15,7 @@ import { DateInput } from '@mantine/dates';
 import dayjs from 'dayjs';
 import { IconCheck, IconCoins } from '@tabler/icons-react';
 import { formatCurrency } from '@/utils/FormatCurrency';
-import { PayPurchasePayload, PurchaseBill } from '../types/purchase';
+import { PayPurchasePayload, PurchaseBill } from '@/module/purchases/domain/purchase';
 
 interface PayPurchaseModalProps {
   opened: boolean;

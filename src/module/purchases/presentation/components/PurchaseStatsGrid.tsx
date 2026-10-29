@@ -2,7 +2,7 @@ import React from 'react';
 import { Group, Paper, SimpleGrid, Skeleton, Stack, Text, ThemeIcon } from '@mantine/core';
 import { IconAlertTriangle, IconCheck, IconClock, IconReceipt2 } from '@tabler/icons-react';
 import { formatCurrency } from '@/utils/FormatCurrency';
-import { PurchaseBill } from '../types/purchase';
+import { PurchaseBill } from '@/module/purchases/domain/purchase';
 
 interface PurchaseStatsGridProps {
   bills: PurchaseBill[];

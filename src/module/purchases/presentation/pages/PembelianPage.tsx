@@ -26,12 +26,12 @@ import {
 import ModuleHeader from '@/components/ModuleHeader/ModuleHeader';
 import ConfirmModal from '@/components/ui/ConfirmModal/ConfirmModal';
 import PembelianLayout from './Layout';
-import { PurchaseStatsGrid } from '../components/PurchaseStatsGrid';
-import { PurchaseTable } from '../components/PurchaseTable';
-import { CreatePurchaseModal } from '../components/CreatePurchaseModal';
-import { PayPurchaseModal } from '../components/PayPurchaseModal';
-import { usePurchases } from '../hooks/usePurchases';
-import { PurchaseBill } from '../types/purchase';
+import { PurchaseStatsGrid } from '@/module/purchases/presentation/components/PurchaseStatsGrid';
+import { PurchaseTable } from '@/module/purchases/presentation/components/PurchaseTable';
+import { CreatePurchaseModal } from '@/module/purchases/presentation/components/CreatePurchaseModal';
+import { PayPurchaseModal } from '@/module/purchases/presentation/components/PayPurchaseModal';
+import { usePurchases } from '@/module/purchases/presentation/hooks/usePurchases';
+import { PurchaseBill } from '@/module/purchases/domain/purchase';
 
 export function PembelianPage() {
   const { purchases, isLoading, refetch, createPurchase, payPurchase, deletePurchase } =

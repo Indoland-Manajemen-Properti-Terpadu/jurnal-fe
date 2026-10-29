@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { notifications } from '@mantine/notifications';
-import { CreatePurchaseFormValues, PayPurchasePayload, PurchaseBill } from '../types/purchase';
-import { loadStoredPurchases, persistPurchases } from '../services/purchaseStorage';
+import { CreatePurchaseFormValues, PayPurchasePayload, PurchaseBill } from '@/module/purchases/domain/purchase';
+import { loadStoredPurchases, persistPurchases } from '@/module/purchases/infrastructure/purchaseStorage';
 
 export const usePurchases = () => {
   const [purchases, setPurchases] = useState<PurchaseBill[]>([]);

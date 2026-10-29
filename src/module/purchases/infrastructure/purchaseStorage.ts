@@ -1,4 +1,4 @@
-import { PurchaseBill } from '../types/purchase';
+import { PurchaseBill } from '@/module/purchases/domain/purchase';
 
 const STORAGE_KEY = 'jurnal_purchase_bills_data';
 

@@ -24,7 +24,7 @@ import {
 } from '@tabler/icons-react';
 import EmptyState from '@/components/EmptyState/EmptyState';
 import { formatCurrency } from '@/utils/FormatCurrency';
-import { PurchaseBill } from '../types/purchase';
+import { PurchaseBill } from '@/module/purchases/domain/purchase';
 
 interface PurchaseTableProps {
   bills: PurchaseBill[];
