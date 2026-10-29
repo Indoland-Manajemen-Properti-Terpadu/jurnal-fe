@@ -98,7 +98,9 @@ export const mapSaleDto = (dto: any): Sale => {
         journalId:
           i.journalId ||
           i.journal_id ||
-          (typeof i.journalTransaction === 'string' ? i.journalTransaction : i.journalTransaction?.id) ||
+          (typeof i.journalTransaction === 'string'
+            ? i.journalTransaction
+            : i.journalTransaction?.id) ||
           i.journal?.id ||
           i.journal?._id ||
           null,
@@ -107,9 +109,12 @@ export const mapSaleDto = (dto: any): Sale => {
           i.transaction_id ||
           i.transactionJournalId ||
           i.journalTransactionId ||
-          (typeof i.journalTransaction === 'string' ? i.journalTransaction : i.journalTransaction?.id) ||
+          (typeof i.journalTransaction === 'string'
+            ? i.journalTransaction
+            : i.journalTransaction?.id) ||
           null,
-        salesAccount: typeof i.salesAccount === 'string' ? i.salesAccount : i.salesAccount?.id || null,
+        salesAccount:
+          typeof i.salesAccount === 'string' ? i.salesAccount : i.salesAccount?.id || null,
         accountReceivable:
           typeof i.accountReceivable === 'string'
             ? i.accountReceivable
@@ -135,12 +140,12 @@ export const mapSaleDto = (dto: any): Sale => {
           : { id: t.id || t._id || t.name, name: t.name || t.id || 'Tag' }
       )
     : typeof rawTags === 'string' && rawTags.trim()
-    ? rawTags
-        .split(',')
-        .map((s: string) => s.trim())
-        .filter(Boolean)
-        .map((s: string) => ({ id: s, name: s }))
-    : [];
+      ? rawTags
+          .split(',')
+          .map((s: string) => s.trim())
+          .filter(Boolean)
+          .map((s: string) => ({ id: s, name: s }))
+      : [];
 
   return {
     id: dto.id || dto._id || '',
@@ -213,11 +218,7 @@ export const mapSaleDto = (dto: any): Sale => {
       dto.journal?._id ||
       null,
     transactionId:
-      dto.transactionId ||
-      dto.transaction_id ||
-      dto.journalId ||
-      dto.journal_id ||
-      null,
+      dto.transactionId || dto.transaction_id || dto.journalId || dto.journal_id || null,
     deleted: Boolean(dto.deleted),
     createdAt: dto.createdAt || null,
     updatedAt: dto.updatedAt || null,

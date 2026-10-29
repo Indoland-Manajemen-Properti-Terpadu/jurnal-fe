@@ -7,7 +7,7 @@ import useAccountStore from '@/store/useAccountLedger';
 export const useDeleteJurnalAccount = () => {
   const queryClient = useQueryClient();
   const { setSelectedRecords } = useAccountStore();
-  
+
   return useMutation({
     mutationFn: async (ids: { accountIds: string[] }) => {
       const result = await del(API_ACCOUNT.DELETE_ACCOUNT, ids);

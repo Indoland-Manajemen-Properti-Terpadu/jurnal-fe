@@ -1,12 +1,12 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { get, patch } from "@/lib/http/apiClient";
-import { API_USERS } from "@/services/endpoint";
-import { User } from "../../Authentication/Login/types/LoginModelResponse";
-import { notifications } from "@mantine/notifications";
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { get, patch } from '@/lib/http/apiClient';
+import { API_USERS } from '@/services/endpoint';
+import { User } from '../../Authentication/Login/types/LoginModelResponse';
+import { notifications } from '@mantine/notifications';
 
 export const useGetProfile = () => {
   return useQuery({
-    queryKey: ["profile"],
+    queryKey: ['profile'],
     queryFn: async () => {
       const result = await get(API_USERS.GET_USER_DETAIL);
       return result as User;
@@ -34,18 +34,18 @@ export const useUpdateProfile = () => {
       return result;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["profile"] });
+      queryClient.invalidateQueries({ queryKey: ['profile'] });
       notifications.show({
-        color: "teal",
-        title: "Berhasil",
-        message: "Perubahan profil berhasil disimpan.",
+        color: 'teal',
+        title: 'Berhasil',
+        message: 'Perubahan profil berhasil disimpan.',
       });
     },
     onError: (error: any) => {
       notifications.show({
-        color: "red",
-        title: "Gagal",
-        message: error?.message || "Terjadi kesalahan saat memperbarui profil.",
+        color: 'red',
+        title: 'Gagal',
+        message: error?.message || 'Terjadi kesalahan saat memperbarui profil.',
       });
     },
   });

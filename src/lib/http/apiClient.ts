@@ -16,10 +16,7 @@ let refreshSubscribers: Array<{
   reject: (error: any) => void;
 }> = [];
 
-const subscribeTokenRefresh = (
-  resolve: (token: string) => void,
-  reject: (error: any) => void
-) => {
+const subscribeTokenRefresh = (resolve: (token: string) => void, reject: (error: any) => void) => {
   refreshSubscribers.push({ resolve, reject });
 };
 
