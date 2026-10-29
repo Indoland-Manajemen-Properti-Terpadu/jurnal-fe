@@ -68,6 +68,12 @@ export const AccountListHeaderActions: React.FC<AccountListHeaderActionsProps> =
           >
             {t('list.addJournalTransaction')}
           </Menu.Item>
+          {/*
+            TODO(R7): this route has an `:idAccount` segment that is not filled in here: the list
+            has no account. The draft page then uses the literal ":idAccount" as the account id,
+            and it only shows rows when an earlier upload (which needs an account) left a draft.
+            Decide: hide the item, or ask for an account first. Left as is, see the README.
+          */}
           <Menu.Item
             leftSection={<IconUpload size={16} />}
             onClick={() => navigate(routes.generalJournal.bankStatementDraftImport)}
