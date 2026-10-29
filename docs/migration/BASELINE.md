@@ -24,4 +24,4 @@ Formatting rules that duplicate Prettier account for about 2600 of the errors (`
 
 ## Needs decision
 
-(Filled in by later tasks when a fix could change rendering or behavior.)
+- Route constants `routes.SettingBudget.BudgetIS` (`/setting-budget/budget-IS`) and `routes.resultReport.businessOverview` (`/result-reports/business-overview`) have no page and no references; opening those URLs shows the not-found page. They are allow-listed in `src/router/routes.test.ts`. Build the page or delete the constant in the owning milestone (M1 `budgeting`, M2 `reports`).
