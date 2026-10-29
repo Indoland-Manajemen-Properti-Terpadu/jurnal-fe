@@ -5,13 +5,13 @@ import EmptyState from '@/components/EmptyState/EmptyTable';
 import { gradientColors, themeColors } from '@/theme';
 import { useTranslation } from '@/i18n';
 import { formatCurrency } from '@/utils/FormatCurrency';
-import { sumAmounts } from '../../../domain/reportTotals';
+import { sumAmounts } from '@/module/period-closing/domain/reportTotals';
 import {
   PROTOTYPE_COST_OF_REVENUE,
   PROTOTYPE_INCOME_TOTAL,
   PROTOTYPE_NON_OPERATING_EXPENSES,
   PROTOTYPE_PROFIT_AND_TAX,
-} from '../../../domain/prototypeData';
+} from '@/module/period-closing/domain/prototypeData';
 import IncomeStatementTableRow, {
   CostofRevenueRow,
   NonOperatingExpensesRow,

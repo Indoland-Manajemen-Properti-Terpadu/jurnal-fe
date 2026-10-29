@@ -4,8 +4,8 @@ import { useJournalAccounts } from '@/module/chart-of-accounts';
 import { gradientColors, themeColors } from '@/theme';
 import { useTranslation } from '@/i18n';
 import { formatCurrency } from '@/utils/FormatCurrency';
-import { groupByCategory, sumAmounts } from '../../../domain/reportTotals';
-import { PROTOTYPE_BALANCE_SHEET_TOTAL, PROTOTYPE_REPORT_DATE } from '../../../domain/prototypeData';
+import { groupByCategory, sumAmounts } from '@/module/period-closing/domain/reportTotals';
+import { PROTOTYPE_BALANCE_SHEET_TOTAL, PROTOTYPE_REPORT_DATE } from '@/module/period-closing/domain/prototypeData';
 
 const BalanceSheetTable: React.FC = () => {
   const { t } = useTranslation('periodClosing');
