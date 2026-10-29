@@ -19,7 +19,6 @@ import { TextMediumGR } from '@/components/Text/CustomText';
 import { uuID } from '@/utils/uuid';
 import { useState } from 'react';
 import { routes } from '@/router/routes';
-import AddAccountLedgerFormLayout from '../../JournalAccount/pages/AddAccount/Layout';
 import WorkingPaperTable from '../components/WorkingPaperTable';
 import { IconChevronDown } from '@tabler/icons-react';
 import PeriodLockAndClosingBookLayout from './Layout';

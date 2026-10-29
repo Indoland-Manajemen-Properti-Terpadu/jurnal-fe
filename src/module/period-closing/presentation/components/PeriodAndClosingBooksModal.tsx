@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { routes } from "@/router/routes";
 import { InformationAlert } from "@/components/Alert/Alert";
 import CustomConfirmModal from "@/components/Modals/ConfirmModal";
-import useModalStore from "@/store/useModals";
+import useModalStore from "../store/useModals";
 import KeyPeriodeImage from '@/assets/img/closing_period.svg';
 
 interface PeriodAndClosingBooksModalProps {

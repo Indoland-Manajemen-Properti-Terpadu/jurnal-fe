@@ -42,7 +42,7 @@ import { useAccountStore } from '@/store';
 import { useDeleteJurnalAccount } from '@/module/GeneralJournal/JournalAccount/services';
 import { useDraftAccount } from '@/module/GeneralJournal/BeginningBalance/hooks/useDraftBalance';
 import { BeginningBalanceModal } from '@/module/GeneralJournal/BeginningBalance/components/BeginningBalanceModal';
-import { PeriodAndClosingBooksModal } from '@/module/GeneralJournal/PeriodeLockAndClosingBooks/components/PeriodAndClosingBooksModal';
+import { PeriodAndClosingBooksModal } from '@/module/period-closing';
 import { SettingAccountModal } from '@/module/GeneralJournal/SettingAccount/pages/SettingAccountModal';
 import TableAccounts from '@/module/GeneralJournal/Main/components/TableJournalAccount/TableAccount';
 import GeneralJournalLayout from './Layout';

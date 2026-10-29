@@ -11,7 +11,11 @@ import JournalTransactionDetailPage from '@/module/GeneralJournal/DetailAccount/
 import DetailAccount from '@/module/GeneralJournal/DetailAccount/Main/pages/DetailAccountPage';
 import DetailAccountNonCashBank from '@/module/GeneralJournal/DetailAccount/Main/pages/DetailAccountNonCashBankPage';
 import BeginningBalancePage from '@/module/GeneralJournal/BeginningBalance/pages/BeginningBalancePage';
-import ClosingBooksPage from '@/module/GeneralJournal/PeriodeLockAndClosingBooks/pages/ClosingBooks';
+import {
+  ClosingBooksPage,
+  FinancialstatementPage,
+  ListPeriodLockAndClosingBooksPage,
+} from '@/module/period-closing';
 
 // User Management Module
 import UserManagement from '@/module/SettingMenu/UserManagement/Main/pages/UserManagement';
@@ -26,8 +30,6 @@ import CashFlowPage from '@/module/ResultReport/BusinessOverview/page/CashFlowPa
 import JournalEntryPage from '@/module/ResultReport/BusinessOverview/page/JournalEntryPage';
 import BusinessSumaryPage from '@/module/ResultReport/BusinessOverview/page/BusinessSumaryPage';
 import IncomeStatementBudgetPage from '@/module/ResultReport/BusinessOverview/page/IncomeStatementBudgetPage';
-import FinancialstatementPage from '@/module/GeneralJournal/PeriodeLockAndClosingBooks/pages/FinancialStatement';
-import ListPeriodLockAndClosingBooksPage from '@/module/GeneralJournal/PeriodeLockAndClosingBooks/pages/ListPeriodLockAndClosingBooks';
 import GeneralLedgerPage from '@/module/ResultReport/GeneralLedger/pages/GeneralLedgerPage';
 import EquityChangesPage from '@/module/ResultReport/BusinessOverview/page/EquityChangesPage';
 import BudgetManagementPage from '@/module/ResultReport/BusinessOverview/page/BudgetManagementPage';
