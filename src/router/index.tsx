@@ -1,4 +1,5 @@
 import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom';
+import { setNavigate } from '@/lib/http/apiClient';
 import { routes } from './routes';
 
 // General Journal Module
@@ -373,5 +374,6 @@ export function Router() {
 }
 
 export const { navigate } = router;
+setNavigate(router.navigate);
 export { routes } from './routes';
 export { router };
