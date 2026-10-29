@@ -1,6 +1,6 @@
-import { getNormalBalance } from './DetailAccountNonCashBankPage';
+import { getNormalBalance } from './normalBalance';
 
-describe('I5 getNormalBalance in DetailAccountNonCashBankPage (characterization)', () => {
+describe('I5 getNormalBalance (characterization of the ledger screen)', () => {
   it.each(['kewajiban', 'hutang', 'liabilitas', 'modal', 'ekuitas', 'pendapatan', 'penjualan'])(
     'returns Kredit for the keyword %s, in any case',
     (word) => {

@@ -9,6 +9,18 @@ import EmptyState from '@/components/EmptyState/EmptyTable';
 import { useTranslation } from '@/i18n';
 import { useJournalAccounts } from '../hooks/useJournalAccounts';
 
+/** Row of the mock mapping table (was an ambient global declared in the old GeneralJournal folder). */
+interface JournalTransactionTable {
+  id: number;
+  transaction: string;
+  date: string;
+  received: number;
+  sent: number;
+  balance: number;
+  status?: string;
+  description?: string;
+}
+
 const elements: JournalTransactionTable[] = [
   {
     id: 1,

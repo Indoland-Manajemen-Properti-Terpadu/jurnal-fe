@@ -8,3 +8,4 @@ export { archiveAccount } from './infrastructure/accountDetailApi';
 export { accountDetailData } from './domain/accountDetail';
 export type { DetailAccountModel } from './domain/accountDetail';
 export { useDetailAccount } from './presentation/hooks/useDetailAccount';
+export { canArchiveAccount, canDeleteAccount } from './domain/accountRules';
