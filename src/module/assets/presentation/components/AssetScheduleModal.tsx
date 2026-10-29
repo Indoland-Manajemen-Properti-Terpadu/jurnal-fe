@@ -26,7 +26,7 @@ import {
 } from '@tabler/icons-react';
 import { formatCurrency } from '@/utils/FormatCurrency';
 import { AssetItem } from '@/module/assets/domain/asset';
-import { generateDepreciationSchedule } from '@/module/assets/infrastructure/assetStorage';
+import { generateDepreciationSchedule } from '@/module/assets/domain/depreciation';
 import { useTranslation } from '@/i18n';
 
 export type AssetScheduleModalProps = {

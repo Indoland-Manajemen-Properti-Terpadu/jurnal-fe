@@ -49,7 +49,7 @@ import AssetFormModal from '@/module/assets/presentation/components/AssetFormMod
 import AssetDisposalModal from '@/module/assets/presentation/components/AssetDisposalModal';
 import { useAssets } from '@/module/assets/presentation/hooks/useAssets';
 import { AssetCategory, AssetItem } from '@/module/assets/domain/asset';
-import { generateDepreciationSchedule } from '@/module/assets/infrastructure/assetStorage';
+import { generateDepreciationSchedule } from '@/module/assets/domain/depreciation';
 
 const getCategoryMeta = (cat: AssetCategory) => {
   switch (cat) {

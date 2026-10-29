@@ -1,11 +1,16 @@
 import { useState, useCallback, useEffect } from 'react';
 import { notifications } from '@mantine/notifications';
+import { t } from '@/i18n';
 import { AssetFormValues, AssetItem } from '@/module/assets/domain/asset';
-import {
-  calculateAssetDepreciation,
-  loadStoredAssets,
-  persistAssets,
-} from '@/module/assets/infrastructure/assetStorage';
+import { createAsset, disposeAssetItem, updateAsset } from '@/module/assets/domain/assetMutations';
+import { localStorageAssetRepository } from '@/module/assets/infrastructure/localStorageAssetRepository';
+
+const repository = localStorageAssetRepository;
+
+const tr = (key: string, params?: Record<string, string | number>) => t(key, params, 'assets');
+
+const errorMessage = (error: unknown, fallbackKey: string): string =>
+  (error instanceof Error && error.message) || tr(fallbackKey);
 
 export const useAssets = () => {
   const [assets, setAssets] = useState<AssetItem[]>([]);
@@ -14,10 +19,7 @@ export const useAssets = () => {
   const fetchAssets = useCallback(() => {
     setIsLoading(true);
     try {
-      const data = loadStoredAssets();
-      setAssets(data);
-    } catch (err) {
-      console.error('[useAssets] Error loading assets:', err);
+      setAssets(repository.load());
     } finally {
       setIsLoading(false);
     }
@@ -29,82 +31,28 @@ export const useAssets = () => {
 
   const saveAsset = useCallback((values: AssetFormValues): boolean => {
     try {
-      const { accumulatedDepreciation, netBookValue } = calculateAssetDepreciation(
-        Number(values.acquisitionCost),
-        Number(values.residualValue),
-        Number(values.usefulLifeYears),
-        values.depreciationMethod,
-        values.acquisitionDate
-      );
-
-      const isFullyDep =
-        values.depreciationMethod !== 'none' && netBookValue <= Number(values.residualValue);
-
       setAssets((prev) => {
-        let updated: AssetItem[];
-        if (values.id) {
-          // Update
-          updated = prev.map((item) =>
-            item.id === values.id
-              ? {
-                  ...item,
-                  code: values.code,
-                  name: values.name,
-                  category: values.category,
-                  acquisitionDate: values.acquisitionDate,
-                  acquisitionCost: Number(values.acquisitionCost),
-                  residualValue: Number(values.residualValue),
-                  usefulLifeYears: Number(values.usefulLifeYears),
-                  depreciationMethod: values.depreciationMethod,
-                  notes: values.notes,
-                  accumulatedDepreciation,
-                  netBookValue,
-                  status: isFullyDep
-                    ? 'fully_depreciated'
-                    : item.status === 'disposed'
-                      ? 'disposed'
-                      : 'active',
-                }
-              : item
-          );
-        } else {
-          // Create
-          const newAsset: AssetItem = {
-            id: `asset-${Date.now()}`,
-            code: values.code,
-            name: values.name,
-            category: values.category,
-            acquisitionDate: values.acquisitionDate,
-            acquisitionCost: Number(values.acquisitionCost),
-            residualValue: Number(values.residualValue),
-            usefulLifeYears: Number(values.usefulLifeYears),
-            depreciationMethod: values.depreciationMethod,
-            notes: values.notes,
-            accumulatedDepreciation,
-            netBookValue,
-            status: isFullyDep ? 'fully_depreciated' : 'active',
-          };
-          updated = [newAsset, ...prev];
-        }
-
-        persistAssets(updated);
+        const updated = values.id
+          ? prev.map((item) => (item.id === values.id ? updateAsset(item, values) : item))
+          : [createAsset(values, `asset-${Date.now()}`), ...prev];
+        repository.save(updated);
         return updated;
       });
 
       notifications.show({
         color: 'teal',
-        title: 'Berhasil',
+        title: tr('notifySuccessTitle'),
         message: values.id
-          ? `Data aset ${values.name} berhasil diperbarui.`
-          : `Aset ${values.name} berhasil ditambahkan ke daftar aktiva tetap.`,
+          ? tr('notifyAssetUpdated', { name: values.name })
+          : tr('notifyAssetAdded', { name: values.name }),
       });
 
       return true;
-    } catch (err: any) {
+    } catch (err: unknown) {
       notifications.show({
         color: 'red',
-        title: 'Gagal',
-        message: err?.message || 'Terjadi kesalahan saat menyimpan data aset.',
+        title: tr('notifyErrorTitle'),
+        message: errorMessage(err, 'notifySaveFailed'),
       });
       return false;
     }
@@ -114,20 +62,20 @@ export const useAssets = () => {
     try {
       setAssets((prev) => {
         const updated = prev.filter((item) => item.id !== id);
-        persistAssets(updated);
+        repository.save(updated);
         return updated;
       });
 
       notifications.show({
         color: 'teal',
-        title: 'Aset Dihapus',
-        message: `Aset ${name} berhasil dihapus dari sistem.`,
+        title: tr('notifyAssetDeletedTitle'),
+        message: tr('notifyAssetDeleted', { name }),
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       notifications.show({
         color: 'red',
-        title: 'Gagal',
-        message: err?.message || 'Gagal menghapus aset.',
+        title: tr('notifyErrorTitle'),
+        message: errorMessage(err, 'notifyDeleteFailed'),
       });
     }
   }, []);
@@ -136,33 +84,25 @@ export const useAssets = () => {
     (id: string, disposalDate: string, disposalPrice: number): boolean => {
       try {
         setAssets((prev) => {
-          const updated = prev.map((item) => {
-            if (item.id !== id) return item;
-            const gainLoss = Number(disposalPrice) - item.netBookValue;
-            return {
-              ...item,
-              status: 'disposed' as const,
-              disposalDate,
-              disposalPrice: Number(disposalPrice),
-              disposalGainLoss: gainLoss,
-            };
-          });
-          persistAssets(updated);
+          const updated = prev.map((item) =>
+            item.id === id ? disposeAssetItem(item, disposalDate, disposalPrice) : item
+          );
+          repository.save(updated);
           return updated;
         });
 
         notifications.show({
           color: 'teal',
-          title: 'Pelepasan Aset Berhasil',
-          message: 'Status aset berhasil diubah menjadi dilepas / dijual.',
+          title: tr('notifyDisposedTitle'),
+          message: tr('notifyDisposed'),
         });
 
         return true;
-      } catch (err: any) {
+      } catch (err: unknown) {
         notifications.show({
           color: 'red',
-          title: 'Gagal',
-          message: err?.message || 'Gagal memproses pelepasan aset.',
+          title: tr('notifyErrorTitle'),
+          message: errorMessage(err, 'notifyDisposeFailed'),
         });
         return false;
       }
@@ -171,9 +111,7 @@ export const useAssets = () => {
   );
 
   const getAssetById = useCallback(
-    (id: string): AssetItem | undefined => {
-      return assets.find((a) => a.id === id);
-    },
+    (id: string): AssetItem | undefined => assets.find((a) => a.id === id),
     [assets]
   );
 
