@@ -16,7 +16,9 @@ Status per module: [../migration/STATUS.md](../migration/STATUS.md).
 | `landing` | `src/module/LandingPage` | pending (M1) |
 | `dashboard` | `src/module/Dashboard` | pending (M1) |
 | `budgeting` | `src/module/SettingBudget`, `src/module/BudgetPlanning` | pending (M1) |
-| `costs`, `production`, `fulfillment` | `src/module/Cost`, `Production`, `Fulfillment` | pending (M1, placeholders) |
+| `costs` | `src/module/costs` | [README](../../src/module/costs/README.md) |
+| `production` | `src/module/production` | [README](../../src/module/production/README.md) |
+| `fulfillment` | `src/module/fulfillment` | [README](../../src/module/fulfillment/README.md) |
 | `bank-cash` | `src/module/BankCash` | pending (M2) |
 | `petty-cash` | `src/module/BankCash/PettyCash` | pending (M2) |
 | `reports` | `src/module/ResultReport` | pending (M2) |

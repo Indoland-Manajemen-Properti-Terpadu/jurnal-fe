@@ -38,6 +38,8 @@ export const common = {
   emptyData: 'Tidak ada data yang tersedia',
   noSearchResults: 'Tidak ada data yang sesuai dengan pencarian',
   loading: 'Memuat data...',
+  moduleInfoTitle: 'Informasi Dasar Modul',
+  activeRoute: 'Rute aktif',
 };
 
 export default common;

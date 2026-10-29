@@ -2,7 +2,7 @@
   "@typescript-eslint/no-explicit-any": 204,
   "@typescript-eslint/no-shadow": 16,
   "@typescript-eslint/no-unused-vars": 451,
-  "arrow-body-style": 104,
+  "arrow-body-style": 103,
   "curly": 5,
   "import/newline-after-import": 3,
   "import/no-cycle": 190,

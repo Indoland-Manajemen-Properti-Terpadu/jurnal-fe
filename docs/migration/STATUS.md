@@ -28,9 +28,9 @@ Columns: **Structure** (layout and layers), **Names** (English, kebab-case paths
 | `LandingPage` to `landing` | todo | todo | todo | todo | todo | R1 |
 | `Dashboard` to `dashboard` | todo | todo | todo | todo | todo | R1 |
 | `SettingBudget` + `BudgetPlanning` to `budgeting` | todo | todo | todo | todo | todo | R1 |
-| `Cost` to `costs` | todo | todo | todo | todo | todo | R1 |
-| `Production` to `production` | todo | todo | todo | todo | todo | R1 |
-| `Fulfillment` to `fulfillment` | todo | todo | todo | todo | todo | R1 |
+| `Cost` to `costs` | done | done | done | done | done | R1 |
+| `Production` to `production` | done | done | done | done | done | R1 |
+| `Fulfillment` to `fulfillment` | done | done | done | done | done | R1 |
 
 ## Milestone 2: Cash and reporting (R2)
 
