@@ -77,7 +77,7 @@ Measured on `develop-frontend` on 2026-10-30. `src/module/GeneralJournal` is gon
 | `import/no-restricted-paths` | 37 | 12 |
 | `max-lines` | 27 | 16 |
 | `no-console` | n/a | 7 |
-| Test files | 50 | 89 |
+| Test files | 50 | 91 |
 
 Not enforced today and left for a decision (see the M3 plan): closed-period or lock-date check, account code uniqueness, posting to header or archived accounts, journal edit or reversal, opening-balance cut-off, double counting of parent and child accounts in beginning balances, and the `period-closing` prototype that has no backend.
 
