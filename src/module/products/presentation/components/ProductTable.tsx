@@ -1,18 +1,7 @@
-import {
-  ActionIcon,
-  Avatar,
-  Badge,
-  Box,
-  Group,
-  Menu,
-  Skeleton,
-  Stack,
-  Table,
-  Text,
-  ThemeIcon,
-} from '@mantine/core';
+import { ActionIcon, Avatar, Badge, Box, Group, Menu, Skeleton, Table, Text } from '@mantine/core';
 import { IconDotsVertical, IconEye, IconPackage, IconPencil, IconTrash } from '@tabler/icons-react';
 import { EmptyState } from '@/components/EmptyState';
+import { useTranslation } from '@/i18n';
 import type { Product } from '@/module/products/domain/product';
 import { resolveProductImageUrl } from '@/module/products/infrastructure/productApi';
 import { formatPrice } from '@/module/products/domain/productFormat';
@@ -40,10 +29,11 @@ function StatusBadge({ active, label }: Readonly<{ active: boolean; label: strin
 }
 
 function PriceCell({ enabled, value }: Readonly<{ enabled: boolean; value: number | null }>) {
+  const { t } = useTranslation('products');
   if (!enabled) {
     return (
       <Text size="sm" c="dimmed">
-        Tidak dijual/dibeli
+        {t('table.notTradable')}
       </Text>
     );
   }
@@ -61,6 +51,7 @@ export function ProductTable({
   onEdit,
   onDelete,
 }: Readonly<ProductTableProps>) {
+  const { t } = useTranslation('products');
   const rows = isLoading
     ? Array.from({ length: 6 }, (_, i) => (
         <Table.Tr key={`skeleton-${i}`}>
@@ -101,7 +92,7 @@ export function ProductTable({
               </Badge>
             ) : (
               <Text size="sm" c="dimmed">
-                Tanpa kategori
+                {t('table.noCategory')}
               </Text>
             )}
           </Table.Td>
@@ -117,23 +108,27 @@ export function ProductTable({
           <Table.Td>
             <StatusBadge
               active={product.inventoryInfo.isTracked}
-              label={product.inventoryInfo.isTracked ? 'Dilacak' : 'Tidak dilacak'}
+              label={product.inventoryInfo.isTracked ? t('table.tracked') : t('table.notTracked')}
             />
           </Table.Td>
           <Table.Td onClick={(event) => event.stopPropagation()}>
             <Group justify="flex-end">
               <Menu position="bottom-end" shadow="md" withinPortal>
                 <Menu.Target>
-                  <ActionIcon variant="subtle" color="gray" aria-label={`Aksi ${product.name}`}>
+                  <ActionIcon
+                    variant="subtle"
+                    color="gray"
+                    aria-label={t('table.actionsFor', { name: product.name })}
+                  >
                     <IconDotsVertical size={18} />
                   </ActionIcon>
                 </Menu.Target>
                 <Menu.Dropdown>
                   <Menu.Item leftSection={<IconEye size={16} />} onClick={() => onView(product)}>
-                    Lihat detail
+                    {t('table.view')}
                   </Menu.Item>
                   <Menu.Item leftSection={<IconPencil size={16} />} onClick={() => onEdit(product)}>
-                    Ubah produk
+                    {t('table.edit')}
                   </Menu.Item>
                   <Menu.Divider />
                   <Menu.Item
@@ -141,7 +136,7 @@ export function ProductTable({
                     leftSection={<IconTrash size={16} />}
                     onClick={() => onDelete(product)}
                   >
-                    Hapus
+                    {t('table.remove')}
                   </Menu.Item>
                 </Menu.Dropdown>
               </Menu>
@@ -155,10 +150,12 @@ export function ProductTable({
       <Table verticalSpacing="sm" horizontalSpacing="md" highlightOnHover>
         <Table.Thead bg="gray.0">
           <Table.Tr>
-            {['Produk', 'Kategori', 'Harga Jual', 'Harga Beli', 'Persediaan'].map((label) => (
-              <Table.Th key={label}>
+            {(
+              ['colProduct', 'colCategory', 'colSellPrice', 'colBuyPrice', 'colInventory'] as const
+            ).map((key) => (
+              <Table.Th key={key}>
                 <Text size="xs" fw={600} c="dimmed" tt="uppercase" lts={0.4}>
-                  {label}
+                  {t(`table.${key}`)}
                 </Text>
               </Table.Th>
             ))}
@@ -172,8 +169,8 @@ export function ProductTable({
               <Table.Td colSpan={6} p={0}>
                 <EmptyState
                   icon={<IconPackage size={32} stroke={1.6} />}
-                  title="Belum Ada Produk yang Cocok"
-                  description="Coba ubah kata kunci pencarian, atau tambahkan produk baru untuk mulai mencatat transaksi."
+                  title={t('table.emptyTitle')}
+                  description={t('table.emptyDescription')}
                 />
               </Table.Td>
             </Table.Tr>

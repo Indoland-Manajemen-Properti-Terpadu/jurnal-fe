@@ -296,11 +296,19 @@ const router = createBrowserRouter([
   },
   {
     path: routes.baseModules.products,
-    element: <ProductsPage />,
+    element: (
+      <AppShellLayout>
+        <ProductsPage />
+      </AppShellLayout>
+    ),
   },
   {
     path: routes.baseModules.productDetail,
-    element: <ProductDetailPage />,
+    element: (
+      <AppShellLayout>
+        <ProductDetailPage />
+      </AppShellLayout>
+    ),
   },
   {
     path: routes.baseModules.production,

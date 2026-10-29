@@ -1,5 +1,6 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
+import { t } from '@/i18n';
 import {
   createCategory,
   createProduct,
@@ -34,13 +35,15 @@ export const productKeys = {
   accounts: ['product-account-options'] as const,
 };
 
+const tp = (key: string, params?: Record<string, string | number>) => t(key, params, 'products');
+
 const notifySuccess = (message: string) =>
-  notifications.show({ color: 'teal', title: 'Berhasil', message });
+  notifications.show({ color: 'teal', title: tp('notify.successTitle'), message });
 
 const notifyError = (error: unknown, fallback: string) =>
   notifications.show({
     color: 'red',
-    title: 'Gagal',
+    title: tp('notify.errorTitle'),
     message: getApiErrorMessage(error, fallback),
   });
 
@@ -82,10 +85,12 @@ export const useSaveProduct = (id?: string) => {
     onSuccess: (product) => {
       queryClient.invalidateQueries({ queryKey: productKeys.all });
       notifySuccess(
-        id ? `${product.name} berhasil diperbarui.` : `${product.name} berhasil dibuat.`
+        id
+          ? tp('notify.productUpdated', { name: product.name })
+          : tp('notify.productCreated', { name: product.name })
       );
     },
-    onError: (error) => notifyError(error, 'Produk gagal disimpan. Silakan coba lagi.'),
+    onError: (error) => notifyError(error, tp('notify.productSaveFailed')),
   });
 };
 
@@ -95,9 +100,9 @@ export const useDeleteProduct = () => {
     mutationFn: deleteProduct,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: productKeys.all });
-      notifySuccess('Produk berhasil dihapus.');
+      notifySuccess(tp('notify.productDeleted'));
     },
-    onError: (error) => notifyError(error, 'Produk gagal dihapus.'),
+    onError: (error) => notifyError(error, tp('notify.productDeleteFailed')),
   });
 };
 
@@ -105,7 +110,7 @@ const useMasterDataMutations = <T>(
   key: readonly string[],
   create: (input: MasterDataInput) => Promise<T>,
   remove: (id: string) => Promise<void>,
-  label: string
+  labelKey: 'notify.categoryLabel' | 'notify.unitLabel'
 ) => {
   const queryClient = useQueryClient();
   const invalidate = () => {
@@ -116,17 +121,18 @@ const useMasterDataMutations = <T>(
     mutationFn: create,
     onSuccess: () => {
       invalidate();
-      notifySuccess(`${label} berhasil ditambahkan.`);
+      notifySuccess(tp('notify.masterAdded', { label: tp(labelKey) }));
     },
-    onError: (error) => notifyError(error, `${label} gagal ditambahkan.`),
+    onError: (error) => notifyError(error, tp('notify.masterAddFailed', { label: tp(labelKey) })),
   });
   const deleteMutation = useMutation({
     mutationFn: remove,
     onSuccess: () => {
       invalidate();
-      notifySuccess(`${label} berhasil dihapus.`);
+      notifySuccess(tp('notify.masterDeleted', { label: tp(labelKey) }));
     },
-    onError: (error) => notifyError(error, `${label} gagal dihapus.`),
+    onError: (error) =>
+      notifyError(error, tp('notify.masterDeleteFailed', { label: tp(labelKey) })),
   });
   return { createMutation, deleteMutation };
 };
@@ -136,8 +142,13 @@ export const useCategoryMutations = () =>
     productKeys.categories,
     createCategory,
     deleteCategory,
-    'Kategori'
+    'notify.categoryLabel'
   );
 
 export const useUnitMutations = () =>
-  useMasterDataMutations<ProductUnit>(productKeys.units, createUnit, deleteUnit, 'Satuan');
+  useMasterDataMutations<ProductUnit>(
+    productKeys.units,
+    createUnit,
+    deleteUnit,
+    'notify.unitLabel'
+  );

@@ -3,37 +3,28 @@ import {
   ActionIcon,
   Box,
   Button,
-  Card,
   Group,
   LoadingOverlay,
   Modal,
   Pagination,
   Paper,
-  Select,
-  SimpleGrid,
   Stack,
   Tabs,
   Text,
-  TextInput,
   ThemeIcon,
   Tooltip,
 } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
-import {
-  IconCategory,
-  IconPackage,
-  IconPlus,
-  IconRefresh,
-  IconRuler,
-  IconSearch,
-  IconX,
-} from '@tabler/icons-react';
+import { IconCategory, IconPackage, IconPlus, IconRefresh, IconRuler } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import ConfirmModal from '@/components/ui/ConfirmModal/ConfirmModal';
+import { useTranslation } from '@/i18n';
 import { ModuleHeader } from '@/module/products/presentation/components/ModuleHeader';
 import { ProductTable } from '@/module/products/presentation/components/ProductTable';
 import { ProductForm } from '@/module/products/presentation/components/ProductForm';
 import { MasterDataPanel } from '@/module/products/presentation/components/MasterDataPanel';
+import { ProductListToolbar } from '@/module/products/presentation/components/ProductListToolbar';
+import { ProductStatsCards } from '@/module/products/presentation/components/ProductStatsCards';
 import {
   useCategories,
   useCategoryMutations,
@@ -44,9 +35,9 @@ import {
   useUnits,
 } from '@/module/products/presentation/hooks/useProductQueries';
 import type { Product, ProductFormValues } from '@/module/products/domain/product';
-import AppShellLayout from '@/components/AppShellLayout';
 
 export function ProductsPage() {
+  const { t } = useTranslation('products');
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<string | null>('products');
 
@@ -108,24 +99,24 @@ export function ProductsPage() {
   const totalPages = paginationData?.totalPages ?? 1;
 
   return (
-    <AppShellLayout>
+    <>
       <Box p={{ base: 'md', sm: 'xl' }}>
         <Stack gap="lg">
           {/* Header with Title and Feature Description */}
           <ModuleHeader
             icon={IconPackage}
-            title="Daftar Produk & Layanan"
-            description="Kelola katalog produk barang fisik maupun jasa layanan. Atur akun default untuk penjualan, pembelian, tarif pajak, serta batas minimum persediaan untuk operasional bisnis yang rapi dan terukur."
+            title={t('list.title')}
+            description={t('list.description')}
             actions={
               <Group gap="xs">
-                <Tooltip label="Segarkan Data">
+                <Tooltip label={t('list.refresh')}>
                   <ActionIcon
                     size="lg"
                     variant="light"
                     color="gray"
                     onClick={() => productsQuery.refetch()}
                     loading={productsQuery.isFetching}
-                    aria-label="Segarkan Data"
+                    aria-label={t('list.refresh')}
                   >
                     <IconRefresh size={18} />
                   </ActionIcon>
@@ -135,62 +126,17 @@ export function ProductsPage() {
                   leftSection={<IconPlus size={18} />}
                   onClick={handleOpenCreate}
                 >
-                  Tambah Produk
+                  {t('list.addProduct')}
                 </Button>
               </Group>
             }
           />
 
-          {/* Quick Metrics / Stats Cards */}
-          <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="md">
-            <Card withBorder radius="lg" p="md">
-              <Group justify="space-between">
-                <div>
-                  <Text size="xs" c="dimmed" fw={600} tt="uppercase" lts={0.5}>
-                    Total Produk & Jasa
-                  </Text>
-                  <Text size="xl" fw={800} c="primary.9" mt={4}>
-                    {totalProducts}
-                  </Text>
-                </div>
-                <ThemeIcon size={44} radius="md" variant="light" color="primary">
-                  <IconPackage size={22} />
-                </ThemeIcon>
-              </Group>
-            </Card>
-
-            <Card withBorder radius="lg" p="md">
-              <Group justify="space-between">
-                <div>
-                  <Text size="xs" c="dimmed" fw={600} tt="uppercase" lts={0.5}>
-                    Kategori Terdaftar
-                  </Text>
-                  <Text size="xl" fw={800} c="primary.9" mt={4}>
-                    {categoriesQuery.data?.pagination.total ?? 0}
-                  </Text>
-                </div>
-                <ThemeIcon size={44} radius="md" variant="light" color="secondary.8">
-                  <IconCategory size={22} />
-                </ThemeIcon>
-              </Group>
-            </Card>
-
-            <Card withBorder radius="lg" p="md">
-              <Group justify="space-between">
-                <div>
-                  <Text size="xs" c="dimmed" fw={600} tt="uppercase" lts={0.5}>
-                    Satuan Unit
-                  </Text>
-                  <Text size="xl" fw={800} c="primary.9" mt={4}>
-                    {unitsQuery.data?.pagination.total ?? 0}
-                  </Text>
-                </div>
-                <ThemeIcon size={44} radius="md" variant="light" color="teal">
-                  <IconRuler size={22} />
-                </ThemeIcon>
-              </Group>
-            </Card>
-          </SimpleGrid>
+          <ProductStatsCards
+            products={totalProducts}
+            categories={categoriesQuery.data?.pagination.total ?? 0}
+            units={unitsQuery.data?.pagination.total ?? 0}
+          />
 
           {/* Main Content Tabs */}
           <Paper withBorder radius="lg" p="md">
@@ -203,63 +149,32 @@ export function ProductsPage() {
             >
               <Tabs.List mb="md">
                 <Tabs.Tab value="products" leftSection={<IconPackage size={16} />}>
-                  Semua Produk
+                  {t('list.tabProducts')}
                 </Tabs.Tab>
                 <Tabs.Tab value="categories" leftSection={<IconCategory size={16} />}>
-                  Kategori Produk
+                  {t('list.tabCategories')}
                 </Tabs.Tab>
                 <Tabs.Tab value="units" leftSection={<IconRuler size={16} />}>
-                  Satuan / Unit
+                  {t('list.tabUnits')}
                 </Tabs.Tab>
               </Tabs.List>
 
               {/* Tab 1: Products */}
               <Tabs.Panel value="products">
                 <Stack gap="md">
-                  {/* Filter & Search Bar */}
-                  <Group justify="space-between" wrap="wrap" gap="sm">
-                    <TextInput
-                      placeholder="Cari nama atau SKU produk..."
-                      leftSection={<IconSearch size={16} />}
-                      rightSection={
-                        searchInput ? (
-                          <ActionIcon
-                            size="xs"
-                            variant="subtle"
-                            color="gray"
-                            onClick={() => setSearchInput('')}
-                            aria-label="Bersihkan pencarian"
-                          >
-                            <IconX size={14} />
-                          </ActionIcon>
-                        ) : null
-                      }
-                      value={searchInput}
-                      onChange={(e) => {
-                        setSearchInput(e.currentTarget.value);
-                        setPage(1);
-                      }}
-                      w={{ base: '100%', sm: 320 }}
-                    />
-
-                    <Group gap="xs">
-                      <Select
-                        placeholder="Limit per halaman"
-                        value={String(limit)}
-                        onChange={(v) => {
-                          setLimit(Number(v) || 10);
-                          setPage(1);
-                        }}
-                        data={[
-                          { value: '10', label: '10 per hal.' },
-                          { value: '25', label: '25 per hal.' },
-                          { value: '50', label: '50 per hal.' },
-                          { value: '100', label: '100 per hal.' },
-                        ]}
-                        w={140}
-                      />
-                    </Group>
-                  </Group>
+                  <ProductListToolbar
+                    search={searchInput}
+                    limit={limit}
+                    onSearchChange={(value) => {
+                      setSearchInput(value);
+                      setPage(1);
+                    }}
+                    onSearchClear={() => setSearchInput('')}
+                    onLimitChange={(value) => {
+                      setLimit(value);
+                      setPage(1);
+                    }}
+                  />
 
                   {/* Table Component */}
                   <ProductTable
@@ -273,8 +188,10 @@ export function ProductsPage() {
                   {/* Pagination Footer */}
                   <Group justify="space-between" align="center" pt="xs" wrap="wrap" gap="sm">
                     <Text size="xs" c="dimmed">
-                      Menampilkan {productsQuery.data?.items.length ?? 0} dari {totalProducts}{' '}
-                      produk
+                      {t('list.showing', {
+                        shown: productsQuery.data?.items.length ?? 0,
+                        total: totalProducts,
+                      })}
                     </Text>
                     {totalPages > 1 && (
                       <Pagination
@@ -294,9 +211,9 @@ export function ProductsPage() {
               <Tabs.Panel value="categories">
                 <MasterDataPanel
                   icon={IconCategory}
-                  entityLabel="Kategori"
-                  helperText="Kelompokkan produk Anda untuk kemudahan pelaporan dan pencarian."
-                  namePlaceholder="Contoh: Utilitas, IPL, Biaya Operasional"
+                  entityLabel={t('masterData.category')}
+                  helperText={t('masterData.categoryHelper')}
+                  namePlaceholder={t('masterData.categoryPlaceholder')}
                   items={categoriesQuery.data?.items ?? []}
                   isLoading={categoriesQuery.isLoading}
                   isCreating={createCat.isPending}
@@ -310,9 +227,9 @@ export function ProductsPage() {
               <Tabs.Panel value="units">
                 <MasterDataPanel
                   icon={IconRuler}
-                  entityLabel="Satuan Unit"
-                  helperText="Satuan ukuran untuk produk dan jasa (misal: pcs, jam, kWh, m3)."
-                  namePlaceholder="Contoh: kWh, m3, Unit, Bulan"
+                  entityLabel={t('masterData.unit')}
+                  helperText={t('masterData.unitHelper')}
+                  namePlaceholder={t('masterData.unitPlaceholder')}
                   items={unitsQuery.data?.items ?? []}
                   isLoading={unitsQuery.isLoading}
                   isCreating={createUnit.isPending}
@@ -326,7 +243,6 @@ export function ProductsPage() {
         </Stack>
       </Box>
 
-      {/* Modal Create / Edit Product */}
       {/* Modal Create / Edit Product */}
       <Modal
         opened={formModalOpened}
@@ -342,7 +258,7 @@ export function ProductsPage() {
               <IconPackage size={18} />
             </ThemeIcon>
             <Text fw={700} fz="md" c="primary.9">
-              {editingProduct ? 'Ubah Informasi Produk' : 'Tambah Produk Baru'}
+              {editingProduct ? t('list.modalEditTitle') : t('list.modalCreateTitle')}
             </Text>
           </Group>
         }
@@ -374,13 +290,13 @@ export function ProductsPage() {
       <ConfirmModal
         opened={deleteProductTarget !== null}
         onClose={() => setDeleteProductTarget(null)}
-        title="Hapus Produk?"
-        message={`Produk "${deleteProductTarget?.name ?? ''}" akan dihapus dari daftar.`}
-        helperText="Tindakan ini tidak dapat dibatalkan. Riwayat transaksi jurnal terdahulu akan tetap tersimpan."
+        title={t('list.deleteTitle')}
+        message={t('list.deleteMessage', { name: deleteProductTarget?.name ?? '' })}
+        helperText={t('list.deleteHelper')}
         confirmLoading={deleteProductMutation.isPending}
         onConfirm={handleDeleteProductConfirm}
       />
-    </AppShellLayout>
+    </>
   );
 }
 

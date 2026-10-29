@@ -14,6 +14,7 @@ import { budgeting } from './budgeting';
 import { landing } from './landing';
 import { profile } from './profile';
 import { purchases } from './purchases';
+import { products } from './products';
 
 export const id = {
   common,
@@ -32,6 +33,7 @@ export const id = {
   landing,
   profile,
   purchases,
+  products,
 };
 
 export default id;
