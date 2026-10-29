@@ -5,7 +5,7 @@ Imports a bank statement file for a cash/bank account and lists the imported row
 ## Routes
 
 - `/general-journal/bank-statement/:idAccount/import` (`routes.generalJournal.bankStatementDraftImport`): the draft page where the parsed rows are checked before the import is confirmed.
-- No route of its own for the list: `BankStatementTable` and `ImportBankStatementModal` render inside the account detail page (`GeneralJournal/DetailAccount/Main`) and the reconciliation table.
+- No route of its own for the list: `BankStatementTable` and `ImportBankStatementModal` render inside the account detail page (`account-ledger`, `CashBankTabs`) and the reconciliation table.
 
 ## Public API (`index.ts`)
 
@@ -40,4 +40,4 @@ Namespace `bankStatements` (`id` and `en`, parity test in `src/i18n/locales/bank
 - `POST_COMMIT_IMPORT_BANK_STATEMENT` ends with a slash, so the URL becomes `/v1/bank-statement//:id`. The hook that uses it is unused.
 - The list "Saldo" column shows the received amount, not a running balance; the draft table shows `Rp 0` as balance. The delete button on a list row does nothing.
 - The `id` helper text of the confirm dialog reads "setelahproses" (kept verbatim) and the badge "Inreconciled" (kept verbatim in `id`; `en` says "Unreconciled").
-- `useFileStore` (the dropped file) still lives in `src/store/GeneralJournal` until `journal-entries` is migrated.
+- `useFileStore` (the dropped file) now lives in `journal-entries` (exported from its index).

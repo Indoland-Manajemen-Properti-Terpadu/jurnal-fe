@@ -16,7 +16,7 @@ src/
   router/       route table and route constants
 ```
 
-The target layout and the migration status of each feature are in [migration/STATUS.md](migration/STATUS.md). Legacy folders (`Contact`, `GeneralJournal`, ...) coexist with the target layout until their migration PR lands.
+The target layout and the migration status of each feature are in [migration/STATUS.md](migration/STATUS.md). Legacy folders (`Contact`, ...) coexist with the target layout until their migration PR lands.
 
 ## Feature module
 

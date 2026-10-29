@@ -4,7 +4,7 @@ The "Rekonsiliasi Bank" tab of a cash/bank account: pairs imported bank statemen
 
 ## Routes
 
-None of its own. `ReconciliationTable` renders inside the account detail page (`GeneralJournal/DetailAccount/Main`, tab host `ReconciliationTabs`), at `/general-journal/detail-account-cb/:idAccount`.
+None of its own. `ReconciliationTable` renders inside the account detail page (`account-ledger`, `CashBankTabs`), at `/general-journal/detail-account-cb/:idAccount`.
 
 ## Public API (`index.ts`)
 
