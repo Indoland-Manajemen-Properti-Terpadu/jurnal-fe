@@ -202,7 +202,7 @@ describe('non cash/bank ledger page (characterization)', () => {
     );
   });
 
-  it('deletes the account, toasts and goes back to the account list on success', async () => {
+  it('deletes the account and goes back to the account list on success', async () => {
     renderNonCash();
     const user = userEvent.setup();
     await pickMenuItem(user, 'Hapus Akun');
@@ -215,12 +215,8 @@ describe('non cash/bank ledger page (characterization)', () => {
     await waitFor(() =>
       expect(screen.getByTestId('location')).toHaveTextContent(routes.generalJournal.main)
     );
-    expect(fns.notify).toHaveBeenCalledWith(
-      expect.objectContaining({
-        title: 'Akun Berhasil Dihapus',
-        message: 'Akun Bank BCA telah berhasil dihapus.',
-      })
-    );
+    // The success toast comes from the shared useDeleteAccount hook only.
+    expect(fns.notify).not.toHaveBeenCalled();
   });
 
   it('deletes the selected entries and invalidates the lists', async () => {
@@ -237,26 +233,15 @@ describe('non cash/bank ledger page (characterization)', () => {
     const [payload, options] = fns.deleteEntries.mock.calls[0];
     expect(payload).toEqual({ ids: ['a', 'b'], idAccount: 'acc-1' });
     options.onSuccess();
-    expect(fns.notify).toHaveBeenCalledWith(
-      expect.objectContaining({
-        title: 'Transaksi Berhasil Dihapus',
-        message: '2 transaksi jurnal telah dihapus.',
-      })
-    );
     expect(client.invalidateQueries).toHaveBeenCalledWith({
       queryKey: ['transaction_by_account', 'acc-1'],
     });
     expect(client.invalidateQueries).toHaveBeenCalledWith({
       queryKey: ['detail_account', 'acc-1'],
     });
-    options.onError({ response: { data: { message: 'ditolak' } } });
-    expect(fns.notify).toHaveBeenCalledWith(
-      expect.objectContaining({ color: 'red', message: 'ditolak' })
-    );
-    options.onError(new Error('x'));
-    expect(fns.notify).toHaveBeenCalledWith(
-      expect.objectContaining({ message: 'Terjadi kesalahan saat menghapus transaksi.' })
-    );
+    // Success and failure toasts come from the shared useDeleteJournalEntries hook only.
+    expect(fns.notify).not.toHaveBeenCalled();
+    expect(options.onError).toBeUndefined();
   });
 
   it('shows the account profile in the info tab', async () => {

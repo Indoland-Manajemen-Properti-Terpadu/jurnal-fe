@@ -175,9 +175,7 @@ describe('cash/bank ledger page (characterization)', () => {
     const [payload, options] = fns.deleteAccount.mock.calls[0];
     expect(payload).toEqual({ accountIds: ['acc-1'] });
     options.onSuccess();
-    expect(fns.notify).toHaveBeenCalledWith(
-      expect.objectContaining({ message: 'Akun Bank BCA telah dihapus dari sistem.' })
-    );
+    expect(fns.notify).not.toHaveBeenCalled();
     await waitFor(() =>
       expect(screen.getByTestId('location')).toHaveTextContent(routes.generalJournal.main)
     );
@@ -207,12 +205,7 @@ describe('cash/bank ledger page (characterization)', () => {
     const [payload, options] = fns.deleteEntries.mock.calls[0];
     expect(payload).toEqual({ ids: ['a'], idAccount: 'acc-1' });
     options.onSuccess();
-    expect(fns.notify).toHaveBeenCalledWith(
-      expect.objectContaining({
-        title: 'Berhasil Menghapus Transaksi',
-        message: '1 transaksi terpilih telah berhasil dihapus.',
-      })
-    );
+    expect(fns.notify).not.toHaveBeenCalled();
     expect(client.invalidateQueries).toHaveBeenCalledWith({
       queryKey: ['detail_account', 'acc-1'],
     });

@@ -44,7 +44,10 @@ The page used no swallowing helper: `archiveAccount` and the delete hooks alread
 
 ## Known gaps (kept as is, for the owner to decide)
 
-- Deleting entries or an account shows two success toasts: the shared hooks (`useDeleteJournalEntries`, `useDeleteAccount`) toast, and the page toasts again (as it did before; the hooks gained their toast in the earlier migrations).
 - Only the cash/bank variant shows an error state for the entries; the other one waits for them and then renders an empty table on failure.
 - `CashMapping` is a mock (see `chart-of-accounts`).
 - The reconciliation and bank statement queries are disabled (empty id) for the non cash/bank variant, so that variant never calls those endpoints, as before.
+
+## Toasts
+
+Deleting entries or an account toasts once (success and failure), from the shared hooks `useDeleteJournalEntries` and `useDeleteAccount`. The page only closes the modal, clears the selection, invalidates queries and navigates. Archive and restore toast from the page (no shared hook). A failed entry delete now shows the hook's generic message instead of the server message.

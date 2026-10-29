@@ -11,17 +11,11 @@ import { serverMessage } from '../../domain/serverMessage';
 interface Options {
   idAccount: string;
   variant: LedgerVariant;
-  accountName?: string;
   isArchived?: boolean;
 }
 
 /** Archive/restore and delete of the open account, with the confirm modal state. */
-export const useLedgerAccountActions = ({
-  idAccount,
-  variant,
-  accountName,
-  isArchived,
-}: Options) => {
+export const useLedgerAccountActions = ({ idAccount, variant, isArchived }: Options) => {
   const { t } = useTranslation('accountLedger');
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -62,11 +56,6 @@ export const useLedgerAccountActions = ({
       { accountIds: [idAccount] },
       {
         onSuccess: () => {
-          notifications.show({
-            color: 'teal',
-            title: t('common.deleteOkTitle'),
-            message: t(`${variant}.deleteOkMessage`, { name: accountName ?? '' }),
-          });
           setIsDeleteModalOpen(false);
           navigate(routes.generalJournal.main);
         },

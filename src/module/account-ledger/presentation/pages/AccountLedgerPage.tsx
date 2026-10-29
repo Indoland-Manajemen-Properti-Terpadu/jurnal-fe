@@ -36,7 +36,6 @@ const AccountLedgerContent: React.FC<AccountLedgerPageProps> = ({ variant }) => 
   const actions = useLedgerAccountActions({
     idAccount,
     variant,
-    accountName: account.name,
     isArchived: account.isArchived,
   });
 
