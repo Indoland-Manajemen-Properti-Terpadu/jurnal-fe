@@ -1,6 +1,6 @@
 export const formatIDR = (value: number | string | undefined | null): string => {
   const num = typeof value === 'string' ? parseFloat(value) : value;
-  if (!num || isNaN(num)) return 'Rp 0';
+  if (!num || Number.isNaN(num)) return 'Rp 0';
   return `Rp ${num.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 };
 

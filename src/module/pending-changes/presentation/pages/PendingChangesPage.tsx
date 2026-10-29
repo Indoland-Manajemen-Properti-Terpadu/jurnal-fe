@@ -15,8 +15,8 @@ import {
 import { useDisclosure } from '@mantine/hooks';
 import { IconCheck, IconInfoCircle, IconRefresh, IconShieldCheck } from '@tabler/icons-react';
 import AppShellLayout from '@/components/AppShellLayout';
-import ModuleHeader from '@/components/ModuleHeader/ModuleHeader';
-import EmptyState from '@/components/EmptyState/EmptyState';
+import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
+import { EmptyState } from '@/components/EmptyState/EmptyState';
 import { useTranslation } from '@/i18n';
 import type { PendingChangeItem } from '../../domain/pendingChange';
 import { countByType } from '../../domain/pendingChangeRules';

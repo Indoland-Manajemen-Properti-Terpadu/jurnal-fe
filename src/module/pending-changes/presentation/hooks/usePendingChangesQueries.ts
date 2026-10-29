@@ -19,20 +19,18 @@ export const pendingChangesKeys = {
   count: () => [...pendingChangesKeys.all, 'count'] as const,
 };
 
-export const usePendingChanges = (params?: PendingChangeListParams) => {
-  return useQuery({
+export const usePendingChanges = (params?: PendingChangeListParams) =>
+  useQuery({
     queryKey: pendingChangesKeys.list(params),
     queryFn: () => fetchPendingChanges(params),
   });
-};
 
-export const usePendingChangesCount = () => {
-  return useQuery({
+export const usePendingChangesCount = () =>
+  useQuery({
     queryKey: pendingChangesKeys.count(),
     queryFn: fetchPendingChangesCount,
     refetchInterval: 30_000, // Background poll every 30s
   });
-};
 
 export const useApprovePendingChange = () => {
   const queryClient = useQueryClient();
