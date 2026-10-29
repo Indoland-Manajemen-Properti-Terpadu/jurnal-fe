@@ -509,7 +509,11 @@ export function ProductDetailPage() {
                         </Text>
                         <CopyButton value={product.id} timeout={2000}>
                           {({ copied, copy }) => (
-                            <Tooltip label={copied ? 'Tersalin' : 'Salin ID'} withArrow position="top">
+                            <Tooltip
+                              label={copied ? 'Tersalin' : 'Salin ID'}
+                              withArrow
+                              position="top"
+                            >
                               <ActionIcon
                                 color={copied ? 'teal' : 'gray'}
                                 variant="subtle"
@@ -539,7 +543,11 @@ export function ProductDetailPage() {
                         {product.sku && (
                           <CopyButton value={product.sku} timeout={2000}>
                             {({ copied, copy }) => (
-                              <Tooltip label={copied ? 'Tersalin' : 'Salin SKU'} withArrow position="top">
+                              <Tooltip
+                                label={copied ? 'Tersalin' : 'Salin SKU'}
+                                withArrow
+                                position="top"
+                              >
                                 <ActionIcon
                                   color={copied ? 'teal' : 'gray'}
                                   variant="subtle"

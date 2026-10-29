@@ -1,4 +1,4 @@
-import apiClient from '@/lib/http/apiClient';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { ProductFormValues } from '@/module/products/domain/product';
 import {
   createProduct,
@@ -11,11 +11,14 @@ import {
   updateProduct,
 } from './productApi';
 
-vi.mock('@/lib/http/apiClient', () => ({
-  default: { get: vi.fn(), post: vi.fn(), put: vi.fn(), delete: vi.fn() },
+const http = vi.hoisted(() => ({
+  get: vi.fn(),
+  post: vi.fn(),
+  put: vi.fn(),
+  delete: vi.fn(),
 }));
 
-const http = vi.mocked(apiClient);
+vi.mock('@/lib/http/apiClient', () => ({ default: http }));
 
 const formValues = (overrides: Partial<ProductFormValues> = {}): ProductFormValues => ({
   name: '  Listrik ',
@@ -124,7 +127,11 @@ describe('fetchProduct mapping', () => {
       purchaseAccount: null,
       purchaseTax: null,
     });
-    expect(product.inventoryInfo).toEqual({ isTracked: false, inventoryAccount: null, minStock: 0 });
+    expect(product.inventoryInfo).toEqual({
+      isTracked: false,
+      inventoryAccount: null,
+      minStock: 0,
+    });
   });
 });
 
