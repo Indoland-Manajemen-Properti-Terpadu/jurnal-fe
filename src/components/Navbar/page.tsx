@@ -64,7 +64,7 @@ const getNavGroups = (t: (key: string) => string) => [
         ],
       },
       { label: t('sales'), icon: Storefront, link: '/sales' },
-      { label: t('purchases'), icon: ShoppingCart, link: '/pembelian' },
+      { label: t('purchases'), icon: ShoppingCart, link: routes.baseModules.purchases },
       { label: t('expenses'), icon: Receipt, link: '/finance/cost' },
       { label: t('pendingChanges'), icon: ShieldCheck, link: routes.pendingChanges.main },
     ],

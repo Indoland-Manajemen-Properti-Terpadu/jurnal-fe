@@ -23,17 +23,20 @@ import {
   IconShoppingCart,
   IconX,
 } from '@tabler/icons-react';
-import ModuleHeader from '@/components/ModuleHeader/ModuleHeader';
+import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
 import ConfirmModal from '@/components/ui/ConfirmModal/ConfirmModal';
-import PembelianLayout from './Layout';
-import { PurchaseStatsGrid } from '../components/PurchaseStatsGrid';
-import { PurchaseTable } from '../components/PurchaseTable';
-import { CreatePurchaseModal } from '../components/CreatePurchaseModal';
-import { PayPurchaseModal } from '../components/PayPurchaseModal';
-import { usePurchases } from '../hooks/usePurchases';
-import { PurchaseBill } from '../types/purchase';
+import AppShellLayout from '@/components/AppShellLayout';
+import { PurchaseStatsGrid } from '@/module/purchases/presentation/components/PurchaseStatsGrid';
+import { PurchaseTable } from '@/module/purchases/presentation/components/PurchaseTable';
+import { CreatePurchaseModal } from '@/module/purchases/presentation/components/CreatePurchaseModal';
+import { PayPurchaseModal } from '@/module/purchases/presentation/components/PayPurchaseModal';
+import { usePurchases } from '@/module/purchases/presentation/hooks/usePurchases';
+import { PurchaseBill } from '@/module/purchases/domain/purchase';
+import { countByTab, filterPurchases } from '@/module/purchases/domain/purchaseFilters';
+import { useTranslation } from '@/i18n';
 
-export function PembelianPage() {
+export function PurchasesPage() {
+  const { t } = useTranslation('purchases');
   const { purchases, isLoading, refetch, createPurchase, payPurchase, deletePurchase } =
     usePurchases();
 
@@ -51,55 +54,12 @@ export function PembelianPage() {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [billToDelete, setBillToDelete] = useState<PurchaseBill | null>(null);
 
-  // Tab counts
-  const tabCounts = useMemo(() => {
-    const all = purchases.length;
-    const unpaid = purchases.filter((b) => b.status === 'UNPAID' || b.status === 'PARTIAL').length;
-    const overdue = purchases.filter((b) => b.status === 'OVERDUE').length;
-    const paid = purchases.filter((b) => b.status === 'PAID').length;
-    return { all, unpaid, overdue, paid };
-  }, [purchases]);
+  const tabCounts = useMemo(() => countByTab(purchases), [purchases]);
 
-  // Filtered list
-  const filteredBills = useMemo(() => {
-    let result = [...purchases];
-
-    // Status Tab Filter
-    if (activeTab === 'unpaid') {
-      result = result.filter((b) => b.status === 'UNPAID' || b.status === 'PARTIAL');
-    } else if (activeTab === 'overdue') {
-      result = result.filter((b) => b.status === 'OVERDUE');
-    } else if (activeTab === 'paid') {
-      result = result.filter((b) => b.status === 'PAID');
-    }
-
-    // Search query filter
-    if (debouncedSearch.trim()) {
-      const q = debouncedSearch.toLowerCase().trim();
-      result = result.filter(
-        (b) =>
-          b.billNumber.toLowerCase().includes(q) ||
-          b.vendorName.toLowerCase().includes(q) ||
-          (b.notes && b.notes.toLowerCase().includes(q))
-      );
-    }
-
-    // Sorting
-    result.sort((a, b) => {
-      if (sortBy === 'newest') {
-        return new Date(b.transactionDate).getTime() - new Date(a.transactionDate).getTime();
-      }
-      if (sortBy === 'highestAmount') {
-        return b.totalAmount - a.totalAmount;
-      }
-      if (sortBy === 'highestRemaining') {
-        return b.remainingAmount - a.remainingAmount;
-      }
-      return 0;
-    });
-
-    return result;
-  }, [purchases, activeTab, debouncedSearch, sortBy]);
+  const filteredBills = useMemo(
+    () => filterPurchases(purchases, { tab: activeTab, query: debouncedSearch, sortBy }),
+    [purchases, activeTab, debouncedSearch, sortBy]
+  );
 
   const handleOpenPay = (bill: PurchaseBill) => {
     setBillToPay(bill);
@@ -120,17 +80,17 @@ export function PembelianPage() {
   };
 
   return (
-    <PembelianLayout>
+    <AppShellLayout>
       <Box p={{ base: 'md', sm: 'xl' }}>
         <Stack gap="lg">
           {/* Header Module */}
           <ModuleHeader
             icon={IconShoppingCart}
-            title="Pembelian & Hutang Usaha"
-            description="Kelola faktur tagihan dari pemasok, jadwal jatuh tempo pembayaran, dan pelunasan hutang operasional bisnis."
+            title={t('page.title')}
+            description={t('page.subtitle')}
             actions={
               <Group gap="sm">
-                <Tooltip label="Segarkan Data">
+                <Tooltip label={t('page.refresh')}>
                   <ActionIcon
                     variant="default"
                     size="lg"
@@ -149,7 +109,7 @@ export function PembelianPage() {
                   leftSection={<IconPlus size={16} />}
                   onClick={() => setCreateModalOpen(true)}
                 >
-                  Buat Tagihan Pembelian
+                  {t('page.create')}
                 </Button>
               </Group>
             }
@@ -171,16 +131,16 @@ export function PembelianPage() {
               >
                 <Tabs.List mb="md">
                   <Tabs.Tab value="all" leftSection={<IconReceipt2 size={16} />}>
-                    Semua Tagihan ({tabCounts.all})
+                    {t('page.tabAll', { count: tabCounts.all })}
                   </Tabs.Tab>
                   <Tabs.Tab value="unpaid" leftSection={<IconClock size={16} />}>
-                    Belum Lunas ({tabCounts.unpaid})
+                    {t('page.tabUnpaid', { count: tabCounts.unpaid })}
                   </Tabs.Tab>
                   <Tabs.Tab value="overdue" leftSection={<IconAlertTriangle size={16} />}>
-                    Jatuh Tempo ({tabCounts.overdue})
+                    {t('page.tabOverdue', { count: tabCounts.overdue })}
                   </Tabs.Tab>
                   <Tabs.Tab value="paid" leftSection={<IconCheck size={16} />}>
-                    Lunas ({tabCounts.paid})
+                    {t('page.tabPaid', { count: tabCounts.paid })}
                   </Tabs.Tab>
                 </Tabs.List>
               </Tabs>
@@ -188,7 +148,7 @@ export function PembelianPage() {
               {/* Search & Sort Bar */}
               <Group justify="space-between" wrap="wrap" gap="sm">
                 <TextInput
-                  placeholder="Cari nomor faktur atau nama vendor..."
+                  placeholder={t('page.searchPlaceholder')}
                   leftSection={<IconSearch size={16} />}
                   value={searchInput}
                   onChange={(e) => setSearchInput(e.currentTarget.value)}
@@ -206,9 +166,9 @@ export function PembelianPage() {
                   value={sortBy}
                   onChange={(val) => setSortBy(val || 'newest')}
                   data={[
-                    { value: 'newest', label: 'Terbaru' },
-                    { value: 'highestAmount', label: 'Tagihan Tertinggi' },
-                    { value: 'highestRemaining', label: 'Sisa Hutang Terbesar' },
+                    { value: 'newest', label: t('page.sortNewest') },
+                    { value: 'highestAmount', label: t('page.sortHighestAmount') },
+                    { value: 'highestRemaining', label: t('page.sortHighestRemaining') },
                   ]}
                   w={{ base: '100%', sm: 200 }}
                 />
@@ -250,14 +210,17 @@ export function PembelianPage() {
           setBillToDelete(null);
         }}
         onConfirm={handleConfirmDelete}
-        title="Hapus Tagihan Pembelian"
-        message={`Apakah Anda yakin ingin menghapus faktur tagihan "${billToDelete?.billNumber}" dari ${billToDelete?.vendorName}?`}
-        helperText="Data tagihan dan pencatatan hutang ini akan dihapus dari sistem."
-        confirmLabel="Hapus Faktur"
-        cancelLabel="Batal"
+        title={t('delete.title')}
+        message={t('delete.message', {
+          billNumber: billToDelete?.billNumber ?? '',
+          vendorName: billToDelete?.vendorName ?? '',
+        })}
+        helperText={t('delete.helper')}
+        confirmLabel={t('delete.confirm')}
+        cancelLabel={t('delete.cancel')}
       />
-    </PembelianLayout>
+    </AppShellLayout>
   );
 }
 
-export default PembelianPage;
+export default PurchasesPage;

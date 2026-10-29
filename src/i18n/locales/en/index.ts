@@ -13,6 +13,7 @@ import { fulfillment } from './fulfillment';
 import { budgeting } from './budgeting';
 import { landing } from './landing';
 import { profile } from './profile';
+import { purchases } from './purchases';
 
 export const en = {
   common,
@@ -30,6 +31,7 @@ export const en = {
   budgeting,
   landing,
   profile,
+  purchases,
 };
 
 export default en;

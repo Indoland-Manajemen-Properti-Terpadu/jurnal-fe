@@ -2,7 +2,9 @@ import React from 'react';
 import { Group, Paper, SimpleGrid, Skeleton, Stack, Text, ThemeIcon } from '@mantine/core';
 import { IconAlertTriangle, IconCheck, IconClock, IconReceipt2 } from '@tabler/icons-react';
 import { formatCurrency } from '@/utils/FormatCurrency';
-import { PurchaseBill } from '../types/purchase';
+import { PurchaseBill } from '@/module/purchases/domain/purchase';
+import { summarizePurchases } from '@/module/purchases/domain/purchaseTotals';
+import { useTranslation } from '@/i18n';
 
 interface PurchaseStatsGridProps {
   bills: PurchaseBill[];
@@ -13,65 +15,38 @@ export const PurchaseStatsGrid: React.FC<PurchaseStatsGridProps> = ({
   bills = [],
   loading = false,
 }) => {
-  const stats = React.useMemo(() => {
-    let totalAmt = 0;
-    let paidAmt = 0;
-    let unpaidAmt = 0;
-    let overdueAmt = 0;
-    let overdueCount = 0;
-
-    const now = Date.now();
-    bills.forEach((b) => {
-      totalAmt += b.totalAmount || 0;
-      paidAmt += b.paidAmount || 0;
-      unpaidAmt += b.remainingAmount || 0;
-
-      const isDue = b.remainingAmount > 0 && b.dueDate && new Date(b.dueDate).getTime() < now;
-      if (isDue) {
-        overdueAmt += b.remainingAmount || 0;
-        overdueCount += 1;
-      }
-    });
-
-    return {
-      totalAmt,
-      paidAmt,
-      unpaidAmt,
-      overdueAmt,
-      overdueCount,
-      totalCount: bills.length,
-    };
-  }, [bills]);
+  const { t } = useTranslation('purchases');
+  const stats = React.useMemo(() => summarizePurchases(bills, Date.now()), [bills]);
 
   const cards = [
     {
-      label: 'Total Tagihan Masuk',
-      value: formatCurrency(stats.totalAmt),
-      desc: `${stats.totalCount} faktur tagihan tercatat`,
+      label: t('stats.total'),
+      value: formatCurrency(stats.totalAmount),
+      desc: t('stats.totalDesc', { count: stats.billCount }),
       icon: IconReceipt2,
       color: 'blue',
     },
     {
-      label: 'Sisa Hutang Usaha',
-      value: formatCurrency(stats.unpaidAmt),
-      desc: 'Kewajiban berjalan kepada vendor',
+      label: t('stats.outstanding'),
+      value: formatCurrency(stats.remainingAmount),
+      desc: t('stats.outstandingDesc'),
       icon: IconClock,
       color: 'orange',
     },
     {
-      label: 'Hutang Jatuh Tempo',
-      value: formatCurrency(stats.overdueAmt),
+      label: t('stats.overdue'),
+      value: formatCurrency(stats.overdueAmount),
       desc:
         stats.overdueCount > 0
-          ? `${stats.overdueCount} tagihan melewati tempo`
-          : 'Tidak ada tunggakan',
+          ? t('stats.overdueDesc', { count: stats.overdueCount })
+          : t('stats.overdueNone'),
       icon: IconAlertTriangle,
       color: stats.overdueCount > 0 ? 'red' : 'teal',
     },
     {
-      label: 'Total Telah Dibayar',
-      value: formatCurrency(stats.paidAmt),
-      desc: 'Pelunasan faktur vendor',
+      label: t('stats.paid'),
+      value: formatCurrency(stats.paidAmount),
+      desc: t('stats.paidDesc'),
       icon: IconCheck,
       color: 'teal',
     },
