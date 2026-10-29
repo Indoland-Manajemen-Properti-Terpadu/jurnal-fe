@@ -1,6 +1,6 @@
 import { Box, Group, Paper, SimpleGrid, Skeleton, Stack, Text } from '@mantine/core';
 import { formatCurrency } from '@/utils/FormatCurrency';
-import type { JournalAccounts } from '@/module/GeneralJournal/JournalAccount/types/JournalAccountModel';
+import type { JournalAccounts } from '@/module/chart-of-accounts';
 import { useTranslation } from '@/i18n';
 import classes from './StatsBankCashGrid.module.css';
 

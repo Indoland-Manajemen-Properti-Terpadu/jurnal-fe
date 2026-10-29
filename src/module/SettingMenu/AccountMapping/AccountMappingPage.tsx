@@ -39,7 +39,7 @@ import {
   useUpdateAccountMapping,
   useUpdateAccountMappingBatch,
 } from '../hooks/useSettingQueries';
-import { getJournalAccounts } from '@/module/GeneralJournal/JournalAccount/services/AccountJournal.service';
+import { getJournalAccounts } from '@/module/chart-of-accounts';
 import type { AccountMappingItem } from '../services/settingApi';
 
 const GROUP_LABELS: Record<string, { label: string; color: string }> = {
@@ -192,7 +192,8 @@ export default function AccountMappingPage() {
           <Alert icon={<IconAlertCircle size={16} />} color="orange" radius="md">
             <Group justify="space-between" align="center">
               <Text size="sm">
-                Ada <strong>{Object.keys(draftChanges).length}</strong> pemetaan akun yang diubah dan belum disimpan ke server.
+                Ada <strong>{Object.keys(draftChanges).length}</strong> pemetaan akun yang diubah
+                dan belum disimpan ke server.
               </Text>
               <Group gap="xs">
                 <Button size="xs" variant="default" onClick={() => setDraftChanges({})}>
@@ -213,7 +214,12 @@ export default function AccountMappingPage() {
 
         <Paper withBorder p="md" radius="md" bg="white">
           <Group justify="space-between" wrap="wrap" gap="md">
-            <Tabs value={activeTab} onChange={(val) => setActiveTab(val || 'all')} variant="pills" radius="md">
+            <Tabs
+              value={activeTab}
+              onChange={(val) => setActiveTab(val || 'all')}
+              variant="pills"
+              radius="md"
+            >
               <Tabs.List>
                 <Tabs.Tab value="all">Semua ({allItems.length})</Tabs.Tab>
                 <Tabs.Tab value="ar_ap">Piutang & Hutang</Tabs.Tab>
@@ -252,7 +258,8 @@ export default function AccountMappingPage() {
               Belum Ada Pemetaan Akun
             </Title>
             <Text size="sm" c="dimmed" mt={4} maw={450} mx="auto">
-              Sistem membutuhkan akun pemetaan default agar transaksi penjualan, pembelian, dan persediaan dapat langsung dibukukan ke jurnal umum.
+              Sistem membutuhkan akun pemetaan default agar transaksi penjualan, pembelian, dan
+              persediaan dapat langsung dibukukan ke jurnal umum.
             </Text>
             <Button
               mt="md"
@@ -271,7 +278,9 @@ export default function AccountMappingPage() {
                 <Table.Tr>
                   <Table.Th style={{ width: '22%' }}>Kategori / Grup</Table.Th>
                   <Table.Th style={{ width: '28%' }}>Parameter Sistem</Table.Th>
-                  <Table.Th style={{ width: '40%' }}>Akun Chart of Accounts (COA) Terpilih</Table.Th>
+                  <Table.Th style={{ width: '40%' }}>
+                    Akun Chart of Accounts (COA) Terpilih
+                  </Table.Th>
                   <Table.Th style={{ width: '10%', textAlign: 'center' }}>Aksi</Table.Th>
                 </Table.Tr>
               </Table.Thead>

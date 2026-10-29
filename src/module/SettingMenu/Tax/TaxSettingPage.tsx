@@ -32,7 +32,7 @@ import {
 } from '@tabler/icons-react';
 import SettingsLayout from '../components/SettingsLayout';
 import { useCreateTax, useDeleteTax, useTaxes, useUpdateTax } from '../hooks/useSettingQueries';
-import { getJournalAccounts } from '@/module/GeneralJournal/JournalAccount/services/AccountJournal.service';
+import { getJournalAccounts } from '@/module/chart-of-accounts';
 import type { Tax } from '../services/settingApi';
 
 export default function TaxSettingPage() {
@@ -49,7 +49,8 @@ export default function TaxSettingPage() {
   const [editingTax, setEditingTax] = useState<Tax | null>(null);
 
   // Delete Confirmation State
-  const [deleteModalOpened, { open: openDeleteModal, close: closeDeleteModal }] = useDisclosure(false);
+  const [deleteModalOpened, { open: openDeleteModal, close: closeDeleteModal }] =
+    useDisclosure(false);
   const [deletingTax, setDeletingTax] = useState<Tax | null>(null);
 
   useEffect(() => {
@@ -99,8 +100,12 @@ export default function TaxSettingPage() {
     form.setValues({
       name: tax.name,
       rate: Number(tax.rate) || 0,
-      salesAccount: typeof tax.salesAccount === 'object' ? tax.salesAccount?.id : tax.salesAccount || '',
-      purchaseAccount: typeof tax.purchaseAccount === 'object' ? tax.purchaseAccount?.id : tax.purchaseAccount || '',
+      salesAccount:
+        typeof tax.salesAccount === 'object' ? tax.salesAccount?.id : tax.salesAccount || '',
+      purchaseAccount:
+        typeof tax.purchaseAccount === 'object'
+          ? tax.purchaseAccount?.id
+          : tax.purchaseAccount || '',
     });
     openModal();
   };
@@ -134,9 +139,7 @@ export default function TaxSettingPage() {
   };
 
   const filteredTaxes = taxes.filter(
-    (t) =>
-      t.name.toLowerCase().includes(search.toLowerCase()) ||
-      String(t.rate).includes(search)
+    (t) => t.name.toLowerCase().includes(search.toLowerCase()) || String(t.rate).includes(search)
   );
 
   const getAccountLabel = (accVal: any) => {
@@ -154,7 +157,11 @@ export default function TaxSettingPage() {
       description="Konfigurasi tarif pajak pertambahan nilai (PPN), pajak penghasilan (PPh), serta akun penampung pajak keluaran dan masukan."
       action={
         <Group gap="xs">
-          <Button variant="default" leftSection={<IconRefresh size={16} />} onClick={() => refetch()}>
+          <Button
+            variant="default"
+            leftSection={<IconRefresh size={16} />}
+            onClick={() => refetch()}
+          >
             Segarkan
           </Button>
           <Button color="primary" leftSection={<IconPlus size={16} />} onClick={handleOpenAdd}>
@@ -201,9 +208,15 @@ export default function TaxSettingPage() {
               Belum Ada Tarif Pajak
             </Title>
             <Text size="sm" c="dimmed" mt={4} maw={400} mx="auto">
-              Tambahkan tarif pajak seperti PPN 11% atau PPh untuk digunakan saat membuat faktur penjualan dan pembelian.
+              Tambahkan tarif pajak seperti PPN 11% atau PPh untuk digunakan saat membuat faktur
+              penjualan dan pembelian.
             </Text>
-            <Button mt="md" color="primary" leftSection={<IconPlus size={16} />} onClick={handleOpenAdd}>
+            <Button
+              mt="md"
+              color="primary"
+              leftSection={<IconPlus size={16} />}
+              onClick={handleOpenAdd}
+            >
               Tambah Pajak
             </Button>
           </Paper>
@@ -245,7 +258,11 @@ export default function TaxSettingPage() {
                     <Table.Td style={{ textAlign: 'center' }}>
                       <Group gap={4} justify="center">
                         <Tooltip label="Edit Pajak">
-                          <ActionIcon variant="subtle" color="primary" onClick={() => handleOpenEdit(tax)}>
+                          <ActionIcon
+                            variant="subtle"
+                            color="primary"
+                            onClick={() => handleOpenEdit(tax)}
+                          >
                             <IconEdit size={16} />
                           </ActionIcon>
                         </Tooltip>
@@ -360,7 +377,8 @@ export default function TaxSettingPage() {
       >
         <Stack gap="md">
           <Text size="sm">
-            Apakah Anda yakin ingin menghapus tarif pajak <strong>{deletingTax?.name}</strong>? Transaksi yang sudah menggunakan pajak ini sebelumnya tidak akan terpengaruh.
+            Apakah Anda yakin ingin menghapus tarif pajak <strong>{deletingTax?.name}</strong>?
+            Transaksi yang sudah menggunakan pajak ini sebelumnya tidak akan terpengaruh.
           </Text>
           <Group justify="flex-end" gap="xs">
             <Button variant="default" onClick={closeDeleteModal}>

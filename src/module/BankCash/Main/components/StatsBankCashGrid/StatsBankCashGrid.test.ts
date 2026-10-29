@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { JournalAccounts } from '@/module/GeneralJournal/JournalAccount/types/JournalAccountModel';
+import type { JournalAccounts } from '@/module/chart-of-accounts';
 import { summarizeBankCashAccounts } from './StatsBankCashGrid';
 
 const account = (
