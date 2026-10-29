@@ -54,8 +54,7 @@ import ProductsPage from '@/module/products/pages/ProductsPage';
 import ProductDetailPage from '@/module/products/pages/ProductDetailPage';
 import { ProductionPage } from '@/module/production';
 import { FulfillmentPage } from '@/module/fulfillment';
-import AssetPage from '@/module/assets/presentation/pages/AssetPage';
-import AssetDetailPage from '@/module/assets/presentation/pages/AssetDetailPage';
+import { AssetDetailPage, AssetPage } from '@/module/assets';
 import CompanySettingPage from '@/module/SettingMenu/CompanySetting/view/CompanySettingPage';
 import SettingsHubPage from '@/module/SettingMenu/Hub/SettingsHubPage';
 import GeneralSettingPage from '@/module/SettingMenu/GeneralSetting/GeneralSettingPage';
@@ -314,15 +313,27 @@ const router = createBrowserRouter([
   },
   {
     path: routes.baseModules.assets,
-    element: <AssetPage />,
+    element: (
+      <AppShellLayout>
+        <AssetPage />
+      </AppShellLayout>
+    ),
   },
   {
     path: routes.baseModules.assetMaster,
-    element: <AssetPage />,
+    element: (
+      <AppShellLayout>
+        <AssetPage />
+      </AppShellLayout>
+    ),
   },
   {
     path: routes.baseModules.assetDetail,
-    element: <AssetDetailPage />,
+    element: (
+      <AppShellLayout>
+        <AssetDetailPage />
+      </AppShellLayout>
+    ),
   },
   {
     path: routes.baseModules.contactsMaster,

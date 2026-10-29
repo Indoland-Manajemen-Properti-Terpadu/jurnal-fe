@@ -5,7 +5,6 @@ import { useNavigate } from 'react-router-dom';
 import ModuleHeader from '@/components/ModuleHeader/ModuleHeader';
 import ConfirmModal from '@/components/ui/ConfirmModal/ConfirmModal';
 import { routes } from '@/router/routes';
-import AssetLayout from '@/module/assets/presentation/pages/Layout';
 import AssetStatsGrid from '@/module/assets/presentation/components/AssetStatsGrid';
 import AssetTable from '@/module/assets/presentation/components/AssetTable';
 import AssetFormModal from '@/module/assets/presentation/components/AssetFormModal';
@@ -68,7 +67,7 @@ export function AssetPage() {
   };
 
   return (
-    <AssetLayout>
+    <>
       <Box p={{ base: 'md', sm: 'xl' }}>
         <Stack gap="lg">
           {/* Canonical Module Header */}
@@ -78,7 +77,7 @@ export function AssetPage() {
             description={t('moduleSubtitle')}
             actions={
               <Group gap="sm" wrap="wrap">
-                <Tooltip label="Segarkan Data" withArrow>
+                <Tooltip label={t('refreshData')} withArrow>
                   <ActionIcon
                     variant="default"
                     size="lg"
@@ -158,14 +157,12 @@ export function AssetPage() {
         }}
         onConfirm={handleConfirmDelete}
         title={t('confirmDeleteTitle')}
-        message={
-          assetToDelete ? `Apakah Anda yakin ingin menghapus aset "${assetToDelete.name}"?` : ''
-        }
-        helperText="Data perolehan dan simulasi penyusutan aset ini akan dihapus permanen dari sistem."
+        message={assetToDelete ? t('confirmDeleteMessage', { name: assetToDelete.name }) : ''}
+        helperText={t('confirmDeleteHelper')}
         confirmLabel={t('deleteAsset')}
-        cancelLabel="Batal"
+        cancelLabel={t('cancel')}
       />
-    </AssetLayout>
+    </>
   );
 }
 

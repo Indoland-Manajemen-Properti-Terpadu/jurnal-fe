@@ -2,6 +2,7 @@ import { Box, Group, Paper, SimpleGrid, Skeleton, Text, ThemeIcon } from '@manti
 import { IconCoins, IconScale, IconTool, IconTrendingDown } from '@tabler/icons-react';
 import { formatCurrency } from '@/utils/FormatCurrency';
 import { AssetItem } from '@/module/assets/domain/asset';
+import { summarizeAssets } from '@/module/assets/domain/depreciation';
 import { useTranslation } from '@/i18n';
 
 export type AssetStatsGridProps = {
@@ -12,50 +13,33 @@ export type AssetStatsGridProps = {
 export default function AssetStatsGrid({ assets = [], loading }: AssetStatsGridProps) {
   const { t } = useTranslation('assets');
 
-  const activeAssets = assets.filter((item) => item.status !== 'disposed');
-
-  const totalAcquisitionCost = activeAssets.reduce(
-    (sum, item) => sum + (Number(item.acquisitionCost) || 0),
-    0
-  );
-
-  const totalAccumulatedDepreciation = activeAssets.reduce(
-    (sum, item) => sum + (Number(item.accumulatedDepreciation) || 0),
-    0
-  );
-
-  const totalNetBookValue = activeAssets.reduce(
-    (sum, item) => sum + (Number(item.netBookValue) || 0),
-    0
-  );
-
-  const activeCount = assets.filter((item) => item.status === 'active').length;
+  const totals = summarizeAssets(assets);
 
   const stats = [
     {
       title: t('totalAcquisitionCost'),
-      value: formatCurrency(totalAcquisitionCost),
+      value: formatCurrency(totals.totalAcquisitionCost),
       subtitle: t('totalAcquisitionCostSub'),
       icon: IconCoins,
       color: 'primary',
     },
     {
       title: t('totalDepreciation'),
-      value: formatCurrency(totalAccumulatedDepreciation),
+      value: formatCurrency(totals.totalAccumulatedDepreciation),
       subtitle: t('totalDepreciationSub'),
       icon: IconTrendingDown,
       color: 'orange',
     },
     {
       title: t('netBookValue'),
-      value: formatCurrency(totalNetBookValue),
+      value: formatCurrency(totals.totalNetBookValue),
       subtitle: t('netBookValueSub'),
       icon: IconScale,
       color: 'teal',
     },
     {
       title: t('activeAssetsCount'),
-      value: `${activeCount} Unit`,
+      value: t('activeUnits', { count: totals.activeCount }),
       subtitle: t('activeAssetsCountSub'),
       icon: IconTool,
       color: 'indigo',
