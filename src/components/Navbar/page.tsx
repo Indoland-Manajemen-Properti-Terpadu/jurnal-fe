@@ -34,7 +34,7 @@ import {
 } from '@phosphor-icons/react';
 import { useAuthStore } from '@/store/useAuthentications';
 import { routes } from '@/router/routes';
-import { usePendingChangesCount } from '@/module/pending-changes/presentation/hooks/usePendingChangesQueries';
+import { usePendingChangesCount } from '@/module/pending-changes';
 import { useTranslation } from '@/i18n';
 import { LinksGroup } from './Links/page';
 import classes from './page.module.css';
