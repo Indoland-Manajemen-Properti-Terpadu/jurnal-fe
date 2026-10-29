@@ -45,7 +45,7 @@ import ModuleHeader from '@/components/ModuleHeader/ModuleHeader';
 import { ConfirmModal } from '@/components';
 import deleteModalImage from '@/assets/img/vectors/delete_modal.svg';
 
-import { useInitialBalanceStore } from '../store/initialBalanceAccount';
+import { useInitialBalanceStore } from '../store/useInitialBalanceStore';
 import { useTranslation } from '@/i18n';
 import BeginningBalancePageLayout from './Layout';
 import TableBeginningBalance from '../components/TableBeginningBalance';
@@ -86,7 +86,7 @@ const BeginningBalancePage: React.FC = () => {
   const { t, currentLanguage } = useTranslation('journal');
 
   // Stores and Hooks
-  const { conversionDate, setConverstion } = useInitialBalanceStore();
+  const { conversionDate, setConversionDate } = useInitialBalanceStore();
   const { accounts: rawAccounts, isLoading: isLoadingAccounts } = useJournalAccounts();
   const { draftAccounts, isLoading: isLoadingDraft, refetch: refetchDraft } = useDraftAccount();
   const { mutate: setDraftBalance, isPending: isSavingDraft } = useSetDraftBalance();
@@ -114,7 +114,7 @@ const BeginningBalancePage: React.FC = () => {
     const draftPeriod = draft?.period ? dayjs(draft.period).format('YYYY-MM-DD') : null;
 
     if (draftPeriod && !conversionDate) {
-      setConverstion(new Date(draftPeriod));
+      setConversionDate(new Date(draftPeriod));
       setSelectedDate(draftPeriod);
     } else if (conversionDate) {
       setSelectedDate(dayjs(conversionDate).format('YYYY-MM-DD'));
@@ -149,7 +149,7 @@ const BeginningBalancePage: React.FC = () => {
   const handleDateChange = (date: string | null) => {
     setSelectedDate(date);
     if (date) {
-      setConverstion(new Date(date));
+      setConversionDate(new Date(date));
     }
   };
 

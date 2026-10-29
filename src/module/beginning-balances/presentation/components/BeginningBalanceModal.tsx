@@ -7,7 +7,7 @@ import { notifications } from '@mantine/notifications';
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 import { formatDate, dateFormatV1 } from '@/utils/FormatDate';
-import { useInitialBalanceStore } from '../store/initialBalanceAccount';
+import { useInitialBalanceStore } from '../store/useInitialBalanceStore';
 
 interface BeginningBalanceModalProps {
   opened: boolean;
@@ -19,7 +19,7 @@ export const BeginningBalanceModal: React.FC<BeginningBalanceModalProps> = ({
   onClose,
 }) => {
   const navigate = useNavigate();
-  const { setConverstion, conversionDate } = useInitialBalanceStore();
+  const { setConversionDate, conversionDate } = useInitialBalanceStore();
   const [selectedDate, setSelectedDate] = useState<string | null>(
     conversionDate ? dayjs(conversionDate).format('YYYY-MM-DD') : dayjs().format('YYYY-MM-DD')
   );
@@ -34,7 +34,7 @@ export const BeginningBalanceModal: React.FC<BeginningBalanceModalProps> = ({
       return;
     }
 
-    setConverstion(new Date(selectedDate));
+    setConversionDate(new Date(selectedDate));
     onClose();
     navigate(routes.generalJournal.beginningBalance);
   };
