@@ -35,11 +35,11 @@ import { routes } from '@/router/routes';
 import { isJournalBalancedForDisplay } from '@/lib/accounting/journalBalance';
 import { formatCurrency } from '@/utils/FormatCurrency';
 import { dateFormatV1, dateFormatTimeZone } from '@/utils/FormatDate';
-import { useDetailTransaction } from '../hooks/useDetailTransaction';
-import { useDeleteJournalTransaction } from '../services/DeleteTransactionAccount.service';
-import JournalTransactionDetailTable from '../components/TableTransactionJournal/JournalTransactionDetailTable';
-import FileAttachments from '../components/FileAttachment';
-import DeleteTransactionModal from '../../Main/components/DeleteTransactionModal';
+import { useDetailTransaction } from '../hooks/useJournalEntryDetail';
+import { useDeleteJournalTransaction } from '../hooks/useDeleteJournalEntries';
+import JournalTransactionDetailTable from '../components/JournalEntryLinesTable';
+import FileAttachments from '../components/JournalAttachments';
+import DeleteTransactionModal from '../components/DeleteJournalEntryModal';
 
 /** View tolerance: a journal reads as balanced when debit and credit differ by less than 0.01. */
 export const isDetailBalanced = (totalDebit: number, totalCredit: number): boolean =>

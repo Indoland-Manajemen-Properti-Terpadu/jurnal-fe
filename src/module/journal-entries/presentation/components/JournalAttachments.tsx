@@ -1,7 +1,7 @@
 import React from 'react';
 import { Group, Text, Stack, ActionIcon, Paper, ThemeIcon, Tooltip, Box } from '@mantine/core';
 import { IconDownload, IconEye, IconFileText, IconFileTypePdf, IconPhoto } from '@tabler/icons-react';
-import { Attachment } from '../types/TransactionDetailModel';
+import { Attachment } from '../../domain/journalEntryDetail';
 
 interface FileAttachmentsProps {
   attachments?: Attachment[];

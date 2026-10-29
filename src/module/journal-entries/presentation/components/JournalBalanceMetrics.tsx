@@ -8,7 +8,7 @@ import {
   IconListTree,
   IconScale,
 } from '@tabler/icons-react';
-import { useTransactionStore } from '@/store/GeneralJournal/useTransactionStore';
+import { useTransactionStore } from '../store/useTransactionStore';
 
 export const JournalBalanceMetrics: React.FC = () => {
   const { totalDebit, totalCredit, transactions } = useTransactionStore();

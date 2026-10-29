@@ -1,7 +1,7 @@
 import React from 'react';
 import { Badge, Box, Grid, Group, Text } from '@mantine/core';
 import { IconAlertCircle, IconCheck, IconScale } from '@tabler/icons-react';
-import { useTransactionStore } from '@/store/GeneralJournal/useTransactionStore';
+import { useTransactionStore } from '../store/useTransactionStore';
 import { themeColors } from '@/theme';
 
 const TotalAmount: React.FC = () => {

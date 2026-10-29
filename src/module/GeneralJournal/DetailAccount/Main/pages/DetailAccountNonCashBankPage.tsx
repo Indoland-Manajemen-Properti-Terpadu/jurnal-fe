@@ -55,14 +55,16 @@ import { formatCurrency } from '@/utils/FormatCurrency';
 import deleteModalImage from '@/assets/img/vectors/delete_modal.svg';
 import arsipkanIcon from '@/assets/img/vectors/arsipkan.svg';
 import DetailAccountLayout from './Layout';
-import TableJournalTransaction from '../../TransactionJournal/components/TableTransactionJournal/JournalTransactionTable';
+import {
+  JournalEntriesTable as TableJournalTransaction,
+  DeleteTransactionAccounts,
+  GetTransactionByAccount,
+  useFilterTransaction,
+} from '@/module/journal-entries';
+import type { TransactionByAccountModel } from '@/module/journal-entries';
 import { useDetailAccount } from '../hooks/useDetailAccount';
 import { accountDetailData } from '../types/DetailAccountModel';
-import { TransactionByAccountModel } from '../../TransactionJournal/types/TransactionByAccountModel';
-import { GetTransactionByAccount } from '../../TransactionJournal/services/TransactionByAccount.service';
-import { DeleteTransactionAccounts } from '../../TransactionJournal/services/DeleteTransactionAccount.service';
 import { archiveAccount } from '../services/DetailAccount.service';
-import useFilterTransaction from '../store/FilterTransaction';
 
 /** Helper to determine the normal accounting balance (Debit vs Kredit) */
 export function getNormalBalance(categoryName?: string, type?: string): 'Debit' | 'Kredit' {

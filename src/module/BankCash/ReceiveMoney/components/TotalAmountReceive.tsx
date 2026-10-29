@@ -1,6 +1,6 @@
 // components/TotalAmount.tsx
 import { HeadingText, TextAmount } from '@/components/Text/CustomText';
-import { useTransactionStore } from '@/store/GeneralJournal/useTransactionStore';
+import { useTransactionStore } from '@/module/journal-entries';
 import { Flex, Grid, Text, Group, Switch } from '@mantine/core';
 import { useReceiveMoneyStore } from '../store/ReceiveMoneyStore';
 import { themeColors } from '@/theme';

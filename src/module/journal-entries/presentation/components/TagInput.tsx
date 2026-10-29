@@ -12,7 +12,7 @@ import {
   ScrollArea,
 } from '@mantine/core';
 import { IconTag, IconPlus } from '@tabler/icons-react';
-import { useGetTags, useCreateTag } from '../../services/Tags.service';
+import { useGetTags, useCreateTag } from '../hooks/useTags';
 import { themeColors } from '@/theme';
 
 interface TagInputProps {

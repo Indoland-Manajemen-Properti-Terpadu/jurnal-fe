@@ -1,7 +1,7 @@
 import { Input, Grid, Button, Flex } from '@mantine/core';
 import { IconSearch, IconTrash, IconCalendar } from '@tabler/icons-react';
 import { DatePickerInput } from '@mantine/dates';
-import useFilterTransaction from '../store/FilterTransaction';
+import { useFilterTransaction } from '@/module/journal-entries';
 
 interface SearchActionsProps {
     onDelete: () => void;

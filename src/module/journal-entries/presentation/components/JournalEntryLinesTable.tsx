@@ -25,7 +25,7 @@ import { isJournalBalancedForDisplay } from '@/lib/accounting/journalBalance';
 import { formatCurrency } from '@/utils/FormatCurrency';
 import { routes } from '@/router/routes';
 import { EmptyState } from '@/components/EmptyState';
-import { TransactionDetail } from '../../types/TransactionDetailModel';
+import { TransactionDetail } from '../../domain/journalEntryDetail';
 
 interface Props {
   transactionDetails?: TransactionDetail[];

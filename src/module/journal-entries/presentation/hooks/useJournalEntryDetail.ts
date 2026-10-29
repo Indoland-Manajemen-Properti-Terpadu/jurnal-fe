@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { TransactionDetailModel } from '../types/TransactionDetailModel';
-import { getDetailTransaction } from '../services/TransactionDetail.service';
+import { TransactionDetailModel } from '../../domain/journalEntryDetail';
+import { getDetailTransaction } from '../../infrastructure/journalEntryApi';
 
 export const useDetailTransaction = (idTransaction: string) => {
   const { data, isLoading, isError } = useQuery<TransactionDetailModel>({

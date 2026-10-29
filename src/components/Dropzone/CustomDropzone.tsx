@@ -8,7 +8,7 @@ import {
   MIME_TYPES,
 } from '@mantine/dropzone';
 import { themeColors } from '@/theme';
-import { useFileStore } from '@/store/GeneralJournal/useFileStore';
+import { useFileStore } from '@/module/journal-entries';
 import { CloudArrowUpIcon } from '@phosphor-icons/react';
 import { themeText } from '@/theme/constants';
 

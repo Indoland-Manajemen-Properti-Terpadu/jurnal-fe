@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
-import { TransactionJournalPayload } from '@/module/GeneralJournal/DetailAccount/TransactionJournal/types/AddTransactionPayload';
+import { TransactionJournalPayload } from '../../domain/journalEntryPayload';
 import { routes } from '@/router/routes';
 import { postV2 } from '@/lib/http/apiClient';
 import { API_ACCOUNT } from '@/services/endpoint';

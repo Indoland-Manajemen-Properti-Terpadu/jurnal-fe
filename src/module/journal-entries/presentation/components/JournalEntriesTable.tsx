@@ -6,8 +6,8 @@ import { DataTable } from 'mantine-datatable';
 import { routes } from '@/router/routes';
 import EmptyState from '@/components/EmptyState/EmptyTable';
 import { dateFormatV1 } from '@/utils/FormatDate';
-import useFilterTransaction from '../../../Main/store/FilterTransaction';
-import type { TransactionByAccountModel } from '../../types/TransactionByAccountModel';
+import useFilterTransaction from '../store/useFilterTransactionStore';
+import type { TransactionByAccountModel } from '../../domain/journalEntryByAccount';
 import { IconEye } from '@tabler/icons-react';
 
 interface TableJournalTransactionProps {

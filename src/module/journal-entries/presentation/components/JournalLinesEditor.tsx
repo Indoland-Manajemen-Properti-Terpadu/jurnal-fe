@@ -29,10 +29,10 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { useJournalAccounts } from '@/module/GeneralJournal/JournalAccount/hooks/useJournalAccounts';
-import { useTransactionStore } from '@/store/GeneralJournal/useTransactionStore';
+import { useJournalAccounts } from '@/module/chart-of-accounts';
+import { useTransactionStore } from '../store/useTransactionStore';
 import { themeColors } from '@/theme';
-import TotalAmount from '../Amounts';
+import TotalAmount from './JournalTotals';
 
 interface SortableRowProps {
   item: any;

@@ -1,7 +1,7 @@
 import { MemoryRouter } from 'react-router-dom';
 import { render, screen } from '@test-utils';
-import { JournalTransactionDetailTable } from './JournalTransactionDetailTable';
-import { TransactionDetail } from '../../types/TransactionDetailModel';
+import { JournalTransactionDetailTable } from './JournalEntryLinesTable';
+import { TransactionDetail } from '../../domain/journalEntryDetail';
 
 const lines = (debit: number, credit: number): TransactionDetail[] => [
   { id: '1', account: { id: 'a', name: 'Kas', accountNumber: '1-1000' }, debit },

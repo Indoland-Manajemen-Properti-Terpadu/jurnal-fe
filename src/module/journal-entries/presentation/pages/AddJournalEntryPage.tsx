@@ -33,16 +33,16 @@ import AppShellLayout from '@/components/AppShellLayout';
 import ModuleHeader from '@/components/ModuleHeader/ModuleHeader';
 import { routes } from '@/router/routes';
 import { themeColors } from '@/theme';
-import { useTransactionStore } from '@/store/GeneralJournal/useTransactionStore';
-import { useFileStore } from '@/store/GeneralJournal/useFileStore';
-import TransactionForm from './TransactionForm';
-import { TagInput } from './TagInput';
+import { useTransactionStore } from '../store/useTransactionStore';
+import { useFileStore } from '../store/useFileStore';
+import TransactionForm from '../components/JournalLinesEditor';
+import { TagInput } from '../components/TagInput';
 import CustomDropzone from '@/components/Dropzone/CustomDropzone';
-import { useSubmitTransactionJournal } from '../../services/CreateTransactionAccount.service';
-import { TransactionJournalPayload } from '@/module/GeneralJournal/DetailAccount/TransactionJournal/types/AddTransactionPayload';
-import { JournalBalanceMetrics } from '../JournalBalanceMetrics';
-import { JournalDoubleEntryGuide } from '../JournalDoubleEntryGuide';
-import { JournalValidationCard } from '../JournalValidationCard';
+import { useSubmitTransactionJournal } from '../hooks/useCreateJournalEntry';
+import { TransactionJournalPayload } from '../../domain/journalEntryPayload';
+import { JournalBalanceMetrics } from '../components/JournalBalanceMetrics';
+import { JournalDoubleEntryGuide } from '../components/JournalDoubleEntryGuide';
+import { JournalValidationCard } from '../components/JournalValidationCard';
 
 export const AddJournalTransactionForm: React.FC = () => {
   const navigate = useNavigate();

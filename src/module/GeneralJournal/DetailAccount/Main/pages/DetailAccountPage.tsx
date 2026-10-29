@@ -54,8 +54,8 @@ import { useDetailAccount } from '../hooks/useDetailAccount';
 import { accountDetailData } from '../types/DetailAccountModel';
 import { archiveAccount } from '../services/DetailAccount.service';
 import { GetReconciliation } from '../../Reconciliation/services/GetReconciliation.service';
-import { GetTransactionByAccount } from '../../TransactionJournal/services/TransactionByAccount.service';
-import { TransactionByAccountModel } from '../../TransactionJournal/types/TransactionByAccountModel';
+import { GetTransactionByAccount } from '@/module/journal-entries';
+import type { TransactionByAccountModel } from '@/module/journal-entries';
 
 import DetailAccountLayout from './Layout';
 import JournalTransactionTab from '../components/Tabs/JournalTransactionTabs';

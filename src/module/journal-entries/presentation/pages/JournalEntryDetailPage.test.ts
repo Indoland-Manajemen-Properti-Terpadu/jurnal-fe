@@ -1,4 +1,4 @@
-import { isDetailBalanced } from './JournalTransactionDetail';
+import { isDetailBalanced } from './JournalEntryDetailPage';
 
 describe('I3 journal detail page view tolerance (characterization)', () => {
   it('reads equal totals as balanced', () => {

@@ -7,7 +7,7 @@ import {
   IconShieldCheck,
   IconX,
 } from '@tabler/icons-react';
-import { useTransactionStore } from '@/store/GeneralJournal/useTransactionStore';
+import { useTransactionStore } from '../store/useTransactionStore';
 
 interface JournalValidationCardProps {
   transactionDate: string;

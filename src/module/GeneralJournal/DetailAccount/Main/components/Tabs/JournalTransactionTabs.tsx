@@ -22,11 +22,13 @@ import {
 } from '@tabler/icons-react';
 import { routes } from '@/router/routes';
 import { useNavigate, useParams } from 'react-router-dom';
-import TableJournalTransaction from '../../../TransactionJournal/components/TableTransactionJournal/JournalTransactionTable';
-import { DeleteTransactionAccounts } from '../../../TransactionJournal/services/DeleteTransactionAccount.service';
-import { GetTransactionByAccount } from '../../../TransactionJournal/services/TransactionByAccount.service';
-import { TransactionByAccountModel } from '../../../TransactionJournal/types/TransactionByAccountModel';
-import useFilterTransaction from '../../store/FilterTransaction';
+import {
+  JournalEntriesTable as TableJournalTransaction,
+  DeleteTransactionAccounts,
+  GetTransactionByAccount,
+  useFilterTransaction,
+} from '@/module/journal-entries';
+import type { TransactionByAccountModel } from '@/module/journal-entries';
 import { ConfirmModal } from '@/components';
 import deleteModalImage from '@/assets/img/vectors/delete_modal.svg';
 import { notifications } from '@mantine/notifications';
