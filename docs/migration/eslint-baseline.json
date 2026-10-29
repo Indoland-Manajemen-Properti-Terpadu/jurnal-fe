@@ -1,15 +1,15 @@
 {
   "@typescript-eslint/no-explicit-any": 204,
   "@typescript-eslint/no-shadow": 16,
-  "@typescript-eslint/no-unused-vars": 451,
+  "@typescript-eslint/no-unused-vars": 450,
   "arrow-body-style": 103,
   "curly": 5,
   "import/newline-after-import": 3,
   "import/no-cycle": 190,
   "import/no-duplicates": 12,
   "import/no-named-as-default": 56,
-  "import/no-restricted-paths": 49,
-  "import/order": 128,
+  "import/no-restricted-paths": 41,
+  "import/order": 127,
   "jsx-a11y/alt-text": 2,
   "max-lines": 35,
   "new-cap": 1,
@@ -34,6 +34,6 @@
   "radix": 1,
   "react/button-has-type": 1,
   "react/jsx-boolean-value": 16,
-  "react/jsx-curly-brace-presence": 17,
+  "react/jsx-curly-brace-presence": 16,
   "react/no-unescaped-entities": 4
 }

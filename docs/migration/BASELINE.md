@@ -54,4 +54,4 @@ Each migration PR is expected to lower these numbers; the baseline can never go 
 
 ## Needs decision
 
-- Route constants `routes.SettingBudget.BudgetIS` (`/setting-budget/budget-IS`) and `routes.resultReport.businessOverview` (`/result-reports/business-overview`) have no page and no references; opening those URLs shows the not-found page. They are allow-listed in `src/router/routes.test.ts`. Build the page or delete the constant in the owning milestone (M1 `budgeting`, M2 `reports`).
+- Route constants `routes.SettingBudget.BudgetIS` (`/setting-budget/budget-IS`) and `routes.resultReport.businessOverview` (`/result-reports/business-overview`) have no page and no references; opening those URLs shows the not-found page. They are allow-listed in `src/router/routes.test.ts`. Build the page or delete the constant in the owning milestone (M2 `reports`; M1 `budgeting` found the old `SettingBudget` page unreferenced and removed it).
