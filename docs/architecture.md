@@ -59,6 +59,10 @@ Server responses are never mirrored in Zustand. Financial mutations are not opti
 
 All HTTP goes through `src/lib/http/apiClient.ts` (Bearer token, 401 refresh with a request queue, redirect to login, global loading bar), called only from a feature's `infrastructure/`. The legacy helpers `get/post/put/del/patch` return `error.response` or `null` on failure and are `@deprecated`; migrated code uses the default `apiClient` and handles errors explicitly. Responses use the envelope `{ code, message, data, pagination? }`.
 
+## Accounting rules
+
+Pure ledger rules (normal balance, journal balance, opening-balance and reconciliation gates) live in `src/lib/accounting` with no React or HTTP. Gates are exact and reject sub-cent amounts; display helpers round half up to the cent. See [`src/lib/accounting/README.md`](../src/lib/accounting/README.md).
+
 ## Money
 
 Money math uses integer minor units through `src/lib/money` (`toMinor`, `fromMinor`, `sumMinor`). See [ADR 0005](adr/0005-integer-money-and-localstorage-tokens.md) and [migration/money-audit.md](migration/money-audit.md).
