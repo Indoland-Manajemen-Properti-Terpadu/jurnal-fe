@@ -1,10 +1,20 @@
 /* eslint-disable linebreak-style */
 import axios from 'axios';
-import { navigate } from '@/router';
 import { routes } from '@/router/routes';
 import { BASE_URL, API_AUTH } from '@/services/endpoint';
 import { useAuthStore } from '@/store/useAuthentications';
 import { useApiLoadingStore } from '@/store/useApiLoading';
+
+type Navigate = (path: string) => void;
+
+// The router registers itself at startup; the client must not import it (it would close an import cycle with every feature page).
+let navigate: Navigate = (path) => {
+  window.location.assign(path);
+};
+
+export const setNavigate = (handler: Navigate) => {
+  navigate = handler;
+};
 
 const apiClient = axios.create({
   baseURL: BASE_URL,

@@ -5,7 +5,7 @@
   "arrow-body-style": 102,
   "curly": 5,
   "import/newline-after-import": 3,
-  "import/no-cycle": 190,
+  "import/no-cycle": 13,
   "import/no-duplicates": 12,
   "import/no-named-as-default": 55,
   "import/no-restricted-paths": 41,
