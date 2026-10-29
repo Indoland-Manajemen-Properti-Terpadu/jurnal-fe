@@ -12,6 +12,7 @@ import { production } from './production';
 import { fulfillment } from './fulfillment';
 import { budgeting } from './budgeting';
 import { landing } from './landing';
+import { profile } from './profile';
 
 export const id = {
   common,
@@ -28,6 +29,7 @@ export const id = {
   fulfillment,
   budgeting,
   landing,
+  profile,
 };
 
 export default id;

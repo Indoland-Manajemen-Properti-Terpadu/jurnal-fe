@@ -12,6 +12,7 @@ import { production } from './production';
 import { fulfillment } from './fulfillment';
 import { budgeting } from './budgeting';
 import { landing } from './landing';
+import { profile } from './profile';
 
 export const en = {
   common,
@@ -28,6 +29,7 @@ export const en = {
   fulfillment,
   budgeting,
   landing,
+  profile,
 };
 
 export default en;
