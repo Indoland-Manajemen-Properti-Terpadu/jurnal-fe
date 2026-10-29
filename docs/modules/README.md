@@ -13,7 +13,7 @@ Status per module: [../migration/STATUS.md](../migration/STATUS.md).
 | `assets` | `src/module/Asset` | pending (M1) |
 | `pending-changes` | `src/module/PendingChanges` | pending (M1) |
 | `profile` | `src/module/Profile` | pending (M1) |
-| `landing` | `src/module/LandingPage` | pending (M1) |
+| `landing` | `src/module/landing` | [README](../../src/module/landing/README.md) |
 | `dashboard` | `src/module/Dashboard` | pending (M1) |
 | `budgeting` | `src/module/budgeting` | [README](../../src/module/budgeting/README.md) |
 | `costs` | `src/module/costs` | [README](../../src/module/costs/README.md) |
