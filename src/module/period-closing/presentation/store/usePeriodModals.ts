@@ -18,7 +18,7 @@ interface ModalState {
   closeAllModals: () => void;
 }
 
-const useModalStore = create<ModalState>((set) => ({
+const usePeriodModalStore = create<ModalState>((set) => ({
   MainMenuOpened: false,
   PLDateSettingOpened: false,
   CBDateSettingOpened: false,
@@ -49,4 +49,4 @@ const useModalStore = create<ModalState>((set) => ({
     }),
 }));
 
-export default useModalStore;
+export default usePeriodModalStore;
