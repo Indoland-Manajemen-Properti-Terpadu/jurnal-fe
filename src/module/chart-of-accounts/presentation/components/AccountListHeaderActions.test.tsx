@@ -37,17 +37,14 @@ describe('AccountListHeaderActions navigation', () => {
     );
   });
 
-  // R7, known gap: the account list has no account, so the ':idAccount' placeholder of the draft
-  // import route is not substituted. The draft page then reads the literal ":idAccount" as the
-  // account id (confirm payload and the redirect after the import). See the README, known gaps.
-  it('opens the bank statement draft import route with the placeholder still in the path', async () => {
+  // The account list has no account, so a bank statement import entry here would navigate with the
+  // ':idAccount' placeholder unfilled. The working entry is the import modal in the reconciliation
+  // tab of a cash/bank account.
+  it('does not offer a bank statement import item', async () => {
     renderActions();
     const user = userEvent.setup();
     await user.click(screen.getByRole('button', { name: 'Aksi Lainnya' }));
-    await user.click(await screen.findByRole('menuitem', { name: 'Impor Rekening Koran' }));
-    expect(screen.getByTestId('location')).toHaveTextContent(
-      routes.generalJournal.bankStatementDraftImport
-    );
-    expect(routes.generalJournal.bankStatementDraftImport).toContain(':idAccount');
+    await screen.findByRole('menuitem', { name: 'Tambah Transaksi Jurnal' });
+    expect(screen.queryByText('Impor Rekening Koran')).toBeNull();
   });
 });

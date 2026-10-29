@@ -3,7 +3,7 @@ import { DetailAccountModel } from '../../domain/accountDetail';
 import { getDetailAccount } from '../../infrastructure/accountDetailApi';
 
 export const useDetailAccount = (idAccount: string) => {
-  const { data, isLoading, isError } = useQuery<DetailAccountModel>({
+  const { data, isLoading, isError, refetch } = useQuery<DetailAccountModel>({
     queryKey: ['detail_account', idAccount],
     queryFn: () => getDetailAccount(idAccount),
     enabled: !!idAccount,
@@ -13,5 +13,6 @@ export const useDetailAccount = (idAccount: string) => {
     accountDetail: data,
     isLoading,
     isError,
+    refetch,
   };
 };

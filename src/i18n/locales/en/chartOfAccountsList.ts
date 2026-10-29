@@ -8,7 +8,6 @@ export const chartOfAccountsList = {
     moreActions: 'More Actions',
     menuTransactions: 'Transactions & Import',
     addJournalTransaction: 'Add Journal Transaction',
-    importBankStatement: 'Import Bank Statement',
     menuLedgerConfig: 'General Ledger Configuration',
     standardAccounts: 'Set Standard Accounts',
     beginningBalance: 'Beginning Balance',

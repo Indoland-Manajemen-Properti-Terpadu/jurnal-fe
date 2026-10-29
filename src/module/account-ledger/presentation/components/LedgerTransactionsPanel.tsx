@@ -19,7 +19,6 @@ import {
   IconTrash,
   IconX,
 } from '@tabler/icons-react';
-import { notifications } from '@mantine/notifications';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
@@ -34,7 +33,6 @@ import {
   type JournalEntryByAccount,
 } from '@/module/journal-entries';
 import type { LedgerVariant } from '../../domain/ledgerVariant';
-import { serverMessage } from '../../domain/serverMessage';
 
 interface EntriesQuery {
   data: JournalEntryByAccount[] | undefined;
@@ -80,22 +78,10 @@ export const LedgerTransactionsPanel: React.FC<LedgerTransactionsPanelProps> = (
       { ids, idAccount },
       {
         onSuccess: () => {
-          notifications.show({
-            color: 'teal',
-            title: t(`entries.${variant}.deleteOkTitle`),
-            message: t(`entries.${variant}.deleteOkMessage`, { count: ids.length }),
-          });
           setSelectedRecords([]);
           setIsDeleteModalOpen(false);
           queryClient.invalidateQueries({ queryKey: ['transaction_by_account', idAccount] });
           queryClient.invalidateQueries({ queryKey: ['detail_account', idAccount] });
-        },
-        onError: (error: unknown) => {
-          notifications.show({
-            color: 'red',
-            title: t('entries.deleteFailTitle'),
-            message: serverMessage(error) || t('entries.deleteFailFallback'),
-          });
         },
       }
     );

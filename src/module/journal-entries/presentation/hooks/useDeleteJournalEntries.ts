@@ -22,10 +22,10 @@ export const useDeleteJournalEntries = () => {
         color: 'green',
       });
     },
-    onError: () => {
+    onError: (error: { response?: { data?: { message?: string } } }) => {
       notifications.show({
         title: tr('toast.errorTitle'),
-        message: tr('toast.deleteManyFailedMessage'),
+        message: error?.response?.data?.message || tr('toast.deleteManyFailedMessage'),
         color: 'red',
       });
     },

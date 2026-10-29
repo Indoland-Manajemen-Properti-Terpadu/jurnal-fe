@@ -4,6 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from '@mantine/form';
 import { IconArrowLeft, IconCheck, IconLock, IconNotebook } from '@tabler/icons-react';
 import AppShellLayout from '@/components/AppShellLayout';
+import { NotFound } from '@/components/ErrorPage/NotFound';
 import ModuleHeader from '@/components/ModuleHeader/ModuleHeader';
 import { routes } from '@/router/routes';
 import { useTranslation } from '@/i18n';
@@ -38,7 +39,11 @@ export const EditAccountJournalPage: React.FC = () => {
   const validationMessage = (key: string | null) => (key ? t(key) : null);
 
   // Fetch Existing Account Details
-  const { accountDetail, isLoading: isLoadingDetail } = useDetailAccount(idAccount!);
+  const {
+    accountDetail,
+    isLoading: isLoadingDetail,
+    isError: isDetailError,
+  } = useDetailAccount(idAccount!);
   const rawAccountData = unwrapAccountDetail(accountDetail);
   const isLocked = Boolean(rawAccountData?.isLocked);
   const categoryEditable = canChangeCategory(isLocked);
@@ -176,6 +181,14 @@ export const EditAccountJournalPage: React.FC = () => {
   const handleCancel = () => {
     navigate(routes.generalJournal.main);
   };
+
+  if (isDetailError) {
+    return (
+      <AppShellLayout>
+        <NotFound />
+      </AppShellLayout>
+    );
+  }
 
   return (
     <AppShellLayout>

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { API_ACCOUNT } from '@/services/endpoint';
-import { archiveAccount } from './accountDetailApi';
+import { archiveAccount, getDetailAccount } from './accountDetailApi';
 import { createAccount, deleteAccounts, getJournalAccounts, updateAccount } from './accountApi';
 
 const http = vi.hoisted(() => ({
@@ -89,5 +89,27 @@ describe('account mutations (R3: errors reach the caller)', () => {
     await expect(updateAccount('a1', payload)).rejects.toBe(error);
     await expect(deleteAccounts({ accountIds: ['a1'] })).rejects.toBe(error);
     await expect(archiveAccount('a1')).rejects.toBe(error);
+  });
+});
+
+describe('getDetailAccount', () => {
+  beforeEach(() => {
+    http.get.mockReset();
+  });
+
+  it('returns the response body from the detail endpoint', async () => {
+    const body = { data: { id: 'a1', name: 'Kas' } };
+    http.get.mockResolvedValue({ data: body });
+
+    await expect(getDetailAccount('a1')).resolves.toEqual(body);
+    expect(http.get).toHaveBeenCalledWith(`${API_ACCOUNT.GET_DETAIL_ACCOUNT}/a1`, {
+      params: undefined,
+    });
+  });
+
+  it('rejects on an HTTP error instead of returning the error response', async () => {
+    http.get.mockRejectedValue(new Error('500'));
+
+    await expect(getDetailAccount('a1')).rejects.toThrow('500');
   });
 });

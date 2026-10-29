@@ -73,8 +73,36 @@ describe('non cash/bank ledger page (characterization)', () => {
     expect(screen.getByText('Memuat data buku besar akun...')).toBeInTheDocument();
   });
 
-  it('derives the normal balance from the category name (keyword fallback, no backend flag)', () => {
+  it('shows an error state with a retry when the account detail fails to load', async () => {
+    ledgerState.detailError = true;
+    renderNonCash();
+    const user = userEvent.setup();
+    expect(screen.getByText('Gagal memuat akun')).toBeInTheDocument();
+    expect(screen.queryByText('N/A')).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Coba Lagi' }));
+    expect(fns.refetchDetail).toHaveBeenCalled();
+  });
+
+  it('lets the backend category isDebit flag win over the keywords', () => {
     ledgerState.detail = { ...baseDetail, category: { name: 'Hutang Usaha', isDebit: true } };
+    renderNonCash();
+    expect(screen.getByText(/Hutang Usaha • Saldo Normal: Debit/)).toBeInTheDocument();
+    expect(screen.getByText('Bertambah pada sisi Debit')).toBeInTheDocument();
+  });
+
+  it('flips the normal balance of a contra account', () => {
+    ledgerState.detail = {
+      ...baseDetail,
+      isContra: true,
+      category: { name: 'Aset Tetap', isDebit: true },
+    };
+    renderNonCash();
+    expect(screen.getByText(/Aset Tetap • Saldo Normal: Kredit/)).toBeInTheDocument();
+    expect(screen.getByText('Bertambah pada sisi Kredit')).toBeInTheDocument();
+  });
+
+  it('derives the normal balance from the category name when the backend sends no flag', () => {
+    ledgerState.detail = { ...baseDetail, category: { name: 'Hutang Usaha' } };
     renderNonCash();
     expect(screen.getByText(/Hutang Usaha • Saldo Normal: Kredit/)).toBeInTheDocument();
     expect(screen.getByText('Bertambah pada sisi Kredit')).toBeInTheDocument();
@@ -184,7 +212,7 @@ describe('non cash/bank ledger page (characterization)', () => {
     );
   });
 
-  it('deletes the account, toasts and goes back to the account list on success', async () => {
+  it('deletes the account and goes back to the account list on success', async () => {
     renderNonCash();
     const user = userEvent.setup();
     await pickMenuItem(user, 'Hapus Akun');
@@ -197,12 +225,8 @@ describe('non cash/bank ledger page (characterization)', () => {
     await waitFor(() =>
       expect(screen.getByTestId('location')).toHaveTextContent(routes.generalJournal.main)
     );
-    expect(fns.notify).toHaveBeenCalledWith(
-      expect.objectContaining({
-        title: 'Akun Berhasil Dihapus',
-        message: 'Akun Bank BCA telah berhasil dihapus.',
-      })
-    );
+    // The success toast comes from the shared useDeleteAccount hook only.
+    expect(fns.notify).not.toHaveBeenCalled();
   });
 
   it('deletes the selected entries and invalidates the lists', async () => {
@@ -219,26 +243,15 @@ describe('non cash/bank ledger page (characterization)', () => {
     const [payload, options] = fns.deleteEntries.mock.calls[0];
     expect(payload).toEqual({ ids: ['a', 'b'], idAccount: 'acc-1' });
     options.onSuccess();
-    expect(fns.notify).toHaveBeenCalledWith(
-      expect.objectContaining({
-        title: 'Transaksi Berhasil Dihapus',
-        message: '2 transaksi jurnal telah dihapus.',
-      })
-    );
     expect(client.invalidateQueries).toHaveBeenCalledWith({
       queryKey: ['transaction_by_account', 'acc-1'],
     });
     expect(client.invalidateQueries).toHaveBeenCalledWith({
       queryKey: ['detail_account', 'acc-1'],
     });
-    options.onError({ response: { data: { message: 'ditolak' } } });
-    expect(fns.notify).toHaveBeenCalledWith(
-      expect.objectContaining({ color: 'red', message: 'ditolak' })
-    );
-    options.onError(new Error('x'));
-    expect(fns.notify).toHaveBeenCalledWith(
-      expect.objectContaining({ message: 'Terjadi kesalahan saat menghapus transaksi.' })
-    );
+    // Success and failure toasts come from the shared useDeleteJournalEntries hook only.
+    expect(fns.notify).not.toHaveBeenCalled();
+    expect(options.onError).toBeUndefined();
   });
 
   it('shows the account profile in the info tab', async () => {
