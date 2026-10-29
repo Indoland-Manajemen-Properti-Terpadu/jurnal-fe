@@ -47,12 +47,13 @@ import { ConfirmModal } from '@/components';
 import deleteModalImage from '@/assets/img/vectors/delete_modal.svg';
 import arsipkanIcon from '@/assets/img/vectors/arsipkan.svg';
 
+import { useDeleteJurnalAccount } from '@/module/GeneralJournal/JournalAccount/services';
+import { useBankStatement, type BankStatementRow } from '@/module/bank-statements';
+import { JournalEmptyState } from '@/components/EmptyState/JournalEmptyState';
 import { useDetailAccount } from '../hooks/useDetailAccount';
 import { accountDetailData } from '../types/DetailAccountModel';
 import { archiveAccount } from '../services/DetailAccount.service';
-import { useDeleteJurnalAccount } from '@/module/GeneralJournal/JournalAccount/services';
 import { GetReconciliation } from '../../Reconciliation/services/GetReconciliation.service';
-import { useBankStatement, type BankStatementRow } from '@/module/bank-statements';
 import { GetTransactionByAccount } from '../../TransactionJournal/services/TransactionByAccount.service';
 import { TransactionByAccountModel } from '../../TransactionJournal/types/TransactionByAccountModel';
 
@@ -61,7 +62,6 @@ import JournalTransactionTab from '../components/Tabs/JournalTransactionTabs';
 import BankStatementTab from '../components/Tabs/BankStatementTab';
 import ReconciliationTab from '../components/Tabs/ReconciliationTabs';
 import CashMappingTab from '../components/Tabs/CashMappingTabs';
-import { JournalEmptyState } from '@/components/EmptyState/JournalEmptyState';
 
 const DetailAccountPage: React.FC = () => {
   const { idAccount } = useParams<{ idAccount: string }>();
@@ -83,7 +83,9 @@ const DetailAccountPage: React.FC = () => {
   const [selectedJournalRecords, setSelectedJournalRecords] = useState<TransactionByAccountModel[]>(
     []
   );
-  const [selectedBankStatementRecords, setSelectedBankStatementRecords] = useState<BankStatementRow[]>([]);
+  const [selectedBankStatementRecords, setSelectedBankStatementRecords] = useState<
+    BankStatementRow[]
+  >([]);
 
   const [activeTab, setActiveTab] = useState<string>('transaction');
   const [isDeleteAccountModalOpen, setIsDeleteAccountModalOpen] = useState(false);

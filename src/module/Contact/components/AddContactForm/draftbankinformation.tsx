@@ -13,9 +13,6 @@
 // import { JournalAccounts } from '@/module/GeneralJournal/JournalAccount/types/JournalAccountModel';
 // import { DataTable } from 'mantine-datatable';
 
-
-
-
 // const TableListBankInformation = () => {
 //     const { accounts, isError, isEmpty } = GetJournalAccounts();
 //     const JournalAccounts = Array.isArray(accounts) ? accounts : [];
@@ -23,7 +20,6 @@
 //     const [selectedRecords, setSelectedRecords] = useState<JournalAccounts[]>([]);
 //     const [searchQuery, setSearchQuery] = useState<string>('');
 //     const { mutate: deleteAccount } = useDeleteJurnalAccount();
-
 
 //     if (isError) {
 //         return <NotFound />;
@@ -39,14 +35,12 @@
 //         setSearchQuery(event.currentTarget.value);
 //     };
 
-
 //     const handleDeleteAccount = () => {
 //         const ids = {
 //             accountIds: selectedRecords.map((item) => item.id),
 //         };
 //         deleteAccount(ids);
 //     };
-
 
 //     const columns = [
 //         {

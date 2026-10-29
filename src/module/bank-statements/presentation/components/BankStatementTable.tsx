@@ -1,32 +1,21 @@
-// components/BankStatementTable.tsx
-import {
-  Anchor,
-  Button,
-  Center,
-  Container,
-  Stack,
-  Text,
-  Title,
-  Group,
-  Input,
-  Flex,
-} from '@mantine/core';
+import { Anchor, Button, Center, Stack, Text, Group, Input, Flex } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
 import { IconSearch, IconCalendar } from '@tabler/icons-react';
 import dayjs from 'dayjs';
 import { useNavigate, useParams } from 'react-router';
-import { DataTable, DataTableColumn } from 'mantine-datatable';
+import { DataTable } from 'mantine-datatable';
 import { formatCurrency } from '@/utils/FormatCurrency';
-import { BankStatementModelV2, Result } from '../../domain/bankStatement';
+import { useTranslation } from '@/i18n';
 import { dateFormatV1 } from '@/utils/FormatDate';
 import { JournalEmptyState } from '@/components/EmptyState/JournalEmptyState';
 import { themeColors } from '@/theme';
-import BadgeStatusReconciled from './BadgeStatus';
 import { useQueryClient } from '@tanstack/react-query';
-import { useBankStatement } from '../hooks/useBankStatement';
-import ImportBankStatementModal from './ImportBankStatementModal';
 import { useState } from 'react';
 import { CloudArrowUp, Trash } from '@phosphor-icons/react';
+import BadgeStatusReconciled from './BadgeStatus';
+import { useBankStatement } from '../hooks/useBankStatement';
+import ImportBankStatementModal from './ImportBankStatementModal';
+import { Result } from '../../domain/bankStatement';
 
 interface BankStatementTableProps {
   selectedRecords: Result[];
@@ -37,13 +26,14 @@ export default function BankStatementTable({
   selectedRecords,
   setSelectedRecords,
 }: BankStatementTableProps) {
+  const { t } = useTranslation('bankStatements');
   const navigate = useNavigate();
   const { idAccount } = useParams<{ idAccount: string }>();
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
-  let { data: bankStatement, isLoading, isError } = useBankStatement(idAccount!);
+  const { data: bankStatement, isLoading, isError } = useBankStatement(idAccount!);
 
   const rawRecords = bankStatement?.results || bankStatement?.resultTransaction || [];
   const records = rawRecords.filter((r): r is Result => r !== null);
@@ -69,21 +59,22 @@ export default function BankStatementTable({
     return matchSearch && matchDate;
   });
 
-  if (isLoading)
+  if (isLoading) {
     return (
       <Center h={200}>
-        <Text>Loading bank statement...</Text>
+        <Text>{t('table.loading')}</Text>
       </Center>
     );
+  }
 
-  if (isError || isEmpty)
+  if (isError || isEmpty) {
     return (
       <>
         <JournalEmptyState
           onButtonClick={handleOpenModal}
-          title="Belum Ada Bank Statement"
-          description="Bank statement belum tersedia. Silakan import bank statement untuk mulai melakukan rekonsiliasi."
-          buttonLabel="Import Bank Statement"
+          title={t('table.emptyTitle')}
+          description={t('table.emptyDescription')}
+          buttonLabel={t('table.emptyButton')}
           buttonIcon={<CloudArrowUp size={16} />}
         />
         <ImportBankStatementModal
@@ -94,13 +85,14 @@ export default function BankStatementTable({
         />
       </>
     );
+  }
 
   const columns = [
     {
       accessor: 'transactionName',
       title: (
         <Text size="sm" fz={14} fw={500} c={themeColors.black[9]}>
-          Deskripsi Transaksi
+          {t('table.columns.description')}
         </Text>
       ),
       render: (element: Result) => (
@@ -115,7 +107,7 @@ export default function BankStatementTable({
       accessor: 'transactionDate',
       title: (
         <Text size="sm" fz={14} fw={500} ta="center" c={themeColors.black[9]}>
-          Tanggal
+          {t('table.columns.date')}
         </Text>
       ),
       render: (element: Result) => (
@@ -128,7 +120,7 @@ export default function BankStatementTable({
       accessor: 'receive',
       title: (
         <Text size="sm" fz={14} fw={500} c={themeColors.black[9]}>
-          Terima (Dalam Rp){' '}
+          {t('table.columns.received')}
         </Text>
       ),
       render: (element: Result) => (
@@ -141,7 +133,7 @@ export default function BankStatementTable({
       accessor: 'sent',
       title: (
         <Text size="sm" fz={14} fw={500} c={themeColors.black[9]}>
-          Kirim (Dalam Rp)
+          {t('table.columns.sent')}
         </Text>
       ),
       render: (element: Result) => (
@@ -154,7 +146,7 @@ export default function BankStatementTable({
       accessor: 'balance',
       title: (
         <Text size="sm" fz={14} fw={500} c={themeColors.black[9]}>
-          Saldo (Dalam Rp)
+          {t('table.columns.balance')}
         </Text>
       ),
       render: (element: Result) => (
@@ -167,7 +159,7 @@ export default function BankStatementTable({
       accessor: 'reconciled',
       title: (
         <Text size="sm" fz={14} fw={500} ta="center" c={themeColors.black[9]}>
-          Status
+          {t('table.columns.status')}
         </Text>
       ),
       render: (element: Result) => (
@@ -180,10 +172,10 @@ export default function BankStatementTable({
       accessor: 'action',
       title: (
         <Text size="xs" fz={14} fw={500} ta="center" c={themeColors.black[9]}>
-          Aksi
+          {t('table.columns.action')}
         </Text>
       ),
-      render: (element: Result) => (
+      render: () => (
         <Center>
           <Button variant="subtle" size="xs" color={themeColors.gray[6]}>
             <Trash size={18} color={themeColors.gray[6]} weight="duotone" />
@@ -203,7 +195,7 @@ export default function BankStatementTable({
       >
         <Group gap="sm" style={{ flex: 1 }}>
           <Input
-            placeholder="Search by transaction number or name"
+            placeholder={t('table.searchPlaceholder')}
             size="xs"
             leftSection={<IconSearch size={16} />}
             value={searchQuery}
@@ -211,12 +203,12 @@ export default function BankStatementTable({
             style={{ width: '300px' }}
           />
           <DatePickerInput
-            placeholder="Date"
+            placeholder={t('table.datePlaceholder')}
             valueFormat="DD/MM/YYYY"
             highlightToday
             size="xs"
             value={selectedDate}
-            onChange={(val: any) => setSelectedDate(val)}
+            onChange={setSelectedDate}
             clearable={!!selectedDate}
             rightSection={!selectedDate ? <IconCalendar size={16} /> : null}
             style={{ width: '200px' }}
@@ -228,7 +220,7 @@ export default function BankStatementTable({
           leftSection={<CloudArrowUp size={16} />}
           onClick={handleOpenModal}
         >
-          Impor Rekening Koran
+          {t('table.importButton')}
         </Button>
       </Flex>
 

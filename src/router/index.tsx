@@ -1,6 +1,5 @@
 import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom';
 import { setNavigate } from '@/lib/http/apiClient';
-import { routes } from './routes';
 
 // General Journal Module
 import GeneralJournalPage from '@/module/GeneralJournal/Main/pages/GeneralJournalPage';
@@ -73,6 +72,7 @@ import OAuthCallback from '@/module/Authentication/Login/pages/OAuthCallback';
 import MainDashboard from '@/module/Dashboard/page/page';
 import { LandingPage } from '@/module/landing';
 import { ProfilePage } from '@/module/profile';
+import { routes } from './routes';
 
 const router = createBrowserRouter([
   {

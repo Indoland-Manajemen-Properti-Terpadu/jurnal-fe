@@ -2,17 +2,17 @@ import { ReactNode } from 'react';
 import { vi } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { get } from '@/lib/http/apiClient';
+import apiClient from '@/lib/http/apiClient';
 import { useBankStatement } from './useBankStatement';
 
-vi.mock('@/lib/http/apiClient', () => ({ get: vi.fn() }));
+vi.mock('@/lib/http/apiClient', () => ({ default: { get: vi.fn() } }));
 
 const wrapper = ({ children }: { children: ReactNode }) => (
   <QueryClientProvider client={new QueryClient()}>{children}</QueryClientProvider>
 );
 
 const load = async (response: unknown) => {
-  vi.mocked(get).mockResolvedValue(response);
+  vi.mocked(apiClient.get).mockResolvedValue({ data: response });
   const { result } = renderHook(() => useBankStatement('acc-1'), { wrapper });
   await waitFor(() => expect(result.current.isSuccess).toBe(true));
   return result.current.data?.results;
@@ -42,7 +42,13 @@ describe('bank statement list mapping', () => {
       data: {
         results: [
           { id: '1', description: 'Setoran', date: '2026-01-02', amount: 1, isReconciled: true },
-          { id: '2', transactionName: 'Biaya', transactionDate: '2026-01-03', amount: -1, reconciled: false },
+          {
+            id: '2',
+            transactionName: 'Biaya',
+            transactionDate: '2026-01-03',
+            amount: -1,
+            reconciled: false,
+          },
         ],
       },
     });

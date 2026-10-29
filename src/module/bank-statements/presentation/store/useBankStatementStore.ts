@@ -1,93 +1,59 @@
-import { create } from 'zustand'
-import { BankStatementPreviewItem } from '../../domain/importPreview';
+import { create } from 'zustand';
+import { t } from '@/i18n';
+import { summarizePreview } from '../../domain/importDraft';
+import type { BankStatementPreviewItem, PreviewSummary } from '../../domain/importPreview';
 
-interface BankStatementState {
-    showAlert: boolean;
-    errorMessages: string[];
-    totalData: BankStatementPreviewItem[];
-    wrongData: BankStatementPreviewItem[];
-    correctData: BankStatementPreviewItem[];
-    sumTotalData: number;
-    totalWrongData: number;
-    totalCorrectData: number;
-    
-    setShowAlert: (status: boolean) => void;
-    setImportData: (preview: BankStatementPreviewItem[]) => void;
-    setErrorMessages: (dataMessages: string[]) => void;
-    updateItem: (rowIndex: number, updatedItem: Partial<BankStatementPreviewItem>) => void;
-    deleteItem: (rowIndex: number) => void;
+interface BankStatementState extends PreviewSummary {
+  showAlert: boolean;
+  errorMessages: string[];
+  setShowAlert: (status: boolean) => void;
+  setImportData: (preview: BankStatementPreviewItem[]) => void;
+  setErrorMessages: (dataMessages: string[]) => void;
+  updateItem: (rowIndex: number, updatedItem: Partial<BankStatementPreviewItem>) => void;
+  deleteItem: (rowIndex: number) => void;
 }
 
+const rowErrors = (wrongData: BankStatementPreviewItem[]) =>
+  wrongData.map((item) =>
+    t(
+      'importDraft.rowError',
+      { row: item.rowIndex, errors: item.errors.join(', ') },
+      'bankStatements'
+    )
+  );
+
+const derive = (rows: BankStatementPreviewItem[]) => {
+  const summary = summarizePreview(rows);
+  const errorMessages = rowErrors(summary.wrongData);
+  return { ...summary, errorMessages, showAlert: errorMessages.length > 0 };
+};
+
 export const useBankStatementStore = create<BankStatementState>((set) => ({
-    showAlert: false,
-    totalData: [],
-    wrongData: [],
-    correctData: [],
-    errorMessages: [],
-    sumTotalData: 0,
-    totalWrongData: 0,
-    totalCorrectData: 0,
-    
-    setShowAlert: (status) => set({ showAlert: status }),
-    
-    setImportData: (preview) => {
-        const correct = preview.filter(item => item.isValid);
-        const wrong = preview.filter(item => !item.isValid);
-        const allErrors = wrong.map(item => `Row ${item.rowIndex}: ${item.errors.join(', ')}`);
-        
-        set({
-            totalData: preview,
-            correctData: correct,
-            wrongData: wrong,
-            sumTotalData: preview.length,
-            totalCorrectData: correct.length,
-            totalWrongData: wrong.length,
-            errorMessages: allErrors,
-            showAlert: allErrors.length > 0
-        });
-    },
+  showAlert: false,
+  totalData: [],
+  wrongData: [],
+  correctData: [],
+  errorMessages: [],
+  sumTotalData: 0,
+  totalWrongData: 0,
+  totalCorrectData: 0,
 
-    setErrorMessages: (dataMessages) =>
-        set(() => {
-            return { errorMessages: dataMessages, showAlert: dataMessages.length > 0 }
-        }),
+  setShowAlert: (status) => set({ showAlert: status }),
 
-    updateItem: (rowIndex, updatedItem) => set((state) => {
-        const totalData = state.totalData.map((item) => 
-            item.rowIndex === rowIndex ? { ...item, ...updatedItem } : item
-        );
-        
-        const correct = totalData.filter(item => item.isValid);
-        const wrong = totalData.filter(item => !item.isValid);
-        const allErrors = wrong.map(item => `Row ${item.rowIndex}: ${item.errors.join(', ')}`);
+  setImportData: (preview) => set(derive(preview)),
 
-        return {
-            totalData,
-            correctData: correct,
-            wrongData: wrong,
-            sumTotalData: totalData.length,
-            totalCorrectData: correct.length,
-            totalWrongData: wrong.length,
-            errorMessages: allErrors,
-            showAlert: allErrors.length > 0
-        };
-    }),
+  setErrorMessages: (dataMessages) =>
+    set({ errorMessages: dataMessages, showAlert: dataMessages.length > 0 }),
 
-    deleteItem: (rowIndex) => set((state) => {
-        const totalData = state.totalData.filter((item) => item.rowIndex !== rowIndex);
-        const correct = totalData.filter(item => item.isValid);
-        const wrong = totalData.filter(item => !item.isValid);
-        const allErrors = wrong.map(item => `Row ${item.rowIndex}: ${item.errors.join(', ')}`);
+  updateItem: (rowIndex, updatedItem) =>
+    set((state) =>
+      derive(
+        state.totalData.map((item) =>
+          item.rowIndex === rowIndex ? { ...item, ...updatedItem } : item
+        )
+      )
+    ),
 
-        return {
-            totalData,
-            correctData: correct,
-            wrongData: wrong,
-            sumTotalData: totalData.length,
-            totalCorrectData: correct.length,
-            totalWrongData: wrong.length,
-            errorMessages: allErrors,
-            showAlert: allErrors.length > 0
-        };
-    }),
-}))
+  deleteItem: (rowIndex) =>
+    set((state) => derive(state.totalData.filter((item) => item.rowIndex !== rowIndex))),
+}));

@@ -12,20 +12,22 @@ import {
   Alert,
   List,
   ActionIcon,
-  SimpleGrid,
 } from '@mantine/core';
 import { gradientColors, themeColors } from '@/theme';
 import { IconInfoCircle, IconTrash } from '@tabler/icons-react';
 import { ArrowLeftIcon, PlusIcon } from '@phosphor-icons/react';
 import AppShellLayout from '@/components/AppShellLayout';
-import ImportBankStatementDraftTable from '../components/ImportBankStatementDraftTable';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useTranslation } from '@/i18n';
+import { ConfirmModal } from '@/components';
+import importModalImage from '@/assets/img/vectors/import.svg';
+import ImportBankStatementDraftTable from '../components/ImportBankStatementDraftTable';
+import { buildConfirmPayload } from '../../domain/importDraft';
+import { loadImportPreview } from '../../infrastructure/importDraftStorage';
 import { useBankStatementStore } from '../store/useBankStatementStore';
 import { useConfirmImportBankStatement } from '../hooks/useImportBankStatement';
 import { BankStatementPreviewItem } from '../../domain/importPreview';
-import { ConfirmModal } from '@/components';
-import importModalImage from '@/assets/img/vectors/import.svg'; // Reuse existing or use appropriate image
 
 const PAPER_PROPS = {
   p: '0',
@@ -35,6 +37,7 @@ const PAPER_PROPS = {
 };
 
 const ImportBankStatementDraftPage = () => {
+  const { t } = useTranslation('bankStatements');
   const navigate = useNavigate();
   const [selectedRecords, setSelectedRecords] = useState<BankStatementPreviewItem[]>([]);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
@@ -59,30 +62,12 @@ const ImportBankStatementDraftPage = () => {
   );
 
   useEffect(() => {
-    const storedBankStatementData = localStorage.getItem('bankStatementData');
-
-    if (storedBankStatementData) {
-      try {
-        const parsedResponse = JSON.parse(storedBankStatementData);
-        const previewData = parsedResponse.data?.preview || [];
-        setImportData(previewData);
-      } catch (error) {
-        console.error('Failed to parse bank statement data', error);
-      }
-    }
+    const previewData = loadImportPreview();
+    if (previewData) setImportData(previewData);
   }, [setImportData]);
 
   const handleImport = () => {
-    const payload = {
-      accountId: idAccount,
-      statements: totalData.map(({ TransactionDate, Received, Spent, Description }) => ({
-        TransactionDate,
-        Received: String(Received || '0'),
-        Spent: String(Spent || '0'),
-        Description: Description || '',
-      })),
-    };
-    confirmImport(payload);
+    confirmImport(buildConfirmPayload(idAccount, totalData));
   };
 
   const handleDeleteSelected = () => {
@@ -97,14 +82,14 @@ const ImportBankStatementDraftPage = () => {
       footer={
         <Group p="md" justify="flex-end" bg="white" style={{ borderTop: '1px solid #E9ECEF' }}>
           <Button variant="light" color={themeColors.gray[7]} onClick={() => navigate(-1)}>
-            Cancel
+            {t('importDraft.cancel')}
           </Button>
           <Button
             variant="gradient"
             gradient={gradientColors.gradient}
             onClick={() => setIsConfirmModalOpen(true)}
           >
-            Import
+            {t('importDraft.import')}
           </Button>
         </Group>
       }
@@ -119,10 +104,9 @@ const ImportBankStatementDraftPage = () => {
                     <ArrowLeftIcon size={32} weight="duotone" />
                   </ActionIcon>
                   <Stack gap={2}>
-                    <Title order={5}>Validasi Data Impor</Title>
+                    <Title order={5}>{t('importDraft.title')}</Title>
                     <Text c={themeColors.gray[6]} fz={14}>
-                      Periksa kembali data yang telah anda impor dan lakukan penyesuaian jika
-                      diperlukan.
+                      {t('importDraft.subtitle')}
                     </Text>
                   </Stack>
                 </Group>
@@ -155,7 +139,7 @@ const ImportBankStatementDraftPage = () => {
                           </Badge>
                         }
                       >
-                        All Data
+                        {t('importDraft.tabAll')}
                       </Tabs.Tab>
                       <Tabs.Tab
                         value="correct"
@@ -165,7 +149,7 @@ const ImportBankStatementDraftPage = () => {
                           </Badge>
                         }
                       >
-                        Correct Data
+                        {t('importDraft.tabCorrect')}
                       </Tabs.Tab>
                       <Tabs.Tab
                         value="wrong"
@@ -175,7 +159,7 @@ const ImportBankStatementDraftPage = () => {
                           </Badge>
                         }
                       >
-                        Wrong Data
+                        {t('importDraft.tabWrong')}
                       </Tabs.Tab>
                     </Tabs.List>
 
@@ -187,7 +171,7 @@ const ImportBankStatementDraftPage = () => {
                         onClick={handleDeleteSelected}
                         variant="light"
                       >
-                        Hapus Terpilih ({selectedRecords.length})
+                        {t('importDraft.deleteSelected', { count: selectedRecords.length })}
                       </Button>
                     )}
                   </Flex>
@@ -196,7 +180,7 @@ const ImportBankStatementDraftPage = () => {
                     <Alert
                       variant="light"
                       color="red"
-                      title="Catatan Kesalahan"
+                      title={t('importDraft.errorsTitle')}
                       icon={<IconInfoCircle />}
                       withCloseButton
                       onClose={() => setShowAlert(false)}
@@ -244,21 +228,22 @@ const ImportBankStatementDraftPage = () => {
         opened={isConfirmModalOpen}
         onClose={() => setIsConfirmModalOpen(false)}
         onConfirm={handleImport}
-        title="Impor Akun"
+        title={t('importDraft.confirmTitle')}
         message={
           <>
-            Apakah Anda yakin ingin mengimport <strong>{totalData.length}</strong> baris data bank
-            statement?
+            {t('importDraft.confirmBefore')}
+            <strong>{totalData.length}</strong>
+            {t('importDraft.confirmAfter')}
             {totalWrongData > 0 && (
               <Text c="red" size="sm" mt="xs">
-                Perhatian: Masih terdapat {totalWrongData} data yang tidak valid.
+                {t('importDraft.invalidWarning', { count: totalWrongData })}
               </Text>
             )}
           </>
         }
-        helperText="Data yang diimpor tidak dapat diubah kembali setelahproses berjalan."
-        confirmLabel="Tambah Data"
-        cancelLabel="Batal"
+        helperText={t('importDraft.helperText')}
+        confirmLabel={t('importDraft.confirmLabel')}
+        cancelLabel={t('importDraft.cancelLabel')}
         confirmLoading={isConfirming}
         imageSrc={importModalImage}
         confirmButtonProps={{

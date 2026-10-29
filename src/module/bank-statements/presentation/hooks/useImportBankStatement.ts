@@ -1,96 +1,99 @@
-// hooks/useBankStatement.ts
-import { API_ACCOUNT } from '@/services/endpoint';
 import { useMutation } from '@tanstack/react-query';
-import { post } from '@/lib/http/apiClient';
 import { notifications } from '@mantine/notifications';
 import { useNavigate } from 'react-router-dom';
+import { t } from '@/i18n';
 import { routes } from '@/router/routes';
+import {
+  commitBankStatementImport,
+  confirmBankStatementImport,
+  errorMessage,
+  hasResponse,
+  bodyMessage,
+  uploadBankStatement,
+} from '../../infrastructure/bankStatementApi';
+import { saveImportDraft } from '../../infrastructure/importDraftStorage';
+import type { ConfirmImportPayload } from '../../domain/importDraft';
 
-export const useImportBankStatement = (idAccount: string) => {
-  return useMutation({
-    mutationFn: async (data: File) => {
-      const formData = new FormData();
-      formData.append('accountId', idAccount);
-      formData.append('file', data);
-      const resp = post(API_ACCOUNT.POST_IMPORT_BANK_STATEMENT, formData);
-      return resp;
-    },
-    onSuccess: (data) => {
-      localStorage.removeItem('bankStatementData');
-      localStorage.setItem('bankStatementData', JSON.stringify(data));
-    },
-    onError: (error: Error) => {
-      console.error('Error adding account:', error);
+const tr = (key: string, params?: Record<string, string | number>) =>
+  t(key, params, 'bankStatements');
+
+const accountPath = (idAccount: string) =>
+  routes.generalJournal.detailAccount.replace(':idAccount', idAccount);
+
+export const useImportBankStatement = (idAccount: string) =>
+  useMutation({
+    mutationFn: (file: File) => uploadBankStatement(idAccount, file),
+    onSuccess: (body) => saveImportDraft(body),
+    onError: (error: unknown) => {
+      notifications.show({
+        color: 'red',
+        title: tr('toast.uploadFailedTitle'),
+        message: errorMessage(error, tr('toast.uploadFailedMessage')),
+      });
     },
   });
-};
 
 export const useConfirmImportBankStatement = (idAccount: string) => {
   const navigate = useNavigate();
   return useMutation({
-    mutationFn: async (data: any) => {
-      const resp = await post(API_ACCOUNT.POST_CONFIRM_IMPORT_BANK_STATEMENT, data);
-      return resp;
-    },
+    mutationFn: (payload: ConfirmImportPayload) => confirmBankStatementImport(payload),
     onSuccess: (resp) => {
-      if (resp.status === 400 || resp.code === 400) {
+      if (resp?.status === 400 || resp?.code === 400) {
         notifications.show({
           color: 'red',
-          title: 'Import Gagal',
-          message:
-            resp.message || resp.data?.message || 'Terjadi kesalahan saat mengonfirmasi import.',
+          title: tr('toast.confirmFailedTitle'),
+          message: resp.message || bodyMessage(resp.data) || tr('toast.confirmFailedFallback'),
         });
-      } else {
-        notifications.show({
-          color: 'green',
-          title: 'Berhasil',
-          message: 'Bank statement telah berhasil di-import.',
-        });
-        navigate(`/general-journal/detail-account-cb/${idAccount}`);
+        return;
       }
+      notifications.show({
+        color: 'green',
+        title: tr('toast.confirmSuccessTitle'),
+        message: tr('toast.confirmSuccessMessage'),
+      });
+      navigate(accountPath(idAccount));
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
+      const rejected = hasResponse(error);
       notifications.show({
         color: 'red',
-        title: 'Gagal',
-        message: error?.response?.data?.message || 'Terjadi kesalahan pada server.',
+        title: tr(rejected ? 'toast.confirmFailedTitle' : 'toast.serverErrorTitle'),
+        message: rejected
+          ? errorMessage(error, tr('toast.confirmFailedFallback'))
+          : tr('toast.serverErrorMessage'),
       });
     },
   });
 };
 
+/** Not used by a page today; kept with its endpoint gap documented in the README. */
 export const useSubmitImportBankStatement = (idAccount: string) => {
   const navigate = useNavigate();
   return useMutation({
-    mutationFn: async (data: Record<string, unknown>) => {
-      console.log(data);
-      const resp = post(`${API_ACCOUNT.POST_COMMIT_IMPORT_BANK_STATEMENT}/${idAccount}`, data);
-      return resp;
-    },
+    mutationFn: (data: Record<string, unknown>) => commitBankStatementImport(idAccount, data),
     onSuccess: (resp) => {
-      if (resp.status === 400) {
+      if (resp?.status === 400) {
         notifications.show({
           color: 'red',
-          title: 'Bank statement failed to import.',
-          message: resp.data.message,
+          title: tr('toast.commitFailedTitle'),
+          message: resp.message,
         });
         return;
-      } else {
-        notifications.show({
-          color: 'green',
-          title: 'Success',
-          message: 'Bank statement has been successfully imported.',
-        });
-        navigate(`/general-journal/detail-account-cb/${idAccount}`);
       }
+      notifications.show({
+        color: 'green',
+        title: tr('toast.commitSuccessTitle'),
+        message: tr('toast.commitSuccessMessage'),
+      });
+      navigate(accountPath(idAccount));
     },
     onError: () => {
       notifications.show({
         color: 'red',
-        title: 'Failed asdasd',
-        message: 'Bank statement failed to import adasd.',
+        title: tr('toast.commitErrorTitle'),
+        message: tr('toast.commitErrorMessage'),
       });
-      navigate(`/general-journal/detail-account-cb/${idAccount}`);
+      navigate(accountPath(idAccount));
     },
   });
 };
