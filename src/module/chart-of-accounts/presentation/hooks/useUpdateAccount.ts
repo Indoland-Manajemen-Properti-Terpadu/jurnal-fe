@@ -1,9 +1,12 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
+import { t } from '@/i18n';
 import { routes } from '@/router/routes';
 import { useNavigate } from 'react-router-dom';
 import { updateAccount } from '../../infrastructure/accountApi';
 import { AddAccountPayload } from '../../domain/addAccountPayload';
+
+const NS = 'chartOfAccounts';
 
 export const useUpdateAccount = (accountId: string) => {
   const navigate = useNavigate();
@@ -17,8 +20,8 @@ export const useUpdateAccount = (accountId: string) => {
       notifications.show({
         color: 'green',
         autoClose: 3500,
-        title: 'Perubahan Akun Berhasil Disimpan',
-        message: 'Informasi akun jurnal telah berhasil diperbarui dalam Chart of Accounts.',
+        title: t('toast.updateOkTitle', undefined, NS),
+        message: t('toast.updateOkMsg', undefined, NS),
       });
       navigate(routes.generalJournal.main);
     },
@@ -26,11 +29,11 @@ export const useUpdateAccount = (accountId: string) => {
       notifications.show({
         color: 'red',
         autoClose: 5000,
-        title: 'Gagal Memperbarui Akun',
+        title: t('toast.updateFailTitle', undefined, NS),
         message:
           error?.response?.data?.message ||
           error?.message ||
-          'Terjadi kesalahan sistem saat memperbarui akun.',
+          t('toast.updateFailMsg', undefined, NS),
       });
     },
   });

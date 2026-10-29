@@ -38,7 +38,8 @@ import { AddAccountReadinessCard } from '../components/account-form/AddAccountRe
 
 export const AddAccountJournalPage: React.FC = () => {
   const navigate = useNavigate();
-  const { t, currentLanguage } = useTranslation('journal');
+  const { t, currentLanguage } = useTranslation('chartOfAccounts');
+  const validationMessage = (key: string | null) => (key ? t(key) : null);
 
   // Queries
   const { data: categoryAccounts, isLoading: isLoadingCategories } = GetCategoryAccount();
@@ -58,9 +59,9 @@ export const AddAccountJournalPage: React.FC = () => {
       desc: '',
     },
     validate: {
-      name: validateCreateName,
-      accountNumber: validateAccountCode,
-      category: validateAccountCategory,
+      name: (value: string) => validationMessage(validateCreateName(value)),
+      accountNumber: (value: string) => validationMessage(validateAccountCode(value)),
+      category: (value: string) => validationMessage(validateAccountCategory(value)),
     },
   });
 
@@ -85,7 +86,12 @@ export const AddAccountJournalPage: React.FC = () => {
 
   // Derived Grouped Dropdown Data (Grouped by Neraca 1-3 vs Laba Rugi 4-8)
   const categoryOptions = useMemo(
-    () => groupCategoryOptions(categoryAccounts || [], currentLanguage),
+    () =>
+      groupCategoryOptions(categoryAccounts || [], {
+        balanceSheet: t('form.balanceSheetGroup'),
+        profitLoss: t('form.profitLossGroup'),
+        unnamed: t('form.unnamedCategory'),
+      }),
     [categoryAccounts, currentLanguage]
   );
 
@@ -168,10 +174,10 @@ export const AddAccountJournalPage: React.FC = () => {
   );
 
   const readinessChecks = [
-    { label: t('checkCategory'), pass: hasCategory },
-    { label: t('checkCode'), pass: hasCode },
-    { label: t('checkName'), pass: hasName },
-    { label: t('checkHierarchyAndAccess'), pass: isHierarchyAndAccessOk },
+    { label: t('form.checkCategory'), pass: hasCategory },
+    { label: t('form.checkCode'), pass: hasCode },
+    { label: t('form.checkName'), pass: hasName },
+    { label: t('form.checkHierarchyAndAccess'), pass: isHierarchyAndAccessOk },
   ];
   const passedChecksCount = readinessChecks.filter((c) => c.pass).length;
   const isFormValid = passedChecksCount === readinessChecks.length;
@@ -185,7 +191,7 @@ export const AddAccountJournalPage: React.FC = () => {
     if (cat?.id) form.setFieldValue('category', cat.id);
     form.setFieldValue('isBankAndCash', preset.isBankAndCash);
     form.setFieldValue('isContra', preset.isContra);
-    if (!form.values.name) form.setFieldValue('name', preset.defaultName);
+    if (!form.values.name) form.setFieldValue('name', t(preset.defaultNameKey));
   };
 
   const handleResetForm = () => {
@@ -234,8 +240,8 @@ export const AddAccountJournalPage: React.FC = () => {
           {/* 1. Canonical Module Header */}
           <ModuleHeader
             icon={IconNotebook}
-            title={t('addAccountTitle')}
-            description={t('addAccountSubtitle')}
+            title={t('form.addAccountTitle')}
+            description={t('form.addAccountSubtitle')}
             actions={
               <Group gap="xs">
                 <Button
@@ -244,14 +250,14 @@ export const AddAccountJournalPage: React.FC = () => {
                   leftSection={<IconRotateClockwise size={16} />}
                   onClick={handleResetForm}
                 >
-                  {t('resetForm')}
+                  {t('form.resetForm')}
                 </Button>
                 <Button
                   variant="default"
                   leftSection={<IconArrowLeft size={16} />}
                   onClick={handleCancel}
                 >
-                  {t('backToCoaList')}
+                  {t('form.backToCoaList')}
                 </Button>
               </Group>
             }
@@ -358,7 +364,7 @@ export const AddAccountJournalPage: React.FC = () => {
                       disabled={!isFormValid}
                       onClick={handleAddAccount}
                     >
-                      {t('saveAccountBtn')}
+                      {t('form.saveAccountBtn')}
                     </Button>
                     <Button
                       size="md"
@@ -368,7 +374,7 @@ export const AddAccountJournalPage: React.FC = () => {
                       onClick={handleCancel}
                       disabled={addAccountMutation.isPending}
                     >
-                      {t('cancelBtn')}
+                      {t('form.cancelBtn')}
                     </Button>
                   </Stack>
                 </Paper>

@@ -10,17 +10,24 @@ export type AccessScope = 'AllUsers' | 'SpecialUsers' | 'CertainRoles';
 /** I6: a new account name needs at least this many characters (edit only requires one). */
 export const MIN_CREATE_NAME_LENGTH = 3;
 
-export const validateCreateName = (value: string): string | null =>
-  value.trim().length < MIN_CREATE_NAME_LENGTH ? 'Nama akun minimal 3 karakter' : null;
+/** Validators return an i18n key of the `chartOfAccounts` namespace, or null when the value is valid. */
+export type ValidationKey =
+  | 'validation.nameMin'
+  | 'validation.nameRequired'
+  | 'validation.codeRequired'
+  | 'validation.categoryRequired';
 
-export const validateEditName = (value: string): string | null =>
-  value.trim().length === 0 ? 'Nama akun wajib diisi' : null;
+export const validateCreateName = (value: string): ValidationKey | null =>
+  value.trim().length < MIN_CREATE_NAME_LENGTH ? 'validation.nameMin' : null;
 
-export const validateAccountCode = (value: string): string | null =>
-  value.trim().length === 0 ? 'Kode akun wajib diisi' : null;
+export const validateEditName = (value: string): ValidationKey | null =>
+  value.trim().length === 0 ? 'validation.nameRequired' : null;
 
-export const validateAccountCategory = (value: string): string | null =>
-  !value ? 'Kategori akun wajib dipilih' : null;
+export const validateAccountCode = (value: string): ValidationKey | null =>
+  value.trim().length === 0 ? 'validation.codeRequired' : null;
+
+export const validateAccountCategory = (value: string): ValidationKey | null =>
+  !value ? 'validation.categoryRequired' : null;
 
 export const hasValidName = (name: string, minLength: number): boolean =>
   name.trim().length >= minLength;

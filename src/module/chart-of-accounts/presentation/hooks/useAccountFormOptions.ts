@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from '@/i18n';
 
 interface AccountRef {
   id: string;
@@ -31,6 +32,7 @@ export const useAccountFormOptions = ({
   parentId,
   childId,
 }: Source) => {
+  const { t, currentLanguage } = useTranslation('chartOfAccounts');
   const userOptions = useMemo(
     () =>
       usersData?.results?.map((u) => ({
@@ -44,9 +46,9 @@ export const useAccountFormOptions = ({
     () =>
       rolesData?.map((r) => ({
         value: r.id || '',
-        label: r.name || 'Unnamed Role',
+        label: r.name || t('form.unnamedRole'),
       })) || [],
-    [rolesData]
+    [rolesData, currentLanguage]
   );
 
   const headAccountOptions = useMemo(

@@ -6,6 +6,7 @@ import { formatCurrency } from '@/utils/FormatCurrency';
 import { IconChevronDown } from '@tabler/icons-react';
 import { DataTable } from 'mantine-datatable';
 import EmptyState from '@/components/EmptyState/EmptyTable';
+import { useTranslation } from '@/i18n';
 import { useJournalAccounts } from '../hooks/useJournalAccounts';
 
 const elements: JournalTransactionTable[] = [
@@ -58,6 +59,7 @@ const elements: JournalTransactionTable[] = [
 
 export default function CashMapping() {
   const navigate = useNavigate();
+  const { t } = useTranslation('chartOfAccounts');
   const [selectedRecords, setSelectedRecords] = useState<JournalTransactionTable[]>([]);
   const { accounts } = useJournalAccounts();
   const JournalAccounts = Array.isArray(accounts) ? accounts : [];
@@ -68,7 +70,7 @@ export default function CashMapping() {
   const columns = [
     {
       accessor: 'transactionDate',
-      title: 'Transaction Date',
+      title: t('cashMapping.colDate'),
       width: 200,
       render: (element: JournalTransactionTable) => (
         <Text c={themeColors.black[9]} fz={14}>
@@ -78,7 +80,7 @@ export default function CashMapping() {
     },
     {
       accessor: 'received',
-      title: 'Received',
+      title: t('cashMapping.colReceived'),
       render: (element: JournalTransactionTable) => (
         <Text c={themeColors.black[9]} fz={14}>
           {formatCurrency(element.received)}
@@ -87,7 +89,7 @@ export default function CashMapping() {
     },
     {
       accessor: 'sent',
-      title: 'Sent',
+      title: t('cashMapping.colSent'),
       render: (element: JournalTransactionTable) => (
         <Text c={themeColors.black[9]} fz={14}>
           {formatCurrency(element.sent)}
@@ -96,7 +98,7 @@ export default function CashMapping() {
     },
     {
       accessor: 'description',
-      title: 'Description',
+      title: t('cashMapping.colDescription'),
       width: 300,
       render: (element: JournalTransactionTable) => (
         <Text c={themeColors.black[9]} fz={14}>
@@ -106,12 +108,12 @@ export default function CashMapping() {
     },
     {
       accessor: 'account',
-      title: 'Account',
+      title: t('cashMapping.colAccount'),
       width: 300,
       render: (element: JournalTransactionTable) => (
         <Select
           key="accounts"
-          placeholder="Choose account"
+          placeholder={t('cashMapping.chooseAccount')}
           checkIconPosition="right"
           data={listJournalAccount}
           rightSection={<IconChevronDown size={14} />}
@@ -124,14 +126,14 @@ export default function CashMapping() {
     },
     {
       accessor: 'tax',
-      title: 'Tax',
+      title: t('cashMapping.colTax'),
       width: 200,
       render: (element: JournalTransactionTable) => (
         <Select
           key="accounts"
-          placeholder="Choose Tax"
+          placeholder={t('cashMapping.chooseTax')}
           checkIconPosition="right"
-          data={['PPH', 'PPN', 'PPNBM', 'PBB', 'Bea Materai']}
+          data={['PPH', 'PPN', 'PPNBM', 'PBB', t('cashMapping.stampDuty')]}
           rightSection={<IconChevronDown size={14} />}
           // value={item.account}
           // onChange={(value) => updateTransaction(index, 'account', value)}

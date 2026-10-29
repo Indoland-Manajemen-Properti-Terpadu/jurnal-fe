@@ -1,5 +1,6 @@
 import apiClient from '@/lib/http/apiClient';
 import { API_ACCOUNT } from '@/services/endpoint';
+import { t } from '@/i18n';
 import {
   AccountImportApiResponse,
   AccountImportParsedData,
@@ -41,7 +42,7 @@ const fetchFile = async (url: string, emptyMessage: string): Promise<Blob> => {
 export const downloadAccountImportTemplate = async (): Promise<void> => {
   const blob = await fetchFile(
     API_ACCOUNT.GET_IMPORT_TEMPLATE_ACCOUNT,
-    'Gagal mengunduh template impor akun.'
+    t('settings.error.templateDownload', undefined, 'chartOfAccounts')
   );
   triggerBrowserDownload(blob, 'template_impor_akun.xlsx');
 };
@@ -95,7 +96,10 @@ export const commitAccountImport = async (payload: CommitImportPayload): Promise
  * Export all Chart of Accounts into Excel / file
  */
 export const downloadAccountExport = async (): Promise<void> => {
-  const blob = await fetchFile(API_ACCOUNT.GET_EXPORT_ACCOUNT, 'Gagal mengekspor data bagan akun.');
+  const blob = await fetchFile(
+    API_ACCOUNT.GET_EXPORT_ACCOUNT,
+    t('settings.error.exportDownload', undefined, 'chartOfAccounts')
+  );
   const today = new Date().toISOString().split('T')[0];
   triggerBrowserDownload(blob, `Bagan_Akun_${today}.xlsx`);
 };

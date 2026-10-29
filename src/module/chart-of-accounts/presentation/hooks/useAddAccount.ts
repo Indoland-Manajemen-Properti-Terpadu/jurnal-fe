@@ -1,9 +1,12 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
+import { t } from '@/i18n';
 import { routes } from '@/router/routes';
 import { useNavigate } from 'react-router-dom';
 import { createAccount } from '../../infrastructure/accountApi';
 import { AddAccountPayload } from '../../domain/addAccountPayload';
+
+const NS = 'chartOfAccounts';
 
 export const useAddAccount = () => {
   const navigate = useNavigate();
@@ -16,8 +19,8 @@ export const useAddAccount = () => {
       notifications.show({
         color: 'green',
         autoClose: 3500,
-        title: 'Akun Berhasil Ditambahkan',
-        message: 'Akun baru telah tersimpan dan dapat digunakan dalam jurnal dan transaksi.',
+        title: t('toast.addOkTitle', undefined, NS),
+        message: t('toast.addOkMsg', undefined, NS),
       });
       navigate(routes.generalJournal.main);
     },
@@ -25,11 +28,9 @@ export const useAddAccount = () => {
       notifications.show({
         color: 'red',
         autoClose: 5000,
-        title: 'Gagal Menambahkan Akun',
+        title: t('toast.addFailTitle', undefined, NS),
         message:
-          error?.response?.data?.message ||
-          error?.message ||
-          'Terjadi kesalahan pada sistem saat menyimpan akun.',
+          error?.response?.data?.message || error?.message || t('toast.addFailMsg', undefined, NS),
       });
     },
   });

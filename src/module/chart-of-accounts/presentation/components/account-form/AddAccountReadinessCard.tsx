@@ -20,7 +20,7 @@ export const AddAccountReadinessCard: React.FC<AddAccountReadinessCardProps> = (
   passedChecksCount,
   isFormValid,
 }) => {
-  const { t } = useTranslation('journal');
+  const { t } = useTranslation('chartOfAccounts');
 
   return (
     <Paper withBorder radius="md" p="md" bg="white" shadow="xs">
@@ -31,10 +31,10 @@ export const AddAccountReadinessCard: React.FC<AddAccountReadinessCardProps> = (
           </ThemeIcon>
           <div>
             <Text fw={700} fz={13} c="dark.8">
-              {t('validationCardTitle')}
+              {t('form.validationCardTitle')}
             </Text>
             <Text fz={11} c="dimmed">
-              {t('validationCardSubtitle')}
+              {t('form.validationCardSubtitle')}
             </Text>
           </div>
         </Group>
@@ -71,7 +71,7 @@ export const AddAccountReadinessCard: React.FC<AddAccountReadinessCardProps> = (
               </Text>
             </Group>
             <Badge size="xs" variant="light" color={check.pass ? 'teal' : 'gray'}>
-              {check.pass ? 'OK' : '—'}
+              {check.pass ? t('form.checkOk') : '—'}
             </Badge>
           </Group>
         ))}

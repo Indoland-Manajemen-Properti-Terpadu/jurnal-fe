@@ -30,7 +30,7 @@ export const AddAccountSummaryStrip: React.FC<AddAccountSummaryStripProps> = ({
   passedChecksCount,
   totalChecks,
 }) => {
-  const { t } = useTranslation('journal');
+  const { t } = useTranslation('chartOfAccounts');
 
   return (
     <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }} spacing="md">
@@ -39,17 +39,17 @@ export const AddAccountSummaryStrip: React.FC<AddAccountSummaryStripProps> = ({
         <Group justify="space-between" align="flex-start" wrap="nowrap">
           <Box style={{ minWidth: 0 }}>
             <Text size="xs" c="dimmed" fw={600} tt="uppercase" lts={0.5}>
-              {t('stripCategoryLabel')}
+              {t('form.stripCategoryLabel')}
             </Text>
             <Text fz={17} fw={800} c="dark.8" mt={4} lh={1.2} truncate>
-              {selectedCategoryObj?.name || t('stripCategoryUnselected')}
+              {selectedCategoryObj?.name || t('form.stripCategoryUnselected')}
             </Text>
             <Text size="xs" c="dimmed" mt={4} truncate>
               {selectedCategoryObj
                 ? isIncomeStatementCategory
-                  ? t('stripReportIncomeStatement')
-                  : t('stripReportBalanceSheet')
-                : 'Pilih kategori di bawah'}
+                  ? t('form.stripReportIncomeStatement')
+                  : t('form.stripReportBalanceSheet')
+                : t('form.stripSelectCategory')}
             </Text>
           </Box>
           <ThemeIcon size={40} radius="md" variant="light" color="primary">
@@ -63,10 +63,10 @@ export const AddAccountSummaryStrip: React.FC<AddAccountSummaryStripProps> = ({
         <Group justify="space-between" align="flex-start" wrap="nowrap">
           <Box style={{ minWidth: 0 }}>
             <Text size="xs" c="dimmed" fw={600} tt="uppercase" lts={0.5}>
-              {t('stripNormalBalanceLabel')}
+              {t('form.stripNormalBalanceLabel')}
             </Text>
             <Text fz={17} fw={800} c={effectiveDebit ? 'teal.8' : 'red.8'} mt={4} lh={1.2} truncate>
-              {effectiveDebit ? t('stripDebitNormal') : t('stripCreditNormal')}
+              {effectiveDebit ? t('form.stripDebitNormal') : t('form.stripCreditNormal')}
             </Text>
             <Text
               size="xs"
@@ -75,7 +75,7 @@ export const AddAccountSummaryStrip: React.FC<AddAccountSummaryStripProps> = ({
               mt={4}
               truncate
             >
-              {isContra ? t('stripContraActive') : t('stripStandardMode')}
+              {isContra ? t('form.stripContraActive') : t('form.stripStandardMode')}
             </Text>
           </Box>
           <ThemeIcon size={40} radius="md" variant="light" color={effectiveDebit ? 'teal' : 'red'}>
@@ -89,21 +89,21 @@ export const AddAccountSummaryStrip: React.FC<AddAccountSummaryStripProps> = ({
         <Group justify="space-between" align="flex-start" wrap="nowrap">
           <Box style={{ minWidth: 0 }}>
             <Text size="xs" c="dimmed" fw={600} tt="uppercase" lts={0.5}>
-              {t('stripHierarchyLabel')}
+              {t('form.stripHierarchyLabel')}
             </Text>
             <Text fz={17} fw={800} c="dark.8" mt={4} lh={1.2} truncate>
               {selectedAccountType === 'SubAccount'
-                ? t('typeSubTitle')
+                ? t('form.typeSubTitle')
                 : selectedAccountType === 'HeaderAccount'
-                  ? t('typeHeaderTitle')
-                  : t('typeSingleTitle')}
+                  ? t('form.typeHeaderTitle')
+                  : t('form.typeSingleTitle')}
             </Text>
             <Text size="xs" c="dimmed" mt={4} truncate>
               {selectedAccountType === 'SubAccount'
-                ? parentAccountLabel || 'Pilih akun induk...'
+                ? parentAccountLabel || t('form.stripParentPending')
                 : selectedAccountType === 'HeaderAccount'
-                  ? childAccountLabel || 'Payung konsolidasi'
-                  : 'Berdiri mandiri'}
+                  ? childAccountLabel || t('form.stripUmbrella')
+                  : t('form.stripStandalone')}
             </Text>
           </Box>
           <ThemeIcon size={40} radius="md" variant="light" color="teal">
@@ -117,16 +117,16 @@ export const AddAccountSummaryStrip: React.FC<AddAccountSummaryStripProps> = ({
         <Group justify="space-between" align="flex-start" wrap="nowrap">
           <Box style={{ minWidth: 0 }}>
             <Text size="xs" c="dimmed" fw={600} tt="uppercase" lts={0.5}>
-              {t('stripReadinessLabel')}
+              {t('form.stripReadinessLabel')}
             </Text>
             <Text fz={17} fw={800} c={isFormValid ? 'teal.7' : 'dark.8'} mt={4} lh={1.2} truncate>
-              {t('stripReadinessValue', {
+              {t('form.stripReadinessValue', {
                 passed: passedChecksCount,
                 total: totalChecks,
               })}
             </Text>
             <Text size="xs" c={isFormValid ? 'teal.7' : 'dimmed'} fw={600} mt={4} truncate>
-              {isFormValid ? t('stripReadinessReady') : t('stripReadinessPending')}
+              {isFormValid ? t('form.stripReadinessReady') : t('form.stripReadinessPending')}
             </Text>
           </Box>
           <ThemeIcon size={40} radius="md" variant="light" color={isFormValid ? 'teal' : 'gray'}>

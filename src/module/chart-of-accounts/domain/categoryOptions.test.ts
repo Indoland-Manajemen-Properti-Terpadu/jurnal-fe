@@ -1,5 +1,11 @@
 import { groupCategoryOptions } from './categoryOptions';
 
+const labels = {
+  balanceSheet: 'Kelompok Akun Neraca (1-XXXX – 3-XXXX)',
+  profitLoss: 'Kelompok Akun Laba Rugi (4-XXXX – 8-XXXX)',
+  unnamed: 'Unnamed category',
+};
+
 const cats = [
   { id: 'kb', categoryID: 'KB', name: 'Kas & Bank' },
   { id: 'pen', categoryID: 'PEN', name: 'Pendapatan' },
@@ -9,7 +15,7 @@ const cats = [
 
 describe('groupCategoryOptions', () => {
   it('splits balance sheet (1-3) from profit and loss (4-8) and skips categories without id', () => {
-    const groups = groupCategoryOptions(cats, 'id');
+    const groups = groupCategoryOptions(cats, labels);
     expect(groups).toEqual([
       {
         group: 'Kelompok Akun Neraca (1-XXXX – 3-XXXX)',
@@ -25,13 +31,18 @@ describe('groupCategoryOptions', () => {
     ]);
   });
 
-  it('translates the group titles and drops empty groups', () => {
-    expect(groupCategoryOptions([cats[0]], 'en')).toEqual([
+  it('uses the given group labels and drops empty groups', () => {
+    expect(
+      groupCategoryOptions([cats[0]], {
+        ...labels,
+        balanceSheet: 'Balance Sheet Accounts (1-XXXX – 3-XXXX)',
+      })
+    ).toEqual([
       {
         group: 'Balance Sheet Accounts (1-XXXX – 3-XXXX)',
         items: [{ value: 'kb', label: '1-XXXX · Kas & Bank' }],
       },
     ]);
-    expect(groupCategoryOptions([], 'en')).toEqual([]);
+    expect(groupCategoryOptions([], labels)).toEqual([]);
   });
 });

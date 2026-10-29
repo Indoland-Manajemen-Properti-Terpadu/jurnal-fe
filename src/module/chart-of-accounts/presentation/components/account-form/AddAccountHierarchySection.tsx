@@ -56,7 +56,7 @@ export const AddAccountHierarchySection: React.FC<AddAccountHierarchySectionProp
   parentAccountLabel,
   childAccountLabel,
 }) => {
-  const { t } = useTranslation('journal');
+  const { t } = useTranslation('chartOfAccounts');
 
   return (
     <Paper withBorder radius="md" p="lg" bg="white" shadow="xs">
@@ -67,15 +67,15 @@ export const AddAccountHierarchySection: React.FC<AddAccountHierarchySectionProp
           </ThemeIcon>
           <div>
             <Text fw={700} fz={15} c="dark.8">
-              {t('sec2Title')}
+              {t('form.sec2Title')}
             </Text>
             <Text fz={12} c="dimmed">
-              {t('sec2Subtitle')}
+              {t('form.sec2Subtitle')}
             </Text>
           </div>
         </Group>
         <Badge variant="light" color="teal" size="sm">
-          Langkah 2 dari 3
+          {t('form.step2')}
         </Badge>
       </Group>
 
@@ -84,24 +84,24 @@ export const AddAccountHierarchySection: React.FC<AddAccountHierarchySectionProp
           {[
             {
               value: 'SingleAccount',
-              title: t('typeSingleTitle'),
-              badge: t('typeSingleBadge'),
+              title: t('form.typeSingleTitle'),
+              badge: t('form.typeSingleBadge'),
               badgeColor: 'gray',
-              desc: t('typeSingleDesc'),
+              desc: t('form.typeSingleDesc'),
             },
             {
               value: 'SubAccount',
-              title: t('typeSubTitle'),
-              badge: t('typeSubBadge'),
+              title: t('form.typeSubTitle'),
+              badge: t('form.typeSubBadge'),
               badgeColor: 'teal',
-              desc: t('typeSubDesc'),
+              desc: t('form.typeSubDesc'),
             },
             {
               value: 'HeaderAccount',
-              title: t('typeHeaderTitle'),
-              badge: t('typeHeaderBadge'),
+              title: t('form.typeHeaderTitle'),
+              badge: t('form.typeHeaderBadge'),
               badgeColor: 'indigo',
-              desc: t('typeHeaderDesc'),
+              desc: t('form.typeHeaderDesc'),
             },
           ].map((opt) => {
             const active = selectedAccountType === opt.value;
@@ -145,16 +145,16 @@ export const AddAccountHierarchySection: React.FC<AddAccountHierarchySectionProp
         {/* Conditional Hierarchy Selector + Visual Tree Diagram */}
         {selectedAccountType !== 'SingleAccount' && !form.values.category && (
           <Alert icon={<IconInfoCircle size={16} />} color="yellow" radius="md">
-            {t('selectCategoryFirstAlert')}
+            {t('form.selectCategoryFirstAlert')}
           </Alert>
         )}
 
         {selectedAccountType === 'SubAccount' && form.values.category && (
           <Stack gap="xs">
             <Select
-              label={t('selectParentLabel')}
-              description={t('selectParentHelper')}
-              placeholder={t('selectParentPlaceholder')}
+              label={t('form.selectParentLabel')}
+              description={t('form.selectParentHelper')}
+              placeholder={t('form.selectParentPlaceholder')}
               data={headAccountOptions}
               value={headAccountId}
               onChange={setHeadAccountId}
@@ -163,33 +163,33 @@ export const AddAccountHierarchySection: React.FC<AddAccountHierarchySectionProp
               clearable
               rightSection={<IconChevronDown size={16} />}
               styles={SYMMETRIC_INPUT_STYLES}
-              nothingFoundMessage="Tidak ditemukan akun induk pada kategori ini"
+              nothingFoundMessage={t('form.nothingFoundParent')}
             />
 
             {/* Visual Tree Representation */}
             <Paper withBorder radius="md" p="sm" bg="gray.0">
               <Text fz={11} fw={700} c="dimmed" mb={6}>
-                {t('hierarchyVisualLabel')}
+                {t('form.hierarchyVisualLabel')}
               </Text>
               <Stack gap={4}>
                 <Group gap={6}>
                   <Badge size="xs" color="indigo" variant="light">
-                    INDUK
+                    {t('form.treeParentBadge')}
                   </Badge>
                   <Text fz={12} fw={600} c="dark.7">
-                    {parentAccountLabel || '[Pilih Akun Induk di atas]'}
+                    {parentAccountLabel || t('form.treeParentPending')}
                   </Text>
                 </Group>
                 <Group gap={6} pl={18}>
                   <IconCornerDownRight size={14} color={themeColors.primary[6]} />
                   <Badge size="xs" color="teal" variant="filled">
-                    SUB AKUN BARU
+                    {t('form.treeNewSub')}
                   </Badge>
                   <Text fz={12} fw={700} c="primary.8" ff="monospace">
                     [{form.values.accountNumber || '—'}]
                   </Text>
                   <Text fz={12} fw={700} c="dark.9">
-                    {form.values.name || t('previewUnnamed')}
+                    {form.values.name || t('form.previewUnnamed')}
                   </Text>
                 </Group>
               </Stack>
@@ -200,9 +200,9 @@ export const AddAccountHierarchySection: React.FC<AddAccountHierarchySectionProp
         {selectedAccountType === 'HeaderAccount' && form.values.category && (
           <Stack gap="xs">
             <Select
-              label={t('selectChildLabel')}
-              description={t('selectChildHelper')}
-              placeholder={t('selectChildPlaceholder')}
+              label={t('form.selectChildLabel')}
+              description={t('form.selectChildHelper')}
+              placeholder={t('form.selectChildPlaceholder')}
               data={subAccountOptions}
               value={subAccountId}
               onChange={setSubAccountId}
@@ -210,33 +210,33 @@ export const AddAccountHierarchySection: React.FC<AddAccountHierarchySectionProp
               clearable
               rightSection={<IconChevronDown size={16} />}
               styles={SYMMETRIC_INPUT_STYLES}
-              nothingFoundMessage="Tidak ditemukan sub akun pada kategori ini"
+              nothingFoundMessage={t('form.nothingFoundChild')}
             />
 
             {/* Visual Tree Representation */}
             <Paper withBorder radius="md" p="sm" bg="gray.0">
               <Text fz={11} fw={700} c="dimmed" mb={6}>
-                {t('hierarchyVisualLabel')}
+                {t('form.hierarchyVisualLabel')}
               </Text>
               <Stack gap={4}>
                 <Group gap={6}>
                   <Badge size="xs" color="indigo" variant="filled">
-                    AKUN INDUK BARU
+                    {t('form.treeNewHeader')}
                   </Badge>
                   <Text fz={12} fw={700} c="primary.8" ff="monospace">
                     [{form.values.accountNumber || '—'}]
                   </Text>
                   <Text fz={12} fw={700} c="dark.9">
-                    {form.values.name || t('previewUnnamed')}
+                    {form.values.name || t('form.previewUnnamed')}
                   </Text>
                 </Group>
                 <Group gap={6} pl={18}>
                   <IconCornerDownRight size={14} color={themeColors.slate[5]} />
                   <Badge size="xs" color="teal" variant="light">
-                    SUB AKUN
+                    {t('form.treeSubBadge')}
                   </Badge>
                   <Text fz={12} fw={600} c="dark.7">
-                    {childAccountLabel || '(Sub-akun dapat ditambahkan nanti)'}
+                    {childAccountLabel || t('form.treeChildPending')}
                   </Text>
                 </Group>
               </Stack>

@@ -6,6 +6,7 @@ import { IconArrowLeft, IconCheck, IconLock, IconNotebook } from '@tabler/icons-
 import AppShellLayout from '@/components/AppShellLayout';
 import ModuleHeader from '@/components/ModuleHeader/ModuleHeader';
 import { routes } from '@/router/routes';
+import { useTranslation } from '@/i18n';
 import { GetCategoryAccount } from '../hooks/useCategoryAccounts';
 import { useGetCategoryInfo } from '../hooks/useCategoryInfo';
 import { useUpdateAccount } from '../hooks/useUpdateAccount';
@@ -33,6 +34,8 @@ import { GetRoles } from '@/module/SettingMenu/UserManagement/Role/Service/Role.
 export const EditAccountJournalPage: React.FC = () => {
   const navigate = useNavigate();
   const { idAccount } = useParams<{ idAccount: string }>();
+  const { t, currentLanguage } = useTranslation('chartOfAccounts');
+  const validationMessage = (key: string | null) => (key ? t(key) : null);
 
   // Fetch Existing Account Details
   const { accountDetail, isLoading: isLoadingDetail } = useDetailAccount(idAccount!);
@@ -58,9 +61,9 @@ export const EditAccountJournalPage: React.FC = () => {
       desc: '',
     },
     validate: {
-      name: validateEditName,
-      accountNumber: validateAccountCode,
-      category: validateAccountCategory,
+      name: (value: string) => validationMessage(validateEditName(value)),
+      accountNumber: (value: string) => validationMessage(validateAccountCode(value)),
+      category: (value: string) => validationMessage(validateAccountCategory(value)),
     },
   });
 
@@ -102,10 +105,10 @@ export const EditAccountJournalPage: React.FC = () => {
     return (
       categoryAccounts?.map((category) => ({
         value: category.id || '',
-        label: category.name || 'Unnamed category',
+        label: category.name || t('form.unnamedCategory'),
       })) || []
     );
-  }, [categoryAccounts]);
+  }, [categoryAccounts, currentLanguage]);
 
   const selectedCategoryObj = useMemo(() => {
     return categoryAccounts?.find((cat) => cat.id === form.values.category);
@@ -181,15 +184,15 @@ export const EditAccountJournalPage: React.FC = () => {
           {/* Canonical Module Header */}
           <ModuleHeader
             icon={IconNotebook}
-            title="Ubah Akun Jurnal (COA)"
-            description="Perbarui informasi akun Chart of Accounts, kode akun, klasifikasi kategori saldo, dan otorisasi akses pengguna."
+            title={t('edit.title')}
+            description={t('edit.description')}
             actions={
               <Button
                 variant="default"
                 leftSection={<IconArrowLeft size={16} />}
                 onClick={handleCancel}
               >
-                Kembali ke Daftar Akun
+                {t('form.backToCoaList')}
               </Button>
             }
           />
@@ -198,13 +201,11 @@ export const EditAccountJournalPage: React.FC = () => {
           {isLocked && (
             <Alert
               icon={<IconLock size={18} />}
-              title="Akun Berstatus Terkunci (Locked Account)"
+              title={t('edit.lockedTitle')}
               color="orange"
               radius="md"
             >
-              Akun ini berstatus terkunci karena terikat dengan periode tutup buku atau ketentuan
-              saldo buku besar. Kategori akun dan struktur hierarki dinonaktifkan untuk menjaga
-              konsistensi laporan keuangan.
+              {t('edit.lockedBody')}
             </Alert>
           )}
 
@@ -300,7 +301,7 @@ export const EditAccountJournalPage: React.FC = () => {
                         disabled={!isFormValid}
                         onClick={handleUpdateAccount}
                       >
-                        Simpan Perubahan Akun
+                        {t('edit.save')}
                       </Button>
                       <Button
                         size="md"
@@ -310,7 +311,7 @@ export const EditAccountJournalPage: React.FC = () => {
                         onClick={handleCancel}
                         disabled={updateAccountMutation.isPending}
                       >
-                        Batal
+                        {t('form.cancelBtn')}
                       </Button>
                     </Stack>
                   </Paper>

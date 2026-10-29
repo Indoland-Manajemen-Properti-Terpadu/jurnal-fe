@@ -31,12 +31,7 @@ import type { AccountFormValues } from '@/module/chart-of-accounts/domain/buildA
 import { SYMMETRIC_INPUT_STYLES } from './accountFormStyles';
 import { AccountPresetPicker } from './AccountPresetPicker';
 
-const TAX_OPTIONS = [
-  { value: 'PPN', label: 'PPN — Pajak Pertambahan Nilai' },
-  { value: 'PPH', label: 'PPH — Pajak Penghasilan' },
-  { value: 'PPNBM', label: 'PPNBM — Pajak Penjualan Barang Mewah' },
-  { value: 'PBB', label: 'PBB — Pajak Bumi & Bangunan' },
-];
+const TAX_CODES = ['PPN', 'PPH', 'PPNBM', 'PBB'];
 
 interface AddAccountIdentitySectionProps {
   form: UseFormReturnType<AccountFormValues>;
@@ -60,7 +55,8 @@ export const AddAccountIdentitySection: React.FC<AddAccountIdentitySectionProps>
   isIncomeStatementCategory,
   applyPreset,
 }) => {
-  const { t } = useTranslation('journal');
+  const { t } = useTranslation('chartOfAccounts');
+  const taxOptions = TAX_CODES.map((code) => ({ value: code, label: t(`form.tax${code}`) }));
 
   return (
     <Paper withBorder radius="md" p="lg" bg="white" shadow="xs">
@@ -71,15 +67,15 @@ export const AddAccountIdentitySection: React.FC<AddAccountIdentitySectionProps>
           </ThemeIcon>
           <div>
             <Text fw={700} fz={15} c="dark.8">
-              {t('sec1Title')}
+              {t('form.sec1Title')}
             </Text>
             <Text fz={12} c="dimmed">
-              {t('sec1Subtitle')}
+              {t('form.sec1Subtitle')}
             </Text>
           </div>
         </Group>
         <Badge variant="light" color="primary" size="sm">
-          Langkah 1 dari 3
+          {t('form.step1')}
         </Badge>
       </Group>
 
@@ -90,9 +86,9 @@ export const AddAccountIdentitySection: React.FC<AddAccountIdentitySectionProps>
         <Grid gutter="md" align="flex-start">
           <Grid.Col span={{ base: 12, sm: 6 }}>
             <Select
-              label={t('fieldCategoryLabel')}
-              description={t('fieldCategoryDesc')}
-              placeholder={t('fieldCategoryPlaceholder')}
+              label={t('form.fieldCategoryLabel')}
+              description={t('form.fieldCategoryDesc')}
+              placeholder={t('form.fieldCategoryPlaceholder')}
               data={categoryOptions}
               withAsterisk
               searchable
@@ -106,16 +102,16 @@ export const AddAccountIdentitySection: React.FC<AddAccountIdentitySectionProps>
 
           <Grid.Col span={{ base: 12, sm: 6 }}>
             <TextInput
-              label={t('fieldCodeLabel')}
-              description={t('fieldCodeDesc')}
-              placeholder={t('fieldCodePlaceholder')}
+              label={t('form.fieldCodeLabel')}
+              description={t('form.fieldCodeDesc')}
+              placeholder={t('form.fieldCodePlaceholder')}
               withAsterisk
               styles={SYMMETRIC_INPUT_STYLES}
               rightSectionWidth={hasSuggestedDiff ? 36 : undefined}
               rightSection={
                 hasSuggestedDiff && suggestedAccountNumber ? (
                   <Tooltip
-                    label={t('useSuggestedCode', {
+                    label={t('form.useSuggestedCode', {
                       code: suggestedAccountNumber,
                     })}
                   >
@@ -138,9 +134,9 @@ export const AddAccountIdentitySection: React.FC<AddAccountIdentitySectionProps>
 
         {/* Row 2: Full-Width Account Name */}
         <TextInput
-          label={t('fieldNameLabel')}
-          description={t('fieldNameDesc')}
-          placeholder={t('fieldNamePlaceholder')}
+          label={t('form.fieldNameLabel')}
+          description={t('form.fieldNameDesc')}
+          placeholder={t('form.fieldNamePlaceholder')}
           withAsterisk
           styles={SYMMETRIC_INPUT_STYLES}
           {...form.getInputProps('name')}
@@ -175,18 +171,18 @@ export const AddAccountIdentitySection: React.FC<AddAccountIdentitySectionProps>
                 <Box style={{ minWidth: 0 }}>
                   <Group gap={6} wrap="wrap">
                     <Text fw={700} fz={13} c="dark.8">
-                      {t('attrBankCashTitle')}
+                      {t('form.attrBankCashTitle')}
                     </Text>
                     <Badge
                       size="xs"
                       variant="light"
                       color={form.values.isBankAndCash ? 'cyan' : 'gray'}
                     >
-                      {form.values.isBankAndCash ? t('badgeActive') : t('badgeInactive')}
+                      {form.values.isBankAndCash ? t('form.badgeActive') : t('form.badgeInactive')}
                     </Badge>
                   </Group>
                   <Text fz={11.5} c="dimmed" mt={3} lh={1.35}>
-                    {t('attrBankCashDesc')}
+                    {t('form.attrBankCashDesc')}
                   </Text>
                 </Box>
               </Group>
@@ -227,18 +223,18 @@ export const AddAccountIdentitySection: React.FC<AddAccountIdentitySectionProps>
                 <Box style={{ minWidth: 0 }}>
                   <Group gap={6} wrap="wrap">
                     <Text fw={700} fz={13} c="dark.8">
-                      {t('attrContraTitle')}
+                      {t('form.attrContraTitle')}
                     </Text>
                     <Badge
                       size="xs"
                       variant="light"
                       color={form.values.isContra ? 'orange' : 'gray'}
                     >
-                      {form.values.isContra ? t('badgeActive') : t('badgeInactive')}
+                      {form.values.isContra ? t('form.badgeActive') : t('form.badgeInactive')}
                     </Badge>
                   </Group>
                   <Text fz={11.5} c="dimmed" mt={3} lh={1.35}>
-                    {t('attrContraDesc')}
+                    {t('form.attrContraDesc')}
                   </Text>
                 </Box>
               </Group>
@@ -257,10 +253,10 @@ export const AddAccountIdentitySection: React.FC<AddAccountIdentitySectionProps>
         <Grid gutter="md" align="flex-start">
           <Grid.Col span={{ base: 12, sm: 6 }}>
             <Select
-              label={t('fieldTaxLabel')}
-              description={t('fieldTaxDesc')}
-              placeholder={t('fieldTaxPlaceholder')}
-              data={TAX_OPTIONS}
+              label={t('form.fieldTaxLabel')}
+              description={t('form.fieldTaxDesc')}
+              placeholder={t('form.fieldTaxPlaceholder')}
+              data={taxOptions}
               clearable
               leftSection={<IconReceiptTax size={16} />}
               rightSection={<IconChevronDown size={16} />}
@@ -271,13 +267,13 @@ export const AddAccountIdentitySection: React.FC<AddAccountIdentitySectionProps>
 
           <Grid.Col span={{ base: 12, sm: 6 }}>
             <TextInput
-              label={t('fieldReportTargetLabel')}
-              description={t('fieldReportTargetDesc')}
+              label={t('form.fieldReportTargetLabel')}
+              description={t('form.fieldReportTargetDesc')}
               value={
                 selectedCategoryObj
                   ? isIncomeStatementCategory
-                    ? t('stripReportIncomeStatement')
-                    : t('stripReportBalanceSheet')
+                    ? t('form.stripReportIncomeStatement')
+                    : t('form.stripReportBalanceSheet')
                   : '—'
               }
               readOnly
@@ -297,8 +293,8 @@ export const AddAccountIdentitySection: React.FC<AddAccountIdentitySectionProps>
 
         {/* Row 5: Description */}
         <Textarea
-          label={t('fieldDescLabel')}
-          placeholder={t('fieldDescPlaceholder')}
+          label={t('form.fieldDescLabel')}
+          placeholder={t('form.fieldDescPlaceholder')}
           minRows={3}
           autosize
           styles={{

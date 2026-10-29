@@ -80,22 +80,22 @@ describe('I6 category prefix map in AddAccountJournal (characterization)', () =>
 
 describe('I6 validation rules', () => {
   it('create needs a name of at least 3 characters after trimming', () => {
-    expect(validateCreateName('ab')).toBe('Nama akun minimal 3 karakter');
-    expect(validateCreateName('  ab  ')).toBe('Nama akun minimal 3 karakter');
+    expect(validateCreateName('ab')).toBe('validation.nameMin');
+    expect(validateCreateName('  ab  ')).toBe('validation.nameMin');
     expect(validateCreateName('abc')).toBeNull();
     expect(hasValidName('abc', 3)).toBe(true);
     expect(hasValidName(' ab ', 3)).toBe(false);
   });
 
   it('edit only needs a non-empty name', () => {
-    expect(validateEditName('   ')).toBe('Nama akun wajib diisi');
+    expect(validateEditName('   ')).toBe('validation.nameRequired');
     expect(validateEditName('K')).toBeNull();
   });
 
   it('requires code and category', () => {
-    expect(validateAccountCode(' ')).toBe('Kode akun wajib diisi');
+    expect(validateAccountCode(' ')).toBe('validation.codeRequired');
     expect(validateAccountCode('1-10001')).toBeNull();
-    expect(validateAccountCategory('')).toBe('Kategori akun wajib dipilih');
+    expect(validateAccountCategory('')).toBe('validation.categoryRequired');
     expect(validateAccountCategory('c1')).toBeNull();
   });
 

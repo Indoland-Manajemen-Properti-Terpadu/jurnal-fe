@@ -4,7 +4,8 @@ export interface AccountPreset {
   keywords: string[];
   isBankAndCash: boolean;
   isContra: boolean;
-  defaultName: string;
+  /** i18n key (namespace `chartOfAccounts`) of the suggested account name. */
+  defaultNameKey: string;
 }
 
 export const ACCOUNT_PRESETS: Record<string, AccountPreset> = {
@@ -12,37 +13,37 @@ export const ACCOUNT_PRESETS: Record<string, AccountPreset> = {
     keywords: ['kb', 'kas & bank', 'kas', 'bank'],
     isBankAndCash: true,
     isContra: false,
-    defaultName: 'Bank Operasional ',
+    defaultNameKey: 'presetNames.bank',
   },
   pettyCash: {
     keywords: ['kb', 'kas & bank', 'kas'],
     isBankAndCash: true,
     isContra: false,
-    defaultName: 'Kas Kecil Operasional',
+    defaultNameKey: 'presetNames.pettyCash',
   },
   receivable: {
     keywords: ['ap', 'piutang', 'receivable'],
     isBankAndCash: false,
     isContra: false,
-    defaultName: 'Piutang Usaha Pelanggan',
+    defaultNameKey: 'presetNames.receivable',
   },
   accumDepr: {
     keywords: ['da', 'depresiasi', 'penyusutan', 'aktiva tetap'],
     isBankAndCash: false,
     isContra: true,
-    defaultName: 'Akumulasi Penyusutan ',
+    defaultNameKey: 'presetNames.accumDepr',
   },
   revenue: {
     keywords: ['pen', 'pendapatan', 'revenue'],
     isBankAndCash: false,
     isContra: false,
-    defaultName: 'Pendapatan Jasa Operasional',
+    defaultNameKey: 'presetNames.revenue',
   },
   expense: {
     keywords: ['beb', 'beban', 'biaya'],
     isBankAndCash: false,
     isContra: false,
-    defaultName: 'Beban Operasional ',
+    defaultNameKey: 'presetNames.expense',
   },
 };
 

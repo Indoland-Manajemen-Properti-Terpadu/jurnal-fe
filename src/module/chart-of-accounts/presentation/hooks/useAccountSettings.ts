@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
+import { t } from '@/i18n';
 import {
   downloadAccountImportTemplate,
   uploadAccountImportFile,
@@ -8,6 +9,8 @@ import {
   resetAccountsToDefault,
 } from '../../infrastructure/accountSettingApi';
 import { CommitImportPayload, AccountImportParsedData } from '../../domain/settingAccount';
+
+const NS = 'chartOfAccounts';
 
 export const useAccountSettings = () => {
   const queryClient = useQueryClient();
@@ -21,15 +24,15 @@ export const useAccountSettings = () => {
     mutationFn: downloadAccountImportTemplate,
     onSuccess: () => {
       notifications.show({
-        title: 'Unduh Berhasil',
-        message: 'Template impor bagan akun berhasil diunduh.',
+        title: t('settings.toast.templateOkTitle', undefined, NS),
+        message: t('settings.toast.templateOkMsg', undefined, NS),
         color: 'teal',
       });
     },
     onError: (error: any) => {
       notifications.show({
-        title: 'Unduh Gagal',
-        message: error?.message || 'Gagal mengunduh template impor.',
+        title: t('settings.toast.templateFailTitle', undefined, NS),
+        message: error?.message || t('settings.toast.templateFailMsg', undefined, NS),
         color: 'red',
       });
     },
@@ -40,11 +43,11 @@ export const useAccountSettings = () => {
     mutationFn: uploadAccountImportFile,
     onError: (error: any) => {
       notifications.show({
-        title: 'Gagal Memproses Berkas',
+        title: t('settings.toast.uploadFailTitle', undefined, NS),
         message:
           error?.response?.data?.message ||
           error?.message ||
-          'Terjadi kesalahan saat membaca file akun.',
+          t('settings.toast.uploadFailMsg', undefined, NS),
         color: 'red',
       });
     },
@@ -56,18 +59,18 @@ export const useAccountSettings = () => {
     onSuccess: (data) => {
       invalidateAccounts();
       notifications.show({
-        title: 'Impor Berhasil',
-        message: 'Bagan akun baru telah berhasil disimpan ke sistem.',
+        title: t('settings.toast.commitOkTitle', undefined, NS),
+        message: t('settings.toast.commitOkMsg', undefined, NS),
         color: 'teal',
       });
     },
     onError: (error: any) => {
       notifications.show({
-        title: 'Gagal Menyimpan Akun',
+        title: t('settings.toast.commitFailTitle', undefined, NS),
         message:
           error?.response?.data?.message ||
           error?.message ||
-          'Terjadi kendala saat menyimpan data impor akun.',
+          t('settings.toast.commitFailMsg', undefined, NS),
         color: 'red',
       });
     },
@@ -78,15 +81,18 @@ export const useAccountSettings = () => {
     mutationFn: downloadAccountExport,
     onSuccess: () => {
       notifications.show({
-        title: 'Ekspor Berhasil',
-        message: 'Data seluruh bagan akun berhasil diunduh.',
+        title: t('settings.toast.exportOkTitle', undefined, NS),
+        message: t('settings.toast.exportOkMsg', undefined, NS),
         color: 'teal',
       });
     },
     onError: (error: any) => {
       notifications.show({
-        title: 'Ekspor Gagal',
-        message: error?.response?.data?.message || error?.message || 'Gagal mengekspor data akun.',
+        title: t('settings.toast.exportFailTitle', undefined, NS),
+        message:
+          error?.response?.data?.message ||
+          error?.message ||
+          t('settings.toast.exportFailMsg', undefined, NS),
         color: 'red',
       });
     },
@@ -98,18 +104,18 @@ export const useAccountSettings = () => {
     onSuccess: () => {
       invalidateAccounts();
       notifications.show({
-        title: 'Reset Berhasil',
-        message: 'Bagan akun berhasil dipulihkan ke standar bawaan sistem.',
+        title: t('settings.toast.resetOkTitle', undefined, NS),
+        message: t('settings.toast.resetOkMsg', undefined, NS),
         color: 'teal',
       });
     },
     onError: (error: any) => {
       notifications.show({
-        title: 'Gagal Reset Akun',
+        title: t('settings.toast.resetFailTitle', undefined, NS),
         message:
           error?.response?.data?.message ||
           error?.message ||
-          'Gagal mengatur ulang akun ke bawaan.',
+          t('settings.toast.resetFailMsg', undefined, NS),
         color: 'red',
       });
     },

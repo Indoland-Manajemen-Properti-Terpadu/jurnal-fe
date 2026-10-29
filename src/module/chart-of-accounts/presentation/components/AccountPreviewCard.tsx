@@ -59,29 +59,29 @@ export const AccountPreviewCard: React.FC<AccountPreviewCardProps> = ({
   specialUsersCount,
   certainRolesCount,
 }) => {
-  const { t } = useTranslation('journal');
+  const { t } = useTranslation('chartOfAccounts');
 
   // Determine effective balance position (accounting logic)
   const effectiveDebit = isDebitNormal({ isDebit, isContra });
-  const normalBalanceLabel = effectiveDebit ? 'Debit' : 'Kredit';
+  const normalBalanceLabel = effectiveDebit ? t('form.normalDebit') : t('form.normalCredit');
   const normalBalanceColor = effectiveDebit ? 'teal' : 'red';
 
-  let accountTypeLabel = t('typeSingleTitle');
+  let accountTypeLabel = t('form.typeSingleTitle');
   let accountTypeColor = 'gray';
   if (accountType === 'SubAccount') {
-    accountTypeLabel = t('typeSubTitle');
+    accountTypeLabel = t('form.typeSubTitle');
     accountTypeColor = 'teal';
   } else if (accountType === 'HeaderAccount') {
-    accountTypeLabel = t('typeHeaderTitle');
+    accountTypeLabel = t('form.typeHeaderTitle');
     accountTypeColor = 'indigo';
   }
 
-  let accessLabel = t('accessAllTitle');
+  let accessLabel = t('form.accessAllTitle');
   if (accountType === 'SingleAccount') {
     if (accessType === 'SpecialUsers') {
-      accessLabel = `${specialUsersCount} ${t('accessUsersTitle')}`;
+      accessLabel = `${specialUsersCount} ${t('form.accessUsersTitle')}`;
     } else if (accessType === 'CertainRoles') {
-      accessLabel = `${certainRolesCount} ${t('accessRolesTitle')}`;
+      accessLabel = `${certainRolesCount} ${t('form.accessRolesTitle')}`;
     }
   }
 
@@ -94,15 +94,15 @@ export const AccountPreviewCard: React.FC<AccountPreviewCardProps> = ({
           </ThemeIcon>
           <div>
             <Text fw={700} fz={13} c="dark.8">
-              {t('previewTitle')}
+              {t('form.previewTitle')}
             </Text>
             <Text fz={11} c="dimmed">
-              {t('previewSubtitle')}
+              {t('form.previewSubtitle')}
             </Text>
           </div>
         </Group>
         <Badge variant="dot" color="teal" size="xs">
-          {t('previewInteractiveBadge')}
+          {t('form.previewInteractiveBadge')}
         </Badge>
       </Group>
 
@@ -145,17 +145,17 @@ export const AccountPreviewCard: React.FC<AccountPreviewCardProps> = ({
                   size="sm"
                   leftSection={<IconBuildingBank size={11} />}
                 >
-                  Kas & Bank
+                  {t('form.previewCashBank')}
                 </Badge>
               )}
               {isContra && (
                 <Badge variant="outline" color="orange" size="sm">
-                  Kontra
+                  {t('form.previewContra')}
                 </Badge>
               )}
             </Group>
 
-            <Tooltip label={`${t('stripNormalBalanceLabel')}: ${normalBalanceLabel}`}>
+            <Tooltip label={`${t('form.stripNormalBalanceLabel')}: ${normalBalanceLabel}`}>
               <Badge
                 variant="light"
                 color={normalBalanceColor}
@@ -169,12 +169,12 @@ export const AccountPreviewCard: React.FC<AccountPreviewCardProps> = ({
 
           <Box>
             <Text fw={800} fz={15} c="dark.9" lh={1.3}>
-              {accountName || t('previewUnnamed')}
+              {accountName || t('form.previewUnnamed')}
             </Text>
             <Text fz={12} c="dimmed" mt={2}>
-              {t('accountCategory')}:{' '}
+              {t('form.accountCategory')}:{' '}
               <Text span fw={600} c="dark.7">
-                {categoryName || t('previewUncategorized')}
+                {categoryName || t('form.previewUncategorized')}
               </Text>
             </Text>
           </Box>
@@ -183,7 +183,7 @@ export const AccountPreviewCard: React.FC<AccountPreviewCardProps> = ({
             <Group gap={6} align="center" wrap="nowrap">
               <IconCornerDownRight size={14} color={themeColors.slate[5]} />
               <Text fz={11.5} c="dimmed" truncate>
-                {t('parentAccount')}:{' '}
+                {t('form.parentAccount')}:{' '}
                 <Text span fw={600} c="dark.8">
                   {parentAccountLabel}
                 </Text>
@@ -195,7 +195,7 @@ export const AccountPreviewCard: React.FC<AccountPreviewCardProps> = ({
             <Group gap={6} align="center" wrap="nowrap">
               <IconHierarchy2 size={14} color={themeColors.slate[5]} />
               <Text fz={11.5} c="dimmed" truncate>
-                {t('subAccount')}:{' '}
+                {t('form.subAccount')}:{' '}
                 <Text span fw={600} c="dark.8">
                   {childAccountLabel}
                 </Text>
@@ -215,7 +215,7 @@ export const AccountPreviewCard: React.FC<AccountPreviewCardProps> = ({
             <Group gap={4}>
               <IconKey size={13} />
               <Text fz={11} c="dimmed">
-                Akses:{' '}
+                {t('form.previewAccess')}:{' '}
                 <Text span fw={600} c="dark.7">
                   {accessLabel}
                 </Text>
@@ -236,7 +236,7 @@ export const AccountPreviewCard: React.FC<AccountPreviewCardProps> = ({
       {/* Instant Cause-and-Effect Balance Behavior Simulation */}
       <Box mt="sm">
         <Text fz={11} fw={700} c="dimmed" tt="uppercase" lts={0.4} mb={6}>
-          {t('behaviorSimulationTitle')}
+          {t('form.behaviorSimulationTitle')}
         </Text>
         <SimpleGrid cols={2} spacing="xs">
           <Paper
@@ -257,11 +257,11 @@ export const AccountPreviewCard: React.FC<AccountPreviewCardProps> = ({
                 <IconArrowDownRight size={14} color="var(--mantine-color-orange-7)" />
               )}
               <Text fz={10.5} fw={700} c="dark.7">
-                {t('whenDebited')}
+                {t('form.whenDebited')}
               </Text>
             </Group>
             <Text fz={11} fw={700} c={effectiveDebit ? 'teal.8' : 'orange.8'} mt={2}>
-              {effectiveDebit ? t('balanceIncreases') : t('balanceDecreases')}
+              {effectiveDebit ? t('form.balanceIncreases') : t('form.balanceDecreases')}
             </Text>
           </Paper>
 
@@ -283,11 +283,11 @@ export const AccountPreviewCard: React.FC<AccountPreviewCardProps> = ({
                 <IconArrowDownRight size={14} color="var(--mantine-color-orange-7)" />
               )}
               <Text fz={10.5} fw={700} c="dark.7">
-                {t('whenCredited')}
+                {t('form.whenCredited')}
               </Text>
             </Group>
             <Text fz={11} fw={700} c={!effectiveDebit ? 'teal.8' : 'orange.8'} mt={2}>
-              {!effectiveDebit ? t('balanceIncreases') : t('balanceDecreases')}
+              {!effectiveDebit ? t('form.balanceIncreases') : t('form.balanceDecreases')}
             </Text>
           </Paper>
         </SimpleGrid>
