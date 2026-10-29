@@ -1,17 +1,17 @@
 import { MemoryRouter } from 'react-router-dom';
 import { render, screen } from '@test-utils';
-import { JournalTransactionDetailTable } from './JournalEntryLinesTable';
-import { TransactionDetail } from '../../domain/journalEntryDetail';
+import JournalEntryLinesTable from './JournalEntryLinesTable';
+import type { JournalEntryLine } from '../../domain/journalEntry';
 
-const lines = (debit: number, credit: number): TransactionDetail[] => [
+const lines = (debit: number, credit: number): JournalEntryLine[] => [
   { id: '1', account: { id: 'a', name: 'Kas', accountNumber: '1-1000' }, debit },
   { id: '2', account: { id: 'b', name: 'Modal', accountNumber: '3-1000' }, credit },
 ];
 
-const renderTable = (details: TransactionDetail[]) =>
+const renderTable = (details: JournalEntryLine[]) =>
   render(
     <MemoryRouter>
-      <JournalTransactionDetailTable transactionDetails={details} />
+      <JournalEntryLinesTable transactionDetails={details} />
     </MemoryRouter>
   );
 
