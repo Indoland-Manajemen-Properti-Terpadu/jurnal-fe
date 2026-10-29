@@ -50,8 +50,7 @@ import SaleDetailPage from '@/module/Sale/pages/SaleDetailPage';
 import { BudgetPlanningPage } from '@/module/budgeting';
 import { PurchasesPage } from '@/module/purchases';
 import { CostPage } from '@/module/costs';
-import ProductsPage from '@/module/products/pages/ProductsPage';
-import ProductDetailPage from '@/module/products/pages/ProductDetailPage';
+import { ProductsPage, ProductDetailPage } from '@/module/products';
 import { ProductionPage } from '@/module/production';
 import { FulfillmentPage } from '@/module/fulfillment';
 import { AssetDetailPage, AssetPage } from '@/module/assets';
@@ -297,11 +296,19 @@ const router = createBrowserRouter([
   },
   {
     path: routes.baseModules.products,
-    element: <ProductsPage />,
+    element: (
+      <AppShellLayout>
+        <ProductsPage />
+      </AppShellLayout>
+    ),
   },
   {
     path: routes.baseModules.productDetail,
-    element: <ProductDetailPage />,
+    element: (
+      <AppShellLayout>
+        <ProductDetailPage />
+      </AppShellLayout>
+    ),
   },
   {
     path: routes.baseModules.production,

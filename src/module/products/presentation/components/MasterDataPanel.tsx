@@ -3,23 +3,21 @@ import {
   ActionIcon,
   Button,
   Group,
-  Modal,
   Paper,
   Skeleton,
-  Stack,
   Table,
   Text,
   TextInput,
-  Textarea,
   ThemeIcon,
   Tooltip,
 } from '@mantine/core';
-import { useForm } from '@mantine/form';
 import { IconPlus, IconSearch, IconTrash, type Icon } from '@tabler/icons-react';
 import { EmptyState } from '@/components/EmptyState';
 import ConfirmModal from '@/components/ui/ConfirmModal/ConfirmModal';
-import type { MasterDataInput } from '../types/product';
-import { formatDate } from '../utils/productFormat';
+import { useTranslation } from '@/i18n';
+import type { MasterDataInput } from '@/module/products/domain/product';
+import { formatDate } from '@/module/products/domain/productFormat';
+import { MasterDataFormModal } from './MasterDataFormModal';
 
 type MasterDataItem = {
   id: string;
@@ -42,83 +40,6 @@ type MasterDataPanelProps = {
   onDelete: (id: string) => Promise<unknown>;
 };
 
-export function MasterDataFormModal({
-  opened,
-  onClose,
-  entityLabel,
-  namePlaceholder,
-  isSubmitting,
-  onSubmit,
-}: Readonly<{
-  opened: boolean;
-  onClose: () => void;
-  entityLabel: string;
-  namePlaceholder: string;
-  isSubmitting: boolean;
-  onSubmit: (input: MasterDataInput) => Promise<unknown>;
-}>) {
-  const form = useForm({
-    initialValues: { name: '', description: '' },
-    validate: {
-      name: (value) => (value.trim() ? null : `Nama ${entityLabel.toLowerCase()} wajib diisi`),
-    },
-  });
-
-  const close = () => {
-    form.reset();
-    onClose();
-  };
-
-  const handleSubmit = form.onSubmit(async (values) => {
-    await onSubmit({
-      name: values.name.trim(),
-      description: values.description.trim() || null,
-    });
-    close();
-  });
-
-  return (
-    <Modal
-      opened={opened}
-      onClose={close}
-      title={
-        <Text fw={700} c="primary.9">
-          Tambah {entityLabel}
-        </Text>
-      }
-      centered
-      radius="lg"
-    >
-      <form onSubmit={handleSubmit}>
-        <Stack>
-          <TextInput
-            label={`Nama ${entityLabel.toLowerCase()}`}
-            placeholder={namePlaceholder}
-            withAsterisk
-            data-autofocus
-            {...form.getInputProps('name')}
-          />
-          <Textarea
-            label="Deskripsi"
-            description="Opsional, membantu tim memahami penggunaannya."
-            autosize
-            minRows={2}
-            {...form.getInputProps('description')}
-          />
-          <Group justify="flex-end" mt="xs">
-            <Button variant="default" onClick={close} disabled={isSubmitting}>
-              Batal
-            </Button>
-            <Button type="submit" color="primary" loading={isSubmitting}>
-              Simpan
-            </Button>
-          </Group>
-        </Stack>
-      </form>
-    </Modal>
-  );
-}
-
 /** List + create/delete for simple product master data (categories, units). */
 export function MasterDataPanel({
   icon: EntityIcon,
@@ -132,10 +53,12 @@ export function MasterDataPanel({
   onCreate,
   onDelete,
 }: Readonly<MasterDataPanelProps>) {
+  const { t } = useTranslation('products');
   const [search, setSearch] = useState('');
   const [modalOpened, setModalOpened] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<MasterDataItem | null>(null);
 
+  const entity = entityLabel.toLowerCase();
   const keyword = search.trim().toLowerCase();
   const filtered = keyword
     ? items.filter((item) => item.name.toLowerCase().includes(keyword))
@@ -150,7 +73,7 @@ export function MasterDataPanel({
           </ThemeIcon>
           <div>
             <Text fw={600} size="sm" c="dark.8">
-              {items.length} {entityLabel.toLowerCase()} terdaftar
+              {t('masterData.registeredCount', { count: items.length, entity })}
             </Text>
             <Text size="xs" c="dimmed">
               {helperText}
@@ -159,7 +82,7 @@ export function MasterDataPanel({
         </Group>
         <Group gap="sm">
           <TextInput
-            placeholder={`Cari ${entityLabel.toLowerCase()}...`}
+            placeholder={t('masterData.searchPlaceholder', { entity })}
             leftSection={<IconSearch size={16} />}
             value={search}
             onChange={(event) => setSearch(event.currentTarget.value)}
@@ -170,7 +93,7 @@ export function MasterDataPanel({
             leftSection={<IconPlus size={16} />}
             onClick={() => setModalOpened(true)}
           >
-            Tambah {entityLabel}
+            {t('masterData.add', { entity: entityLabel })}
           </Button>
         </Group>
       </Group>
@@ -179,10 +102,10 @@ export function MasterDataPanel({
         <Table verticalSpacing="sm" horizontalSpacing="md" highlightOnHover>
           <Table.Thead bg="gray.0">
             <Table.Tr>
-              {['Nama', 'Deskripsi', 'Dibuat'].map((label) => (
-                <Table.Th key={label}>
+              {(['colName', 'colDescription', 'colCreated'] as const).map((key) => (
+                <Table.Th key={key}>
                   <Text size="xs" fw={600} c="dimmed" tt="uppercase" lts={0.4}>
-                    {label}
+                    {t(`masterData.${key}`)}
                   </Text>
                 </Table.Th>
               ))}
@@ -214,7 +137,7 @@ export function MasterDataPanel({
                     </Table.Td>
                     <Table.Td>
                       <Text size="sm" c={item.description ? undefined : 'dimmed'} lineClamp={2}>
-                        {item.description || 'Tidak ada deskripsi'}
+                        {item.description || t('masterData.noDescription')}
                       </Text>
                     </Table.Td>
                     <Table.Td>
@@ -223,11 +146,11 @@ export function MasterDataPanel({
                       </Text>
                     </Table.Td>
                     <Table.Td>
-                      <Tooltip label={`Hapus ${entityLabel.toLowerCase()}`}>
+                      <Tooltip label={t('masterData.removeTooltip', { entity })}>
                         <ActionIcon
                           variant="subtle"
                           color="red"
-                          aria-label={`Hapus ${item.name}`}
+                          aria-label={t('masterData.removeItem', { name: item.name })}
                           onClick={() => setPendingDelete(item)}
                         >
                           <IconTrash size={16} />
@@ -241,13 +164,17 @@ export function MasterDataPanel({
                 <Table.Td colSpan={4} p={0}>
                   <EmptyState
                     icon={<EntityIcon size={32} stroke={1.6} />}
-                    title={keyword ? 'Tidak Ada Hasil' : `Belum Ada ${entityLabel}`}
+                    title={
+                      keyword
+                        ? t('masterData.emptyNoResultTitle')
+                        : t('masterData.emptyTitle', { entity: entityLabel })
+                    }
                     description={
                       keyword
-                        ? 'Coba gunakan kata kunci pencarian yang lain.'
-                        : `Belum ada ${entityLabel.toLowerCase()} yang tercatat. Tambahkan data pertama Anda.`
+                        ? t('masterData.emptyNoResultDescription')
+                        : t('masterData.emptyDescription', { entity })
                     }
-                    actionLabel={keyword ? undefined : `Tambah ${entityLabel}`}
+                    actionLabel={keyword ? undefined : t('masterData.add', { entity: entityLabel })}
                     onAction={keyword ? undefined : () => setModalOpened(true)}
                     actionIcon={<IconPlus size={16} />}
                   />
@@ -270,9 +197,12 @@ export function MasterDataPanel({
       <ConfirmModal
         opened={pendingDelete !== null}
         onClose={() => setPendingDelete(null)}
-        title={`Hapus ${entityLabel.toLowerCase()}?`}
-        message={`${entityLabel} "${pendingDelete?.name ?? ''}" akan dihapus.`}
-        helperText="Pastikan tidak ada produk yang masih menggunakannya."
+        title={t('masterData.deleteTitle', { entity })}
+        message={t('masterData.deleteMessage', {
+          entityName: entityLabel,
+          name: pendingDelete?.name ?? '',
+        })}
+        helperText={t('masterData.deleteHelper')}
         confirmLoading={isDeleting}
         onConfirm={async () => {
           if (!pendingDelete) return;

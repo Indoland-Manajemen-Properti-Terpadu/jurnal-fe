@@ -19,7 +19,7 @@ Columns: **Structure** (layout and layers), **Names** (English, kebab-case paths
 | Module (current to target) | Structure | Names | i18n | Docs | Tests | Release |
 |---|---|---|---|---|---|---|
 | `Contact` + `Kontak` to `contacts` | todo | todo | todo | todo | todo | R1 |
-| `products` | todo | todo | todo | todo | todo | R1 |
+| `products` | done | done | done | done | done | R1 |
 | `Sale` to `sales` | todo | todo | todo | todo | todo | R1 |
 | `Pembelian` to `purchases` | done | done | done | done | done | R1 |
 | `Asset` to `assets` | done | done | done | done | done | R1 |

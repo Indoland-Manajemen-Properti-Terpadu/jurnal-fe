@@ -7,7 +7,7 @@ Status per module: [../migration/STATUS.md](../migration/STATUS.md).
 | Module (target) | Current folder | README |
 |---|---|---|
 | `contacts` | `src/module/Contact`, `src/module/Kontak` | pending (M1) |
-| `products` | `src/module/products` | pending (M1) |
+| `products` | `src/module/products` | [README](../../src/module/products/README.md) |
 | `sales` | `src/module/Sale` | pending (M1) |
 | `purchases` | `src/module/purchases` | [README](../../src/module/purchases/README.md) |
 | `assets` | `src/module/assets` | [README](../../src/module/assets/README.md) |

@@ -11,13 +11,9 @@ import {
   generateInvoiceLink,
   getApiErrorMessage,
 } from '../infrastructure/saleApi';
-import type {
-  CreateSaleFormValues,
-  CreateSalePaymentPayload,
-  SaleListParams,
-} from '../types/sale';
+import type { CreateSaleFormValues, CreateSalePaymentPayload, SaleListParams } from '../types/sale';
 import { fetchPaymentTerms, fetchContacts } from '@/module/Contact/infrastructure/contactApi';
-import { fetchProducts, fetchTaxes } from '@/module/products/infrastructure/productApi';
+import { fetchProducts, fetchTaxes } from '@/module/products';
 import { getJournalAccounts } from '@/module/GeneralJournal/JournalAccount/services/AccountJournal.service';
 
 export const saleKeys = {

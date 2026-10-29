@@ -1,20 +1,26 @@
 import axios from 'axios';
 import apiClient from '@/lib/http/apiClient';
-import { BASE_URL } from '@/services/endpoint';
-import { getJournalAccounts } from '@/module/GeneralJournal/JournalAccount/services/AccountJournal.service';
-import type { JournalAccounts } from '@/module/GeneralJournal/JournalAccount/types/JournalAccountModel';
+import { API_ACCOUNT, BASE_URL } from '@/services/endpoint';
 import type {
   AccountOption,
   MasterDataInput,
   Paginated,
-  Pagination,
   Product,
   ProductCategory,
   ProductFormValues,
   ProductListParams,
   ProductUnit,
   Tax,
-} from '../types/product';
+} from '@/module/products/domain/product';
+import type {
+  ApiEnvelope,
+  PaginatedDto,
+  ProductCategoryDto,
+  ProductDto,
+  TaxDto,
+  UnitDto,
+} from './productDto';
+import { mapCategory, mapPaginated, mapProduct, mapTax, mapUnit } from './productMapper';
 
 export const PRODUCT_ENDPOINTS = {
   products: '/v1/products',
@@ -22,98 +28,6 @@ export const PRODUCT_ENDPOINTS = {
   units: '/v1/units',
   taxes: '/v1/taxes',
 } as const;
-
-/* ---------- DTOs ---------- */
-
-type ApiEnvelope<T> = { code: number; message: string; data: T };
-type PaginatedDto<T> = { data: T[]; pagination: Pagination };
-
-type ProductCategoryDto = {
-  id: string;
-  name: string;
-  description: string | null;
-  categoryCode: string;
-  isActive: boolean;
-  createdAt: string;
-};
-
-type ProductDto = {
-  id: string;
-  name: string;
-  sku: string;
-  image: string | null;
-  external_code?: string | null;
-  productCategory: ProductCategoryDto | null;
-  buyingInfo?: Partial<Product['buyingInfo']>;
-  sellingInfo?: Partial<Product['sellingInfo']>;
-  inventoryInfo?: Partial<Product['inventoryInfo']>;
-  createdAt: string;
-  updatedAt: string;
-};
-
-type UnitDto = { id: string; name: string; description: string | null; createdAt: string };
-type TaxDto = { id: string; name: string; rate: number };
-
-/* ---------- Mappers ---------- */
-
-const mapCategory = (dto: ProductCategoryDto): ProductCategory => ({
-  id: dto.id,
-  name: dto.name,
-  description: dto.description,
-  categoryCode: dto.categoryCode,
-  isActive: dto.isActive,
-  createdAt: dto.createdAt,
-});
-
-const extractId = (val: unknown): string | null => {
-  if (!val) return null;
-  if (typeof val === 'string') return val;
-  if (typeof val === 'object' && 'id' in val) return String((val as { id: unknown }).id);
-  if (typeof val === 'object' && '_id' in val) return String((val as { _id: unknown })._id);
-  return null;
-};
-
-const mapProduct = (dto: ProductDto & Record<string, any>): Product => {
-  const categoryRaw = dto.productCategory || dto.category;
-  return {
-    id: dto.id || dto._id || '',
-    name: dto.name || '',
-    sku: dto.sku || dto.SKU || '',
-    image: dto.image ?? null,
-    externalCode: dto.external_code ?? dto.externalCode ?? null,
-    category: categoryRaw
-      ? {
-          id: categoryRaw.id || categoryRaw._id || '',
-          name: categoryRaw.name || '',
-        }
-      : null,
-    buyingInfo: {
-      isPurchased: dto.buyingInfo?.isPurchased ?? false,
-      unitPrice: dto.buyingInfo?.unitPrice ?? null,
-      purchaseAccount: extractId(dto.buyingInfo?.purchaseAccount),
-      purchaseTax: extractId(dto.buyingInfo?.purchaseTax),
-    },
-    sellingInfo: {
-      isSold: dto.sellingInfo?.isSold ?? false,
-      unitPrice: dto.sellingInfo?.unitPrice ?? null,
-      salesAccount: extractId(dto.sellingInfo?.salesAccount),
-      accountReceivable: extractId(dto.sellingInfo?.accountReceivable),
-      salesTax: extractId(dto.sellingInfo?.salesTax),
-    },
-    inventoryInfo: {
-      isTracked: dto.inventoryInfo?.isTracked ?? false,
-      inventoryAccount: extractId(dto.inventoryInfo?.inventoryAccount),
-      minStock: dto.inventoryInfo?.minStock ?? 0,
-    },
-    createdAt: dto.createdAt || dto.created_at || '',
-    updatedAt: dto.updatedAt || dto.updated_at || '',
-  };
-};
-
-const mapPaginated = <D, T>(dto: PaginatedDto<D>, map: (d: D) => T): Paginated<T> => ({
-  items: (dto.data ?? []).map(map),
-  pagination: dto.pagination,
-});
 
 /** Image paths are returned relative to the API host (e.g. `uploads/x.png`). */
 export const resolveProductImageUrl = (path: string | null): string | null => {
@@ -229,13 +143,6 @@ export const deleteCategory = async (id: string): Promise<void> => {
 
 /* ---------- Units ---------- */
 
-const mapUnit = (dto: UnitDto): ProductUnit => ({
-  id: dto.id,
-  name: dto.name,
-  description: dto.description,
-  createdAt: dto.createdAt,
-});
-
 export const fetchUnits = async (page = 1, limit = 100): Promise<Paginated<ProductUnit>> => {
   const { data } = await apiClient.get<ApiEnvelope<PaginatedDto<UnitDto>>>(
     PRODUCT_ENDPOINTS.units,
@@ -259,10 +166,17 @@ export const fetchTaxes = async (): Promise<Tax[]> => {
   const { data } = await apiClient.get<ApiEnvelope<PaginatedDto<TaxDto>>>(PRODUCT_ENDPOINTS.taxes, {
     params: { page: 1, limit: 100 },
   });
-  return (data.data?.data ?? []).map((t) => ({ id: t.id, name: t.name, rate: t.rate }));
+  return (data.data?.data ?? []).map(mapTax);
 };
 
-const flattenAccounts = (accounts: JournalAccounts[]): AccountOption[] =>
+type AccountNodeDto = {
+  id: string;
+  name: string;
+  accountNumber?: string;
+  subAccount?: AccountNodeDto[];
+};
+
+const flattenAccounts = (accounts: AccountNodeDto[]): AccountOption[] =>
   accounts.flatMap((account) => [
     {
       id: account.id,
@@ -271,5 +185,11 @@ const flattenAccounts = (accounts: JournalAccounts[]): AccountOption[] =>
     ...flattenAccounts(account.subAccount ?? []),
   ]);
 
-export const fetchAccountOptions = async (): Promise<AccountOption[]> =>
-  flattenAccounts(await getJournalAccounts());
+export const fetchAccountOptions = async (): Promise<AccountOption[]> => {
+  const response = await apiClient.get<{ results?: AccountNodeDto[] }>(API_ACCOUNT.GET_ALL_ACCOUNT);
+  const accounts = response.data?.results;
+  if (!Array.isArray(accounts)) {
+    throw new Error('Invalid journal accounts response.');
+  }
+  return flattenAccounts(accounts);
+};
