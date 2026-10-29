@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { Modal, Button, Group, Text, Stack, Alert, List, ThemeIcon, Badge } from '@mantine/core';
+import { Modal, Button, Group, Text, Stack, Alert, List, ThemeIcon } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
 import { IconCalendar, IconInfoCircle, IconArrowRight, IconScale } from '@tabler/icons-react';
 import { routes } from '@/router/routes';
 import { notifications } from '@mantine/notifications';
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
-import { formatDate, dateFormatV1 } from '@/utils/FormatDate';
+import { dateFormatV1 } from '@/utils/FormatDate';
+import { useTranslation } from '@/i18n';
 import { useInitialBalanceStore } from '../store/useInitialBalanceStore';
 
 interface BeginningBalanceModalProps {
@@ -19,6 +20,7 @@ export const BeginningBalanceModal: React.FC<BeginningBalanceModalProps> = ({
   onClose,
 }) => {
   const navigate = useNavigate();
+  const { t } = useTranslation('beginningBalances');
   const { setConversionDate, conversionDate } = useInitialBalanceStore();
   const [selectedDate, setSelectedDate] = useState<string | null>(
     conversionDate ? dayjs(conversionDate).format('YYYY-MM-DD') : dayjs().format('YYYY-MM-DD')
@@ -28,8 +30,8 @@ export const BeginningBalanceModal: React.FC<BeginningBalanceModalProps> = ({
     if (!selectedDate) {
       notifications.show({
         color: 'red',
-        title: 'Tanggal Konversi Wajib Dipilih',
-        message: 'Silakan pilih tanggal efektif cutoff saldo awal buku besar.',
+        title: t('toast.dateRequiredTitle'),
+        message: t('toast.dateRequiredMessage'),
       });
       return;
     }
@@ -53,10 +55,10 @@ export const BeginningBalanceModal: React.FC<BeginningBalanceModalProps> = ({
           </ThemeIcon>
           <div>
             <Text fw={700} fz={16} c="dark.8">
-              Atur Tanggal Konversi Saldo Awal
+              {t('startModal.title')}
             </Text>
             <Text size="xs" c="dimmed">
-              Cutoff Periode Pembukuan Awal
+              {t('startModal.subtitle')}
             </Text>
           </div>
         </Group>
@@ -73,13 +75,13 @@ export const BeginningBalanceModal: React.FC<BeginningBalanceModalProps> = ({
     >
       <Stack gap="md">
         <DatePickerInput
-          label="Tanggal Konversi (Cutoff Date)"
+          label={t('startModal.dateLabel')}
           description={
             selectedDate
-              ? `Saldo awal akan diakui efektif per tanggal ${dateFormatV1(selectedDate)}`
-              : 'Pilih tanggal awal pembukuan neraca saldo awal'
+              ? t('startModal.dateEffective', { date: dateFormatV1(selectedDate) })
+              : t('startModal.datePrompt')
           }
-          placeholder="Pilih Tanggal Konversi"
+          placeholder={t('startModal.datePlaceholder')}
           valueFormat="DD/MM/YYYY"
           size="sm"
           radius="md"
@@ -93,29 +95,24 @@ export const BeginningBalanceModal: React.FC<BeginningBalanceModalProps> = ({
         <Alert
           variant="light"
           color="blue"
-          title="Panduan Penting Saldo Awal"
+          title={t('startModal.guideTitle')}
           icon={<IconInfoCircle size={18} />}
           radius="md"
         >
           <List size="xs" spacing={6} c="dark.7">
+            <List.Item>{t('startModal.guide1')}</List.Item>
+            <List.Item>{t('startModal.guide2')}</List.Item>
             <List.Item>
-              Tanggal konversi adalah tanggal acuan saat saldo awal neraca pertama kali dimasukkan
-              ke sistem.
-            </List.Item>
-            <List.Item>
-              Anda tetap dapat menyesuaikan tanggal konversi dan nilai saldo awal selama periode
-              buku belum ditutup.
-            </List.Item>
-            <List.Item>
-              Total nilai <strong>Debit</strong> dan <strong>Kredit</strong> harus seimbang
-              (balance) agar saldo awal dapat dipublikasikan.
+              {t('startModal.guide3Before')} <strong>{t('startModal.guide3Debit')}</strong>{' '}
+              {t('startModal.guide3And')} <strong>{t('startModal.guide3Credit')}</strong>{' '}
+              {t('startModal.guide3After')}
             </List.Item>
           </List>
         </Alert>
 
         <Group justify="flex-end" gap="sm" mt="sm">
           <Button variant="default" onClick={onClose} radius="md">
-            Batal
+            {t('startModal.cancel')}
           </Button>
           <Button
             variant="gradient"
@@ -124,7 +121,7 @@ export const BeginningBalanceModal: React.FC<BeginningBalanceModalProps> = ({
             radius="md"
             rightSection={<IconArrowRight size={16} />}
           >
-            Lanjut ke Saldo Awal
+            {t('startModal.continue')}
           </Button>
         </Group>
       </Stack>

@@ -14,17 +14,11 @@ import {
   ThemeIcon,
   Button,
 } from '@mantine/core';
-import {
-  IconHistory,
-  IconCheck,
-  IconFileText,
-  IconCalendar,
-  IconUser,
-  IconScale,
-} from '@tabler/icons-react';
-import { useDraftBalanceLogs } from '../hooks/useDraftBalance';
+import { IconHistory, IconCheck, IconFileText, IconCalendar, IconUser } from '@tabler/icons-react';
+import { useTranslation } from '@/i18n';
 import { formatDate } from '@/utils/FormatDate';
 import { formatCurrency } from '@/utils/FormatCurrency';
+import { useDraftBalanceLogs } from '../hooks/useDraftBalance';
 
 interface BeginningBalanceLogsModalProps {
   opened: boolean;
@@ -35,9 +29,10 @@ export const BeginningBalanceLogsModal: React.FC<BeginningBalanceLogsModalProps>
   opened,
   onClose,
 }) => {
+  const { t } = useTranslation('beginningBalances');
   const { data: logsData, isLoading, isError } = useDraftBalanceLogs(opened);
 
-  const logs: any[] = Array.isArray(logsData) ? logsData : (logsData as any)?.data || [];
+  const logs = logsData ?? [];
 
   return (
     <Modal
@@ -53,10 +48,10 @@ export const BeginningBalanceLogsModal: React.FC<BeginningBalanceLogsModalProps>
           </ThemeIcon>
           <div>
             <Text fw={700} fz={16} c="dark.8">
-              Riwayat Perubahan Saldo Awal
+              {t('logs.title')}
             </Text>
             <Text size="xs" c="dimmed">
-              Audit trail & pencatatan aktivitas publikasi
+              {t('logs.subtitle')}
             </Text>
           </div>
         </Group>
@@ -76,14 +71,14 @@ export const BeginningBalanceLogsModal: React.FC<BeginningBalanceLogsModalProps>
           <Stack align="center" gap="xs">
             <Loader size="md" color="primary.6" />
             <Text size="xs" c="dimmed">
-              Memuat log riwayat saldo awal...
+              {t('logs.loading')}
             </Text>
           </Stack>
         </Center>
       ) : isError ? (
         <Center py={40}>
           <Text size="sm" c="red.6">
-            Gagal memuat data riwayat saldo awal.
+            {t('logs.error')}
           </Text>
         </Center>
       ) : logs.length === 0 ? (
@@ -93,11 +88,10 @@ export const BeginningBalanceLogsModal: React.FC<BeginningBalanceLogsModalProps>
               <IconHistory size={24} />
             </ThemeIcon>
             <Text size="sm" fw={600} c="dark.7">
-              Belum Ada Riwayat Perubahan
+              {t('logs.emptyTitle')}
             </Text>
             <Text size="xs" c="dimmed" maw={300} ta="center">
-              Aktivitas penyimpanan draf dan publikasi saldo awal akan tercatat secara otomatis di
-              sini.
+              {t('logs.emptyBody')}
             </Text>
           </Stack>
         </Center>
@@ -106,7 +100,7 @@ export const BeginningBalanceLogsModal: React.FC<BeginningBalanceLogsModalProps>
           <Timeline active={0} bulletSize={28} lineWidth={2}>
             {logs.map((log) => {
               const isPublish = log.action === 'PUBLISH';
-              const balances: any[] = log.balances || [];
+              const balances = log.balances || [];
               const totalDebit = balances.reduce((sum, b) => sum + (Number(b.debit) || 0), 0);
               const totalCredit = balances.reduce((sum, b) => sum + (Number(b.credit) || 0), 0);
 
@@ -128,7 +122,7 @@ export const BeginningBalanceLogsModal: React.FC<BeginningBalanceLogsModalProps>
                     <Group justify="space-between" align="center" wrap="wrap">
                       <Group gap="xs">
                         <Badge color={isPublish ? 'teal' : 'blue'} variant="filled" size="sm">
-                          {isPublish ? 'PUBLIKASI' : 'PERBARUI DRAF'}
+                          {isPublish ? t('logs.publish') : t('logs.updateDraft')}
                         </Badge>
                         <Text size="xs" c="dimmed">
                           {formatDate(new Date(log.createdAt))}
@@ -143,13 +137,16 @@ export const BeginningBalanceLogsModal: React.FC<BeginningBalanceLogsModalProps>
                         <Group gap={6}>
                           <IconUser size={14} color="gray" />
                           <Text size="xs" fw={600} c="dark.8">
-                            {log.performedBy?.name || 'Finance'} ({log.performedBy?.email || '-'})
+                            {log.performedBy?.name || t('logs.defaultUser')} (
+                            {log.performedBy?.email || '-'})
                           </Text>
                         </Group>
                         <Group gap={6}>
                           <IconCalendar size={14} color="gray" />
                           <Text size="xs" c="dimmed">
-                            Periode: {log.period ? formatDate(new Date(log.period)) : '-'}
+                            {t('logs.period', {
+                              date: log.period ? formatDate(new Date(log.period)) : '-',
+                            })}
                           </Text>
                         </Group>
                       </Group>
@@ -158,14 +155,14 @@ export const BeginningBalanceLogsModal: React.FC<BeginningBalanceLogsModalProps>
 
                       <Group justify="space-between" align="center">
                         <Text size="xs" c="dimmed">
-                          {balances.length} Akun Dicatat
+                          {t('logs.accountsRecorded', { count: balances.length })}
                         </Text>
                         <Group gap="md">
                           <Text size="xs" fw={600} c="teal.7">
-                            Debit: {formatCurrency(totalDebit)}
+                            {t('logs.debit', { amount: formatCurrency(totalDebit) })}
                           </Text>
                           <Text size="xs" fw={600} c="red.7">
-                            Kredit: {formatCurrency(totalCredit)}
+                            {t('logs.credit', { amount: formatCurrency(totalCredit) })}
                           </Text>
                         </Group>
                       </Group>
@@ -180,7 +177,7 @@ export const BeginningBalanceLogsModal: React.FC<BeginningBalanceLogsModalProps>
 
       <Group justify="flex-end" mt="md">
         <Button variant="default" onClick={onClose} size="sm" radius="md">
-          Tutup
+          {t('logs.close')}
         </Button>
       </Group>
     </Modal>
