@@ -8,11 +8,10 @@ import {
   uploadAccountImportFile,
 } from './accountSettingApi';
 
-const http = vi.hoisted(() => ({ get: vi.fn(), post: vi.fn(), download: vi.fn() }));
+const http = vi.hoisted(() => ({ get: vi.fn(), post: vi.fn() }));
 
 vi.mock('@/lib/http/apiClient', () => ({
   default: { get: http.get, post: http.post },
-  download: http.get,
 }));
 
 const XLSX = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';

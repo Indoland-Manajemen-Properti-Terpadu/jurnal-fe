@@ -2,8 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 import { routes } from '@/router/routes';
 import { useNavigate } from 'react-router-dom';
-import { API_ACCOUNT } from '@/services/endpoint';
-import { post } from '@/lib/http/apiClient';
+import { createAccount } from '../../infrastructure/accountApi';
 import { AddAccountPayload } from '../../domain/addAccountPayload';
 
 export const useAddAccount = () => {
@@ -11,7 +10,7 @@ export const useAddAccount = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (payload: AddAccountPayload) => post(API_ACCOUNT.ADD_ACCOUNT, payload),
+    mutationFn: (payload: AddAccountPayload) => createAccount(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['accounts'] });
       notifications.show({
@@ -23,7 +22,6 @@ export const useAddAccount = () => {
       navigate(routes.generalJournal.main);
     },
     onError: (error: any) => {
-      console.error('Error adding account:', error);
       notifications.show({
         color: 'red',
         autoClose: 5000,

@@ -13,9 +13,7 @@ export const useAccountSettings = () => {
   const queryClient = useQueryClient();
 
   const invalidateAccounts = () => {
-    queryClient.invalidateQueries({ queryKey: ['journal_accounts'] });
     queryClient.invalidateQueries({ queryKey: ['accounts'] });
-    queryClient.invalidateQueries({ queryKey: ['head_accounts'] });
   };
 
   // Download Import Template

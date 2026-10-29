@@ -2,8 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 import { routes } from '@/router/routes';
 import { useNavigate } from 'react-router-dom';
-import { API_ACCOUNT } from '@/services/endpoint';
-import { patch } from '@/lib/http/apiClient';
+import { updateAccount } from '../../infrastructure/accountApi';
 import { AddAccountPayload } from '../../domain/addAccountPayload';
 
 export const useUpdateAccount = (accountId: string) => {
@@ -11,8 +10,7 @@ export const useUpdateAccount = (accountId: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (payload: AddAccountPayload) =>
-      patch(`${API_ACCOUNT.ADD_ACCOUNT}/${accountId}`, payload),
+    mutationFn: (payload: AddAccountPayload) => updateAccount(accountId, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['accounts'] });
       queryClient.invalidateQueries({ queryKey: ['detail_account', accountId] });
@@ -25,7 +23,6 @@ export const useUpdateAccount = (accountId: string) => {
       navigate(routes.generalJournal.main);
     },
     onError: (error: any) => {
-      console.error('Error updating account:', error);
       notifications.show({
         color: 'red',
         autoClose: 5000,

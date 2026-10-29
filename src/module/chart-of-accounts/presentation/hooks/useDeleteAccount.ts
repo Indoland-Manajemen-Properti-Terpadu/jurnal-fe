@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { del } from '@/lib/http/apiClient';
-import { API_ACCOUNT } from '@/services/endpoint';
 import { notifications } from '@mantine/notifications';
+import { deleteAccounts } from '../../infrastructure/accountApi';
 import useAccountStore from './useAccountStore';
 
 export const useDeleteAccount = () => {
@@ -9,10 +8,7 @@ export const useDeleteAccount = () => {
   const { setSelectedRecords } = useAccountStore();
 
   return useMutation({
-    mutationFn: async (ids: { accountIds: string[] }) => {
-      const result = await del(API_ACCOUNT.DELETE_ACCOUNT, ids);
-      return result;
-    },
+    mutationFn: (ids: { accountIds: string[] }) => deleteAccounts(ids),
     onSuccess: () => {
       notifications.show({
         title: 'Success',
