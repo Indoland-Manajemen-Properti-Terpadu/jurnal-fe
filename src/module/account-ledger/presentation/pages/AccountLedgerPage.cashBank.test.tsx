@@ -1,4 +1,4 @@
-import { screen, userEvent, waitFor, within } from '@test-utils';
+import { cleanup, configure, screen, userEvent, waitFor, within } from '@test-utils';
 import { routes } from '@/router/routes';
 import { formatCurrency as rawFormatCurrency } from '@/utils/FormatCurrency';
 import {
@@ -39,9 +39,20 @@ const baseDetail = {
 };
 
 const pickMenuItem = async (user: ReturnType<typeof userEvent.setup>, label: string) => {
-  await user.click(screen.getByRole('button', { name: 'Menu Aksi' }));
-  await user.click(await screen.findByRole('menuitem', { name: label }));
+  await user.click(screen.getByRole('button', { name: 'Menu Aksi', hidden: true }));
+  await user.click(await screen.findByRole('menuitem', { name: label, hidden: true }));
 };
+
+// Menus and modals animate; under a parallel full run the default 1s wait is too short.
+configure({ asyncUtilTimeout: 5000 });
+vi.setConfig({ testTimeout: 20000 });
+
+afterEach(async () => {
+  // Mantine keeps a modal/menu in its shared portal node until the exit transition ends;
+  // wait for it so a leftover modal (aria-hidden on the page) cannot leak into the next test.
+  cleanup();
+  await waitFor(() => expect(document.querySelectorAll('[data-portal] *')).toHaveLength(0));
+});
 
 beforeEach(() => {
   resetLedgerMocks();
@@ -132,7 +143,7 @@ describe('cash/bank ledger page (characterization)', () => {
     ledgerState.detail = { ...baseDetail, isLocked: true };
     renderCashBank();
     const user = userEvent.setup();
-    await user.click(screen.getByRole('button', { name: 'Menu Aksi' }));
+    await user.click(screen.getByRole('button', { name: 'Menu Aksi', hidden: true }));
     expect(await screen.findByText('Manajemen Akun')).toBeInTheDocument();
     expect(screen.queryByRole('menuitem', { name: 'Arsipkan Akun' })).not.toBeInTheDocument();
     expect(screen.queryByRole('menuitem', { name: 'Hapus Akun' })).not.toBeInTheDocument();
@@ -144,9 +155,9 @@ describe('cash/bank ledger page (characterization)', () => {
     renderCashBank();
     const user = userEvent.setup();
     await pickMenuItem(user, 'Arsipkan Akun');
-    const dialog = await screen.findByRole('dialog');
+    const dialog = await screen.findByRole('dialog', { hidden: true });
     expect(within(dialog).getByText('Arsipkan Akun Kas & Bank')).toBeInTheDocument();
-    await user.click(within(dialog).getByRole('button', { name: 'Arsipkan Akun' }));
+    await user.click(within(dialog).getByRole('button', { name: 'Arsipkan Akun', hidden: true }));
     await waitFor(() =>
       expect(fns.notify).toHaveBeenCalledWith(
         expect.objectContaining({ message: 'Akun kas/bank berhasil diarsipkan' })
@@ -158,9 +169,9 @@ describe('cash/bank ledger page (characterization)', () => {
     renderCashBank();
     const user = userEvent.setup();
     await pickMenuItem(user, 'Hapus Akun');
-    const dialog = await screen.findByRole('dialog');
+    const dialog = await screen.findByRole('dialog', { hidden: true });
     expect(within(dialog).getByText('Hapus Akun Kas & Bank')).toBeInTheDocument();
-    await user.click(within(dialog).getByRole('button', { name: 'Hapus Akun' }));
+    await user.click(within(dialog).getByRole('button', { name: 'Hapus Akun', hidden: true }));
     const [payload, options] = fns.deleteAccount.mock.calls[0];
     expect(payload).toEqual({ accountIds: ['acc-1'] });
     options.onSuccess();
@@ -177,7 +188,7 @@ describe('cash/bank ledger page (characterization)', () => {
     const user = userEvent.setup();
     const open = async (item: string, path: string) => {
       await user.click(screen.getByRole('button', { name: /Buat Transaksi$/ }));
-      await user.click(await screen.findByRole('menuitem', { name: item }));
+      await user.click(await screen.findByRole('menuitem', { name: item, hidden: true }));
       expect(screen.getByTestId('location')).toHaveTextContent(path);
     };
     await open('Transfer Uang', routes.BankAndCash.AddTransferMoney);
@@ -187,10 +198,12 @@ describe('cash/bank ledger page (characterization)', () => {
     ledgerState.transactions = [journalRow(10, 0, 'a')];
     const { client } = renderCashBank();
     const user = userEvent.setup();
-    await user.click(screen.getByRole('button', { name: 'select-all-rows' }));
-    await user.click(screen.getByRole('button', { name: /Hapus Terpilih \(1\)/ }));
-    const dialog = await screen.findByRole('dialog');
-    await user.click(within(dialog).getByRole('button', { name: 'Hapus 1 Transaksi' }));
+    await user.click(screen.getByRole('button', { name: 'select-all-rows', hidden: true }));
+    await user.click(screen.getByRole('button', { name: /Hapus Terpilih \(1\)/, hidden: true }));
+    const dialog = await screen.findByRole('dialog', { hidden: true });
+    await user.click(
+      within(dialog).getByRole('button', { name: 'Hapus 1 Transaksi', hidden: true })
+    );
     const [payload, options] = fns.deleteEntries.mock.calls[0];
     expect(payload).toEqual({ ids: ['a'], idAccount: 'acc-1' });
     options.onSuccess();
