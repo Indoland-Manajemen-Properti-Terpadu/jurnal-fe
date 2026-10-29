@@ -21,7 +21,7 @@ import {
   IconBook2,
 } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
-import { isJournalBalanced } from '@/lib/accounting/journalBalance';
+import { isJournalBalancedForDisplay } from '@/lib/accounting/journalBalance';
 import { formatCurrency } from '@/utils/FormatCurrency';
 import { routes } from '@/router/routes';
 import { EmptyState } from '@/components/EmptyState';
@@ -42,7 +42,7 @@ export const JournalTransactionDetailTable: React.FC<Props> = ({
 
   const totalDebit = transactionDetails.reduce((sum, item) => sum + (Number(item.debit) || 0), 0);
   const totalCredit = transactionDetails.reduce((sum, item) => sum + (Number(item.credit) || 0), 0);
-  const isBalanced = isJournalBalanced([{ debit: totalDebit, credit: totalCredit }]);
+  const isBalanced = isJournalBalancedForDisplay([{ debit: totalDebit, credit: totalCredit }]);
 
   if (isLoading) {
     return (

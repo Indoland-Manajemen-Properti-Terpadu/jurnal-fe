@@ -2,6 +2,7 @@ import {
   canConfirmMatch,
   canPublishOpeningBalance,
   isJournalBalanced,
+  isJournalBalancedForDisplay,
   journalDifference,
 } from './journalBalance';
 
@@ -19,10 +20,11 @@ describe('isJournalBalanced', () => {
     expect(isJournalBalanced(rows([0.1 + 0.2, 0], [0, 0.3]))).toBe(true);
   });
 
-  it('rounds half up to the cent before comparing', () => {
-    expect(isJournalBalanced(rows([1500.505, 0], [0, 1500.51]))).toBe(true);
-    expect(isJournalBalanced(rows([100.004, 0], [0, 100]))).toBe(true);
+  it('is exact: amounts with more than two decimals are blocked, never rounded', () => {
+    expect(isJournalBalanced(rows([100.004, 0], [0, 100]))).toBe(false);
     expect(isJournalBalanced(rows([100.009, 0], [0, 100]))).toBe(false);
+    expect(isJournalBalanced(rows([1500.505, 0], [0, 1500.51]))).toBe(false);
+    expect(isJournalBalanced(rows([1500.505, 0], [0, 1500.505]))).toBe(false);
   });
 
   it('accepts decimal strings', () => {
@@ -63,6 +65,7 @@ describe('canPublishOpeningBalance', () => {
     expect(canPublishOpeningBalance([])).toBe(false);
     expect(canPublishOpeningBalance(rows([100, 0], [0, 99]))).toBe(false);
     expect(canPublishOpeningBalance(rows([NaN, 0], [0, 0]))).toBe(false);
+    expect(canPublishOpeningBalance(rows([100.004, 0], [0, 100]))).toBe(false);
   });
 });
 
@@ -73,5 +76,26 @@ describe('canConfirmMatch', () => {
     expect(canConfirmMatch(1500.49, 1500.5)).toBe(false);
     expect(canConfirmMatch(0.1 + 0.2, 0.3)).toBe(true);
     expect(canConfirmMatch(NaN, 10)).toBe(false);
+    expect(canConfirmMatch(100.004, 100)).toBe(false);
+    expect(canConfirmMatch(100, -100.004)).toBe(false);
+  });
+});
+
+describe('isJournalBalancedForDisplay', () => {
+  it('rounds half up to the cent and never throws', () => {
+    expect(isJournalBalancedForDisplay(rows([100.004, 0], [0, 100]))).toBe(true);
+    expect(isJournalBalancedForDisplay(rows([100.009, 0], [0, 100]))).toBe(false);
+    expect(isJournalBalancedForDisplay(rows([1500.505, 0], [0, 1500.51]))).toBe(true);
+    expect(isJournalBalancedForDisplay(rows([0.1, 0], [0.2, 0], [0, 0.3]))).toBe(true);
+    expect(isJournalBalancedForDisplay(rows([1.2041, 0], [0, 1.2]))).toBe(true);
+    expect(isJournalBalancedForDisplay(rows([NaN, 0]))).toBe(false);
+    expect(isJournalBalancedForDisplay(rows(['', 0]))).toBe(false);
+  });
+});
+
+describe('journalDifference on stored data with more than two decimals', () => {
+  it('rounds instead of throwing', () => {
+    expect(journalDifference(rows([100.004, 0], [0, 100]))).toBe('0.00');
+    expect(journalDifference(rows([1.2345, 0]))).toBe('1.23');
   });
 });
