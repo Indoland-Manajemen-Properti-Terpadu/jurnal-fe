@@ -29,10 +29,11 @@
   display: flex;
   margin-right: 20px;
 }
+
 .accordionDesc {
   /* font-size: 14px;
   line-height: 16px; */
-  font-family: Figtree;
+  font-family: Figtree, sans-serif;
   /* color: var(--mantine-color-dark); */
 
   /* -webkit-background-clip: text;
@@ -47,10 +48,6 @@
 
   display: flex;
 
-  switches {
-    background: orange;
-    background: silver;
-  }
 
   &[data-orientation='horizontal'] {
     flex-direction: row;
