@@ -16,6 +16,7 @@ import { routes } from '@/router/routes';
 import EmptyState from '@/components/EmptyState/EmptyTable';
 import defaultEmptyImage from '@/assets/img/Empty-Data.svg';
 import { JournalAccounts } from '../../domain/journalAccount';
+import { isAccountSelectable } from '../../domain/accountRules';
 import classes from '../pages/AccountList.module.css';
 import useAccountStore from '../hooks/useAccountStore';
 
@@ -244,7 +245,7 @@ const TableAccounts = ({ data, loading, selectedCategory, searchQuery }: TableAc
       columns={subAccountColumns}
       selectedRecords={selectedRecords}
       onSelectedRecordsChange={setSelectedRecords}
-      isRecordSelectable={(subRec) => !subRec.isLocked}
+      isRecordSelectable={isAccountSelectable}
     />
   );
 
@@ -272,7 +273,7 @@ const TableAccounts = ({ data, loading, selectedCategory, searchQuery }: TableAc
       rowExpansion={rowExpansion}
       selectedRecords={selectedRecords}
       onSelectedRecordsChange={setSelectedRecords}
-      isRecordSelectable={(record) => !record.isLocked}
+      isRecordSelectable={isAccountSelectable}
       borderRadius="md"
     />
   );
