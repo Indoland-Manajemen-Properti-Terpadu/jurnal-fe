@@ -1,5 +1,4 @@
-import { MemoryRouter } from 'react-router-dom';
-import { Route, Routes } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { render, screen, userEvent, waitFor } from '@test-utils';
 import AddAccountPage from './AddAccountPage';
 import EditAccountPage from './EditAccountPage';
