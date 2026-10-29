@@ -1,6 +1,6 @@
 import { API_ACCOUNT } from '@/services/endpoint';
 import { useQuery } from '@tanstack/react-query';
-import { get } from '@/services/apiClient';
+import { get } from '@/lib/http/apiClient';
 import { JournalDetail } from '../types/GetReconciliationModel';
 
 export const useGetJournalDetailsForRecon = (bankStatementId: string | null) => {

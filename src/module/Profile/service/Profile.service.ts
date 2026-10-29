@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { get, patch } from "@/services/apiClient";
+import { get, patch } from "@/lib/http/apiClient";
 import { API_USERS } from "@/services/endpoint";
 import { User } from "../../Authentication/Login/types/LoginModelResponse";
 import { notifications } from "@mantine/notifications";

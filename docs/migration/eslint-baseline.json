@@ -9,7 +9,7 @@
   "import/no-duplicates": 12,
   "import/no-named-as-default": 56,
   "import/no-restricted-paths": 49,
-  "import/order": 129,
+  "import/order": 128,
   "jsx-a11y/alt-text": 2,
   "max-lines": 35,
   "new-cap": 1,

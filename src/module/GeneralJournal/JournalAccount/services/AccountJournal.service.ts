@@ -1,5 +1,5 @@
 import { API_ACCOUNT } from '@/services/endpoint';
-import apiClient from '@/services/apiClient';
+import apiClient from '@/lib/http/apiClient';
 import { JournalAccounts } from '@/module/GeneralJournal/JournalAccount/types/JournalAccountModel';
 
 type JournalAccountsResponse = {

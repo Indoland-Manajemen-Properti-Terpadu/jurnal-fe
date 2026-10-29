@@ -1,4 +1,4 @@
-import apiClient from '@/services/apiClient';
+import apiClient from '@/lib/http/apiClient';
 import { API_SETTINGS } from '@/services/endpoint';
 
 type ApiEnvelope<T> = {

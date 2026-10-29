@@ -25,7 +25,7 @@ import { routes } from '@/router/routes';
 import { IconChevronDown, IconChevronRight } from '@tabler/icons-react';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
-import apiClient from '@/services/apiClient';
+import apiClient from '@/lib/http/apiClient';
 import { useAddRole } from '../../Service/AddRole.service';
 import { AddRolePayload } from '../../Types/AddRolePayload';
 

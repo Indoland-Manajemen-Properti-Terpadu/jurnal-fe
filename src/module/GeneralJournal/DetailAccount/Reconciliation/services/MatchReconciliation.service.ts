@@ -1,6 +1,6 @@
 import { API_ACCOUNT } from '@/services/endpoint';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { post } from '@/services/apiClient';
+import { post } from '@/lib/http/apiClient';
 import { notifications } from '@mantine/notifications';
 import { themeColors } from '@/theme';
 

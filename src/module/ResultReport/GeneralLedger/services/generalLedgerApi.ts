@@ -1,5 +1,5 @@
 import axios from 'axios';
-import apiClient from '@/services/apiClient';
+import apiClient from '@/lib/http/apiClient';
 import type {
   GeneralLedgerAccount,
   GeneralLedgerExportType,

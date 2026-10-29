@@ -1,7 +1,7 @@
 // hooks/useBankStatement.ts
 import { API_REPORT } from '@/services/endpoint';
 import { useQuery } from '@tanstack/react-query';
-import { get } from '@/services/apiClient';
+import { get } from '@/lib/http/apiClient';
 import { EquityChangeReport } from '../types/EquityChange.types';
 
 interface EquityChangeParams {

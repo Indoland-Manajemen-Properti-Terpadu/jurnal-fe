@@ -2,7 +2,7 @@
 import axios from 'axios';
 import { navigate } from '@/router';
 import { routes } from '@/router/routes';
-import { BASE_URL, API_AUTH } from './endpoint';
+import { BASE_URL, API_AUTH } from '@/services/endpoint';
 import { useAuthStore } from '@/store/useAuthentications';
 import { useApiLoadingStore } from '@/store/useApiLoading';
 
@@ -133,6 +133,10 @@ apiClient.interceptors.response.use(
   }
 );
 
+/**
+ * @deprecated Legacy helper: on failure it returns `error.response` (or `null`) instead of throwing.
+ * New code uses the default `apiClient` export inside `infrastructure/` and handles errors explicitly.
+ */
 export const get = async (url: string, params?: any) => {
   try {
     const response = await apiClient.get(url, { params });
@@ -146,6 +150,10 @@ export const get = async (url: string, params?: any) => {
   }
 };
 
+/**
+ * @deprecated Legacy helper: on failure it returns `error.response` (or `null`) instead of throwing.
+ * New code uses the default `apiClient` export inside `infrastructure/` and handles errors explicitly.
+ */
 export const download = async (url: string, params?: any) => {
   try {
     const response = await apiClient.get(url, { params, responseType: 'blob' });
@@ -159,6 +167,10 @@ export const download = async (url: string, params?: any) => {
   }
 };
 
+/**
+ * @deprecated Legacy helper: on failure it returns `error.response` (or `null`) instead of throwing.
+ * New code uses the default `apiClient` export inside `infrastructure/` and handles errors explicitly.
+ */
 export const postV2 = async (url: string, data: any) => {
   try {
     const response = await apiClient.post(url, data);
@@ -172,6 +184,10 @@ export const postV2 = async (url: string, data: any) => {
   }
 };
 
+/**
+ * @deprecated Legacy helper: on failure it returns `error.response` (or `null`) instead of throwing.
+ * New code uses the default `apiClient` export inside `infrastructure/` and handles errors explicitly.
+ */
 export const post = async (url: string, data: any) => {
   try {
     const response = await apiClient.post(url, data);
@@ -185,6 +201,10 @@ export const post = async (url: string, data: any) => {
   }
 };
 
+/**
+ * @deprecated Legacy helper: on failure it returns `error.response` (or `null`) instead of throwing.
+ * New code uses the default `apiClient` export inside `infrastructure/` and handles errors explicitly.
+ */
 export const put = async (url: string, data: any) => {
   try {
     const response = await apiClient.put(url, data);
@@ -198,6 +218,10 @@ export const put = async (url: string, data: any) => {
   }
 };
 
+/**
+ * @deprecated Legacy helper: on failure it returns `error.response` (or `null`) instead of throwing.
+ * New code uses the default `apiClient` export inside `infrastructure/` and handles errors explicitly.
+ */
 export const del = async (url: string, data?: any) => {
   try {
     const response = await apiClient.delete(url, { data });
@@ -211,6 +235,10 @@ export const del = async (url: string, data?: any) => {
   }
 };
 
+/**
+ * @deprecated Legacy helper: on failure it returns `error.response` (or `null`) instead of throwing.
+ * New code uses the default `apiClient` export inside `infrastructure/` and handles errors explicitly.
+ */
 export const patch = async (url: string, data: any) => {
   try {
     const response = await apiClient.patch(url, data);

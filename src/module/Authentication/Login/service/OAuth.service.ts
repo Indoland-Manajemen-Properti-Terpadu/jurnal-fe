@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { notifications } from '@mantine/notifications';
-import { post } from '@/services/apiClient';
+import { post } from '@/lib/http/apiClient';
 import { API_AUTH } from '@/services/endpoint';
 import { routes } from '@/router/routes';
 import { useAuthStore } from '@/store/useAuthentications';

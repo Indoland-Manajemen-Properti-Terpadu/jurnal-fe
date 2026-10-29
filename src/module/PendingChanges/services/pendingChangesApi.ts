@@ -1,4 +1,4 @@
-import apiClient from '@/services/apiClient';
+import apiClient from '@/lib/http/apiClient';
 import { API_PENDING_CHANGES } from '@/services/endpoint';
 import type {
   PendingChangeItem,

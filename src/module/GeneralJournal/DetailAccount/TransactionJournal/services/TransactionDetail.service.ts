@@ -1,5 +1,5 @@
 import { API_ACCOUNT } from '@/services/endpoint';
-import { get } from '@/services/apiClient';
+import { get } from '@/lib/http/apiClient';
 import { TransactionDetailModel } from '../types/TransactionDetailModel';
 
 export const getDetailTransaction = async (
