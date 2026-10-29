@@ -32,6 +32,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useDisclosure } from '@mantine/hooks';
 import AppShellLayout from '@/components/AppShellLayout';
 import { routes } from '@/router/routes';
+import { isJournalBalanced } from '@/lib/accounting/journalBalance';
 import { formatCurrency } from '@/utils/FormatCurrency';
 import { dateFormatV1, dateFormatTimeZone } from '@/utils/FormatDate';
 import { useDetailTransaction } from '../hooks/useDetailTransaction';
@@ -39,6 +40,10 @@ import { useDeleteJournalTransaction } from '../services/DeleteTransactionAccoun
 import JournalTransactionDetailTable from '../components/TableTransactionJournal/JournalTransactionDetailTable';
 import FileAttachments from '../components/FileAttachment';
 import DeleteTransactionModal from '../../Main/components/DeleteTransactionModal';
+
+/** View tolerance: a journal reads as balanced when debit and credit differ by less than 0.01. */
+export const isDetailBalanced = (totalDebit: number, totalCredit: number): boolean =>
+  isJournalBalanced([{ debit: totalDebit, credit: totalCredit }]);
 
 export const JournalTransactionDetailPage: React.FC = () => {
   const navigate = useNavigate();
@@ -65,7 +70,7 @@ export const JournalTransactionDetailPage: React.FC = () => {
   const transactionDetails = detailTransaction?.transactionDetail || [];
   const totalDebit = transactionDetails.reduce((sum, item) => sum + (Number(item.debit) || 0), 0);
   const totalCredit = transactionDetails.reduce((sum, item) => sum + (Number(item.credit) || 0), 0);
-  const isBalanced = Math.abs(totalDebit - totalCredit) < 0.01;
+  const isBalanced = isDetailBalanced(totalDebit, totalCredit);
 
   if (isLoading) {
     return (

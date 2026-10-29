@@ -45,39 +45,28 @@ import {
 import { notifications } from '@mantine/notifications';
 import { useQueryClient } from '@tanstack/react-query';
 
+import { routes } from '@/router/routes';
+import { JournalEmptyState } from '@/components/EmptyState/JournalEmptyState';
+import { useDeleteJurnalAccount } from '@/module/GeneralJournal/JournalAccount/services';
+import { ConfirmModal } from '@/components';
+import ModuleHeader from '@/components/ModuleHeader/ModuleHeader';
+import { isDebitNormal } from '@/lib/accounting/normalBalance';
+import { formatCurrency } from '@/utils/FormatCurrency';
+import deleteModalImage from '@/assets/img/vectors/delete_modal.svg';
+import arsipkanIcon from '@/assets/img/vectors/arsipkan.svg';
 import DetailAccountLayout from './Layout';
 import TableJournalTransaction from '../../TransactionJournal/components/TableTransactionJournal/JournalTransactionTable';
 import { useDetailAccount } from '../hooks/useDetailAccount';
 import { accountDetailData } from '../types/DetailAccountModel';
-import { routes } from '@/router/routes';
 import { TransactionByAccountModel } from '../../TransactionJournal/types/TransactionByAccountModel';
 import { GetTransactionByAccount } from '../../TransactionJournal/services/TransactionByAccount.service';
 import { DeleteTransactionAccounts } from '../../TransactionJournal/services/DeleteTransactionAccount.service';
-import { JournalEmptyState } from '@/components/EmptyState/JournalEmptyState';
 import { archiveAccount } from '../services/DetailAccount.service';
-import { useDeleteJurnalAccount } from '@/module/GeneralJournal/JournalAccount/services';
-import { ConfirmModal } from '@/components';
-import ModuleHeader from '@/components/ModuleHeader/ModuleHeader';
-import { formatCurrency } from '@/utils/FormatCurrency';
 import useFilterTransaction from '../store/FilterTransaction';
-import deleteModalImage from '@/assets/img/vectors/delete_modal.svg';
-import arsipkanIcon from '@/assets/img/vectors/arsipkan.svg';
 
 /** Helper to determine the normal accounting balance (Debit vs Kredit) */
-function getNormalBalance(categoryName?: string, type?: string): 'Debit' | 'Kredit' {
-  const cat = (categoryName || type || '').toLowerCase();
-  if (
-    cat.includes('kewajiban') ||
-    cat.includes('hutang') ||
-    cat.includes('liabilitas') ||
-    cat.includes('modal') ||
-    cat.includes('ekuitas') ||
-    cat.includes('pendapatan') ||
-    cat.includes('penjualan')
-  ) {
-    return 'Kredit';
-  }
-  return 'Debit';
+export function getNormalBalance(categoryName?: string, type?: string): 'Debit' | 'Kredit' {
+  return isDebitNormal({ categoryName: categoryName || type }) ? 'Debit' : 'Kredit';
 }
 
 const DetailAccountNonCashBank: React.FC = () => {

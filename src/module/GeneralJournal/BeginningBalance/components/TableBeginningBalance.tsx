@@ -18,6 +18,7 @@ import {
   IconAlertCircle,
   IconSparkles,
 } from '@tabler/icons-react';
+import { isDebitNormal } from '@/lib/accounting/normalBalance';
 import { formatCurrency, numberFormat } from '@/utils/FormatCurrency';
 import EmptyState from '@/components/EmptyState/EmptyTable';
 import defaultEmptyImage from '@/assets/img/Empty-Dataa.svg';
@@ -31,21 +32,8 @@ type TableBeginningBalanceProps = {
 };
 
 /** Determine normal balance position from category standard */
-function isNormalDebit(categoryName?: string, isDebit?: boolean): boolean {
-  if (typeof isDebit === 'boolean') return isDebit;
-  const cat = (categoryName || '').toLowerCase();
-  if (
-    cat.includes('kewajiban') ||
-    cat.includes('hutang') ||
-    cat.includes('liabilitas') ||
-    cat.includes('modal') ||
-    cat.includes('ekuitas') ||
-    cat.includes('pendapatan') ||
-    cat.includes('penjualan')
-  ) {
-    return false;
-  }
-  return true;
+export function isNormalDebit(categoryName?: string, isDebit?: boolean): boolean {
+  return isDebitNormal({ isDebit, categoryName });
 }
 
 const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
@@ -55,24 +43,26 @@ const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
   selectedCategory = null,
 }) => {
   // Filter records based on search and category
-  const filteredRecords = useMemo(() => {
-    return data.filter((item) => {
-      const q = searchQuery.toLowerCase().trim();
-      const matchesSearch =
-        !q ||
-        (item.name && item.name.toLowerCase().includes(q)) ||
-        (item.accountNumber && item.accountNumber.toLowerCase().includes(q)) ||
-        (item.category?.name && item.category.name.toLowerCase().includes(q));
+  const filteredRecords = useMemo(
+    () =>
+      data.filter((item) => {
+        const q = searchQuery.toLowerCase().trim();
+        const matchesSearch =
+          !q ||
+          (item.name && item.name.toLowerCase().includes(q)) ||
+          (item.accountNumber && item.accountNumber.toLowerCase().includes(q)) ||
+          (item.category?.name && item.category.name.toLowerCase().includes(q));
 
-      const matchesCategory =
-        !selectedCategory ||
-        selectedCategory === 'all' ||
-        item.category?.name?.toLowerCase() === selectedCategory.toLowerCase() ||
-        item.category?.categoryID === selectedCategory;
+        const matchesCategory =
+          !selectedCategory ||
+          selectedCategory === 'all' ||
+          item.category?.name?.toLowerCase() === selectedCategory.toLowerCase() ||
+          item.category?.categoryID === selectedCategory;
 
-      return matchesSearch && matchesCategory;
-    });
-  }, [data, searchQuery, selectedCategory]);
+        return matchesSearch && matchesCategory;
+      }),
+    [data, searchQuery, selectedCategory]
+  );
 
   const handleValueChange = (accountId: string, field: 'debit' | 'credit', rawString: string) => {
     const cleanNumbers = rawString.replace(/\D/g, '');
@@ -282,11 +272,7 @@ const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
               size="xs"
               radius="md"
               leftSection={
-                <Text
-                  size="xs"
-                  fw={600}
-                  c={hasVal ? 'red.7' : isNormalCredit ? 'red.6' : 'dimmed'}
-                >
+                <Text size="xs" fw={600} c={hasVal ? 'red.7' : isNormalCredit ? 'red.6' : 'dimmed'}>
                   Rp
                 </Text>
               }

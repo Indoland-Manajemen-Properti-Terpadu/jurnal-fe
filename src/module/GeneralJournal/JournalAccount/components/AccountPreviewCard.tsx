@@ -22,6 +22,7 @@ import {
   IconReceiptTax,
   IconScale,
 } from '@tabler/icons-react';
+import { isDebitNormal } from '@/lib/accounting/normalBalance';
 import { themeColors } from '@/theme';
 import { useTranslation } from '@/i18n';
 
@@ -61,7 +62,7 @@ export const AccountPreviewCard: React.FC<AccountPreviewCardProps> = ({
   const { t } = useTranslation('journal');
 
   // Determine effective balance position (accounting logic)
-  const effectiveDebit = isContra ? !isDebit : isDebit;
+  const effectiveDebit = isDebitNormal({ isDebit, isContra });
   const normalBalanceLabel = effectiveDebit ? 'Debit' : 'Kredit';
   const normalBalanceColor = effectiveDebit ? 'teal' : 'red';
 
