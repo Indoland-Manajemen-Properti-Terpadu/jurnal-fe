@@ -56,7 +56,7 @@ Priority changed: the ledger (`GeneralJournal`) goes before the remaining small 
 | Module | Structure | Names | i18n | Docs | Tests | Release |
 |---|---|---|---|---|---|---|
 | `chart-of-accounts` | wip | wip | todo | wip | wip | R2 |
-| `journal-entries` | todo | todo | todo | todo | todo | R2 |
+| `journal-entries` | done | done | done | done | done | R2 |
 | `account-ledger` | todo | todo | todo | todo | todo | R2 |
 | `bank-statements` | done | done | done | done | done | R2 |
 | `reconciliation` | todo | todo | todo | todo | todo | R2 |

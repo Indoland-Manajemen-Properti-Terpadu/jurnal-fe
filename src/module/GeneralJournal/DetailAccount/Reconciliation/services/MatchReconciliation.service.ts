@@ -46,6 +46,7 @@ export const useMatchReconciliation = () => {
         exact: false,
       });
       queryClient.invalidateQueries({ queryKey: ['transaction_by_account'] });
+      queryClient.invalidateQueries({ queryKey: ['transaction_by_account_reconcile'] });
       queryClient.invalidateQueries({ queryKey: ['detail_account'] });
     },
     onError: (error: any) => {

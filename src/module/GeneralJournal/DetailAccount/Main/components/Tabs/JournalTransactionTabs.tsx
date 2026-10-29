@@ -22,19 +22,21 @@ import {
 } from '@tabler/icons-react';
 import { routes } from '@/router/routes';
 import { useNavigate, useParams } from 'react-router-dom';
-import TableJournalTransaction from '../../../TransactionJournal/components/TableTransactionJournal/JournalTransactionTable';
-import { DeleteTransactionAccounts } from '../../../TransactionJournal/services/DeleteTransactionAccount.service';
-import { GetTransactionByAccount } from '../../../TransactionJournal/services/TransactionByAccount.service';
-import { TransactionByAccountModel } from '../../../TransactionJournal/types/TransactionByAccountModel';
-import useFilterTransaction from '../../store/FilterTransaction';
+import {
+  JournalEntriesTable as TableJournalTransaction,
+  useDeleteJournalEntries,
+  useJournalEntriesByAccount,
+  useFilterTransaction,
+} from '@/module/journal-entries';
+import type { JournalEntryByAccount } from '@/module/journal-entries';
 import { ConfirmModal } from '@/components';
 import deleteModalImage from '@/assets/img/vectors/delete_modal.svg';
 import { notifications } from '@mantine/notifications';
 import { useQueryClient } from '@tanstack/react-query';
 
 interface Props {
-  selectedRecords: TransactionByAccountModel[];
-  setSelectedRecords: React.Dispatch<React.SetStateAction<TransactionByAccountModel[]>>;
+  selectedRecords: JournalEntryByAccount[];
+  setSelectedRecords: React.Dispatch<React.SetStateAction<JournalEntryByAccount[]>>;
   noRecordsContent?: React.ReactNode;
 }
 
@@ -46,8 +48,8 @@ const JournalTransactionTab: React.FC<Props> = ({
   const { idAccount } = useParams<{ idAccount: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const deleteMutation = DeleteTransactionAccounts();
-  const { data: transaction, isError, isLoading, refetch } = GetTransactionByAccount(idAccount!);
+  const deleteMutation = useDeleteJournalEntries();
+  const { data: transaction, isError, isLoading, refetch } = useJournalEntriesByAccount(idAccount!);
 
   const { searchQuery, setSearchQuery, selectedDate, setSelectedDate, resetSelection } =
     useFilterTransaction();

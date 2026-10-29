@@ -1,23 +1,23 @@
-import React, { useState } from "react";
-import EmptyState from "@/components/EmptyState/EmptyTable";
-import { ActionIcon, Checkbox, Menu, Pagination, rem, Stack, Table, Text } from "@mantine/core";
-import { themeColors } from "@/theme";
-import { IconDots, IconEye, IconEdit, IconTrash } from "@tabler/icons-react";
-import { ActiveBadge, InactiveBadge } from "@/components/Badge/Badge";
-import { notifications } from "@mantine/notifications";
-import DeleteTransactionModal from "@/module/GeneralJournal/DetailAccount/Main/components/DeleteTransactionModal";
-import { GetRoles } from "../../Service/Role.service";
+import React, { useState } from 'react';
+import EmptyState from '@/components/EmptyState/EmptyTable';
+import { ActionIcon, Checkbox, Menu, Pagination, rem, Stack, Table, Text } from '@mantine/core';
+import { themeColors } from '@/theme';
+import { IconDots, IconEye, IconEdit, IconTrash } from '@tabler/icons-react';
+import { ActiveBadge, InactiveBadge } from '@/components/Badge/Badge';
+import { notifications } from '@mantine/notifications';
+import { DeleteJournalEntryModal as DeleteTransactionModal } from '@/module/journal-entries';
+import { GetRoles } from '../../Service/Role.service';
 
 const rowStyle = {
   borderColor: themeColors.gray[1],
-  borderWidth: "1px",
-  borderStyle: "solid",
+  borderWidth: '1px',
+  borderStyle: 'solid',
 };
 
 const headTableFont = {
   fontSize: 14,
-  fontWeight: 500
-}
+  fontWeight: 500,
+};
 
 const AdditionalRoleTable: React.FC = () => {
   const { data: AdditionalRole, isError } = GetRoles(false);
@@ -28,7 +28,7 @@ const AdditionalRoleTable: React.FC = () => {
     notifications.show({
       color: themeColors.red[6],
       autoClose: 3000,
-      title: "Successfully Deleted Additional Role",
+      title: 'Successfully Deleted Additional Role',
       message: `Role "${selectedRole}" has been deleted`,
     });
     setIsDeleteModalOpen(false);
@@ -53,23 +53,23 @@ const AdditionalRoleTable: React.FC = () => {
         highlightOnHover
         style={{
           borderColor: themeColors.gray[3],
-          borderWidth: "1px",
-          borderStyle: "solid",
+          borderWidth: '1px',
+          borderStyle: 'solid',
           borderTop: 0,
         }}
       >
-        <Table.Thead >
+        <Table.Thead>
           <Table.Tr>
-            <Table.Th colSpan={1} ta="left" style={{ ...headTableFont, width: "5%" }}>
+            <Table.Th colSpan={1} ta="left" style={{ ...headTableFont, width: '5%' }}>
               <Checkbox />
             </Table.Th>
-            <Table.Th colSpan={2} ta="left" style={{ ...headTableFont, width: "20%" }}>
+            <Table.Th colSpan={2} ta="left" style={{ ...headTableFont, width: '20%' }}>
               Role Name
             </Table.Th>
             <Table.Th colSpan={6} ta="center" style={{ ...headTableFont }}>
               Status
             </Table.Th>
-            <Table.Th colSpan={1} ta="right" style={{ ...headTableFont, width: "5%" }}>
+            <Table.Th colSpan={1} ta="right" style={{ ...headTableFont, width: '5%' }}>
               Action
             </Table.Th>
           </Table.Tr>
@@ -77,16 +77,28 @@ const AdditionalRoleTable: React.FC = () => {
         <Table.Tbody>
           {AdditionalRole.map((role) => (
             <Table.Tr key={role.id}>
-              <Table.Td fz={14} colSpan={1} style={{ width: "5%", textAlign: "left", fontWeight: 400 }}>
+              <Table.Td
+                fz={14}
+                colSpan={1}
+                style={{ width: '5%', textAlign: 'left', fontWeight: 400 }}
+              >
                 <Checkbox />
               </Table.Td>
-              <Table.Td fz={14} colSpan={2} style={{ width: "40%", textAlign: "left", fontWeight: 400 }}>
+              <Table.Td
+                fz={14}
+                colSpan={2}
+                style={{ width: '40%', textAlign: 'left', fontWeight: 400 }}
+              >
                 {role.name}
               </Table.Td>
-              <Table.Td fz={14} colSpan={6} style={{ textAlign: "center", fontWeight: 400 }}>
+              <Table.Td fz={14} colSpan={6} style={{ textAlign: 'center', fontWeight: 400 }}>
                 {!role.isDefault ? <ActiveBadge /> : <InactiveBadge />}
               </Table.Td>
-              <Table.Td fz={14} colSpan={1} style={{ width: "5%", textAlign: "center", fontWeight: 400 }}>
+              <Table.Td
+                fz={14}
+                colSpan={1}
+                style={{ width: '5%', textAlign: 'center', fontWeight: 400 }}
+              >
                 <Menu width={200} shadow="md">
                   <Menu.Target>
                     <ActionIcon variant="light" color="gray" aria-label="Settings">

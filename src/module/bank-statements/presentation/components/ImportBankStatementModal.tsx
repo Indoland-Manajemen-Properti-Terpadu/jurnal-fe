@@ -7,7 +7,7 @@ import { themeColors } from '@/theme';
 import { routes } from '@/router/routes';
 import { useTranslation } from '@/i18n';
 import CustomConfirmModal from '@/components/Modals/ConfirmModal';
-import { useFileStore } from '@/store/GeneralJournal/useFileStore';
+import { useFileStore } from '@/module/journal-entries';
 import { useImportBankStatement } from '../hooks/useImportBankStatement';
 import { useSimulatedUpload } from '../hooks/useSimulatedUpload';
 import ImportStepDownload from './ImportStepDownload';

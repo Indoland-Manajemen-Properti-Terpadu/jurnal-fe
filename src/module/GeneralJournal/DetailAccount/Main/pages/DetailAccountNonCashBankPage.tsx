@@ -54,15 +54,17 @@ import { isDebitNormal } from '@/lib/accounting/normalBalance';
 import { formatCurrency } from '@/utils/FormatCurrency';
 import deleteModalImage from '@/assets/img/vectors/delete_modal.svg';
 import arsipkanIcon from '@/assets/img/vectors/arsipkan.svg';
+import {
+  JournalEntriesTable as TableJournalTransaction,
+  useDeleteJournalEntries,
+  useJournalEntriesByAccount,
+  useFilterTransaction,
+} from '@/module/journal-entries';
+import type { JournalEntryByAccount } from '@/module/journal-entries';
 import DetailAccountLayout from './Layout';
-import TableJournalTransaction from '../../TransactionJournal/components/TableTransactionJournal/JournalTransactionTable';
 import { useDetailAccount } from '../hooks/useDetailAccount';
 import { accountDetailData } from '../types/DetailAccountModel';
-import { TransactionByAccountModel } from '../../TransactionJournal/types/TransactionByAccountModel';
-import { GetTransactionByAccount } from '../../TransactionJournal/services/TransactionByAccount.service';
-import { DeleteTransactionAccounts } from '../../TransactionJournal/services/DeleteTransactionAccount.service';
 import { archiveAccount } from '../services/DetailAccount.service';
-import useFilterTransaction from '../store/FilterTransaction';
 
 /** Helper to determine the normal accounting balance (Debit vs Kredit) */
 export function getNormalBalance(categoryName?: string, type?: string): 'Debit' | 'Kredit' {
@@ -79,16 +81,16 @@ const DetailAccountNonCashBank: React.FC = () => {
     data: transactions,
     isLoading: isLoadingTransaction,
     refetch: refetchTransactions,
-  } = GetTransactionByAccount(idAccount!);
+  } = useJournalEntriesByAccount(idAccount!);
 
   const { mutate: deleteAccount, isPending: isDeletingAccount } = useDeleteJurnalAccount();
-  const deleteTransactionMutation = DeleteTransactionAccounts();
+  const deleteTransactionMutation = useDeleteJournalEntries();
 
   const rawData =
     (accountDetail as any)?.data?.data || (accountDetail as any)?.data || accountDetail;
   const accountData = accountDetailData(rawData);
 
-  const [selectedRecords, setSelectedRecords] = useState<TransactionByAccountModel[]>([]);
+  const [selectedRecords, setSelectedRecords] = useState<JournalEntryByAccount[]>([]);
   const [activeTab, setActiveTab] = useState<string>('transactions');
   const [isArchiving, setIsArchiving] = useState(false);
   const [isDeleteAccountModalOpen, setIsDeleteAccountModalOpen] = useState(false);

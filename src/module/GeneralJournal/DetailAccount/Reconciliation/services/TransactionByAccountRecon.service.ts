@@ -7,9 +7,9 @@ interface TransactionByAccountParams {
   expenditure: boolean;
 }
 
-export const GetTransactionByAccountRecon = (idAccount: string, expenditure: boolean) => {
-  return useQuery<TransactionByAccountRecon[]>({
-    queryKey: ['transaction_by_account', idAccount, expenditure],
+export const GetTransactionByAccountRecon = (idAccount: string, expenditure: boolean) =>
+  useQuery<TransactionByAccountRecon[]>({
+    queryKey: ['transaction_by_account_reconcile', idAccount, expenditure],
     queryFn: async () => {
       const params = new URLSearchParams({
         sortBy: 'transactionDate',
@@ -23,4 +23,3 @@ export const GetTransactionByAccountRecon = (idAccount: string, expenditure: boo
 
     enabled: !!idAccount,
   });
-};

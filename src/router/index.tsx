@@ -5,8 +5,7 @@ import { setNavigate } from '@/lib/http/apiClient';
 import GeneralJournalPage from '@/module/GeneralJournal/Main/pages/GeneralJournalPage';
 import AddAccountjournalPage from '@/module/GeneralJournal/JournalAccount/pages/AddAccount/AddAccountJournal';
 import EditAccountJournalPage from '@/module/GeneralJournal/JournalAccount/pages/EditAccount/EditAccountJournal';
-import AddJournalTransactionForm from '@/module/GeneralJournal/DetailAccount/TransactionJournal/components/Form/AddJournalTransactionForm';
-import JournalTransactionDetailPage from '@/module/GeneralJournal/DetailAccount/TransactionJournal/pages/JournalTransactionDetail';
+import { AddJournalEntryPage, JournalEntryDetailPage } from '@/module/journal-entries';
 import DetailAccount from '@/module/GeneralJournal/DetailAccount/Main/pages/DetailAccountPage';
 import DetailAccountNonCashBank from '@/module/GeneralJournal/DetailAccount/Main/pages/DetailAccountNonCashBankPage';
 import { BeginningBalancePage } from '@/module/beginning-balances';
@@ -148,7 +147,7 @@ const router = createBrowserRouter([
   },
   {
     path: routes.generalJournal.addTransactionJournal,
-    element: <AddJournalTransactionForm />,
+    element: <AddJournalEntryPage />,
   },
   {
     path: routes.generalJournal.detailAccount,
@@ -160,7 +159,7 @@ const router = createBrowserRouter([
   },
   {
     path: routes.generalJournal.detailTransactionJournal,
-    element: <JournalTransactionDetailPage />,
+    element: <JournalEntryDetailPage />,
   },
   {
     path: routes.generalJournal.beginningBalance,
