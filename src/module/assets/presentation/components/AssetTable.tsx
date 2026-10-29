@@ -38,7 +38,7 @@ import {
   IconX,
 } from '@tabler/icons-react';
 import { formatCurrency } from '@/utils/FormatCurrency';
-import { AssetCategory, AssetItem } from '../types/asset';
+import { AssetCategory, AssetItem } from '@/module/assets/domain/asset';
 import { useTranslation } from '@/i18n';
 import EmptyState from '@/components/EmptyState/EmptyState';
 

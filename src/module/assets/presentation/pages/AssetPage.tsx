@@ -5,14 +5,14 @@ import { useNavigate } from 'react-router-dom';
 import ModuleHeader from '@/components/ModuleHeader/ModuleHeader';
 import ConfirmModal from '@/components/ui/ConfirmModal/ConfirmModal';
 import { routes } from '@/router/routes';
-import AssetLayout from './Layout';
-import AssetStatsGrid from '../components/AssetStatsGrid';
-import AssetTable from '../components/AssetTable';
-import AssetFormModal from '../components/AssetFormModal';
-import AssetScheduleModal from '../components/AssetScheduleModal';
-import AssetDisposalModal from '../components/AssetDisposalModal';
-import { useAssets } from '../hooks/useAssets';
-import { AssetItem } from '../types/asset';
+import AssetLayout from '@/module/assets/presentation/pages/Layout';
+import AssetStatsGrid from '@/module/assets/presentation/components/AssetStatsGrid';
+import AssetTable from '@/module/assets/presentation/components/AssetTable';
+import AssetFormModal from '@/module/assets/presentation/components/AssetFormModal';
+import AssetScheduleModal from '@/module/assets/presentation/components/AssetScheduleModal';
+import AssetDisposalModal from '@/module/assets/presentation/components/AssetDisposalModal';
+import { useAssets } from '@/module/assets/presentation/hooks/useAssets';
+import { AssetItem } from '@/module/assets/domain/asset';
 import { useTranslation } from '@/i18n';
 
 export function AssetPage() {

@@ -18,7 +18,7 @@ import { DateInput } from '@mantine/dates';
 import dayjs from 'dayjs';
 import { IconAlertTriangle, IconCalendar, IconCash, IconScale } from '@tabler/icons-react';
 import { formatCurrency } from '@/utils/FormatCurrency';
-import { AssetItem } from '../types/asset';
+import { AssetItem } from '@/module/assets/domain/asset';
 import { useTranslation } from '@/i18n';
 
 export type AssetDisposalModalProps = {

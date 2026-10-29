@@ -44,12 +44,12 @@ import { useNavigate, useParams } from 'react-router-dom';
 import ConfirmModal from '@/components/ui/ConfirmModal/ConfirmModal';
 import { routes } from '@/router/routes';
 import { formatCurrency } from '@/utils/FormatCurrency';
-import AssetLayout from '../view/Layout';
-import AssetFormModal from '../components/AssetFormModal';
-import AssetDisposalModal from '../components/AssetDisposalModal';
-import { useAssets } from '../hooks/useAssets';
-import { AssetCategory, AssetItem } from '../types/asset';
-import { generateDepreciationSchedule } from '../services/assetStorage';
+import AssetLayout from '@/module/assets/presentation/pages/Layout';
+import AssetFormModal from '@/module/assets/presentation/components/AssetFormModal';
+import AssetDisposalModal from '@/module/assets/presentation/components/AssetDisposalModal';
+import { useAssets } from '@/module/assets/presentation/hooks/useAssets';
+import { AssetCategory, AssetItem } from '@/module/assets/domain/asset';
+import { generateDepreciationSchedule } from '@/module/assets/infrastructure/assetStorage';
 
 const getCategoryMeta = (cat: AssetCategory) => {
   switch (cat) {

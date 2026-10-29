@@ -25,8 +25,8 @@ import {
   IconTrendingDown,
 } from '@tabler/icons-react';
 import { formatCurrency } from '@/utils/FormatCurrency';
-import { AssetItem } from '../types/asset';
-import { generateDepreciationSchedule } from '../services/assetStorage';
+import { AssetItem } from '@/module/assets/domain/asset';
+import { generateDepreciationSchedule } from '@/module/assets/infrastructure/assetStorage';
 import { useTranslation } from '@/i18n';
 
 export type AssetScheduleModalProps = {

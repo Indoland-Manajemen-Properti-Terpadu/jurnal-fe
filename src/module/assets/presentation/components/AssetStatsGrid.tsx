@@ -1,7 +1,7 @@
 import { Box, Group, Paper, SimpleGrid, Skeleton, Text, ThemeIcon } from '@mantine/core';
 import { IconCoins, IconScale, IconTool, IconTrendingDown } from '@tabler/icons-react';
 import { formatCurrency } from '@/utils/FormatCurrency';
-import { AssetItem } from '../types/asset';
+import { AssetItem } from '@/module/assets/domain/asset';
 import { useTranslation } from '@/i18n';
 
 export type AssetStatsGridProps = {

@@ -36,8 +36,8 @@ import {
 import { DateInput } from '@mantine/dates';
 import dayjs from 'dayjs';
 import { formatCurrency } from '@/utils/FormatCurrency';
-import { AssetCategory, AssetFormValues, AssetItem, DepreciationMethod } from '../types/asset';
-import { calculateAssetDepreciation } from '../services/assetStorage';
+import { AssetCategory, AssetFormValues, AssetItem, DepreciationMethod } from '@/module/assets/domain/asset';
+import { calculateAssetDepreciation } from '@/module/assets/infrastructure/assetStorage';
 import { useTranslation } from '@/i18n';
 
 export type AssetFormModalProps = {

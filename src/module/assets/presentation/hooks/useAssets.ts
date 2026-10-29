@@ -1,11 +1,11 @@
 import { useState, useCallback, useEffect } from 'react';
 import { notifications } from '@mantine/notifications';
-import { AssetFormValues, AssetItem } from '../types/asset';
+import { AssetFormValues, AssetItem } from '@/module/assets/domain/asset';
 import {
   calculateAssetDepreciation,
   loadStoredAssets,
   persistAssets,
-} from '../services/assetStorage';
+} from '@/module/assets/infrastructure/assetStorage';
 
 export const useAssets = () => {
   const [assets, setAssets] = useState<AssetItem[]>([]);

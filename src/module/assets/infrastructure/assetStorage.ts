@@ -3,7 +3,7 @@ import {
   AssetFormValues,
   AssetItem,
   DepreciationScheduleItem,
-} from '../types/asset';
+} from '@/module/assets/domain/asset';
 
 const STORAGE_KEY = 'jurnal_fixed_assets_data';
 
