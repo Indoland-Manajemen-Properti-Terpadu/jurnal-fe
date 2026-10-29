@@ -27,7 +27,7 @@ Columns: **Structure** (layout and layers), **Names** (English, kebab-case paths
 | `Profile` to `profile` | todo | todo | todo | todo | todo | R1 |
 | `LandingPage` to `landing` | todo | todo | todo | todo | todo | R1 |
 | `Dashboard` to `dashboard` | todo | todo | todo | todo | todo | R1 |
-| `SettingBudget` + `BudgetPlanning` to `budgeting` | todo | todo | todo | todo | todo | R1 |
+| `SettingBudget` + `BudgetPlanning` to `budgeting` | done | done | done | done | done | R1 |
 | `Cost` to `costs` | done | done | done | done | done | R1 |
 | `Production` to `production` | done | done | done | done | done | R1 |
 | `Fulfillment` to `fulfillment` | done | done | done | done | done | R1 |

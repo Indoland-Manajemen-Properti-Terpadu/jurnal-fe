@@ -10,6 +10,7 @@ import { dashboard } from './dashboard';
 import { costs } from './costs';
 import { production } from './production';
 import { fulfillment } from './fulfillment';
+import { budgeting } from './budgeting';
 
 export const id = {
   common,
@@ -24,6 +25,7 @@ export const id = {
   costs,
   production,
   fulfillment,
+  budgeting,
 };
 
 export default id;
