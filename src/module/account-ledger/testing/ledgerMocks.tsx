@@ -7,6 +7,7 @@ import { render } from '@test-utils';
 /** Mutable state read by the module mocks below; reset it in `beforeEach`. */
 export const ledgerState = {
   detail: undefined as Record<string, unknown> | undefined,
+  detailError: false,
   detailLoading: false,
   transactions: undefined as Record<string, unknown>[] | undefined,
   transactionsLoading: false,
@@ -21,6 +22,7 @@ export const fns = {
   archiveAccount: vi.fn(),
   deleteEntries: vi.fn(),
   refetchTransactions: vi.fn(),
+  refetchDetail: vi.fn(),
   notify: vi.fn(),
   reconCalls: [] as string[],
   bankStatementCalls: [] as string[],
@@ -29,6 +31,7 @@ export const fns = {
 export const resetLedgerMocks = () => {
   ledgerState.detail = undefined;
   ledgerState.detailLoading = false;
+  ledgerState.detailError = false;
   ledgerState.transactions = undefined;
   ledgerState.transactionsLoading = false;
   ledgerState.transactionsError = false;
@@ -49,7 +52,8 @@ export const chartOfAccountsMock = async () => {
     useDetailAccount: () => ({
       accountDetail: ledgerState.detail,
       isLoading: ledgerState.detailLoading,
-      isError: false,
+      isError: ledgerState.detailError,
+      refetch: fns.refetchDetail,
     }),
     useDeleteAccount: () => ({
       mutate: fns.deleteAccount,

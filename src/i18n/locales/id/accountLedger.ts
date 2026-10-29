@@ -23,6 +23,9 @@ export const accountLedger = {
     archiveConfirmAfter: '?',
     archiveHelper:
       'Akun akan disembunyikan dari transaksi baru namun riwayat laporan tetap tersimpan aman.',
+    loadFailedTitle: 'Gagal memuat akun',
+    loadFailedMessage: 'Detail akun tidak dapat dimuat. Periksa koneksi Anda lalu coba lagi.',
+    retry: 'Coba Lagi',
     side: { Debit: 'Debit', Kredit: 'Kredit' },
   },
   cashBank: {

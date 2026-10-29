@@ -40,7 +40,7 @@ Namespace `accountLedger` (`src/i18n/locales/{id,en}/accountLedger.ts`, parity t
 
 ## Errors (R3)
 
-The page used no swallowing helper: `archiveAccount` and the delete hooks already throw (migrated in `chart-of-accounts`). A failed archive keeps its red toast with the server message. `useDetailAccount` still reads through the swallowing `get` helper (owned by `chart-of-accounts`), so a failed detail request renders the page with "N/A" placeholders instead of an error state.
+The page used no swallowing helper: `archiveAccount` and the delete hooks already throw (migrated in `chart-of-accounts`). A failed archive keeps its red toast with the server message. `useDetailAccount` now reads through the throwing `apiClient`: a failed detail request shows an error state (title, message, retry) instead of "N/A" placeholders. `EditAccountPage` shows the shared `NotFound` page in that case instead of an empty form.
 
 ## Known gaps (kept as is, for the owner to decide)
 

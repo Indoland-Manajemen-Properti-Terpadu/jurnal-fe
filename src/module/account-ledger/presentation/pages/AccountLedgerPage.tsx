@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Alert, Center, Container, Loader, Stack, Text } from '@mantine/core';
+import { Alert, Button, Center, Container, Loader, Stack, Text, Title } from '@mantine/core';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
@@ -28,7 +28,12 @@ const AccountLedgerContent: React.FC<AccountLedgerPageProps> = ({ variant }) => 
   const { idAccount = '' } = useParams<{ idAccount: string }>();
   const isCashBank = variant === 'cashBank';
 
-  const { accountDetail, isLoading: isLoadingAccount } = useDetailAccount(idAccount);
+  const {
+    accountDetail,
+    isLoading: isLoadingAccount,
+    isError: isAccountError,
+    refetch: refetchAccount,
+  } = useDetailAccount(idAccount);
   const entries = useJournalEntriesByAccount(idAccount);
   const summary = useCashBankSummary(idAccount, isCashBank);
 
@@ -66,6 +71,25 @@ const AccountLedgerContent: React.FC<AccountLedgerPageProps> = ({ variant }) => 
             <Text size="sm" c="dimmed">
               {t(`${variant}.loading`)}
             </Text>
+          </Stack>
+        </Center>
+      </AppShellLayout>
+    );
+  }
+
+  if (isAccountError) {
+    return (
+      <AppShellLayout>
+        <Center h={400}>
+          <Stack align="center" gap="sm" maw={420}>
+            <IconAlertCircle size={40} color="var(--mantine-color-red-6)" />
+            <Title order={4}>{t('common.loadFailedTitle')}</Title>
+            <Text size="sm" c="dimmed" ta="center">
+              {t('common.loadFailedMessage')}
+            </Text>
+            <Button variant="light" onClick={() => refetchAccount()}>
+              {t('common.retry')}
+            </Button>
           </Stack>
         </Center>
       </AppShellLayout>

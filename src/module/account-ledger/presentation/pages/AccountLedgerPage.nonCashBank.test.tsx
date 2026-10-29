@@ -73,6 +73,16 @@ describe('non cash/bank ledger page (characterization)', () => {
     expect(screen.getByText('Memuat data buku besar akun...')).toBeInTheDocument();
   });
 
+  it('shows an error state with a retry when the account detail fails to load', async () => {
+    ledgerState.detailError = true;
+    renderNonCash();
+    const user = userEvent.setup();
+    expect(screen.getByText('Gagal memuat akun')).toBeInTheDocument();
+    expect(screen.queryByText('N/A')).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Coba Lagi' }));
+    expect(fns.refetchDetail).toHaveBeenCalled();
+  });
+
   it('lets the backend category isDebit flag win over the keywords', () => {
     ledgerState.detail = { ...baseDetail, category: { name: 'Hutang Usaha', isDebit: true } };
     renderNonCash();

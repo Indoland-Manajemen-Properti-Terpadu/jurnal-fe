@@ -6,6 +6,7 @@ import EditAccountPage from './EditAccountPage';
 const addMutate = vi.fn();
 const updateMutate = vi.fn();
 let detail: Record<string, unknown> | undefined;
+let detailError = false;
 
 vi.mock('@/components/AppShellLayout', () => ({
   default: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
@@ -43,7 +44,7 @@ vi.mock('../hooks/useUpdateAccount', () => ({
   useUpdateAccount: () => ({ mutate: updateMutate, isPending: false }),
 }));
 vi.mock('../hooks/useDetailAccount', () => ({
-  useDetailAccount: () => ({ accountDetail: detail, isLoading: false, isError: false }),
+  useDetailAccount: () => ({ accountDetail: detail, isLoading: false, isError: detailError }),
 }));
 
 const renderAdd = () =>
@@ -117,6 +118,7 @@ describe('AddAccountPage rules (characterization: I6)', () => {
 describe('EditAccountPage rules (characterization: I6, I7)', () => {
   beforeEach(() => {
     updateMutate.mockClear();
+    detailError = false;
     detail = {
       name: 'Kas Kecil',
       accountNumber: '1-10002',
@@ -170,5 +172,13 @@ describe('EditAccountPage rules (characterization: I6, I7)', () => {
     expect(screen.getByText(/Akun Berstatus Terkunci/)).toBeInTheDocument();
     expect(screen.queryByText('Struktur & Hierarki Akun')).not.toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: /Kategori Akun/ })).toBeDisabled();
+  });
+
+  it('shows the not found page instead of an empty form when the account fails to load', () => {
+    detailError = true;
+    detail = undefined;
+    renderEdit();
+    expect(screen.getByText('Something is not right...')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /simpan perubahan/i })).not.toBeInTheDocument();
   });
 });

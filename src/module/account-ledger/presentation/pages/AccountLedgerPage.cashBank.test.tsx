@@ -211,6 +211,15 @@ describe('cash/bank ledger page (characterization)', () => {
     });
   });
 
+  it('shows an error state with a retry when the account detail fails to load', async () => {
+    ledgerState.detailError = true;
+    renderCashBank();
+    const user = userEvent.setup();
+    expect(screen.getByText('Gagal memuat akun')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Coba Lagi' }));
+    expect(fns.refetchDetail).toHaveBeenCalled();
+  });
+
   it('shows an error state with a retry for the entries', async () => {
     ledgerState.transactionsError = true;
     renderCashBank();

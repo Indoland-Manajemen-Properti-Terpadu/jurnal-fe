@@ -23,6 +23,10 @@ export const accountLedger = {
     archiveConfirmAfter: '?',
     archiveHelper:
       'The account will be hidden from new transactions, but its reporting history stays safe.',
+    loadFailedTitle: 'Failed to load the account',
+    loadFailedMessage:
+      'The account details could not be loaded. Check your connection and try again.',
+    retry: 'Try Again',
     side: { Debit: 'Debit', Kredit: 'Credit' },
   },
   cashBank: {
