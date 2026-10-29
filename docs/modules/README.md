@@ -11,7 +11,7 @@ Status per module: [../migration/STATUS.md](../migration/STATUS.md).
 | `sales` | `src/module/Sale` | pending (M1) |
 | `purchases` | `src/module/Pembelian` | pending (M1) |
 | `assets` | `src/module/Asset` | pending (M1) |
-| `pending-changes` | `src/module/PendingChanges` | pending (M1) |
+| `pending-changes` | `src/module/pending-changes` | [README](../../src/module/pending-changes/README.md) |
 | `profile` | `src/module/profile` | [README](../../src/module/profile/README.md) |
 | `landing` | `src/module/landing` | [README](../../src/module/landing/README.md) |
 | `dashboard` | `src/module/Dashboard` | pending (M1) |
