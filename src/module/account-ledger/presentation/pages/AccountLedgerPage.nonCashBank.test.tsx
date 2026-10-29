@@ -73,8 +73,26 @@ describe('non cash/bank ledger page (characterization)', () => {
     expect(screen.getByText('Memuat data buku besar akun...')).toBeInTheDocument();
   });
 
-  it('derives the normal balance from the category name (keyword fallback, no backend flag)', () => {
+  it('lets the backend category isDebit flag win over the keywords', () => {
     ledgerState.detail = { ...baseDetail, category: { name: 'Hutang Usaha', isDebit: true } };
+    renderNonCash();
+    expect(screen.getByText(/Hutang Usaha • Saldo Normal: Debit/)).toBeInTheDocument();
+    expect(screen.getByText('Bertambah pada sisi Debit')).toBeInTheDocument();
+  });
+
+  it('flips the normal balance of a contra account', () => {
+    ledgerState.detail = {
+      ...baseDetail,
+      isContra: true,
+      category: { name: 'Aset Tetap', isDebit: true },
+    };
+    renderNonCash();
+    expect(screen.getByText(/Aset Tetap • Saldo Normal: Kredit/)).toBeInTheDocument();
+    expect(screen.getByText('Bertambah pada sisi Kredit')).toBeInTheDocument();
+  });
+
+  it('derives the normal balance from the category name when the backend sends no flag', () => {
+    ledgerState.detail = { ...baseDetail, category: { name: 'Hutang Usaha' } };
     renderNonCash();
     expect(screen.getByText(/Hutang Usaha • Saldo Normal: Kredit/)).toBeInTheDocument();
     expect(screen.getByText('Bertambah pada sisi Kredit')).toBeInTheDocument();

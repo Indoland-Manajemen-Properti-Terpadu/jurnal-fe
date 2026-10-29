@@ -44,8 +44,14 @@ const AccountLedgerContent: React.FC<AccountLedgerPageProps> = ({ variant }) => 
   const [activeTab, setActiveTab] = useState(isCashBank ? 'transaction' : 'transactions');
 
   const normalBalance = useMemo(
-    () => getNormalBalance(account.category?.name, account.type),
-    [account.category?.name, account.type]
+    () =>
+      getNormalBalance({
+        categoryName: account.category?.name,
+        type: account.type,
+        isDebit: account.category?.isDebit,
+        isContra: account.isContra,
+      }),
+    [account.category?.name, account.category?.isDebit, account.type, account.isContra]
   );
   const metrics = useMemo(() => summarizeMutations(entries.data), [entries.data]);
 

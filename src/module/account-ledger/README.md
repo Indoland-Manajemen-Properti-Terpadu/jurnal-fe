@@ -30,7 +30,7 @@ None of its own; it only uses hooks of the sibling modules (`useDetailAccount`, 
 
 ## Domain rules
 
-- I5 normal balance (non cash/bank screen): `getNormalBalance(categoryName, type)` goes through the kernel `isDebitNormal` with the category name (or the account type when the name is empty) only, so the Indonesian keyword fallback decides. The backend `category.isDebit` flag and `isContra` are NOT passed, exactly as before. Pinned by `normalBalance.test.ts`. Passing them is an open decision (see below); it would change what some accounts show.
+- I5 normal balance (non cash/bank screen): `getNormalBalance({ categoryName, type, isDebit, isContra })` goes through the kernel `isDebitNormal`: the backend `category.isDebit` flag wins, the Indonesian keyword fallback (category name, or the account type when the name is empty) applies when the flag is absent, and `isContra` flips the side. The cash/bank variant shows no normal balance. Pinned by `normalBalance.test.ts`.
 - I7 locked accounts: the header menu offers archive and delete only when `canArchiveAccount` and `canDeleteAccount` (chart-of-accounts) allow it. The edit button stays available.
 - Mutation totals (`summarizeMutations`): only strictly positive debit and credit amounts count and are summed on integer cents (no float drift); the old code summed floats. Whole-rupiah data gives identical figures, and the display already rounds to two decimals.
 
@@ -45,7 +45,6 @@ The page used no swallowing helper: `archiveAccount` and the delete hooks alread
 ## Known gaps (kept as is, for the owner to decide)
 
 - Deleting entries or an account shows two success toasts: the shared hooks (`useDeleteJournalEntries`, `useDeleteAccount`) toast, and the page toasts again (as it did before; the hooks gained their toast in the earlier migrations).
-- The non cash/bank KPI and info card ignore the backend `isDebit` flag and contra accounts (see I5 above).
 - Only the cash/bank variant shows an error state for the entries; the other one waits for them and then renders an empty table on failure.
 - `CashMapping` is a mock (see `chart-of-accounts`).
 - The reconciliation and bank statement queries are disabled (empty id) for the non cash/bank variant, so that variant never calls those endpoints, as before.

@@ -4,6 +4,7 @@ export interface DetailAccountModel {
   isArchived?: boolean;
   name?: string;
   type?: string;
+  isContra?: boolean;
   accountNumber?: string;
   description?: string;
   category?: Category;
@@ -25,6 +26,8 @@ export interface Category {
   id?: string;
   categoryID?: string;
   name?: string;
+  /** Backend normal side flag; absent for older payloads. */
+  isDebit?: boolean;
   deleted?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
@@ -44,6 +47,7 @@ export const accountDetailData = (data?: Partial<DetailAccountModel>): DetailAcc
     isArchived: data?.isArchived || false,
     name: data?.name || 'N/A',
     type: data?.type || 'N/A',
+    isContra: data?.isContra,
     accountNumber: data?.accountNumber || 'N/A',
     description: data?.description || '',
     category: data?.category || { id: '', name: 'N/A' },
