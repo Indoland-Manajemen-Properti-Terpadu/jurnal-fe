@@ -40,17 +40,17 @@ import { useNavigate, useParams } from 'react-router-dom';
 import AppShellLayout from '@/components/AppShellLayout';
 import ConfirmModal from '@/components/ui/ConfirmModal/ConfirmModal';
 import { routes } from '@/router/routes';
-import { ProductForm } from '../components/ProductForm';
+import { ProductForm } from '@/module/products/presentation/components/ProductForm';
 import {
   useAccountOptions,
   useDeleteProduct,
   useProduct,
   useSaveProduct,
   useTaxes,
-} from '../hooks/useProductQueries';
-import { resolveProductImageUrl } from '../infrastructure/productApi';
-import type { ProductFormValues } from '../types/product';
-import { formatDate, formatPrice } from '../utils/productFormat';
+} from '@/module/products/presentation/hooks/useProductQueries';
+import { resolveProductImageUrl } from '@/module/products/infrastructure/productApi';
+import type { ProductFormValues } from '@/module/products/domain/product';
+import { formatDate, formatPrice } from '@/module/products/domain/productFormat';
 
 export function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();

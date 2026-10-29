@@ -13,9 +13,9 @@ import {
 } from '@mantine/core';
 import { IconDotsVertical, IconEye, IconPackage, IconPencil, IconTrash } from '@tabler/icons-react';
 import { EmptyState } from '@/components/EmptyState';
-import type { Product } from '../types/product';
-import { resolveProductImageUrl } from '../infrastructure/productApi';
-import { formatPrice } from '../utils/productFormat';
+import type { Product } from '@/module/products/domain/product';
+import { resolveProductImageUrl } from '@/module/products/infrastructure/productApi';
+import { formatPrice } from '@/module/products/domain/productFormat';
 
 type ProductTableProps = {
   products: Product[];

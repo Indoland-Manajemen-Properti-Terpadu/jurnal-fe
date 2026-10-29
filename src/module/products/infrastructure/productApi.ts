@@ -14,7 +14,7 @@ import type {
   ProductListParams,
   ProductUnit,
   Tax,
-} from '../types/product';
+} from '@/module/products/domain/product';
 
 export const PRODUCT_ENDPOINTS = {
   products: '/v1/products',

@@ -15,14 +15,14 @@ import {
   fetchUnits,
   getApiErrorMessage,
   updateProduct,
-} from '../infrastructure/productApi';
+} from '@/module/products/infrastructure/productApi';
 import type {
   MasterDataInput,
   ProductCategory,
   ProductFormValues,
   ProductListParams,
   ProductUnit,
-} from '../types/product';
+} from '@/module/products/domain/product';
 
 export const productKeys = {
   all: ['products'] as const,

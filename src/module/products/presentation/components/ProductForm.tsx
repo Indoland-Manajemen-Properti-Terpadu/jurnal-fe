@@ -32,14 +32,14 @@ import {
   type Icon,
 } from '@tabler/icons-react';
 import type { ReactNode } from 'react';
-import type { Product, ProductFormValues } from '../types/product';
+import type { Product, ProductFormValues } from '@/module/products/domain/product';
 import {
   useAccountOptions,
   useCategories,
   useCategoryMutations,
   useTaxes,
-} from '../hooks/useProductQueries';
-import { resolveProductImageUrl } from '../infrastructure/productApi';
+} from '@/module/products/presentation/hooks/useProductQueries';
+import { resolveProductImageUrl } from '@/module/products/infrastructure/productApi';
 import { MasterDataFormModal } from './MasterDataPanel';
 
 type ProductFormProps = {

@@ -30,10 +30,10 @@ import {
 } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import ConfirmModal from '@/components/ui/ConfirmModal/ConfirmModal';
-import { ModuleHeader } from '../components/ModuleHeader';
-import { ProductTable } from '../components/ProductTable';
-import { ProductForm } from '../components/ProductForm';
-import { MasterDataPanel } from '../components/MasterDataPanel';
+import { ModuleHeader } from '@/module/products/presentation/components/ModuleHeader';
+import { ProductTable } from '@/module/products/presentation/components/ProductTable';
+import { ProductForm } from '@/module/products/presentation/components/ProductForm';
+import { MasterDataPanel } from '@/module/products/presentation/components/MasterDataPanel';
 import {
   useCategories,
   useCategoryMutations,
@@ -42,8 +42,8 @@ import {
   useSaveProduct,
   useUnitMutations,
   useUnits,
-} from '../hooks/useProductQueries';
-import type { Product, ProductFormValues } from '../types/product';
+} from '@/module/products/presentation/hooks/useProductQueries';
+import type { Product, ProductFormValues } from '@/module/products/domain/product';
 import AppShellLayout from '@/components/AppShellLayout';
 
 export function ProductsPage() {

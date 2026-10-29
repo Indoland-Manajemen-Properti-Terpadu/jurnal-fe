@@ -18,8 +18,8 @@ import { useForm } from '@mantine/form';
 import { IconPlus, IconSearch, IconTrash, type Icon } from '@tabler/icons-react';
 import { EmptyState } from '@/components/EmptyState';
 import ConfirmModal from '@/components/ui/ConfirmModal/ConfirmModal';
-import type { MasterDataInput } from '../types/product';
-import { formatDate } from '../utils/productFormat';
+import type { MasterDataInput } from '@/module/products/domain/product';
+import { formatDate } from '@/module/products/domain/productFormat';
 
 type MasterDataItem = {
   id: string;
