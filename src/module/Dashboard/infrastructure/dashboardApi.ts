@@ -1,4 +1,4 @@
-import apiClient from '@/services/apiClient';
+import apiClient from '@/lib/http/apiClient';
 import type {
   AuditLogEntry,
   BalanceSheetSummary,
@@ -56,7 +56,9 @@ export const fetchBalanceSheet = async (endDate: string): Promise<BalanceSheetSu
   };
 };
 
-export const fetchRecentSales = async (limit = 100): Promise<{ items: SaleSummary[]; total: number }> => {
+export const fetchRecentSales = async (
+  limit = 100
+): Promise<{ items: SaleSummary[]; total: number }> => {
   const { data } = await apiClient.get<ApiEnvelope<any>>(DASHBOARD_ENDPOINTS.sales, {
     params: { page: 1, limit },
   });
@@ -79,7 +81,9 @@ export const fetchRecentSales = async (limit = 100): Promise<{ items: SaleSummar
 };
 
 export const fetchPendingCount = async (): Promise<number> => {
-  const { data } = await apiClient.get<ApiEnvelope<{ count?: number }>>(DASHBOARD_ENDPOINTS.pendingCount);
+  const { data } = await apiClient.get<ApiEnvelope<{ count?: number }>>(
+    DASHBOARD_ENDPOINTS.pendingCount
+  );
   return toNumber(data.data?.count);
 };
 
@@ -117,4 +121,3 @@ export const fetchContactTotal = async (): Promise<number> => {
   });
   return toNumber(data.data?.pagination?.total);
 };
-

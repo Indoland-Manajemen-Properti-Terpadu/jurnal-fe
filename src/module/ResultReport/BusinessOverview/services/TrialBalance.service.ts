@@ -1,6 +1,6 @@
 import { API_REPORT } from '@/services/endpoint';
 import { useQuery } from '@tanstack/react-query';
-import { get } from '@/services/apiClient';
+import { get } from '@/lib/http/apiClient';
 import { TrialBalanceReport } from '../types/TrialBalanceReport.types';
 
 export const GetTrialBalanceReport = (fromDate: string, toDate: string) => {

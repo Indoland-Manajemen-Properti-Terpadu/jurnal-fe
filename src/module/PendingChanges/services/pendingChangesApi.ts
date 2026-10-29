@@ -1,4 +1,4 @@
-import apiClient from '@/services/apiClient';
+import apiClient from '@/lib/http/apiClient';
 import { API_PENDING_CHANGES } from '@/services/endpoint';
 import type {
   PendingChangeItem,
@@ -23,7 +23,8 @@ export const fetchPendingChanges = async (
   if (params?.search) query.append('search', params.search);
 
   const url = `${API_PENDING_CHANGES.GET_ALL}${query.toString() ? `?${query.toString()}` : ''}`;
-  const { data } = await apiClient.get<ApiEnvelope<PendingChangeListResponse | PendingChangeItem[]>>(url);
+  const { data } =
+    await apiClient.get<ApiEnvelope<PendingChangeListResponse | PendingChangeItem[]>>(url);
 
   // If response is nested or array
   const raw = data.data;
@@ -65,10 +66,6 @@ export const approvePendingChange = async (changeId: string): Promise<any> => {
 
 export const approveAllPendingChanges = async (type?: string): Promise<any> => {
   const payload = type ? { type } : {};
-  const { data } = await apiClient.put<ApiEnvelope<any>>(
-    API_PENDING_CHANGES.APPROVE_ALL,
-    payload
-  );
+  const { data } = await apiClient.put<ApiEnvelope<any>>(API_PENDING_CHANGES.APPROVE_ALL, payload);
   return data.data;
 };
-

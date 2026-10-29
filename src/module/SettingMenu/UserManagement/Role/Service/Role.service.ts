@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { get } from '@/services/apiClient';
+import { get } from '@/lib/http/apiClient';
 import { API_ACCESS_ROLE } from '@/services/endpoint';
 import { AccessRole } from '@/types/AccessRole/getAccessRole';
 

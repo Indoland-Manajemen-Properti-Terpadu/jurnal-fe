@@ -2,7 +2,7 @@ name: Quality Gate & Build Check
 
 on:
   pull_request:
-    branches: ['mantine-v8', 'main', 'master']
+    branches: ['develop-frontend', 'staging', 'main-frontend']
 
 jobs:
   test-and-build:
@@ -11,11 +11,13 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20' # Menggunakan Node.js 20 LTS
+          node-version: '20'
 
       - name: Enable Corepack (for Yarn 4)
         run: corepack enable
@@ -26,12 +28,14 @@ jobs:
       - name: Run Typecheck
         run: yarn typecheck
 
-      - name: Run Linting (ESLint & Stylelint)
-        run: yarn lint
+      - name: Run Linting (ESLint ratchet & Stylelint)
+        run: npm run lint
+
+      - name: Check Formatting (changed files only)
+        run: node scripts/prettierChanged.mjs "origin/${{ github.base_ref }}"
 
       - name: Run Unit Tests (Vitest)
         run: yarn vitest --run
-        continue-on-error: true # Bisa diubah ke false jika unit test sudah wajib lulus 100%
 
       - name: Build Production Preview
         run: yarn build

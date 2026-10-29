@@ -1,4 +1,4 @@
-import { post, get } from '@/services/apiClient';
+import { post, get } from '@/lib/http/apiClient';
 import { API_ACCOUNT } from '@/services/endpoint';
 import { notifications } from '@mantine/notifications';
 

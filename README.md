@@ -181,12 +181,14 @@ http://localhost:5173
 | `yarn build`           | Menjalankan TypeScript compiler lalu membuat build produksi. |
 | `yarn preview`         | Menjalankan preview hasil build produksi.                    |
 | `yarn typecheck`       | Mengecek tipe TypeScript tanpa menghasilkan output build.    |
-| `yarn lint`            | Menjalankan ESLint dan Stylelint.                            |
+| `yarn lint`            | Menjalankan ESLint ratchet dan Stylelint.                    |
+| `yarn lint:ratchet`    | Gagal bila jumlah pelanggaran ESLint naik dari baseline.     |
 | `yarn lint:eslint`     | Mengecek kode TypeScript dan React dengan ESLint.            |
 | `yarn lint:eslint:fix` | Memperbaiki issue ESLint yang bisa diperbaiki otomatis.      |
 | `yarn lint:stylelint`  | Mengecek file CSS dengan Stylelint.                          |
 | `yarn prettier`        | Mengecek format file TypeScript dan TSX.                     |
 | `yarn prettier:write`  | Memformat file TypeScript dan TSX.                           |
+| `yarn prettier:changed`| Mengecek format hanya pada file yang berubah dari base.      |
 | `yarn vitest`          | Menjalankan unit test satu kali.                             |
 | `yarn vitest:watch`    | Menjalankan test dalam mode watch.                           |
 | `yarn test`            | Menjalankan typecheck, prettier, lint, vitest, dan build.    |
@@ -205,9 +207,8 @@ jurnal-fe/
 ├── src/
 │   ├── assets/             # Asset visual, font, dan stylesheet global layout
 │   ├── components/         # Komponen reusable lintas modul
-│   ├── examples/           # Contoh implementasi komponen atau pola teknis
 │   ├── hooks/              # Custom hooks aplikasi
-│   ├── lib/                # Konfigurasi library eksternal
+│   ├── lib/                # HTTP client (lib/http), helper uang (lib/money), utilitas inti
 │   ├── module/             # Modul fitur utama aplikasi
 │   ├── router/             # Konfigurasi route aplikasi
 │   ├── services/           # API client, endpoint, dan error boundary
@@ -215,6 +216,8 @@ jurnal-fe/
 │   ├── theme/              # Tema Mantine dan style global
 │   ├── types/              # TypeScript type dan interface
 │   └── utils/              # Helper utility umum
+├── docs/                   # Dokumentasi: arsitektur, konvensi, ADR, status migrasi
+├── scripts/                # Tooling: ESLint ratchet, cek format file yang berubah
 ├── test-utils/             # Helper render dan setup testing
 ├── package.json            # Dependency dan script proyek
 ├── tsconfig.json           # Konfigurasi TypeScript
@@ -244,8 +247,8 @@ jurnal-fe/
 
 Konfigurasi API berada pada:
 
-- `src/lib/axios.ts`
-- `src/services/endpoint.ts`
+- `src/lib/http/apiClient.ts` (client HTTP tunggal dengan interceptor token)
+- `src/services/endpoint.ts` (konstanta endpoint; dipindah ke tiap fitur saat migrasi)
 
 Saat ini aplikasi mengarah ke layanan API ProApps berikut:
 
@@ -255,6 +258,12 @@ https://jurnal-api.proapps.id
 ```
 
 Aturan akses API, konfigurasi endpoint, dan penanganan kredensial dipusatkan di [konteks project agent](.codex/PROJECT_CONTEXT.md).
+
+---
+
+## Dokumentasi
+
+Indeks dokumentasi ada di [`docs/README.md`](docs/README.md): [arsitektur](docs/architecture.md), [konvensi](docs/conventions.md), [branching dan rilis](docs/branching-and-release.md), [keputusan arsitektur (ADR)](docs/adr), dan [status migrasi](docs/migration/STATUS.md).
 
 ---
 

@@ -11,7 +11,25 @@ env:
   IMAGE_NAME: indoland-manajemen-properti-terpadu/jurnal-fe
 
 jobs:
+  # Enforces the promotion order that branch protection cannot express:
+  # develop-frontend -> staging -> main-frontend, hotfix/* into either, and the
+  # main-frontend -> staging hotfix back-merge. Logic and tests: scripts/lib/deployGuard.mjs.
+  guard:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Require a merged PR from an allowed source branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/deployGuard.mjs "${{ github.ref_name }}" "${{ github.sha }}" "${{ github.repository }}"
+
   build-and-deploy:
+    needs: guard
     runs-on: ubuntu-latest
     permissions:
       contents: read

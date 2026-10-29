@@ -3,6 +3,7 @@
   display: flex;
   justify-content: space-between;
   position: relative;
+
   button {
     background: transparent;
     color: var(--jurnal-color-info);
@@ -15,6 +16,7 @@
     }
   }
 }
+
 .dropdown {
   width: 400px;
 }
@@ -22,6 +24,7 @@
 .modal {
   border-radius: var(--jurnal-radius-2xl);
 }
+
 .modalHeader {
   border-bottom: 2px solid var(--jurnal-color-primary);
 }
@@ -36,6 +39,7 @@
   font-weight: 500;
   text-transform: capitalize;
 }
+
 .categoryColumn {
   font-size: var(--jurnal-text-sm);
   font-weight: 400;

@@ -19,7 +19,7 @@ The primary mission of Jurnal Proapps is to **demystify accounting and create an
 Traditional accounting software and legacy desktop ledgers are notorious for being rigid, confusing, jargon-heavy, and intimidating to business owners, operators, and staff who are skeptical of complex financial systems. 
 
 **Strict Rule: Brand Neutrality & Zero Competitor Mentions**:
-- NEVER mention or refer to specific competitor brands (such as Mekari, Accurate, Zahir, SAP, QuickBooks, Xero, etc.) anywhere in the codebase, UI, landing pages, marketing copy, comparison matrices, educational resources, tooltips, or agent communications.
+- NEVER mention or refer to any competitor product or company by name anywhere in the codebase, UI, landing pages, marketing copy, comparison matrices, educational resources, tooltips, or agent communications.
 - ALWAYS use neutral, professional, generic terms such as "Software Akuntansi Konvensional" / "Conventional Accounting Software", "Software Akuntansi Umum" / "Generalist Systems", or "Sistem Pembukuan Standar".
 
 **Our Core Value Proposition**:
@@ -72,6 +72,19 @@ Keep only folders that have a real responsibility; do not create empty layers or
 - Presentation hooks may adapt use cases to React and TanStack Query. Keep query keys and query hooks close to their feature; pages should consume typed results and render loading, empty, error, and success states.
 - Local input and view state may stay in React state or Mantine form state. Do not move state globally without a real cross-component need.
 
+## Module Structure, Boundaries and Migration
+
+The repository is being restructured feature by feature under `docs/superpowers/specs/2026-10-29-codebase-restructure-design.md`. Current status is in `docs/migration/STATUS.md`; the layout, conventions and decisions are in `docs/architecture.md`, `docs/conventions.md` and `docs/adr/`.
+
+- A migrated feature lives in `src/module/<kebab-case-english-name>/` with `README.md`, a public `index.ts`, and only the layers it needs (`domain`, `application`, `infrastructure`, `presentation/{pages,components,hooks,stores}`). Route components are called `pages`; do not create `view`, `page` or `Layout.tsx` wrappers.
+- Other features are imported only through `@/module/<feature>`. `src/components` never imports from `src/module`. Domain code never imports presentation or infrastructure. Axios is used only in `infrastructure/` and `src/lib`. These rules are enforced by ESLint (`import/no-restricted-paths`, `no-restricted-imports`); do not disable them to pass a check.
+- Lint debt is tracked by a ratchet: `docs/migration/eslint-baseline.json` holds the count per rule and `npm run lint:ratchet` fails if any count rises. Fixing violations lowers the numbers; run `node scripts/eslintRatchet.mjs --write-baseline` and commit the lower baseline. Never raise a baseline to make a change pass.
+- Formatting is owned by Prettier. Format every file you touch; CI checks changed files (`npm run prettier:changed`).
+- Legacy folders (`Contact`, `GeneralJournal`, ...) keep their layout until their migration PR. Migration PRs rename and move files with `git mv` in a first commit, then refactor, then document. The renames in the restructure spec are approved; do not rename other legacy paths.
+- Money arithmetic uses `@/lib/money` (`toMinor`, `fromMinor`, `sumMinor`) on integer minor units; never add or compare money as floats in views. See `docs/migration/money-audit.md`.
+- HTTP goes through `@/lib/http/apiClient` from `infrastructure/`. The helpers `get/post/put/del/patch` are `@deprecated`.
+- Branches: work on `feat/*`, `fix/*`, `refactor/*`, `docs/*` or `chore/*` and open a PR into `develop-frontend`. Never push to `develop-frontend`, `staging` or `main-frontend`; a merge into `main-frontend` deploys production. See `docs/branching-and-release.md`.
+
 ## State Management
 
 - TanStack Query v5 owns remote/server state, request lifecycle, caching, retries, and invalidation.
@@ -102,7 +115,7 @@ Keep only folders that have a real responsibility; do not create empty layers or
 - Name use-case files with clear verbs (for example, `createJournalEntry.ts`), repository interfaces by domain responsibility, API adapters by implementation (for example, `httpJournalEntryRepository.ts`), and mappers by the type being mapped (for example, `journalEntryMapper.ts`). Keep names descriptive and consistent within a feature.
 - Use PascalCase for TypeScript types, interfaces, enums, and classes. Do not add an `I` prefix to interfaces. Prefer `unknown` plus narrowing at external boundaries; avoid `any` unless a documented third-party limitation makes it necessary.
 - Use `.test.ts` or `.test.tsx` for tests. Keep tests near the code when that matches the existing feature.
-- Do not rename legacy Indonesian or inconsistent paths in bulk. Rename a path only when it is directly in scope, references are updated safely, and the migration has been approved where it crosses feature boundaries.
+- Do not rename legacy Indonesian or inconsistent paths in bulk. Rename a path only when it is directly in scope, references are updated safely, and the migration has been approved where it crosses feature boundaries. The renames listed in the restructure spec are the approved exception and happen inside each feature's migration PR.
 - User-facing product content supports English and Indonesian. Use the localization mechanism already present in the project and keep both translations semantically equivalent with consistent accounting terminology. Do not add an i18n dependency or redesign locale selection without approval. Never mix the two languages in one translation string unless the product copy explicitly requires it.
 
 ## TypeScript and Maintainability

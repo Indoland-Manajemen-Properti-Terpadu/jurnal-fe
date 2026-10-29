@@ -1,5 +1,5 @@
 import axios from 'axios';
-import apiClient from '@/services/apiClient';
+import apiClient from '@/lib/http/apiClient';
 import { BASE_URL } from '@/services/endpoint';
 import { getJournalAccounts } from '@/module/GeneralJournal/JournalAccount/services/AccountJournal.service';
 import type { JournalAccounts } from '@/module/GeneralJournal/JournalAccount/types/JournalAccountModel';

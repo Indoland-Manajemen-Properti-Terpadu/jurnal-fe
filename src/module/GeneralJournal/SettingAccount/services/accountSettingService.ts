@@ -1,4 +1,4 @@
-import apiClient, { download } from '@/services/apiClient';
+import apiClient, { download } from '@/lib/http/apiClient';
 import { API_ACCOUNT } from '@/services/endpoint';
 import {
   AccountImportApiResponse,

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import apiClient from '@/services/apiClient';
+import apiClient from '@/lib/http/apiClient';
 import type {
   GeneralLedgerAccount,
   GeneralLedgerExportType,
@@ -11,12 +11,15 @@ import type {
 function parseErrorMessage(error: unknown): string {
   if (axios.isAxiosError(error)) {
     if (error.response?.status === 403) return 'Akses ke laporan buku besar ditolak.';
-    if (error.response?.status === 404) return 'Laporan buku besar tidak tersedia untuk periode ini.';
+    if (error.response?.status === 404)
+      return 'Laporan buku besar tidak tersedia untuk periode ini.';
     if (!error.response) return 'Koneksi ke server terputus. Pastikan koneksi internet stabil.';
     const msg = (error.response?.data as { message?: string })?.message;
     if (msg) return msg;
   }
-  return error instanceof Error ? error.message : 'Terjadi kesalahan saat memproses laporan buku besar.';
+  return error instanceof Error
+    ? error.message
+    : 'Terjadi kesalahan saat memproses laporan buku besar.';
 }
 
 function safeNumber(value: unknown): number {
@@ -61,9 +64,8 @@ function mapTransaction(source: any): GeneralLedgerTransaction {
 function mapAccount(source: any): GeneralLedgerAccount {
   const accountInfo = source?.account || {};
   const categoryRaw = accountInfo.category;
-  const categoryName = typeof categoryRaw === 'string'
-    ? categoryRaw
-    : safeString(categoryRaw?.name, 'Lainnya');
+  const categoryName =
+    typeof categoryRaw === 'string' ? categoryRaw : safeString(categoryRaw?.name, 'Lainnya');
 
   const transactions = Array.isArray(source?.transactions)
     ? source.transactions.map(mapTransaction)
@@ -85,9 +87,7 @@ function mapAccount(source: any): GeneralLedgerAccount {
 
 export function mapGeneralLedgerResponse(raw: any): GeneralLedgerReport {
   const data = raw?.data || raw || {};
-  const accounts = Array.isArray(data.accounts)
-    ? data.accounts.map(mapAccount)
-    : [];
+  const accounts = Array.isArray(data.accounts) ? data.accounts.map(mapAccount) : [];
 
   const lock = data.periodLockInfo || null;
 
@@ -130,4 +130,3 @@ export const generalLedgerApi = {
     }
   },
 };
-

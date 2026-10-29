@@ -1,7 +1,7 @@
 // hooks/useBankStatement.ts
 import { API_REPORT } from '@/services/endpoint';
 import { useQuery } from '@tanstack/react-query';
-import { download, get } from '@/services/apiClient';
+import { download, get } from '@/lib/http/apiClient';
 import { IncomeStatementReport, DownloadReports } from '../types/IncomeStatement.types';
 
 interface IncomeStatementParams {

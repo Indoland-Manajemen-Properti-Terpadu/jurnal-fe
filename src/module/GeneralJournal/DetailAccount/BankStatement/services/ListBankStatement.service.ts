@@ -1,7 +1,7 @@
 // hooks/useBankStatement.ts
 import { API_ACCOUNT } from '@/services/endpoint';
 import { useQuery } from '@tanstack/react-query';
-import { get } from '@/services/apiClient';
+import { get } from '@/lib/http/apiClient';
 import { BankStatementModelV2 } from '../types/BankStatementModel';
 
 export const getBankStatement = (idAccount: string) => {
@@ -9,8 +9,8 @@ export const getBankStatement = (idAccount: string) => {
     queryKey: ['bank_statement', idAccount],
     queryFn: async () => {
       const result = await get(`${API_ACCOUNT.GET_BANK_STATEMENT}?accountId=${idAccount}`);
-      
-      console.log("BankStatement API Raw Result:", result);
+
+      console.log('BankStatement API Raw Result:', result);
 
       let rawResults: any[] = [];
       if (result?.data?.results && Array.isArray(result.data.results)) {
@@ -25,13 +25,13 @@ export const getBankStatement = (idAccount: string) => {
         rawResults = result;
       }
 
-      const mappedResults = rawResults.map(item => ({
+      const mappedResults = rawResults.map((item) => ({
         ...item,
         transactionName: item.description || item.transactionName,
         transactionDate: item.date || item.transactionDate,
         debit: item.amount > 0 ? item.amount : 0,
         credit: item.amount < 0 ? Math.abs(item.amount) : 0,
-        reconciled: item.isReconciled ?? item.reconciled
+        reconciled: item.isReconciled ?? item.reconciled,
       }));
 
       return { results: mappedResults };

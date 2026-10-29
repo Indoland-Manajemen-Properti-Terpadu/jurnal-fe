@@ -41,6 +41,7 @@
   display: flex;
   margin-right: 20px;
 }
+
 .accordionDesc {
   padding-left: 2rem;
 }
@@ -48,10 +49,6 @@
 .switches {
   display: flex;
 
-  switches {
-    background: orange;
-    background: silver;
-  }
 
   &[data-orientation='horizontal'] {
     flex-direction: row;

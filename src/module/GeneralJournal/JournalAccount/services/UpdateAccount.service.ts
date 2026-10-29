@@ -3,7 +3,7 @@ import { notifications } from '@mantine/notifications';
 import { routes } from '@/router/routes';
 import { useNavigate } from 'react-router-dom';
 import { API_ACCOUNT } from '@/services/endpoint';
-import { patch } from '@/services/apiClient';
+import { patch } from '@/lib/http/apiClient';
 import { AddAccountPayload } from '../types/AddAccountPayload';
 
 export const useUpdateAccount = (accountId: string) => {

@@ -1,7 +1,7 @@
 // hooks/useBankStatement.ts
 import { API_ACCOUNT } from '@/services/endpoint';
 import { useMutation } from '@tanstack/react-query';
-import { post } from '@/services/apiClient';
+import { post } from '@/lib/http/apiClient';
 import { notifications } from '@mantine/notifications';
 import { useNavigate } from 'react-router-dom';
 import { routes } from '@/router/routes';

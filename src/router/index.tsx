@@ -374,3 +374,4 @@ export function Router() {
 
 export const { navigate } = router;
 export { routes } from './routes';
+export { router };

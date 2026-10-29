@@ -1,6 +1,6 @@
 // hooks/useDetailAccount.ts
 import { API_ACCOUNT } from '@/services/endpoint';
-import { get, patch } from '@/services/apiClient';
+import { get, patch } from '@/lib/http/apiClient';
 import { DetailAccountModel } from '../types/DetailAccountModel';
 
 export const getDetailAccount = async (idAccount: string): Promise<DetailAccountModel> => {

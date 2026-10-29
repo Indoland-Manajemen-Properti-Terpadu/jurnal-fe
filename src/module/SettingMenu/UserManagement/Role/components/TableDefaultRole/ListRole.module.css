@@ -5,7 +5,7 @@
   line-height: 16px;
   font-weight: 400;
   text-transform: capitalize;
-  font-family: Figtree;
+  font-family: Figtree, sans-serif;
 }
 
 .root {
@@ -21,6 +21,7 @@
   display: flex;
   justify-content: space-between;
   position: relative;
+
   button {
     background: transparent;
     color: var(--jurnal-color-primary);
@@ -29,7 +30,6 @@
     &[data-active='true'] {
       color: var(--mantine-color-white);
       border: transparent;
-      background-color: 'grape';
       background: var(--jurnal-gradient-brand);
     }
   }
