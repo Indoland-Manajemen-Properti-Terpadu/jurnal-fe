@@ -47,14 +47,16 @@ import { ConfirmModal } from '@/components';
 import deleteModalImage from '@/assets/img/vectors/delete_modal.svg';
 import arsipkanIcon from '@/assets/img/vectors/arsipkan.svg';
 
-import { useDeleteJurnalAccount } from '@/module/GeneralJournal/JournalAccount/services';
+import {
+  useDeleteAccount,
+  useDetailAccount,
+  accountDetailData,
+  archiveAccount,
+} from '@/module/chart-of-accounts';
 import { useBankStatement, type BankStatementRow } from '@/module/bank-statements';
 import { JournalEmptyState } from '@/components/EmptyState/JournalEmptyState';
 import { useJournalEntriesByAccount } from '@/module/journal-entries';
 import type { JournalEntryByAccount } from '@/module/journal-entries';
-import { useDetailAccount } from '../hooks/useDetailAccount';
-import { accountDetailData } from '../types/DetailAccountModel';
-import { archiveAccount } from '../services/DetailAccount.service';
 import { GetReconciliation } from '../../Reconciliation/services/GetReconciliation.service';
 
 import DetailAccountLayout from './Layout';
@@ -72,7 +74,7 @@ const DetailAccountPage: React.FC = () => {
   const { data: reconData, isLoading: isLoadingRecon } = GetReconciliation(idAccount!);
   const { data: bankStatementData } = useBankStatement(idAccount!);
   const { data: transactions } = useJournalEntriesByAccount(idAccount!);
-  const { mutate: deleteAccount, isPending: isDeleting } = useDeleteJurnalAccount();
+  const { mutate: deleteAccount, isPending: isDeleting } = useDeleteAccount();
 
   const rawData =
     (accountDetail as any)?.data?.data || (accountDetail as any)?.data || accountDetail;

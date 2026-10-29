@@ -28,10 +28,10 @@ import {
 } from '@phosphor-icons/react';
 import { NotFound } from '@/components/ErrorPage/NotFound';
 import { ImportBankStatementModal } from '@/module/bank-statements';
+import { useDetailAccount } from '@/module/chart-of-accounts';
 import { FindAndReconModal } from './FindAndReconModal';
 import { BankStatementData } from '../types/GetReconciliationModel';
 import { GetReconciliation } from '../services/GetReconciliation.service';
-import { useDetailAccount } from '../../Main/hooks/useDetailAccount';
 import { useMatchReconciliation } from '../services/MatchReconciliation.service';
 
 const ReconciliationTable: React.FC = () => {

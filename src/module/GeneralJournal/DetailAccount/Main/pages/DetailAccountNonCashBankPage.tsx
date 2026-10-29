@@ -47,7 +47,12 @@ import { useQueryClient } from '@tanstack/react-query';
 
 import { routes } from '@/router/routes';
 import { JournalEmptyState } from '@/components/EmptyState/JournalEmptyState';
-import { useDeleteJurnalAccount } from '@/module/GeneralJournal/JournalAccount/services';
+import {
+  useDeleteAccount,
+  useDetailAccount,
+  accountDetailData,
+  archiveAccount,
+} from '@/module/chart-of-accounts';
 import { ConfirmModal } from '@/components';
 import ModuleHeader from '@/components/ModuleHeader/ModuleHeader';
 import { isDebitNormal } from '@/lib/accounting/normalBalance';
@@ -62,9 +67,6 @@ import {
 } from '@/module/journal-entries';
 import type { JournalEntryByAccount } from '@/module/journal-entries';
 import DetailAccountLayout from './Layout';
-import { useDetailAccount } from '../hooks/useDetailAccount';
-import { accountDetailData } from '../types/DetailAccountModel';
-import { archiveAccount } from '../services/DetailAccount.service';
 
 /** Helper to determine the normal accounting balance (Debit vs Kredit) */
 export function getNormalBalance(categoryName?: string, type?: string): 'Debit' | 'Kredit' {
@@ -83,7 +85,7 @@ const DetailAccountNonCashBank: React.FC = () => {
     refetch: refetchTransactions,
   } = useJournalEntriesByAccount(idAccount!);
 
-  const { mutate: deleteAccount, isPending: isDeletingAccount } = useDeleteJurnalAccount();
+  const { mutate: deleteAccount, isPending: isDeletingAccount } = useDeleteAccount();
   const deleteTransactionMutation = useDeleteJournalEntries();
 
   const rawData =
