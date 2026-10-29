@@ -69,7 +69,7 @@ import { NotFound } from '@/components/ErrorPage/NotFound';
 import LoginPage from '@/module/Authentication/Login/pages/LoginPage';
 import OAuthCallback from '@/module/Authentication/Login/pages/OAuthCallback';
 import MainDashboard from '@/module/Dashboard/page/page';
-import LandingPage from '@/module/LandingPage/pages/LandingPage';
+import { LandingPage } from '@/module/landing';
 import ProfilePage from '@/module/Profile/pages/ProfilePage';
 
 const router = createBrowserRouter([
