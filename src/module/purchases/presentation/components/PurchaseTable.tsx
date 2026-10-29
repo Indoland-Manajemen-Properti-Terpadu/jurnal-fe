@@ -25,6 +25,8 @@ import {
 import EmptyState from '@/components/EmptyState/EmptyState';
 import { formatCurrency } from '@/utils/FormatCurrency';
 import { PurchaseBill } from '@/module/purchases/domain/purchase';
+import { paidPercent } from '@/module/purchases/domain/purchaseTotals';
+import { useTranslation } from '@/i18n';
 
 interface PurchaseTableProps {
   bills: PurchaseBill[];
@@ -55,13 +57,15 @@ export const PurchaseTable: React.FC<PurchaseTableProps> = ({
   onDelete,
   onAddNew,
 }) => {
+  const { t } = useTranslation('purchases');
+
   if (bills.length === 0 && !loading) {
     return (
       <EmptyState
-        title="Belum Ada Faktur Pembelian"
-        description="Catat tagihan dan faktur masuk dari pemasok/vendor untuk melacak hutang usaha bisnis Anda."
+        title={t('table.emptyTitle')}
+        description={t('table.emptyDescription')}
         icon={<IconReceipt2 size={40} />}
-        actionLabel="Buat Tagihan Pembelian"
+        actionLabel={t('page.create')}
         onAction={onAddNew}
         py={48}
       />
@@ -73,13 +77,13 @@ export const PurchaseTable: React.FC<PurchaseTableProps> = ({
       <Table striped highlightOnHover withTableBorder style={{ minWidth: 800 }}>
         <Table.Thead bg="gray.0">
           <Table.Tr>
-            <Table.Th>Nomor Faktur & Tanggal</Table.Th>
-            <Table.Th>Vendor / Pemasok</Table.Th>
-            <Table.Th>Jatuh Tempo</Table.Th>
-            <Table.Th style={{ textAlign: 'right' }}>Total Tagihan</Table.Th>
-            <Table.Th style={{ textAlign: 'right' }}>Sisa Hutang</Table.Th>
-            <Table.Th style={{ textAlign: 'center' }}>Status</Table.Th>
-            <Table.Th style={{ textAlign: 'center', width: 70 }}>Aksi</Table.Th>
+            <Table.Th>{t('table.colInvoice')}</Table.Th>
+            <Table.Th>{t('table.colVendor')}</Table.Th>
+            <Table.Th>{t('table.colDueDate')}</Table.Th>
+            <Table.Th style={{ textAlign: 'right' }}>{t('table.colTotal')}</Table.Th>
+            <Table.Th style={{ textAlign: 'right' }}>{t('table.colRemaining')}</Table.Th>
+            <Table.Th style={{ textAlign: 'center' }}>{t('table.colStatus')}</Table.Th>
+            <Table.Th style={{ textAlign: 'center', width: 70 }}>{t('table.colActions')}</Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
@@ -87,10 +91,7 @@ export const PurchaseTable: React.FC<PurchaseTableProps> = ({
             const isOverdue = bill.status === 'OVERDUE';
             const isPaid = bill.status === 'PAID';
             const isPartial = bill.status === 'PARTIAL';
-            const paidPct =
-              bill.totalAmount > 0
-                ? Math.min(100, Math.round((bill.paidAmount / bill.totalAmount) * 100))
-                : 0;
+            const paidPct = paidPercent(bill.paidAmount, bill.totalAmount);
 
             return (
               <Table.Tr key={bill.id}>
@@ -121,7 +122,7 @@ export const PurchaseTable: React.FC<PurchaseTableProps> = ({
                     </Text>
                   </Group>
                   <Text size="xs" c="dimmed">
-                    Syarat: {bill.paymentTerm}
+                    {t('table.term', { term: bill.paymentTerm })}
                   </Text>
                 </Table.Td>
 
@@ -132,7 +133,7 @@ export const PurchaseTable: React.FC<PurchaseTableProps> = ({
                   </Text>
                   {isOverdue && (
                     <Text size="xs" c="red.7" fw={600}>
-                      Melewati Tempo
+                      {t('table.pastDue')}
                     </Text>
                   )}
                 </Table.Td>
@@ -148,7 +149,7 @@ export const PurchaseTable: React.FC<PurchaseTableProps> = ({
                     {formatCurrency(bill.totalAmount)}
                   </Text>
                   <Text size="xs" c="dimmed">
-                    Pajak: {formatCurrency(bill.taxAmount)}
+                    {t('table.tax', { amount: formatCurrency(bill.taxAmount) })}
                   </Text>
                 </Table.Td>
 
@@ -179,12 +180,12 @@ export const PurchaseTable: React.FC<PurchaseTableProps> = ({
                     color={isPaid ? 'teal' : isOverdue ? 'red' : isPartial ? 'yellow' : 'orange'}
                   >
                     {isPaid
-                      ? 'Lunas'
+                      ? t('table.statusPaid')
                       : isOverdue
-                        ? 'Jatuh Tempo'
+                        ? t('table.statusOverdue')
                         : isPartial
-                          ? 'Sebagian'
-                          : 'Belum Lunas'}
+                          ? t('table.statusPartial')
+                          : t('table.statusUnpaid')}
                   </Badge>
                 </Table.Td>
 
@@ -198,7 +199,7 @@ export const PurchaseTable: React.FC<PurchaseTableProps> = ({
                     </Menu.Target>
 
                     <Menu.Dropdown>
-                      <Menu.Label>Opsi Faktur</Menu.Label>
+                      <Menu.Label>{t('table.menuLabel')}</Menu.Label>
 
                       {!isPaid && (
                         <Menu.Item
@@ -206,7 +207,7 @@ export const PurchaseTable: React.FC<PurchaseTableProps> = ({
                           color="teal"
                           onClick={() => onPay(bill)}
                         >
-                          Catat Pembayaran
+                          {t('table.menuPay')}
                         </Menu.Item>
                       )}
 
@@ -215,7 +216,7 @@ export const PurchaseTable: React.FC<PurchaseTableProps> = ({
                         color="red"
                         onClick={() => onDelete(bill)}
                       >
-                        Hapus Faktur
+                        {t('table.menuDelete')}
                       </Menu.Item>
                     </Menu.Dropdown>
                   </Menu>

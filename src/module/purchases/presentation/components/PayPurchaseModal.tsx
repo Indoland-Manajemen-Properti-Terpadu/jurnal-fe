@@ -16,6 +16,7 @@ import dayjs from 'dayjs';
 import { IconCheck, IconCoins } from '@tabler/icons-react';
 import { formatCurrency } from '@/utils/FormatCurrency';
 import { PayPurchasePayload, PurchaseBill } from '@/module/purchases/domain/purchase';
+import { useTranslation } from '@/i18n';
 
 interface PayPurchaseModalProps {
   opened: boolean;
@@ -30,6 +31,7 @@ export const PayPurchaseModal: React.FC<PayPurchaseModalProps> = ({
   bill,
   onSubmit,
 }) => {
+  const { t } = useTranslation('purchases');
   const [amount, setAmount] = useState<number>(0);
   const [paymentDate, setPaymentDate] = useState<string>(dayjs().format('YYYY-MM-DD'));
   const [paymentMethod, setPaymentMethod] = useState('Transfer Bank');
@@ -71,7 +73,7 @@ export const PayPurchaseModal: React.FC<PayPurchaseModalProps> = ({
             <IconCoins size={20} />
           </ThemeIcon>
           <Text fw={700} size="md" c="dark.9">
-            Catat Pembayaran Tagihan Pembelian
+            {t('pay.title')}
           </Text>
         </Group>
       }
@@ -84,7 +86,7 @@ export const PayPurchaseModal: React.FC<PayPurchaseModalProps> = ({
         <Paper withBorder radius="md" p="sm" bg="gray.0">
           <Group justify="space-between">
             <Text size="xs" c="dimmed">
-              Nomor Tagihan:
+              {t('pay.billNumber')}
             </Text>
             <Text size="xs" fw={700} ff="monospace">
               {bill.billNumber}
@@ -92,7 +94,7 @@ export const PayPurchaseModal: React.FC<PayPurchaseModalProps> = ({
           </Group>
           <Group justify="space-between" mt={4}>
             <Text size="xs" c="dimmed">
-              Vendor:
+              {t('pay.vendor')}
             </Text>
             <Text size="xs" fw={600}>
               {bill.vendorName}
@@ -100,7 +102,7 @@ export const PayPurchaseModal: React.FC<PayPurchaseModalProps> = ({
           </Group>
           <Group justify="space-between" mt={4}>
             <Text size="xs" c="dimmed">
-              Sisa Hutang:
+              {t('pay.remaining')}
             </Text>
             <Text size="sm" fw={800} c="red.7">
               {formatCurrency(bill.remainingAmount)}
@@ -109,7 +111,7 @@ export const PayPurchaseModal: React.FC<PayPurchaseModalProps> = ({
         </Paper>
 
         <NumberInput
-          label="Jumlah Pembayaran (Rp)"
+          label={t('pay.amount')}
           value={amount}
           onChange={(v) => setAmount(Number(v) || 0)}
           max={bill.remainingAmount}
@@ -119,7 +121,7 @@ export const PayPurchaseModal: React.FC<PayPurchaseModalProps> = ({
         />
 
         <DateInput
-          label="Tanggal Pembayaran"
+          label={t('pay.date')}
           value={paymentDate ? new Date(paymentDate) : null}
           onChange={(val) => setPaymentDate(val ? dayjs(val).format('YYYY-MM-DD') : '')}
           valueFormat="DD/MM/YYYY"
@@ -127,14 +129,18 @@ export const PayPurchaseModal: React.FC<PayPurchaseModalProps> = ({
         />
 
         <Select
-          label="Metode Pembayaran"
+          label={t('pay.method')}
           value={paymentMethod}
           onChange={(v) => setPaymentMethod(v || 'Transfer Bank')}
-          data={['Transfer Bank', 'Kas Tunai', 'Giro / Cek']}
+          data={[
+            { value: 'Transfer Bank', label: t('pay.methodTransfer') },
+            { value: 'Kas Tunai', label: t('pay.methodCash') },
+            { value: 'Giro / Cek', label: t('pay.methodCheck') },
+          ]}
         />
 
         <Select
-          label="Bayar Dari Rekening Kas & Bank"
+          label={t('pay.account')}
           value={paymentAccount}
           onChange={(v) => setPaymentAccount(v || '1-10001')}
           data={[
@@ -145,8 +151,8 @@ export const PayPurchaseModal: React.FC<PayPurchaseModalProps> = ({
         />
 
         <Textarea
-          label="Catatan Pembayaran"
-          placeholder="Nomor referensi bukti transfer bank / keterangan"
+          label={t('pay.notes')}
+          placeholder={t('pay.notesPlaceholder')}
           value={notes}
           onChange={(e) => setNotes(e.currentTarget.value)}
           rows={2}
@@ -154,10 +160,10 @@ export const PayPurchaseModal: React.FC<PayPurchaseModalProps> = ({
 
         <Group justify="flex-end" mt="sm">
           <Button variant="default" onClick={onClose}>
-            Batal
+            {t('pay.cancel')}
           </Button>
           <Button color="teal" leftSection={<IconCheck size={16} />} onClick={handleSubmit}>
-            Konfirmasi Pembayaran
+            {t('pay.confirm')}
           </Button>
         </Group>
       </Stack>

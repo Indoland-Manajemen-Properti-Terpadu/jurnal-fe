@@ -22,6 +22,8 @@ import dayjs from 'dayjs';
 import { IconPlus, IconReceipt2, IconTrash } from '@tabler/icons-react';
 import { formatCurrency } from '@/utils/FormatCurrency';
 import { CreatePurchaseFormValues } from '@/module/purchases/domain/purchase';
+import { calculateTotals } from '@/module/purchases/domain/purchaseTotals';
+import { useTranslation } from '@/i18n';
 
 interface CreatePurchaseModalProps {
   opened: boolean;
@@ -32,8 +34,8 @@ interface CreatePurchaseModalProps {
 interface ItemLineState {
   itemName: string;
   description: string;
-  quantity: number;
-  unitPrice: number;
+  quantity: number | string;
+  unitPrice: number | string;
   taxRate: number;
 }
 
@@ -42,6 +44,7 @@ export const CreatePurchaseModal: React.FC<CreatePurchaseModalProps> = ({
   onClose,
   onSubmit,
 }) => {
+  const { t } = useTranslation('purchases');
   const [vendorName, setVendorName] = useState('');
   const [billNumber, setBillNumber] = useState('');
   const [transactionDate, setTransactionDate] = useState<string>(dayjs().format('YYYY-MM-DD'));
@@ -71,17 +74,25 @@ export const CreatePurchaseModal: React.FC<CreatePurchaseModalProps> = ({
     setItems((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleItemChange = (index: number, field: keyof ItemLineState, value: any) => {
+  const handleItemChange = <K extends keyof ItemLineState>(
+    index: number,
+    field: K,
+    value: ItemLineState[K]
+  ) => {
     setItems((prev) => prev.map((item, i) => (i === index ? { ...item, [field]: value } : item)));
   };
 
-  // Calculations
-  const subtotal = items.reduce((acc, it) => acc + (it.quantity || 0) * (it.unitPrice || 0), 0);
-  const taxTotal = items.reduce(
-    (acc, it) => acc + ((it.quantity || 0) * (it.unitPrice || 0) * (it.taxRate || 0)) / 100,
-    0
+  const {
+    subtotal,
+    taxAmount: taxTotal,
+    totalAmount,
+  } = calculateTotals(
+    items.map((it) => ({
+      quantity: Number(it.quantity) || 0,
+      unitPrice: Number(it.unitPrice) || 0,
+      taxRate: it.taxRate || 0,
+    }))
   );
-  const totalAmount = subtotal + taxTotal;
 
   const handleSubmit = () => {
     if (!vendorName.trim()) return;
@@ -95,10 +106,10 @@ export const CreatePurchaseModal: React.FC<CreatePurchaseModalProps> = ({
       paymentTerm,
       notes,
       items: items.map((it) => ({
-        itemName: it.itemName.trim() || 'Item Pembelian',
+        itemName: it.itemName.trim() || t('create.defaultItemName'),
         description: it.description,
-        quantity: it.quantity,
-        unitPrice: it.unitPrice,
+        quantity: Number(it.quantity),
+        unitPrice: Number(it.unitPrice),
         taxRate: it.taxRate,
       })),
     });
@@ -123,10 +134,10 @@ export const CreatePurchaseModal: React.FC<CreatePurchaseModalProps> = ({
           </ThemeIcon>
           <Box>
             <Text fw={700} size="md" c="dark.9">
-              Buat Tagihan Pembelian (Bill)
+              {t('create.title')}
             </Text>
             <Text size="xs" c="dimmed">
-              Catat faktur masuk atau tagihan pengadaan barang & jasa dari vendor
+              {t('create.subtitle')}
             </Text>
           </Box>
         </Group>
@@ -141,8 +152,8 @@ export const CreatePurchaseModal: React.FC<CreatePurchaseModalProps> = ({
         <Grid gutter="sm">
           <Grid.Col span={{ base: 12, md: 6 }}>
             <TextInput
-              label="Nama Vendor / Pemasok"
-              placeholder="Contoh: PT Sumber Makmur Sejahtera"
+              label={t('create.vendor')}
+              placeholder={t('create.vendorPlaceholder')}
               value={vendorName}
               onChange={(e) => setVendorName(e.currentTarget.value)}
               required
@@ -150,15 +161,15 @@ export const CreatePurchaseModal: React.FC<CreatePurchaseModalProps> = ({
           </Grid.Col>
           <Grid.Col span={{ base: 12, md: 6 }}>
             <TextInput
-              label="Nomor Referensi Faktur Tagihan"
-              placeholder="Otomatis jika dikosongkan (e.g. BILL/2026/...)"
+              label={t('create.billNumber')}
+              placeholder={t('create.billNumberPlaceholder')}
               value={billNumber}
               onChange={(e) => setBillNumber(e.currentTarget.value)}
             />
           </Grid.Col>
           <Grid.Col span={{ base: 12, md: 4 }}>
             <DateInput
-              label="Tanggal Transaksi"
+              label={t('create.transactionDate')}
               value={transactionDate ? new Date(transactionDate) : null}
               onChange={(val) => setTransactionDate(val ? dayjs(val).format('YYYY-MM-DD') : '')}
               valueFormat="DD/MM/YYYY"
@@ -167,7 +178,7 @@ export const CreatePurchaseModal: React.FC<CreatePurchaseModalProps> = ({
           </Grid.Col>
           <Grid.Col span={{ base: 12, md: 4 }}>
             <DateInput
-              label="Jatuh Tempo"
+              label={t('create.dueDate')}
               value={dueDate ? new Date(dueDate) : null}
               onChange={(val) => setDueDate(val ? dayjs(val).format('YYYY-MM-DD') : '')}
               valueFormat="DD/MM/YYYY"
@@ -176,30 +187,30 @@ export const CreatePurchaseModal: React.FC<CreatePurchaseModalProps> = ({
           </Grid.Col>
           <Grid.Col span={{ base: 12, md: 4 }}>
             <Select
-              label="Syarat Pembayaran"
+              label={t('create.paymentTerm')}
               value={paymentTerm}
               onChange={(val) => setPaymentTerm(val || 'Net 30')}
               data={[
-                { value: 'Cash on Delivery', label: 'Cash on Delivery (COD)' },
-                { value: 'Net 15', label: 'Net 15 Hari' },
-                { value: 'Net 30', label: 'Net 30 Hari' },
-                { value: 'Net 60', label: 'Net 60 Hari' },
+                { value: 'Cash on Delivery', label: t('create.termCod') },
+                { value: 'Net 15', label: t('create.termNet15') },
+                { value: 'Net 30', label: t('create.termNet30') },
+                { value: 'Net 60', label: t('create.termNet60') },
               ]}
             />
           </Grid.Col>
         </Grid>
 
-        <Divider label="Rincian Barang / Jasa Pembelian" labelPosition="center" />
+        <Divider label={t('create.itemsDivider')} labelPosition="center" />
 
         {/* Item Lines Table */}
         <Box style={{ overflowX: 'auto' }}>
           <Table withTableBorder withColumnBorders style={{ minWidth: 600 }}>
             <Table.Thead bg="gray.0">
               <Table.Tr>
-                <Table.Th style={{ width: '40%' }}>Barang / Jasa</Table.Th>
-                <Table.Th style={{ width: '15%' }}>Kuantitas</Table.Th>
-                <Table.Th style={{ width: '25%' }}>Harga Satuan (Rp)</Table.Th>
-                <Table.Th style={{ width: '15%' }}>PPN (%)</Table.Th>
+                <Table.Th style={{ width: '40%' }}>{t('create.colItem')}</Table.Th>
+                <Table.Th style={{ width: '15%' }}>{t('create.colQuantity')}</Table.Th>
+                <Table.Th style={{ width: '25%' }}>{t('create.colUnitPrice')}</Table.Th>
+                <Table.Th style={{ width: '15%' }}>{t('create.colTax')}</Table.Th>
                 <Table.Th style={{ width: 45, textAlign: 'center' }}></Table.Th>
               </Table.Tr>
             </Table.Thead>
@@ -208,7 +219,7 @@ export const CreatePurchaseModal: React.FC<CreatePurchaseModalProps> = ({
                 <Table.Tr key={idx}>
                   <Table.Td>
                     <TextInput
-                      placeholder="Nama produk/jasa"
+                      placeholder={t('create.itemPlaceholder')}
                       value={item.itemName}
                       onChange={(e) => handleItemChange(idx, 'itemName', e.currentTarget.value)}
                     />
@@ -263,7 +274,7 @@ export const CreatePurchaseModal: React.FC<CreatePurchaseModalProps> = ({
             leftSection={<IconPlus size={14} />}
             onClick={handleAddItem}
           >
-            Tambah Baris Item
+            {t('create.addItem')}
           </Button>
 
           {/* Totals Summary */}
@@ -271,7 +282,7 @@ export const CreatePurchaseModal: React.FC<CreatePurchaseModalProps> = ({
             <Stack gap={4}>
               <Group justify="space-between">
                 <Text size="xs" c="dimmed">
-                  Subtotal:
+                  {t('create.subtotal')}
                 </Text>
                 <Text size="xs" fw={600}>
                   {formatCurrency(subtotal)}
@@ -279,7 +290,7 @@ export const CreatePurchaseModal: React.FC<CreatePurchaseModalProps> = ({
               </Group>
               <Group justify="space-between">
                 <Text size="xs" c="dimmed">
-                  PPN:
+                  {t('create.taxTotal')}
                 </Text>
                 <Text size="xs" fw={600}>
                   {formatCurrency(taxTotal)}
@@ -288,7 +299,7 @@ export const CreatePurchaseModal: React.FC<CreatePurchaseModalProps> = ({
               <Divider my={2} />
               <Group justify="space-between">
                 <Text size="sm" fw={700}>
-                  Total Akhir:
+                  {t('create.grandTotal')}
                 </Text>
                 <Text size="sm" fw={800} c="primary.8">
                   {formatCurrency(totalAmount)}
@@ -299,8 +310,8 @@ export const CreatePurchaseModal: React.FC<CreatePurchaseModalProps> = ({
         </Group>
 
         <Textarea
-          label="Catatan Pembelian"
-          placeholder="Keterangan tambahan untuk bagian finance / arsip logistik"
+          label={t('create.notes')}
+          placeholder={t('create.notesPlaceholder')}
           value={notes}
           onChange={(e) => setNotes(e.currentTarget.value)}
           rows={2}
@@ -308,10 +319,10 @@ export const CreatePurchaseModal: React.FC<CreatePurchaseModalProps> = ({
 
         <Group justify="flex-end" mt="sm">
           <Button variant="default" onClick={onClose}>
-            Batal
+            {t('create.cancel')}
           </Button>
           <Button color="primary" onClick={handleSubmit}>
-            Simpan Faktur Tagihan
+            {t('create.save')}
           </Button>
         </Group>
       </Stack>

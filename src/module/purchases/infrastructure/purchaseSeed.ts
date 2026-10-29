@@ -1,7 +1,5 @@
 import { PurchaseBill } from '@/module/purchases/domain/purchase';
 
-const STORAGE_KEY = 'jurnal_purchase_bills_data';
-
 export const INITIAL_PURCHASE_BILLS: PurchaseBill[] = [
   {
     id: 'bill-001',
@@ -117,27 +115,3 @@ export const INITIAL_PURCHASE_BILLS: PurchaseBill[] = [
     ],
   },
 ];
-
-export const loadStoredPurchases = (): PurchaseBill[] => {
-  if (typeof window === 'undefined') return INITIAL_PURCHASE_BILLS;
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_PURCHASE_BILLS));
-      return INITIAL_PURCHASE_BILLS;
-    }
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) && parsed.length > 0 ? parsed : INITIAL_PURCHASE_BILLS;
-  } catch {
-    return INITIAL_PURCHASE_BILLS;
-  }
-};
-
-export const persistPurchases = (bills: PurchaseBill[]): void => {
-  if (typeof window === 'undefined') return;
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(bills));
-  } catch (e) {
-    console.error('[PurchaseStorage] Persist failed:', e);
-  }
-};

@@ -1,26 +1,45 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { notifications } from '@mantine/notifications';
-import { CreatePurchaseFormValues, PayPurchasePayload, PurchaseBill } from '@/module/purchases/domain/purchase';
-import { loadStoredPurchases, persistPurchases } from '@/module/purchases/infrastructure/purchaseStorage';
+import { t } from '@/i18n';
+import {
+  CreatePurchaseFormValues,
+  PayPurchasePayload,
+  PurchaseBill,
+} from '@/module/purchases/domain/purchase';
+import {
+  applyPayment,
+  calculateLine,
+  calculateTotals,
+  withDerivedStatus,
+} from '@/module/purchases/domain/purchaseTotals';
+import { localStoragePurchaseRepository as repository } from '@/module/purchases/infrastructure/localStoragePurchaseRepository';
+
+const NAMESPACE = 'purchases';
+const tr = (key: string, params?: Record<string, string | number>) => t(key, params, NAMESPACE);
+
+const errorMessage = (error: unknown, fallbackKey: string): string =>
+  (error instanceof Error && error.message) || tr(fallbackKey);
+
+const notifyFailure = (message: string) =>
+  notifications.show({ color: 'red', title: tr('notify.failedTitle'), message });
 
 export const usePurchases = () => {
   const [purchases, setPurchases] = useState<PurchaseBill[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const latest = useRef<PurchaseBill[]>([]);
+
+  const commit = useCallback((next: PurchaseBill[]) => {
+    repository.save(next);
+    latest.current = next;
+    setPurchases(next);
+  }, []);
 
   const fetchPurchases = useCallback(() => {
     setIsLoading(true);
     try {
-      const data = loadStoredPurchases();
-      // Dynamically recalculate OVERDUE status
       const now = Date.now();
-      const mapped = data.map((b) => {
-        if (b.status === 'PAID' || b.status === 'CANCELLED' || b.status === 'DRAFT') return b;
-        const isOverdue = b.remainingAmount > 0 && b.dueDate && new Date(b.dueDate).getTime() < now;
-        return {
-          ...b,
-          status: isOverdue ? ('OVERDUE' as const) : b.status,
-        };
-      });
+      const mapped = repository.load().map((bill) => withDerivedStatus(bill, now));
+      latest.current = mapped;
       setPurchases(mapped);
     } finally {
       setIsLoading(false);
@@ -31,129 +50,103 @@ export const usePurchases = () => {
     fetchPurchases();
   }, [fetchPurchases]);
 
-  const createPurchase = useCallback((values: CreatePurchaseFormValues): boolean => {
-    try {
-      let subtotal = 0;
-      let taxAmount = 0;
+  const createPurchase = useCallback(
+    (values: CreatePurchaseFormValues): boolean => {
+      try {
+        const inputs = values.items.map((item) => ({
+          quantity: Number(item.quantity) || 1,
+          unitPrice: Number(item.unitPrice) || 0,
+          taxRate: Number(item.taxRate) || 0,
+        }));
+        const { subtotal, taxAmount, totalAmount } = calculateTotals(inputs);
 
-      const items = values.items.map((it, idx) => {
-        const qty = Number(it.quantity) || 1;
-        const price = Number(it.unitPrice) || 0;
-        const rate = Number(it.taxRate) || 0;
-        const lineSubtotal = qty * price;
-        const lineTax = (lineSubtotal * rate) / 100;
-        const lineTotal = lineSubtotal + lineTax;
-
-        subtotal += lineSubtotal;
-        taxAmount += lineTax;
-
-        return {
+        const items = values.items.map((item, idx) => ({
           id: `line-${Date.now()}-${idx}`,
-          itemName: it.itemName,
-          description: it.description,
-          quantity: qty,
-          unitPrice: price,
-          taxRate: rate,
-          total: lineTotal,
+          itemName: item.itemName,
+          description: item.description,
+          quantity: inputs[idx].quantity,
+          unitPrice: inputs[idx].unitPrice,
+          taxRate: inputs[idx].taxRate,
+          total: calculateLine(inputs[idx]).total,
+        }));
+
+        const billNumber =
+          values.billNumber?.trim() ||
+          `BILL/${new Date().getFullYear()}/${String(new Date().getMonth() + 1).padStart(2, '0')}/${Math.floor(100 + Math.random() * 900)}`;
+
+        const newBill: PurchaseBill = {
+          id: `bill-${Date.now()}`,
+          billNumber,
+          vendorName: values.vendorName,
+          transactionDate: values.transactionDate,
+          dueDate: values.dueDate,
+          status: 'UNPAID',
+          subtotal,
+          taxAmount,
+          totalAmount,
+          paidAmount: 0,
+          remainingAmount: totalAmount,
+          paymentTerm: values.paymentTerm || 'Net 30',
+          items,
+          notes: values.notes,
         };
-      });
 
-      const totalAmount = subtotal + taxAmount;
-      const billNumber =
-        values.billNumber?.trim() ||
-        `BILL/${new Date().getFullYear()}/${String(new Date().getMonth() + 1).padStart(2, '0')}/${Math.floor(100 + Math.random() * 900)}`;
+        commit([newBill, ...latest.current]);
 
-      const newBill: PurchaseBill = {
-        id: `bill-${Date.now()}`,
-        billNumber,
-        vendorName: values.vendorName,
-        transactionDate: values.transactionDate,
-        dueDate: values.dueDate,
-        status: 'UNPAID',
-        subtotal,
-        taxAmount,
-        totalAmount,
-        paidAmount: 0,
-        remainingAmount: totalAmount,
-        paymentTerm: values.paymentTerm || 'Net 30',
-        items,
-        notes: values.notes,
-      };
-
-      setPurchases((prev) => {
-        const next = [newBill, ...prev];
-        persistPurchases(next);
-        return next;
-      });
-
-      notifications.show({
-        color: 'teal',
-        title: 'Faktur Tagihan Dibuat',
-        message: `Faktur tagihan ${billNumber} berhasil dicatat ke sistem.`,
-      });
-
-      return true;
-    } catch (e: any) {
-      notifications.show({
-        color: 'red',
-        title: 'Gagal',
-        message: e?.message || 'Gagal menyimpan faktur pembelian.',
-      });
-      return false;
-    }
-  }, []);
-
-  const payPurchase = useCallback((payload: PayPurchasePayload): boolean => {
-    try {
-      setPurchases((prev) => {
-        const next = prev.map((b) => {
-          if (b.id !== payload.purchaseId) return b;
-          const newPaid = b.paidAmount + payload.amount;
-          const newRemaining = Math.max(0, b.totalAmount - newPaid);
-          const isFullyPaid = newRemaining === 0;
-
-          return {
-            ...b,
-            paidAmount: newPaid,
-            remainingAmount: newRemaining,
-            status: isFullyPaid ? ('PAID' as const) : ('PARTIAL' as const),
-          };
+        notifications.show({
+          color: 'teal',
+          title: tr('notify.createdTitle'),
+          message: tr('notify.createdMessage', { billNumber }),
         });
+        return true;
+      } catch (error) {
+        notifyFailure(errorMessage(error, 'notify.createFailed'));
+        return false;
+      }
+    },
+    [commit]
+  );
 
-        persistPurchases(next);
-        return next;
-      });
+  const payPurchase = useCallback(
+    (payload: PayPurchasePayload): boolean => {
+      try {
+        commit(
+          latest.current.map((bill) =>
+            bill.id === payload.purchaseId
+              ? { ...bill, ...applyPayment(bill, payload.amount) }
+              : bill
+          )
+        );
 
-      notifications.show({
-        color: 'teal',
-        title: 'Pembayaran Dicatat',
-        message: 'Pembayaran tagihan pembelian berhasil dibukukan.',
-      });
+        notifications.show({
+          color: 'teal',
+          title: tr('notify.paidTitle'),
+          message: tr('notify.paidMessage'),
+        });
+        return true;
+      } catch (error) {
+        notifyFailure(errorMessage(error, 'notify.payFailed'));
+        return false;
+      }
+    },
+    [commit]
+  );
 
-      return true;
-    } catch (e: any) {
-      notifications.show({
-        color: 'red',
-        title: 'Gagal',
-        message: e?.message || 'Gagal mencatat pembayaran.',
-      });
-      return false;
-    }
-  }, []);
-
-  const deletePurchase = useCallback((id: string, billNumber: string) => {
-    setPurchases((prev) => {
-      const next = prev.filter((b) => b.id !== id);
-      persistPurchases(next);
-      return next;
-    });
-
-    notifications.show({
-      color: 'teal',
-      title: 'Faktur Dihapus',
-      message: `Faktur tagihan ${billNumber} berhasil dihapus.`,
-    });
-  }, []);
+  const deletePurchase = useCallback(
+    (id: string, billNumber: string) => {
+      try {
+        commit(latest.current.filter((bill) => bill.id !== id));
+        notifications.show({
+          color: 'teal',
+          title: tr('notify.deletedTitle'),
+          message: tr('notify.deletedMessage', { billNumber }),
+        });
+      } catch (error) {
+        notifyFailure(errorMessage(error, 'notify.deleteFailed'));
+      }
+    },
+    [commit]
+  );
 
   return {
     purchases,
