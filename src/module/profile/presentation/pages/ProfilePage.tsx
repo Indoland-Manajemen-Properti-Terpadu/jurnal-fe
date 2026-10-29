@@ -46,7 +46,7 @@ import {
 } from '@tabler/icons-react';
 import AppShellLayout from '@/components/AppShellLayout';
 import ModuleHeader from '@/components/ModuleHeader/ModuleHeader';
-import { useGetProfile, useUpdateProfile } from '../service/Profile.service';
+import { useGetProfile, useUpdateProfile } from '../../infrastructure/profileApi';
 import { notifications } from '@mantine/notifications';
 
 export default function ProfilePage() {

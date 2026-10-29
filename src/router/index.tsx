@@ -71,7 +71,7 @@ import LoginPage from '@/module/Authentication/Login/pages/LoginPage';
 import OAuthCallback from '@/module/Authentication/Login/pages/OAuthCallback';
 import MainDashboard from '@/module/Dashboard/page/page';
 import { LandingPage } from '@/module/landing';
-import ProfilePage from '@/module/Profile/pages/ProfilePage';
+import ProfilePage from '@/module/profile/presentation/pages/ProfilePage';
 
 const router = createBrowserRouter([
   {
