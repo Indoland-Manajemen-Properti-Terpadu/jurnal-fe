@@ -4,7 +4,7 @@ import type {
   PendingChangeItem,
   PendingChangeListParams,
   PendingChangeListResponse,
-} from '../types/pendingChange';
+} from '@/module/pending-changes/domain/pendingChange';
 
 type ApiEnvelope<T> = {
   code: number;

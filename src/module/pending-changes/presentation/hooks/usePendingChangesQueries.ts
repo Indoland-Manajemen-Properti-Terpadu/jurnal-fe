@@ -5,8 +5,8 @@ import {
   approvePendingChange,
   fetchPendingChanges,
   fetchPendingChangesCount,
-} from '../services/pendingChangesApi';
-import type { PendingChangeListParams } from '../types/pendingChange';
+} from '@/module/pending-changes/infrastructure/pendingChangesApi';
+import type { PendingChangeListParams } from '@/module/pending-changes/domain/pendingChange';
 
 export const pendingChangesKeys = {
   all: ['pending-changes'] as const,

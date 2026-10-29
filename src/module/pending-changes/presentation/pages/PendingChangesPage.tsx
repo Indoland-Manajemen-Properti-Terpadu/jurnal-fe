@@ -48,7 +48,7 @@ import {
   usePendingChanges,
   usePendingChangesCount,
 } from '../hooks/usePendingChangesQueries';
-import type { PendingChangeItem } from '../types/pendingChange';
+import type { PendingChangeItem } from '@/module/pending-changes/domain/pendingChange';
 import { useTranslation } from '@/i18n';
 
 const formatIDR = (val: number | string | undefined | null) => {
