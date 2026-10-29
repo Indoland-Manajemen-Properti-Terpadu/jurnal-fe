@@ -12,6 +12,7 @@ Recorded on 2026-10-29 at commit `94fe9ca` (`develop-frontend`, identical to `ma
 | ESLint | `npx eslint . --ext .ts,.tsx -f json` | 3433 errors, 46 warnings over 508 files; `eslint --cache` crashes with `TypeError: Keyv is not a constructor` |
 | Stylelint | `yarn lint:stylelint` | 48 errors (33 auto-fixable) |
 | Prettier | `npx prettier --check "src/**/*.{ts,tsx}"` | 224 files not formatted |
+| Storybook | `yarn storybook:build` | fails before and after M0: `.storybook/preview.tsx` imports `theme` from `src/theme.ts`, which does not export it. Not a regression; needs a decision (fix or retire Storybook). Also prompts interactively for telemetry unless `STORYBOOK_DISABLE_TELEMETRY=1`. |
 | Production deploy | GitHub Actions "Build & Deploy Frontend" | image build and push succeed; the SSH deploy step fails on the 12 most recent runs (connection times out after about 30 s), latest run id `39580303882` |
 
 ### ESLint breakdown (top rules)
