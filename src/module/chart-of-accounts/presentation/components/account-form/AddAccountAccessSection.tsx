@@ -55,7 +55,7 @@ export const AddAccountAccessSection: React.FC<AddAccountAccessSectionProps> = (
   isLoadingUsers,
   isLoadingRoles,
 }) => {
-  const { t } = useTranslation('journal');
+  const { t } = useTranslation('chartOfAccounts');
 
   return (
     <Paper withBorder radius="md" p="lg" bg="white" shadow="xs">
@@ -66,15 +66,15 @@ export const AddAccountAccessSection: React.FC<AddAccountAccessSectionProps> = (
           </ThemeIcon>
           <div>
             <Text fw={700} fz={15} c="dark.8">
-              {t('sec3Title')}
+              {t('form.sec3Title')}
             </Text>
             <Text fz={12} c="dimmed">
-              {t('sec3Subtitle')}
+              {t('form.sec3Subtitle')}
             </Text>
           </div>
         </Group>
         <Badge variant="light" color="indigo" size="sm">
-          Langkah 3 dari 3
+          {t('form.step3')}
         </Badge>
       </Group>
 
@@ -82,11 +82,11 @@ export const AddAccountAccessSection: React.FC<AddAccountAccessSectionProps> = (
         {selectedAccountType !== 'SingleAccount' ? (
           <Alert
             icon={<IconInfoCircle size={16} />}
-            title={t('centralizedAccessTitle')}
+            title={t('form.centralizedAccessTitle')}
             color="blue"
             radius="md"
           >
-            {t('centralizedAccessDesc')}
+            {t('form.centralizedAccessDesc')}
           </Alert>
         ) : (
           <>
@@ -95,20 +95,20 @@ export const AddAccountAccessSection: React.FC<AddAccountAccessSectionProps> = (
               {[
                 {
                   value: 'AllUsers',
-                  title: t('accessAllTitle'),
-                  desc: t('accessAllDesc'),
+                  title: t('form.accessAllTitle'),
+                  desc: t('form.accessAllDesc'),
                   icon: IconUsers,
                 },
                 {
                   value: 'SpecialUsers',
-                  title: t('accessUsersTitle'),
-                  desc: t('accessUsersDesc'),
+                  title: t('form.accessUsersTitle'),
+                  desc: t('form.accessUsersDesc'),
                   icon: IconUserCheck,
                 },
                 {
                   value: 'CertainRoles',
-                  title: t('accessRolesTitle'),
-                  desc: t('accessRolesDesc'),
+                  title: t('form.accessRolesTitle'),
+                  desc: t('form.accessRolesDesc'),
                   icon: IconKey,
                 },
               ].map((item) => {
@@ -158,10 +158,10 @@ export const AddAccountAccessSection: React.FC<AddAccountAccessSectionProps> = (
 
             <AccessMemberSelects
               accessScope={accessScope}
-              usersLabel={t('selectUsersLabel')}
-              usersPlaceholder={t('selectUsersPlaceholder')}
-              rolesLabel={t('selectRolesLabel')}
-              rolesPlaceholder={t('selectRolesPlaceholder')}
+              usersLabel={t('form.selectUsersLabel')}
+              usersPlaceholder={t('form.selectUsersPlaceholder')}
+              rolesLabel={t('form.selectRolesLabel')}
+              rolesPlaceholder={t('form.selectRolesPlaceholder')}
               userOptions={userOptions}
               roleOptions={roleOptions}
               specialUsers={specialUsers}

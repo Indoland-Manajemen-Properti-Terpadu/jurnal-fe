@@ -14,6 +14,7 @@ import {
 } from '@mantine/core';
 import { IconAlertTriangle, IconRotateClockwise } from '@tabler/icons-react';
 import ImageRestore from '@/assets/img/SettingsAccount-Restore.svg';
+import { useTranslation } from '@/i18n';
 import { useAccountSettings } from '../../hooks/useAccountSettings';
 
 interface RestoreAccountModalProps {
@@ -27,6 +28,7 @@ export const RestoreAccountModal: React.FC<RestoreAccountModalProps> = ({
   onClose,
   onSuccess,
 }) => {
+  const { t } = useTranslation('chartOfAccounts');
   const { resetAccounts, isResetting } = useAccountSettings();
   const [confirmed, setConfirmed] = useState(false);
 
@@ -58,10 +60,10 @@ export const RestoreAccountModal: React.FC<RestoreAccountModalProps> = ({
           </ThemeIcon>
           <Box>
             <Text fw={700} size="sm" c="dark.9">
-              Atur Ulang Bagan Akun ke Default
+              {t('settings.restore.title')}
             </Text>
             <Text size="xs" c="dimmed">
-              Pemulihan struktur Chart of Accounts (COA) bawaan sistem
+              {t('settings.restore.subtitle')}
             </Text>
           </Box>
         </Group>
@@ -82,7 +84,7 @@ export const RestoreAccountModal: React.FC<RestoreAccountModalProps> = ({
             border: '1px solid rgba(225, 29, 72, 0.15)',
           }}
         >
-          <Image src={ImageRestore} alt="Atur Ulang Akun" h={88} fit="contain" />
+          <Image src={ImageRestore} alt={t('settings.restore.alt')} h={88} fit="contain" />
         </Box>
 
         <Alert
@@ -90,27 +92,24 @@ export const RestoreAccountModal: React.FC<RestoreAccountModalProps> = ({
           color="red"
           variant="light"
           radius="md"
-          title="Peringatan Tindakan Kritis"
+          title={t('settings.restore.warnTitle')}
         >
-          Tindakan ini akan mengatur ulang seluruh bagan akun kembali ke format standar bawaan
-          sistem akuntansi. Seluruh penyesuaian nama akun kustom atau akun tambahan yang dibuat
-          secara manual akan direset ke pengaturan awal.
+          {t('settings.restore.warnBody')}
         </Alert>
 
         <Paper withBorder radius="md" p="md" bg="gray.0">
           <Stack gap="xs">
             <Text size="xs" fw={700} tt="uppercase" c="dimmed">
-              Dampak Pengaturan Ulang:
+              {t('settings.restore.impactTitle')}
             </Text>
             <Text size="xs" c="dark.7">
-              1. Daftar akun kas, bank, piutang, hutang, modal, pendapatan, dan beban akan
-              dikembalikan ke bagan akun standar PSAK.
+              {t('settings.restore.impact1')}
             </Text>
             <Text size="xs" c="dark.7">
-              2. Akun kustom yang belum memiliki transaksi historis akan dihapus.
+              {t('settings.restore.impact2')}
             </Text>
             <Text size="xs" c="dark.7">
-              3. Saldo awal akun yang telah dimasukkan mungkin perlu disesuaikan kembali.
+              {t('settings.restore.impact3')}
             </Text>
           </Stack>
         </Paper>
@@ -118,7 +117,7 @@ export const RestoreAccountModal: React.FC<RestoreAccountModalProps> = ({
         <Checkbox
           checked={confirmed}
           onChange={(e) => setConfirmed(e.currentTarget.checked)}
-          label="Saya mengerti konsekuensi pengaturan ulang ini dan ingin memulihkan bagan akun ke standar default."
+          label={t('settings.restore.confirm')}
           color="red"
           size="sm"
         />
@@ -131,7 +130,7 @@ export const RestoreAccountModal: React.FC<RestoreAccountModalProps> = ({
             onClick={handleClose}
             disabled={isResetting}
           >
-            Batal
+            {t('settings.restore.cancel')}
           </Button>
           <Button
             color="red"
@@ -142,7 +141,7 @@ export const RestoreAccountModal: React.FC<RestoreAccountModalProps> = ({
             disabled={!confirmed}
             loading={isResetting}
           >
-            Pulihkan ke Akun Standar
+            {t('settings.restore.reset')}
           </Button>
         </Group>
       </Stack>

@@ -1,5 +1,6 @@
-import apiClient, { download } from '@/lib/http/apiClient';
+import apiClient from '@/lib/http/apiClient';
 import { API_ACCOUNT } from '@/services/endpoint';
+import { t } from '@/i18n';
 import {
   AccountImportApiResponse,
   AccountImportParsedData,
@@ -20,20 +21,29 @@ export const triggerBrowserDownload = (blob: Blob, filename: string) => {
   window.URL.revokeObjectURL(url);
 };
 
+const XLSX_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+
+/**
+ * Fetch a file as a blob. The default client throws on an HTTP error, so an error body is never
+ * saved as a spreadsheet (R7); the status check covers a client that resolves anyway.
+ */
+const fetchFile = async (url: string, emptyMessage: string): Promise<Blob> => {
+  const response = await apiClient.get<Blob>(url, { responseType: 'blob' });
+  if (!response?.data || response.status >= 400) {
+    throw new Error(emptyMessage);
+  }
+  const contentType = (response.headers?.['content-type'] as string) || XLSX_TYPE;
+  return new Blob([response.data], { type: contentType });
+};
+
 /**
  * Download official Account Import Template (Excel / CSV)
  */
 export const downloadAccountImportTemplate = async (): Promise<void> => {
-  const response = await download(API_ACCOUNT.GET_IMPORT_TEMPLATE_ACCOUNT);
-  if (!response?.data) {
-    throw new Error('Gagal mengunduh template impor akun.');
-  }
-  const contentType =
-    (response.headers?.['content-type'] as string) ||
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-  const blob = new Blob([response.data], {
-    type: contentType,
-  });
+  const blob = await fetchFile(
+    API_ACCOUNT.GET_IMPORT_TEMPLATE_ACCOUNT,
+    t('settings.error.templateDownload', undefined, 'chartOfAccounts')
+  );
   triggerBrowserDownload(blob, 'template_impor_akun.xlsx');
 };
 
@@ -86,18 +96,11 @@ export const commitAccountImport = async (payload: CommitImportPayload): Promise
  * Export all Chart of Accounts into Excel / file
  */
 export const downloadAccountExport = async (): Promise<void> => {
-  const response = await download(API_ACCOUNT.GET_EXPORT_ACCOUNT);
-  if (!response?.data) {
-    throw new Error('Gagal mengekspor data bagan akun.');
-  }
-
+  const blob = await fetchFile(
+    API_ACCOUNT.GET_EXPORT_ACCOUNT,
+    t('settings.error.exportDownload', undefined, 'chartOfAccounts')
+  );
   const today = new Date().toISOString().split('T')[0];
-  const contentType =
-    (response.headers?.['content-type'] as string) ||
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-  const blob = new Blob([response.data], {
-    type: contentType,
-  });
   triggerBrowserDownload(blob, `Bagan_Akun_${today}.xlsx`);
 };
 

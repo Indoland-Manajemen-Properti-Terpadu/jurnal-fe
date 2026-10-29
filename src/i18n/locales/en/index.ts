@@ -19,6 +19,7 @@ import { periodClosing } from './periodClosing';
 import { beginningBalances } from './beginningBalances';
 import { bankStatements } from './bankStatements';
 import { journalEntries } from './journalEntries';
+import { chartOfAccounts } from './chartOfAccounts';
 
 export const en = {
   common,
@@ -42,6 +43,7 @@ export const en = {
   beginningBalances,
   bankStatements,
   journalEntries,
+  chartOfAccounts,
 };
 
 export default en;

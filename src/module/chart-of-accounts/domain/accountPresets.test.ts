@@ -28,3 +28,17 @@ describe('findPresetCategory', () => {
     expect(contra.map(([k]) => k)).toEqual(['accumDepr']);
   });
 });
+
+describe('preset default names', () => {
+  it('point at existing id and en translations', async () => {
+    const { id } = await import('@/i18n/locales/id');
+    const { en } = await import('@/i18n/locales/en');
+    Object.values(ACCOUNT_PRESETS).forEach((preset) => {
+      const path = preset.defaultNameKey.split('.');
+      const read = (tree: unknown) =>
+        path.reduce<unknown>((node, seg) => (node as Record<string, unknown>)?.[seg], tree);
+      expect(typeof read(id.chartOfAccounts)).toBe('string');
+      expect(typeof read(en.chartOfAccounts)).toBe('string');
+    });
+  });
+});

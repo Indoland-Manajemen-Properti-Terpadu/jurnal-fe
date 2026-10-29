@@ -10,7 +10,7 @@ interface AccountPresetPickerProps {
 
 /** Quick account templates grid. */
 export const AccountPresetPicker: React.FC<AccountPresetPickerProps> = ({ onApply }) => {
-  const { t } = useTranslation('journal');
+  const { t } = useTranslation('chartOfAccounts');
 
   return (
     <Paper
@@ -24,34 +24,34 @@ export const AccountPresetPicker: React.FC<AccountPresetPickerProps> = ({ onAppl
       <Group gap={6} mb={8}>
         <IconSparkles size={15} color={themeColors.primary[6]} />
         <Text fz={12} fw={700} c="dark.7">
-          {t('presetsTitle')}
+          {t('form.presetsTitle')}
         </Text>
       </Group>
       <SimpleGrid cols={{ base: 1, xs: 2, sm: 3 }} spacing="xs">
         {[
-          { key: 'bank', label: t('presetBank'), color: 'blue', prefix: '1-1' },
+          { key: 'bank', label: t('form.presetBank'), color: 'blue', prefix: '1-1' },
           {
             key: 'pettyCash',
-            label: t('presetPettyCash'),
+            label: t('form.presetPettyCash'),
             color: 'cyan',
             prefix: '1-1',
           },
           {
             key: 'receivable',
-            label: t('presetReceivable'),
+            label: t('form.presetReceivable'),
             color: 'indigo',
             prefix: '1-2',
           },
           {
             key: 'accumDepr',
-            label: t('presetAccumDepr'),
+            label: t('form.presetAccumDepr'),
             color: 'orange',
             prefix: '1-5',
           },
-          { key: 'revenue', label: t('presetRevenue'), color: 'teal', prefix: '4-1' },
+          { key: 'revenue', label: t('form.presetRevenue'), color: 'teal', prefix: '4-1' },
           {
             key: 'expense',
-            label: t('presetExpense'),
+            label: t('form.presetExpense'),
             color: 'grape',
             prefix: '6-1',
           },

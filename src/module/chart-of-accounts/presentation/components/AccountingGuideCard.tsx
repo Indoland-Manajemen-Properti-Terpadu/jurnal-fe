@@ -19,137 +19,33 @@ interface AccountingGuideCardProps {
   activePrefix?: string;
 }
 
-const NUMBERING_RULES_ID = [
-  {
-    prefix: '1',
-    code: '1-XXXX',
-    name: 'Aset / Aktiva',
-    side: 'Debit',
-    color: 'teal',
-    group: 'neraca',
-  },
-  {
-    prefix: '2',
-    code: '2-XXXX',
-    name: 'Kewajiban / Liabilitas',
-    side: 'Kredit',
-    color: 'red',
-    group: 'neraca',
-  },
-  {
-    prefix: '3',
-    code: '3-XXXX',
-    name: 'Ekuitas / Modal',
-    side: 'Kredit',
-    color: 'red',
-    group: 'neraca',
-  },
-  {
-    prefix: '4',
-    code: '4-XXXX',
-    name: 'Pendapatan Usaha',
-    side: 'Kredit',
-    color: 'red',
-    group: 'labarugi',
-  },
-  {
-    prefix: '5',
-    code: '5-XXXX',
-    name: 'Harga Pokok Penjualan',
-    side: 'Debit',
-    color: 'teal',
-    group: 'labarugi',
-  },
-  {
-    prefix: '6',
-    code: '6-XXXX',
-    name: 'Beban Operasional',
-    side: 'Debit',
-    color: 'teal',
-    group: 'labarugi',
-  },
-  {
-    prefix: '7',
-    code: '7-XXXX',
-    name: 'Pendapatan Lainnya',
-    side: 'Kredit',
-    color: 'red',
-    group: 'labarugi',
-  },
-  {
-    prefix: '8',
-    code: '8-XXXX',
-    name: 'Beban Lainnya',
-    side: 'Debit',
-    color: 'teal',
-    group: 'labarugi',
-  },
-];
+type RuleGroup = 'neraca' | 'labarugi';
 
-const NUMBERING_RULES_EN = [
-  { prefix: '1', code: '1-XXXX', name: 'Assets', side: 'Debit', color: 'teal', group: 'neraca' },
-  {
-    prefix: '2',
-    code: '2-XXXX',
-    name: 'Liabilities',
-    side: 'Credit',
-    color: 'red',
-    group: 'neraca',
-  },
-  {
-    prefix: '3',
-    code: '3-XXXX',
-    name: 'Equity / Capital',
-    side: 'Credit',
-    color: 'red',
-    group: 'neraca',
-  },
-  {
-    prefix: '4',
-    code: '4-XXXX',
-    name: 'Operating Revenue',
-    side: 'Credit',
-    color: 'red',
-    group: 'labarugi',
-  },
-  {
-    prefix: '5',
-    code: '5-XXXX',
-    name: 'Cost of Goods Sold',
-    side: 'Debit',
-    color: 'teal',
-    group: 'labarugi',
-  },
-  {
-    prefix: '6',
-    code: '6-XXXX',
-    name: 'Operating Expenses',
-    side: 'Debit',
-    color: 'teal',
-    group: 'labarugi',
-  },
-  {
-    prefix: '7',
-    code: '7-XXXX',
-    name: 'Other Income',
-    side: 'Credit',
-    color: 'red',
-    group: 'labarugi',
-  },
-  {
-    prefix: '8',
-    code: '8-XXXX',
-    name: 'Other Expenses',
-    side: 'Debit',
-    color: 'teal',
-    group: 'labarugi',
-  },
+const NUMBERING_RULES: {
+  prefix: string;
+  nameKey: string;
+  debit: boolean;
+  group: RuleGroup;
+}[] = [
+  { prefix: '1', nameKey: 'asset', debit: true, group: 'neraca' },
+  { prefix: '2', nameKey: 'liability', debit: false, group: 'neraca' },
+  { prefix: '3', nameKey: 'equity', debit: false, group: 'neraca' },
+  { prefix: '4', nameKey: 'revenue', debit: false, group: 'labarugi' },
+  { prefix: '5', nameKey: 'cogs', debit: true, group: 'labarugi' },
+  { prefix: '6', nameKey: 'opex', debit: true, group: 'labarugi' },
+  { prefix: '7', nameKey: 'otherIncome', debit: false, group: 'labarugi' },
+  { prefix: '8', nameKey: 'otherExpense', debit: true, group: 'labarugi' },
 ];
 
 export const AccountingGuideCard: React.FC<AccountingGuideCardProps> = ({ activePrefix }) => {
-  const { currentLanguage } = useTranslation('journal');
-  const isEn = currentLanguage === 'en';
-  const rules = isEn ? NUMBERING_RULES_EN : NUMBERING_RULES_ID;
+  const { t } = useTranslation('chartOfAccounts');
+  const rules = NUMBERING_RULES.map((rule) => ({
+    ...rule,
+    code: `${rule.prefix}-XXXX`,
+    name: t(`guide.rules.${rule.nameKey}`),
+    side: rule.debit ? t('guide.sideDebit') : t('guide.sideCredit'),
+    color: rule.debit ? 'teal' : 'red',
+  }));
 
   return (
     <Paper withBorder radius="md" p="md" bg="white" shadow="xs">
@@ -160,10 +56,10 @@ export const AccountingGuideCard: React.FC<AccountingGuideCardProps> = ({ active
           </ThemeIcon>
           <div>
             <Text fw={700} fz={13} c="dark.8">
-              {isEn ? 'Accounting Guide (COA Tips)' : 'Panduan Akuntansi (Tips)'}
+              {t('guide.title')}
             </Text>
             <Text fz={11} c="dimmed">
-              {isEn ? '8 Standard COA Numbering Groups' : '8 Kelompok Standar Penomoran COA'}
+              {t('guide.subtitle')}
             </Text>
           </div>
         </Group>
@@ -176,13 +72,13 @@ export const AccountingGuideCard: React.FC<AccountingGuideCardProps> = ({ active
         <Accordion.Item value="numbering">
           <Accordion.Control icon={<IconListNumbers size={16} color={themeColors.primary[6]} />}>
             <Text fz={12} fw={700}>
-              {isEn ? 'Standard Account Numbering (1–8)' : 'Standar Penomoran Akun (1–8)'}
+              {t('guide.numberingTitle')}
             </Text>
           </Accordion.Control>
           <Accordion.Panel>
             <Stack gap={6}>
               <Text fz={10} fw={700} c="dimmed" tt="uppercase" lts={0.4}>
-                {isEn ? 'Balance Sheet Accounts (1–3)' : 'Kelompok Akun Neraca (1–3)'}
+                {t('guide.balanceGroup')}
               </Text>
               {rules
                 .filter((r) => r.group === 'neraca')
@@ -221,7 +117,7 @@ export const AccountingGuideCard: React.FC<AccountingGuideCardProps> = ({ active
               <Divider my={2} />
 
               <Text fz={10} fw={700} c="dimmed" tt="uppercase" lts={0.4}>
-                {isEn ? 'Profit & Loss Accounts (4–8)' : 'Kelompok Akun Laba Rugi (4–8)'}
+                {t('guide.profitLossGroup')}
               </Text>
               {rules
                 .filter((r) => r.group === 'labarugi')
@@ -263,49 +159,31 @@ export const AccountingGuideCard: React.FC<AccountingGuideCardProps> = ({ active
         <Accordion.Item value="contra">
           <Accordion.Control icon={<IconScale size={16} color={themeColors.secondary[6]} />}>
             <Text fz={12} fw={700}>
-              {isEn ? 'When to Use a Contra Account?' : 'Kapan Memilih Akun Kontra?'}
+              {t('guide.contraTitle')}
             </Text>
           </Accordion.Control>
           <Accordion.Panel>
             <Text fz={11} c="dimmed" lh={1.45}>
-              {isEn ? (
-                <>
-                  Enable{' '}
-                  <Text span fw={600} c="dark.8">
-                    Contra Account
-                  </Text>{' '}
-                  when the account offsets the balance of a primary account in the same category:
-                </>
-              ) : (
-                <>
-                  Gunakan fitur{' '}
-                  <Text span fw={600} c="dark.8">
-                    Akun Kontra
-                  </Text>{' '}
-                  jika akun ini berfungsi mengurangi nilai saldo akun utama sejenis. Contoh:
-                </>
-              )}
+              {t('guide.contraPrefix')}{' '}
+              <Text span fw={600} c="dark.8">
+                {t('guide.contraTerm')}
+              </Text>{' '}
+              {t('guide.contraSuffix')}
             </Text>
             <List size="xs" spacing={4} mt={6} c="dimmed">
               <List.Item>
                 <Text span fz={11}>
-                  {isEn
-                    ? 'Accumulated Depreciation (offsets Fixed Assets)'
-                    : 'Akumulasi Penyusutan (mengurangi Aktiva Tetap)'}
+                  {t('guide.contraEx1')}
                 </Text>
               </List.Item>
               <List.Item>
                 <Text span fz={11}>
-                  {isEn
-                    ? 'Sales Returns & Discounts (offsets Revenue)'
-                    : 'Retur & Diskon Penjualan (mengurangi Pendapatan)'}
+                  {t('guide.contraEx2')}
                 </Text>
               </List.Item>
               <List.Item>
                 <Text span fz={11}>
-                  {isEn
-                    ? 'Allowance for Doubtful Accounts (offsets Receivables)'
-                    : 'Cadangan Kerugian Piutang (mengurangi Piutang Usaha)'}
+                  {t('guide.contraEx3')}
                 </Text>
               </List.Item>
             </List>
@@ -315,35 +193,19 @@ export const AccountingGuideCard: React.FC<AccountingGuideCardProps> = ({ active
         <Accordion.Item value="hierarchy">
           <Accordion.Control icon={<IconHierarchy2 size={16} color={themeColors.primary[5]} />}>
             <Text fz={12} fw={700}>
-              {isEn ? 'Header vs. Sub-Account Hierarchy' : 'Hierarki Induk & Sub Akun'}
+              {t('guide.hierarchyTitle')}
             </Text>
           </Accordion.Control>
           <Accordion.Panel>
             <Text fz={11} c="dimmed" lh={1.45}>
-              {isEn ? (
-                <>
-                  <Text span fw={600} c="dark.8">
-                    Sub-Accounts
-                  </Text>{' '}
-                  record granular daily transactions (e.g., Petty Cash HQ, Petty Cash Branch), while{' '}
-                  <Text span fw={600} c="dark.8">
-                    Header Accounts
-                  </Text>{' '}
-                  consolidate their total balances on financial reports.
-                </>
-              ) : (
-                <>
-                  <Text span fw={600} c="dark.8">
-                    Sub Akun
-                  </Text>{' '}
-                  digunakan untuk mencatat mutasi spesifik (contoh: Kas Kasir, Kas Proyek),
-                  sementara{' '}
-                  <Text span fw={600} c="dark.8">
-                    Akun Induk
-                  </Text>{' '}
-                  merangkum saldo totalnya untuk laporan keuangan.
-                </>
-              )}
+              <Text span fw={600} c="dark.8">
+                {t('guide.subTerm')}
+              </Text>{' '}
+              {t('guide.subText')}{' '}
+              <Text span fw={600} c="dark.8">
+                {t('guide.headerTerm')}
+              </Text>{' '}
+              {t('guide.headerText')}
             </Text>
           </Accordion.Panel>
         </Accordion.Item>

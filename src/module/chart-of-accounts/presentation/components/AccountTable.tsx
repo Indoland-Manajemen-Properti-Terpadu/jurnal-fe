@@ -11,6 +11,7 @@ import {
   KeyStatusOpenBagde,
 } from '@/components/Badge/Badge';
 import { themeColors } from '@/theme';
+import { useTranslation } from '@/i18n';
 import { formatCurrency } from '@/utils/FormatCurrency';
 import { routes } from '@/router/routes';
 import EmptyState from '@/components/EmptyState/EmptyTable';
@@ -39,6 +40,7 @@ const ColumnTableFont = {
 };
 const TableAccounts = ({ data, loading, selectedCategory, searchQuery }: TableAccountsProps) => {
   const navigate = useNavigate();
+  const { t } = useTranslation('chartOfAccounts');
   const [records, setRecords] = useState<JournalAccounts[]>([]);
   const { selectedRecords, setSelectedRecords } = useAccountStore();
   const [expandedAccountIds, setExpandedAccountIds] = useState<string[]>([]);
@@ -64,7 +66,7 @@ const TableAccounts = ({ data, loading, selectedCategory, searchQuery }: TableAc
   const columns = [
     {
       accessor: 'accountNumber',
-      title: <Title style={HeadTableFont}>KODE AKUN</Title>,
+      title: <Title style={HeadTableFont}>{t('table.code')}</Title>,
       width: 200,
       render: ({ id = '', subAccount, accountNumber }: JournalAccounts) => (
         <Group justify="space-between">
@@ -82,7 +84,7 @@ const TableAccounts = ({ data, loading, selectedCategory, searchQuery }: TableAc
     },
     {
       accessor: 'isLocked',
-      title: <Title style={HeadTableFont}>STATUS</Title>,
+      title: <Title style={HeadTableFont}>{t('table.status')}</Title>,
       width: 120,
       render: (item: JournalAccounts) => (
         <>{item.isLocked ? <KeyStatusLockBagde /> : <KeyStatusOpenBagde />}</>
@@ -90,7 +92,7 @@ const TableAccounts = ({ data, loading, selectedCategory, searchQuery }: TableAc
     },
     {
       accessor: 'name',
-      title: <Title style={HeadTableFont}>NAMA AKUN</Title>,
+      title: <Title style={HeadTableFont}>{t('table.name')}</Title>,
       width: 250,
       render: (item: JournalAccounts) => (
         <Group gap="xs" wrap="nowrap">
@@ -110,7 +112,7 @@ const TableAccounts = ({ data, loading, selectedCategory, searchQuery }: TableAc
           </Anchor>
           {item.isArchived && (
             <Badge color="gray" variant="filled" size="sm" radius="sm">
-              Diarsipkan
+              {t('table.archived')}
             </Badge>
           )}
         </Group>
@@ -118,9 +120,9 @@ const TableAccounts = ({ data, loading, selectedCategory, searchQuery }: TableAc
     },
     {
       accessor: 'category',
-      title: <Title style={HeadTableFont}>KATEGORI</Title>,
+      title: <Title style={HeadTableFont}>{t('table.category')}</Title>,
       width: 160,
-      render: (item: any) => (
+      render: (item: JournalAccounts) => (
         <Text c={themeColors.black[9]} className={classes.categoryColumn}>
           {item.category?.name || '—'}
         </Text>
@@ -128,22 +130,22 @@ const TableAccounts = ({ data, loading, selectedCategory, searchQuery }: TableAc
     },
     {
       accessor: 'isDebit',
-      title: <Title style={HeadTableFont}>POSISI SALDO</Title>,
+      title: <Title style={HeadTableFont}>{t('table.normalBalance')}</Title>,
       width: 120,
-      render: (item: any) => (
+      render: (item: JournalAccounts) => (
         <Badge
           color={item.category?.isDebit === true ? 'teal' : 'red'}
           variant="light"
           size="sm"
           radius="sm"
         >
-          {item.category?.isDebit === true ? 'Debit' : 'Kredit'}
+          {item.category?.isDebit === true ? t('table.debit') : t('table.credit')}
         </Badge>
       ),
     },
     {
       accessor: 'isAllUser',
-      title: <Title style={HeadTableFont}>AKSES</Title>,
+      title: <Title style={HeadTableFont}>{t('table.access')}</Title>,
       width: 120,
       render: (item: JournalAccounts) => (
         <>{item.isAllUser ? <AllRoleBadge /> : <InactiveBadge />}</>
@@ -151,7 +153,7 @@ const TableAccounts = ({ data, loading, selectedCategory, searchQuery }: TableAc
     },
     {
       accessor: 'tax',
-      title: <Title style={HeadTableFont}>PAJAK</Title>,
+      title: <Title style={HeadTableFont}>{t('table.tax')}</Title>,
       width: 80,
       render: (item: JournalAccounts) => <Text c="dark">{item.tax ?? '-'}</Text>,
     },
@@ -159,7 +161,7 @@ const TableAccounts = ({ data, loading, selectedCategory, searchQuery }: TableAc
       accessor: 'balance',
       title: (
         <Title style={HeadTableFont} ta="right">
-          SALDO AKHIR
+          {t('table.endingBalance')}
         </Title>
       ),
       width: 160,
@@ -226,7 +228,7 @@ const TableAccounts = ({ data, loading, selectedCategory, searchQuery }: TableAc
               </Anchor>
               {item.isArchived && (
                 <Badge color="gray" variant="filled" size="sm" radius="sm">
-                  Diarsipkan
+                  {t('table.archived')}
                 </Badge>
               )}
             </Group>
@@ -257,9 +259,9 @@ const TableAccounts = ({ data, loading, selectedCategory, searchQuery }: TableAc
 
   return records.length === 0 ? (
     <EmptyState
-      title="Belum ada data akun yang sesuai kriteria"
+      title={t('table.empty')}
       imageSrc={defaultEmptyImage}
-      imageAlt="Tidak ada data akun"
+      imageAlt={t('table.emptyAlt')}
     />
   ) : (
     <DataTable

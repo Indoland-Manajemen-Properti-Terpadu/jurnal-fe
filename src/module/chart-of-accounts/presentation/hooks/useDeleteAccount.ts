@@ -1,22 +1,21 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { del } from '@/lib/http/apiClient';
-import { API_ACCOUNT } from '@/services/endpoint';
+import { t } from '@/i18n';
 import { notifications } from '@mantine/notifications';
+import { deleteAccounts } from '../../infrastructure/accountApi';
 import useAccountStore from './useAccountStore';
+
+const NS = 'chartOfAccounts';
 
 export const useDeleteAccount = () => {
   const queryClient = useQueryClient();
   const { setSelectedRecords } = useAccountStore();
 
   return useMutation({
-    mutationFn: async (ids: { accountIds: string[] }) => {
-      const result = await del(API_ACCOUNT.DELETE_ACCOUNT, ids);
-      return result;
-    },
+    mutationFn: (ids: { accountIds: string[] }) => deleteAccounts(ids),
     onSuccess: () => {
       notifications.show({
-        title: 'Success',
-        message: 'Selected accounts have been deleted',
+        title: t('toast.deleteOkTitle', undefined, NS),
+        message: t('toast.deleteOkMsg', undefined, NS),
         color: 'green',
       });
       setSelectedRecords([]);
@@ -24,8 +23,8 @@ export const useDeleteAccount = () => {
     },
     onError: (error: { response?: { data?: { message?: string } } }) => {
       notifications.show({
-        title: 'Error',
-        message: error?.response?.data?.message || 'Failed to delete accounts',
+        title: t('toast.deleteFailTitle', undefined, NS),
+        message: error?.response?.data?.message || t('toast.deleteFailMsg', undefined, NS),
         color: 'red',
       });
     },

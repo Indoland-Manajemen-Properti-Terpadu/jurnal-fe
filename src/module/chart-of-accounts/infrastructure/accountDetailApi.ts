@@ -1,6 +1,6 @@
 // hooks/useDetailAccount.ts
 import { API_ACCOUNT } from '@/services/endpoint';
-import { get, patch } from '@/lib/http/apiClient';
+import apiClient, { get } from '@/lib/http/apiClient';
 import { DetailAccountModel } from '../domain/accountDetail';
 
 export const getDetailAccount = async (idAccount: string): Promise<DetailAccountModel> => {
@@ -8,8 +8,9 @@ export const getDetailAccount = async (idAccount: string): Promise<DetailAccount
   return result;
 };
 
-export const archiveAccount = async (accountId: string): Promise<any> => {
+/** Archive or restore an account. Rejects on an HTTP error (R3). */
+export const archiveAccount = async (accountId: string): Promise<unknown> => {
   const url = API_ACCOUNT.ARCHIVE_ACCOUNT.replace(':accountId', accountId);
-  const result = await patch(url, {});
-  return result;
+  const response = await apiClient.patch(url, {});
+  return response.data;
 };

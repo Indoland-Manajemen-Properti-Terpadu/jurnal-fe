@@ -14,6 +14,7 @@ import {
 } from '@mantine/core';
 import { IconDownload, IconFileSpreadsheet, IconInfoCircle } from '@tabler/icons-react';
 import ImageExport from '@/assets/img/SettingsAccount-Export.svg';
+import { useTranslation } from '@/i18n';
 import { useAccountSettings } from '../../hooks/useAccountSettings';
 
 interface ExportAccountModalProps {
@@ -27,6 +28,7 @@ export const ExportAccountModal: React.FC<ExportAccountModalProps> = ({
   onClose,
   totalAccounts = 0,
 }) => {
+  const { t } = useTranslation('chartOfAccounts');
   const { exportAccounts, isExporting } = useAccountSettings();
 
   const handleExport = () => {
@@ -50,10 +52,10 @@ export const ExportAccountModal: React.FC<ExportAccountModalProps> = ({
           </ThemeIcon>
           <Box>
             <Text fw={700} size="sm" c="dark.9">
-              Ekspor Data Bagan Akun (COA)
+              {t('settings.export.title')}
             </Text>
             <Text size="xs" c="dimmed">
-              Unduh seluruh daftar akun pembukuan ke berkas spreadsheet
+              {t('settings.export.subtitle')}
             </Text>
           </Box>
         </Group>
@@ -74,7 +76,7 @@ export const ExportAccountModal: React.FC<ExportAccountModalProps> = ({
             border: '1px solid rgba(20, 184, 166, 0.15)',
           }}
         >
-          <Image src={ImageExport} alt="Ekspor Akun" h={88} fit="contain" />
+          <Image src={ImageExport} alt={t('settings.export.alt')} h={88} fit="contain" />
         </Box>
 
         <Paper
@@ -91,29 +93,28 @@ export const ExportAccountModal: React.FC<ExportAccountModalProps> = ({
               </ThemeIcon>
               <Box>
                 <Text size="sm" fw={700} c="teal.9">
-                  Microsoft Excel Spreadsheet (.xlsx)
+                  {t('settings.export.format')}
                 </Text>
                 <Text size="xs" c="teal.8">
-                  Berisi kode akun, nama akun, kategori, posisi saldo, dan saldo berjalan
+                  {t('settings.export.contents')}
                 </Text>
               </Box>
             </Group>
             {totalAccounts > 0 && (
               <Badge color="teal" variant="light" size="sm">
-                {totalAccounts} Akun
+                {t('settings.export.count', { count: totalAccounts })}
               </Badge>
             )}
           </Group>
         </Paper>
 
         <Alert icon={<IconInfoCircle size={16} />} color="blue" variant="light" radius="md">
-          Berkas yang diekspor dapat digunakan untuk audit, backup berkala, analisis spreadsheet
-          lanjutan, atau migrasi data ke sistem eksternal.
+          {t('settings.export.info')}
         </Alert>
 
         <Group justify="flex-end" gap="sm" mt="sm">
           <Button variant="default" size="sm" radius="md" onClick={onClose} disabled={isExporting}>
-            Tutup
+            {t('settings.export.close')}
           </Button>
           <Button
             color="teal"
@@ -123,7 +124,7 @@ export const ExportAccountModal: React.FC<ExportAccountModalProps> = ({
             onClick={handleExport}
             loading={isExporting}
           >
-            Unduh Berkas Excel (.xlsx)
+            {t('settings.export.download')}
           </Button>
         </Group>
       </Stack>
