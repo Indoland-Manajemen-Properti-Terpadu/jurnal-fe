@@ -1,13 +1,3 @@
-export type BankStatementModel = {
-  id: number;
-  transaction: string;
-  date: string;
-  received: number;
-  sent: number;
-  balance: number;
-  status: string;
-};
-
 export interface BankStatementModelV2 {
   resultTransaction?: Array<Result | null>;
   results?: Result[];
@@ -17,7 +7,9 @@ export interface Result {
   id?: string;
   account?: string;
   description?: string;
+  /** Money received: the positive side of the bank amount. */
   debit?: number;
+  /** Money spent: the negative side of the bank amount, as a positive number. */
   credit?: number;
   site?: Site;
   createdAt?: Date;

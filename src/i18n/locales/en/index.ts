@@ -17,6 +17,7 @@ import { purchases } from './purchases';
 import { products } from './products';
 import { periodClosing } from './periodClosing';
 import { beginningBalances } from './beginningBalances';
+import { bankStatements } from './bankStatements';
 
 export const en = {
   common,
@@ -38,6 +39,7 @@ export const en = {
   products,
   periodClosing,
   beginningBalances,
+  bankStatements,
 };
 
 export default en;

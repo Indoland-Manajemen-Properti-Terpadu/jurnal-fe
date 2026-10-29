@@ -14,7 +14,6 @@ import {
 import { themeColors } from '@/theme';
 import { formatCurrency } from '@/utils/FormatCurrency';
 import { JournalEmptyState } from '@/components/EmptyState/JournalEmptyState';
-import { GetReconciliation } from '../services/GetReconciliation.service';
 import { useParams } from 'react-router-dom';
 import { dateFormatV1 } from '@/utils/FormatDate';
 import {
@@ -28,9 +27,10 @@ import {
   PuzzlePieceIcon,
 } from '@phosphor-icons/react';
 import { NotFound } from '@/components/ErrorPage/NotFound';
+import { ImportBankStatementModal } from '@/module/bank-statements';
 import { FindAndReconModal } from './FindAndReconModal';
 import { BankStatementData } from '../types/GetReconciliationModel';
-import ImportBankStatementModal from '../../BankStatement/components/ImportBankStatementModal';
+import { GetReconciliation } from '../services/GetReconciliation.service';
 import { useDetailAccount } from '../../Main/hooks/useDetailAccount';
 import { useMatchReconciliation } from '../services/MatchReconciliation.service';
 
@@ -46,7 +46,7 @@ const ReconciliationTable: React.FC = () => {
   const [removedRecommendations, setRemovedRecommendations] = useState<string[]>([]);
 
   const { accountDetail } = useDetailAccount(idAccount!);
-  let { data: ReconData, isLoading, isError, refetch } = GetReconciliation(idAccount!);
+  const { data: ReconData, isLoading, isError, refetch } = GetReconciliation(idAccount!);
   const { mutate: matchRecon, isPending: isMatching } = useMatchReconciliation();
 
   console.log('Reconciliation Data Log:', {
@@ -113,7 +113,7 @@ const ReconciliationTable: React.FC = () => {
           matches: [
             {
               bankStatementId: selectedBankStatement.id,
-              journalDetailIds: journalDetailIds,
+              journalDetailIds,
             },
           ],
         },
@@ -210,15 +210,11 @@ const ReconciliationTable: React.FC = () => {
                   Saldo
                 </Text>
                 <Text size="sm" fw={600} c={themeColors.black[9]}>
-                  {(ReconData as any)?.balance ? (
-                    (ReconData as any).balance < 0 ? (
-                      `(${formatCurrency(Math.abs((ReconData as any).balance))})`
-                    ) : (
-                      formatCurrency((ReconData as any).balance)
-                    )
-                  ) : (
-                    formatCurrency(0)
-                  )}
+                  {(ReconData as any)?.balance
+                    ? (ReconData as any).balance < 0
+                      ? `(${formatCurrency(Math.abs((ReconData as any).balance))})`
+                      : formatCurrency((ReconData as any).balance)
+                    : formatCurrency(0)}
                 </Text>
               </Stack>
             </Group>
@@ -242,15 +238,11 @@ const ReconciliationTable: React.FC = () => {
                   Saldo
                 </Text>
                 <Text size="sm" fw={600} c={themeColors.black[9]}>
-                  {accountDetail?.amount ? (
-                    accountDetail.amount < 0 ? (
-                      `(${formatCurrency(Math.abs(accountDetail.amount))})`
-                    ) : (
-                      formatCurrency(accountDetail.amount)
-                    )
-                  ) : (
-                    formatCurrency(0)
-                  )}
+                  {accountDetail?.amount
+                    ? accountDetail.amount < 0
+                      ? `(${formatCurrency(Math.abs(accountDetail.amount))})`
+                      : formatCurrency(accountDetail.amount)
+                    : formatCurrency(0)}
                 </Text>
               </Stack>
             </Group>
@@ -392,12 +384,7 @@ const ReconciliationTable: React.FC = () => {
                                 <Text size="xs" c={themeColors.gray[6]} fw={400}>
                                   {dateFormatV1(jt.transactionDate)}
                                 </Text>
-                                <Text
-                                  size="sm"
-                                  fw={600}
-                                  c={themeColors.black[9]}
-                                  lineClamp={1}
-                                >
+                                <Text size="sm" fw={600} c={themeColors.black[9]} lineClamp={1}>
                                   {jt.transactionNumber
                                     ? `Jurnal Transaksi #${jt.transactionNumber}`
                                     : jt.description}
@@ -419,11 +406,7 @@ const ReconciliationTable: React.FC = () => {
                                   <Text
                                     size="xs"
                                     fw={700}
-                                    c={
-                                      jt.debit > 0
-                                        ? themeColors.green[8]
-                                        : themeColors.red[8]
-                                    }
+                                    c={jt.debit > 0 ? themeColors.green[8] : themeColors.red[8]}
                                   >
                                     {jt.debit > 0 ? 'Diterima' : 'Dikirim'}
                                   </Text>

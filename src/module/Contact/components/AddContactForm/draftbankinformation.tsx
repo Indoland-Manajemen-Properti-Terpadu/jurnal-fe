@@ -8,13 +8,10 @@
 // import { NotFound } from '@/components/ErrorPage/NotFound';
 // import EmptyState from '@/components/EmptyState/EmptyTable';
 // import { formatCurrency } from '@/utils/FormatCurrency';
-// import BadgeStatusReconciled from '@/module/GeneralJournal/DetailAccount/BankStatement/components/BadgeStatus';
+// import BadgeStatusReconciled from '@/module/bank-statements/presentation/components/BadgeStatus';
 // import { dateFormatV1 } from '@/utils/FormatDate';
 // import { JournalAccounts } from '@/module/GeneralJournal/JournalAccount/types/JournalAccountModel';
 // import { DataTable } from 'mantine-datatable';
-
-
-
 
 // const TableListBankInformation = () => {
 //     const { accounts, isError, isEmpty } = GetJournalAccounts();
@@ -23,7 +20,6 @@
 //     const [selectedRecords, setSelectedRecords] = useState<JournalAccounts[]>([]);
 //     const [searchQuery, setSearchQuery] = useState<string>('');
 //     const { mutate: deleteAccount } = useDeleteJurnalAccount();
-
 
 //     if (isError) {
 //         return <NotFound />;
@@ -39,14 +35,12 @@
 //         setSearchQuery(event.currentTarget.value);
 //     };
 
-
 //     const handleDeleteAccount = () => {
 //         const ids = {
 //             accountIds: selectedRecords.map((item) => item.id),
 //         };
 //         deleteAccount(ids);
 //     };
-
 
 //     const columns = [
 //         {

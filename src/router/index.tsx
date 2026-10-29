@@ -1,6 +1,5 @@
 import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom';
 import { setNavigate } from '@/lib/http/apiClient';
-import { routes } from './routes';
 
 // General Journal Module
 import GeneralJournalPage from '@/module/GeneralJournal/Main/pages/GeneralJournalPage';
@@ -23,7 +22,7 @@ import AddUserForm from '@/module/SettingMenu/UserManagement/User/components/Add
 import AddRoleForm from '@/module/SettingMenu/UserManagement/Role/components/AddRoleForm/AddRoleForm';
 import ReportCatalogPage from '@/module/ResultReport/Catalog/pages/ReportCatalogPage';
 import BalanceSheetPage from '@/module/ResultReport/BalanceSheet/pages/BalanceSheetPage';
-import ImportBankStatementDraft from '@/module/GeneralJournal/DetailAccount/BankStatement/pages/ImportBankStatementDraft';
+import { ImportBankStatementDraftPage } from '@/module/bank-statements';
 import TrialBalancePage from '@/module/ResultReport/BusinessOverview/page/TrialBalancePage';
 import IncomeStatementPage from '@/module/ResultReport/BusinessOverview/page/IncomeStatementPage';
 import CashFlowPage from '@/module/ResultReport/BusinessOverview/page/CashFlowPage';
@@ -73,6 +72,7 @@ import OAuthCallback from '@/module/Authentication/Login/pages/OAuthCallback';
 import MainDashboard from '@/module/Dashboard/page/page';
 import { LandingPage } from '@/module/landing';
 import { ProfilePage } from '@/module/profile';
+import { routes } from './routes';
 
 const router = createBrowserRouter([
   {
@@ -172,7 +172,7 @@ const router = createBrowserRouter([
   },
   {
     path: routes.generalJournal.bankStatementDraftImport,
-    element: <ImportBankStatementDraft />,
+    element: <ImportBankStatementDraftPage />,
   },
   {
     path: routes.PeriodAndClosingBook.FinancialStatement,
