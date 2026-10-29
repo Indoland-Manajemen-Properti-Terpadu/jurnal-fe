@@ -4,7 +4,7 @@ import { routes } from '@/router/routes';
 import { useNavigate } from 'react-router-dom';
 import { API_ACCOUNT } from '@/services/endpoint';
 import { post } from '@/lib/http/apiClient';
-import { AddAccountPayload } from '../types/AddAccountPayload';
+import { AddAccountPayload } from '../../domain/addAccountPayload';
 
 export const useAddAccount = () => {
   const navigate = useNavigate();

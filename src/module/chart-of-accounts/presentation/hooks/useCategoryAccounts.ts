@@ -1,7 +1,7 @@
 import { API_ACCOUNT } from '@/services/endpoint';
 import { useQuery } from '@tanstack/react-query';
 import { get } from '@/lib/http/apiClient';
-import { CategoryAccountModel } from '../types/CategoryAccountModel';
+import { CategoryAccountModel } from '../../domain/categoryAccount';
 
 export const GetCategoryAccount = () => {
   return useQuery<CategoryAccountModel[]>({

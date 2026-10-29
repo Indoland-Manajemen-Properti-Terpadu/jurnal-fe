@@ -1,4 +1,4 @@
-import { getCategoryPrefix, resolveEffectiveDebit } from './AddAccountJournal';
+import { getCategoryPrefix, resolveEffectiveDebit } from './AddAccountPage';
 
 describe('I5 contra flip when creating an account (characterization)', () => {
   it('uses the category flag and defaults to debit when unset', () => {

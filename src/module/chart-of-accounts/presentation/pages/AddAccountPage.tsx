@@ -53,11 +53,11 @@ import { useGetAllUser } from '@/module/SettingMenu/UserManagement/User/service/
 import { GetRoles } from '@/module/SettingMenu/UserManagement/Role/Service/Role.service';
 import { getCategoryPrefix } from '@/lib/accounting/accountTypes';
 import { isDebitNormal } from '@/lib/accounting/normalBalance';
-import { GetCategoryAccount } from '../../services/GetCategoryAccount.service';
-import { useGetCategoryInfo } from '../../services/GetCategoryInfo.service';
-import { useAddAccount } from '../../services/AddAccount.service';
-import { AddAccountPayload } from '../../types/AddAccountPayload';
-import { AccountPreviewCard, AccountingGuideCard } from '../../components';
+import { GetCategoryAccount } from '../hooks/useCategoryAccounts';
+import { useGetCategoryInfo } from '../hooks/useCategoryInfo';
+import { useAddAccount } from '../hooks/useAddAccount';
+import { AddAccountPayload } from '../../domain/addAccountPayload';
+import { AccountPreviewCard, AccountingGuideCard } from '../components';
 
 const TAX_OPTIONS = [
   { value: 'PPN', label: 'PPN — Pajak Pertambahan Nilai' },

@@ -14,7 +14,7 @@ import {
 } from '@mantine/core';
 import { IconAlertTriangle, IconRotateClockwise } from '@tabler/icons-react';
 import ImageRestore from '@/assets/img/SettingsAccount-Restore.svg';
-import { useAccountSettings } from '../hooks/useAccountSettings';
+import { useAccountSettings } from '../../hooks/useAccountSettings';
 
 interface RestoreAccountModalProps {
   opened: boolean;

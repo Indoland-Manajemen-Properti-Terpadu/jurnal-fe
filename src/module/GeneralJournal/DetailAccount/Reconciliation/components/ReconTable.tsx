@@ -31,7 +31,7 @@ import { ImportBankStatementModal } from '@/module/bank-statements';
 import { FindAndReconModal } from './FindAndReconModal';
 import { BankStatementData } from '../types/GetReconciliationModel';
 import { GetReconciliation } from '../services/GetReconciliation.service';
-import { useDetailAccount } from '../../Main/hooks/useDetailAccount';
+import { useDetailAccount } from '@/module/chart-of-accounts';
 import { useMatchReconciliation } from '../services/MatchReconciliation.service';
 
 const ReconciliationTable: React.FC = () => {

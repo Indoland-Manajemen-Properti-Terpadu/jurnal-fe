@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { del } from '@/lib/http/apiClient';
 import { API_ACCOUNT } from '@/services/endpoint';
 import { notifications } from '@mantine/notifications';
-import useAccountStore from '@/store/useAccountLedger';
+import useAccountStore from './useAccountStore';
 
 export const useDeleteAccount = () => {
   const queryClient = useQueryClient();

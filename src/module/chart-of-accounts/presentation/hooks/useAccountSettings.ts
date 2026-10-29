@@ -6,8 +6,8 @@ import {
   commitAccountImport,
   downloadAccountExport,
   resetAccountsToDefault,
-} from '../services/accountSettingService';
-import { CommitImportPayload, AccountImportParsedData } from '../types/settingAccount';
+} from '../../infrastructure/accountSettingApi';
+import { CommitImportPayload, AccountImportParsedData } from '../../domain/settingAccount';
 
 export const useAccountSettings = () => {
   const queryClient = useQueryClient();

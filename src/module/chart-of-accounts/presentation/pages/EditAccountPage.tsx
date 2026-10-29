@@ -45,14 +45,14 @@ import AppShellLayout from '@/components/AppShellLayout';
 import ModuleHeader from '@/components/ModuleHeader/ModuleHeader';
 import { routes } from '@/router/routes';
 import { themeColors } from '@/theme';
-import { GetCategoryAccount } from '../../services/GetCategoryAccount.service';
-import { useGetCategoryInfo } from '../../services/GetCategoryInfo.service';
-import { useUpdateAccount } from '../../services/UpdateAccount.service';
-import { useDetailAccount } from '@/module/GeneralJournal/DetailAccount/Main/hooks/useDetailAccount';
+import { GetCategoryAccount } from '../hooks/useCategoryAccounts';
+import { useGetCategoryInfo } from '../hooks/useCategoryInfo';
+import { useUpdateAccount } from '../hooks/useUpdateAccount';
+import { useDetailAccount } from '../hooks/useDetailAccount';
 import { useGetAllUser } from '@/module/SettingMenu/UserManagement/User/service/User.service';
 import { GetRoles } from '@/module/SettingMenu/UserManagement/Role/Service/Role.service';
-import { AddAccountPayload } from '../../types/AddAccountPayload';
-import { AccountPreviewCard, AccountingGuideCard } from '../../components';
+import { AddAccountPayload } from '../../domain/addAccountPayload';
+import { AccountPreviewCard, AccountingGuideCard } from '../components';
 
 export const EditAccountJournalPage: React.FC = () => {
   const navigate = useNavigate();

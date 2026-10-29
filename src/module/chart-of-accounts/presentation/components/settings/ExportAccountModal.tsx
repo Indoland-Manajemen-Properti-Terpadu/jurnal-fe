@@ -14,7 +14,7 @@ import {
 } from '@mantine/core';
 import { IconDownload, IconFileSpreadsheet, IconInfoCircle } from '@tabler/icons-react';
 import ImageExport from '@/assets/img/SettingsAccount-Export.svg';
-import { useAccountSettings } from '../hooks/useAccountSettings';
+import { useAccountSettings } from '../../hooks/useAccountSettings';
 
 interface ExportAccountModalProps {
   opened: boolean;

@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { DetailAccountModel } from '../types/DetailAccountModel';
-import { getDetailAccount } from '../services/DetailAccount.service';
+import { DetailAccountModel } from '../../domain/accountDetail';
+import { getDetailAccount } from '../../infrastructure/accountDetailApi';
 
 export const useDetailAccount = (idAccount: string) => {
   const { data, isLoading, isError } = useQuery<DetailAccountModel>({

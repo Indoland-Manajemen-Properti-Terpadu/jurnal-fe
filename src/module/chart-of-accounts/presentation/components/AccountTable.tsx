@@ -13,9 +13,9 @@ import {
 import { themeColors } from '@/theme';
 import { formatCurrency } from '@/utils/FormatCurrency';
 import { routes } from '@/router/routes';
-import { JournalAccounts } from '@/module/GeneralJournal/JournalAccount/types/JournalAccountModel';
-import classes from '../../pages/GeneralJournal.module.css';
-import useAccountStore from '@/store/useAccountLedger';
+import { JournalAccounts } from '../../domain/journalAccount';
+import classes from '../pages/AccountList.module.css';
+import useAccountStore from '../hooks/useAccountStore';
 import EmptyState from '@/components/EmptyState/EmptyTable';
 import defaultEmptyImage from '@/assets/img/Empty-Data.svg';
 
@@ -36,12 +36,7 @@ const ColumnTableFont = {
   fontSize: 14,
   fontWeight: 400,
 };
-const TableAccounts = ({
-  data,
-  loading,
-  selectedCategory,
-  searchQuery,
-}: TableAccountsProps) => {
+const TableAccounts = ({ data, loading, selectedCategory, searchQuery }: TableAccountsProps) => {
   const navigate = useNavigate();
   const [records, setRecords] = useState<JournalAccounts[]>([]);
   const { selectedRecords, setSelectedRecords } = useAccountStore();

@@ -38,16 +38,16 @@ import { useNavigate } from 'react-router-dom';
 import ModuleHeader from '@/components/ModuleHeader/ModuleHeader';
 import { ConfirmModal } from '@/components';
 import { routes } from '@/router/routes';
-import { useAccountStore } from '@/store';
-import { useDeleteJurnalAccount } from '@/module/GeneralJournal/JournalAccount/services';
+import useAccountStore from '../hooks/useAccountStore';
+import { useDeleteAccount as useDeleteJurnalAccount } from '../hooks/useDeleteAccount';
 import { useDraftAccount, BeginningBalanceModal } from '@/module/beginning-balances';
 import { PeriodAndClosingBooksModal } from '@/module/period-closing';
-import { SettingAccountModal } from '@/module/GeneralJournal/SettingAccount/pages/SettingAccountModal';
-import TableAccounts from '@/module/GeneralJournal/Main/components/TableJournalAccount/TableAccount';
-import GeneralJournalLayout from './Layout';
-import { useJournalAccounts } from '../../JournalAccount/hooks/useJournalAccounts';
+import { SettingAccountModal } from './SettingAccountModal';
+import TableAccounts from '../components/AccountTable';
+import GeneralJournalLayout from './AccountListLayout';
+import { useJournalAccounts } from '../hooks/useJournalAccounts';
 import deleteModalImage from '@/assets/img/vectors/delete_modal.svg';
-import type { JournalAccounts } from '@/module/GeneralJournal/JournalAccount/types/JournalAccountModel';
+import type { JournalAccounts } from '../../domain/journalAccount';
 
 const GeneralJournalPage: React.FC = () => {
   const navigate = useNavigate();

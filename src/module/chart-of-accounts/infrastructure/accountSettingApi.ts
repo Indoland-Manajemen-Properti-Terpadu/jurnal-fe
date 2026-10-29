@@ -4,7 +4,7 @@ import {
   AccountImportApiResponse,
   AccountImportParsedData,
   CommitImportPayload,
-} from '../types/settingAccount';
+} from '../domain/settingAccount';
 
 /**
  * Trigger file download directly in browser

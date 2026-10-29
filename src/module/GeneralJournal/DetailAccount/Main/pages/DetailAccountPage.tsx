@@ -47,14 +47,14 @@ import { ConfirmModal } from '@/components';
 import deleteModalImage from '@/assets/img/vectors/delete_modal.svg';
 import arsipkanIcon from '@/assets/img/vectors/arsipkan.svg';
 
-import { useDeleteJurnalAccount } from '@/module/GeneralJournal/JournalAccount/services';
+import { useDeleteAccount as useDeleteJurnalAccount } from '@/module/chart-of-accounts';
 import { useBankStatement, type BankStatementRow } from '@/module/bank-statements';
 import { JournalEmptyState } from '@/components/EmptyState/JournalEmptyState';
 import { useJournalEntriesByAccount } from '@/module/journal-entries';
 import type { JournalEntryByAccount } from '@/module/journal-entries';
-import { useDetailAccount } from '../hooks/useDetailAccount';
-import { accountDetailData } from '../types/DetailAccountModel';
-import { archiveAccount } from '../services/DetailAccount.service';
+import { useDetailAccount } from '@/module/chart-of-accounts';
+import { accountDetailData } from '@/module/chart-of-accounts';
+import { archiveAccount } from '@/module/chart-of-accounts';
 import { GetReconciliation } from '../../Reconciliation/services/GetReconciliation.service';
 
 import DetailAccountLayout from './Layout';

@@ -2,9 +2,11 @@ import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
 import { setNavigate } from '@/lib/http/apiClient';
 
 // General Journal Module
-import GeneralJournalPage from '@/module/GeneralJournal/Main/pages/GeneralJournalPage';
-import AddAccountjournalPage from '@/module/GeneralJournal/JournalAccount/pages/AddAccount/AddAccountJournal';
-import EditAccountJournalPage from '@/module/GeneralJournal/JournalAccount/pages/EditAccount/EditAccountJournal';
+import {
+  AccountListPage as GeneralJournalPage,
+  AddAccountPage as AddAccountjournalPage,
+  EditAccountPage as EditAccountJournalPage,
+} from '@/module/chart-of-accounts';
 import { AddJournalEntryPage, JournalEntryDetailPage } from '@/module/journal-entries';
 import DetailAccount from '@/module/GeneralJournal/DetailAccount/Main/pages/DetailAccountPage';
 import DetailAccountNonCashBank from '@/module/GeneralJournal/DetailAccount/Main/pages/DetailAccountNonCashBankPage';

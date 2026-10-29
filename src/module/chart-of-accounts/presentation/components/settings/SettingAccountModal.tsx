@@ -23,7 +23,7 @@ import {
 import ImageImport from '@/assets/img/SettingsAccount-Import.svg';
 import ImageExport from '@/assets/img/SettingsAccount-Export.svg';
 import ImageRestore from '@/assets/img/SettingsAccount-Restore.svg';
-import { SettingAccountAction } from '../types/settingAccount';
+import { SettingAccountAction } from '../../../domain/settingAccount';
 import { ImportAccountWizardModal } from './ImportAccountWizardModal';
 import { ExportAccountModal } from './ExportAccountModal';
 import { RestoreAccountModal } from './RestoreAccountModal';

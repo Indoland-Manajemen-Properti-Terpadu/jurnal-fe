@@ -1,11 +1,17 @@
 import React from 'react';
-import { Accordion, Badge, Box, Divider, Group, List, Paper, Stack, Text, ThemeIcon } from '@mantine/core';
 import {
-  IconBulb,
-  IconHierarchy2,
-  IconListNumbers,
-  IconScale,
-} from '@tabler/icons-react';
+  Accordion,
+  Badge,
+  Box,
+  Divider,
+  Group,
+  List,
+  Paper,
+  Stack,
+  Text,
+  ThemeIcon,
+} from '@mantine/core';
+import { IconBulb, IconHierarchy2, IconListNumbers, IconScale } from '@tabler/icons-react';
 import { themeColors } from '@/theme';
 import { useTranslation } from '@/i18n';
 
@@ -14,25 +20,130 @@ interface AccountingGuideCardProps {
 }
 
 const NUMBERING_RULES_ID = [
-  { prefix: '1', code: '1-XXXX', name: 'Aset / Aktiva', side: 'Debit', color: 'teal', group: 'neraca' },
-  { prefix: '2', code: '2-XXXX', name: 'Kewajiban / Liabilitas', side: 'Kredit', color: 'red', group: 'neraca' },
-  { prefix: '3', code: '3-XXXX', name: 'Ekuitas / Modal', side: 'Kredit', color: 'red', group: 'neraca' },
-  { prefix: '4', code: '4-XXXX', name: 'Pendapatan Usaha', side: 'Kredit', color: 'red', group: 'labarugi' },
-  { prefix: '5', code: '5-XXXX', name: 'Harga Pokok Penjualan', side: 'Debit', color: 'teal', group: 'labarugi' },
-  { prefix: '6', code: '6-XXXX', name: 'Beban Operasional', side: 'Debit', color: 'teal', group: 'labarugi' },
-  { prefix: '7', code: '7-XXXX', name: 'Pendapatan Lainnya', side: 'Kredit', color: 'red', group: 'labarugi' },
-  { prefix: '8', code: '8-XXXX', name: 'Beban Lainnya', side: 'Debit', color: 'teal', group: 'labarugi' },
+  {
+    prefix: '1',
+    code: '1-XXXX',
+    name: 'Aset / Aktiva',
+    side: 'Debit',
+    color: 'teal',
+    group: 'neraca',
+  },
+  {
+    prefix: '2',
+    code: '2-XXXX',
+    name: 'Kewajiban / Liabilitas',
+    side: 'Kredit',
+    color: 'red',
+    group: 'neraca',
+  },
+  {
+    prefix: '3',
+    code: '3-XXXX',
+    name: 'Ekuitas / Modal',
+    side: 'Kredit',
+    color: 'red',
+    group: 'neraca',
+  },
+  {
+    prefix: '4',
+    code: '4-XXXX',
+    name: 'Pendapatan Usaha',
+    side: 'Kredit',
+    color: 'red',
+    group: 'labarugi',
+  },
+  {
+    prefix: '5',
+    code: '5-XXXX',
+    name: 'Harga Pokok Penjualan',
+    side: 'Debit',
+    color: 'teal',
+    group: 'labarugi',
+  },
+  {
+    prefix: '6',
+    code: '6-XXXX',
+    name: 'Beban Operasional',
+    side: 'Debit',
+    color: 'teal',
+    group: 'labarugi',
+  },
+  {
+    prefix: '7',
+    code: '7-XXXX',
+    name: 'Pendapatan Lainnya',
+    side: 'Kredit',
+    color: 'red',
+    group: 'labarugi',
+  },
+  {
+    prefix: '8',
+    code: '8-XXXX',
+    name: 'Beban Lainnya',
+    side: 'Debit',
+    color: 'teal',
+    group: 'labarugi',
+  },
 ];
 
 const NUMBERING_RULES_EN = [
   { prefix: '1', code: '1-XXXX', name: 'Assets', side: 'Debit', color: 'teal', group: 'neraca' },
-  { prefix: '2', code: '2-XXXX', name: 'Liabilities', side: 'Credit', color: 'red', group: 'neraca' },
-  { prefix: '3', code: '3-XXXX', name: 'Equity / Capital', side: 'Credit', color: 'red', group: 'neraca' },
-  { prefix: '4', code: '4-XXXX', name: 'Operating Revenue', side: 'Credit', color: 'red', group: 'labarugi' },
-  { prefix: '5', code: '5-XXXX', name: 'Cost of Goods Sold', side: 'Debit', color: 'teal', group: 'labarugi' },
-  { prefix: '6', code: '6-XXXX', name: 'Operating Expenses', side: 'Debit', color: 'teal', group: 'labarugi' },
-  { prefix: '7', code: '7-XXXX', name: 'Other Income', side: 'Credit', color: 'red', group: 'labarugi' },
-  { prefix: '8', code: '8-XXXX', name: 'Other Expenses', side: 'Debit', color: 'teal', group: 'labarugi' },
+  {
+    prefix: '2',
+    code: '2-XXXX',
+    name: 'Liabilities',
+    side: 'Credit',
+    color: 'red',
+    group: 'neraca',
+  },
+  {
+    prefix: '3',
+    code: '3-XXXX',
+    name: 'Equity / Capital',
+    side: 'Credit',
+    color: 'red',
+    group: 'neraca',
+  },
+  {
+    prefix: '4',
+    code: '4-XXXX',
+    name: 'Operating Revenue',
+    side: 'Credit',
+    color: 'red',
+    group: 'labarugi',
+  },
+  {
+    prefix: '5',
+    code: '5-XXXX',
+    name: 'Cost of Goods Sold',
+    side: 'Debit',
+    color: 'teal',
+    group: 'labarugi',
+  },
+  {
+    prefix: '6',
+    code: '6-XXXX',
+    name: 'Operating Expenses',
+    side: 'Debit',
+    color: 'teal',
+    group: 'labarugi',
+  },
+  {
+    prefix: '7',
+    code: '7-XXXX',
+    name: 'Other Income',
+    side: 'Credit',
+    color: 'red',
+    group: 'labarugi',
+  },
+  {
+    prefix: '8',
+    code: '8-XXXX',
+    name: 'Other Expenses',
+    side: 'Debit',
+    color: 'teal',
+    group: 'labarugi',
+  },
 ];
 
 export const AccountingGuideCard: React.FC<AccountingGuideCardProps> = ({ activePrefix }) => {
