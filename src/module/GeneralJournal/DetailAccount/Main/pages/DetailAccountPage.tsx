@@ -57,7 +57,7 @@ import { useBankStatement, type BankStatementRow } from '@/module/bank-statement
 import { JournalEmptyState } from '@/components/EmptyState/JournalEmptyState';
 import { useJournalEntriesByAccount } from '@/module/journal-entries';
 import type { JournalEntryByAccount } from '@/module/journal-entries';
-import { GetReconciliation } from '../../Reconciliation/services/GetReconciliation.service';
+import { GetReconciliation } from '@/module/reconciliation/presentation/hooks/GetReconciliation.service';
 
 import DetailAccountLayout from './Layout';
 import JournalTransactionTab from '../components/Tabs/JournalTransactionTabs';

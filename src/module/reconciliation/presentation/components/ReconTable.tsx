@@ -30,9 +30,9 @@ import { NotFound } from '@/components/ErrorPage/NotFound';
 import { ImportBankStatementModal } from '@/module/bank-statements';
 import { useDetailAccount } from '@/module/chart-of-accounts';
 import { FindAndReconModal } from './FindAndReconModal';
-import { BankStatementData } from '../types/GetReconciliationModel';
-import { GetReconciliation } from '../services/GetReconciliation.service';
-import { useMatchReconciliation } from '../services/MatchReconciliation.service';
+import { BankStatementData } from '../../domain/GetReconciliationModel';
+import { GetReconciliation } from '../hooks/GetReconciliation.service';
+import { useMatchReconciliation } from '../hooks/MatchReconciliation.service';
 
 const ReconciliationTable: React.FC = () => {
   const { idAccount } = useParams<{ idAccount: string }>();

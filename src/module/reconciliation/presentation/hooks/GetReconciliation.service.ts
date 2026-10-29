@@ -1,7 +1,7 @@
 import { API_ACCOUNT } from '@/services/endpoint';
 import { useQuery } from '@tanstack/react-query';
 import { get } from '@/lib/http/apiClient';
-import { GetReconciliationModel } from '../types/GetReconciliationModel';
+import { GetReconciliationModel } from '../../domain/GetReconciliationModel';
 
 export const GetReconciliation = (idAccount: string) => {
   return useQuery<GetReconciliationModel>({
