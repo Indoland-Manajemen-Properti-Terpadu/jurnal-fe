@@ -39,7 +39,7 @@ import ModuleHeader from '@/components/ModuleHeader/ModuleHeader';
 import { ConfirmModal } from '@/components';
 import { routes } from '@/router/routes';
 import useAccountStore from '../hooks/useAccountStore';
-import { useDeleteAccount as useDeleteJurnalAccount } from '../hooks/useDeleteAccount';
+import { useDeleteAccount } from '../hooks/useDeleteAccount';
 import { useDraftAccount, BeginningBalanceModal } from '@/module/beginning-balances';
 import { PeriodAndClosingBooksModal } from '@/module/period-closing';
 import { SettingAccountModal } from './SettingAccountModal';
@@ -70,7 +70,7 @@ const GeneralJournalPage: React.FC = () => {
   }, [journalAccounts]);
 
   const { selectedRecords } = useAccountStore();
-  const { mutate: deleteAccount, isPending: isDeleting } = useDeleteJurnalAccount();
+  const { mutate: deleteAccount, isPending: isDeleting } = useDeleteAccount();
   const { draftAccounts } = useDraftAccount();
 
   // Modals state

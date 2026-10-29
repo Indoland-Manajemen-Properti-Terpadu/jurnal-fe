@@ -47,7 +47,7 @@ import { useQueryClient } from '@tanstack/react-query';
 
 import { routes } from '@/router/routes';
 import { JournalEmptyState } from '@/components/EmptyState/JournalEmptyState';
-import { useDeleteAccount as useDeleteJurnalAccount } from '@/module/chart-of-accounts';
+import { useDeleteAccount } from '@/module/chart-of-accounts';
 import { ConfirmModal } from '@/components';
 import ModuleHeader from '@/components/ModuleHeader/ModuleHeader';
 import { isDebitNormal } from '@/lib/accounting/normalBalance';
@@ -83,7 +83,7 @@ const DetailAccountNonCashBank: React.FC = () => {
     refetch: refetchTransactions,
   } = useJournalEntriesByAccount(idAccount!);
 
-  const { mutate: deleteAccount, isPending: isDeletingAccount } = useDeleteJurnalAccount();
+  const { mutate: deleteAccount, isPending: isDeletingAccount } = useDeleteAccount();
   const deleteTransactionMutation = useDeleteJournalEntries();
 
   const rawData =
