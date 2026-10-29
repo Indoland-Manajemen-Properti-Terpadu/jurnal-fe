@@ -14,8 +14,8 @@ export type JournalAccounts = {
   isAllUser?: boolean;
   isArchived?: boolean;
   level?: string;
-  reconciliationDetail?: any[];
-  journals?: any[];
+  reconciliationDetail?: unknown[];
+  journals?: unknown[];
   site?: Site;
   createdAt?: Date;
   updatedAt?: Date;

@@ -1,6 +1,6 @@
 import { Grid, NumberInput, Select, TextInput, ActionIcon } from '@mantine/core';
 import { IconChevronDown, IconTrash } from '@tabler/icons-react';
-import { useJournalAccounts } from '@/module/GeneralJournal/JournalAccount/hooks/useJournalAccounts';
+import { useJournalAccounts } from '@/module/chart-of-accounts';
 import { useState } from 'react';
 import dayjs from 'dayjs';
 import { useReceiveMoneyStore } from '../../ReceiveMoney/store/ReceiveMoneyStore';

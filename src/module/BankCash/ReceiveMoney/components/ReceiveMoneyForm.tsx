@@ -3,7 +3,7 @@ import { IconChevronDown, IconTrash } from '@tabler/icons-react';
 import { useReceiveMoneyStore } from '../store/ReceiveMoneyStore';
 import { useState } from 'react';
 import dayjs from 'dayjs';
-import { useJournalAccounts } from '@/module/GeneralJournal/JournalAccount/hooks';
+import { useJournalAccounts } from '@/module/chart-of-accounts';
 
 
 const ReceiveMoneyForm = () => {

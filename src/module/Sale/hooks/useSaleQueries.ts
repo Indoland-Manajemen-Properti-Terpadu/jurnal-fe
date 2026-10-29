@@ -14,7 +14,7 @@ import {
 import type { CreateSaleFormValues, CreateSalePaymentPayload, SaleListParams } from '../types/sale';
 import { fetchPaymentTerms, fetchContacts } from '@/module/Contact/infrastructure/contactApi';
 import { fetchProducts, fetchTaxes } from '@/module/products';
-import { getJournalAccounts } from '@/module/GeneralJournal/JournalAccount/services/AccountJournal.service';
+import { getJournalAccounts } from '@/module/chart-of-accounts';
 
 export const saleKeys = {
   all: ['sales'] as const,

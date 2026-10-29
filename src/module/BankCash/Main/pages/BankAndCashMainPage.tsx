@@ -16,7 +16,7 @@ import ModuleHeader from '@/components/ModuleHeader/ModuleHeader';
 import BankAndCashLayout from './Layout';
 import StatsBankCashGrid from '../components/StatsBankCashGrid/StatsBankCashGrid';
 import { TableBankCash } from '../components/Table/TableBankCash';
-import { useJournalAccounts } from '@/module/GeneralJournal/JournalAccount/hooks/useJournalAccounts';
+import { useJournalAccounts } from '@/module/chart-of-accounts';
 import { useTranslation } from '@/i18n';
 import classes from './BankAndCashMainPage.module.css';
 

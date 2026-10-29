@@ -42,7 +42,7 @@ import {
   usePaymentMethods,
   useUpdatePaymentMethod,
 } from '../hooks/useSettingQueries';
-import { getJournalAccounts } from '@/module/GeneralJournal/JournalAccount/services/AccountJournal.service';
+import { getJournalAccounts } from '@/module/chart-of-accounts';
 import type { PaymentMethod } from '../services/settingApi';
 
 export default function PaymentMethodPage() {

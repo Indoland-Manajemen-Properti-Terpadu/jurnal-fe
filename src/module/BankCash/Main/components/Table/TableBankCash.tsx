@@ -35,7 +35,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { routes } from '@/router/routes';
 import { formatCurrency } from '@/utils/FormatCurrency';
-import { JournalAccounts } from '@/module/GeneralJournal/JournalAccount/types/JournalAccountModel';
+import { JournalAccounts } from '@/module/chart-of-accounts';
 import { isBankAccount } from '../StatsBankCashGrid/StatsBankCashGrid';
 import { useTranslation } from '@/i18n';
 import EmptyState from '@/components/EmptyState/EmptyState';

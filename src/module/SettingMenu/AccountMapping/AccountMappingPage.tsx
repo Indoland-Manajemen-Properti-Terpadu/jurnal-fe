@@ -39,7 +39,7 @@ import {
   useUpdateAccountMapping,
   useUpdateAccountMappingBatch,
 } from '../hooks/useSettingQueries';
-import { getJournalAccounts } from '@/module/GeneralJournal/JournalAccount/services/AccountJournal.service';
+import { getJournalAccounts } from '@/module/chart-of-accounts';
 import type { AccountMappingItem } from '../services/settingApi';
 
 const GROUP_LABELS: Record<string, { label: string; color: string }> = {

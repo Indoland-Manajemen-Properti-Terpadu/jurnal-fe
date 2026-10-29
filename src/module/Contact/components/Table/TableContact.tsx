@@ -2,13 +2,11 @@ import { ActionIcon, Anchor, Button, Center, Checkbox, Text, Flex, Grid, Menu, P
 import { themeColors } from '@/theme';
 import { IconChevronDown, IconDots, IconInfoCircle, IconSearch, IconTrash } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
-import { useDeleteJurnalAccount } from '@/module/GeneralJournal/JournalAccount/services/DeleteTransaction.service';
+import { useDeleteAccount, useJournalAccounts, type JournalAccounts } from '@/module/chart-of-accounts';
 import { useState } from 'react';
-import { useJournalAccounts } from '@/module/GeneralJournal/JournalAccount/hooks/useJournalAccounts';
 import { NotFound } from '@/components/ErrorPage/NotFound';
 import EmptyState from '@/components/EmptyState/EmptyTable';
 import { formatCurrency } from '@/utils/FormatCurrency';
-import { JournalAccounts } from '@/module/GeneralJournal/JournalAccount/types/JournalAccountModel';
 import { DataTable } from 'mantine-datatable';
 import { routes } from '@/router/routes';
 
@@ -28,7 +26,7 @@ export default function TableContact() {
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
     const [selectedRecords, setSelectedRecords] = useState<JournalAccounts[]>([]);
     const [searchQuery, setSearchQuery] = useState<string>('');
-    const { mutate: deleteAccount } = useDeleteJurnalAccount();
+    const { mutate: deleteAccount } = useDeleteAccount();
 
 
     if (isError) {

@@ -32,7 +32,7 @@ import {
 } from '@tabler/icons-react';
 import SettingsLayout from '../components/SettingsLayout';
 import { useCreateTax, useDeleteTax, useTaxes, useUpdateTax } from '../hooks/useSettingQueries';
-import { getJournalAccounts } from '@/module/GeneralJournal/JournalAccount/services/AccountJournal.service';
+import { getJournalAccounts } from '@/module/chart-of-accounts';
 import type { Tax } from '../services/settingApi';
 
 export default function TaxSettingPage() {

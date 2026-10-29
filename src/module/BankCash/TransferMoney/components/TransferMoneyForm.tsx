@@ -1,7 +1,7 @@
 import { Grid, NumberInput, Select, TextInput, ActionIcon } from '@mantine/core';
 import { IconChevronDown, IconTrash } from '@tabler/icons-react';
 import { useTransferMoneyStore } from '../store/TransferFormStore';
-import { useJournalAccounts } from '@/module/GeneralJournal/JournalAccount/hooks/useJournalAccounts';
+import { useJournalAccounts } from '@/module/chart-of-accounts';
 
 const TransferMoneyForm = () => {
     const { minimumTransaction, transactions, updateTransaction } =

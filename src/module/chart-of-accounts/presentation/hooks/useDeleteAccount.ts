@@ -22,8 +22,7 @@ export const useDeleteAccount = () => {
       setSelectedRecords([]);
       queryClient.invalidateQueries({ queryKey: ['accounts'] });
     },
-    onError: (error: any) => {
-      console.log(error);
+    onError: (error: { response?: { data?: { message?: string } } }) => {
       notifications.show({
         title: 'Error',
         message: error?.response?.data?.message || 'Failed to delete accounts',
