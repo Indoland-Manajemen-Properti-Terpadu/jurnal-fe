@@ -6,8 +6,7 @@ import GeneralJournalPage from '@/module/chart-of-accounts/presentation/pages/Ac
 import AddAccountjournalPage from '@/module/chart-of-accounts/presentation/pages/AddAccountPage';
 import EditAccountJournalPage from '@/module/chart-of-accounts/presentation/pages/EditAccountPage';
 import { AddJournalEntryPage, JournalEntryDetailPage } from '@/module/journal-entries';
-import DetailAccount from '@/module/GeneralJournal/DetailAccount/Main/pages/DetailAccountPage';
-import DetailAccountNonCashBank from '@/module/GeneralJournal/DetailAccount/Main/pages/DetailAccountNonCashBankPage';
+import { AccountLedgerPage } from '@/module/account-ledger';
 import { BeginningBalancePage } from '@/module/beginning-balances';
 import {
   ClosingBooksPage,
@@ -151,11 +150,11 @@ const router = createBrowserRouter([
   },
   {
     path: routes.generalJournal.detailAccount,
-    element: <DetailAccount />,
+    element: <AccountLedgerPage variant="cashBank" />,
   },
   {
     path: routes.generalJournal.detailAccountNonCB,
-    element: <DetailAccountNonCashBank />,
+    element: <AccountLedgerPage variant="nonCashBank" />,
   },
   {
     path: routes.generalJournal.detailTransactionJournal,

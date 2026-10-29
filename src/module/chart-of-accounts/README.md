@@ -2,7 +2,7 @@
 
 Chart of accounts: account list, add/edit account forms, account detail query, settings (import, export, restore) and the cash mapping tab. Task 6 PR (a) moved everything here from `GeneralJournal`; PR (b) extracted the account rules and split the add/edit forms; PR (c) made the account mutations throw, fixed the file download, split the last large files and moved every string to i18n.
 
-- **Public API (`index.ts`):** `useJournalAccounts`, `getJournalAccounts`, `JournalAccounts`, `useDeleteAccount` (was `useDeleteJurnalAccount`), `useDetailAccount`, `archiveAccount`, `accountDetailData`, `DetailAccountModel`, `useAccountStore` and `CashMapping`. The three route pages are imported by the router from `presentation/pages/*` directly (exporting them from the index creates a cycle with `beginning-balances`).
+- **Public API (`index.ts`):** `useJournalAccounts`, `getJournalAccounts`, `JournalAccounts`, `useDeleteAccount` (was `useDeleteJurnalAccount`), `useDetailAccount`, `archiveAccount`, `accountDetailData`, `DetailAccountModel`, `useAccountStore`, `CashMapping`, `canArchiveAccount` and `canDeleteAccount` (used by the account ledger menu). The three route pages are imported by the router from `presentation/pages/*` directly (exporting them from the index creates a cycle with `beginning-balances`).
 - **Layout:** `domain/` (types), `infrastructure/` (`accountApi`, `accountDetailApi`, `accountSettingApi`), `presentation/{pages,components,hooks}`.
 - **Routes:** unchanged; the router imports the three pages from the index.
 - **Endpoints:** `API_ACCOUNT.*` (list, detail, archive, delete, category, create, update, import/export/restore).
@@ -22,7 +22,8 @@ Chart of accounts: account list, add/edit account forms, account detail query, s
   - Edit only requires a non-empty name (`validateEditName`); the 3-character rule is create only.
   - The preset keyword `ap` (receivable) also matches "Pendapatan" and other names containing it.
   - `CashMapping` is a mock: static rows, selects that do nothing, no HTTP. It is translated like the rest but still mock data.
-  - `canDeleteAccount` and `canArchiveAccount` are not called anywhere: delete and archive are only reachable through the selection (locked rows cannot be selected) and the account detail page.
+  - `canDeleteAccount` and `canArchiveAccount` are called by the `account-ledger` header menu; the list itself only reaches delete and archive through the selection (locked rows cannot be selected).
+  - R7 (open): the "import bank statement" item of the list header menu navigates to `routes.generalJournal.bankStatementDraftImport` with the `:idAccount` placeholder unfilled, because the list has no account. The draft page then takes the literal ":idAccount" as the account id and only shows rows when an earlier upload left a draft in `localStorage`. Options: hide the item from the list (the import modal in the reconciliation tab of the cash/bank account page is the working entry), or ask for an account first. Not changed; pinned by `AccountListHeaderActions.test.tsx`.
   - Strings that were English in the code (delete toasts, `CashMapping` headers, "Unnamed category" and "Unnamed Role") keep that text as the `id` value; they still need an Indonesian wording.
   - `GetCategoryAccount` and `useGetCategoryInfo` still use the swallowing `get` helper; archiving from the detail pages refetches `['detail_account', id]` but not `['accounts']`.
   - The journal namespace keeps the old form keys (other modules may use them); this module no longer reads them.

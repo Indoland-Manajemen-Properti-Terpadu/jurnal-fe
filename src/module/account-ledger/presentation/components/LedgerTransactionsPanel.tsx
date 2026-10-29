@@ -1,116 +1,128 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
-  Stack,
-  Group,
-  TextInput,
-  Button,
   ActionIcon,
-  Tooltip,
-  Text,
-  Badge,
+  Button,
   Center,
+  Group,
   Loader,
+  Stack,
+  Text,
+  TextInput,
+  Tooltip,
 } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
 import {
-  IconSearch,
   IconCalendar,
-  IconTrash,
   IconPlus,
   IconRefresh,
+  IconSearch,
+  IconTrash,
   IconX,
 } from '@tabler/icons-react';
-import { routes } from '@/router/routes';
-import { useNavigate, useParams } from 'react-router-dom';
-import {
-  JournalEntriesTable as TableJournalTransaction,
-  useDeleteJournalEntries,
-  useJournalEntriesByAccount,
-  useFilterTransaction,
-} from '@/module/journal-entries';
-import type { JournalEntryByAccount } from '@/module/journal-entries';
-import { ConfirmModal } from '@/components';
-import deleteModalImage from '@/assets/img/vectors/delete_modal.svg';
 import { notifications } from '@mantine/notifications';
 import { useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
+import { useTranslation } from '@/i18n';
+import { routes } from '@/router/routes';
+import { ConfirmModal } from '@/components';
+import { JournalEmptyState } from '@/components/EmptyState/JournalEmptyState';
+import deleteModalImage from '@/assets/img/vectors/delete_modal.svg';
+import {
+  JournalEntriesTable,
+  useDeleteJournalEntries,
+  useFilterTransaction,
+  type JournalEntryByAccount,
+} from '@/module/journal-entries';
+import type { LedgerVariant } from '../../domain/ledgerVariant';
+import { serverMessage } from '../../domain/serverMessage';
 
-interface Props {
-  selectedRecords: JournalEntryByAccount[];
-  setSelectedRecords: React.Dispatch<React.SetStateAction<JournalEntryByAccount[]>>;
-  noRecordsContent?: React.ReactNode;
+interface EntriesQuery {
+  data: JournalEntryByAccount[] | undefined;
+  isLoading: boolean;
+  isError: boolean;
+  refetch: () => unknown;
 }
 
-const JournalTransactionTab: React.FC<Props> = ({
+interface LedgerTransactionsPanelProps {
+  variant: LedgerVariant;
+  idAccount: string;
+  entries: EntriesQuery;
+  selectedRecords: JournalEntryByAccount[];
+  setSelectedRecords: React.Dispatch<React.SetStateAction<JournalEntryByAccount[]>>;
+}
+
+/**
+ * Filter toolbar, journal rows of the account and the bulk delete of the selected rows. The
+ * cash/bank ledger shows its own loading and error state here; the other ledger already waits
+ * for the entries before it renders the page.
+ */
+export const LedgerTransactionsPanel: React.FC<LedgerTransactionsPanelProps> = ({
+  variant,
+  idAccount,
+  entries,
   selectedRecords,
   setSelectedRecords,
-  noRecordsContent,
 }) => {
-  const { idAccount } = useParams<{ idAccount: string }>();
+  const { t } = useTranslation('accountLedger');
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const deleteMutation = useDeleteJournalEntries();
-  const { data: transaction, isError, isLoading, refetch } = useJournalEntriesByAccount(idAccount!);
-
   const { searchQuery, setSearchQuery, selectedDate, setSelectedDate, resetSelection } =
     useFilterTransaction();
-
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const count = selectedRecords.length;
+  const goToCreate = () => navigate(routes.generalJournal.addTransactionJournal);
 
   const handleDeleteSelected = () => {
-    if (!idAccount || selectedRecords.length === 0) return;
-    const selectedIds = selectedRecords.map((record) => record.id);
+    if (!idAccount || count === 0) return;
+    const ids = selectedRecords.map((record) => record.id);
     deleteMutation.mutate(
-      { ids: selectedIds, idAccount },
+      { ids, idAccount },
       {
         onSuccess: () => {
           notifications.show({
             color: 'teal',
-            title: 'Berhasil Menghapus Transaksi',
-            message: `${selectedIds.length} transaksi terpilih telah berhasil dihapus.`,
+            title: t(`entries.${variant}.deleteOkTitle`),
+            message: t(`entries.${variant}.deleteOkMessage`, { count: ids.length }),
           });
           setSelectedRecords([]);
           setIsDeleteModalOpen(false);
           queryClient.invalidateQueries({ queryKey: ['transaction_by_account', idAccount] });
           queryClient.invalidateQueries({ queryKey: ['detail_account', idAccount] });
         },
-        onError: (error: any) => {
+        onError: (error: unknown) => {
           notifications.show({
             color: 'red',
-            title: 'Gagal Menghapus Transaksi',
-            message:
-              error?.response?.data?.message || 'Terjadi kesalahan saat menghapus transaksi.',
+            title: t('entries.deleteFailTitle'),
+            message: serverMessage(error) || t('entries.deleteFailFallback'),
           });
         },
       }
     );
   };
 
-  const handleDateChange = (value: string | null) => {
-    setSelectedDate(value);
-  };
-
-  if (isLoading) {
+  if (variant === 'cashBank' && entries.isLoading) {
     return (
       <Center py={60}>
         <Stack align="center" gap="sm">
           <Loader size="md" color="primary.6" />
           <Text size="sm" c="dimmed">
-            Memuat transaksi jurnal...
+            {t('entries.loading')}
           </Text>
         </Stack>
       </Center>
     );
   }
 
-  if (isError) {
+  if (variant === 'cashBank' && entries.isError) {
     return (
       <Center py={60}>
         <Stack align="center" gap="sm">
           <Text size="sm" c="red.6" fw={600}>
-            Gagal memuat transaksi jurnal.
+            {t('entries.loadFailed')}
           </Text>
-          <Button variant="light" size="xs" onClick={() => refetch()}>
-            Coba Lagi
+          <Button variant="light" size="xs" onClick={() => entries.refetch()}>
+            {t('entries.retry')}
           </Button>
         </Stack>
       </Center>
@@ -121,11 +133,10 @@ const JournalTransactionTab: React.FC<Props> = ({
 
   return (
     <Stack gap="md">
-      {/* Modern Filter & Action Toolbar */}
       <Group justify="space-between" align="center" wrap="wrap" gap="sm">
         <Group gap="sm" style={{ flex: 1, minWidth: 280 }} wrap="wrap">
           <TextInput
-            placeholder="Cari no. transaksi, catatan, atau kontak..."
+            placeholder={t(`entries.${variant}.searchPlaceholder`)}
             size="sm"
             radius="md"
             leftSection={<IconSearch size={16} />}
@@ -142,7 +153,7 @@ const JournalTransactionTab: React.FC<Props> = ({
           />
 
           <DatePickerInput
-            placeholder="Pilih Tanggal"
+            placeholder={t('entries.datePlaceholder')}
             valueFormat="DD/MM/YYYY"
             size="sm"
             radius="md"
@@ -161,11 +172,11 @@ const JournalTransactionTab: React.FC<Props> = ({
               onClick={resetSelection}
               leftSection={<IconX size={14} />}
             >
-              Reset Filter
+              {t('entries.resetFilter')}
             </Button>
           )}
 
-          {selectedRecords.length > 0 && (
+          {count > 0 && (
             <Button
               size="sm"
               color="red"
@@ -173,19 +184,19 @@ const JournalTransactionTab: React.FC<Props> = ({
               leftSection={<IconTrash size={16} />}
               onClick={() => setIsDeleteModalOpen(true)}
             >
-              Hapus Terpilih ({selectedRecords.length})
+              {t('entries.deleteSelected', { count })}
             </Button>
           )}
         </Group>
 
         <Group gap="xs">
-          <Tooltip label="Segarkan Data Transaksi">
+          <Tooltip label={t(`entries.${variant}.refreshTooltip`)}>
             <ActionIcon
               variant="default"
               size="lg"
               radius="md"
-              onClick={() => refetch()}
-              aria-label="Refresh"
+              onClick={() => entries.refetch()}
+              aria-label={t('entries.refreshAria')}
             >
               <IconRefresh size={18} />
             </ActionIcon>
@@ -196,41 +207,38 @@ const JournalTransactionTab: React.FC<Props> = ({
             variant="gradient"
             gradient={{ from: 'primary.6', to: 'secondary.6', deg: 135 }}
             leftSection={<IconPlus size={16} />}
-            onClick={() => navigate(routes.generalJournal.addTransactionJournal)}
+            onClick={goToCreate}
           >
-            Buat Transaksi Jurnal
+            {t(`entries.${variant}.createButton`)}
           </Button>
         </Group>
       </Group>
 
-      {/* Transactions Table */}
-      <TableJournalTransaction
+      <JournalEntriesTable
         selectedRecords={selectedRecords}
         setSelectedRecords={setSelectedRecords}
-        data={transaction}
-        noRecordsContent={noRecordsContent}
+        data={entries.data}
+        noRecordsContent={<JournalEmptyState onButtonClick={goToCreate} />}
       />
 
-      {/* Delete Confirmation Modal */}
       <ConfirmModal
         opened={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={handleDeleteSelected}
-        title="Hapus Transaksi Jurnal"
+        title={t('entries.deleteTitle')}
         message={
           <>
-            Apakah Anda yakin ingin menghapus{' '}
-            <strong>{selectedRecords.length} transaksi jurnal</strong> yang dipilih?
+            {t('entries.deleteConfirmBefore')}
+            <strong>{t('entries.deleteConfirmStrong', { count })}</strong>
+            {t('entries.deleteConfirmAfter')}
           </>
         }
-        helperText="Transaksi yang dihapus akan mempengaruhi saldo buku besar dan tidak dapat dipulihkan kembali."
+        helperText={t('entries.deleteHelper')}
         imageSrc={deleteModalImage}
-        confirmLabel={`Hapus ${selectedRecords.length} Transaksi`}
-        cancelLabel="Batal"
+        confirmLabel={t('entries.deleteConfirmLabel', { count })}
+        cancelLabel={t('common.cancel')}
         confirmLoading={deleteMutation.isPending}
       />
     </Stack>
   );
 };
-
-export default JournalTransactionTab;

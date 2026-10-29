@@ -6,7 +6,7 @@ Creates, lists and shows manual general journal entries (double entry). It is th
 
 - `/general-journal/add-transaction-journal` (`routes.generalJournal.addTransactionJournal`): `AddJournalEntryPage`.
 - `/general-journal/detail-transaction-journal/:idTransaction` (`routes.generalJournal.detailTransactionJournal`): `JournalEntryDetailPage` (view, print, delete).
-- The per-account list of entries (`JournalEntriesTable`) renders inside the account detail page (`GeneralJournal/DetailAccount/Main`).
+- The per-account list of entries (`JournalEntriesTable`) renders inside the account detail page (`account-ledger`, `LedgerTransactionsPanel`).
 
 ## Public API (`index.ts`)
 
@@ -52,4 +52,4 @@ Namespace `journalEntries` (`id` and `en`, parity test in `src/i18n/locales/jour
 - The dropzone accepts 5 MB (the component default) while the hint says 30 MB.
 - Typing a decimal point can clear the field: the controlled NumberInput maps a zero value to an empty string.
 - `/general-journal/detail-transaction-journal` ignores `?tab=`.
-- Ambient type `JournalTransactionTable` (used by the mock `CashMapping`) lives in `GeneralJournal/DetailAccount/CashMapping/types`.
+- Ambient type `JournalTransactionTable` (used by the mock `CashMapping`) moved into `chart-of-accounts` (`CashMapping.tsx`) when `GeneralJournal` was removed.

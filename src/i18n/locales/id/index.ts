@@ -21,6 +21,7 @@ import { bankStatements } from './bankStatements';
 import { journalEntries } from './journalEntries';
 import { chartOfAccounts } from './chartOfAccounts';
 import { reconciliation } from './reconciliation';
+import { accountLedger } from './accountLedger';
 
 export const id = {
   common,
@@ -46,6 +47,7 @@ export const id = {
   journalEntries,
   chartOfAccounts,
   reconciliation,
+  accountLedger,
 };
 
 export default id;
