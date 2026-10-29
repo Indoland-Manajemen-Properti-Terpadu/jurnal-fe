@@ -9,10 +9,10 @@ Columns: **Structure** (layout and layers), **Names** (English, kebab-case paths
 | Item | Status |
 |---|---|
 | Baseline recorded | done |
-| Repo hygiene, tests green, lint usable | todo |
-| Ratchet and guardrail rules | todo |
-| Single HTTP client, money helper | todo |
-| CI, branch policy as code, docs skeleton | todo |
+| Repo hygiene, tests green, lint usable | done |
+| Ratchet and guardrail rules | done |
+| Single HTTP client, money helper | done |
+| CI, branch policy as code, docs skeleton | done |
 
 ## Milestone 1: Small and isolated (R1)
 
