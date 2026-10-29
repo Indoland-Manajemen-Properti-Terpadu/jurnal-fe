@@ -7,6 +7,9 @@ import { assets } from './assets';
 import { contactDetail } from './contactDetail';
 import { saleDetail } from './saleDetail';
 import { dashboard } from './dashboard';
+import { costs } from './costs';
+import { production } from './production';
+import { fulfillment } from './fulfillment';
 
 export const id = {
   common,
@@ -18,6 +21,9 @@ export const id = {
   contactDetail,
   saleDetail,
   dashboard,
+  costs,
+  production,
+  fulfillment,
 };
 
 export default id;

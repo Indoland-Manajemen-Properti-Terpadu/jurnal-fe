@@ -48,11 +48,11 @@ import SaleDetailPage from '@/module/Sale/pages/SaleDetailPage';
 // Base Module Routes
 import BudgetPlanningPage from '@/module/BudgetPlanning/view/BudgetPlanningPage';
 import PembelianPage from '@/module/Pembelian/view/PembelianPage';
-import CostPage from '@/module/Cost/view/CostPage';
+import { CostPage } from '@/module/costs';
 import ProductsPage from '@/module/products/pages/ProductsPage';
 import ProductDetailPage from '@/module/products/pages/ProductDetailPage';
-import ProductionPage from '@/module/Production/view/ProductionPage';
-import FulfillmentPage from '@/module/Fulfillment/view/FulfillmentPage';
+import { ProductionPage } from '@/module/production';
+import { FulfillmentPage } from '@/module/fulfillment';
 import AssetPage from '@/module/Asset/view/AssetPage';
 import AssetDetailPage from '@/module/Asset/pages/AssetDetailPage';
 import CompanySettingPage from '@/module/SettingMenu/CompanySetting/view/CompanySettingPage';

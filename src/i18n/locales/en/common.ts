@@ -38,6 +38,8 @@ export const common = {
   emptyData: 'No data available',
   noSearchResults: 'No matching records found',
   loading: 'Loading data...',
+  moduleInfoTitle: 'Module Basics',
+  activeRoute: 'Active route',
 };
 
 export default common;
