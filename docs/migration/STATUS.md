@@ -58,7 +58,7 @@ Priority changed: the ledger (`GeneralJournal`) goes before the remaining small 
 | `chart-of-accounts` | wip | wip | todo | wip | wip | R2 |
 | `journal-entries` | todo | todo | todo | todo | todo | R2 |
 | `account-ledger` | todo | todo | todo | todo | todo | R2 |
-| `bank-statements` | todo | todo | todo | todo | todo | R2 |
+| `bank-statements` | done | done | done | done | done | R2 |
 | `reconciliation` | todo | todo | todo | todo | todo | R2 |
 | `beginning-balances` | done | done | done | done | done | R2 |
 | `period-closing` | done | done | done | done | done | R2 |
