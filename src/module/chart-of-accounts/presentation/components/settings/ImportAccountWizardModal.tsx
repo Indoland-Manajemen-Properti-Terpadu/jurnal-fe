@@ -2,8 +2,11 @@ import React, { useMemo, useState } from 'react';
 import { Box, Divider, Group, Modal, Stack, Stepper, Text, ThemeIcon, rem } from '@mantine/core';
 import { IconCheck, IconCircleCheck, IconFileSpreadsheet, IconUpload } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
-import type { AccountImportParsedData } from '../../../domain/settingAccount';
-import { buildImportPreviewRows, type ImportFilter } from '../../../domain/importPreview';
+import type { AccountImportParsedData } from '@/module/chart-of-accounts/domain/settingAccount';
+import {
+  buildImportPreviewRows,
+  type ImportFilter,
+} from '@/module/chart-of-accounts/domain/importPreview';
 import { useAccountSettings } from '../../hooks/useAccountSettings';
 import { ImportUploadStep } from './ImportUploadStep';
 import { ImportPreviewStep } from './ImportPreviewStep';

@@ -16,7 +16,10 @@ import {
 import { IconAlertTriangle, IconCheck, IconChevronLeft, IconSearch } from '@tabler/icons-react';
 import { formatCurrency } from '@/utils/FormatCurrency';
 import { useTranslation } from '@/i18n';
-import type { ImportFilter, ImportPreviewRow } from '../../../domain/importPreview';
+import type {
+  ImportFilter,
+  ImportPreviewRow,
+} from '@/module/chart-of-accounts/domain/importPreview';
 
 interface ImportPreviewStepProps {
   totalRows: number;
