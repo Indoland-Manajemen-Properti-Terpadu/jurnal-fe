@@ -1,6 +1,7 @@
 // stores/useTransactionStore.ts
 import { randomId } from '@mantine/hooks';
 import { create } from 'zustand';
+import { isJournalBalanced } from '@/lib/accounting/journalBalance';
 
 interface Transaction {
   account: string;
@@ -50,9 +51,12 @@ export const useTransactionStore = create<TransactionState>((set, get) => ({
       transactions
         .map((ts) => parseFloat(`${ts.debit}`) === 0 && parseFloat(`${ts.credit}`) === 0)
         .some((item) => item),
-      transactions
-        .map((ts) => parseFloat(`${ts.debit}`) - parseFloat(`${ts.credit}`))
-        .reduce((a, b) => a + b, 0) !== 0,
+      !isJournalBalanced(
+        transactions.map((ts) => ({
+          debit: parseFloat(`${ts.debit}`),
+          credit: parseFloat(`${ts.credit}`),
+        }))
+      ),
     ];
     return condition.some((item) => item);
   },

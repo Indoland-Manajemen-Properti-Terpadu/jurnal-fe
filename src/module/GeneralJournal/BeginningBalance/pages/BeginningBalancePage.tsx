@@ -38,6 +38,7 @@ import {
 import { notifications } from '@mantine/notifications';
 
 import { routes } from '@/router/routes';
+import { canPublishOpeningBalance } from '@/lib/accounting/journalBalance';
 import { formatCurrency } from '@/utils/FormatCurrency';
 import { formatDate, dateFormatV1 } from '@/utils/FormatDate';
 import ModuleHeader from '@/components/ModuleHeader/ModuleHeader';
@@ -67,7 +68,7 @@ export const summarizeOpeningBalance = (rows: OpeningRow[]) => {
     totalDebit: sumDebit,
     totalCredit: sumCredit,
     difference: Math.abs(sumDebit - sumCredit),
-    isBalanced: sumDebit === sumCredit && sumDebit > 0,
+    isBalanced: canPublishOpeningBalance([{ debit: sumDebit, credit: sumCredit }]),
   };
 };
 

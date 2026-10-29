@@ -5,6 +5,7 @@ import CustomConfirmModal from '@/components/Modals/ConfirmModal';
 import ConfirmModal from '@/components/ui/ConfirmModal/ConfirmModal';
 import { useState, useEffect } from 'react';
 import { DataTable } from 'mantine-datatable';
+import { canConfirmMatch } from '@/lib/accounting/journalBalance';
 import { formatCurrency } from '@/utils/FormatCurrency';
 import { DatePickerInput } from '@mantine/dates';
 import { useParams } from 'react-router-dom';
@@ -33,7 +34,7 @@ export const matchesBankDirection = (
 
 /** Manual match is allowed only when the selected total equals the absolute bank amount. */
 export const isMatchAmountEqual = (selectedNominal: number, totalNominal: number): boolean =>
-  selectedNominal === totalNominal;
+  canConfirmMatch(selectedNominal, totalNominal);
 
 interface FindAndReconModalProps {
   opened: boolean;
@@ -192,16 +193,18 @@ export const FindAndReconModal: React.FC<FindAndReconModalProps> = ({
             <Button
               variant="filled"
               bg={
-                selectedNominal === totalNominal && selectedRecords.length > 0
+                isMatchAmountEqual(selectedNominal, totalNominal) && selectedRecords.length > 0
                   ? themeColors.primary[5]
                   : themeColors.gray[2]
               }
               onClick={handleConfirm}
               leftSection={<PuzzlePieceIcon size={16} weight="duotone" />}
-              disabled={selectedRecords.length === 0 || selectedNominal !== totalNominal}
+              disabled={
+                selectedRecords.length === 0 || !isMatchAmountEqual(selectedNominal, totalNominal)
+              }
               style={{
                 color:
-                  selectedNominal === totalNominal && selectedRecords.length > 0
+                  isMatchAmountEqual(selectedNominal, totalNominal) && selectedRecords.length > 0
                     ? 'white'
                     : themeColors.gray[5],
               }}

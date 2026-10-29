@@ -58,6 +58,7 @@ import { archiveAccount } from '../services/DetailAccount.service';
 import { useDeleteJurnalAccount } from '@/module/GeneralJournal/JournalAccount/services';
 import { ConfirmModal } from '@/components';
 import ModuleHeader from '@/components/ModuleHeader/ModuleHeader';
+import { isDebitNormal } from '@/lib/accounting/normalBalance';
 import { formatCurrency } from '@/utils/FormatCurrency';
 import useFilterTransaction from '../store/FilterTransaction';
 import deleteModalImage from '@/assets/img/vectors/delete_modal.svg';
@@ -65,19 +66,7 @@ import arsipkanIcon from '@/assets/img/vectors/arsipkan.svg';
 
 /** Helper to determine the normal accounting balance (Debit vs Kredit) */
 export function getNormalBalance(categoryName?: string, type?: string): 'Debit' | 'Kredit' {
-  const cat = (categoryName || type || '').toLowerCase();
-  if (
-    cat.includes('kewajiban') ||
-    cat.includes('hutang') ||
-    cat.includes('liabilitas') ||
-    cat.includes('modal') ||
-    cat.includes('ekuitas') ||
-    cat.includes('pendapatan') ||
-    cat.includes('penjualan')
-  ) {
-    return 'Kredit';
-  }
-  return 'Debit';
+  return isDebitNormal({ categoryName: categoryName || type }) ? 'Debit' : 'Kredit';
 }
 
 const DetailAccountNonCashBank: React.FC = () => {

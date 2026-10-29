@@ -21,6 +21,7 @@ import {
   IconBook2,
 } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
+import { isJournalBalanced } from '@/lib/accounting/journalBalance';
 import { formatCurrency } from '@/utils/FormatCurrency';
 import { routes } from '@/router/routes';
 import { TransactionDetail } from '../../types/TransactionDetailModel';
@@ -41,7 +42,7 @@ export const JournalTransactionDetailTable: React.FC<Props> = ({
 
   const totalDebit = transactionDetails.reduce((sum, item) => sum + (Number(item.debit) || 0), 0);
   const totalCredit = transactionDetails.reduce((sum, item) => sum + (Number(item.credit) || 0), 0);
-  const isBalanced = Math.abs(totalDebit - totalCredit) < 0.01;
+  const isBalanced = isJournalBalanced([{ debit: totalDebit, credit: totalCredit }]);
 
   if (isLoading) {
     return (
@@ -278,12 +279,7 @@ export const JournalTransactionDetailTable: React.FC<Props> = ({
               </Table.Td>
 
               <Table.Td style={{ textAlign: 'right' }}>
-                <Text
-                  fw={800}
-                  size="sm"
-                  c="teal.8"
-                  style={{ fontVariantNumeric: 'tabular-nums' }}
-                >
+                <Text fw={800} size="sm" c="teal.8" style={{ fontVariantNumeric: 'tabular-nums' }}>
                   {formatCurrency(totalDebit)}
                 </Text>
               </Table.Td>

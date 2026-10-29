@@ -53,9 +53,10 @@ import { useGetAllUser } from '@/module/SettingMenu/UserManagement/User/service/
 import { GetRoles } from '@/module/SettingMenu/UserManagement/Role/Service/Role.service';
 import { GetCategoryAccount } from '../../services/GetCategoryAccount.service';
 import { useGetCategoryInfo } from '../../services/GetCategoryInfo.service';
+import { getCategoryPrefix } from '@/lib/accounting/accountTypes';
+import { isDebitNormal } from '@/lib/accounting/normalBalance';
 import { useAddAccount } from '../../services/AddAccount.service';
 import { AddAccountPayload } from '../../types/AddAccountPayload';
-import { CategoryAccountModel } from '../../types/CategoryAccountModel';
 import { AccountPreviewCard, AccountingGuideCard } from '../../components';
 
 const TAX_OPTIONS = [
@@ -65,44 +66,16 @@ const TAX_OPTIONS = [
   { value: 'PBB', label: 'PBB — Pajak Bumi & Bangunan' },
 ];
 
-/**
- * Maps a category model to one of the 8 standard COA numbering prefixes (1–8).
- */
-export const getCategoryPrefix = (cat?: CategoryAccountModel): string => {
-  if (!cat) return '';
-  const code = (cat.categoryID || '').toUpperCase();
-  const name = (cat.name || '').toLowerCase();
+export { getCategoryPrefix };
 
-  if (code === 'BLN' || name.includes('beban lain')) return '8';
-  if (code === 'PLN' || name.includes('pendapatan lain')) return '7';
-  if (code === 'BEB' || name.includes('beban') || name.includes('biaya')) return '6';
-  if (code === 'HPP' || name.includes('harga pokok') || name.includes('pokok penjualan')) {
-    return '5';
-  }
-  if (code === 'PEN' || name.includes('pendapatan')) return '4';
-  if (code === 'EKU' || name.includes('ekuitas') || name.includes('modal')) return '3';
-  if (
-    code === 'AH' ||
-    code === 'KLL' ||
-    code === 'KJP' ||
-    name.includes('hutang') ||
-    name.includes('kewajiban') ||
-    name.includes('liabilitas')
-  ) {
-    return '2';
-  }
-  return '1';
+/** Effective normal side of the account being created: the category flag, flipped by contra. */
+export const resolveEffectiveDebit = (categoryIsDebit: boolean | undefined, isContra: boolean) => {
+  return isDebitNormal({ isDebit: categoryIsDebit ?? true, isContra });
 };
 
 /**
  * Shared input styles to guarantee 100% pixel-aligned side-by-side 2-column form inputs.
  */
-/** Effective normal side of the account being created: the category flag, flipped by contra. */
-export const resolveEffectiveDebit = (categoryIsDebit: boolean | undefined, isContra: boolean) => {
-  const baseDebit = categoryIsDebit ?? true;
-  return isContra ? !baseDebit : baseDebit;
-};
-
 const SYMMETRIC_INPUT_STYLES = {
   label: {
     display: 'inline-block',
