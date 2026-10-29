@@ -2,14 +2,14 @@ import { ActionIcon, Group, Text, TextInput, Modal, Stack, Button, Flex } from '
 import { DataTable, DataTableColumn } from 'mantine-datatable';
 import { formatCurrency } from '@/utils/FormatCurrency';
 import EmptyState from '@/components/EmptyState/EmptyTable';
-import classes from '../pages/ImportBankStatementDraft.module.css'
+import classes from './ImportBankStatementDraftTable.module.css'
 import { IconCalendar, IconPencil, IconTrash } from '@tabler/icons-react';
 import { themeColors } from '@/theme';
-import { BankStatementPreviewItem } from '../types/ImportBankStatement.model';
+import { BankStatementPreviewItem } from '../../domain/importPreview';
 import { useState } from 'react';
 import { DateInput } from '@mantine/dates';
 import { format, parse } from 'date-fns';
-import { useBankStatementStore } from '../store/useBankStatement.store';
+import { useBankStatementStore } from '../store/useBankStatementStore';
 
 interface ImportBankStatementDraftTableProps {
     records: BankStatementPreviewItem[];

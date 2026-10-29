@@ -8,8 +8,8 @@
 // import { FileRejection } from '@mantine/dropzone';
 // import { notifications } from '@mantine/notifications';
 // import { useFileStore } from '@/store/GeneralJournal/useFileStore';
-// import { getBankStatement } from '../services/ListBankStatement.service';
-// import { getImportBankStatement } from '../services/ImportBankStatement.service';
+// import { getBankStatement } from '../hooks/useBankStatement';
+// import { getImportBankStatement } from '../hooks/useImportBankStatement';
 // import { useNavigate } from 'react-router-dom';
 // import { routes } from '@/router';
 

@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Stack, Flex, Button } from '@mantine/core';
 import { themeColors } from '@/theme';
-import ImportBankStatementModal from '../../../BankStatement/components/ImportBankStatementModal';
+import ImportBankStatementModal from '@/module/bank-statements/presentation/components/ImportBankStatementModal';
 import SearchActions from '../SearchAction';
-import BankStatementTable from '../../../BankStatement/components/BankStatementTable';
-import { Result } from '../../../BankStatement/types/BankStatementModel';
+import BankStatementTable from '@/module/bank-statements/presentation/components/BankStatementTable';
+import { Result } from '@/module/bank-statements/domain/bankStatement';
 
 interface Props {
     selectedRecords: Result[];

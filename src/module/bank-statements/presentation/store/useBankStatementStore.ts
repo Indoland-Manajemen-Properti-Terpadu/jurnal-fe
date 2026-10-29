@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { BankStatementPreviewItem } from '../types/ImportBankStatement.model';
+import { BankStatementPreviewItem } from '../../domain/importPreview';
 
 interface BankStatementState {
     showAlert: boolean;

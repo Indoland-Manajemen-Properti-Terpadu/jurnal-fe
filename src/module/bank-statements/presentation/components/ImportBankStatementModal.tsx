@@ -7,7 +7,7 @@ import CustomConfirmModal from '@/components/Modals/ConfirmModal';
 import { Dropzone, FileRejection, MIME_TYPES } from '@mantine/dropzone';
 import { notifications } from '@mantine/notifications';
 import { useFileStore } from '@/store/GeneralJournal/useFileStore';
-import { getImportBankStatement } from '../services/ImportBankStatement.service';
+import { getImportBankStatement } from '../hooks/useImportBankStatement';
 import { useNavigate } from 'react-router-dom';
 import { routes } from '@/router/routes';
 import { InformationAlert } from '@/components/Alert/Alert';

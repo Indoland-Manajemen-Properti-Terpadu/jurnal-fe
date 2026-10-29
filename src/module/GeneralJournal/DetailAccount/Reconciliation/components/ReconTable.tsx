@@ -30,7 +30,7 @@ import {
 import { NotFound } from '@/components/ErrorPage/NotFound';
 import { FindAndReconModal } from './FindAndReconModal';
 import { BankStatementData } from '../types/GetReconciliationModel';
-import ImportBankStatementModal from '../../BankStatement/components/ImportBankStatementModal';
+import ImportBankStatementModal from '@/module/bank-statements/presentation/components/ImportBankStatementModal';
 import { useDetailAccount } from '../../Main/hooks/useDetailAccount';
 import { useMatchReconciliation } from '../services/MatchReconciliation.service';
 

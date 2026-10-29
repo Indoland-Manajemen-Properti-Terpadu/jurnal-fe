@@ -2,7 +2,7 @@
 import { API_ACCOUNT } from '@/services/endpoint';
 import { useQuery } from '@tanstack/react-query';
 import { get } from '@/lib/http/apiClient';
-import { BankStatementModelV2 } from '../types/BankStatementModel';
+import { BankStatementModelV2 } from '../../domain/bankStatement';
 
 export const getBankStatement = (idAccount: string) => {
   return useQuery<BankStatementModelV2>({

@@ -2,9 +2,9 @@
 // import { useState } from 'react';
 // import { Stack } from '@mantine/core';
 // import ImportBankStatement from './ImportBankStatement';
-// import { BankStatementModel, BankStatementModelV2 } from '../types/BankStatementModel';
+// import { BankStatementModel, BankStatementModelV2 } from '../../domain/bankStatement';
 // import BankStatementTable from '../components/BankStatementTable';
-// import { getBankStatement } from '../services/ListBankStatement.service';
+// import { getBankStatement } from '../hooks/useBankStatement';
 // import { useParams } from 'react-router-dom';
 // import EmptyState from '@/components/EmptyState/EmptyTable';
 // import { useQueryClient } from '@tanstack/react-query';

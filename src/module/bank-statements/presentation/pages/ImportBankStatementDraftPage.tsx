@@ -21,9 +21,9 @@ import BankStatementLayout from './Layout';
 import ImportBankStatementDraftTable from '../components/ImportBankStatementDraftTable';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useBankStatementStore } from '../store/useBankStatement.store';
-import { getConfirmImportBankStatement } from '../services/ImportBankStatement.service';
-import { BankStatementPreviewItem } from '../types/ImportBankStatement.model';
+import { useBankStatementStore } from '../store/useBankStatementStore';
+import { getConfirmImportBankStatement } from '../hooks/useImportBankStatement';
+import { BankStatementPreviewItem } from '../../domain/importPreview';
 import { ConfirmModal } from '@/components';
 import importModalImage from '@/assets/img/vectors/import.svg'; // Reuse existing or use appropriate image
 

@@ -52,10 +52,10 @@ import { accountDetailData } from '../types/DetailAccountModel';
 import { archiveAccount } from '../services/DetailAccount.service';
 import { useDeleteJurnalAccount } from '@/module/GeneralJournal/JournalAccount/services';
 import { GetReconciliation } from '../../Reconciliation/services/GetReconciliation.service';
-import { getBankStatement } from '../../BankStatement/services/ListBankStatement.service';
+import { getBankStatement } from '@/module/bank-statements/presentation/hooks/useBankStatement';
 import { GetTransactionByAccount } from '../../TransactionJournal/services/TransactionByAccount.service';
 import { TransactionByAccountModel } from '../../TransactionJournal/types/TransactionByAccountModel';
-import { Result } from '../../BankStatement/types/BankStatementModel';
+import { Result } from '@/module/bank-statements/domain/bankStatement';
 
 import DetailAccountLayout from './Layout';
 import JournalTransactionTab from '../components/Tabs/JournalTransactionTabs';
