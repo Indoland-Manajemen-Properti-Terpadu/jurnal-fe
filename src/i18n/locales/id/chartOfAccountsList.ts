@@ -8,7 +8,6 @@ export const chartOfAccountsList = {
     moreActions: 'Aksi Lainnya',
     menuTransactions: 'Transaksi & Impor',
     addJournalTransaction: 'Tambah Transaksi Jurnal',
-    importBankStatement: 'Impor Rekening Koran',
     menuLedgerConfig: 'Konfigurasi Buku Besar',
     standardAccounts: 'Atur Akun Standar',
     beginningBalance: 'Saldo Awal (Beginning Balance)',
