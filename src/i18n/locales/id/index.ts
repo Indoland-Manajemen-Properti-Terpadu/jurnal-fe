@@ -19,6 +19,7 @@ import { periodClosing } from './periodClosing';
 import { beginningBalances } from './beginningBalances';
 import { bankStatements } from './bankStatements';
 import { journalEntries } from './journalEntries';
+import { chartOfAccounts } from './chartOfAccounts';
 
 export const id = {
   common,
@@ -42,6 +43,7 @@ export const id = {
   beginningBalances,
   bankStatements,
   journalEntries,
+  chartOfAccounts,
 };
 
 export default id;
