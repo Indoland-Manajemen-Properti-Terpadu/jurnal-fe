@@ -91,6 +91,9 @@ out
 .nuxt
 dist
 
+# Storybook build output
+storybook-static/
+
 # Vite dev cache
 .vite/
 
