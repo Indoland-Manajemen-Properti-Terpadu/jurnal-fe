@@ -20,6 +20,7 @@ import { beginningBalances } from './beginningBalances';
 import { bankStatements } from './bankStatements';
 import { journalEntries } from './journalEntries';
 import { chartOfAccounts } from './chartOfAccounts';
+import { reconciliation } from './reconciliation';
 
 export const en = {
   common,
@@ -44,6 +45,7 @@ export const en = {
   bankStatements,
   journalEntries,
   chartOfAccounts,
+  reconciliation,
 };
 
 export default en;
