@@ -90,7 +90,8 @@ export const routes = {
 
   baseModules: {
     budgetPlanning: '/budget-planning',
-    pembelian: '/pembelian',
+    purchases: '/purchases',
+    legacyPurchases: '/pembelian',
     cost: '/finance/cost',
     products: '/products',
     productDetail: '/products/:id',

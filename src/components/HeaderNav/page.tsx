@@ -52,7 +52,7 @@ const SECTION_DEFS: Array<{ prefix: string; titleKey: string; groupKey: string }
   { prefix: '/bank-cash', titleKey: 'cashBank', groupKey: 'groupTransactions' },
   { prefix: '/sales', titleKey: 'sales', groupKey: 'groupTransactions' },
   { prefix: '/setting-budget', titleKey: 'sales', groupKey: 'groupTransactions' },
-  { prefix: '/pembelian', titleKey: 'purchases', groupKey: 'groupTransactions' },
+  { prefix: routes.baseModules.purchases, titleKey: 'purchases', groupKey: 'groupTransactions' },
   { prefix: '/finance/cost', titleKey: 'expenses', groupKey: 'groupTransactions' },
   { prefix: '/pending-changes', titleKey: 'pendingChanges', groupKey: 'groupTransactions' },
   { prefix: '/products', titleKey: 'products', groupKey: 'groupOperations' },

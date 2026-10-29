@@ -25,7 +25,7 @@ import {
 } from '@tabler/icons-react';
 import ModuleHeader from '@/components/ModuleHeader/ModuleHeader';
 import ConfirmModal from '@/components/ui/ConfirmModal/ConfirmModal';
-import PembelianLayout from './Layout';
+import AppShellLayout from '@/components/AppShellLayout';
 import { PurchaseStatsGrid } from '@/module/purchases/presentation/components/PurchaseStatsGrid';
 import { PurchaseTable } from '@/module/purchases/presentation/components/PurchaseTable';
 import { CreatePurchaseModal } from '@/module/purchases/presentation/components/CreatePurchaseModal';
@@ -33,7 +33,7 @@ import { PayPurchaseModal } from '@/module/purchases/presentation/components/Pay
 import { usePurchases } from '@/module/purchases/presentation/hooks/usePurchases';
 import { PurchaseBill } from '@/module/purchases/domain/purchase';
 
-export function PembelianPage() {
+export function PurchasesPage() {
   const { purchases, isLoading, refetch, createPurchase, payPurchase, deletePurchase } =
     usePurchases();
 
@@ -120,7 +120,7 @@ export function PembelianPage() {
   };
 
   return (
-    <PembelianLayout>
+    <AppShellLayout>
       <Box p={{ base: 'md', sm: 'xl' }}>
         <Stack gap="lg">
           {/* Header Module */}
@@ -256,8 +256,8 @@ export function PembelianPage() {
         confirmLabel="Hapus Faktur"
         cancelLabel="Batal"
       />
-    </PembelianLayout>
+    </AppShellLayout>
   );
 }
 
-export default PembelianPage;
+export default PurchasesPage;

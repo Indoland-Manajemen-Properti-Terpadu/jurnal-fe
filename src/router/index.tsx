@@ -48,7 +48,7 @@ import SaleDetailPage from '@/module/Sale/pages/SaleDetailPage';
 
 // Base Module Routes
 import { BudgetPlanningPage } from '@/module/budgeting';
-import PembelianPage from '@/module/purchases/presentation/pages/PembelianPage';
+import { PurchasesPage } from '@/module/purchases';
 import { CostPage } from '@/module/costs';
 import ProductsPage from '@/module/products/pages/ProductsPage';
 import ProductDetailPage from '@/module/products/pages/ProductDetailPage';
@@ -285,8 +285,12 @@ const router = createBrowserRouter([
     element: <BudgetPlanningPage />,
   },
   {
-    path: routes.baseModules.pembelian,
-    element: <PembelianPage />,
+    path: routes.baseModules.purchases,
+    element: <PurchasesPage />,
+  },
+  {
+    path: routes.baseModules.legacyPurchases,
+    element: <Navigate to={routes.baseModules.purchases} replace />,
   },
   {
     path: routes.baseModules.cost,
