@@ -133,7 +133,7 @@ const ContactInformationForm: React.FC = () => {
                     resize="vertical"
                 />
             )}
-            {sameAsBillingAddress && (<Text fw={500} fz={14} c={themeColors.defaultBlack[10]}>
+            {sameAsBillingAddress && (<Text fw={500} fz={14} c={themeColors.black[9]}>
                 Shipping Address <span style={{ color: 'red' }}>*</span>
             </Text>)}
             <Checkbox

@@ -9,7 +9,7 @@
 }
 
 .category {
-  font-family: Montserrat, sans-serif;
+  font-family: Figtree, sans-serif;
   font-weight: 900;
   color: var(--mantine-color-white);
   line-height: 1.2;
@@ -25,7 +25,7 @@
   position: relative;
   font-size: 20px;
   line-height: 24px;
-  font-family: Montserrat;
+  font-family: Figtree, sans-serif;
   text-align: left;
   display: inline-block;
 }

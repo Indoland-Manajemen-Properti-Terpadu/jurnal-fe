@@ -2,7 +2,6 @@ import React from "react";
 import { Stack, Table, Text } from "@mantine/core";
 import { gradientColors, themeColors } from "@/theme";
 import { formatCurrency } from "@/utils/FormatCurrency";
-import { GetJournalAccounts } from "@/module/GeneralJournal/JournalAccount/service/AccountJournal.service";
 import { JournalAccounts } from "@/module/GeneralJournal/JournalAccount/types/JournalAccountModel";
 import EmptyState from "@/components/EmptyState/EmptyTable";
 import { GetEquityChangeReport } from "../../services/EquityChange.service";
@@ -10,21 +9,21 @@ import { NotFound } from "@/components/ErrorPage/NotFound";
 import { dateFormatV2 } from "@/utils/FormatDate";
 
 const rowStyle = {
-    borderColor: themeColors.grey[1],
+    borderColor: themeColors.gray[1],
     borderWidth: '1px',
     borderStyle: 'solid',
 };
 
 const headTableStyle = {
     bg: themeColors.primary[0],
-    borderColor: themeColors.grey[1],
+    borderColor: themeColors.gray[1],
     borderWidth: '1px',
     borderStyle: 'solid',
     borderCollapse: 'collapse' as const,
 };
 
 const sectionCategoryStyle = {
-    backgroundColor: themeColors.grey[1],
+    backgroundColor: themeColors.gray[1],
 
 };
 
@@ -54,14 +53,14 @@ const EquityChangesTable: React.FC<EquityChangeTableProps> = ({ fromDate, toDate
                 <Table.Thead>
                     <Table.Tr style={{
                         backgroundColor: themeColors.primary[0],
-                        borderColor: themeColors.grey[1],
+                        borderColor: themeColors.gray[1],
                         borderWidth: '1px',
                         borderStyle: 'solid',
                     }}>
                         <Table.Th colSpan={4}  >
                             <Stack gap={1}>
-                                <Text c={themeColors.defaultBlack[10]} fz={14} fw={500}>Report</Text>
-                                <Text c={themeColors.grey[6]} fz={14} fw={500}>  Period : {dateFormatV2(fromDate!!)} - {dateFormatV2(toDate!!)}</Text>
+                                <Text c={themeColors.black[9]} fz={14} fw={500}>Report</Text>
+                                <Text c={themeColors.gray[6]} fz={14} fw={500}>  Period : {dateFormatV2(fromDate!!)} - {dateFormatV2(toDate!!)}</Text>
                             </Stack>
                         </Table.Th>
                         <Table.Th colSpan={2} ta='left' >Beginning Balance</Table.Th>
@@ -76,7 +75,7 @@ const EquityChangesTable: React.FC<EquityChangeTableProps> = ({ fromDate, toDate
                     <Table.Tr>
                         <Table.Td colSpan={12} style={{
                             ...sectionCategoryStyle,
-                            borderColor: themeColors.grey[1],
+                            borderColor: themeColors.gray[1],
                             borderWidth: '1px',
                             borderStyle: 'solid',
                         }}>

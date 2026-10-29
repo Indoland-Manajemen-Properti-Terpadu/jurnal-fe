@@ -3,7 +3,7 @@ import { Grid, TextInput, Text, Stack } from "@mantine/core";
 
 const AdditionalAddress = () => (
     <Stack gap={10}>
-        <Text c={themeColors.defaultBlack[10]} fw={500} fz={14}>Additional Address</Text>
+        <Text c={themeColors.black[9]} fw={500} fz={14}>Additional Address</Text>
         <Grid align='center'>
             <Grid.Col span={6}>
                 <TextInput

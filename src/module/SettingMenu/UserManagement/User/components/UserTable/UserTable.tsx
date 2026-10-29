@@ -23,7 +23,8 @@ import defaultEmptyImage from '@/assets/img/Empty-Data.svg';
 import UserAction from './UserAction';
 import LoadingErrorState from './ErrorHandlingUserTable';
 import { AllUserModel, Result } from '../../types/AllUserModel';
-import { navigate, routes } from '@/router';
+import { navigate } from '@/router';
+import { routes } from '@/router/routes';
 import { IconDots, IconEdit, IconTrash } from '@tabler/icons-react';
 
 type UserTableProps = {
@@ -75,7 +76,7 @@ const UserTable = ({ data = { results: [] }, isError, isLoading }: UserTableProp
     {
       accessor: 'name',
       title: (
-        <Text size="sm" fz={14} fw={500} c={themeColors.defaultBlack[10]}>
+        <Text size="sm" fz={14} fw={500} c={themeColors.black[9]}>
           Full Name
         </Text>
       ),
@@ -93,10 +94,10 @@ const UserTable = ({ data = { results: [] }, isError, isLoading }: UserTableProp
                 {name?.charAt(0)}
               </Avatar>
               <Stack gap={1}>
-                <Text fz={14} fw={400} c={themeColors.defaultBlack[10]} tt='capitalize'>
+                <Text fz={14} fw={400} c={themeColors.black[9]} tt='capitalize'>
                   {name}
                 </Text>
-                <Text fz={12} fw={400} c={themeColors.grey[6]}>
+                <Text fz={12} fw={400} c={themeColors.gray[6]}>
                   {email}
                 </Text>
               </Stack>
@@ -107,30 +108,30 @@ const UserTable = ({ data = { results: [] }, isError, isLoading }: UserTableProp
               <Group grow justify='space-between'>
                 <Grid>
                   <Grid.Col span={4}>
-                    <Text c={themeColors.grey[6]} fz={10}>First Name</Text>
+                    <Text c={themeColors.gray[6]} fz={10}>First Name</Text>
                   </Grid.Col>
                   <Grid.Col span={8}>
-                    <Text c={themeColors.grey[6]} fz={10} ta='left'>: {name?.split(' ')[0]}</Text>
+                    <Text c={themeColors.gray[6]} fz={10} ta='left'>: {name?.split(' ')[0]}</Text>
                   </Grid.Col>
                 </Grid>
               </Group>
               <Group grow justify='space-between'>
                 <Grid>
                   <Grid.Col span={4}>
-                    <Text c={themeColors.grey[6]} fz={10}>Last Name</Text>
+                    <Text c={themeColors.gray[6]} fz={10}>Last Name</Text>
                   </Grid.Col>
                   <Grid.Col span={8}>
-                    <Text c={themeColors.grey[6]} fz={10} ta='left'>: {name?.split(' ')[1] ?? '-'}</Text>
+                    <Text c={themeColors.gray[6]} fz={10} ta='left'>: {name?.split(' ')[1] ?? '-'}</Text>
                   </Grid.Col>
                 </Grid>
               </Group>
               <Group grow justify='space-between'>
                 <Grid>
                   <Grid.Col span={4}>
-                    <Text c={themeColors.grey[6]} fz={10}>Email</Text>
+                    <Text c={themeColors.gray[6]} fz={10}>Email</Text>
                   </Grid.Col>
                   <Grid.Col span={8}>
-                    <Text c={themeColors.grey[6]} fz={10} ta='left'>: {email}</Text>
+                    <Text c={themeColors.gray[6]} fz={10} ta='left'>: {email}</Text>
                   </Grid.Col>
                 </Grid>
               </Group>
@@ -142,12 +143,12 @@ const UserTable = ({ data = { results: [] }, isError, isLoading }: UserTableProp
     {
       accessor: 'role',
       title: (
-        <Text size="sm" fz={14} fw={500} c={themeColors.defaultBlack[10]}>
+        <Text size="sm" fz={14} fw={500} c={themeColors.black[9]}>
           Role Access
         </Text>
       ),
       render: ({ role }) => (
-        <Text fz={14} fw={400} c={themeColors.defaultBlack[10]} tt="capitalize">
+        <Text fz={14} fw={400} c={themeColors.black[9]} tt="capitalize">
           {role ?? 'N/A'}
         </Text>
       ),
@@ -155,12 +156,12 @@ const UserTable = ({ data = { results: [] }, isError, isLoading }: UserTableProp
     {
       accessor: 'role',
       title: (
-        <Text size="sm" fz={14} fw={500} c={themeColors.defaultBlack[10]}>
+        <Text size="sm" fz={14} fw={500} c={themeColors.black[9]}>
           Type User
         </Text>
       ),
       render: ({ role }) => (
-        <Text fz={14} fw={400} c={themeColors.defaultBlack[10]} tt="capitalize">
+        <Text fz={14} fw={400} c={themeColors.black[9]} tt="capitalize">
           {role ?? 'N/A'}
         </Text>
       ),
@@ -168,7 +169,7 @@ const UserTable = ({ data = { results: [] }, isError, isLoading }: UserTableProp
     {
       accessor: 'isEmailVerified',
       title: (
-        <Text size="sm" fz={14} fw={500} ta="center" c={themeColors.defaultBlack[10]}>
+        <Text size="sm" fz={14} fw={500} ta="center" c={themeColors.black[9]}>
           Status
         </Text>
       ),
@@ -180,7 +181,7 @@ const UserTable = ({ data = { results: [] }, isError, isLoading }: UserTableProp
       accessor: 'action',
       textAlign: 'center',
       title: (
-        <Text size="sm" fz={14} fw={500} ta="center" c={themeColors.defaultBlack[10]}>
+        <Text size="sm" fz={14} fw={500} ta="center" c={themeColors.black[9]}>
           Actions
         </Text>
       ),

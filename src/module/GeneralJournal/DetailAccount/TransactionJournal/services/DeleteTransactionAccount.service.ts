@@ -1,6 +1,6 @@
 import { API_ACCOUNT } from '@/services/endpoint';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { del } from '@/services/apiClient';
+import { del } from '@/lib/http/apiClient';
 import { notifications } from '@mantine/notifications';
 
 export const DeleteTransactionAccounts = () => {
@@ -23,6 +23,34 @@ export const DeleteTransactionAccounts = () => {
       notifications.show({
         title: 'Error',
         message: 'Failed to delete selected transactions',
+        color: 'red',
+      });
+      console.error(error);
+    },
+  });
+};
+
+export const useDeleteJournalTransaction = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (journalId: string) => {
+      const response = await del(`${API_ACCOUNT.DEL_TRANSACTION_ACCOUNT}/${journalId}`);
+      return response;
+    },
+    onSuccess: () => {
+      notifications.show({
+        title: 'Success',
+        message: 'Transaction has been deleted',
+        color: 'green',
+      });
+      queryClient.invalidateQueries({ queryKey: ['transaction_by_account'] });
+      queryClient.invalidateQueries({ queryKey: ['detail_transaction'] });
+    },
+    onError: (error) => {
+      notifications.show({
+        title: 'Error',
+        message: 'Failed to delete transaction',
         color: 'red',
       });
       console.error(error);

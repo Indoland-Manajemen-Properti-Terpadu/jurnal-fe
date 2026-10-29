@@ -1,0 +1,47 @@
+.toolbar {
+  padding-bottom: rem(14px);
+  border-bottom: 1px solid var(--mantine-color-gray-2);
+}
+
+.categories {
+  gap: rem(18px);
+}
+
+.tableFrame {
+  overflow: hidden;
+  border: 1px solid var(--mantine-color-gray-2);
+  border-radius: var(--mantine-radius-md);
+  background: var(--mantine-color-white);
+}
+
+.accountIcon {
+  display: grid;
+  flex: 0 0 auto;
+  width: rem(34px);
+  height: rem(34px);
+  place-items: center;
+  color: var(--mantine-color-primary-8);
+}
+
+.statusDot {
+  flex: 0 0 auto;
+  width: rem(7px);
+  height: rem(7px);
+  border-radius: 50%;
+  background: var(--mantine-color-gray-5);
+}
+
+.statusDot[data-tone='ready'] {
+  background: var(--mantine-color-primary-6);
+}
+
+@media (max-width: 48em) {
+  .toolbar {
+    align-items: stretch;
+  }
+
+  .categories {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+}

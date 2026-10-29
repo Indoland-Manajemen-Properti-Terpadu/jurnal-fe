@@ -1,4 +1,5 @@
 import { Container, Title, Text, Button, Grid } from '@mantine/core';
+import { gradientColors } from '@/theme';
 import classes from './page.module.css';
 
 export function HeroComponent() {
@@ -13,7 +14,7 @@ export function HeroComponent() {
                 component="span"
                 inherit
                 variant="gradient"
-                gradient={{ from: '#00B194', to: '#1C8FD4', deg: 90 }}
+                gradient={gradientColors.gradient}
               >
                 Saas for Manage Your Building
               </Text>{' '}

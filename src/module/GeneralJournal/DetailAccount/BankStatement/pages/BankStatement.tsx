@@ -4,7 +4,7 @@
 // import ImportBankStatement from './ImportBankStatement';
 // import { BankStatementModel, BankStatementModelV2 } from '../types/BankStatementModel';
 // import BankStatementTable from '../components/BankStatementTable';
-// import { getBankStatement } from '../service/ListBankStatement.service';
+// import { getBankStatement } from '../services/ListBankStatement.service';
 // import { useParams } from 'react-router-dom';
 // import EmptyState from '@/components/EmptyState/EmptyTable';
 // import { useQueryClient } from '@tanstack/react-query';

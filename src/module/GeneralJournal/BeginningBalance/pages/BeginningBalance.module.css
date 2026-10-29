@@ -1,7 +1,7 @@
 .modalHeader {
-  border-bottom: 2px #00b194;
+  border-bottom: 2px solid var(--jurnal-color-primary);
 }
 
 .tableHeader {
-  background-color: #f0fdfa;
+  background-color: var(--jurnal-color-primary-subtle);
 }

@@ -2,26 +2,26 @@ import React from "react";
 import { Box, Group, Stack, Table, Text } from "@mantine/core";
 import { gradientColors, themeColors } from "@/theme";
 import { formatCurrency } from "@/utils/FormatCurrency";
-import { GetJournalAccounts } from "@/module/GeneralJournal/JournalAccount/service/AccountJournal.service";
+import { useJournalAccounts } from "@/module/GeneralJournal/JournalAccount/hooks/useJournalAccounts";
 import { JournalAccounts } from "@/module/GeneralJournal/JournalAccount/types/JournalAccountModel";
 import IncomeStatementTableRow, { CostofRevenueRow, NonOperatingExpensesRow, NonOperatingIncomeRow, ProfitandTaxRow } from "./TableRow";
 import EmptyState from "@/components/EmptyState/EmptyTable";
 
 const rowStyle = {
-    borderColor: themeColors.grey[1],
+    borderColor: themeColors.gray[1],
     borderWidth: '1px',
     borderStyle: 'solid',
 };
 
 const headTableStyle = {
-    backgroundColor: themeColors.grey[0],
-    borderColor: themeColors.grey[1],
+    backgroundColor: themeColors.gray[0],
+    borderColor: themeColors.gray[1],
     borderWidth: '1px',
     borderStyle: 'solid',
 }
 
 const IncomeStatementTable: React.FC = () => {
-    const { accounts, isError } = GetJournalAccounts();
+    const { accounts, isError } = useJournalAccounts();
 
     if (isError) {
         return <Text c="red">Failed to load data.</Text>;
@@ -60,15 +60,15 @@ const IncomeStatementTable: React.FC = () => {
                 style={{
                     borderTopLeftRadius: 5,
                     borderTopRightRadius: 5,
-                    borderColor: themeColors.grey[1],
+                    borderColor: themeColors.gray[1],
                     borderStyle: 'solid',
                     borderWidth: '1px',
                     borderBottomWidth: '0px'
                 }}
             >
                 <Group justify="space-between">
-                    <Text c={themeColors.defaultBlack[10]} fz={14} fw={500}>Report</Text>
-                    <Text c={themeColors.defaultBlack[10]} fz={14} fw={500}>Total : {formatCurrency(200)}</Text>
+                    <Text c={themeColors.black[9]} fz={14} fw={500}>Report</Text>
+                    <Text c={themeColors.black[9]} fz={14} fw={500}>Total : {formatCurrency(200)}</Text>
                 </Group>
             </Box>
             <Table

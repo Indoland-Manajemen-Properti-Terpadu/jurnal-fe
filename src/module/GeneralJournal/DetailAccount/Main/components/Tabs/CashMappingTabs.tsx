@@ -5,7 +5,6 @@ import SearchActions from '../SearchAction';
 const CashMappingTab = () => {
     return (
         <Stack gap="md" mt="md">
-            <SearchActions onDelete={() => { }} hasSelection />
             <CashMapping />
         </Stack>
     );

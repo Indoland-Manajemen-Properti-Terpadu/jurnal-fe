@@ -20,7 +20,8 @@ import {
 import { useRef, useState } from 'react';
 import { IconCards, IconChevronDown, IconUsers } from '@tabler/icons-react';
 import { PageHeader } from '@/components';
-import { navigate, routes } from '@/router';
+import { navigate } from '@/router';
+import { routes } from '@/router/routes';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { gradientColors, themeColors } from '@/theme';
 import UserType from '@/../public/mocks/UserType.json';
@@ -109,7 +110,7 @@ function EditUserForm() {
                         <Group >
                             <Button
                                 variant="light"
-                                color={themeColors.grey[7]}
+                                color={themeColors.gray[7]}
                                 onClick={() => navigate(-1)}
                             >
                                 Cancel

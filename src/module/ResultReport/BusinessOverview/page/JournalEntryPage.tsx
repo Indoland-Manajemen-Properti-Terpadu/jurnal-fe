@@ -11,7 +11,8 @@ import {
     Flex,
 } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
-import { IconCalendar, IconChevronDown, IconFileExport } from "@tabler/icons-react";
+import { IconCalendar, IconChevronDown, IconFileExport, IconTimeline } from "@tabler/icons-react";
+import { ReportPageHeader } from '@/module/ResultReport/components/ReportPageHeader';
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import dayjs from "dayjs";
@@ -114,15 +115,11 @@ const JournalEntryPage: React.FC = () => {
         <BusinessOverviewLayout>
             <Container fluid>
                 <Stack gap="lg">
+                    <ReportPageHeader icon={IconTimeline} title="Jurnal Umum" description="Periksa daftar pencatatan transaksi dan detail jurnal dalam periode." />
                     <Paper {...PAPER_PROPS}>
                         <Stack gap={1}>
-                            <Grid columns={0} align="center">
-                                <Grid.Col>
-                                    <Title order={3}>Journal Entry Report</Title>
-                                </Grid.Col>
-                            </Grid>
                             <Text c="gray" fz={14}>
-                                Latest Data: {dateFormatTimeZone(latestEntryDate)}
+                                Transaksi terakhir: {dateFormatTimeZone(latestEntryDate)}
                             </Text>
                         </Stack>
                     </Paper>

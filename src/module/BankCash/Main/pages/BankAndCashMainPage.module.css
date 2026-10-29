@@ -1,0 +1,13 @@
+.page {
+  min-height: 100%;
+  background: var(--mantine-color-gray-0);
+}
+
+.workspace {
+  max-width: rem(1440px);
+  margin-inline: auto;
+}
+
+.accounts {
+  background: var(--mantine-color-white);
+}

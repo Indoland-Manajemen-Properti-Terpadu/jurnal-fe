@@ -1,5 +1,6 @@
 import { Container, Grid, Paper, Stack, Title, Text, Group, Select, Button, Flex, Notification } from "@mantine/core";
-import { themeColors } from "@/theme";
+import { IconArrowsExchange } from '@tabler/icons-react';
+import { ReportPageHeader } from '@/module/ResultReport/components/ReportPageHeader';
 import { DatePickerInput } from "@mantine/dates";
 import { IconCalendar, IconChevronDown, IconFileExport, IconX } from "@tabler/icons-react";
 import { formatCurrency } from "@/utils/FormatCurrency";
@@ -19,7 +20,6 @@ const PAPER_PROPS = {
 const EquityChangesPage = () => {
     const [fromDate, setFromDate] = useState<string | undefined>();
     const [toDate, setToDate] = useState<string | undefined>();
-    const lastDate = "Dec 6, 2024 at 01:51:09 (GMT+7)";
 
     const handleFilterChange = (start: string | undefined, end: string | undefined) => {
         setFromDate(start);
@@ -52,19 +52,7 @@ const EquityChangesPage = () => {
         <BusinessOverviewLayout>
             <Container fluid>
                 <Stack gap="lg">
-                    <Paper {...PAPER_PROPS}>
-                        <Stack gap={1}>
-                            <Grid columns={0} align='center'>
-                                <Grid.Col>
-                                    <Title order={3}>Equity Changes Report</Title>
-                                </Grid.Col>
-
-                            </Grid>
-                            <Text c={themeColors.grey[6]} fz={14}>
-                                Latest data : {lastDate}
-                            </Text>
-                        </Stack>
-                    </Paper>
+                    <ReportPageHeader icon={IconArrowsExchange} title="Perubahan Ekuitas" description="Tinjau perubahan modal dan komponen ekuitas selama periode." />
                     <Paper {...PAPER_PROPS} >
                         <Stack>
                             <Flex gap="xs" justify="space-between" align="center" direction="row">

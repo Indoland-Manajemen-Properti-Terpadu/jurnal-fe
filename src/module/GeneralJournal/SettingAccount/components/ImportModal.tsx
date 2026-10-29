@@ -22,7 +22,7 @@ export const ImportAccountModal: React.FC<ImportAccountModalProps> = ({ opened, 
             labels={{
                 confirm:
                     <Button variant="gradient" gradient={buttonGradient.gradient} onClick={onClose}>Continue</Button>,
-                cancel: <Button variant="light" color={themeColors.grey[7]} onClick={onClose}>Cancel</Button>
+                cancel: <Button variant="light" color={themeColors.gray[7]} onClick={onClose}>Cancel</Button>
             }}
         >
             <Stack gap='md' align="stretch" justify="center">
@@ -54,8 +54,8 @@ export const ImportAccountModal: React.FC<ImportAccountModalProps> = ({ opened, 
                         direction="column"
                         wrap="wrap"
                     >
-                        <Text ta='center' fw={600} fz={20} c={themeColors.defaultBlack[10]}>Download CSV Template</Text>
-                        <Text ta='center' fw={500} fz={14} c={themeColors.grey[7]}>This file contains header columns that are necessary for correctly importing journal account data.</Text>
+                        <Text ta='center' fw={600} fz={20} c={themeColors.black[9]}>Download CSV Template</Text>
+                        <Text ta='center' fw={500} fz={14} c={themeColors.gray[7]}>This file contains header columns that are necessary for correctly importing journal account data.</Text>
 
                         <Button variant="outline" color={themeColors.blue[6]} leftSection={<IconDownload />}>Download Template</Button>
                     </Flex>

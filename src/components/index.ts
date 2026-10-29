@@ -34,6 +34,7 @@ import Surface from '@/components/Surface';
 import UserButton from '@/components/UserButton/page';
 import ErrorAlert from '@/components/ErrorAlert';
 import UserProfileButton from '@/components/UserButton/page';
+import { ConfirmModal } from '@/components/ui';
 
 export {
   Logo,
@@ -70,4 +71,5 @@ export {
   //   TextEditor,
   UserButton,
   ErrorAlert,
+  ConfirmModal,
 };

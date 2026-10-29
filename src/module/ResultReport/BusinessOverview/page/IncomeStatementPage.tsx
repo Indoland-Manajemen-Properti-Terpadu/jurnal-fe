@@ -1,5 +1,6 @@
-import { Container, Grid, Paper, Stack, Title, Text, Flex, Notification } from "@mantine/core";
-import { themeColors } from "@/theme";
+import { Container, Paper, Stack, Flex, Notification } from "@mantine/core";
+import { IconChartBar } from '@tabler/icons-react';
+import { ReportPageHeader } from '@/module/ResultReport/components/ReportPageHeader';
 import BusinessOverviewLayout from "./Layout";
 import IncomeStatementTable from "../components/IncomeStatement/IncomeStatmentTable";
 import { useState } from "react";
@@ -16,7 +17,6 @@ const PAPER_PROPS = {
 const IncomeStatementPage = () => {
     const [fromDate, setFromDate] = useState<string | undefined>();
     const [toDate, setToDate] = useState<string | undefined>();
-    const lastDate = "Dec 6, 2024 at 01:51:09 (GMT+7)";
 
     const handleFilterChange = (start: string | undefined, end: string | undefined) => {
         setFromDate(start);
@@ -49,19 +49,7 @@ const IncomeStatementPage = () => {
         <BusinessOverviewLayout>
             <Container fluid>
                 <Stack gap="lg">
-                    <Paper {...PAPER_PROPS}>
-                        <Stack gap={1}>
-                            <Grid columns={0} align='center'>
-                                <Grid.Col>
-                                    <Title order={3}>Income Statement</Title>
-                                </Grid.Col>
-
-                            </Grid>
-                            <Text c={themeColors.grey[6]} fz={14}>
-                                Latest data : {lastDate}
-                            </Text>
-                        </Stack>
-                    </Paper>
+                    <ReportPageHeader icon={IconChartBar} title="Laba Rugi" description="Tinjau pendapatan dan beban untuk memahami hasil usaha selama periode." />
                     <Paper {...PAPER_PROPS} >
                         <Stack>
                             <Flex gap="xs" justify="space-between" align="center" direction="row">

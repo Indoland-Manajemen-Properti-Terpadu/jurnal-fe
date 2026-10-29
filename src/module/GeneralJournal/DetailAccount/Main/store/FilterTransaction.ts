@@ -2,9 +2,10 @@ import { create } from 'zustand';
 
 interface FilterState {
   searchQuery: string;
-  selectedDate: Date | null;
+  selectedDate: string | null;
   setSearchQuery: (query: string) => void;
-  setSelectedDate: (date: Date | null) => void;
+  setSelectedDate: (date: string | null) => void;
+  resetSelection: () => void;
 }
 
 const useFilterTransaction = create<FilterState>((set) => ({

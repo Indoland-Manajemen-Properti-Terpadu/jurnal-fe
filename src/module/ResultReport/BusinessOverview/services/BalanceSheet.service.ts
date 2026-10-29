@@ -1,7 +1,7 @@
 import { API_REPORT } from '@/services/endpoint';
 import { useQuery } from '@tanstack/react-query';
 import { BalanceSheetReport } from '../types/BalanceSheet.types';
-import { get } from '@/services/apiClient';
+import { get } from '@/lib/http/apiClient';
 
 interface BalanceSheetParams {
   fromDate: string;

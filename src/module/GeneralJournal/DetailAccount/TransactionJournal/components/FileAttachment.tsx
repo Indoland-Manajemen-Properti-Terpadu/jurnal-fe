@@ -1,102 +1,106 @@
-// utils/renderAttachments.tsx
-
 import React from 'react';
-import { Container, Grid, Group, Text, Button, Stack, ActionIcon } from '@mantine/core';
-import IconFiles from '@/assets/img/Document-File.svg';
-import { IconDownload, IconEye } from '@tabler/icons-react';
+import { Group, Text, Stack, ActionIcon, Paper, ThemeIcon, Tooltip, Box } from '@mantine/core';
+import { IconDownload, IconEye, IconFileText, IconFileTypePdf, IconPhoto } from '@tabler/icons-react';
 import { Attachment } from '../types/TransactionDetailModel';
-import { themeColors } from '@/theme';
-
 
 interface FileAttachmentsProps {
-    attachments?: Attachment[];
+  attachments?: Attachment[];
 }
 
-const FileAttachments: React.FC<FileAttachmentsProps> = ({ attachments }) => {
-    if (!attachments || attachments.length === 0) {
-        return (
-            <Text fz={14} fw={400} c={themeColors.defaultBlack[10]}>
-                No Attached File
-            </Text>
-        );
-    }
+const getFileIcon = (mimeType?: string, fileName?: string) => {
+  const norm = (mimeType || fileName || '').toLowerCase();
+  if (norm.includes('pdf')) return <IconFileTypePdf size={22} />;
+  if (norm.includes('image') || norm.includes('png') || norm.includes('jpg') || norm.includes('jpeg')) {
+    return <IconPhoto size={22} />;
+  }
+  return <IconFileText size={22} />;
+};
 
+export const FileAttachments: React.FC<FileAttachmentsProps> = ({ attachments }) => {
+  if (!attachments || attachments.length === 0) {
     return (
-        <>
-            {attachments.map((attachment) => (
-                <Group grow key={attachment.id}>
-                    <Container
-                        fluid
-                        styles={(theme) => ({
-                            root: {
-                                border: `1px solid ${theme.colors.dark[0]}`,
-                                borderRadius: theme.radius.md,
-                                padding: theme.spacing.md,
-                            },
-                        })}
-                    >
-                        <Grid>
-                            <Grid.Col span={6}>
-                                <Group>
-                                    <img src={IconFiles} alt='icons-files' />
-                                    <Stack gap={5}>
-                                        <Text size='12px' c={themeColors.defaultBlack[9]}>{attachment.fileName}</Text>
-                                        <Text size='12px' c={themeColors.grey[5]}>{attachment.mimeType}</Text>
-                                    </Stack>
-                                </Group>
-                            </Grid.Col>
-                            <Grid.Col span={3} offset={3}>
-                                <Group justify="flex-end">
-                                    <ActionIcon
-                                        variant="light"
-                                        color="gray"
-                                        aria-label="View"
-                                        size="lg"
-                                        onClick={() => window.open(attachment.filePath, '_blank')}
-                                    >
-                                        <IconEye
-                                            style={{ width: '70%', height: '70%' }}
-                                            stroke={1.5}
-                                            color="gray"
-                                        />
-                                    </ActionIcon>
-                                    <ActionIcon
-                                        variant="light"
-                                        color="gray"
-                                        aria-label="Download"
-                                        size="lg"
-                                        onClick={() => {
-                                            if (attachment.filePath && attachment.fileName) {
-                                                const link = document.createElement('a');
-                                                link.href = `/${attachment.filePath}`;
-                                                link.download = attachment.fileName;
-                                                document.body.appendChild(link);
-                                                link.click();
-                                                document.body.removeChild(link);
-                                            } else {
-                                                console.error('File path or file name is undefined');
-                                            }
-                                        }}
-                                    >
-                                        <IconDownload
-                                            style={{ width: '70%', height: '70%' }}
-                                            stroke={1.5}
-                                            color="gray"
-                                        />
-                                    </ActionIcon>
-
-
-                                </Group>
-                            </Grid.Col>
-
-
-
-                        </Grid>
-                    </Container >
-                </Group>
-            ))}
-        </>
+      <Paper withBorder p="md" radius="md" bg="gray.0" ta="center">
+        <Text size="sm" c="dimmed">
+          Tidak ada berkas bukti transaksi yang dilampirkan.
+        </Text>
+      </Paper>
     );
+  }
+
+  return (
+    <Stack gap="xs">
+      {attachments.map((attachment, index) => {
+        const fullUrl = attachment.filePath?.startsWith('http')
+          ? attachment.filePath
+          : `/${attachment.filePath?.replace(/^\//, '')}`;
+
+        return (
+          <Paper
+            key={attachment.id || `att-${index}`}
+            withBorder
+            p="sm"
+            radius="md"
+            bg="white"
+            style={{ transition: 'background-color 150ms ease' }}
+          >
+            <Group justify="space-between" align="center" wrap="nowrap">
+              <Group gap="sm" wrap="nowrap" style={{ minWidth: 0 }}>
+                <ThemeIcon size={38} radius="md" variant="light" color="primary">
+                  {getFileIcon(attachment.mimeType, attachment.fileName)}
+                </ThemeIcon>
+
+                <Box style={{ minWidth: 0 }}>
+                  <Text size="sm" fw={600} c="dark.8" truncate maw={{ base: 220, sm: 380 }}>
+                    {attachment.fileName || 'Lampiran Berkas'}
+                  </Text>
+                  <Text size="xs" c="dimmed">
+                    {attachment.mimeType || 'Dokumen Pendukung'}
+                  </Text>
+                </Box>
+              </Group>
+
+              <Group gap="xs" wrap="nowrap">
+                {attachment.filePath && (
+                  <Tooltip label="Buka / Lihat Berkas" withArrow>
+                    <ActionIcon
+                      variant="subtle"
+                      color="gray"
+                      size="md"
+                      onClick={() => window.open(fullUrl, '_blank')}
+                      aria-label="Lihat Lampiran"
+                    >
+                      <IconEye size={18} />
+                    </ActionIcon>
+                  </Tooltip>
+                )}
+
+                {attachment.filePath && (
+                  <Tooltip label="Unduh Berkas" withArrow>
+                    <ActionIcon
+                      variant="light"
+                      color="primary"
+                      size="md"
+                      onClick={() => {
+                        const link = document.createElement('a');
+                        link.href = fullUrl;
+                        link.download = attachment.fileName || 'attachment';
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                      }}
+                      aria-label="Unduh Lampiran"
+                    >
+                      <IconDownload size={18} />
+                    </ActionIcon>
+                  </Tooltip>
+                )}
+              </Group>
+            </Group>
+          </Paper>
+        );
+      })}
+    </Stack>
+  );
 };
 
 export default FileAttachments;

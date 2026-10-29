@@ -1,18 +1,16 @@
-
-
 import { ActionIcon, Anchor, Button, Center, Checkbox, Text, Flex, Grid, Menu, Paper, PaperProps, rem, Select, Stack, TextInput, Container } from '@mantine/core';
 import { themeColors } from '@/theme';
 import { IconChevronDown, IconDots, IconInfoCircle, IconSearch, IconTrash } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
-import { useDeleteJurnalAccount } from '@/module/GeneralJournal/JournalAccount/service/DeleteTransaction.service';
+import { useDeleteJurnalAccount } from '@/module/GeneralJournal/JournalAccount/services/DeleteTransaction.service';
 import { useState } from 'react';
-import { GetJournalAccounts } from '@/module/GeneralJournal/JournalAccount/service/AccountJournal.service';
+import { useJournalAccounts } from '@/module/GeneralJournal/JournalAccount/hooks/useJournalAccounts';
 import { NotFound } from '@/components/ErrorPage/NotFound';
 import EmptyState from '@/components/EmptyState/EmptyTable';
 import { formatCurrency } from '@/utils/FormatCurrency';
 import { JournalAccounts } from '@/module/GeneralJournal/JournalAccount/types/JournalAccountModel';
 import { DataTable } from 'mantine-datatable';
-import { routes } from '@/router';
+import { routes } from '@/router/routes';
 
 
 const PAPER_PROPS: PaperProps = {
@@ -24,7 +22,7 @@ const PAPER_PROPS: PaperProps = {
 
 export default function TableContact() {
     const navigate = useNavigate();
-    const { accounts, isError, isEmpty } = GetJournalAccounts();
+    const { accounts, isError, isEmpty } = useJournalAccounts();
     const JournalAccounts = Array.isArray(accounts) ? accounts : [];
     const categoryAccounts = Array.from(new Set(JournalAccounts.map((account) => account.category?.name).filter((name): name is string => Boolean(name))));
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -62,7 +60,7 @@ export default function TableContact() {
     const columns = [
         {
             accessor: 'transactionName',
-            title: <Text size="sm" fz={14} fw={500} c={themeColors.defaultBlack[10]} >Contact Name</Text>,
+            title: <Text size="sm" fz={14} fw={500} c={themeColors.black[9]} >Contact Name</Text>,
             render: (element: JournalAccounts) => (
                 <Anchor
                     underline="never"
@@ -77,54 +75,54 @@ export default function TableContact() {
         },
         {
             accessor: 'transactionDate',
-            title: <Text size="sm" fz={14} fw={500} ta='center' c={themeColors.defaultBlack[10]} >Type</Text>,
+            title: <Text size="sm" fz={14} fw={500} ta='center' c={themeColors.black[9]} >Type</Text>,
             render: (element: JournalAccounts) => (
-                <Text size="sm" fz={14} fw={400} c={themeColors.defaultBlack[10]} ta='center'>
+                <Text size="sm" fz={14} fw={400} c={themeColors.black[9]} ta='center'>
                     Other
                 </Text>
             ),
         },
         {
             accessor: 'transactionName',
-            title: <Text size="sm" fz={14} fw={500} c={themeColors.defaultBlack[10]} >Company Name</Text>,
+            title: <Text size="sm" fz={14} fw={500} c={themeColors.black[9]} >Company Name</Text>,
             render: (element: JournalAccounts) => (
-                <Text c={themeColors.defaultBlack[10]} size="sm">
+                <Text c={themeColors.black[9]} size="sm">
                     PT. Sinar Jaya
                 </Text>
             ),
         },
         {
             accessor: 'transactionName',
-            title: <Text size="sm" fz={14} fw={500} c={themeColors.defaultBlack[10]} >Email</Text>,
+            title: <Text size="sm" fz={14} fw={500} c={themeColors.black[9]} >Email</Text>,
             render: (element: JournalAccounts) => (
-                <Text c={themeColors.defaultBlack[10]} size="sm">
+                <Text c={themeColors.black[9]} size="sm">
                     Sinarjaya@company.id
                 </Text>
             ),
         },
         {
             accessor: 'credit',
-            title: <Text size="sm" fz={14} fw={500} c={themeColors.defaultBlack[10]} >Phone Number</Text>,
+            title: <Text size="sm" fz={14} fw={500} c={themeColors.black[9]} >Phone Number</Text>,
             render: (element: JournalAccounts) => (
-                <Text size="sm" fz={14} fw={400} c={themeColors.defaultBlack[10]} >0877818472723</Text>
+                <Text size="sm" fz={14} fw={400} c={themeColors.black[9]} >0877818472723</Text>
             ),
         },
         {
             accessor: 'balance',
-            title: <Text size="sm" fz={14} fw={500} c={themeColors.defaultBlack[10]} >Balance</Text>,
+            title: <Text size="sm" fz={14} fw={500} c={themeColors.black[9]} >Balance</Text>,
             render: (element: JournalAccounts) => (
-                <Text size="sm" fz={14} fw={400} c={themeColors.defaultBlack[10]} >{formatCurrency(element.debit || 0)}</Text>
+                <Text size="sm" fz={14} fw={400} c={themeColors.black[9]} >{formatCurrency(element.debit || 0)}</Text>
             ),
         },
         {
             accessor: 'action',
-            title: <Text size="sm" fz={14} fw={500} ta='center' c={themeColors.defaultBlack[10]} >Action</Text>,
+            title: <Text size="sm" fz={14} fw={500} ta='center' c={themeColors.black[9]} >Action</Text>,
             render: (element: JournalAccounts) =>
                 <Center>
                     <Menu position="bottom-end">
                         <Menu.Target>
-                            <ActionIcon bg={themeColors.grey[0]}>
-                                <IconDots size={14} color={themeColors.grey[6]} />
+                            <ActionIcon bg={themeColors.gray[0]}>
+                                <IconDots size={14} color={themeColors.gray[6]} />
                             </ActionIcon>
                         </Menu.Target>
                         <Menu.Dropdown>
@@ -185,7 +183,7 @@ export default function TableContact() {
                                 <Checkbox
                                     defaultChecked
                                     label="Show Archive"
-                                    color="cyan"
+                                    color="primary"
                                     variant="outline"
                                     size="xs"
                                 />
@@ -233,75 +231,3 @@ export default function TableContact() {
         </Paper>
     );
 }
-
-
-
-/* <Table style={{ borderRadius: 8 }} >
-                    <Table.Thead>
-                        <Table.Tr style={{ ...headTableStyle, fontWeight: 500, fontSize: 14 }}>
-
-                            <Table.Th colSpan={7} ta='left' >Contact Name</Table.Th>
-                            <Table.Th colSpan={2} ta='left' >Type</Table.Th>
-                            <Table.Th colSpan={2} ta='left' >Company Name</Table.Th>
-                            <Table.Th colSpan={2} ta='left' >Email</Table.Th>
-                            <Table.Th colSpan={2} ta='left' >Phone Number</Table.Th>
-                            <Table.Th colSpan={2} ta='left' >Balance</Table.Th>
-                            <Table.Th colSpan={1} ta='center' >Action</Table.Th>
-                        </Table.Tr>
-                    </Table.Thead>
-                    <Table.Tbody>
-                        {accountBankAndCash.map((account) => (
-                            <Table.Tr key={account.id} style={rowStyle} >
-                                <Table.Td fz={14} colSpan={7} style={{ textAlign: "left", fontWeight: 400 }}>
-                                    {account.name} ({account.accountNumber})
-                                </Table.Td>
-                                <Table.Td fz={14} colSpan={2} style={{ textAlign: "left", fontWeight: 400 }}>
-                                    {formatCurrency(account.debit)}
-                                </Table.Td>
-                                <Table.Td fz={14} colSpan={2} style={{ textAlign: "left", fontWeight: 400 }}>
-                                    {formatCurrency(account.amount)}
-                                </Table.Td>
-                                <Table.Td fz={14} colSpan={2} style={{ textAlign: "left", fontWeight: 400 }}>
-                                    {formatCurrency(account.amount)}
-                                </Table.Td>
-                                <Table.Td fz={14} colSpan={2} style={{ textAlign: "left", fontWeight: 400 }}>
-                                    {formatCurrency(account.amount)}
-                                </Table.Td>
-                                <Table.Td fz={14} colSpan={2} style={{ textAlign: "left", fontWeight: 400 }}>
-                                    {formatCurrency(account.amount)}
-                                </Table.Td>
-                                <Table.Td colSpan={1} style={{ textAlign: "center", fontWeight: 400 }}>
-                                    <Menu position="bottom-end">
-                                        <Menu.Target>
-                                            <ActionIcon bg={themeColors.grey[0]}>
-                                                <IconDots size={14} color={themeColors.grey[6]} />
-                                            </ActionIcon>
-                                        </Menu.Target>
-                                        <Menu.Dropdown>
-                                            <Menu.Item
-                                                leftSection={<IconInfoCircle style={{ width: rem(14), height: rem(14) }} />}
-                                                component="a"
-                                            >
-                                                Detail
-                                            </Menu.Item>
-                                            <Menu.Item
-                                                leftSection={<IconTrash style={{ width: rem(14), height: rem(14) }} />}
-                                                component="a"
-                                                c={themeColors.red[6]}
-                                                target="_blank"
-                                            >
-                                                Delete
-                                            </Menu.Item>
-                                        </Menu.Dropdown>
-                                    </Menu>
-                                </Table.Td>
-                            </Table.Tr>
-                        ))}
-                    </Table.Tbody>
-                </Table> */
-{/* <ImportBankStatementModal
-                            idAccount={idAccount!}
-                            onContinue={handleRefresh}
-                            isOpen={isModalOpen}
-                            onClose={handleCloseModal}
-                        /> */}

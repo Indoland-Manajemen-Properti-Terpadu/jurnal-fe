@@ -8,8 +8,8 @@
 // import { FileRejection } from '@mantine/dropzone';
 // import { notifications } from '@mantine/notifications';
 // import { useFileStore } from '@/store/GeneralJournal/useFileStore';
-// import { getBankStatement } from '../service/ListBankStatement.service';
-// import { getImportBankStatement } from '../service/ImportBankStatement.service';
+// import { getBankStatement } from '../services/ListBankStatement.service';
+// import { getImportBankStatement } from '../services/ImportBankStatement.service';
 // import { useNavigate } from 'react-router-dom';
 // import { routes } from '@/router';
 
@@ -109,7 +109,7 @@
 //                         ),
 //                         cancel: (
 //                             <Button variant="light"
-//                                 color={themeColors.grey[7]}
+//                                 color={themeColors.gray[7]}
 //                                 onClick={handlePreviousStep}>
 //                                 {active === 0 ? 'Cancel' : 'Previous'}
 //                             </Button>
@@ -129,10 +129,10 @@
 //                             >
 //                                 <Container fluid p={100}>
 //                                     <Flex mih={50} gap="xs" justify="center" align="center" direction="column" wrap="wrap">
-//                                         <Text ta="center" fw={600} fz={20} c={themeColors.defaultBlack[10]}>
+//                                         <Text ta="center" fw={600} fz={20} c={themeColors.black[9]}>
 //                                             Download CSV Template
 //                                         </Text>
-//                                         <Text ta="center" fw={500} fz={14} c={themeColors.grey[7]}>
+//                                         <Text ta="center" fw={500} fz={14} c={themeColors.gray[7]}>
 //                                             This file contains header columns that are necessary for correctly importing journal account data.
 //                                         </Text>
 //                                         <Button variant="outline" color={themeColors.blue[6]} leftSection={<IconDownload />} onClick={handleDownloadTemplate}>
@@ -147,10 +147,10 @@
 //                             >
 //                                 <Container fluid p={50}>
 //                                     <Flex mih={50} gap="xs" justify="center" align="center" direction="column" wrap="wrap">
-//                                         <Text ta="center" fw={600} fz={20} c={themeColors.defaultBlack[10]}>
+//                                         <Text ta="center" fw={600} fz={20} c={themeColors.black[9]}>
 //                                             Insert your data into a csv file
 //                                         </Text>
-//                                         <Text ta="center" fw={500} fz={14} c={themeColors.grey[7]}>
+//                                         <Text ta="center" fw={500} fz={14} c={themeColors.gray[7]}>
 //                                             Use CSV or another spreadsheet application to copy and paste your journal transaction data from the file you previously exported into the downloaded template. Ensure that the data you input matches the header columns provided in the template.
 //                                         </Text>
 //                                         <Button variant="outline" color={themeColors.blue[6]} leftSection={<IconDownload />} onClick={handleDownloadTemplate}>
@@ -166,10 +166,10 @@
 //                                 <Container fluid p={50}>
 //                                     <Stack gap='md'>
 //                                         <Flex mih={50} gap="xs" justify="center" align="center" direction="column" wrap="wrap">
-//                                             <Text ta="center" fw={600} fz={20} c={themeColors.defaultBlack[10]}>
+//                                             <Text ta="center" fw={600} fz={20} c={themeColors.black[9]}>
 //                                                 Upload CSV Templates
 //                                             </Text>
-//                                             <Text ta="center" fw={500} fz={14} c={themeColors.grey[7]}>
+//                                             <Text ta="center" fw={500} fz={14} c={themeColors.gray[7]}>
 //                                                 After making the changes, please upload the file. The file you upload must be in CSV (Comma Separated Values) format. Your file should have the extension .csv.
 //                                             </Text>
 

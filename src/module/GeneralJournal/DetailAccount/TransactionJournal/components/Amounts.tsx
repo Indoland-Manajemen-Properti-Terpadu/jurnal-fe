@@ -1,38 +1,94 @@
-// components/TotalAmount.tsx
-import { HeadingText, TextAmount } from '@/components/Text/CustomText';
+import React from 'react';
+import { Badge, Box, Grid, Group, Text } from '@mantine/core';
+import { IconAlertCircle, IconCheck, IconScale } from '@tabler/icons-react';
 import { useTransactionStore } from '@/store/GeneralJournal/useTransactionStore';
-import { Grid } from '@mantine/core';
+import { themeColors } from '@/theme';
 
-const TotalAmount = () => {
-    const { totalDebit, totalCredit } = useTransactionStore();
+const TotalAmount: React.FC = () => {
+  const { totalDebit, totalCredit } = useTransactionStore();
+  const diff = Math.abs(totalDebit - totalCredit);
+  const isBalanced = totalDebit > 0 && totalCredit > 0 && diff === 0;
+  const hasValues = totalDebit > 0 || totalCredit > 0;
 
-    return (
-        <Grid columns={24} grow justify="space-between" align="center">
-            <Grid.Col span={12}>
-                <HeadingText fz={14}>Total</HeadingText>
-            </Grid.Col>
-            <Grid.Col span="auto">
-                <TextAmount
-                    key='totalDebit'
-                    amount={`Rp. ${totalDebit.toLocaleString()}`}
-                    mainColor="grey"
-                    colorTextAmont="black"
-                >
-                    Total Debit
-                </TextAmount>
-            </Grid.Col>
-            <Grid.Col span="auto">
-                <TextAmount
-                    key='totalCredit'
-                    amount={`Rp. ${totalCredit.toLocaleString()}`}
-                    mainColor="grey"
-                    colorTextAmont="black"
-                >
-                    Total Credit
-                </TextAmount>
-            </Grid.Col>
-        </Grid>
-    );
+  return (
+    <Box
+      py="sm"
+      px="md"
+      style={{
+        borderRadius: 8,
+        border: `1px solid ${
+          isBalanced
+            ? 'var(--mantine-color-green-3)'
+            : hasValues
+              ? 'var(--mantine-color-red-3)'
+              : themeColors.slate[2]
+        }`,
+        backgroundColor: isBalanced
+          ? 'var(--mantine-color-green-0)'
+          : hasValues
+            ? 'var(--mantine-color-red-0)'
+            : themeColors.primary[0],
+        transition: 'all 0.2s ease',
+      }}
+    >
+      <Grid columns={24} gutter="md" align="center">
+        <Grid.Col span={1} />
+        <Grid.Col span={7}>
+          <Group gap="xs">
+            <Text fw={700} fz={13} c="dark.8">
+              Total Ayat Jurnal
+            </Text>
+            {isBalanced ? (
+              <Badge color="green" variant="filled" size="sm" leftSection={<IconCheck size={12} />}>
+                Seimbang
+              </Badge>
+            ) : hasValues ? (
+              <Badge
+                color="red"
+                variant="filled"
+                size="sm"
+                leftSection={<IconAlertCircle size={12} />}
+              >
+                Selisih: Rp {diff.toLocaleString('id-ID', { minimumFractionDigits: 2 })}
+              </Badge>
+            ) : (
+              <Badge color="gray" variant="light" size="sm">
+                Belum Terisi
+              </Badge>
+            )}
+          </Group>
+        </Grid.Col>
+        <Grid.Col span={7}>
+          {hasValues && !isBalanced && (
+            <Text fz={11} c="red.7" fw={500}>
+              * Total debit dan kredit harus bernilai sama sebelum dapat disimpan.
+            </Text>
+          )}
+        </Grid.Col>
+        <Grid.Col span={4}>
+          <Box ta="right">
+            <Text fz={11} c="dimmed" fw={600} tt="uppercase">
+              Total Debit
+            </Text>
+            <Text fw={700} fz={14} c="teal.8">
+              Rp {totalDebit.toLocaleString('id-ID', { minimumFractionDigits: 2 })}
+            </Text>
+          </Box>
+        </Grid.Col>
+        <Grid.Col span={4}>
+          <Box ta="right">
+            <Text fz={11} c="dimmed" fw={600} tt="uppercase">
+              Total Kredit
+            </Text>
+            <Text fw={700} fz={14} c="red.8">
+              Rp {totalCredit.toLocaleString('id-ID', { minimumFractionDigits: 2 })}
+            </Text>
+          </Box>
+        </Grid.Col>
+        <Grid.Col span={1} />
+      </Grid>
+    </Box>
+  );
 };
 
 export default TotalAmount;

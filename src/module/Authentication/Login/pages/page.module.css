@@ -3,7 +3,6 @@
 }
 
 .leftside {
-  /* background-color: var(--mantine-color-primary-6); */
   margin: 0;
   padding: 0;
   display: flex;
@@ -15,7 +14,7 @@
 .wrapper {
   flex: 1;
   background-size: cover;
-  background-color: #0d9488;
+  background-color: var(--jurnal-color-primary);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -31,7 +30,7 @@
 }
 
 .forgotpassword {
-  color: #14b8a6;
+  color: var(--jurnal-color-primary);
 }
 
 .logo {
@@ -48,10 +47,10 @@
 }
 
 :root {
-  --text-color: white;
+  --text-color: var(--jurnal-color-surface);
   --text-size: 2.25rem;
-  --background-blue: #1e3a8a;
-  --background-black: black;
+  --background-blue: var(--mantine-color-blue-8);
+  --background-black: var(--mantine-color-black);
 }
 
 .container {

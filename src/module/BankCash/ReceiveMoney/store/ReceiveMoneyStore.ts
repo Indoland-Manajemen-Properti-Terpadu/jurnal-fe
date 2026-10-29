@@ -1,23 +1,5 @@
-// stores/useTransactionStore.ts
-import { GetJournalAccounts } from '@/module/GeneralJournal/JournalAccount/service/AccountJournal.service';
-import { JournalAccounts } from '@/module/GeneralJournal/JournalAccount/types/JournalAccountModel';
 import { randomId } from '@mantine/hooks';
 import { create } from 'zustand';
-
-interface JournalAccountState {
-  journalAccounts: JournalAccounts[];
-  fetchJournalAccounts: () => Promise<void>;
-}
-
-export const useJournalAccountStore = create<JournalAccountState>((set) => ({
-  journalAccounts: [],
-  fetchJournalAccounts: async () => {
-    const { accounts } = GetJournalAccounts();
-    if (Array.isArray(accounts)) {
-      set({ journalAccounts: accounts });
-    }
-  },
-}));
 
 interface ReceiveMoney {
   account: string;

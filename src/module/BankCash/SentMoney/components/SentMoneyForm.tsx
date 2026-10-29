@@ -1,6 +1,6 @@
 import { Grid, NumberInput, Select, TextInput, ActionIcon } from '@mantine/core';
 import { IconChevronDown, IconTrash } from '@tabler/icons-react';
-import { GetJournalAccounts } from '@/module/GeneralJournal/JournalAccount/service/AccountJournal.service';
+import { useJournalAccounts } from '@/module/GeneralJournal/JournalAccount/hooks/useJournalAccounts';
 import { useState } from 'react';
 import dayjs from 'dayjs';
 import { useReceiveMoneyStore } from '../../ReceiveMoney/store/ReceiveMoneyStore';
@@ -9,7 +9,7 @@ import { useReceiveMoneyStore } from '../../ReceiveMoney/store/ReceiveMoneyStore
 const ReceiveMoneyForm = () => {
     const { minimumTransaction, transactions, updateTransaction, removeTransaction } =
         useReceiveMoneyStore();
-    const { accounts } = GetJournalAccounts();
+    const { accounts } = useJournalAccounts();
     const JournalAccounts = Array.isArray(accounts) ? accounts : [];
     const listJournalAccount = JournalAccounts.filter(
         (account) => account.name && account.accountNumber

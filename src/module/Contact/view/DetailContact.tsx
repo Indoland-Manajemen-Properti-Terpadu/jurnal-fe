@@ -1,239 +1,404 @@
+import { useMemo, useState } from 'react';
 import {
-    Button,
-    Container,
-    Group,
-    Paper,
-    Stack,
-    Text,
-    Tabs,
-    SimpleGrid,
-    Grid,
-    Divider,
-    Table,
-    Badge,
-    Menu,
-    rem,
-    Breadcrumbs,
-    Flex,
-    Title,
-    Anchor,
-} from "@mantine/core";
-import { IconArchive, IconBuildingBank, IconChevronUp, IconFileDollar, IconPencil, IconReportSearch, IconUser } from "@tabler/icons-react";
-import { useNavigate, useParams } from "react-router-dom";
-import { gradientColors, themeColors } from "@/theme";
-import { navigate, routes } from "@/router";
-import ContactPageLayout from "./Layout";
+  Alert,
+  Avatar,
+  Badge,
+  Box,
+  Button,
+  Group,
+  Paper,
+  Skeleton,
+  Stack,
+  Tabs,
+  Text,
+  TextInput,
+  Title,
+} from '@mantine/core';
+import {
+  IconAddressBook,
+  IconArchive,
+  IconArrowLeft,
+  IconDownload,
+  IconEdit,
+  IconInfoCircle,
+  IconReceipt2,
+  IconSearch,
+  IconUser,
+  IconX,
+} from '@tabler/icons-react';
+import { useNavigate, useParams } from 'react-router-dom';
+import AppShellLayout from '@/components/AppShellLayout';
+import ModuleHeader from '@/components/ModuleHeader/ModuleHeader';
+import ConfirmModal from '@/components/ui/ConfirmModal/ConfirmModal';
+import { useTranslation } from '@/i18n';
+import { routes } from '@/router/routes';
+import { ContactFormModal } from '../components/ContactFormModal';
+import { ContactProfileSections } from '../components/ContactProfileSections';
+import { TableTransactionByContact } from '../components/Table/TableTransactionByContact';
+import {
+  useAccountOptions,
+  useArchiveContact,
+  useContact,
+  useExportContactTransactions,
+  useSaveContact,
+} from '../hooks/useContactQueries';
+import {
+  useContactTransactionView,
+  TransactionStatusFilter,
+} from '../hooks/useContactTransactionView';
+import type { ContactFormValues } from '../types/contact';
+import { getContactTypeBadgeConfig } from '../utils/contactFormat';
+import classes from './DetailContact.module.css';
 
-const breadcrumbData = [
-    { title: "Contact", href: () => navigate(-1) },
-    { title: "Detail Contact", href: undefined },
-];
+function getInitials(name: string) {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return '?';
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
+}
 
-const breadcrumbItems = breadcrumbData.map((item, index) => (
-    <Anchor
-        key={index}
-        underline="never"
-        variant={index === breadcrumbData.length - 1 ? "gradient" : "filled"}
-        gradient={index === breadcrumbData.length - 1 ? gradientColors.gradient : undefined}
-        fz={14}
-        fw={400}
-        c={index === breadcrumbData.length - 1 ? themeColors.defaultBlack[10] : "inherit"}
-        onClick={(e) => {
-            if (index !== breadcrumbData.length - 1 && item.href) {
-                e.preventDefault();
-                item.href();
-            }
-        }}
-    >
-        {item.title}
-    </Anchor>
-));
+export function DetailContactPage() {
+  const { idAccount } = useParams<{ idAccount: string }>();
+  const navigate = useNavigate();
+  const { t } = useTranslation('contactDetail');
+  const [editOpen, setEditOpen] = useState(false);
+  const [archiveOpen, setArchiveOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<string | null>('profile');
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [status, setStatus] = useState<TransactionStatusFilter>('all');
+  const [search, setSearch] = useState('');
 
+  const contactQuery = useContact(idAccount);
+  const accountsQuery = useAccountOptions();
+  const transactions = useContactTransactionView(idAccount, search, status, page, limit);
+  const exportMutation = useExportContactTransactions(idAccount);
+  const saveMutation = useSaveContact(contactQuery.data?.id);
+  const archiveMutation = useArchiveContact();
+  const contact = contactQuery.data;
 
-const contactDetails = [
-    { label: "FullName", value: "Raga Mekanik Las" },
-    { label: "Email", value: "ragabaukentut@gmail.com" },
-    { label: "Identity", value: "KTP" },
-    { label: "Identity Number", value: "1122334455667788" },
-    { label: "Mobile Phone Number", value: "1122334455667788" },
-    { label: "Telephone Number", value: "1122334455667788" },
-    { label: "Fax", value: "1122334455667788" },
-    { label: "NPWP", value: "12.345.678.9-012.345" },
-];
+  const accountMap = useMemo(
+    () => new Map((accountsQuery.data ?? []).map((account) => [account.id, account.label])),
+    [accountsQuery.data]
+  );
 
-const addressDetail = [
-    { label: "Billing Address", value: "Greenwood Residence, Blok C1 No. 2, RT 001/RW 003, Jl. Karang Sambung - Karang Satria, Tambun Utara." },
-    { label: "Shipping Address", value: "Greenwood Residence, Blok C1 No. 2, RT 001/RW 003, Jl. Karang Sambung - Karang Satria, Tambun Utara." },
+  const handleSave = async (values: ContactFormValues) => {
+    await saveMutation.mutateAsync(values);
+    setEditOpen(false);
+    contactQuery.refetch();
+  };
 
-]
+  const handleArchive = async () => {
+    if (!contact) return;
+    await archiveMutation.mutateAsync(contact.id);
+    navigate(routes.Contact.Main);
+  };
 
-const bankinformation = [
-    { bank: "PT Bank CIMB Niaga Tbk", branch: "Jakarta Timur - Cakung", accountHolder: "Raga Mekanik Las", accountNumber: "122-032-233" },
-    { bank: "PT. Bank Mandiri (Persero)", branch: "Bekasi - Juanda", accountHolder: "Raga Mekanik Las", accountNumber: "122-032-233" },
-];
+  const changeStatus = (value: string | null) => {
+    setStatus((value ?? 'all') as TransactionStatusFilter);
+    setPage(1);
+  };
 
-const accountMappings = [
-    { label: "Accounts Receivable", value: "Accounts Receivable (1030)" },
-    { label: "Accounts Payable", value: "Accounts Payable (2000)" },
-    { label: " Main Payment Terms", value: "Net 30" }
-];
-
-const DetailContactPage = () => {
-    const { idAccount } = useParams<{ idAccount: string }>();
-    const bankInformationData = bankinformation.map((item) => (
-        <Table.Tr key={item.bank}>
-            <Table.Td>{item.bank}</Table.Td>
-            <Table.Td>{item.branch}</Table.Td>
-            <Table.Td>{item.accountHolder}</Table.Td>
-            <Table.Td>{item.accountNumber}</Table.Td>
-        </Table.Tr>
-    ));
+  if (contactQuery.isLoading) {
     return (
-        <ContactPageLayout>
-            <Container fluid>
-                <Stack gap="lg">
-                    <Paper p="md" shadow="md" radius="md">
-                        <Grid justify="space-between" align="center">
-                            <Grid.Col span={6}>
-                                <Stack gap="md">
-                                    <Breadcrumbs>{breadcrumbItems}</Breadcrumbs>
-                                    <Title order={3}>Detail Contact</Title>
-                                </Stack>
-                            </Grid.Col>
-                            <Grid.Col span={6}>
-                                <Group justify="flex-end">
-                                    <Menu position="bottom-end" offset={5} withArrow>
-                                        <Menu.Target>
-                                            <Button variant="light" size="sm" color={themeColors.grey[7]} rightSection={<IconChevronUp style={{ width: rem(14), height: rem(14) }} />}>
-                                                Other Action
-                                            </Button>
-                                        </Menu.Target>
-                                        <Menu.Dropdown>
-                                            <Menu.Item leftSection={<IconFileDollar style={{ width: rem(14), height: rem(14) }} />}>Account Statement Report</Menu.Item>
-                                            <Menu.Item leftSection={<IconPencil style={{ width: rem(14), height: rem(14) }} />}>Edit Profile</Menu.Item>
-                                            <Menu.Item leftSection={<IconArchive style={{ width: rem(14), height: rem(14) }} />}>Archive Contact</Menu.Item>
-                                        </Menu.Dropdown>
-                                    </Menu>
-
-                                    <Button
-                                        variant="filled"
-                                        bg={themeColors.primary[6]}
-                                        onClick={() => navigate(routes.Contact.TransactionDetailByContact.replace(':idAccount', idAccount!))}
-                                    >
-                                        Transaction Contract
-                                    </Button>
-                                </Group>
-                            </Grid.Col>
-                        </Grid>
-
-
-                    </Paper>
-                    <Paper p="md" shadow="md" radius="md">
-                        <Stack>
-                            <Group>
-                                <Text c={themeColors.primary[6]} fz={18} fw={500}>
-                                    Contact Information
-                                </Text>
-                                <IconUser size={20} color={themeColors.primary[6]} />
-                            </Group>
-                            <Grid justify="space-between" align="center">
-                                <Grid.Col span={6}>
-                                    <Stack gap={0}>
-                                        <Text c={themeColors.defaultBlack[10]} fz={18} fw={500}>Raga Mekanik Las</Text>
-                                        <Text c={themeColors.grey[6]} fz={14} fw={500}>CV. Raga Bubut Jaya</Text>
-                                    </Stack>
-                                </Grid.Col>
-                                <Grid.Col span={6}>
-                                    <Group>
-                                        <Badge variant="light" color={themeColors.grey[6]} leftSection={<IconUser size={14} />}>
-                                            Customer
-                                        </Badge>
-                                        <Badge variant="light" color={themeColors.grey[6]} leftSection={<IconUser size={14} />}>
-                                            Supplier
-                                        </Badge>
-                                    </Group>
-                                </Grid.Col>
-                            </Grid>
-                            <Divider my="xs" />
-
-                            {contactDetails.map((detail, index) => (
-                                <Grid justify="space-between" align="center" key={index}>
-                                    <Grid.Col span={6}>
-                                        <Text c={themeColors.grey[6]} fz={14} fw={400}>
-                                            {detail.label}
-                                        </Text>
-                                    </Grid.Col>
-                                    <Grid.Col span={6}>
-                                        <Text c={themeColors.defaultBlack[10]} fz={14} fw={500}>
-                                            {detail.value}
-                                        </Text>
-                                    </Grid.Col>
-                                </Grid>
-                            ))}
-                            <Divider my="xs" />
-
-                            {addressDetail.map((detail, index) => (
-                                <Grid justify="space-between" align="center" key={index}>
-                                    <Grid.Col span={6}>
-                                        <Text c={themeColors.grey[6]} fz={14} fw={400}>
-                                            {detail.label}
-                                        </Text>
-                                    </Grid.Col>
-                                    <Grid.Col span={6}>
-                                        <Text c={themeColors.defaultBlack[10]} fz={14} fw={500}>
-                                            {detail.value}
-                                        </Text>
-                                    </Grid.Col>
-                                </Grid>
-                            ))}
-
-                            <Divider my="xs" />
-                            <Group>
-                                <Text c={themeColors.primary[6]} fz={18} fw={500}>
-                                    Bank Information
-                                </Text>
-                                <IconBuildingBank size={20} color={themeColors.primary[6]} />
-                            </Group>
-
-                            <Table highlightOnHover withTableBorder>
-                                <Table.Thead>
-                                    <Table.Tr>
-                                        <Table.Th>Bank</Table.Th>
-                                        <Table.Th>Branch</Table.Th>
-                                        <Table.Th>Account Holder</Table.Th>
-                                        <Table.Th>Account Number</Table.Th>
-                                    </Table.Tr>
-                                </Table.Thead>
-                                <Table.Tbody>{bankInformationData}</Table.Tbody>
-                            </Table>
-
-                            <Divider my="xs" />
-                            <Group>
-                                <Text c={themeColors.primary[6]} fz={18} fw={500}>
-                                    Account Mapping
-                                </Text>
-                                <IconFileDollar size={20} color={themeColors.primary[6]} />
-                            </Group>
-                            {accountMappings.map((mapping, index) => (
-                                <Grid justify="space-between" align="center" key={index}>
-                                    <Grid.Col span={6}>
-                                        <Text c={themeColors.grey[6]} fz={14} fw={400}>
-                                            {mapping.label}
-                                        </Text>
-                                    </Grid.Col>
-                                    <Grid.Col span={6}>
-                                        <Text c={themeColors.defaultBlack[10]} fz={14} fw={500}>
-                                            {mapping.value}
-                                        </Text>
-                                    </Grid.Col>
-                                </Grid>
-                            ))}
-                        </Stack>
-                    </Paper>
-                </Stack>
-            </Container>
-        </ContactPageLayout >
+      <AppShellLayout>
+        <Box p={{ base: 'md', sm: 'xl' }}>
+          <Stack gap="lg" aria-label={t('loading')}>
+            <Skeleton height={56} radius="md" />
+            <Skeleton height={220} radius="lg" />
+            <Skeleton height={350} radius="lg" />
+          </Stack>
+        </Box>
+      </AppShellLayout>
     );
-};
+  }
+
+  if (contactQuery.isError || !contact) {
+    return (
+      <AppShellLayout>
+        <Box p={{ base: 'md', sm: 'xl' }}>
+          <Paper withBorder radius="lg" p="xl">
+            <Stack align="center" gap="sm" ta="center">
+              <IconInfoCircle size={36} color="var(--mantine-color-red-6)" />
+              <Title order={3}>{t('notFoundTitle')}</Title>
+              <Text c="dimmed" fz="sm">
+                {t('notFoundDescription')}
+              </Text>
+              <Button
+                mt="sm"
+                leftSection={<IconArrowLeft size={16} />}
+                onClick={() => navigate(routes.Contact.Main)}
+              >
+                {t('backToContacts')}
+              </Button>
+            </Stack>
+          </Paper>
+        </Box>
+      </AppShellLayout>
+    );
+  }
+
+  return (
+    <AppShellLayout>
+      <Box p={{ base: 'md', sm: 'xl' }}>
+        <Stack gap="lg">
+          <ModuleHeader
+            icon={IconAddressBook}
+            title={t('pageTitle')}
+            description={t('pageDescription')}
+            actions={
+              <Group gap="xs" wrap="wrap">
+                <Button
+                  variant="default"
+                  leftSection={<IconArrowLeft size={16} />}
+                  onClick={() => navigate(routes.Contact.Main)}
+                >
+                  {t('backToContacts')}
+                </Button>
+                {!contact.deleted && (
+                  <Button
+                    variant="default"
+                    color="red"
+                    leftSection={<IconArchive size={16} />}
+                    onClick={() => setArchiveOpen(true)}
+                  >
+                    {t('archive')}
+                  </Button>
+                )}
+                <Button leftSection={<IconEdit size={16} />} onClick={() => setEditOpen(true)}>
+                  {t('editContact')}
+                </Button>
+              </Group>
+            }
+          />
+
+          <Paper withBorder radius="lg" p={{ base: 'md', sm: 'xl' }} className={classes.hero}>
+            <Group justify="space-between" align="stretch" gap="xl" className={classes.heroContent}>
+              <Group gap="lg" align="flex-start" className={classes.heroIdentity} wrap="nowrap">
+                <Avatar
+                  size={76}
+                  radius="lg"
+                  color="primary"
+                  variant="light"
+                  className={classes.heroAvatar}
+                >
+                  {getInitials(contact.displayName)}
+                </Avatar>
+                <Stack gap="xs" className={classes.heroIdentity}>
+                  <Text fz="xs" fw={700} tt="uppercase" lts="0.08em" c="primary.7">
+                    {t('contactRecord')}
+                  </Text>
+                  <Title order={2} fz={{ base: 23, sm: 30 }} className={classes.heroTitle}>
+                    {contact.displayName}
+                  </Title>
+                  <Group gap="xs">
+                    {contact.contactType.map((type) => {
+                      const config = getContactTypeBadgeConfig(type);
+                      return (
+                        <Badge key={type} color={config.color} variant="light">
+                          {t(`type.${type}`)}
+                        </Badge>
+                      );
+                    })}
+                    <Badge color={contact.deleted ? 'gray' : 'teal'} variant="light">
+                      {contact.deleted ? t('archived') : t('active')}
+                    </Badge>
+                    {contact.contactGroups?.map((group) => (
+                      <Badge key={group} color="gray" variant="outline">
+                        {group}
+                      </Badge>
+                    ))}
+                  </Group>
+                  <Text fz="sm" c="dimmed">
+                    {[contact.companyName, contact.emails?.[0], contact.phones?.mobile]
+                      .filter(Boolean)
+                      .join(' · ') || t('noPrimaryDetails')}
+                  </Text>
+                </Stack>
+              </Group>
+              <div className={classes.heroSummary}>
+                <Text fz="xs" fw={700} c="dimmed" tt="uppercase">
+                  {t('contactNumber')}
+                </Text>
+                <Text fw={750} fz="lg" c="primary.8" mt={4} className={classes.breakValue}>
+                  {contact.contactNumber || t('notProvided')}
+                </Text>
+                {contact.external_id && (
+                  <>
+                    <Text fz="xs" c="dimmed" mt="md">
+                      {t('externalCode')}
+                    </Text>
+                    <Text fw={600} fz="sm" className={classes.breakValue}>
+                      {contact.external_id}
+                    </Text>
+                  </>
+                )}
+              </div>
+            </Group>
+          </Paper>
+
+          <Tabs
+            value={activeTab}
+            onChange={setActiveTab}
+            color="primary"
+            variant="pills"
+            radius="md"
+          >
+            <Paper withBorder radius="lg" p="sm" mb="lg">
+              <Tabs.List className={classes.tabList}>
+                <Tabs.Tab value="profile" leftSection={<IconUser size={16} />}>
+                  {t('profileTab')}
+                </Tabs.Tab>
+                <Tabs.Tab value="transactions" leftSection={<IconReceipt2 size={16} />}>
+                  {t('transactionsTab')}
+                </Tabs.Tab>
+              </Tabs.List>
+            </Paper>
+
+            <Tabs.Panel value="profile">
+              <ContactProfileSections contact={contact} accountMap={accountMap} />
+            </Tabs.Panel>
+
+            <Tabs.Panel value="transactions">
+              <Paper withBorder radius="lg" p={{ base: 'md', sm: 'lg' }}>
+                <Stack gap="md">
+                  <Group justify="space-between" align="flex-start" gap="md">
+                    <div>
+                      <Text fw={700} fz="lg">
+                        {t('transactionsTitle')}
+                      </Text>
+                      <Text fz="sm" c="dimmed">
+                        {t('transactionsDescription')}
+                      </Text>
+                    </div>
+                    <Group gap="xs" className={classes.transactionActions}>
+                      <Button
+                        variant="default"
+                        leftSection={<IconDownload size={16} />}
+                        loading={exportMutation.isPending}
+                        onClick={() => exportMutation.mutate()}
+                      >
+                        {t('exportTransactions')}
+                      </Button>
+                      {idAccount && (
+                        <Button
+                          variant="light"
+                          onClick={() =>
+                            navigate(
+                              routes.Contact.TransactionDetailByContact.replace(
+                                ':idAccount',
+                                idAccount
+                              )
+                            )
+                          }
+                        >
+                          {t('allTransactions')}
+                        </Button>
+                      )}
+                    </Group>
+                  </Group>
+                  {transactions.isLimited && (
+                    <Alert color="blue" variant="light" icon={<IconInfoCircle size={18} />}>
+                      {t('invoiceLimitNote')}
+                    </Alert>
+                  )}
+                  <TextInput
+                    aria-label={t('searchInvoices')}
+                    placeholder={t('searchInvoices')}
+                    leftSection={<IconSearch size={16} />}
+                    rightSection={
+                      search ? (
+                        <Button
+                          variant="subtle"
+                          size="compact-xs"
+                          onClick={() => {
+                            setSearch('');
+                            setPage(1);
+                          }}
+                          aria-label={t('clearSearch')}
+                        >
+                          <IconX size={14} />
+                        </Button>
+                      ) : null
+                    }
+                    value={search}
+                    onChange={(event) => {
+                      setSearch(event.currentTarget.value);
+                      setPage(1);
+                    }}
+                  />
+                  <Tabs
+                    value={status}
+                    onChange={changeStatus}
+                    variant="pills"
+                    radius="md"
+                    color="primary"
+                  >
+                    <Tabs.List className={classes.tabList}>
+                      {(['all', 'UNPAID', 'PAID', 'OVERDUE', 'DRAFT'] as const).map((value) => (
+                        <Tabs.Tab key={value} value={value}>
+                          {t(`status.${value}`)}
+                        </Tabs.Tab>
+                      ))}
+                    </Tabs.List>
+                  </Tabs>
+                  {transactions.query.isError ? (
+                    <Alert
+                      color="red"
+                      title={t('transactionsError')}
+                      icon={<IconInfoCircle size={18} />}
+                    >
+                      <Button
+                        variant="light"
+                        size="xs"
+                        color="red"
+                        mt="xs"
+                        onClick={() => transactions.query.refetch()}
+                      >
+                        {t('retry')}
+                      </Button>
+                    </Alert>
+                  ) : (
+                    <TableTransactionByContact
+                      transactions={transactions.items}
+                      isLoading={transactions.query.isLoading || transactions.query.isFetching}
+                      page={page}
+                      limit={limit}
+                      total={transactions.filteredCount}
+                      totalPages={transactions.totalPages}
+                      onPageChange={setPage}
+                      onLimitChange={(value) => {
+                        setLimit(value);
+                        setPage(1);
+                      }}
+                    />
+                  )}
+                </Stack>
+              </Paper>
+            </Tabs.Panel>
+          </Tabs>
+        </Stack>
+      </Box>
+
+      <ContactFormModal
+        opened={editOpen}
+        contact={contact}
+        isSubmitting={saveMutation.isPending}
+        onClose={() => setEditOpen(false)}
+        onSubmit={handleSave}
+      />
+      <ConfirmModal
+        opened={archiveOpen}
+        onClose={() => setArchiveOpen(false)}
+        onConfirm={handleArchive}
+        title={t('archiveTitle')}
+        message={t('archiveMessage', { name: contact.displayName })}
+        confirmLabel={t('archive')}
+        confirmLoading={archiveMutation.isPending}
+        confirmButtonProps={{ color: 'red' }}
+      />
+    </AppShellLayout>
+  );
+}
 
 export default DetailContactPage;

@@ -9,18 +9,18 @@ import { ReportJournalEntryModel } from "../../types/JournalEntry.types";
 
 const headTableStyle = {
     backgroundColor: themeColors.primary[0],
-    borderColor: themeColors.grey[1],
+    borderColor: themeColors.gray[1],
     borderWidth: '1px',
     borderStyle: 'solid',
 }
 const categoryStyle = {
-    backgroundColor: themeColors.grey[0],
-    borderColor: themeColors.grey[1],
+    backgroundColor: themeColors.gray[0],
+    borderColor: themeColors.gray[1],
     borderWidth: "1px",
     borderStyle: "solid",
 };
 const rowStyle = {
-    borderColor: themeColors.grey[1],
+    borderColor: themeColors.gray[1],
     borderWidth: "1px",
     borderStyle: "solid",
 };
@@ -73,7 +73,7 @@ const JournalEntryTable: React.FC<JournalEntryTableProps> = ({ data: JournalEntr
                         >
                             <>
                                 Report
-                                <Text c={themeColors.grey[6]} fz={14} fw={500}>
+                                <Text c={themeColors.gray[6]} fz={14} fw={500}>
                                     Period: {formattedPeriod}
                                 </Text>
                             </>
@@ -95,7 +95,7 @@ const JournalEntryTable: React.FC<JournalEntryTableProps> = ({ data: JournalEntr
                                         <Text fz={14} w={500} span gradient={gradientColors.mainGR} variant="gradient">
                                             Journal Entry #{JE.transactionNumber}
                                         </Text>
-                                        <Text fz={14} span c={themeColors.grey[6]} ml={8}>
+                                        <Text fz={14} span c={themeColors.gray[6]} ml={8}>
                                             (Created Date: {dateFormatV1(JE.transactionDate!)})
                                         </Text>
                                     </Table.Td>

@@ -11,13 +11,13 @@ const BadgeAction = ({ status }: BadgeActionProps) => {
     switch (status) {
         case 'Reconciled':
             return (
-                <ActionIcon variant="light" color={themeColors.grey[6]}>
+                <ActionIcon variant="light" color={themeColors.gray[6]}>
                     <IconPuzzleOff size={16} />
                 </ActionIcon>
             );
         case 'Inreconciled':
             return (
-                <ActionIcon variant="light" color={themeColors.grey[6]}>
+                <ActionIcon variant="light" color={themeColors.gray[6]}>
                     <IconPuzzle size={16} />
                 </ActionIcon>
             );

@@ -20,19 +20,19 @@ const SaveAsDraftModal = ({ opened, onClose, onSave }: SaveAsDraftModalProps) =>
             opened={opened}
             onClose={onClose}
             withCloseButton={true}
-            title={<Text fz={16} fw={600} c={themeColors.defaultBlack[10]}>Cancel or Save as draft</Text>}
+            title={<Text fz={16} fw={600} c={themeColors.black[9]}>Cancel or Save as draft</Text>}
             labels={{
                 confirm: (
                     <Button variant="gradient" gradient={gradientColors.mainGR} onClick={handleDelete}>
                         Save as draft
                     </Button>
                 ),
-                cancel: <Button variant="light" color={themeColors.grey[7]} onClick={onClose}>Cancel</Button>,
+                cancel: <Button variant="light" color={themeColors.gray[7]} onClick={onClose}>Cancel</Button>,
             }}
         >
             <Stack gap="md" align="stretch" justify="center">
                 <Divider />
-                <Text fz={14} fw={400} c={themeColors.grey[7]}>
+                <Text fz={14} fw={400} c={themeColors.gray[7]}>
                     Are you sure you want to cancel or save as draft the closing books?
                 </Text>
             </Stack>

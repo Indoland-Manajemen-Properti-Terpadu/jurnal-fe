@@ -7,21 +7,21 @@ type RowProps = {
     total: number;
 };
 const rowStyle = {
-    borderColor: themeColors.grey[1],
+    borderColor: themeColors.gray[1],
     borderWidth: '1px',
     borderStyle: 'solid',
 };
 
 const sectionInsideCategory = {
-    backgroundColor: themeColors.grey[0],
-    borderColor: themeColors.grey[1],
+    backgroundColor: themeColors.gray[0],
+    borderColor: themeColors.gray[1],
     borderWidth: '1px',
     borderStyle: 'solid',
 };
 
 const headTableStyle = {
-    backgroundColor: themeColors.grey[0],
-    borderColor: themeColors.grey[1],
+    backgroundColor: themeColors.gray[0],
+    borderColor: themeColors.gray[1],
     borderWidth: '1px',
     borderStyle: 'solid',
 };

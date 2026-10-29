@@ -17,7 +17,7 @@ const StatsContactCard = ({ data, ...others }: StatsContactCardProps) => {
   const getDiffStyles = (diff: number) => {
     if (diff > 0) return { color: themeColors.green[6], bg: themeColors.green[0], Icon: IconTrendingUp, text: `${diff}%` };
     if (diff < 0) return { color: themeColors.red[6], bg: themeColors.red[0], Icon: IconTrendingDown, text: `${diff}%` };
-    return { color: themeColors.grey[6], bg: themeColors.grey[0], Icon: IconMinus, text: '0%' };
+    return { color: themeColors.gray[6], bg: themeColors.gray[0], Icon: IconMinus, text: '0%' };
   };
 
   const { color, bg, Icon, text } = getDiffStyles(diff);
@@ -46,15 +46,15 @@ const StatsContactCard = ({ data, ...others }: StatsContactCardProps) => {
   return (
     <Card withBorder radius="md" p="md" shadow="none">
       <Stack gap="md">
-        <Text fz={14} fw={500} c={themeColors.defaultBlack[10]}>
+        <Text fz={14} fw={500} c={themeColors.black[9]}>
           {title}
         </Text>
-        <Text c={themeColors.defaultBlack[10]} fz={20} fw={600}>
+        <Text c={themeColors.black[9]} fz={20} fw={600}>
           {formatCurrency(amount)}
         </Text>
         <Group gap="xs">
           <PerformComponent diff={diff} />
-          <Text fz={12} fw={400} c={themeColors.grey[6]}>
+          <Text fz={12} fw={400} c={themeColors.gray[6]}>
             Compared to to last month
           </Text>
         </Group>

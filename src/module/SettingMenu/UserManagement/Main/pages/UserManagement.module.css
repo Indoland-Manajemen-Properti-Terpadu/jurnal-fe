@@ -1,29 +1,29 @@
 /* Styling for PageHeader */
 .pageHeader {
-  padding: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-  background-color: #ffffff;
-  margin-bottom: 16px;
+  padding: var(--jurnal-spacing-base);
+  box-shadow: var(--mantine-shadow-sm);
+  border-radius: var(--jurnal-radius-lg);
+  background-color: var(--jurnal-color-surface);
+  margin-bottom: var(--jurnal-spacing-base);
 }
 
 /* Styling for Action Buttons */
 .actionButton {
-  margin-right: 8px;
-  padding: 8px 16px;
-  border-radius: 8px;
+  margin-right: var(--jurnal-spacing-xs);
+  padding: var(--jurnal-spacing-xs) var(--jurnal-spacing-base);
+  border-radius: var(--jurnal-radius-lg);
   font-weight: 500;
   cursor: pointer;
 }
 
 .actionButton.addRole {
-  background-color: #f1f3f5;
-  color: #495057;
+  background-color: var(--jurnal-color-surface-muted);
+  color: var(--jurnal-color-text-secondary);
 }
 
 .actionButton.addUser {
-  background-color: #00b194;
-  color: #ffffff;
+  background-color: var(--jurnal-color-primary);
+  color: var(--jurnal-color-surface);
 }
 
 .actionButton:hover {

@@ -1,6 +1,7 @@
 import { Button, MantineGradient } from '@mantine/core';
 import { MouseEventHandler } from 'react';
-import { T } from 'vitest/dist/reporters-yx5ZTtEV';
+import { buttonGradient } from '@/theme';
+
 
 type CustomTextProps = {
   children: React.ReactNode;
@@ -17,7 +18,7 @@ type CustomTextProps = {
 export const DefaultButton: React.FC<CustomTextProps> = ({
   children,
   onClick,
-  ff = 'Montserrat',
+  ff = 'Figtree',
   variant = 'light',
   disabled = false,
   c = 'gray',
@@ -39,10 +40,10 @@ export const DefaultButton: React.FC<CustomTextProps> = ({
 export const GradientButton: React.FC<CustomTextProps> = ({
   children,
   onClick,
-  ff = 'Montserrat',
+  ff = 'Figtree',
   variant = 'gradient',
   disabled = false,
-  gradient = { from: 'blue', to: 'cyan', deg: 90 },
+  gradient = buttonGradient.gradient,
 }) => (
   <Button variant={variant} ff={ff} gradient={gradient} onClick={onClick}>
     {children}

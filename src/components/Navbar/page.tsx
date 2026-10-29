@@ -1,126 +1,101 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { Box, Group, rem, ScrollArea, Text, Image, ActionIcon, UnstyledButton } from '@mantine/core';
 import {
-  IconChartPie3,
-  IconReport,
-  IconBuildingBank,
-  IconBusinessplan,
-  IconShoppingCart,
-  IconReportMoney,
-  IconAddressBook,
-  IconReceipt2,
-  IconSettings,
-  IconPackages,
-  IconPackage,
-  IconBook2,
-  IconDoorExit,
-} from '@tabler/icons-react';
-import { useMediaQuery } from '@mantine/hooks';
+  Box,
+  Group,
+  rem,
+  ScrollArea,
+  Text,
+  Image,
+  UnstyledButton,
+  Tooltip,
+  ActionIcon,
+  Avatar,
+  Badge,
+} from '@mantine/core';
+import { useNavigate } from 'react-router-dom';
+import {
+  AddressBook,
+  Bank,
+  Toolbox,
+  ChartPieSlice,
+  GearSix,
+  Receipt,
+  SignOut,
+  Money,
+  ListBullets,
+  Truck,
+  BoundingBox,
+  ShoppingCart,
+  Storefront,
+  HouseLine,
+  SidebarSimpleIcon,
+  ShieldCheck,
+  Coins,
+  Wallet,
+} from '@phosphor-icons/react';
+import { useAuthStore } from '@/store/useAuthentications';
+import { routes } from '@/router/routes';
+import { usePendingChangesCount } from '@/module/pending-changes';
+import { useTranslation } from '@/i18n';
 import { LinksGroup } from './Links/page';
 import classes from './page.module.css';
-import LogoProapps from '@/assets/img/proapps-md-transparent.svg';
+import LogoProapps from '@/assets/img/proapps-brand-badge.svg';
+import IconProapps from '@/assets/img/proapps-brand-icon.svg';
 import { themeColors } from '@/theme';
 
-const mockdata = [
+const getNavGroups = (t: (key: string) => string) => [
   {
-    title: 'MAIN',
+    title: t('groupMain').toUpperCase(),
     links: [
-      { label: 'Dashboard', icon: IconChartPie3, link: '/dashboard' },
-      { label: 'Result Reports', icon: IconReport, link: '/result-reports' },
+      { label: t('dashboard'), icon: HouseLine, link: '/dashboard' },
+      { label: t('financialReports'), icon: ChartPieSlice, link: '/result-reports' },
+      { label: t('budgetPlanning'), icon: Money, link: '/budget-planning' },
     ],
   },
   {
-    title: 'Finance',
+    title: t('groupTransactions').toUpperCase(),
     links: [
-      { label: 'Bank & Cash', icon: IconBuildingBank, link: '/bank-cash' },
       {
-        label: 'Setting Budget',
-        icon: IconBusinessplan,
+        label: t('cashBank'),
+        icon: Bank,
+        link: routes.BankAndCash.Main,
         links: [
-          {
-            label: 'Budget Management',
-            link: '/setting-budget/budget-management',
-          },
-          {
-            label: 'Budget I/S',
-            link: '/setting-budget/budget-is',
-          },
+          { label: t('cashBankAccounts'), icon: Wallet, link: routes.BankAndCash.Main },
+          { label: t('pettyCash'), icon: Coins, link: routes.BankAndCash.PettyCash },
         ],
       },
-      {
-        label: 'Purchasing',
-        icon: IconShoppingCart,
-        links: [
-          {
-            label: 'List',
-            link: '/invoices/list',
-          },
-          {
-            label: 'Details',
-            link: '/invoices/details',
-          },
-        ],
-      },
-      { label: 'Cost', icon: IconReportMoney, link: '/finance/cost' },
-      { label: 'Contact', icon: IconAddressBook, link: '/contact' },
+      { label: t('sales'), icon: Storefront, link: '/sales' },
+      { label: t('purchases'), icon: ShoppingCart, link: routes.baseModules.purchases },
+      { label: t('expenses'), icon: Receipt, link: '/finance/cost' },
+      { label: t('pendingChanges'), icon: ShieldCheck, link: routes.pendingChanges.main },
     ],
   },
   {
-    title: 'Stock & Production',
+    title: t('groupOperations').toUpperCase(),
     links: [
+      { label: t('products'), icon: BoundingBox, link: '/products' },
       {
-        label: 'Stock',
-        icon: IconReceipt2,
-        links: [
-          {
-            label: 'List',
-            link: '/invoices/list',
-          },
-          {
-            label: 'Details',
-            link: '/invoices/details',
-          },
-        ],
+        label: t('production'),
+        icon: Storefront,
+        link: '/production',
       },
-      // {
-      //   label: 'Production',
-      //   icon: IconPackage,
-      //   links: [
-      //     {
-      //       label: 'List',
-      //       link: '/invoices/list',
-      //     },
-      //     {
-      //       label: 'Details',
-      //       link: '/invoices/details',
-      //     },
-      //   ],
-      // },
-      { label: 'Fullfillment', icon: IconReceipt2, link: '/fullfillment' },
-      { label: 'Assets', icon: IconPackages, link: '/assets' },
+      { label: t('fulfillment'), icon: Truck, link: '/fulfillment' },
     ],
   },
   {
-    title: 'Setting Menu',
+    title: t('groupMasterData').toUpperCase(),
     links: [
-      { label: 'Chart of Account', icon: IconBook2, link: '/general-journal' },
+      { label: t('chartOfAccounts'), icon: ListBullets, link: '/general-journal' },
+      { label: t('assets'), icon: Toolbox, link: '/asset' },
+      { label: t('contacts'), icon: AddressBook, link: '/contact' },
+    ],
+  },
+  {
+    title: t('groupOthers').toUpperCase(),
+    links: [
       {
-        label: 'Settings',
-        icon: IconSettings,
-        links: [
-          {
-            label: 'Company Setting',
-            link: '/settings/company-setting',
-          },
-          {
-            label: 'User Management',
-            link: '/settings/user-management',
-          },
-          {
-            label: 'Approval Setting',
-            link: '/settings/approval-setting',
-          },
-        ],
+        label: t('settings'),
+        icon: GearSix,
+        link: routes.settings.main,
       },
     ],
   },
@@ -128,41 +103,163 @@ const mockdata = [
 
 type NavigationProps = {
   onClose: () => void;
+  collapsed?: boolean;
+  desktopOpened?: boolean;
+  toggleDesktop?: () => void;
 };
 
-const NavbarComponent = ({ onClose }: NavigationProps) => {
-  const tablet_match = useMediaQuery('(max-width: 768px)');
+const NavbarComponent = ({
+  onClose,
+  collapsed = false,
+  desktopOpened = true,
+  toggleDesktop,
+}: NavigationProps) => {
+  const navigate = useNavigate();
+  const { t } = useTranslation('navigation');
+  const navGroups = getNavGroups(t);
+  const navigationLinks = navGroups.flatMap((group) =>
+    group.links.flatMap((item) => ('link' in item && item.link ? [item.link] : []))
+  );
+  const { userName, clearTokens } = useAuthStore();
+  const displayName = userName || 'Finance';
+  const initials = displayName
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0]?.toUpperCase())
+    .join('');
 
-  const links = mockdata.map((item) => (
-    <Box pl={0} mb="md" key={item.title}>
-      <Text tt="uppercase" size="xs" pl="md" fw={500} mb="sm" className={classes.linkHeader}>
-        {item.title}
+  const pendingCountQuery = usePendingChangesCount();
+  const rawCount = pendingCountQuery.data;
+  const pendingCount =
+    typeof rawCount === 'number' ? rawCount : ((rawCount as any)?.data?.count ?? 0);
+
+  const handleLogout = () => {
+    clearTokens();
+    navigate(routes.login);
+  };
+
+  const links = navGroups.map((item) => (
+    <Box mb={collapsed ? 'sm' : rem(18)} key={item.title}>
+      <Text pl={10} mb={8} className={classes.linkHeader} ta={collapsed ? 'center' : 'left'}>
+        {collapsed ? '•••' : item.title}
       </Text>
-      {item.links.map((linkItem) => (
-        <LinksGroup {...linkItem} key={linkItem.label} closeSidebar={onClose} />
-      ))}
+      {item.links.map((linkItem) => {
+        const isPendingChanges = 'link' in linkItem && linkItem.link === routes.pendingChanges.main;
+        const badge =
+          isPendingChanges && pendingCount > 0 ? (
+            <Badge
+              size="xs"
+              color="orange"
+              variant="filled"
+              radius="xl"
+              style={{
+                padding: '0 6px',
+                height: 18,
+                minWidth: 18,
+                fontSize: 10,
+                fontWeight: 700,
+                lineHeight: '18px',
+              }}
+            >
+              {pendingCount > 99 ? '99+' : pendingCount}
+            </Badge>
+          ) : undefined;
+
+        return (
+          <LinksGroup
+            {...linkItem}
+            badge={badge}
+            key={linkItem.label}
+            closeSidebar={onClose}
+            collapsed={collapsed}
+            siblingLinks={navigationLinks}
+          />
+        );
+      })}
     </Box>
   ));
 
   return (
-    <nav className={classes.navbar}>
+    <nav className={classes.navbar} data-collapsed={collapsed || undefined}>
       <div className={classes.header}>
-        <Group justify="space-between">
-          <Image src={LogoProapps} style={{ width: rem(120) }} />
+        <Group justify={collapsed ? 'center' : 'space-between'} w="100%" wrap="nowrap">
+          {collapsed ? (
+            <Tooltip label="Perluas menu" position="right" withArrow>
+              <UnstyledButton
+                onClick={toggleDesktop}
+                style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
+                aria-label="Perluas menu navigasi"
+              >
+                <Image
+                  src={IconProapps}
+                  style={{ width: rem(34), height: rem(34) }}
+                  alt="Proapps Icon"
+                />
+              </UnstyledButton>
+            </Tooltip>
+          ) : (
+            <Image src={LogoProapps} style={{ width: rem(138) }} alt="Proapps Logo" />
+          )}
+
+          {!collapsed && (
+            <Tooltip
+              label={desktopOpened ? 'Ciutkan menu' : 'Perluas menu'}
+              position="right"
+              withArrow
+            >
+              <ActionIcon
+                visibleFrom="md"
+                onClick={toggleDesktop}
+                variant="light"
+                color="primary"
+                radius="md"
+                size={34}
+                aria-label="Toggle side navigation"
+              >
+                <SidebarSimpleIcon
+                  size={18}
+                  weight="duotone"
+                  style={{ transform: desktopOpened ? 'none' : 'scaleX(-1)' }}
+                />
+              </ActionIcon>
+            </Tooltip>
+          )}
         </Group>
       </div>
 
-      <ScrollArea className={classes.links}>
+      <ScrollArea className={classes.links} type={collapsed ? 'never' : 'hover'} scrollbarSize={6}>
         <div className={classes.linksInner}>{links}</div>
       </ScrollArea>
 
       <div className={classes.footer}>
-
-        <UnstyledButton className={classes.user}>
-          <Group justify='center' p={10}>
-            <IconDoorExit size={14} color={themeColors.red[6]} />
-          </Group>
-        </UnstyledButton>
+        <div className={classes.userCard}>
+          <Avatar
+            radius="md"
+            size={36}
+            variant="gradient"
+            gradient={{ from: themeColors.primary[7], to: themeColors.primary[4], deg: 135 }}
+          >
+            {initials || 'F'}
+          </Avatar>
+          {!collapsed && (
+            <Box style={{ flex: 1, minWidth: 0 }}>
+              <Text fz="sm" fw={700} c="dark.8" truncate>
+                {displayName}
+              </Text>
+              <Text fz={11} c="dimmed" truncate>
+                Jurnal Accounting
+              </Text>
+            </Box>
+          )}
+          {!collapsed && (
+            <Tooltip label={t('logout')} withArrow>
+              <UnstyledButton className={classes.logout} onClick={handleLogout} aria-label="Logout">
+                <SignOut size={18} weight="bold" />
+              </UnstyledButton>
+            </Tooltip>
+          )}
+        </div>
       </div>
     </nav>
   );

@@ -1,7 +1,7 @@
 import { ActionIcon, Tooltip, Group, Center, Menu, rem } from '@mantine/core';
 import { IconDots, IconEdit, IconTrash } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
-import { routes } from '@/router';
+import { routes } from '@/router/routes';
 import { themeColors } from '@/theme';
 
 type UserActionProps = {

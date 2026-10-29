@@ -1,173 +1,208 @@
-import { Text, ActionIcon, Anchor, Title, Tooltip, Center } from '@mantine/core';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Text, Anchor, Group, Badge, ActionIcon, Tooltip } from '@mantine/core';
+import { useNavigate } from 'react-router-dom';
 import { themeColors } from '@/theme';
 import { formatCurrency } from '@/utils/FormatCurrency';
-import { IconPuzzle, IconPuzzleOff } from '@tabler/icons-react';
 import { DataTable } from 'mantine-datatable';
-import { routes } from '@/router';
+import { routes } from '@/router/routes';
 import EmptyState from '@/components/EmptyState/EmptyTable';
-import { GetTransactionByAccount } from '../../services/TransactionByAccount.service';
 import { dateFormatV1 } from '@/utils/FormatDate';
-import { isEmpty } from 'lodash';
-import { useState } from 'react';
 import useFilterTransaction from '../../../Main/store/FilterTransaction';
+import type { TransactionByAccountModel } from '../../types/TransactionByAccountModel';
+import { IconEye } from '@tabler/icons-react';
 
 interface TableJournalTransactionProps {
-    selectedRecords: TransactionByAccountModel[];
-    setSelectedRecords: React.Dispatch<React.SetStateAction<TransactionByAccountModel[]>>;
+  selectedRecords: TransactionByAccountModel[];
+  setSelectedRecords: React.Dispatch<React.SetStateAction<TransactionByAccountModel[]>>;
+  noRecordsContent?: React.ReactNode;
+  data: TransactionByAccountModel[] | undefined;
 }
 
 const headTableStyle = {
-    fontSize: 14,
-    fontWeight: 500,
-    color: themeColors.defaultBlack[10]
+  fontSize: 13,
+  fontWeight: 600,
+  color: themeColors.black[9],
+};
 
-}
+function TableJournalTransaction({
+  selectedRecords,
+  setSelectedRecords,
+  noRecordsContent,
+  data: transaction,
+}: TableJournalTransactionProps) {
+  const navigate = useNavigate();
+  const { searchQuery, selectedDate } = useFilterTransaction();
 
-function TableJournalTransaction({ selectedRecords, setSelectedRecords }: TableJournalTransactionProps) {
-    const navigate = useNavigate();
-    const { idAccount } = useParams<{ idAccount: string }>();
-    const { data: transaction, isError, isLoading } = GetTransactionByAccount(idAccount!);
-    const { searchQuery, setSearchQuery, selectedDate, setSelectedDate } = useFilterTransaction();
+  const searchAndFilterTransaction = transaction?.filter((item: TransactionByAccountModel) => {
+    const q = searchQuery.toLowerCase().trim();
+    const matchesQuery =
+      !q ||
+      (item.transactionNumber !== undefined &&
+        String(item.transactionNumber).toLowerCase().includes(q)) ||
+      (item.notes && item.notes.toLowerCase().includes(q)) ||
+      item.transactionDetail?.some(
+        (td) =>
+          td.description?.toLowerCase().includes(q) ||
+          td.account?.name?.toLowerCase().includes(q) ||
+          td.account?.accountNumber?.toLowerCase().includes(q)
+      );
 
-    if (isLoading) return <Text>Loading...</Text>;
-    if (isError) return <Text>Error loading data</Text>;
+    const matchesDate =
+      !selectedDate ||
+      (item.transactionDate &&
+        new Date(item.transactionDate).toDateString() === new Date(selectedDate).toDateString());
 
-    const searchAndFilterTransaction = transaction?.filter((item: TransactionByAccountModel) => {
-        const matchesQuery =
-            (item.transactionNumber && String(item.transactionNumber)
-                .toLowerCase()
-                .includes(searchQuery.toLowerCase())) ||
-            (item.transactionDate && new Date(item.transactionDate)
-                .toISOString()
-                .toLowerCase()
-                .includes(searchQuery.toLowerCase()));
+    return matchesQuery && matchesDate;
+  });
 
-        const matchesDate =
-            !selectedDate ||
-            (item.transactionDate && new Date(item.transactionDate)
-                .toDateString() === selectedDate.toDateString());
+  const columns = [
+    {
+      accessor: 'transactionNumber',
+      title: <Text style={headTableStyle}>No Transaksi</Text>,
+      render: (row: TransactionByAccountModel) => (
+        <Group gap="xs" wrap="nowrap">
+          {row.transactionNumber === 0 ? (
+            <Badge color="gray" variant="light" size="sm">
+              Saldo Awal #1
+            </Badge>
+          ) : (
+            <Anchor
+              underline="hover"
+              fw={600}
+              c="primary.6"
+              fz={14}
+              onClick={() =>
+                navigate(
+                  routes.generalJournal.detailTransactionJournal.replace(':idTransaction', row.id)
+                )
+              }
+            >
+              Jurnal Transaksi #{row.transactionNumber}
+            </Anchor>
+          )}
+        </Group>
+      ),
+    },
+    {
+      accessor: 'transactionDate',
+      title: <Text style={headTableStyle}>Tanggal</Text>,
+      render: (row: TransactionByAccountModel) => (
+        <Text c="dark.7" fz={13}>
+          {dateFormatV1(row.transactionDate)}
+        </Text>
+      ),
+    },
+    {
+      accessor: 'contact',
+      title: <Text style={headTableStyle}>Kontak</Text>,
+      render: () => (
+        <Text c="dimmed" fz={13}>
+          -
+        </Text>
+      ),
+    },
+    {
+      accessor: 'debit',
+      title: 'Debit (Rp)',
+      textAlignment: 'right' as const,
+      width: 170,
+      titleStyle: { textAlign: 'right' as const },
+      render: (row: TransactionByAccountModel) => (
+        <Text
+          c={row.debit && row.debit > 0 ? 'teal.7' : 'dimmed'}
+          fw={row.debit && row.debit > 0 ? 600 : 400}
+          fz={13}
+          ta="right"
+          style={{ fontVariantNumeric: 'tabular-nums' }}
+        >
+          {formatCurrency(row.debit || 0)}
+        </Text>
+      ),
+    },
+    {
+      accessor: 'credit',
+      title: 'Kredit (Rp)',
+      textAlignment: 'right' as const,
+      width: 170,
+      titleStyle: { textAlign: 'right' as const },
+      render: (row: TransactionByAccountModel) => (
+        <Text
+          c={row.credit && row.credit > 0 ? 'red.7' : 'dimmed'}
+          fw={row.credit && row.credit > 0 ? 600 : 400}
+          fz={13}
+          ta="right"
+          style={{ fontVariantNumeric: 'tabular-nums' }}
+        >
+          {formatCurrency(row.credit || 0)}
+        </Text>
+      ),
+    },
+    {
+      accessor: 'status',
+      title: 'Saldo Berjalan',
+      textAlignment: 'right' as const,
+      width: 190,
+      titleStyle: { textAlign: 'right' as const },
+      render: (row: TransactionByAccountModel) => {
+        const bal = row.balance ?? 0;
+        return (
+          <Text
+            c="dark.8"
+            fw={700}
+            fz={13}
+            ta="right"
+            style={{ fontVariantNumeric: 'tabular-nums' }}
+          >
+            {bal >= 0 ? formatCurrency(bal) : `(${formatCurrency(Math.abs(bal))})`}
+          </Text>
+        );
+      },
+    },
+    {
+      accessor: 'aksi',
+      title: 'Aksi',
+      textAlignment: 'center' as const,
+      titleStyle: { textAlign: 'center' as const },
+      width: 70,
+      render: (row: TransactionByAccountModel) => (
+        <Group justify="center">
+          <Tooltip label="Lihat Rincian Transaksi">
+            <ActionIcon
+              variant="subtle"
+              color="primary"
+              size="sm"
+              radius="md"
+              onClick={() =>
+                navigate(
+                  routes.generalJournal.detailTransactionJournal.replace(':idTransaction', row.id)
+                )
+              }
+            >
+              <IconEye size={16} />
+            </ActionIcon>
+          </Tooltip>
+        </Group>
+      ),
+    },
+  ];
 
-        return matchesQuery && matchesDate;
-    });
+  if (!transaction || transaction.length === 0) {
+    return <>{noRecordsContent || <EmptyState />}</>;
+  }
 
-
-    const badgeAction = (status: string, transactionNumber: number) => {
-        if (transactionNumber === 0) {
-            return (
-                <ActionIcon variant="light" color={themeColors.grey[6]} disabled>
-                    <Tooltip label="Not available for opening balance" offset={5}>
-                        <IconPuzzleOff size={16} />
-                    </Tooltip>
-                </ActionIcon>
-            );
-        }
-
-        switch (status) {
-            case 'Reconciled':
-                return (
-                    <ActionIcon variant="light" color={themeColors.grey[6]}>
-                        <Tooltip label="Cancel Reconciled" offset={5}>
-                            <IconPuzzleOff size={16} />
-                        </Tooltip>
-                    </ActionIcon>
-                );
-            case 'Inreconciled':
-                return (
-                    <ActionIcon variant="light" color={themeColors.grey[6]}>
-                        <Tooltip label="Reconciled" offset={5}>
-                            <IconPuzzle size={16} />
-                        </Tooltip>
-                    </ActionIcon>
-                );
-            default:
-                return (
-                    <ActionIcon variant="light" color={themeColors.red[6]}>
-                        <IconPuzzleOff size={16} />
-                    </ActionIcon>
-                );
-        }
-    };
-
-
-    const columns = [
-        {
-            accessor: 'transactionNumber',
-            title: <Text style={headTableStyle} > Transaction Name</Text >,
-            render: (row: TransactionByAccountModel) => (
-                <Anchor
-                    underline="never"
-                    onClick={() =>
-                        navigate(routes.generalJournal.detailTransactionJournal.replace(':idTransaction', row.id))
-                    }
-                >
-                    <Text c={themeColors.primary[6]} fz={14}>
-                        {row.transactionNumber === 0
-                            ? "Opening Balance"
-                            : `Journal Entry #${row.transactionNumber}`}
-                    </Text>
-
-                </Anchor>
-            ),
-        },
-        {
-            accessor: 'transactionDate',
-            title: <Text style={headTableStyle} ta='center' >Transaction Date</Text>,
-            render: (row: TransactionByAccountModel) => (
-                <Text c={themeColors.defaultBlack[10]} fz={14} ta='center'>{dateFormatV1(row.transactionDate)}</Text>
-            ),
-        },
-        {
-            accessor: 'debit',
-            title: <Text style={headTableStyle} >Received</Text>,
-            render: (row: TransactionByAccountModel) => (
-                <Text c={themeColors.defaultBlack[10]} fz={14}>{formatCurrency(row.debit || 0)}</Text>
-            ),
-        },
-        {
-            accessor: 'credit',
-            title: <Text style={headTableStyle} >Sent</Text>,
-            render: (row: TransactionByAccountModel) => (
-                <Text c={themeColors.defaultBlack[10]} fz={14}>{formatCurrency(row.credit || 0)}</Text>
-            ),
-        },
-        {
-            accessor: 'balance',
-            title: <Text style={headTableStyle} >Balance</Text>,
-            render: (row: TransactionByAccountModel) => (
-                <Text c={themeColors.defaultBlack[10]} fz={14}>
-                    {row.balance! >= 0
-                        ? formatCurrency(row.balance ?? 0)
-                        : `(${formatCurrency(Math.abs(row.balance ?? 0))})`}</Text>
-            ),
-        },
-        {
-            accessor: 'action',
-            title: <Text style={headTableStyle} ta='center' >Action</Text>,
-            render: (row: TransactionByAccountModel) =>
-                <Center>
-                    {badgeAction(row.status, row.transactionNumber)}
-                </Center>,
-        },
-    ];
-
-    return (
-        transaction?.length == 0 ? (
-            <EmptyState />
-        ) : (
-            <DataTable
-                withTableBorder
-                borderRadius="md"
-                highlightOnHover
-                columns={columns}
-                selectedRecords={selectedRecords}
-                onSelectedRecordsChange={setSelectedRecords}
-                records={searchAndFilterTransaction}
-                isRecordSelectable={(row: TransactionByAccountModel) => row.transactionNumber !== 0}
-            />
-
-        )
-    );
+  return (
+    <DataTable
+      withTableBorder
+      borderRadius="md"
+      highlightOnHover
+      columns={columns}
+      selectedRecords={selectedRecords}
+      onSelectedRecordsChange={setSelectedRecords}
+      records={searchAndFilterTransaction || []}
+      isRecordSelectable={(row: TransactionByAccountModel) => row.transactionNumber !== 0}
+      noRecordsText="Tidak ada transaksi yang sesuai dengan filter pencarian"
+      verticalSpacing="sm"
+    />
+  );
 }
 
 export default TableJournalTransaction;

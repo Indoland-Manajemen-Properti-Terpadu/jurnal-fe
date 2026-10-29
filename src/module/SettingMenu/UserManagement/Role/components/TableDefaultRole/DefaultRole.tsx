@@ -7,7 +7,7 @@ import { GetDefaultRole } from "../../Service/Role.service";
 
 const headTableStyle = {
   bg: themeColors.primary[0],
-  borderColor: themeColors.grey[1],
+  borderColor: themeColors.gray[1],
   borderWidth: '1px',
   borderStyle: 'solid',
   borderCollapse: 'collapse' as const,
@@ -32,7 +32,7 @@ const DefaultRoleTable: React.FC = () => {
   return (
     <Stack align='center'>
       <Table highlightOnHover style={{
-        borderColor: themeColors.grey[3],
+        borderColor: themeColors.gray[3],
         borderWidth: '1px',
         borderStyle: 'solid',
         borderTop: 0

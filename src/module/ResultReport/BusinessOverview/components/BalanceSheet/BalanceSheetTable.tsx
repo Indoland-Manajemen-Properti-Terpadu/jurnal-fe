@@ -32,7 +32,7 @@ const BalanceSheetTable: React.FC<BalanceSheetTableProps> = ({ fromDate, toDate 
                             {/* Header Kategori */}
                             <Table.Tr>
                                 <Table.Td colSpan={2} style={{
-                                    backgroundColor: themeColors.grey[1],
+                                    backgroundColor: themeColors.gray[1],
                                 }}>
                                     <Text fz="sm" w={600} gradient={gradientColors.mainGR} variant="gradient">
                                         {report.name}

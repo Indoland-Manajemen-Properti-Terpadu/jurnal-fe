@@ -40,7 +40,7 @@ const SettingsCard = ({ data, ...others }: SettingsCardProps) => {
         {/* <UnstyledButton> */}
         <Container
           fluid
-          bg={themeColors.grey[0]}
+          bg={themeColors.gray[0]}
           c={themeColors.primary[6]}
           p={16}
           className={classes.container}
@@ -62,7 +62,7 @@ const SettingsCard = ({ data, ...others }: SettingsCardProps) => {
           <Image src={imageSrc} alt={type} fit="contain" className={classes.image} />
         </Container>
         <HeadingText>{title}</HeadingText>
-        <Text c={themeColors.grey[7]} className={classes.description}>
+        <Text c={themeColors.gray[7]} className={classes.description}>
           {description}
         </Text>
         {/* </UnstyledButton> */}

@@ -1,63 +1,45 @@
-.header {
-  height: rem(60px);
-  padding-left: var(--mantine-spacing-md);
-  padding-right: var(--mantine-spacing-md);
-  border-bottom: rem(1px) solid light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
+.search input {
+  height: rem(40px);
+  background: rgba(241, 245, 249, 0.8);
+  border: rem(1px) solid transparent;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    box-shadow 150ms ease;
 }
 
-.link {
-  display: flex;
-  align-items: center;
-  height: 100%;
-  padding-left: var(--mantine-spacing-md);
-  padding-right: var(--mantine-spacing-md);
-  text-decoration: none;
-  color: light-dark(var(--mantine-color-black), var(--mantine-color-white));
-  font-weight: 500;
-  font-size: var(--mantine-font-size-sm);
-
-  @media (max-width: $mantine-breakpoint-sm) {
-    height: rem(42px);
-    width: 100%;
-  }
-
-  @mixin hover {
-    background-color: light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-6));
-  }
+.search input:focus {
+  background: #fff;
+  border-color: rgba(9, 178, 255, 0.6);
+  box-shadow: 0 0 0 rem(4px) rgba(9, 178, 255, 0.15);
 }
 
-.subLink {
-  width: 100%;
-  padding: var(--mantine-spacing-xs) var(--mantine-spacing-md);
-  border-radius: var(--mantine-radius-md);
-
-  @mixin hover {
-    background-color: light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-7));
-  }
+.chip {
+  height: rem(36px);
+  padding: 0 rem(12px);
+  border-radius: rem(999px);
+  color: #053079;
+  background: rgba(5, 48, 121, 0.05);
+  border: rem(1px) solid rgba(5, 48, 121, 0.08);
 }
 
-.dropdownFooter {
-  background-color: light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-7));
-  margin: calc(var(--mantine-spacing-md) * -1);
-  margin-top: var(--mantine-spacing-sm);
-  padding: var(--mantine-spacing-md) calc(var(--mantine-spacing-md) * 2);
-  padding-bottom: var(--mantine-spacing-xl);
-  border-top: rem(1px) solid light-dark(var(--mantine-color-gray-1), var(--mantine-color-dark-5));
+.glow {
+  box-shadow: 0 8px 18px -8px rgba(5, 48, 121, 0.7);
 }
 
-.buttonGroup {
-  display: flex;
-  gap: 5rem;
+.iconBtn {
+  border-color: rgba(15, 23, 42, 0.08);
+  background: rgba(255, 255, 255, 0.8);
 }
 
-.tryForFreeButton {
-  background: transparent;
-  color: rgba(0, 0, 0, 1);
-  border: none;
+.user {
+  padding: rem(4px) rem(10px) rem(4px) rem(4px);
+  border-radius: rem(999px);
+  border: rem(1px) solid rgba(15, 23, 42, 0.08);
+  background: rgba(255, 255, 255, 0.8);
+  transition: box-shadow 150ms ease;
 }
 
-.contactUsButton {
-  background: white;
-  color: rgba(0, 0, 0, 1);
-  border-radius: 9999px;
+.user:hover {
+  box-shadow: 0 6px 16px -8px rgba(5, 48, 121, 0.35);
 }

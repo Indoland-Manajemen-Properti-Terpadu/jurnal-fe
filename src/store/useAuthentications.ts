@@ -11,10 +11,22 @@ interface AuthState {
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
-  accessToken: null,
-  refreshToken: null,
-  userName: null,
-  setTokens: (accessToken, refreshToken) => set({ accessToken, refreshToken }),
-  setUserName: (name) => set({ userName: name }),
-  clearTokens: () => set({ accessToken: null, refreshToken: null }),
+  accessToken: localStorage.getItem('accessToken'),
+  refreshToken: localStorage.getItem('refreshToken'),
+  userName: localStorage.getItem('userName'),
+  setTokens: (accessToken, refreshToken) => {
+    localStorage.setItem('accessToken', accessToken);
+    localStorage.setItem('refreshToken', refreshToken);
+    set({ accessToken, refreshToken });
+  },
+  setUserName: (name) => {
+    localStorage.setItem('userName', name);
+    set({ userName: name });
+  },
+  clearTokens: () => {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('userName');
+    set({ accessToken: null, refreshToken: null, userName: null });
+  },
 }));

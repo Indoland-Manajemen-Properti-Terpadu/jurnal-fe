@@ -51,49 +51,49 @@
 //     const columns = [
 //         {
 //             accessor: 'bank',
-//             title: <Text size="sm" fz={14} fw={500} c={themeColors.defaultBlack[10]} >Bank</Text>,
+//             title: <Text size="sm" fz={14} fw={500} c={themeColors.black[9]} >Bank</Text>,
 //             render: () => (
-//                 <Text c={themeColors.defaultBlack[10]} size="sm">
+//                 <Text c={themeColors.black[9]} size="sm">
 //                     PT Bank Mandiri (Persero) Tbk
 //                 </Text>
 //             ),
 //         },
 //         {
 //             accessor: 'branch',
-//             title: <Text size="sm" fz={14} fw={500} ta='center' c={themeColors.defaultBlack[10]} >Branch</Text>,
+//             title: <Text size="sm" fz={14} fw={500} ta='center' c={themeColors.black[9]} >Branch</Text>,
 //             render: () => (
-//                 <Text size="sm" fz={14} fw={400} c={themeColors.defaultBlack[10]} ta='center'>
+//                 <Text size="sm" fz={14} fw={400} c={themeColors.black[9]} ta='center'>
 //                     Bekasi
 //                 </Text>
 //             ),
 //         },
 //         {
 //             accessor: 'accountHolder',
-//             title: <Text size="sm" fz={14} fw={500} c={themeColors.defaultBlack[10]} >Account Holder</Text>,
+//             title: <Text size="sm" fz={14} fw={500} c={themeColors.black[9]} >Account Holder</Text>,
 //             render: () => (
-//                 <Text c={themeColors.defaultBlack[10]} size="sm">
+//                 <Text c={themeColors.black[9]} size="sm">
 //                     Raga Murtad
 //                 </Text>
 //             ),
 //         },
 //         {
 //             accessor: 'accountNumber',
-//             title: <Text size="sm" fz={14} fw={500} c={themeColors.defaultBlack[10]} >Account Number</Text>,
+//             title: <Text size="sm" fz={14} fw={500} c={themeColors.black[9]} >Account Number</Text>,
 //             render: () => (
-//                 <Text c={themeColors.defaultBlack[10]} size="sm">
+//                 <Text c={themeColors.black[9]} size="sm">
 //                     123-456-7890
 //                 </Text>
 //             ),
 //         },
 //         {
 //             accessor: 'reconciled',
-//             title: <Text size="sm" fz={14} fw={500} ta='center' c={themeColors.defaultBlack[10]} >Action</Text>,
+//             title: <Text size="sm" fz={14} fw={500} ta='center' c={themeColors.black[9]} >Action</Text>,
 //             render: () =>
 //                 <Center>
 //                     <Menu position="bottom-end">
 //                         <Menu.Target>
-//                             <ActionIcon bg={themeColors.grey[0]}>
-//                                 <IconDots size={14} color={themeColors.grey[6]} />
+//                             <ActionIcon bg={themeColors.gray[0]}>
+//                                 <IconDots size={14} color={themeColors.gray[6]} />
 //                             </ActionIcon>
 //                         </Menu.Target>
 //                         <Menu.Dropdown>

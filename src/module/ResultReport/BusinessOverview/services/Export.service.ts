@@ -1,4 +1,4 @@
-import { download } from '@/services/apiClient';
+import { download } from '@/lib/http/apiClient';
 
 interface ExportReportParams {
   url: string; // The endpoint for the report

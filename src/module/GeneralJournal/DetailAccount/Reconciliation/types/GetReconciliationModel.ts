@@ -1,22 +1,37 @@
 export interface GetReconciliationModel {
-  bankStatementData: BankStatementData[];
-  journalTransaction: JournalTransaction[];
+  bankStatements: BankStatementData[];
+  journalDetails: JournalDetail[];
+  balance?: number;
 }
 
 export interface BankStatementData {
   id: string;
-  transactionDate: Date;
-  transactionName: string;
-  credit: number;
-  debit: number;
-  reconciled: boolean;
+  date: string;
+  description: string;
+  amount: number;
+  isReconciled: boolean;
+  reference?: string;
+  matchedJournalDetail?: JournalDetail;
+  account?: {
+    id: string;
+    name: string;
+  };
+  recommendations?: Recommendation[];
 }
 
-export interface JournalTransaction {
+export interface Recommendation {
+  journalDetail: JournalDetail;
+  fuzzyScore: number;
+  dayDifference: number;
+}
+
+export interface JournalDetail {
   id: string;
-  transactionDate: Date;
-  transactionNumber: number;
+  transactionDate: string;
+  transactionNumber?: string;
+  description?: string;
   credit: number;
   debit: number;
-  reconciled?: boolean;
+  isReconciled: boolean;
+  transactionType?: string;
 }

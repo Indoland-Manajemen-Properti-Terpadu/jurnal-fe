@@ -2,27 +2,27 @@ import React from "react";
 import { Stack, Table, Text } from "@mantine/core";
 import { gradientColors, themeColors } from "@/theme";
 import { formatCurrency } from "@/utils/FormatCurrency";
-import { GetJournalAccounts } from "@/module/GeneralJournal/JournalAccount/service/AccountJournal.service";
+import { useJournalAccounts } from '@/module/GeneralJournal/JournalAccount/hooks/useJournalAccounts';
 import { CashFlowfromOA, CashFlowfromIA, CashFlowfromFA, EndingCashPosition } from "../CashFlow/TableRow";
 import { BalanceSheetSumary, CashFlowSumary, IncomeStatementSumary, InsightReport } from "./TableRow";
 
 
 
 const rowStyle = {
-    borderColor: themeColors.grey[1],
+    borderColor: themeColors.gray[1],
     borderWidth: '1px',
     borderStyle: 'solid',
 };
 
 const headTableStyle = {
-    backgroundColor: themeColors.grey[0],
-    borderColor: themeColors.grey[1],
+    backgroundColor: themeColors.gray[0],
+    borderColor: themeColors.gray[1],
     borderWidth: '1px',
     borderStyle: 'solid',
 }
 
 const BusinessSumaryTable: React.FC = () => {
-    const { accounts, isError } = GetJournalAccounts();
+    const { accounts, isError } = useJournalAccounts();
     return (
         <Stack>
             <Table

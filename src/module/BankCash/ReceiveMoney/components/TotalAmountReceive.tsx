@@ -15,8 +15,8 @@ const TotalReceive = () => {
             align="center"
             style={{
                 whiteSpace: 'nowrap',
-                backgroundColor: '#f8f9fa',
-                borderRadius: '8px',
+                backgroundColor: 'var(--jurnal-color-surface-muted)',
+                borderRadius: 'var(--jurnal-radius-lg)',
             }}
         >
             <HeadingText fz={14} fw={600}> Received From</HeadingText>
@@ -40,10 +40,10 @@ const TotalReceive = () => {
                 <TextAmount
                     key="totalReceive"
                     amount={`Rp ${formatCurrency(totalReceive)}`}
-                    mainColor="grey"
-                    colorTextAmont={themeColors.defaultBlack[10]}
+                    mainColor="gray"
+                    colorTextAmont={themeColors.black[9]}
                 >
-                    <Text fz={14} fw={400} c={themeColors.grey[7]}>Total Amount</Text>
+                    <Text fz={14} fw={400} c={themeColors.gray[7]}>Total Amount</Text>
                 </TextAmount>
             </Flex>
         </Flex>

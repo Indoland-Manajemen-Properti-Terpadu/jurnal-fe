@@ -2,7 +2,7 @@ import React from "react";
 import { Box, Group, Stack, Table, Text } from "@mantine/core";
 import { gradientColors, themeColors } from "@/theme";
 import { formatCurrency } from "@/utils/FormatCurrency";
-import { GetJournalAccounts } from "@/module/GeneralJournal/JournalAccount/service/AccountJournal.service";
+import { useJournalAccounts } from "@/module/GeneralJournal/JournalAccount/hooks/useJournalAccounts";
 import { JournalAccounts } from "@/module/GeneralJournal/JournalAccount/types/JournalAccountModel";
 
 import EmptyState from "@/components/EmptyState/EmptyTable";
@@ -10,20 +10,20 @@ import { CashFlowfromFA, CashFlowfromIA, CashFlowfromOA, EndingCashPosition } fr
 
 
 const rowStyle = {
-    borderColor: themeColors.grey[1],
+    borderColor: themeColors.gray[1],
     borderWidth: '1px',
     borderStyle: 'solid',
 };
 
 const headTableStyle = {
-    backgroundColor: themeColors.grey[0],
-    borderColor: themeColors.grey[1],
+    backgroundColor: themeColors.gray[0],
+    borderColor: themeColors.gray[1],
     borderWidth: '1px',
     borderStyle: 'solid',
 }
 
 const CashFlowTable: React.FC = () => {
-    const { accounts, isError } = GetJournalAccounts();
+    const { accounts, isError } = useJournalAccounts();
     const lastDate = '19 Sept 2021'
     const totalBalanceSheet = 200000
     return (
@@ -35,7 +35,7 @@ const CashFlowTable: React.FC = () => {
                 style={{
                     borderTopLeftRadius: 5,
                     borderTopRightRadius: 5,
-                    borderColor: themeColors.grey[1],
+                    borderColor: themeColors.gray[1],
                     borderStyle: 'solid',
                     borderWidth: '1px',
                     borderBottomWidth: '0px'
@@ -43,10 +43,10 @@ const CashFlowTable: React.FC = () => {
             >
                 <Group justify="space-between">
                     <Stack gap={1}>
-                        <Text c={themeColors.defaultBlack[10]} fz={14} fw={500}>Report</Text>
-                        <Text c={themeColors.grey[6]} fz={14} fw={500}>Period : {lastDate}</Text>
+                        <Text c={themeColors.black[9]} fz={14} fw={500}>Report</Text>
+                        <Text c={themeColors.gray[6]} fz={14} fw={500}>Period : {lastDate}</Text>
                     </Stack>
-                    <Text c={themeColors.defaultBlack[10]} fz={14} fw={500}>Total : {formatCurrency(totalBalanceSheet)}</Text>
+                    <Text c={themeColors.black[9]} fz={14} fw={500}>Total : {formatCurrency(totalBalanceSheet)}</Text>
                 </Group>
             </Box>
             <Table

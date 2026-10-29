@@ -2,11 +2,11 @@ import React from "react";
 import { Stack, Table, Text } from "@mantine/core";
 import { gradientColors, themeColors } from "@/theme";
 import { formatCurrency } from "@/utils/FormatCurrency";
-import { GetJournalAccounts } from "@/module/GeneralJournal/JournalAccount/service/AccountJournal.service";
+import { useJournalAccounts } from "@/module/GeneralJournal/JournalAccount/hooks/useJournalAccounts";
 import { JournalAccounts } from "@/module/GeneralJournal/JournalAccount/types/JournalAccountModel";
 
 const TrialBalanceTable: React.FC = () => {
-    const { accounts, isError } = GetJournalAccounts();
+    const { accounts, isError } = useJournalAccounts();
 
     if (isError) {
         return <Text c="red">Failed to load data.</Text>;
@@ -31,20 +31,20 @@ const TrialBalanceTable: React.FC = () => {
                     <Table.Tr style={{
                         backgroundColor: themeColors.primary[0],
                     }}>
-                        <Table.Th colSpan={2} rowSpan={2} ta='center' style={{ border: `1px solid ${themeColors.grey[2]}` }}>Account Name</Table.Th>
-                        <Table.Th colSpan={2} rowSpan={1} ta='center' style={{ border: `1px solid ${themeColors.grey[2]}` }}>Beginning Balance</Table.Th>
-                        <Table.Th colSpan={2} rowSpan={1} ta='center' style={{ border: `1px solid ${themeColors.grey[2]}` }}>Changes</Table.Th>
-                        <Table.Th colSpan={2} rowSpan={1} ta='center' style={{ border: `1px solid ${themeColors.grey[2]}` }}>Closing Balance</Table.Th>
+                        <Table.Th colSpan={2} rowSpan={2} ta='center' style={{ border: `1px solid ${themeColors.gray[2]}` }}>Account Name</Table.Th>
+                        <Table.Th colSpan={2} rowSpan={1} ta='center' style={{ border: `1px solid ${themeColors.gray[2]}` }}>Beginning Balance</Table.Th>
+                        <Table.Th colSpan={2} rowSpan={1} ta='center' style={{ border: `1px solid ${themeColors.gray[2]}` }}>Changes</Table.Th>
+                        <Table.Th colSpan={2} rowSpan={1} ta='center' style={{ border: `1px solid ${themeColors.gray[2]}` }}>Closing Balance</Table.Th>
                     </Table.Tr>
                     <Table.Tr style={{
                         backgroundColor: themeColors.primary[0],
                     }}>
-                        <Table.Th ta='center' style={{ border: `1px solid ${themeColors.grey[2]}` }}>Debit</Table.Th>
-                        <Table.Th ta='center' style={{ border: `1px solid ${themeColors.grey[2]}` }}>Credit</Table.Th>
-                        <Table.Th ta='center' style={{ border: `1px solid ${themeColors.grey[2]}` }}>Debit</Table.Th>
-                        <Table.Th ta='center' style={{ border: `1px solid ${themeColors.grey[2]}` }}>Credit</Table.Th>
-                        <Table.Th ta='center' style={{ border: `1px solid ${themeColors.grey[2]}` }}>Debit</Table.Th>
-                        <Table.Th ta='center' style={{ border: `1px solid ${themeColors.grey[2]}` }}>Credit</Table.Th>
+                        <Table.Th ta='center' style={{ border: `1px solid ${themeColors.gray[2]}` }}>Debit</Table.Th>
+                        <Table.Th ta='center' style={{ border: `1px solid ${themeColors.gray[2]}` }}>Credit</Table.Th>
+                        <Table.Th ta='center' style={{ border: `1px solid ${themeColors.gray[2]}` }}>Debit</Table.Th>
+                        <Table.Th ta='center' style={{ border: `1px solid ${themeColors.gray[2]}` }}>Credit</Table.Th>
+                        <Table.Th ta='center' style={{ border: `1px solid ${themeColors.gray[2]}` }}>Debit</Table.Th>
+                        <Table.Th ta='center' style={{ border: `1px solid ${themeColors.gray[2]}` }}>Credit</Table.Th>
                     </Table.Tr>
                 </Table.Thead>
 
@@ -59,7 +59,7 @@ const TrialBalanceTable: React.FC = () => {
                                 <Table.Tr>
                                     <Table.Td
                                         colSpan={12}
-                                        style={{ backgroundColor: themeColors.grey[1] }}>
+                                        style={{ backgroundColor: themeColors.gray[1] }}>
                                         <Text
                                             fz="sm"
                                             w={600}
@@ -76,20 +76,20 @@ const TrialBalanceTable: React.FC = () => {
                                         <Table.Td
                                             colSpan={2}
                                             fz="sm"
-                                            style={{ border: `1px solid ${themeColors.grey[2]}` }}>
+                                            style={{ border: `1px solid ${themeColors.gray[2]}` }}>
                                             {item.name} ({item.accountNumber})
                                         </Table.Td>
                                         {/* Beginning Balance */}
                                         <Table.Td
                                             fz="sm"
                                             ta='center'
-                                            style={{ border: `1px solid ${themeColors.grey[2]}` }}>
+                                            style={{ border: `1px solid ${themeColors.gray[2]}` }}>
                                             {formatCurrency(item.debit!)}
                                         </Table.Td>
                                         <Table.Td
                                             fz="sm"
                                             ta='center'
-                                            style={{ border: `1px solid ${themeColors.grey[2]}` }}>
+                                            style={{ border: `1px solid ${themeColors.gray[2]}` }}>
                                             {formatCurrency(item.credit!)}
                                         </Table.Td>
 
@@ -97,13 +97,13 @@ const TrialBalanceTable: React.FC = () => {
                                         <Table.Td
                                             fz="sm"
                                             ta='center'
-                                            style={{ border: `1px solid ${themeColors.grey[2]}` }}>
+                                            style={{ border: `1px solid ${themeColors.gray[2]}` }}>
                                             {formatCurrency(item.debit!)}
                                         </Table.Td>
                                         <Table.Td
                                             fz="sm"
                                             ta='center'
-                                            style={{ border: `1px solid ${themeColors.grey[2]}` }}>
+                                            style={{ border: `1px solid ${themeColors.gray[2]}` }}>
                                             {formatCurrency(item.credit!)}
                                         </Table.Td>
 
@@ -111,13 +111,13 @@ const TrialBalanceTable: React.FC = () => {
                                         <Table.Td
                                             fz="sm"
                                             ta='center'
-                                            style={{ border: `1px solid ${themeColors.grey[2]}` }}>
+                                            style={{ border: `1px solid ${themeColors.gray[2]}` }}>
                                             {formatCurrency(item.debit!)}
                                         </Table.Td>
                                         <Table.Td
                                             fz="sm"
                                             ta='center'
-                                            style={{ border: `1px solid ${themeColors.grey[2]}` }}>
+                                            style={{ border: `1px solid ${themeColors.gray[2]}` }}>
                                             {formatCurrency(item.credit!)}
                                         </Table.Td>
                                     </Table.Tr>
@@ -131,37 +131,37 @@ const TrialBalanceTable: React.FC = () => {
                     <Table.Td
                         fz="sm"
                         colSpan={2}
-                        style={{ fontWeight: 600, border: `1px solid ${themeColors.grey[2]}`, backgroundColor: themeColors.grey[1] }}>
+                        style={{ fontWeight: 600, border: `1px solid ${themeColors.gray[2]}`, backgroundColor: themeColors.gray[1] }}>
                         Total
                     </Table.Td>
                     <Table.Td
                         fz="sm"
-                        style={{ textAlign: "center", fontWeight: 600, border: `1px solid ${themeColors.grey[2]}`, backgroundColor: themeColors.grey[1] }}>
+                        style={{ textAlign: "center", fontWeight: 600, border: `1px solid ${themeColors.gray[2]}`, backgroundColor: themeColors.gray[1] }}>
                         {formatCurrency(0)}
                     </Table.Td>
                     <Table.Td
                         fz="sm"
-                        style={{ textAlign: "center", fontWeight: 600, border: `1px solid ${themeColors.grey[2]}`, backgroundColor: themeColors.grey[1] }}>
+                        style={{ textAlign: "center", fontWeight: 600, border: `1px solid ${themeColors.gray[2]}`, backgroundColor: themeColors.gray[1] }}>
                         {formatCurrency(0)}
                     </Table.Td>
                     <Table.Td
                         fz="sm"
-                        style={{ textAlign: "center", fontWeight: 600, border: `1px solid ${themeColors.grey[2]}`, backgroundColor: themeColors.grey[1] }}>
+                        style={{ textAlign: "center", fontWeight: 600, border: `1px solid ${themeColors.gray[2]}`, backgroundColor: themeColors.gray[1] }}>
                         {formatCurrency(0)}
                     </Table.Td>
                     <Table.Td
                         fz="sm"
-                        style={{ textAlign: "center", fontWeight: 600, border: `1px solid ${themeColors.grey[2]}`, backgroundColor: themeColors.grey[1] }}>
+                        style={{ textAlign: "center", fontWeight: 600, border: `1px solid ${themeColors.gray[2]}`, backgroundColor: themeColors.gray[1] }}>
                         {formatCurrency(0)}
                     </Table.Td>
                     <Table.Td
                         fz="sm"
-                        style={{ textAlign: "center", fontWeight: 600, border: `1px solid ${themeColors.grey[2]}`, backgroundColor: themeColors.grey[1] }}>
+                        style={{ textAlign: "center", fontWeight: 600, border: `1px solid ${themeColors.gray[2]}`, backgroundColor: themeColors.gray[1] }}>
                         {formatCurrency(0)}
                     </Table.Td>
                     <Table.Td
                         fz="sm"
-                        style={{ textAlign: "center", fontWeight: 600, border: `1px solid ${themeColors.grey[2]}`, backgroundColor: themeColors.grey[1] }}>
+                        style={{ textAlign: "center", fontWeight: 600, border: `1px solid ${themeColors.gray[2]}`, backgroundColor: themeColors.gray[1] }}>
                         {formatCurrency(0)}
                     </Table.Td>
                 </Table.Tr>

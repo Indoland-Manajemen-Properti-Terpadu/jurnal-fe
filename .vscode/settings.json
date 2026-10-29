@@ -1,0 +1,7 @@
+{
+  "chat.mcp.serverSampling": {
+    "jurnal-fe/.vscode/mcp.json: Figma": {
+      "allowedModels": ["copilot/auto", "copilotcli/claude-haiku-4.5"]
+    }
+  }
+}
