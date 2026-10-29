@@ -23,7 +23,7 @@ import AddUserForm from '@/module/SettingMenu/UserManagement/User/components/Add
 import AddRoleForm from '@/module/SettingMenu/UserManagement/Role/components/AddRoleForm/AddRoleForm';
 import ReportCatalogPage from '@/module/ResultReport/Catalog/pages/ReportCatalogPage';
 import BalanceSheetPage from '@/module/ResultReport/BalanceSheet/pages/BalanceSheetPage';
-import ImportBankStatementDraft from '@/module/bank-statements/presentation/pages/ImportBankStatementDraftPage';
+import { ImportBankStatementDraftPage } from '@/module/bank-statements';
 import TrialBalancePage from '@/module/ResultReport/BusinessOverview/page/TrialBalancePage';
 import IncomeStatementPage from '@/module/ResultReport/BusinessOverview/page/IncomeStatementPage';
 import CashFlowPage from '@/module/ResultReport/BusinessOverview/page/CashFlowPage';
@@ -172,7 +172,7 @@ const router = createBrowserRouter([
   },
   {
     path: routes.generalJournal.bankStatementDraftImport,
-    element: <ImportBankStatementDraft />,
+    element: <ImportBankStatementDraftPage />,
   },
   {
     path: routes.PeriodAndClosingBook.FinancialStatement,

@@ -17,12 +17,12 @@ import {
 import { gradientColors, themeColors } from '@/theme';
 import { IconInfoCircle, IconTrash } from '@tabler/icons-react';
 import { ArrowLeftIcon, PlusIcon } from '@phosphor-icons/react';
-import BankStatementLayout from './Layout';
+import AppShellLayout from '@/components/AppShellLayout';
 import ImportBankStatementDraftTable from '../components/ImportBankStatementDraftTable';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useBankStatementStore } from '../store/useBankStatementStore';
-import { getConfirmImportBankStatement } from '../hooks/useImportBankStatement';
+import { useConfirmImportBankStatement } from '../hooks/useImportBankStatement';
 import { BankStatementPreviewItem } from '../../domain/importPreview';
 import { ConfirmModal } from '@/components';
 import importModalImage from '@/assets/img/vectors/import.svg'; // Reuse existing or use appropriate image
@@ -34,7 +34,7 @@ const PAPER_PROPS = {
   withBorder: true,
 };
 
-const ImportBankStatementDraft = () => {
+const ImportBankStatementDraftPage = () => {
   const navigate = useNavigate();
   const [selectedRecords, setSelectedRecords] = useState<BankStatementPreviewItem[]>([]);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
@@ -54,7 +54,7 @@ const ImportBankStatementDraft = () => {
     deleteItem,
   } = useBankStatementStore();
 
-  const { mutate: confirmImport, isPending: isConfirming } = getConfirmImportBankStatement(
+  const { mutate: confirmImport, isPending: isConfirming } = useConfirmImportBankStatement(
     idAccount || ''
   );
 
@@ -93,7 +93,7 @@ const ImportBankStatementDraft = () => {
   };
 
   return (
-    <BankStatementLayout
+    <AppShellLayout
       footer={
         <Group p="md" justify="flex-end" bg="white" style={{ borderTop: '1px solid #E9ECEF' }}>
           <Button variant="light" color={themeColors.gray[7]} onClick={() => navigate(-1)}>
@@ -266,7 +266,7 @@ const ImportBankStatementDraft = () => {
           leftSection: <PlusIcon size={18} weight="duotone" />,
         }}
       />
-    </BankStatementLayout>
+    </AppShellLayout>
   );
 };
-export default ImportBankStatementDraft;
+export default ImportBankStatementDraftPage;

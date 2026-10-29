@@ -52,14 +52,13 @@ import { accountDetailData } from '../types/DetailAccountModel';
 import { archiveAccount } from '../services/DetailAccount.service';
 import { useDeleteJurnalAccount } from '@/module/GeneralJournal/JournalAccount/services';
 import { GetReconciliation } from '../../Reconciliation/services/GetReconciliation.service';
-import { getBankStatement } from '@/module/bank-statements/presentation/hooks/useBankStatement';
+import { useBankStatement, type BankStatementRow } from '@/module/bank-statements';
 import { GetTransactionByAccount } from '../../TransactionJournal/services/TransactionByAccount.service';
 import { TransactionByAccountModel } from '../../TransactionJournal/types/TransactionByAccountModel';
-import { Result } from '@/module/bank-statements/domain/bankStatement';
 
 import DetailAccountLayout from './Layout';
 import JournalTransactionTab from '../components/Tabs/JournalTransactionTabs';
-import BankStatementTab from '../components/Tabs/BankStatamentTabs';
+import BankStatementTab from '../components/Tabs/BankStatementTab';
 import ReconciliationTab from '../components/Tabs/ReconciliationTabs';
 import CashMappingTab from '../components/Tabs/CashMappingTabs';
 import { JournalEmptyState } from '@/components/EmptyState/JournalEmptyState';
@@ -71,7 +70,7 @@ const DetailAccountPage: React.FC = () => {
 
   const { accountDetail, isLoading: isLoadingAccount } = useDetailAccount(idAccount!);
   const { data: reconData, isLoading: isLoadingRecon } = GetReconciliation(idAccount!);
-  const { data: bankStatementData } = getBankStatement(idAccount!);
+  const { data: bankStatementData } = useBankStatement(idAccount!);
   const { data: transactions } = GetTransactionByAccount(idAccount!);
   const { mutate: deleteAccount, isPending: isDeleting } = useDeleteJurnalAccount();
 
@@ -84,7 +83,7 @@ const DetailAccountPage: React.FC = () => {
   const [selectedJournalRecords, setSelectedJournalRecords] = useState<TransactionByAccountModel[]>(
     []
   );
-  const [selectedBankStatementRecords, setSelectedBankStatementRecords] = useState<Result[]>([]);
+  const [selectedBankStatementRecords, setSelectedBankStatementRecords] = useState<BankStatementRow[]>([]);
 
   const [activeTab, setActiveTab] = useState<string>('transaction');
   const [isDeleteAccountModalOpen, setIsDeleteAccountModalOpen] = useState(false);

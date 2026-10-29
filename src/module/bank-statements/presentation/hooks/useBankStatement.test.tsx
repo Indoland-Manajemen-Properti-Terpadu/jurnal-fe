@@ -3,7 +3,7 @@ import { vi } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { get } from '@/lib/http/apiClient';
-import { getBankStatement } from './useBankStatement';
+import { useBankStatement } from './useBankStatement';
 
 vi.mock('@/lib/http/apiClient', () => ({ get: vi.fn() }));
 
@@ -13,7 +13,7 @@ const wrapper = ({ children }: { children: ReactNode }) => (
 
 const load = async (response: unknown) => {
   vi.mocked(get).mockResolvedValue(response);
-  const { result } = renderHook(() => getBankStatement('acc-1'), { wrapper });
+  const { result } = renderHook(() => useBankStatement('acc-1'), { wrapper });
   await waitFor(() => expect(result.current.isSuccess).toBe(true));
   return result.current.data?.results;
 };

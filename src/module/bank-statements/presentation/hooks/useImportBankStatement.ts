@@ -6,7 +6,7 @@ import { notifications } from '@mantine/notifications';
 import { useNavigate } from 'react-router-dom';
 import { routes } from '@/router/routes';
 
-export const getImportBankStatement = (idAccount: string) => {
+export const useImportBankStatement = (idAccount: string) => {
   return useMutation({
     mutationFn: async (data: File) => {
       const formData = new FormData();
@@ -25,7 +25,7 @@ export const getImportBankStatement = (idAccount: string) => {
   });
 };
 
-export const getConfirmImportBankStatement = (idAccount: string) => {
+export const useConfirmImportBankStatement = (idAccount: string) => {
   const navigate = useNavigate();
   return useMutation({
     mutationFn: async (data: any) => {
@@ -59,7 +59,7 @@ export const getConfirmImportBankStatement = (idAccount: string) => {
   });
 };
 
-export const getSubmitImportBankStatement = (idAccount: string) => {
+export const useSubmitImportBankStatement = (idAccount: string) => {
   const navigate = useNavigate();
   return useMutation({
     mutationFn: async (data: Record<string, unknown>) => {

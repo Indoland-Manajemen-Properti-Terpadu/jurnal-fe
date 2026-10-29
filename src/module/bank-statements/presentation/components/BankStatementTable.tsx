@@ -23,7 +23,7 @@ import { JournalEmptyState } from '@/components/EmptyState/JournalEmptyState';
 import { themeColors } from '@/theme';
 import BadgeStatusReconciled from './BadgeStatus';
 import { useQueryClient } from '@tanstack/react-query';
-import { getBankStatement } from '../hooks/useBankStatement';
+import { useBankStatement } from '../hooks/useBankStatement';
 import ImportBankStatementModal from './ImportBankStatementModal';
 import { useState } from 'react';
 import { CloudArrowUp, Trash } from '@phosphor-icons/react';
@@ -43,7 +43,7 @@ export default function BankStatementTable({
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
-  let { data: bankStatement, isLoading, isError } = getBankStatement(idAccount!);
+  let { data: bankStatement, isLoading, isError } = useBankStatement(idAccount!);
 
   const rawRecords = bankStatement?.results || bankStatement?.resultTransaction || [];
   const records = rawRecords.filter((r): r is Result => r !== null);
