@@ -18,8 +18,8 @@ import {
   MagnifyingGlass,
   PuzzlePieceIcon,
 } from '@phosphor-icons/react';
-import { BankStatementData } from '../types/GetReconciliationModel';
 import { useFilterTransaction } from '@/module/journal-entries';
+import { BankStatementData } from '../types/GetReconciliationModel';
 import { useGetJournalDetailsForRecon } from '../services/GetJournalDetailsForRecon.service';
 
 /** Positive bank amount (received) matches journal debit, negative (sent) matches credit. */

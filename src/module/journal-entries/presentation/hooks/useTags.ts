@@ -1,62 +1,36 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { get, post } from '@/lib/http/apiClient';
-import { API_TAGS } from '@/services/endpoint';
 import { notifications } from '@mantine/notifications';
+import { t } from '@/i18n';
+import type { TagsResponse } from '../../domain/journalEntry';
+import { createTag, errorMessage, fetchTags } from '../../infrastructure/journalEntryApi';
+import { journalEntryKeys } from './journalEntryKeys';
 
-export interface Tag {
-  id: string;
-  site: string;
-  name: string;
-  color: string;
-  deleted: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
+const tr = (key: string, params?: Record<string, string | number>) =>
+  t(key, params, 'journalEntries');
 
-export interface TagsResponse {
-  code: number;
-  message: string;
-  data: {
-    data: Tag[];
-    pagination: {
-      total: number;
-      page: number;
-      limit: number;
-      totalPages: number;
-    };
-  };
-}
-
-export const useGetTags = (page = 1) => {
-  return useQuery<TagsResponse>({
-    queryKey: ['tags', page],
-    queryFn: async () => {
-      const response = await get(`${API_TAGS.GET_ALL_TAGS}?page=${page}`);
-      return response;
-    },
+export const useGetTags = (page = 1) =>
+  useQuery<TagsResponse>({
+    queryKey: [...journalEntryKeys.tags, page],
+    queryFn: () => fetchTags(page),
   });
-};
 
 export const useCreateTag = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (name: string) => {
-      const response = await post(API_TAGS.POST_TAG, { name });
-      return response;
-    },
+    mutationFn: (name: string) => createTag(name),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tags'] });
+      queryClient.invalidateQueries({ queryKey: journalEntryKeys.tags });
       notifications.show({
         color: 'green',
-        title: 'Success',
-        message: 'Tag has been successfully created.',
+        title: tr('toast.successTitle'),
+        message: tr('toast.tagCreated'),
       });
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       notifications.show({
         color: 'red',
-        title: 'Error',
-        message: `Failed to create tag: ${error?.response?.data?.message || error.message}`,
+        title: tr('toast.errorTitle'),
+        message: tr('toast.tagFailed', { reason: errorMessage(error, '') }),
       });
     },
   });

@@ -1,9 +1,11 @@
 import React from 'react';
 import { Accordion, Badge, Group, List, Paper, Stack, Text, ThemeIcon } from '@mantine/core';
-import { IconBulb, IconChecklist, IconScale, IconShieldCheck } from '@tabler/icons-react';
+import { IconBulb, IconChecklist, IconScale } from '@tabler/icons-react';
+import { useTranslation } from '@/i18n';
 import { themeColors } from '@/theme';
 
 export const JournalDoubleEntryGuide: React.FC = () => {
+  const { t } = useTranslation('journalEntries');
   return (
     <Paper withBorder radius="md" p="md" bg="white" shadow="xs">
       <Group gap="xs" mb="xs">
@@ -12,10 +14,10 @@ export const JournalDoubleEntryGuide: React.FC = () => {
         </ThemeIcon>
         <div>
           <Text fw={700} fz={13} c="dark.8">
-            Panduan Jurnal Transaksi
+            {t('guide.title')}
           </Text>
           <Text fz={11} c="dimmed">
-            Prinsip akuntansi berpasangan (Double-Entry)
+            {t('guide.subtitle')}
           </Text>
         </div>
       </Group>
@@ -24,7 +26,7 @@ export const JournalDoubleEntryGuide: React.FC = () => {
         <Accordion.Item value="double-entry">
           <Accordion.Control icon={<IconScale size={16} color={themeColors.primary[6]} />}>
             <Text fz={12} fw={600}>
-              Aturan Saldo Normal
+              {t('guide.normalTitle')}
             </Text>
           </Accordion.Control>
           <Accordion.Panel>
@@ -32,31 +34,31 @@ export const JournalDoubleEntryGuide: React.FC = () => {
               <Group justify="space-between">
                 <Text fz={11} c="dimmed">
                   <Text span fw={700} c="dark.8">
-                    Aset & Beban
+                    {t('guide.assetExpense')}
                   </Text>
                 </Text>
                 <Badge size="xs" variant="light" color="teal">
-                  + Debit / - Kredit
+                  {t('guide.debitPlus')}
                 </Badge>
               </Group>
               <Group justify="space-between">
                 <Text fz={11} c="dimmed">
                   <Text span fw={700} c="dark.8">
-                    Kewajiban & Ekuitas
+                    {t('guide.liabilityEquity')}
                   </Text>
                 </Text>
                 <Badge size="xs" variant="light" color="red">
-                  + Kredit / - Debit
+                  {t('guide.creditPlus')}
                 </Badge>
               </Group>
               <Group justify="space-between">
                 <Text fz={11} c="dimmed">
                   <Text span fw={700} c="dark.8">
-                    Pendapatan
+                    {t('guide.income')}
                   </Text>
                 </Text>
                 <Badge size="xs" variant="light" color="red">
-                  + Kredit / - Debit
+                  {t('guide.creditPlus')}
                 </Badge>
               </Group>
             </Stack>
@@ -66,37 +68,37 @@ export const JournalDoubleEntryGuide: React.FC = () => {
         <Accordion.Item value="checklist">
           <Accordion.Control icon={<IconChecklist size={16} color={themeColors.secondary[6]} />}>
             <Text fz={12} fw={600}>
-              Syarat Sah Transaksi Jurnal
+              {t('guide.rulesTitle')}
             </Text>
           </Accordion.Control>
           <Accordion.Panel>
             <List size="xs" spacing={4} c="dimmed">
               <List.Item>
                 <Text span fz={11}>
-                  Minimal terdiri dari{' '}
+                  {t('guide.rule1Before')}{' '}
                   <Text span fw={600} c="dark.8">
-                    2 baris akun
+                    {t('guide.rule1Strong')}
                   </Text>
-                  .
+                  {t('guide.rule1After')}
                 </Text>
               </List.Item>
               <List.Item>
                 <Text span fz={11}>
-                  Total nilai Debit harus{' '}
+                  {t('guide.rule2Before')}{' '}
                   <Text span fw={600} c="dark.8">
-                    persis sama
+                    {t('guide.rule2Strong')}
                   </Text>{' '}
-                  dengan Total Kredit.
+                  {t('guide.rule2After')}
                 </Text>
               </List.Item>
               <List.Item>
                 <Text span fz={11}>
-                  Tanggal transaksi wajib diisi sesuai waktu terjadinya mutasi.
+                  {t('guide.rule3')}
                 </Text>
               </List.Item>
               <List.Item>
                 <Text span fz={11}>
-                  Lampirkan bukti dukung kuitansi/invoice jika tersedia.
+                  {t('guide.rule4')}
                 </Text>
               </List.Item>
             </List>

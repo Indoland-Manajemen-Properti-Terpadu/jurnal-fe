@@ -1,14 +1,18 @@
 import React from 'react';
 import { Badge, Box, Grid, Group, Text } from '@mantine/core';
-import { IconAlertCircle, IconCheck, IconScale } from '@tabler/icons-react';
-import { useTransactionStore } from '../store/useTransactionStore';
+import { IconAlertCircle, IconCheck } from '@tabler/icons-react';
+import { useTranslation } from '@/i18n';
 import { themeColors } from '@/theme';
+import { summarizeLines } from '../../domain/journalRules';
+import { useTransactionStore } from '../store/useTransactionStore';
 
-const TotalAmount: React.FC = () => {
-  const { totalDebit, totalCredit } = useTransactionStore();
-  const diff = Math.abs(totalDebit - totalCredit);
-  const isBalanced = totalDebit > 0 && totalCredit > 0 && diff === 0;
-  const hasValues = totalDebit > 0 || totalCredit > 0;
+const money = (value: number) => value.toLocaleString('id-ID', { minimumFractionDigits: 2 });
+
+const JournalTotals: React.FC = () => {
+  const { t } = useTranslation('journalEntries');
+  const transactions = useTransactionStore((state) => state.transactions);
+  const { totalDebit, totalCredit, difference, isBalanced, hasValues } =
+    summarizeLines(transactions);
 
   return (
     <Box
@@ -36,11 +40,11 @@ const TotalAmount: React.FC = () => {
         <Grid.Col span={7}>
           <Group gap="xs">
             <Text fw={700} fz={13} c="dark.8">
-              Total Ayat Jurnal
+              {t('totals.title')}
             </Text>
             {isBalanced ? (
               <Badge color="green" variant="filled" size="sm" leftSection={<IconCheck size={12} />}>
-                Seimbang
+                {t('totals.balanced')}
               </Badge>
             ) : hasValues ? (
               <Badge
@@ -49,11 +53,11 @@ const TotalAmount: React.FC = () => {
                 size="sm"
                 leftSection={<IconAlertCircle size={12} />}
               >
-                Selisih: Rp {diff.toLocaleString('id-ID', { minimumFractionDigits: 2 })}
+                {t('totals.difference', { amount: money(difference) })}
               </Badge>
             ) : (
               <Badge color="gray" variant="light" size="sm">
-                Belum Terisi
+                {t('totals.empty')}
               </Badge>
             )}
           </Group>
@@ -61,27 +65,27 @@ const TotalAmount: React.FC = () => {
         <Grid.Col span={7}>
           {hasValues && !isBalanced && (
             <Text fz={11} c="red.7" fw={500}>
-              * Total debit dan kredit harus bernilai sama sebelum dapat disimpan.
+              {t('totals.hint')}
             </Text>
           )}
         </Grid.Col>
         <Grid.Col span={4}>
           <Box ta="right">
             <Text fz={11} c="dimmed" fw={600} tt="uppercase">
-              Total Debit
+              {t('totals.totalDebit')}
             </Text>
             <Text fw={700} fz={14} c="teal.8">
-              Rp {totalDebit.toLocaleString('id-ID', { minimumFractionDigits: 2 })}
+              Rp {money(totalDebit)}
             </Text>
           </Box>
         </Grid.Col>
         <Grid.Col span={4}>
           <Box ta="right">
             <Text fz={11} c="dimmed" fw={600} tt="uppercase">
-              Total Kredit
+              {t('totals.totalCredit')}
             </Text>
             <Text fw={700} fz={14} c="red.8">
-              Rp {totalCredit.toLocaleString('id-ID', { minimumFractionDigits: 2 })}
+              Rp {money(totalCredit)}
             </Text>
           </Box>
         </Grid.Col>
@@ -91,4 +95,4 @@ const TotalAmount: React.FC = () => {
   );
 };
 
-export default TotalAmount;
+export default JournalTotals;

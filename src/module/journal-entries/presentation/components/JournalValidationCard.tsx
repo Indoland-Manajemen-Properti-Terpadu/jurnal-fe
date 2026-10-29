@@ -1,12 +1,8 @@
 import React from 'react';
-import { Badge, Box, Divider, Group, Paper, Stack, Text, ThemeIcon } from '@mantine/core';
-import {
-  IconAlertCircle,
-  IconCheck,
-  IconCircleDot,
-  IconShieldCheck,
-  IconX,
-} from '@tabler/icons-react';
+import { Badge, Divider, Group, Paper, Stack, Text, ThemeIcon } from '@mantine/core';
+import { IconCheck, IconCircleDot, IconShieldCheck } from '@tabler/icons-react';
+import { useTranslation } from '@/i18n';
+import { validateDraft } from '../../domain/journalRules';
 import { useTransactionStore } from '../store/useTransactionStore';
 
 interface JournalValidationCardProps {
@@ -16,29 +12,17 @@ interface JournalValidationCardProps {
 export const JournalValidationCard: React.FC<JournalValidationCardProps> = ({
   transactionDate,
 }) => {
-  const { transactions, totalDebit, totalCredit } = useTransactionStore();
-
-  const hasDate = !!transactionDate;
-  const hasMinRows = transactions.length >= 2;
-  const allAccountsSelected = transactions.length > 0 && transactions.every((t) => !!t.account);
-  const allRowsHaveAmount =
-    transactions.length > 0 &&
-    transactions.every(
-      (t) =>
-        (parseFloat(`${t.debit}`) > 0 || parseFloat(`${t.credit}`) > 0) &&
-        !(parseFloat(`${t.debit}`) > 0 && parseFloat(`${t.credit}`) > 0)
-    );
-  const diff = Math.abs(totalDebit - totalCredit);
-  const isBalanced = totalDebit > 0 && totalCredit > 0 && diff === 0;
-
-  const allPassed = hasDate && hasMinRows && allAccountsSelected && allRowsHaveAmount && isBalanced;
+  const { t } = useTranslation('journalEntries');
+  const transactions = useTransactionStore((state) => state.transactions);
+  const result = validateDraft(transactions, transactionDate);
+  const allPassed = Object.values(result).every(Boolean);
 
   const checks = [
-    { label: 'Tanggal transaksi telah dipilih', pass: hasDate },
-    { label: 'Minimal 2 baris akun terisi', pass: hasMinRows },
-    { label: 'Setiap baris telah memilih akun', pass: allAccountsSelected },
-    { label: 'Setiap baris terisi nominal debit/kredit', pass: allRowsHaveAmount },
-    { label: 'Total Debit & Kredit seimbang', pass: isBalanced },
+    { id: 'hasDate', label: t('validation.hasDate'), pass: result.hasDate },
+    { id: 'hasMinRows', label: t('validation.hasMinRows'), pass: result.hasMinRows },
+    { id: 'allAccounts', label: t('validation.allAccounts'), pass: result.allAccountsSelected },
+    { id: 'allAmounts', label: t('validation.allAmounts'), pass: result.allRowsHaveAmount },
+    { id: 'balanced', label: t('validation.balanced'), pass: result.isBalanced },
   ];
 
   return (
@@ -50,10 +34,10 @@ export const JournalValidationCard: React.FC<JournalValidationCardProps> = ({
           </ThemeIcon>
           <div>
             <Text fw={700} fz={13} c="dark.8">
-              Verifikasi Validitas Jurnal
+              {t('validation.title')}
             </Text>
             <Text fz={11} c="dimmed">
-              Pengecekan otomatis kepatuhan sistem
+              {t('validation.subtitle')}
             </Text>
           </div>
         </Group>
@@ -62,15 +46,15 @@ export const JournalValidationCard: React.FC<JournalValidationCardProps> = ({
           variant={allPassed ? 'filled' : 'light'}
           size="xs"
         >
-          {allPassed ? 'Siap Dibukukan' : 'Belum Lengkap'}
+          {allPassed ? t('validation.ready') : t('validation.incomplete')}
         </Badge>
       </Group>
 
       <Divider my="xs" />
 
       <Stack gap={8}>
-        {checks.map((c, i) => (
-          <Group key={i} justify="space-between" wrap="nowrap">
+        {checks.map((c) => (
+          <Group key={c.id} justify="space-between" wrap="nowrap">
             <Group gap={8} wrap="nowrap">
               <ThemeIcon
                 size={18}
@@ -85,7 +69,7 @@ export const JournalValidationCard: React.FC<JournalValidationCardProps> = ({
               </Text>
             </Group>
             <Badge size="xs" variant="light" color={c.pass ? 'green' : 'gray'}>
-              {c.pass ? 'OK' : 'Belum'}
+              {c.pass ? t('validation.ok') : t('validation.pending')}
             </Badge>
           </Group>
         ))}

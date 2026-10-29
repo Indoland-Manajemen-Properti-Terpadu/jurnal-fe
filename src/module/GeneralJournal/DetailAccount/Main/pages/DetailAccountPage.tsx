@@ -50,12 +50,12 @@ import arsipkanIcon from '@/assets/img/vectors/arsipkan.svg';
 import { useDeleteJurnalAccount } from '@/module/GeneralJournal/JournalAccount/services';
 import { useBankStatement, type BankStatementRow } from '@/module/bank-statements';
 import { JournalEmptyState } from '@/components/EmptyState/JournalEmptyState';
+import { useJournalEntriesByAccount } from '@/module/journal-entries';
+import type { JournalEntryByAccount } from '@/module/journal-entries';
 import { useDetailAccount } from '../hooks/useDetailAccount';
 import { accountDetailData } from '../types/DetailAccountModel';
 import { archiveAccount } from '../services/DetailAccount.service';
 import { GetReconciliation } from '../../Reconciliation/services/GetReconciliation.service';
-import { GetTransactionByAccount } from '@/module/journal-entries';
-import type { TransactionByAccountModel } from '@/module/journal-entries';
 
 import DetailAccountLayout from './Layout';
 import JournalTransactionTab from '../components/Tabs/JournalTransactionTabs';
@@ -71,7 +71,7 @@ const DetailAccountPage: React.FC = () => {
   const { accountDetail, isLoading: isLoadingAccount } = useDetailAccount(idAccount!);
   const { data: reconData, isLoading: isLoadingRecon } = GetReconciliation(idAccount!);
   const { data: bankStatementData } = useBankStatement(idAccount!);
-  const { data: transactions } = GetTransactionByAccount(idAccount!);
+  const { data: transactions } = useJournalEntriesByAccount(idAccount!);
   const { mutate: deleteAccount, isPending: isDeleting } = useDeleteJurnalAccount();
 
   const rawData =
@@ -80,9 +80,7 @@ const DetailAccountPage: React.FC = () => {
 
   const unreconciledCount = reconData?.bankStatements?.filter((bs) => !bs.isReconciled).length || 0;
 
-  const [selectedJournalRecords, setSelectedJournalRecords] = useState<TransactionByAccountModel[]>(
-    []
-  );
+  const [selectedJournalRecords, setSelectedJournalRecords] = useState<JournalEntryByAccount[]>([]);
   const [selectedBankStatementRecords, setSelectedBankStatementRecords] = useState<
     BankStatementRow[]
   >([]);

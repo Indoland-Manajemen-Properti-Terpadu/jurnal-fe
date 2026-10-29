@@ -1,64 +1,28 @@
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
-import { TransactionJournalPayload } from '../../domain/journalEntryPayload';
+import { t } from '@/i18n';
 import { routes } from '@/router/routes';
-import { postV2 } from '@/lib/http/apiClient';
-import { API_ACCOUNT } from '@/services/endpoint';
+import type { JournalEntryPayload } from '../../domain/journalEntry';
+import { createJournalEntry } from '../../infrastructure/journalEntryApi';
+import { journalEntryKeys } from './journalEntryKeys';
 
-type ApiErrorResponse = {
-  message?: string;
-};
+const tr = (key: string) => t(key, undefined, 'journalEntries');
 
-const getApiErrorMessage = (
-  response: { data?: ApiErrorResponse; statusText?: string } | null | undefined
-) => response?.data?.message ?? response?.statusText ?? 'Unknown Error';
-
-const submitTransactionJournal = async (data: TransactionJournalPayload) => {
-  const payload: Record<string, unknown> = {
-    transactionDate: data.transactionDate,
-    transactionDetail: data.transactionDetail.map((detail) => ({
-      account: detail.account,
-      description: detail.description,
-      ...(detail.debit ? { debit: detail.debit } : {}),
-      ...(detail.credit ? { credit: detail.credit } : {}),
-    })),
-  };
-
-  if (data.transactionNumber !== undefined && !Number.isNaN(data.transactionNumber)) {
-    payload.transactionNumber = data.transactionNumber;
-  }
-  if (data.notes && data.notes.trim().length > 0) {
-    payload.notes = data.notes;
-  }
-  if (data.tags?.length) {
-    payload.tags = data.tags;
-  }
-  if (data.attachments?.length) {
-    payload.attachments = data.attachments;
-  }
-
-  const response = await postV2(API_ACCOUNT.POST_TRANSACTION_ACCOUNT, payload);
-  if (!response || response?.status !== 200) {
-    throw new Error(getApiErrorMessage(response));
-  }
-  return response.data;
-};
-
-export const useSubmitTransactionJournal = () => {
+export const useCreateJournalEntry = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  return useMutation<unknown, Error, TransactionJournalPayload>({
-    mutationFn: submitTransactionJournal,
+  return useMutation<unknown, Error, JournalEntryPayload>({
+    mutationFn: createJournalEntry,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['accounts'] });
-      queryClient.invalidateQueries({ queryKey: ['journal_transactions'] });
+      queryClient.invalidateQueries({ queryKey: journalEntryKeys.allByAccount });
       notifications.show({
         color: 'green',
         autoClose: 3500,
-        title: 'Transaksi Berhasil Disimpan',
-        message: 'Transaksi jurnal umum telah berhasil dibukukan ke dalam sistem.',
+        title: tr('toast.createdTitle'),
+        message: tr('toast.createdMessage'),
       });
       navigate(routes.generalJournal.main);
     },
@@ -66,7 +30,7 @@ export const useSubmitTransactionJournal = () => {
       notifications.show({
         color: 'red',
         autoClose: 5000,
-        title: 'Gagal Menyimpan Transaksi Jurnal',
+        title: tr('toast.createFailedTitle'),
         message: `${error.message}`,
       });
     },

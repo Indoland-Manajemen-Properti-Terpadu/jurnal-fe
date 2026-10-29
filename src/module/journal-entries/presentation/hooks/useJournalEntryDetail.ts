@@ -1,16 +1,17 @@
 import { useQuery } from '@tanstack/react-query';
-import { TransactionDetailModel } from '../../domain/journalEntryDetail';
-import { getDetailTransaction } from '../../infrastructure/journalEntryApi';
+import type { JournalEntryDetail } from '../../domain/journalEntry';
+import { fetchJournalEntryDetail } from '../../infrastructure/journalEntryApi';
+import { journalEntryKeys } from './journalEntryKeys';
 
-export const useDetailTransaction = (idTransaction: string) => {
-  const { data, isLoading, isError } = useQuery<TransactionDetailModel>({
-    queryKey: ['detail_transaction', idTransaction],
-    queryFn: () => getDetailTransaction(idTransaction),
-    enabled: !!idTransaction,
+export const useJournalEntryDetail = (idEntry: string) => {
+  const { data, isLoading, isError } = useQuery<JournalEntryDetail>({
+    queryKey: journalEntryKeys.detail(idEntry),
+    queryFn: () => fetchJournalEntryDetail(idEntry),
+    enabled: !!idEntry,
   });
 
   return {
-    detailTransaction: data || null,
+    journalEntry: data || null,
     isLoading,
     isError,
   };

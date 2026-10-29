@@ -1,59 +1,36 @@
-import { API_ACCOUNT } from '@/services/endpoint';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { del } from '@/lib/http/apiClient';
 import { notifications } from '@mantine/notifications';
+import { t } from '@/i18n';
+import { deleteJournalEntries } from '../../infrastructure/journalEntryApi';
+import { journalEntryKeys } from './journalEntryKeys';
 
-export const DeleteTransactionAccounts = () => {
+const tr = (key: string) => t(key, undefined, 'journalEntries');
+
+/**
+ * Deletes the selected entries with N parallel DELETE requests (not atomic). The lists are
+ * refreshed on success and on failure, because some of the requests may have gone through.
+ */
+export const useDeleteJournalEntries = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ ids, idAccount }: { ids: string[]; idAccount: string }) => {
-      const promises = ids.map((id) => del(`${API_ACCOUNT.DEL_TRANSACTION_ACCOUNT}/${id}`));
-      return Promise.all(promises);
-    },
-    onSuccess: (data, variables) => {
-      notifications.show({
-        title: 'Success',
-        message: 'Selected transactions have been deleted',
-        color: 'green',
-      });
-      queryClient.invalidateQueries({ queryKey: ['transaction_by_account', variables.idAccount] });
-    },
-    onError: (error) => {
-      notifications.show({
-        title: 'Error',
-        message: 'Failed to delete selected transactions',
-        color: 'red',
-      });
-      console.error(error);
-    },
-  });
-};
-
-export const useDeleteJournalTransaction = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (journalId: string) => {
-      const response = await del(`${API_ACCOUNT.DEL_TRANSACTION_ACCOUNT}/${journalId}`);
-      return response;
-    },
+    mutationFn: ({ ids }: { ids: string[]; idAccount: string }) => deleteJournalEntries(ids),
     onSuccess: () => {
       notifications.show({
-        title: 'Success',
-        message: 'Transaction has been deleted',
+        title: tr('toast.successTitle'),
+        message: tr('toast.deleteManySuccessMessage'),
         color: 'green',
       });
-      queryClient.invalidateQueries({ queryKey: ['transaction_by_account'] });
-      queryClient.invalidateQueries({ queryKey: ['detail_transaction'] });
     },
-    onError: (error) => {
+    onError: () => {
       notifications.show({
-        title: 'Error',
-        message: 'Failed to delete transaction',
+        title: tr('toast.errorTitle'),
+        message: tr('toast.deleteManyFailedMessage'),
         color: 'red',
       });
-      console.error(error);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: journalEntryKeys.allByAccount });
     },
   });
 };

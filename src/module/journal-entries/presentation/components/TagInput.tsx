@@ -12,8 +12,9 @@ import {
   ScrollArea,
 } from '@mantine/core';
 import { IconTag, IconPlus } from '@tabler/icons-react';
-import { useGetTags, useCreateTag } from '../hooks/useTags';
+import { useTranslation } from '@/i18n';
 import { themeColors } from '@/theme';
+import { useGetTags, useCreateTag } from '../hooks/useTags';
 
 interface TagInputProps {
   value: string[];
@@ -21,6 +22,7 @@ interface TagInputProps {
 }
 
 export function TagInput({ value, onChange }: TagInputProps) {
+  const { t } = useTranslation('journalEntries');
   const combobox = useCombobox({
     onDropdownClose: () => combobox.resetSelectedOption(),
     onDropdownOpen: () => combobox.updateSelectedOptionIndex('active'),
@@ -33,18 +35,15 @@ export function TagInput({ value, onChange }: TagInputProps) {
   const createTagMutation = useCreateTag();
 
   const handleValueSelect = (val: string) => {
-    onChange(
-      value.includes(val) ? value.filter((v) => v !== val) : [...value, val]
-    );
+    onChange(value.includes(val) ? value.filter((v) => v !== val) : [...value, val]);
   };
 
-  const handleValueRemove = (val: string) =>
-    onChange(value.filter((v) => v !== val));
+  const handleValueRemove = (val: string) => onChange(value.filter((v) => v !== val));
 
   const allTags = tagsData?.data?.data || [];
 
   const values = value.map((item) => {
-    const tag = allTags.find((t) => t.id === item);
+    const tag = allTags.find((tag2) => tag2.id === item);
     return (
       <Pill key={item} withRemoveButton onRemove={() => handleValueRemove(item)}>
         {tag?.name || item}
@@ -71,7 +70,7 @@ export function TagInput({ value, onChange }: TagInputProps) {
           onChange([...value, result.data.id]);
           setNewTagValue('');
         }
-      } catch (error) {
+      } catch {
         // Error handled by mutation
       }
     }
@@ -96,7 +95,7 @@ export function TagInput({ value, onChange }: TagInputProps) {
               <PillsInput.Field
                 onFocus={() => combobox.openDropdown()}
                 value={search}
-                placeholder={value.length === 0 ? "Tag" : ""}
+                placeholder={value.length === 0 ? t('tags.placeholder') : ''}
                 onChange={(event) => {
                   combobox.updateSelectedOptionIndex();
                   setSearch(event.currentTarget.value);
@@ -123,7 +122,7 @@ export function TagInput({ value, onChange }: TagInputProps) {
             ) : options && options.length > 0 ? (
               options
             ) : (
-              <Combobox.Empty>No tags found</Combobox.Empty>
+              <Combobox.Empty>{t('tags.noTags')}</Combobox.Empty>
             )}
           </ScrollArea.Autosize>
         </Combobox.Options>
@@ -131,7 +130,7 @@ export function TagInput({ value, onChange }: TagInputProps) {
         <Combobox.Footer>
           <Group gap="xs" p="xs" wrap="nowrap">
             <TextInput
-              placeholder="Add new tag"
+              placeholder={t('tags.addPlaceholder')}
               value={newTagValue}
               onChange={(event) => setNewTagValue(event.currentTarget.value)}
               onMouseDown={(event) => event.stopPropagation()}

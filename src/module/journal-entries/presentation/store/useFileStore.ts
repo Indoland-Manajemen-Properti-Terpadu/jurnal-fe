@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 
-interface FileItem extends File {
+export interface FileItem extends File {
   name: string;
   size: number;
   type: string;
@@ -16,6 +16,7 @@ interface FileStore {
   removeFile: (fileName: string) => void;
 }
 
+/** The file(s) attached to the journal being entered. Also used by the bank statement import. */
 export const useFileStore = create<FileStore>()(
   devtools((set) => ({
     files: [],

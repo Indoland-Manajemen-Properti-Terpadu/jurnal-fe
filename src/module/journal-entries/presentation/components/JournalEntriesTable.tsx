@@ -1,20 +1,22 @@
 import { Text, Anchor, Group, Badge, ActionIcon, Tooltip } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from '@/i18n';
 import { themeColors } from '@/theme';
 import { formatCurrency } from '@/utils/FormatCurrency';
 import { DataTable } from 'mantine-datatable';
 import { routes } from '@/router/routes';
 import EmptyState from '@/components/EmptyState/EmptyTable';
 import { dateFormatV1 } from '@/utils/FormatDate';
-import useFilterTransaction from '../store/useFilterTransactionStore';
-import type { TransactionByAccountModel } from '../../domain/journalEntryByAccount';
 import { IconEye } from '@tabler/icons-react';
+import useFilterTransaction from '../store/useFilterTransactionStore';
+import type { JournalEntryByAccount } from '../../domain/journalEntry';
+import { filterEntries } from '../../domain/entryFilter';
 
-interface TableJournalTransactionProps {
-  selectedRecords: TransactionByAccountModel[];
-  setSelectedRecords: React.Dispatch<React.SetStateAction<TransactionByAccountModel[]>>;
+interface JournalEntriesTableProps {
+  selectedRecords: JournalEntryByAccount[];
+  setSelectedRecords: React.Dispatch<React.SetStateAction<JournalEntryByAccount[]>>;
   noRecordsContent?: React.ReactNode;
-  data: TransactionByAccountModel[] | undefined;
+  data: JournalEntryByAccount[] | undefined;
 }
 
 const headTableStyle = {
@@ -23,46 +25,29 @@ const headTableStyle = {
   color: themeColors.black[9],
 };
 
-function TableJournalTransaction({
+function JournalEntriesTable({
   selectedRecords,
   setSelectedRecords,
   noRecordsContent,
   data: transaction,
-}: TableJournalTransactionProps) {
+}: JournalEntriesTableProps) {
+  const { t } = useTranslation('journalEntries');
   const navigate = useNavigate();
   const { searchQuery, selectedDate } = useFilterTransaction();
 
-  const searchAndFilterTransaction = transaction?.filter((item: TransactionByAccountModel) => {
-    const q = searchQuery.toLowerCase().trim();
-    const matchesQuery =
-      !q ||
-      (item.transactionNumber !== undefined &&
-        String(item.transactionNumber).toLowerCase().includes(q)) ||
-      (item.notes && item.notes.toLowerCase().includes(q)) ||
-      item.transactionDetail?.some(
-        (td) =>
-          td.description?.toLowerCase().includes(q) ||
-          td.account?.name?.toLowerCase().includes(q) ||
-          td.account?.accountNumber?.toLowerCase().includes(q)
-      );
-
-    const matchesDate =
-      !selectedDate ||
-      (item.transactionDate &&
-        new Date(item.transactionDate).toDateString() === new Date(selectedDate).toDateString());
-
-    return matchesQuery && matchesDate;
-  });
+  const searchAndFilterTransaction = transaction
+    ? filterEntries(transaction, searchQuery, selectedDate)
+    : undefined;
 
   const columns = [
     {
       accessor: 'transactionNumber',
-      title: <Text style={headTableStyle}>No Transaksi</Text>,
-      render: (row: TransactionByAccountModel) => (
+      title: <Text style={headTableStyle}>{t('entriesTable.number')}</Text>,
+      render: (row: JournalEntryByAccount) => (
         <Group gap="xs" wrap="nowrap">
           {row.transactionNumber === 0 ? (
             <Badge color="gray" variant="light" size="sm">
-              Saldo Awal #1
+              {t('entriesTable.openingBalance')}
             </Badge>
           ) : (
             <Anchor
@@ -76,7 +61,7 @@ function TableJournalTransaction({
                 )
               }
             >
-              Jurnal Transaksi #{row.transactionNumber}
+              {t('entriesTable.entryLink', { number: row.transactionNumber })}
             </Anchor>
           )}
         </Group>
@@ -84,8 +69,8 @@ function TableJournalTransaction({
     },
     {
       accessor: 'transactionDate',
-      title: <Text style={headTableStyle}>Tanggal</Text>,
-      render: (row: TransactionByAccountModel) => (
+      title: <Text style={headTableStyle}>{t('entriesTable.date')}</Text>,
+      render: (row: JournalEntryByAccount) => (
         <Text c="dark.7" fz={13}>
           {dateFormatV1(row.transactionDate)}
         </Text>
@@ -93,7 +78,7 @@ function TableJournalTransaction({
     },
     {
       accessor: 'contact',
-      title: <Text style={headTableStyle}>Kontak</Text>,
+      title: <Text style={headTableStyle}>{t('entriesTable.contact')}</Text>,
       render: () => (
         <Text c="dimmed" fz={13}>
           -
@@ -102,11 +87,11 @@ function TableJournalTransaction({
     },
     {
       accessor: 'debit',
-      title: 'Debit (Rp)',
+      title: t('entriesTable.debit'),
       textAlignment: 'right' as const,
       width: 170,
       titleStyle: { textAlign: 'right' as const },
-      render: (row: TransactionByAccountModel) => (
+      render: (row: JournalEntryByAccount) => (
         <Text
           c={row.debit && row.debit > 0 ? 'teal.7' : 'dimmed'}
           fw={row.debit && row.debit > 0 ? 600 : 400}
@@ -120,11 +105,11 @@ function TableJournalTransaction({
     },
     {
       accessor: 'credit',
-      title: 'Kredit (Rp)',
+      title: t('entriesTable.credit'),
       textAlignment: 'right' as const,
       width: 170,
       titleStyle: { textAlign: 'right' as const },
-      render: (row: TransactionByAccountModel) => (
+      render: (row: JournalEntryByAccount) => (
         <Text
           c={row.credit && row.credit > 0 ? 'red.7' : 'dimmed'}
           fw={row.credit && row.credit > 0 ? 600 : 400}
@@ -138,11 +123,11 @@ function TableJournalTransaction({
     },
     {
       accessor: 'status',
-      title: 'Saldo Berjalan',
+      title: t('entriesTable.runningBalance'),
       textAlignment: 'right' as const,
       width: 190,
       titleStyle: { textAlign: 'right' as const },
-      render: (row: TransactionByAccountModel) => {
+      render: (row: JournalEntryByAccount) => {
         const bal = row.balance ?? 0;
         return (
           <Text
@@ -159,13 +144,13 @@ function TableJournalTransaction({
     },
     {
       accessor: 'aksi',
-      title: 'Aksi',
+      title: t('entriesTable.action'),
       textAlignment: 'center' as const,
       titleStyle: { textAlign: 'center' as const },
       width: 70,
-      render: (row: TransactionByAccountModel) => (
+      render: (row: JournalEntryByAccount) => (
         <Group justify="center">
-          <Tooltip label="Lihat Rincian Transaksi">
+          <Tooltip label={t('entriesTable.viewTooltip')}>
             <ActionIcon
               variant="subtle"
               color="primary"
@@ -198,11 +183,11 @@ function TableJournalTransaction({
       selectedRecords={selectedRecords}
       onSelectedRecordsChange={setSelectedRecords}
       records={searchAndFilterTransaction || []}
-      isRecordSelectable={(row: TransactionByAccountModel) => row.transactionNumber !== 0}
-      noRecordsText="Tidak ada transaksi yang sesuai dengan filter pencarian"
+      isRecordSelectable={(row: JournalEntryByAccount) => row.transactionNumber !== 0}
+      noRecordsText={t('entriesTable.noMatch')}
       verticalSpacing="sm"
     />
   );
 }
 
-export default TableJournalTransaction;
+export default JournalEntriesTable;

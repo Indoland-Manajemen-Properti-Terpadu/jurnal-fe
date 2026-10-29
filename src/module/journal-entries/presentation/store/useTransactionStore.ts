@@ -1,93 +1,63 @@
-// stores/useTransactionStore.ts
 import { randomId } from '@mantine/hooks';
 import { create } from 'zustand';
-import { isJournalBalanced } from '@/lib/accounting/journalBalance';
+import type { DraftLine } from '../../domain/journalEntry';
+import { isJournalBlocked, parseAmountInput, sumAmounts } from '../../domain/journalRules';
 
-interface Transaction {
-  account: string;
-  description: string;
-  debit: number;
-  credit: number;
-  key: string;
-}
+export type DraftField = 'account' | 'description' | 'debit' | 'credit';
 
 interface TransactionState {
   disableTransaction: () => boolean;
   minimumTransaction: number;
-  transactions: Transaction[];
+  transactions: DraftLine[];
   totalDebit: number;
   totalCredit: number;
   notes: string;
   setNotes: (notes: string) => void;
   addTransaction: () => void;
-  updateTransaction: (index: number, field: string, value: any) => void;
+  updateTransaction: (index: number, field: DraftField, value: string | number) => void;
   removeTransaction: (index: number) => void;
   reorderTransaction: (fromIndex: number, toIndex: number) => void;
   resetTransactions: () => void;
 }
 
-const initialState = {
-  transactions: [
-    { account: '', description: '', debit: 0, credit: 0, key: randomId() },
-    { account: '', description: '', debit: 0, credit: 0, key: randomId() },
-  ],
-};
+const emptyLine = (): DraftLine => ({
+  account: '',
+  description: '',
+  debit: 0,
+  credit: 0,
+  key: randomId(),
+});
+
+const totalsOf = (lines: DraftLine[]) => ({
+  totalDebit: sumAmounts(lines.map((line) => line.debit)),
+  totalCredit: sumAmounts(lines.map((line) => line.credit)),
+});
 
 export const useTransactionStore = create<TransactionState>((set, get) => ({
   minimumTransaction: 2,
-  file: [],
-  transactions: [
-    { account: '', description: '', debit: 0, credit: 0, key: randomId() },
-    { account: '', description: '', debit: 0, credit: 0, key: randomId() },
-  ],
+  transactions: [emptyLine(), emptyLine()],
   notes: '',
   totalDebit: 0,
   totalCredit: 0,
   setNotes: (notes) => set({ notes }),
-  disableTransaction: () => {
-    const { transactions } = get();
-    const condition = [
-      transactions.map((ts) => ts.account === '').some((item) => item),
-      transactions
-        .map((ts) => parseFloat(`${ts.debit}`) === 0 && parseFloat(`${ts.credit}`) === 0)
-        .some((item) => item),
-      !isJournalBalanced(
-        transactions.map((ts) => ({
-          debit: parseFloat(`${ts.debit}`),
-          credit: parseFloat(`${ts.credit}`),
-        }))
-      ),
-    ];
-    return condition.some((item) => item);
-  },
-  addTransaction: () =>
-    set((state) => ({
-      transactions: [
-        ...state.transactions,
-        { account: '', description: '', debit: 0, credit: 0, key: randomId() },
-      ],
-    })),
+  disableTransaction: () => isJournalBlocked(get().transactions),
+  addTransaction: () => set((state) => ({ transactions: [...state.transactions, emptyLine()] })),
   updateTransaction: (index, field, value) =>
     set((state) => {
       const updatedTransactions = [...state.transactions];
+      const isAmount = field === 'debit' || field === 'credit';
       updatedTransactions[index] = {
         ...updatedTransactions[index],
-        [field]: value,
+        [field]: isAmount ? parseAmountInput(value) : value,
       };
 
-      const totalDebit = updatedTransactions.reduce((acc, trans) => acc + trans.debit, 0);
-      const totalCredit = updatedTransactions.reduce((acc, trans) => acc + trans.credit, 0);
-
-      return { transactions: updatedTransactions, totalDebit, totalCredit };
+      return { transactions: updatedTransactions, ...totalsOf(updatedTransactions) };
     }),
   removeTransaction: (index) => {
     if (get().transactions.length > 2) {
       set((state) => {
         const updatedTransactions = state.transactions.filter((_, i) => i !== index);
-        const totalDebit = updatedTransactions.reduce((acc, trans) => acc + trans.debit, 0);
-        const totalCredit = updatedTransactions.reduce((acc, trans) => acc + trans.credit, 0);
-
-        return { transactions: updatedTransactions, totalDebit, totalCredit };
+        return { transactions: updatedTransactions, ...totalsOf(updatedTransactions) };
       });
     }
   },
@@ -111,10 +81,7 @@ export const useTransactionStore = create<TransactionState>((set, get) => ({
   },
   resetTransactions: () =>
     set({
-      transactions: [
-        { account: '', description: '', debit: 0, credit: 0, key: randomId() },
-        { account: '', description: '', debit: 0, credit: 0, key: randomId() },
-      ],
+      transactions: [emptyLine(), emptyLine()],
       notes: '',
       totalDebit: 0,
       totalCredit: 0,

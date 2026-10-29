@@ -1,32 +1,11 @@
-import { API_ACCOUNT } from '@/services/endpoint';
 import { useQuery } from '@tanstack/react-query';
-import { get } from '@/lib/http/apiClient';
-import type { TransactionByAccountModel } from '../../domain/journalEntryByAccount';
+import type { JournalEntryByAccount } from '../../domain/journalEntry';
+import { fetchJournalEntriesByAccount } from '../../infrastructure/journalEntryApi';
+import { journalEntryKeys } from './journalEntryKeys';
 
-interface TransactionByAccountParams {
-  idAccount: string;
-  sortBy: string;
-}
-export const GetTransactionByAccount = (idAccount: string) => {
-  return useQuery<TransactionByAccountModel[]>({
-    queryKey: ['transaction_by_account', idAccount, { sortBy: 'transactionNumber' }],
-    queryFn: async () => {
-      const result = await get(`${API_ACCOUNT.GET_TRANSACTION_BY_ACCOUNT}/${idAccount}`);
-      if (result?.data?.results && Array.isArray(result.data.results)) {
-        return result.data.results;
-      }
-      if (result?.results && Array.isArray(result.results)) {
-        return result.results;
-      }
-      if (result?.data && Array.isArray(result.data)) {
-        return result.data;
-      }
-      if (Array.isArray(result)) {
-        return result;
-      }
-      return [];
-    },
-
+export const useJournalEntriesByAccount = (idAccount: string) =>
+  useQuery<JournalEntryByAccount[]>({
+    queryKey: journalEntryKeys.byAccount(idAccount),
+    queryFn: () => fetchJournalEntriesByAccount(idAccount),
     enabled: !!idAccount,
   });
-};

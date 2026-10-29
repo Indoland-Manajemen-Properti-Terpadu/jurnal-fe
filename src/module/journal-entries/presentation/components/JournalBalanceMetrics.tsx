@@ -8,13 +8,15 @@ import {
   IconListTree,
   IconScale,
 } from '@tabler/icons-react';
+import { useTranslation } from '@/i18n';
+import { summarizeLines } from '../../domain/journalRules';
 import { useTransactionStore } from '../store/useTransactionStore';
 
 export const JournalBalanceMetrics: React.FC = () => {
-  const { totalDebit, totalCredit, transactions } = useTransactionStore();
-  const diff = Math.abs(totalDebit - totalCredit);
-  const isBalanced = totalDebit > 0 && totalCredit > 0 && diff === 0;
-  const hasValues = totalDebit > 0 || totalCredit > 0;
+  const { t } = useTranslation('journalEntries');
+  const transactions = useTransactionStore((state) => state.transactions);
+  const { totalDebit, totalCredit, difference, isBalanced, hasValues } =
+    summarizeLines(transactions);
 
   return (
     <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} spacing="md">
@@ -23,13 +25,13 @@ export const JournalBalanceMetrics: React.FC = () => {
         <Group justify="space-between" align="flex-start">
           <Box>
             <Text size="xs" c="dimmed" fw={700} tt="uppercase" lts={0.5}>
-              Total Debit
+              {t('metrics.totalDebit')}
             </Text>
             <Text fz={20} fw={800} c="teal.8" mt={4} lh={1.2}>
               Rp {totalDebit.toLocaleString('id-ID', { minimumFractionDigits: 2 })}
             </Text>
             <Text size="xs" c="dimmed" mt={4}>
-              Akumulasi entri sisi debit
+              {t('metrics.debitCaption')}
             </Text>
           </Box>
           <ThemeIcon size={38} radius="md" variant="light" color="teal">
@@ -43,13 +45,13 @@ export const JournalBalanceMetrics: React.FC = () => {
         <Group justify="space-between" align="flex-start">
           <Box>
             <Text size="xs" c="dimmed" fw={700} tt="uppercase" lts={0.5}>
-              Total Kredit
+              {t('metrics.totalCredit')}
             </Text>
             <Text fz={20} fw={800} c="red.8" mt={4} lh={1.2}>
               Rp {totalCredit.toLocaleString('id-ID', { minimumFractionDigits: 2 })}
             </Text>
             <Text size="xs" c="dimmed" mt={4}>
-              Akumulasi entri sisi kredit
+              {t('metrics.creditCaption')}
             </Text>
           </Box>
           <ThemeIcon size={38} radius="md" variant="light" color="red">
@@ -77,7 +79,7 @@ export const JournalBalanceMetrics: React.FC = () => {
         <Group justify="space-between" align="flex-start">
           <Box>
             <Text size="xs" c="dimmed" fw={700} tt="uppercase" lts={0.5}>
-              Status Keseimbangan
+              {t('metrics.statusTitle')}
             </Text>
             {isBalanced ? (
               <Group gap={6} mt={6}>
@@ -87,7 +89,7 @@ export const JournalBalanceMetrics: React.FC = () => {
                   size="md"
                   leftSection={<IconCheck size={14} />}
                 >
-                  Seimbang (Balanced)
+                  {t('metrics.balancedBadge')}
                 </Badge>
               </Group>
             ) : hasValues ? (
@@ -98,20 +100,22 @@ export const JournalBalanceMetrics: React.FC = () => {
                   size="md"
                   leftSection={<IconAlertCircle size={14} />}
                 >
-                  Selisih Rp {diff.toLocaleString('id-ID', { minimumFractionDigits: 0 })}
+                  {t('metrics.differenceBadge', {
+                    amount: difference.toLocaleString('id-ID', { minimumFractionDigits: 0 }),
+                  })}
                 </Badge>
               </Group>
             ) : (
               <Text fz={18} fw={700} c="dark.5" mt={4}>
-                Menunggu Input
+                {t('metrics.waiting')}
               </Text>
             )}
             <Text size="xs" c={isBalanced ? 'green.8' : hasValues ? 'red.8' : 'dimmed'} mt={4}>
               {isBalanced
-                ? 'Prinsip double-entry terpenuhi'
+                ? t('metrics.balancedHint')
                 : hasValues
-                  ? 'Debit & kredit harus seimbang'
-                  : 'Isi nominal pada baris akun'}
+                  ? t('metrics.unbalancedHint')
+                  : t('metrics.emptyHint')}
             </Text>
           </Box>
           <ThemeIcon
@@ -130,13 +134,13 @@ export const JournalBalanceMetrics: React.FC = () => {
         <Group justify="space-between" align="flex-start">
           <Box>
             <Text size="xs" c="dimmed" fw={700} tt="uppercase" lts={0.5}>
-              Baris Akun Terlibat
+              {t('metrics.rowsTitle')}
             </Text>
             <Text fz={20} fw={800} c="dark.8" mt={4} lh={1.2}>
-              {transactions.length} Baris
+              {t('metrics.rowsValue', { count: transactions.length })}
             </Text>
             <Text size="xs" c="dimmed" mt={4}>
-              Minimal 2 baris entri pembukuan
+              {t('metrics.rowsHint')}
             </Text>
           </Box>
           <ThemeIcon size={38} radius="md" variant="light" color="indigo">

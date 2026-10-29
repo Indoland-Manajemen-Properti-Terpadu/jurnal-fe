@@ -21,28 +21,30 @@ import {
   IconBook2,
 } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
-import { isJournalBalancedForDisplay } from '@/lib/accounting/journalBalance';
 import { formatCurrency } from '@/utils/FormatCurrency';
 import { routes } from '@/router/routes';
 import { EmptyState } from '@/components/EmptyState';
-import { TransactionDetail } from '../../domain/journalEntryDetail';
+import { useTranslation } from '@/i18n';
+import type { JournalEntryLine } from '../../domain/journalEntry';
+import { absoluteDifference, isDetailBalanced, sumAmounts } from '../../domain/journalRules';
 
 interface Props {
-  transactionDetails?: TransactionDetail[];
+  transactionDetails?: JournalEntryLine[];
   isLoading?: boolean;
   withBorder?: boolean;
 }
 
-export const JournalTransactionDetailTable: React.FC<Props> = ({
+const JournalEntryLinesTable: React.FC<Props> = ({
   transactionDetails = [],
   isLoading = false,
   withBorder = true,
 }) => {
+  const { t } = useTranslation('journalEntries');
   const navigate = useNavigate();
 
-  const totalDebit = transactionDetails.reduce((sum, item) => sum + (Number(item.debit) || 0), 0);
-  const totalCredit = transactionDetails.reduce((sum, item) => sum + (Number(item.credit) || 0), 0);
-  const isBalanced = isJournalBalancedForDisplay([{ debit: totalDebit, credit: totalCredit }]);
+  const totalDebit = sumAmounts(transactionDetails.map((item) => Number(item.debit) || 0));
+  const totalCredit = sumAmounts(transactionDetails.map((item) => Number(item.credit) || 0));
+  const isBalanced = isDetailBalanced(totalDebit, totalCredit);
 
   if (isLoading) {
     return (
@@ -50,10 +52,14 @@ export const JournalTransactionDetailTable: React.FC<Props> = ({
         <Table verticalSpacing="md" horizontalSpacing="md">
           <Table.Thead bg="gray.0">
             <Table.Tr>
-              <Table.Th style={{ width: '42%' }}>Akun Transaksi</Table.Th>
-              <Table.Th style={{ width: '28%' }}>Keterangan Baris</Table.Th>
-              <Table.Th style={{ width: '15%', textAlign: 'right' }}>Debit</Table.Th>
-              <Table.Th style={{ width: '15%', textAlign: 'right' }}>Kredit</Table.Th>
+              <Table.Th style={{ width: '42%' }}>{t('linesTable.loadingAccount')}</Table.Th>
+              <Table.Th style={{ width: '28%' }}>{t('linesTable.loadingDescription')}</Table.Th>
+              <Table.Th style={{ width: '15%', textAlign: 'right' }}>
+                {t('linesTable.headDebit')}
+              </Table.Th>
+              <Table.Th style={{ width: '15%', textAlign: 'right' }}>
+                {t('linesTable.headCredit')}
+              </Table.Th>
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
@@ -86,8 +92,8 @@ export const JournalTransactionDetailTable: React.FC<Props> = ({
       <Paper withBorder={withBorder} radius="md" bg="white" p={0} style={{ overflow: 'hidden' }}>
         <EmptyState
           icon={<IconBook2 size={32} stroke={1.6} />}
-          title="Tidak Ada Baris Jurnal"
-          description="Transaksi jurnal ini tidak memiliki rincian debit atau kredit."
+          title={t('linesTable.emptyTitle')}
+          description={t('linesTable.emptyDescription')}
         />
       </Paper>
     );
@@ -101,22 +107,22 @@ export const JournalTransactionDetailTable: React.FC<Props> = ({
             <Table.Tr>
               <Table.Th style={{ width: '40%' }}>
                 <Text size="xs" fw={700} c="dimmed" tt="uppercase" lts={0.4}>
-                  Akun Perkiraan (COA)
+                  {t('linesTable.headAccount')}
                 </Text>
               </Table.Th>
               <Table.Th style={{ width: '30%' }}>
                 <Text size="xs" fw={700} c="dimmed" tt="uppercase" lts={0.4}>
-                  Deskripsi / Keterangan
+                  {t('linesTable.headDescription')}
                 </Text>
               </Table.Th>
               <Table.Th style={{ width: '15%', textAlign: 'right' }}>
                 <Text size="xs" fw={700} c="dimmed" tt="uppercase" lts={0.4}>
-                  Debit
+                  {t('linesTable.headDebit')}
                 </Text>
               </Table.Th>
               <Table.Th style={{ width: '15%', textAlign: 'right' }}>
                 <Text size="xs" fw={700} c="dimmed" tt="uppercase" lts={0.4}>
-                  Kredit
+                  {t('linesTable.headCredit')}
                 </Text>
               </Table.Th>
             </Table.Tr>
@@ -168,7 +174,7 @@ export const JournalTransactionDetailTable: React.FC<Props> = ({
                                 navigate(targetRoute.replace(':idAccount', account.id!));
                               }}
                             >
-                              {account.name || 'Akun Tidak Dikenal'}
+                              {account.name || t('linesTable.unknownAccount')}
                               <IconArrowUpRight size={13} style={{ opacity: 0.7 }} />
                             </Text>
                           ) : (
@@ -186,7 +192,13 @@ export const JournalTransactionDetailTable: React.FC<Props> = ({
                               </Badge>
                               <CopyButton value={account.accountNumber}>
                                 {({ copied, copy }) => (
-                                  <Tooltip label={copied ? 'Tersalin' : 'Salin Nomor Akun'}>
+                                  <Tooltip
+                                    label={
+                                      copied
+                                        ? t('linesTable.copied')
+                                        : t('linesTable.copyAccountNumber')
+                                    }
+                                  >
                                     <ActionIcon
                                       size="xs"
                                       variant="subtle"
@@ -218,7 +230,7 @@ export const JournalTransactionDetailTable: React.FC<Props> = ({
                     </Text>
                     {txn.notes && txn.notes !== '-' && (
                       <Text size="xs" c="dimmed" mt={2} fs="italic">
-                        Catatan: {txn.notes}
+                        {t('linesTable.note', { note: txn.notes })}
                       </Text>
                     )}
                   </Table.Td>
@@ -268,11 +280,13 @@ export const JournalTransactionDetailTable: React.FC<Props> = ({
                     {isBalanced ? <IconScale size={14} /> : <IconAlertCircle size={14} />}
                   </ThemeIcon>
                   <Text fw={700} size="sm" c="dark.9">
-                    Total
+                    {t('linesTable.total')}
                   </Text>
                   {!isBalanced && (
                     <Badge size="xs" color="red" variant="filled">
-                      Selisih: {formatCurrency(Math.abs(totalDebit - totalCredit))}
+                      {t('linesTable.difference', {
+                        amount: formatCurrency(absoluteDifference(totalDebit, totalCredit)),
+                      })}
                     </Badge>
                   )}
                 </Group>
@@ -297,4 +311,4 @@ export const JournalTransactionDetailTable: React.FC<Props> = ({
   );
 };
 
-export default JournalTransactionDetailTable;
+export default JournalEntryLinesTable;

@@ -54,14 +54,14 @@ import { isDebitNormal } from '@/lib/accounting/normalBalance';
 import { formatCurrency } from '@/utils/FormatCurrency';
 import deleteModalImage from '@/assets/img/vectors/delete_modal.svg';
 import arsipkanIcon from '@/assets/img/vectors/arsipkan.svg';
-import DetailAccountLayout from './Layout';
 import {
   JournalEntriesTable as TableJournalTransaction,
-  DeleteTransactionAccounts,
-  GetTransactionByAccount,
+  useDeleteJournalEntries,
+  useJournalEntriesByAccount,
   useFilterTransaction,
 } from '@/module/journal-entries';
-import type { TransactionByAccountModel } from '@/module/journal-entries';
+import type { JournalEntryByAccount } from '@/module/journal-entries';
+import DetailAccountLayout from './Layout';
 import { useDetailAccount } from '../hooks/useDetailAccount';
 import { accountDetailData } from '../types/DetailAccountModel';
 import { archiveAccount } from '../services/DetailAccount.service';
@@ -81,16 +81,16 @@ const DetailAccountNonCashBank: React.FC = () => {
     data: transactions,
     isLoading: isLoadingTransaction,
     refetch: refetchTransactions,
-  } = GetTransactionByAccount(idAccount!);
+  } = useJournalEntriesByAccount(idAccount!);
 
   const { mutate: deleteAccount, isPending: isDeletingAccount } = useDeleteJurnalAccount();
-  const deleteTransactionMutation = DeleteTransactionAccounts();
+  const deleteTransactionMutation = useDeleteJournalEntries();
 
   const rawData =
     (accountDetail as any)?.data?.data || (accountDetail as any)?.data || accountDetail;
   const accountData = accountDetailData(rawData);
 
-  const [selectedRecords, setSelectedRecords] = useState<TransactionByAccountModel[]>([]);
+  const [selectedRecords, setSelectedRecords] = useState<JournalEntryByAccount[]>([]);
   const [activeTab, setActiveTab] = useState<string>('transactions');
   const [isArchiving, setIsArchiving] = useState(false);
   const [isDeleteAccountModalOpen, setIsDeleteAccountModalOpen] = useState(false);

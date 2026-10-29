@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import {
-  ActionIcon,
   Badge,
   Box,
   Button,
@@ -12,7 +11,6 @@ import {
   Textarea,
   TextInput,
   ThemeIcon,
-  Tooltip,
 } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
 import { useNavigate } from 'react-router-dom';
@@ -24,27 +22,28 @@ import {
   IconListNumbers,
   IconPaperclip,
   IconReceipt,
-  IconTag,
 } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { IMAGE_MIME_TYPE, PDF_MIME_TYPE } from '@mantine/dropzone';
 import dayjs from 'dayjs';
 import AppShellLayout from '@/components/AppShellLayout';
-import ModuleHeader from '@/components/ModuleHeader/ModuleHeader';
+import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
+import { useTranslation } from '@/i18n';
 import { routes } from '@/router/routes';
 import { themeColors } from '@/theme';
+import CustomDropzone from '@/components/Dropzone/CustomDropzone';
 import { useTransactionStore } from '../store/useTransactionStore';
 import { useFileStore } from '../store/useFileStore';
-import TransactionForm from '../components/JournalLinesEditor';
+import JournalLinesEditor from '../components/JournalLinesEditor';
 import { TagInput } from '../components/TagInput';
-import CustomDropzone from '@/components/Dropzone/CustomDropzone';
-import { useSubmitTransactionJournal } from '../hooks/useCreateJournalEntry';
-import { TransactionJournalPayload } from '../../domain/journalEntryPayload';
+import { useCreateJournalEntry } from '../hooks/useCreateJournalEntry';
+import type { JournalEntryPayload } from '../../domain/journalEntry';
 import { JournalBalanceMetrics } from '../components/JournalBalanceMetrics';
 import { JournalDoubleEntryGuide } from '../components/JournalDoubleEntryGuide';
 import { JournalValidationCard } from '../components/JournalValidationCard';
 
-export const AddJournalTransactionForm: React.FC = () => {
+export const AddJournalEntryPage: React.FC = () => {
+  const { t } = useTranslation('journalEntries');
   const navigate = useNavigate();
   const { notes, setNotes, transactions, disableTransaction, resetTransactions } =
     useTransactionStore();
@@ -53,12 +52,13 @@ export const AddJournalTransactionForm: React.FC = () => {
   const [transactionDate, setTransactionDate] = useState<string>(dayjs().format('YYYY-MM-DD'));
   const [tags, setTags] = useState<string[]>([]);
 
-  const { mutate, isPending } = useSubmitTransactionJournal();
+  const { mutate, isPending } = useCreateJournalEntry();
 
-  const [files, setFiles, clearFiles] = useFileStore((state) => [
+  const [files, setFiles, clearFiles, removeFile] = useFileStore((state) => [
     state.files,
     state.setFiles,
     state.clearFiles,
+    state.removeFile,
   ]);
 
   const handleDrop = (f: File[]) => {
@@ -68,8 +68,8 @@ export const AddJournalTransactionForm: React.FC = () => {
   const handleReject = () => {
     notifications.show({
       color: 'red',
-      title: 'Format Berkas Tidak Didukung',
-      message: 'Format berkas tidak sesuai. Harap unggah dokumen PDF atau Gambar (PNG/JPG).',
+      title: t('toast.rejectedTitle'),
+      message: t('toast.rejectedMessage'),
     });
   };
 
@@ -79,8 +79,8 @@ export const AddJournalTransactionForm: React.FC = () => {
     if (!transactionDate) {
       notifications.show({
         color: 'red',
-        title: 'Tanggal Wajib Diisi',
-        message: 'Silakan pilih tanggal transaksi sebelum menyimpan.',
+        title: t('toast.dateRequiredTitle'),
+        message: t('toast.dateRequiredMessage'),
       });
       return;
     }
@@ -88,14 +88,14 @@ export const AddJournalTransactionForm: React.FC = () => {
     if (disableTransaction()) {
       notifications.show({
         color: 'red',
-        title: 'Transaksi Belum Sah',
-        message: 'Pastikan seluruh baris akun terisi dan total debit seimbang dengan total kredit.',
+        title: t('toast.invalidTitle'),
+        message: t('toast.invalidMessage'),
       });
       return;
     }
 
     const formattedDate = dayjs(transactionDate).format('YYYY-MM-DD');
-    const payload: TransactionJournalPayload = {
+    const payload: JournalEntryPayload = {
       transactionNumber: transactionNumber.trim() ? parseInt(transactionNumber, 10) : undefined,
       transactionDate: formattedDate,
       transactionDetail: transactions.map((detail) => ({
@@ -113,12 +113,13 @@ export const AddJournalTransactionForm: React.FC = () => {
   };
 
   // Reset store on unmount to keep clean state
-  useEffect(() => {
-    return () => {
+  useEffect(
+    () => () => {
       clearFiles();
       resetTransactions();
-    };
-  }, []);
+    },
+    []
+  );
 
   const isSaveDisabled = disableTransaction() || !transactionDate || isPending;
 
@@ -129,15 +130,15 @@ export const AddJournalTransactionForm: React.FC = () => {
           {/* Canonical Module Header */}
           <ModuleHeader
             icon={IconReceipt}
-            title="Tambah Transaksi Jurnal Umum"
-            description="Catat ayat jurnal penyesuaian atau transaksi operasional manual dengan memastikan prinsip double-entry (keseimbangan debit dan kredit)."
+            title={t('form.title')}
+            description={t('form.description')}
             actions={
               <Button
                 variant="default"
                 leftSection={<IconArrowLeft size={16} />}
                 onClick={() => navigate(routes.generalJournal.main)}
               >
-                Kembali ke Daftar Akun
+                {t('form.back')}
               </Button>
             }
           />
@@ -158,10 +159,10 @@ export const AddJournalTransactionForm: React.FC = () => {
                     </ThemeIcon>
                     <div>
                       <Text fw={700} fz={15} c="dark.8">
-                        Informasi Transaksi Jurnal
+                        {t('form.infoTitle')}
                       </Text>
                       <Text fz={12} c="dimmed">
-                        Waktu pembukuan, referensi bukti transaksi, dan label penanda
+                        {t('form.infoSubtitle')}
                       </Text>
                     </div>
                   </Group>
@@ -170,13 +171,13 @@ export const AddJournalTransactionForm: React.FC = () => {
                     <Grid.Col span={{ base: 12, sm: 4 }}>
                       <DatePickerInput
                         withAsterisk
-                        label="Tanggal Transaksi"
+                        label={t('form.dateLabel')}
                         value={transactionDate ? dayjs(transactionDate).toDate() : null}
                         onChange={(date) =>
                           setTransactionDate(date ? dayjs(date).format('YYYY-MM-DD') : '')
                         }
                         maxDate={new Date()}
-                        placeholder="Pilih tanggal..."
+                        placeholder={t('form.datePlaceholder')}
                         rightSection={<IconCalendar size={18} color={themeColors.gray[5]} />}
                         styles={{ input: { height: 40 } }}
                       />
@@ -184,21 +185,21 @@ export const AddJournalTransactionForm: React.FC = () => {
 
                     <Grid.Col span={{ base: 12, sm: 4 }}>
                       <TextInput
-                        label="Nomor Transaksi (Opsional)"
-                        placeholder="Contoh: 20260501"
+                        label={t('form.numberLabel')}
+                        placeholder={t('form.numberPlaceholder')}
                         value={transactionNumber}
                         onChange={(e) => setTransactionNumber(e.target.value)}
                         styles={{ input: { height: 40 } }}
                       />
                       <Text fz={11} c="dimmed" mt={4}>
-                        * Kosongkan untuk nomor otomatis
+                        {t('form.numberHint')}
                       </Text>
                     </Grid.Col>
 
                     <Grid.Col span={{ base: 12, sm: 4 }}>
                       <Stack gap={4}>
                         <Text fz={14} fw={500} c="dark.8">
-                          Tag Transaksi
+                          {t('form.tagLabel')}
                         </Text>
                         <TagInput value={tags} onChange={setTags} />
                       </Stack>
@@ -215,21 +216,20 @@ export const AddJournalTransactionForm: React.FC = () => {
                       </ThemeIcon>
                       <div>
                         <Text fw={700} fz={15} c="dark.8">
-                          Ayat Jurnal (Double-Entry)
+                          {t('form.linesTitle')}
                         </Text>
                         <Text fz={12} c="dimmed">
-                          Minimal 2 baris akun. Nilai debit dan kredit harus seimbang.
+                          {t('form.linesSubtitle')}
                         </Text>
                       </div>
                     </Group>
                     <Badge variant="light" color="primary" size="sm">
-                      {transactions.length} Akun
+                      {t('form.linesBadge', { count: transactions.length })}
                     </Badge>
                   </Group>
 
-                  {/* Transaction Table */}
                   <Box>
-                    <TransactionForm />
+                    <JournalLinesEditor />
                   </Box>
                 </Paper>
 
@@ -241,18 +241,18 @@ export const AddJournalTransactionForm: React.FC = () => {
                     </ThemeIcon>
                     <div>
                       <Text fw={700} fz={15} c="dark.8">
-                        Catatan Memo & Bukti Transaksi
+                        {t('form.memoTitle')}
                       </Text>
                       <Text fz={12} c="dimmed">
-                        Keterangan latar belakang dan dokumen pendukung transaksi
+                        {t('form.memoSubtitle')}
                       </Text>
                     </div>
                   </Group>
 
                   <Stack gap="md">
                     <Textarea
-                      label="Catatan Memo / Penjelasan"
-                      placeholder="Contoh: Penyesuaian amortisasi biaya sewa kantor bulan Mei 2026..."
+                      label={t('form.memoLabel')}
+                      placeholder={t('form.memoPlaceholder')}
                       minRows={3}
                       autosize
                       value={notes}
@@ -261,17 +261,19 @@ export const AddJournalTransactionForm: React.FC = () => {
                     />
 
                     <CustomDropzone
-                      title="Lampiran Dokumen Bukti (Opsional)"
+                      title={t('form.dropTitle')}
+                      files={files}
+                      onRemoveFile={removeFile}
                       handleDrop={handleDrop}
                       onReject={handleReject}
                       accept={[...IMAGE_MIME_TYPE, ...PDF_MIME_TYPE]}
                       description={
                         <Stack align="center" gap={4}>
                           <Text fz="xs" fw={600} c="dark.8">
-                            Seret berkas bukti ke sini atau klik untuk memilih file
+                            {t('form.dropDescription')}
                           </Text>
                           <Text fz={11} c="dimmed">
-                            Mendukung PDF, PNG, JPG hingga 30 MB per berkas
+                            {t('form.dropHint')}
                           </Text>
                         </Stack>
                       }
@@ -302,7 +304,7 @@ export const AddJournalTransactionForm: React.FC = () => {
                       disabled={isSaveDisabled}
                       onClick={() => handleSubmit()}
                     >
-                      Simpan Transaksi Jurnal
+                      {t('form.save')}
                     </Button>
                     <Button
                       size="md"
@@ -312,7 +314,7 @@ export const AddJournalTransactionForm: React.FC = () => {
                       onClick={() => navigate(routes.generalJournal.main)}
                       disabled={isPending}
                     >
-                      Batal
+                      {t('form.cancel')}
                     </Button>
                   </Stack>
                 </Paper>
@@ -325,4 +327,4 @@ export const AddJournalTransactionForm: React.FC = () => {
   );
 };
 
-export default AddJournalTransactionForm;
+export default AddJournalEntryPage;

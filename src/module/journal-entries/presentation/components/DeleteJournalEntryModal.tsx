@@ -1,16 +1,18 @@
 import { Button, Group, Stack, Text, Modal, Image } from '@mantine/core';
 import { IconTrash } from '@tabler/icons-react';
+import { useTranslation } from '@/i18n';
 import { themeColors } from '@/theme';
 import { themeText } from '@/theme/constants';
 import DeleteIllustration from '@/assets/img/vectors/delete_modal.svg';
 
-interface DeleteTransactionModalProps {
+interface DeleteJournalEntryModalProps {
   opened: boolean;
   onClose: () => void;
   onDelete: () => void;
 }
 
-const DeleteTransactionModal = ({ opened, onClose, onDelete }: DeleteTransactionModalProps) => {
+const DeleteJournalEntryModal = ({ opened, onClose, onDelete }: DeleteJournalEntryModalProps) => {
+  const { t } = useTranslation('journalEntries');
   const handleDelete = () => {
     onDelete();
     onClose();
@@ -24,7 +26,7 @@ const DeleteTransactionModal = ({ opened, onClose, onDelete }: DeleteTransaction
       withCloseButton
       title={
         <Text style={themeText.heading.h6} c={themeColors.black[9]}>
-          Hapus Jurnal Transaksi
+          {t('deleteModal.title')}
         </Text>
       }
       padding="lg"
@@ -41,11 +43,7 @@ const DeleteTransactionModal = ({ opened, onClose, onDelete }: DeleteTransaction
       }}
     >
       <Stack align="center" gap="lg">
-        <Image
-          src={DeleteIllustration}
-          alt="Delete Illustration"
-          w={240}
-        />
+        <Image src={DeleteIllustration} alt={t('deleteModal.imageAlt')} w={240} />
 
         <Stack gap={4} align="center">
           <Text
@@ -54,14 +52,10 @@ const DeleteTransactionModal = ({ opened, onClose, onDelete }: DeleteTransaction
             ta="center"
             c={themeColors.black[9]}
           >
-            Apakah Anda yakin ingin menghapus data jurnal transaksi ini?
+            {t('deleteModal.question')}
           </Text>
-          <Text
-            style={themeText.body.body4}
-            c={themeColors.gray[5]}
-            ta="center"
-          >
-            Data yang dihapus tidak dapat dipulihkan kembali.
+          <Text style={themeText.body.body4} c={themeColors.gray[5]} ta="center">
+            {t('deleteModal.warning')}
           </Text>
         </Stack>
 
@@ -82,7 +76,7 @@ const DeleteTransactionModal = ({ opened, onClose, onDelete }: DeleteTransaction
               },
             }}
           >
-            Batal
+            {t('deleteModal.cancel')}
           </Button>
           <Button
             variant="filled"
@@ -92,7 +86,7 @@ const DeleteTransactionModal = ({ opened, onClose, onDelete }: DeleteTransaction
             radius="sm"
             leftSection={<IconTrash size={18} />}
           >
-            Hapus
+            {t('deleteModal.confirm')}
           </Button>
         </Group>
       </Stack>
@@ -100,4 +94,4 @@ const DeleteTransactionModal = ({ opened, onClose, onDelete }: DeleteTransaction
   );
 };
 
-export default DeleteTransactionModal;
+export default DeleteJournalEntryModal;
