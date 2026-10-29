@@ -2,8 +2,7 @@ import React from "react";
 import { Box, Group, Stack, Table, Text } from "@mantine/core";
 import { gradientColors, themeColors } from "@/theme";
 import { formatCurrency } from "@/utils/FormatCurrency";
-import { useJournalAccounts } from "@/module/GeneralJournal/JournalAccount/hooks/useJournalAccounts";
-import { JournalAccounts } from "@/module/GeneralJournal/JournalAccount/types/JournalAccountModel";
+import { useJournalAccounts, type JournalAccounts } from "@/module/chart-of-accounts";
 import IncomeStatementTableRow, { CostofRevenueRow, NonOperatingExpensesRow, NonOperatingIncomeRow, ProfitandTaxRow } from "./TableRow";
 import EmptyState from "@/components/EmptyState/EmptyTable";
 

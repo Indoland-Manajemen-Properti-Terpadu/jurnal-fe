@@ -1,13 +1,13 @@
 import { Anchor, Button, Container, Group, Paper, rem, Stack, Tabs, Title, Text, Box } from "@mantine/core";
 import { IconChartBar, IconExchange, IconFileDollar, IconMessageCircle, IconPhoto, IconScale, IconSettings } from "@tabler/icons-react";
-import PeriodLockAndClosingBookLayout from "./Layout";
+import PeriodClosingLayout from "./PeriodClosingLayout";
 import { uuID } from "@/utils/uuid";
 import { gradientColors, themeColors } from "@/theme";
-import { navigate } from "@/router";
+import { useNavigate } from "react-router-dom";
 import { routes } from "@/router/routes";
 import WorkingPaperTable from "../components/WorkingPaperTable";
 import TrialBalanceTable from "../components/TrialBalanceTable";
-import IncomeStatementTable from "../components/IncomeStatement/IncomeStatmentTable";
+import IncomeStatementTable from "../components/IncomeStatement/IncomeStatementTable";
 import { formatCurrency } from "@/utils/FormatCurrency";
 import BalanceSheetTable from "../components/BalanceSheet/BalanceSheetTable";
 import CashFlowTable from "../components/CashFlow/CashFlowTable";
@@ -26,7 +26,8 @@ const items = [
 ));
 
 
-const FinancialstatementPage = () => {
+const FinancialStatementPage = () => {
+    const navigate = useNavigate();
     const iconStyle = { width: rem(12), height: rem(12) };
 
 
@@ -37,7 +38,7 @@ const FinancialstatementPage = () => {
     };
 
     return (
-        <PeriodLockAndClosingBookLayout
+        <PeriodClosingLayout
             footer={
                 <Container fluid px="lg">
                     <Group grow>
@@ -144,9 +145,9 @@ const FinancialstatementPage = () => {
                     </Paper>
                 </Stack>
             </Container>
-        </PeriodLockAndClosingBookLayout>
+        </PeriodClosingLayout>
 
     );
 }
 
-export default FinancialstatementPage;
+export default FinancialStatementPage;

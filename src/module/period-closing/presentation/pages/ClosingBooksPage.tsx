@@ -21,7 +21,7 @@ import { useState } from 'react';
 import { routes } from '@/router/routes';
 import WorkingPaperTable from '../components/WorkingPaperTable';
 import { IconChevronDown } from '@tabler/icons-react';
-import PeriodLockAndClosingBookLayout from './Layout';
+import PeriodClosingLayout from './PeriodClosingLayout';
 
 const items = [
     { title: 'Settings', href: '#' },
@@ -43,7 +43,7 @@ const ClosingBooksPage = () => {
     const navigate = useNavigate();
 
     return (
-        <PeriodLockAndClosingBookLayout
+        <PeriodClosingLayout
             footer={
                 <Container fluid px="lg">
                     <Group grow>
@@ -124,7 +124,7 @@ const ClosingBooksPage = () => {
                     </Paper>
                 </Stack>
             </Container>
-        </PeriodLockAndClosingBookLayout>
+        </PeriodClosingLayout>
     );
 };
 

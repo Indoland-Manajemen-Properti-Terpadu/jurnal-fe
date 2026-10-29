@@ -1,4 +1,4 @@
-export { default as ClosingBooksPage } from './presentation/pages/ClosingBooks';
-export { default as FinancialstatementPage } from './presentation/pages/FinancialStatement';
-export { default as ListPeriodLockAndClosingBooksPage } from './presentation/pages/ListPeriodLockAndClosingBooks';
+export { default as ClosingBooksPage } from './presentation/pages/ClosingBooksPage';
+export { default as FinancialStatementPage } from './presentation/pages/FinancialStatementPage';
+export { default as PeriodClosingListPage } from './presentation/pages/PeriodClosingListPage';
 export { PeriodAndClosingBooksModal } from './presentation/components/PeriodAndClosingBooksModal';

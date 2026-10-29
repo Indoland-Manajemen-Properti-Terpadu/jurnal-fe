@@ -6,8 +6,8 @@ type Props = {
     footer: ReactNode;
 };
 
-function PeriodLockAndClosingBookLayout({ children, footer }: Props) {
+function PeriodClosingLayout({ children, footer }: Props) {
     return <AppShellLayout footer={footer}>{children}</AppShellLayout>;
 }
 
-export default PeriodLockAndClosingBookLayout;
+export default PeriodClosingLayout;

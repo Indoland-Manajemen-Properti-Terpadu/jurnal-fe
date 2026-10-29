@@ -1,7 +1,7 @@
 import { vi } from 'vitest';
 import { render, screen, within } from '@test-utils';
 import BalanceSheetTable from './BalanceSheet/BalanceSheetTable';
-import IncomeStatementTable from './IncomeStatement/IncomeStatmentTable';
+import IncomeStatementTable from './IncomeStatement/IncomeStatementTable';
 import TrialBalanceTable from './TrialBalanceTable';
 import WorkingPaperTable from './WorkingPaperTable';
 
@@ -20,7 +20,7 @@ const mockState: { accounts: Account[] | undefined; isError: boolean } = {
   isError: false,
 };
 
-vi.mock('@/module/GeneralJournal/JournalAccount/hooks/useJournalAccounts', () => ({
+vi.mock('@/module/chart-of-accounts', () => ({
   useJournalAccounts: () => mockState,
 }));
 

@@ -13,8 +13,8 @@ import DetailAccountNonCashBank from '@/module/GeneralJournal/DetailAccount/Main
 import BeginningBalancePage from '@/module/GeneralJournal/BeginningBalance/pages/BeginningBalancePage';
 import {
   ClosingBooksPage,
-  FinancialstatementPage,
-  ListPeriodLockAndClosingBooksPage,
+  FinancialStatementPage,
+  PeriodClosingListPage,
 } from '@/module/period-closing';
 
 // User Management Module
@@ -176,11 +176,11 @@ const router = createBrowserRouter([
   },
   {
     path: routes.PeriodAndClosingBook.FinancialStatement,
-    element: <FinancialstatementPage />,
+    element: <FinancialStatementPage />,
   },
   {
     path: routes.PeriodAndClosingBook.ListPLandCB,
-    element: <ListPeriodLockAndClosingBooksPage />,
+    element: <PeriodClosingListPage />,
   },
 
   // Contact Routes

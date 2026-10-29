@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { routes } from "@/router/routes";
 import { InformationAlert } from "@/components/Alert/Alert";
 import CustomConfirmModal from "@/components/Modals/ConfirmModal";
-import useModalStore from "../store/useModals";
+import usePeriodModalStore from "../store/usePeriodModals";
 import KeyPeriodeImage from '@/assets/img/closing_period.svg';
 
 interface PeriodAndClosingBooksModalProps {
@@ -30,7 +30,7 @@ export const PeriodAndClosingBooksModal: React.FC<PeriodAndClosingBooksModalProp
         cancelToCheckPL,
         cancelToCheckCB,
         closeAllModals,
-    } = useModalStore();
+    } = usePeriodModalStore();
 
     const handleFinalConfirmCheck = () => {
         notifications.show({

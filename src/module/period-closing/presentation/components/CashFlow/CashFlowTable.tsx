@@ -2,8 +2,6 @@ import React from "react";
 import { Box, Group, Stack, Table, Text } from "@mantine/core";
 import { gradientColors, themeColors } from "@/theme";
 import { formatCurrency } from "@/utils/FormatCurrency";
-import { useJournalAccounts } from "@/module/GeneralJournal/JournalAccount/hooks/useJournalAccounts";
-import { JournalAccounts } from "@/module/GeneralJournal/JournalAccount/types/JournalAccountModel";
 
 import EmptyState from "@/components/EmptyState/EmptyTable";
 import { CashFlowfromFA, CashFlowfromIA, CashFlowfromOA, EndingCashPosition } from "./TableRow";
@@ -23,7 +21,6 @@ const headTableStyle = {
 }
 
 const CashFlowTable: React.FC = () => {
-    const { accounts, isError } = useJournalAccounts();
     const lastDate = '19 Sept 2021'
     const totalBalanceSheet = 200000
     return (

@@ -1,12 +1,12 @@
 import { Anchor, Button, Container, Group, Paper, rem, Stack, Tabs, Title, Text, Box } from "@mantine/core";
 import { IconChartBar, IconExchange, IconFileDollar, IconScale } from "@tabler/icons-react";
-import PeriodLockAndClosingBookLayout from "./Layout";
+import PeriodClosingLayout from "./PeriodClosingLayout";
 import { uuID } from "@/utils/uuid";
 import { gradientColors, themeColors } from "@/theme";
-import { navigate } from "@/router";
+import { useNavigate } from "react-router-dom";
 import { routes } from "@/router/routes";
 import TrialBalanceTable from "../components/TrialBalanceTable";
-import IncomeStatementTable from "../components/IncomeStatement/IncomeStatmentTable";
+import IncomeStatementTable from "../components/IncomeStatement/IncomeStatementTable";
 
 import BalanceSheetTable from "../components/BalanceSheet/BalanceSheetTable";
 import CashFlowTable from "../components/CashFlow/CashFlowTable";
@@ -25,7 +25,7 @@ const items = [
 ));
 
 
-const ListPeriodLockAndClosingBooksPage = () => {
+const PeriodClosingListPage = () => {
     const iconStyle = { width: rem(12), height: rem(12) };
     const [isConfirmDraftModalOpen, setIsConfirmDraftModalOpen] = useState(false);
     const openConfirmSaveDraft = () => setIsConfirmDraftModalOpen(true);
@@ -50,7 +50,7 @@ const ListPeriodLockAndClosingBooksPage = () => {
 
     return (
         <>
-            <PeriodLockAndClosingBookLayout
+            <PeriodClosingLayout
                 footer={
                     <Container fluid px="lg">
                         <Group grow>
@@ -103,7 +103,7 @@ const ListPeriodLockAndClosingBooksPage = () => {
                         </Paper>
                     </Stack>
                 </Container>
-            </PeriodLockAndClosingBookLayout>
+            </PeriodClosingLayout>
             <SaveAsDraftModal
                 opened={isConfirmDraftModalOpen}
                 onClose={closeConfirmSaveDraft}
@@ -114,4 +114,4 @@ const ListPeriodLockAndClosingBooksPage = () => {
     );
 }
 
-export default ListPeriodLockAndClosingBooksPage;
+export default PeriodClosingListPage;

@@ -2,8 +2,7 @@ import { Box, Group, Stack, Table, Text } from "@mantine/core";
 import { gradientColors, themeColors } from "@/theme";
 import { formatCurrency } from "@/utils/FormatCurrency";
 import React from "react";
-import { useJournalAccounts } from "@/module/GeneralJournal/JournalAccount/hooks/useJournalAccounts";
-import { JournalAccounts } from "@/module/GeneralJournal/JournalAccount/types/JournalAccountModel";
+import { useJournalAccounts, type JournalAccounts } from "@/module/chart-of-accounts";
 
 const BalanceSheetTable: React.FC = () => {
     const { accounts, isError } = useJournalAccounts();
