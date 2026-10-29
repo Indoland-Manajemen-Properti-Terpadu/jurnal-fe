@@ -60,7 +60,8 @@ export default function PaymentMethodPage() {
   const [editingMethod, setEditingMethod] = useState<PaymentMethod | null>(null);
 
   // Delete Confirmation State
-  const [deleteModalOpened, { open: openDeleteModal, close: closeDeleteModal }] = useDisclosure(false);
+  const [deleteModalOpened, { open: openDeleteModal, close: closeDeleteModal }] =
+    useDisclosure(false);
   const [deletingMethod, setDeletingMethod] = useState<PaymentMethod | null>(null);
 
   // Load COA accounts safely
@@ -125,8 +126,10 @@ export default function PaymentMethodPage() {
 
   const handleOpenEdit = (method: PaymentMethod) => {
     setEditingMethod(method);
-    const defAccId = typeof method.defaultAccount === 'object' ? method.defaultAccount?.id : method.defaultAccount;
-    const feeAccId = typeof method.feeAccount === 'object' ? method.feeAccount?.id : method.feeAccount;
+    const defAccId =
+      typeof method.defaultAccount === 'object' ? method.defaultAccount?.id : method.defaultAccount;
+    const feeAccId =
+      typeof method.feeAccount === 'object' ? method.feeAccount?.id : method.feeAccount;
 
     form.setValues({
       name: method.name,
@@ -183,7 +186,11 @@ export default function PaymentMethodPage() {
       description="Konfigurasi opsi penerimaan dan pengeluaran dana seperti Transfer Bank, BCA Virtual Account, Midtrans, atau Tunai beserta akun kas penampung default dan akun beban biaya admin."
       action={
         <Group gap="xs">
-          <Button variant="default" leftSection={<IconRefresh size={16} />} onClick={() => refetch()}>
+          <Button
+            variant="default"
+            leftSection={<IconRefresh size={16} />}
+            onClick={() => refetch()}
+          >
             Segarkan
           </Button>
           <Button color="primary" leftSection={<IconPlus size={16} />} onClick={handleOpenAdd}>
@@ -230,9 +237,15 @@ export default function PaymentMethodPage() {
               Belum Ada Metode Pembayaran
             </Title>
             <Text size="sm" c="dimmed" mt={4} maw={400} mx="auto">
-              Tambahkan metode pembayaran untuk digunakan saat mencatat penerimaan penjualan dan pembayaran pengeluaran.
+              Tambahkan metode pembayaran untuk digunakan saat mencatat penerimaan penjualan dan
+              pembayaran pengeluaran.
             </Text>
-            <Button mt="md" color="primary" leftSection={<IconPlus size={16} />} onClick={handleOpenAdd}>
+            <Button
+              mt="md"
+              color="primary"
+              leftSection={<IconPlus size={16} />}
+              onClick={handleOpenAdd}
+            >
               Tambah Metode
             </Button>
           </Paper>
@@ -317,7 +330,11 @@ export default function PaymentMethodPage() {
                       <Table.Td style={{ textAlign: 'center' }}>
                         <Group gap={4} justify="center">
                           <Tooltip label="Edit Metode">
-                            <ActionIcon variant="subtle" color="primary" onClick={() => handleOpenEdit(method)}>
+                            <ActionIcon
+                              variant="subtle"
+                              color="primary"
+                              onClick={() => handleOpenEdit(method)}
+                            >
                               <IconEdit size={16} />
                             </ActionIcon>
                           </Tooltip>
@@ -421,8 +438,10 @@ export default function PaymentMethodPage() {
             {isFeeRequired && (
               <Alert icon={<IconInfoCircle size={16} />} color="blue" radius="md" py="xs">
                 <Text size="xs">
-                  Setiap transaksi pembayaran yang menggunakan metode ini akan otomatis menjurnal biaya admin sebesar{' '}
-                  <strong>Rp {form.values.adminFee.toLocaleString('id-ID')}</strong> ke akun beban yang dipilih.
+                  Setiap transaksi pembayaran yang menggunakan metode ini akan otomatis menjurnal
+                  biaya admin sebesar{' '}
+                  <strong>Rp {form.values.adminFee.toLocaleString('id-ID')}</strong> ke akun beban
+                  yang dipilih.
                 </Text>
               </Alert>
             )}
@@ -455,7 +474,8 @@ export default function PaymentMethodPage() {
       >
         <Stack gap="md">
           <Text size="sm">
-            Apakah Anda yakin ingin menghapus metode pembayaran <strong>{deletingMethod?.name}</strong>?
+            Apakah Anda yakin ingin menghapus metode pembayaran{' '}
+            <strong>{deletingMethod?.name}</strong>?
           </Text>
           <Group justify="flex-end" gap="xs">
             <Button variant="default" onClick={closeDeleteModal}>
