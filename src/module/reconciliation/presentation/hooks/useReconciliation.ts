@@ -1,14 +1,14 @@
 import { API_ACCOUNT } from '@/services/endpoint';
 import { useQuery } from '@tanstack/react-query';
 import { get } from '@/lib/http/apiClient';
-import { GetReconciliationModel } from '../../domain/GetReconciliationModel';
+import { GetReconciliationModel } from '../../domain/reconciliation';
 
-export const GetReconciliation = (idAccount: string) => {
+export const useReconciliation = (idAccount: string) => {
   return useQuery<GetReconciliationModel>({
     queryKey: ['get_reconciliation', idAccount],
     queryFn: async () => {
       const result = await get(`${API_ACCOUNT.GET_RECONCILIATION}${idAccount}`);
-      console.log('GetReconciliation Raw Result:', {
+      console.log('useReconciliation Raw Result:', {
         fullResult: result,
         resultData: result?.data,
         hasBankStatements: !!result?.data?.bankStatements,

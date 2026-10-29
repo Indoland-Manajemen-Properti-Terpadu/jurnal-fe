@@ -1,9 +1,9 @@
 import { API_ACCOUNT } from '@/services/endpoint';
 import { useQuery } from '@tanstack/react-query';
 import { get } from '@/lib/http/apiClient';
-import { JournalDetail } from '../../domain/GetReconciliationModel';
+import { JournalDetail } from '../../domain/reconciliation';
 
-export const useGetJournalDetailsForRecon = (bankStatementId: string | null) => {
+export const useJournalDetailsForRecon = (bankStatementId: string | null) => {
   return useQuery<JournalDetail[]>({
     queryKey: ['journal_details_for_recon', bankStatementId],
     queryFn: async () => {

@@ -30,9 +30,9 @@ import { NotFound } from '@/components/ErrorPage/NotFound';
 import { ImportBankStatementModal } from '@/module/bank-statements';
 import { useDetailAccount } from '@/module/chart-of-accounts';
 import { FindAndReconModal } from './FindAndReconModal';
-import { BankStatementData } from '../../domain/GetReconciliationModel';
-import { GetReconciliation } from '../hooks/GetReconciliation.service';
-import { useMatchReconciliation } from '../hooks/MatchReconciliation.service';
+import { BankStatementData } from '../../domain/reconciliation';
+import { useReconciliation } from '../hooks/useReconciliation';
+import { useMatchReconciliation } from '../hooks/useMatchReconciliation';
 
 const ReconciliationTable: React.FC = () => {
   const { idAccount } = useParams<{ idAccount: string }>();
@@ -46,7 +46,7 @@ const ReconciliationTable: React.FC = () => {
   const [removedRecommendations, setRemovedRecommendations] = useState<string[]>([]);
 
   const { accountDetail } = useDetailAccount(idAccount!);
-  const { data: ReconData, isLoading, isError, refetch } = GetReconciliation(idAccount!);
+  const { data: ReconData, isLoading, isError, refetch } = useReconciliation(idAccount!);
   const { mutate: matchRecon, isPending: isMatching } = useMatchReconciliation();
 
   console.log('Reconciliation Data Log:', {
@@ -508,7 +508,7 @@ const ReconciliationTable: React.FC = () => {
         opened={modalOpened}
         onClose={() => setModalOpened(false)}
         onConfirm={handleManualMatch}
-        SelectedBankStatament={selectedBankStatement}
+        selectedBankStatement={selectedBankStatement}
       />
       <ImportBankStatementModal
         idAccount={idAccount!}

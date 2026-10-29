@@ -19,8 +19,8 @@ import {
   PuzzlePieceIcon,
 } from '@phosphor-icons/react';
 import { useFilterTransaction } from '@/module/journal-entries';
-import { BankStatementData } from '../../domain/GetReconciliationModel';
-import { useGetJournalDetailsForRecon } from '../hooks/GetJournalDetailsForRecon.service';
+import { BankStatementData } from '../../domain/reconciliation';
+import { useJournalDetailsForRecon } from '../hooks/useJournalDetailsForRecon';
 
 /** Positive bank amount (received) matches journal debit, negative (sent) matches credit. */
 export const matchesBankDirection = (
@@ -40,20 +40,20 @@ interface FindAndReconModalProps {
   opened: boolean;
   onClose: () => void;
   onConfirm: (journals: any[]) => void;
-  SelectedBankStatament: BankStatementData | null;
+  selectedBankStatement: BankStatementData | null;
 }
 
 export const FindAndReconModal: React.FC<FindAndReconModalProps> = ({
   opened,
   onClose,
   onConfirm,
-  SelectedBankStatament,
+  selectedBankStatement,
 }) => {
   const { idAccount } = useParams<{ idAccount: string }>();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const { data: journalDetails = [], isLoading } = useGetJournalDetailsForRecon(
-    SelectedBankStatament?.id || null
+  const { data: journalDetails = [], isLoading } = useJournalDetailsForRecon(
+    selectedBankStatement?.id || null
   );
   const [selectedRecords, setSelectedRecords] = useState<any[]>([]);
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -65,7 +65,7 @@ export const FindAndReconModal: React.FC<FindAndReconModalProps> = ({
     setSelectedRecords([]);
     setSearchQuery('');
     setSelectedDate(null);
-  }, [SelectedBankStatament?.id, opened]);
+  }, [selectedBankStatement?.id, opened]);
 
   const filteredTransaction = journalDetails?.filter((item: any) => {
     const query = searchQuery.toLowerCase();
@@ -84,7 +84,7 @@ export const FindAndReconModal: React.FC<FindAndReconModalProps> = ({
     }
 
     // Match debit with debit and credit with credit
-    const bankAmount = SelectedBankStatament?.amount || 0;
+    const bankAmount = selectedBankStatement?.amount || 0;
     const matchesType = matchesBankDirection(bankAmount, item);
 
     return matchesQuery && matchesDate && matchesType;
@@ -97,7 +97,7 @@ export const FindAndReconModal: React.FC<FindAndReconModalProps> = ({
     filteredTransaction,
   });
 
-  const totalNominal = Math.abs(SelectedBankStatament?.amount || 0);
+  const totalNominal = Math.abs(selectedBankStatement?.amount || 0);
   const selectedNominal = selectedRecords.reduce(
     (total, record) => total + (record.debit || record.credit || 0),
     0
@@ -234,7 +234,7 @@ export const FindAndReconModal: React.FC<FindAndReconModalProps> = ({
       >
         <Stack gap="md">
           {/* Bank Statement Summary Card */}
-          {SelectedBankStatament && (
+          {selectedBankStatement && (
             <Paper withBorder p="md" radius="sm" bg="white">
               <Stack gap="xs">
                 <Text size="xs" fw={600} c={themeColors.black[9]}>
@@ -243,18 +243,18 @@ export const FindAndReconModal: React.FC<FindAndReconModalProps> = ({
                 <Group justify="space-between" align="flex-start">
                   <Stack gap={2}>
                     <Text size="xs" c={themeColors.gray[6]}>
-                      {dateFormatV1(SelectedBankStatament.date)}
+                      {dateFormatV1(selectedBankStatement.date)}
                     </Text>
                     <Text size="sm" fw={600} c={themeColors.black[9]}>
-                      {SelectedBankStatament.description}
+                      {selectedBankStatement.description}
                     </Text>
                   </Stack>
                   <Stack align="flex-end" gap={4}>
                     <Badge
                       variant="light"
-                      color={SelectedBankStatament.amount > 0 ? 'green' : 'red'}
+                      color={selectedBankStatement.amount > 0 ? 'green' : 'red'}
                       leftSection={
-                        SelectedBankStatament.amount > 0 ? (
+                        selectedBankStatement.amount > 0 ? (
                           <ArrowCircleDown size={14} />
                         ) : (
                           <ArrowCircleUp size={14} />
@@ -265,16 +265,16 @@ export const FindAndReconModal: React.FC<FindAndReconModalProps> = ({
                         size="xs"
                         fw={700}
                         c={
-                          SelectedBankStatament.amount > 0
+                          selectedBankStatement.amount > 0
                             ? themeColors.green[8]
                             : themeColors.red[8]
                         }
                       >
-                        {SelectedBankStatament.amount > 0 ? 'Diterima' : 'Dikirim'}
+                        {selectedBankStatement.amount > 0 ? 'Diterima' : 'Dikirim'}
                       </Text>
                     </Badge>
                     <Text size="sm" fw={700} c={themeColors.black[9]}>
-                      {formatCurrency(Math.abs(SelectedBankStatament.amount))}
+                      {formatCurrency(Math.abs(selectedBankStatement.amount))}
                     </Text>
                   </Stack>
                 </Group>

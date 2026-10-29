@@ -1,9 +1,9 @@
 import React from 'react';
-import Reconciliation from '@/module/reconciliation/presentation/pages/Reconciliation';
+import { ReconciliationTable } from '@/module/reconciliation';
 
 
 const ReconciliationTab = () => {
-    return <Reconciliation />;
+    return <ReconciliationTable />;
 };
 
 export default ReconciliationTab;
