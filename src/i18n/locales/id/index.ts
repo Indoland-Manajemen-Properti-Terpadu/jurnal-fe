@@ -15,6 +15,13 @@ import { landing } from './landing';
 import { profile } from './profile';
 import { purchases } from './purchases';
 import { products } from './products';
+import { periodClosing } from './periodClosing';
+import { beginningBalances } from './beginningBalances';
+import { bankStatements } from './bankStatements';
+import { journalEntries } from './journalEntries';
+import { chartOfAccounts } from './chartOfAccounts';
+import { reconciliation } from './reconciliation';
+import { accountLedger } from './accountLedger';
 
 export const id = {
   common,
@@ -34,6 +41,13 @@ export const id = {
   profile,
   purchases,
   products,
+  periodClosing,
+  beginningBalances,
+  bankStatements,
+  journalEntries,
+  chartOfAccounts,
+  reconciliation,
+  accountLedger,
 };
 
 export default id;

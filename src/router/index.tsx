@@ -1,17 +1,18 @@
 import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom';
 import { setNavigate } from '@/lib/http/apiClient';
-import { routes } from './routes';
 
 // General Journal Module
-import GeneralJournalPage from '@/module/GeneralJournal/Main/pages/GeneralJournalPage';
-import AddAccountjournalPage from '@/module/GeneralJournal/JournalAccount/pages/AddAccount/AddAccountJournal';
-import EditAccountJournalPage from '@/module/GeneralJournal/JournalAccount/pages/EditAccount/EditAccountJournal';
-import AddJournalTransactionForm from '@/module/GeneralJournal/DetailAccount/TransactionJournal/components/Form/AddJournalTransactionForm';
-import JournalTransactionDetailPage from '@/module/GeneralJournal/DetailAccount/TransactionJournal/pages/JournalTransactionDetail';
-import DetailAccount from '@/module/GeneralJournal/DetailAccount/Main/pages/DetailAccountPage';
-import DetailAccountNonCashBank from '@/module/GeneralJournal/DetailAccount/Main/pages/DetailAccountNonCashBankPage';
-import BeginningBalancePage from '@/module/GeneralJournal/BeginningBalance/pages/BeginningBalancePage';
-import ClosingBooksPage from '@/module/GeneralJournal/PeriodeLockAndClosingBooks/pages/ClosingBooks';
+import GeneralJournalPage from '@/module/chart-of-accounts/presentation/pages/AccountListPage';
+import AddAccountjournalPage from '@/module/chart-of-accounts/presentation/pages/AddAccountPage';
+import EditAccountJournalPage from '@/module/chart-of-accounts/presentation/pages/EditAccountPage';
+import { AddJournalEntryPage, JournalEntryDetailPage } from '@/module/journal-entries';
+import { AccountLedgerPage } from '@/module/account-ledger';
+import { BeginningBalancePage } from '@/module/beginning-balances';
+import {
+  ClosingBooksPage,
+  FinancialStatementPage,
+  PeriodClosingListPage,
+} from '@/module/period-closing';
 
 // User Management Module
 import UserManagement from '@/module/SettingMenu/UserManagement/Main/pages/UserManagement';
@@ -19,15 +20,13 @@ import AddUserForm from '@/module/SettingMenu/UserManagement/User/components/Add
 import AddRoleForm from '@/module/SettingMenu/UserManagement/Role/components/AddRoleForm/AddRoleForm';
 import ReportCatalogPage from '@/module/ResultReport/Catalog/pages/ReportCatalogPage';
 import BalanceSheetPage from '@/module/ResultReport/BalanceSheet/pages/BalanceSheetPage';
-import ImportBankStatementDraft from '@/module/GeneralJournal/DetailAccount/BankStatement/pages/ImportBankStatementDraft';
+import { ImportBankStatementDraftPage } from '@/module/bank-statements';
 import TrialBalancePage from '@/module/ResultReport/BusinessOverview/page/TrialBalancePage';
 import IncomeStatementPage from '@/module/ResultReport/BusinessOverview/page/IncomeStatementPage';
 import CashFlowPage from '@/module/ResultReport/BusinessOverview/page/CashFlowPage';
 import JournalEntryPage from '@/module/ResultReport/BusinessOverview/page/JournalEntryPage';
 import BusinessSumaryPage from '@/module/ResultReport/BusinessOverview/page/BusinessSumaryPage';
 import IncomeStatementBudgetPage from '@/module/ResultReport/BusinessOverview/page/IncomeStatementBudgetPage';
-import FinancialstatementPage from '@/module/GeneralJournal/PeriodeLockAndClosingBooks/pages/FinancialStatement';
-import ListPeriodLockAndClosingBooksPage from '@/module/GeneralJournal/PeriodeLockAndClosingBooks/pages/ListPeriodLockAndClosingBooks';
 import GeneralLedgerPage from '@/module/ResultReport/GeneralLedger/pages/GeneralLedgerPage';
 import EquityChangesPage from '@/module/ResultReport/BusinessOverview/page/EquityChangesPage';
 import BudgetManagementPage from '@/module/ResultReport/BusinessOverview/page/BudgetManagementPage';
@@ -71,6 +70,7 @@ import OAuthCallback from '@/module/Authentication/Login/pages/OAuthCallback';
 import MainDashboard from '@/module/Dashboard/page/page';
 import { LandingPage } from '@/module/landing';
 import { ProfilePage } from '@/module/profile';
+import { routes } from './routes';
 
 const router = createBrowserRouter([
   {
@@ -146,19 +146,19 @@ const router = createBrowserRouter([
   },
   {
     path: routes.generalJournal.addTransactionJournal,
-    element: <AddJournalTransactionForm />,
+    element: <AddJournalEntryPage />,
   },
   {
     path: routes.generalJournal.detailAccount,
-    element: <DetailAccount />,
+    element: <AccountLedgerPage variant="cashBank" />,
   },
   {
     path: routes.generalJournal.detailAccountNonCB,
-    element: <DetailAccountNonCashBank />,
+    element: <AccountLedgerPage variant="nonCashBank" />,
   },
   {
     path: routes.generalJournal.detailTransactionJournal,
-    element: <JournalTransactionDetailPage />,
+    element: <JournalEntryDetailPage />,
   },
   {
     path: routes.generalJournal.beginningBalance,
@@ -170,15 +170,15 @@ const router = createBrowserRouter([
   },
   {
     path: routes.generalJournal.bankStatementDraftImport,
-    element: <ImportBankStatementDraft />,
+    element: <ImportBankStatementDraftPage />,
   },
   {
     path: routes.PeriodAndClosingBook.FinancialStatement,
-    element: <FinancialstatementPage />,
+    element: <FinancialStatementPage />,
   },
   {
     path: routes.PeriodAndClosingBook.ListPLandCB,
-    element: <ListPeriodLockAndClosingBooksPage />,
+    element: <PeriodClosingListPage />,
   },
 
   // Contact Routes

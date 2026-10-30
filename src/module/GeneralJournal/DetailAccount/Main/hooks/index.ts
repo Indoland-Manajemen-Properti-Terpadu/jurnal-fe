@@ -1,1 +1,0 @@
-export { useDetailAccount } from './useDetailAccount';

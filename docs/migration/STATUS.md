@@ -55,13 +55,13 @@ Priority changed: the ledger (`GeneralJournal`) goes before the remaining small 
 
 | Module | Structure | Names | i18n | Docs | Tests | Release |
 |---|---|---|---|---|---|---|
-| `chart-of-accounts` | todo | todo | todo | todo | todo | R2 |
-| `journal-entries` | todo | todo | todo | todo | todo | R2 |
-| `account-ledger` | todo | todo | todo | todo | todo | R2 |
-| `bank-statements` | todo | todo | todo | todo | todo | R2 |
-| `reconciliation` | todo | todo | todo | todo | todo | R2 |
-| `beginning-balances` | todo | todo | todo | todo | todo | R2 |
-| `period-closing` | todo | todo | todo | todo | todo | R2 |
+| `chart-of-accounts` | done | done | done | done | done | R2 |
+| `journal-entries` | done | done | done | done | done | R2 |
+| `account-ledger` | done | done | done | done | done | R2 |
+| `bank-statements` | done | done | done | done | done | R2 |
+| `reconciliation` | done | done | done | done | done | R2 |
+| `beginning-balances` | done | done | done | done | done | R2 |
+| `period-closing` | done | done | done | done | done | R2 |
 
 ## Milestone 4: Platform (R4, final)
 

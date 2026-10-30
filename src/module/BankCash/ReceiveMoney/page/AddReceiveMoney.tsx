@@ -40,7 +40,7 @@ import AppShellLayout from '@/components/AppShellLayout';
 import ModuleHeader from '@/components/ModuleHeader/ModuleHeader';
 import { routes } from '@/router/routes';
 import { formatCurrency } from '@/utils/FormatCurrency';
-import { useJournalAccounts } from '@/module/GeneralJournal/JournalAccount/hooks/useJournalAccounts';
+import { useJournalAccounts } from '@/module/chart-of-accounts';
 import { useBankCashTransactionMutation } from '../../services/bankCashTransactionService';
 import { useTranslation } from '@/i18n';
 

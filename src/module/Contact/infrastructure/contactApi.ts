@@ -1,6 +1,6 @@
 import axios from 'axios';
 import apiClient from '@/lib/http/apiClient';
-import { getJournalAccounts } from '@/module/GeneralJournal/JournalAccount/services/AccountJournal.service';
+import { getJournalAccounts } from '@/module/chart-of-accounts';
 import type {
   AccountOption,
   Contact,

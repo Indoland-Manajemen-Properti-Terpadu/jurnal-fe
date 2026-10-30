@@ -16,7 +16,7 @@ src/
   router/       route table and route constants
 ```
 
-The target layout and the migration status of each feature are in [migration/STATUS.md](migration/STATUS.md). Legacy folders (`Contact`, `GeneralJournal`, ...) coexist with the target layout until their migration PR lands.
+The target layout and the migration status of each feature are in [migration/STATUS.md](migration/STATUS.md). Legacy folders (`Contact`, ...) coexist with the target layout until their migration PR lands.
 
 ## Feature module
 
@@ -58,6 +58,10 @@ Server responses are never mirrored in Zustand. Financial mutations are not opti
 ## HTTP
 
 All HTTP goes through `src/lib/http/apiClient.ts` (Bearer token, 401 refresh with a request queue, redirect to login, global loading bar), called only from a feature's `infrastructure/`. The legacy helpers `get/post/put/del/patch` return `error.response` or `null` on failure and are `@deprecated`; migrated code uses the default `apiClient` and handles errors explicitly. Responses use the envelope `{ code, message, data, pagination? }`.
+
+## Accounting rules
+
+Pure ledger rules (normal balance, journal balance, opening-balance and reconciliation gates) live in `src/lib/accounting` with no React or HTTP. Gates are exact and reject sub-cent amounts; display helpers round half up to the cent. See [`src/lib/accounting/README.md`](../src/lib/accounting/README.md).
 
 ## Money
 
