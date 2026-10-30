@@ -22,7 +22,7 @@ import {
 import { useTranslation } from '@/i18n';
 import type { Contact, ContactAddress } from '../types/contact';
 import { formatContactName, resolveAccountName } from '../utils/contactFormat';
-import classes from '../view/DetailContact.module.css';
+import classes from '../view/DetailContactPage.module.css';
 
 type Props = { contact: Contact; accountMap: Map<string, string> };
 

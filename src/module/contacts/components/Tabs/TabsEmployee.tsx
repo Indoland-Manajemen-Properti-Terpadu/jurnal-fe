@@ -8,7 +8,7 @@ const PAPER_PROPS = {
     radius: 'md',
 };
 
-export default function TabsEmploye() {
+export default function TabsEmployee() {
     const {
         data: statsData,
         error: statsError,

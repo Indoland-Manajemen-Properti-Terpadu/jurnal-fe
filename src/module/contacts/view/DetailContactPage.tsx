@@ -48,7 +48,7 @@ import {
 } from '../hooks/useContactTransactionView';
 import type { ContactFormValues } from '../types/contact';
 import { getContactTypeBadgeConfig } from '../utils/contactFormat';
-import classes from './DetailContact.module.css';
+import classes from './DetailContactPage.module.css';
 
 function getInitials(name: string) {
   const parts = name.trim().split(/\s+/).filter(Boolean);

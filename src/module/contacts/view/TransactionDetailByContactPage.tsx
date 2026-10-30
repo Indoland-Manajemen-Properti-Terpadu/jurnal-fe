@@ -52,7 +52,7 @@ const getInitials = (name: string): string => {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 };
 
-export function TransactionDetailByContact() {
+export function TransactionDetailByContactPage() {
   const { idAccount } = useParams<{ idAccount: string }>();
   const navigate = useNavigate();
 
@@ -500,4 +500,4 @@ export function TransactionDetailByContact() {
   );
 }
 
-export default TransactionDetailByContact;
+export default TransactionDetailByContactPage;
