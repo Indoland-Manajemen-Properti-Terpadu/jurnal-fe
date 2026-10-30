@@ -1,5 +1,16 @@
 export type ContactType = 'Pelanggan' | 'Supplier' | 'Karyawan' | 'Unit' | 'Lainnya';
 
+export const CONTACT_TYPES: readonly ContactType[] = [
+  'Pelanggan',
+  'Supplier',
+  'Karyawan',
+  'Unit',
+  'Lainnya',
+];
+
+export const isContactType = (value: string): value is ContactType =>
+  (CONTACT_TYPES as readonly string[]).includes(value);
+
 export type ContactFullName = {
   prefix?: string | null;
   firstName?: string | null;
