@@ -3,7 +3,6 @@ import {
   ActionIcon,
   Box,
   Button,
-  Container,
   Group,
   LoadingOverlay,
   Paper,
@@ -27,10 +26,12 @@ import {
   IconUser,
   IconUserCheck,
   IconX,
+  type Icon,
 } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from '@/i18n';
 import AppShellLayout from '@/components/AppShellLayout';
-import ModuleHeader from '@/components/ModuleHeader/ModuleHeader';
+import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
 import ConfirmModal from '@/components/ui/ConfirmModal/ConfirmModal';
 import { routes } from '@/router/routes';
 import { ContactStatsGrid } from '@/module/contacts/presentation/components/stats/ContactStatsGrid';
@@ -45,10 +46,25 @@ import {
   useExportContacts,
   useSaveContact,
 } from '@/module/contacts/presentation/hooks/useContactQueries';
-import type { Contact, ContactFormValues } from '@/module/contacts/domain/contact';
+import {
+  CONTACT_TYPES,
+  type Contact,
+  type ContactFormValues,
+  type ContactType,
+} from '@/module/contacts/domain/contact';
+import { countContactTypes } from '@/module/contacts/domain/contactFormat';
+
+const TAB_ICONS: Record<ContactType, Icon> = {
+  Pelanggan: IconUserCheck,
+  Supplier: IconTruckDelivery,
+  Karyawan: IconBriefcase,
+  Unit: IconHome2,
+  Lainnya: IconUser,
+};
 
 export function ContactMainPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation('contacts');
 
   // Search & Filter State
   const [searchInput, setSearchInput] = useState('');
@@ -127,25 +143,10 @@ export function ContactMainPage() {
   const totalPages = pagination?.totalPages ?? 1;
 
   // Approximate metrics for overview cards
-  const stats = useMemo(() => {
-    let cust = 0;
-    let supp = 0;
-    let empl = 0;
-    let unit = 0;
-    contactsList.forEach((c) => {
-      if (c.contactType.includes('Pelanggan')) cust += 1;
-      if (c.contactType.includes('Supplier')) supp += 1;
-      if (c.contactType.includes('Karyawan')) empl += 1;
-      if (c.contactType.includes('Unit')) unit += 1;
-    });
-    return {
-      total,
-      customers: cust,
-      suppliers: supp,
-      employees: empl,
-      units: unit,
-    };
-  }, [contactsList, total]);
+  const stats = useMemo(
+    () => ({ total, ...countContactTypes(contactsList) }),
+    [contactsList, total]
+  );
 
   return (
     <AppShellLayout>
@@ -154,18 +155,18 @@ export function ContactMainPage() {
           {/* Module Header */}
           <ModuleHeader
             icon={IconAddressBook}
-            title="Direktori Kontak"
-            description="Kelola seluruh profil rekanan bisnis, pelanggan, pemasok, unit properti, dan karyawan. Hubungkan dengan akun piutang dan hutang untuk kemudahan pencatatan transaksi yang konsisten dan akurat."
+            title={t('main.title')}
+            description={t('main.description')}
             actions={
               <Group gap="xs" wrap="wrap">
-                <Tooltip label="Muat ulang data" withArrow position="top">
+                <Tooltip label={t('main.refreshTooltip')} withArrow position="top">
                   <ActionIcon
                     variant="default"
                     size="lg"
                     radius="md"
                     onClick={() => contactsQuery.refetch()}
                     loading={contactsQuery.isFetching}
-                    aria-label="Refresh kontak"
+                    aria-label={t('main.refreshAria')}
                   >
                     <IconRefresh size={18} />
                   </ActionIcon>
@@ -176,7 +177,7 @@ export function ContactMainPage() {
                   leftSection={<IconCategory size={16} />}
                   onClick={() => setGroupsModalOpened(true)}
                 >
-                  Kelola Grup
+                  {t('main.manageGroups')}
                 </Button>
 
                 <Button
@@ -185,7 +186,7 @@ export function ContactMainPage() {
                   loading={exportContactsMutation.isPending}
                   onClick={() => exportContactsMutation.mutate()}
                 >
-                  Ekspor Data
+                  {t('main.export')}
                 </Button>
 
                 <Button
@@ -193,7 +194,7 @@ export function ContactMainPage() {
                   leftSection={<IconUpload size={16} />}
                   onClick={() => setImportModalOpened(true)}
                 >
-                  Impor Kontak
+                  {t('main.import')}
                 </Button>
 
                 <Button
@@ -201,7 +202,7 @@ export function ContactMainPage() {
                   leftSection={<IconPlus size={18} />}
                   onClick={handleOpenCreate}
                 >
-                  Tambah Kontak
+                  {t('main.add')}
                 </Button>
               </Group>
             }
@@ -227,30 +228,23 @@ export function ContactMainPage() {
             >
               <Tabs.List mb="md">
                 <Tabs.Tab value="all" leftSection={<IconAddressBook size={16} />}>
-                  Semua Kontak
+                  {t('main.tabs.all')}
                 </Tabs.Tab>
-                <Tabs.Tab value="Pelanggan" leftSection={<IconUserCheck size={16} />}>
-                  Pelanggan
-                </Tabs.Tab>
-                <Tabs.Tab value="Supplier" leftSection={<IconTruckDelivery size={16} />}>
-                  Pemasok / Vendor
-                </Tabs.Tab>
-                <Tabs.Tab value="Karyawan" leftSection={<IconBriefcase size={16} />}>
-                  Karyawan
-                </Tabs.Tab>
-                <Tabs.Tab value="Unit" leftSection={<IconHome2 size={16} />}>
-                  Unit
-                </Tabs.Tab>
-                <Tabs.Tab value="Lainnya" leftSection={<IconUser size={16} />}>
-                  Lainnya
-                </Tabs.Tab>
+                {CONTACT_TYPES.map((type) => {
+                  const TabIcon = TAB_ICONS[type];
+                  return (
+                    <Tabs.Tab key={type} value={type} leftSection={<TabIcon size={16} />}>
+                      {t(`main.tabs.${type}`)}
+                    </Tabs.Tab>
+                  );
+                })}
               </Tabs.List>
 
               <Stack gap="md">
                 {/* Filter & Search Bar */}
                 <Group justify="space-between" wrap="wrap" gap="sm">
                   <TextInput
-                    placeholder="Cari nama, perusahaan, nomor kontak, atau email..."
+                    placeholder={t('main.searchPlaceholder')}
                     leftSection={<IconSearch size={16} />}
                     rightSection={
                       searchInput ? (
@@ -259,7 +253,7 @@ export function ContactMainPage() {
                           variant="subtle"
                           color="gray"
                           onClick={() => setSearchInput('')}
-                          aria-label="Hapus pencarian"
+                          aria-label={t('main.clearSearch')}
                         >
                           <IconX size={12} />
                         </ActionIcon>
@@ -321,9 +315,9 @@ export function ContactMainPage() {
         opened={Boolean(archiveTarget)}
         onClose={() => setArchiveTarget(null)}
         onConfirm={handleArchiveConfirm}
-        title="Arsipkan Kontak Ini?"
-        message={`Apakah Anda yakin ingin mengarsipkan kontak "${archiveTarget?.displayName}"? Kontak yang diarsipkan tidak akan muncul dalam pilihan transaksi baru.`}
-        confirmLabel="Arsipkan"
+        title={t('main.archiveTitle')}
+        message={t('main.archiveMessage', { name: archiveTarget?.displayName ?? '' })}
+        confirmLabel={t('main.archiveConfirm')}
         confirmLoading={archiveMutation.isPending}
         confirmButtonProps={{ color: 'red' }}
       />

@@ -1,5 +1,5 @@
-import type { Sale } from '@/module/sales/domain/sale';
-import { fromCents, toCents } from '@/module/sales/domain/saleMoney';
+import { fromMinor, sumMinor, toMinor } from '@/lib/money/money';
+import type { Sale } from '@/module/sales';
 
 export type TransactionStatusFilter = 'all' | 'UNPAID' | 'PAID' | 'OVERDUE' | 'DRAFT';
 
@@ -47,20 +47,15 @@ export const filterSalesByStatus = (
 
 export type SalesTotals = { finalSum: number; paidSum: number; remainingSum: number };
 
-/** Sums in integer cents so decimal amounts do not drift. */
+/** Sums in integer minor units so decimal amounts do not drift. */
 export const summarizeSales = (sales: Sale[]): SalesTotals => {
-  let final = 0;
-  let paid = 0;
-  let remaining = 0;
-  sales.forEach((sale) => {
-    final += toCents(sale.finalAmount || 0);
-    paid += toCents(sale.paidAmount || 0);
-    remaining += toCents(sale.remainingAmount || 0);
-  });
+  const sum = (pick: (sale: Sale) => number | undefined) =>
+    Number(fromMinor(sumMinor(sales.map((sale) => toMinor(pick(sale) || 0)))));
+
   return {
-    finalSum: fromCents(final),
-    paidSum: fromCents(paid),
-    remainingSum: fromCents(remaining),
+    finalSum: sum((sale) => sale.finalAmount),
+    paidSum: sum((sale) => sale.paidAmount),
+    remainingSum: sum((sale) => sale.remainingAmount),
   };
 };
 
@@ -69,4 +64,10 @@ export const getInitials = (name: string): string => {
   if (parts.length === 0) return '?';
   if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+};
+
+/** The journal an invoice posted to: the first item's journal, then the invoice's own ids. */
+export const resolveSaleJournalId = (sale: Sale): string | null | undefined => {
+  const itemWithJournal = sale.items?.find((item) => Boolean(item.journalTransaction));
+  return itemWithJournal?.journalTransaction || sale.journalId || sale.transactionId;
 };

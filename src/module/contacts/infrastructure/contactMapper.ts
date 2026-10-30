@@ -1,3 +1,5 @@
+import { t } from '@/i18n';
+import { roundToCents } from '@/module/sales/domain/saleMoney';
 import type {
   Contact,
   ContactAccountMapping,
@@ -6,7 +8,6 @@ import type {
   Pagination,
 } from '../domain/contact';
 import { extractAccountId } from '../domain/contactAccount';
-import { roundToCents } from '@/module/sales/domain/saleMoney';
 import type {
   ContactDto,
   ContactMappingAccountDto,
@@ -40,7 +41,7 @@ const mapMappingAccount = (raw: ContactMappingAccountDto | null | undefined) => 
 export const mapContact = (dto: ContactDto): Contact => ({
   id: dto.id || dto._id || '',
   contactNumber: dto.contactNumber || dto.contact_number || '',
-  displayName: dto.displayName || dto.display_name || 'Tanpa Nama',
+  displayName: dto.displayName || dto.display_name || t('unnamed', undefined, 'contacts'),
   fullName: dto.fullName ?? null,
   identity: dto.identity ?? null,
   phones: dto.phones ?? null,

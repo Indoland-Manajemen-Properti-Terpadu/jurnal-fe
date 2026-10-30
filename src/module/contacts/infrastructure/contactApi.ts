@@ -1,5 +1,6 @@
 import axios from 'axios';
 import apiClient from '@/lib/http/apiClient';
+import { t } from '@/i18n';
 import { getJournalAccounts } from '@/module/chart-of-accounts';
 import type {
   AccountOption,
@@ -11,8 +12,7 @@ import type {
   Paginated,
   PaymentTerm,
 } from '@/module/contacts/domain/contact';
-import type { Sale } from '@/module/sales/domain/sale';
-import type { SaleDto } from '@/module/sales/infrastructure/saleDto';
+import type { Sale } from '@/module/sales';
 import { mapSaleDto } from '@/module/sales/infrastructure/saleMapper';
 import type { ApiEnvelope, ContactDto, ContactPayloadDto, PaginatedDto } from './contactDto';
 import { buildContactPayload, mapContact, mapPagination } from './contactMapper';
@@ -118,11 +118,14 @@ export const fetchAccountOptions = async (): Promise<AccountOption[]> => {
   return list.map((acc) => ({
     id: acc.id,
     label: acc.accountNumber ? `${acc.accountNumber} · ${acc.name}` : acc.name,
-    category: acc.category?.name ?? acc.type ?? 'Akun Lainnya',
+    category:
+      acc.category?.name ?? acc.type ?? t('form.options.otherAccounts', undefined, 'contacts'),
     accountNumber: acc.accountNumber,
     name: acc.name,
   }));
 };
+
+const netDaysName = (count: number) => t('paymentTerm.netDays', { count }, 'contacts');
 
 export const fetchPaymentTerms = async (): Promise<PaymentTerm[]> => {
   try {
@@ -139,10 +142,10 @@ export const fetchPaymentTerms = async (): Promise<PaymentTerm[]> => {
   }
 
   return [
-    { id: 'cod', name: 'Cash on Delivery (COD)', days: 0, isDefault: true },
-    { id: 'net15', name: 'Net 15 Hari', days: 15, isDefault: false },
-    { id: 'net30', name: 'Net 30 Hari', days: 30, isDefault: true },
-    { id: 'net60', name: 'Net 60 Hari', days: 60, isDefault: false },
+    { id: 'cod', name: t('paymentTerm.cod', undefined, 'contacts'), days: 0, isDefault: true },
+    { id: 'net15', name: netDaysName(15), days: 15, isDefault: false },
+    { id: 'net30', name: netDaysName(30), days: 30, isDefault: true },
+    { id: 'net60', name: netDaysName(60), days: 60, isDefault: false },
   ];
 };
 
@@ -159,7 +162,7 @@ export const fetchSalesByCustomer = async (
   contactId: string,
   params: ContactTransactionParams = {}
 ): Promise<Paginated<Sale>> => {
-  const { data } = await apiClient.get<ApiEnvelope<PaginatedDto<SaleDto>>>(
+  const { data } = await apiClient.get<ApiEnvelope<PaginatedDto<Parameters<typeof mapSaleDto>[0]>>>(
     CONTACT_ENDPOINTS.salesByCustomer(contactId),
     {
       params: {

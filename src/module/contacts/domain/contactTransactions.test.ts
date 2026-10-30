@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import type { Sale } from '@/module/sales/domain/sale';
+import type { Sale } from '@/module/sales';
 import {
   filterSalesByStatus,
   getInitials,
   isSaleOverdue,
+  resolveSaleJournalId,
   summarizeSales,
 } from './contactTransactions';
 
@@ -64,5 +65,17 @@ describe('getInitials', () => {
     expect(getInitials('Budi Santoso Putra')).toBe('BP');
     expect(getInitials('maju')).toBe('MA');
     expect(getInitials('   ')).toBe('?');
+  });
+});
+
+describe('resolveSaleJournalId', () => {
+  it('prefers an item journal, then the invoice journal, then the transaction id', () => {
+    const items = [{ journalTransaction: null }, { journalTransaction: 'j-item' }] as Sale['items'];
+    expect(resolveSaleJournalId(sale({ items, journalId: 'j-sale' }))).toBe('j-item');
+    expect(resolveSaleJournalId(sale({ items: [], journalId: 'j-sale', transactionId: 't' }))).toBe(
+      'j-sale'
+    );
+    expect(resolveSaleJournalId(sale({ items: [], transactionId: 't' }))).toBe('t');
+    expect(resolveSaleJournalId(sale({ items: [] }))).toBeUndefined();
   });
 });

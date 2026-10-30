@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { Contact } from './contact';
 import {
+  countContactTypes,
   formatContactName,
   formatDate,
   formatPaymentTerm,
@@ -74,5 +75,17 @@ describe('contactFormat (characterization)', () => {
     expect(resolveAccountName({ id: 'b2' }, map)).toBe('b2');
     expect(resolveAccountName({}, map)).toBe('—');
     expect(resolveAccountName(42, map)).toBe('—');
+  });
+});
+
+describe('countContactTypes', () => {
+  it('counts a multi-type contact once per type', () => {
+    expect(
+      countContactTypes([
+        contact({ contactType: ['Pelanggan', 'Supplier'] }),
+        contact({ contactType: ['Unit'] }),
+        contact({ contactType: ['Lainnya'] }),
+      ])
+    ).toEqual({ customers: 1, suppliers: 1, employees: 0, units: 1 });
   });
 });

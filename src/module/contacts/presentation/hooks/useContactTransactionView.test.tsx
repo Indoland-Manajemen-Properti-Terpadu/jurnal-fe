@@ -2,7 +2,7 @@ import { ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { MantineProvider } from '@mantine/core';
-import type { Sale } from '@/module/sales/domain/sale';
+import type { Sale } from '@/module/sales';
 import { useContactTransactionView } from './useContactTransactionView';
 
 const queryState = vi.hoisted(() => ({ data: undefined as unknown }));
