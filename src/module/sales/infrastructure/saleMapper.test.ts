@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { mapSaleDto } from './saleApi';
+import { mapSaleDto } from './saleMapper';
 
 const baseDto = {
   id: 's-1',
@@ -58,5 +58,38 @@ describe('mapSaleDto money (characterization)', () => {
     const sale = mapSaleDto(null);
 
     expect(sale).toMatchObject({ id: '', status: 'DRAFT', total: 0, items: [], customer: null });
+  });
+});
+
+describe('mapSaleDto rounding at the input boundary', () => {
+  it('rounds money half up to the cent, symmetric for negative adjustments', () => {
+    const sale = mapSaleDto({
+      ...baseDto,
+      subtotal: 1500.505,
+      adjustedAmount: -250.755,
+      items: [{ id: 'i', quantity: 1.5, unitPrice: 1.005, amount: 1.505, adjustedAmount: 10.005 }],
+    });
+
+    expect(sale.subtotal).toBe(1500.51);
+    expect(sale.adjustedAmount).toBe(-250.76);
+    expect(sale.items[0]).toMatchObject({
+      quantity: 1.5,
+      unitPrice: 1.01,
+      amount: 1.51,
+      adjustedAmount: 10.01,
+    });
+  });
+
+  it('does not round quantity, tax rate or discount percentage', () => {
+    const sale = mapSaleDto({
+      ...baseDto,
+      discountType: 'percentage',
+      discountValue: 12.345,
+      items: [{ id: 'i', quantity: 2.125, unitPrice: 10, tax: { id: 't', name: 'PPN', rate: 11 } }],
+    });
+
+    expect(sale.discountValue).toBe(12.345);
+    expect(sale.items[0].quantity).toBe(2.125);
+    expect(sale.items[0].tax?.rate).toBe(11);
   });
 });
