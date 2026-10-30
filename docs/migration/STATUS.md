@@ -29,7 +29,7 @@ Priority changed: the ledger (`GeneralJournal`) goes before the remaining small 
 
 | Module (current to target) | Structure | Names | i18n | Docs | Tests | Release |
 |---|---|---|---|---|---|---|
-| `Contact` + `Kontak` to `contacts` | todo | todo | todo | todo | todo | R3 |
+| `Contact` + `Kontak` to `contacts` | done | done | done | done | done | R3 |
 | `products` | done | done | done | done | done | R1 |
 | `Sale` to `sales` | done | done | done | done | done | R3 |
 | `Pembelian` to `purchases` | done | done | done | done | done | R1 |
