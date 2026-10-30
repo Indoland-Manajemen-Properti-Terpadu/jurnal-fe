@@ -1,5 +1,8 @@
 import axios from 'axios';
 import apiClient from '@/lib/http/apiClient';
+import { roundToCents } from '../domain/saleMoney';
+import { mapSaleDto, mapSalePaymentDetail, mapSalePaymentMethod } from './saleMapper';
+import type { SaleDto, SalePaymentDetailDto, SalePaymentMethodDto } from './saleDto';
 import type {
   CreateSaleFormValues,
   CreateSalePaymentPayload,
@@ -8,7 +11,6 @@ import type {
   SaleListParams,
   SalePaymentDetail,
   SalePaymentMethod,
-  SaleTag,
 } from '../domain/sale';
 
 export const SALE_ENDPOINTS = {
@@ -33,201 +35,18 @@ type PaginatedDto<T> = {
   pagination: { total: number; page: number; limit: number; totalPages: number };
 };
 
-/* Helper converters */
-const toNumber = (v: unknown): number => (typeof v === 'number' && Number.isFinite(v) ? v : 0);
+// Nominal amounts are money and are rounded to the cent; percentages are rates and stay as typed.
+const discountValuePayload = (values: CreateSaleFormValues): number =>
+  values.discountType === 'nominal' ? roundToCents(values.discountValue) : values.discountValue;
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-export const mapSaleDto = (dto: any): Sale => {
-  if (!dto) {
-    return {
-      id: '',
-      transactionNumber: '—',
-      customer: null,
-      emails: [],
-      transactionDate: null,
-      dueDate: null,
-      tags: [],
-      paymentTerm: null,
-      isPriceIncludeTax: false,
-      items: [],
-      subtotal: 0,
-      total: 0,
-      finalAmount: 0,
-      paidAmount: 0,
-      remainingAmount: 0,
-      attachments: [],
-      status: 'DRAFT',
-      deleted: false,
-      createdAt: null,
-      updatedAt: null,
-    };
-  }
-
-  const cust = dto.customer;
-  const items = Array.isArray(dto.items)
-    ? dto.items.map((i: any) => ({
-        id: i.id || i._id,
-        product: i.product
-          ? {
-              id: i.product.id || i.product._id,
-              name: i.product.name,
-              productCode: i.product.productCode || i.product.code,
-            }
-          : null,
-        description: i.description,
-        quantity: toNumber(i.quantity),
-        unitPrice: toNumber(i.unitPrice || i.unit_price),
-        tax: i.tax
-          ? {
-              id: i.tax.id || i.tax._id,
-              name: i.tax.name,
-              rate: toNumber(i.tax.rate),
-            }
-          : null,
-        taxAmount: toNumber(i.taxAmount),
-        amount: toNumber(i.amount),
-        adjustedAmount:
-          i.adjustedAmount !== undefined && i.adjustedAmount !== null
-            ? toNumber(i.adjustedAmount)
-            : undefined,
-        paidAmount: toNumber(i.paidAmount),
-        journalTransaction:
-          typeof i.journalTransaction === 'string'
-            ? i.journalTransaction
-            : i.journalTransaction?.id || i.journalTransaction?._id || null,
-        journalId:
-          i.journalId ||
-          i.journal_id ||
-          (typeof i.journalTransaction === 'string'
-            ? i.journalTransaction
-            : i.journalTransaction?.id) ||
-          i.journal?.id ||
-          i.journal?._id ||
-          null,
-        transactionId:
-          i.transactionId ||
-          i.transaction_id ||
-          i.transactionJournalId ||
-          i.journalTransactionId ||
-          (typeof i.journalTransaction === 'string'
-            ? i.journalTransaction
-            : i.journalTransaction?.id) ||
-          null,
-        salesAccount:
-          typeof i.salesAccount === 'string' ? i.salesAccount : i.salesAccount?.id || null,
-        accountReceivable:
-          typeof i.accountReceivable === 'string'
-            ? i.accountReceivable
-            : i.accountReceivable?.id || null,
-      }))
-    : [];
-
-  const attachments = Array.isArray(dto.attachments)
-    ? dto.attachments.map((a: any) => ({
-        id: a.id || a._id,
-        fileName: a.fileName || a.name,
-        filePath: a.filePath || a.path,
-        mimeType: a.mimeType,
-        createdAt: a.createdAt,
-      }))
-    : [];
-
-  const rawTags = dto.tags ?? dto.tag;
-  const tags: SaleTag[] = Array.isArray(rawTags)
-    ? rawTags.map((t: any) =>
-        typeof t === 'string'
-          ? { id: t, name: t }
-          : { id: t.id || t._id || t.name, name: t.name || t.id || 'Tag' }
-      )
-    : typeof rawTags === 'string' && rawTags.trim()
-      ? rawTags
-          .split(',')
-          .map((s: string) => s.trim())
-          .filter(Boolean)
-          .map((s: string) => ({ id: s, name: s }))
-      : [];
-
-  return {
-    id: dto.id || dto._id || '',
-    site: dto.site,
-    transactionNumber: dto.transactionNumber || dto.transaction_number || '—',
-    customer: cust
-      ? {
-          id: cust.id || cust._id,
-          displayName: cust.displayName || cust.name || 'Pelanggan',
-          fullName: cust.fullName,
-          contactNumber: cust.contactNumber,
-          emails: Array.isArray(cust.emails) ? cust.emails : [],
-          phones: cust.phones,
-          billingAddress: cust.addresses?.billing?.general || cust.billingAddress,
-          identity: cust.identity,
-        }
-      : null,
-    emails: Array.isArray(dto.emails) ? dto.emails : [],
-    billingAddress: dto.billingAddress,
-    transactionDate: dto.transactionDate || null,
-    dueDate: dto.dueDate || null,
-    tags,
-    customerRefNumber: dto.customerRefNumber || null,
-    paymentTerm: dto.paymentTerm
-      ? {
-          id: dto.paymentTerm.id || dto.paymentTerm._id,
-          name: dto.paymentTerm.name,
-          days: dto.paymentTerm.days,
-          isDefault: dto.paymentTerm.isDefault,
-        }
-      : null,
-    isPriceIncludeTax: Boolean(dto.isPriceIncludeTax),
-    items,
-    subtotal: toNumber(dto.subtotal),
-    discountType: dto.discountType,
-    discountValue: toNumber(dto.discountValue),
-    discountAmount: toNumber(dto.discountAmount),
-    taxAmount: toNumber(dto.taxAmount),
-    total: toNumber(dto.total),
-    adjustedAmount:
-      dto.adjustedAmount !== undefined && dto.adjustedAmount !== null
-        ? toNumber(dto.adjustedAmount)
-        : undefined,
-    lateFeeAmount: toNumber(dto.lateFeeAmount),
-    lateFeePaidAmount: toNumber(dto.lateFeePaidAmount),
-    withholdingType: dto.withholdingType,
-    withholdingValue: toNumber(dto.withholdingValue),
-    withholdingAmount: toNumber(dto.withholdingAmount),
-    withholdingAccount: dto.withholdingAccount
-      ? {
-          id: dto.withholdingAccount.id || dto.withholdingAccount._id,
-          name: dto.withholdingAccount.name,
-          accountNumber: dto.withholdingAccount.accountNumber,
-        }
-      : null,
-    finalAmount: toNumber(dto.finalAmount ?? dto.total),
-    paidAmount: toNumber(dto.paidAmount),
-    remainingAmount: toNumber(dto.remainingAmount),
-    attachments,
-    message: dto.message || null,
-    memo: dto.memo || null,
-    status: dto.status || 'DRAFT',
-    invoiceLink: dto.invoiceLink || null,
-    journalId:
-      dto.journalId ||
-      dto.journal_id ||
-      dto.journalTransactionId ||
-      dto.transactionJournalId ||
-      dto.journal?.id ||
-      dto.journal?._id ||
-      null,
-    transactionId:
-      dto.transactionId || dto.transaction_id || dto.journalId || dto.journal_id || null,
-    deleted: Boolean(dto.deleted),
-    createdAt: dto.createdAt || null,
-    updatedAt: dto.updatedAt || null,
-  };
-};
+const withholdingValuePayload = (values: CreateSaleFormValues): number =>
+  values.withholdingType === 'nominal'
+    ? roundToCents(values.withholdingValue)
+    : values.withholdingValue;
 
 /* API Calls */
 export const fetchSales = async (params: SaleListParams = {}): Promise<Paginated<Sale>> => {
-  const { data } = await apiClient.get<ApiEnvelope<PaginatedDto<any>>>(SALE_ENDPOINTS.sales, {
+  const { data } = await apiClient.get<ApiEnvelope<PaginatedDto<SaleDto>>>(SALE_ENDPOINTS.sales, {
     params: {
       page: params.page || 1,
       limit: params.limit || 10,
@@ -253,12 +72,14 @@ export const fetchSales = async (params: SaleListParams = {}): Promise<Paginated
 };
 
 export const fetchSaleDetail = async (id: string): Promise<Sale> => {
-  const { data } = await apiClient.get<ApiEnvelope<any>>(SALE_ENDPOINTS.saleDetail(id));
+  const { data } = await apiClient.get<ApiEnvelope<SaleDto>>(SALE_ENDPOINTS.saleDetail(id));
   return mapSaleDto(data.data);
 };
 
 export const fetchSaleByTxNumber = async (txNumber: string): Promise<Sale> => {
-  const { data } = await apiClient.get<ApiEnvelope<any>>(SALE_ENDPOINTS.saleByTxNumber(txNumber));
+  const { data } = await apiClient.get<ApiEnvelope<SaleDto>>(
+    SALE_ENDPOINTS.saleByTxNumber(txNumber)
+  );
   return mapSaleDto(data.data);
 };
 
@@ -286,18 +107,18 @@ export const createSale = async (values: CreateSaleFormValues): Promise<Sale> =>
     formData.append(`items[${index}][product]`, item.productId);
     if (item.description) formData.append(`items[${index}][description]`, item.description);
     formData.append(`items[${index}][quantity]`, String(item.quantity));
-    formData.append(`items[${index}][unitPrice]`, String(item.unitPrice));
+    formData.append(`items[${index}][unitPrice]`, String(roundToCents(item.unitPrice)));
     if (item.taxId) formData.append(`items[${index}][tax]`, item.taxId);
   });
 
   if (values.discountType && values.discountValue > 0) {
     formData.append('discountType', values.discountType);
-    formData.append('discountValue', String(values.discountValue));
+    formData.append('discountValue', String(discountValuePayload(values)));
   }
 
   if (values.withholdingAccount && values.withholdingValue > 0) {
     formData.append('withholdingType', values.withholdingType);
-    formData.append('withholdingValue', String(values.withholdingValue));
+    formData.append('withholdingValue', String(withholdingValuePayload(values)));
     formData.append('withholdingAccount', values.withholdingAccount);
   }
 
@@ -310,7 +131,7 @@ export const createSale = async (values: CreateSaleFormValues): Promise<Sale> =>
     });
   }
 
-  const { data } = await apiClient.post<ApiEnvelope<any>>(SALE_ENDPOINTS.sales, formData, {
+  const { data } = await apiClient.post<ApiEnvelope<SaleDto>>(SALE_ENDPOINTS.sales, formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
   });
 
@@ -332,39 +153,27 @@ export const downloadInvoicePdf = async (id: string): Promise<Blob> => {
 };
 
 /* Payment API */
-export const createSalePayment = async (payload: CreateSalePaymentPayload): Promise<any> => {
-  const { data } = await apiClient.post<ApiEnvelope<any>>(SALE_ENDPOINTS.salePayments, payload);
+export const createSalePayment = async (payload: CreateSalePaymentPayload): Promise<unknown> => {
+  const body =
+    typeof payload.amount === 'number'
+      ? { ...payload, amount: roundToCents(payload.amount) }
+      : payload;
+  const { data } = await apiClient.post<ApiEnvelope<unknown>>(SALE_ENDPOINTS.salePayments, body);
   return data.data;
 };
 
 export const fetchSalePaymentDetail = async (id: string): Promise<SalePaymentDetail> => {
-  const { data } = await apiClient.get<ApiEnvelope<any>>(SALE_ENDPOINTS.salePaymentDetail(id));
-  const raw = data.data;
-  return {
-    id: raw.id || raw._id,
-    site: raw.site,
-    sale: raw.sale,
-    depositAccount: raw.depositAccount,
-    paymentMethod: raw.paymentMethod,
-    paymentDate: raw.paymentDate,
-    amount: toNumber(raw.amount),
-    transactionNumber: raw.transactionNumber || '—',
-    memo: raw.memo,
-    createdAt: raw.createdAt,
-  };
+  const { data } = await apiClient.get<ApiEnvelope<SalePaymentDetailDto>>(
+    SALE_ENDPOINTS.salePaymentDetail(id)
+  );
+  return mapSalePaymentDetail(data.data);
 };
 
 export const fetchPaymentMethods = async (): Promise<SalePaymentMethod[]> => {
-  const { data } = await apiClient.get<ApiEnvelope<{ data: any[] }>>(SALE_ENDPOINTS.paymentMethods);
-  return (data.data?.data || []).map((m: any) => ({
-    id: m.id || m._id,
-    name: m.name,
-    adminFee: toNumber(m.adminFee),
-    external_id: m.external_id,
-    isDefault: Boolean(m.isDefault),
-    defaultAccount: m.defaultAccount,
-    feeAccount: m.feeAccount,
-  }));
+  const { data } = await apiClient.get<ApiEnvelope<{ data: SalePaymentMethodDto[] }>>(
+    SALE_ENDPOINTS.paymentMethods
+  );
+  return (data.data?.data || []).map(mapSalePaymentMethod);
 };
 
 export const getApiErrorMessage = (error: unknown, fallback: string): string => {
