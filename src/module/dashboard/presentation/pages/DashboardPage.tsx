@@ -24,10 +24,10 @@ import {
 } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
+import AppShellLayout from '@/components/AppShellLayout';
 import { routes } from '@/router/routes';
 import { useAuthStore } from '@/store/useAuthentications';
 import { useTranslation } from '@/i18n';
-import MainDashboardLayout from './layout';
 import classes from '@/module/dashboard/presentation/components/dashboard.module.css';
 import { DashboardHero } from '@/module/dashboard/presentation/components/DashboardHero';
 import {
@@ -66,7 +66,7 @@ import {
   getTopDebtors,
 } from '@/module/dashboard/domain/dashboardMetrics';
 
-function MainDashboard() {
+function DashboardPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { userName } = useAuthStore();
@@ -131,7 +131,7 @@ function MainDashboard() {
   }, [currentLanguage]);
 
   return (
-    <MainDashboardLayout>
+    <AppShellLayout withFooter>
       <Box className={classes.stage}>
         <Box className={`${classes.orb} ${classes.orbA}`} />
         <Box className={`${classes.orb} ${classes.orbB}`} />
@@ -497,8 +497,8 @@ function MainDashboard() {
           </Grid>
         </Stack>
       </Box>
-    </MainDashboardLayout>
+    </AppShellLayout>
   );
 }
 
-export default MainDashboard;
+export default DashboardPage;

@@ -53,5 +53,10 @@ export type AuditLogEntry = {
 
 export type MonthlyPoint = { key: string; label: string; invoiced: number; collected: number };
 
-export type AgingBucket = { key: string; label: string; amount: number; count: number; color: string };
-
+export type AgingBucket = {
+  key: string;
+  label: string;
+  amount: number;
+  count: number;
+  color: string;
+};
