@@ -97,8 +97,7 @@ export function TransactionDetailByContact() {
       }
       if (activeTab === 'PAID') {
         return (
-          normStatus === 'PAID' ||
-          ((sale.remainingAmount ?? 0) <= 0 && (sale.paidAmount ?? 0) > 0)
+          normStatus === 'PAID' || ((sale.remainingAmount ?? 0) <= 0 && (sale.paidAmount ?? 0) > 0)
         );
       }
       if (activeTab === 'DRAFT') {
@@ -268,13 +267,7 @@ export function TransactionDetailByContact() {
                       contact.contactType.map((t: ContactType) => {
                         const cfg = getContactTypeBadgeConfig(t);
                         return (
-                          <Badge
-                            key={t}
-                            variant="filled"
-                            color={cfg.color}
-                            size="sm"
-                            radius="sm"
-                          >
+                          <Badge key={t} variant="filled" color={cfg.color} size="sm" radius="sm">
                             {cfg.label}
                           </Badge>
                         );
@@ -344,7 +337,13 @@ export function TransactionDetailByContact() {
                   <IconReceipt2 size={18} />
                 </ThemeIcon>
               </Group>
-              <Text size="xl" fw={800} c="primary.9" mt="xs" style={{ fontVariantNumeric: 'tabular-nums' }}>
+              <Text
+                size="xl"
+                fw={800}
+                c="primary.9"
+                mt="xs"
+                style={{ fontVariantNumeric: 'tabular-nums' }}
+              >
                 {formatIDR(totals.finalSum)}
               </Text>
               <Text size="xs" c="dimmed" mt={2}>
@@ -362,7 +361,13 @@ export function TransactionDetailByContact() {
                   <IconCheck size={18} />
                 </ThemeIcon>
               </Group>
-              <Text size="xl" fw={800} c="teal.8" mt="xs" style={{ fontVariantNumeric: 'tabular-nums' }}>
+              <Text
+                size="xl"
+                fw={800}
+                c="teal.8"
+                mt="xs"
+                style={{ fontVariantNumeric: 'tabular-nums' }}
+              >
                 {formatIDR(totals.paidSum)}
               </Text>
               <Text size="xs" c="dimmed" mt={2}>
@@ -371,7 +376,12 @@ export function TransactionDetailByContact() {
             </Card>
 
             {/* Sisa Piutang */}
-            <Card withBorder radius="md" p="md" bg={totals.remainingSum > 0 ? 'orange.0' : 'gray.0'}>
+            <Card
+              withBorder
+              radius="md"
+              p="md"
+              bg={totals.remainingSum > 0 ? 'orange.0' : 'gray.0'}
+            >
               <Group justify="space-between" align="center">
                 <Text
                   size="xs"
