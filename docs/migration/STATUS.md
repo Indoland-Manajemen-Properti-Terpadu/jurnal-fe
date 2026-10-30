@@ -31,7 +31,7 @@ Priority changed: the ledger (`GeneralJournal`) goes before the remaining small 
 |---|---|---|---|---|---|---|
 | `Contact` + `Kontak` to `contacts` | todo | todo | todo | todo | todo | R3 |
 | `products` | done | done | done | done | done | R1 |
-| `Sale` to `sales` | todo | todo | todo | todo | todo | R3 |
+| `Sale` to `sales` | done | done | done | done | done | R3 |
 | `Pembelian` to `purchases` | done | done | done | done | done | R1 |
 | `Asset` to `assets` | done | done | done | done | done | R1 |
 | `PendingChanges` to `pending-changes` | done | done | done | done | done | R1 |
