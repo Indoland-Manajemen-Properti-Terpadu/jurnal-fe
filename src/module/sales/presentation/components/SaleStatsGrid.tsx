@@ -1,11 +1,7 @@
 import { Group, Paper, SimpleGrid, Text, ThemeIcon } from '@mantine/core';
-import {
-  IconAlertTriangle,
-  IconCheck,
-  IconClock,
-  IconReceipt2,
-} from '@tabler/icons-react';
-import { formatCompactIDR, formatIDR } from '@/module/sales/domain/saleFormat';
+import { IconAlertTriangle, IconCheck, IconClock, IconReceipt2 } from '@tabler/icons-react';
+import { useTranslation } from '@/i18n';
+import { formatCompactIDR } from '../../domain/saleFormat';
 
 type SaleStatsProps = {
   totalCount: number;
@@ -22,32 +18,33 @@ export function SaleStatsGrid({
   remainingAmount,
   overdueCount,
 }: Readonly<SaleStatsProps>) {
+  const { t } = useTranslation('sales');
   const stats = [
     {
-      title: 'Total Penjualan',
+      title: t('stats.total'),
       value: formatCompactIDR(totalAmount),
-      subtext: `${totalCount} faktur tercatat`,
+      subtext: t('stats.totalDesc', { count: totalCount }),
       icon: IconReceipt2,
       color: 'primary',
     },
     {
-      title: 'Sisa Tagihan (Piutang)',
+      title: t('stats.outstanding'),
       value: formatCompactIDR(remainingAmount),
-      subtext: 'Menunggu pelunasan',
+      subtext: t('stats.outstandingDesc'),
       icon: IconClock,
       color: 'orange',
     },
     {
-      title: 'Sudah Diterima (Lunas)',
+      title: t('stats.received'),
       value: formatCompactIDR(paidAmount),
-      subtext: 'Pembayaran terverifikasi',
+      subtext: t('stats.receivedDesc'),
       icon: IconCheck,
       color: 'teal',
     },
     {
-      title: 'Lewat Jatuh Tempo',
-      value: `${overdueCount} Faktur`,
-      subtext: overdueCount > 0 ? 'Perlu tindak lanjut' : 'Tidak ada tunggakan',
+      title: t('stats.overdue'),
+      value: t('stats.overdueValue', { count: overdueCount }),
+      subtext: overdueCount > 0 ? t('stats.overdueFollowUp') : t('stats.overdueNone'),
       icon: IconAlertTriangle,
       color: overdueCount > 0 ? 'red' : 'gray',
     },
@@ -92,4 +89,3 @@ export function SaleStatsGrid({
 }
 
 export default SaleStatsGrid;
-
