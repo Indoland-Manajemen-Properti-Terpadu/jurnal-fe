@@ -76,7 +76,7 @@ export function BankAccountsList({
                         {acc.accountName}
                       </Text>
                       <Text size="xs" c="dimmed" ff="monospace">
-                        {acc.accountNumber ?? 'Kas & Bank'}
+                        {acc.accountNumber ?? t('bankAccountFallback')}
                       </Text>
                     </Box>
                   </Group>

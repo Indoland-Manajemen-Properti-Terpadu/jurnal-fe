@@ -196,7 +196,12 @@ export type TopDebtor = {
   isOverdue: boolean;
 };
 
-export const getTopDebtors = (sales: SaleSummary[], now = new Date(), limit = 5): TopDebtor[] => {
+export const getTopDebtors = (
+  sales: SaleSummary[],
+  now = new Date(),
+  limit = 5,
+  fallbackName = 'Pelanggan Umum'
+): TopDebtor[] => {
   const today = startOfDay(now);
   const openSales = sales.filter(isOpen);
   const customerMap = new Map<
@@ -205,7 +210,7 @@ export const getTopDebtors = (sales: SaleSummary[], now = new Date(), limit = 5)
   >();
 
   openSales.forEach((s) => {
-    const name = s.customerName || 'Pelanggan Umum';
+    const name = s.customerName || fallbackName;
     const isDueOver = s.dueDate ? startOfDay(new Date(s.dueDate)) < today : false;
     const existing = customerMap.get(name);
     if (!existing) {

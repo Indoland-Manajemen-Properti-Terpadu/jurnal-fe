@@ -157,6 +157,11 @@ export const dashboard = {
   qaReceiveMoney: 'Receive Money',
   qaSendMoney: 'Send Money',
   qaTransferCash: 'Transfer Cash',
+
+  userFallback: 'Finance',
+  bankAccountFallback: 'Cash & Bank',
+  periodOpenValue: 'OPEN',
+  generalCustomer: 'General Customer',
 };
 
 export default dashboard;

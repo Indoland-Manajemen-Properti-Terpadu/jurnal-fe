@@ -93,7 +93,10 @@ function DashboardPage() {
   const health = useMemo(() => getFinancialHealthSummary(bs, cash), [bs, cash]);
 
   const bankAccounts = useMemo(() => getBankAccounts(balanceQ.data), [balanceQ.data]);
-  const topDebtors = useMemo(() => getTopDebtors(sales), [sales]);
+  const topDebtors = useMemo(
+    () => getTopDebtors(sales, new Date(), 5, t('generalCustomer')),
+    [sales, currentLanguage]
+  );
 
   const recentSales = useMemo(
     () =>
@@ -128,7 +131,7 @@ function DashboardPage() {
           {/* ---------- Financial overview hero ---------- */}
           <DashboardHero
             greeting={greetingText}
-            userName={userName || 'Finance'}
+            userName={userName || t('userFallback')}
             periodLabel={
               activePeriod
                 ? t('periodLockedUntil', {
