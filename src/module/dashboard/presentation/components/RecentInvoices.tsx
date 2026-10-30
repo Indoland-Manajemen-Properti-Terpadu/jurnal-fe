@@ -11,10 +11,10 @@ import {
 } from '@mantine/core';
 import { IconFilePlus } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
+import type { SaleSummary } from '@/module/dashboard/domain/dashboardTypes';
 import classes from './dashboard.module.css';
 import { EmptyHint } from './EmptyHint';
 import { formatDate, formatIDR } from './dashboardFormat';
-import type { SaleSummary } from '@/module/dashboard/domain/dashboardTypes';
 
 /* ---------- Recent Invoices ---------- */
 

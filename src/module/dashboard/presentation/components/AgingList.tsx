@@ -1,8 +1,8 @@
 import { Badge, Box, Group, Progress, Skeleton, Stack, Text, Tooltip } from '@mantine/core';
 import { useTranslation } from '@/i18n';
-import { formatIDR } from './dashboardFormat';
 import { getAgingTotals } from '@/module/dashboard/domain/dashboardTotals';
 import type { AgingBucket } from '@/module/dashboard/domain/dashboardTypes';
+import { formatIDR } from './dashboardFormat';
 
 /* ---------- Receivable Aging ---------- */
 

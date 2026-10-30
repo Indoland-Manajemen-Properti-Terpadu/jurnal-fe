@@ -2,10 +2,10 @@ import { type ComponentType } from 'react';
 import { Box, Group, ScrollArea, Skeleton, Stack, Text, ThemeIcon } from '@mantine/core';
 import { IconEdit, IconFilePlus, IconTrash } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
+import type { AuditLogEntry } from '@/module/dashboard/domain/dashboardTypes';
 import classes from './dashboard.module.css';
 import { EmptyHint } from './EmptyHint';
 import { timeFmtEn, timeFmtId } from './dashboardFormat';
-import type { AuditLogEntry } from '@/module/dashboard/domain/dashboardTypes';
 
 /* ---------- Activity Feed ---------- */
 

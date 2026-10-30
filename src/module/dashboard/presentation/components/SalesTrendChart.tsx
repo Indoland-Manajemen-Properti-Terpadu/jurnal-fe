@@ -1,9 +1,9 @@
 import { Box, Group, SimpleGrid, Skeleton, Stack, Text, Tooltip } from '@mantine/core';
 import { useTranslation } from '@/i18n';
-import classes from './dashboard.module.css';
-import { formatCompact, formatIDR } from './dashboardFormat';
 import { getTrendTotals } from '@/module/dashboard/domain/dashboardTotals';
 import type { MonthlyPoint } from '@/module/dashboard/domain/dashboardTypes';
+import classes from './dashboard.module.css';
+import { formatCompact, formatIDR } from './dashboardFormat';
 
 /* ---------- 6-Month Billing & Collection Trend Chart ---------- */
 

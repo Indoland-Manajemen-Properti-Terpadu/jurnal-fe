@@ -3,25 +3,13 @@ import {
   Badge,
   Box,
   Button,
-  Divider,
   Grid,
   Group,
   SegmentedControl,
   SimpleGrid,
   Stack,
-  Text,
 } from '@mantine/core';
-import {
-  IconAlertTriangle,
-  IconBuildingBank,
-  IconCalendarStats,
-  IconCoin,
-  IconFileInvoice,
-  IconNotebook,
-  IconShieldCheck,
-  IconUsers,
-  IconWallet,
-} from '@tabler/icons-react';
+import { IconAlertTriangle, IconBuildingBank, IconCoin, IconWallet } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import AppShellLayout from '@/components/AppShellLayout';
@@ -36,8 +24,8 @@ import { BankAccountsList } from '@/module/dashboard/presentation/components/Ban
 import { CardHeader } from '@/module/dashboard/presentation/components/CardHeader';
 import { CompositionDonut } from '@/module/dashboard/presentation/components/CompositionDonut';
 import { GlassCard } from '@/module/dashboard/presentation/components/GlassCard';
+import { ControlCenterCard } from '@/module/dashboard/presentation/components/ControlCenterCard';
 import { KpiTile } from '@/module/dashboard/presentation/components/KpiTile';
-import { QuickActions } from '@/module/dashboard/presentation/components/QuickActions';
 import { RecentInvoices } from '@/module/dashboard/presentation/components/RecentInvoices';
 import { SalesTrendChart } from '@/module/dashboard/presentation/components/SalesTrendChart';
 import { TopDebtorsList } from '@/module/dashboard/presentation/components/TopDebtorsList';
@@ -388,112 +376,15 @@ function DashboardPage() {
               </GlassCard>
             </Grid.Col>
 
-            {/* Col 3: Operational Control Center + Instant Quick Actions */}
-            <Grid.Col span={{ base: 12, md: 6, lg: 3 }}>
-              <GlassCard spatialTilt={spatialMode} delay={460} h="100%">
-                <CardHeader title={t('controlTitle')} subtitle={t('controlSubtitle')} />
-
-                <Stack gap="xs">
-                  {[
-                    {
-                      icon: IconShieldCheck,
-                      color: (pendingQ.data ?? 0) > 0 ? 'orange' : 'teal',
-                      label: t('ctrlPendingChanges'),
-                      value: pendingQ.isLoading ? '…' : String(pendingQ.data ?? 0),
-                      onClick: () => navigate(routes.pendingChanges.main),
-                    },
-                    {
-                      icon: IconFileInvoice,
-                      color: kpi.draftCount > 0 ? 'blue' : 'gray',
-                      label: t('ctrlDraftInvoices'),
-                      value: salesQ.isLoading ? '…' : String(kpi.draftCount),
-                      onClick: () => navigate(routes.sales.main),
-                    },
-                    {
-                      icon: IconUsers,
-                      color: 'violet',
-                      label: t('ctrlTotalContacts'),
-                      value: contactsQ.isLoading ? '…' : String(contactsQ.data ?? 0),
-                      onClick: () => navigate(routes.Contact.Main),
-                    },
-                    {
-                      icon: IconCalendarStats,
-                      color: activePeriod ? 'primary' : 'gray',
-                      label: t('ctrlActivePeriod'),
-                      value: activePeriod?.name ?? 'OPEN',
-                      onClick: () => navigate(routes.PeriodAndClosingBook.ListPLandCB),
-                    },
-                  ].map((row) => (
-                    <Group
-                      key={row.label}
-                      justify="space-between"
-                      wrap="nowrap"
-                      p={8}
-                      className={classes.rowHover}
-                      onClick={row.onClick}
-                      style={{
-                        border: '1px solid rgba(15,23,42,0.06)',
-                        background: 'rgba(255,255,255,0.65)',
-                      }}
-                    >
-                      <Group gap="xs" wrap="nowrap" style={{ minWidth: 0 }}>
-                        <Box
-                          w={30}
-                          h={30}
-                          bg={`${row.color}.0`}
-                          c={`${row.color}.7`}
-                          style={{
-                            borderRadius: 8,
-                            display: 'grid',
-                            placeItems: 'center',
-                            flexShrink: 0,
-                          }}
-                        >
-                          <row.icon size={16} />
-                        </Box>
-                        <Text size="xs" fw={600} c="dark.7" truncate>
-                          {row.label}
-                        </Text>
-                      </Group>
-                      <Badge variant="light" color={row.color} size="sm" radius="sm">
-                        {row.value}
-                      </Badge>
-                    </Group>
-                  ))}
-
-                  <Divider my={4} label={t('quickActionsLabel')} labelPosition="center" />
-
-                  <QuickActions
-                    actions={[
-                      {
-                        label: t('qaGeneralJournal'),
-                        icon: IconNotebook,
-                        tone: 'primary',
-                        onClick: () => navigate(routes.generalJournal.addTransactionJournal),
-                      },
-                      {
-                        label: t('qaReceiveMoney'),
-                        icon: IconCoin,
-                        tone: 'teal',
-                        onClick: () => navigate(routes.BankAndCash.AddReceiveMoney),
-                      },
-                      {
-                        label: t('qaSendMoney'),
-                        icon: IconWallet,
-                        tone: 'orange',
-                        onClick: () => navigate(routes.BankAndCash.AddSentMoney),
-                      },
-                      {
-                        label: t('qaTransferCash'),
-                        icon: IconBuildingBank,
-                        tone: 'cyan',
-                        onClick: () => navigate(routes.BankAndCash.AddTransferMoney),
-                      },
-                    ]}
-                  />
-                </Stack>
-              </GlassCard>
-            </Grid.Col>
+            <ControlCenterCard
+              pendingCount={pendingQ.data ?? 0}
+              pendingLoading={pendingQ.isLoading}
+              draftCount={kpi.draftCount}
+              draftLoading={salesQ.isLoading}
+              contactTotal={contactsQ.data ?? 0}
+              contactsLoading={contactsQ.isLoading}
+              activePeriodName={activePeriod?.name}
+            />
           </Grid>
         </Stack>
       </Box>

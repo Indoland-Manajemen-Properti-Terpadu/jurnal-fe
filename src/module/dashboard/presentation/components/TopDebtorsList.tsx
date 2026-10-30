@@ -11,10 +11,10 @@ import {
 } from '@mantine/core';
 import { IconUserExclamation } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
+import type { TopDebtor } from '@/module/dashboard/domain/dashboardMetrics';
 import classes from './dashboard.module.css';
 import { EmptyHint } from './EmptyHint';
 import { formatDate, formatIDR } from './dashboardFormat';
-import type { TopDebtor } from '@/module/dashboard/domain/dashboardMetrics';
 
 /* ---------- Top Debtors (Pelanggan Piutang Terbesar) ---------- */
 
