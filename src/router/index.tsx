@@ -66,7 +66,7 @@ import { PendingChangesPage } from '@/module/pending-changes';
 import { NotFound } from '@/components/ErrorPage/NotFound';
 import LoginPage from '@/module/Authentication/Login/pages/LoginPage';
 import OAuthCallback from '@/module/Authentication/Login/pages/OAuthCallback';
-import MainDashboard from '@/module/Dashboard/page/page';
+import { DashboardPage } from '@/module/dashboard';
 import { LandingPage } from '@/module/landing';
 import { ProfilePage } from '@/module/profile';
 import { routes } from './routes';
@@ -90,7 +90,7 @@ const router = createBrowserRouter([
   },
   {
     path: routes.dashboard,
-    element: <MainDashboard />,
+    element: <DashboardPage />,
   },
   {
     path: routes.profile,

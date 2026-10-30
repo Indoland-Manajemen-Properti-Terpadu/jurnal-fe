@@ -155,6 +155,11 @@ export const dashboard = {
   qaReceiveMoney: 'Terima Uang',
   qaSendMoney: 'Kirim Uang',
   qaTransferCash: 'Transfer Kas',
+
+  userFallback: 'Finance',
+  bankAccountFallback: 'Kas & Bank',
+  periodOpenValue: 'OPEN',
+  generalCustomer: 'Pelanggan Umum',
 };
 
 export default dashboard;

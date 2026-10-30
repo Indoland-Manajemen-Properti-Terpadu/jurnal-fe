@@ -11,7 +11,7 @@
   "import/no-restricted-paths": 12,
   "import/order": 58,
   "jsx-a11y/alt-text": 2,
-  "max-lines": 14,
+  "max-lines": 11,
   "new-cap": 1,
   "no-alert": 4,
   "no-console": 7,
