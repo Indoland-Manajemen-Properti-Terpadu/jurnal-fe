@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 import { t } from '@/i18n';
-import { fetchPaymentTerms, fetchContacts } from '@/module/Contact/infrastructure/contactApi';
+import { fetchPaymentTerms, fetchContacts } from '@/module/contacts/infrastructure/contactApi';
 import { fetchProducts, fetchTaxes } from '@/module/products';
 import { getJournalAccounts } from '@/module/chart-of-accounts';
 import type {
