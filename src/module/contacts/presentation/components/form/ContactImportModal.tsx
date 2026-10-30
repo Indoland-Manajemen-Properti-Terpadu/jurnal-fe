@@ -17,6 +17,7 @@ import {
   IconFileSpreadsheet,
   IconUpload,
 } from '@tabler/icons-react';
+import { useTranslation } from '@/i18n';
 import {
   useDownloadContactTemplate,
   useImportContacts,
@@ -28,6 +29,7 @@ type ContactImportModalProps = {
 };
 
 export function ContactImportModal({ opened, onClose }: Readonly<ContactImportModalProps>) {
+  const { t } = useTranslation('contacts');
   const [file, setFile] = useState<File | null>(null);
 
   const downloadTemplateMutation = useDownloadContactTemplate();
@@ -58,7 +60,7 @@ export function ContactImportModal({ opened, onClose }: Readonly<ContactImportMo
             <IconUpload size={16} />
           </ThemeIcon>
           <Text fw={700} size="md" c="primary.9">
-            Impor Data Kontak
+            {t('import.title')}
           </Text>
         </Group>
       }
@@ -68,18 +70,17 @@ export function ContactImportModal({ opened, onClose }: Readonly<ContactImportMo
     >
       <Stack gap="md" pt="xs">
         <Alert color="blue" icon={<IconAlertCircle size={16} />}>
-          Pastikan format file sesuai dengan template resmi sistem. Gunakan tombol di bawah untuk
-          mengunduh template terbaru sebelum mengunggah.
+          {t('import.notice')}
         </Alert>
 
         <Paper withBorder p="md" radius="md" bg="gray.0">
           <Group justify="space-between" align="center" wrap="wrap" gap="sm">
             <Box>
               <Text size="xs" fw={700} c="dark.8">
-                Template Data Kontak
+                {t('import.templateTitle')}
               </Text>
               <Text size="xs" c="dimmed">
-                Format spreadsheet (.xlsx) lengkap dengan kolom pemetaan.
+                {t('import.templateDescription')}
               </Text>
             </Box>
             <Button
@@ -90,14 +91,14 @@ export function ContactImportModal({ opened, onClose }: Readonly<ContactImportMo
               loading={downloadTemplateMutation.isPending}
               onClick={() => downloadTemplateMutation.mutate()}
             >
-              Unduh Template
+              {t('import.downloadTemplate')}
             </Button>
           </Group>
         </Paper>
 
         <FileInput
-          label="Pilih File Excel / Spreadsheet"
-          placeholder="Klik untuk memilih file .xlsx atau .xls"
+          label={t('import.fileLabel')}
+          placeholder={t('import.filePlaceholder')}
           leftSection={<IconFileSpreadsheet size={16} />}
           accept=".xlsx,.xls,.csv"
           value={file}
@@ -108,7 +109,7 @@ export function ContactImportModal({ opened, onClose }: Readonly<ContactImportMo
 
         <Group justify="flex-end" gap="sm" mt="md">
           <Button variant="default" onClick={handleClose} disabled={importMutation.isPending}>
-            Batal
+            {t('import.cancel')}
           </Button>
           <Button
             color="primary"
@@ -117,7 +118,7 @@ export function ContactImportModal({ opened, onClose }: Readonly<ContactImportMo
             disabled={!file}
             onClick={handleImport}
           >
-            Mulai Impor
+            {t('import.start')}
           </Button>
         </Group>
       </Stack>

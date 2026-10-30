@@ -6,6 +6,7 @@ import {
   IconTruckDelivery,
   IconUserCheck,
 } from '@tabler/icons-react';
+import { useTranslation } from '@/i18n';
 
 type ContactStatsProps = {
   total: number;
@@ -22,39 +23,40 @@ export function ContactStatsGrid({
   employees,
   units = 0,
 }: Readonly<ContactStatsProps>) {
+  const { t } = useTranslation('contacts');
   const stats = [
     {
-      title: 'Total Kontak',
+      title: t('stats.total'),
       value: total,
-      description: 'Seluruh entitas terdaftar',
+      description: t('stats.totalHint'),
       icon: IconAddressBook,
       color: 'primary',
     },
     {
-      title: 'Pelanggan',
+      title: t('stats.customers'),
       value: customers,
-      description: 'Piutang & penjualan',
+      description: t('stats.customersHint'),
       icon: IconUserCheck,
       color: 'teal',
     },
     {
-      title: 'Pemasok / Vendor',
+      title: t('stats.suppliers'),
       value: suppliers,
-      description: 'Hutang & pengadaan',
+      description: t('stats.suppliersHint'),
       icon: IconTruckDelivery,
       color: 'blue',
     },
     {
-      title: 'Karyawan',
+      title: t('stats.employees'),
       value: employees,
-      description: 'Staf internal',
+      description: t('stats.employeesHint'),
       icon: IconBriefcase,
       color: 'indigo',
     },
     {
-      title: 'Unit',
+      title: t('stats.units'),
       value: units,
-      description: 'Penghuni & properti',
+      description: t('stats.unitsHint'),
       icon: IconHome2,
       color: 'cyan',
     },

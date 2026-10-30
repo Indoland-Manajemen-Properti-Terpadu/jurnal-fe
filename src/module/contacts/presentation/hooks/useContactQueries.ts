@@ -1,5 +1,6 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
+import { t } from '@/i18n';
 import {
   archiveContact,
   createContact,
@@ -35,14 +36,16 @@ export const contactKeys = {
   paymentTerms: ['contact-payment-terms'] as const,
 };
 
-const notifySuccess = (message: string) =>
-  notifications.show({ color: 'teal', title: 'Berhasil', message });
+const tr = (key: string, params?: Record<string, string | number>) => t(key, params, 'contacts');
 
-const notifyError = (error: unknown, fallback: string) =>
+const notifySuccess = (message: string) =>
+  notifications.show({ color: 'teal', title: tr('notify.successTitle'), message });
+
+const notifyError = (error: unknown, fallbackKey: string) =>
   notifications.show({
     color: 'red',
-    title: 'Gagal',
-    message: getApiErrorMessage(error, fallback),
+    title: tr('notify.errorTitle'),
+    message: getApiErrorMessage(error, tr(fallbackKey)),
   });
 
 /* ---------- Queries ---------- */
@@ -85,17 +88,12 @@ export const useSaveContact = (editingId?: string) => {
       editingId ? updateContact(editingId, values) : createContact(values),
     onSuccess: (saved) => {
       notifySuccess(
-        editingId
-          ? `Kontak "${saved.displayName}" berhasil diperbarui.`
-          : `Kontak "${saved.displayName}" berhasil ditambahkan.`
+        tr(editingId ? 'notify.updated' : 'notify.created', { name: saved.displayName })
       );
       queryClient.invalidateQueries({ queryKey: contactKeys.all });
     },
     onError: (error) => {
-      notifyError(
-        error,
-        editingId ? 'Gagal memperbarui kontak.' : 'Gagal menambahkan kontak baru.'
-      );
+      notifyError(error, editingId ? 'notify.updateFailed' : 'notify.createFailed');
     },
   });
 };
@@ -106,11 +104,11 @@ export const useArchiveContact = () => {
   return useMutation({
     mutationFn: (id: string) => archiveContact(id),
     onSuccess: (archived) => {
-      notifySuccess(`Kontak "${archived.displayName}" berhasil diarsipkan.`);
+      notifySuccess(tr('notify.archived', { name: archived.displayName }));
       queryClient.invalidateQueries({ queryKey: contactKeys.all });
     },
     onError: (error) => {
-      notifyError(error, 'Gagal mengarsipkan kontak.');
+      notifyError(error, 'notify.archiveFailed');
     },
   });
 };
@@ -131,8 +129,8 @@ export const useContactTransactions = (
 export const useExportContactTransactions = (contactId: string | undefined) =>
   useMutation({
     mutationFn: () => exportSalesByCustomer(contactId as string),
-    onSuccess: () => notifySuccess('Ekspor transaksi kontak berhasil diunduh.'),
-    onError: (error) => notifyError(error, 'Gagal mengekspor transaksi kontak.'),
+    onSuccess: () => notifySuccess(tr('notify.transactionsExported')),
+    onError: (error) => notifyError(error, 'notify.transactionsExportFailed'),
   });
 
 /* ---------- Contact Groups Hooks ---------- */
@@ -149,10 +147,10 @@ export const useCreateContactGroup = () => {
   return useMutation({
     mutationFn: (name: string) => createContactGroup(name),
     onSuccess: () => {
-      notifySuccess('Grup kontak baru berhasil dibuat.');
+      notifySuccess(tr('notify.groupCreated'));
       queryClient.invalidateQueries({ queryKey: contactKeys.groups });
     },
-    onError: (error) => notifyError(error, 'Gagal membuat grup kontak.'),
+    onError: (error) => notifyError(error, 'notify.groupCreateFailed'),
   });
 };
 
@@ -162,10 +160,10 @@ export const useUpdateContactGroup = () => {
     mutationFn: ({ groupId, name }: { groupId: string; name: string }) =>
       updateContactGroup(groupId, name),
     onSuccess: () => {
-      notifySuccess('Grup kontak berhasil diperbarui.');
+      notifySuccess(tr('notify.groupUpdated'));
       queryClient.invalidateQueries({ queryKey: contactKeys.groups });
     },
-    onError: (error) => notifyError(error, 'Gagal memperbarui grup kontak.'),
+    onError: (error) => notifyError(error, 'notify.groupUpdateFailed'),
   });
 };
 
@@ -174,10 +172,10 @@ export const useDeleteContactGroup = () => {
   return useMutation({
     mutationFn: (groupId: string) => deleteContactGroup(groupId),
     onSuccess: () => {
-      notifySuccess('Grup kontak berhasil dihapus.');
+      notifySuccess(tr('notify.groupDeleted'));
       queryClient.invalidateQueries({ queryKey: contactKeys.groups });
     },
-    onError: (error) => notifyError(error, 'Gagal menghapus grup kontak.'),
+    onError: (error) => notifyError(error, 'notify.groupDeleteFailed'),
   });
 };
 
@@ -195,15 +193,15 @@ export const useFilteredAccounts = (category: 'AP' | 'AR') =>
 export const useExportContacts = () =>
   useMutation({
     mutationFn: () => exportContacts(),
-    onSuccess: () => notifySuccess('Data kontak berhasil diekspor.'),
-    onError: (error) => notifyError(error, 'Gagal mengekspor data kontak.'),
+    onSuccess: () => notifySuccess(tr('notify.exported')),
+    onError: (error) => notifyError(error, 'notify.exportFailed'),
   });
 
 export const useDownloadContactTemplate = () =>
   useMutation({
     mutationFn: () => downloadContactTemplate(),
-    onSuccess: () => notifySuccess('Template impor kontak berhasil diunduh.'),
-    onError: (error) => notifyError(error, 'Gagal mengunduh template impor.'),
+    onSuccess: () => notifySuccess(tr('notify.templateDownloaded')),
+    onError: (error) => notifyError(error, 'notify.templateFailed'),
   });
 
 export const useImportContacts = () => {
@@ -211,9 +209,9 @@ export const useImportContacts = () => {
   return useMutation({
     mutationFn: (file: File) => importContacts(file),
     onSuccess: (res) => {
-      notifySuccess(`Impor selesai. ${res.imported ?? 0} kontak berhasil diproses.`);
+      notifySuccess(tr('notify.imported', { count: res.imported ?? 0 }));
       queryClient.invalidateQueries({ queryKey: contactKeys.all });
     },
-    onError: (error) => notifyError(error, 'Gagal mengimpor file kontak.'),
+    onError: (error) => notifyError(error, 'notify.importFailed'),
   });
 };

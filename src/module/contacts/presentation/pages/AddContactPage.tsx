@@ -1,8 +1,9 @@
 import { useNavigate } from 'react-router-dom';
-import { Box, Button, Group, Paper, Stack } from '@mantine/core';
+import { Box, Button, Paper, Stack } from '@mantine/core';
 import { IconArrowLeft, IconUserPlus } from '@tabler/icons-react';
 import AppShellLayout from '@/components/AppShellLayout';
-import ModuleHeader from '@/components/ModuleHeader/ModuleHeader';
+import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
+import { useTranslation } from '@/i18n';
 import { routes } from '@/router/routes';
 import { ContactFormModal } from '@/module/contacts/presentation/components/form/ContactFormModal';
 import { useSaveContact } from '@/module/contacts/presentation/hooks/useContactQueries';
@@ -10,6 +11,7 @@ import type { ContactFormValues } from '@/module/contacts/domain/contact';
 
 export function AddContactPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation('contacts');
   const saveMutation = useSaveContact();
 
   const handleFormSubmit = async (values: ContactFormValues) => {
@@ -23,15 +25,15 @@ export function AddContactPage() {
         <Stack gap="lg">
           <ModuleHeader
             icon={IconUserPlus}
-            title="Tambah Kontak Baru"
-            description="Daftarkan entitas pelanggan, pemasok, atau karyawan ke dalam buku besar akuntansi."
+            title={t('add.title')}
+            description={t('add.description')}
             actions={
               <Button
                 variant="default"
                 leftSection={<IconArrowLeft size={16} />}
                 onClick={() => navigate(routes.Contact.Main)}
               >
-                Kembali
+                {t('add.back')}
               </Button>
             }
           />
