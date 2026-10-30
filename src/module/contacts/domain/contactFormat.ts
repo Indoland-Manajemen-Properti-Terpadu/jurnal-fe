@@ -1,4 +1,4 @@
-import type { Contact, ContactType } from '../types/contact';
+import type { Contact, ContactType } from './contact';
 
 const dateFormatter = new Intl.DateTimeFormat('id-ID', {
   day: 'numeric',

@@ -20,9 +20,9 @@ import {
   IconUser,
 } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
-import type { Contact, ContactAddress } from '../types/contact';
-import { formatContactName, resolveAccountName } from '../utils/contactFormat';
-import classes from '../view/DetailContactPage.module.css';
+import type { Contact, ContactAddress } from '@/module/contacts/domain/contact';
+import { formatContactName, resolveAccountName } from '@/module/contacts/domain/contactFormat';
+import classes from '@/module/contacts/presentation/pages/DetailContactPage.module.css';
 
 type Props = { contact: Contact; accountMap: Map<string, string> };
 

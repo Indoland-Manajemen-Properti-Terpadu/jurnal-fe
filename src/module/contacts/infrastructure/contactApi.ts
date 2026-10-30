@@ -11,7 +11,7 @@ import type {
   Paginated,
   Pagination,
   PaymentTerm,
-} from '../types/contact';
+} from '@/module/contacts/domain/contact';
 import type { Sale } from '@/module/sales/domain/sale';
 import { mapSaleDto } from '@/module/sales/infrastructure/saleMapper';
 

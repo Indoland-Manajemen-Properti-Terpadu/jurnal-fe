@@ -35,13 +35,13 @@ import {
   IconUser,
   IconUserPlus,
 } from '@tabler/icons-react';
-import type { Contact, ContactFormValues, ContactType } from '../types/contact';
+import type { Contact, ContactFormValues, ContactType } from '@/module/contacts/domain/contact';
 import {
   useAccountOptions,
   useContactGroups,
   useFilteredAccounts,
   usePaymentTerms,
-} from '../hooks/useContactQueries';
+} from '@/module/contacts/presentation/hooks/useContactQueries';
 import { INDONESIA_BANKS } from '@/constants/banks';
 import {
   INDONESIA_PROVINCES,

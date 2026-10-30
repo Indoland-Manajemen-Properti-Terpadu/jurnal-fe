@@ -25,8 +25,8 @@ import {
   updateContact,
   updateContactGroup,
   type ContactTransactionParams,
-} from '../infrastructure/contactApi';
-import type { ContactFormValues, ContactListParams } from '../types/contact';
+} from '@/module/contacts/infrastructure/contactApi';
+import type { ContactFormValues, ContactListParams } from '@/module/contacts/domain/contact';
 
 export const contactKeys = {
   all: ['contacts'] as const,

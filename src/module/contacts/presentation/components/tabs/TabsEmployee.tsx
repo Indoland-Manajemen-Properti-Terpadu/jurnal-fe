@@ -1,5 +1,5 @@
-import useFetchData from "../../../../../hooks/useFetchData";
-import StatsContactGrid from "../StatsBankCashGrid/StatsBankCashGrid";
+import useFetchData from "@/../hooks/useFetchData";
+import StatsContactGrid from "@/module/contacts/presentation/components/stats/StatsBankCashGrid/StatsBankCashGrid";
 
 
 const PAPER_PROPS = {
@@ -8,7 +8,7 @@ const PAPER_PROPS = {
     radius: 'md',
 };
 
-export default function TabsSupplier() {
+export default function TabsEmployee() {
     const {
         data: statsData,
         error: statsError,
@@ -16,7 +16,7 @@ export default function TabsSupplier() {
     } = useFetchData('/mocks/ContactStats.json');
 
     const selectedData = statsData?.data?.filter((item: { id: number }) =>
-        [5, 2, 6].includes(item.id)
+        [5, 2, 4].includes(item.id)
     ) || [];
     return <StatsContactGrid
         data={selectedData}

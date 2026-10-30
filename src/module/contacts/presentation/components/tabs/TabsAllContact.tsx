@@ -1,6 +1,6 @@
 import { Stack } from "@mantine/core";
-import useFetchData from "../../../../../hooks/useFetchData";
-import StatsContactGrid from "../StatsBankCashGrid/StatsBankCashGrid";
+import useFetchData from "@/../hooks/useFetchData";
+import StatsContactGrid from "@/module/contacts/presentation/components/stats/StatsBankCashGrid/StatsBankCashGrid";
 
 
 const PAPER_PROPS = {

@@ -40,10 +40,10 @@ import {
   useContact,
   useContactTransactions,
   useExportContactTransactions,
-} from '../hooks/useContactQueries';
-import { getContactTypeBadgeConfig } from '../utils/contactFormat';
-import TableTransactionByContact from '../components/Table/TableTransactionByContact';
-import type { ContactType } from '../types/contact';
+} from '@/module/contacts/presentation/hooks/useContactQueries';
+import { getContactTypeBadgeConfig } from '@/module/contacts/domain/contactFormat';
+import TableTransactionByContact from '@/module/contacts/presentation/components/tables/TableTransactionByContact';
+import type { ContactType } from '@/module/contacts/domain/contact';
 
 const getInitials = (name: string): string => {
   const parts = name.trim().split(/\s+/).filter(Boolean);

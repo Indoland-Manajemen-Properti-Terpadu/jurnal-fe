@@ -32,22 +32,22 @@ import ModuleHeader from '@/components/ModuleHeader/ModuleHeader';
 import ConfirmModal from '@/components/ui/ConfirmModal/ConfirmModal';
 import { useTranslation } from '@/i18n';
 import { routes } from '@/router/routes';
-import { ContactFormModal } from '../components/ContactFormModal';
-import { ContactProfileSections } from '../components/ContactProfileSections';
-import { TableTransactionByContact } from '../components/Table/TableTransactionByContact';
+import { ContactFormModal } from '@/module/contacts/presentation/components/form/ContactFormModal';
+import { ContactProfileSections } from '@/module/contacts/presentation/components/ContactProfileSections';
+import { TableTransactionByContact } from '@/module/contacts/presentation/components/tables/TableTransactionByContact';
 import {
   useAccountOptions,
   useArchiveContact,
   useContact,
   useExportContactTransactions,
   useSaveContact,
-} from '../hooks/useContactQueries';
+} from '@/module/contacts/presentation/hooks/useContactQueries';
 import {
   useContactTransactionView,
   TransactionStatusFilter,
-} from '../hooks/useContactTransactionView';
-import type { ContactFormValues } from '../types/contact';
-import { getContactTypeBadgeConfig } from '../utils/contactFormat';
+} from '@/module/contacts/presentation/hooks/useContactTransactionView';
+import type { ContactFormValues } from '@/module/contacts/domain/contact';
+import { getContactTypeBadgeConfig } from '@/module/contacts/domain/contactFormat';
 import classes from './DetailContactPage.module.css';
 
 function getInitials(name: string) {

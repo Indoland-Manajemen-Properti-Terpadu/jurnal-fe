@@ -30,12 +30,12 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { EmptyState } from '@/components/EmptyState';
 import { routes } from '@/router/routes';
-import type { Contact, ContactType } from '../types/contact';
+import type { Contact, ContactType } from '@/module/contacts/domain/contact';
 import {
   formatContactName,
   getContactTypeBadgeConfig,
   resolveAccountName,
-} from '../utils/contactFormat';
+} from '@/module/contacts/domain/contactFormat';
 
 type ContactTableProps = {
   contacts: Contact[];

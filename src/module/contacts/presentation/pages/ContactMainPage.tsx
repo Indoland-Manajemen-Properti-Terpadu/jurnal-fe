@@ -33,19 +33,19 @@ import AppShellLayout from '@/components/AppShellLayout';
 import ModuleHeader from '@/components/ModuleHeader/ModuleHeader';
 import ConfirmModal from '@/components/ui/ConfirmModal/ConfirmModal';
 import { routes } from '@/router/routes';
-import { ContactStatsGrid } from '../components/ContactStatsGrid';
-import { ContactTable } from '../components/ContactTable';
-import { ContactFormModal } from '../components/ContactFormModal';
-import { ContactImportModal } from '../components/ContactImportModal';
-import { ContactGroupsModal } from '../components/ContactGroupsModal';
+import { ContactStatsGrid } from '@/module/contacts/presentation/components/stats/ContactStatsGrid';
+import { ContactTable } from '@/module/contacts/presentation/components/tables/ContactTable';
+import { ContactFormModal } from '@/module/contacts/presentation/components/form/ContactFormModal';
+import { ContactImportModal } from '@/module/contacts/presentation/components/form/ContactImportModal';
+import { ContactGroupsModal } from '@/module/contacts/presentation/components/form/ContactGroupsModal';
 import {
   useAccountOptions,
   useArchiveContact,
   useContacts,
   useExportContacts,
   useSaveContact,
-} from '../hooks/useContactQueries';
-import type { Contact, ContactFormValues } from '../types/contact';
+} from '@/module/contacts/presentation/hooks/useContactQueries';
+import type { Contact, ContactFormValues } from '@/module/contacts/domain/contact';
 
 export function ContactMainPage() {
   const navigate = useNavigate();

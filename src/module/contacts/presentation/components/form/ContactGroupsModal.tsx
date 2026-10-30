@@ -28,7 +28,7 @@ import {
   useCreateContactGroup,
   useDeleteContactGroup,
   useUpdateContactGroup,
-} from '../hooks/useContactQueries';
+} from '@/module/contacts/presentation/hooks/useContactQueries';
 
 type ContactGroupsModalProps = {
   opened: boolean;

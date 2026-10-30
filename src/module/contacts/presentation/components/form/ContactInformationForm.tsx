@@ -30,7 +30,7 @@ import { themeColors } from '@/theme';
 import EmptyState from '@/components/EmptyState/EmptyTable';
 import { showNotification } from '@mantine/notifications';
 import { JournalAccounts } from '@/module/chart-of-accounts';
-import AdditionalAddress from '../AdditionalAddress';
+import AdditionalAddress from '@/module/contacts/presentation/components/form/AdditionalAddress';
 import { useNavigate } from 'react-router-dom';
 
 const ContactInformationForm: React.FC = () => {

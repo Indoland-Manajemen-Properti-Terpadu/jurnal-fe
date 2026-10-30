@@ -2,8 +2,8 @@ import { PaperProps, SimpleGrid, Skeleton } from '@mantine/core';
 import classes from './StatsGrid.module.css';
 import { ReactNode } from 'react';
 import { ErrorAlert } from '@/components';
-import StatsBankCashCard from '../StatsBankCashCard/StatsBankCashCard';
-import StatsContactCard from '../StatsBankCashCard/StatsBankCashCard';
+import StatsBankCashCard from '@/module/contacts/presentation/components/stats/StatsBankCashCard/StatsBankCashCard';
+import StatsContactCard from '@/module/contacts/presentation/components/stats/StatsBankCashCard/StatsBankCashCard';
 
 type StatsContactGridProps = {
   data?: { title: string; value: string; amount: number; diff: number; period?: string }[];

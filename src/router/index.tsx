@@ -38,10 +38,12 @@ import PettyCashPage from '@/module/BankCash/PettyCash/pages/PettyCashPage';
 import PettyCashDetailPage from '@/module/BankCash/PettyCash/pages/PettyCashDetailPage';
 import PettyCashRouteScope from '@/module/BankCash/PettyCash/pages/PettyCashRouteScope';
 import EditUserForm from '@/module/SettingMenu/UserManagement/User/pages/EditUser';
-import ContactMainPage from '@/module/contacts/view/ContactMainPage';
-import AddContactPage from '@/module/contacts/view/AddContactPage';
-import DetailContactPage from '@/module/contacts/view/DetailContactPage';
-import TransactionDetailByContactPage from '@/module/contacts/view/TransactionDetailByContactPage';
+import {
+  AddContactPage,
+  ContactMainPage,
+  DetailContactPage,
+  TransactionDetailByContactPage,
+} from '@/module/contacts';
 import { SaleDetailPage, SaleMainPage } from '@/module/sales';
 
 // Base Module Routes

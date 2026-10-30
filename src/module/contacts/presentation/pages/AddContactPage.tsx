@@ -4,9 +4,9 @@ import { IconArrowLeft, IconUserPlus } from '@tabler/icons-react';
 import AppShellLayout from '@/components/AppShellLayout';
 import ModuleHeader from '@/components/ModuleHeader/ModuleHeader';
 import { routes } from '@/router/routes';
-import { ContactFormModal } from '../components/ContactFormModal';
-import { useSaveContact } from '../hooks/useContactQueries';
-import type { ContactFormValues } from '../types/contact';
+import { ContactFormModal } from '@/module/contacts/presentation/components/form/ContactFormModal';
+import { useSaveContact } from '@/module/contacts/presentation/hooks/useContactQueries';
+import type { ContactFormValues } from '@/module/contacts/domain/contact';
 
 export function AddContactPage() {
   const navigate = useNavigate();

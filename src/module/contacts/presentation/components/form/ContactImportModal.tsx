@@ -20,7 +20,7 @@ import {
 import {
   useDownloadContactTemplate,
   useImportContacts,
-} from '../hooks/useContactQueries';
+} from '@/module/contacts/presentation/hooks/useContactQueries';
 
 type ContactImportModalProps = {
   opened: boolean;
