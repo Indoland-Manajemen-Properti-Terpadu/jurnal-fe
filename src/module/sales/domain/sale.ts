@@ -182,14 +182,16 @@ export type CreateSaleFormValues = {
   attachments?: File[];
 };
 
+export type SaleAccountRef = string | { id?: string; name?: string } | null;
+
 export type SalePaymentMethod = {
   id: string;
   name: string;
   adminFee?: number;
   external_id?: string;
   isDefault?: boolean;
-  defaultAccount?: any;
-  feeAccount?: any;
+  defaultAccount?: SaleAccountRef;
+  feeAccount?: SaleAccountRef;
 };
 
 export type CreateSalePaymentPayload = {

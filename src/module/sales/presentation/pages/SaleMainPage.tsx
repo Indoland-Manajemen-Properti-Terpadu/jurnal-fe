@@ -6,7 +6,6 @@ import {
   Group,
   LoadingOverlay,
   Paper,
-  Select,
   Stack,
   Tabs,
   TextInput,
@@ -26,8 +25,8 @@ import {
 } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import AppShellLayout from '@/components/AppShellLayout';
-import ModuleHeader from '@/components/ModuleHeader/ModuleHeader';
-import { routes } from '@/router/routes';
+import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
+import { useTranslation } from '@/i18n';
 import { CreateSaleModal } from '../components/CreateSaleModal';
 import { PaySaleModal } from '../components/PaySaleModal';
 import { SaleStatsGrid } from '../components/SaleStatsGrid';
@@ -39,10 +38,13 @@ import {
   useGenerateInvoiceLink,
   useSales,
 } from '../hooks/useSaleQueries';
-import type { CreateSaleFormValues, CreateSalePaymentPayload, Sale } from '../types/sale';
+import type { CreateSaleFormValues, CreateSalePaymentPayload, Sale } from '../../domain/sale';
+import { invoiceFilename } from '../../domain/saleFormat';
+import { filterSalesByTab, summarizeSales } from '../../domain/saleTotals';
 
 export function SaleMainPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation('sales');
 
   // State filters & pagination
   const [searchInput, setSearchInput] = useState('');
@@ -82,55 +84,16 @@ export function SaleMainPage() {
   const totalPages = pagination?.totalPages || 1;
 
   // Filter items in client-side to guarantee accuracy for calculated states like OVERDUE or case-insensitive DRAFT
-  const salesList = useMemo(() => {
-    const now = Date.now();
-    return rawSalesList.filter((sale) => {
-      const normStatus = String(sale.status || 'DRAFT').toUpperCase();
-      if (activeTab === 'OVERDUE') {
-        const isOverdue =
-          sale.remainingAmount > 0 &&
-          sale.dueDate &&
-          new Date(sale.dueDate).getTime() < now;
-        return isOverdue;
-      }
-      if (activeTab === 'UNPAID') {
-        return normStatus === 'UNPAID' || normStatus === 'OPEN' || normStatus === 'PARTIAL' || (sale.remainingAmount > 0 && normStatus !== 'DRAFT');
-      }
-      if (activeTab === 'PAID') {
-        return normStatus === 'PAID' || (sale.remainingAmount <= 0 && sale.paidAmount > 0);
-      }
-      if (activeTab === 'DRAFT') {
-        return normStatus === 'DRAFT';
-      }
-      return true;
-    });
-  }, [rawSalesList, activeTab]);
+  const salesList = useMemo(
+    () => filterSalesByTab(rawSalesList, activeTab, Date.now()),
+    [rawSalesList, activeTab]
+  );
 
   // Aggregate stats from current items
-  const stats = useMemo(() => {
-    let totalAmt = 0;
-    let paidAmt = 0;
-    let remainingAmt = 0;
-    let overdue = 0;
-
-    const now = Date.now();
-    rawSalesList.forEach((s) => {
-      totalAmt += s.finalAmount || 0;
-      paidAmt += s.paidAmount || 0;
-      remainingAmt += s.remainingAmount || 0;
-      if (s.remainingAmount > 0 && s.dueDate && new Date(s.dueDate).getTime() < now) {
-        overdue += 1;
-      }
-    });
-
-    return {
-      totalCount: total,
-      totalAmount: totalAmt,
-      paidAmount: paidAmt,
-      remainingAmount: remainingAmt,
-      overdueCount: overdue,
-    };
-  }, [rawSalesList, total]);
+  const stats = useMemo(
+    () => ({ totalCount: total, ...summarizeSales(rawSalesList, Date.now()) }),
+    [rawSalesList, total]
+  );
 
   const handleTabChange = (val: string | null) => {
     setActiveTab(val || 'all');
@@ -164,7 +127,7 @@ export function SaleMainPage() {
   const handleDownloadPdf = async (sale: Sale) => {
     await downloadPdfMutation.mutateAsync({
       id: sale.id,
-      filename: `Faktur-${sale.transactionNumber.replace(/[/\\?%*:|"<>]/g, '_')}.pdf`,
+      filename: invoiceFilename(sale.transactionNumber),
     });
   };
 
@@ -175,18 +138,18 @@ export function SaleMainPage() {
           {/* Header */}
           <ModuleHeader
             icon={IconReceipt2}
-            title="Daftar Penjualan & Faktur"
-            description="Kelola seluruh tagihan penjualan, invoice ke pelanggan/unit properti, catat penerimaan kas, dan pantau status jatuh tempo pembayaran secara akurat."
+            title={t('page.title')}
+            description={t('page.description')}
             actions={
               <Group gap="xs">
-                <Tooltip label="Muat ulang data" withArrow>
+                <Tooltip label={t('page.refreshTooltip')} withArrow>
                   <ActionIcon
                     variant="default"
                     size="lg"
                     radius="md"
                     onClick={() => salesQuery.refetch()}
                     loading={salesQuery.isFetching}
-                    aria-label="Refresh penjualan"
+                    aria-label={t('page.refreshAria')}
                   >
                     <IconRefresh size={18} />
                   </ActionIcon>
@@ -197,7 +160,7 @@ export function SaleMainPage() {
                   leftSection={<IconPlus size={18} />}
                   onClick={() => setCreateModalOpened(true)}
                 >
-                  Buat Penjualan
+                  {t('page.create')}
                 </Button>
               </Group>
             }
@@ -223,19 +186,19 @@ export function SaleMainPage() {
             >
               <Tabs.List mb="md">
                 <Tabs.Tab value="all" leftSection={<IconReceipt2 size={16} />}>
-                  Semua Penjualan
+                  {t('page.tabAll')}
                 </Tabs.Tab>
                 <Tabs.Tab value="UNPAID" leftSection={<IconClock size={16} />}>
-                  Belum Lunas
+                  {t('page.tabUnpaid')}
                 </Tabs.Tab>
                 <Tabs.Tab value="PAID" leftSection={<IconCheck size={16} />}>
-                  Lunas
+                  {t('page.tabPaid')}
                 </Tabs.Tab>
                 <Tabs.Tab value="DRAFT" leftSection={<IconFileText size={16} />}>
-                  Draft
+                  {t('page.tabDraft')}
                 </Tabs.Tab>
                 <Tabs.Tab value="OVERDUE" leftSection={<IconAlertTriangle size={16} />}>
-                  Jatuh Tempo
+                  {t('page.tabOverdue')}
                 </Tabs.Tab>
               </Tabs.List>
 
@@ -243,7 +206,7 @@ export function SaleMainPage() {
                 {/* Search & Filter Bar */}
                 <Group justify="space-between" wrap="wrap" gap="sm">
                   <TextInput
-                    placeholder="Cari nomor transaksi, pelanggan, atau referensi..."
+                    placeholder={t('page.searchPlaceholder')}
                     leftSection={<IconSearch size={16} />}
                     rightSection={
                       searchInput ? (
@@ -252,7 +215,7 @@ export function SaleMainPage() {
                           variant="subtle"
                           color="gray"
                           onClick={() => setSearchInput('')}
-                          aria-label="Hapus pencarian"
+                          aria-label={t('page.clearSearch')}
                         >
                           <IconX size={12} />
                         </ActionIcon>
@@ -322,4 +285,3 @@ export function SaleMainPage() {
 }
 
 export default SaleMainPage;
-

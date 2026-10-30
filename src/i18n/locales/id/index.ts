@@ -6,6 +6,7 @@ import { pendingChanges } from './pendingChanges';
 import { assets } from './assets';
 import { contactDetail } from './contactDetail';
 import { saleDetail } from './saleDetail';
+import { sales } from './sales';
 import { dashboard } from './dashboard';
 import { costs } from './costs';
 import { production } from './production';
@@ -32,6 +33,7 @@ export const id = {
   assets,
   contactDetail,
   saleDetail,
+  sales,
   dashboard,
   costs,
   production,

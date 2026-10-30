@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import {
-  ActionIcon,
   Alert,
   Button,
   Divider,
@@ -24,9 +23,11 @@ import {
   IconCoin,
   IconReceipt2,
 } from '@tabler/icons-react';
-import type { CreateSalePaymentPayload, Sale } from '../types/sale';
+import { t, useTranslation } from '@/i18n';
+import type { CreateSalePaymentPayload, Sale } from '../../domain/sale';
+import { formatIDR } from '../../domain/saleFormat';
+import { remainingAfterPayment } from '../../domain/saleTotals';
 import { useDepositAccounts, usePaymentMethods } from '../hooks/useSaleQueries';
-import { formatIDR } from '../utils/saleFormat';
 
 type PaySaleModalProps = {
   opened: boolean;
@@ -36,6 +37,16 @@ type PaySaleModalProps = {
   onSubmit: (payload: CreateSalePaymentPayload) => Promise<void>;
 };
 
+type PaymentFormValues = {
+  depositAccount: string;
+  paymentMethod: string;
+  paymentDate: string;
+  amount: number;
+  memo: string;
+};
+
+const tr = (key: string) => t(key, undefined, 'sales');
+
 export function PaySaleModal({
   opened,
   sale,
@@ -43,18 +54,13 @@ export function PaySaleModal({
   onClose,
   onSubmit,
 }: Readonly<PaySaleModalProps>) {
+  const { t: translate } = useTranslation('sales');
   const depositAccountsQuery = useDepositAccounts();
   const paymentMethodsQuery = usePaymentMethods();
 
   const todayStr = new Date().toISOString().split('T')[0];
 
-  const form = useForm<{
-    depositAccount: string;
-    paymentMethod: string;
-    paymentDate: string;
-    amount: number;
-    memo: string;
-  }>({
+  const form = useForm<PaymentFormValues>({
     initialValues: {
       depositAccount: '',
       paymentMethod: '',
@@ -63,15 +69,14 @@ export function PaySaleModal({
       memo: '',
     },
     validate: {
-      depositAccount: (val) => (!val ? 'Pilih akun kas atau bank penerima' : null),
-      paymentMethod: (val) => (!val ? 'Pilih metode pembayaran' : null),
-      paymentDate: (val) => (!val ? 'Tanggal pembayaran wajib diisi' : null),
-      amount: (val) =>
-        !val || val <= 0
-          ? 'Jumlah pembayaran harus lebih dari 0'
-          : sale && val > sale.remainingAmount
-          ? 'Jumlah tidak boleh melebihi sisa tagihan'
-          : null,
+      depositAccount: (val) => (!val ? tr('validation.depositAccountRequired') : null),
+      paymentMethod: (val) => (!val ? tr('validation.paymentMethodRequired') : null),
+      paymentDate: (val) => (!val ? tr('validation.paymentDateRequired') : null),
+      amount: (val) => {
+        if (!val || val <= 0) return tr('validation.amountPositive');
+        if (sale && val > sale.remainingAmount) return tr('validation.amountExceedsRemaining');
+        return null;
+      },
     },
   });
 
@@ -82,12 +87,12 @@ export function PaySaleModal({
         paymentMethod: '',
         paymentDate: todayStr,
         amount: sale.remainingAmount || 0,
-        memo: `Pembayaran faktur ${sale.transactionNumber}`,
+        memo: t('pay.memoDefault', { number: sale.transactionNumber }, 'sales'),
       });
     }
   }, [sale, opened]);
 
-  const handleSubmit = async (values: typeof form.values) => {
+  const handleSubmit = async (values: PaymentFormValues) => {
     if (!sale) return;
     await onSubmit({
       sale: sale.id,
@@ -107,8 +112,21 @@ export function PaySaleModal({
 
   const paymentMethodOptions = (paymentMethodsQuery.data || []).map((pm) => ({
     value: pm.id,
-    label: pm.adminFee ? `${pm.name} (Biaya: Rp ${pm.adminFee.toLocaleString('id-ID')})` : pm.name,
+    label: pm.adminFee
+      ? translate('pay.methodWithFee', { name: pm.name, fee: pm.adminFee.toLocaleString('id-ID') })
+      : pm.name,
   }));
+
+  const handleMethodChange = (val: string | null) => {
+    form.setFieldValue('paymentMethod', val || '');
+    if (!val) return;
+    const selectedPm = paymentMethodsQuery.data?.find((pm) => pm.id === val);
+    const defaultAccount = selectedPm?.defaultAccount;
+    const defAccId = typeof defaultAccount === 'object' ? defaultAccount?.id : defaultAccount;
+    if (defAccId && !form.values.depositAccount) {
+      form.setFieldValue('depositAccount', defAccId);
+    }
+  };
 
   return (
     <Modal
@@ -120,7 +138,7 @@ export function PaySaleModal({
             <IconReceipt2 size={16} />
           </ThemeIcon>
           <Text fw={700} c="primary.9">
-            Catat Pembayaran Faktur
+            {translate('pay.title')}
           </Text>
         </Group>
       }
@@ -130,12 +148,11 @@ export function PaySaleModal({
       {sale && (
         <form onSubmit={form.onSubmit(handleSubmit)}>
           <Stack gap="md">
-            {/* Invoice Summary Box */}
             <Paper withBorder p="sm" radius="md" bg="gray.0">
               <Grid gutter="xs">
                 <Grid.Col span={6}>
                   <Text size="xs" c="dimmed">
-                    Nomor Faktur
+                    {translate('pay.invoiceNumber')}
                   </Text>
                   <Text size="sm" fw={700} c="primary.9">
                     {sale.transactionNumber}
@@ -143,7 +160,7 @@ export function PaySaleModal({
                 </Grid.Col>
                 <Grid.Col span={6}>
                   <Text size="xs" c="dimmed">
-                    Pelanggan
+                    {translate('pay.customer')}
                   </Text>
                   <Text size="sm" fw={600} c="dark.8">
                     {sale.customer?.displayName || '—'}
@@ -151,7 +168,7 @@ export function PaySaleModal({
                 </Grid.Col>
                 <Grid.Col span={6}>
                   <Text size="xs" c="dimmed">
-                    Total Nilai Faktur
+                    {translate('pay.invoiceTotal')}
                   </Text>
                   <Text size="sm" fw={600} c="dark.8">
                     {formatIDR(sale.finalAmount)}
@@ -159,7 +176,7 @@ export function PaySaleModal({
                 </Grid.Col>
                 <Grid.Col span={6}>
                   <Text size="xs" c="dimmed">
-                    Sisa Tagihan
+                    {translate('pay.remaining')}
                   </Text>
                   <Text size="sm" fw={800} c="orange.8">
                     {formatIDR(sale.remainingAmount)}
@@ -168,10 +185,9 @@ export function PaySaleModal({
               </Grid>
             </Paper>
 
-            {/* Payment Fields */}
             <Select
-              label="Setor ke Akun (Kas & Bank)"
-              placeholder="Pilih rekening bank atau kas penerima..."
+              label={translate('pay.depositAccount')}
+              placeholder={translate('pay.depositAccountPlaceholder')}
               data={accountOptions}
               searchable
               clearable
@@ -183,32 +199,20 @@ export function PaySaleModal({
             <Grid gutter="sm">
               <Grid.Col span={6}>
                 <Select
-                  label="Cara Pembayaran"
-                  placeholder="Pilih metode transfer/va..."
+                  label={translate('pay.method')}
+                  placeholder={translate('pay.methodPlaceholder')}
                   data={paymentMethodOptions}
                   searchable
                   required
                   value={form.values.paymentMethod}
-                  onChange={(val) => {
-                    form.setFieldValue('paymentMethod', val || '');
-                    if (val) {
-                      const selectedPm = paymentMethodsQuery.data?.find((pm) => pm.id === val);
-                      const defAccId =
-                        typeof selectedPm?.defaultAccount === 'object'
-                          ? selectedPm.defaultAccount?.id
-                          : selectedPm?.defaultAccount;
-                      if (defAccId && !form.values.depositAccount) {
-                        form.setFieldValue('depositAccount', defAccId);
-                      }
-                    }
-                  }}
+                  onChange={handleMethodChange}
                   error={form.errors.paymentMethod}
                 />
               </Grid.Col>
               <Grid.Col span={6}>
                 <TextInput
                   type="date"
-                  label="Tanggal Pembayaran"
+                  label={translate('pay.paymentDate')}
                   leftSection={<IconCalendar size={16} />}
                   required
                   {...form.getInputProps('paymentDate')}
@@ -217,8 +221,8 @@ export function PaySaleModal({
             </Grid>
 
             <NumberInput
-              label="Jumlah Pembayaran (Rp)"
-              description="Dapat dicicil/dibayar sebagian"
+              label={translate('pay.amount')}
+              description={translate('pay.amountDescription')}
               thousandSeparator="."
               decimalSeparator=","
               min={1}
@@ -229,18 +233,20 @@ export function PaySaleModal({
             />
 
             <Textarea
-              label="Catatan / Memo"
-              placeholder="Tambahkan catatan bukti transfer atau referensi..."
+              label={translate('pay.memo')}
+              placeholder={translate('pay.memoPlaceholder')}
               minRows={2}
               {...form.getInputProps('memo')}
             />
 
             {form.values.amount < sale.remainingAmount && (
               <Alert icon={<IconAlertCircle size={16} />} color="yellow" radius="md">
-                Pembayaran ini hanya melunasi sebagian. Status faktur akan menjadi{' '}
-                <strong>Sebagian (PARTIAL)</strong> dan sisa{' '}
-                <strong>{formatIDR(sale.remainingAmount - form.values.amount)}</strong> tetap
-                terbuka sebagai piutang.
+                {translate('pay.partialBefore')} <strong>{translate('pay.partialStatus')}</strong>{' '}
+                {translate('pay.partialMiddle')}{' '}
+                <strong>
+                  {formatIDR(remainingAfterPayment(sale.remainingAmount, form.values.amount))}
+                </strong>{' '}
+                {translate('pay.partialAfter')}
               </Alert>
             )}
 
@@ -248,10 +254,10 @@ export function PaySaleModal({
 
             <Group justify="flex-end" gap="sm">
               <Button variant="default" onClick={onClose} disabled={isSubmitting}>
-                Batal
+                {translate('pay.cancel')}
               </Button>
               <Button type="submit" color="primary" loading={isSubmitting}>
-                Simpan Pembayaran
+                {translate('pay.save')}
               </Button>
             </Group>
           </Stack>
@@ -262,4 +268,3 @@ export function PaySaleModal({
 }
 
 export default PaySaleModal;
-
