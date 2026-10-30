@@ -74,6 +74,7 @@ describe('<ProfilePage />', () => {
     const actor = userEvent.setup();
     renderPage();
     await screen.findByRole('heading', { name: 'Budi Santoso' });
+    await waitFor(() => expect(screen.getByLabelText(/Nama Lengkap/)).toHaveValue('Budi Santoso'));
     const save = screen.getByRole('button', { name: 'Simpan Perubahan' });
     expect(save).toBeDisabled();
 
@@ -102,6 +103,7 @@ describe('<ProfilePage />', () => {
     const actor = userEvent.setup();
     renderPage();
     await screen.findByRole('heading', { name: 'Budi Santoso' });
+    await waitFor(() => expect(screen.getByLabelText(/Nama Lengkap/)).toHaveValue('Budi Santoso'));
 
     await actor.clear(screen.getByLabelText(/Nama Lengkap/));
     await actor.type(screen.getByLabelText(/Nama Lengkap/), '   ');
@@ -121,6 +123,7 @@ describe('<ProfilePage />', () => {
     const actor = userEvent.setup();
     renderPage();
     await screen.findByRole('heading', { name: 'Budi Santoso' });
+    await waitFor(() => expect(screen.getByLabelText(/Nama Lengkap/)).toHaveValue('Budi Santoso'));
 
     await actor.type(screen.getByLabelText(/Nama Lengkap/), 'X');
     await actor.click(screen.getByRole('button', { name: 'Batal' }));
@@ -132,6 +135,7 @@ describe('<ProfilePage />', () => {
     const actor = userEvent.setup();
     renderPage();
     await screen.findByRole('heading', { name: 'Budi Santoso' });
+    await waitFor(() => expect(screen.getByLabelText(/Nama Lengkap/)).toHaveValue('Budi Santoso'));
     await actor.click(screen.getByRole('tab', { name: /Keamanan & Kata Sandi/ }));
 
     const submit = screen.getByRole('button', { name: 'Perbarui Kata Sandi' });
@@ -151,6 +155,7 @@ describe('<ProfilePage />', () => {
     const actor = userEvent.setup();
     renderPage();
     await screen.findByRole('heading', { name: 'Budi Santoso' });
+    await waitFor(() => expect(screen.getByLabelText(/Nama Lengkap/)).toHaveValue('Budi Santoso'));
     await actor.click(screen.getByRole('tab', { name: /Hak Akses & Peran/ }));
 
     expect(screen.getByText('Master Data & Pengaturan Entitas')).toBeInTheDocument();
