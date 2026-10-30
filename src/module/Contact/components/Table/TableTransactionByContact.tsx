@@ -30,8 +30,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { EmptyState } from '@/components/EmptyState';
 import { useTranslation } from '@/i18n';
 import { routes } from '@/router/routes';
-import type { Sale } from '@/module/Sale/types/sale';
-import { getSaleStatusConfig } from '@/module/Sale/utils/saleFormat';
+import type { Sale } from '@/module/sales/domain/sale';
+import { getSaleStatusConfig } from '@/module/sales/domain/saleFormat';
 
 type TableTransactionByContactProps = {
   transactions: Sale[];

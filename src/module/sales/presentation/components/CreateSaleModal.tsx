@@ -30,7 +30,7 @@ import {
   IconTrash,
   IconUser,
 } from '@tabler/icons-react';
-import type { CreateSaleFormValues, DiscountType, WithholdingType } from '../types/sale';
+import type { CreateSaleFormValues, DiscountType, WithholdingType } from '@/module/sales/domain/sale';
 import {
   useDepositAccounts,
   useSaleCustomerOptions,
@@ -38,7 +38,7 @@ import {
   useSaleProductOptions,
   useSaleTaxes,
 } from '../hooks/useSaleQueries';
-import { formatIDR } from '../utils/saleFormat';
+import { formatIDR } from '@/module/sales/domain/saleFormat';
 
 type CreateSaleModalProps = {
   opened: boolean;

@@ -42,8 +42,8 @@ import ContactMainPage from '@/module/Contact/view/ContactMainPage';
 import AddContactPage from '@/module/Contact/view/AddContact';
 import DetailContactPage from '@/module/Contact/view/DetailContact';
 import TransactionDetailByContact from '@/module/Contact/view/TransactionDetailByContact';
-import SaleMainPage from '@/module/Sale/pages/SaleMainPage';
-import SaleDetailPage from '@/module/Sale/pages/SaleDetailPage';
+import SaleMainPage from '@/module/sales/presentation/pages/SaleMainPage';
+import SaleDetailPage from '@/module/sales/presentation/pages/SaleDetailPage';
 
 // Base Module Routes
 import { BudgetPlanningPage } from '@/module/budgeting';

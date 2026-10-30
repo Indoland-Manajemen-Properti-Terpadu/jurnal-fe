@@ -5,7 +5,7 @@ import {
   IconClock,
   IconReceipt2,
 } from '@tabler/icons-react';
-import { formatCompactIDR, formatIDR } from '../utils/saleFormat';
+import { formatCompactIDR, formatIDR } from '@/module/sales/domain/saleFormat';
 
 type SaleStatsProps = {
   totalCount: number;

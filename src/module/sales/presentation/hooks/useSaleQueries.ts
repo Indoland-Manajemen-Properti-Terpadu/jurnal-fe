@@ -10,8 +10,8 @@ import {
   fetchSales,
   generateInvoiceLink,
   getApiErrorMessage,
-} from '../infrastructure/saleApi';
-import type { CreateSaleFormValues, CreateSalePaymentPayload, SaleListParams } from '../types/sale';
+} from '@/module/sales/infrastructure/saleApi';
+import type { CreateSaleFormValues, CreateSalePaymentPayload, SaleListParams } from '@/module/sales/domain/sale';
 import { fetchPaymentTerms, fetchContacts } from '@/module/Contact/infrastructure/contactApi';
 import { fetchProducts, fetchTaxes } from '@/module/products';
 import { getJournalAccounts } from '@/module/chart-of-accounts';

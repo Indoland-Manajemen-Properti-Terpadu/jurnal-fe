@@ -39,7 +39,7 @@ import {
   useGenerateInvoiceLink,
   useSales,
 } from '../hooks/useSaleQueries';
-import type { CreateSaleFormValues, CreateSalePaymentPayload, Sale } from '../types/sale';
+import type { CreateSaleFormValues, CreateSalePaymentPayload, Sale } from '@/module/sales/domain/sale';
 
 export function SaleMainPage() {
   const navigate = useNavigate();

@@ -1,4 +1,4 @@
-import type { SaleStatus } from '../types/sale';
+import type { SaleStatus } from './sale';
 
 const idrFormatter = new Intl.NumberFormat('id-ID', {
   style: 'currency',

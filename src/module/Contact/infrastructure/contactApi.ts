@@ -12,8 +12,8 @@ import type {
   Pagination,
   PaymentTerm,
 } from '../types/contact';
-import type { Sale } from '@/module/Sale/types/sale';
-import { mapSaleDto } from '@/module/Sale/infrastructure/saleApi';
+import type { Sale } from '@/module/sales/domain/sale';
+import { mapSaleDto } from '@/module/sales/infrastructure/saleApi';
 
 export const CONTACT_ENDPOINTS = {
   contacts: '/v1/contacts',

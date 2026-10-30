@@ -25,8 +25,8 @@ import {
   IconReceiptOff,
 } from '@tabler/icons-react';
 import { EmptyState } from '@/components/EmptyState';
-import type { Sale } from '../types/sale';
-import { formatDate, formatIDR, getSaleStatusConfig } from '../utils/saleFormat';
+import type { Sale } from '@/module/sales/domain/sale';
+import { formatDate, formatIDR, getSaleStatusConfig } from '@/module/sales/domain/saleFormat';
 
 type SaleTableProps = {
   sales: Sale[];

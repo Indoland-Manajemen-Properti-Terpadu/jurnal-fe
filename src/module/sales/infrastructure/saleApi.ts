@@ -9,7 +9,7 @@ import type {
   SalePaymentDetail,
   SalePaymentMethod,
   SaleTag,
-} from '../types/sale';
+} from '../domain/sale';
 
 export const SALE_ENDPOINTS = {
   sales: '/v1/sales',

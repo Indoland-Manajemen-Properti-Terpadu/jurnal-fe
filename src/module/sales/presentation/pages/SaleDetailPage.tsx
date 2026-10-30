@@ -47,8 +47,8 @@ import {
   useGenerateInvoiceLink,
   useSaleDetail,
 } from '../hooks/useSaleQueries';
-import type { CreateSalePaymentPayload, Sale, SaleItem } from '../types/sale';
-import { getSaleStatusConfig } from '../utils/saleFormat';
+import type { CreateSalePaymentPayload, Sale, SaleItem } from '@/module/sales/domain/sale';
+import { getSaleStatusConfig } from '@/module/sales/domain/saleFormat';
 import classes from './SaleDetailPage.module.css';
 
 type Translate = (key: string, params?: Record<string, string | number>) => string;

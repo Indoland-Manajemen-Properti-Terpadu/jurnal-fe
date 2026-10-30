@@ -35,7 +35,7 @@ import {
 import { useNavigate, useParams } from 'react-router-dom';
 import AppShellLayout from '@/components/AppShellLayout';
 import { routes } from '@/router/routes';
-import { formatIDR } from '@/module/Sale/utils/saleFormat';
+import { formatIDR } from '@/module/sales/domain/saleFormat';
 import {
   useContact,
   useContactTransactions,

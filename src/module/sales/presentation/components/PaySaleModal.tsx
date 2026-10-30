@@ -24,9 +24,9 @@ import {
   IconCoin,
   IconReceipt2,
 } from '@tabler/icons-react';
-import type { CreateSalePaymentPayload, Sale } from '../types/sale';
+import type { CreateSalePaymentPayload, Sale } from '@/module/sales/domain/sale';
 import { useDepositAccounts, usePaymentMethods } from '../hooks/useSaleQueries';
-import { formatIDR } from '../utils/saleFormat';
+import { formatIDR } from '@/module/sales/domain/saleFormat';
 
 type PaySaleModalProps = {
   opened: boolean;
