@@ -30,22 +30,22 @@ import { useAuthStore } from '@/store/useAuthentications';
 import { useTranslation } from '@/i18n';
 import classes from '@/module/dashboard/presentation/components/dashboard.module.css';
 import { DashboardHero } from '@/module/dashboard/presentation/components/DashboardHero';
+import { ActivityFeed } from '@/module/dashboard/presentation/components/ActivityFeed';
+import { AgingList } from '@/module/dashboard/presentation/components/AgingList';
+import { BankAccountsList } from '@/module/dashboard/presentation/components/BankAccountsList';
+import { CardHeader } from '@/module/dashboard/presentation/components/CardHeader';
+import { CompositionDonut } from '@/module/dashboard/presentation/components/CompositionDonut';
+import { GlassCard } from '@/module/dashboard/presentation/components/GlassCard';
+import { KpiTile } from '@/module/dashboard/presentation/components/KpiTile';
+import { QuickActions } from '@/module/dashboard/presentation/components/QuickActions';
+import { RecentInvoices } from '@/module/dashboard/presentation/components/RecentInvoices';
+import { SalesTrendChart } from '@/module/dashboard/presentation/components/SalesTrendChart';
+import { TopDebtorsList } from '@/module/dashboard/presentation/components/TopDebtorsList';
 import {
-  ActivityFeed,
-  AgingList,
-  BankAccountsList,
-  CardHeader,
-  CompositionDonut,
-  GlassCard,
-  KpiTile,
-  QuickActions,
-  RecentInvoices,
-  SalesTrendChart,
-  TopDebtorsList,
   formatCompact,
   formatDate,
   formatIDR,
-} from '@/module/dashboard/presentation/components/DashboardWidgets';
+} from '@/module/dashboard/presentation/components/dashboardFormat';
 import {
   dashboardKeys,
   useAccountingPeriods,

@@ -2,7 +2,7 @@ import { ActionIcon, Box, Button, Group, Text, Title, Tooltip } from '@mantine/c
 import { IconLock, IconLockOpen, IconNotebook, IconRefresh, IconScale } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import classes from './dashboard.module.css';
-import { formatCompact, formatIDR } from './DashboardWidgets';
+import { formatCompact, formatIDR } from './dashboardFormat';
 
 type HeroMetric = {
   key: string;
