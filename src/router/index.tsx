@@ -38,10 +38,12 @@ import PettyCashPage from '@/module/BankCash/PettyCash/pages/PettyCashPage';
 import PettyCashDetailPage from '@/module/BankCash/PettyCash/pages/PettyCashDetailPage';
 import PettyCashRouteScope from '@/module/BankCash/PettyCash/pages/PettyCashRouteScope';
 import EditUserForm from '@/module/SettingMenu/UserManagement/User/pages/EditUser';
-import ContactMainPage from '@/module/Contact/view/ContactMainPage';
-import AddContactPage from '@/module/Contact/view/AddContact';
-import DetailContactPage from '@/module/Contact/view/DetailContact';
-import TransactionDetailByContact from '@/module/Contact/view/TransactionDetailByContact';
+import {
+  AddContactPage,
+  ContactMainPage,
+  DetailContactPage,
+  TransactionDetailByContactPage,
+} from '@/module/contacts';
 import { SaleDetailPage, SaleMainPage } from '@/module/sales';
 
 // Base Module Routes
@@ -196,7 +198,7 @@ const router = createBrowserRouter([
   },
   {
     path: routes.Contact.TransactionDetailByContact,
-    element: <TransactionDetailByContact />,
+    element: <TransactionDetailByContactPage />,
   },
 
   // User Management Routes
