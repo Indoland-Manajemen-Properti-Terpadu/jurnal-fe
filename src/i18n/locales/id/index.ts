@@ -5,6 +5,7 @@ import { settings } from './settings';
 import { pendingChanges } from './pendingChanges';
 import { assets } from './assets';
 import { contactDetail } from './contactDetail';
+import { contacts } from './contacts';
 import { saleDetail } from './saleDetail';
 import { sales } from './sales';
 import { dashboard } from './dashboard';
@@ -32,6 +33,7 @@ export const id = {
   pendingChanges,
   assets,
   contactDetail,
+  contacts,
   saleDetail,
   sales,
   dashboard,
