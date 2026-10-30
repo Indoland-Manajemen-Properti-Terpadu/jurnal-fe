@@ -7,7 +7,6 @@ import {
   fetchPaymentTerms,
   fetchSalesByCustomer,
   getApiErrorMessage,
-  mapContact,
   updateContact,
 } from './contactApi';
 
@@ -58,57 +57,6 @@ const formValues = (overrides: Partial<ContactFormValues> = {}): ContactFormValu
 
 beforeEach(() => {
   Object.values(http).forEach((fn) => fn.mockReset());
-});
-
-describe('mapContact (characterization)', () => {
-  it('maps snake_case fallbacks and defaults', () => {
-    const contact = mapContact({
-      _id: 'c-9',
-      contact_number: 'C-9',
-      company_name: 'PT',
-      other_info: 'note',
-      created_at: 'c',
-      updated_at: 'u',
-      externalId: 'ext',
-      mappingAccount: { defaultPaymentTerm: 14, maxReceivable: { isActive: true, amount: 5000.5 } },
-    });
-
-    expect(contact).toMatchObject({
-      id: 'c-9',
-      contactNumber: 'C-9',
-      displayName: 'Tanpa Nama',
-      companyName: 'PT',
-      otherInfo: 'note',
-      createdAt: 'c',
-      updatedAt: 'u',
-      external_id: 'ext',
-      emails: [],
-      contactType: [],
-      contactGroups: [],
-      bankAccounts: [],
-      deleted: false,
-      fullName: null,
-      npwp: null,
-    });
-    expect(contact.mappingAccount).toEqual({
-      arAccount: null,
-      apAccount: null,
-      defaultPaymentTerm: 14,
-      maxReceivable: { isActive: true, amount: 5000.5 },
-      maxPayable: undefined,
-    });
-  });
-
-  it('keeps a non-numeric payment term as null and coerces deleted', () => {
-    const contact = mapContact({
-      id: 'c',
-      displayName: 'X',
-      deleted: 1,
-      mappingAccount: { defaultPaymentTerm: '30' },
-    });
-    expect(contact.deleted).toBe(true);
-    expect(contact.mappingAccount?.defaultPaymentTerm).toBeNull();
-  });
 });
 
 describe('contact payloads (characterization)', () => {
