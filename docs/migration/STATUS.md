@@ -37,7 +37,7 @@ Priority changed: the ledger (`GeneralJournal`) goes before the remaining small 
 | `PendingChanges` to `pending-changes` | done | done | done | done | done | R1 |
 | `Profile` to `profile` | done | done | done | done | done | R1 |
 | `LandingPage` to `landing` | done | done | done | done | done | R1 |
-| `Dashboard` to `dashboard` | todo | todo | todo | todo | todo | R3 |
+| `Dashboard` to `dashboard` | done | done | done | done | done | R3 |
 | `SettingBudget` + `BudgetPlanning` to `budgeting` | done | done | done | done | done | R1 |
 | `Cost` to `costs` | done | done | done | done | done | R1 |
 | `Production` to `production` | done | done | done | done | done | R1 |
