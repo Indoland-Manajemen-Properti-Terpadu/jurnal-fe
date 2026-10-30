@@ -2,7 +2,6 @@ import { useState } from 'react';
 import {
   ActionIcon,
   Badge,
-  Box,
   Button,
   Divider,
   Group,
@@ -16,6 +15,7 @@ import {
   Tooltip,
 } from '@mantine/core';
 import { IconCategory, IconCheck, IconEdit, IconPlus, IconTrash, IconX } from '@tabler/icons-react';
+import { useTranslation } from '@/i18n';
 import {
   useContactGroups,
   useCreateContactGroup,
@@ -29,6 +29,7 @@ type ContactGroupsModalProps = {
 };
 
 export function ContactGroupsModal({ opened, onClose }: Readonly<ContactGroupsModalProps>) {
+  const { t } = useTranslation('contacts');
   const [newGroupName, setNewGroupName] = useState('');
   const [editingGroupId, setEditingGroupId] = useState<string | null>(null);
   const [editingGroupName, setEditingGroupName] = useState('');
@@ -87,7 +88,7 @@ export function ContactGroupsModal({ opened, onClose }: Readonly<ContactGroupsMo
             <IconCategory size={16} />
           </ThemeIcon>
           <Text fw={700} size="md" c="primary.9">
-            Kelola Grup Kontak
+            {t('groups.title')}
           </Text>
         </Group>
       }
@@ -99,11 +100,11 @@ export function ContactGroupsModal({ opened, onClose }: Readonly<ContactGroupsMo
         {/* Create Group Input */}
         <Paper withBorder p="sm" radius="md" bg="gray.0">
           <Text size="xs" fw={700} c="dark.8" mb={6}>
-            Tambah Grup Baru
+            {t('groups.addTitle')}
           </Text>
           <Group gap="xs">
             <TextInput
-              placeholder="Contoh: Reseller / VIP / Vendor Tetap"
+              placeholder={t('groups.placeholder')}
               value={newGroupName}
               onChange={(e) => setNewGroupName(e.currentTarget.value)}
               onKeyDown={(e) => {
@@ -122,12 +123,12 @@ export function ContactGroupsModal({ opened, onClose }: Readonly<ContactGroupsMo
               disabled={!newGroupName.trim()}
               onClick={handleCreateGroup}
             >
-              Tambah
+              {t('groups.add')}
             </Button>
           </Group>
         </Paper>
 
-        <Divider label="Daftar Grup Kontak" labelPosition="left" />
+        <Divider label={t('groups.listLabel')} labelPosition="left" />
 
         {/* Group List */}
         {groupsQuery.isLoading ? (
@@ -142,10 +143,10 @@ export function ContactGroupsModal({ opened, onClose }: Readonly<ContactGroupsMo
               <IconCategory size={20} />
             </ThemeIcon>
             <Text size="sm" fw={600} c="dark.8">
-              Belum ada grup kontak
+              {t('groups.emptyTitle')}
             </Text>
             <Text size="xs" c="dimmed" mt={2}>
-              Buat grup baru di atas untuk mengelompokkan pelanggan atau rekanan bisnis Anda.
+              {t('groups.emptyDescription')}
             </Text>
           </Paper>
         ) : (
@@ -187,7 +188,7 @@ export function ContactGroupsModal({ opened, onClose }: Readonly<ContactGroupsMo
                         variant="light"
                         onClick={handleSaveEdit}
                         loading={updateMutation.isPending}
-                        aria-label="Simpan perubahan grup"
+                        aria-label={t('groups.saveAria')}
                       >
                         <IconCheck size={14} />
                       </ActionIcon>
@@ -196,7 +197,7 @@ export function ContactGroupsModal({ opened, onClose }: Readonly<ContactGroupsMo
                         color="gray"
                         variant="subtle"
                         onClick={() => setEditingGroupId(null)}
-                        aria-label="Batal ubah grup"
+                        aria-label={t('groups.cancelAria')}
                       >
                         <IconX size={14} />
                       </ActionIcon>
@@ -210,19 +211,19 @@ export function ContactGroupsModal({ opened, onClose }: Readonly<ContactGroupsMo
                       </Group>
 
                       <Group gap={4}>
-                        <Tooltip label="Ubah nama" withArrow position="top">
+                        <Tooltip label={t('groups.editTooltip')} withArrow position="top">
                           <ActionIcon
                             size="sm"
                             variant="subtle"
                             color="gray"
                             onClick={() => handleStartEdit(group.id, group.name)}
-                            aria-label={`Ubah grup ${group.name}`}
+                            aria-label={t('groups.editAria', { name: group.name })}
                           >
                             <IconEdit size={14} />
                           </ActionIcon>
                         </Tooltip>
 
-                        <Tooltip label="Hapus grup" withArrow position="top">
+                        <Tooltip label={t('groups.deleteTooltip')} withArrow position="top">
                           <ActionIcon
                             size="sm"
                             variant="subtle"
@@ -231,7 +232,7 @@ export function ContactGroupsModal({ opened, onClose }: Readonly<ContactGroupsMo
                             loading={
                               deleteMutation.isPending && deleteMutation.variables === group.id
                             }
-                            aria-label={`Hapus grup ${group.name}`}
+                            aria-label={t('groups.deleteAria', { name: group.name })}
                           >
                             <IconTrash size={14} />
                           </ActionIcon>
@@ -247,7 +248,7 @@ export function ContactGroupsModal({ opened, onClose }: Readonly<ContactGroupsMo
 
         <Group justify="flex-end" mt="md">
           <Button variant="default" onClick={onClose}>
-            Tutup
+            {t('groups.close')}
           </Button>
         </Group>
       </Stack>
