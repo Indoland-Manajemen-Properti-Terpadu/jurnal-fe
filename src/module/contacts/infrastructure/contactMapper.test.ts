@@ -72,6 +72,42 @@ describe('credit limit money', () => {
   });
 });
 
+describe('mapContact edge cases', () => {
+  it('treats NaN and Infinity limit amounts as 0', () => {
+    const contact = mapContact({
+      id: 'c',
+      mappingAccount: {
+        maxReceivable: { isActive: true, amount: Number.NaN },
+        maxPayable: { isActive: true, amount: Infinity },
+      },
+    });
+    expect(contact.mappingAccount?.maxReceivable?.amount).toBe(0);
+    expect(contact.mappingAccount?.maxPayable?.amount).toBe(0);
+  });
+
+  it('keeps a null limit undefined and falls back for empty strings', () => {
+    const contact = mapContact({
+      id: '',
+      _id: 'x',
+      contactNumber: '',
+      contact_number: 'C-1',
+      displayName: '',
+      display_name: 'Snake',
+      mappingAccount: { maxReceivable: null },
+    });
+    expect(contact.id).toBe('x');
+    expect(contact.contactNumber).toBe('C-1');
+    expect(contact.displayName).toBe('Snake');
+    expect(contact.mappingAccount?.maxReceivable).toBeUndefined();
+  });
+
+  it('ignores non-array lists from the server', () => {
+    const contact = mapContact({ id: 'c', emails: 'a@x.com', bankAccounts: {} } as never);
+    expect(contact.emails).toEqual([]);
+    expect(contact.bankAccounts).toEqual([]);
+  });
+});
+
 describe('mapPagination', () => {
   it('prefers server values, then pages, then a computed page count', () => {
     expect(
