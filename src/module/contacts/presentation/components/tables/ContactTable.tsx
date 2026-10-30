@@ -129,14 +129,7 @@ export function ContactTable({
           {/* 1. Nama & Nomor Kontak */}
           <Table.Td>
             <Group gap="sm" wrap="nowrap">
-              <Avatar
-                radius="md"
-                size={38}
-                color="primary"
-                variant="light"
-                fw={700}
-                fz="xs"
-              >
+              <Avatar radius="md" size={38} color="primary" variant="light" fw={700} fz="xs">
                 {initials}
               </Avatar>
               <Box style={{ minWidth: 160 }}>
@@ -157,13 +150,7 @@ export function ContactTable({
                 contact.contactType.map((t: ContactType) => {
                   const cfg = getContactTypeBadgeConfig(t);
                   return (
-                    <Badge
-                      key={t}
-                      color={cfg.color}
-                      variant="light"
-                      size="sm"
-                      radius="sm"
-                    >
+                    <Badge key={t} color={cfg.color} variant="light" size="sm" radius="sm">
                       {cfg.label}
                     </Badge>
                   );
@@ -271,36 +258,22 @@ export function ContactTable({
 
               <Menu position="bottom-end" shadow="md" withinPortal>
                 <Menu.Target>
-                  <ActionIcon
-                    variant="subtle"
-                    color="gray"
-                    size="sm"
-                    aria-label="Menu Aksi Kontak"
-                  >
+                  <ActionIcon variant="subtle" color="gray" size="sm" aria-label="Menu Aksi Kontak">
                     <IconDotsVertical size={16} />
                   </ActionIcon>
                 </Menu.Target>
                 <Menu.Dropdown>
-                  <Menu.Item
-                    leftSection={<IconEye size={14} />}
-                    onClick={() => onView(contact)}
-                  >
+                  <Menu.Item leftSection={<IconEye size={14} />} onClick={() => onView(contact)}>
                     Lihat Rincian
                   </Menu.Item>
-                  <Menu.Item
-                    leftSection={<IconEdit size={14} />}
-                    onClick={() => onEdit(contact)}
-                  >
+                  <Menu.Item leftSection={<IconEdit size={14} />} onClick={() => onEdit(contact)}>
                     Ubah Data
                   </Menu.Item>
                   <Menu.Item
                     leftSection={<IconReceipt2 size={14} />}
                     onClick={() =>
                       navigate(
-                        routes.Contact.TransactionDetailByContact.replace(
-                          ':idAccount',
-                          contact.id
-                        )
+                        routes.Contact.TransactionDetailByContact.replace(':idAccount', contact.id)
                       )
                     }
                   >
@@ -415,4 +388,3 @@ export function ContactTable({
 }
 
 export default ContactTable;
-

@@ -7,56 +7,54 @@ import HeaderNav from '@/components/HeaderNav/page';
 import NavbarComponent from '@/components/Navbar/page';
 
 type Props = {
-    children: ReactNode;
-    footer: ReactNode;
+  children: ReactNode;
+  footer: ReactNode;
 };
 
 function ContactFormLayout({ children, footer }: Props) {
-    const theme = useMantineTheme();
+  const theme = useMantineTheme();
 
-    const tablet_match = useMediaQuery('(max-width: 768px)');
-    const [mobileOpened, { toggle: toggleMobile }] = useDisclosure();
-    const [desktopOpened, { toggle: toggleDesktop }] = useDisclosure(true);
+  const tablet_match = useMediaQuery('(max-width: 768px)');
+  const [mobileOpened, { toggle: toggleMobile }] = useDisclosure();
+  const [desktopOpened, { toggle: toggleDesktop }] = useDisclosure(true);
 
-    return (
-        <AppShell
-            layout="alt"
-            header={{ height: 60 }}
-            footer={{ height: 70 }}
-            navbar={{
-                width: desktopOpened ? 300 : 84,
-                breakpoint: 'md',
-                collapsed: { mobile: !mobileOpened },
-            }}
-            padding={0}
-        >
-            <AppShell.Header
-                style={{
-                    height: rem(60),
-                    border: 'none',
-                    boxShadow: tablet_match ? theme.shadows.md : theme.shadows.sm,
-                }}
-            >
-                <Container fluid py="sm" px="lg">
-                    <HeaderNav
-                        desktopOpened={desktopOpened}
-                        mobileOpened={mobileOpened}
-                        toggleDesktop={toggleDesktop}
-                        toggleMobile={toggleMobile}
-                    />
-                </Container>
-            </AppShell.Header>
-            <AppShell.Navbar>
-                <NavbarComponent onClose={toggleMobile} collapsed={!desktopOpened} />
-            </AppShell.Navbar>
-            <AppShell.Main>
-                <AppMain>{children}</AppMain>
-            </AppShell.Main>
-            <AppShell.Footer>
-                {footer}
-            </AppShell.Footer>
-        </AppShell >
-    );
+  return (
+    <AppShell
+      layout="alt"
+      header={{ height: 60 }}
+      footer={{ height: 70 }}
+      navbar={{
+        width: desktopOpened ? 300 : 84,
+        breakpoint: 'md',
+        collapsed: { mobile: !mobileOpened },
+      }}
+      padding={0}
+    >
+      <AppShell.Header
+        style={{
+          height: rem(60),
+          border: 'none',
+          boxShadow: tablet_match ? theme.shadows.md : theme.shadows.sm,
+        }}
+      >
+        <Container fluid py="sm" px="lg">
+          <HeaderNav
+            desktopOpened={desktopOpened}
+            mobileOpened={mobileOpened}
+            toggleDesktop={toggleDesktop}
+            toggleMobile={toggleMobile}
+          />
+        </Container>
+      </AppShell.Header>
+      <AppShell.Navbar>
+        <NavbarComponent onClose={toggleMobile} collapsed={!desktopOpened} />
+      </AppShell.Navbar>
+      <AppShell.Main>
+        <AppMain>{children}</AppMain>
+      </AppShell.Main>
+      <AppShell.Footer>{footer}</AppShell.Footer>
+    </AppShell>
+  );
 }
 
 export default ContactFormLayout;

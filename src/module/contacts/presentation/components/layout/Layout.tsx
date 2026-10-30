@@ -2,11 +2,11 @@ import React, { ReactNode } from 'react';
 import AppShellLayout from '@/components/AppShellLayout';
 
 type Props = {
-    children: ReactNode;
+  children: ReactNode;
 };
 
 function ContactPageLayout({ children }: Props) {
-    return <AppShellLayout withFooter>{children}</AppShellLayout>;
+  return <AppShellLayout withFooter>{children}</AppShellLayout>;
 }
 
 export default ContactPageLayout;

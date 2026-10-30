@@ -233,11 +233,11 @@ export function ContactFormModal({
           bankAccounts:
             contact.bankAccounts.length > 0
               ? contact.bankAccounts.map((b) => ({
-                bankName: b.bankName ?? '',
-                branch: b.branch ?? '',
-                accountHolder: b.accountHolder ?? '',
-                accountNumber: b.accountNumber ?? '',
-              }))
+                  bankName: b.bankName ?? '',
+                  branch: b.branch ?? '',
+                  accountHolder: b.accountHolder ?? '',
+                  accountNumber: b.accountNumber ?? '',
+                }))
               : [],
           mappingAccount: {
             arAccount: extractId(contact.mappingAccount?.arAccount),
@@ -409,12 +409,14 @@ export function ContactFormModal({
   }, [paymentTermsQuery.data]);
 
   // Master Bank Options for Autocomplete
-  const bankAutocompleteData = useMemo(() => {
-    return INDONESIA_BANKS.map((b) => ({
-      value: b.name,
-      label: `${b.name} (${b.code}) - ${b.category}`,
-    }));
-  }, []);
+  const bankAutocompleteData = useMemo(
+    () =>
+      INDONESIA_BANKS.map((b) => ({
+        value: b.name,
+        label: `${b.name} (${b.code}) - ${b.category}`,
+      })),
+    []
+  );
 
   // Master Region Options - Billing
   const billingProvince = form.values.addresses.billing.detail.province;
@@ -1027,7 +1029,7 @@ export function ContactFormModal({
                         data={paymentTermSelectData}
                         value={
                           form.values.mappingAccount.defaultPaymentTerm !== null &&
-                            form.values.mappingAccount.defaultPaymentTerm !== undefined
+                          form.values.mappingAccount.defaultPaymentTerm !== undefined
                             ? String(form.values.mappingAccount.defaultPaymentTerm)
                             : null
                         }

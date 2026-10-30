@@ -329,16 +329,10 @@ export function ContactMainPage() {
       />
 
       {/* Import Contacts Modal */}
-      <ContactImportModal
-        opened={importModalOpened}
-        onClose={() => setImportModalOpened(false)}
-      />
+      <ContactImportModal opened={importModalOpened} onClose={() => setImportModalOpened(false)} />
 
       {/* Manage Contact Groups Modal */}
-      <ContactGroupsModal
-        opened={groupsModalOpened}
-        onClose={() => setGroupsModalOpened(false)}
-      />
+      <ContactGroupsModal opened={groupsModalOpened} onClose={() => setGroupsModalOpened(false)} />
     </AppShellLayout>
   );
 }

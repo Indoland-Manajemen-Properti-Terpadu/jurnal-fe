@@ -28,12 +28,13 @@ type Props = { contact: Contact; accountMap: Map<string, string> };
 
 function CopyableValue({ value, label }: { value?: string | null; label: string }) {
   const { t } = useTranslation('contactDetail');
-  if (!value)
+  if (!value) {
     return (
       <Text c="dimmed" fz="sm">
         {t('notProvided')}
       </Text>
     );
+  }
   return (
     <Group gap={4} wrap="nowrap" className={classes.valueGroup}>
       <Text fz="sm" fw={600} className={classes.breakValue}>

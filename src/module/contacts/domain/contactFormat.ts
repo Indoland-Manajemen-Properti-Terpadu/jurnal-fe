@@ -43,10 +43,7 @@ export const formatPaymentTerm = (days?: number | null): string => {
   return `Net ${days} Hari`;
 };
 
-export const resolveAccountName = (
-  acc: unknown,
-  accountMap: Map<string, string>
-): string => {
+export const resolveAccountName = (acc: unknown, accountMap: Map<string, string>): string => {
   if (!acc) return '—';
   if (typeof acc === 'string') return accountMap.get(acc) ?? acc;
   if (typeof acc === 'object') {
@@ -58,4 +55,3 @@ export const resolveAccountName = (
   }
   return '—';
 };
-

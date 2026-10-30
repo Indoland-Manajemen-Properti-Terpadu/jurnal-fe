@@ -60,17 +60,13 @@ const BankInformationForm: React.FC = () => {
     setBankData(savedData);
   }, []);
 
-  const isEmpty = (data: BankData[]): boolean => {
-    return data.length === 0;
-  };
+  const isEmpty = (data: BankData[]): boolean => data.length === 0;
 
   const saveLocalDate = (data: BankData[]) => {
     localStorage.setItem('bankData', JSON.stringify(data));
   };
 
-  useEffect(() => {
-    return () => localStorage.removeItem('bankData');
-  }, []);
+  useEffect(() => () => localStorage.removeItem('bankData'), []);
 
   const saveAddData = () => {
     if (!newBank.bank || !newBank.branch || !newBank.accountHolder || !newBank.accountNumber) {

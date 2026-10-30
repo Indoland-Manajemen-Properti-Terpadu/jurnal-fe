@@ -87,12 +87,7 @@ export function ContactStatsGrid({
                   {stat.description}
                 </Text>
               </div>
-              <ThemeIcon
-                size={40}
-                radius="md"
-                variant="light"
-                color={stat.color}
-              >
+              <ThemeIcon size={40} radius="md" variant="light" color={stat.color}>
                 <StatIcon size={20} />
               </ThemeIcon>
             </Group>
@@ -104,4 +99,3 @@ export function ContactStatsGrid({
 }
 
 export default ContactStatsGrid;
-

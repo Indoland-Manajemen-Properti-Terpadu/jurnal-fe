@@ -15,14 +15,7 @@ import {
   ThemeIcon,
   Tooltip,
 } from '@mantine/core';
-import {
-  IconCategory,
-  IconCheck,
-  IconEdit,
-  IconPlus,
-  IconTrash,
-  IconX,
-} from '@tabler/icons-react';
+import { IconCategory, IconCheck, IconEdit, IconPlus, IconTrash, IconX } from '@tabler/icons-react';
 import {
   useContactGroups,
   useCreateContactGroup,
@@ -235,7 +228,9 @@ export function ContactGroupsModal({ opened, onClose }: Readonly<ContactGroupsMo
                             variant="subtle"
                             color="red"
                             onClick={() => handleDelete(group.id)}
-                            loading={deleteMutation.isPending && deleteMutation.variables === group.id}
+                            loading={
+                              deleteMutation.isPending && deleteMutation.variables === group.id
+                            }
                             aria-label={`Hapus grup ${group.name}`}
                           >
                             <IconTrash size={14} />
@@ -261,4 +256,3 @@ export function ContactGroupsModal({ opened, onClose }: Readonly<ContactGroupsMo
 }
 
 export default ContactGroupsModal;
-

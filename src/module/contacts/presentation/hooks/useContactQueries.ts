@@ -1,9 +1,4 @@
-import {
-  keepPreviousData,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query';
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 import {
   archiveContact,
@@ -222,5 +217,3 @@ export const useImportContacts = () => {
     onError: (error) => notifyError(error, 'Gagal mengimpor file kontak.'),
   });
 };
-
-

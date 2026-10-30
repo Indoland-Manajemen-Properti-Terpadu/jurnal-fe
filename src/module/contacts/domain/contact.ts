@@ -193,10 +193,12 @@ export type PaymentTerm = {
 export type ContactGroup = {
   id: string;
   name: string;
-  site?: {
-    id?: string;
-    name?: string;
-  } | string;
+  site?:
+    | {
+        id?: string;
+        name?: string;
+      }
+    | string;
   createdAt?: string;
   updatedAt?: string;
 };
@@ -207,5 +209,3 @@ export type FilteredAccount = {
   name: string;
   category: string;
 };
-
-

@@ -68,8 +68,8 @@ export function ContactImportModal({ opened, onClose }: Readonly<ContactImportMo
     >
       <Stack gap="md" pt="xs">
         <Alert color="blue" icon={<IconAlertCircle size={16} />}>
-          Pastikan format file sesuai dengan template resmi sistem. Gunakan tombol di bawah
-          untuk mengunduh template terbaru sebelum mengunggah.
+          Pastikan format file sesuai dengan template resmi sistem. Gunakan tombol di bawah untuk
+          mengunduh template terbaru sebelum mengunggah.
         </Alert>
 
         <Paper withBorder p="md" radius="md" bg="gray.0">
@@ -126,4 +126,3 @@ export function ContactImportModal({ opened, onClose }: Readonly<ContactImportMo
 }
 
 export default ContactImportModal;
-
