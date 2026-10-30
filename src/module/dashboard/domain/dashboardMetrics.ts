@@ -5,13 +5,14 @@ import type {
   MonthlyPoint,
   SaleSummary,
 } from './dashboardTypes';
+import { sameAmount, subtractAmounts, sumAmounts } from './dashboardMoney';
 
 /**
- * Pure dashboard aggregations. Amounts come from the API as whole Rupiah values,
- * so they are only summed (never divided/rounded) here. Ratios are presentation-only.
+ * Pure dashboard aggregations. Amounts are rounded to the cent when mapped from the API and
+ * summed in integer cents here, so decimals never drift. Ratios are presentation-only.
  */
 
-const sum = (values: number[]): number => values.reduce((acc, v) => acc + v, 0);
+const sum = sumAmounts;
 
 const startOfDay = (d: Date): number =>
   new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
@@ -100,15 +101,21 @@ export const getMonthlyTrend = (
     });
   }
   const index = new Map(points.map((p, i) => [p.key, i]));
+  const invoiced: number[][] = points.map(() => []);
+  const collected: number[][] = points.map(() => []);
   sales.forEach((s) => {
     if (!s.transactionDate || s.status === 'DRAFT') return;
     const d = new Date(s.transactionDate);
     const i = index.get(`${d.getFullYear()}-${d.getMonth()}`);
     if (i === undefined) return;
-    points[i].invoiced += s.finalAmount;
-    points[i].collected += s.paidAmount;
+    invoiced[i].push(s.finalAmount);
+    collected[i].push(s.paidAmount);
   });
-  return points;
+  return points.map((p, i) => ({
+    ...p,
+    invoiced: sumAmounts(invoiced[i]),
+    collected: sumAmounts(collected[i]),
+  }));
 };
 
 export const getReceivableAging = (
@@ -147,17 +154,18 @@ export const getReceivableAging = (
       color: 'red',
     },
   ];
+  const amounts: number[][] = buckets.map(() => []);
   sales.filter(isOpen).forEach((s) => {
     const due = s.dueDate ? startOfDay(new Date(s.dueDate)) : today;
     const late = Math.floor((today - due) / DAY_MS);
-    let b = buckets[0];
-    if (late > 60) [, , , b] = buckets;
-    else if (late > 30) [, , b] = buckets;
-    else if (late > 0) [, b] = buckets;
-    b.amount += s.remainingAmount;
-    b.count += 1;
+    let i = 0;
+    if (late > 60) i = 3;
+    else if (late > 30) i = 2;
+    else if (late > 0) i = 1;
+    amounts[i].push(s.remainingAmount);
+    buckets[i].count += 1;
   });
-  return buckets;
+  return buckets.map((b, i) => ({ ...b, amount: sumAmounts(amounts[i]) }));
 };
 
 export const getStatusBreakdown = (sales: SaleSummary[]) => {
@@ -193,7 +201,7 @@ export const getTopDebtors = (sales: SaleSummary[], now = new Date(), limit = 5)
   const openSales = sales.filter(isOpen);
   const customerMap = new Map<
     string,
-    { total: number; count: number; oldestDue: string | null; hasOverdue: boolean }
+    { amounts: number[]; oldestDue: string | null; hasOverdue: boolean }
   >();
 
   openSales.forEach((s) => {
@@ -202,14 +210,12 @@ export const getTopDebtors = (sales: SaleSummary[], now = new Date(), limit = 5)
     const existing = customerMap.get(name);
     if (!existing) {
       customerMap.set(name, {
-        total: s.remainingAmount,
-        count: 1,
+        amounts: [s.remainingAmount],
         oldestDue: s.dueDate,
         hasOverdue: isDueOver,
       });
     } else {
-      existing.total += s.remainingAmount;
-      existing.count += 1;
+      existing.amounts.push(s.remainingAmount);
       if (isDueOver) existing.hasOverdue = true;
       if (
         s.dueDate &&
@@ -223,8 +229,8 @@ export const getTopDebtors = (sales: SaleSummary[], now = new Date(), limit = 5)
   return Array.from(customerMap.entries())
     .map(([customerName, data]) => ({
       customerName,
-      totalOutstanding: data.total,
-      invoiceCount: data.count,
+      totalOutstanding: sumAmounts(data.amounts),
+      invoiceCount: data.amounts.length,
       oldestDueDate: data.oldestDue,
       isOverdue: data.hasOverdue,
     }))
@@ -252,9 +258,9 @@ export const getFinancialHealthSummary = (
   const totalLiabilities = bs?.totalLiabilities ?? 0;
   const totalEquity = bs?.totalEquity ?? 0;
   const totalCurrentAssets = bs?.totalCurrentAssets ?? 0;
-  const totalLiabilitiesAndEquity = totalLiabilities + totalEquity;
-  const isBalanced = !bs || totalAssets === totalLiabilitiesAndEquity;
-  const netWorkingCapital = totalCurrentAssets - totalLiabilities;
+  const totalLiabilitiesAndEquity = sumAmounts([totalLiabilities, totalEquity]);
+  const isBalanced = !bs || sameAmount(totalAssets, totalLiabilitiesAndEquity);
+  const netWorkingCapital = subtractAmounts(totalCurrentAssets, totalLiabilities);
   const denom = Math.max(1, Math.abs(totalAssets));
 
   return {
