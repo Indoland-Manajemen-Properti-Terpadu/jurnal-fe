@@ -6,7 +6,7 @@ import {
   fetchPendingCount,
   fetchPeriods,
   fetchRecentSales,
-} from '../infrastructure/dashboardApi';
+} from '@/module/dashboard/infrastructure/dashboardApi';
 
 const todayIso = () => {
   const d = new Date();

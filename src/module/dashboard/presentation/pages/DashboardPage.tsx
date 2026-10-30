@@ -28,8 +28,8 @@ import { routes } from '@/router/routes';
 import { useAuthStore } from '@/store/useAuthentications';
 import { useTranslation } from '@/i18n';
 import MainDashboardLayout from './layout';
-import classes from '../components/dashboard.module.css';
-import { DashboardHero } from '../components/DashboardHero';
+import classes from '@/module/dashboard/presentation/components/dashboard.module.css';
+import { DashboardHero } from '@/module/dashboard/presentation/components/DashboardHero';
 import {
   ActivityFeed,
   AgingList,
@@ -45,7 +45,7 @@ import {
   formatCompact,
   formatDate,
   formatIDR,
-} from '../components/DashboardWidgets';
+} from '@/module/dashboard/presentation/components/DashboardWidgets';
 import {
   dashboardKeys,
   useAccountingPeriods,
@@ -54,7 +54,7 @@ import {
   useJournalAuditLogs,
   usePendingChangesCount,
   useRecentSales,
-} from '../hooks/useDashboardQueries';
+} from '@/module/dashboard/presentation/hooks/useDashboardQueries';
 import {
   getActivePeriod,
   getBankAccounts,
@@ -64,7 +64,7 @@ import {
   getReceivableAging,
   getSalesKpis,
   getTopDebtors,
-} from '../domain/dashboardMetrics';
+} from '@/module/dashboard/domain/dashboardMetrics';
 
 function MainDashboard() {
   const navigate = useNavigate();

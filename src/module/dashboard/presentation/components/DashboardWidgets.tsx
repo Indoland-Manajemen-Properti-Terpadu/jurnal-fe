@@ -35,8 +35,8 @@ import type {
   BalanceSheetLine,
   MonthlyPoint,
   SaleSummary,
-} from '../domain/dashboardTypes';
-import type { TopDebtor } from '../domain/dashboardMetrics';
+} from '@/module/dashboard/domain/dashboardTypes';
+import type { TopDebtor } from '@/module/dashboard/domain/dashboardMetrics';
 
 /* ---------- formatters (display only) ---------- */
 
