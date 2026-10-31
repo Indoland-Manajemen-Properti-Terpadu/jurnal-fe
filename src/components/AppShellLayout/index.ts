@@ -1,1 +1,1 @@
-export { default, appShellLayout } from './AppShellLayout';
+export { AppShellLayout, appShellLayout } from './AppShellLayout';

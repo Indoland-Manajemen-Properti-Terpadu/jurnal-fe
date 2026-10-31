@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Box, Grid, Stack } from '@mantine/core';
 import { useNavigate, useParams } from 'react-router-dom';
-import ConfirmModal from '@/components/ui/ConfirmModal/ConfirmModal';
+import { ConfirmModal } from '@/components/ui/ConfirmModal/ConfirmModal';
 import { useTranslation } from '@/i18n';
 import { routes } from '@/router/routes';
 import { AssetItem } from '@/module/assets/domain/asset';

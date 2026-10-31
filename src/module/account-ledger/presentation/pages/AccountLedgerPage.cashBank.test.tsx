@@ -15,7 +15,7 @@ import {
 import AccountLedgerPage from './AccountLedgerPage';
 
 vi.mock('@/components/AppShellLayout', () => ({
-  default: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  AppShellLayout: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 vi.mock('@mantine/notifications', async () => {
   const { fns: mocked } = await import('../../testing/ledgerMocks');

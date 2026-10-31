@@ -55,49 +55,44 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   color = 'primary',
   py = 52,
   maw = 420,
-}) => {
-  return (
-    <Stack align="center" justify="center" gap="xs" py={py} px="md">
-      <ThemeIcon
-        size={64}
-        radius="xl"
-        variant="light"
-        color={color}
-        style={{
-          boxShadow:
-            '0 8px 20px color-mix(in srgb, var(--mantine-color-primary-6) 8%, transparent)',
-          marginBottom: 4,
-        }}
-      >
-        {icon ?? <IconDatabaseOff size={32} stroke={1.6} />}
-      </ThemeIcon>
+}) => (
+  <Stack align="center" justify="center" gap="xs" py={py} px="md">
+    <ThemeIcon
+      size={64}
+      radius="xl"
+      variant="light"
+      color={color}
+      style={{
+        boxShadow: '0 8px 20px color-mix(in srgb, var(--mantine-color-primary-6) 8%, transparent)',
+        marginBottom: 4,
+      }}
+    >
+      {icon ?? <IconDatabaseOff size={32} stroke={1.6} />}
+    </ThemeIcon>
 
-      <Text fw={600} size="md" c="dark.8" ta="center">
-        {title}
+    <Text fw={600} size="md" c="dark.8" ta="center">
+      {title}
+    </Text>
+
+    {description && (
+      <Text size="sm" c="dimmed" ta="center" maw={maw} lh={1.55}>
+        {description}
       </Text>
+    )}
 
-      {description && (
-        <Text size="sm" c="dimmed" ta="center" maw={maw} lh={1.55}>
-          {description}
-        </Text>
-      )}
-
-      {actionLabel && onAction && (
-        <Group mt="xs">
-          <Button
-            size="xs"
-            variant="light"
-            color={color}
-            radius="md"
-            leftSection={actionIcon}
-            onClick={onAction}
-          >
-            {actionLabel}
-          </Button>
-        </Group>
-      )}
-    </Stack>
-  );
-};
-
-export default EmptyState;
+    {actionLabel && onAction && (
+      <Group mt="xs">
+        <Button
+          size="xs"
+          variant="light"
+          color={color}
+          radius="md"
+          leftSection={actionIcon}
+          onClick={onAction}
+        >
+          {actionLabel}
+        </Button>
+      </Group>
+    )}
+  </Stack>
+);

@@ -16,7 +16,13 @@ vi.mock('react-router-dom', async () => ({
 }));
 
 vi.mock('@/components/AppShellLayout', () => ({
-  default: ({ children, footer }: { children: React.ReactNode; footer?: React.ReactNode }) => (
+  AppShellLayout: ({
+    children,
+    footer,
+  }: {
+    children: React.ReactNode;
+    footer?: React.ReactNode;
+  }) => (
     <div>
       {children}
       {footer}

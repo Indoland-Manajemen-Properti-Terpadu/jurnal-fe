@@ -14,7 +14,7 @@ const { getMock, patchMock, showMock } = vi.hoisted(() => ({
 }));
 
 vi.mock('@/components/AppShellLayout', () => ({
-  default: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  AppShellLayout: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 
 vi.mock('@mantine/notifications', () => ({ notifications: { show: showMock } }));

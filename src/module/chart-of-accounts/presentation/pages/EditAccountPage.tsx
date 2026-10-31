@@ -3,13 +3,14 @@ import { Alert, Box, Button, Grid, Paper, Skeleton, Stack } from '@mantine/core'
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from '@mantine/form';
 import { IconArrowLeft, IconCheck, IconLock, IconNotebook } from '@tabler/icons-react';
-import AppShellLayout from '@/components/AppShellLayout';
+import { AppShellLayout } from '@/components/AppShellLayout';
 import { NotFound } from '@/components/ErrorPage/NotFound';
-import ModuleHeader from '@/components/ModuleHeader/ModuleHeader';
+import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
 import { routes } from '@/router/routes';
 import { useTranslation } from '@/i18n';
 import { useCategoryAccounts } from '@/module/chart-of-accounts/presentation/hooks/useCategoryAccounts';
 import { useCategoryInfo } from '@/module/chart-of-accounts/presentation/hooks/useCategoryInfo';
+import { useRoles, useUsers } from '@/module/user-management';
 import { useUpdateAccount } from '../hooks/useUpdateAccount';
 import { useDetailAccount } from '../hooks/useDetailAccount';
 import { useAccountFormOptions } from '../hooks/useAccountFormOptions';
@@ -29,7 +30,6 @@ import { AccountPreviewCard, AccountingGuideCard } from '../components';
 import { EditAccountIdentitySection } from '../components/account-form/EditAccountIdentitySection';
 import { EditAccountHierarchySection } from '../components/account-form/EditAccountHierarchySection';
 import { EditAccountAccessSection } from '../components/account-form/EditAccountAccessSection';
-import { useRoles, useUsers } from '@/module/user-management';
 
 export const EditAccountJournalPage: React.FC = () => {
   const navigate = useNavigate();
@@ -105,18 +105,19 @@ export const EditAccountJournalPage: React.FC = () => {
   }, [accountDetail]);
 
   // Derived Dropdown Data
-  const categoryOptions = useMemo(() => {
-    return (
+  const categoryOptions = useMemo(
+    () =>
       categoryAccounts?.map((category) => ({
         value: category.id || '',
         label: category.name || t('form.unnamedCategory'),
-      })) || []
-    );
-  }, [categoryAccounts, currentLanguage]);
+      })) || [],
+    [categoryAccounts, currentLanguage]
+  );
 
-  const selectedCategoryObj = useMemo(() => {
-    return categoryAccounts?.find((cat) => cat.id === form.values.category);
-  }, [categoryAccounts, form.values.category]);
+  const selectedCategoryObj = useMemo(
+    () => categoryAccounts?.find((cat) => cat.id === form.values.category),
+    [categoryAccounts, form.values.category]
+  );
 
   const {
     userOptions,

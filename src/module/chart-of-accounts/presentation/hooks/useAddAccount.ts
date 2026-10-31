@@ -24,13 +24,16 @@ export const useAddAccount = () => {
       });
       navigate(routes.chartOfAccounts.main);
     },
-    onError: (error: any) => {
+    onError: (error) => {
+      const apiError = error as Error & { response?: { data?: { message?: string } } };
       notifications.show({
         color: 'red',
         autoClose: 5000,
         title: t('toast.addFailTitle', undefined, NS),
         message:
-          error?.response?.data?.message || error?.message || t('toast.addFailMsg', undefined, NS),
+          apiError.response?.data?.message ||
+          apiError.message ||
+          t('toast.addFailMsg', undefined, NS),
       });
     },
   });

@@ -13,7 +13,7 @@ import {
 } from '@mantine/core';
 import { IconPlus, IconSearch, IconTrash, type Icon } from '@tabler/icons-react';
 import { EmptyState } from '@/components/EmptyState';
-import ConfirmModal from '@/components/ui/ConfirmModal/ConfirmModal';
+import { ConfirmModal } from '@/components/ui/ConfirmModal/ConfirmModal';
 import { useTranslation } from '@/i18n';
 import type { MasterDataInput } from '@/module/products/domain/product';
 import { formatDate } from '@/module/products/domain/productFormat';

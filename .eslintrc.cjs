@@ -104,6 +104,53 @@ module.exports = {
   },
   overrides: [
     {
+      // Sales and contacts depend on each other: sales reads contacts through its index, so
+      // contacts reads only these pure sales files directly (going through the sales index
+      // would create an import cycle).
+      files: ['src/module/contacts/**'],
+      rules: {
+        'import/no-restricted-paths': [
+          'error',
+          {
+            zones: [
+              ...domainLayerZones,
+              ...crossFeatureZones.filter(
+                (zone) =>
+                  !(zone.target === './src/module/contacts' && zone.from === './src/module/sales')
+              ),
+              {
+                target: './src/module/contacts',
+                from: './src/module/sales',
+                except: [
+                  './index.ts',
+                  './domain/saleFormat.ts',
+                  './domain/saleMoney.ts',
+                  './infrastructure/saleMapper.ts',
+                ],
+                message: 'Contacts may read only the pure sales helpers listed in .eslintrc.cjs.',
+              },
+              {
+                target: './src/components',
+                from: './src/module',
+                message: 'Shared components must not depend on feature modules.',
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
+      // The app shell (sidebar and header) shows the pending-changes badge, so it reads that
+      // module's public hook. Every other shared component stays free of feature modules.
+      files: ['src/components/Navbar/Navbar.tsx', 'src/components/HeaderNav/HeaderNav.tsx'],
+      rules: {
+        'import/no-restricted-paths': [
+          'error',
+          { zones: [...domainLayerZones, ...crossFeatureZones] },
+        ],
+      },
+    },
+    {
       // Infrastructure code is where HTTP lives.
       files: [
         'src/lib/**',

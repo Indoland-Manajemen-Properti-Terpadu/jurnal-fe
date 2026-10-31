@@ -1,7 +1,7 @@
 import { Container, Paper, Stack, Flex, Notification } from '@mantine/core';
 import { IconArrowsExchange } from '@tabler/icons-react';
 import { ReportPageHeader } from '@/module/reports/presentation/components/shared/ReportPageHeader';
-import AppShellLayout from '@/components/AppShellLayout';
+import { AppShellLayout } from '@/components/AppShellLayout';
 import EquityChangesTable from '@/module/reports/presentation/components/equity-changes/EquityChangesTable';
 import { useState } from 'react';
 import { exportReport } from '@/module/reports/infrastructure/exportReport';
@@ -10,6 +10,7 @@ import ExportMenu from '@/module/reports/presentation/components/shared/ExportMe
 import FilterDate from '@/module/reports/presentation/components/shared/FilterDate';
 
 import { useTranslation } from '@/i18n';
+import { notifications } from '@mantine/notifications';
 
 const PAPER_PROPS = {
   p: 'md',
@@ -44,7 +45,7 @@ const EquityChangesPage = () => {
         errorExportFailed: t('common.exportBalanceSheetFailed'),
       });
     } catch (error) {
-      alert(t('common.exportRetry'));
+      notifications.show({ color: 'red', message: t('common.exportRetry') });
     }
   };
 

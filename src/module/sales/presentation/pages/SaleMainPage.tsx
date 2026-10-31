@@ -24,7 +24,7 @@ import {
   IconX,
 } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
-import AppShellLayout from '@/components/AppShellLayout';
+import { AppShellLayout } from '@/components/AppShellLayout';
 import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
 import { useTranslation } from '@/i18n';
 import { CreateSaleModal } from '../components/CreateSaleModal';

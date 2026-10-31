@@ -6,7 +6,7 @@ import { useI18nStore } from '@/i18n/store';
 import CostPage from './CostPage';
 
 vi.mock('@/components/AppShellLayout', () => ({
-  default: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  AppShellLayout: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 
 const renderPage = () =>

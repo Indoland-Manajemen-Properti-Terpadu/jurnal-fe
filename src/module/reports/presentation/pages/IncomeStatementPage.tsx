@@ -1,7 +1,7 @@
 import { Container, Paper, Stack, Flex, Notification } from '@mantine/core';
 import { IconChartBar } from '@tabler/icons-react';
 import { ReportPageHeader } from '@/module/reports/presentation/components/shared/ReportPageHeader';
-import AppShellLayout from '@/components/AppShellLayout';
+import { AppShellLayout } from '@/components/AppShellLayout';
 import IncomeStatementTable from '@/module/reports/presentation/components/income-statement/IncomeStatementTable';
 import { useState } from 'react';
 import FilterDate from '@/module/reports/presentation/components/shared/FilterDate';
@@ -10,6 +10,7 @@ import { REPORT_EXPORT_ENDPOINTS } from '@/module/reports/infrastructure/reportE
 import { exportReport } from '@/module/reports/infrastructure/exportReport';
 
 import { useTranslation } from '@/i18n';
+import { notifications } from '@mantine/notifications';
 
 const PAPER_PROPS = {
   p: 'md',
@@ -44,7 +45,7 @@ const IncomeStatementPage = () => {
         errorExportFailed: t('common.exportBalanceSheetFailed'),
       });
     } catch (error) {
-      alert(t('common.exportRetry'));
+      notifications.show({ color: 'red', message: t('common.exportRetry') });
     }
   };
 

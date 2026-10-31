@@ -10,7 +10,7 @@ import {
 } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
-import ModuleHeader from '@/components/ModuleHeader/ModuleHeader';
+import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
 import { ConfirmModal } from '@/components';
 import { routes } from '@/router/routes';
 import { useDraftAccount, BeginningBalanceModal } from '@/module/beginning-balances';

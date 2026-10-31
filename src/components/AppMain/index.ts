@@ -1,1 +1,1 @@
-export { default } from './AppMain';
+export { AppMain } from './AppMain';

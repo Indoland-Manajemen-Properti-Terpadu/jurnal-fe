@@ -21,7 +21,7 @@ import { routes } from '@/router/routes';
 import { useNavigate } from 'react-router-dom';
 import { gradientColors, themeColors } from '@/theme';
 import { USER_TYPES } from '@/module/user-management/domain/userTypeOptions';
-import AppShellLayout from '@/components/AppShellLayout';
+import { AppShellLayout } from '@/components/AppShellLayout';
 import { TextMediumGR } from '@/components/Text/CustomText';
 import PageHeaderV2 from '@/components/PageHeader/PageHeaderV2';
 

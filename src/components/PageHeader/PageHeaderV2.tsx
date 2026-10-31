@@ -6,7 +6,6 @@ import {
   MantineGradient,
   rem,
   Stack,
-  Text,
   Title,
   useMantineTheme,
   Anchor,
@@ -15,7 +14,7 @@ import {
 } from '@mantine/core';
 import { useColorScheme } from '@mantine/hooks';
 import { gradientColors, themeColors } from '@/theme';
-import { ReactNode, isValidElement } from 'react';
+import { ReactNode } from 'react';
 
 type ActionButtonProps = {
   label: string;

@@ -1,9 +1,9 @@
-import { reports as en } from './en/reports';
-import { reports as id } from './id/reports';
 import {
   reportCatalogData,
   reportCategories,
 } from '@/module/reports/presentation/components/catalog/reportCatalogData';
+import { reports as en } from './en/reports';
+import { reports as id } from './id/reports';
 
 type Tree = { [key: string]: string | Tree };
 

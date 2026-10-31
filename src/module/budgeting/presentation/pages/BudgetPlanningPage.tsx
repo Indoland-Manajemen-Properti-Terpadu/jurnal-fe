@@ -1,5 +1,5 @@
-import AppShellLayout from '@/components/AppShellLayout';
-import BaseModulePage from '@/components/BaseModulePage';
+import { AppShellLayout } from '@/components/AppShellLayout';
+import { BaseModulePage } from '@/components/BaseModulePage';
 import { useTranslation } from '@/i18n';
 import { routes } from '@/router/routes';
 

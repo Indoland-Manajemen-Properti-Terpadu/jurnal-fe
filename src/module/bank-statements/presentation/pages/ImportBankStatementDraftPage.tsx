@@ -16,7 +16,7 @@ import {
 import { gradientColors, themeColors } from '@/theme';
 import { IconInfoCircle, IconTrash } from '@tabler/icons-react';
 import { ArrowLeftIcon, PlusIcon } from '@phosphor-icons/react';
-import AppShellLayout from '@/components/AppShellLayout';
+import { AppShellLayout } from '@/components/AppShellLayout';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from '@/i18n';

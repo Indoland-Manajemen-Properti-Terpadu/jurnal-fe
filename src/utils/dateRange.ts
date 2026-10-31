@@ -7,10 +7,12 @@ export const getDateRange = (period: string): { startDate: string; endDate: stri
 
   switch (period) {
     case 'Today':
-      startDate = endDate = today;
+      startDate = today;
+      endDate = today;
       break;
     case 'Yesterday':
-      startDate = endDate = today.subtract(1, 'day');
+      startDate = today.subtract(1, 'day');
+      endDate = startDate;
       break;
     case 'This Week':
       startDate = today.startOf('week');

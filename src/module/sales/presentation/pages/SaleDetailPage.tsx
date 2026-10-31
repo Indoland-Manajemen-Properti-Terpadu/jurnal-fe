@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Box, Button, Grid, Stack } from '@mantine/core';
 import { IconArrowLeft, IconReceipt2 } from '@tabler/icons-react';
 import { useNavigate, useParams } from 'react-router-dom';
-import AppShellLayout from '@/components/AppShellLayout';
+import { AppShellLayout } from '@/components/AppShellLayout';
 import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
 import { routes } from '@/router/routes';
 import type { CreateSalePaymentPayload } from '../../domain/sale';

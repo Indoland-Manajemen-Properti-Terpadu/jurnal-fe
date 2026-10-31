@@ -13,7 +13,7 @@ import {
 } from '@mantine/core';
 import { IconReceipt, IconSearch, IconX } from '@tabler/icons-react';
 import { PettyCashVoucher } from '@/module/petty-cash/domain/pettyCashTypes';
-import EmptyState from '@/components/EmptyState/EmptyState';
+import { EmptyState } from '@/components/EmptyState/EmptyState';
 import { useTranslation } from '@/i18n';
 import { VoucherRow } from '@/module/petty-cash/presentation/components/VoucherRow';
 

@@ -1,4 +1,5 @@
 import apiClient from '@/lib/http/apiClient';
+import { notifications } from '@mantine/notifications';
 
 interface ExportReportParams {
   url: string; // The endpoint for the report
@@ -54,6 +55,6 @@ export const exportReport = async ({
     document.body.removeChild(link);
     window.URL.revokeObjectURL(urlObject);
   } catch {
-    alert(errorExportFailed);
+    notifications.show({ color: 'red', message: errorExportFailed });
   }
 };

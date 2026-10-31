@@ -1,11 +1,6 @@
 'use client';
 
-import {
-  Box,
-  BoxProps,
-  createPolymorphicComponent,
-  PaperProps,
-} from '@mantine/core';
+import { Box, BoxProps, createPolymorphicComponent, PaperProps } from '@mantine/core';
 import { forwardRef, ReactNode } from 'react';
 
 type SurfaceProps = { children: ReactNode } & BoxProps & PaperProps;
@@ -15,7 +10,7 @@ const Surface = createPolymorphicComponent<'div', SurfaceProps>(
     <Box component="div" {...others} ref={ref}>
       {children}
     </Box>
-  )),
+  ))
 );
 
-export default Surface;
+export { Surface };

@@ -10,9 +10,9 @@ import { MantineProvider } from '@mantine/core';
 import { ModalsProvider } from '@mantine/modals';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Notifications } from '@mantine/notifications';
-import { Router } from './router/index';
 import { cssVariablesResolver, myTheme } from '@/theme';
 import { ApiLoadingBar } from '@/components/ApiLoadingBar';
+import { Router } from './router/index';
 
 const queryClient = new QueryClient();
 

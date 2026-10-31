@@ -1,4 +1,3 @@
-import Logo from './Logo/Logo';
 // import ToggleTheme from './ToggleTheme/ToggleTheme';
 import LanguagePicker from '@/components/LanguagePicker/LanguagePicker';
 // import FilterDateMenu from '@/components/FilterDateMenu/FilterDateMenu';
@@ -29,12 +28,12 @@ import PageHeader from '@/components/PageHeader/PageHeader';
 // import RouterTransition from '@/components/RouterTransition/RouterTransition';
 // import ProfileStatsCard from '@/components/ProfileStatsCard/ProfileStatsCard';
 // import Faqs from '@/components/Faqs/Faqs';
-import Surface from '@/components/Surface';
+import { Surface } from '@/components/Surface';
 // import TextEditor from '@/components/TextEditor';
-import UserButton from '@/components/UserButton/UserButton';
-import ErrorAlert from '@/components/ErrorAlert';
+import { ErrorAlert } from '@/components/ErrorAlert';
 import UserProfileButton from '@/components/UserButton/UserButton';
 import { ConfirmModal } from '@/components/ui';
+import Logo from './Logo/Logo';
 
 export {
   Logo,
@@ -69,7 +68,7 @@ export {
   //   Faqs,
   Surface,
   //   TextEditor,
-  UserButton,
+  UserProfileButton as UserButton,
   ErrorAlert,
   ConfirmModal,
 };

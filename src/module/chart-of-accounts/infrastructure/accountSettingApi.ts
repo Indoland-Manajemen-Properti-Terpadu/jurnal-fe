@@ -87,7 +87,7 @@ export const uploadAccountImportFile = async (file: File): Promise<AccountImport
 /**
  * Commit the validated accounts data to persist into the system
  */
-export const commitAccountImport = async (payload: CommitImportPayload): Promise<any> => {
+export const commitAccountImport = async (payload: CommitImportPayload): Promise<unknown> => {
   const response = await apiClient.post(API_ACCOUNT.POST_COMMIT_IMPORT_ACCOUNT, payload);
   return response.data;
 };
@@ -107,7 +107,7 @@ export const downloadAccountExport = async (): Promise<void> => {
 /**
  * Reset Chart of Accounts back to default standard configuration
  */
-export const resetAccountsToDefault = async (): Promise<any> => {
+export const resetAccountsToDefault = async (): Promise<unknown> => {
   const response = await apiClient.post(API_ACCOUNT.POST_RESET_ACCOUNT);
   return response.data;
 };
