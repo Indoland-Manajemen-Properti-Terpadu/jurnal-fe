@@ -7,8 +7,8 @@ import { formatCurrency } from "@/utils/FormatCurrency";
 import AppShellLayout from '@/components/AppShellLayout';
 import EquityChangesTable from "@/module/reports/presentation/components/equity-changes/EquityChangesTable";
 import { useState } from "react";
-import { exportReport } from "@/module/reports/infrastructure/Export.service";
-import { API_EXPORT_REPORT } from "@/services/endpoint";
+import { exportReport } from "@/module/reports/infrastructure/exportReport";
+import { REPORT_EXPORT_ENDPOINTS } from "@/module/reports/infrastructure/reportEndpoints";
 import ExportMenu from "@/module/reports/presentation/components/shared/ExportMenu";
 import FilterDate from "@/module/reports/presentation/components/shared/FilterDate";
 
@@ -35,7 +35,7 @@ const EquityChangesPage = () => {
         }
         try {
             await exportReport({
-                url: `${API_EXPORT_REPORT.EXPORT_REPORT_EC}`,
+                url: `${REPORT_EXPORT_ENDPOINTS.EQUITY_CHANGE}`,
                 fromDate,
                 toDate,
                 type,

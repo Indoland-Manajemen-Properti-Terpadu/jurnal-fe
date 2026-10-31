@@ -20,7 +20,7 @@ import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
-import { GetJournalEntryReport } from "@/module/reports/infrastructure/JournalEntry.service";
+import { useJournalEntryReport } from "@/module/reports/presentation/hooks/useJournalEntryReport";
 import { getDateRange } from "@/utils/DateRange";
 import { dateFormatTimeZone } from "@/utils/FormatDate";
 import JournalEntryTable from "@/module/reports/presentation/components/journal-entry/JournalEntryTable";
@@ -52,7 +52,7 @@ const JournalEntryReportPage: React.FC = () => {
     const [isCustomDate, setIsCustomDate] = useState(false);
     const [value, setValue] = useState<[Date | null, Date | null]>([null, null]);
 
-    const { data: journalEntries, isLoading } = GetJournalEntryReport();
+    const { data: journalEntries, isLoading } = useJournalEntryReport();
 
     // Updates the date range based on the selected period
     useEffect(() => {

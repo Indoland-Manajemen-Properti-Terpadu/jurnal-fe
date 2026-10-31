@@ -4,7 +4,7 @@ import { gradientColors, themeColors } from '@/theme';
 import { formatCurrency } from '@/utils/FormatCurrency';
 import { JournalAccounts } from '@/module/chart-of-accounts';
 import EmptyState from '@/components/EmptyState/EmptyTable';
-import { GetEquityChangeReport } from '@/module/reports/infrastructure/EquityChange.service';
+import { useEquityChangeReport } from '@/module/reports/presentation/hooks/useEquityChangeReport';
 import { NotFound } from '@/components/ErrorPage/NotFound';
 import { dateFormatV2 } from '@/utils/FormatDate';
 
@@ -36,7 +36,7 @@ const EquityChangesTable: React.FC<EquityChangeTableProps> = ({ fromDate, toDate
     data: reports,
     isError,
     isLoading,
-  } = GetEquityChangeReport({ fromDate: fromDate!, toDate: toDate! });
+  } = useEquityChangeReport({ fromDate: fromDate!, toDate: toDate! });
   const lastDate = '19 Sept 2021';
 
   if (isError) {

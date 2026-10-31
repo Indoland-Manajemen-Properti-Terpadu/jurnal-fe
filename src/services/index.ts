@@ -14,7 +14,6 @@ export {
   API_SITE,
   API_ACCOUNT_BANK,
   API_ACCOUNT,
-  API_REPORT,
 } from './endpoint';
 
 // Error Boundary

@@ -2,7 +2,7 @@ import React from "react";
 import { Box, Group, Stack, Table, Text } from "@mantine/core";
 import { gradientColors, themeColors } from "@/theme";
 import { formatCurrency } from "@/utils/FormatCurrency";
-import { GetIncomeStatementReport } from "@/module/reports/infrastructure/IncomeStatement.service";
+import { useIncomeStatementReport } from "@/module/reports/presentation/hooks/useIncomeStatementReport";
 import EmptyState from "@/components/EmptyState/EmptyTable";
 import { IncomeStatementReport } from "@/module/reports/domain/IncomeStatement.types";
 import { NotFound } from "@/components/ErrorPage/NotFound";
@@ -27,7 +27,7 @@ interface IncomeStatementTableProps {
 }
 
 const IncomeStatementTable: React.FC<IncomeStatementTableProps> = ({ fromDate, toDate }) => {
-    const { data: reports, isError, isLoading } = GetIncomeStatementReport({ fromDate: fromDate!, toDate: toDate! });
+    const { data: reports, isError, isLoading } = useIncomeStatementReport({ fromDate: fromDate!, toDate: toDate! });
     if (isError) {
         return <NotFound />;
     }

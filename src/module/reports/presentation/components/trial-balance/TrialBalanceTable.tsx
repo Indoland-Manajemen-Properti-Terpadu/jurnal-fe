@@ -2,7 +2,7 @@ import React from "react";
 import { Stack, Table, Text } from "@mantine/core";
 import { gradientColors, themeColors } from "@/theme";
 import { formatCurrency } from "@/utils/FormatCurrency";
-import { GetTrialBalanceReport } from "@/module/reports/infrastructure/TrialBalance.service";
+import { useTrialBalanceReport } from "@/module/reports/presentation/hooks/useTrialBalanceReport";
 import { NotFound } from "@/components/ErrorPage/NotFound";
 import { TrialBalanceReport, Account, Reports } from "@/module/reports/domain/TrialBalanceReport.types";
 interface TrialBalanceTableProps {
@@ -12,7 +12,7 @@ interface TrialBalanceTableProps {
 
 
 const TrialBalanceTable: React.FC<TrialBalanceTableProps> = ({ fromDate, toDate }) => {
-    const { data: Reports, isError } = GetTrialBalanceReport(fromDate, toDate)
+    const { data: Reports, isError } = useTrialBalanceReport(fromDate, toDate)
 
     if (isError) {
         return <NotFound />;

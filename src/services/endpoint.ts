@@ -67,22 +67,6 @@ export const API_TAGS = {
   POST_TAG: `/v1/tags`,
 };
 
-export const API_REPORT = {
-  GET_JOURNAL_ENTRY_REPORT: `${BASE_URL}/v1/report/journal-entry`,
-  GET_BALANCE_SHEET_REPORT: `${BASE_URL}/v1/report/balance`,
-  GET_INCOME_STATEMENT_REPORT: `${BASE_URL}/v1/report/income-statement`,
-  GET_TRIAL_BALANCE_REPORT: `${BASE_URL}/v1/report/trial-balance`,
-  GET_EQUITY_CHANGE_REPORT: `${BASE_URL}/v1/report/equity-changes`,
-  GET_GENERAL_JOURNAL_REPORT: `${BASE_URL}/v1/report/general-journal`,
-};
-
-export const API_EXPORT_REPORT = {
-  EXPORT_REPORT_BS: `${API_REPORT.GET_BALANCE_SHEET_REPORT}/download`,
-  EXPORT_REPORT_IS: `${API_REPORT.GET_INCOME_STATEMENT_REPORT}/download`,
-  EXPORT_REPORT_EC: `${API_REPORT.GET_EQUITY_CHANGE_REPORT}/download`,
-  EXPORT_REPORT_GJ: `${API_REPORT.GET_GENERAL_JOURNAL_REPORT}/download`,
-};
-
 export const API_SETTINGS = {
   // General settings
   GET_GENERAL_SETTINGS: `/v1/settings/general-settings`,

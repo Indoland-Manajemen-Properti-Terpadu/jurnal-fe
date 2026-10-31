@@ -6,8 +6,8 @@ import IncomeStatementTable from "@/module/reports/presentation/components/incom
 import { useState } from "react";
 import FilterDate from "@/module/reports/presentation/components/shared/FilterDate";
 import ExportMenu from "@/module/reports/presentation/components/shared/ExportMenu";
-import { API_EXPORT_REPORT } from "@/services/endpoint";
-import { exportReport } from "@/module/reports/infrastructure/Export.service";
+import { REPORT_EXPORT_ENDPOINTS } from "@/module/reports/infrastructure/reportEndpoints";
+import { exportReport } from "@/module/reports/infrastructure/exportReport";
 
 const PAPER_PROPS = {
     p: 'md',
@@ -32,7 +32,7 @@ const IncomeStatementPage = () => {
         }
         try {
             await exportReport({
-                url: `${API_EXPORT_REPORT.EXPORT_REPORT_IS}`,
+                url: `${REPORT_EXPORT_ENDPOINTS.INCOME_STATEMENT}`,
                 fromDate,
                 toDate,
                 type,
