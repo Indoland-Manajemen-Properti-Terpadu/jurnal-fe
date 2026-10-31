@@ -1,34 +1,26 @@
 import React, { useMemo, useState } from 'react';
 import {
   ActionIcon,
-  Alert,
-  Badge,
   Box,
   Button,
-  Divider,
   Grid,
   Group,
   NumberInput,
   Paper,
   Select,
   Stack,
-  Table,
   Text,
   Textarea,
   TextInput,
   ThemeIcon,
-  Tooltip,
 } from '@mantine/core';
 import {
-  IconAlertCircle,
   IconArrowDownRight,
   IconArrowLeft,
   IconBuildingBank,
   IconCalendar,
-  IconCheck,
   IconCoins,
   IconFileText,
-  IconInfoCircle,
   IconPlus,
   IconTrash,
   IconUser,
@@ -43,6 +35,7 @@ import { formatCurrency } from '@/utils/FormatCurrency';
 import { useJournalAccounts } from '@/module/chart-of-accounts';
 import { useBankCashTransactionMutation } from '@/module/bank-cash/presentation/hooks/useBankCashTransactionMutation';
 import { useTranslation } from '@/i18n';
+import { ReceiveMoneySummaryPanel } from '@/module/bank-cash/presentation/components/transaction-form/ReceiveMoneySummaryPanel';
 import { buildReceivePayload, sumLineAmounts } from '@/module/bank-cash/domain/transactionPayload';
 
 interface ReceiveItemRow {
@@ -376,133 +369,13 @@ export const AddReceiveMoneyPage = () => {
 
               {/* Right Column (4 cols): Sticky Summary */}
               <Grid.Col span={{ base: 12, lg: 4 }}>
-                <Box pos="sticky" top={20}>
-                  <Stack gap="md">
-                    {/* Live Summary Card */}
-                    <Paper withBorder radius="md" p="md" bg="white" shadow="xs">
-                      <Stack gap="sm">
-                        <Group justify="space-between" align="center">
-                          <Text fw={700} size="sm" c="dark.8">
-                            Ringkasan Penerimaan
-                          </Text>
-                          <Badge
-                            size="sm"
-                            variant="light"
-                            color={isFormValid ? 'teal' : 'gray'}
-                            leftSection={isFormValid ? <IconCheck size={12} /> : undefined}
-                          >
-                            {isFormValid ? 'Seimbang (Balance)' : 'Belum Lengkap'}
-                          </Badge>
-                        </Group>
-
-                        {/* Rekening Tujuan Box */}
-                        <Paper withBorder radius="sm" p="xs" bg="gray.0">
-                          <Text size="xs" c="dimmed" fw={600} tt="uppercase">
-                            Rekening Penampung (Debit)
-                          </Text>
-                          <Text size="sm" fw={700} c="dark.8" mt={2} lineClamp={1}>
-                            {selectedDepositAccount?.name || 'Belum dipilih'}
-                          </Text>
-                          <Group justify="space-between" mt={4}>
-                            <Text size="xs" c="dimmed">
-                              Saldo Saat Ini:
-                            </Text>
-                            <Text size="xs" fw={600} c="dark.7">
-                              {formatCurrency(selectedDepositAccount?.amount || 0)}
-                            </Text>
-                          </Group>
-                          {totalAmount > 0 && selectedDepositAccount && (
-                            <Group justify="space-between" mt={2}>
-                              <Text size="xs" c="teal.7" fw={600}>
-                                Estimasi Setelah Diterima:
-                              </Text>
-                              <Text size="xs" fw={700} c="teal.7">
-                                {formatCurrency((selectedDepositAccount.amount || 0) + totalAmount)}
-                              </Text>
-                            </Group>
-                          )}
-                        </Paper>
-
-                        {/* Total Kas Masuk Box */}
-                        <Paper
-                          withBorder
-                          radius="sm"
-                          p="sm"
-                          style={{
-                            background:
-                              'linear-gradient(135deg, var(--mantine-color-teal-0) 0%, var(--mantine-color-green-0) 100%)',
-                            borderColor: 'var(--mantine-color-teal-3)',
-                          }}
-                        >
-                          <Text size="xs" c="teal.9" fw={600} tt="uppercase">
-                            Total Kas Masuk (Debit Kas & Bank)
-                          </Text>
-                          <Text
-                            size="xl"
-                            fw={800}
-                            c="teal.9"
-                            mt={2}
-                            style={{ fontVariantNumeric: 'tabular-nums' }}
-                          >
-                            {formatCurrency(totalAmount)}
-                          </Text>
-                          <Text size="xs" c="dimmed" mt={4}>
-                            Dialokasikan ke {items.length} akun sumber
-                          </Text>
-                        </Paper>
-                      </Stack>
-                    </Paper>
-
-                    {/* Accounting Tips */}
-                    <Paper withBorder radius="md" p="sm" bg="gray.0">
-                      <Group gap="xs" align="flex-start" wrap="nowrap">
-                        <ThemeIcon
-                          size={22}
-                          radius="xl"
-                          variant="light"
-                          color="blue"
-                          style={{ flexShrink: 0, marginTop: 2 }}
-                        >
-                          <IconInfoCircle size={14} />
-                        </ThemeIcon>
-                        <Text size="xs" c="dimmed" lh={1.5}>
-                          <b>Prinsip Double-Entry:</b> Penerimaan uang mendebit akun Kas/Bank
-                          penampung dan mengkredit akun sumber penerimaan
-                          (pendapatan/modal/kewajiban) dalam jumlah yang tepat seimbang.
-                        </Text>
-                      </Group>
-                    </Paper>
-
-                    {/* Actions */}
-                    <Paper withBorder radius="md" p="md" bg="white" shadow="xs">
-                      <Stack gap="xs">
-                        <Button
-                          type="submit"
-                          variant="gradient"
-                          gradient={{ from: 'teal.6', to: 'green.6', deg: 135 }}
-                          size="md"
-                          radius="md"
-                          fullWidth
-                          loading={isPending}
-                          disabled={!isFormValid}
-                          leftSection={<IconArrowDownRight size={18} />}
-                        >
-                          Simpan Penerimaan Uang
-                        </Button>
-
-                        <Button
-                          variant="default"
-                          size="sm"
-                          radius="md"
-                          fullWidth
-                          onClick={() => navigate(routes.BankAndCash.Main)}
-                        >
-                          Batal
-                        </Button>
-                      </Stack>
-                    </Paper>
-                  </Stack>
-                </Box>
+                <ReceiveMoneySummaryPanel
+                  isFormValid={isFormValid}
+                  selectedDepositAccount={selectedDepositAccount}
+                  totalAmount={totalAmount}
+                  itemCount={items.length}
+                  isPending={isPending}
+                />
               </Grid.Col>
             </Grid>
           </form>
