@@ -9,17 +9,12 @@ type LogoProps = {
 } & UnstyledButtonProps;
 
 const LogoProapps = () => (
-    <Button
-      className={classes.logo}
-      component={Link}
-      to="/"
-      variant="subtle"
-    >
-      <Group gap="xs">
-        <Image src={ProappsLogo} alt="Proapps Logo" />
-        <Text fw={700}>Mantine admin</Text>
-      </Group>
-    </Button>
-  );
+  <Button className={classes.logo} component={Link} to="/" variant="subtle">
+    <Group gap="xs">
+      <Image src={ProappsLogo} alt="Proapps Logo" />
+      <Text fw={700}>Mantine admin</Text>
+    </Group>
+  </Button>
+);
 
 export default LogoProapps;

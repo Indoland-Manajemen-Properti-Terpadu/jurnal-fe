@@ -29,7 +29,9 @@ const UserProfileButton = ({
           {name}
         </Text>
 
-        <Text size="xs" c={themeColors.gray[6]}>{email}</Text>
+        <Text size="xs" c={themeColors.gray[6]}>
+          {email}
+        </Text>
       </div>
 
       {icon && asAction && <IconChevronRight size="0.9rem" stroke={1.5} />}
