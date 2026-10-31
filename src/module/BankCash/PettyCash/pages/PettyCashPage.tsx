@@ -12,7 +12,7 @@ import ModuleHeader from '@/components/ModuleHeader/ModuleHeader';
 import { useTranslation } from '@/i18n';
 import { formatCurrency } from '@/utils/FormatCurrency';
 import { dateFormatV1 } from '@/utils/FormatDate';
-import BankAndCashLayout from '@/module/bank-cash/presentation/pages/BankAndCashLayout';
+import AppShellLayout from '@/components/AppShellLayout';
 import { CashCountModal } from '../components/CashCountModal';
 import { CreateVoucherModal } from '../components/CreateVoucherModal';
 import { PettyCashBalancePanel } from '../components/PettyCashBalancePanel';
@@ -47,7 +47,7 @@ export default function PettyCashPage() {
   const visibleCounts = prototype.cashCounts.filter((item) => item.fundId === selectedFund.id);
 
   return (
-    <BankAndCashLayout>
+    <AppShellLayout withFooter>
       <Box className={classes.page} p={{ base: 'md', sm: 'xl' }}>
         <Stack className={classes.workspace} gap="lg">
           <ModuleHeader
@@ -257,6 +257,6 @@ export default function PettyCashPage() {
         onClose={() => setSelectedVoucher(null)}
         voucher={selectedVoucher}
       />
-    </BankAndCashLayout>
+    </AppShellLayout>
   );
 }

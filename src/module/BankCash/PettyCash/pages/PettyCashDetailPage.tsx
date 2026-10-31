@@ -6,7 +6,7 @@ import ModuleHeader from '@/components/ModuleHeader/ModuleHeader';
 import { useTranslation } from '@/i18n';
 import { routes } from '@/router/routes';
 import { dateFormatV1 } from '@/utils/FormatDate';
-import BankAndCashLayout from '@/module/bank-cash/presentation/pages/BankAndCashLayout';
+import AppShellLayout from '@/components/AppShellLayout';
 import { CreateVoucherModal } from '../components/CreateVoucherModal';
 import { PettyCashBalancePanel } from '../components/PettyCashBalancePanel';
 import { VoucherDetailDrawer } from '../components/VoucherDetailDrawer';
@@ -27,7 +27,7 @@ export default function PettyCashDetailPage() {
 
   if (!fund) {
     return (
-      <BankAndCashLayout>
+      <AppShellLayout withFooter>
         <Box className={classes.page} p={{ base: 'md', sm: 'xl' }}>
           <Paper withBorder radius="lg" p={{ base: 'xl', sm: 48 }} ta="center" maw={680} mx="auto">
             <Text fz={22} fw={700}>
@@ -41,14 +41,14 @@ export default function PettyCashDetailPage() {
             </Button>
           </Paper>
         </Box>
-      </BankAndCashLayout>
+      </AppShellLayout>
     );
   }
 
   const fundVouchers = prototype.vouchers.filter((voucher) => voucher.fundId === fund.id);
 
   return (
-    <BankAndCashLayout>
+    <AppShellLayout withFooter>
       <Box className={classes.page} p={{ base: 'md', sm: 'xl' }}>
         <Stack className={classes.workspace} gap="lg">
           <ModuleHeader
@@ -144,6 +144,6 @@ export default function PettyCashDetailPage() {
         onClose={() => setSelectedVoucher(null)}
         voucher={selectedVoucher}
       />
-    </BankAndCashLayout>
+    </AppShellLayout>
   );
 }

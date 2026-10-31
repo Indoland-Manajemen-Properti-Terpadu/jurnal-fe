@@ -13,7 +13,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { routes } from '@/router/routes';
 import ModuleHeader from '@/components/ModuleHeader/ModuleHeader';
-import BankAndCashLayout from '@/module/bank-cash/presentation/pages/BankAndCashLayout';
+import AppShellLayout from '@/components/AppShellLayout';
 import StatsBankCashGrid from '@/module/bank-cash/presentation/components/stats/StatsBankCashGrid';
 import { TableBankCash } from '@/module/bank-cash/presentation/components/accounts-table/TableBankCash';
 import { useJournalAccounts } from '@/module/chart-of-accounts';
@@ -26,7 +26,7 @@ export function BankAndCashMainPage() {
   const { accounts, isLoading, isError, refetch } = useJournalAccounts();
 
   return (
-    <BankAndCashLayout>
+    <AppShellLayout withFooter>
       <Box className={classes.page} p={{ base: 'md', sm: 'xl' }}>
         <Stack className={classes.workspace} gap="lg">
           <ModuleHeader
@@ -101,7 +101,7 @@ export function BankAndCashMainPage() {
           </Paper>
         </Stack>
       </Box>
-    </BankAndCashLayout>
+    </AppShellLayout>
   );
 }
 
