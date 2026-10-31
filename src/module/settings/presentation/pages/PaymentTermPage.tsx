@@ -5,7 +5,6 @@ import {
   Button,
   Card,
   Divider,
-  Grid,
   Group,
   Modal,
   NumberInput,
@@ -35,10 +34,20 @@ import {
   useDeletePaymentTerm,
   usePaymentTerms,
   useUpdatePaymentTerm,
-} from '@/module/settings/presentation/hooks/useSettingQueries';
+} from '@/module/settings/presentation/hooks/usePaymentTerms';
 import type { PaymentTerm } from '@/module/settings/domain/settingTypes';
 
+import {
+  validatePaymentTermDays,
+  validatePaymentTermName,
+  type SettingValidationKey,
+} from '@/module/settings/domain/settingRules';
+import { useTranslation } from '@/i18n';
+
+import { DeleteConfirmModal } from '@/module/settings/presentation/components/DeleteConfirmModal';
+
 export default function PaymentTermPage() {
+  const { t: st } = useTranslation('settings');
   const { data: terms = [], isLoading, refetch } = usePaymentTerms();
   const createMutation = useCreatePaymentTerm();
   const updateMutation = useUpdatePaymentTerm();
@@ -51,17 +60,19 @@ export default function PaymentTermPage() {
   const [editingTerm, setEditingTerm] = useState<PaymentTerm | null>(null);
 
   // Delete Confirmation State
-  const [deleteModalOpened, { open: openDeleteModal, close: closeDeleteModal }] = useDisclosure(false);
+  const [deleteModalOpened, { open: openDeleteModal, close: closeDeleteModal }] =
+    useDisclosure(false);
   const [deletingTerm, setDeletingTerm] = useState<PaymentTerm | null>(null);
 
+  const msg = (key: SettingValidationKey | null) => (key ? st(key) : null);
   const form = useForm({
     initialValues: {
       name: '',
       days: 30,
     },
     validate: {
-      name: (val) => (!val.trim() ? 'Nama termin wajib diisi' : null),
-      days: (val) => (val === undefined || val < 0 ? 'Hari jatuh tempo harus >= 0' : null),
+      name: (val) => msg(validatePaymentTermName(val)),
+      days: (val) => msg(validatePaymentTermDays(val)),
     },
   });
 
@@ -105,22 +116,24 @@ export default function PaymentTermPage() {
   };
 
   const filteredTerms = terms.filter(
-    (t) =>
-      t.name.toLowerCase().includes(search.toLowerCase()) ||
-      String(t.days).includes(search)
+    (t) => t.name.toLowerCase().includes(search.toLowerCase()) || String(t.days).includes(search)
   );
 
   return (
     <SettingsLayout
-      title="Syarat Pembayaran / Termin (Payment Terms)"
-      description="Konfigurasi jangka waktu jatuh tempo faktur penjualan dan pembelian seperti Cash on Delivery (H+0), Net 15, Net 30, atau Net 60."
+      title={st('paymentTerm.title')}
+      description={st('paymentTerm.description')}
       action={
         <Group gap="xs">
-          <Button variant="default" leftSection={<IconRefresh size={16} />} onClick={() => refetch()}>
-            Segarkan
+          <Button
+            variant="default"
+            leftSection={<IconRefresh size={16} />}
+            onClick={() => refetch()}
+          >
+            {st('common.refresh')}
           </Button>
           <Button color="primary" leftSection={<IconPlus size={16} />} onClick={handleOpenAdd}>
-            Tambah Termin Baru
+            {st('paymentTerm.addNew')}
           </Button>
         </Group>
       }
@@ -133,11 +146,12 @@ export default function PaymentTermPage() {
                 <IconClock size={16} />
               </ThemeIcon>
               <Text fw={600} size="sm" c="dark.8">
-                Daftar Termin Pembayaran ({terms.length})
+                {st('paymentTerm.listPrefix')}
+                {terms.length})
               </Text>
             </Group>
             <TextInput
-              placeholder="Cari nama termin atau hari..."
+              placeholder={st('paymentTerm.search')}
               leftSection={<IconSearch size={16} />}
               value={search}
               onChange={(e) => setSearch(e.currentTarget.value)}
@@ -160,13 +174,18 @@ export default function PaymentTermPage() {
               <IconClock size={24} />
             </ThemeIcon>
             <Title order={4} c="dark.8">
-              Belum Ada Syarat Pembayaran
+              {st('paymentTerm.emptyTitle')}
             </Title>
             <Text size="sm" c="dimmed" mt={4} maw={400} mx="auto">
-              Tambahkan termin pembayaran untuk secara otomatis menghitung tanggal jatuh tempo faktur penjualan dan pembelian.
+              {st('paymentTerm.emptyDescription')}
             </Text>
-            <Button mt="md" color="primary" leftSection={<IconPlus size={16} />} onClick={handleOpenAdd}>
-              Tambah Termin
+            <Button
+              mt="md"
+              color="primary"
+              leftSection={<IconPlus size={16} />}
+              onClick={handleOpenAdd}
+            >
+              {st('paymentTerm.addTerm')}
             </Button>
           </Paper>
         ) : (
@@ -174,10 +193,12 @@ export default function PaymentTermPage() {
             <Table highlightOnHover verticalSpacing="sm" horizontalSpacing="md">
               <Table.Thead bg="gray.0">
                 <Table.Tr>
-                  <Table.Th style={{ width: '40%' }}>Nama Termin</Table.Th>
-                  <Table.Th style={{ width: '25%' }}>Jatuh Tempo (Hari)</Table.Th>
-                  <Table.Th style={{ width: '20%' }}>Status Bawaan</Table.Th>
-                  <Table.Th style={{ width: '15%', textAlign: 'center' }}>Aksi</Table.Th>
+                  <Table.Th style={{ width: '40%' }}>{st('paymentTerm.colName')}</Table.Th>
+                  <Table.Th style={{ width: '25%' }}>{st('paymentTerm.colDays')}</Table.Th>
+                  <Table.Th style={{ width: '20%' }}>{st('paymentTerm.colStatus')}</Table.Th>
+                  <Table.Th style={{ width: '15%', textAlign: 'center' }}>
+                    {st('common.actions')}
+                  </Table.Th>
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>
@@ -190,28 +211,34 @@ export default function PaymentTermPage() {
                     </Table.Td>
                     <Table.Td>
                       <Badge color="orange" variant="light" size="md">
-                        {term.days === 0 ? 'H+0 (Hari Ini / COD)' : `H+${term.days} Hari`}
+                        {term.days === 0
+                          ? st('paymentTerm.today')
+                          : st('paymentTerm.days', { days: term.days })}
                       </Badge>
                     </Table.Td>
                     <Table.Td>
                       {term.isDefault ? (
                         <Badge color="teal" variant="filled" size="xs">
-                          Default
+                          {st('common.default')}
                         </Badge>
                       ) : (
                         <Text size="xs" c="dimmed">
-                          Reguler
+                          {st('paymentTerm.regular')}
                         </Text>
                       )}
                     </Table.Td>
                     <Table.Td style={{ textAlign: 'center' }}>
                       <Group gap={4} justify="center">
-                        <Tooltip label="Edit Termin">
-                          <ActionIcon variant="subtle" color="primary" onClick={() => handleOpenEdit(term)}>
+                        <Tooltip label={st('paymentTerm.edit')}>
+                          <ActionIcon
+                            variant="subtle"
+                            color="primary"
+                            onClick={() => handleOpenEdit(term)}
+                          >
                             <IconEdit size={16} />
                           </ActionIcon>
                         </Tooltip>
-                        <Tooltip label="Hapus Termin">
+                        <Tooltip label={st('paymentTerm.delete')}>
                           <ActionIcon
                             variant="subtle"
                             color="red"
@@ -243,7 +270,7 @@ export default function PaymentTermPage() {
               <IconClock size={16} />
             </ThemeIcon>
             <Text fw={700} c="dark.8">
-              {editingTerm ? 'Edit Termin Pembayaran' : 'Tambah Termin Pembayaran Baru'}
+              {editingTerm ? st('paymentTerm.modalEdit') : st('paymentTerm.modalAdd')}
             </Text>
           </Group>
         }
@@ -252,15 +279,15 @@ export default function PaymentTermPage() {
         <form onSubmit={form.onSubmit(handleSubmit)}>
           <Stack gap="md">
             <TextInput
-              label="Nama Termin"
-              placeholder="Contoh: Net 30, Cash on Delivery, Net 14..."
+              label={st('paymentTerm.colName')}
+              placeholder={st('paymentTerm.namePlaceholder')}
               required
               {...form.getInputProps('name')}
             />
 
             <NumberInput
-              label="Jangka Waktu Jatuh Tempo (Hari)"
-              description="Jumlah hari setelah tanggal transaksi (0 = Cash on Delivery)"
+              label={st('paymentTerm.daysLabel')}
+              description={st('paymentTerm.daysHint')}
               placeholder="30"
               min={0}
               max={365}
@@ -272,42 +299,29 @@ export default function PaymentTermPage() {
 
             <Group justify="flex-end" gap="xs">
               <Button variant="default" onClick={closeModal}>
-                Batal
+                {st('common.cancel')}
               </Button>
               <Button
                 type="submit"
                 color="primary"
                 loading={createMutation.isPending || updateMutation.isPending}
               >
-                {editingTerm ? 'Simpan Perubahan' : 'Buat Termin'}
+                {editingTerm ? st('common.saveChanges') : st('paymentTerm.create')}
               </Button>
             </Group>
           </Stack>
         </form>
       </Modal>
 
-      {/* Delete Confirmation Modal */}
-      <Modal
+      <DeleteConfirmModal
         opened={deleteModalOpened}
         onClose={closeDeleteModal}
-        title={<Text fw={700}>Hapus Termin Pembayaran</Text>}
-        radius="md"
-        size="sm"
+        title={st('paymentTerm.deleteTitle')}
+        onConfirm={handleConfirmDelete}
+        loading={deleteMutation.isPending}
       >
-        <Stack gap="md">
-          <Text size="sm">
-            Apakah Anda yakin ingin menghapus termin pembayaran <strong>{deletingTerm?.name}</strong>?
-          </Text>
-          <Group justify="flex-end" gap="xs">
-            <Button variant="default" onClick={closeDeleteModal}>
-              Batal
-            </Button>
-            <Button color="red" onClick={handleConfirmDelete} loading={deleteMutation.isPending}>
-              Ya, Hapus
-            </Button>
-          </Group>
-        </Stack>
-      </Modal>
+        {st('paymentTerm.deleteConfirm')} <strong>{deletingTerm?.name}</strong>?
+      </DeleteConfirmModal>
     </SettingsLayout>
   );
 }

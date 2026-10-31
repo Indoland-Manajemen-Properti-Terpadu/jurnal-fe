@@ -1,3 +1,6 @@
+/** An account the API returns either as an id or as a populated object. */
+export type AccountRef = string | { id?: string; name?: string; accountNumber?: string } | null;
+
 export type GeneralSetting = {
   id: string;
   site?: string;
@@ -90,8 +93,8 @@ export type PaymentMethod = {
   adminFee: number;
   external_id?: string;
   isDefault?: boolean;
-  defaultAccount?: any;
-  feeAccount?: any;
+  defaultAccount?: AccountRef;
+  feeAccount?: AccountRef;
   deleted?: boolean;
   createdAt?: string;
   updatedAt?: string;
@@ -113,12 +116,12 @@ export type UpdatePaymentMethodPayload = {
 
 export type Tax = {
   id: string;
-  site?: any;
+  site?: unknown;
   name: string;
   rate: number;
   description?: string | null;
-  salesAccount?: any;
-  purchaseAccount?: any;
+  salesAccount?: AccountRef;
+  purchaseAccount?: AccountRef;
   deleted?: boolean;
   createdAt?: string;
   updatedAt?: string;

@@ -29,8 +29,18 @@ import {
   IconTrash,
 } from '@tabler/icons-react';
 import SettingsLayout from '@/module/settings/presentation/components/SettingsLayout';
-import { useCreateTag, useDeleteTag, useTags, useUpdateTag } from '@/module/settings/presentation/hooks/useSettingQueries';
+import {
+  useCreateTag,
+  useDeleteTag,
+  useTags,
+  useUpdateTag,
+} from '@/module/settings/presentation/hooks/useTags';
 import type { Tag } from '@/module/settings/domain/settingTypes';
+
+import { validateTagName, type SettingValidationKey } from '@/module/settings/domain/settingRules';
+import { useTranslation } from '@/i18n';
+
+import { DeleteConfirmModal } from '@/module/settings/presentation/components/DeleteConfirmModal';
 
 const PRESET_COLORS = [
   '#3B82F6', // Blue
@@ -44,6 +54,7 @@ const PRESET_COLORS = [
 ];
 
 export default function TagSettingPage() {
+  const { t: st } = useTranslation('settings');
   const [search, setSearch] = useState('');
   const { data: tags = [], isLoading, refetch } = useTags({ search: search || undefined });
   const createMutation = useCreateTag();
@@ -55,16 +66,18 @@ export default function TagSettingPage() {
   const [editingTag, setEditingTag] = useState<Tag | null>(null);
 
   // Delete Confirmation State
-  const [deleteModalOpened, { open: openDeleteModal, close: closeDeleteModal }] = useDisclosure(false);
+  const [deleteModalOpened, { open: openDeleteModal, close: closeDeleteModal }] =
+    useDisclosure(false);
   const [deletingTag, setDeletingTag] = useState<Tag | null>(null);
 
+  const msg = (key: SettingValidationKey | null) => (key ? st(key) : null);
   const form = useForm({
     initialValues: {
       name: '',
       color: '#3B82F6',
     },
     validate: {
-      name: (val) => (!val.trim() ? 'Nama tag wajib diisi' : null),
+      name: (val) => msg(validateTagName(val)),
     },
   });
 
@@ -109,15 +122,19 @@ export default function TagSettingPage() {
 
   return (
     <SettingsLayout
-      title="Tag Transaksi (Transaction Tags)"
-      description="Kelola label dan penanda analitis untuk mengkategorikan transaksi lintas modul (Faktur Penjualan, Jurnal, Kontak, Biaya)."
+      title={st('tag.title')}
+      description={st('tag.description')}
       action={
         <Group gap="xs">
-          <Button variant="default" leftSection={<IconRefresh size={16} />} onClick={() => refetch()}>
-            Segarkan
+          <Button
+            variant="default"
+            leftSection={<IconRefresh size={16} />}
+            onClick={() => refetch()}
+          >
+            {st('common.refresh')}
           </Button>
           <Button color="primary" leftSection={<IconPlus size={16} />} onClick={handleOpenAdd}>
-            Tambah Tag Baru
+            {st('tag.addNew')}
           </Button>
         </Group>
       }
@@ -130,11 +147,12 @@ export default function TagSettingPage() {
                 <IconTag size={16} />
               </ThemeIcon>
               <Text fw={600} size="sm" c="dark.8">
-                Daftar Tag Transaksi ({tags.length})
+                {st('tag.listPrefix')}
+                {tags.length})
               </Text>
             </Group>
             <TextInput
-              placeholder="Cari nama tag..."
+              placeholder={st('tag.search')}
               leftSection={<IconSearch size={16} />}
               value={search}
               onChange={(e) => setSearch(e.currentTarget.value)}
@@ -157,13 +175,18 @@ export default function TagSettingPage() {
               <IconTag size={24} />
             </ThemeIcon>
             <Title order={4} c="dark.8">
-              Belum Ada Tag Transaksi
+              {st('tag.emptyTitle')}
             </Title>
             <Text size="sm" c="dimmed" mt={4} maw={400} mx="auto">
-              Buat tag seperti &quot;Monthly&quot;, &quot;Project A&quot;, atau &quot;Cabang Barat&quot; untuk mempermudah filter dan pelaporan transaksi.
+              {st('tag.emptyDescription')}
             </Text>
-            <Button mt="md" color="primary" leftSection={<IconPlus size={16} />} onClick={handleOpenAdd}>
-              Tambah Tag
+            <Button
+              mt="md"
+              color="primary"
+              leftSection={<IconPlus size={16} />}
+              onClick={handleOpenAdd}
+            >
+              {st('tag.addTag')}
             </Button>
           </Paper>
         ) : (
@@ -171,9 +194,11 @@ export default function TagSettingPage() {
             <Table highlightOnHover verticalSpacing="sm" horizontalSpacing="md">
               <Table.Thead bg="gray.0">
                 <Table.Tr>
-                  <Table.Th style={{ width: '45%' }}>Nama Tag</Table.Th>
-                  <Table.Th style={{ width: '35%' }}>Tampilan Badge</Table.Th>
-                  <Table.Th style={{ width: '20%', textAlign: 'center' }}>Aksi</Table.Th>
+                  <Table.Th style={{ width: '45%' }}>{st('tag.colName')}</Table.Th>
+                  <Table.Th style={{ width: '35%' }}>{st('tag.colBadge')}</Table.Th>
+                  <Table.Th style={{ width: '20%', textAlign: 'center' }}>
+                    {st('common.actions')}
+                  </Table.Th>
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>
@@ -203,12 +228,16 @@ export default function TagSettingPage() {
                     </Table.Td>
                     <Table.Td style={{ textAlign: 'center' }}>
                       <Group gap={4} justify="center">
-                        <Tooltip label="Edit Tag">
-                          <ActionIcon variant="subtle" color="primary" onClick={() => handleOpenEdit(tag)}>
+                        <Tooltip label={st('tag.edit')}>
+                          <ActionIcon
+                            variant="subtle"
+                            color="primary"
+                            onClick={() => handleOpenEdit(tag)}
+                          >
                             <IconEdit size={16} />
                           </ActionIcon>
                         </Tooltip>
-                        <Tooltip label="Hapus Tag">
+                        <Tooltip label={st('tag.delete')}>
                           <ActionIcon
                             variant="subtle"
                             color="red"
@@ -240,7 +269,7 @@ export default function TagSettingPage() {
               <IconTag size={16} />
             </ThemeIcon>
             <Text fw={700} c="dark.8">
-              {editingTag ? 'Edit Tag Transaksi' : 'Tambah Tag Transaksi Baru'}
+              {editingTag ? st('tag.modalEdit') : st('tag.modalAdd')}
             </Text>
           </Group>
         }
@@ -249,15 +278,15 @@ export default function TagSettingPage() {
         <form onSubmit={form.onSubmit(handleSubmit)}>
           <Stack gap="md">
             <TextInput
-              label="Nama Tag"
-              placeholder="Contoh: Monthly, Project Alpha, Cabang Bali..."
+              label={st('tag.colName')}
+              placeholder={st('tag.namePlaceholder')}
               required
               {...form.getInputProps('name')}
             />
 
             <div>
               <Text size="sm" fw={500} c="dark.8" mb={6}>
-                Pilihan Warna Label
+                {st('tag.colorLabel')}
               </Text>
               <Group gap="xs">
                 {PRESET_COLORS.map((color) => (
@@ -277,7 +306,7 @@ export default function TagSettingPage() {
 
             <Paper withBorder p="sm" radius="md" bg="gray.0">
               <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-                Pratinjau Badge:
+                {st('tag.previewLabel')}
               </Text>
               <Badge
                 mt={4}
@@ -290,7 +319,7 @@ export default function TagSettingPage() {
                 }}
                 size="md"
               >
-                {form.values.name || 'Contoh Tag'}
+                {form.values.name || st('tag.sample')}
               </Badge>
             </Paper>
 
@@ -298,42 +327,29 @@ export default function TagSettingPage() {
 
             <Group justify="flex-end" gap="xs">
               <Button variant="default" onClick={closeModal}>
-                Batal
+                {st('common.cancel')}
               </Button>
               <Button
                 type="submit"
                 color="primary"
                 loading={createMutation.isPending || updateMutation.isPending}
               >
-                {editingTag ? 'Simpan Perubahan' : 'Buat Tag'}
+                {editingTag ? st('common.saveChanges') : st('tag.create')}
               </Button>
             </Group>
           </Stack>
         </form>
       </Modal>
 
-      {/* Delete Confirmation Modal */}
-      <Modal
+      <DeleteConfirmModal
         opened={deleteModalOpened}
         onClose={closeDeleteModal}
-        title={<Text fw={700}>Hapus Tag Transaksi</Text>}
-        radius="md"
-        size="sm"
+        title={st('tag.deleteTitle')}
+        onConfirm={handleConfirmDelete}
+        loading={deleteMutation.isPending}
       >
-        <Stack gap="md">
-          <Text size="sm">
-            Apakah Anda yakin ingin menghapus tag <strong>{deletingTag?.name}</strong>?
-          </Text>
-          <Group justify="flex-end" gap="xs">
-            <Button variant="default" onClick={closeDeleteModal}>
-              Batal
-            </Button>
-            <Button color="red" onClick={handleConfirmDelete} loading={deleteMutation.isPending}>
-              Ya, Hapus
-            </Button>
-          </Group>
-        </Stack>
-      </Modal>
+        {st('tag.deleteConfirm')} <strong>{deletingTag?.name}</strong>?
+      </DeleteConfirmModal>
     </SettingsLayout>
   );
 }

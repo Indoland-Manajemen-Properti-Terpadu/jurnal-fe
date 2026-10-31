@@ -14,7 +14,10 @@ import { IconArrowUpRight, IconSearch } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import SettingsLayout from '@/module/settings/presentation/components/SettingsLayout';
 import { settingsGroups } from '@/module/settings/presentation/settingsNavigation';
-import { useSettingsOverview, OverviewStatus } from '@/module/settings/presentation/hooks/useSettingsOverview';
+import {
+  useSettingsOverview,
+  OverviewStatus,
+} from '@/module/settings/presentation/hooks/useSettingsOverview';
 import classes from '@/module/settings/presentation/pages/SettingsHubPage.module.css';
 
 export default function SettingsHubPage() {
@@ -28,8 +31,9 @@ export default function SettingsHubPage() {
     return t(readyKey, { count: value.count });
   };
   const mappingLabel = () => {
-    if (overview.mappings.state !== 'ready')
+    if (overview.mappings.state !== 'ready') {
       return label(overview.mappings, 'status.mappingMissing');
+    }
     if (overview.mappingTotal === 0) return t('status.noMappings');
     if (overview.mappings.count === 0) return t('status.mappingComplete');
     return t('status.mappingMissing', { count: overview.mappings.count });

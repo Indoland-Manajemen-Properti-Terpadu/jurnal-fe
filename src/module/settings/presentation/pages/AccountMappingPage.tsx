@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   ActionIcon,
   Alert,
@@ -23,8 +23,6 @@ import {
 import { useDisclosure } from '@mantine/hooks';
 import {
   IconAlertCircle,
-  IconArrowRight,
-  IconCheck,
   IconDeviceFloppy,
   IconEdit,
   IconRefresh,
@@ -38,19 +36,23 @@ import {
   useSeedAccountMappings,
   useUpdateAccountMapping,
   useUpdateAccountMappingBatch,
-} from '@/module/settings/presentation/hooks/useSettingQueries';
-import { getJournalAccounts } from '@/module/chart-of-accounts';
+} from '@/module/settings/presentation/hooks/useAccountMappings';
 import type { AccountMappingItem } from '@/module/settings/domain/settingTypes';
 
-const GROUP_LABELS: Record<string, { label: string; color: string }> = {
-  ar_ap: { label: 'Piutang & Hutang (AR/AP)', color: 'blue' },
-  sales: { label: 'Penjualan (Sales)', color: 'teal' },
-  purchase: { label: 'Pembelian (Purchase)', color: 'orange' },
-  inventory: { label: 'Persediaan (Inventory)', color: 'grape' },
-  other: { label: 'Lainnya & Aset Tetap', color: 'gray' },
+import { useTranslation } from '@/i18n';
+
+import { useAccountOptions } from '@/module/settings/presentation/hooks/useAccountOptions';
+
+const GROUP_LABELS: Record<string, { labelKey: string; color: string }> = {
+  ar_ap: { labelKey: 'mapping.groupArAp', color: 'blue' },
+  sales: { labelKey: 'mapping.groupSales', color: 'teal' },
+  purchase: { labelKey: 'mapping.groupPurchase', color: 'orange' },
+  inventory: { labelKey: 'mapping.groupInventory', color: 'grape' },
+  other: { labelKey: 'mapping.groupOther', color: 'gray' },
 };
 
 export default function AccountMappingPage() {
+  const { t: st } = useTranslation('settings');
   const { data: mappingsData, isLoading, refetch } = useAccountMappings();
   const seedMutation = useSeedAccountMappings();
   const updateBatchMutation = useUpdateAccountMappingBatch();
@@ -58,8 +60,6 @@ export default function AccountMappingPage() {
 
   const [activeTab, setActiveTab] = useState<string>('all');
   const [search, setSearch] = useState<string>('');
-  const [accounts, setAccounts] = useState<Array<{ value: string; label: string }>>([]);
-  const [isAccountsLoading, setIsAccountsLoading] = useState(false);
 
   // Draft state for batch edits: mappingId -> accountId
   const [draftChanges, setDraftChanges] = useState<Record<string, string>>({});
@@ -69,32 +69,9 @@ export default function AccountMappingPage() {
   const [editingItem, setEditingItem] = useState<AccountMappingItem | null>(null);
   const [selectedAccountId, setSelectedAccountId] = useState<string | null>(null);
 
-  // Load COA accounts for selector
-  useEffect(() => {
-    const loadAccounts = async () => {
-      try {
-        setIsAccountsLoading(true);
-        const res = await getJournalAccounts();
-        if (Array.isArray(res)) {
-          const uniqueMap = new Map<string, { value: string; label: string }>();
-          res.forEach((acc: any) => {
-            if (acc?.id && !uniqueMap.has(acc.id)) {
-              uniqueMap.set(acc.id, {
-                value: acc.id,
-                label: `${acc.accountNumber ? `${acc.accountNumber} - ` : ''}${acc.name} (${acc.type || acc.category?.name || 'Akun'})`,
-              });
-            }
-          });
-          setAccounts(Array.from(uniqueMap.values()));
-        }
-      } catch (err) {
-        console.error('Failed to load accounts for mapping:', err);
-      } finally {
-        setIsAccountsLoading(false);
-      }
-    };
-    loadAccounts();
-  }, []);
+  const { accounts, isAccountsLoading } = useAccountOptions(
+    (account) => ` (${account.type || account.category?.name || st('mapping.account')})`
+  );
 
   // Flatten all mapping items
   const allItems: AccountMappingItem[] = Object.entries(mappingsData || {}).flatMap(
@@ -152,8 +129,8 @@ export default function AccountMappingPage() {
 
   return (
     <SettingsLayout
-      title="Pemetaan Akun Default (Account Mapping)"
-      description="Konfigurasi akun bawaan Chart of Accounts (COA) yang otomatis digunakan saat pencatatan transaksi penjualan, pembelian, persediaan, dan buku besar."
+      title={st('mapping.title')}
+      description={st('mapping.description')}
       action={
         <Group gap="xs">
           <Button
@@ -162,7 +139,7 @@ export default function AccountMappingPage() {
             onClick={() => refetch()}
             loading={isLoading}
           >
-            Segarkan
+            {st('common.refresh')}
           </Button>
           {allItems.length === 0 && (
             <Button
@@ -171,7 +148,7 @@ export default function AccountMappingPage() {
               onClick={handleSeedDefaults}
               loading={seedMutation.isPending}
             >
-              Generate Pemetaan Default
+              {st('mapping.generate')}
             </Button>
           )}
           {hasDraftChanges && (
@@ -181,7 +158,8 @@ export default function AccountMappingPage() {
               onClick={handleSaveBatch}
               loading={updateBatchMutation.isPending}
             >
-              Simpan {Object.keys(draftChanges).length} Perubahan
+              {st('mapping.savePrefix')} {Object.keys(draftChanges).length}{' '}
+              {st('mapping.saveSuffix')}
             </Button>
           )}
         </Group>
@@ -192,12 +170,12 @@ export default function AccountMappingPage() {
           <Alert icon={<IconAlertCircle size={16} />} color="orange" radius="md">
             <Group justify="space-between" align="center">
               <Text size="sm">
-                Ada <strong>{Object.keys(draftChanges).length}</strong> pemetaan akun yang diubah
-                dan belum disimpan ke server.
+                {st('mapping.pendingPrefix')} <strong>{Object.keys(draftChanges).length}</strong>{' '}
+                {st('mapping.pendingSuffix')}
               </Text>
               <Group gap="xs">
                 <Button size="xs" variant="default" onClick={() => setDraftChanges({})}>
-                  Batalkan
+                  {st('mapping.discard')}
                 </Button>
                 <Button
                   size="xs"
@@ -205,7 +183,7 @@ export default function AccountMappingPage() {
                   onClick={handleSaveBatch}
                   loading={updateBatchMutation.isPending}
                 >
-                  Simpan Sekarang
+                  {st('mapping.saveNow')}
                 </Button>
               </Group>
             </Group>
@@ -221,17 +199,20 @@ export default function AccountMappingPage() {
               radius="md"
             >
               <Tabs.List>
-                <Tabs.Tab value="all">Semua ({allItems.length})</Tabs.Tab>
-                <Tabs.Tab value="ar_ap">Piutang & Hutang</Tabs.Tab>
-                <Tabs.Tab value="sales">Penjualan</Tabs.Tab>
-                <Tabs.Tab value="purchase">Pembelian</Tabs.Tab>
-                <Tabs.Tab value="inventory">Persediaan</Tabs.Tab>
-                <Tabs.Tab value="other">Lainnya</Tabs.Tab>
+                <Tabs.Tab value="all">
+                  {st('mapping.tabAll')}
+                  {allItems.length})
+                </Tabs.Tab>
+                <Tabs.Tab value="ar_ap">{st('mapping.tabArAp')}</Tabs.Tab>
+                <Tabs.Tab value="sales">{st('mapping.tabSales')}</Tabs.Tab>
+                <Tabs.Tab value="purchase">{st('mapping.tabPurchase')}</Tabs.Tab>
+                <Tabs.Tab value="inventory">{st('mapping.tabInventory')}</Tabs.Tab>
+                <Tabs.Tab value="other">{st('mapping.tabOther')}</Tabs.Tab>
               </Tabs.List>
             </Tabs>
 
             <TextInput
-              placeholder="Cari label atau akun..."
+              placeholder={st('mapping.search')}
               leftSection={<IconSearch size={16} />}
               value={search}
               onChange={(e) => setSearch(e.currentTarget.value)}
@@ -255,11 +236,10 @@ export default function AccountMappingPage() {
               <IconSitemap size={24} />
             </ThemeIcon>
             <Title order={4} c="dark.8">
-              Belum Ada Pemetaan Akun
+              {st('mapping.emptyTitle')}
             </Title>
             <Text size="sm" c="dimmed" mt={4} maw={450} mx="auto">
-              Sistem membutuhkan akun pemetaan default agar transaksi penjualan, pembelian, dan
-              persediaan dapat langsung dibukukan ke jurnal umum.
+              {st('mapping.emptyDescription')}
             </Text>
             <Button
               mt="md"
@@ -268,7 +248,7 @@ export default function AccountMappingPage() {
               onClick={handleSeedDefaults}
               loading={seedMutation.isPending}
             >
-              Generate Pemetaan Akun Bawaan
+              {st('mapping.generateBuiltIn')}
             </Button>
           </Paper>
         ) : (
@@ -276,17 +256,21 @@ export default function AccountMappingPage() {
             <Table highlightOnHover verticalSpacing="sm" horizontalSpacing="md">
               <Table.Thead bg="gray.0">
                 <Table.Tr>
-                  <Table.Th style={{ width: '22%' }}>Kategori / Grup</Table.Th>
-                  <Table.Th style={{ width: '28%' }}>Parameter Sistem</Table.Th>
-                  <Table.Th style={{ width: '40%' }}>
-                    Akun Chart of Accounts (COA) Terpilih
+                  <Table.Th style={{ width: '22%' }}>{st('mapping.colGroup')}</Table.Th>
+                  <Table.Th style={{ width: '28%' }}>{st('mapping.colParameter')}</Table.Th>
+                  <Table.Th style={{ width: '40%' }}>{st('mapping.colAccount')}</Table.Th>
+                  <Table.Th style={{ width: '10%', textAlign: 'center' }}>
+                    {st('common.actions')}
                   </Table.Th>
-                  <Table.Th style={{ width: '10%', textAlign: 'center' }}>Aksi</Table.Th>
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>
                 {filteredItems.map((item) => {
-                  const grp = GROUP_LABELS[item.group] || { label: item.group, color: 'gray' };
+                  const known = GROUP_LABELS[item.group];
+                  const grp = {
+                    label: known ? st(known.labelKey) : item.group,
+                    color: known?.color ?? 'gray',
+                  };
                   const currentAccountId = draftChanges[item.id] ?? item.account?.id ?? '';
                   const isModified = Boolean(draftChanges[item.id]);
 
@@ -313,13 +297,13 @@ export default function AccountMappingPage() {
                           searchable
                           clearable={false}
                           disabled={isAccountsLoading}
-                          placeholder="Pilih akun COA..."
+                          placeholder={st('mapping.selectAccount')}
                           size="xs"
                           radius="md"
                         />
                       </Table.Td>
                       <Table.Td style={{ textAlign: 'center' }}>
-                        <Tooltip label="Ubah Akun (Modal Dialog)">
+                        <Tooltip label={st('mapping.changeAccount')}>
                           <ActionIcon
                             variant="subtle"
                             color="primary"
@@ -348,7 +332,7 @@ export default function AccountMappingPage() {
               <IconEdit size={16} />
             </ThemeIcon>
             <Text fw={700} c="dark.8">
-              Ubah Pemetaan Akun
+              {st('mapping.modalTitle')}
             </Text>
           </Group>
         }
@@ -358,7 +342,7 @@ export default function AccountMappingPage() {
           <Stack gap="md">
             <Paper withBorder p="sm" radius="md" bg="gray.0">
               <Text size="xs" c="dimmed">
-                Parameter:
+                {st('mapping.parameter')}
               </Text>
               <Text size="sm" fw={700} c="dark.8">
                 {editingItem.label} ({editingItem.key})
@@ -366,9 +350,9 @@ export default function AccountMappingPage() {
             </Paper>
 
             <Select
-              label="Pilih Akun Chart of Accounts"
-              description="Transaksi terkait akan otomatis dijurnalkan ke akun ini"
-              placeholder="Pilih rekening atau akun COA..."
+              label={st('mapping.pickAccount')}
+              description={st('mapping.pickAccountHint')}
+              placeholder={st('mapping.pickAccountPlaceholder')}
               data={accounts}
               value={selectedAccountId}
               onChange={setSelectedAccountId}
@@ -380,7 +364,7 @@ export default function AccountMappingPage() {
 
             <Group justify="flex-end" gap="xs">
               <Button variant="default" onClick={closeEditModal}>
-                Batal
+                {st('common.cancel')}
               </Button>
               <Button
                 color="primary"
@@ -388,7 +372,7 @@ export default function AccountMappingPage() {
                 loading={updateSingleMutation.isPending}
                 disabled={!selectedAccountId}
               >
-                Simpan Pemetaan
+                {st('mapping.saveMapping')}
               </Button>
             </Group>
           </Stack>

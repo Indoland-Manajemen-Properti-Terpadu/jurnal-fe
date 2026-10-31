@@ -2,10 +2,8 @@ import apiClient from '@/lib/http/apiClient';
 import { API_SETTINGS } from '@/services/endpoint';
 import type {
   GeneralSetting,
-  AccountMappingAccount,
   AccountMappingItem,
   AccountMappingsByGroup,
-  NumberFormatType,
   NumberFormat,
   CreateNumberFormatPayload,
   UpdateNumberFormatPayload,

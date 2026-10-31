@@ -1,9 +1,7 @@
-import {
-  useAccountMappings,
-  useGeneralSettings,
-  useNumberFormats,
-  useTaxes,
-} from '@/module/settings/presentation/hooks/useSettingQueries';
+import { useAccountMappings } from '@/module/settings/presentation/hooks/useAccountMappings';
+import { useGeneralSettings } from '@/module/settings/presentation/hooks/useGeneralSettings';
+import { useNumberFormats } from '@/module/settings/presentation/hooks/useNumberFormats';
+import { useTaxes } from '@/module/settings/presentation/hooks/useTaxes';
 
 export type OverviewStatus =
   | { state: 'loading' }

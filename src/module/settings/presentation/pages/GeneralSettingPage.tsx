@@ -13,7 +13,7 @@ import {
 import { IconInfoCircle, IconLock } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import SettingsLayout from '@/module/settings/presentation/components/SettingsLayout';
-import { useGeneralSettings } from '@/module/settings/presentation/hooks/useSettingQueries';
+import { useGeneralSettings } from '@/module/settings/presentation/hooks/useGeneralSettings';
 
 const previewAmount = 1459200.5678;
 

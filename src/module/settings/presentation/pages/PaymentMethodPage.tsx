@@ -1,17 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   ActionIcon,
-  Alert,
   Badge,
   Button,
   Card,
-  Divider,
-  Grid,
   Group,
-  Modal,
-  NumberInput,
   Paper,
-  Select,
   Skeleton,
   Stack,
   Table,
@@ -24,11 +18,9 @@ import {
 import { useDisclosure } from '@mantine/hooks';
 import { useForm } from '@mantine/form';
 import {
-  IconAlertCircle,
   IconBuildingBank,
   IconCreditCard,
   IconEdit,
-  IconInfoCircle,
   IconPlus,
   IconReceipt2,
   IconRefresh,
@@ -41,19 +33,32 @@ import {
   useDeletePaymentMethod,
   usePaymentMethods,
   useUpdatePaymentMethod,
-} from '@/module/settings/presentation/hooks/useSettingQueries';
-import { getJournalAccounts } from '@/module/chart-of-accounts';
-import type { PaymentMethod } from '@/module/settings/domain/settingTypes';
+} from '@/module/settings/presentation/hooks/usePaymentMethods';
+import type { AccountRef, PaymentMethod } from '@/module/settings/domain/settingTypes';
+
+import {
+  validateAdminFee,
+  validateFeeAccount,
+  validatePaymentMethodName,
+  type SettingValidationKey,
+} from '@/module/settings/domain/settingRules';
+import { useTranslation } from '@/i18n';
+import {
+  PaymentMethodFormModal,
+  type PaymentMethodFormValues,
+} from '@/module/settings/presentation/components/PaymentMethodFormModal';
+
+import { useAccountOptions } from '@/module/settings/presentation/hooks/useAccountOptions';
+import { DeleteConfirmModal } from '@/module/settings/presentation/components/DeleteConfirmModal';
 
 export default function PaymentMethodPage() {
+  const { t: st } = useTranslation('settings');
   const { data: methods = [], isLoading, refetch } = usePaymentMethods();
   const createMutation = useCreatePaymentMethod();
   const updateMutation = useUpdatePaymentMethod();
   const deleteMutation = useDeletePaymentMethod();
 
   const [search, setSearch] = useState('');
-  const [accounts, setAccounts] = useState<Array<{ value: string; label: string }>>([]);
-  const [isAccountsLoading, setIsAccountsLoading] = useState(false);
 
   // Modal State
   const [modalOpened, { open: openModal, close: closeModal }] = useDisclosure(false);
@@ -65,40 +70,14 @@ export default function PaymentMethodPage() {
   const [deletingMethod, setDeletingMethod] = useState<PaymentMethod | null>(null);
 
   // Load COA accounts safely
-  useEffect(() => {
-    const loadAccounts = async () => {
-      try {
-        setIsAccountsLoading(true);
-        const res = await getJournalAccounts();
-        if (Array.isArray(res)) {
-          const uniqueMap = new Map<string, { value: string; label: string }>();
-          res.forEach((acc: any) => {
-            if (acc?.id && !uniqueMap.has(acc.id)) {
-              const cat = acc.type || acc.category?.name || (acc.isBankAndCash ? 'Kas & Bank' : '');
-              const suffix = cat ? ` (${cat})` : '';
-              uniqueMap.set(acc.id, {
-                value: acc.id,
-                label: `${acc.accountNumber ? `${acc.accountNumber} - ` : ''}${acc.name}${suffix}`,
-              });
-            }
-          });
-          setAccounts(Array.from(uniqueMap.values()));
-        }
-      } catch (err) {
-        console.error('Failed to load accounts for payment methods:', err);
-      } finally {
-        setIsAccountsLoading(false);
-      }
-    };
-    loadAccounts();
-  }, []);
+  const { accounts, isAccountsLoading } = useAccountOptions((account) => {
+    const category =
+      account.type || account.category?.name || (account.isBankAndCash ? 'Kas & Bank' : '');
+    return category ? ` (${category})` : '';
+  });
 
-  const form = useForm<{
-    name: string;
-    adminFee: number;
-    defaultAccount: string | null;
-    feeAccount: string | null;
-  }>({
+  const msg = (key: SettingValidationKey | null) => (key ? st(key) : null);
+  const form = useForm<PaymentMethodFormValues>({
     initialValues: {
       name: '',
       adminFee: 0,
@@ -106,15 +85,9 @@ export default function PaymentMethodPage() {
       feeAccount: null,
     },
     validate: {
-      name: (val) => (!val.trim() ? 'Nama metode pembayaran wajib diisi' : null),
-      adminFee: (val) => (val === undefined || val < 0 ? 'Biaya admin harus >= 0' : null),
-      feeAccount: (val, values) => {
-        // Accounting Rule: If admin fee is set (> 0), feeAccount must be chosen so the journal knows where to debit the fee
-        if (values.adminFee && values.adminFee > 0 && !val) {
-          return 'Akun Beban Admin wajib dipilih jika terdapat Biaya Admin';
-        }
-        return null;
-      },
+      name: (val) => msg(validatePaymentMethodName(val)),
+      adminFee: (val) => msg(validateAdminFee(val)),
+      feeAccount: (val, values) => msg(validateFeeAccount(values.adminFee, val)),
     },
   });
 
@@ -169,7 +142,7 @@ export default function PaymentMethodPage() {
     m.name.toLowerCase().includes(search.toLowerCase())
   );
 
-  const getAccountLabel = (acc: any) => {
+  const getAccountLabel = (acc: AccountRef | undefined) => {
     if (!acc) return null;
     if (typeof acc === 'object') {
       return `${acc.accountNumber ? `${acc.accountNumber} - ` : ''}${acc.name}`;
@@ -178,12 +151,10 @@ export default function PaymentMethodPage() {
     return found ? found.label : acc;
   };
 
-  const isFeeRequired = form.values.adminFee > 0;
-
   return (
     <SettingsLayout
-      title="Metode Pembayaran (Payment Methods)"
-      description="Konfigurasi opsi penerimaan dan pengeluaran dana seperti Transfer Bank, BCA Virtual Account, Midtrans, atau Tunai beserta akun kas penampung default dan akun beban biaya admin."
+      title={st('paymentMethod.title')}
+      description={st('paymentMethod.description')}
       action={
         <Group gap="xs">
           <Button
@@ -191,10 +162,10 @@ export default function PaymentMethodPage() {
             leftSection={<IconRefresh size={16} />}
             onClick={() => refetch()}
           >
-            Segarkan
+            {st('common.refresh')}
           </Button>
           <Button color="primary" leftSection={<IconPlus size={16} />} onClick={handleOpenAdd}>
-            Tambah Metode Baru
+            {st('paymentMethod.addNew')}
           </Button>
         </Group>
       }
@@ -207,11 +178,12 @@ export default function PaymentMethodPage() {
                 <IconCreditCard size={16} />
               </ThemeIcon>
               <Text fw={600} size="sm" c="dark.8">
-                Daftar Metode Pembayaran ({methods.length})
+                {st('paymentMethod.listPrefix')}
+                {methods.length})
               </Text>
             </Group>
             <TextInput
-              placeholder="Cari metode pembayaran..."
+              placeholder={st('paymentMethod.search')}
               leftSection={<IconSearch size={16} />}
               value={search}
               onChange={(e) => setSearch(e.currentTarget.value)}
@@ -234,11 +206,10 @@ export default function PaymentMethodPage() {
               <IconCreditCard size={24} />
             </ThemeIcon>
             <Title order={4} c="dark.8">
-              Belum Ada Metode Pembayaran
+              {st('paymentMethod.emptyTitle')}
             </Title>
             <Text size="sm" c="dimmed" mt={4} maw={400} mx="auto">
-              Tambahkan metode pembayaran untuk digunakan saat mencatat penerimaan penjualan dan
-              pembayaran pengeluaran.
+              {st('paymentMethod.emptyDescription')}
             </Text>
             <Button
               mt="md"
@@ -246,7 +217,7 @@ export default function PaymentMethodPage() {
               leftSection={<IconPlus size={16} />}
               onClick={handleOpenAdd}
             >
-              Tambah Metode
+              {st('paymentMethod.addMethod')}
             </Button>
           </Paper>
         ) : (
@@ -254,11 +225,13 @@ export default function PaymentMethodPage() {
             <Table highlightOnHover verticalSpacing="sm" horizontalSpacing="md">
               <Table.Thead bg="gray.0">
                 <Table.Tr>
-                  <Table.Th style={{ width: '25%' }}>Nama Metode Pembayaran</Table.Th>
-                  <Table.Th style={{ width: '25%' }}>Akun Kas & Bank Default</Table.Th>
-                  <Table.Th style={{ width: '15%' }}>Biaya Admin</Table.Th>
-                  <Table.Th style={{ width: '23%' }}>Akun Beban Admin (Fee Account)</Table.Th>
-                  <Table.Th style={{ width: '12%', textAlign: 'center' }}>Aksi</Table.Th>
+                  <Table.Th style={{ width: '25%' }}>{st('paymentMethod.colName')}</Table.Th>
+                  <Table.Th style={{ width: '25%' }}>{st('paymentMethod.colAccount')}</Table.Th>
+                  <Table.Th style={{ width: '15%' }}>{st('paymentMethod.colFee')}</Table.Th>
+                  <Table.Th style={{ width: '23%' }}>{st('paymentMethod.colFeeAccount')}</Table.Th>
+                  <Table.Th style={{ width: '12%', textAlign: 'center' }}>
+                    {st('common.actions')}
+                  </Table.Th>
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>
@@ -275,7 +248,7 @@ export default function PaymentMethodPage() {
                           </Text>
                           {method.isDefault && (
                             <Badge color="teal" variant="filled" size="xs">
-                              Default
+                              {st('common.default')}
                             </Badge>
                           )}
                         </Group>
@@ -292,7 +265,7 @@ export default function PaymentMethodPage() {
                           </Group>
                         ) : (
                           <Text size="xs" c="dimmed">
-                            — Belum diatur —
+                            {st('paymentMethod.notSet')}
                           </Text>
                         )}
                       </Table.Td>
@@ -303,7 +276,7 @@ export default function PaymentMethodPage() {
                           </Text>
                         ) : (
                           <Badge color="gray" variant="light" size="xs">
-                            Gratis (Rp 0)
+                            {st('paymentMethod.free')}
                           </Badge>
                         )}
                       </Table.Td>
@@ -319,17 +292,17 @@ export default function PaymentMethodPage() {
                           </Group>
                         ) : method.adminFee > 0 ? (
                           <Badge color="red" variant="light" size="xs">
-                            Belum dipetakan!
+                            {st('paymentMethod.notMapped')}
                           </Badge>
                         ) : (
                           <Text size="xs" c="dimmed">
-                            — Tidak ada —
+                            {st('paymentMethod.none')}
                           </Text>
                         )}
                       </Table.Td>
                       <Table.Td style={{ textAlign: 'center' }}>
                         <Group gap={4} justify="center">
-                          <Tooltip label="Edit Metode">
+                          <Tooltip label={st('paymentMethod.edit')}>
                             <ActionIcon
                               variant="subtle"
                               color="primary"
@@ -338,7 +311,7 @@ export default function PaymentMethodPage() {
                               <IconEdit size={16} />
                             </ActionIcon>
                           </Tooltip>
-                          <Tooltip label="Hapus Metode">
+                          <Tooltip label={st('paymentMethod.delete')}>
                             <ActionIcon
                               variant="subtle"
                               color="red"
@@ -362,131 +335,26 @@ export default function PaymentMethodPage() {
       </Stack>
 
       {/* Form Modal */}
-      <Modal
+      <PaymentMethodFormModal
         opened={modalOpened}
         onClose={closeModal}
-        title={
-          <Group gap="xs">
-            <ThemeIcon size={28} radius="md" color="cyan" variant="light">
-              <IconCreditCard size={16} />
-            </ThemeIcon>
-            <Text fw={700} c="dark.8">
-              {editingMethod ? 'Edit Metode Pembayaran' : 'Tambah Metode Pembayaran Baru'}
-            </Text>
-          </Group>
-        }
-        radius="md"
-        size="lg"
-      >
-        <form onSubmit={form.onSubmit(handleSubmit)}>
-          <Stack gap="md">
-            <TextInput
-              label="Nama Metode Pembayaran"
-              placeholder="Contoh: Midtrans, BCA Virtual Account, Tunai, Bank Mandiri..."
-              required
-              {...form.getInputProps('name')}
-            />
+        isEditing={Boolean(editingMethod)}
+        form={form}
+        onSubmit={handleSubmit}
+        isPending={createMutation.isPending || updateMutation.isPending}
+        accounts={accounts}
+        isAccountsLoading={isAccountsLoading}
+      />
 
-            <Select
-              label="Akun Kas & Bank Default (Default Account)"
-              placeholder="Pilih rekening atau akun kas penampung..."
-              description="Opsional: otomatis mengisi akun setor saat mencatat pembayaran penjualan"
-              data={accounts}
-              searchable
-              clearable
-              disabled={isAccountsLoading}
-              leftSection={<IconBuildingBank size={16} />}
-              {...form.getInputProps('defaultAccount')}
-            />
-
-            <Divider my="xs" />
-
-            <Grid gutter="sm">
-              <Grid.Col span={{ base: 12, sm: 5 }}>
-                <NumberInput
-                  label="Biaya Admin Transaksi (Rp)"
-                  description="Opsional: masukkan 0 jika bebas biaya"
-                  placeholder="0"
-                  thousandSeparator="."
-                  decimalSeparator=","
-                  min={0}
-                  required
-                  {...form.getInputProps('adminFee')}
-                />
-              </Grid.Col>
-
-              <Grid.Col span={{ base: 12, sm: 7 }}>
-                <Select
-                  label="Akun Beban Biaya Admin (Fee Account)"
-                  placeholder={isFeeRequired ? 'Pilih akun beban admin...' : 'Opsional...'}
-                  description={
-                    isFeeRequired
-                      ? 'Wajib diisi karena biaya admin > Rp 0'
-                      : 'Opsional: tempat mencatat beban biaya admin bank'
-                  }
-                  data={accounts}
-                  searchable
-                  clearable
-                  disabled={isAccountsLoading}
-                  required={isFeeRequired}
-                  leftSection={<IconReceipt2 size={16} />}
-                  {...form.getInputProps('feeAccount')}
-                />
-              </Grid.Col>
-            </Grid>
-
-            {isFeeRequired && (
-              <Alert icon={<IconInfoCircle size={16} />} color="blue" radius="md" py="xs">
-                <Text size="xs">
-                  Setiap transaksi pembayaran yang menggunakan metode ini akan otomatis menjurnal
-                  biaya admin sebesar{' '}
-                  <strong>Rp {form.values.adminFee.toLocaleString('id-ID')}</strong> ke akun beban
-                  yang dipilih.
-                </Text>
-              </Alert>
-            )}
-
-            <Divider />
-
-            <Group justify="flex-end" gap="xs">
-              <Button variant="default" onClick={closeModal}>
-                Batal
-              </Button>
-              <Button
-                type="submit"
-                color="primary"
-                loading={createMutation.isPending || updateMutation.isPending}
-              >
-                {editingMethod ? 'Simpan Perubahan' : 'Buat Metode'}
-              </Button>
-            </Group>
-          </Stack>
-        </form>
-      </Modal>
-
-      {/* Delete Confirmation Modal */}
-      <Modal
+      <DeleteConfirmModal
         opened={deleteModalOpened}
         onClose={closeDeleteModal}
-        title={<Text fw={700}>Hapus Metode Pembayaran</Text>}
-        radius="md"
-        size="sm"
+        title={st('paymentMethod.deleteTitle')}
+        onConfirm={handleConfirmDelete}
+        loading={deleteMutation.isPending}
       >
-        <Stack gap="md">
-          <Text size="sm">
-            Apakah Anda yakin ingin menghapus metode pembayaran{' '}
-            <strong>{deletingMethod?.name}</strong>?
-          </Text>
-          <Group justify="flex-end" gap="xs">
-            <Button variant="default" onClick={closeDeleteModal}>
-              Batal
-            </Button>
-            <Button color="red" onClick={handleConfirmDelete} loading={deleteMutation.isPending}>
-              Ya, Hapus
-            </Button>
-          </Group>
-        </Stack>
-      </Modal>
+        {st('paymentMethod.deleteConfirm')} <strong>{deletingMethod?.name}</strong>?
+      </DeleteConfirmModal>
     </SettingsLayout>
   );
 }
