@@ -33,3 +33,11 @@ All 26 feature modules under `src/module/` follow the feature-first layout (`dom
 ## Accounting review (separate from the migration)
 
 An accounting-logic review is recorded in the conversation that produced this milestone and is not part of the restructure: sales tax computed before discount, two different double-declining depreciation results, net working capital using all liabilities, "this month's revenue" using the invoice total with tax, chart-of-accounts prefix and normal-balance keyword mismatches, overpayment marked paid, opening balance input dropping decimals. None of it was changed. It needs the business decisions listed there before any fix.
+
+## Follow-up: structure and design system (2026-10-31)
+
+- Outside `src/module`: dead code removed (components, hooks, types, utils, mocks, about 60 unused illustrations), assets reorganised into `assets/images/{brand,illustrations,auth}` with kebab-case names, utils and entry files renamed consistently, `services/endpoint.ts` moved to `lib/http/endpoints.ts`, `public/mocks` removed.
+- Design system: one source of truth in `src/theme/tokens`, CSS variables generated from it, global CSS in `src/styles`, rules in [../design-system.md](../design-system.md). A bug was fixed where every colour tuple was a 951-entry sparse array.
+- Lint baseline total: 159 down to 135.
+- Dead files found inside modules were removed in the same change (dashboard spatial canvas, old report tables, orphan CSS modules in `user-management`).
+- Still open: `tailwind.config.js` is dead (Tailwind v4 never loads it) and still hard-codes the font; it needs your OK to delete. About 57 hard-coded `px` font sizes and 6 hex colours remain in module CSS, mostly `landing` and `dashboard`.

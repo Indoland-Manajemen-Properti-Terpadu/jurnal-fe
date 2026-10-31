@@ -1,50 +1,32 @@
-type TailwindColorScale = {
-  readonly 50: string;
-  readonly 100: string;
-  readonly 200: string;
-  readonly 300: string;
-  readonly 400: string;
-  readonly 500: string;
-  readonly 600: string;
-  readonly 700: string;
-  readonly 800: string;
-  readonly 900: string;
-  readonly 950: string;
-};
+import { mapTokens } from './units';
 
-type MantineTailwindColor = readonly [
-  string,
-  string,
-  string,
-  string,
-  string,
-  string,
-  string,
-  string,
-  string,
-  string,
-] &
-  TailwindColorScale;
+/**
+ * Raw colour scales: the only place hue values live. Every scale except `primary`
+ * and `secondary` (the brand scales) is the Tailwind v3 palette. Components use the
+ * roles in colors.ts, Mantine colour names (`c="primary"`), or `themeColors.x[i]`.
+ */
+export type PaletteShade = 50 | 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900 | 950;
 
-const defineTailwindColor = (scale: TailwindColorScale): MantineTailwindColor =>
-  Object.assign(
-    [
-      scale[50],
-      scale[100],
-      scale[200],
-      scale[300],
-      scale[400],
-      scale[500],
-      scale[600],
-      scale[700],
-      scale[800],
-      scale[900],
-    ] as const,
-    scale
-  );
+export type PaletteScale = { readonly [Shade in PaletteShade]: string };
 
-export const themeColors = {
-  slate: defineTailwindColor({
+/** Mantine colour tuple: index 0..9 is shade 50..900. */
+export type MantineColorTuple = readonly [
+  string,
+  string,
+  string,
+  string,
+  string,
+  string,
+  string,
+  string,
+  string,
+  string,
+];
+
+export const MANTINE_SHADES = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900] as const;
+
+export const palette = {
+  slate: {
     50: '#f8fafc',
     100: '#f1f5f9',
     200: '#e2e8f0',
@@ -56,8 +38,8 @@ export const themeColors = {
     800: '#1e293b',
     900: '#0f172a',
     950: '#020617',
-  }),
-  gray: defineTailwindColor({
+  },
+  gray: {
     50: '#f9fafb',
     100: '#f3f4f6',
     200: '#e5e7eb',
@@ -69,8 +51,8 @@ export const themeColors = {
     800: '#1f2937',
     900: '#111827',
     950: '#030712',
-  }),
-  zinc: defineTailwindColor({
+  },
+  zinc: {
     50: '#fafafa',
     100: '#f4f4f5',
     200: '#e4e4e7',
@@ -82,8 +64,8 @@ export const themeColors = {
     800: '#27272a',
     900: '#18181b',
     950: '#09090b',
-  }),
-  neutral: defineTailwindColor({
+  },
+  neutral: {
     50: '#fafafa',
     100: '#f5f5f5',
     200: '#e5e5e5',
@@ -95,8 +77,8 @@ export const themeColors = {
     800: '#262626',
     900: '#171717',
     950: '#0a0a0a',
-  }),
-  stone: defineTailwindColor({
+  },
+  stone: {
     50: '#fafaf9',
     100: '#f5f5f4',
     200: '#e7e5e4',
@@ -108,8 +90,8 @@ export const themeColors = {
     800: '#292524',
     900: '#1c1917',
     950: '#0c0a09',
-  }),
-  red: defineTailwindColor({
+  },
+  red: {
     50: '#fef2f2',
     100: '#fee2e2',
     200: '#fecaca',
@@ -121,8 +103,8 @@ export const themeColors = {
     800: '#991b1b',
     900: '#7f1d1d',
     950: '#450a0a',
-  }),
-  orange: defineTailwindColor({
+  },
+  orange: {
     50: '#fff7ed',
     100: '#ffedd5',
     200: '#fed7aa',
@@ -134,8 +116,8 @@ export const themeColors = {
     800: '#9a3412',
     900: '#7c2d12',
     950: '#431407',
-  }),
-  amber: defineTailwindColor({
+  },
+  amber: {
     50: '#fffbeb',
     100: '#fef3c7',
     200: '#fde68a',
@@ -147,8 +129,8 @@ export const themeColors = {
     800: '#92400e',
     900: '#78350f',
     950: '#451a03',
-  }),
-  yellow: defineTailwindColor({
+  },
+  yellow: {
     50: '#fefce8',
     100: '#fef9c3',
     200: '#fef08a',
@@ -160,8 +142,8 @@ export const themeColors = {
     800: '#854d0e',
     900: '#713f12',
     950: '#422006',
-  }),
-  lime: defineTailwindColor({
+  },
+  lime: {
     50: '#f7fee7',
     100: '#ecfccb',
     200: '#d9f99d',
@@ -173,8 +155,8 @@ export const themeColors = {
     800: '#3f6212',
     900: '#365314',
     950: '#1a2e05',
-  }),
-  green: defineTailwindColor({
+  },
+  green: {
     50: '#f0fdf4',
     100: '#dcfce7',
     200: '#bbf7d0',
@@ -186,8 +168,8 @@ export const themeColors = {
     800: '#166534',
     900: '#14532d',
     950: '#052e16',
-  }),
-  emerald: defineTailwindColor({
+  },
+  emerald: {
     50: '#ecfdf5',
     100: '#d1fae5',
     200: '#a7f3d0',
@@ -199,8 +181,8 @@ export const themeColors = {
     800: '#065f46',
     900: '#064e3b',
     950: '#022c22',
-  }),
-  teal: defineTailwindColor({
+  },
+  teal: {
     50: '#f0fdfa',
     100: '#ccfbf1',
     200: '#99f6e4',
@@ -212,8 +194,8 @@ export const themeColors = {
     800: '#115e59',
     900: '#134e4a',
     950: '#042f2e',
-  }),
-  primary: defineTailwindColor({
+  },
+  primary: {
     50: '#f5f7fa',
     100: '#ebeef4',
     200: '#d7deea',
@@ -225,8 +207,8 @@ export const themeColors = {
     800: '#04245c',
     900: '#031d49',
     950: '#021636',
-  }),
-  secondary: defineTailwindColor({
+  },
+  secondary: {
     50: '#f5fcff',
     100: '#ebf9ff',
     200: '#d8f3ff',
@@ -238,8 +220,8 @@ export const themeColors = {
     800: '#0787c2',
     900: '#056b99',
     950: '#045073',
-  }),
-  sky: defineTailwindColor({
+  },
+  sky: {
     50: '#f0f9ff',
     100: '#e0f2fe',
     200: '#bae6fd',
@@ -251,8 +233,8 @@ export const themeColors = {
     800: '#075985',
     900: '#0c4a6e',
     950: '#082f49',
-  }),
-  blue: defineTailwindColor({
+  },
+  blue: {
     50: '#eff6ff',
     100: '#dbeafe',
     200: '#bfdbfe',
@@ -264,8 +246,8 @@ export const themeColors = {
     800: '#1e40af',
     900: '#1e3a8a',
     950: '#172554',
-  }),
-  indigo: defineTailwindColor({
+  },
+  indigo: {
     50: '#eef2ff',
     100: '#e0e7ff',
     200: '#c7d2fe',
@@ -277,8 +259,8 @@ export const themeColors = {
     800: '#3730a3',
     900: '#312e81',
     950: '#1e1b4b',
-  }),
-  violet: defineTailwindColor({
+  },
+  violet: {
     50: '#f5f3ff',
     100: '#ede9fe',
     200: '#ddd6fe',
@@ -290,8 +272,8 @@ export const themeColors = {
     800: '#5b21b6',
     900: '#4c1d95',
     950: '#2e1065',
-  }),
-  purple: defineTailwindColor({
+  },
+  purple: {
     50: '#faf5ff',
     100: '#f3e8ff',
     200: '#e9d5ff',
@@ -303,8 +285,8 @@ export const themeColors = {
     800: '#6b21a8',
     900: '#581c87',
     950: '#3b0764',
-  }),
-  fuchsia: defineTailwindColor({
+  },
+  fuchsia: {
     50: '#fdf4ff',
     100: '#fae8ff',
     200: '#f5d0fe',
@@ -316,8 +298,8 @@ export const themeColors = {
     800: '#86198f',
     900: '#701a75',
     950: '#4a044e',
-  }),
-  pink: defineTailwindColor({
+  },
+  pink: {
     50: '#fdf2f8',
     100: '#fce7f3',
     200: '#fbcfe8',
@@ -329,8 +311,8 @@ export const themeColors = {
     800: '#9d174d',
     900: '#831843',
     950: '#500724',
-  }),
-  rose: defineTailwindColor({
+  },
+  rose: {
     50: '#fff1f2',
     100: '#ffe4e6',
     200: '#fecdd3',
@@ -342,8 +324,8 @@ export const themeColors = {
     800: '#9f1239',
     900: '#881337',
     950: '#4c0519',
-  }),
-  black: defineTailwindColor({
+  },
+  black: {
     50: '#000000',
     100: '#000000',
     200: '#000000',
@@ -355,8 +337,8 @@ export const themeColors = {
     800: '#000000',
     900: '#000000',
     950: '#000000',
-  }),
-  white: defineTailwindColor({
+  },
+  white: {
     50: '#ffffff',
     100: '#ffffff',
     200: '#ffffff',
@@ -368,22 +350,21 @@ export const themeColors = {
     800: '#ffffff',
     900: '#ffffff',
     950: '#ffffff',
-  }),
-} as const;
+  },
+} as const satisfies Record<string, PaletteScale>;
 
-export const gradientColors = {
-  primaryGradient: 'linear-gradient(200deg, var(--jurnal-color-primary), var(--mantine-color-secondary-9))',
-  gradient: { from: 'primary', to: 'secondary.9', deg: 90 },
-  primarySecondary: { from: 'primary', to: 'secondary.9', deg: 90 },
-  limeGreen: { from: '#00bb7d', to: '#68c937', deg: 90 },
-  peach: { from: '#f27794', to: '#f08779', deg: 90 },
-  mainGR: { from: 'primary', to: 'secondary.9', deg: 90 },
-};
+const toMantineTuple = (scale: PaletteScale): MantineColorTuple => [
+  scale[50],
+  scale[100],
+  scale[200],
+  scale[300],
+  scale[400],
+  scale[500],
+  scale[600],
+  scale[700],
+  scale[800],
+  scale[900],
+];
 
-export const buttonGradient = {
-  gradient: { from: 'primary', to: 'secondary.9', deg: 90 },
-};
-
-export const primaryColor = {
-  white: '#FFFFFF',
-};
+/** The palette as Mantine colour tuples: `themeColors.gray[1]` is gray 100. */
+export const themeColors = mapTokens(palette, toMantineTuple);

@@ -199,38 +199,15 @@ http://localhost:5173
 
 ## Struktur Proyek
 
-Pohon berikut merangkum struktur yang sudah ada di repository. Struktur target untuk perubahan baru dan aturan migrasi bertahap dijelaskan di [konteks project agent](.codex/PROJECT_CONTEXT.md).
-
-```text
-jurnal-fe/
-├── public/                 # Asset publik, mock data, dan template CSV
-├── src/
-│   ├── assets/             # Asset visual, font, dan stylesheet global layout
-│   ├── components/         # Komponen reusable lintas modul
-│   ├── hooks/              # Custom hooks aplikasi
-│   ├── lib/                # HTTP client (lib/http), helper uang (lib/money), utilitas inti
-│   ├── module/             # Modul fitur utama aplikasi
-│   ├── router/             # Konfigurasi route aplikasi
-│   ├── services/           # API client, endpoint, dan error boundary
-│   ├── store/              # State management global
-│   ├── theme/              # Tema Mantine dan style global
-│   ├── types/              # TypeScript type dan interface
-│   └── utils/              # Helper utility umum
-├── docs/                   # Dokumentasi: arsitektur, konvensi, ADR, status migrasi
-├── scripts/                # Tooling: ESLint ratchet, cek format file yang berubah
-├── test-utils/             # Helper render dan setup testing
-├── package.json            # Dependency dan script proyek
-├── tsconfig.json           # Konfigurasi TypeScript
-├── vite.config.mjs         # Konfigurasi Vite dan Vitest
-└── README.md               # Dokumentasi proyek
-```
+Peta folder (`src/module`, `src/components`, `src/lib`, `src/theme`, `src/styles`, dan seterusnya) beserta aturan dependensinya ada di satu tempat: [`docs/architecture.md`](docs/architecture.md). Design system (token, tipografi, warna) ada di [`docs/design-system.md`](docs/design-system.md).
 
 ---
 
 ## Modul Aplikasi
 
-| Modul            | Deskripsi                                                                                |
-| ---------------- | ---------------------------------------------------------------------------------------- |
+Daftar modul fitur, README masing-masing, dan statusnya ada di [`docs/modules/README.md`](docs/modules/README.md) dan [`docs/migration/STATUS.md`](docs/migration/STATUS.md).
+
+---------------- | ---------------------------------------------------------------------------------------- |
 | `Authentication` | Halaman dan flow autentikasi pengguna.                                                   |
 | `Dashboard`      | Halaman dashboard utama.                                                                 |
 | `GeneralJournal` | Jurnal umum, akun, transaksi, saldo awal, bank statement, period lock, dan closing book. |
@@ -248,7 +225,7 @@ jurnal-fe/
 Konfigurasi API berada pada:
 
 - `src/lib/http/apiClient.ts` (client HTTP tunggal dengan interceptor token)
-- `src/services/endpoint.ts` (konstanta endpoint; dipindah ke tiap fitur saat migrasi)
+- `src/lib/http/endpoints.ts` (konstanta endpoint; dipindah ke tiap fitur saat migrasi)
 
 Saat ini aplikasi mengarah ke layanan API ProApps berikut:
 
@@ -263,7 +240,7 @@ Aturan akses API, konfigurasi endpoint, dan penanganan kredensial dipusatkan di 
 
 ## Dokumentasi
 
-Indeks dokumentasi ada di [`docs/README.md`](docs/README.md): [arsitektur](docs/architecture.md), [konvensi](docs/conventions.md), [branching dan rilis](docs/branching-and-release.md), [keputusan arsitektur (ADR)](docs/adr), dan [status migrasi](docs/migration/STATUS.md).
+Indeks dokumentasi ada di [`docs/README.md`](docs/README.md): [arsitektur](docs/architecture.md), [design system](docs/design-system.md), [konvensi](docs/conventions.md), [branching dan rilis](docs/branching-and-release.md), [keputusan arsitektur (ADR)](docs/adr), dan [status migrasi](docs/migration/STATUS.md).
 
 ---
 
@@ -309,7 +286,7 @@ Aturan scope, arsitektur, dan perubahan dipusatkan di [konteks project agent](.c
 
 ## Design Guardrail untuk AI Agent
 
-Aturan desain dan implementasi UI untuk agent dipusatkan di [konteks project agent](.codex/PROJECT_CONTEXT.md), termasuk sumber referensi Figma dan token theme lokal. `AGENTS.md`, `GEMINI.md`, dan `STYLING_GUIDE.md` hanya menunjuk ke aturan tersebut agar tidak ada standar yang saling bertentangan.
+Aturan desain dan implementasi UI untuk agent dipusatkan di [konteks project agent](.codex/PROJECT_CONTEXT.md), termasuk sumber referensi Figma dan token theme lokal. `AGENTS.md` dan `GEMINI.md` hanya menunjuk ke aturan tersebut agar tidak ada standar yang saling bertentangan.
 
 ---
 

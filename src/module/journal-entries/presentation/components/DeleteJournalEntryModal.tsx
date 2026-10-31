@@ -1,8 +1,7 @@
 import { Button, Group, Stack, Text, Modal, Image } from '@mantine/core';
 import { IconTrash } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
-import { themeColors } from '@/theme';
-import { themeText } from '@/theme/constants';
+import { headingStyles, textStyles, themeColors } from '@/theme';
 import DeleteIllustration from '@/assets/images/illustrations/delete-confirm.svg';
 
 interface DeleteJournalEntryModalProps {
@@ -25,7 +24,7 @@ const DeleteJournalEntryModal = ({ opened, onClose, onDelete }: DeleteJournalEnt
       centered
       withCloseButton
       title={
-        <Text style={themeText.heading.h6} c={themeColors.black[9]}>
+        <Text style={headingStyles.h6} c={themeColors.black[9]}>
           {t('deleteModal.title')}
         </Text>
       }
@@ -47,14 +46,14 @@ const DeleteJournalEntryModal = ({ opened, onClose, onDelete }: DeleteJournalEnt
 
         <Stack gap={4} align="center">
           <Text
-            style={{ ...themeText.label.label1, maxWidth: '280px' }}
+            style={{ ...textStyles.labelLg, maxWidth: '280px' }}
             fw={600}
             ta="center"
             c={themeColors.black[9]}
           >
             {t('deleteModal.question')}
           </Text>
-          <Text style={themeText.body.body4} c={themeColors.gray[5]} ta="center">
+          <Text style={textStyles.bodyXs} c={themeColors.gray[5]} ta="center">
             {t('deleteModal.warning')}
           </Text>
         </Stack>

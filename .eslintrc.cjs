@@ -107,7 +107,6 @@ module.exports = {
       // Infrastructure code is where HTTP lives.
       files: [
         'src/lib/**',
-        'src/services/**',
         'src/module/**/infrastructure/**',
         'src/module/**/services/**',
         'src/module/**/service/**',
