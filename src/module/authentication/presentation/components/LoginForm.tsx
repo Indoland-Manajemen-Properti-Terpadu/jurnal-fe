@@ -25,7 +25,8 @@ import {
 import { useTranslation } from '@/i18n';
 
 interface LoginFormProps {
-  onForgotPassword: (currentEmail?: string) => void;
+  /** Omitted when password recovery is not available; the link is then not shown. */
+  onForgotPassword?: (currentEmail?: string) => void;
   onSubmit: (values: { email: string; password: string }) => void;
   isPending: boolean;
 }
@@ -90,16 +91,18 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onForgotPassword, onSubmit
               size="sm"
               {...form.getInputProps('rememberMe', { type: 'checkbox' })}
             />
-            <Anchor
-              component="button"
-              type="button"
-              size="sm"
-              fw={600}
-              c="primary.7"
-              onClick={() => onForgotPassword(form.values.email)}
-            >
-              {ta('login.forgot')}
-            </Anchor>
+            {onForgotPassword && (
+              <Anchor
+                component="button"
+                type="button"
+                size="sm"
+                fw={600}
+                c="primary.7"
+                onClick={() => onForgotPassword(form.values.email)}
+              >
+                {ta('login.forgot')}
+              </Anchor>
+            )}
           </Group>
 
           <Button
