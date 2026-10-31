@@ -46,10 +46,10 @@ interface ReceiveItemRow {
 }
 
 export const AddReceiveMoneyPage = () => {
+  const { t: tb, currentLanguage } = useTranslation('bankCash');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { t } = useTranslation('journal');
-  const { accounts, isLoading: isLoadingAccounts } = useJournalAccounts();
+  const { accounts } = useJournalAccounts();
 
   // Initial account prefill (if directed with query param)
   const initialToId = searchParams.get('toAccountId') || '';
@@ -73,32 +73,42 @@ export const AddReceiveMoneyPage = () => {
   ]);
 
   const { mutate: submitReceive, isPending } = useBankCashTransactionMutation(
-    'Penerimaan uang berhasil dicatat dan dibukukan ke dalam kas & bank.'
+    tb('receive.success')
   );
 
   // Available Cash & Bank accounts (for depositTo)
-  const bankAndCashAccounts = useMemo(() => {
-    return (accounts || []).filter((acc) => acc.isBankAndCash);
-  }, [accounts]);
+  const bankAndCashAccounts = useMemo(
+    () => (accounts || []).filter((acc) => acc.isBankAndCash),
+    [accounts]
+  );
 
-  const bankAndCashOptions = useMemo(() => {
-    return bankAndCashAccounts.map((acc) => ({
-      value: acc.id,
-      label: `${acc.name} (${acc.accountNumber || '—'}) • Saldo: ${formatCurrency(acc.amount || 0)}`,
-    }));
-  }, [bankAndCashAccounts]);
+  const bankAndCashOptions = useMemo(
+    () =>
+      bankAndCashAccounts.map((acc) => ({
+        value: acc.id,
+        label: tb('common.accountOption', {
+          name: acc.name,
+          number: acc.accountNumber || '—',
+          balance: formatCurrency(acc.amount || 0),
+        }),
+      })),
+    [bankAndCashAccounts, currentLanguage]
+  );
 
   // All COA accounts (for credit source items)
-  const allAccountOptions = useMemo(() => {
-    return (accounts || []).map((acc) => ({
-      value: acc.id,
-      label: `${acc.accountNumber || ''} - ${acc.name} (${acc.category?.name || 'COA'})`,
-    }));
-  }, [accounts]);
+  const allAccountOptions = useMemo(
+    () =>
+      (accounts || []).map((acc) => ({
+        value: acc.id,
+        label: `${acc.accountNumber || ''} - ${acc.name} (${acc.category?.name || 'COA'})`,
+      })),
+    [accounts]
+  );
 
-  const selectedDepositAccount = useMemo(() => {
-    return bankAndCashAccounts.find((a) => a.id === depositToAccountId);
-  }, [bankAndCashAccounts, depositToAccountId]);
+  const selectedDepositAccount = useMemo(
+    () => bankAndCashAccounts.find((a) => a.id === depositToAccountId),
+    [bankAndCashAccounts, depositToAccountId]
+  );
 
   // Calculate Total
   const totalAmount = useMemo(() => sumLineAmounts(items), [items]);
@@ -121,7 +131,7 @@ export const AddReceiveMoneyPage = () => {
     setItems((prev) => prev.filter((item) => item.id !== id));
   };
 
-  const handleUpdateItem = (id: string, field: keyof ReceiveItemRow, value: any) => {
+  const handleUpdateItem = (id: string, field: keyof ReceiveItemRow, value: string | number) => {
     setItems((prev) => prev.map((item) => (item.id === id ? { ...item, [field]: value } : item)));
   };
 
@@ -154,8 +164,8 @@ export const AddReceiveMoneyPage = () => {
           {/* Header */}
           <ModuleHeader
             icon={IconArrowDownRight}
-            title="Terima Uang (Penerimaan Kas Masuk)"
-            description="Catat penerimaan kas langsung atau setoran bank non-penjualan, seperti pendapatan bunga, setoran modal pemilik, pencairan pinjaman, atau pengembalian dana."
+            title={tb('receive.title')}
+            description={tb('receive.description')}
             actions={
               <Button
                 variant="default"
@@ -163,7 +173,7 @@ export const AddReceiveMoneyPage = () => {
                 leftSection={<IconArrowLeft size={16} />}
                 onClick={() => navigate(routes.BankAndCash.Main)}
               >
-                Kembali ke Kas & Bank
+                {tb('common.backToCashBank')}
               </Button>
             }
           />
@@ -182,10 +192,10 @@ export const AddReceiveMoneyPage = () => {
                         </ThemeIcon>
                         <Box>
                           <Text fw={700} size="sm" c="dark.9">
-                            Rekening Kas/Bank Penampung & Tanggal
+                            {tb('receive.accountCardTitle')}
                           </Text>
                           <Text size="xs" c="dimmed">
-                            Pilih rekening tujuan tempat uang disetorkan atau diterima
+                            {tb('receive.accountCardHint')}
                           </Text>
                         </Box>
                       </Group>
@@ -193,23 +203,23 @@ export const AddReceiveMoneyPage = () => {
                       <Grid gutter="md">
                         <Grid.Col span={{ base: 12, sm: 6 }}>
                           <Select
-                            label="Setor Ke (Akun Kas / Bank - Debit)"
-                            placeholder="Pilih rekening penerima..."
+                            label={tb('receive.depositTo')}
+                            placeholder={tb('receive.depositToPlaceholder')}
                             data={bankAndCashOptions}
                             value={depositToAccountId}
                             onChange={setDepositToAccountId}
                             required
                             searchable
                             size="sm"
-                            nothingFoundMessage="Tidak ada rekening kas/bank"
+                            nothingFoundMessage={tb('common.noCashBankAccount')}
                             comboboxProps={{ shadow: 'md' }}
                           />
                         </Grid.Col>
 
                         <Grid.Col span={{ base: 12, sm: 6 }}>
                           <DateInput
-                            label="Tanggal Penerimaan"
-                            placeholder="Pilih tanggal penerimaan"
+                            label={tb('receive.dateLabel')}
+                            placeholder={tb('receive.datePlaceholder')}
                             valueFormat="DD/MM/YYYY"
                             required
                             size="sm"
@@ -225,8 +235,8 @@ export const AddReceiveMoneyPage = () => {
                       </Grid>
 
                       <TextInput
-                        label="Diterima Dari / Nama Pembayar (Opsional)"
-                        placeholder="misal: PT Maju Bersama, Pemilik Usaha, Bank BCA (Bunga)..."
+                        label={tb('receive.payerLabel')}
+                        placeholder={tb('receive.payerPlaceholder')}
                         leftSection={<IconUser size={15} color="var(--mantine-color-dimmed)" />}
                         value={payerName}
                         onChange={(e) => setPayerName(e.currentTarget.value)}
@@ -245,11 +255,10 @@ export const AddReceiveMoneyPage = () => {
                           </ThemeIcon>
                           <Box>
                             <Text fw={700} size="sm" c="dark.9">
-                              Alokasi Akun Sumber Penerimaan (Kredit)
+                              {tb('receive.sourcesTitle')}
                             </Text>
                             <Text size="xs" c="dimmed">
-                              Tentukan akun sumber penerimaan (Pendapatan Lain-lain, Modal, Hutang,
-                              dll.)
+                              {tb('receive.sourcesHint')}
                             </Text>
                           </Box>
                         </Group>
@@ -261,7 +270,7 @@ export const AddReceiveMoneyPage = () => {
                           leftSection={<IconPlus size={14} />}
                           onClick={handleAddItem}
                         >
-                          Tambah Baris
+                          {tb('common.addRow')}
                         </Button>
                       </Group>
 
@@ -272,8 +281,8 @@ export const AddReceiveMoneyPage = () => {
                             <Grid columns={24} gutter="xs" align="flex-end">
                               <Grid.Col span={{ base: 24, md: 10 }}>
                                 <Select
-                                  label={`Akun Sumber #${idx + 1}`}
-                                  placeholder="Pilih akun COA..."
+                                  label={tb('receive.sourceNumbered', { n: idx + 1 })}
+                                  placeholder={tb('receive.sourceAccountPlaceholder')}
                                   data={allAccountOptions}
                                   value={item.accountId}
                                   onChange={(val) =>
@@ -282,15 +291,15 @@ export const AddReceiveMoneyPage = () => {
                                   required
                                   searchable
                                   size="sm"
-                                  nothingFoundMessage="Akun tidak ditemukan"
+                                  nothingFoundMessage={tb('common.accountNotFound')}
                                   comboboxProps={{ shadow: 'md' }}
                                 />
                               </Grid.Col>
 
                               <Grid.Col span={{ base: 24, md: 7 }}>
                                 <TextInput
-                                  label="Deskripsi / Keterangan Baris"
-                                  placeholder="Keterangan alokasi..."
+                                  label={tb('common.lineDescription')}
+                                  placeholder={tb('receive.allocationPlaceholder')}
                                   size="sm"
                                   value={item.description}
                                   onChange={(e) =>
@@ -301,7 +310,7 @@ export const AddReceiveMoneyPage = () => {
 
                               <Grid.Col span={{ base: 19, md: 5 }}>
                                 <NumberInput
-                                  label="Nominal (Rp)"
+                                  label={tb('receive.amountLabel')}
                                   placeholder="0"
                                   thousandSeparator="."
                                   decimalSeparator=","
@@ -325,8 +334,8 @@ export const AddReceiveMoneyPage = () => {
                                   disabled={items.length <= 1}
                                   onClick={() => handleRemoveItem(item.id)}
                                   style={{ width: '100%', height: 36 }}
-                                  aria-label="Hapus baris"
-                                  title="Hapus baris penerimaan"
+                                  aria-label={tb('common.removeRow')}
+                                  title={tb('receive.removeRowTitle')}
                                 >
                                   <IconTrash size={16} />
                                 </ActionIcon>
@@ -347,17 +356,16 @@ export const AddReceiveMoneyPage = () => {
                         </ThemeIcon>
                         <Box>
                           <Text fw={700} size="sm" c="dark.9">
-                            Catatan Tambahan & Referensi
+                            {tb('receive.notesTitle')}
                           </Text>
                           <Text size="xs" c="dimmed">
-                            Tambahkan catatan internal atau nomor bukti setor untuk memudahkan
-                            rekonsiliasi
+                            {tb('receive.notesHint')}
                           </Text>
                         </Box>
                       </Group>
 
                       <Textarea
-                        placeholder="misal: Setoran modal tambahan awal bulan, bukti transfer terlampir..."
+                        placeholder={tb('receive.notesPlaceholder')}
                         rows={3}
                         value={notes}
                         onChange={(e) => setNotes(e.currentTarget.value)}

@@ -50,10 +50,10 @@ interface SentItemRow {
 }
 
 export const AddSentMoneyPage = () => {
+  const { t: tb, currentLanguage } = useTranslation('bankCash');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { t } = useTranslation('journal');
-  const { accounts, isLoading: isLoadingAccounts } = useJournalAccounts();
+  const { accounts } = useJournalAccounts();
 
   // Initial account prefill (if directed with query param)
   const initialFromId = searchParams.get('fromAccountId') || '';
@@ -76,33 +76,41 @@ export const AddSentMoneyPage = () => {
     },
   ]);
 
-  const { mutate: submitSent, isPending } = useBankCashTransactionMutation(
-    'Pengeluaran kas berhasil dibukukan ke dalam jurnal umum.'
-  );
+  const { mutate: submitSent, isPending } = useBankCashTransactionMutation(tb('sent.success'));
 
   // Available Cash & Bank accounts (for payFrom)
-  const bankAndCashAccounts = useMemo(() => {
-    return (accounts || []).filter((acc) => acc.isBankAndCash);
-  }, [accounts]);
+  const bankAndCashAccounts = useMemo(
+    () => (accounts || []).filter((acc) => acc.isBankAndCash),
+    [accounts]
+  );
 
-  const bankAndCashOptions = useMemo(() => {
-    return bankAndCashAccounts.map((acc) => ({
-      value: acc.id,
-      label: `${acc.name} (${acc.accountNumber || '—'}) • Saldo: ${formatCurrency(acc.amount || 0)}`,
-    }));
-  }, [bankAndCashAccounts]);
+  const bankAndCashOptions = useMemo(
+    () =>
+      bankAndCashAccounts.map((acc) => ({
+        value: acc.id,
+        label: tb('common.accountOption', {
+          name: acc.name,
+          number: acc.accountNumber || '—',
+          balance: formatCurrency(acc.amount || 0),
+        }),
+      })),
+    [bankAndCashAccounts, currentLanguage]
+  );
 
   // All COA accounts (for debit expense items)
-  const allAccountOptions = useMemo(() => {
-    return (accounts || []).map((acc) => ({
-      value: acc.id,
-      label: `${acc.accountNumber || ''} - ${acc.name} (${acc.category?.name || 'COA'})`,
-    }));
-  }, [accounts]);
+  const allAccountOptions = useMemo(
+    () =>
+      (accounts || []).map((acc) => ({
+        value: acc.id,
+        label: `${acc.accountNumber || ''} - ${acc.name} (${acc.category?.name || 'COA'})`,
+      })),
+    [accounts]
+  );
 
-  const selectedPayAccount = useMemo(() => {
-    return bankAndCashAccounts.find((a) => a.id === payFromAccountId);
-  }, [bankAndCashAccounts, payFromAccountId]);
+  const selectedPayAccount = useMemo(
+    () => bankAndCashAccounts.find((a) => a.id === payFromAccountId),
+    [bankAndCashAccounts, payFromAccountId]
+  );
 
   // Calculate Total
   const totalAmount = useMemo(() => sumLineAmounts(items), [items]);
@@ -125,7 +133,7 @@ export const AddSentMoneyPage = () => {
     setItems((prev) => prev.filter((item) => item.id !== id));
   };
 
-  const handleUpdateItem = (id: string, field: keyof SentItemRow, value: any) => {
+  const handleUpdateItem = (id: string, field: keyof SentItemRow, value: string | number) => {
     setItems((prev) => prev.map((item) => (item.id === id ? { ...item, [field]: value } : item)));
   };
 
@@ -161,8 +169,8 @@ export const AddSentMoneyPage = () => {
           {/* Header */}
           <ModuleHeader
             icon={IconArrowUpRight}
-            title="Kirim Uang (Pengeluaran Kas Keluar)"
-            description="Catat pengeluaran kas langsung atau pembayaran beban operasional non-faktur, seperti biaya listrik, perlengkapan ATK, konsumsi rapat, bensin, atau penarikan prive pemilik."
+            title={tb('sent.title')}
+            description={tb('sent.description')}
             actions={
               <Button
                 variant="default"
@@ -170,7 +178,7 @@ export const AddSentMoneyPage = () => {
                 leftSection={<IconArrowLeft size={16} />}
                 onClick={() => navigate(routes.BankAndCash.Main)}
               >
-                Kembali ke Kas & Bank
+                {tb('common.backToCashBank')}
               </Button>
             }
           />
@@ -189,10 +197,10 @@ export const AddSentMoneyPage = () => {
                         </ThemeIcon>
                         <Box>
                           <Text fw={700} size="sm" c="dark.9">
-                            Rekening Kas/Bank Pembayar & Tanggal
+                            {tb('sent.accountCardTitle')}
                           </Text>
                           <Text size="xs" c="dimmed">
-                            Pilih rekening sumber yang digunakan untuk membayarkan pengeluaran
+                            {tb('sent.accountCardHint')}
                           </Text>
                         </Box>
                       </Group>
@@ -200,23 +208,23 @@ export const AddSentMoneyPage = () => {
                       <Grid gutter="md">
                         <Grid.Col span={{ base: 12, sm: 6 }}>
                           <Select
-                            label="Bayar Dari (Akun Kas / Bank - Kredit)"
-                            placeholder="Pilih rekening sumber..."
+                            label={tb('sent.payFrom')}
+                            placeholder={tb('sent.payFromPlaceholder')}
                             data={bankAndCashOptions}
                             value={payFromAccountId}
                             onChange={setPayFromAccountId}
                             required
                             searchable
                             size="sm"
-                            nothingFoundMessage="Tidak ada rekening kas/bank"
+                            nothingFoundMessage={tb('common.noCashBankAccount')}
                             comboboxProps={{ shadow: 'md' }}
                           />
                         </Grid.Col>
 
                         <Grid.Col span={{ base: 12, sm: 6 }}>
                           <DateInput
-                            label="Tanggal Pembayaran"
-                            placeholder="Pilih tanggal pembayaran"
+                            label={tb('sent.dateLabel')}
+                            placeholder={tb('sent.datePlaceholder')}
                             valueFormat="DD/MM/YYYY"
                             required
                             size="sm"
@@ -232,8 +240,8 @@ export const AddSentMoneyPage = () => {
                       </Grid>
 
                       <TextInput
-                        label="Dibayar Kepada / Nama Penerima (Opsional)"
-                        placeholder="misal: PLN, SPBU Pertamina, Toko ATK, Vendor Jasa..."
+                        label={tb('sent.recipientLabel')}
+                        placeholder={tb('sent.recipientPlaceholder')}
                         leftSection={<IconUser size={15} color="var(--mantine-color-dimmed)" />}
                         value={recipientName}
                         onChange={(e) => setRecipientName(e.currentTarget.value)}
@@ -252,11 +260,10 @@ export const AddSentMoneyPage = () => {
                           </ThemeIcon>
                           <Box>
                             <Text fw={700} size="sm" c="dark.9">
-                              Alokasi Akun Beban / Biaya (Debit)
+                              {tb('sent.expensesTitle')}
                             </Text>
                             <Text size="xs" c="dimmed">
-                              Tentukan pos akun beban pengeluaran (Beban Operasional, Beban Listrik,
-                              dll.)
+                              {tb('sent.expensesHint')}
                             </Text>
                           </Box>
                         </Group>
@@ -269,7 +276,7 @@ export const AddSentMoneyPage = () => {
                           leftSection={<IconPlus size={14} />}
                           onClick={handleAddItem}
                         >
-                          Tambah Baris Biaya
+                          {tb('sent.addExpenseRow')}
                         </Button>
                       </Group>
 
@@ -280,8 +287,8 @@ export const AddSentMoneyPage = () => {
                             <Grid columns={24} gutter="xs" align="flex-end">
                               <Grid.Col span={{ base: 24, md: 10 }}>
                                 <Select
-                                  label={`Akun Beban #${idx + 1}`}
-                                  placeholder="Pilih akun beban COA..."
+                                  label={tb('sent.expenseNumbered', { n: idx + 1 })}
+                                  placeholder={tb('sent.expenseAccountPlaceholder')}
                                   data={allAccountOptions}
                                   value={item.accountId}
                                   onChange={(val) =>
@@ -290,15 +297,15 @@ export const AddSentMoneyPage = () => {
                                   required
                                   searchable
                                   size="sm"
-                                  nothingFoundMessage="Akun tidak ditemukan"
+                                  nothingFoundMessage={tb('common.accountNotFound')}
                                   comboboxProps={{ shadow: 'md' }}
                                 />
                               </Grid.Col>
 
                               <Grid.Col span={{ base: 24, md: 7 }}>
                                 <TextInput
-                                  label="Deskripsi / Keperluan Biaya"
-                                  placeholder="Keterangan pengeluaran..."
+                                  label={tb('sent.expenseDescriptionLabel')}
+                                  placeholder={tb('sent.expenseDescriptionPlaceholder')}
                                   size="sm"
                                   value={item.description}
                                   onChange={(e) =>
@@ -309,7 +316,7 @@ export const AddSentMoneyPage = () => {
 
                               <Grid.Col span={{ base: 19, md: 5 }}>
                                 <NumberInput
-                                  label="Nominal Biaya (Rp)"
+                                  label={tb('sent.amountLabel')}
                                   placeholder="0"
                                   thousandSeparator="."
                                   decimalSeparator=","
@@ -333,8 +340,8 @@ export const AddSentMoneyPage = () => {
                                   disabled={items.length <= 1}
                                   onClick={() => handleRemoveItem(item.id)}
                                   style={{ width: '100%', height: 36 }}
-                                  aria-label="Hapus baris"
-                                  title="Hapus baris pengeluaran"
+                                  aria-label={tb('common.removeRow')}
+                                  title={tb('sent.removeRowTitle')}
                                 >
                                   <IconTrash size={16} />
                                 </ActionIcon>
@@ -355,16 +362,16 @@ export const AddSentMoneyPage = () => {
                         </ThemeIcon>
                         <Box>
                           <Text fw={700} size="sm" c="dark.9">
-                            Catatan Pengeluaran & Nomor Bukti
+                            {tb('sent.notesTitle')}
                           </Text>
                           <Text size="xs" c="dimmed">
-                            Sertakan nomor kuitansi, struk nota, atau catatan verifikasi pembayaran
+                            {tb('sent.notesHint')}
                           </Text>
                         </Box>
                       </Group>
 
                       <Textarea
-                        placeholder="misal: Pembelian perlengkapan kantor bulanan, nota terlampir di kasir..."
+                        placeholder={tb('sent.notesPlaceholder')}
                         rows={3}
                         value={notes}
                         onChange={(e) => setNotes(e.currentTarget.value)}

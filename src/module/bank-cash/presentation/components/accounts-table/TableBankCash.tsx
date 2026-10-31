@@ -19,7 +19,7 @@ import { routes } from '@/router/routes';
 import { JournalAccounts } from '@/module/chart-of-accounts';
 import { isBankAccount } from '@/module/bank-cash/domain/bankCashSummary';
 import { useTranslation } from '@/i18n';
-import BankCashAccountRow from '@/module/bank-cash/presentation/components/accounts-table/BankCashAccountRow';
+import { BankCashAccountRow } from '@/module/bank-cash/presentation/components/accounts-table/BankCashAccountRow';
 import EmptyState from '@/components/EmptyState/EmptyState';
 import classes from '@/module/bank-cash/presentation/components/accounts-table/TableBankCash.module.css';
 
@@ -36,6 +36,7 @@ export const TableBankCash: React.FC<TableBankCashProps> = ({
   loading = false,
   onRefresh,
 }) => {
+  const { t: tb } = useTranslation('bankCash');
   const navigate = useNavigate();
   const { t } = useTranslation('journal');
 
@@ -320,7 +321,7 @@ export const TableBankCash: React.FC<TableBankCashProps> = ({
       {filteredAccounts.length > 0 && (
         <Group justify="space-between" align="center" wrap="wrap" mt="xs">
           <Text size="xs" c="dimmed">
-            Menampilkan{' '}
+            {tb('table.showing')}{' '}
             <Text span fw={600} c="dark.7">
               {Math.min((page - 1) * PAGE_SIZE + 1, filteredAccounts.length)}
             </Text>{' '}
@@ -328,11 +329,11 @@ export const TableBankCash: React.FC<TableBankCashProps> = ({
             <Text span fw={600} c="dark.7">
               {Math.min(page * PAGE_SIZE, filteredAccounts.length)}
             </Text>{' '}
-            dari{' '}
+            {tb('table.of')}{' '}
             <Text span fw={600} c="dark.7">
               {filteredAccounts.length}
             </Text>{' '}
-            akun kas & bank
+            {tb('table.accountsLabel')}
           </Text>
 
           {totalPages > 1 && (

@@ -16,6 +16,7 @@ import { useNavigate } from 'react-router-dom';
 import { routes } from '@/router/routes';
 import { formatCurrency } from '@/utils/FormatCurrency';
 import { JournalAccounts } from '@/module/chart-of-accounts';
+import { withAccountPrefill } from '@/module/bank-cash/domain/accountPrefill';
 import { isBankAccount } from '@/module/bank-cash/domain/bankCashSummary';
 import { useTranslation } from '@/i18n';
 import classes from '@/module/bank-cash/presentation/components/accounts-table/TableBankCash.module.css';
@@ -169,21 +170,37 @@ export const BankCashAccountRow: React.FC<{ account: JournalAccounts }> = ({ acc
 
             <Menu.Item
               leftSection={<IconArrowsExchange size={15} />}
-              onClick={() => navigate(routes.BankAndCash.AddTransferMoney)}
+              onClick={() =>
+                navigate(
+                  withAccountPrefill(
+                    routes.BankAndCash.AddTransferMoney,
+                    'fromAccountId',
+                    account.id
+                  )
+                )
+              }
             >
               {t('transferFromThis')}
             </Menu.Item>
 
             <Menu.Item
               leftSection={<IconArrowDownRight size={15} />}
-              onClick={() => navigate(routes.BankAndCash.AddReceiveMoney)}
+              onClick={() =>
+                navigate(
+                  withAccountPrefill(routes.BankAndCash.AddReceiveMoney, 'toAccountId', account.id)
+                )
+              }
             >
               {t('receiveToThis')}
             </Menu.Item>
 
             <Menu.Item
               leftSection={<IconArrowUpRight size={15} />}
-              onClick={() => navigate(routes.BankAndCash.AddSentMoney)}
+              onClick={() =>
+                navigate(
+                  withAccountPrefill(routes.BankAndCash.AddSentMoney, 'fromAccountId', account.id)
+                )
+              }
             >
               {t('sendFromThis')}
             </Menu.Item>

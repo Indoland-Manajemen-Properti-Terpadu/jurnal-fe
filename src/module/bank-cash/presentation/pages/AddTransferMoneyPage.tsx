@@ -36,10 +36,10 @@ import { TransferMoneySummaryPanel } from '@/module/bank-cash/presentation/compo
 import { buildTransferPayload } from '@/module/bank-cash/domain/transactionPayload';
 
 export const AddTransferMoneyPage = () => {
+  const { t: tb, currentLanguage } = useTranslation('bankCash');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { t } = useTranslation('journal');
-  const { accounts, isLoading: isLoadingAccounts } = useJournalAccounts();
+  const { accounts } = useJournalAccounts();
 
   // Query param prefill (if redirected from row action)
   const initialFromId = searchParams.get('fromAccountId') || '';
@@ -55,28 +55,37 @@ export const AddTransferMoneyPage = () => {
   const [notes, setNotes] = useState<string>('');
 
   const { mutate: submitTransfer, isPending } = useBankCashTransactionMutation(
-    'Dana berhasil dipindahkan antar rekening kas dan bank.'
+    tb('transfer.success')
   );
 
   // Available Cash & Bank accounts
-  const bankAndCashAccounts = useMemo(() => {
-    return (accounts || []).filter((acc) => acc.isBankAndCash);
-  }, [accounts]);
+  const bankAndCashAccounts = useMemo(
+    () => (accounts || []).filter((acc) => acc.isBankAndCash),
+    [accounts]
+  );
 
-  const accountSelectOptions = useMemo(() => {
-    return bankAndCashAccounts.map((acc) => ({
-      value: acc.id,
-      label: `${acc.name} (${acc.accountNumber || '—'}) • Saldo: ${formatCurrency(acc.amount || 0)}`,
-    }));
-  }, [bankAndCashAccounts]);
+  const accountSelectOptions = useMemo(
+    () =>
+      bankAndCashAccounts.map((acc) => ({
+        value: acc.id,
+        label: tb('common.accountOption', {
+          name: acc.name,
+          number: acc.accountNumber || '—',
+          balance: formatCurrency(acc.amount || 0),
+        }),
+      })),
+    [bankAndCashAccounts, currentLanguage]
+  );
 
-  const selectedFromAccount = useMemo(() => {
-    return bankAndCashAccounts.find((a) => a.id === accountFromId);
-  }, [bankAndCashAccounts, accountFromId]);
+  const selectedFromAccount = useMemo(
+    () => bankAndCashAccounts.find((a) => a.id === accountFromId),
+    [bankAndCashAccounts, accountFromId]
+  );
 
-  const selectedToAccount = useMemo(() => {
-    return bankAndCashAccounts.find((a) => a.id === accountToId);
-  }, [bankAndCashAccounts, accountToId]);
+  const selectedToAccount = useMemo(
+    () => bankAndCashAccounts.find((a) => a.id === accountToId),
+    [bankAndCashAccounts, accountToId]
+  );
 
   // Validation
   const isSameAccount = Boolean(accountFromId && accountToId && accountFromId === accountToId);
@@ -111,8 +120,8 @@ export const AddTransferMoneyPage = () => {
           {/* Header */}
           <ModuleHeader
             icon={IconArrowsExchange}
-            title="Transfer Uang Antar Kas & Bank"
-            description="Pindahkan saldo antar rekening perbankan atau kas operasional perusahaan. Transaksi ini tercatat otomatis di Buku Besar tanpa mempengaruhi laporan laba rugi."
+            title={tb('transfer.title')}
+            description={tb('transfer.description')}
             actions={
               <Button
                 variant="default"
@@ -120,7 +129,7 @@ export const AddTransferMoneyPage = () => {
                 leftSection={<IconArrowLeft size={16} />}
                 onClick={() => navigate(routes.BankAndCash.Main)}
               >
-                Kembali ke Kas & Bank
+                {tb('common.backToCashBank')}
               </Button>
             }
           />
@@ -139,10 +148,10 @@ export const AddTransferMoneyPage = () => {
                         </ThemeIcon>
                         <Box>
                           <Text fw={700} size="sm" c="dark.9">
-                            Tanggal & Bukti Transaksi
+                            {tb('transfer.dateCardTitle')}
                           </Text>
                           <Text size="xs" c="dimmed">
-                            Tentukan tanggal efektif pembukuan mutasi pemindahan dana
+                            {tb('transfer.dateCardHint')}
                           </Text>
                         </Box>
                       </Group>
@@ -150,8 +159,8 @@ export const AddTransferMoneyPage = () => {
                       <Grid gutter="md">
                         <Grid.Col span={{ base: 12, sm: 6 }}>
                           <DateInput
-                            label="Tanggal Transfer"
-                            placeholder="Pilih tanggal transfer"
+                            label={tb('transfer.dateLabel')}
+                            placeholder={tb('transfer.datePlaceholder')}
                             valueFormat="DD/MM/YYYY"
                             required
                             size="sm"
@@ -166,8 +175,8 @@ export const AddTransferMoneyPage = () => {
                         </Grid.Col>
                         <Grid.Col span={{ base: 12, sm: 6 }}>
                           <TextInput
-                            label="Nomor Referensi / Ref ID (Opsional)"
-                            placeholder="misal: TRF-2026-001"
+                            label={tb('transfer.referenceLabel')}
+                            placeholder={tb('transfer.referencePlaceholder')}
                             size="sm"
                             value={referenceNumber}
                             onChange={(e) => setReferenceNumber(e.currentTarget.value)}
@@ -186,11 +195,10 @@ export const AddTransferMoneyPage = () => {
                         </ThemeIcon>
                         <Box>
                           <Text fw={700} size="sm" c="dark.9">
-                            Akun Kas & Bank Asal dan Tujuan
+                            {tb('transfer.accountsCardTitle')}
                           </Text>
                           <Text size="xs" c="dimmed">
-                            Pilih rekening sumber yang berkurang dan rekening penampung yang
-                            bertambah
+                            {tb('transfer.accountsCardHint')}
                           </Text>
                         </Box>
                       </Group>
@@ -198,32 +206,32 @@ export const AddTransferMoneyPage = () => {
                       <Grid gutter="md">
                         <Grid.Col span={{ base: 12, sm: 6 }}>
                           <Select
-                            label="Transfer Dari (Akun Asal - Kredit)"
-                            description="Saldo akun ini akan berkurang"
-                            placeholder="Pilih rekening asal..."
+                            label={tb('transfer.fromLabel')}
+                            description={tb('transfer.fromDescription')}
+                            placeholder={tb('transfer.fromPlaceholder')}
                             data={accountSelectOptions}
                             value={accountFromId}
                             onChange={setAccountFromId}
                             required
                             searchable
                             size="sm"
-                            nothingFoundMessage="Tidak ada akun kas/bank"
+                            nothingFoundMessage={tb('transfer.noAccount')}
                             comboboxProps={{ shadow: 'md' }}
                           />
                         </Grid.Col>
 
                         <Grid.Col span={{ base: 12, sm: 6 }}>
                           <Select
-                            label="Setor Ke (Akun Tujuan - Debit)"
-                            description="Saldo akun ini akan bertambah"
-                            placeholder="Pilih rekening tujuan..."
+                            label={tb('transfer.toLabel')}
+                            description={tb('transfer.toDescription')}
+                            placeholder={tb('transfer.toPlaceholder')}
                             data={accountSelectOptions}
                             value={accountToId}
                             onChange={setAccountToId}
                             required
                             searchable
                             size="sm"
-                            nothingFoundMessage="Tidak ada akun kas/bank"
+                            nothingFoundMessage={tb('transfer.noAccount')}
                             comboboxProps={{ shadow: 'md' }}
                           />
                         </Grid.Col>
@@ -236,8 +244,7 @@ export const AddTransferMoneyPage = () => {
                           variant="light"
                           radius="md"
                         >
-                          Akun asal dan akun tujuan tidak boleh sama. Silakan pilih dua rekening
-                          yang berbeda.
+                          {tb('transfer.sameAccount')}
                         </Alert>
                       )}
                     </Stack>
@@ -252,16 +259,16 @@ export const AddTransferMoneyPage = () => {
                         </ThemeIcon>
                         <Box>
                           <Text fw={700} size="sm" c="dark.9">
-                            Nominal Pemindahan & Catatan
+                            {tb('transfer.amountCardTitle')}
                           </Text>
                           <Text size="xs" c="dimmed">
-                            Tentukan besaran nominal dana yang dipindahkan
+                            {tb('transfer.amountCardHint')}
                           </Text>
                         </Box>
                       </Group>
 
                       <NumberInput
-                        label="Nominal Transfer"
+                        label={tb('transfer.amountLabel')}
                         placeholder="0"
                         thousandSeparator="."
                         decimalSeparator=","
@@ -281,8 +288,8 @@ export const AddTransferMoneyPage = () => {
                       />
 
                       <Textarea
-                        label="Keterangan / Memo Pembukuan"
-                        placeholder="misal: Setor tunai hasil penjualan harian ke rekening operasional BCA..."
+                        label={tb('transfer.memoLabel')}
+                        placeholder={tb('transfer.memoPlaceholder')}
                         rows={3}
                         size="sm"
                         value={notes}

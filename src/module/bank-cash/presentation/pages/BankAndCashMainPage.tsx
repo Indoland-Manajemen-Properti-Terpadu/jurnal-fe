@@ -21,6 +21,7 @@ import { useTranslation } from '@/i18n';
 import classes from '@/module/bank-cash/presentation/pages/BankAndCashMainPage.module.css';
 
 export function BankAndCashMainPage() {
+  const { t: tb } = useTranslation('bankCash');
   const navigate = useNavigate();
   const { t } = useTranslation('journal');
   const { accounts, isLoading, isError, refetch } = useJournalAccounts();
@@ -90,7 +91,7 @@ export function BankAndCashMainPage() {
 
           {isError && (
             <Alert icon={<IconAlertCircle size={16} />} title={t('error')} color="red" radius="md">
-              Gagal memuat data akun kas & bank. Silakan coba segarkan kembali.
+              {tb('main.loadError')}
             </Alert>
           )}
 

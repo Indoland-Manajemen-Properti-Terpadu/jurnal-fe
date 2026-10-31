@@ -7,6 +7,8 @@ import { formatCurrency } from '@/utils/FormatCurrency';
 
 import type { JournalAccounts } from '@/module/chart-of-accounts';
 
+import { useTranslation } from '@/i18n';
+
 interface ReceiveMoneySummaryPanelProps {
   isFormValid: boolean;
   selectedDepositAccount: JournalAccounts | undefined;
@@ -22,6 +24,7 @@ export const ReceiveMoneySummaryPanel: React.FC<ReceiveMoneySummaryPanelProps> =
   itemCount,
   isPending,
 }) => {
+  const { t: tb } = useTranslation('bankCash');
   const navigate = useNavigate();
 
   return (
@@ -32,7 +35,7 @@ export const ReceiveMoneySummaryPanel: React.FC<ReceiveMoneySummaryPanelProps> =
           <Stack gap="sm">
             <Group justify="space-between" align="center">
               <Text fw={700} size="sm" c="dark.8">
-                Ringkasan Penerimaan
+                {tb('receive.summaryTitle')}
               </Text>
               <Badge
                 size="sm"
@@ -40,21 +43,21 @@ export const ReceiveMoneySummaryPanel: React.FC<ReceiveMoneySummaryPanelProps> =
                 color={isFormValid ? 'teal' : 'gray'}
                 leftSection={isFormValid ? <IconCheck size={12} /> : undefined}
               >
-                {isFormValid ? 'Seimbang (Balance)' : 'Belum Lengkap'}
+                {isFormValid ? tb('common.balanced') : tb('common.incomplete')}
               </Badge>
             </Group>
 
             {/* Rekening Tujuan Box */}
             <Paper withBorder radius="sm" p="xs" bg="gray.0">
               <Text size="xs" c="dimmed" fw={600} tt="uppercase">
-                Rekening Penampung (Debit)
+                {tb('receive.receivingAccount')}
               </Text>
               <Text size="sm" fw={700} c="dark.8" mt={2} lineClamp={1}>
-                {selectedDepositAccount?.name || 'Belum dipilih'}
+                {selectedDepositAccount?.name || tb('common.notSelected')}
               </Text>
               <Group justify="space-between" mt={4}>
                 <Text size="xs" c="dimmed">
-                  Saldo Saat Ini:
+                  {tb('common.currentBalance')}
                 </Text>
                 <Text size="xs" fw={600} c="dark.7">
                   {formatCurrency(selectedDepositAccount?.amount || 0)}
@@ -63,7 +66,7 @@ export const ReceiveMoneySummaryPanel: React.FC<ReceiveMoneySummaryPanelProps> =
               {totalAmount > 0 && selectedDepositAccount && (
                 <Group justify="space-between" mt={2}>
                   <Text size="xs" c="teal.7" fw={600}>
-                    Estimasi Setelah Diterima:
+                    {tb('receive.estimateAfter')}
                   </Text>
                   <Text size="xs" fw={700} c="teal.7">
                     {formatCurrency((selectedDepositAccount.amount || 0) + totalAmount)}
@@ -84,7 +87,7 @@ export const ReceiveMoneySummaryPanel: React.FC<ReceiveMoneySummaryPanelProps> =
               }}
             >
               <Text size="xs" c="teal.9" fw={600} tt="uppercase">
-                Total Kas Masuk (Debit Kas & Bank)
+                {tb('receive.totalLabel')}
               </Text>
               <Text
                 size="xl"
@@ -96,7 +99,7 @@ export const ReceiveMoneySummaryPanel: React.FC<ReceiveMoneySummaryPanelProps> =
                 {formatCurrency(totalAmount)}
               </Text>
               <Text size="xs" c="dimmed" mt={4}>
-                Dialokasikan ke {itemCount} akun sumber
+                {tb('receive.allocatedTo', { count: itemCount })}
               </Text>
             </Paper>
           </Stack>
@@ -115,9 +118,7 @@ export const ReceiveMoneySummaryPanel: React.FC<ReceiveMoneySummaryPanelProps> =
               <IconInfoCircle size={14} />
             </ThemeIcon>
             <Text size="xs" c="dimmed" lh={1.5}>
-              <b>Prinsip Double-Entry:</b> Penerimaan uang mendebit akun Kas/Bank penampung dan
-              mengkredit akun sumber penerimaan (pendapatan/modal/kewajiban) dalam jumlah yang tepat
-              seimbang.
+              <b>{tb('common.doubleEntryPrinciple')}</b> {tb('receive.principle')}
             </Text>
           </Group>
         </Paper>
@@ -136,7 +137,7 @@ export const ReceiveMoneySummaryPanel: React.FC<ReceiveMoneySummaryPanelProps> =
               disabled={!isFormValid}
               leftSection={<IconArrowDownRight size={18} />}
             >
-              Simpan Penerimaan Uang
+              {tb('receive.submit')}
             </Button>
 
             <Button
@@ -146,7 +147,7 @@ export const ReceiveMoneySummaryPanel: React.FC<ReceiveMoneySummaryPanelProps> =
               fullWidth
               onClick={() => navigate(routes.BankAndCash.Main)}
             >
-              Batal
+              {tb('common.cancel')}
             </Button>
           </Stack>
         </Paper>

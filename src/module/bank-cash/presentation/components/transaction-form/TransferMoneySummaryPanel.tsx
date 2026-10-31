@@ -7,6 +7,8 @@ import { formatCurrency } from '@/utils/FormatCurrency';
 
 import type { JournalAccounts } from '@/module/chart-of-accounts';
 
+import { useTranslation } from '@/i18n';
+
 interface TransferMoneySummaryPanelProps {
   isFormValid: boolean;
   selectedFromAccount: JournalAccounts | undefined;
@@ -22,6 +24,7 @@ export const TransferMoneySummaryPanel: React.FC<TransferMoneySummaryPanelProps>
   amount,
   isPending,
 }) => {
+  const { t: tb } = useTranslation('bankCash');
   const navigate = useNavigate();
 
   return (
@@ -32,7 +35,7 @@ export const TransferMoneySummaryPanel: React.FC<TransferMoneySummaryPanelProps>
           <Stack gap="sm">
             <Group justify="space-between" align="center">
               <Text fw={700} size="sm" c="dark.8">
-                Simulasi Mutasi Saldo
+                {tb('transfer.summaryTitle')}
               </Text>
               <Badge
                 size="sm"
@@ -40,21 +43,21 @@ export const TransferMoneySummaryPanel: React.FC<TransferMoneySummaryPanelProps>
                 color={isFormValid ? 'teal' : 'gray'}
                 leftSection={isFormValid ? <IconCheck size={12} /> : undefined}
               >
-                {isFormValid ? 'Siap Dibukukan' : 'Belum Lengkap'}
+                {isFormValid ? tb('transfer.ready') : tb('common.incomplete')}
               </Badge>
             </Group>
 
             {/* Visual Flow from Account to Account */}
             <Paper withBorder radius="sm" p="xs" bg="gray.0">
               <Text size="xs" c="dimmed" fw={600} tt="uppercase">
-                Akun Asal (Keluar / Kredit)
+                {tb('transfer.sourceAccount')}
               </Text>
               <Text size="sm" fw={700} c="dark.8" mt={2} lineClamp={1}>
                 {selectedFromAccount?.name || '—'}
               </Text>
               <Group justify="space-between" mt={4}>
                 <Text size="xs" c="dimmed">
-                  Saldo Saat Ini:
+                  {tb('common.currentBalance')}
                 </Text>
                 <Text size="xs" fw={600} c="dark.7">
                   {formatCurrency(selectedFromAccount?.amount || 0)}
@@ -63,7 +66,7 @@ export const TransferMoneySummaryPanel: React.FC<TransferMoneySummaryPanelProps>
               {amount > 0 && selectedFromAccount && (
                 <Group justify="space-between" mt={2}>
                   <Text size="xs" c="red.7" fw={600}>
-                    Setelah Transfer:
+                    {tb('transfer.afterTransfer')}
                   </Text>
                   <Text size="xs" fw={700} c="red.7">
                     {formatCurrency((selectedFromAccount.amount || 0) - amount)}
@@ -80,14 +83,14 @@ export const TransferMoneySummaryPanel: React.FC<TransferMoneySummaryPanelProps>
 
             <Paper withBorder radius="sm" p="xs" bg="gray.0">
               <Text size="xs" c="dimmed" fw={600} tt="uppercase">
-                Akun Tujuan (Masuk / Debit)
+                {tb('transfer.destinationAccount')}
               </Text>
               <Text size="sm" fw={700} c="dark.8" mt={2} lineClamp={1}>
                 {selectedToAccount?.name || '—'}
               </Text>
               <Group justify="space-between" mt={4}>
                 <Text size="xs" c="dimmed">
-                  Saldo Saat Ini:
+                  {tb('common.currentBalance')}
                 </Text>
                 <Text size="xs" fw={600} c="dark.7">
                   {formatCurrency(selectedToAccount?.amount || 0)}
@@ -96,7 +99,7 @@ export const TransferMoneySummaryPanel: React.FC<TransferMoneySummaryPanelProps>
               {amount > 0 && selectedToAccount && (
                 <Group justify="space-between" mt={2}>
                   <Text size="xs" c="teal.7" fw={600}>
-                    Setelah Transfer:
+                    {tb('transfer.afterTransfer')}
                   </Text>
                   <Text size="xs" fw={700} c="teal.7">
                     {formatCurrency((selectedToAccount.amount || 0) + amount)}
@@ -117,7 +120,7 @@ export const TransferMoneySummaryPanel: React.FC<TransferMoneySummaryPanelProps>
               }}
             >
               <Text size="xs" c="dimmed" fw={600} tt="uppercase">
-                Total Nominal Ditransfer
+                {tb('transfer.totalLabel')}
               </Text>
               <Text
                 size="lg"
@@ -145,9 +148,7 @@ export const TransferMoneySummaryPanel: React.FC<TransferMoneySummaryPanelProps>
               <IconInfoCircle size={14} />
             </ThemeIcon>
             <Text size="xs" c="dimmed" lh={1.5}>
-              <b>Prinsip Akuntansi:</b> Pemindahan dana antar rekening mencatat Debit pada kas
-              penerima dan Kredit pada kas pengirim dengan nilai seimbang, tanpa menimbulkan beban
-              atau pendapatan.
+              <b>{tb('common.accountingPrinciple')}</b> {tb('transfer.principle')}
             </Text>
           </Group>
         </Paper>
@@ -166,7 +167,7 @@ export const TransferMoneySummaryPanel: React.FC<TransferMoneySummaryPanelProps>
               disabled={!isFormValid}
               leftSection={<IconArrowsExchange size={18} />}
             >
-              Proses Transfer Uang
+              {tb('transfer.submit')}
             </Button>
 
             <Button
@@ -176,7 +177,7 @@ export const TransferMoneySummaryPanel: React.FC<TransferMoneySummaryPanelProps>
               fullWidth
               onClick={() => navigate(routes.BankAndCash.Main)}
             >
-              Batal
+              {tb('common.cancel')}
             </Button>
           </Stack>
         </Paper>

@@ -7,6 +7,8 @@ import { formatCurrency } from '@/utils/FormatCurrency';
 
 import type { JournalAccounts } from '@/module/chart-of-accounts';
 
+import { useTranslation } from '@/i18n';
+
 interface SentMoneySummaryPanelProps {
   isFormValid: boolean;
   selectedPayAccount: JournalAccounts | undefined;
@@ -26,6 +28,7 @@ export const SentMoneySummaryPanel: React.FC<SentMoneySummaryPanelProps> = ({
   itemCount,
   isPending,
 }) => {
+  const { t: tb } = useTranslation('bankCash');
   const navigate = useNavigate();
 
   return (
@@ -36,7 +39,7 @@ export const SentMoneySummaryPanel: React.FC<SentMoneySummaryPanelProps> = ({
           <Stack gap="sm">
             <Group justify="space-between" align="center">
               <Text fw={700} size="sm" c="dark.8">
-                Ringkasan Pengeluaran
+                {tb('sent.summaryTitle')}
               </Text>
               <Badge
                 size="sm"
@@ -44,21 +47,21 @@ export const SentMoneySummaryPanel: React.FC<SentMoneySummaryPanelProps> = ({
                 color={isFormValid ? 'teal' : 'gray'}
                 leftSection={isFormValid ? <IconCheck size={12} /> : undefined}
               >
-                {isFormValid ? 'Seimbang (Balance)' : 'Belum Lengkap'}
+                {isFormValid ? tb('common.balanced') : tb('common.incomplete')}
               </Badge>
             </Group>
 
             {/* Rekening Pembayar Box */}
             <Paper withBorder radius="sm" p="xs" bg="gray.0">
               <Text size="xs" c="dimmed" fw={600} tt="uppercase">
-                Rekening Pembayar (Kredit)
+                {tb('sent.payingAccount')}
               </Text>
               <Text size="sm" fw={700} c="dark.8" mt={2} lineClamp={1}>
-                {selectedPayAccount?.name || 'Belum dipilih'}
+                {selectedPayAccount?.name || tb('common.notSelected')}
               </Text>
               <Group justify="space-between" mt={4}>
                 <Text size="xs" c="dimmed">
-                  Saldo Saat Ini:
+                  {tb('common.currentBalance')}
                 </Text>
                 <Text size="xs" fw={600} c="dark.7">
                   {formatCurrency(selectedPayAccount?.amount || 0)}
@@ -67,7 +70,7 @@ export const SentMoneySummaryPanel: React.FC<SentMoneySummaryPanelProps> = ({
               {totalAmount > 0 && selectedPayAccount && (
                 <Group justify="space-between" mt={2}>
                   <Text size="xs" c={isOverdraft ? 'red.7' : 'dark.7'} fw={600}>
-                    Estimasi Sisa Saldo:
+                    {tb('sent.estimateRemaining')}
                   </Text>
                   <Text size="xs" fw={700} c={isOverdraft ? 'red.7' : 'dark.8'}>
                     {formatCurrency(remainingBalance)}
@@ -88,7 +91,7 @@ export const SentMoneySummaryPanel: React.FC<SentMoneySummaryPanelProps> = ({
               }}
             >
               <Text size="xs" c="orange.9" fw={600} tt="uppercase">
-                Total Kas Keluar (Kredit Kas & Bank)
+                {tb('sent.totalLabel')}
               </Text>
               <Text
                 size="xl"
@@ -100,7 +103,7 @@ export const SentMoneySummaryPanel: React.FC<SentMoneySummaryPanelProps> = ({
                 {formatCurrency(totalAmount)}
               </Text>
               <Text size="xs" c="dimmed" mt={4}>
-                Dialokasikan ke {itemCount} pos beban biaya
+                {tb('sent.allocatedTo', { count: itemCount })}
               </Text>
             </Paper>
 
@@ -111,7 +114,7 @@ export const SentMoneySummaryPanel: React.FC<SentMoneySummaryPanelProps> = ({
                 variant="light"
                 radius="md"
               >
-                Perhatian: Nominal pengeluaran melebihi saldo kas/bank saat ini (Overdraft).
+                {tb('sent.overdraft')}
               </Alert>
             )}
           </Stack>
@@ -130,9 +133,7 @@ export const SentMoneySummaryPanel: React.FC<SentMoneySummaryPanelProps> = ({
               <IconInfoCircle size={14} />
             </ThemeIcon>
             <Text size="xs" c="dimmed" lh={1.5}>
-              <b>Prinsip Double-Entry:</b> Pengeluaran kas mencatat Debit pada pos beban yang
-              bersangkutan (meningkatkan biaya perusahaan) dan mengkredit akun Kas/Bank (mengurangi
-              saldo likuid).
+              <b>{tb('common.doubleEntryPrinciple')}</b> {tb('sent.principle')}
             </Text>
           </Group>
         </Paper>
@@ -151,7 +152,7 @@ export const SentMoneySummaryPanel: React.FC<SentMoneySummaryPanelProps> = ({
               disabled={!isFormValid}
               leftSection={<IconArrowUpRight size={18} />}
             >
-              Simpan Pengeluaran Uang
+              {tb('sent.submit')}
             </Button>
 
             <Button
@@ -161,7 +162,7 @@ export const SentMoneySummaryPanel: React.FC<SentMoneySummaryPanelProps> = ({
               fullWidth
               onClick={() => navigate(routes.BankAndCash.Main)}
             >
-              Batal
+              {tb('common.cancel')}
             </Button>
           </Stack>
         </Paper>

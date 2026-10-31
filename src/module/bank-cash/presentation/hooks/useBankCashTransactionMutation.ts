@@ -5,7 +5,10 @@ import { routes } from '@/router/routes';
 import type { BankCashTransactionPayload } from '@/module/bank-cash/domain/transactionTypes';
 import { submitBankCashTransaction } from '@/module/bank-cash/infrastructure/bankCashTransactionApi';
 
+import { useTranslation } from '@/i18n';
+
 export const useBankCashTransactionMutation = (successMessage?: string) => {
+  const { t: tb } = useTranslation('bankCash');
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -19,8 +22,8 @@ export const useBankCashTransactionMutation = (successMessage?: string) => {
       notifications.show({
         color: 'teal',
         autoClose: 4000,
-        title: 'Transaksi Kas & Bank Berhasil',
-        message: successMessage || 'Transaksi telah berhasil dibukukan ke dalam jurnal umum.',
+        title: tb('mutation.successTitle'),
+        message: successMessage || tb('mutation.successMessage'),
       });
 
       navigate(routes.BankAndCash.Main);
@@ -29,8 +32,8 @@ export const useBankCashTransactionMutation = (successMessage?: string) => {
       notifications.show({
         color: 'red',
         autoClose: 5000,
-        title: 'Gagal Membukukan Transaksi',
-        message: error.message || 'Terjadi kesalahan pada server saat mencatat transaksi.',
+        title: tb('mutation.errorTitle'),
+        message: error.message || tb('mutation.errorMessage'),
       });
     },
   });
