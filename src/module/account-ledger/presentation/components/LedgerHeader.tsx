@@ -126,9 +126,7 @@ export const LedgerHeader: React.FC<LedgerHeaderProps> = ({
             size="sm"
             color="primary"
             leftSection={<IconPencil size={16} />}
-            onClick={() =>
-              navigate(routes.chartOfAccounts.edit.replace(':idAccount', idAccount))
-            }
+            onClick={() => navigate(routes.chartOfAccounts.edit.replace(':idAccount', idAccount))}
           >
             {t('common.editAccount')}
           </Button>

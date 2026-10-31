@@ -56,9 +56,7 @@ function JournalEntriesTable({
               c="primary.6"
               fz="var(--jurnal-text-sm)"
               onClick={() =>
-                navigate(
-                  routes.journalEntries.detail.replace(':idTransaction', row.id)
-                )
+                navigate(routes.journalEntries.detail.replace(':idTransaction', row.id))
               }
             >
               {t('entriesTable.entryLink', { number: row.transactionNumber })}
@@ -157,9 +155,7 @@ function JournalEntriesTable({
               size="sm"
               radius="md"
               onClick={() =>
-                navigate(
-                  routes.journalEntries.detail.replace(':idTransaction', row.id)
-                )
+                navigate(routes.journalEntries.detail.replace(':idTransaction', row.id))
               }
             >
               <IconEye size={16} />

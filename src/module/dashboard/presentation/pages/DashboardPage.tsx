@@ -368,12 +368,7 @@ function DashboardPage() {
                   loading={auditQ.isLoading}
                   onOpen={(a) =>
                     a.journalId &&
-                    navigate(
-                      routes.journalEntries.detail.replace(
-                        ':idTransaction',
-                        a.journalId
-                      )
-                    )
+                    navigate(routes.journalEntries.detail.replace(':idTransaction', a.journalId))
                   }
                 />
               </GlassCard>

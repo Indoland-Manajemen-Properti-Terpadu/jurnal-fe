@@ -115,9 +115,7 @@ export function AssetPage() {
               onAddNew={handleAddNew}
               onEdit={handleEdit}
               onViewSchedule={handleViewSchedule}
-              onViewDetail={(asset) =>
-                navigate(routes.assets.detail.replace(':id', asset.id))
-              }
+              onViewDetail={(asset) => navigate(routes.assets.detail.replace(':id', asset.id))}
               onDispose={handleOpenDisposal}
               onDelete={handleDeleteRequest}
             />

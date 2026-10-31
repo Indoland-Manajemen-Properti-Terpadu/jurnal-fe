@@ -32,9 +32,7 @@ describe('AccountListHeaderActions navigation', () => {
     const user = userEvent.setup();
     await user.click(screen.getByRole('button', { name: 'Aksi Lainnya' }));
     await user.click(await screen.findByRole('menuitem', { name: 'Tambah Transaksi Jurnal' }));
-    expect(screen.getByTestId('location')).toHaveTextContent(
-      routes.journalEntries.add
-    );
+    expect(screen.getByTestId('location')).toHaveTextContent(routes.journalEntries.add);
   });
 
   // The account list has no account, so a bank statement import entry here would navigate with the
