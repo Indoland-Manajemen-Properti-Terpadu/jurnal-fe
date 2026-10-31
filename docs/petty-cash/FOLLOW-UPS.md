@@ -67,6 +67,16 @@ Belum diuji tulis: dana baru (validasi form saja) dan tutup dana (tidak bisa dib
 
 Antarmuka blokir, buka blokir, dan pengecualian uang muka (hook `useChangeRestriction` siap) belum dibuat.
 
+## Verifikasi alur uang muka (selesai, 2026-10-31)
+
+Alur penuh PCA/0007 lewat UI dengan akun berbeda di tiap langkah: disetujui finance2, diserahkan pc.custodian, dipertanggungjawabkan pc.staff (dengan bukti), akun biaya dan verifikasi oleh pc.custodian, ditutup finance2 (status Selesai, saldo seimbang dengan pagu). Pemisahan tugas terbukti: tiap akun hanya melihat tombol langkahnya.
+
+Temuan yang sudah diperbaiki: tombol pengajuan memanggil status uang muka tanpa hak pengajuan sehingga pemegang kas menerima 403 berulang.
+
+Belum teruji: tombol Kembalikan ke pemohon, dan verifikasi keuangan oleh akun pc.approver (kata sandinya bukan `password123`, perlu info dari pemilik produk). PCA/0005 tertahan di status Diverifikasi pemegang kas sampai ada penyetuju lain.
+
+Pertanyaan ke backend: PCA/0005 (uang muka 400.000, pengeluaran 350.000) menampilkan Belum dipertanggungjawabkan 350.000 pada status Diverifikasi pemegang kas. Apakah nilai itu menunggu verifikasi keuangan, atau seharusnya 50.000 (sisa yang harus dikembalikan)?
+
 ## Ditunda dari tinjauan Fase 3 (dengan alasan)
 
 - Alur ubah-lalu-ajukan dikoordinasi di komponen form (dua mutasi berurutan) dan belum di lapisan `application`. Cukup aman untuk satu alur; pindahkan ke use case bila Fase 4 dan 5 menambah alur multi-langkah serupa.

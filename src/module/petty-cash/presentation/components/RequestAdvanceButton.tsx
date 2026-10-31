@@ -18,7 +18,7 @@ const EMPTY: AdvanceRequestDraft = { amount: '', purpose: '' };
 export function RequestAdvanceButton({ fund }: Readonly<{ fund: PettyCashFund }>) {
   const { t } = useTranslation('pettyCash');
   const access = usePettyCashAccess();
-  const status = useAdvanceStatus('me');
+  const status = useAdvanceStatus(access.canRequestAdvance() ? 'me' : undefined);
   const create = useCreateAdvance(fund.id);
   const [opened, setOpened] = useState(false);
   const [draft, setDraft] = useState(EMPTY);
