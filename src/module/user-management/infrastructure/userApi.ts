@@ -1,11 +1,12 @@
-import { get } from '@/lib/http/apiClient';
+import apiClient from '@/lib/http/apiClient';
 import { API_USERS } from '@/lib/http/endpoints';
 import type { AllUserModel, UserDetail } from '@/module/user-management/domain/userTypes';
 
-// These calls use the legacy `get`/`post` helpers, which return the Axios error response (or null)
-// instead of throwing. Switching to throwing semantics is a separate decision (spec section 11).
+// The default client rejects on an HTTP error, so the queries report `isError`.
 
-export const fetchUsers = (): Promise<AllUserModel> => get(API_USERS.GET_ALL_USER);
+export const fetchUsers = async (): Promise<AllUserModel> =>
+  (await apiClient.get<AllUserModel>(API_USERS.GET_ALL_USER)).data;
 
-export const fetchUserByEmail = (email: string): Promise<UserDetail> =>
-  get(API_USERS.GET_USER_DETAIL, { payload: { email } });
+export const fetchUserByEmail = async (email: string): Promise<UserDetail> =>
+  (await apiClient.get<UserDetail>(API_USERS.GET_USER_DETAIL, { params: { payload: { email } } }))
+    .data;

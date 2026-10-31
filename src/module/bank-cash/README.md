@@ -4,18 +4,18 @@ Cash and bank accounts: an overview with totals and an account table, and three 
 
 ## Routes (`src/router/routes.ts`)
 
-| Constant | Path | Page |
-| --- | --- | --- |
-| `BankAndCash.Main` | `/bank-cash` | `BankAndCashMainPage` (stats, account table, record-transaction menu) |
-| `BankAndCash.AddTransferMoney` | `/bank-cash/add-transfer-money` | `AddTransferMoneyPage` (`?fromAccountId=` preselects the source) |
-| `BankAndCash.AddReceiveMoney` | `/bank-cash/add-receive-money` | `AddReceiveMoneyPage` (`?toAccountId=` preselects the deposit account) |
-| `BankAndCash.AddSentMoney` | `/bank-cash/add-sent-money` | `AddSentMoneyPage` (`?fromAccountId=` preselects the paying account) |
+| Constant                       | Path                            | Page                                                                   |
+| ------------------------------ | ------------------------------- | ---------------------------------------------------------------------- |
+| `BankAndCash.Main`             | `/bank-cash`                    | `BankAndCashMainPage` (stats, account table, record-transaction menu)  |
+| `BankAndCash.AddTransferMoney` | `/bank-cash/add-transfer-money` | `AddTransferMoneyPage` (`?fromAccountId=` preselects the source)       |
+| `BankAndCash.AddReceiveMoney`  | `/bank-cash/add-receive-money`  | `AddReceiveMoneyPage` (`?toAccountId=` preselects the deposit account) |
+| `BankAndCash.AddSentMoney`     | `/bank-cash/add-sent-money`     | `AddSentMoneyPage` (`?fromAccountId=` preselects the paying account)   |
 
 `index.ts` exports the four pages. The row menu of the account table opens the three forms with the account preselected.
 
 ## Endpoint
 
-`POST /v1/journal` (`API_ACCOUNT.POST_TRANSACTION_ACCOUNT`) through `postV2`, in `infrastructure/bankCashTransactionApi.ts`. The accounts come from `@/module/chart-of-accounts` (`useJournalAccounts`); only accounts with `isBankAndCash` are offered as cash or bank.
+`POST /v1/journal` (`API_ACCOUNT.POST_TRANSACTION_ACCOUNT`) through the default client, in `infrastructure/bankCashTransactionApi.ts`. The accounts come from `@/module/chart-of-accounts` (`useJournalAccounts`); only accounts with `isBankAndCash` are offered as cash or bank.
 
 ## Layers
 

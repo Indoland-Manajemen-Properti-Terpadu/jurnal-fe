@@ -1,20 +1,12 @@
-import { API_ACCOUNT } from '@/lib/http/endpoints';
 import { useQuery } from '@tanstack/react-query';
-import { get } from '@/lib/http/apiClient';
+import {
+  fetchCategoryInfo,
+  type CategoryInfo,
+} from '@/module/chart-of-accounts/infrastructure/categoryApi';
 
-interface CategoryInfoResponse {
-  suggestedAccountNumber: string;
-  possibleSubAccounts: any[];
-  possibleHeadAccounts: any[];
-}
-
-export const useGetCategoryInfo = (categoryId?: string) => {
-  return useQuery<CategoryInfoResponse>({
+export const useCategoryInfo = (categoryId?: string) =>
+  useQuery<CategoryInfo>({
     queryKey: ['category_info', categoryId],
-    queryFn: async () => {
-      const result = await get(`${API_ACCOUNT.GET_CATEGORY_INFO}/${categoryId}`);
-      return result?.data as CategoryInfoResponse;
-    },
+    queryFn: () => fetchCategoryInfo(categoryId as string),
     enabled: !!categoryId,
   });
-};

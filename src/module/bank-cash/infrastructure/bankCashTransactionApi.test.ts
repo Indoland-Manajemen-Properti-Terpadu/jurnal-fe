@@ -1,7 +1,18 @@
-import { postV2 } from '@/lib/http/apiClient';
+import { AxiosError } from 'axios';
+import apiClient from '@/lib/http/apiClient';
 import { submitBankCashTransaction } from './bankCashTransactionApi';
 
-vi.mock('@/lib/http/apiClient', () => ({ postV2: vi.fn() }));
+vi.mock('@/lib/http/apiClient', () => ({ default: { post: vi.fn() } }));
+
+const post = vi.mocked(apiClient.post);
+const serverError = (status: number, data: unknown, statusText = '') =>
+  new AxiosError('failed', String(status), undefined, undefined, {
+    status,
+    statusText,
+    data,
+    headers: {},
+    config: {} as never,
+  });
 
 const payload = {
   transactionDate: '2026-01-31',
@@ -14,16 +25,16 @@ const payload = {
 
 describe('submitBankCashTransaction', () => {
   beforeEach(() => {
-    vi.mocked(postV2).mockReset();
+    post.mockReset();
   });
 
   it('posts only the sides a line has and trims the notes', async () => {
-    vi.mocked(postV2).mockResolvedValue({ status: 201, data: { id: 'j1' } } as never);
+    post.mockResolvedValue({ status: 201, data: { id: 'j1' } } as never);
 
     const result = await submitBankCashTransaction(payload);
 
     expect(result).toEqual({ id: 'j1' });
-    expect(vi.mocked(postV2).mock.calls[0][1]).toEqual({
+    expect(post.mock.calls[0][1]).toEqual({
       transactionDate: '2026-01-31',
       notes: 'Setoran',
       transactionDetail: [
@@ -34,7 +45,7 @@ describe('submitBankCashTransaction', () => {
   });
 
   it('omits blank notes, an empty tag list and a NaN transaction number', async () => {
-    vi.mocked(postV2).mockResolvedValue({ status: 200, data: {} } as never);
+    post.mockResolvedValue({ status: 200, data: {} } as never);
 
     await submitBankCashTransaction({
       ...payload,
@@ -43,23 +54,22 @@ describe('submitBankCashTransaction', () => {
       transactionNumber: Number.NaN,
     });
 
-    expect(vi.mocked(postV2).mock.calls[0][1]).not.toHaveProperty('notes');
-    expect(vi.mocked(postV2).mock.calls[0][1]).not.toHaveProperty('tags');
-    expect(vi.mocked(postV2).mock.calls[0][1]).not.toHaveProperty('transactionNumber');
+    expect(post.mock.calls[0][1]).not.toHaveProperty('notes');
+    expect(post.mock.calls[0][1]).not.toHaveProperty('tags');
+    expect(post.mock.calls[0][1]).not.toHaveProperty('transactionNumber');
   });
 
-  it('throws the server message when the status is not 200 or 201', async () => {
-    vi.mocked(postV2).mockResolvedValue({
-      status: 400,
-      data: { message: 'Periode terkunci' },
-    } as never);
+  it('throws the server message when the server rejects the journal', async () => {
+    post.mockRejectedValue(serverError(400, { message: 'Periode terkunci' }));
 
     await expect(submitBankCashTransaction(payload)).rejects.toThrow('Periode terkunci');
   });
 
-  it('throws a default message when there is no response at all', async () => {
-    vi.mocked(postV2).mockResolvedValue(null);
+  it('falls back to the status text, then to a default message', async () => {
+    post.mockRejectedValueOnce(serverError(502, {}, 'Bad Gateway'));
+    await expect(submitBankCashTransaction(payload)).rejects.toThrow('Bad Gateway');
 
+    post.mockRejectedValueOnce(new Error('Network Error'));
     await expect(submitBankCashTransaction(payload)).rejects.toThrow(
       'Gagal membukukan transaksi kas & bank ke sistem akuntansi.'
     );

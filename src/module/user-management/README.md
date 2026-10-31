@@ -15,7 +15,7 @@ Users and access roles: a user list and role tabs (default and additional) under
 
 ## Endpoints
 
-`GET API_USERS.GET_ALL_USER` and `GET_USER_DETAIL` (`infrastructure/userApi.ts`), `GET API_ACCESS_ROLE.GET_ROLE` and `POST API_ACCOUNT.POST_ADD_ROLE` (`roleApi.ts`), `GET /v1/menus` (`menuApi.ts`). The first three groups use the legacy `get`/`post` helpers, which return the error response instead of throwing.
+`GET API_USERS.GET_ALL_USER` and `GET_USER_DETAIL` (`infrastructure/userApi.ts`), `GET API_ACCESS_ROLE.GET_ROLE` and `POST API_ACCOUNT.POST_ADD_ROLE` (`roleApi.ts`), `GET /v1/menus` (`menuApi.ts`). All calls use the default client, so an HTTP error rejects.
 
 ## Layers
 
@@ -34,8 +34,7 @@ Namespace `userManagement` (`id` and `en`), with parity tests in `src/i18n/local
 
 ## Known gaps (kept as is, the module is a dummy)
 
-- Add Role builds the payload but does not call the API; `useAddRole` exists for when it does (and uses the legacy `post`, which hides failures).
+- Add Role builds the payload but does not call the API; `useAddRole` exists for when it does.
 - Add User has no submit; Edit User's Finish only navigates; deleting a user from the table does nothing after the confirmation.
 - The row menu opens the edit URL with a literal `:email`.
 - The user table search state is never changed (no search box is rendered).
-- Chart-of-accounts reads users and roles through the legacy helpers too.

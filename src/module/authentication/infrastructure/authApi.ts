@@ -1,17 +1,17 @@
-import { post } from '@/lib/http/apiClient';
+import apiClient from '@/lib/http/apiClient';
 import { API_AUTH } from '@/lib/http/endpoints';
 import type { LoginModelResponse } from '@/module/authentication/domain/loginTypes';
 
-// These calls use the legacy `post` helper, which returns the Axios error response (or null) instead
-// of throwing; a failed login then breaks in the hook's onSuccess and lands in onError.
+// The default client rejects on an HTTP error (a wrong password is a 401), which the hooks turn
+// into the "access denied" message.
 
 export interface LoginCredentials {
   email: string;
   password: string;
 }
 
-export const login = async (body: LoginCredentials) =>
-  (await post(API_AUTH.POST_LOGIN, body)) as LoginModelResponse;
+export const login = async (body: LoginCredentials): Promise<LoginModelResponse> =>
+  (await apiClient.post<LoginModelResponse>(API_AUTH.POST_LOGIN, body)).data;
 
-export const exchangeOAuthCode = async (code: string) =>
-  (await post(API_AUTH.POST_OAUTH_EXCHANGE, { code })) as LoginModelResponse;
+export const exchangeOAuthCode = async (code: string): Promise<LoginModelResponse> =>
+  (await apiClient.post<LoginModelResponse>(API_AUTH.POST_OAUTH_EXCHANGE, { code })).data;

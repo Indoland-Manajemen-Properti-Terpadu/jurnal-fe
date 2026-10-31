@@ -8,8 +8,8 @@ import { NotFound } from '@/components/ErrorPage/NotFound';
 import ModuleHeader from '@/components/ModuleHeader/ModuleHeader';
 import { routes } from '@/router/routes';
 import { useTranslation } from '@/i18n';
-import { GetCategoryAccount } from '../hooks/useCategoryAccounts';
-import { useGetCategoryInfo } from '../hooks/useCategoryInfo';
+import { useCategoryAccounts } from '@/module/chart-of-accounts/presentation/hooks/useCategoryAccounts';
+import { useCategoryInfo } from '@/module/chart-of-accounts/presentation/hooks/useCategoryInfo';
 import { useUpdateAccount } from '../hooks/useUpdateAccount';
 import { useDetailAccount } from '../hooks/useDetailAccount';
 import { useAccountFormOptions } from '../hooks/useAccountFormOptions';
@@ -48,7 +48,7 @@ export const EditAccountJournalPage: React.FC = () => {
   const categoryEditable = canChangeCategory(isLocked);
 
   // Queries
-  const { data: categoryAccounts, isLoading: isLoadingCategories } = GetCategoryAccount();
+  const { data: categoryAccounts, isLoading: isLoadingCategories } = useCategoryAccounts();
   const { data: usersData, isLoading: isLoadingUsers } = useUsers();
   const { data: rolesData, isLoading: isLoadingRoles } = useRoles();
   const updateAccountMutation = useUpdateAccount(idAccount!);
@@ -88,7 +88,7 @@ export const EditAccountJournalPage: React.FC = () => {
   } = useAccountPlacementState();
 
   // Category Info query for suggestions & hierarchy options
-  const { data: categoryInfo } = useGetCategoryInfo(form.values.category);
+  const { data: categoryInfo } = useCategoryInfo(form.values.category);
 
   // Populate data when accountDetail arrives
   useEffect(() => {
