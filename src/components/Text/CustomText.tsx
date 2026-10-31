@@ -20,7 +20,6 @@ type CustomTextProps = {
 export const HeadingText: React.FC<CustomTextProps> = ({
   children,
   fw = 700,
-  ff = 'Figtree',
   ta,
   mainColor = 'black',
   fz,
@@ -37,11 +36,10 @@ export const TextMediumGR: React.FC<CustomTextProps> = ({
   fw = 500,
   fz = 18,
 }) => (
-  <Text variant={variant} fw={fw} fz={fz} gradient={gradient} >
+  <Text variant={variant} fw={fw} fz={fz} gradient={gradient}>
     {children}
   </Text>
 );
-
 
 export const TextAmount: React.FC<CustomTextProps> = ({
   children,
@@ -50,10 +48,10 @@ export const TextAmount: React.FC<CustomTextProps> = ({
   mainColor,
   ta,
   fz = 14,
-  ff = 'Figtree',
+  ff,
 }) => (
   <Group
-    align='center'
+    align="center"
     style={{
       whiteSpace: 'nowrap',
       flexWrap: 'nowrap',
@@ -67,4 +65,3 @@ export const TextAmount: React.FC<CustomTextProps> = ({
     </Text>
   </Group>
 );
-

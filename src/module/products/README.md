@@ -9,7 +9,7 @@ Catalog of goods and services, plus the two master lists that feed it (product c
   - `GET|POST /v1/product-categories`, `DELETE /v1/product-categories/:id`
   - `GET|POST /v1/units`, `DELETE /v1/units/:id`
   - `GET /v1/taxes`
-  - Chart of accounts for the account selects: `API_ACCOUNT.GET_ALL_ACCOUNT` from `src/services/endpoint.ts` (the same call the journal module makes, now done here instead of importing the GeneralJournal service).
+  - Chart of accounts for the account selects: `API_ACCOUNT.GET_ALL_ACCOUNT` from `src/lib/http/endpoints.ts` (the same call the journal module makes, now done here instead of importing the GeneralJournal service).
 - **Layers:** `domain/` (entity types, `productFormat`, `productRules`), `infrastructure/` (API calls, DTOs with legacy field aliases, mapper), `presentation/hooks` (TanStack Query hooks, form hook, reference label hook), `presentation/components` (table, form and its sections, image panel, master data panel and modal, detail header / settings cards / audit panel, stats, toolbar), `presentation/pages`.
 
 ## Domain rules

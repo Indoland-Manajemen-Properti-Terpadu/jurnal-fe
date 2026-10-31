@@ -1,6 +1,6 @@
 import { Badge, Box, Group, Paper, Table, Text } from '@mantine/core';
 import { useTranslation } from '@/i18n';
-import { formatCurrency } from '@/utils/FormatCurrency';
+import { formatCurrency } from '@/utils/formatCurrency';
 import { AssetItem, DepreciationScheduleItem } from '@/module/assets/domain/asset';
 import { isNonDepreciable } from '@/module/assets/domain/depreciation';
 

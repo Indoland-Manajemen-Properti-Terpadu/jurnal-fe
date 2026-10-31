@@ -4,7 +4,7 @@ import { IconTrash, IconX } from '@tabler/icons-react';
 import { CloudArrowUp, Files } from '@phosphor-icons/react';
 import { themeColors } from '@/theme';
 import { useTranslation } from '@/i18n';
-import uploadTemplateImage from '@/assets/img/vectors/import.svg';
+import uploadTemplateImage from '@/assets/images/illustrations/import.svg';
 import { MAX_IMPORT_FILE_BYTES, formatBytes } from '../../domain/importDraft';
 
 type Props = {

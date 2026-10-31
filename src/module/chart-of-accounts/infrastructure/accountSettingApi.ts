@@ -1,5 +1,5 @@
 import apiClient from '@/lib/http/apiClient';
-import { API_ACCOUNT } from '@/services/endpoint';
+import { API_ACCOUNT } from '@/lib/http/endpoints';
 import { t } from '@/i18n';
 import {
   AccountImportApiResponse,

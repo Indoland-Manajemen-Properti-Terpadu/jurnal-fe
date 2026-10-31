@@ -1,7 +1,7 @@
 import React from 'react';
 import { Stack, Table, Text } from '@mantine/core';
 import { gradientColors, themeColors } from '@/theme';
-import { formatCurrency } from '@/utils/FormatCurrency';
+import { formatCurrency } from '@/utils/formatCurrency';
 import { useIncomeStatementReport } from '@/module/reports/presentation/hooks/useIncomeStatementReport';
 import EmptyState from '@/components/EmptyState/EmptyTable';
 import { IncomeStatementReport } from '@/module/reports/domain/IncomeStatement.types';

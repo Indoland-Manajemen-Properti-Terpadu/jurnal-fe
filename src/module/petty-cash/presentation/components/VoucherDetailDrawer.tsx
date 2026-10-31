@@ -1,7 +1,7 @@
 import { ActionIcon, Anchor, Box, Drawer, Group, Stack, Text } from '@mantine/core';
 import { IconDownload, IconFileText, IconPaperclip, IconUserCheck } from '@tabler/icons-react';
-import { formatCurrency } from '@/utils/FormatCurrency';
-import { dateFormatV1 } from '@/utils/FormatDate';
+import { formatCurrency } from '@/utils/formatCurrency';
+import { dateFormatV1 } from '@/utils/formatDate';
 import type { PettyCashVoucher } from '@/module/petty-cash/domain/pettyCashTypes';
 import classes from '@/module/petty-cash/presentation/components/PettyCashOverlay.module.css';
 

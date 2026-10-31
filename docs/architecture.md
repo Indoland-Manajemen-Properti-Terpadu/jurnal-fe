@@ -7,16 +7,21 @@ Jurnal ProApps is a React 18 + TypeScript (strict) single-page app built with Vi
 ```text
 src/
   module/       feature modules, one folder per feature (kebab-case, English)
-  components/   shared UI with no feature knowledge
-  lib/          http client (lib/http), money helper (lib/money), core utilities
-  hooks/        shared hooks
+  components/   shared UI with no feature knowledge (PascalCase folder per component)
+  lib/          http client + endpoints (lib/http), money (lib/money), accounting rules (lib/accounting)
+  utils/        small pure helpers (camelCase files): formatCurrency, formatDate, dateRange
+  constants/    static reference data (banks, Indonesian regions)
   store/        client state shared across features (auth, api loading)
+  types/        types shared across features
   i18n/         locales and the useTranslation hook
-  theme/        design tokens
+  theme/        design system: tokens, Mantine theme, CSS variables (docs/design-system.md)
+  styles/       global CSS and font loading
+  assets/       images/{brand,illustrations,auth} (kebab-case names)
   router/       route table and route constants
+public/         favicon and downloadable templates (templates/csv); no mock data
 ```
 
-The target layout and the migration status of each feature are in [migration/STATUS.md](migration/STATUS.md). Legacy folders (`Contact`, ...) coexist with the target layout until their migration PR lands.
+The target layout and the migration status of each feature are in [migration/STATUS.md](migration/STATUS.md). Every feature module has been migrated to the layout below (see [migration/AUDIT.md](migration/AUDIT.md)).
 
 ## Feature module
 
@@ -79,7 +84,7 @@ Money math uses integer minor units through `src/lib/money` (`toMinor`, `fromMin
 | No `any`, no `console.log`, files at most 400 lines   | rules                                               | `@typescript-eslint/no-explicit-any`, `no-console`, `max-lines` |
 | Every route constant resolves to a page               | `src/router/routes.test.ts`                         | Vitest                                                          |
 
-CI runs these checks on every PR into `develop-frontend`, `staging` and `main-frontend`. They become a hard merge requirement once the required status check is applied to branch protection (see [`.github/branch-protection/README.md`](../.github/branch-protection/README.md)); until then reviewers must not merge a red PR. Axios is also allowed in legacy `services/` and `service/` folders until they migrate.
+CI runs these checks on every PR into `develop-frontend`, `staging` and `main-frontend`. They become a hard merge requirement once the required status check is applied to branch protection (see [`.github/branch-protection/README.md`](../.github/branch-protection/README.md)); until then reviewers must not merge a red PR.
 
 Existing violations are counted in [migration/eslint-baseline.json](migration/eslint-baseline.json). `npm run lint:ratchet` fails when any rule's count rises. When a migration lowers counts, run `node scripts/eslintRatchet.mjs --write-baseline` and commit the new baseline; reviewers must reject a baseline that goes up.
 

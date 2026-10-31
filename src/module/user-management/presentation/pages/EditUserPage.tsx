@@ -21,7 +21,7 @@ import { IconCards, IconChevronDown, IconUsers } from '@tabler/icons-react';
 import { routes } from '@/router/routes';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { gradientColors, themeColors } from '@/theme';
-import UserType from '@/../public/mocks/UserType.json';
+import { USER_TYPES } from '@/module/user-management/domain/userTypeOptions';
 import { TextMediumGR } from '@/components/Text/CustomText';
 // import { useRoleStore } from '@/store/useRole';
 
@@ -56,11 +56,11 @@ function EditUserPage() {
   const [loading, setLoading] = useState(false);
   const [activeTabRole, setActiveTabRole] = useState<string>('DefaultRole');
 
-  // * Combobox UserType Handler
+  // * Combobox USER_TYPES Handler
   const combobox = useCombobox({
     onDropdownClose: () => combobox.resetSelectedOption(),
   });
-  const options = UserType.map((item) => (
+  const options = USER_TYPES.map((item) => (
     <Combobox.Option value={item} key={item}>
       {item}
     </Combobox.Option>

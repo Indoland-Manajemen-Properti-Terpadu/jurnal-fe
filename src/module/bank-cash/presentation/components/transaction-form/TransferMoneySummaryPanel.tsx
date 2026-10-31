@@ -3,7 +3,7 @@ import { Badge, Box, Button, Group, Paper, Stack, Text, ThemeIcon } from '@manti
 import { IconArrowRight, IconArrowsExchange, IconCheck, IconInfoCircle } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { routes } from '@/router/routes';
-import { formatCurrency } from '@/utils/FormatCurrency';
+import { formatCurrency } from '@/utils/formatCurrency';
 
 import type { JournalAccounts } from '@/module/chart-of-accounts';
 

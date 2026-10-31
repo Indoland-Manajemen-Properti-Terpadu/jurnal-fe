@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import type { AccessRole } from '@/types/AccessRole/getAccessRole';
+import type { AccessRole } from '@/types/accessRole';
 import { fetchRoles } from '@/module/user-management/infrastructure/roleApi';
 
 export const useRoles = (isDefault?: boolean, options = {}) =>

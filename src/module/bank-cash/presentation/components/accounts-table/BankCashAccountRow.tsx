@@ -14,7 +14,7 @@ import {
 } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { routes } from '@/router/routes';
-import { formatCurrency } from '@/utils/FormatCurrency';
+import { formatCurrency } from '@/utils/formatCurrency';
 import { JournalAccounts } from '@/module/chart-of-accounts';
 import { withAccountPrefill } from '@/module/bank-cash/domain/accountPrefill';
 import { isBankAccount } from '@/module/bank-cash/domain/bankCashSummary';

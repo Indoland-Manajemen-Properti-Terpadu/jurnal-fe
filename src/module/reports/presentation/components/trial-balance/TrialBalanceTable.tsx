@@ -1,7 +1,7 @@
 import React from 'react';
 import { Stack, Table, Text } from '@mantine/core';
 import { gradientColors, themeColors } from '@/theme';
-import { formatCurrency } from '@/utils/FormatCurrency';
+import { formatCurrency } from '@/utils/formatCurrency';
 import { useTrialBalanceReport } from '@/module/reports/presentation/hooks/useTrialBalanceReport';
 import { NotFound } from '@/components/ErrorPage/NotFound';
 import { Account, Reports } from '@/module/reports/domain/TrialBalanceReport.types';

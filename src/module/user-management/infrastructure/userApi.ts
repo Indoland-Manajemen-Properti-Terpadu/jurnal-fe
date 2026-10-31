@@ -1,5 +1,5 @@
 import { get } from '@/lib/http/apiClient';
-import { API_USERS } from '@/services/endpoint';
+import { API_USERS } from '@/lib/http/endpoints';
 import type { AllUserModel, UserDetail } from '@/module/user-management/domain/userTypes';
 
 // These calls use the legacy `get`/`post` helpers, which return the Axios error response (or null)

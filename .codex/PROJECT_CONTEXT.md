@@ -131,7 +131,7 @@ The repository is being restructured feature by feature under `docs/superpowers/
 
 - Use React 18, Mantine 8, the existing custom Tailwind setup, and the repository's theme tokens. Do not use Mantine v9 APIs or invent a parallel design system.
 - Follow the existing Figma references and local theme as the design sources of truth. Prefer existing shared components. Avoid hardcoded colors, spacing, typography, and radius values when a project token exists.
-- Use the brand tokens defined in `src/theme.ts`: primary `#053079` and secondary `#09B2FF`. Their Mantine shades are derived in the same theme palette; reference `primary` and `secondary` tokens instead of hardcoding hex values in components. Keep semantic feedback colors separate from brand colors (for example, success green and error red).
+- Use the brand tokens defined in `src/theme/tokens/` (see [`docs/design-system.md`](../docs/design-system.md) for every token and the styling rules): primary `#053079` and secondary `#09B2FF`. Their Mantine shades are derived in the same theme palette; reference `primary` and `secondary` tokens instead of hardcoding hex values in components. Keep semantic feedback colors separate from brand colors (for example, success green and error red).
 - Preserve the project's Figtree typography. Use Phosphor icons with `weight="duotone"` in the app shell and Tabler icons in general content, following the established component patterns.
 - Preserve the established app-shell navigation behavior; on desktop, the collapsed sidebar uses the existing icon-rail pattern unless the requested product change explicitly alters it.
 - Keep styling with the established CSS Modules, Mantine `classNames`, and configured Tailwind patterns. Confirm a Mantine API against the installed v8 version rather than copying examples from another major version.
@@ -227,4 +227,4 @@ The repository is being restructured feature by feature under `docs/superpowers/
 - Figma text styles: https://www.figma.com/design/I3tHoLYN005e1bUjQWlkAL/Jurnal-Figma-Fix?node-id=2-4400&m=dev
 - Figma spacing: https://www.figma.com/design/I3tHoLYN005e1bUjQWlkAL/Jurnal-Figma-Fix?node-id=2-5511&m=dev
 - Figma radius: https://www.figma.com/design/I3tHoLYN005e1bUjQWlkAL/Jurnal-Figma-Fix?node-id=2-6791&m=dev
-- Local theme sources: `src/theme.ts`, `src/theme/index.ts`, `src/theme/constants.ts`, and `src/theme/globalStyles.css`.
+- Local theme sources: `src/theme/` (tokens, Mantine theme, CSS variables) and `src/styles/` (global CSS, fonts), documented in [`docs/design-system.md`](../docs/design-system.md).

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Text, Stack, Container, Select } from '@mantine/core';
 import { useNavigate } from 'react-router';
 import { themeColors } from '@/theme';
-import { formatCurrency } from '@/utils/FormatCurrency';
+import { formatCurrency } from '@/utils/formatCurrency';
 import { IconChevronDown } from '@tabler/icons-react';
 import { DataTable } from 'mantine-datatable';
 import EmptyState from '@/components/EmptyState/EmptyTable';

@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { Badge, Divider, Group, Paper, SimpleGrid, Stack, Text, Title } from '@mantine/core';
 import { useTranslation } from '@/i18n';
-import { formatCurrency } from '@/utils/FormatCurrency';
+import { formatCurrency } from '@/utils/formatCurrency';
 import type { DetailAccountModel } from '@/module/chart-of-accounts';
 import type { NormalSide } from '../../domain/normalBalance';
 

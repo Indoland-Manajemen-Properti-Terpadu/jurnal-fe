@@ -2,8 +2,8 @@ import { ActionIcon, Box, Checkbox, Group, Paper, SimpleGrid, Stack, Text } from
 import { CheckCircle, MagnifyingGlass, Trash } from '@phosphor-icons/react';
 import { themeColors } from '@/theme';
 import { useTranslation } from '@/i18n';
-import { formatCurrency } from '@/utils/FormatCurrency';
-import { dateFormatV1 } from '@/utils/FormatDate';
+import { formatCurrency } from '@/utils/formatCurrency';
+import { dateFormatV1 } from '@/utils/formatDate';
 import type { BankStatementData, JournalDetail } from '../../domain/reconciliation';
 import DirectionBadge from './DirectionBadge';
 

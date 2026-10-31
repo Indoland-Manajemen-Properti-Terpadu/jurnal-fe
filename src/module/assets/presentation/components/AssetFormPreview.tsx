@@ -1,7 +1,7 @@
 import { Badge, Group, Paper, SimpleGrid, Stack, Text, ThemeIcon } from '@mantine/core';
 import { IconCalculator } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
-import { formatCurrency } from '@/utils/FormatCurrency';
+import { formatCurrency } from '@/utils/formatCurrency';
 import { DepreciationMethod } from '@/module/assets/domain/asset';
 import { DepreciationEstimate, DepreciationResult } from '@/module/assets/domain/depreciation';
 

@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, Group, Stack, Table, Text } from '@mantine/core';
 import { themeColors } from '@/theme';
 import { useTranslation } from '@/i18n';
-import { formatCurrency } from '@/utils/FormatCurrency';
+import { formatCurrency } from '@/utils/formatCurrency';
 import {
   PROTOTYPE_BALANCE_SHEET_TOTAL,
   PROTOTYPE_CASH_FLOW_TOTAL,

@@ -1,5 +1,5 @@
 import { post } from '@/lib/http/apiClient';
-import { API_AUTH } from '@/services/endpoint';
+import { API_AUTH } from '@/lib/http/endpoints';
 import type { LoginModelResponse } from '@/module/authentication/domain/loginTypes';
 
 // These calls use the legacy `post` helper, which returns the Axios error response (or null) instead

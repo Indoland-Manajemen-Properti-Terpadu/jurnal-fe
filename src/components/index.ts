@@ -31,9 +31,9 @@ import PageHeader from '@/components/PageHeader/PageHeader';
 // import Faqs from '@/components/Faqs/Faqs';
 import Surface from '@/components/Surface';
 // import TextEditor from '@/components/TextEditor';
-import UserButton from '@/components/UserButton/page';
+import UserButton from '@/components/UserButton/UserButton';
 import ErrorAlert from '@/components/ErrorAlert';
-import UserProfileButton from '@/components/UserButton/page';
+import UserProfileButton from '@/components/UserButton/UserButton';
 import { ConfirmModal } from '@/components/ui';
 
 export {

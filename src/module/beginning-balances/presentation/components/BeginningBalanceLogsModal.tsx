@@ -16,8 +16,8 @@ import {
 } from '@mantine/core';
 import { IconHistory, IconCheck, IconFileText, IconCalendar, IconUser } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
-import { formatDate } from '@/utils/FormatDate';
-import { formatCurrency } from '@/utils/FormatCurrency';
+import { formatDate } from '@/utils/formatDate';
+import { formatCurrency } from '@/utils/formatCurrency';
 import { useDraftBalanceLogs } from '../hooks/useDraftBalance';
 
 interface BeginningBalanceLogsModalProps {

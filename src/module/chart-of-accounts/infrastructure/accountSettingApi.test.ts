@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { API_ACCOUNT } from '@/services/endpoint';
+import { API_ACCOUNT } from '@/lib/http/endpoints';
 import {
   commitAccountImport,
   downloadAccountExport,

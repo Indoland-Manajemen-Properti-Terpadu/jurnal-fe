@@ -1,8 +1,8 @@
 import { IconArchive } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import { ConfirmModal } from '@/components';
-import deleteModalImage from '@/assets/img/vectors/delete_modal.svg';
-import arsipkanIcon from '@/assets/img/vectors/arsipkan.svg';
+import deleteModalImage from '@/assets/images/illustrations/delete-confirm.svg';
+import arsipkanIcon from '@/assets/images/illustrations/archive.svg';
 import type { LedgerVariant } from '../../domain/ledgerVariant';
 
 interface LedgerAccountDialogsProps {

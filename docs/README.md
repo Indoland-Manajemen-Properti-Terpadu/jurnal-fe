@@ -5,6 +5,7 @@ Start here. Rules for agents and contributors live in [`.codex/PROJECT_CONTEXT.m
 | Document | Read it when |
 |---|---|
 | [architecture.md](architecture.md) | You need to know where code belongs and what may import what |
+| [design-system.md](design-system.md) | You style anything: tokens, CSS variables, typography, contrast |
 | [conventions.md](conventions.md) | You are naming a file, folder, hook, store, test or i18n namespace |
 | [branching-and-release.md](branching-and-release.md) | You are opening a PR, shipping, or fixing production |
 | [adr/](adr) | You want to know why a decision was made |

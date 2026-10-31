@@ -3,7 +3,7 @@ import { Box, Group, Stack, Table, Text } from '@mantine/core';
 import { useJournalAccounts } from '@/module/chart-of-accounts';
 import { gradientColors, themeColors } from '@/theme';
 import { useTranslation } from '@/i18n';
-import { formatCurrency } from '@/utils/FormatCurrency';
+import { formatCurrency } from '@/utils/formatCurrency';
 import { groupByCategory, sumAmounts } from '@/module/period-closing/domain/reportTotals';
 import {
   PROTOTYPE_BALANCE_SHEET_TOTAL,

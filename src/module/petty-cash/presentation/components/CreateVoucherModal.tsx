@@ -24,7 +24,7 @@ import {
   IconPaperclip,
   IconPlus,
 } from '@tabler/icons-react';
-import { formatCurrency } from '@/utils/FormatCurrency';
+import { formatCurrency } from '@/utils/formatCurrency';
 import { PettyCashFund, PettyCashVoucher } from '@/module/petty-cash/domain/pettyCashTypes';
 import { MOCK_EXPENSE_ACCOUNTS } from '@/module/petty-cash/infrastructure/mockPettyCashFunds';
 

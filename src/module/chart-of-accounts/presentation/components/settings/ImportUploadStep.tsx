@@ -19,7 +19,7 @@ import {
   IconTrash,
   IconUpload,
 } from '@tabler/icons-react';
-import ImageImport from '@/assets/img/SettingsAccount-Import.svg';
+import ImageImport from '@/assets/images/illustrations/settings-account-import.svg';
 import { useTranslation } from '@/i18n';
 
 interface ImportUploadStepProps {

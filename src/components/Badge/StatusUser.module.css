@@ -1,10 +1,10 @@
 .badgeText {
-  font-size: 12px;
+  font-size: var(--jurnal-text-xs);
   position: relative;
   line-height: 14px;
   font-weight: 400;
   text-transform: capitalize;
-  font-family: Figtree, sans-serif;
+  font-family: var(--jurnal-font-family);
   --badge-bd: none;
 }
 
@@ -13,5 +13,5 @@
   --badge-bg: var(--jurnal-color-success-subtle);
   --badge-color: var(--jurnal-color-success);
   --badge-bd: none;
-  --badge-radius: 4px;
+  --badge-radius: var(--mantine-radius-sm);
 }

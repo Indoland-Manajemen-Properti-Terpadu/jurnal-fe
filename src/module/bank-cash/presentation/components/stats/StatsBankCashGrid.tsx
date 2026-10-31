@@ -1,5 +1,5 @@
 import { Box, Group, Paper, SimpleGrid, Skeleton, Stack, Text } from '@mantine/core';
-import { formatCurrency } from '@/utils/FormatCurrency';
+import { formatCurrency } from '@/utils/formatCurrency';
 import type { JournalAccounts } from '@/module/chart-of-accounts';
 import { summarizeBankCashAccounts } from '@/module/bank-cash/domain/bankCashSummary';
 import { useTranslation } from '@/i18n';

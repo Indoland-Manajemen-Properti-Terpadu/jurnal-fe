@@ -7,10 +7,10 @@ import {
   IconShieldCheck,
   IconStarFilled,
 } from '@tabler/icons-react';
-import ProappsIconWhite from '@/assets/img/proapps-icon-white.svg';
-import SlideImg1 from '@/assets/img/Slider/accounting.png';
-import SlideImg2 from '@/assets/img/Slider/tower.png';
-import SlideImg3 from '@/assets/img/Slider/image1.png';
+import ProappsIconWhite from '@/assets/images/brand/icon-white.svg';
+import SlideImg1 from '@/assets/images/auth/slide-1.png';
+import SlideImg2 from '@/assets/images/auth/slide-2.png';
+import SlideImg3 from '@/assets/images/auth/slide-3.png';
 
 import { useTranslation } from '@/i18n';
 

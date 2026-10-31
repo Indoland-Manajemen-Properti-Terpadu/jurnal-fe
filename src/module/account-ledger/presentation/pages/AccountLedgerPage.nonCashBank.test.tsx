@@ -1,6 +1,6 @@
 import { cleanup, configure, screen, userEvent, waitFor, within } from '@test-utils';
 import { routes } from '@/router/routes';
-import { formatCurrency as rawFormatCurrency } from '@/utils/FormatCurrency';
+import { formatCurrency as rawFormatCurrency } from '@/utils/formatCurrency';
 import {
   bankStatementsMock,
   chartOfAccountsMock,

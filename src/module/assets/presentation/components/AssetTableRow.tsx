@@ -11,7 +11,7 @@ import { useTranslation } from '@/i18n';
 import { AssetItem } from '@/module/assets/domain/asset';
 import { depreciationPercent, toSafeNumber } from '@/module/assets/domain/depreciation';
 import { getCategoryMeta } from '@/module/assets/presentation/components/assetCategoryMeta';
-import { formatCurrency } from '@/utils/FormatCurrency';
+import { formatCurrency } from '@/utils/formatCurrency';
 
 export type AssetTableRowProps = {
   asset: AssetItem;

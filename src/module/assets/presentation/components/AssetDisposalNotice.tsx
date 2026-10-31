@@ -1,7 +1,7 @@
 import { Box, Group, Paper, Text, ThemeIcon } from '@mantine/core';
 import { IconScale } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
-import { formatCurrency } from '@/utils/FormatCurrency';
+import { formatCurrency } from '@/utils/formatCurrency';
 import { AssetItem } from '@/module/assets/domain/asset';
 import { formatAssetDate } from '@/module/assets/presentation/components/formatAssetDate';
 

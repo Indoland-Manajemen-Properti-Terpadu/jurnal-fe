@@ -1,6 +1,6 @@
 import { get, post } from '@/lib/http/apiClient';
-import { API_ACCESS_ROLE, API_ACCOUNT } from '@/services/endpoint';
-import type { AccessRole } from '@/types/AccessRole/getAccessRole';
+import { API_ACCESS_ROLE, API_ACCOUNT } from '@/lib/http/endpoints';
+import type { AccessRole } from '@/types/accessRole';
 import type { AddRolePayload } from '@/module/user-management/domain/rolePayload';
 
 /** All roles, or only the default (`true`) or additional (`false`) ones. */

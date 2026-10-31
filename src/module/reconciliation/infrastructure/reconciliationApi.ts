@@ -1,6 +1,6 @@
 import axios from 'axios';
 import apiClient from '@/lib/http/apiClient';
-import { API_ACCOUNT } from '@/services/endpoint';
+import { API_ACCOUNT } from '@/lib/http/endpoints';
 import { recommendedBalance } from '../domain/matchRules';
 import type { GetReconciliationModel, JournalDetail, MatchPayload } from '../domain/reconciliation';
 

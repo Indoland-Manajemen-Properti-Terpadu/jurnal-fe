@@ -13,7 +13,7 @@ import {
   ThemeIcon,
 } from '@mantine/core';
 import { IconAlertTriangle, IconRotateClockwise } from '@tabler/icons-react';
-import ImageRestore from '@/assets/img/SettingsAccount-Restore.svg';
+import ImageRestore from '@/assets/images/illustrations/settings-account-restore.svg';
 import { useTranslation } from '@/i18n';
 import { useAccountSettings } from '../../hooks/useAccountSettings';
 

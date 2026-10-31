@@ -7,9 +7,8 @@ import {
   FileWithPath,
   MIME_TYPES,
 } from '@mantine/dropzone';
-import { themeColors } from '@/theme';
+import { textStyles, themeColors } from '@/theme';
 import { CloudArrowUpIcon } from '@phosphor-icons/react';
-import { themeText } from '@/theme/constants';
 
 interface DropzoneComponentProps extends Partial<DropzoneProps> {
   title?: string;
@@ -44,7 +43,7 @@ const CustomDropzone: React.FC<DropzoneComponentProps> = ({
 
   return (
     <Stack gap="xs">
-      <Text style={themeText.label.label2} c={themeColors.black[0]}>
+      <Text style={textStyles.label} c={themeColors.black[0]}>
         {title}
       </Text>
       <Dropzone
@@ -82,11 +81,11 @@ const CustomDropzone: React.FC<DropzoneComponentProps> = ({
               weight="duotone"
             />
           </Dropzone.Idle>
-          <Text style={themeText.label.label2} c={themeColors.black[9]}>
+          <Text style={textStyles.label} c={themeColors.black[9]}>
             {description}
           </Text>
           {subDescription && (
-            <Text style={themeText.label.label2} c={themeColors.gray[5]}>
+            <Text style={textStyles.label} c={themeColors.gray[5]}>
               {subDescription}
             </Text>
           )}
@@ -95,7 +94,7 @@ const CustomDropzone: React.FC<DropzoneComponentProps> = ({
 
       {hasFiles ? (
         <Stack gap="xs" mt="sm">
-          <Text style={themeText.label.label2} c={themeColors.black[0]}>
+          <Text style={textStyles.label} c={themeColors.black[0]}>
             {uploadedTitle}
           </Text>
           {files.map((file) => (

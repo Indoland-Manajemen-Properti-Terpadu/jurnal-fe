@@ -1,4 +1,4 @@
-import { BASE_URL } from '@/services/endpoint';
+import { BASE_URL } from '@/lib/http/endpoints';
 
 export const REPORT_ENDPOINTS = {
   JOURNAL_ENTRY: `${BASE_URL}/v1/report/journal-entry`,
