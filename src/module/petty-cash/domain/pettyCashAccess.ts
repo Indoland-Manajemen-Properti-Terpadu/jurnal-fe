@@ -1,6 +1,7 @@
 import {
   voucherActionsFor,
   type VoucherAction,
+  type AdvanceStatus,
   type CountStatus,
   type ReimbursementStatus,
   type VoucherSource,
@@ -146,5 +147,88 @@ export const allowedReimbursementActions = (
   if (status === 'APPROVED' && canAccess(profile, 'JP-PC-DSB', 'update') && independent) {
     actions.push('disburse');
   }
+  return actions;
+};
+
+export type AdvanceAction =
+  | 'approve'
+  | 'reject'
+  | 'cancel'
+  | 'disburse'
+  | 'uploadAttachment'
+  | 'submitSettlement'
+  | 'setAccounts'
+  | 'custodianVerify'
+  | 'custodianReject'
+  | 'financeVerify'
+  | 'financeReject'
+  | 'convert';
+
+export interface AdvanceAccessContext {
+  status: AdvanceStatus;
+  requesterId: string | null;
+  fundCustodianId: string;
+  singleUserOverride: boolean;
+  custodianVerifiedById: string | null;
+}
+
+export const canRequestAdvance = (profile: PettyCashAccessProfile) =>
+  canAccess(profile, 'JP-PC-ADV', 'create');
+
+/** Blocking a user, lifting the block and the temporary override belong to the control right. */
+export const canControlRestrictions = (profile: PettyCashAccessProfile) =>
+  canAccess(profile, 'JP-PC-CTL', 'update');
+
+/**
+ * Every step of an advance has its own person: the requester asks, settles and cancels; an approver
+ * who is not the requester decides; the custodian hands over the cash and checks the receipts;
+ * finance verifies last, as someone other than the requester and the custodian who verified.
+ */
+export const allowedAdvanceActions = (
+  profile: PettyCashAccessProfile,
+  advance: AdvanceAccessContext
+): AdvanceAction[] => {
+  const { status } = advance;
+  const isRequester = advance.requesterId === profile.userId;
+  const custodian = isFundCustodian(profile, {
+    custodianId: advance.fundCustodianId,
+    singleUserOverride: advance.singleUserOverride,
+  });
+  const approver = canAccess(profile, 'JP-PC-APR', 'update');
+  const custodianRight = canAccess(profile, 'JP-PC-CST', 'update');
+  const actions: AdvanceAction[] = [];
+
+  if (status === 'PENDING_APPROVAL' && approver && !isRequester) actions.push('approve', 'reject');
+  if ((status === 'PENDING_APPROVAL' || status === 'APPROVED') && isRequester) {
+    actions.push('cancel');
+  }
+  if (status === 'APPROVED' && custodianRight && custodian && !isRequester) {
+    actions.push('disburse');
+  }
+  if ((status === 'DISBURSED' || status === 'SETTLEMENT_SUBMITTED') && isRequester) {
+    actions.push('uploadAttachment');
+  }
+  if (status === 'DISBURSED' && isRequester && canAccess(profile, 'JP-PC-ADV', 'create')) {
+    actions.push('submitSettlement');
+  }
+  if (
+    (status === 'SETTLEMENT_SUBMITTED' || status === 'CUSTODIAN_VERIFIED') &&
+    !isRequester &&
+    (custodianRight || approver)
+  ) {
+    actions.push('setAccounts');
+  }
+  if (status === 'SETTLEMENT_SUBMITTED' && custodianRight && custodian && !isRequester) {
+    actions.push('custodianVerify', 'custodianReject');
+  }
+  if (
+    status === 'CUSTODIAN_VERIFIED' &&
+    approver &&
+    !isRequester &&
+    profile.userId !== advance.custodianVerifiedById
+  ) {
+    actions.push('financeVerify', 'financeReject');
+  }
+  if (status === 'DISBURSED' && canControlRestrictions(profile)) actions.push('convert');
   return actions;
 };

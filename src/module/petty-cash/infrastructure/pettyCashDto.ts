@@ -1,4 +1,5 @@
 import type {
+  AdvanceStatus,
   CountStatus,
   FundStatus,
   ReimbursementStatus,
@@ -257,4 +258,61 @@ export interface ReplenishmentPreviewDto {
   isBalanced: boolean;
   cashAfterDisbursement: number;
   warnings: Array<{ code: string; message: string }>;
+}
+
+export interface AdvanceSettlementLineDto {
+  lineNo: number;
+  /** An object in the detail answer; list items may carry only the id. */
+  expenseAccount: AccountRefDto | string | null;
+  description: string;
+  amount: number;
+}
+
+export interface AdvanceDto {
+  id: string;
+  advanceNumber: string;
+  fund: { id: string; code: string; name: string; custodian: string };
+  requester: UserRefDto;
+  purpose: string;
+  requestedAmount: number;
+  amount: number;
+  status: AdvanceStatus;
+  approvedBy: UserRefDto | null;
+  approvedAt: string | null;
+  rejectedReason: string | null;
+  disbursedBy: UserRefDto | null;
+  disbursedAt: string | null;
+  dueAt: string | null;
+  cashSettledNet: number;
+  custodianVerifiedBy: UserRefDto | null;
+  custodianVerifiedAt: string | null;
+  financeVerifiedBy: UserRefDto | null;
+  financeVerifiedAt: string | null;
+  settlementRejectedReason: string | null;
+  voucher: { id: string; voucherNumber: string; status: VoucherStatus } | string | null;
+  receivableJournal: string | null;
+  receivableAmount: number;
+  convertedAt: string | null;
+  statusHistory: Array<{ status: AdvanceStatus; at: string; by: string; note: string | null }>;
+  settlement: {
+    beneficiary?: string;
+    description?: string;
+    receiptNumber?: string;
+    transactionDate?: string | null;
+    actualTotal?: number;
+    lines?: AdvanceSettlementLineDto[];
+    submittedAt?: string | null;
+  };
+  attachments?: AttachmentDto[];
+  outstandingAmount: number;
+  isOverdue: boolean;
+  createdAt: string;
+}
+
+export interface AdvanceStatusDto {
+  user: UserRefDto;
+  isBlocked: boolean;
+  reasons: Array<{ type: 'MANUAL' | 'OVERDUE'; reason: string; since?: string | null }>;
+  restriction: { overdueOverrideUntil: string | null } | null;
+  outstandingAmount: number;
 }

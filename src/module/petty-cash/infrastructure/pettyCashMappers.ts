@@ -1,4 +1,6 @@
 import type {
+  AdvanceRecord,
+  AdvanceStatusInfo,
   CashBook,
   CountRecord,
   Page,
@@ -10,6 +12,8 @@ import type {
 } from '@/module/petty-cash/domain/pettyCashEntities';
 import type { PettyCashAccessProfile } from '@/module/petty-cash/domain/pettyCashAccess';
 import type {
+  AdvanceDto,
+  AdvanceStatusDto,
   CashBookDto,
   CountDto,
   FundDto,
@@ -250,3 +254,77 @@ export const toReimbursement = (dto: ReimbursementDto): ReimbursementRecord => (
 });
 
 export const toPreview = (dto: ReplenishmentPreviewDto): ReplenishmentPreview => ({ ...dto });
+
+export const toAdvance = (dto: AdvanceDto): AdvanceRecord => ({
+  id: dto.id,
+  advanceNumber: dto.advanceNumber,
+  fund: {
+    id: dto.fund.id,
+    code: dto.fund.code,
+    name: dto.fund.name,
+    custodianId: dto.fund.custodian,
+  },
+  requester: dto.requester,
+  purpose: dto.purpose,
+  requestedAmount: dto.requestedAmount,
+  amount: dto.amount,
+  status: dto.status,
+  approvedBy: dto.approvedBy,
+  approvedAt: dto.approvedAt,
+  rejectedReason: dto.rejectedReason,
+  disbursedBy: dto.disbursedBy,
+  disbursedAt: dto.disbursedAt,
+  dueAt: dto.dueAt,
+  cashSettledNet: dto.cashSettledNet,
+  custodianVerifiedBy: dto.custodianVerifiedBy,
+  custodianVerifiedAt: dto.custodianVerifiedAt,
+  financeVerifiedBy: dto.financeVerifiedBy,
+  financeVerifiedAt: dto.financeVerifiedAt,
+  settlementRejectedReason: dto.settlementRejectedReason,
+  voucher: typeof dto.voucher === 'object' ? dto.voucher : null,
+  receivableJournalId: dto.receivableJournal,
+  receivableAmount: dto.receivableAmount,
+  convertedAt: dto.convertedAt,
+  statusHistory: dto.statusHistory.map((entry) => ({
+    status: entry.status,
+    at: entry.at,
+    byId: entry.by,
+    note: entry.note,
+  })),
+  settlement: {
+    beneficiary: dto.settlement.beneficiary ?? '',
+    description: dto.settlement.description ?? '',
+    receiptNumber: dto.settlement.receiptNumber ?? '',
+    transactionDate: dateOrNull(dto.settlement.transactionDate ?? null),
+    actualTotal: dto.settlement.actualTotal ?? 0,
+    submittedAt: dto.settlement.submittedAt ?? null,
+    lines: (dto.settlement.lines ?? []).map((line) => ({
+      lineNo: line.lineNo,
+      expenseAccount: typeof line.expenseAccount === 'object' ? line.expenseAccount : null,
+      description: line.description,
+      amount: line.amount,
+    })),
+  },
+  attachments: (dto.attachments ?? []).map(({ id, fileName, mimeType, sizeBytes, createdAt }) => ({
+    id,
+    fileName,
+    mimeType,
+    sizeBytes,
+    createdAt,
+  })),
+  outstandingAmount: dto.outstandingAmount,
+  isOverdue: dto.isOverdue,
+  createdAt: dto.createdAt,
+});
+
+export const toAdvanceStatus = (dto: AdvanceStatusDto): AdvanceStatusInfo => ({
+  user: dto.user,
+  isBlocked: dto.isBlocked,
+  reasons: dto.reasons.map((reason) => ({
+    type: reason.type,
+    reason: reason.reason,
+    since: reason.since ?? null,
+  })),
+  overrideUntil: dto.restriction?.overdueOverrideUntil ?? null,
+  outstandingAmount: dto.outstandingAmount,
+});

@@ -24,5 +24,28 @@ export const PETTY_CASH_API = {
     reimbursementId: string,
     action: 'approve' | 'reject' | 'cancel' | 'disburse'
   ) => `${BASE}/reimbursements/${reimbursementId}/${action}`,
+  advances: `${BASE}/advances`,
+  advance: (advanceId: string) => `${BASE}/advances/${advanceId}`,
+  advanceAction: (
+    advanceId: string,
+    action:
+      | 'approve'
+      | 'reject'
+      | 'cancel'
+      | 'disburse'
+      | 'settlement'
+      | 'custodian-verify'
+      | 'custodian-reject'
+      | 'finance-verify'
+      | 'finance-reject'
+      | 'convert-to-receivable'
+  ) => `${BASE}/advances/${advanceId}/${action}`,
+  advanceAttachments: (advanceId: string) => `${BASE}/advances/${advanceId}/attachments`,
+  advanceSettlementAccounts: (advanceId: string) =>
+    `${BASE}/advances/${advanceId}/settlement-accounts`,
+  myAdvanceStatus: `${BASE}/advance-status/me`,
+  advanceStatus: (userId: string) => `${BASE}/advance-status/${userId}`,
+  restrictionAction: (userId: string, action: 'block' | 'unblock' | 'override') =>
+    `${BASE}/advance-status/${userId}/${action}`,
   myPermissions: '/v1/users/me/permissions',
 };

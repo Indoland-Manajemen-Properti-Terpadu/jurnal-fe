@@ -1,3 +1,4 @@
+import { advanceNotify, pettyCashAdvances } from './pettyCashAdvances';
 import { pettyCashCounts } from './pettyCashCounts';
 
 export const pettyCash = {
@@ -35,6 +36,7 @@ export const pettyCash = {
       vouchers: 'Voucher',
       counts: 'Opname kas',
       replenishments: 'Penggantian dana',
+      advances: 'Uang muka',
       cashBook: 'Buku kas',
     },
   },
@@ -247,6 +249,7 @@ export const pettyCash = {
     keep: 'Kembali',
   },
   notify: {
+    ...advanceNotify,
     created: 'Voucher {{number}} disimpan sebagai draf.',
     createdSubmitted: 'Voucher {{number}} diajukan.',
     updated: 'Voucher {{number}} diperbarui.',
@@ -269,6 +272,7 @@ export const pettyCash = {
     failedTitle: 'Belum berhasil',
   },
   ...pettyCashCounts,
+  ...pettyCashAdvances,
   errors: {
     generic: 'Terjadi kendala. Coba lagi sebentar lagi.',
     rejected: 'Permintaan belum bisa diproses. Periksa kembali isian Anda.',

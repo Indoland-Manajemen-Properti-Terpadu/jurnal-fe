@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import { Paper, Stack, Tabs } from '@mantine/core';
-import { IconBook2, IconCash, IconReceipt2, IconScale } from '@tabler/icons-react';
+import { IconBook2, IconCash, IconReceipt2, IconScale, IconWallet } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import type { PettyCashFund } from '@/module/petty-cash/domain/pettyCashEntities';
+import { AdvanceDetailDrawer } from '@/module/petty-cash/presentation/components/AdvanceDetailDrawer';
+import { AdvanceStatusBanner } from '@/module/petty-cash/presentation/components/AdvanceStatusBanner';
+import { AdvanceList } from '@/module/petty-cash/presentation/components/AdvanceList';
 import { CashBookPanel } from '@/module/petty-cash/presentation/components/CashBookPanel';
 import { CountDetailDrawer } from '@/module/petty-cash/presentation/components/CountDetailDrawer';
 import { CountList } from '@/module/petty-cash/presentation/components/CountList';
@@ -11,6 +14,7 @@ import { ImprestBalancePanel } from '@/module/petty-cash/presentation/components
 import { RecordCountButton } from '@/module/petty-cash/presentation/components/RecordCountButton';
 import { ReplenishmentDetailDrawer } from '@/module/petty-cash/presentation/components/ReplenishmentDetailDrawer';
 import { ReplenishmentList } from '@/module/petty-cash/presentation/components/ReplenishmentList';
+import { RequestAdvanceButton } from '@/module/petty-cash/presentation/components/RequestAdvanceButton';
 import { RequestReplenishmentButton } from '@/module/petty-cash/presentation/components/RequestReplenishmentButton';
 import { VoucherDetailDrawer } from '@/module/petty-cash/presentation/components/VoucherDetailDrawer';
 import { VoucherList } from '@/module/petty-cash/presentation/components/VoucherList';
@@ -24,7 +28,7 @@ interface Selection {
 const closeSelection = (current: Selection | null): Selection | null =>
   current ? { ...current, open: false } : null;
 
-const TABS = ['vouchers', 'counts', 'replenishments', 'cashBook'];
+const TABS = ['vouchers', 'counts', 'replenishments', 'advances', 'cashBook'];
 
 /**
  * Everything about one fund: position, rules, vouchers, cash counts, replenishments and the cash
@@ -41,10 +45,12 @@ export function PettyCashWorkspace({
   const [voucher, setVoucher] = useState<Selection | null>(null);
   const [count, setCount] = useState<Selection | null>(null);
   const [replenishment, setReplenishment] = useState<Selection | null>(null);
+  const [advance, setAdvance] = useState<Selection | null>(null);
 
   return (
     <Stack gap="lg">
       <ImprestBalancePanel fund={fund} />
+      <AdvanceStatusBanner />
       <FundInfoStrip fund={fund} />
       <Paper withBorder radius="lg" p="md" bg="white">
         <Tabs
@@ -64,6 +70,9 @@ export function PettyCashWorkspace({
             </Tabs.Tab>
             <Tabs.Tab value="replenishments" leftSection={<IconCash size={16} />}>
               {t('workspace.tabs.replenishments')}
+            </Tabs.Tab>
+            <Tabs.Tab value="advances" leftSection={<IconWallet size={16} />}>
+              {t('workspace.tabs.advances')}
             </Tabs.Tab>
             <Tabs.Tab value="cashBook" leftSection={<IconBook2 size={16} />}>
               {t('workspace.tabs.cashBook')}
@@ -89,6 +98,13 @@ export function PettyCashWorkspace({
               onSelect={(id) => setReplenishment({ id, open: true })}
             />
           </Tabs.Panel>
+          <Tabs.Panel value="advances">
+            <AdvanceList
+              fundId={fund.id}
+              action={<RequestAdvanceButton fund={fund} />}
+              onSelect={(id) => setAdvance({ id, open: true })}
+            />
+          </Tabs.Panel>
           <Tabs.Panel value="cashBook">
             <CashBookPanel fundId={fund.id} />
           </Tabs.Panel>
@@ -109,6 +125,12 @@ export function PettyCashWorkspace({
         replenishmentId={replenishment?.id ?? null}
         opened={Boolean(replenishment?.open)}
         onClose={() => setReplenishment(closeSelection)}
+      />
+      <AdvanceDetailDrawer
+        fund={fund}
+        advanceId={advance?.id ?? null}
+        opened={Boolean(advance?.open)}
+        onClose={() => setAdvance(closeSelection)}
       />
     </Stack>
   );

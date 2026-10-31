@@ -1,4 +1,5 @@
 import type {
+  AdvanceStatus,
   CountStatus,
   FundStatus,
   ReimbursementStatus,
@@ -279,4 +280,77 @@ export interface ReplenishmentPreview {
   isBalanced: boolean;
   cashAfterDisbursement: number;
   warnings: Array<{ code: string; message: string }>;
+}
+
+export interface AdvanceSettlementLine {
+  lineNo: number;
+  /** Null until a verifier assigns the expense account; finance cannot verify while one is missing. */
+  expenseAccount: AccountRef | null;
+  description: string;
+  amount: number;
+}
+
+export interface AdvanceSettlement {
+  beneficiary: string;
+  description: string;
+  receiptNumber: string;
+  transactionDate: string | null;
+  actualTotal: number;
+  lines: AdvanceSettlementLine[];
+  submittedAt: string | null;
+}
+
+export interface AdvanceHistoryEntry {
+  status: AdvanceStatus;
+  at: string;
+  /** User id; names come from the lookups. */
+  byId: string;
+  note: string | null;
+}
+
+export interface AdvanceRecord {
+  id: string;
+  advanceNumber: string;
+  fund: { id: string; code: string; name: string; custodianId: string };
+  requester: UserRef;
+  purpose: string;
+  requestedAmount: number;
+  /** The approved amount; the approver may lower it. */
+  amount: number;
+  status: AdvanceStatus;
+  approvedBy: UserRef | null;
+  approvedAt: string | null;
+  rejectedReason: string | null;
+  disbursedBy: UserRef | null;
+  disbursedAt: string | null;
+  dueAt: string | null;
+  /** Positive: the leftover cash that came back to the box. */
+  cashSettledNet: number;
+  custodianVerifiedBy: UserRef | null;
+  custodianVerifiedAt: string | null;
+  financeVerifiedBy: UserRef | null;
+  financeVerifiedAt: string | null;
+  settlementRejectedReason: string | null;
+  voucher: { id: string; voucherNumber: string; status: VoucherStatus } | null;
+  receivableJournalId: string | null;
+  receivableAmount: number;
+  convertedAt: string | null;
+  statusHistory: AdvanceHistoryEntry[];
+  settlement: AdvanceSettlement;
+  /** Empty in list items; only the detail carries them. */
+  attachments: Attachment[];
+  outstandingAmount: number;
+  isOverdue: boolean;
+  createdAt: string;
+}
+
+export type RestrictionReasonType = 'MANUAL' | 'OVERDUE';
+
+/** Whether a user may ask for an advance, and why not. */
+export interface AdvanceStatusInfo {
+  user: UserRef;
+  isBlocked: boolean;
+  reasons: Array<{ type: RestrictionReasonType; reason: string; since: string | null }>;
+  overrideUntil: string | null;
+  outstandingAmount: number;
 }

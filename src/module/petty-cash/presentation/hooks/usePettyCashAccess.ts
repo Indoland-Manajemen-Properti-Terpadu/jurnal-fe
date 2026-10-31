@@ -1,12 +1,16 @@
 import { useMemo } from 'react';
 import {
+  allowedAdvanceActions,
   allowedCountActions,
   allowedReimbursementActions,
   allowedVoucherActions,
   canAccess,
+  canControlRestrictions,
   canCountFund,
+  canRequestAdvance,
   canRequestReplenishment,
   isFundCustodian,
+  type AdvanceAccessContext,
   type CountAccessContext,
   type FundAccessContext,
   type ReimbursementAccessContext,
@@ -41,6 +45,10 @@ export const usePettyCashAccess = () => {
         profile ? canRequestReplenishment(profile, fund) : false,
       countActions: (count: CountAccessContext) =>
         profile ? allowedCountActions(profile, count) : [],
+      canRequestAdvance: () => (profile ? canRequestAdvance(profile) : false),
+      canControlRestrictions: () => (profile ? canControlRestrictions(profile) : false),
+      advanceActions: (advance: AdvanceAccessContext) =>
+        profile ? allowedAdvanceActions(profile, advance) : [],
       reimbursementActions: (reimbursement: ReimbursementAccessContext) =>
         profile ? allowedReimbursementActions(profile, reimbursement) : [],
     }),

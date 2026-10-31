@@ -47,6 +47,16 @@ Voucher uji yang dibuat lewat UI dan API: PCV/202610/0013 sampai 0020 (draf, ber
 
 Opname PCO/0005 (disetujui, diselesaikan) dan PCO/0006 (ditolak); penggantian PCR/0005 (dicairkan, Rp 1.311.000, jurnal dibukukan ke 1-10003) dan PCR/0006 (dibatalkan); voucher PCV/0023 menunggu penggantian. Kas di tangan fund PC-HQ menjadi Rp 4.600.000.
 
+## Fase 5: uang muka karyawan (kasbon)
+
+Selesai: daftar, pengajuan, detail dengan riwayat, setuju/tolak/batal, serah uang, pertanggungjawaban dengan bukti, pilih akun biaya, verifikasi pemegang kas dan keuangan (atau dikembalikan), alih ke piutang, banner status blokir. Diuji langsung di backend asli (pengajuan PCA/0007 dan pertanggungjawaban ulang PCA/0005 oleh pc.staff).
+
+Belum ada UI (hook dan API sudah siap, `useChangeRestriction`): blokir, buka blokir, dan pengecualian oleh pemegang hak kontrol (JP-PC-CTL). Direncanakan bersama Fase 6.
+
+Data uji baru (bagian dari F3): PCA/202610/0007 (menunggu persetujuan, Rp 90.000, pc.staff); PCA/0005 kini berstatus pertanggungjawaban diajukan.
+
+Tidak teruji langsung: langkah verifikasi pemegang kas/keuangan setelah pengajuan ulang, dan alih ke piutang (hanya dialog yang dicek).
+
 ## Ditunda dari tinjauan Fase 3 (dengan alasan)
 
 - Alur ubah-lalu-ajukan dikoordinasi di komponen form (dua mutasi berurutan) dan belum di lapisan `application`. Cukup aman untuk satu alur; pindahkan ke use case bila Fase 4 dan 5 menambah alur multi-langkah serupa.

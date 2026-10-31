@@ -1,5 +1,8 @@
 import {
+  allowedAdvanceActions,
   allowedCountActions,
+  canControlRestrictions,
+  canRequestAdvance,
   allowedReimbursementActions,
   allowedVoucherActions,
   canCountFund,
@@ -188,5 +191,81 @@ describe('replenishment rights', () => {
       'JP-PC-DSB': right(false, true, true),
     });
     expect(allowedReimbursementActions(approverWhoDisburses, approved)).toEqual([]);
+  });
+});
+
+describe('employee advance rights', () => {
+  const staff = profileWith('u-staff', { 'JP-PC-ADV': right(true, true, false, true) });
+  const approverRight = profileWith('u-approver', { 'JP-PC-APR': right(false, true, true) });
+  const custodianRight = profileWith('u-custodian', { 'JP-PC-CST': right(false, true, true) });
+  const control = profileWith('u-control', { 'JP-PC-CTL': right(false, true, true) });
+  const base = {
+    requesterId: 'u-staff',
+    fundCustodianId: 'u-custodian',
+    singleUserOverride: false,
+    custodianVerifiedById: null as string | null,
+  };
+  const ctx = (status: Parameters<typeof allowedAdvanceActions>[1]['status'], over = {}) => ({
+    ...base,
+    status,
+    ...over,
+  });
+
+  it('lets the staff member with the advance right ask, and the control right manage blocks', () => {
+    expect(canRequestAdvance(staff)).toBe(true);
+    expect(canRequestAdvance(approverRight)).toBe(false);
+    expect(canControlRestrictions(control)).toBe(true);
+    expect(canControlRestrictions(staff)).toBe(false);
+  });
+
+  it('gives a pending request to an approver other than the requester, and to the requester to cancel', () => {
+    expect(allowedAdvanceActions(approverRight, ctx('PENDING_APPROVAL'))).toEqual([
+      'approve',
+      'reject',
+    ]);
+    expect(allowedAdvanceActions(staff, ctx('PENDING_APPROVAL'))).toEqual(['cancel']);
+    const selfApprover = profileWith('u-staff', { 'JP-PC-APR': right(false, true, true) });
+    expect(allowedAdvanceActions(selfApprover, ctx('PENDING_APPROVAL'))).toEqual(['cancel']);
+  });
+
+  it('lets the custodian hand over an approved advance, but not their own', () => {
+    expect(allowedAdvanceActions(custodianRight, ctx('APPROVED'))).toEqual(['disburse']);
+    const ownAdvance = ctx('APPROVED', { requesterId: 'u-custodian' });
+    // the custodian may cancel their own request, but never hand its cash to themselves
+    expect(allowedAdvanceActions(custodianRight, ownAdvance)).toEqual(['cancel']);
+    const notCustodian = ctx('APPROVED', { fundCustodianId: 'someone-else' });
+    expect(allowedAdvanceActions(custodianRight, notCustodian)).toEqual([]);
+  });
+
+  it('lets the requester settle and attach receipts while the cash is out', () => {
+    expect(allowedAdvanceActions(staff, ctx('DISBURSED'))).toEqual([
+      'uploadAttachment',
+      'submitSettlement',
+    ]);
+    expect(allowedAdvanceActions(staff, ctx('SETTLEMENT_SUBMITTED'))).toEqual(['uploadAttachment']);
+  });
+
+  it('gives the custodian the check of a submitted settlement, with the expense accounts', () => {
+    expect(allowedAdvanceActions(custodianRight, ctx('SETTLEMENT_SUBMITTED'))).toEqual([
+      'setAccounts',
+      'custodianVerify',
+      'custodianReject',
+    ]);
+  });
+
+  it('gives finance the last verification, not to the requester or the custodian who verified', () => {
+    const verified = ctx('CUSTODIAN_VERIFIED', { custodianVerifiedById: 'u-custodian' });
+    expect(allowedAdvanceActions(approverRight, verified)).toEqual([
+      'setAccounts',
+      'financeVerify',
+      'financeReject',
+    ]);
+    const sameAsVerifier = profileWith('u-custodian', { 'JP-PC-APR': right(false, true, true) });
+    expect(allowedAdvanceActions(sameAsVerifier, verified)).toEqual(['setAccounts']);
+  });
+
+  it('lets the control right turn an unsettled advance into an employee receivable', () => {
+    expect(allowedAdvanceActions(control, ctx('DISBURSED'))).toEqual(['convert']);
+    expect(allowedAdvanceActions(control, ctx('SETTLED'))).toEqual([]);
   });
 });
