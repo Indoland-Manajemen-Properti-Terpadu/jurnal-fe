@@ -25,4 +25,4 @@ Status per module: [../migration/STATUS.md](../migration/STATUS.md).
 | `chart-of-accounts`, `journal-entries`, `account-ledger`, `bank-statements`, `reconciliation`, `beginning-balances`, `period-closing` | `src/module/GeneralJournal` | pending (M3) |
 | `settings` | `src/module/SettingMenu` | [README](../../src/module/settings/README.md) |
 | `user-management` | `src/module/SettingMenu/UserManagement` | [README](../../src/module/user-management/README.md) |
-| `authentication` | `src/module/Authentication` | pending (M4) |
+| `authentication` | `src/module/Authentication` | [README](../../src/module/authentication/README.md) |

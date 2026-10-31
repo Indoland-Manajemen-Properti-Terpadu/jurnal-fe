@@ -1,27 +1,18 @@
 import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { notifications } from '@mantine/notifications';
-import { post } from '@/lib/http/apiClient';
-import { API_AUTH } from '@/services/endpoint';
 import { routes } from '@/router/routes';
 import { useAuthStore } from '@/store/useAuthentications';
-import { LoginModelResponse } from '@/module/authentication/domain/LoginModelResponse';
+import { useTranslation } from '@/i18n';
+import { exchangeOAuthCode } from '@/module/authentication/infrastructure/authApi';
 
-interface UseLoginProps {
-  onSuccess?: (data: any) => void;
-  onError?: (error: any) => void;
-}
-
-export const useLogin = (p0: {}) => {
+export const useOAuthExchange = () => {
   const navigate = useNavigate();
   const { setTokens, setUserName } = useAuthStore();
+  const { t: ta } = useTranslation('authentication');
 
   return useMutation({
-    mutationFn: async (body: any) => {
-      const result = await post(API_AUTH.POST_LOGIN, body);
-      return result as LoginModelResponse;
-    },
-
+    mutationFn: (code: string) => exchangeOAuthCode(code),
     onSuccess: (data) => {
       const { tokens, user } = data;
       setTokens(tokens.access.token, tokens.refresh.token);
@@ -29,19 +20,19 @@ export const useLogin = (p0: {}) => {
       notifications.show({
         color: 'green',
         autoClose: 3000,
-        title: 'Login Successful!',
-        message: `Hey ${user.name}, Welcome to Journal Proapps. Let’s get started!`,
+        title: ta('login.successTitle'),
+        message: ta('oauth.successMessage'),
       });
       navigate(routes.dashboard);
     },
-    onError: (error) => {
+    onError: () => {
       notifications.show({
         color: 'red',
         autoClose: 3000,
-        title: 'Access Denied',
-        message: 'Incorrect email & password, please try again',
+        title: ta('oauth.failedTitle'),
+        message: ta('oauth.failedMessage'),
       });
-      // if (onError) onError(error);
+      navigate(routes.login);
     },
   });
 };

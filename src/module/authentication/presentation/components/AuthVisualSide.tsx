@@ -1,16 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-  Badge,
-  Box,
-  Group,
-  Image,
-  Paper,
-  Stack,
-  Text,
-  ThemeIcon,
-  Title,
-  Transition,
-} from '@mantine/core';
+import { Badge, Box, Group, Image, Paper, Stack, Text, ThemeIcon, Title } from '@mantine/core';
 import {
   IconCheck,
   IconReceipt2,
@@ -23,58 +12,39 @@ import SlideImg1 from '@/assets/img/Slider/accounting.png';
 import SlideImg2 from '@/assets/img/Slider/tower.png';
 import SlideImg3 from '@/assets/img/Slider/image1.png';
 
+import { useTranslation } from '@/i18n';
+
 interface SlideData {
-  badge: string;
+  /** Key of the slide texts in the `authentication` namespace (`<id>.badge`, `<id>.title`, ...). */
+  id: string;
   badgeColor: string;
-  title: string;
-  description: string;
   image: string;
-  kpiTitle: string;
-  kpiValue: string;
-  kpiSubtitle: string;
   kpiIcon: React.ReactNode;
 }
 
 const slides: SlideData[] = [
   {
-    badge: 'Otomasi Jurnal & Buku Besar',
+    id: 'slide1',
     badgeColor: 'blue',
-    title: 'Pembukuan Real-time & Presisi Finansial',
-    description:
-      'Catat mutasi transaksi debit-kredit, rekonsiliasi kas bank, dan jurnal penyesuaian secara otomatis dengan standar double-entry.',
     image: SlideImg1,
-    kpiTitle: 'Status Buku Besar',
-    kpiValue: '100% Balanced',
-    kpiSubtitle: 'Sinkronisasi real-time tanpa selisih',
     kpiIcon: <IconReceipt2 size={20} color="#60a5fa" />,
   },
   {
-    badge: 'Laporan Standar PSAK',
+    id: 'slide2',
     badgeColor: 'teal',
-    title: 'Analisis Neraca, Arus Kas & Laba Rugi',
-    description:
-      'Dapatkan visibilitas menyeluruh atas posisi aktiva, pasiva, dan likuiditas perusahaan seketika, siap diekspor ke PDF dan Excel.',
     image: SlideImg2,
-    kpiTitle: 'Keseimbangan Neraca',
-    kpiValue: 'Aktiva = Pasiva',
-    kpiSubtitle: 'Persamaan akuntansi terverifikasi',
     kpiIcon: <IconScale size={20} color="#34d399" />,
   },
   {
-    badge: 'Keamanan Enterprise',
+    id: 'slide3',
     badgeColor: 'violet',
-    title: 'Audit Trail Lengkap & Enkripsi Data',
-    description:
-      'Setiap perubahan dan otorisasi transaksi terekam jejak audit digitalnya, didukung kontrol hak akses peran berjenjang (RBAC).',
     image: SlideImg3,
-    kpiTitle: 'Standar Keamanan',
-    kpiValue: '256-bit SSL',
-    kpiSubtitle: 'Role-Based Access Protection',
     kpiIcon: <IconShieldCheck size={20} color="#a78bfa" />,
   },
 ];
 
 export const AuthVisualSide: React.FC = () => {
+  const { t: ta } = useTranslation('authentication');
   const [activeSlide, setActiveSlide] = useState(0);
 
   useEffect(() => {
@@ -106,8 +76,7 @@ export const AuthVisualSide: React.FC = () => {
         style={{
           position: 'absolute',
           inset: 0,
-          backgroundImage:
-            'radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px)',
+          backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px)',
           backgroundSize: '28px 28px',
           opacity: 0.5,
           pointerEvents: 'none',
@@ -120,10 +89,10 @@ export const AuthVisualSide: React.FC = () => {
           <Image src={ProappsIconWhite} w={32} h={32} fit="contain" />
           <Box>
             <Text fw={800} size="md" c="white" style={{ letterSpacing: '0.5px' }}>
-              PROAPPS JURNAL
+              {ta('visual.brand')}
             </Text>
             <Text size="10px" c="gray.4" tt="uppercase" fw={600} style={{ letterSpacing: '1px' }}>
-              Accounting & ERP Cloud
+              {ta('visual.tagline')}
             </Text>
           </Box>
         </Group>
@@ -141,7 +110,7 @@ export const AuthVisualSide: React.FC = () => {
             },
           }}
         >
-          v2.0 Enterprise
+          {ta('visual.version')}
         </Badge>
       </Group>
 
@@ -154,8 +123,7 @@ export const AuthVisualSide: React.FC = () => {
             borderRadius: '16px',
             overflow: 'hidden',
             border: '1px solid rgba(255, 255, 255, 0.15)',
-            boxShadow:
-              '0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 40px rgba(37, 99, 235, 0.2)',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 40px rgba(37, 99, 235, 0.2)',
             marginBottom: '32px',
             height: '240px',
             backgroundColor: 'rgba(15, 23, 42, 0.8)',
@@ -163,7 +131,7 @@ export const AuthVisualSide: React.FC = () => {
         >
           <Image
             src={current.image}
-            alt={current.title}
+            alt={ta(`${current.id}.title`)}
             fit="cover"
             h="100%"
             style={{
@@ -208,16 +176,16 @@ export const AuthVisualSide: React.FC = () => {
                 </ThemeIcon>
                 <Box>
                   <Text size="11px" c="gray.3" fw={600} tt="uppercase">
-                    {current.kpiTitle}
+                    {ta(`${current.id}.kpiTitle`)}
                   </Text>
                   <Text size="sm" fw={800} c="white">
-                    {current.kpiValue}
+                    {ta(`${current.id}.kpiValue`)}
                   </Text>
                 </Box>
               </Group>
 
               <Badge size="xs" variant="light" color="teal" radius="sm">
-                Live Sync
+                {ta('visual.liveSync')}
               </Badge>
             </Group>
           </Paper>
@@ -225,20 +193,14 @@ export const AuthVisualSide: React.FC = () => {
 
         {/* Text Details with animated slide */}
         <Stack gap="xs">
-          <Badge
-            variant="filled"
-            color={current.badgeColor}
-            size="sm"
-            radius="sm"
-            w="fit-content"
-          >
-            {current.badge}
+          <Badge variant="filled" color={current.badgeColor} size="sm" radius="sm" w="fit-content">
+            {ta(`${current.id}.badge`)}
           </Badge>
           <Title order={2} c="white" fw={800} lh={1.3}>
-            {current.title}
+            {ta(`${current.id}.title`)}
           </Title>
           <Text size="sm" c="gray.4" lh={1.6}>
-            {current.description}
+            {ta(`${current.id}.description`)}
           </Text>
         </Stack>
 
@@ -252,8 +214,7 @@ export const AuthVisualSide: React.FC = () => {
                 height: '6px',
                 width: activeSlide === idx ? '32px' : '8px',
                 borderRadius: '3px',
-                backgroundColor:
-                  activeSlide === idx ? '#38bdf8' : 'rgba(255, 255, 255, 0.25)',
+                backgroundColor: activeSlide === idx ? '#38bdf8' : 'rgba(255, 255, 255, 0.25)',
                 cursor: 'pointer',
                 transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
               }}
@@ -279,14 +240,14 @@ export const AuthVisualSide: React.FC = () => {
               ))}
             </Group>
             <Text size="xs" c="gray.3" fw={500}>
-              Dipercaya untuk Manajemen Bisnis & Properti
+              {ta('visual.trusted')}
             </Text>
           </Group>
 
           <Group gap={6} align="center">
             <IconCheck size={14} color="#34d399" />
             <Text size="xs" c="gray.4">
-              Standar Akuntansi SAK
+              {ta('visual.standard')}
             </Text>
           </Group>
         </Group>
@@ -294,4 +255,3 @@ export const AuthVisualSide: React.FC = () => {
     </Box>
   );
 };
-

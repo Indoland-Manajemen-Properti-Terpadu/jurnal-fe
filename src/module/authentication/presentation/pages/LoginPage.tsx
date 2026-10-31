@@ -1,28 +1,21 @@
 import React, { useState } from 'react';
-import {
-  AspectRatio,
-  Box,
-  Center,
-  Grid,
-  Group,
-  Image,
-  Paper,
-  Stack,
-  Text,
-} from '@mantine/core';
+import { AspectRatio, Box, Center, Grid, Group, Image, Paper, Text } from '@mantine/core';
 import { IconShieldCheck } from '@tabler/icons-react';
 import { useLocation } from 'react-router-dom';
 import LogoProapps from '@/assets/img/proapps-logo.svg';
-import { useLogin } from '@/module/authentication/infrastructure/Login.service';
+import { useLogin } from '@/module/authentication/presentation/hooks/useLogin';
 import { AuthVisualSide } from '@/module/authentication/presentation/components/AuthVisualSide';
 import { LoginForm } from '@/module/authentication/presentation/components/LoginForm';
 import { ForgotPasswordForm } from '@/module/authentication/presentation/components/ForgotPasswordForm';
+
+import { useTranslation } from '@/i18n';
 
 interface LoginPageProps {
   initialMode?: 'login' | 'forgot';
 }
 
 export default function LoginPage({ initialMode = 'login' }: LoginPageProps) {
+  const { t: ta } = useTranslation('authentication');
   const location = useLocation();
   const isForgotPath = location.pathname.includes('forgot-password');
   const [mode, setMode] = useState<'login' | 'forgot'>(
@@ -30,7 +23,7 @@ export default function LoginPage({ initialMode = 'login' }: LoginPageProps) {
   );
   const [presetEmail, setPresetEmail] = useState('');
 
-  const { mutate: login, isPending } = useLogin({});
+  const { mutate: login, isPending } = useLogin();
 
   const handleLoginSubmit = (values: { email: string; password: string }) => {
     login(values);
@@ -94,7 +87,7 @@ export default function LoginPage({ initialMode = 'login' }: LoginPageProps) {
             {/* Logo */}
             <Center mb="xl">
               <AspectRatio ratio={230 / 64} style={{ width: 140 }}>
-                <Image src={LogoProapps} fit="contain" alt="Proapps Jurnal Logo" />
+                <Image src={LogoProapps} fit="contain" alt={ta('page.logoAlt')} />
               </AspectRatio>
             </Center>
 
@@ -119,11 +112,11 @@ export default function LoginPage({ initialMode = 'login' }: LoginPageProps) {
           <Group justify="center" gap={6} align="center" mb={4}>
             <IconShieldCheck size={16} color="#10b981" />
             <Text size="xs" c="dimmed" fw={500}>
-              Koneksi Terenkripsi SSL 256-Bit & Aman
+              {ta('page.secure')}
             </Text>
           </Group>
           <Text size="11px" c="gray.5">
-            © 2026 PT Solusi Digital Properti Manajemen. Seluruh Hak Cipta Dilindungi.
+            {ta('page.copyright')}
           </Text>
         </Box>
       </Grid.Col>
