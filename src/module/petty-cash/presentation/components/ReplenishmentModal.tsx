@@ -18,7 +18,7 @@ import {
 import { IconBuildingBank, IconRefresh, IconScale } from '@tabler/icons-react';
 import { formatCurrency } from '@/utils/FormatCurrency';
 import { dateFormatV1 } from '@/utils/FormatDate';
-import { PettyCashFund, PettyCashReimbursement, PettyCashVoucher } from '../types/pettyCash.types';
+import { PettyCashFund, PettyCashReimbursement, PettyCashVoucher } from '@/module/petty-cash/domain/pettyCash.types';
 
 interface Props {
   opened: boolean;

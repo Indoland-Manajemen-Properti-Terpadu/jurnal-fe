@@ -3,14 +3,14 @@ import type {
   PettyCashFund,
   PettyCashReimbursement,
   PettyCashVoucher,
-} from '../types/pettyCash.types';
+} from '@/module/petty-cash/domain/pettyCash.types';
 import {
   recordPaidVoucher,
   disburseReplenishment,
   findFundById,
   submitReplenishment,
   type PettyCashPrototypeState,
-} from './pettyCash';
+} from '@/module/petty-cash/domain/pettyCash';
 
 const fund: PettyCashFund = {
   id: 'fund-hq',

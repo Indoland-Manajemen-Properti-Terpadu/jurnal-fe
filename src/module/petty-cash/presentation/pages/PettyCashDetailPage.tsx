@@ -7,14 +7,14 @@ import { useTranslation } from '@/i18n';
 import { routes } from '@/router/routes';
 import { dateFormatV1 } from '@/utils/FormatDate';
 import AppShellLayout from '@/components/AppShellLayout';
-import { CreateVoucherModal } from '../components/CreateVoucherModal';
-import { PettyCashBalancePanel } from '../components/PettyCashBalancePanel';
-import { VoucherDetailDrawer } from '../components/VoucherDetailDrawer';
-import { VoucherTable } from '../components/VoucherTable';
-import { findFundById } from '../domain/pettyCash';
-import { usePettyCashPrototype } from '../hooks/usePettyCashPrototype';
-import type { PettyCashVoucher } from '../types/pettyCash.types';
-import classes from './PettyCashPage.module.css';
+import { CreateVoucherModal } from '@/module/petty-cash/presentation/components/CreateVoucherModal';
+import { PettyCashBalancePanel } from '@/module/petty-cash/presentation/components/PettyCashBalancePanel';
+import { VoucherDetailDrawer } from '@/module/petty-cash/presentation/components/VoucherDetailDrawer';
+import { VoucherTable } from '@/module/petty-cash/presentation/components/VoucherTable';
+import { findFundById } from '@/module/petty-cash/domain/pettyCash';
+import { usePettyCashPrototype } from '@/module/petty-cash/presentation/hooks/usePettyCashPrototype';
+import type { PettyCashVoucher } from '@/module/petty-cash/domain/pettyCash.types';
+import classes from '@/module/petty-cash/presentation/pages/PettyCashPage.module.css';
 
 export default function PettyCashDetailPage() {
   const { fundId } = useParams<{ fundId: string }>();

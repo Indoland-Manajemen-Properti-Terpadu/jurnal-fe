@@ -4,17 +4,17 @@ import {
   MOCK_PETTY_CASH_FUNDS,
   MOCK_REIMBURSEMENTS,
   MOCK_VOUCHERS,
-} from '../data/mockPettyCashData';
+} from '@/module/petty-cash/infrastructure/mockPettyCashData';
 import {
   recordPaidVoucher,
   submitReplenishment,
   type PettyCashPrototypeState,
-} from '../domain/pettyCash';
+} from '@/module/petty-cash/domain/pettyCash';
 import type {
   PettyCashCount,
   PettyCashReimbursement,
   PettyCashVoucher,
-} from '../types/pettyCash.types';
+} from '@/module/petty-cash/domain/pettyCash.types';
 
 interface PettyCashPrototypeContextValue extends PettyCashPrototypeState {
   createPaidVoucher: (voucher: Omit<PettyCashVoucher, 'id' | 'createdAt'>) => void;

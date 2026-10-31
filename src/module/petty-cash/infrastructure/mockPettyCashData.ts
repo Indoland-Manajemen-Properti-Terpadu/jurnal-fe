@@ -4,7 +4,7 @@ import {
   PettyCashFund,
   PettyCashReimbursement,
   PettyCashVoucher,
-} from '../types/pettyCash.types';
+} from '@/module/petty-cash/domain/pettyCash.types';
 
 export const MOCK_EXPENSE_ACCOUNTS: ExpenseAccountOption[] = [
   {

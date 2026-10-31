@@ -3,7 +3,7 @@ import type {
   PettyCashFund,
   PettyCashReimbursement,
   PettyCashVoucher,
-} from '../types/pettyCash.types';
+} from '@/module/petty-cash/domain/pettyCash.types';
 
 export interface PettyCashPrototypeState {
   funds: PettyCashFund[];

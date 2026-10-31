@@ -13,8 +13,8 @@ import {
 } from '@mantine/core';
 import { IconCheck, IconInfoCircle } from '@tabler/icons-react';
 import { formatCurrency } from '@/utils/FormatCurrency';
-import type { PettyCashCount, PettyCashFund, PettyCashVoucher } from '../types/pettyCash.types';
-import classes from './PettyCashOverlay.module.css';
+import type { PettyCashCount, PettyCashFund, PettyCashVoucher } from '@/module/petty-cash/domain/pettyCash.types';
+import classes from '@/module/petty-cash/presentation/components/PettyCashOverlay.module.css';
 
 interface Props {
   opened: boolean;
