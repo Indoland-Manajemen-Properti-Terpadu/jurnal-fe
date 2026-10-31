@@ -136,7 +136,7 @@ export const AddJournalEntryPage: React.FC = () => {
               <Button
                 variant="default"
                 leftSection={<IconArrowLeft size={16} />}
-                onClick={() => navigate(routes.generalJournal.main)}
+                onClick={() => navigate(routes.chartOfAccounts.main)}
               >
                 {t('form.back')}
               </Button>
@@ -311,7 +311,7 @@ export const AddJournalEntryPage: React.FC = () => {
                       fullWidth
                       variant="subtle"
                       color="gray"
-                      onClick={() => navigate(routes.generalJournal.main)}
+                      onClick={() => navigate(routes.chartOfAccounts.main)}
                       disabled={isPending}
                     >
                       {t('form.cancel')}

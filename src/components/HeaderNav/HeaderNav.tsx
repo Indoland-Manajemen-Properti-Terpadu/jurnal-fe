@@ -52,7 +52,7 @@ const SECTION_DEFS: Array<{ prefix: string; titleKey: string; groupKey: string }
   { prefix: '/bank-cash', titleKey: 'cashBank', groupKey: 'groupTransactions' },
   { prefix: '/sales', titleKey: 'sales', groupKey: 'groupTransactions' },
   { prefix: '/setting-budget', titleKey: 'sales', groupKey: 'groupTransactions' },
-  { prefix: routes.baseModules.purchases, titleKey: 'purchases', groupKey: 'groupTransactions' },
+  { prefix: routes.purchases.main, titleKey: 'purchases', groupKey: 'groupTransactions' },
   { prefix: '/finance/cost', titleKey: 'expenses', groupKey: 'groupTransactions' },
   { prefix: '/pending-changes', titleKey: 'pendingChanges', groupKey: 'groupTransactions' },
   { prefix: '/products', titleKey: 'products', groupKey: 'groupOperations' },
@@ -204,25 +204,25 @@ const HeaderNav = ({
             <Menu.Label>{t('quickCreate')}</Menu.Label>
             <Menu.Item
               leftSection={<Notebook size={16} weight="duotone" />}
-              onClick={() => navigate(routes.generalJournal.addTransactionJournal)}
+              onClick={() => navigate(routes.journalEntries.add)}
             >
               {t('journalTransactions')}
             </Menu.Item>
             <Menu.Item
               leftSection={<Bank size={16} weight="duotone" />}
-              onClick={() => navigate(routes.BankAndCash.AddReceiveMoney)}
+              onClick={() => navigate(routes.bankCash.addReceive)}
             >
               {currentLanguage === 'id' ? 'Terima Uang' : 'Receive Money'}
             </Menu.Item>
             <Menu.Item
               leftSection={<Bank size={16} weight="duotone" />}
-              onClick={() => navigate(routes.BankAndCash.AddSentMoney)}
+              onClick={() => navigate(routes.bankCash.addSent)}
             >
               {currentLanguage === 'id' ? 'Kirim Uang' : 'Send Money'}
             </Menu.Item>
             <Menu.Item
               leftSection={<AddressBook size={16} weight="duotone" />}
-              onClick={() => navigate(routes.Contact.Main)}
+              onClick={() => navigate(routes.contacts.main)}
             >
               {t('contacts')}
             </Menu.Item>

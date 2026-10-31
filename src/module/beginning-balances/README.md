@@ -2,7 +2,7 @@
 
 Opening balances of the general ledger: the user picks a conversion (cut-off) date, enters a debit or credit amount per account, saves a draft, and publishes when the totals match.
 
-- **Route** (unchanged): `routes.generalJournal.beginningBalance` (`/general-journal/beginning-balance`).
+- **Route** (unchanged): `routes.beginningBalances.main` (`/general-journal/beginning-balance`).
 - **Public API (`index.ts`):** `BeginningBalancePage` (router), `BeginningBalanceModal` (start modal opened from the General Journal page) and `useDraftAccount` (that page reads `draftAccounts?.status === false` to decide between the modal and the page).
 - **Endpoints** (`API_ACCOUNT`): `GET get/draft-start-amount`, `GET get/draft-start-amount/logs`, `POST set/draft-start-amount`, `POST set/save-start-amount`. The account list comes from `useJournalAccounts` in `@/module/chart-of-accounts`.
 - **Layers:** `domain/` (types, `openingBalanceRules.ts`), `infrastructure/` (`draftBalanceApi.ts`, `draftBalanceMapper.ts`), `presentation/` (page, components, hooks, `useInitialBalanceStore`).

@@ -225,7 +225,7 @@ export const AddAccountJournalPage: React.FC = () => {
   };
 
   const handleCancel = () => {
-    navigate(routes.generalJournal.main);
+    navigate(routes.chartOfAccounts.main);
   };
 
   const hasSuggestedDiff =

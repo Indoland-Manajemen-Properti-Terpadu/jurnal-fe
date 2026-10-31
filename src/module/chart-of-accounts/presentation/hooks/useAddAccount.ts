@@ -22,7 +22,7 @@ export const useAddAccount = () => {
         title: t('toast.addOkTitle', undefined, NS),
         message: t('toast.addOkMsg', undefined, NS),
       });
-      navigate(routes.generalJournal.main);
+      navigate(routes.chartOfAccounts.main);
     },
     onError: (error: any) => {
       notifications.show({

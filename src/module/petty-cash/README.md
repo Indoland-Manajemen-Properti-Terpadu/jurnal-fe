@@ -6,8 +6,8 @@ Petty cash (imprest) prototype: funds with a fixed ceiling, expense vouchers pai
 
 | Constant | Path | Page |
 | --- | --- | --- |
-| `BankAndCash.PettyCash` | `/bank-cash/petty-cash` | `PettyCashPage` (funds, voucher table, voucher / reimbursement / cash count modals) |
-| `BankAndCash.PettyCashDetail` | `/bank-cash/petty-cash/:fundId` | `PettyCashDetailPage` (one fund; an unknown id shows the not-found state) |
+| `pettyCash.main` | `/bank-cash/petty-cash` | `PettyCashPage` (funds, voucher table, voucher / reimbursement / cash count modals) |
+| `pettyCash.detail` | `/bank-cash/petty-cash/:fundId` | `PettyCashDetailPage` (one fund; an unknown id shows the not-found state) |
 
 Both routes render under `PettyCashRouteScope`, which mounts `PettyCashPrototypeProvider` once so the list and the detail page share state. `index.ts` exports the three. The sidebar links to the first route.
 

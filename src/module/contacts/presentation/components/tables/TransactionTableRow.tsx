@@ -52,7 +52,7 @@ export function TransactionTableRow({
   const journalTxId = resolveSaleJournalId(tx);
 
   const openJournal = (journalId: string) =>
-    navigate(routes.generalJournal.detailTransactionJournal.replace(':idTransaction', journalId));
+    navigate(routes.journalEntries.detail.replace(':idTransaction', journalId));
 
   return (
     <Table.Tr

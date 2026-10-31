@@ -2,7 +2,7 @@
 
 Catalog of goods and services, plus the two master lists that feed it (product categories and units). Each product carries its default selling, buying and inventory settings: accounts, tax, unit price and minimum stock.
 
-- **Routes:** `routes.baseModules.products` (`/products`, list with Products / Categories / Units tabs) and `routes.baseModules.productDetail` (`/products/:id`). The router wraps both pages in `AppShellLayout`; the pages do not render it (same approach as `pending-changes`, so `AppShellLayout -> Navbar -> module -> page` cannot become an import cycle).
+- **Routes:** `routes.products.main` (`/products`, list with Products / Categories / Units tabs) and `routes.products.detail` (`/products/:id`). The router wraps both pages in `AppShellLayout`; the pages do not render it (same approach as `pending-changes`, so `AppShellLayout -> Navbar -> module -> page` cannot become an import cycle).
 - **Public API (`index.ts`):** `ProductsPage`, `ProductDetailPage`, and `fetchProducts` / `fetchTaxes` (used by the Sale module). `MasterDataPanel` and `ModuleHeader` are generic but no other module imports them, so they stay internal in `presentation/components`; if another module needs them, export them from `index.ts` (do not move them to `src/components`).
 - **Endpoints** (`infrastructure/productApi.ts`, `PRODUCT_ENDPOINTS`):
   - `GET /v1/products` (`page`, `limit`, `search`), `GET|PUT|DELETE /v1/products/:id`, `POST /v1/products`. Create and update send `multipart/form-data` (`buyingInfo[...]`, `sellingInfo[...]`, `inventoryInfo[...]`, optional `image`).

@@ -25,7 +25,7 @@ export const settingsGroups: SettingsGroup[] = [
   {
     key: 'organization',
     items: [
-      { key: 'company', path: routes.baseModules.companySetting, icon: IconBuildingStore },
+      { key: 'company', path: routes.settings.company, icon: IconBuildingStore },
       { key: 'regional', icon: IconWorld },
     ],
   },

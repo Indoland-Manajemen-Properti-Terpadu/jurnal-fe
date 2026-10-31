@@ -99,7 +99,7 @@ const GeneralJournalPage: React.FC = () => {
       openModal('beginningBalance');
       return;
     }
-    navigate(routes.generalJournal.beginningBalance);
+    navigate(routes.beginningBalances.main);
   };
 
   return (

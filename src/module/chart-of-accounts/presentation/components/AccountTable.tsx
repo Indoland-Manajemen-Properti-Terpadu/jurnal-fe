@@ -100,8 +100,8 @@ const TableAccounts = ({ data, loading, selectedCategory, searchQuery }: TableAc
             underline="never"
             onClick={() => {
               const path = item.isBankAndCash
-                ? routes.generalJournal.detailAccount
-                : routes.generalJournal.detailAccountNonCB;
+                ? routes.accountLedger.cashBank
+                : routes.accountLedger.nonCashBank;
               navigate(path.replace(':idAccount', item.id!!));
             }}
             className={classes.accountNameColumn}
@@ -216,8 +216,8 @@ const TableAccounts = ({ data, loading, selectedCategory, searchQuery }: TableAc
                 underline="never"
                 onClick={() => {
                   const path = item.isBankAndCash
-                    ? routes.generalJournal.detailAccount
-                    : routes.generalJournal.detailAccountNonCB;
+                    ? routes.accountLedger.cashBank
+                    : routes.accountLedger.nonCashBank;
                   navigate(path.replace(':idAccount', item.id!!));
                 }}
                 className={classes.accountNameColumn}

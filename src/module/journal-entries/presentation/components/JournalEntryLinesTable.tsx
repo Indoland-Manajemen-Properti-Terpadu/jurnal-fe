@@ -169,8 +169,8 @@ const JournalEntryLinesTable: React.FC<Props> = ({
                               }}
                               onClick={() => {
                                 const targetRoute = account.isBankAndCash
-                                  ? routes.generalJournal.detailAccount
-                                  : routes.generalJournal.detailAccountNonCB;
+                                  ? routes.accountLedger.cashBank
+                                  : routes.accountLedger.nonCashBank;
                                 navigate(targetRoute.replace(':idAccount', account.id!));
                               }}
                             >

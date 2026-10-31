@@ -33,7 +33,7 @@ export function SaleItemsCard({ sale, display }: Readonly<{ sale: Sale; display:
         {item.product?.id ? (
           <Anchor
             component={Link}
-            to={routes.baseModules.productDetail.replace(':id', item.product.id)}
+            to={routes.products.detail.replace(':id', item.product.id)}
             size="sm"
             fw={700}
             c="primary.9"
@@ -60,7 +60,7 @@ export function SaleItemsCard({ sale, display }: Readonly<{ sale: Sale; display:
         {journalId && (
           <Anchor
             component={Link}
-            to={routes.generalJournal.detailTransactionJournal.replace(':idTransaction', journalId)}
+            to={routes.journalEntries.detail.replace(':idTransaction', journalId)}
             size="xs"
             fw={600}
             className={classes.inlineLink}

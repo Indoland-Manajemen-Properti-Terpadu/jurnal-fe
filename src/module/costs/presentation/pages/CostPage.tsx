@@ -11,7 +11,7 @@ function CostPage() {
       <BaseModulePage
         title={t('title')}
         description={t('description')}
-        routePath={routes.baseModules.cost}
+        routePath={routes.costs.main}
       />
     </AppShellLayout>
   );

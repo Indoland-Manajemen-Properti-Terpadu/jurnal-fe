@@ -6,10 +6,10 @@ Cash and bank accounts: an overview with totals and an account table, and three 
 
 | Constant                       | Path                            | Page                                                                   |
 | ------------------------------ | ------------------------------- | ---------------------------------------------------------------------- |
-| `BankAndCash.Main`             | `/bank-cash`                    | `BankAndCashMainPage` (stats, account table, record-transaction menu)  |
-| `BankAndCash.AddTransferMoney` | `/bank-cash/add-transfer-money` | `AddTransferMoneyPage` (`?fromAccountId=` preselects the source)       |
-| `BankAndCash.AddReceiveMoney`  | `/bank-cash/add-receive-money`  | `AddReceiveMoneyPage` (`?toAccountId=` preselects the deposit account) |
-| `BankAndCash.AddSentMoney`     | `/bank-cash/add-sent-money`     | `AddSentMoneyPage` (`?fromAccountId=` preselects the paying account)   |
+| `bankCash.main`             | `/bank-cash`                    | `BankAndCashMainPage` (stats, account table, record-transaction menu)  |
+| `bankCash.addTransfer` | `/bank-cash/add-transfer-money` | `AddTransferMoneyPage` (`?fromAccountId=` preselects the source)       |
+| `bankCash.addReceive`  | `/bank-cash/add-receive-money`  | `AddReceiveMoneyPage` (`?toAccountId=` preselects the deposit account) |
+| `bankCash.addSent`     | `/bank-cash/add-sent-money`     | `AddSentMoneyPage` (`?fromAccountId=` preselects the paying account)   |
 
 `index.ts` exports the four pages. The row menu of the account table opens the three forms with the account preselected.
 

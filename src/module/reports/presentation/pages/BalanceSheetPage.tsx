@@ -25,7 +25,7 @@ export default function BalanceSheetPage() {
             title={t('balanceSheet.pageTitle')}
             description={t('balanceSheet.pageDescription')}
             breadcrumbs={[
-              { label: t('common.financialReports'), to: routes.resultReport.main },
+              { label: t('common.financialReports'), to: routes.reports.main },
               { label: t('catalog.balanceSheetTitle') },
             ]}
           />

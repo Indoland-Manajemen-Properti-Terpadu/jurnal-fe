@@ -57,14 +57,14 @@ const getNavGroups = (t: (key: string) => string) => [
       {
         label: t('cashBank'),
         icon: Bank,
-        link: routes.BankAndCash.Main,
+        link: routes.bankCash.main,
         links: [
-          { label: t('cashBankAccounts'), icon: Wallet, link: routes.BankAndCash.Main },
-          { label: t('pettyCash'), icon: Coins, link: routes.BankAndCash.PettyCash },
+          { label: t('cashBankAccounts'), icon: Wallet, link: routes.bankCash.main },
+          { label: t('pettyCash'), icon: Coins, link: routes.pettyCash.main },
         ],
       },
       { label: t('sales'), icon: Storefront, link: '/sales' },
-      { label: t('purchases'), icon: ShoppingCart, link: routes.baseModules.purchases },
+      { label: t('purchases'), icon: ShoppingCart, link: routes.purchases.main },
       { label: t('expenses'), icon: Receipt, link: '/finance/cost' },
       { label: t('pendingChanges'), icon: ShieldCheck, link: routes.pendingChanges.main },
     ],

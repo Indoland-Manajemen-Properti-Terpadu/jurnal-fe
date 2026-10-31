@@ -34,7 +34,7 @@ export const AssetDetailPage: React.FC = () => {
 
   const schedule = useMemo(() => (asset ? generateDepreciationSchedule(asset) : []), [asset]);
 
-  const goToList = () => navigate(routes.baseModules.assets);
+  const goToList = () => navigate(routes.assets.main);
 
   if (isLoading) return <AssetDetailSkeleton />;
   if (!asset) return <AssetNotFound onBack={goToList} />;

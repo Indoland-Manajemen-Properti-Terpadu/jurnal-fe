@@ -28,7 +28,7 @@ export default function GeneralLedgerPage() {
             title={t('generalLedger.pageTitle')}
             description={t('generalLedger.pageDescription')}
             breadcrumbs={[
-              { label: t('common.financialReports'), to: routes.resultReport.main },
+              { label: t('common.financialReports'), to: routes.reports.main },
               { label: t('catalog.generalLedgerTitle') },
             ]}
           />

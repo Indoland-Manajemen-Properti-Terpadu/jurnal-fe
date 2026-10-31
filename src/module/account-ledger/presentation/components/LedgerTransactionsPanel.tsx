@@ -69,7 +69,7 @@ export const LedgerTransactionsPanel: React.FC<LedgerTransactionsPanelProps> = (
     useFilterTransaction();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const count = selectedRecords.length;
-  const goToCreate = () => navigate(routes.generalJournal.addTransactionJournal);
+  const goToCreate = () => navigate(routes.journalEntries.add);
 
   const handleDeleteSelected = () => {
     if (!idAccount || count === 0) return;

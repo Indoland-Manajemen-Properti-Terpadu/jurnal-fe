@@ -4,8 +4,8 @@ Creates, lists and shows manual general journal entries (double entry). It is th
 
 ## Routes
 
-- `/general-journal/add-transaction-journal` (`routes.generalJournal.addTransactionJournal`): `AddJournalEntryPage`.
-- `/general-journal/detail-transaction-journal/:idTransaction` (`routes.generalJournal.detailTransactionJournal`): `JournalEntryDetailPage` (view, print, delete).
+- `/general-journal/add-transaction-journal` (`routes.journalEntries.add`): `AddJournalEntryPage`.
+- `/general-journal/detail-transaction-journal/:idTransaction` (`routes.journalEntries.detail`): `JournalEntryDetailPage` (view, print, delete).
 - The per-account list of entries (`JournalEntriesTable`) renders inside the account detail page (`account-ledger`, `LedgerTransactionsPanel`).
 
 ## Public API (`index.ts`)

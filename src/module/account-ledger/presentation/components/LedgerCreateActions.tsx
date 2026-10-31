@@ -25,7 +25,7 @@ export const LedgerCreateActions: React.FC<{ variant: LedgerVariant }> = ({ vari
         gradient={GRADIENT}
         size="sm"
         leftSection={<IconPlus size={16} />}
-        onClick={() => navigate(routes.generalJournal.addTransactionJournal)}
+        onClick={() => navigate(routes.journalEntries.add)}
       >
         {t('nonCashBank.create.button')}
       </Button>
@@ -49,25 +49,25 @@ export const LedgerCreateActions: React.FC<{ variant: LedgerVariant }> = ({ vari
         <Menu.Label>{t('cashBank.create.label')}</Menu.Label>
         <Menu.Item
           leftSection={<IconPlus size={16} />}
-          onClick={() => navigate(routes.generalJournal.addTransactionJournal)}
+          onClick={() => navigate(routes.journalEntries.add)}
         >
           {t('cashBank.create.journal')}
         </Menu.Item>
         <Menu.Item
           leftSection={<IconArrowsExchange size={16} />}
-          onClick={() => navigate(routes.BankAndCash.AddTransferMoney)}
+          onClick={() => navigate(routes.bankCash.addTransfer)}
         >
           {t('cashBank.create.transfer')}
         </Menu.Item>
         <Menu.Item
           leftSection={<IconArrowDownRight size={16} />}
-          onClick={() => navigate(routes.BankAndCash.AddReceiveMoney)}
+          onClick={() => navigate(routes.bankCash.addReceive)}
         >
           {t('cashBank.create.receive')}
         </Menu.Item>
         <Menu.Item
           leftSection={<IconArrowUpRight size={16} />}
-          onClick={() => navigate(routes.BankAndCash.AddSentMoney)}
+          onClick={() => navigate(routes.bankCash.addSent)}
         >
           {t('cashBank.create.send')}
         </Menu.Item>

@@ -160,7 +160,7 @@ export const SentMoneySummaryPanel: React.FC<SentMoneySummaryPanelProps> = ({
               size="sm"
               radius="md"
               fullWidth
-              onClick={() => navigate(routes.BankAndCash.Main)}
+              onClick={() => navigate(routes.bankCash.main)}
             >
               {tb('common.cancel')}
             </Button>

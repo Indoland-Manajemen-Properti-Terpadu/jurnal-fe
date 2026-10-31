@@ -44,8 +44,8 @@ const ClosingBooksPage = () => {
     <PeriodClosingLayout
       footer={
         <PeriodFooter
-          onBack={() => navigate(routes.generalJournal.main)}
-          onNext={() => navigate(routes.PeriodAndClosingBook.FinancialStatement)}
+          onBack={() => navigate(routes.chartOfAccounts.main)}
+          onNext={() => navigate(routes.periodClosing.financialStatement)}
           nextLabel={t('common.continue')}
         />
       }

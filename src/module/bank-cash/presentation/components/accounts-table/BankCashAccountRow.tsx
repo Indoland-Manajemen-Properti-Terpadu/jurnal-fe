@@ -26,7 +26,7 @@ export const BankCashAccountRow: React.FC<{ account: JournalAccounts }> = ({ acc
   const { t } = useTranslation('journal');
 
   const handleRowClick = (accountId: string) => {
-    navigate(routes.generalJournal.detailAccount.replace(':idAccount', accountId));
+    navigate(routes.accountLedger.cashBank.replace(':idAccount', accountId));
   };
 
   const isBank = isBankAccount(account);
@@ -147,7 +147,7 @@ export const BankCashAccountRow: React.FC<{ account: JournalAccounts }> = ({ acc
             <Menu.Item
               leftSection={<IconReceipt2 size={15} />}
               onClick={() =>
-                navigate(routes.generalJournal.detailAccount.replace(':idAccount', account.id))
+                navigate(routes.accountLedger.cashBank.replace(':idAccount', account.id))
               }
             >
               {t('viewDetailAndMutation')}
@@ -158,7 +158,7 @@ export const BankCashAccountRow: React.FC<{ account: JournalAccounts }> = ({ acc
                 leftSection={<IconArrowsShuffle size={15} />}
                 onClick={() =>
                   navigate(
-                    `${routes.generalJournal.detailAccount.replace(':idAccount', account.id)}?tab=reconciliation`
+                    `${routes.accountLedger.cashBank.replace(':idAccount', account.id)}?tab=reconciliation`
                   )
                 }
               >
@@ -172,11 +172,7 @@ export const BankCashAccountRow: React.FC<{ account: JournalAccounts }> = ({ acc
               leftSection={<IconArrowsExchange size={15} />}
               onClick={() =>
                 navigate(
-                  withAccountPrefill(
-                    routes.BankAndCash.AddTransferMoney,
-                    'fromAccountId',
-                    account.id
-                  )
+                  withAccountPrefill(routes.bankCash.addTransfer, 'fromAccountId', account.id)
                 )
               }
             >
@@ -186,9 +182,7 @@ export const BankCashAccountRow: React.FC<{ account: JournalAccounts }> = ({ acc
             <Menu.Item
               leftSection={<IconArrowDownRight size={15} />}
               onClick={() =>
-                navigate(
-                  withAccountPrefill(routes.BankAndCash.AddReceiveMoney, 'toAccountId', account.id)
-                )
+                navigate(withAccountPrefill(routes.bankCash.addReceive, 'toAccountId', account.id))
               }
             >
               {t('receiveToThis')}
@@ -197,9 +191,7 @@ export const BankCashAccountRow: React.FC<{ account: JournalAccounts }> = ({ acc
             <Menu.Item
               leftSection={<IconArrowUpRight size={15} />}
               onClick={() =>
-                navigate(
-                  withAccountPrefill(routes.BankAndCash.AddSentMoney, 'fromAccountId', account.id)
-                )
+                navigate(withAccountPrefill(routes.bankCash.addSent, 'fromAccountId', account.id))
               }
             >
               {t('sendFromThis')}
@@ -210,7 +202,7 @@ export const BankCashAccountRow: React.FC<{ account: JournalAccounts }> = ({ acc
             <Menu.Item
               leftSection={<IconPencil size={15} />}
               onClick={() =>
-                navigate(routes.generalJournal.editAccountJournal.replace(':idAccount', account.id))
+                navigate(routes.chartOfAccounts.edit.replace(':idAccount', account.id))
               }
             >
               {t('editAccount')}

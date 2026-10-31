@@ -11,7 +11,7 @@ function ProductionPage() {
       <BaseModulePage
         title={t('title')}
         description={t('description')}
-        routePath={routes.baseModules.production}
+        routePath={routes.production.main}
       />
     </AppShellLayout>
   );

@@ -23,7 +23,7 @@ export const useUpdateAccount = (accountId: string) => {
         title: t('toast.updateOkTitle', undefined, NS),
         message: t('toast.updateOkMsg', undefined, NS),
       });
-      navigate(routes.generalJournal.main);
+      navigate(routes.chartOfAccounts.main);
     },
     onError: (error: any) => {
       notifications.show({

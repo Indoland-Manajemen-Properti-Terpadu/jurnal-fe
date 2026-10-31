@@ -69,7 +69,7 @@ const ImportBankStatementModal: React.FC<ImportBankStatementModalProps> = ({
     importBankStatement(files[0], {
       onSuccess: () => {
         onContinue();
-        navigate(routes.generalJournal.bankStatementDraftImport.replace(':idAccount', idAccount));
+        navigate(routes.bankStatements.importDraft.replace(':idAccount', idAccount));
         setFiles([]);
         setActive(0);
         onClose();

@@ -69,9 +69,7 @@ export function ContactTransactionsPanel({
               <Button
                 variant="light"
                 onClick={() =>
-                  navigate(
-                    routes.Contact.TransactionDetailByContact.replace(':idAccount', contactId)
-                  )
+                  navigate(routes.contacts.transactions.replace(':idAccount', contactId))
                 }
               >
                 {t('allTransactions')}

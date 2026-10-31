@@ -21,7 +21,7 @@ import EmptyState from '@/components/EmptyState/EmptyTable';
 import defaultEmptyImage from '@/assets/images/illustrations/empty-data.svg';
 import LoadingErrorState from '@/module/user-management/presentation/components/user-table/ErrorHandlingUserTable';
 import { AllUserModel, Result } from '@/module/user-management/domain/userTypes';
-import { navigate } from '@/router';
+import { useNavigate } from 'react-router-dom';
 import { routes } from '@/router/routes';
 import { IconDots, IconEdit, IconTrash } from '@tabler/icons-react';
 
@@ -38,6 +38,7 @@ const ICON_SIZE = {
 };
 
 const UserTable = ({ data = { results: [] }, isError, isLoading }: UserTableProps) => {
+  const navigate = useNavigate();
   const { t: tu } = useTranslation('userManagement');
   const [selectedRecords, setSelectedRecords] = useState<Result[]>([]);
   const [query] = useState('');
@@ -206,7 +207,13 @@ const UserTable = ({ data = { results: [] }, isError, isLoading }: UserTableProp
             <Menu.Item
               leftSection={<IconEdit style={ICON_SIZE} />}
               onClick={() =>
-                navigate(routes.userManagement.editUser, { state: { email: item.email!! } })
+                navigate(
+                  routes.userManagement.editUser.replace(
+                    ':email',
+                    encodeURIComponent(item.email!!)
+                  ),
+                  { state: { email: item.email!! } }
+                )
               }
             >
               {tu('common.edit')}

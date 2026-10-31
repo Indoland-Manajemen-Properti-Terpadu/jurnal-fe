@@ -122,7 +122,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onForgotPassword, onSubmit
 
           <Button
             component={Link}
-            to={routes.landingPage}
+            to={routes.landing}
             variant="default"
             size="md"
             radius="md"

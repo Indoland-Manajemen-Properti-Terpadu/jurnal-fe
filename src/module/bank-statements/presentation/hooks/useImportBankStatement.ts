@@ -18,7 +18,7 @@ const tr = (key: string, params?: Record<string, string | number>) =>
   t(key, params, 'bankStatements');
 
 const accountPath = (idAccount: string) =>
-  routes.generalJournal.detailAccount.replace(':idAccount', idAccount);
+  routes.accountLedger.cashBank.replace(':idAccount', idAccount);
 
 export const useImportBankStatement = (idAccount: string) =>
   useMutation({

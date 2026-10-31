@@ -19,7 +19,7 @@ import {
 import { useRef, useState } from 'react';
 import { IconCards, IconChevronDown, IconUsers } from '@tabler/icons-react';
 import { routes } from '@/router/routes';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { gradientColors, themeColors } from '@/theme';
 import { USER_TYPES } from '@/module/user-management/domain/userTypeOptions';
 import { TextMediumGR } from '@/components/Text/CustomText';
@@ -46,7 +46,9 @@ function EditUserPage() {
     { title: tu('user.add'), href: undefined },
   ];
   const location = useLocation();
-  const userEmail = location.state?.email;
+  const { email: emailParam } = useParams();
+  // The list passes the email in the router state; the URL also carries it so a reload still works.
+  const userEmail = location.state?.email ?? emailParam;
   const { data: UserDetail, isLoading, error } = useUserByEmail(userEmail);
 
   const timeoutRef = useRef<number>(-1);

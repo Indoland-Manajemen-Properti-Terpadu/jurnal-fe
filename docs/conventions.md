@@ -2,24 +2,25 @@
 
 English for every identifier and path. User-facing text is bilingual (`id` primary, `en`); see [i18n.md](i18n.md).
 
-| Item | Convention | Example |
-|---|---|---|
-| Feature directory | kebab-case, English, plural for collections | `journal-entries`, `bank-cash` |
-| Ordinary directory | kebab-case | `bank-statements` |
-| Page or component file | PascalCase, name equals the export | `JournalEntryPage.tsx` |
-| Hook | camelCase, starts with `use` | `useJournalEntries.ts` |
-| Zustand store | `use<Name>Store.ts` | `useBankStatementStore.ts` |
-| Use case | verb phrase | `createJournalEntry.ts` |
-| Repository port | by responsibility | `journalEntryRepository.ts` |
-| Repository adapter | `http<Name>Repository.ts` | `httpJournalEntryRepository.ts` |
-| Mapper | `<type>Mapper.ts` | `journalEntryMapper.ts` |
-| Other TypeScript | camelCase | `formatCurrency.ts` |
-| Types, interfaces, enums | PascalCase, no `I` prefix | `JournalEntry` |
-| True constants | `SCREAMING_SNAKE_CASE` | `DEFAULT_PAGE_SIZE` |
-| Tests | beside the unit | `createJournalEntry.test.ts` |
-| CSS Modules | same name as the component | `JournalEntryPage.module.css` |
-| Imports | `@/` alias; never `../../..` | `import { x } from '@/lib/money/money'` |
-| i18n namespace | one per feature, camelCase | `journalEntries` |
+| Item                     | Convention                                                                           | Example                                 |
+| ------------------------ | ------------------------------------------------------------------------------------ | --------------------------------------- |
+| Feature directory        | kebab-case, English, plural for collections                                          | `journal-entries`, `bank-cash`          |
+| Ordinary directory       | kebab-case                                                                           | `bank-statements`                       |
+| Page or component file   | PascalCase, name equals the export                                                   | `JournalEntryPage.tsx`                  |
+| Hook                     | camelCase, starts with `use`                                                         | `useJournalEntries.ts`                  |
+| Zustand store            | `use<Name>Store.ts`                                                                  | `useBankStatementStore.ts`              |
+| Use case                 | verb phrase                                                                          | `createJournalEntry.ts`                 |
+| Repository port          | by responsibility                                                                    | `journalEntryRepository.ts`             |
+| Repository adapter       | `http<Name>Repository.ts`                                                            | `httpJournalEntryRepository.ts`         |
+| Mapper                   | `<type>Mapper.ts`                                                                    | `journalEntryMapper.ts`                 |
+| Other TypeScript         | camelCase                                                                            | `formatCurrency.ts`                     |
+| Types, interfaces, enums | PascalCase, no `I` prefix                                                            | `JournalEntry`                          |
+| True constants           | `SCREAMING_SNAKE_CASE`                                                               | `DEFAULT_PAGE_SIZE`                     |
+| Tests                    | beside the unit                                                                      | `createJournalEntry.test.ts`            |
+| CSS Modules              | same name as the component                                                           | `JournalEntryPage.module.css`           |
+| Imports                  | `@/` alias; never `../../..`                                                         | `import { x } from '@/lib/money/money'` |
+| Route constant           | group = module folder in camelCase, camelCase keys (`main`, `detail`, `add`, `edit`) | `routes.chartOfAccounts.edit`           |
+| i18n namespace           | one per feature, camelCase                                                           | `journalEntries`                        |
 
 ## Do and don't
 

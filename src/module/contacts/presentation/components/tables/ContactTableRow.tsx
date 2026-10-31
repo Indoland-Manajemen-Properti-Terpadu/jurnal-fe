@@ -213,9 +213,7 @@ export function ContactTableRow({
               <Menu.Item
                 leftSection={<IconReceipt2 size={14} />}
                 onClick={() =>
-                  navigate(
-                    routes.Contact.TransactionDetailByContact.replace(':idAccount', contact.id)
-                  )
+                  navigate(routes.contacts.transactions.replace(':idAccount', contact.id))
                 }
               >
                 {t('table.menuHistory')}

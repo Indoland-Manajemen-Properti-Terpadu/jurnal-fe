@@ -40,7 +40,7 @@ export const JournalEntryDetailPage: React.FC = () => {
     deleteMutation.mutate(idTransaction, {
       onSuccess: () => {
         closeDelete();
-        navigate(routes.generalJournal.main);
+        navigate(routes.chartOfAccounts.main);
       },
     });
   };
@@ -88,7 +88,7 @@ export const JournalEntryDetailPage: React.FC = () => {
             <Button
               variant="default"
               leftSection={<IconArrowLeft size={16} />}
-              onClick={() => navigate(routes.generalJournal.main)}
+              onClick={() => navigate(routes.chartOfAccounts.main)}
             >
               {t('detail.backToJournal')}
             </Button>

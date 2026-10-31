@@ -26,7 +26,7 @@ export const useBankCashTransactionMutation = (successMessage?: string) => {
         message: successMessage || tb('mutation.successMessage'),
       });
 
-      navigate(routes.BankAndCash.Main);
+      navigate(routes.bankCash.main);
     },
     onError: (error) => {
       notifications.show({

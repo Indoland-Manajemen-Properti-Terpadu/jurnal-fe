@@ -16,7 +16,7 @@ export function AddContactPage() {
 
   const handleFormSubmit = async (values: ContactFormValues) => {
     const created = await saveMutation.mutateAsync(values);
-    navigate(routes.Contact.DetailContact.replace(':idAccount', created.id));
+    navigate(routes.contacts.detail.replace(':idAccount', created.id));
   };
 
   return (
@@ -31,7 +31,7 @@ export function AddContactPage() {
               <Button
                 variant="default"
                 leftSection={<IconArrowLeft size={16} />}
-                onClick={() => navigate(routes.Contact.Main)}
+                onClick={() => navigate(routes.contacts.main)}
               >
                 {t('add.back')}
               </Button>
@@ -43,7 +43,7 @@ export function AddContactPage() {
             <ContactFormModal
               opened
               isSubmitting={saveMutation.isPending}
-              onClose={() => navigate(routes.Contact.Main)}
+              onClose={() => navigate(routes.contacts.main)}
               onSubmit={handleFormSubmit}
             />
           </Paper>

@@ -11,7 +11,7 @@ function FulfillmentPage() {
       <BaseModulePage
         title={t('title')}
         description={t('description')}
-        routePath={routes.baseModules.fulfillment}
+        routePath={routes.fulfillment.main}
       />
     </AppShellLayout>
   );
