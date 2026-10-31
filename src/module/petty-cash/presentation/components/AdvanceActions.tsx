@@ -33,6 +33,11 @@ export function AdvanceActions({ advance, fund, onChanged }: Readonly<Props>) {
   const { t } = useTranslation('pettyCash');
   const access = usePettyCashAccess();
   const [dialog, setDialog] = useState<Dialog>(null);
+  const [openCount, setOpenCount] = useState(0);
+  const open = (next: Dialog) => {
+    setOpenCount((count) => count + 1);
+    setDialog(next);
+  };
   const [approved, setApproved] = useState<number | ''>(advance.requestedAmount);
   const approve = useAdvanceDecision(advance.id, 'approve');
   const reject = useAdvanceDecision(advance.id, 'reject');
@@ -74,7 +79,7 @@ export function AdvanceActions({ advance, fund, onChanged }: Readonly<Props>) {
     <>
       <Group gap="sm" wrap="wrap">
         {actions.includes('submitSettlement') && (
-          <Button leftSection={<IconReceipt2 size={16} />} onClick={() => setDialog('settle')}>
+          <Button leftSection={<IconReceipt2 size={16} />} onClick={() => open('settle')}>
             {t('advanceActions.settle')}
           </Button>
         )}
@@ -82,7 +87,7 @@ export function AdvanceActions({ advance, fund, onChanged }: Readonly<Props>) {
           <Button
             leftSection={<IconCash size={16} />}
             disabled={busy}
-            onClick={() => setDialog('disburse')}
+            onClick={() => open('disburse')}
           >
             {t('advanceActions.disburse')}
           </Button>
@@ -91,7 +96,7 @@ export function AdvanceActions({ advance, fund, onChanged }: Readonly<Props>) {
           <Button
             leftSection={<IconCheck size={16} />}
             disabled={busy}
-            onClick={() => setDialog('approve')}
+            onClick={() => open('approve')}
           >
             {t('advanceActions.approve')}
           </Button>
@@ -100,7 +105,7 @@ export function AdvanceActions({ advance, fund, onChanged }: Readonly<Props>) {
           <Button
             leftSection={<IconCheck size={16} />}
             disabled={busy}
-            onClick={() => setDialog('custodianVerify')}
+            onClick={() => open('custodianVerify')}
           >
             {t('advanceActions.custodianVerify')}
           </Button>
@@ -109,16 +114,16 @@ export function AdvanceActions({ advance, fund, onChanged }: Readonly<Props>) {
           <Button
             leftSection={<IconCheck size={16} />}
             disabled={busy || accountsMissing}
-            onClick={() => setDialog('financeVerify')}
+            onClick={() => open('financeVerify')}
           >
             {t('advanceActions.financeVerify')}
           </Button>
         )}
-        {actions.includes('setAccounts') && (
+        {actions.includes('setAccounts') && advance.settlement.lines.length > 0 && (
           <Button
             variant="light"
             leftSection={<IconListDetails size={16} />}
-            onClick={() => setDialog('accounts')}
+            onClick={() => open('accounts')}
           >
             {t('advanceActions.saveAccounts')}
           </Button>
@@ -131,19 +136,19 @@ export function AdvanceActions({ advance, fund, onChanged }: Readonly<Props>) {
                 variant="default"
                 leftSection={<IconX size={16} />}
                 disabled={busy}
-                onClick={() => setDialog(action)}
+                onClick={() => open(action)}
               >
                 {t(`advanceActions.${action}`)}
               </Button>
             )
         )}
         {actions.includes('cancel') && (
-          <Button variant="subtle" color="red" disabled={busy} onClick={() => setDialog('cancel')}>
+          <Button variant="subtle" color="red" disabled={busy} onClick={() => open('cancel')}>
             {t('advanceActions.cancel')}
           </Button>
         )}
         {actions.includes('convert') && (
-          <Button variant="subtle" color="red" onClick={() => setDialog('convert')}>
+          <Button variant="subtle" color="red" onClick={() => open('convert')}>
             {t('advanceActions.convert')}
           </Button>
         )}
@@ -250,19 +255,20 @@ export function AdvanceActions({ advance, fund, onChanged }: Readonly<Props>) {
         onConfirm={(reason) => financeReject.mutate({ reason }, { onSuccess: done })}
       />
       <SettlementDialog
+        key={`settle-${openCount}`}
         advance={advance}
         opened={dialog === 'settle'}
-        onClose={() => {
-          setDialog(null);
-          onChanged?.();
-        }}
+        onClose={() => setDialog(null)}
+        onSubmitted={() => onChanged?.()}
       />
       <SettlementAccountsDialog
+        key={`accounts-${openCount}`}
         advance={advance}
         opened={dialog === 'accounts'}
         onClose={() => setDialog(null)}
       />
       <ConvertAdvanceDialog
+        key={`convert-${openCount}`}
         advance={advance}
         opened={dialog === 'convert'}
         onClose={() => setDialog(null)}

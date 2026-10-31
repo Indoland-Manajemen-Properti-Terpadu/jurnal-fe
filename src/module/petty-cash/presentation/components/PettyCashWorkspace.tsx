@@ -37,6 +37,9 @@ interface Selection {
 const closeSelection = (current: Selection | null): Selection | null =>
   current ? { ...current, open: false } : null;
 
+/** Anyone with a part in the advance workflow sees the tab; the others would only get a refusal. */
+const ADVANCE_MENUS = ['JP-PC', 'JP-PC-ADV', 'JP-PC-CST', 'JP-PC-APR', 'JP-PC-CTL'] as const;
+
 const TABS = ['vouchers', 'counts', 'replenishments', 'advances', 'cashBook', 'reports'];
 
 /**
@@ -48,7 +51,11 @@ export function PettyCashWorkspace({
   initialTab,
 }: Readonly<{ fund: PettyCashFund; initialTab?: string | null }>) {
   const { t } = useTranslation('pettyCash');
-  const canReadReports = usePettyCashAccess().can('JP-PC', 'read');
+  const access = usePettyCashAccess();
+  const canReadReports = access.can('JP-PC', 'read');
+  const canSeeAdvances = ADVANCE_MENUS.some(
+    (menu) => access.can(menu, 'read') || access.can(menu, 'update') || access.can(menu, 'create')
+  );
   const [tab, setTab] = useState<string | null>(
     initialTab && TABS.includes(initialTab) ? initialTab : 'vouchers'
   );
@@ -64,7 +71,11 @@ export function PettyCashWorkspace({
       <FundInfoStrip fund={fund} />
       <Paper withBorder radius="lg" p="md" bg="white">
         <Tabs
-          value={tab === 'reports' && !canReadReports ? 'vouchers' : tab}
+          value={
+            (tab === 'reports' && !canReadReports) || (tab === 'advances' && !canSeeAdvances)
+              ? 'vouchers'
+              : tab
+          }
           onChange={setTab}
           color="primary"
           variant="pills"
@@ -81,9 +92,11 @@ export function PettyCashWorkspace({
             <Tabs.Tab value="replenishments" leftSection={<IconCash size={16} />}>
               {t('workspace.tabs.replenishments')}
             </Tabs.Tab>
-            <Tabs.Tab value="advances" leftSection={<IconWallet size={16} />}>
-              {t('workspace.tabs.advances')}
-            </Tabs.Tab>
+            {canSeeAdvances && (
+              <Tabs.Tab value="advances" leftSection={<IconWallet size={16} />}>
+                {t('workspace.tabs.advances')}
+              </Tabs.Tab>
+            )}
             <Tabs.Tab value="cashBook" leftSection={<IconBook2 size={16} />}>
               {t('workspace.tabs.cashBook')}
             </Tabs.Tab>
@@ -113,13 +126,15 @@ export function PettyCashWorkspace({
               onSelect={(id) => setReplenishment({ id, open: true })}
             />
           </Tabs.Panel>
-          <Tabs.Panel value="advances">
-            <AdvanceList
-              fundId={fund.id}
-              action={<RequestAdvanceButton fund={fund} />}
-              onSelect={(id) => setAdvance({ id, open: true })}
-            />
-          </Tabs.Panel>
+          {canSeeAdvances && (
+            <Tabs.Panel value="advances">
+              <AdvanceList
+                fundId={fund.id}
+                action={<RequestAdvanceButton fund={fund} />}
+                onSelect={(id) => setAdvance({ id, open: true })}
+              />
+            </Tabs.Panel>
+          )}
           {canReadReports && (
             <Tabs.Panel value="reports">
               <ReportsPanel fundId={fund.id} />

@@ -132,7 +132,7 @@ export const submitAdvanceSettlement = async (
   }
   const form = new FormData();
   form.append('date', input.date);
-  form.append('beneficiary', input.beneficiary);
+  if (input.beneficiary !== undefined) form.append('beneficiary', input.beneficiary);
   if (input.description !== undefined) form.append('description', input.description);
   if (input.receiptNumber !== undefined) form.append('receiptNumber', input.receiptNumber);
   form.append('lines', JSON.stringify(input.lines));

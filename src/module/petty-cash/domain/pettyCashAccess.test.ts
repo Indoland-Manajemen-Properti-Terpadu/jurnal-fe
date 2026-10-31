@@ -268,4 +268,9 @@ describe('employee advance rights', () => {
     expect(allowedAdvanceActions(control, ctx('DISBURSED'))).toEqual(['convert']);
     expect(allowedAdvanceActions(control, ctx('SETTLED'))).toEqual([]);
   });
+
+  it('does not let a controller write off their own advance', () => {
+    const own = ctx('DISBURSED', { requesterId: control.userId });
+    expect(allowedAdvanceActions(control, own)).not.toContain('convert');
+  });
 });

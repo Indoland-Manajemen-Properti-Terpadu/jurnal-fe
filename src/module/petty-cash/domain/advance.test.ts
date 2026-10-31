@@ -129,4 +129,10 @@ describe('toSettlementInput', () => {
     expect(input).not.toHaveProperty('description');
     expect(input).not.toHaveProperty('receiptNumber');
   });
+
+  it('leaves out the beneficiary when nothing was spent', () => {
+    const input = toSettlementInput(settlement({ beneficiary: ' ', lines: [] }));
+    expect(input).not.toHaveProperty('beneficiary');
+    expect(input.lines).toEqual([]);
+  });
 });

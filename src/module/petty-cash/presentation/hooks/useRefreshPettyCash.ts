@@ -18,5 +18,6 @@ export const useRefreshPettyCash = () => {
       queryClient.invalidateQueries({ queryKey: pettyCashKeys.reimbursements(scope) }),
       queryClient.invalidateQueries({ queryKey: pettyCashKeys.advances(scope) }),
       queryClient.invalidateQueries({ queryKey: pettyCashKeys.reports(scope) }),
+      queryClient.invalidateQueries({ queryKey: pettyCashKeys.auditAll(scope) }),
     ]);
 };

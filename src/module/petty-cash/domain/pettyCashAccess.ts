@@ -229,6 +229,8 @@ export const allowedAdvanceActions = (
   ) {
     actions.push('financeVerify', 'financeReject');
   }
-  if (status === 'DISBURSED' && canControlRestrictions(profile)) actions.push('convert');
+  if (status === 'DISBURSED' && canControlRestrictions(profile) && !isRequester) {
+    actions.push('convert');
+  }
   return actions;
 };

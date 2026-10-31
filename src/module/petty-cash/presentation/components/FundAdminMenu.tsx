@@ -24,6 +24,11 @@ export function FundAdminMenu({
   const { t } = useTranslation('pettyCash');
   const access = usePettyCashAccess();
   const [dialog, setDialog] = useState<Dialog>(null);
+  const [openCount, setOpenCount] = useState(0);
+  const show = (next: Dialog) => {
+    setOpenCount((count) => count + 1);
+    setDialog(next);
+  };
 
   const canCreate = access.can('JP-PC', 'create');
   const canUpdate = Boolean(fund) && fund?.status !== 'CLOSED' && access.can('JP-PC', 'update');
@@ -44,19 +49,16 @@ export function FundAdminMenu({
         </Menu.Target>
         <Menu.Dropdown>
           {canCreate && (
-            <Menu.Item leftSection={<IconPlus size={16} />} onClick={() => setDialog('create')}>
+            <Menu.Item leftSection={<IconPlus size={16} />} onClick={() => show('create')}>
               {t('fundAdmin.create')}
             </Menu.Item>
           )}
           {canUpdate && (
             <>
-              <Menu.Item leftSection={<IconSettings size={16} />} onClick={() => setDialog('edit')}>
+              <Menu.Item leftSection={<IconSettings size={16} />} onClick={() => show('edit')}>
                 {t('fundAdmin.edit')}
               </Menu.Item>
-              <Menu.Item
-                leftSection={<IconAdjustments size={16} />}
-                onClick={() => setDialog('adjust')}
-              >
+              <Menu.Item leftSection={<IconAdjustments size={16} />} onClick={() => show('adjust')}>
                 {t('fundAdmin.adjust')}
               </Menu.Item>
             </>
@@ -65,7 +67,7 @@ export function FundAdminMenu({
             <Menu.Item
               color="red"
               leftSection={<IconLock size={16} />}
-              onClick={() => setDialog('close')}
+              onClick={() => show('close')}
             >
               {t('fundAdmin.close')}
             </Menu.Item>
@@ -74,6 +76,7 @@ export function FundAdminMenu({
       </Menu>
 
       <FundFormDialog
+        key={`create-${openCount}`}
         opened={dialog === 'create'}
         onClose={() => setDialog(null)}
         onSaved={onCreated}
@@ -81,17 +84,19 @@ export function FundAdminMenu({
       {fund && (
         <>
           <FundFormDialog
-            key={fund.id}
+            key={`${fund.id}-${openCount}`}
             fund={fund}
             opened={dialog === 'edit'}
             onClose={() => setDialog(null)}
           />
           <AdjustPaguDialog
+            key={`adjust-${fund.id}-${openCount}`}
             fund={fund}
             opened={dialog === 'adjust'}
             onClose={() => setDialog(null)}
           />
           <CloseFundDialog
+            key={`close-${fund.id}-${openCount}`}
             fund={fund}
             opened={dialog === 'close'}
             onClose={() => setDialog(null)}

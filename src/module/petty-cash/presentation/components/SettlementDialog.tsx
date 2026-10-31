@@ -33,12 +33,14 @@ interface Props {
   advance: AdvanceRecord;
   opened: boolean;
   onClose: () => void;
+  /** Runs after a successful submit, once the dialog has closed. */
+  onSubmitted?: () => void;
 }
 
 const money = (amount: number) => formatCurrency(amount, false);
 
 /** The requester accounts for the cash: what was spent (with receipts) and what goes back. */
-export function SettlementDialog({ advance, opened, onClose }: Readonly<Props>) {
+export function SettlementDialog({ advance, opened, onClose, onSubmitted }: Readonly<Props>) {
   const { t } = useTranslation('pettyCash');
   const today = dayjs().format('YYYY-MM-DD');
   const submit = useSubmitSettlement(advance.id);
@@ -72,7 +74,15 @@ export function SettlementDialog({ advance, opened, onClose }: Readonly<Props>) 
   const send = () => {
     setTouched(true);
     if (issues.length > 0 || fileIssues.length > 0 || receiptsMissing) return;
-    submit.mutate({ input: toSettlementInput(draft), files }, { onSuccess: close });
+    submit.mutate(
+      { input: toSettlementInput(draft), files },
+      {
+        onSuccess: () => {
+          close();
+          onSubmitted?.();
+        },
+      }
+    );
   };
 
   const fileError = [

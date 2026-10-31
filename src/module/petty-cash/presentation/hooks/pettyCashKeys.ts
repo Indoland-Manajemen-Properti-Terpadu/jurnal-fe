@@ -48,6 +48,7 @@ export const pettyCashKeys = {
   reports: (scope: string) => [...pettyCashKeys.all(scope), 'reports'] as const,
   report: (scope: string, name: string, params: unknown) =>
     [...pettyCashKeys.reports(scope), name, params] as const,
+  auditAll: (scope: string) => [...pettyCashKeys.all(scope), 'audit'] as const,
   audit: (scope: string, entityType: string, entityId: string) =>
     [...pettyCashKeys.all(scope), 'audit', entityType, entityId] as const,
   voucher: (scope: string, voucherId: string) =>

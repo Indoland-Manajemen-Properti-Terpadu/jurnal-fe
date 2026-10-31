@@ -64,7 +64,8 @@ export interface SettlementDraft {
 
 export interface SettlementInput {
   date: string;
-  beneficiary: string;
+  /** Left out when nothing was spent. */
+  beneficiary?: string;
   description?: string;
   receiptNumber?: string;
   lines: Array<{ description: string; amount: number; expenseAccountId?: string }>;
@@ -155,7 +156,6 @@ export const settlementBalance = (
 export const toSettlementInput = (draft: SettlementDraft): SettlementInput => {
   const input: SettlementInput = {
     date: draft.date,
-    beneficiary: draft.beneficiary.trim(),
     lines: draft.lines.map((line) => {
       const out: SettlementInput['lines'][number] = {
         description: line.description.trim(),
@@ -165,6 +165,7 @@ export const toSettlementInput = (draft: SettlementDraft): SettlementInput => {
       return out;
     }),
   };
+  if (draft.beneficiary.trim()) input.beneficiary = draft.beneficiary.trim();
   if (draft.description.trim()) input.description = draft.description.trim();
   if (draft.receiptNumber.trim()) input.receiptNumber = draft.receiptNumber.trim();
   return input;

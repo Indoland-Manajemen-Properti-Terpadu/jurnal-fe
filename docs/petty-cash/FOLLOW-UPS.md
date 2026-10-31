@@ -73,9 +73,7 @@ Alur penuh PCA/0007 lewat UI dengan akun berbeda di tiap langkah: disetujui fina
 
 Temuan yang sudah diperbaiki: tombol pengajuan memanggil status uang muka tanpa hak pengajuan sehingga pemegang kas menerima 403 berulang.
 
-Belum teruji: tombol Kembalikan ke pemohon, dan verifikasi keuangan oleh akun pc.approver (kata sandinya bukan `password123`, perlu info dari pemilik produk). PCA/0005 tertahan di status Diverifikasi pemegang kas sampai ada penyetuju lain.
-
-Pertanyaan ke backend: PCA/0005 (uang muka 400.000, pengeluaran 350.000) menampilkan Belum dipertanggungjawabkan 350.000 pada status Diverifikasi pemegang kas. Apakah nilai itu menunggu verifikasi keuangan, atau seharusnya 50.000 (sisa yang harus dikembalikan)?
+Diperbarui 2026-11-01: semua akun uji memakai `password123`. PCA/0005 ditutup oleh pc.approver (Selesai, sisa belum dipertanggungjawabkan Rp 0, jadi angka Rp 350.000 sebelumnya menunggu verifikasi keuangan). Tombol Kembalikan ke pemohon diuji pada PCA/0008 (dikembalikan pemegang kas, kini berstatus Sudah diterima, Rp 60.000 beredar). Buat dana ditolak backend karena akun 1-10001 bersaldo Rp 600.000 (pendanaan dari bank mensyaratkan saldo 0); tutup dana belum dicoba.
 
 ## Ditunda dari tinjauan Fase 3 (dengan alasan)
 
