@@ -9,8 +9,8 @@ import { LoginForm } from '@/module/authentication/presentation/components/Login
 import { ForgotPasswordForm } from '@/module/authentication/presentation/components/ForgotPasswordForm';
 
 import { useTranslation } from '@/i18n';
-
 import { FORGOT_PASSWORD_ENABLED } from '@/module/authentication/domain/authFeatures';
+
 interface LoginPageProps {
   initialMode?: 'login' | 'forgot';
 }

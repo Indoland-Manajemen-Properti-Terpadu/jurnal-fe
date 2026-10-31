@@ -1,6 +1,5 @@
 import { MemoryRouter } from 'react-router-dom';
-import { screen } from '@testing-library/react';
-import { render } from '../../../../../test-utils';
+import { render, screen } from '@test-utils';
 import { LoginForm } from './LoginForm';
 
 const renderForm = (onForgotPassword?: () => void) =>
