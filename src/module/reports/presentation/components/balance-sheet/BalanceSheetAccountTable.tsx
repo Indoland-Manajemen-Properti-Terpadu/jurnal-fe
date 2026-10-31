@@ -3,6 +3,7 @@ import { Badge, Box, Group, ScrollArea, Table, Text } from '@mantine/core';
 import type { BalanceSheetAccountItem } from '@/module/reports/domain/balanceSheet.types';
 import { formatMoney } from '@/module/reports/domain/reportFormat';
 
+import { useTranslation } from '@/i18n';
 interface BalanceSheetAccountTableProps {
   title: string;
   accounts: BalanceSheetAccountItem[];
@@ -18,8 +19,10 @@ export const BalanceSheetAccountTable: React.FC<BalanceSheetAccountTableProps> =
   subtotal,
   subtotalLabel,
   subtotalColor = 'dark.9',
-  emptyText = 'Tidak ada akun tercatat',
+  emptyText,
 }) => {
+  const { t } = useTranslation('reports');
+  const emptyMessage = emptyText ?? t('balanceSheet.noAccounts');
   return (
     <Box>
       <Group justify="space-between" align="center" mb={6}>
@@ -38,10 +41,12 @@ export const BalanceSheetAccountTable: React.FC<BalanceSheetAccountTableProps> =
         >
           <Table.Thead bg="gray.1">
             <Table.Tr>
-              <Table.Th w={120}>No. Akun</Table.Th>
-              <Table.Th>Nama Akun</Table.Th>
-              <Table.Th w={140}>Kategori</Table.Th>
-              <Table.Th ta="right" w={160}>Saldo</Table.Th>
+              <Table.Th w={120}>{t('common.accountNumberShort')}</Table.Th>
+              <Table.Th>{t('common.accountName')}</Table.Th>
+              <Table.Th w={140}>{t('common.category')}</Table.Th>
+              <Table.Th ta="right" w={160}>
+                {t('common.balance')}
+              </Table.Th>
             </Table.Tr>
           </Table.Thead>
 
@@ -50,7 +55,7 @@ export const BalanceSheetAccountTable: React.FC<BalanceSheetAccountTableProps> =
               <Table.Tr>
                 <Table.Td colSpan={4} ta="center" py="md">
                   <Text size="xs" c="dimmed" fs="italic">
-                    {emptyText}
+                    {emptyMessage}
                   </Text>
                 </Table.Td>
               </Table.Tr>
@@ -75,7 +80,9 @@ export const BalanceSheetAccountTable: React.FC<BalanceSheetAccountTableProps> =
                         {item.categoryName}
                       </Badge>
                     ) : (
-                      <Text size="xs" c="dimmed">-</Text>
+                      <Text size="xs" c="dimmed">
+                        -
+                      </Text>
                     )}
                   </Table.Td>
 
@@ -110,9 +117,7 @@ export const BalanceSheetAccountTable: React.FC<BalanceSheetAccountTableProps> =
                   c={subtotalColor}
                   style={{ fontVariantNumeric: 'tabular-nums' }}
                 >
-                  {subtotal < 0
-                    ? `(${formatMoney(Math.abs(subtotal))})`
-                    : formatMoney(subtotal)}
+                  {subtotal < 0 ? `(${formatMoney(Math.abs(subtotal))})` : formatMoney(subtotal)}
                 </Text>
               </Table.Th>
             </Table.Tr>
@@ -122,4 +127,3 @@ export const BalanceSheetAccountTable: React.FC<BalanceSheetAccountTableProps> =
     </Box>
   );
 };
-

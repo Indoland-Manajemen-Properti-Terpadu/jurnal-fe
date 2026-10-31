@@ -37,8 +37,7 @@ export const fetchJournalEntryReport = (
 export const fetchIncomeStatementReport = (
   fromDate: string,
   toDate: string
-): Promise<IncomeStatementReport[]> =>
-  get(REPORT_ENDPOINTS.INCOME_STATEMENT, { fromDate, toDate });
+): Promise<IncomeStatementReport[]> => get(REPORT_ENDPOINTS.INCOME_STATEMENT, { fromDate, toDate });
 
 export const fetchEquityChangeReport = (
   fromDate: string,

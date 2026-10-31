@@ -21,9 +21,13 @@ import {
   IconLock,
   IconReceipt2,
 } from '@tabler/icons-react';
-import type { GeneralLedgerReport, ReportPeriod } from '@/module/reports/domain/generalLedger.types';
+import type {
+  GeneralLedgerReport,
+  ReportPeriod,
+} from '@/module/reports/domain/generalLedger.types';
 import { displayDate, formatCount, formatMoney } from '@/module/reports/domain/reportFormat';
 
+import { useTranslation } from '@/i18n';
 interface GeneralLedgerSummaryCardsProps {
   report: GeneralLedgerReport;
   period: ReportPeriod;
@@ -37,13 +41,14 @@ export const GeneralLedgerSummaryCards: React.FC<GeneralLedgerSummaryCardsProps>
   totalTransactions,
   isBalanced,
 }) => {
+  const { t } = useTranslation('reports');
   return (
     <Stack gap="sm">
       {/* Period Header Info */}
       <Group justify="space-between" align="center" wrap="wrap" gap="xs">
         <Group gap="xs" align="center">
           <Text size="xs" fw={700} c="dimmed" tt="uppercase" style={{ letterSpacing: '0.5px' }}>
-            Ringkasan Buku Besar Periode:
+            {t('generalLedger.summaryTitle')}
           </Text>
           <Text size="sm" fw={700} c="dark.8">
             {displayDate(period.startDate)} — {displayDate(period.endDate)}
@@ -64,11 +69,7 @@ export const GeneralLedgerSummaryCards: React.FC<GeneralLedgerSummaryCardsProps>
           )}
 
           <Tooltip
-            label={
-              isBalanced
-                ? 'Total mutasi debit dan kredit dalam periode ini seimbang sempurna.'
-                : 'Peringatan: Terdapat selisih antara total debit dan total kredit periode.'
-            }
+            label={isBalanced ? t('generalLedger.balancedNote') : t('generalLedger.unbalancedNote')}
           >
             <Badge
               size="sm"
@@ -76,7 +77,7 @@ export const GeneralLedgerSummaryCards: React.FC<GeneralLedgerSummaryCardsProps>
               color={isBalanced ? 'teal' : 'red'}
               leftSection={isBalanced ? <IconCheck size={13} /> : <IconAlertTriangle size={13} />}
             >
-              {isBalanced ? 'Jurnal Seimbang (Balanced)' : 'Tidak Seimbang (Selisih)'}
+              {isBalanced ? t('generalLedger.badgeBalanced') : t('generalLedger.badgeUnbalanced')}
             </Badge>
           </Tooltip>
         </Group>
@@ -89,7 +90,7 @@ export const GeneralLedgerSummaryCards: React.FC<GeneralLedgerSummaryCardsProps>
           <Group justify="space-between" align="flex-start">
             <Box>
               <Text size="xs" fw={600} c="dimmed" tt="uppercase">
-                Akun Terdaftar
+                {t('generalLedger.cardAccounts')}
               </Text>
               <Text size="xl" fw={800} c="dark.9" mt={4}>
                 {formatCount(report.accounts.length)}
@@ -100,7 +101,7 @@ export const GeneralLedgerSummaryCards: React.FC<GeneralLedgerSummaryCardsProps>
             </ThemeIcon>
           </Group>
           <Text size="xs" c="dimmed" mt="xs">
-            Akun memiliki pergerakan / saldo
+            {t('generalLedger.cardAccountsHint')}
           </Text>
         </Paper>
 
@@ -109,7 +110,7 @@ export const GeneralLedgerSummaryCards: React.FC<GeneralLedgerSummaryCardsProps>
           <Group justify="space-between" align="flex-start">
             <Box>
               <Text size="xs" fw={600} c="dimmed" tt="uppercase">
-                Volume Transaksi
+                {t('generalLedger.cardVolume')}
               </Text>
               <Text size="xl" fw={800} c="dark.9" mt={4}>
                 {formatCount(totalTransactions)}
@@ -120,7 +121,7 @@ export const GeneralLedgerSummaryCards: React.FC<GeneralLedgerSummaryCardsProps>
             </ThemeIcon>
           </Group>
           <Text size="xs" c="dimmed" mt="xs">
-            Baris mutasi dalam periode
+            {t('generalLedger.cardVolumeHint')}
           </Text>
         </Paper>
 
@@ -129,7 +130,7 @@ export const GeneralLedgerSummaryCards: React.FC<GeneralLedgerSummaryCardsProps>
           <Group justify="space-between" align="flex-start">
             <Box>
               <Text size="xs" fw={600} c="dimmed" tt="uppercase">
-                Total Mutasi Debit
+                {t('generalLedger.cardTotalDebit')}
               </Text>
               <Text size="xl" fw={800} c="teal.7" mt={4}>
                 {formatMoney(report.periodDebitTotal)}
@@ -140,7 +141,7 @@ export const GeneralLedgerSummaryCards: React.FC<GeneralLedgerSummaryCardsProps>
             </ThemeIcon>
           </Group>
           <Text size="xs" c="dimmed" mt="xs">
-            Akumulasi debit semua akun
+            {t('generalLedger.cardTotalDebitHint')}
           </Text>
         </Paper>
 
@@ -149,7 +150,7 @@ export const GeneralLedgerSummaryCards: React.FC<GeneralLedgerSummaryCardsProps>
           <Group justify="space-between" align="flex-start">
             <Box>
               <Text size="xs" fw={600} c="dimmed" tt="uppercase">
-                Total Mutasi Kredit
+                {t('generalLedger.cardTotalCredit')}
               </Text>
               <Text size="xl" fw={800} c="red.7" mt={4}>
                 {formatMoney(report.periodCreditTotal)}
@@ -160,7 +161,7 @@ export const GeneralLedgerSummaryCards: React.FC<GeneralLedgerSummaryCardsProps>
             </ThemeIcon>
           </Group>
           <Text size="xs" c="dimmed" mt="xs">
-            Akumulasi kredit semua akun
+            {t('generalLedger.cardTotalCreditHint')}
           </Text>
         </Paper>
       </SimpleGrid>

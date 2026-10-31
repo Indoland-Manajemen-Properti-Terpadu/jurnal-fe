@@ -2,6 +2,7 @@ import type { Icon } from '@tabler/icons-react';
 import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
 import { routes } from '@/router/routes';
 
+import { useTranslation } from '@/i18n';
 interface ReportPageHeaderProps {
   icon: Icon;
   title: string;
@@ -9,13 +10,16 @@ interface ReportPageHeaderProps {
 }
 
 export function ReportPageHeader({ icon, title, description }: ReportPageHeaderProps) {
+  const { t } = useTranslation('reports');
   return (
     <ModuleHeader
       icon={icon}
       title={title}
       description={description}
-      breadcrumbs={[{ label: 'Laporan', to: routes.resultReport.main }, { label: title }]}
+      breadcrumbs={[
+        { label: t('common.reportsBreadcrumb'), to: routes.resultReport.main },
+        { label: title },
+      ]}
     />
   );
 }
-

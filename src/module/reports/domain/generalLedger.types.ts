@@ -35,4 +35,3 @@ export interface GeneralLedgerReport {
   periodLockName: string | null;
   periodLockType: string | null;
 }
-

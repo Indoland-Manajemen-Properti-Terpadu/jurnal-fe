@@ -1,0 +1,73 @@
+export const reportsStatements = {
+  trialBalance: {
+    description:
+      'Check account debit and credit balances before preparing the financial statements.',
+  },
+  incomeStatement: {
+    description: 'Review revenue and expenses to understand business results over the period.',
+  },
+  equityChanges: {
+    description: 'Review changes in capital and equity components over the period.',
+    ownerEquity: 'Owner Equity',
+  },
+  journalEntry: {
+    description: 'Check the list of recorded transactions and journal details within the period.',
+    lastTransaction: 'Last transaction:',
+    reportTitle: 'Journal Entry Report',
+    empty: 'No journal entries available',
+    colNumber: 'Transaction Number',
+    colDate: 'Transaction Date',
+    entryHash: 'Journal Entry #',
+    createdDate: '(Created Date:',
+    total: 'Total Journal Entry',
+  },
+  budget: {
+    title: 'Budget Management',
+    add: 'Add Budget',
+  },
+  budgetIncome: {
+    title: 'Income Statement Budget',
+  },
+  businessSummary: {
+    title: 'Business Sumary Report',
+  },
+  cashFlow: {
+    title: 'Cash Flow Report',
+  },
+  summaryRow: {
+    incomeStatement: 'Income Statement Summary',
+    balanceSheet: 'Balance Sheet Summary',
+    cashFlow: 'Cash Flow Summary',
+    insight: 'Insight Report',
+    revenue: 'Revenue',
+    cogs: 'Cost of Goods Sold',
+    opex: 'Operating Expenses',
+    operatingIncome: 'Operating Income',
+    netProfit: 'Net Profit/(Loss)',
+  },
+  cashFlowRow: {
+    operating: 'Cash Flow From Operating Activities',
+    inflows: 'Cash Inflows',
+    fromCustomer: 'Cash received from customer',
+    otherIncome: 'Other Income',
+    outflows: 'Cash Outflows',
+    toSuppliers: 'Payment to suppliers',
+    opex: 'Operational expenditures',
+    creditCard: 'Credit card and other short-term liabilities',
+    netOperating: 'Net cash obtained from operating activities',
+    investing: 'Cash Flow From Investing Activities',
+    acquisition: 'Acquistion of assets',
+    sale: 'Sale of assets',
+    otherInvesting: 'Other investing activities',
+    netInvesting: 'Net cash obtained from investing activities',
+    financing: 'Cash Flow From Financing Activities',
+    loanPayments: 'Payments of loans',
+    loanReceipts: 'Receipts of loans',
+    equityCapital: 'Equity/Capital',
+    dividends: 'Dividens paid',
+    netFinancing: 'Net cash obtained from financing activities',
+    netChange: 'Net Increase/Decrease in Cash',
+    beginningCash: 'Cash at Beginning of Period',
+    endingCash: 'Cash at End of Period',
+  },
+};

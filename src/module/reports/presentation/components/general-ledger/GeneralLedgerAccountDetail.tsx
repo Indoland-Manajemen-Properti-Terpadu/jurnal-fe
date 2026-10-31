@@ -27,9 +27,13 @@ import {
 } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 import { EmptyState } from '@/components/EmptyState';
-import type { GeneralLedgerAccount, GeneralLedgerTransaction } from '@/module/reports/domain/generalLedger.types';
+import type {
+  GeneralLedgerAccount,
+  GeneralLedgerTransaction,
+} from '@/module/reports/domain/generalLedger.types';
 import { displayDate, formatCount, formatMoney } from '@/module/reports/domain/reportFormat';
 
+import { useTranslation } from '@/i18n';
 interface GeneralLedgerAccountDetailProps {
   account: GeneralLedgerAccount | null;
   transactions: GeneralLedgerTransaction[];
@@ -47,12 +51,13 @@ export const GeneralLedgerAccountDetail: React.FC<GeneralLedgerAccountDetailProp
   transactionSort,
   onTransactionSortChange,
 }) => {
+  const { t } = useTranslation('reports');
   if (!account) {
     return (
       <Paper withBorder radius="lg" p="xl" bg="white" shadow="xs">
         <EmptyState
-          title="Pilih Akun Buku Besar"
-          description="Pilih salah satu akun pada daftar di sebelah kiri untuk melihat rincian mutasi transaksi dan saldo berjalan."
+          title={t('generalLedger.selectAccountTitle')}
+          description={t('generalLedger.selectAccountDescription')}
           py={60}
         />
       </Paper>
@@ -71,14 +76,14 @@ export const GeneralLedgerAccountDetail: React.FC<GeneralLedgerAccountDetailProp
             <Box>
               <Group gap="xs" align="center">
                 <Text size="xs" fw={700} c="primary.7" style={{ fontFamily: 'monospace' }}>
-                  AKUN {account.number}
+                  {t('generalLedger.accountBadge')} {account.number}
                 </Text>
                 <Badge variant="light" color="primary" size="sm">
                   {account.category}
                 </Badge>
                 {account.isContra && (
                   <Badge variant="outline" color="orange" size="sm">
-                    Akun Kontra
+                    {t('generalLedger.contraAccount')}
                   </Badge>
                 )}
               </Group>
@@ -89,7 +94,7 @@ export const GeneralLedgerAccountDetail: React.FC<GeneralLedgerAccountDetailProp
           </Group>
 
           <Badge variant="outline" color="gray" size="md">
-            {formatCount(account.transactions.length)} Transaksi Terdaftar
+            {formatCount(account.transactions.length)} {t('generalLedger.registeredTransactions')}
           </Badge>
         </Group>
 
@@ -97,27 +102,45 @@ export const GeneralLedgerAccountDetail: React.FC<GeneralLedgerAccountDetailProp
         <SimpleGrid cols={{ base: 2, sm: 4 }} spacing="sm">
           <Paper withBorder radius="md" p="sm" bg="gray.0">
             <Text size="xs" c="dimmed" fw={600}>
-              Saldo Awal
+              {t('generalLedger.openingBalance')}
             </Text>
-            <Text size="sm" fw={700} c="dark.8" mt={2} style={{ fontVariantNumeric: 'tabular-nums' }}>
+            <Text
+              size="sm"
+              fw={700}
+              c="dark.8"
+              mt={2}
+              style={{ fontVariantNumeric: 'tabular-nums' }}
+            >
               {formatMoney(account.openingBalance)}
             </Text>
           </Paper>
 
           <Paper withBorder radius="md" p="sm" bg="gray.0">
             <Text size="xs" c="teal.7" fw={600}>
-              Total Debit
+              {t('generalLedger.totalDebit')}
             </Text>
-            <Text size="sm" fw={700} c="teal.8" mt={2} style={{ fontVariantNumeric: 'tabular-nums' }}>
+            <Text
+              size="sm"
+              fw={700}
+              c="teal.8"
+              mt={2}
+              style={{ fontVariantNumeric: 'tabular-nums' }}
+            >
               {formatMoney(account.periodDebit)}
             </Text>
           </Paper>
 
           <Paper withBorder radius="md" p="sm" bg="gray.0">
             <Text size="xs" c="indigo.7" fw={600}>
-              Total Kredit
+              {t('generalLedger.totalCredit')}
             </Text>
-            <Text size="sm" fw={700} c="indigo.8" mt={2} style={{ fontVariantNumeric: 'tabular-nums' }}>
+            <Text
+              size="sm"
+              fw={700}
+              c="indigo.8"
+              mt={2}
+              style={{ fontVariantNumeric: 'tabular-nums' }}
+            >
               {formatMoney(account.periodCredit)}
             </Text>
           </Paper>
@@ -130,9 +153,15 @@ export const GeneralLedgerAccountDetail: React.FC<GeneralLedgerAccountDetailProp
             style={{ borderColor: 'var(--mantine-color-primary-3)' }}
           >
             <Text size="xs" c="primary.7" fw={700}>
-              Saldo Akhir
+              {t('generalLedger.closingBalance')}
             </Text>
-            <Text size="sm" fw={800} c="primary.9" mt={2} style={{ fontVariantNumeric: 'tabular-nums' }}>
+            <Text
+              size="sm"
+              fw={800}
+              c="primary.9"
+              mt={2}
+              style={{ fontVariantNumeric: 'tabular-nums' }}
+            >
               {formatMoney(account.closingBalance)}
             </Text>
           </Paper>
@@ -144,10 +173,10 @@ export const GeneralLedgerAccountDetail: React.FC<GeneralLedgerAccountDetailProp
         <Group justify="space-between" align="center" wrap="wrap" gap="sm">
           <Group gap="xs" align="center">
             <Text fw={700} size="sm" c="dark.9">
-              Rincian Mutasi Transaksi
+              {t('generalLedger.movementDetail')}
             </Text>
             <Badge size="xs" variant="light" color="gray">
-              {transactions.length} mutasi ditampilkan
+              {transactions.length} {t('generalLedger.movementsShown')}
             </Badge>
           </Group>
 
@@ -180,8 +209,8 @@ export const GeneralLedgerAccountDetail: React.FC<GeneralLedgerAccountDetailProp
               value={transactionSort}
               onChange={(val) => onTransactionSortChange((val as 'asc' | 'desc') || 'asc')}
               data={[
-                { value: 'asc', label: 'Tanggal: Terlama ke Terbaru' },
-                { value: 'desc', label: 'Tanggal: Terbaru ke Terlama' },
+                { value: 'asc', label: t('generalLedger.sortOldest') },
+                { value: 'desc', label: t('generalLedger.sortNewest') },
               ]}
               w={200}
             />
@@ -199,12 +228,18 @@ export const GeneralLedgerAccountDetail: React.FC<GeneralLedgerAccountDetailProp
           >
             <Table.Thead bg="gray.1">
               <Table.Tr>
-                <Table.Th w={110}>Tanggal</Table.Th>
-                <Table.Th w={160}>No. Referensi</Table.Th>
-                <Table.Th>Deskripsi Transaksi</Table.Th>
-                <Table.Th ta="right" w={150}>Debit</Table.Th>
-                <Table.Th ta="right" w={150}>Kredit</Table.Th>
-                <Table.Th ta="right" w={160}>Saldo Berjalan</Table.Th>
+                <Table.Th w={110}>{t('common.date')}</Table.Th>
+                <Table.Th w={160}>{t('generalLedger.colReference')}</Table.Th>
+                <Table.Th>{t('generalLedger.colDescription')}</Table.Th>
+                <Table.Th ta="right" w={150}>
+                  {t('common.debit')}
+                </Table.Th>
+                <Table.Th ta="right" w={150}>
+                  {t('common.creditId')}
+                </Table.Th>
+                <Table.Th ta="right" w={160}>
+                  {t('generalLedger.colRunningBalance')}
+                </Table.Th>
               </Table.Tr>
             </Table.Thead>
 
@@ -213,11 +248,11 @@ export const GeneralLedgerAccountDetail: React.FC<GeneralLedgerAccountDetailProp
                 <Table.Tr>
                   <Table.Td colSpan={6}>
                     <EmptyState
-                      title="Tidak Ada Mutasi"
+                      title={t('generalLedger.noMovements')}
                       description={
                         transactionSearch
                           ? `Tidak ada transaksi yang cocok dengan kata kunci "${transactionSearch}".`
-                          : 'Tidak ada aktivitas transaksi pada akun ini selama periode yang dipilih.'
+                          : t('generalLedger.noMovementsDescription')
                       }
                       py={36}
                     />
@@ -236,7 +271,7 @@ export const GeneralLedgerAccountDetail: React.FC<GeneralLedgerAccountDetailProp
 
                       <Table.Td>
                         {hasJournalLink ? (
-                          <Tooltip label="Lihat Detail Transaksi Jurnal">
+                          <Tooltip label={t('generalLedger.viewJournalDetail')}>
                             <Text
                               component={Link}
                               to={`/general-journal/detail-transaction-journal/${tx.journalId}`}
@@ -310,21 +345,36 @@ export const GeneralLedgerAccountDetail: React.FC<GeneralLedgerAccountDetailProp
                 <Table.Tr>
                   <Table.Th colSpan={3}>
                     <Text size="xs" fw={700} c="dark.9">
-                      Total Periode
+                      {t('generalLedger.periodTotal')}
                     </Text>
                   </Table.Th>
                   <Table.Th ta="right">
-                    <Text size="xs" fw={800} c="teal.8" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                    <Text
+                      size="xs"
+                      fw={800}
+                      c="teal.8"
+                      style={{ fontVariantNumeric: 'tabular-nums' }}
+                    >
                       {formatMoney(account.periodDebit)}
                     </Text>
                   </Table.Th>
                   <Table.Th ta="right">
-                    <Text size="xs" fw={800} c="red.8" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                    <Text
+                      size="xs"
+                      fw={800}
+                      c="red.8"
+                      style={{ fontVariantNumeric: 'tabular-nums' }}
+                    >
                       {formatMoney(account.periodCredit)}
                     </Text>
                   </Table.Th>
                   <Table.Th ta="right">
-                    <Text size="xs" fw={800} c="primary.9" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                    <Text
+                      size="xs"
+                      fw={800}
+                      c="primary.9"
+                      style={{ fontVariantNumeric: 'tabular-nums' }}
+                    >
                       {formatMoney(account.closingBalance)}
                     </Text>
                   </Table.Th>
@@ -337,4 +387,3 @@ export const GeneralLedgerAccountDetail: React.FC<GeneralLedgerAccountDetailProp
     </Paper>
   );
 };
-

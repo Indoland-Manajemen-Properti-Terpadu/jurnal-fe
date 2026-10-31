@@ -39,9 +39,11 @@ import {
   reportCatalogData,
   reportCategories,
   type ReportCategory,
-} from '@/module/reports/domain/reportCatalogData';
+} from '@/module/reports/presentation/components/catalog/reportCatalogData';
 
+import { useTranslation } from '@/i18n';
 export default function ReportCatalogPage() {
+  const { t, currentLanguage } = useTranslation('reports');
   const [activeCategory, setActiveCategory] = useState<ReportCategory>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -63,10 +65,10 @@ export default function ReportCatalogPage() {
       if (!query) return true;
 
       const searchableText =
-        `${report.title} ${report.englishTitle} ${report.description}`.toLowerCase();
+        `${t(report.titleKey)} ${t(report.englishTitleKey)} ${t(report.descriptionKey)}`.toLowerCase();
       return searchableText.includes(query);
     });
-  }, [activeCategory, searchQuery]);
+  }, [activeCategory, searchQuery, currentLanguage]);
 
   return (
     <AppShellLayout>
@@ -75,8 +77,8 @@ export default function ReportCatalogPage() {
           {/* Module Header */}
           <ModuleHeader
             icon={IconBooks}
-            title="Pusat Laporan Keuangan"
-            description="Akses seluruh ringkasan kinerja keuangan, pergerakan kas, buku besar, dan jurnal transaksi bisnis secara transparan dan terintegrasi."
+            title={t('catalog.pageTitle')}
+            description={t('catalog.pageSubtitle')}
             // breadcrumbs={[{ label: 'Laporan Keuangan' }]}
           />
 
@@ -98,15 +100,13 @@ export default function ReportCatalogPage() {
                   mb="xs"
                   leftSection={<IconCheck size={14} />}
                 >
-                  Sistem Laporan Keuangan Terpadu
+                  {t('catalog.heroBadge')}
                 </Badge>
                 <Title order={2} c="dark.9" fw={800} lh={1.25}>
-                  Laporan Akurat & Real-Time untuk Keputusan Bisnis Cepat
+                  {t('catalog.heroTitle')}
                 </Title>
                 <Text size="sm" c="gray.7" mt="sm" lh={1.6}>
-                  Dirancang mengikuti Standar Akuntansi Keuangan (SAK) Indonesia. Dapatkan
-                  visibilitas penuh atas neraca, arus kas, laba rugi, serta jejak audit mutasi
-                  debit-kredit di Buku Besar.
+                  {t('catalog.heroDescription')}
                 </Text>
 
                 <Group gap="md" mt="lg">
@@ -118,7 +118,7 @@ export default function ReportCatalogPage() {
                     radius="md"
                     leftSection={<IconBook2 size={16} />}
                   >
-                    Buka Buku Besar
+                    {t('catalog.openLedger')}
                   </Button>
                   <Button
                     variant="default"
@@ -126,7 +126,7 @@ export default function ReportCatalogPage() {
                     radius="md"
                     onClick={() => setActiveCategory('financial')}
                   >
-                    Lihat Laporan Finansial
+                    {t('catalog.viewFinancialReports')}
                   </Button>
                 </Group>
               </Grid.Col>
@@ -138,10 +138,10 @@ export default function ReportCatalogPage() {
                       <IconFileAnalytics size={20} />
                     </ThemeIcon>
                     <Text size="xs" c="dimmed" fw={600}>
-                      Total Laporan
+                      {t('catalog.statTotal')}
                     </Text>
                     <Text size="xl" fw={800} c="dark.9">
-                      {reportCatalogData.length} Modul
+                      {reportCatalogData.length} {t('catalog.statModule')}
                     </Text>
                   </Paper>
 
@@ -150,10 +150,10 @@ export default function ReportCatalogPage() {
                       <IconDatabase size={20} />
                     </ThemeIcon>
                     <Text size="xs" c="dimmed" fw={600}>
-                      Status Sinkron
+                      {t('catalog.statSync')}
                     </Text>
                     <Text size="xl" fw={800} c="teal.7">
-                      Live Sync
+                      {t('catalog.statSyncValue')}
                     </Text>
                   </Paper>
 
@@ -162,10 +162,10 @@ export default function ReportCatalogPage() {
                       <IconDownload size={20} />
                     </ThemeIcon>
                     <Text size="xs" c="dimmed" fw={600}>
-                      Format Ekspor
+                      {t('catalog.statExport')}
                     </Text>
                     <Text size="xl" fw={800} c="dark.9">
-                      PDF & XLSX
+                      {t('catalog.statExportValue')}
                     </Text>
                   </Paper>
 
@@ -174,10 +174,10 @@ export default function ReportCatalogPage() {
                       <IconCheck size={20} />
                     </ThemeIcon>
                     <Text size="xs" c="dimmed" fw={600}>
-                      Standar Buku
+                      {t('catalog.statStandard')}
                     </Text>
                     <Text size="xl" fw={800} c="dark.9">
-                      Double Entry
+                      {t('catalog.statStandardValue')}
                     </Text>
                   </Paper>
                 </SimpleGrid>
@@ -207,7 +207,7 @@ export default function ReportCatalogPage() {
                         </Badge>
                       }
                     >
-                      Semua Laporan
+                      {t('catalog.categoryAll')}
                     </Tabs.Tab>
                     <Tabs.Tab
                       value="financial"
@@ -218,7 +218,7 @@ export default function ReportCatalogPage() {
                         </Badge>
                       }
                     >
-                      Laporan Keuangan
+                      {t('common.financialReports')}
                     </Tabs.Tab>
                     <Tabs.Tab
                       value="ledger"
@@ -229,7 +229,7 @@ export default function ReportCatalogPage() {
                         </Badge>
                       }
                     >
-                      Buku & Jurnal
+                      {t('catalog.tabLedger')}
                     </Tabs.Tab>
                     <Tabs.Tab
                       value="management"
@@ -240,7 +240,7 @@ export default function ReportCatalogPage() {
                         </Badge>
                       }
                     >
-                      Anggaran & Analisis
+                      {t('catalog.categoryManagement')}
                     </Tabs.Tab>
                   </Tabs.List>
                 </Tabs>
@@ -270,9 +270,9 @@ export default function ReportCatalogPage() {
               {/* Grid of Report Cards */}
               {filteredReports.length === 0 ? (
                 <EmptyState
-                  title="Laporan Tidak Ditemukan"
+                  title={t('catalog.notFound')}
                   description={`Tidak ada laporan yang cocok dengan kata kunci "${searchQuery}". Coba gunakan istilah pencarian lain atau pilih kategori Semua Laporan.`}
-                  actionLabel="Reset Pencarian"
+                  actionLabel={t('common.resetSearch')}
                   onAction={() => {
                     setSearchQuery('');
                     setActiveCategory('all');

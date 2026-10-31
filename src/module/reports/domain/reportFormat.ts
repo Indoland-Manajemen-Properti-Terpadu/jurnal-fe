@@ -63,4 +63,3 @@ export function getPresetDateRange(preset: PeriodPreset): { startDate: string; e
       };
   }
 }
-

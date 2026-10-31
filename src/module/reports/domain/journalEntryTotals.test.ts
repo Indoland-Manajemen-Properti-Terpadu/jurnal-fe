@@ -6,7 +6,11 @@ const entry = (...lines: Array<{ debit?: number; credit?: number }>): ReportJour
     id: 'j',
     transactionNumber: 1,
     transactionDate: new Date('2026-01-01'),
-    transactionDetail: lines.map((line, index) => ({ id: String(index), description: '', ...line })),
+    transactionDetail: lines.map((line, index) => ({
+      id: String(index),
+      description: '',
+      ...line,
+    })),
   }) as ReportJournalEntryModel;
 
 describe('calcJournalEntryTotals', () => {
@@ -21,7 +25,10 @@ describe('calcJournalEntryTotals', () => {
 
   it('adds decimals without floating point artefacts', () => {
     expect(
-      calcJournalEntryTotals([entry({ debit: 0.1, credit: 0.2 }), entry({ debit: 0.2, credit: 0.1 })])
+      calcJournalEntryTotals([
+        entry({ debit: 0.1, credit: 0.2 }),
+        entry({ debit: 0.2, credit: 0.1 }),
+      ])
     ).toEqual({ totalDebit: 0.3, totalCredit: 0.3 });
   });
 

@@ -11,16 +11,12 @@ import {
   ThemeIcon,
   Title,
 } from '@mantine/core';
-import {
-  IconBuildingBank,
-  IconCoins,
-  IconFileInvoice,
-  IconScale,
-} from '@tabler/icons-react';
+import { IconBuildingBank, IconCoins, IconFileInvoice, IconScale } from '@tabler/icons-react';
 import type { BalanceSheetData } from '@/module/reports/domain/balanceSheet.types';
 import { BalanceSheetAccountTable } from '@/module/reports/presentation/components/balance-sheet/BalanceSheetAccountTable';
 import { formatMoney } from '@/module/reports/domain/reportFormat';
 
+import { useTranslation } from '@/i18n';
 interface BalanceSheetLayoutViewsProps {
   data: BalanceSheetData;
   viewMode: 'standard' | 'side_by_side';
@@ -44,6 +40,7 @@ export const BalanceSheetLayoutViews: React.FC<BalanceSheetLayoutViewsProps> = (
   filteredAllLiabilities,
   filteredEquity,
 }) => {
+  const { t } = useTranslation('reports');
   // Aset Block (Aktiva)
   const AssetsBlock = (
     <Paper withBorder radius="lg" p="lg" bg="white" shadow="xs">
@@ -56,10 +53,10 @@ export const BalanceSheetLayoutViews: React.FC<BalanceSheetLayoutViewsProps> = (
             </ThemeIcon>
             <Box>
               <Title order={4} c="dark.9" fw={800}>
-                Aset (Aktiva)
+                {t('balanceSheet.assets')}
               </Title>
               <Text size="xs" c="dimmed">
-                Kas, piutang, aset tetap & akumulasi penyusutan
+                {t('balanceSheet.assetsHint')}
               </Text>
             </Box>
           </Group>
@@ -72,32 +69,32 @@ export const BalanceSheetLayoutViews: React.FC<BalanceSheetLayoutViewsProps> = (
 
         {/* 1. Aset Lancar */}
         <BalanceSheetAccountTable
-          title="Aset Lancar (Current Assets)"
+          title={t('balanceSheet.currentAssets')}
           accounts={filteredCurrentAssets}
           subtotal={data.assets.totalCurrentAssets}
-          subtotalLabel="Total Aset Lancar"
+          subtotalLabel={t('balanceSheet.totalCurrentAssets')}
           subtotalColor="blue.7"
-          emptyText="Tidak ada akun aset lancar tercatat."
+          emptyText={t('balanceSheet.noCurrentAssets')}
         />
 
         {/* 2. Aset Tidak Lancar */}
         <BalanceSheetAccountTable
-          title="Aset Tidak Lancar (Non-Current Assets)"
+          title={t('balanceSheet.nonCurrentAssets')}
           accounts={filteredNonCurrentAssets}
           subtotal={data.assets.totalNonCurrentAssets}
-          subtotalLabel="Total Aset Tidak Lancar"
+          subtotalLabel={t('balanceSheet.totalNonCurrentAssets')}
           subtotalColor="blue.7"
-          emptyText="Tidak ada akun aset tetap/tidak lancar tercatat."
+          emptyText={t('balanceSheet.noNonCurrentAssets')}
         />
 
         {/* 3. Depresiasi & Amortisasi */}
         <BalanceSheetAccountTable
-          title="Akumulasi Depresiasi & Amortisasi"
+          title={t('balanceSheet.depreciation')}
           accounts={filteredDepreciation}
           subtotal={data.assets.totalDepreciationAmortization}
-          subtotalLabel="Total Akumulasi Depresiasi & Amortisasi"
+          subtotalLabel={t('balanceSheet.totalDepreciation')}
           subtotalColor="orange.7"
-          emptyText="Tidak ada akumulasi penyusutan/amortisasi."
+          emptyText={t('balanceSheet.noDepreciation')}
         />
 
         {/* Total Aset Banner */}
@@ -110,7 +107,7 @@ export const BalanceSheetLayoutViews: React.FC<BalanceSheetLayoutViewsProps> = (
         >
           <Group justify="space-between" align="center">
             <Text fw={800} size="sm" c="blue.9">
-              TOTAL ASET (AKTIVA)
+              {t('balanceSheet.totalAssets')}
             </Text>
             <Text fw={900} size="lg" c="blue.9" style={{ fontVariantNumeric: 'tabular-nums' }}>
               {formatMoney(data.totalAssets)}
@@ -133,10 +130,10 @@ export const BalanceSheetLayoutViews: React.FC<BalanceSheetLayoutViewsProps> = (
             </ThemeIcon>
             <Box>
               <Title order={4} c="dark.9" fw={800}>
-                Liabilitas (Kewajiban)
+                {t('balanceSheet.liabilities')}
               </Title>
               <Text size="xs" c="dimmed">
-                Hutang jangka pendek & hutang jangka panjang
+                {t('balanceSheet.liabilitiesHint')}
               </Text>
             </Box>
           </Group>
@@ -148,35 +145,36 @@ export const BalanceSheetLayoutViews: React.FC<BalanceSheetLayoutViewsProps> = (
         <Divider />
 
         {/* Liabilitas Accounts */}
-        {data.liabilities.currentLiabilities.length > 0 || data.liabilities.nonCurrentLiabilities.length > 0 ? (
+        {data.liabilities.currentLiabilities.length > 0 ||
+        data.liabilities.nonCurrentLiabilities.length > 0 ? (
           <>
             {data.liabilities.currentLiabilities.length > 0 && (
               <BalanceSheetAccountTable
-                title="Kewajiban Lancar (Current Liabilities)"
+                title={t('balanceSheet.currentLiabilities')}
                 accounts={filteredCurrentLiabilities}
                 subtotal={data.liabilities.totalCurrentLiabilities}
-                subtotalLabel="Total Kewajiban Lancar"
+                subtotalLabel={t('balanceSheet.totalCurrentLiabilities')}
                 subtotalColor="orange.7"
               />
             )}
             {data.liabilities.nonCurrentLiabilities.length > 0 && (
               <BalanceSheetAccountTable
-                title="Kewajiban Jangka Panjang (Long-Term Liabilities)"
+                title={t('balanceSheet.longTermLiabilities')}
                 accounts={filteredNonCurrentLiabilities}
                 subtotal={data.liabilities.totalNonCurrentLiabilities}
-                subtotalLabel="Total Kewajiban Jangka Panjang"
+                subtotalLabel={t('balanceSheet.totalLongTermLiabilities')}
                 subtotalColor="orange.7"
               />
             )}
           </>
         ) : (
           <BalanceSheetAccountTable
-            title="Daftar Liabilitas & Hutang"
+            title={t('balanceSheet.liabilityList')}
             accounts={filteredAllLiabilities}
             subtotal={data.totalLiabilities}
-            subtotalLabel="Total Liabilitas"
+            subtotalLabel={t('balanceSheet.totalLiabilities')}
             subtotalColor="orange.7"
-            emptyText="Tidak ada akun liabilitas tercatat."
+            emptyText={t('balanceSheet.noLiabilities')}
           />
         )}
 
@@ -190,7 +188,7 @@ export const BalanceSheetLayoutViews: React.FC<BalanceSheetLayoutViewsProps> = (
         >
           <Group justify="space-between" align="center">
             <Text fw={700} size="xs" c="orange.9">
-              TOTAL LIABILITAS
+              {t('balanceSheet.totalLiabilitiesUpper')}
             </Text>
             <Text fw={800} size="md" c="orange.9" style={{ fontVariantNumeric: 'tabular-nums' }}>
               {formatMoney(data.totalLiabilities)}
@@ -208,10 +206,10 @@ export const BalanceSheetLayoutViews: React.FC<BalanceSheetLayoutViewsProps> = (
             </ThemeIcon>
             <Box>
               <Title order={4} c="dark.9" fw={800}>
-                Ekuitas (Modal)
+                {t('balanceSheet.equity')}
               </Title>
               <Text size="xs" c="dimmed">
-                Modal disetor, tambahan modal & laba ditahan
+                {t('balanceSheet.equityHint')}
               </Text>
             </Box>
           </Group>
@@ -224,12 +222,12 @@ export const BalanceSheetLayoutViews: React.FC<BalanceSheetLayoutViewsProps> = (
 
         {/* Ekuitas Accounts */}
         <BalanceSheetAccountTable
-          title="Komponen Ekuitas & Laba Ditahan"
+          title={t('balanceSheet.equityComponents')}
           accounts={filteredEquity}
           subtotal={data.totalEquity}
-          subtotalLabel="Total Ekuitas"
+          subtotalLabel={t('balanceSheet.totalEquity')}
           subtotalColor="violet.7"
-          emptyText="Tidak ada akun ekuitas tercatat."
+          emptyText={t('balanceSheet.noEquity')}
         />
 
         {/* Total Liabilitas + Ekuitas Banner */}
@@ -243,10 +241,13 @@ export const BalanceSheetLayoutViews: React.FC<BalanceSheetLayoutViewsProps> = (
           <Group justify="space-between" align="center">
             <Box>
               <Text fw={800} size="sm" c="teal.9">
-                TOTAL LIABILITAS & EKUITAS (PASIVA)
+                {t('balanceSheet.totalLiabilitiesAndEquity')}
               </Text>
               <Text size="11px" c="teal.7">
-                Total Kewajiban ({formatMoney(data.totalLiabilities)}) + Modal ({formatMoney(data.totalEquity)})
+                {t('balanceSheet.totalLiabilitiesPrefix')}
+                {formatMoney(data.totalLiabilities)}
+                {t('balanceSheet.equityInfix')}
+                {formatMoney(data.totalEquity)})
               </Text>
             </Box>
             <Text fw={900} size="lg" c="teal.9" style={{ fontVariantNumeric: 'tabular-nums' }}>
@@ -261,12 +262,8 @@ export const BalanceSheetLayoutViews: React.FC<BalanceSheetLayoutViewsProps> = (
   if (viewMode === 'side_by_side') {
     return (
       <Grid gutter="lg" align="flex-start">
-        <Grid.Col span={{ base: 12, lg: 6 }}>
-          {AssetsBlock}
-        </Grid.Col>
-        <Grid.Col span={{ base: 12, lg: 6 }}>
-          {LiabilitiesAndEquityBlock}
-        </Grid.Col>
+        <Grid.Col span={{ base: 12, lg: 6 }}>{AssetsBlock}</Grid.Col>
+        <Grid.Col span={{ base: 12, lg: 6 }}>{LiabilitiesAndEquityBlock}</Grid.Col>
       </Grid>
     );
   }
@@ -278,4 +275,3 @@ export const BalanceSheetLayoutViews: React.FC<BalanceSheetLayoutViewsProps> = (
     </Stack>
   );
 };
-

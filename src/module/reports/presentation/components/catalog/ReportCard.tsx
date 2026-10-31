@@ -1,23 +1,16 @@
 import React from 'react';
-import {
-  ActionIcon,
-  Badge,
-  Box,
-  Group,
-  Paper,
-  Stack,
-  Text,
-  ThemeIcon,
-} from '@mantine/core';
+import { ActionIcon, Badge, Box, Group, Paper, Stack, Text, ThemeIcon } from '@mantine/core';
 import { IconArrowRight } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
-import type { ReportItem } from '@/module/reports/domain/reportCatalogData';
+import type { ReportItem } from '@/module/reports/presentation/components/catalog/reportCatalogData';
 
+import { useTranslation } from '@/i18n';
 interface ReportCardProps {
   report: ReportItem;
 }
 
 export const ReportCard: React.FC<ReportCardProps> = ({ report }) => {
+  const { t } = useTranslation('reports');
   const IconComponent = report.icon;
 
   return (
@@ -60,7 +53,7 @@ export const ReportCard: React.FC<ReportCardProps> = ({ report }) => {
           </ThemeIcon>
 
           <Group gap="xs" wrap="wrap" justify="flex-end">
-            {report.badge && (
+            {report.badgeKey && (
               <Badge
                 size="sm"
                 variant="light"
@@ -69,12 +62,12 @@ export const ReportCard: React.FC<ReportCardProps> = ({ report }) => {
                 tt="none"
                 fw={600}
               >
-                {report.badge}
+                {t(report.badgeKey)}
               </Badge>
             )}
             {report.featured && (
               <Badge size="sm" variant="filled" color="primary" radius="sm">
-                UNGGULAN
+                {t('catalog.featured')}
               </Badge>
             )}
           </Group>
@@ -82,13 +75,13 @@ export const ReportCard: React.FC<ReportCardProps> = ({ report }) => {
 
         <Box>
           <Text fw={700} size="md" c="dark.8" lh={1.3}>
-            {report.title}
+            {t(report.titleKey)}
           </Text>
           <Text size="xs" c="dimmed" mt={2} fw={500}>
-            {report.englishTitle}
+            {t(report.englishTitleKey)}
           </Text>
           <Text size="sm" c="gray.6" mt="xs" lh={1.5} lineClamp={2}>
-            {report.description}
+            {t(report.descriptionKey)}
           </Text>
         </Box>
       </Stack>
@@ -96,14 +89,14 @@ export const ReportCard: React.FC<ReportCardProps> = ({ report }) => {
       <Box pt="md" mt="auto">
         <Group justify="space-between" align="center">
           <Text size="xs" fw={600} c="primary.7">
-            Buka Laporan
+            {t('catalog.openReport')}
           </Text>
           <ActionIcon
             variant="subtle"
             color="primary"
             size="sm"
             radius="xl"
-            aria-label={`Buka laporan ${report.title}`}
+            aria-label={`Buka laporan ${t(report.titleKey)}`}
           >
             <IconArrowRight size={16} />
           </ActionIcon>
@@ -112,4 +105,3 @@ export const ReportCard: React.FC<ReportCardProps> = ({ report }) => {
     </Paper>
   );
 };
-

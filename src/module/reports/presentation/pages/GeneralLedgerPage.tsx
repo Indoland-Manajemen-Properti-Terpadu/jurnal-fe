@@ -1,15 +1,5 @@
 import React from 'react';
-import {
-  Alert,
-  Box,
-  Button,
-  Grid,
-  Group,
-  Paper,
-  Skeleton,
-  Stack,
-  Text,
-} from '@mantine/core';
+import { Alert, Box, Button, Grid, Group, Paper, Skeleton, Stack, Text } from '@mantine/core';
 import { IconAlertTriangle, IconBook2, IconRefresh } from '@tabler/icons-react';
 import AppShellLayout from '@/components/AppShellLayout';
 import { EmptyState } from '@/components/EmptyState';
@@ -22,7 +12,9 @@ import { GeneralLedgerAccountSidebar } from '@/module/reports/presentation/compo
 import { GeneralLedgerAccountDetail } from '@/module/reports/presentation/components/general-ledger/GeneralLedgerAccountDetail';
 import { GeneralLedgerConsolidatedTable } from '@/module/reports/presentation/components/general-ledger/GeneralLedgerConsolidatedTable';
 
+import { useTranslation } from '@/i18n';
 export default function GeneralLedgerPage() {
+  const { t } = useTranslation('reports');
   const ledger = useGeneralLedger();
 
   return (
@@ -32,11 +24,11 @@ export default function GeneralLedgerPage() {
           {/* Module Header */}
           <ModuleHeader
             icon={IconBook2}
-            title="Buku Besar (General Ledger)"
-            description="Pantau seluruh mutasi debit, kredit, dan saldo berjalan akun keuangan perusahaan secara terperinci dalam periode pembukuan."
+            title={t('generalLedger.pageTitle')}
+            description={t('generalLedger.pageDescription')}
             breadcrumbs={[
-              { label: 'Laporan Keuangan', to: routes.resultReport.main },
-              { label: 'Buku Besar' },
+              { label: t('common.financialReports'), to: routes.resultReport.main },
+              { label: t('catalog.generalLedgerTitle') },
             ]}
           />
 
@@ -74,7 +66,7 @@ export default function GeneralLedgerPage() {
           {ledger.query.isError && (
             <Alert
               color="red"
-              title="Gagal Memuat Laporan Buku Besar"
+              title={t('generalLedger.loadFailed')}
               icon={<IconAlertTriangle size={20} />}
               radius="lg"
             >
@@ -87,7 +79,7 @@ export default function GeneralLedgerPage() {
                   leftSection={<IconRefresh size={14} />}
                   onClick={() => ledger.query.refetch()}
                 >
-                  Coba Lagi
+                  {t('common.retry')}
                 </Button>
               </Group>
             </Alert>
@@ -107,8 +99,8 @@ export default function GeneralLedgerPage() {
               {ledger.accounts.length === 0 ? (
                 <Paper withBorder radius="lg" p="xl" bg="white" shadow="xs">
                   <EmptyState
-                    title="Tidak Ada Akun Pada Periode Ini"
-                    description="Belum ada transaksi atau saldo aktif pada rentang tanggal yang dipilih. Silakan pilih periode tanggal lain."
+                    title={t('generalLedger.emptyTitle')}
+                    description={t('generalLedger.emptyDescription')}
                     py={60}
                   />
                 </Paper>
@@ -154,4 +146,3 @@ export default function GeneralLedgerPage() {
     </AppShellLayout>
   );
 }
-

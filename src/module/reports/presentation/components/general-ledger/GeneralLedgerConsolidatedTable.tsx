@@ -18,6 +18,7 @@ import { EmptyState } from '@/components/EmptyState';
 import type { GeneralLedgerAccount } from '@/module/reports/domain/generalLedger.types';
 import { formatCount, formatMoney } from '@/module/reports/domain/reportFormat';
 
+import { useTranslation } from '@/i18n';
 interface GeneralLedgerConsolidatedTableProps {
   accounts: GeneralLedgerAccount[];
   onSelectAccount: (accountId: string) => void;
@@ -27,6 +28,7 @@ export const GeneralLedgerConsolidatedTable: React.FC<GeneralLedgerConsolidatedT
   accounts,
   onSelectAccount,
 }) => {
+  const { t } = useTranslation('reports');
   const [search, setSearch] = useState('');
 
   const filtered = useMemo(() => {
@@ -59,10 +61,10 @@ export const GeneralLedgerConsolidatedTable: React.FC<GeneralLedgerConsolidatedT
         <Group justify="space-between" align="center" wrap="wrap" gap="sm">
           <Box>
             <Text fw={700} size="md" c="dark.9">
-              Tabel Konsolidasi Semua Akun
+              {t('generalLedger.consolidatedTitle')}
             </Text>
             <Text size="xs" c="dimmed" mt={2}>
-              Ringkasan saldo awal, mutasi debit/kredit, dan saldo penutupan seluruh akun buku besar
+              {t('generalLedger.consolidatedDescription')}
             </Text>
           </Box>
 
@@ -94,14 +96,24 @@ export const GeneralLedgerConsolidatedTable: React.FC<GeneralLedgerConsolidatedT
           >
             <Table.Thead bg="gray.1">
               <Table.Tr>
-                <Table.Th w={120}>No. Akun</Table.Th>
-                <Table.Th>Nama Akun</Table.Th>
-                <Table.Th w={140}>Kategori</Table.Th>
-                <Table.Th ta="right" w={150}>Saldo Awal</Table.Th>
-                <Table.Th ta="right" w={150}>Debit Periode</Table.Th>
-                <Table.Th ta="right" w={150}>Kredit Periode</Table.Th>
-                <Table.Th ta="right" w={160}>Saldo Akhir</Table.Th>
-                <Table.Th ta="center" w={110}>Aksi</Table.Th>
+                <Table.Th w={120}>{t('common.accountNumberShort')}</Table.Th>
+                <Table.Th>{t('common.accountName')}</Table.Th>
+                <Table.Th w={140}>{t('common.category')}</Table.Th>
+                <Table.Th ta="right" w={150}>
+                  {t('generalLedger.openingBalance')}
+                </Table.Th>
+                <Table.Th ta="right" w={150}>
+                  {t('generalLedger.colPeriodDebit')}
+                </Table.Th>
+                <Table.Th ta="right" w={150}>
+                  {t('generalLedger.colPeriodCredit')}
+                </Table.Th>
+                <Table.Th ta="right" w={160}>
+                  {t('generalLedger.closingBalance')}
+                </Table.Th>
+                <Table.Th ta="center" w={110}>
+                  {t('common.action')}
+                </Table.Th>
               </Table.Tr>
             </Table.Thead>
 
@@ -110,9 +122,9 @@ export const GeneralLedgerConsolidatedTable: React.FC<GeneralLedgerConsolidatedT
                 <Table.Tr>
                   <Table.Td colSpan={8}>
                     <EmptyState
-                      title="Akun Tidak Ditemukan"
+                      title={t('generalLedger.accountNotFound')}
                       description={`Tidak ada akun yang sesuai dengan pencarian "${search}".`}
-                      actionLabel="Reset Pencarian"
+                      actionLabel={t('common.resetSearch')}
                       onAction={() => setSearch('')}
                       py={40}
                     />
@@ -134,7 +146,7 @@ export const GeneralLedgerConsolidatedTable: React.FC<GeneralLedgerConsolidatedT
                         </Text>
                         {acc.isContra && (
                           <Badge size="xs" variant="outline" color="orange">
-                            Kontra
+                            {t('common.contra')}
                           </Badge>
                         )}
                       </Group>
@@ -193,7 +205,7 @@ export const GeneralLedgerConsolidatedTable: React.FC<GeneralLedgerConsolidatedT
                         leftSection={<IconEye size={13} />}
                         onClick={() => onSelectAccount(acc.id)}
                       >
-                        Detail
+                        {t('common.detail')}
                       </Button>
                     </Table.Td>
                   </Table.Tr>
@@ -206,7 +218,8 @@ export const GeneralLedgerConsolidatedTable: React.FC<GeneralLedgerConsolidatedT
                 <Table.Tr>
                   <Table.Th colSpan={3}>
                     <Text size="xs" fw={700} c="dark.9">
-                      Total Seluruh Akun ({formatCount(filtered.length)})
+                      {t('generalLedger.totalAllAccountsPrefix')}
+                      {formatCount(filtered.length)})
                     </Text>
                   </Table.Th>
                   <Table.Th ta="right">
@@ -215,17 +228,32 @@ export const GeneralLedgerConsolidatedTable: React.FC<GeneralLedgerConsolidatedT
                     </Text>
                   </Table.Th>
                   <Table.Th ta="right">
-                    <Text size="xs" fw={800} c="teal.8" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                    <Text
+                      size="xs"
+                      fw={800}
+                      c="teal.8"
+                      style={{ fontVariantNumeric: 'tabular-nums' }}
+                    >
                       {formatMoney(totals.periodDebit)}
                     </Text>
                   </Table.Th>
                   <Table.Th ta="right">
-                    <Text size="xs" fw={800} c="red.8" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                    <Text
+                      size="xs"
+                      fw={800}
+                      c="red.8"
+                      style={{ fontVariantNumeric: 'tabular-nums' }}
+                    >
                       {formatMoney(totals.periodCredit)}
                     </Text>
                   </Table.Th>
                   <Table.Th ta="right">
-                    <Text size="xs" fw={800} c="primary.9" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                    <Text
+                      size="xs"
+                      fw={800}
+                      c="primary.9"
+                      style={{ fontVariantNumeric: 'tabular-nums' }}
+                    >
                       {formatMoney(totals.closingBalance)}
                     </Text>
                   </Table.Th>
@@ -239,4 +267,3 @@ export const GeneralLedgerConsolidatedTable: React.FC<GeneralLedgerConsolidatedT
     </Paper>
   );
 };
-

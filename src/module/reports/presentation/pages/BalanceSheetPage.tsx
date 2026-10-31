@@ -1,15 +1,5 @@
 import React from 'react';
-import {
-  Alert,
-  Box,
-  Button,
-  Grid,
-  Group,
-  Paper,
-  Skeleton,
-  Stack,
-  Text,
-} from '@mantine/core';
+import { Alert, Box, Button, Grid, Group, Paper, Skeleton, Stack, Text } from '@mantine/core';
 import { IconAlertTriangle, IconRefresh, IconScale } from '@tabler/icons-react';
 import AppShellLayout from '@/components/AppShellLayout';
 import { EmptyState } from '@/components/EmptyState';
@@ -20,7 +10,9 @@ import { BalanceSheetFilterBar } from '@/module/reports/presentation/components/
 import { BalanceSheetSummaryCards } from '@/module/reports/presentation/components/balance-sheet/BalanceSheetSummaryCards';
 import { BalanceSheetLayoutViews } from '@/module/reports/presentation/components/balance-sheet/BalanceSheetLayoutViews';
 
+import { useTranslation } from '@/i18n';
 export default function BalanceSheetPage() {
+  const { t } = useTranslation('reports');
   const balanceSheet = useBalanceSheet();
 
   return (
@@ -30,11 +22,11 @@ export default function BalanceSheetPage() {
           {/* Module Header */}
           <ModuleHeader
             icon={IconScale}
-            title="Laporan Neraca Keuangan (Balance Sheet)"
-            description="Pantau posisi aktiva dan pasiva perusahaan per tanggal laporan. Menyajikan rincian aset lancar, aset tetap, kewajiban, dan ekuitas modal."
+            title={t('balanceSheet.pageTitle')}
+            description={t('balanceSheet.pageDescription')}
             breadcrumbs={[
-              { label: 'Laporan Keuangan', to: routes.resultReport.main },
-              { label: 'Neraca' },
+              { label: t('common.financialReports'), to: routes.resultReport.main },
+              { label: t('catalog.balanceSheetTitle') },
             ]}
           />
 
@@ -74,7 +66,7 @@ export default function BalanceSheetPage() {
           {balanceSheet.query.isError && (
             <Alert
               color="red"
-              title="Gagal Memuat Laporan Neraca"
+              title={t('balanceSheet.loadFailed')}
               icon={<IconAlertTriangle size={20} />}
               radius="lg"
             >
@@ -87,7 +79,7 @@ export default function BalanceSheetPage() {
                   leftSection={<IconRefresh size={14} />}
                   onClick={() => balanceSheet.query.refetch()}
                 >
-                  Coba Lagi
+                  {t('common.retry')}
                 </Button>
               </Group>
             </Alert>
@@ -118,4 +110,3 @@ export default function BalanceSheetPage() {
     </AppShellLayout>
   );
 }
-

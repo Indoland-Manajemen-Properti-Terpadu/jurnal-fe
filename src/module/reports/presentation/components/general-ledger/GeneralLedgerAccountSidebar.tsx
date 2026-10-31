@@ -15,6 +15,7 @@ import { IconSearch, IconX } from '@tabler/icons-react';
 import type { GeneralLedgerAccount } from '@/module/reports/domain/generalLedger.types';
 import { formatCount, formatMoney } from '@/module/reports/domain/reportFormat';
 
+import { useTranslation } from '@/i18n';
 interface GeneralLedgerAccountSidebarProps {
   accounts: GeneralLedgerAccount[];
   selectedAccountId: string | null;
@@ -32,13 +33,14 @@ export const GeneralLedgerAccountSidebar: React.FC<GeneralLedgerAccountSidebarPr
   onSearchChange,
   totalCount,
 }) => {
+  const { t } = useTranslation('reports');
   return (
     <Paper withBorder radius="lg" p="md" bg="white" shadow="xs">
       <Stack gap="sm">
         {/* Header */}
         <Group justify="space-between" align="center">
           <Text fw={700} size="sm" c="dark.8">
-            Daftar Akun Buku Besar
+            {t('generalLedger.sidebarTitle')}
           </Text>
           <Badge variant="light" color="primary" size="sm">
             {formatCount(accounts.length)} / {formatCount(totalCount)}
@@ -53,7 +55,12 @@ export const GeneralLedgerAccountSidebar: React.FC<GeneralLedgerAccountSidebarPr
           leftSection={<IconSearch size={14} />}
           rightSection={
             search ? (
-              <ActionIcon size="xs" variant="subtle" color="gray" onClick={() => onSearchChange('')}>
+              <ActionIcon
+                size="xs"
+                variant="subtle"
+                color="gray"
+                onClick={() => onSearchChange('')}
+              >
                 <IconX size={12} />
               </ActionIcon>
             ) : null
@@ -66,7 +73,8 @@ export const GeneralLedgerAccountSidebar: React.FC<GeneralLedgerAccountSidebarPr
         {accounts.length === 0 ? (
           <Box py="xl" ta="center">
             <Text size="xs" c="dimmed">
-              Tidak ada akun yang cocok dengan "{search}"
+              {t('generalLedger.sidebarNoMatch')}
+              {search}"
             </Text>
           </Box>
         ) : (
@@ -135,7 +143,7 @@ export const GeneralLedgerAccountSidebar: React.FC<GeneralLedgerAccountSidebarPr
                           {formatMoney(account.closingBalance)}
                         </Text>
                         <Text size="10px" c="dimmed">
-                          {formatCount(account.transactions.length)} mutasi
+                          {formatCount(account.transactions.length)} {t('common.mutationUnit')}
                         </Text>
                       </Box>
                     </Group>
@@ -149,4 +157,3 @@ export const GeneralLedgerAccountSidebar: React.FC<GeneralLedgerAccountSidebarPr
     </Paper>
   );
 };
-

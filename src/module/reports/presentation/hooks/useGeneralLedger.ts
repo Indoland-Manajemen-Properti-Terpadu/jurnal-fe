@@ -10,10 +10,14 @@ import type {
 } from '@/module/reports/domain/generalLedger.types';
 import { getPresetDateRange, type PeriodPreset } from '@/module/reports/domain/reportFormat';
 
+import { useTranslation } from '@/i18n';
 export function useGeneralLedger() {
+  const { t } = useTranslation('reports');
   const [preset, setPreset] = useState<PeriodPreset>('this_month');
   const [period, setPeriod] = useState<ReportPeriod>(() => getPresetDateRange('this_month'));
-  const [draftPeriod, setDraftPeriod] = useState<ReportPeriod>(() => getPresetDateRange('this_month'));
+  const [draftPeriod, setDraftPeriod] = useState<ReportPeriod>(() =>
+    getPresetDateRange('this_month')
+  );
 
   const [viewMode, setViewMode] = useState<'master_detail' | 'consolidated'>('master_detail');
   const [selectedAccountId, setSelectedAccountId] = useState<string | null>(null);
@@ -37,8 +41,8 @@ export function useGeneralLedger() {
     if (draftPeriod.startDate > draftPeriod.endDate) {
       notifications.show({
         color: 'red',
-        title: 'Rentang Tanggal Tidak Valid',
-        message: 'Tanggal akhir harus sama dengan atau setelah tanggal awal.',
+        title: t('common.invalidRangeTitle'),
+        message: t('common.invalidRangeMessage'),
       });
       return;
     }
@@ -128,15 +132,15 @@ export function useGeneralLedger() {
 
       notifications.show({
         color: 'teal',
-        title: 'Ekspor Berhasil',
+        title: t('common.exportSuccess'),
         message: `File Buku Besar (${type.toUpperCase()}) telah diunduh.`,
       });
     },
     onError: (err) => {
       notifications.show({
         color: 'red',
-        title: 'Ekspor Gagal',
-        message: err instanceof Error ? err.message : 'Gagal mengekspor laporan.',
+        title: t('common.exportFailed'),
+        message: err instanceof Error ? err.message : t('generalLedger.exportFailedMessage'),
       });
     },
   });
@@ -174,4 +178,3 @@ export function useGeneralLedger() {
     exportMutation,
   };
 }
-

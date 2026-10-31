@@ -1,245 +1,250 @@
-import React from "react";
-import { Table, Text } from "@mantine/core";
-import { formatCurrency } from "@/utils/FormatCurrency";
-import { gradientColors, themeColors } from "@/theme";
+import React from 'react';
+import { Table, Text } from '@mantine/core';
+import { formatCurrency } from '@/utils/FormatCurrency';
+import { gradientColors, themeColors } from '@/theme';
 
+import { useTranslation } from '@/i18n';
 type RowProps = {
-    total: number;
+  total: number;
 };
 const rowStyle = {
-    borderColor: themeColors.gray[1],
-    borderWidth: '1px',
-    borderStyle: 'solid',
+  borderColor: themeColors.gray[1],
+  borderWidth: '1px',
+  borderStyle: 'solid',
 };
 
 const sectionInsideCategory = {
-    backgroundColor: themeColors.gray[0],
-    borderColor: themeColors.gray[1],
-    borderWidth: '1px',
-    borderStyle: 'solid',
+  backgroundColor: themeColors.gray[0],
+  borderColor: themeColors.gray[1],
+  borderWidth: '1px',
+  borderStyle: 'solid',
 };
 
 const headTableStyle = {
-    backgroundColor: themeColors.gray[0],
-    borderColor: themeColors.gray[1],
-    borderWidth: '1px',
-    borderStyle: 'solid',
+  backgroundColor: themeColors.gray[0],
+  borderColor: themeColors.gray[1],
+  borderWidth: '1px',
+  borderStyle: 'solid',
 };
 
 type HeaderTableProps = {
-    title: string;
+  title: string;
 };
 
 interface TableRowProps {
-    label: string;
-    value: number;
-    fontWeight?: number;
+  label: string;
+  value: number;
+  fontWeight?: number;
 }
 const HeaderTable: React.FC<HeaderTableProps> = ({ title }) => {
-    return (
-        <Table.Tr>
-            <Table.Td colSpan={2} style={headTableStyle}>
-                <Text fz="sm" w={600} gradient={gradientColors.mainGR} variant="gradient">
-                    {title}
-                </Text>
-            </Table.Td>
-        </Table.Tr>
-    );
+  return (
+    <Table.Tr>
+      <Table.Td colSpan={2} style={headTableStyle}>
+        <Text fz="sm" w={600} gradient={gradientColors.mainGR} variant="gradient">
+          {title}
+        </Text>
+      </Table.Td>
+    </Table.Tr>
+  );
 };
 
 const TableRow: React.FC<TableRowProps> = ({ label, value, fontWeight = 400 }) => (
-    <Table.Tr style={rowStyle}>
-        <Table.Td fz="sm" style={{ fontWeight }}>
-            {label}
+  <Table.Tr style={rowStyle}>
+    <Table.Td fz="sm" style={{ fontWeight }}>
+      {label}
+    </Table.Td>
+    <Table.Td fz="sm" style={{ textAlign: 'right', fontWeight }}>
+      {formatCurrency(value)}
+    </Table.Td>
+  </Table.Tr>
+);
+
+export const CashFlowfromOA: React.FC<RowProps> = ({ total }) => {
+  const { t } = useTranslation('reports');
+  return (
+    <>
+      <HeaderTable title={t('cashFlowRow.operating')} />
+      <Table.Tr style={sectionInsideCategory}>
+        <Table.Td fz="sm" style={{ fontWeight: 600 }} colSpan={2}>
+          {t('cashFlowRow.inflows')}
         </Table.Td>
-        <Table.Td fz="sm" style={{ textAlign: "right", fontWeight }}>
-            {formatCurrency(value)}
+      </Table.Tr>
+      <Table.Tr style={rowStyle}>
+        <Table.Td fz="sm" style={{ fontWeight: 400 }}>
+          {t('cashFlowRow.fromCustomer')}
         </Table.Td>
-    </Table.Tr>
-);
-
-export const CashFlowfromOA: React.FC<RowProps> = ({ total }) => (
-    <>
-        <HeaderTable title={'Cash Flow From Operating Activities'} />
-        <Table.Tr style={sectionInsideCategory} >
-            <Table.Td fz="sm" style={{ fontWeight: 600 }} colSpan={2}>
-                Cash Inflows
-            </Table.Td>
-        </Table.Tr>
-        <Table.Tr style={rowStyle}>
-            <Table.Td fz="sm" style={{ fontWeight: 400 }}>
-                Cash received from customer
-            </Table.Td>
-            <Table.Td fz="sm" style={{ textAlign: "right", fontWeight: 400 }}>
-                {formatCurrency(total)}
-            </Table.Td>
-        </Table.Tr>
-        <Table.Tr style={rowStyle}>
-            <Table.Td fz="sm" style={{ fontWeight: 400 }}>
-                Other Income
-            </Table.Td>
-            <Table.Td fz="sm" style={{ textAlign: "right", fontWeight: 400 }}>
-                {formatCurrency(total)}
-            </Table.Td>
-        </Table.Tr>
-        <Table.Tr style={sectionInsideCategory}>
-            <Table.Td fz="sm" style={{ fontWeight: 600 }} colSpan={2}>
-                Cash Outflows
-            </Table.Td>
-        </Table.Tr>
-        <Table.Tr style={rowStyle}>
-            <Table.Td fz="sm" style={{ fontWeight: 400 }}>
-                Payment to suppliers
-            </Table.Td>
-            <Table.Td fz="sm" style={{ textAlign: "right", fontWeight: 400 }}>
-                {formatCurrency(total)}
-            </Table.Td>
-        </Table.Tr>
-        <Table.Tr style={rowStyle}>
-            <Table.Td fz="sm" style={{ fontWeight: 400 }}>
-                Operational expenditures
-            </Table.Td>
-            <Table.Td fz="sm" style={{ textAlign: "right", fontWeight: 400 }}>
-                {formatCurrency(total)}
-            </Table.Td>
-        </Table.Tr>
-        <Table.Tr style={rowStyle}>
-            <Table.Td fz="sm" style={{ fontWeight: 400 }}>
-                Credit card and other short-term liabilities
-            </Table.Td>
-            <Table.Td fz="sm" style={{ textAlign: "right", fontWeight: 400 }}>
-                {formatCurrency(total)}
-            </Table.Td>
-        </Table.Tr>
-        <Table.Tr style={rowStyle}>
-            <Table.Td fz="sm" style={{ fontWeight: 600 }}>
-                Net cash obtained from operating activities
-            </Table.Td>
-            <Table.Td fz="sm" style={{ textAlign: "right", fontWeight: 600 }}>
-                {formatCurrency(total)}
-            </Table.Td>
-        </Table.Tr>
+        <Table.Td fz="sm" style={{ textAlign: 'right', fontWeight: 400 }}>
+          {formatCurrency(total)}
+        </Table.Td>
+      </Table.Tr>
+      <Table.Tr style={rowStyle}>
+        <Table.Td fz="sm" style={{ fontWeight: 400 }}>
+          {t('cashFlowRow.otherIncome')}
+        </Table.Td>
+        <Table.Td fz="sm" style={{ textAlign: 'right', fontWeight: 400 }}>
+          {formatCurrency(total)}
+        </Table.Td>
+      </Table.Tr>
+      <Table.Tr style={sectionInsideCategory}>
+        <Table.Td fz="sm" style={{ fontWeight: 600 }} colSpan={2}>
+          {t('cashFlowRow.outflows')}
+        </Table.Td>
+      </Table.Tr>
+      <Table.Tr style={rowStyle}>
+        <Table.Td fz="sm" style={{ fontWeight: 400 }}>
+          {t('cashFlowRow.toSuppliers')}
+        </Table.Td>
+        <Table.Td fz="sm" style={{ textAlign: 'right', fontWeight: 400 }}>
+          {formatCurrency(total)}
+        </Table.Td>
+      </Table.Tr>
+      <Table.Tr style={rowStyle}>
+        <Table.Td fz="sm" style={{ fontWeight: 400 }}>
+          {t('cashFlowRow.opex')}
+        </Table.Td>
+        <Table.Td fz="sm" style={{ textAlign: 'right', fontWeight: 400 }}>
+          {formatCurrency(total)}
+        </Table.Td>
+      </Table.Tr>
+      <Table.Tr style={rowStyle}>
+        <Table.Td fz="sm" style={{ fontWeight: 400 }}>
+          {t('cashFlowRow.creditCard')}
+        </Table.Td>
+        <Table.Td fz="sm" style={{ textAlign: 'right', fontWeight: 400 }}>
+          {formatCurrency(total)}
+        </Table.Td>
+      </Table.Tr>
+      <Table.Tr style={rowStyle}>
+        <Table.Td fz="sm" style={{ fontWeight: 600 }}>
+          {t('cashFlowRow.netOperating')}
+        </Table.Td>
+        <Table.Td fz="sm" style={{ textAlign: 'right', fontWeight: 600 }}>
+          {formatCurrency(total)}
+        </Table.Td>
+      </Table.Tr>
     </>
-);
+  );
+};
 
-
-export const CashFlowfromIA: React.FC<RowProps> = ({ total }) => (
+export const CashFlowfromIA: React.FC<RowProps> = ({ total }) => {
+  const { t } = useTranslation('reports');
+  return (
     <>
-        <HeaderTable title={'Cash Flow From Investing Activities'} />
-        <Table.Tr style={rowStyle}>
-            <Table.Td fz="sm" style={{ fontWeight: 400 }}>
-                Acquistion of assets
-            </Table.Td>
-            <Table.Td fz="sm" style={{ textAlign: "right", fontWeight: 400 }}>
-                {formatCurrency(total)}
-            </Table.Td>
-        </Table.Tr>
-        <Table.Tr style={rowStyle}>
-            <Table.Td fz="sm" style={{ fontWeight: 400 }}>
-                Sale of assets
-            </Table.Td>
-            <Table.Td fz="sm" style={{ textAlign: "right", fontWeight: 400 }}>
-                {formatCurrency(total)}
-            </Table.Td>
-        </Table.Tr>
-        <Table.Tr style={rowStyle}>
-            <Table.Td fz="sm" style={{ fontWeight: 400 }}>
-                Other investing activities
-            </Table.Td>
-            <Table.Td fz="sm" style={{ textAlign: "right", fontWeight: 400 }}>
-                {formatCurrency(total)}
-            </Table.Td>
-        </Table.Tr>
-        <Table.Tr style={rowStyle}>
-            <Table.Td fz="sm" style={{ fontWeight: 600 }}>
-                Net cash obtained from investing activities
-            </Table.Td>
-            <Table.Td fz="sm" style={{ textAlign: "right", fontWeight: 600 }}>
-                {formatCurrency(total)}
-            </Table.Td>
-        </Table.Tr>
+      <HeaderTable title={t('cashFlowRow.investing')} />
+      <Table.Tr style={rowStyle}>
+        <Table.Td fz="sm" style={{ fontWeight: 400 }}>
+          {t('cashFlowRow.acquisition')}
+        </Table.Td>
+        <Table.Td fz="sm" style={{ textAlign: 'right', fontWeight: 400 }}>
+          {formatCurrency(total)}
+        </Table.Td>
+      </Table.Tr>
+      <Table.Tr style={rowStyle}>
+        <Table.Td fz="sm" style={{ fontWeight: 400 }}>
+          {t('cashFlowRow.sale')}
+        </Table.Td>
+        <Table.Td fz="sm" style={{ textAlign: 'right', fontWeight: 400 }}>
+          {formatCurrency(total)}
+        </Table.Td>
+      </Table.Tr>
+      <Table.Tr style={rowStyle}>
+        <Table.Td fz="sm" style={{ fontWeight: 400 }}>
+          {t('cashFlowRow.otherInvesting')}
+        </Table.Td>
+        <Table.Td fz="sm" style={{ textAlign: 'right', fontWeight: 400 }}>
+          {formatCurrency(total)}
+        </Table.Td>
+      </Table.Tr>
+      <Table.Tr style={rowStyle}>
+        <Table.Td fz="sm" style={{ fontWeight: 600 }}>
+          {t('cashFlowRow.netInvesting')}
+        </Table.Td>
+        <Table.Td fz="sm" style={{ textAlign: 'right', fontWeight: 600 }}>
+          {formatCurrency(total)}
+        </Table.Td>
+      </Table.Tr>
     </>
-);
+  );
+};
 
-export const CashFlowfromFA: React.FC<RowProps> = ({ total }) => (
+export const CashFlowfromFA: React.FC<RowProps> = ({ total }) => {
+  const { t } = useTranslation('reports');
+  return (
     <>
-        <HeaderTable title={'Cash Flow From Financing Activities'} />
-        <Table.Tr style={rowStyle}>
-            <Table.Td fz="sm" style={{ fontWeight: 400 }}>
-                Payments of loans
-            </Table.Td>
-            <Table.Td fz="sm" style={{ textAlign: "right", fontWeight: 400 }}>
-                {formatCurrency(total)}
-            </Table.Td>
-        </Table.Tr>
-        <Table.Tr style={rowStyle}>
-            <Table.Td fz="sm" style={{ fontWeight: 400 }}>
-                Receipts of loans
-            </Table.Td>
-            <Table.Td fz="sm" style={{ textAlign: "right", fontWeight: 400 }}>
-                {formatCurrency(total)}
-            </Table.Td>
-        </Table.Tr>
-        <Table.Tr style={rowStyle}>
-            <Table.Td fz="sm" style={{ fontWeight: 400 }}>
-                Equity/Capital
-            </Table.Td>
-            <Table.Td fz="sm" style={{ textAlign: "right", fontWeight: 400 }}>
-                {formatCurrency(total)}
-            </Table.Td>
-        </Table.Tr>
-        <Table.Tr style={rowStyle}>
-            <Table.Td fz="sm" style={{ fontWeight: 400 }}>
-                Dividens paid
-            </Table.Td>
-            <Table.Td fz="sm" style={{ textAlign: "right", fontWeight: 400 }}>
-                {formatCurrency(total)}
-            </Table.Td>
-        </Table.Tr>
-        <Table.Tr style={rowStyle}>
-            <Table.Td fz="sm" style={{ fontWeight: 600 }}>
-                Net cash obtained from financing activities
-            </Table.Td>
-            <Table.Td fz="sm" style={{ textAlign: "right", fontWeight: 600 }}>
-                {formatCurrency(total)}
-            </Table.Td>
-        </Table.Tr>
+      <HeaderTable title={t('cashFlowRow.financing')} />
+      <Table.Tr style={rowStyle}>
+        <Table.Td fz="sm" style={{ fontWeight: 400 }}>
+          {t('cashFlowRow.loanPayments')}
+        </Table.Td>
+        <Table.Td fz="sm" style={{ textAlign: 'right', fontWeight: 400 }}>
+          {formatCurrency(total)}
+        </Table.Td>
+      </Table.Tr>
+      <Table.Tr style={rowStyle}>
+        <Table.Td fz="sm" style={{ fontWeight: 400 }}>
+          {t('cashFlowRow.loanReceipts')}
+        </Table.Td>
+        <Table.Td fz="sm" style={{ textAlign: 'right', fontWeight: 400 }}>
+          {formatCurrency(total)}
+        </Table.Td>
+      </Table.Tr>
+      <Table.Tr style={rowStyle}>
+        <Table.Td fz="sm" style={{ fontWeight: 400 }}>
+          {t('cashFlowRow.equityCapital')}
+        </Table.Td>
+        <Table.Td fz="sm" style={{ textAlign: 'right', fontWeight: 400 }}>
+          {formatCurrency(total)}
+        </Table.Td>
+      </Table.Tr>
+      <Table.Tr style={rowStyle}>
+        <Table.Td fz="sm" style={{ fontWeight: 400 }}>
+          {t('cashFlowRow.dividends')}
+        </Table.Td>
+        <Table.Td fz="sm" style={{ textAlign: 'right', fontWeight: 400 }}>
+          {formatCurrency(total)}
+        </Table.Td>
+      </Table.Tr>
+      <Table.Tr style={rowStyle}>
+        <Table.Td fz="sm" style={{ fontWeight: 600 }}>
+          {t('cashFlowRow.netFinancing')}
+        </Table.Td>
+        <Table.Td fz="sm" style={{ textAlign: 'right', fontWeight: 600 }}>
+          {formatCurrency(total)}
+        </Table.Td>
+      </Table.Tr>
     </>
-);
+  );
+};
 
-
-export const EndingCashPosition: React.FC<RowProps> = ({ total }) => (
+export const EndingCashPosition: React.FC<RowProps> = ({ total }) => {
+  const { t } = useTranslation('reports');
+  return (
     <>
-        <HeaderTable title={'Cash Flow From Financing Activities'} />
-        <Table.Tr style={rowStyle}>
-            <Table.Td fz="sm" style={{ fontWeight: 400 }}>
-                Net Increase/Decrease in Cash
-            </Table.Td>
-            <Table.Td fz="sm" style={{ textAlign: "right", fontWeight: 400 }}>
-                {formatCurrency(total)}
-            </Table.Td>
-        </Table.Tr>
-        <Table.Tr style={rowStyle}>
-            <Table.Td fz="sm" style={{ fontWeight: 400 }}>
-                Cash at Beginning of Period
-            </Table.Td>
-            <Table.Td fz="sm" style={{ textAlign: "right", fontWeight: 400 }}>
-                {formatCurrency(total)}
-            </Table.Td>
-        </Table.Tr>
-        <Table.Tr style={rowStyle}>
-            <Table.Td fz="sm" style={{ fontWeight: 600 }}>
-                Cash at End of Period
-            </Table.Td>
-            <Table.Td fz="sm" style={{ textAlign: "right", fontWeight: 600 }}>
-                {formatCurrency(total)}
-            </Table.Td>
-        </Table.Tr>
+      <HeaderTable title={t('cashFlowRow.financing')} />
+      <Table.Tr style={rowStyle}>
+        <Table.Td fz="sm" style={{ fontWeight: 400 }}>
+          {t('cashFlowRow.netChange')}
+        </Table.Td>
+        <Table.Td fz="sm" style={{ textAlign: 'right', fontWeight: 400 }}>
+          {formatCurrency(total)}
+        </Table.Td>
+      </Table.Tr>
+      <Table.Tr style={rowStyle}>
+        <Table.Td fz="sm" style={{ fontWeight: 400 }}>
+          {t('cashFlowRow.beginningCash')}
+        </Table.Td>
+        <Table.Td fz="sm" style={{ textAlign: 'right', fontWeight: 400 }}>
+          {formatCurrency(total)}
+        </Table.Td>
+      </Table.Tr>
+      <Table.Tr style={rowStyle}>
+        <Table.Td fz="sm" style={{ fontWeight: 600 }}>
+          {t('cashFlowRow.endingCash')}
+        </Table.Td>
+        <Table.Td fz="sm" style={{ textAlign: 'right', fontWeight: 600 }}>
+          {formatCurrency(total)}
+        </Table.Td>
+      </Table.Tr>
     </>
-);
-
-
-
-
-
-
+  );
+};

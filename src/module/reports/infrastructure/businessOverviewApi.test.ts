@@ -24,7 +24,9 @@ describe('business overview report API', () => {
     expect(REPORT_EXPORT_ENDPOINTS.INCOME_STATEMENT).toBe(
       `${REPORT_ENDPOINTS.INCOME_STATEMENT}/download`
     );
-    expect(REPORT_EXPORT_ENDPOINTS.EQUITY_CHANGE).toBe(`${REPORT_ENDPOINTS.EQUITY_CHANGE}/download`);
+    expect(REPORT_EXPORT_ENDPOINTS.EQUITY_CHANGE).toBe(
+      `${REPORT_ENDPOINTS.EQUITY_CHANGE}/download`
+    );
   });
 
   it('sends dates in the query string for balance sheet, trial balance and journal entries', async () => {

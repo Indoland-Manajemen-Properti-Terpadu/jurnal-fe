@@ -8,6 +8,7 @@ import { useEquityChangeReport } from '@/module/reports/presentation/hooks/useEq
 import { NotFound } from '@/components/ErrorPage/NotFound';
 import { dateFormatV2 } from '@/utils/FormatDate';
 
+import { useTranslation } from '@/i18n';
 const rowStyle = {
   borderColor: themeColors.gray[1],
   borderWidth: '1px',
@@ -32,6 +33,7 @@ interface EquityChangeTableProps {
 }
 
 const EquityChangesTable: React.FC<EquityChangeTableProps> = ({ fromDate, toDate }) => {
+  const { t } = useTranslation('reports');
   const {
     data: reports,
     isError,
@@ -44,7 +46,7 @@ const EquityChangesTable: React.FC<EquityChangeTableProps> = ({ fromDate, toDate
   }
 
   if (isLoading) {
-    return <Text>Loading...</Text>;
+    return <Text>{t('common.loading')}</Text>;
   }
 
   if (!reports) {
@@ -65,25 +67,25 @@ const EquityChangesTable: React.FC<EquityChangeTableProps> = ({ fromDate, toDate
             <Table.Th colSpan={4}>
               <Stack gap={1}>
                 <Text c={themeColors.black[9]} fz={14} fw={500}>
-                  Report
+                  {t('common.report')}
                 </Text>
                 <Text c={themeColors.gray[6]} fz={14} fw={500}>
                   {' '}
-                  Period : {dateFormatV2(fromDate!!)} - {dateFormatV2(toDate!!)}
+                  {t('common.period')} {dateFormatV2(fromDate!!)} - {dateFormatV2(toDate!!)}
                 </Text>
               </Stack>
             </Table.Th>
             <Table.Th colSpan={2} ta="left">
-              Beginning Balance
+              {t('common.beginningBalanceEn')}
             </Table.Th>
             <Table.Th colSpan={2} ta="left">
-              Debit
+              {t('common.debit')}
             </Table.Th>
             <Table.Th colSpan={2} ta="left">
-              Credit
+              {t('common.credit')}
             </Table.Th>
             <Table.Th colSpan={2} ta="left">
-              Ending Balance
+              {t('common.endingBalanceEn')}
             </Table.Th>
           </Table.Tr>
         </Table.Thead>
@@ -100,7 +102,7 @@ const EquityChangesTable: React.FC<EquityChangeTableProps> = ({ fromDate, toDate
               }}
             >
               <Text fz={14} w={500} gradient={gradientColors.mainGR} variant="gradient">
-                Owner Equity
+                {t('equityChanges.ownerEquity')}
               </Text>
             </Table.Td>
           </Table.Tr>

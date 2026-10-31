@@ -10,10 +10,16 @@ import type {
 } from '@/module/reports/domain/balanceSheet.types';
 import { getPresetDateRange, type PeriodPreset } from '@/module/reports/domain/reportFormat';
 
+import { useTranslation } from '@/i18n';
 export function useBalanceSheet() {
+  const { t } = useTranslation('reports');
   const [preset, setPreset] = useState<PeriodPreset>('this_month');
-  const [period, setPeriod] = useState<BalanceSheetQueryParams>(() => getPresetDateRange('this_month'));
-  const [draftPeriod, setDraftPeriod] = useState<BalanceSheetQueryParams>(() => getPresetDateRange('this_month'));
+  const [period, setPeriod] = useState<BalanceSheetQueryParams>(() =>
+    getPresetDateRange('this_month')
+  );
+  const [draftPeriod, setDraftPeriod] = useState<BalanceSheetQueryParams>(() =>
+    getPresetDateRange('this_month')
+  );
 
   const [viewMode, setViewMode] = useState<'standard' | 'side_by_side'>('side_by_side');
   const [searchQuery, setSearchQuery] = useState('');
@@ -33,8 +39,8 @@ export function useBalanceSheet() {
     if (draftPeriod.startDate > draftPeriod.endDate) {
       notifications.show({
         color: 'red',
-        title: 'Rentang Tanggal Tidak Valid',
-        message: 'Tanggal akhir harus sama dengan atau setelah tanggal awal.',
+        title: t('common.invalidRangeTitle'),
+        message: t('common.invalidRangeMessage'),
       });
       return;
     }
@@ -112,15 +118,15 @@ export function useBalanceSheet() {
 
       notifications.show({
         color: 'teal',
-        title: 'Ekspor Berhasil',
+        title: t('common.exportSuccess'),
         message: `File Laporan Neraca (${type.toUpperCase()}) telah diunduh.`,
       });
     },
     onError: (err) => {
       notifications.show({
         color: 'red',
-        title: 'Ekspor Gagal',
-        message: err instanceof Error ? err.message : 'Gagal mengekspor laporan neraca.',
+        title: t('common.exportFailed'),
+        message: err instanceof Error ? err.message : t('balanceSheet.exportFailedMessage'),
       });
     },
   });
@@ -153,4 +159,3 @@ export function useBalanceSheet() {
     exportMutation,
   };
 }
-

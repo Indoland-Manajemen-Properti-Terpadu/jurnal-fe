@@ -25,9 +25,13 @@ import {
   IconRefresh,
   IconTable,
 } from '@tabler/icons-react';
-import type { GeneralLedgerExportType, ReportPeriod } from '@/module/reports/domain/generalLedger.types';
+import type {
+  GeneralLedgerExportType,
+  ReportPeriod,
+} from '@/module/reports/domain/generalLedger.types';
 import type { PeriodPreset } from '@/module/reports/domain/reportFormat';
 
+import { useTranslation } from '@/i18n';
 interface GeneralLedgerFilterBarProps {
   preset: PeriodPreset;
   onPresetChange: (preset: PeriodPreset) => void;
@@ -55,6 +59,7 @@ export const GeneralLedgerFilterBar: React.FC<GeneralLedgerFilterBarProps> = ({
   onViewModeChange,
   hasData,
 }) => {
+  const { t } = useTranslation('reports');
   return (
     <Paper withBorder radius="lg" p="md" bg="white" shadow="xs">
       <Stack gap="md">
@@ -62,7 +67,7 @@ export const GeneralLedgerFilterBar: React.FC<GeneralLedgerFilterBarProps> = ({
         <Group justify="space-between" align="center" wrap="wrap" gap="sm">
           <Group gap="xs" wrap="wrap">
             <Text size="xs" fw={700} c="dimmed" tt="uppercase" mr={4}>
-              Periode Cepat:
+              {t('common.quickPeriod')}
             </Text>
             <SegmentedControl
               size="xs"
@@ -70,11 +75,11 @@ export const GeneralLedgerFilterBar: React.FC<GeneralLedgerFilterBarProps> = ({
               value={preset}
               onChange={(val) => onPresetChange(val as PeriodPreset)}
               data={[
-                { label: 'Bulan Ini', value: 'this_month' },
-                { label: 'Bulan Lalu', value: 'last_month' },
-                { label: 'Kuartal Ini', value: 'this_quarter' },
-                { label: 'Tahun Ini', value: 'this_year' },
-                { label: 'Kustom', value: 'custom' },
+                { label: t('common.thisMonthId'), value: 'this_month' },
+                { label: t('common.lastMonthId'), value: 'last_month' },
+                { label: t('common.thisQuarterId'), value: 'this_quarter' },
+                { label: t('common.thisYearId'), value: 'this_year' },
+                { label: t('common.customId'), value: 'custom' },
               ]}
               color="primary"
             />
@@ -82,7 +87,7 @@ export const GeneralLedgerFilterBar: React.FC<GeneralLedgerFilterBarProps> = ({
 
           <Group gap="xs">
             <Text size="xs" fw={700} c="dimmed" tt="uppercase" mr={4}>
-              Tampilan:
+              {t('generalLedger.viewLabel')}
             </Text>
             <SegmentedControl
               size="xs"
@@ -94,7 +99,7 @@ export const GeneralLedgerFilterBar: React.FC<GeneralLedgerFilterBarProps> = ({
                   label: (
                     <Group gap={6} wrap="nowrap">
                       <IconListDetails size={14} />
-                      <span>Fokus Per Akun</span>
+                      <span>{t('generalLedger.viewFocus')}</span>
                     </Group>
                   ),
                   value: 'master_detail',
@@ -103,7 +108,7 @@ export const GeneralLedgerFilterBar: React.FC<GeneralLedgerFilterBarProps> = ({
                   label: (
                     <Group gap={6} wrap="nowrap">
                       <IconTable size={14} />
-                      <span>Semua Akun</span>
+                      <span>{t('generalLedger.viewAll')}</span>
                     </Group>
                   ),
                   value: 'consolidated',
@@ -120,8 +125,8 @@ export const GeneralLedgerFilterBar: React.FC<GeneralLedgerFilterBarProps> = ({
             <TextInput
               type="date"
               size="sm"
-              label="Dari Tanggal"
-              aria-label="Dari Tanggal"
+              label={t('common.fromDate')}
+              aria-label={t('common.fromDate')}
               leftSection={<IconCalendar size={16} />}
               value={draftPeriod.startDate}
               onChange={(e) =>
@@ -132,8 +137,8 @@ export const GeneralLedgerFilterBar: React.FC<GeneralLedgerFilterBarProps> = ({
             <TextInput
               type="date"
               size="sm"
-              label="Sampai Tanggal"
-              aria-label="Sampai Tanggal"
+              label={t('common.toDate')}
+              aria-label={t('common.toDate')}
               leftSection={<IconCalendar size={16} />}
               value={draftPeriod.endDate}
               onChange={(e) =>
@@ -149,19 +154,19 @@ export const GeneralLedgerFilterBar: React.FC<GeneralLedgerFilterBarProps> = ({
               loading={isFetching}
               leftSection={<IconFilter size={16} />}
             >
-              Tampilkan
+              {t('common.show')}
             </Button>
           </Group>
 
           <Group gap="xs">
-            <Tooltip label="Cetak Laporan">
+            <Tooltip label={t('common.printReport')}>
               <ActionIcon
                 variant="default"
                 size="input-sm"
                 radius="md"
                 onClick={() => window.print()}
                 disabled={!hasData}
-                aria-label="Cetak Laporan"
+                aria-label={t('common.printReport')}
               >
                 <IconPrinter size={17} />
               </ActionIcon>
@@ -179,28 +184,28 @@ export const GeneralLedgerFilterBar: React.FC<GeneralLedgerFilterBarProps> = ({
                   loading={isExporting}
                   disabled={!hasData || isFetching}
                 >
-                  Ekspor
+                  {t('common.export')}
                 </Button>
               </Menu.Target>
               <Menu.Dropdown>
-                <Menu.Label>Pilih Format Ekspor</Menu.Label>
+                <Menu.Label>{t('common.chooseExportFormat')}</Menu.Label>
                 <Menu.Item
                   leftSection={<IconFileTypePdf size={16} color="red" />}
                   onClick={() => onExport('pdf')}
                 >
-                  PDF Document (.pdf)
+                  {t('common.formatPdf')}
                 </Menu.Item>
                 <Menu.Item
                   leftSection={<IconFileSpreadsheet size={16} color="green" />}
                   onClick={() => onExport('xlsx')}
                 >
-                  Excel Spreadsheet (.xlsx)
+                  {t('common.formatXlsx')}
                 </Menu.Item>
                 <Menu.Item
                   leftSection={<IconFileTypeCsv size={16} color="gray" />}
                   onClick={() => onExport('csv')}
                 >
-                  CSV Data (.csv)
+                  {t('common.formatCsv')}
                 </Menu.Item>
               </Menu.Dropdown>
             </Menu>
@@ -210,4 +215,3 @@ export const GeneralLedgerFilterBar: React.FC<GeneralLedgerFilterBarProps> = ({
     </Paper>
   );
 };
-

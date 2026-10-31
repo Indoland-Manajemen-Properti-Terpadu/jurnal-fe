@@ -21,18 +21,20 @@ import {
 import type { BalanceSheetData } from '@/module/reports/domain/balanceSheet.types';
 import { displayDate, formatMoney } from '@/module/reports/domain/reportFormat';
 
+import { useTranslation } from '@/i18n';
 interface BalanceSheetSummaryCardsProps {
   data: BalanceSheetData;
 }
 
 export const BalanceSheetSummaryCards: React.FC<BalanceSheetSummaryCardsProps> = ({ data }) => {
+  const { t } = useTranslation('reports');
   return (
     <Stack gap="sm">
       {/* Date Header Info */}
       <Group justify="space-between" align="center" wrap="wrap" gap="xs">
         <Group gap="xs" align="center">
           <Text size="xs" fw={700} c="dimmed" tt="uppercase" style={{ letterSpacing: '0.5px' }}>
-            Posisi Keuangan Per Tanggal:
+            {t('balanceSheet.cardPosition')}
           </Text>
           <Text size="sm" fw={700} c="dark.8">
             {displayDate(data.endDate)}
@@ -42,7 +44,7 @@ export const BalanceSheetSummaryCards: React.FC<BalanceSheetSummaryCardsProps> =
         <Tooltip
           label={
             data.isBalanced
-              ? 'Persamaan Akuntansi Terpenuhi: Total Aset = Total Liabilitas + Total Ekuitas.'
+              ? t('balanceSheet.equationMet')
               : `Peringatan: Terdapat selisih keseimbangan sebesar ${formatMoney(Math.abs(data.discrepancy))}.`
           }
         >
@@ -50,10 +52,12 @@ export const BalanceSheetSummaryCards: React.FC<BalanceSheetSummaryCardsProps> =
             size="md"
             variant="light"
             color={data.isBalanced ? 'teal' : 'red'}
-            leftSection={data.isBalanced ? <IconCheck size={14} /> : <IconAlertTriangle size={14} />}
+            leftSection={
+              data.isBalanced ? <IconCheck size={14} /> : <IconAlertTriangle size={14} />
+            }
           >
             {data.isBalanced
-              ? 'Neraca Seimbang (Aset = Liabilitas + Ekuitas)'
+              ? t('balanceSheet.balanced')
               : `Tidak Seimbang (Selisih: ${formatMoney(Math.abs(data.discrepancy))})`}
           </Badge>
         </Tooltip>
@@ -66,9 +70,15 @@ export const BalanceSheetSummaryCards: React.FC<BalanceSheetSummaryCardsProps> =
           <Group justify="space-between" align="flex-start">
             <Box>
               <Text size="xs" fw={600} c="dimmed" tt="uppercase">
-                Total Aset (Aktiva)
+                {t('balanceSheet.cardTotalAssets')}
               </Text>
-              <Text size="xl" fw={800} c="blue.7" mt={4} style={{ fontVariantNumeric: 'tabular-nums' }}>
+              <Text
+                size="xl"
+                fw={800}
+                c="blue.7"
+                mt={4}
+                style={{ fontVariantNumeric: 'tabular-nums' }}
+              >
                 {formatMoney(data.totalAssets)}
               </Text>
             </Box>
@@ -77,7 +87,7 @@ export const BalanceSheetSummaryCards: React.FC<BalanceSheetSummaryCardsProps> =
             </ThemeIcon>
           </Group>
           <Text size="xs" c="dimmed" mt="xs">
-            Aset Lancar, Tetap, & Amortisasi
+            {t('balanceSheet.cardAssetsHint')}
           </Text>
         </Paper>
 
@@ -86,9 +96,15 @@ export const BalanceSheetSummaryCards: React.FC<BalanceSheetSummaryCardsProps> =
           <Group justify="space-between" align="flex-start">
             <Box>
               <Text size="xs" fw={600} c="dimmed" tt="uppercase">
-                Total Liabilitas (Kewajiban)
+                {t('balanceSheet.cardTotalLiabilities')}
               </Text>
-              <Text size="xl" fw={800} c="orange.7" mt={4} style={{ fontVariantNumeric: 'tabular-nums' }}>
+              <Text
+                size="xl"
+                fw={800}
+                c="orange.7"
+                mt={4}
+                style={{ fontVariantNumeric: 'tabular-nums' }}
+              >
                 {formatMoney(data.totalLiabilities)}
               </Text>
             </Box>
@@ -97,7 +113,7 @@ export const BalanceSheetSummaryCards: React.FC<BalanceSheetSummaryCardsProps> =
             </ThemeIcon>
           </Group>
           <Text size="xs" c="dimmed" mt="xs">
-            Kewajiban jangka pendek & panjang
+            {t('balanceSheet.cardLiabilitiesHint')}
           </Text>
         </Paper>
 
@@ -106,9 +122,15 @@ export const BalanceSheetSummaryCards: React.FC<BalanceSheetSummaryCardsProps> =
           <Group justify="space-between" align="flex-start">
             <Box>
               <Text size="xs" fw={600} c="dimmed" tt="uppercase">
-                Total Ekuitas (Modal)
+                {t('balanceSheet.cardTotalEquity')}
               </Text>
-              <Text size="xl" fw={800} c="violet.7" mt={4} style={{ fontVariantNumeric: 'tabular-nums' }}>
+              <Text
+                size="xl"
+                fw={800}
+                c="violet.7"
+                mt={4}
+                style={{ fontVariantNumeric: 'tabular-nums' }}
+              >
                 {formatMoney(data.totalEquity)}
               </Text>
             </Box>
@@ -117,7 +139,7 @@ export const BalanceSheetSummaryCards: React.FC<BalanceSheetSummaryCardsProps> =
             </ThemeIcon>
           </Group>
           <Text size="xs" c="dimmed" mt="xs">
-            Modal disetor & saldo laba ditahan
+            {t('balanceSheet.cardEquityHint')}
           </Text>
         </Paper>
 
@@ -126,9 +148,15 @@ export const BalanceSheetSummaryCards: React.FC<BalanceSheetSummaryCardsProps> =
           <Group justify="space-between" align="flex-start">
             <Box>
               <Text size="xs" fw={600} c="dimmed" tt="uppercase">
-                Liabilitas + Ekuitas (Pasiva)
+                {t('balanceSheet.cardLiabilitiesEquity')}
               </Text>
-              <Text size="xl" fw={800} c="teal.7" mt={4} style={{ fontVariantNumeric: 'tabular-nums' }}>
+              <Text
+                size="xl"
+                fw={800}
+                c="teal.7"
+                mt={4}
+                style={{ fontVariantNumeric: 'tabular-nums' }}
+              >
                 {formatMoney(data.totalLiabilitiesAndEquity)}
               </Text>
             </Box>
@@ -137,11 +165,10 @@ export const BalanceSheetSummaryCards: React.FC<BalanceSheetSummaryCardsProps> =
             </ThemeIcon>
           </Group>
           <Text size="xs" c="dimmed" mt="xs">
-            Harus sama dengan Total Aset
+            {t('balanceSheet.cardMustEqual')}
           </Text>
         </Paper>
       </SimpleGrid>
     </Stack>
   );
 };
-

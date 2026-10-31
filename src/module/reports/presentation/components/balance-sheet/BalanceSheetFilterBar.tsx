@@ -26,9 +26,13 @@ import {
   IconSearch,
   IconX,
 } from '@tabler/icons-react';
-import type { BalanceSheetExportType, BalanceSheetQueryParams } from '@/module/reports/domain/balanceSheet.types';
+import type {
+  BalanceSheetExportType,
+  BalanceSheetQueryParams,
+} from '@/module/reports/domain/balanceSheet.types';
 import type { PeriodPreset } from '@/module/reports/domain/reportFormat';
 
+import { useTranslation } from '@/i18n';
 interface BalanceSheetFilterBarProps {
   preset: PeriodPreset;
   onPresetChange: (preset: PeriodPreset) => void;
@@ -60,6 +64,7 @@ export const BalanceSheetFilterBar: React.FC<BalanceSheetFilterBarProps> = ({
   onSearchQueryChange,
   hasData,
 }) => {
+  const { t } = useTranslation('reports');
   return (
     <Paper withBorder radius="lg" p="md" bg="white" shadow="xs">
       <Stack gap="md">
@@ -67,7 +72,7 @@ export const BalanceSheetFilterBar: React.FC<BalanceSheetFilterBarProps> = ({
         <Group justify="space-between" align="center" wrap="wrap" gap="sm">
           <Group gap="xs" wrap="wrap">
             <Text size="xs" fw={700} c="dimmed" tt="uppercase" mr={4}>
-              Periode Cepat:
+              {t('common.quickPeriod')}
             </Text>
             <SegmentedControl
               size="xs"
@@ -75,11 +80,11 @@ export const BalanceSheetFilterBar: React.FC<BalanceSheetFilterBarProps> = ({
               value={preset}
               onChange={(val) => onPresetChange(val as PeriodPreset)}
               data={[
-                { label: 'Bulan Ini', value: 'this_month' },
-                { label: 'Bulan Lalu', value: 'last_month' },
-                { label: 'Kuartal Ini', value: 'this_quarter' },
-                { label: 'Tahun Ini', value: 'this_year' },
-                { label: 'Kustom', value: 'custom' },
+                { label: t('common.thisMonthId'), value: 'this_month' },
+                { label: t('common.lastMonthId'), value: 'last_month' },
+                { label: t('common.thisQuarterId'), value: 'this_quarter' },
+                { label: t('common.thisYearId'), value: 'this_year' },
+                { label: t('common.customId'), value: 'custom' },
               ]}
               color="primary"
             />
@@ -87,7 +92,7 @@ export const BalanceSheetFilterBar: React.FC<BalanceSheetFilterBarProps> = ({
 
           <Group gap="xs">
             <Text size="xs" fw={700} c="dimmed" tt="uppercase" mr={4}>
-              Layout:
+              {t('balanceSheet.layoutLabel')}
             </Text>
             <SegmentedControl
               size="xs"
@@ -99,7 +104,7 @@ export const BalanceSheetFilterBar: React.FC<BalanceSheetFilterBarProps> = ({
                   label: (
                     <Group gap={6} wrap="nowrap">
                       <IconColumns size={14} />
-                      <span>Berdampingan (Skontro)</span>
+                      <span>{t('balanceSheet.layoutSideBySide')}</span>
                     </Group>
                   ),
                   value: 'side_by_side',
@@ -108,7 +113,7 @@ export const BalanceSheetFilterBar: React.FC<BalanceSheetFilterBarProps> = ({
                   label: (
                     <Group gap={6} wrap="nowrap">
                       <IconLayoutRows size={14} />
-                      <span>Vertikal (Stafel)</span>
+                      <span>{t('balanceSheet.layoutVertical')}</span>
                     </Group>
                   ),
                   value: 'standard',
@@ -125,8 +130,8 @@ export const BalanceSheetFilterBar: React.FC<BalanceSheetFilterBarProps> = ({
             <TextInput
               type="date"
               size="sm"
-              label="Dari Tanggal"
-              aria-label="Dari Tanggal"
+              label={t('common.fromDate')}
+              aria-label={t('common.fromDate')}
               leftSection={<IconCalendar size={16} />}
               value={draftPeriod.startDate}
               onChange={(e) =>
@@ -137,8 +142,8 @@ export const BalanceSheetFilterBar: React.FC<BalanceSheetFilterBarProps> = ({
             <TextInput
               type="date"
               size="sm"
-              label="Per Tanggal (Sampai)"
-              aria-label="Per Tanggal (Sampai)"
+              label={t('balanceSheet.asOfDate')}
+              aria-label={t('balanceSheet.asOfDate')}
               leftSection={<IconCalendar size={16} />}
               value={draftPeriod.endDate}
               onChange={(e) =>
@@ -154,7 +159,7 @@ export const BalanceSheetFilterBar: React.FC<BalanceSheetFilterBarProps> = ({
               loading={isFetching}
               leftSection={<IconFilter size={16} />}
             >
-              Tampilkan
+              {t('common.show')}
             </Button>
           </Group>
 
@@ -181,14 +186,14 @@ export const BalanceSheetFilterBar: React.FC<BalanceSheetFilterBarProps> = ({
               w={{ base: '100%', xs: 220 }}
             />
 
-            <Tooltip label="Cetak Neraca">
+            <Tooltip label={t('balanceSheet.print')}>
               <ActionIcon
                 variant="default"
                 size="input-sm"
                 radius="md"
                 onClick={() => window.print()}
                 disabled={!hasData}
-                aria-label="Cetak Neraca"
+                aria-label={t('balanceSheet.print')}
               >
                 <IconPrinter size={17} />
               </ActionIcon>
@@ -206,28 +211,28 @@ export const BalanceSheetFilterBar: React.FC<BalanceSheetFilterBarProps> = ({
                   loading={isExporting}
                   disabled={!hasData || isFetching}
                 >
-                  Ekspor
+                  {t('common.export')}
                 </Button>
               </Menu.Target>
               <Menu.Dropdown>
-                <Menu.Label>Pilih Format Ekspor</Menu.Label>
+                <Menu.Label>{t('common.chooseExportFormat')}</Menu.Label>
                 <Menu.Item
                   leftSection={<IconFileTypePdf size={16} color="red" />}
                   onClick={() => onExport('pdf')}
                 >
-                  PDF Document (.pdf)
+                  {t('common.formatPdf')}
                 </Menu.Item>
                 <Menu.Item
                   leftSection={<IconFileSpreadsheet size={16} color="green" />}
                   onClick={() => onExport('xlsx')}
                 >
-                  Excel Spreadsheet (.xlsx)
+                  {t('common.formatXlsx')}
                 </Menu.Item>
                 <Menu.Item
                   leftSection={<IconFileTypeCsv size={16} color="gray" />}
                   onClick={() => onExport('csv')}
                 >
-                  CSV Data (.csv)
+                  {t('common.formatCsv')}
                 </Menu.Item>
               </Menu.Dropdown>
             </Menu>
@@ -237,4 +242,3 @@ export const BalanceSheetFilterBar: React.FC<BalanceSheetFilterBarProps> = ({
     </Paper>
   );
 };
-
