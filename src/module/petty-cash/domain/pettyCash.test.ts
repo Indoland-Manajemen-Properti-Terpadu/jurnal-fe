@@ -3,7 +3,7 @@ import type {
   PettyCashFund,
   PettyCashReimbursement,
   PettyCashVoucher,
-} from '@/module/petty-cash/domain/pettyCash.types';
+} from '@/module/petty-cash/domain/pettyCashTypes';
 import {
   recordPaidVoucher,
   disburseReplenishment,

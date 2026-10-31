@@ -14,7 +14,7 @@ import type {
   PettyCashCount,
   PettyCashReimbursement,
   PettyCashVoucher,
-} from '@/module/petty-cash/domain/pettyCash.types';
+} from '@/module/petty-cash/domain/pettyCashTypes';
 
 interface PettyCashPrototypeContextValue extends PettyCashPrototypeState {
   createPaidVoucher: (voucher: Omit<PettyCashVoucher, 'id' | 'createdAt'>) => void;

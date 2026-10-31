@@ -26,7 +26,7 @@ import {
 } from '@tabler/icons-react';
 import { formatCurrency } from '@/utils/FormatCurrency';
 import { dateFormatV1 } from '@/utils/FormatDate';
-import { PettyCashVoucher, VoucherStatus } from '@/module/petty-cash/domain/pettyCash.types';
+import { PettyCashVoucher, VoucherStatus } from '@/module/petty-cash/domain/pettyCashTypes';
 import EmptyState from '@/components/EmptyState/EmptyState';
 import { useTranslation } from '@/i18n';
 

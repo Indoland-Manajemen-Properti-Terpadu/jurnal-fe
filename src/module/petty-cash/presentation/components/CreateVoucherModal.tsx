@@ -25,7 +25,7 @@ import {
   IconPlus,
 } from '@tabler/icons-react';
 import { formatCurrency } from '@/utils/FormatCurrency';
-import { PettyCashFund, PettyCashVoucher } from '@/module/petty-cash/domain/pettyCash.types';
+import { PettyCashFund, PettyCashVoucher } from '@/module/petty-cash/domain/pettyCashTypes';
 import { MOCK_EXPENSE_ACCOUNTS } from '@/module/petty-cash/infrastructure/mockPettyCashData';
 
 interface Props {

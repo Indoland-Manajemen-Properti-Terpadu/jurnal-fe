@@ -21,7 +21,7 @@ import { ReplenishmentModal } from '@/module/petty-cash/presentation/components/
 import { VoucherDetailDrawer } from '@/module/petty-cash/presentation/components/VoucherDetailDrawer';
 import { VoucherTable } from '@/module/petty-cash/presentation/components/VoucherTable';
 import { usePettyCashPrototype } from '@/module/petty-cash/presentation/hooks/usePettyCashPrototype';
-import type { PettyCashVoucher } from '@/module/petty-cash/domain/pettyCash.types';
+import type { PettyCashVoucher } from '@/module/petty-cash/domain/pettyCashTypes';
 import classes from '@/module/petty-cash/presentation/pages/PettyCashPage.module.css';
 
 export default function PettyCashPage() {

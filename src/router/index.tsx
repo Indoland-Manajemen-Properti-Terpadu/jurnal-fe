@@ -38,9 +38,7 @@ import {
   AddTransferMoneyPage,
   BankAndCashMainPage,
 } from '@/module/bank-cash';
-import PettyCashPage from '@/module/petty-cash/presentation/pages/PettyCashPage';
-import PettyCashDetailPage from '@/module/petty-cash/presentation/pages/PettyCashDetailPage';
-import PettyCashRouteScope from '@/module/petty-cash/presentation/pages/PettyCashRouteScope';
+import { PettyCashDetailPage, PettyCashPage, PettyCashRouteScope } from '@/module/petty-cash';
 import EditUserForm from '@/module/SettingMenu/UserManagement/User/pages/EditUser';
 import {
   AddContactPage,
