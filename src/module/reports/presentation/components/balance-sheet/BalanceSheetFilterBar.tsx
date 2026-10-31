@@ -165,7 +165,7 @@ export const BalanceSheetFilterBar: React.FC<BalanceSheetFilterBarProps> = ({
 
           <Group gap="sm" align="flex-end">
             <TextInput
-              placeholder="Cari akun neraca..."
+              placeholder={t('balanceSheet.searchAccounts')}
               size="sm"
               radius="md"
               leftSection={<IconSearch size={15} />}

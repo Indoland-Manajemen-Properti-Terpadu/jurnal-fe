@@ -4,6 +4,7 @@ import { DatePickerInput } from '@mantine/dates';
 import { IconCalendar, IconChevronDown } from '@tabler/icons-react';
 import { format, startOfMonth, startOfWeek, subDays } from 'date-fns';
 
+import { useTranslation } from '@/i18n';
 import { usePeriodOptions } from '@/module/reports/presentation/hooks/usePeriodOptions';
 
 interface FilterDateProps {
@@ -11,6 +12,7 @@ interface FilterDateProps {
 }
 
 const FilterDate: React.FC<FilterDateProps> = ({ onFilterChange }) => {
+  const { t } = useTranslation('reports');
   const periodOptions = usePeriodOptions();
   const initialFromDate = format(new Date('2024-01-01'), 'yyyy-MM-dd');
   const initialToDate = format(new Date(), 'yyyy-MM-dd');
@@ -70,7 +72,7 @@ const FilterDate: React.FC<FilterDateProps> = ({ onFilterChange }) => {
       <Grid.Col span={8}>
         <DatePickerInput
           type="range"
-          placeholder="Select start date and end date"
+          placeholder={t('common.selectDateRange')}
           value={value}
           valueFormat="DD/MM/YYYY"
           onChange={setValue}
@@ -89,7 +91,7 @@ const FilterDate: React.FC<FilterDateProps> = ({ onFilterChange }) => {
           checkIconPosition="right"
           rightSection={<IconChevronDown size={16} />}
           data={periodOptions}
-          placeholder="Select Period"
+          placeholder={t('common.selectPeriod')}
           size="xs"
         />
       </Grid.Col>

@@ -42,3 +42,19 @@ describe('calcJournalEntryTotals', () => {
     expect(calcJournalEntryTotals([])).toEqual({ totalDebit: 0, totalCredit: 0 });
   });
 });
+
+describe('calcJournalEntryTotals with numeric strings', () => {
+  it('counts numeric string amounts instead of dropping them', () => {
+    const line = { id: '1', description: '', debit: '100.50', credit: '0.10' } as unknown;
+    const entries = [
+      {
+        id: 'j',
+        transactionNumber: 1,
+        transactionDate: new Date('2026-01-01'),
+        transactionDetail: [line],
+      },
+    ] as ReportJournalEntryModel[];
+
+    expect(calcJournalEntryTotals(entries)).toEqual({ totalDebit: 100.5, totalCredit: 0.1 });
+  });
+});

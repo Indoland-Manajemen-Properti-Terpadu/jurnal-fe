@@ -244,7 +244,7 @@ export default function ReportCatalogPage() {
                 </Tabs>
 
                 <TextInput
-                  placeholder="Cari laporan keuangan..."
+                  placeholder={t('catalog.searchPlaceholder')}
                   leftSection={<IconSearch size={16} />}
                   rightSection={
                     searchQuery ? (
@@ -269,7 +269,7 @@ export default function ReportCatalogPage() {
               {filteredReports.length === 0 ? (
                 <EmptyState
                   title={t('catalog.notFound')}
-                  description={`Tidak ada laporan yang cocok dengan kata kunci "${searchQuery}". Coba gunakan istilah pencarian lain atau pilih kategori Semua Laporan.`}
+                  description={t('catalog.noMatch', { query: searchQuery })}
                   actionLabel={t('common.resetSearch')}
                   onAction={() => {
                     setSearchQuery('');

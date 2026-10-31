@@ -56,5 +56,11 @@ export const reportsLedger = {
     cardTotalDebitHint: 'Accumulated debit of all accounts',
     cardTotalCredit: 'Total Credit Movement',
     cardTotalCreditHint: 'Accumulated credit of all accounts',
+    searchTransactions: 'Search reference no. or memo...',
+    noTransactionMatch: 'No transactions match the keyword "{{query}}".',
+    searchAccounts: 'Search account number or name...',
+    searchConsolidated: 'Search account code, name, or category...',
+    noAccountMatch: 'No accounts match the search "{{query}}".',
+    fileDownloaded: 'General Ledger file ({{type}}) has been downloaded.',
   },
 };

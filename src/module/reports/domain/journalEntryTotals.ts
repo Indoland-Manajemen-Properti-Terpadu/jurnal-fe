@@ -1,9 +1,13 @@
 import { fromMinor, sumMinor } from '@/lib/money/money';
 import type { ReportJournalEntryModel } from './JournalEntry.types';
 
-/** Rounds one amount half up to the cent; a missing or non-finite amount counts as zero. */
-const toCents = (value: number | undefined): number =>
-  Number.isFinite(value) ? Math.round(Number(((value as number) * 100).toPrecision(15))) : 0;
+/** Rounds one amount half up to the cent; numeric strings count, anything else counts as zero. */
+const toCents = (value: unknown): number => {
+  const amount = typeof value === 'string' ? Number(value) : value;
+  return typeof amount === 'number' && Number.isFinite(amount)
+    ? Math.round(Number((amount * 100).toPrecision(15)))
+    : 0;
+};
 
 const totalOf = (entries: ReportJournalEntryModel[], side: 'debit' | 'credit'): number =>
   Number(

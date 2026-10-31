@@ -52,5 +52,8 @@ export const reportsBalanceSheet = {
     cardEquityHint: 'Paid-in capital & retained earnings',
     cardLiabilitiesEquity: 'Liabilities + Equity',
     cardMustEqual: 'Must equal Total Assets',
+    searchAccounts: 'Search balance sheet accounts...',
+    unbalanced: 'Unbalanced (Difference: {{amount}})',
+    fileDownloaded: 'Balance Sheet file ({{type}}) has been downloaded.',
   },
 };

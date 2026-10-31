@@ -131,7 +131,7 @@ const JournalEntryReportPage: React.FC = () => {
                 <Grid columns={24} gutter="sm" style={{ flexGrow: 1 }}>
                   <Grid.Col span={6}>
                     <DatePickerInput
-                      placeholder="Start Date Period"
+                      placeholder={t('common.startDatePeriod')}
                       valueFormat="DD/MM/YYYY"
                       highlightToday
                       size="xs"
@@ -146,7 +146,7 @@ const JournalEntryReportPage: React.FC = () => {
                   </Grid.Col>
                   <Grid.Col span={6}>
                     <DatePickerInput
-                      placeholder="End Date Period"
+                      placeholder={t('common.endDatePeriod')}
                       valueFormat="DD/MM/YYYY"
                       highlightToday
                       size="xs"
@@ -170,7 +170,7 @@ const JournalEntryReportPage: React.FC = () => {
                         setSelectedPeriod(value || 'All Period');
                         setIsCustomDate(false);
                       }}
-                      placeholder="Select Period"
+                      placeholder={t('common.selectPeriod')}
                       size="xs"
                       rightSection={<IconChevronDown size={16} />}
                     />

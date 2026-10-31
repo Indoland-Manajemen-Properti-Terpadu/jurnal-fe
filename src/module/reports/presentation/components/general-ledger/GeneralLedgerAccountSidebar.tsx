@@ -50,7 +50,7 @@ export const GeneralLedgerAccountSidebar: React.FC<GeneralLedgerAccountSidebarPr
 
         {/* Search */}
         <TextInput
-          placeholder="Cari nomor atau nama akun..."
+          placeholder={t('generalLedger.searchAccounts')}
           size="xs"
           radius="md"
           leftSection={<IconSearch size={14} />}

@@ -120,7 +120,7 @@ export function useBalanceSheet() {
       notifications.show({
         color: 'teal',
         title: t('common.exportSuccess'),
-        message: `File Laporan Neraca (${type.toUpperCase()}) telah diunduh.`,
+        message: t('balanceSheet.fileDownloaded', { type: type.toUpperCase() }),
       });
     },
     onError: (err) => {

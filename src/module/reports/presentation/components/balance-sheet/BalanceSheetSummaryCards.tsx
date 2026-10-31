@@ -59,7 +59,7 @@ export const BalanceSheetSummaryCards: React.FC<BalanceSheetSummaryCardsProps> =
           >
             {data.isBalanced
               ? t('balanceSheet.balanced')
-              : `Tidak Seimbang (Selisih: ${formatMoney(Math.abs(data.discrepancy))})`}
+              : t('balanceSheet.unbalanced', { amount: formatMoney(Math.abs(data.discrepancy)) })}
           </Badge>
         </Tooltip>
       </Group>

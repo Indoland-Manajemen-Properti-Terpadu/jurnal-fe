@@ -53,7 +53,7 @@ const IncomeStatementBudgetPage = () => {
                 <Grid columns={24} gutter="sm" style={{ flexGrow: 1 }}>
                   <Grid.Col span={6}>
                     <DatePickerInput
-                      placeholder="Start Date Period"
+                      placeholder={t('common.startDatePeriod')}
                       valueFormat="DD/MM/YYYY"
                       highlightToday
                       size="xs"
@@ -63,7 +63,7 @@ const IncomeStatementBudgetPage = () => {
                   </Grid.Col>
                   <Grid.Col span={6}>
                     <DatePickerInput
-                      placeholder="End Date Period"
+                      placeholder={t('common.endDatePeriod')}
                       valueFormat="DD/MM/YYYY"
                       highlightToday
                       size="xs"
@@ -75,7 +75,7 @@ const IncomeStatementBudgetPage = () => {
                       checkIconPosition="right"
                       rightSection={<IconChevronDown size={16} />}
                       data={periodOptions}
-                      placeholder="Select Period"
+                      placeholder={t('common.selectPeriod')}
                       defaultValue="All Period"
                       size="xs"
                     />

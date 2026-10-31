@@ -71,7 +71,7 @@ export const GeneralLedgerConsolidatedTable: React.FC<GeneralLedgerConsolidatedT
           </Box>
 
           <TextInput
-            placeholder="Cari kode, nama, atau kategori akun..."
+            placeholder={t('generalLedger.searchConsolidated')}
             size="xs"
             radius="md"
             leftSection={<IconSearch size={14} />}
@@ -125,7 +125,7 @@ export const GeneralLedgerConsolidatedTable: React.FC<GeneralLedgerConsolidatedT
                   <Table.Td colSpan={8}>
                     <EmptyState
                       title={t('generalLedger.accountNotFound')}
-                      description={`Tidak ada akun yang sesuai dengan pencarian "${search}".`}
+                      description={t('generalLedger.noAccountMatch', { query: search })}
                       actionLabel={t('common.resetSearch')}
                       onAction={() => setSearch('')}
                       py={40}

@@ -176,7 +176,7 @@ export const GeneralLedgerAccountDetail: React.FC<GeneralLedgerAccountDetailProp
 
           <Group gap="xs">
             <TextInput
-              placeholder="Cari no referensi atau memo..."
+              placeholder={t('generalLedger.searchTransactions')}
               size="xs"
               radius="md"
               leftSection={<IconSearch size={14} />}
@@ -245,7 +245,7 @@ export const GeneralLedgerAccountDetail: React.FC<GeneralLedgerAccountDetailProp
                       title={t('generalLedger.noMovements')}
                       description={
                         transactionSearch
-                          ? `Tidak ada transaksi yang cocok dengan kata kunci "${transactionSearch}".`
+                          ? t('generalLedger.noTransactionMatch', { query: transactionSearch })
                           : t('generalLedger.noMovementsDescription')
                       }
                       py={36}

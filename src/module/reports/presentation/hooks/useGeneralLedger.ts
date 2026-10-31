@@ -134,7 +134,7 @@ export function useGeneralLedger() {
       notifications.show({
         color: 'teal',
         title: t('common.exportSuccess'),
-        message: `File Buku Besar (${type.toUpperCase()}) telah diunduh.`,
+        message: t('generalLedger.fileDownloaded', { type: type.toUpperCase() }),
       });
     },
     onError: (err) => {

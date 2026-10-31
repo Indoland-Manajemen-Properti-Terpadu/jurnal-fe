@@ -39,7 +39,7 @@ const BudgetManagementPage = () => {
                   clearable={!!selectedPeriod}
                   rightSection={!selectedPeriod ? <IconChevronDown size={16} /> : null}
                   data={['Budget Testing 1', 'Budget Testing 2']}
-                  placeholder="Select Period"
+                  placeholder={t('common.selectPeriod')}
                   value={selectedPeriod}
                   onChange={setSelectedPeriod}
                 />
@@ -59,7 +59,7 @@ const BudgetManagementPage = () => {
                 <Grid columns={24} gutter="sm" style={{ flexGrow: 1 }}>
                   <Grid.Col span={6}>
                     <DatePickerInput
-                      placeholder="Start Date Period"
+                      placeholder={t('common.startDatePeriod')}
                       valueFormat="DD/MM/YYYY"
                       highlightToday
                       size="xs"
@@ -71,7 +71,7 @@ const BudgetManagementPage = () => {
                   </Grid.Col>
                   <Grid.Col span={6}>
                     <DatePickerInput
-                      placeholder="End Date Period"
+                      placeholder={t('common.endDatePeriod')}
                       valueFormat="DD/MM/YYYY"
                       highlightToday
                       size="xs"
@@ -87,7 +87,7 @@ const BudgetManagementPage = () => {
                       clearable={!!selectedPeriod}
                       rightSection={!selectedPeriod ? <IconChevronDown size={16} /> : null}
                       data={periodOptions}
-                      placeholder="Select Period"
+                      placeholder={t('common.selectPeriod')}
                       value={selectedPeriod}
                       onChange={setSelectedPeriod}
                       size="xs"

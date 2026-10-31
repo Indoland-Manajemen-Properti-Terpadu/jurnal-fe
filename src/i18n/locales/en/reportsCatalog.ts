@@ -64,5 +64,8 @@ export const reportsCatalog = {
     notFound: 'Report Not Found',
     featured: 'FEATURED',
     openReport: 'Open Report',
+    searchPlaceholder: 'Search financial reports...',
+    noMatch:
+      'No reports match the keyword "{{query}}". Try another search term or choose the All Reports category.',
   },
 };

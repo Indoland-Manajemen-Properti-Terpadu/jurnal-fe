@@ -97,7 +97,7 @@ export const ReportCard: React.FC<ReportCardProps> = ({ report }) => {
             color="primary"
             size="sm"
             radius="xl"
-            aria-label={`Buka laporan ${t(report.titleKey)}`}
+            aria-label={`${t('catalog.openReport')} ${t(report.titleKey)}`}
           >
             <IconArrowRight size={16} />
           </ActionIcon>

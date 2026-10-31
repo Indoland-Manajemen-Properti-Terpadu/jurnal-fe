@@ -52,5 +52,8 @@ export const reportsBalanceSheet = {
     cardEquityHint: 'Modal disetor & saldo laba ditahan',
     cardLiabilitiesEquity: 'Liabilitas + Ekuitas (Pasiva)',
     cardMustEqual: 'Harus sama dengan Total Aset',
+    searchAccounts: 'Cari akun neraca...',
+    unbalanced: 'Tidak Seimbang (Selisih: {{amount}})',
+    fileDownloaded: 'File Laporan Neraca ({{type}}) telah diunduh.',
   },
 };

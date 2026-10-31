@@ -64,5 +64,8 @@ export const reportsCatalog = {
     notFound: 'Laporan Tidak Ditemukan',
     featured: 'UNGGULAN',
     openReport: 'Buka Laporan',
+    searchPlaceholder: 'Cari laporan keuangan...',
+    noMatch:
+      'Tidak ada laporan yang cocok dengan kata kunci "{{query}}". Coba gunakan istilah pencarian lain atau pilih kategori Semua Laporan.',
   },
 };

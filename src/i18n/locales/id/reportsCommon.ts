@@ -65,5 +65,9 @@ export const reportsCommon = {
     changes: 'Changes',
     closingBalance: 'Closing Balance',
     mutationUnit: 'mutasi',
+    selectPeriod: 'Select Period',
+    selectDateRange: 'Select start date and end date',
+    startDatePeriod: 'Start Date Period',
+    endDatePeriod: 'End Date Period',
   },
 };

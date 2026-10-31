@@ -55,5 +55,11 @@ export const reportsLedger = {
     cardTotalDebitHint: 'Akumulasi debit semua akun',
     cardTotalCredit: 'Total Mutasi Kredit',
     cardTotalCreditHint: 'Akumulasi kredit semua akun',
+    searchTransactions: 'Cari no referensi atau memo...',
+    noTransactionMatch: 'Tidak ada transaksi yang cocok dengan kata kunci "{{query}}".',
+    searchAccounts: 'Cari nomor atau nama akun...',
+    searchConsolidated: 'Cari kode, nama, atau kategori akun...',
+    noAccountMatch: 'Tidak ada akun yang sesuai dengan pencarian "{{query}}".',
+    fileDownloaded: 'File Buku Besar ({{type}}) telah diunduh.',
   },
 };
