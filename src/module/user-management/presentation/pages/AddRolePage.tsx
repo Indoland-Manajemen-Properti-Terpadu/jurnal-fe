@@ -27,53 +27,27 @@ import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import apiClient from '@/lib/http/apiClient';
 import { useAddRole } from '@/module/user-management/infrastructure/AddRole.service';
-import { AddRolePayload } from '@/module/user-management/domain/AddRolePayload';
+import { AddRolePayload } from '@/module/user-management/domain/rolePayload';
 
-type PermissionType = 'read' | 'create' | 'update' | 'delete';
-type CheckedRoles = Record<string, Record<string, Record<PermissionType, boolean>>>;
-interface Menu {
-  menus: [];
-  menuId: string;
-  create: boolean;
-  read: boolean;
-  update: boolean;
-  delete: boolean;
-}
-
+import {
+  buildRolePayload,
+  createInitialPermissions,
+  setMenuPermission,
+  supportsPermission,
+  toggleChildPermission,
+  type MenuPermission,
+  type PermissionType,
+} from '@/module/user-management/domain/rolePermissions';
 const AddRolePage = () => {
   const [menus, setMenus] = useState<any[]>([]);
   const [menusAccessRole, setMenusAccessRole] = useState<any[]>([]);
-  const [checkedRoles, setCheckedRoles] = useState<Menu[]>([]);
+  const [checkedRoles, setCheckedRoles] = useState<MenuPermission[]>([]);
 
   useEffect(() => {
     apiClient.get('/v1/menus').then((resp) => {
       if (resp.data.length > 0) {
         setMenus(() => resp.data);
-        console.log(resp.data);
-        setCheckedRoles(() => {
-          return resp.data.flatMap((menu: any) => {
-            // Main menu entry
-            const mainMenu = {
-              menuId: menu.menuId,
-              create: false,
-              read: false,
-              update: false,
-              delete: false,
-            };
-
-            // Submenus if they exist
-            const subMenus = (menu.menus || []).map((subMenu: any) => ({
-              menuId: subMenu.menuId,
-              create: false,
-              read: false,
-              update: false,
-              delete: false,
-            }));
-
-            // Combine main menu and submenus
-            return [mainMenu, ...subMenus];
-          });
-        });
+        setCheckedRoles(createInitialPermissions(resp.data));
 
         apiClient.get('/v1/access-role/66a789a72130a2814424b25c').then((resp2) => {
           if (!!resp2?.data?.menuAccessRolePermission) {
@@ -104,43 +78,7 @@ const AddRolePage = () => {
   };
 
   const handleCheckboxChange = (menuId: string, permissionType: PermissionType) => {
-    console.log(menuId, permissionType);
-    const menuF = menus.find((menu) =>
-      menu.menus?.some((subMenu: any) => subMenu.menuId === menuId)
-    );
-
-    const updatedCheckedRoles = checkedRoles.map((menu: Menu) =>
-      menu.menuId === menuId ? { ...menu, [permissionType]: !menu[permissionType] } : menu
-    );
-
-    if (menuF) {
-      menuF.menus?.forEach((subMenu: any) => {
-        const childRole = updatedCheckedRoles.find((cRole: any) => cRole.menuId === subMenu.menuId);
-        if (childRole && childRole[permissionType] === false) {
-          updatedCheckedRoles.forEach((menu: any) => {
-            if (menu.menuId === menuF.menuId) {
-              menu[permissionType] = false; // Set the parent checkbox to unchecked
-            }
-          });
-        }
-      });
-
-      const allChildrenUnchecked = menuF.menus?.every((subMenu: any) => {
-        const childRole = updatedCheckedRoles.find((cRole: any) => cRole.menuId === subMenu.menuId);
-        return childRole?.[permissionType] === false; // Check if all children are unchecked
-      });
-
-      if (!allChildrenUnchecked) {
-        // If at least one child is checked, set the master checkbox to checked
-        updatedCheckedRoles.forEach((menu: any) => {
-          if (menu.menuId === menuF.menuId) {
-            menu[permissionType] = true;
-          }
-        });
-      }
-    }
-
-    setCheckedRoles(updatedCheckedRoles);
+    setCheckedRoles((prev) => toggleChildPermission(menus, prev, menuId, permissionType));
   };
 
   const handleHeadCheckboxChange = (
@@ -148,52 +86,14 @@ const AddRolePage = () => {
     permissionType: PermissionType,
     statusChecked: boolean
   ) => {
-    setCheckedRoles((prevRoles) => {
-      // Find the menu that corresponds to the clicked checkbox
-      const parentMenu = menus.find((menu) => menu.menuId === menuId);
-
-      if (parentMenu && parentMenu.menus) {
-        // If the parent menu has children (menus), update the child menus as well
-        const updatedRoles = prevRoles.map((menu) => {
-          if (menu.menuId === menuId) {
-            // Update the parent menu permission
-            return { ...menu, [permissionType]: statusChecked };
-          }
-
-          // If this menu is a child of the parent menu, update its permission
-          if (
-            parentMenu.menus.some(
-              (subMenu: any) =>
-                subMenu.menuId === menu.menuId &&
-                subMenu.enabled.includes(permissionType.substring(0, 1))
-            )
-          ) {
-            return { ...menu, [permissionType]: statusChecked };
-          }
-
-          return menu;
-        });
-
-        return updatedRoles;
-      }
-
-      // If the clicked menu has no children, just update that menu
-      return prevRoles.map((menu) =>
-        menu.menuId === menuId ? { ...menu, [permissionType]: statusChecked } : menu
-      );
-    });
+    setCheckedRoles((prev) =>
+      setMenuPermission(menus, prev, menuId, permissionType, statusChecked)
+    );
   };
 
+  // The role is not sent to the API yet (see the module README); the button keeps its old no-op behavior.
   const handleAddRole = () => {
-    const { name } = form.values;
-
-    const payload: AddRolePayload = {
-      name,
-      menuAccessRolePermission: checkedRoles,
-    };
-    console.log(menus);
-    console.log(payload);
-    // addRole(payload)
+    buildRolePayload(form.values.name ?? '', checkedRoles);
   };
 
   return (
@@ -284,7 +184,7 @@ const AddRolePage = () => {
                             <Table.Td key={permissionType}>
                               <Center>
                                 <Checkbox
-                                  disabled={!menu.enabled.includes(permissionType.substring(0, 1))}
+                                  disabled={!supportsPermission(menu, permissionType)}
                                   checked={
                                     !!checkedRoles.find(
                                       (menuF: any) =>

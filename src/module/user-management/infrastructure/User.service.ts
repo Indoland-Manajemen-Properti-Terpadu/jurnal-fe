@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { get } from '@/lib/http/apiClient';
 import { API_USERS } from '@/services/endpoint';
-import { AllUserModel, UserDetail } from '@/module/user-management/domain/AllUserModel';
+import { AllUserModel, UserDetail } from '@/module/user-management/domain/userTypes';
 
 export const useGetAllUser = (options = {}) =>
   useQuery<AllUserModel, Error>({
