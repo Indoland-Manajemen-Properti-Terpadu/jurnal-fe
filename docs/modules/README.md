@@ -23,6 +23,6 @@ Status per module: [../migration/STATUS.md](../migration/STATUS.md).
 | `petty-cash` | `src/module/BankCash/PettyCash` | [README](../../src/module/petty-cash/README.md) |
 | `reports` | `src/module/ResultReport` | [README](../../src/module/reports/README.md) |
 | `chart-of-accounts`, `journal-entries`, `account-ledger`, `bank-statements`, `reconciliation`, `beginning-balances`, `period-closing` | `src/module/GeneralJournal` | pending (M3) |
-| `settings` | `src/module/SettingMenu` | pending (M4) |
+| `settings` | `src/module/SettingMenu` | [README](../../src/module/settings/README.md) |
 | `user-management` | `src/module/SettingMenu/UserManagement` | pending (M4) |
 | `authentication` | `src/module/Authentication` | pending (M4) |

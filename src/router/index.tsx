@@ -56,15 +56,17 @@ import { ProductsPage, ProductDetailPage } from '@/module/products';
 import { ProductionPage } from '@/module/production';
 import { FulfillmentPage } from '@/module/fulfillment';
 import { AssetDetailPage, AssetPage } from '@/module/assets';
-import CompanySettingPage from '@/module/SettingMenu/CompanySetting/view/CompanySettingPage';
-import SettingsHubPage from '@/module/SettingMenu/Hub/SettingsHubPage';
-import GeneralSettingPage from '@/module/SettingMenu/GeneralSetting/GeneralSettingPage';
-import AccountMappingPage from '@/module/SettingMenu/AccountMapping/AccountMappingPage';
-import TaxSettingPage from '@/module/SettingMenu/Tax/TaxSettingPage';
-import PaymentTermPage from '@/module/SettingMenu/PaymentSettings/PaymentTermPage';
-import PaymentMethodPage from '@/module/SettingMenu/PaymentSettings/PaymentMethodPage';
-import NumberFormatPage from '@/module/SettingMenu/NumberFormat/NumberFormatPage';
-import TagSettingPage from '@/module/SettingMenu/Tags/TagSettingPage';
+import {
+  AccountMappingPage,
+  CompanySettingPage,
+  GeneralSettingPage,
+  NumberFormatPage,
+  PaymentMethodPage,
+  PaymentTermPage,
+  SettingsHubPage,
+  TagSettingPage,
+  TaxSettingPage,
+} from '@/module/settings';
 import AppShellLayout from '@/components/AppShellLayout';
 import { PendingChangesPage } from '@/module/pending-changes';
 import { NotFound } from '@/components/ErrorPage/NotFound';

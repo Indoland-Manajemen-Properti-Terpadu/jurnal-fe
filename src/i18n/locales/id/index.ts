@@ -2,6 +2,7 @@ import { common } from './common';
 import { navigation } from './navigation';
 import { journal } from './journal';
 import { settings } from './settings';
+import { settingsPages } from './settingsPages';
 import { pendingChanges } from './pendingChanges';
 import { assets } from './assets';
 import { contactDetail } from './contactDetail';
@@ -32,7 +33,7 @@ export const id = {
   common,
   navigation,
   journal,
-  settings,
+  settings: { ...settings, ...settingsPages },
   pendingChanges,
   assets,
   contactDetail,
