@@ -281,11 +281,67 @@ describe('sale list rules', () => {
     expect(ids('DRAFT')).toEqual(['c']);
   });
 
-  it('sums the list in cents without drift', () => {
+  it('sums the list in cents without drift, leaving the draft out', () => {
     expect(summarizeSales(all, NOW)).toEqual({
-      totalAmount: 350.6,
+      totalAmount: 350.3,
       paidAmount: 210.2,
       remainingAmount: 140.1,
+      overdueCount: 1,
+    });
+  });
+});
+
+describe('discount cap and non-receivable statuses', () => {
+  const line = { quantity: 1, unitPrice: 100000, taxRate: 0 };
+  const base = { lines: [line], withholdingType: 'nominal' as const, withholdingValue: 0 };
+
+  it('never lets the discount exceed the subtotal, so the total is never negative', () => {
+    const result = calculateSaleTotals({ ...base, discountType: 'nominal', discountValue: 150000 });
+
+    expect(result.discountAmount).toBe(100000);
+    expect(result.total).toBe(0);
+    expect(result.finalAmount).toBe(0);
+  });
+
+  it('caps a percentage above 100 the same way', () => {
+    const result = calculateSaleTotals({ ...base, discountType: 'percentage', discountValue: 150 });
+
+    expect(result.discountAmount).toBe(100000);
+    expect(result.total).toBe(0);
+  });
+
+  it('keeps a normal discount as is', () => {
+    const result = calculateSaleTotals({ ...base, discountType: 'percentage', discountValue: 10 });
+
+    expect(result.discountAmount).toBe(10000);
+    expect(result.total).toBe(90000);
+  });
+
+  const saleWith = (status: string, remaining: number): Sale =>
+    ({
+      id: status,
+      status,
+      finalAmount: remaining,
+      paidAmount: 0,
+      remainingAmount: remaining,
+      dueDate: '2020-01-01',
+    }) as unknown as Sale;
+
+  it('does not treat a draft or void sale as overdue', () => {
+    expect(isPastDue(saleWith('DRAFT', 500), Date.now())).toBe(false);
+    expect(isPastDue(saleWith('VOID', 500), Date.now())).toBe(false);
+    expect(isPastDue(saleWith('UNPAID', 500), Date.now())).toBe(true);
+  });
+
+  it('leaves draft and void sales out of the receivable summary', () => {
+    const summary = summarizeSales(
+      [saleWith('DRAFT', 500), saleWith('VOID', 700), saleWith('UNPAID', 300)],
+      Date.now()
+    );
+
+    expect(summary).toMatchObject({
+      totalAmount: 300,
+      remainingAmount: 300,
       overdueCount: 1,
     });
   });

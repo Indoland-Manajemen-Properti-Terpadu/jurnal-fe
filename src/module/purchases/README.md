@@ -24,3 +24,7 @@ Namespace `purchases` (`id` primary, `en`). `src/i18n/locales/purchases.test.ts`
 - The payment's date, method, account and notes are collected but not stored; only the amount changes the bill.
 - Dates in the table use the fixed `id-ID` format regardless of the selected language.
 - Moving to a backend means a new `PurchaseRepository` adapter and TanStack Query hooks.
+
+## Payment limits (2026-10-31)
+
+`applyPayment` rejects a payment that is not a positive number or exceeds what is still owed (`RangeError`); the hook shows the failure notification and the bill is unchanged. Before, an overpayment marked the bill paid and recorded more paid than the total.
