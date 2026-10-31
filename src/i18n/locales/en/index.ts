@@ -28,6 +28,7 @@ import { accountLedger } from './accountLedger';
 import { reports } from './reports';
 import { bankCash } from './bankCash';
 import { pettyCash } from './pettyCash';
+import { userManagement } from './userManagement';
 
 export const en = {
   common,
@@ -59,6 +60,7 @@ export const en = {
   reports,
   bankCash,
   pettyCash,
+  userManagement,
 };
 
 export default en;

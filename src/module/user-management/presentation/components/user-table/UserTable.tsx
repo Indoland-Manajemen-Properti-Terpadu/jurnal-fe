@@ -1,0 +1,253 @@
+import React, { useMemo, useState } from 'react';
+import { DataTable, DataTableProps } from 'mantine-datatable';
+import {
+  ActionIcon,
+  Avatar,
+  Flex,
+  Grid,
+  Group,
+  HoverCard,
+  Menu,
+  rem,
+  Stack,
+  Text,
+  UnstyledButton,
+} from '@mantine/core';
+import { useDebouncedValue } from '@mantine/hooks';
+import { openConfirmModal } from '@mantine/modals';
+import { gradientColors, themeColors } from '@/theme';
+import { ActiveBadge, InactiveBadge } from '@/components/Badge/Badge';
+import EmptyState from '@/components/EmptyState/EmptyTable';
+import defaultEmptyImage from '@/assets/img/Empty-Data.svg';
+import LoadingErrorState from '@/module/user-management/presentation/components/user-table/ErrorHandlingUserTable';
+import { AllUserModel, Result } from '@/module/user-management/domain/userTypes';
+import { navigate } from '@/router';
+import { routes } from '@/router/routes';
+import { IconDots, IconEdit, IconTrash } from '@tabler/icons-react';
+
+import { useTranslation } from '@/i18n';
+
+type UserTableProps = {
+  data: AllUserModel;
+  isError?: boolean;
+  isLoading?: boolean;
+};
+const ICON_SIZE = {
+  width: rem(14),
+  height: rem(14),
+};
+
+const UserTable = ({ data = { results: [] }, isError, isLoading }: UserTableProps) => {
+  const { t: tu } = useTranslation('userManagement');
+  const [selectedRecords, setSelectedRecords] = useState<Result[]>([]);
+  const [query] = useState('');
+  const [debouncedQuery] = useDebouncedValue(query, 200);
+
+  const results = data.results || [];
+
+  const filteredData = useMemo(() => {
+    let filtered = results;
+
+    if (debouncedQuery) {
+      filtered = filtered.filter((user) =>
+        user.name?.toLowerCase().includes(debouncedQuery.trim().toLowerCase())
+      );
+    }
+    return filtered;
+  }, [results, debouncedQuery]);
+
+  const actionDelete = () =>
+    openConfirmModal({
+      title: tu('user.deleteTitle'),
+      centered: true,
+      children: (
+        <Text size="sm" c="black">
+          {tu('user.deleteBody')}
+        </Text>
+      ),
+      withCloseButton: false,
+      labels: { confirm: tu('user.deleteConfirm'), cancel: tu('common.cancel') },
+      confirmProps: { color: 'red' },
+    });
+
+  const columns: DataTableProps<Result>['columns'] = [
+    {
+      accessor: 'name',
+      title: (
+        <Text size="sm" fz={14} fw={500} c={themeColors.black[9]}>
+          {tu('common.fullName')}
+        </Text>
+      ),
+      render: ({ name, email }) => (
+        <HoverCard openDelay={200} closeDelay={200} width={300}>
+          <HoverCard.Target>
+            <Flex component={UnstyledButton} gap="xs" align="center">
+              <Avatar
+                src={null}
+                alt={name}
+                variant="gradient"
+                radius="xl"
+                gradient={gradientColors.gradient}
+              >
+                {name?.charAt(0)}
+              </Avatar>
+              <Stack gap={1}>
+                <Text fz={14} fw={400} c={themeColors.black[9]} tt="capitalize">
+                  {name}
+                </Text>
+                <Text fz={12} fw={400} c={themeColors.gray[6]}>
+                  {email}
+                </Text>
+              </Stack>
+            </Flex>
+          </HoverCard.Target>
+          <HoverCard.Dropdown>
+            <Stack gap={2}>
+              <Group grow justify="space-between">
+                <Grid>
+                  <Grid.Col span={4}>
+                    <Text c={themeColors.gray[6]} fz={10}>
+                      {tu('user.firstName')}
+                    </Text>
+                  </Grid.Col>
+                  <Grid.Col span={8}>
+                    <Text c={themeColors.gray[6]} fz={10} ta="left">
+                      : {name?.split(' ')[0]}
+                    </Text>
+                  </Grid.Col>
+                </Grid>
+              </Group>
+              <Group grow justify="space-between">
+                <Grid>
+                  <Grid.Col span={4}>
+                    <Text c={themeColors.gray[6]} fz={10}>
+                      {tu('user.lastName')}
+                    </Text>
+                  </Grid.Col>
+                  <Grid.Col span={8}>
+                    <Text c={themeColors.gray[6]} fz={10} ta="left">
+                      : {name?.split(' ')[1] ?? '-'}
+                    </Text>
+                  </Grid.Col>
+                </Grid>
+              </Group>
+              <Group grow justify="space-between">
+                <Grid>
+                  <Grid.Col span={4}>
+                    <Text c={themeColors.gray[6]} fz={10}>
+                      {tu('common.email')}
+                    </Text>
+                  </Grid.Col>
+                  <Grid.Col span={8}>
+                    <Text c={themeColors.gray[6]} fz={10} ta="left">
+                      : {email}
+                    </Text>
+                  </Grid.Col>
+                </Grid>
+              </Group>
+            </Stack>
+          </HoverCard.Dropdown>
+        </HoverCard>
+      ),
+    },
+    {
+      accessor: 'role',
+      title: (
+        <Text size="sm" fz={14} fw={500} c={themeColors.black[9]}>
+          {tu('common.roleAccess')}
+        </Text>
+      ),
+      render: ({ role }) => (
+        <Text fz={14} fw={400} c={themeColors.black[9]} tt="capitalize">
+          {role ?? 'N/A'}
+        </Text>
+      ),
+    },
+    {
+      accessor: 'role',
+      title: (
+        <Text size="sm" fz={14} fw={500} c={themeColors.black[9]}>
+          {tu('common.typeUser')}
+        </Text>
+      ),
+      render: ({ role }) => (
+        <Text fz={14} fw={400} c={themeColors.black[9]} tt="capitalize">
+          {role ?? 'N/A'}
+        </Text>
+      ),
+    },
+    {
+      accessor: 'isEmailVerified',
+      title: (
+        <Text size="sm" fz={14} fw={500} ta="center" c={themeColors.black[9]}>
+          {tu('common.status')}
+        </Text>
+      ),
+      render: ({ isEmailVerified }) => (
+        <Text ta="center">{isEmailVerified ? <ActiveBadge /> : <InactiveBadge />}</Text>
+      ),
+    },
+    {
+      accessor: 'action',
+      textAlign: 'center',
+      title: (
+        <Text size="sm" fz={14} fw={500} ta="center" c={themeColors.black[9]}>
+          {tu('common.actions')}
+        </Text>
+      ),
+      render: (item) => (
+        <Menu>
+          <Menu.Target>
+            <ActionIcon variant="light" color="gray" aria-label={tu('common.settings')}>
+              <IconDots style={{ width: '70%', height: '70%' }} stroke={1.5} />
+            </ActionIcon>
+          </Menu.Target>
+          <Menu.Dropdown>
+            <Menu.Item
+              leftSection={<IconEdit style={ICON_SIZE} />}
+              onClick={() =>
+                navigate(routes.userManagement.editUser, { state: { email: item.email!! } })
+              }
+            >
+              {tu('common.edit')}
+            </Menu.Item>
+            <Menu.Item
+              leftSection={<IconTrash style={ICON_SIZE} />}
+              onClick={actionDelete}
+              c={themeColors.red[6]}
+            >
+              {tu('common.delete')}
+            </Menu.Item>
+          </Menu.Dropdown>
+        </Menu>
+      ),
+    },
+  ];
+
+  return (
+    <>
+      <LoadingErrorState isLoading={isLoading} isError={isError} />
+      {results.length === 0 ? (
+        <EmptyState
+          title={tu('user.empty')}
+          imageSrc={defaultEmptyImage}
+          imageAlt="No data found"
+        />
+      ) : (
+        <DataTable
+          withTableBorder
+          borderRadius="md"
+          verticalSpacing="sm"
+          mt="md"
+          highlightOnHover
+          columns={columns}
+          records={filteredData}
+          selectedRecords={selectedRecords}
+          onSelectedRecordsChange={setSelectedRecords}
+        />
+      )}
+    </>
+  );
+};
+
+export default UserTable;

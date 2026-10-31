@@ -11,11 +11,9 @@ let detailError = false;
 vi.mock('@/components/AppShellLayout', () => ({
   default: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
-vi.mock('@/module/SettingMenu/UserManagement/User/service/User.service', () => ({
-  useGetAllUser: () => ({ data: { results: [] }, isLoading: false }),
-}));
-vi.mock('@/module/SettingMenu/UserManagement/Role/Service/Role.service', () => ({
-  GetRoles: () => ({ data: [], isLoading: false }),
+vi.mock('@/module/user-management', () => ({
+  useUsers: () => ({ data: { results: [] }, isLoading: false }),
+  useRoles: () => ({ data: [], isLoading: false }),
 }));
 vi.mock('../hooks/useCategoryAccounts', () => ({
   GetCategoryAccount: () => ({
