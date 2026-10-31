@@ -5,6 +5,7 @@ import { formatCurrency } from "@/utils/FormatCurrency";
 import { dateFormatV1, dateFormatV2 } from "@/utils/FormatDate";
 import EmptyState from "@/components/EmptyState/EmptyTable";
 import { ReportJournalEntryModel } from "@/module/reports/domain/JournalEntry.types";
+import { calcJournalEntryTotals } from "@/module/reports/domain/journalEntryTotals";
 
 
 const headTableStyle = {
@@ -49,17 +50,7 @@ const JournalEntryTable: React.FC<JournalEntryTableProps> = ({ data: JournalEntr
         return <EmptyState title="No journal entries available" />;
     }
 
-    const totalDebit = JournalEntry?.reduce((total: any, JE: { transactionDetail: any[]; }) => {
-        const entryDebit = JE.transactionDetail.reduce((sum: any, txn: { debit: any; }) => sum + (txn.debit || 0), 0);
-        return total + entryDebit;
-    }, 0);
-
-    const totalCredit = JournalEntry?.reduce((total: any, JE: { transactionDetail: any[]; }) => {
-        const entryCredit = JE.transactionDetail.reduce((sum: any, txn: { credit: any; }) => sum + (txn.credit || 0), 0);
-        return total + entryCredit;
-    }, 0);
-
-
+    const { totalDebit, totalCredit } = calcJournalEntryTotals(JournalEntry);
 
     return (
         <Stack>
