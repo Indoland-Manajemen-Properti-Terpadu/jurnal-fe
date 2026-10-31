@@ -1,7 +1,6 @@
 import {
   Stack,
   Paper,
-  Anchor,
   Container,
   Input,
   Autocomplete,
@@ -19,7 +18,6 @@ import {
 } from '@mantine/core';
 import { useRef, useState } from 'react';
 import { IconCards, IconChevronDown, IconUsers } from '@tabler/icons-react';
-import { PageHeader } from '@/components';
 import { navigate } from '@/router';
 import { routes } from '@/router/routes';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -31,7 +29,7 @@ import { TextMediumGR } from '@/components/Text/CustomText';
 import PageHeaderV2 from '@/components/PageHeader/PageHeaderV2';
 import AppShellLayout from '@/components/AppShellLayout';
 import classes from '@/module/user-management/presentation/pages/EditUserPage.module.css';
-import { GetUserByEmail } from '@/module/user-management/infrastructure/User.service';
+import { useUserByEmail } from '@/module/user-management/presentation/hooks/useUserByEmail';
 
 const items = [
   { title: 'User Management', href: () => navigate(-1) },
@@ -48,7 +46,7 @@ function EditUserPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const userEmail = location.state?.email;
-  const { data: UserDetail, isLoading, error } = GetUserByEmail(userEmail!);
+  const { data: UserDetail, isLoading, error } = useUserByEmail(userEmail);
 
   const timeoutRef = useRef<number>(-1);
   const [email, setEmail] = useState('');

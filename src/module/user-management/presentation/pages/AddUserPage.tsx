@@ -1,27 +1,22 @@
 import {
   Stack,
   Paper,
-  Anchor,
   Container,
   Input,
   Autocomplete,
   Loader,
-  Text,
   useCombobox,
   Combobox,
   InputBase,
   TextInput,
-  Accordion,
   Switch,
   Group,
-  List,
   Tabs,
   Space,
   Button,
 } from '@mantine/core';
 import { useRef, useState } from 'react';
 import { IconCards, IconUsers } from '@tabler/icons-react';
-import { PageHeader } from '@/components';
 import { navigate } from '@/router';
 import { routes } from '@/router/routes';
 import { useNavigate } from 'react-router-dom';
@@ -29,7 +24,6 @@ import { gradientColors, themeColors } from '@/theme';
 import UserType from '@/../public/mocks/UserType.json';
 import AppShellLayout from '@/components/AppShellLayout';
 import { TextMediumGR } from '@/components/Text/CustomText';
-import AcordionRoleAccess from '@/module/user-management/presentation/components/roles/SelectorRoleAccess';
 import PageHeaderV2 from '@/components/PageHeader/PageHeaderV2';
 
 const items = [

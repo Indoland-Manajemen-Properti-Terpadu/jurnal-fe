@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import EmptyState from '@/components/EmptyState/EmptyTable';
-import { ActionIcon, Checkbox, Menu, Pagination, rem, Stack, Table, Text } from '@mantine/core';
+import { ActionIcon, Checkbox, Menu, rem, Stack, Table, Text } from '@mantine/core';
 import { themeColors } from '@/theme';
 import { IconDots, IconEye, IconEdit, IconTrash } from '@tabler/icons-react';
 import { ActiveBadge, InactiveBadge } from '@/components/Badge/Badge';
 import { notifications } from '@mantine/notifications';
 import { DeleteJournalEntryModal as DeleteTransactionModal } from '@/module/journal-entries';
-import { GetRoles } from '@/module/user-management/infrastructure/Role.service';
+import { useRoles } from '@/module/user-management/presentation/hooks/useRoles';
 
 const rowStyle = {
   borderColor: themeColors.gray[1],
@@ -20,7 +20,7 @@ const headTableFont = {
 };
 
 const AdditionalRoleTable: React.FC = () => {
-  const { data: AdditionalRole, isError } = GetRoles(false);
+  const { data: AdditionalRole, isError } = useRoles(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
 

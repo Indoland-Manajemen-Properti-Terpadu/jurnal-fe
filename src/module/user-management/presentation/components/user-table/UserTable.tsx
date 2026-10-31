@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { DataTable, DataTableProps, DataTableSortStatus } from 'mantine-datatable';
+import { DataTable, DataTableProps } from 'mantine-datatable';
 import {
   ActionIcon,
   Avatar,
@@ -11,7 +11,6 @@ import {
   rem,
   Stack,
   Text,
-  TextInput,
   UnstyledButton,
 } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
@@ -20,7 +19,6 @@ import { gradientColors, themeColors } from '@/theme';
 import { ActiveBadge, InactiveBadge } from '@/components/Badge/Badge';
 import EmptyState from '@/components/EmptyState/EmptyTable';
 import defaultEmptyImage from '@/assets/img/Empty-Data.svg';
-import UserAction from '@/module/user-management/presentation/components/user-table/UserAction';
 import LoadingErrorState from '@/module/user-management/presentation/components/user-table/ErrorHandlingUserTable';
 import { AllUserModel, Result } from '@/module/user-management/domain/userTypes';
 import { navigate } from '@/router';
@@ -34,8 +32,8 @@ type UserTableProps = {
 };
 const ICON_SIZE = {
   width: rem(14),
-  height: rem(14)
-}
+  height: rem(14),
+};
 
 const UserTable = ({ data = { results: [] }, isError, isLoading }: UserTableProps) => {
   const [selectedRecords, setSelectedRecords] = useState<Result[]>([]);
@@ -55,14 +53,14 @@ const UserTable = ({ data = { results: [] }, isError, isLoading }: UserTableProp
     return filtered;
   }, [results, debouncedQuery]);
 
-
   const actionDelete = () =>
     openConfirmModal({
       title: 'Delete this user',
       centered: true,
       children: (
         <Text size="sm" c="black">
-          Are you sure you want to delete this user? This action is destructive and you will have to contact support to restore your data.
+          Are you sure you want to delete this user? This action is destructive and you will have to
+          contact support to restore your data.
         </Text>
       ),
       withCloseButton: false,
@@ -81,7 +79,7 @@ const UserTable = ({ data = { results: [] }, isError, isLoading }: UserTableProp
         </Text>
       ),
       render: ({ name, email }) => (
-        <HoverCard openDelay={200} closeDelay={200} width={300} >
+        <HoverCard openDelay={200} closeDelay={200} width={300}>
           <HoverCard.Target>
             <Flex component={UnstyledButton} gap="xs" align="center">
               <Avatar
@@ -94,7 +92,7 @@ const UserTable = ({ data = { results: [] }, isError, isLoading }: UserTableProp
                 {name?.charAt(0)}
               </Avatar>
               <Stack gap={1}>
-                <Text fz={14} fw={400} c={themeColors.black[9]} tt='capitalize'>
+                <Text fz={14} fw={400} c={themeColors.black[9]} tt="capitalize">
                   {name}
                 </Text>
                 <Text fz={12} fw={400} c={themeColors.gray[6]}>
@@ -103,35 +101,47 @@ const UserTable = ({ data = { results: [] }, isError, isLoading }: UserTableProp
               </Stack>
             </Flex>
           </HoverCard.Target>
-          <HoverCard.Dropdown >
+          <HoverCard.Dropdown>
             <Stack gap={2}>
-              <Group grow justify='space-between'>
+              <Group grow justify="space-between">
                 <Grid>
                   <Grid.Col span={4}>
-                    <Text c={themeColors.gray[6]} fz={10}>First Name</Text>
+                    <Text c={themeColors.gray[6]} fz={10}>
+                      First Name
+                    </Text>
                   </Grid.Col>
                   <Grid.Col span={8}>
-                    <Text c={themeColors.gray[6]} fz={10} ta='left'>: {name?.split(' ')[0]}</Text>
+                    <Text c={themeColors.gray[6]} fz={10} ta="left">
+                      : {name?.split(' ')[0]}
+                    </Text>
                   </Grid.Col>
                 </Grid>
               </Group>
-              <Group grow justify='space-between'>
+              <Group grow justify="space-between">
                 <Grid>
                   <Grid.Col span={4}>
-                    <Text c={themeColors.gray[6]} fz={10}>Last Name</Text>
+                    <Text c={themeColors.gray[6]} fz={10}>
+                      Last Name
+                    </Text>
                   </Grid.Col>
                   <Grid.Col span={8}>
-                    <Text c={themeColors.gray[6]} fz={10} ta='left'>: {name?.split(' ')[1] ?? '-'}</Text>
+                    <Text c={themeColors.gray[6]} fz={10} ta="left">
+                      : {name?.split(' ')[1] ?? '-'}
+                    </Text>
                   </Grid.Col>
                 </Grid>
               </Group>
-              <Group grow justify='space-between'>
+              <Group grow justify="space-between">
                 <Grid>
                   <Grid.Col span={4}>
-                    <Text c={themeColors.gray[6]} fz={10}>Email</Text>
+                    <Text c={themeColors.gray[6]} fz={10}>
+                      Email
+                    </Text>
                   </Grid.Col>
                   <Grid.Col span={8}>
-                    <Text c={themeColors.gray[6]} fz={10} ta='left'>: {email}</Text>
+                    <Text c={themeColors.gray[6]} fz={10} ta="left">
+                      : {email}
+                    </Text>
                   </Grid.Col>
                 </Grid>
               </Group>
@@ -185,7 +195,7 @@ const UserTable = ({ data = { results: [] }, isError, isLoading }: UserTableProp
           Actions
         </Text>
       ),
-      render: (item) =>
+      render: (item) => (
         <Menu>
           <Menu.Target>
             <ActionIcon variant="light" color="gray" aria-label="Settings">
@@ -195,7 +205,9 @@ const UserTable = ({ data = { results: [] }, isError, isLoading }: UserTableProp
           <Menu.Dropdown>
             <Menu.Item
               leftSection={<IconEdit style={ICON_SIZE} />}
-              onClick={() => navigate(routes.userManagement.editUser, { state: { email: item.email!! } })}
+              onClick={() =>
+                navigate(routes.userManagement.editUser, { state: { email: item.email!! } })
+              }
             >
               Edit
             </Menu.Item>
@@ -208,6 +220,7 @@ const UserTable = ({ data = { results: [] }, isError, isLoading }: UserTableProp
             </Menu.Item>
           </Menu.Dropdown>
         </Menu>
+      ),
     },
   ];
 

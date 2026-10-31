@@ -10,55 +10,33 @@ import {
   Button,
   Group,
   Switch,
-  Box,
   Center,
-  Accordion,
-  Flex,
 } from '@mantine/core';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import UserRole from '@/../public/mocks/Role.json';
 import { gradientColors, themeColors } from '@/theme';
-import classes from '@/module/user-management/presentation/pages/AddRolePage.module.css';
 import AppShellLayout from '@/components/AppShellLayout';
 import { routes } from '@/router/routes';
 import { IconChevronDown, IconChevronRight } from '@tabler/icons-react';
 import { useForm } from '@mantine/form';
-import { notifications } from '@mantine/notifications';
-import apiClient from '@/lib/http/apiClient';
-import { useAddRole } from '@/module/user-management/infrastructure/AddRole.service';
 import { AddRolePayload } from '@/module/user-management/domain/rolePayload';
 
 import {
   buildRolePayload,
-  createInitialPermissions,
   setMenuPermission,
   supportsPermission,
   toggleChildPermission,
   type MenuPermission,
   type PermissionType,
 } from '@/module/user-management/domain/rolePermissions';
+import { useRoleMenus } from '@/module/user-management/presentation/hooks/useRoleMenus';
 const AddRolePage = () => {
-  const [menus, setMenus] = useState<any[]>([]);
-  const [menusAccessRole, setMenusAccessRole] = useState<any[]>([]);
+  const { menus, initialPermissions } = useRoleMenus();
   const [checkedRoles, setCheckedRoles] = useState<MenuPermission[]>([]);
 
   useEffect(() => {
-    apiClient.get('/v1/menus').then((resp) => {
-      if (resp.data.length > 0) {
-        setMenus(() => resp.data);
-        setCheckedRoles(createInitialPermissions(resp.data));
-
-        apiClient.get('/v1/access-role/66a789a72130a2814424b25c').then((resp2) => {
-          if (!!resp2?.data?.menuAccessRolePermission) {
-            setMenusAccessRole(resp2.data.menuAccessRolePermission);
-          }
-        });
-      }
-    });
-  }, []);
-
-  const { mutate: addRole } = useAddRole();
+    setCheckedRoles(initialPermissions);
+  }, [initialPermissions]);
 
   const form = useForm<AddRolePayload>({
     initialValues: {
@@ -187,7 +165,7 @@ const AddRolePage = () => {
                                   disabled={!supportsPermission(menu, permissionType)}
                                   checked={
                                     !!checkedRoles.find(
-                                      (menuF: any) =>
+                                      (menuF) =>
                                         menuF.menuId === menu.menuId &&
                                         menuF[permissionType] === true
                                     )
@@ -209,16 +187,14 @@ const AddRolePage = () => {
                       </Table.Tr>
 
                       {expandedRoles[menu.name] &&
-                        menu.menus.map((menu2: any, index: number) => (
-                          <Table.Tr key={`${menu2.menuId}-${menu2}-${index}`}>
+                        menu.menus?.map((menu2) => (
+                          <Table.Tr key={menu2.menuId}>
                             <Table.Td pl={40}>{menu2.name}</Table.Td>
                             {(['read', 'create', 'update', 'delete'] as PermissionType[]).map(
                               (permissionType) => {
-                                const isDisabled = !menu2.enabled.includes(
-                                  permissionType.substring(0, 1)
-                                );
+                                const isDisabled = !supportsPermission(menu2, permissionType);
                                 const isChecked = checkedRoles.some(
-                                  (role: any) =>
+                                  (role) =>
                                     role.menuId === menu2.menuId && role[permissionType] === true
                                 );
                                 return (

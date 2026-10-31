@@ -7,8 +7,7 @@ import AppShellLayout from '@/components/AppShellLayout';
 import ModuleHeader from '@/components/ModuleHeader/ModuleHeader';
 import { routes } from '@/router/routes';
 import { useTranslation } from '@/i18n';
-import { useGetAllUser } from '@/module/user-management/infrastructure/User.service';
-import { GetRoles } from '@/module/user-management/infrastructure/Role.service';
+import { useRoles, useUsers } from '@/module/user-management';
 import { GetCategoryAccount } from '../hooks/useCategoryAccounts';
 import { useGetCategoryInfo } from '../hooks/useCategoryInfo';
 import { useAddAccount } from '../hooks/useAddAccount';
@@ -43,8 +42,8 @@ export const AddAccountJournalPage: React.FC = () => {
 
   // Queries
   const { data: categoryAccounts, isLoading: isLoadingCategories } = GetCategoryAccount();
-  const { data: usersData, isLoading: isLoadingUsers } = useGetAllUser();
-  const { data: rolesData, isLoading: isLoadingRoles } = GetRoles();
+  const { data: usersData, isLoading: isLoadingUsers } = useUsers();
+  const { data: rolesData, isLoading: isLoadingRoles } = useRoles();
   const addAccountMutation = useAddAccount();
 
   // Form State

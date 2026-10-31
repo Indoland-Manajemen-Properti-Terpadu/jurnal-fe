@@ -29,8 +29,7 @@ import { AccountPreviewCard, AccountingGuideCard } from '../components';
 import { EditAccountIdentitySection } from '../components/account-form/EditAccountIdentitySection';
 import { EditAccountHierarchySection } from '../components/account-form/EditAccountHierarchySection';
 import { EditAccountAccessSection } from '../components/account-form/EditAccountAccessSection';
-import { useGetAllUser } from '@/module/user-management/infrastructure/User.service';
-import { GetRoles } from '@/module/user-management/infrastructure/Role.service';
+import { useRoles, useUsers } from '@/module/user-management';
 
 export const EditAccountJournalPage: React.FC = () => {
   const navigate = useNavigate();
@@ -50,8 +49,8 @@ export const EditAccountJournalPage: React.FC = () => {
 
   // Queries
   const { data: categoryAccounts, isLoading: isLoadingCategories } = GetCategoryAccount();
-  const { data: usersData, isLoading: isLoadingUsers } = useGetAllUser();
-  const { data: rolesData, isLoading: isLoadingRoles } = GetRoles();
+  const { data: usersData, isLoading: isLoadingUsers } = useUsers();
+  const { data: rolesData, isLoading: isLoadingRoles } = useRoles();
   const updateAccountMutation = useUpdateAccount(idAccount!);
 
   // Form State

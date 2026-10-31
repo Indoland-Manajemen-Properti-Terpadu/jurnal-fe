@@ -5,13 +5,13 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
 import { routes } from '@/router/routes';
 import { SettingsLayout } from '@/module/settings';
-import { useGetAllUser } from '@/module/user-management/infrastructure/User.service';
+import { useUsers } from '@/module/user-management/presentation/hooks/useUsers';
 import UserTable from '@/module/user-management/presentation/components/user-table/UserTable';
 import ListRole from '@/module/user-management/presentation/components/roles/ListRole';
 
 export default function UserManagementPage() {
   const { t } = useTranslation('settings');
-  const { data: userData, isError, isLoading } = useGetAllUser();
+  const { data: userData, isError, isLoading } = useUsers();
   const [activeTab, setActiveTab] = useState<string | null>('users');
   const navigate = useNavigate();
 
