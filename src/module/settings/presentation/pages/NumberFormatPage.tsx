@@ -31,14 +31,14 @@ import {
   IconSearch,
   IconTrash,
 } from '@tabler/icons-react';
-import SettingsLayout from '../components/SettingsLayout';
+import SettingsLayout from '@/module/settings/presentation/components/SettingsLayout';
 import {
   useCreateNumberFormat,
   useDeleteNumberFormat,
   useNumberFormats,
   useUpdateNumberFormat,
-} from '../hooks/useSettingQueries';
-import type { NumberFormat, NumberFormatType } from '../services/settingApi';
+} from '@/module/settings/presentation/hooks/useSettingQueries';
+import type { NumberFormat, NumberFormatType } from '@/module/settings/infrastructure/settingApi';
 
 export default function NumberFormatPage() {
   const { data: formats = [], isLoading, refetch } = useNumberFormats();

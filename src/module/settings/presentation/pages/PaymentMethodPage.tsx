@@ -35,15 +35,15 @@ import {
   IconSearch,
   IconTrash,
 } from '@tabler/icons-react';
-import SettingsLayout from '../components/SettingsLayout';
+import SettingsLayout from '@/module/settings/presentation/components/SettingsLayout';
 import {
   useCreatePaymentMethod,
   useDeletePaymentMethod,
   usePaymentMethods,
   useUpdatePaymentMethod,
-} from '../hooks/useSettingQueries';
+} from '@/module/settings/presentation/hooks/useSettingQueries';
 import { getJournalAccounts } from '@/module/chart-of-accounts';
-import type { PaymentMethod } from '../services/settingApi';
+import type { PaymentMethod } from '@/module/settings/infrastructure/settingApi';
 
 export default function PaymentMethodPage() {
   const { data: methods = [], isLoading, refetch } = usePaymentMethods();

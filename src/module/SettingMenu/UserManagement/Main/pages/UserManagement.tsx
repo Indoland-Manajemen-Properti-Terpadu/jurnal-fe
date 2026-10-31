@@ -4,7 +4,7 @@ import { IconCards, IconPlus, IconUsers } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
 import { routes } from '@/router/routes';
-import SettingsLayout from '@/module/SettingMenu/components/SettingsLayout';
+import SettingsLayout from '@/module/settings/presentation/components/SettingsLayout';
 import { useGetAllUser } from '@/module/SettingMenu/UserManagement/User/service/User.service';
 import UserTable from '../../User/components/UserTable/UserTable';
 import ListRole from '../../Role/pages/ListRole';

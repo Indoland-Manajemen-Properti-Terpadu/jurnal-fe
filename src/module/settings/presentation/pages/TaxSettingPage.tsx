@@ -30,10 +30,10 @@ import {
   IconSearch,
   IconTrash,
 } from '@tabler/icons-react';
-import SettingsLayout from '../components/SettingsLayout';
-import { useCreateTax, useDeleteTax, useTaxes, useUpdateTax } from '../hooks/useSettingQueries';
+import SettingsLayout from '@/module/settings/presentation/components/SettingsLayout';
+import { useCreateTax, useDeleteTax, useTaxes, useUpdateTax } from '@/module/settings/presentation/hooks/useSettingQueries';
 import { getJournalAccounts } from '@/module/chart-of-accounts';
-import type { Tax } from '../services/settingApi';
+import type { Tax } from '@/module/settings/infrastructure/settingApi';
 
 export default function TaxSettingPage() {
   const { data: taxes = [], isLoading, refetch } = useTaxes();

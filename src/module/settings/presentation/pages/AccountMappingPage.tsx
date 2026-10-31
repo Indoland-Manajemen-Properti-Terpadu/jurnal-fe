@@ -32,15 +32,15 @@ import {
   IconSitemap,
   IconSparkles,
 } from '@tabler/icons-react';
-import SettingsLayout from '../components/SettingsLayout';
+import SettingsLayout from '@/module/settings/presentation/components/SettingsLayout';
 import {
   useAccountMappings,
   useSeedAccountMappings,
   useUpdateAccountMapping,
   useUpdateAccountMappingBatch,
-} from '../hooks/useSettingQueries';
+} from '@/module/settings/presentation/hooks/useSettingQueries';
 import { getJournalAccounts } from '@/module/chart-of-accounts';
-import type { AccountMappingItem } from '../services/settingApi';
+import type { AccountMappingItem } from '@/module/settings/infrastructure/settingApi';
 
 const GROUP_LABELS: Record<string, { label: string; color: string }> = {
   ar_ap: { label: 'Piutang & Hutang (AR/AP)', color: 'blue' },

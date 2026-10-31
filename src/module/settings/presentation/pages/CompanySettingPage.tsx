@@ -1,7 +1,7 @@
 import { Alert, Paper, Stack, Text } from '@mantine/core';
 import { IconInfoCircle } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
-import SettingsLayout from '../../components/SettingsLayout';
+import SettingsLayout from '@/module/settings/presentation/components/SettingsLayout';
 
 export default function CompanySettingPage() {
   const { t } = useTranslation('settings');

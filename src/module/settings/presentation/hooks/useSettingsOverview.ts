@@ -3,7 +3,7 @@ import {
   useGeneralSettings,
   useNumberFormats,
   useTaxes,
-} from '../hooks/useSettingQueries';
+} from '@/module/settings/presentation/hooks/useSettingQueries';
 
 export type OverviewStatus =
   | { state: 'loading' }

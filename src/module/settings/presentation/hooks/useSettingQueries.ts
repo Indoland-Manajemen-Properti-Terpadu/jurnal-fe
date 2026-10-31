@@ -36,7 +36,7 @@ import {
   CreateTaxPayload,
   UpdateTaxPayload,
   TagListParams,
-} from '../services/settingApi';
+} from '@/module/settings/infrastructure/settingApi';
 
 export const settingKeys = {
   all: ['settings'] as const,

@@ -5,8 +5,8 @@ import { IconChevronDown, IconSettings } from '@tabler/icons-react';
 import AppShellLayout from '@/components/AppShellLayout';
 import ModuleHeader from '@/components/ModuleHeader/ModuleHeader';
 import { useTranslation } from '@/i18n';
-import { settingsGroups } from '../settingsNavigation';
-import classes from './SettingsLayout.module.css';
+import { settingsGroups } from '@/module/settings/presentation/settingsNavigation';
+import classes from '@/module/settings/presentation/components/SettingsLayout.module.css';
 
 type SettingsLayoutProps = {
   children: ReactNode;

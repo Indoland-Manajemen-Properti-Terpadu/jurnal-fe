@@ -29,14 +29,14 @@ import {
   IconSearch,
   IconTrash,
 } from '@tabler/icons-react';
-import SettingsLayout from '../components/SettingsLayout';
+import SettingsLayout from '@/module/settings/presentation/components/SettingsLayout';
 import {
   useCreatePaymentTerm,
   useDeletePaymentTerm,
   usePaymentTerms,
   useUpdatePaymentTerm,
-} from '../hooks/useSettingQueries';
-import type { PaymentTerm } from '../services/settingApi';
+} from '@/module/settings/presentation/hooks/useSettingQueries';
+import type { PaymentTerm } from '@/module/settings/infrastructure/settingApi';
 
 export default function PaymentTermPage() {
   const { data: terms = [], isLoading, refetch } = usePaymentTerms();

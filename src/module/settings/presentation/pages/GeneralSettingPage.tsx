@@ -12,8 +12,8 @@ import {
 } from '@mantine/core';
 import { IconInfoCircle, IconLock } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
-import SettingsLayout from '../components/SettingsLayout';
-import { useGeneralSettings } from '../hooks/useSettingQueries';
+import SettingsLayout from '@/module/settings/presentation/components/SettingsLayout';
+import { useGeneralSettings } from '@/module/settings/presentation/hooks/useSettingQueries';
 
 const previewAmount = 1459200.5678;
 

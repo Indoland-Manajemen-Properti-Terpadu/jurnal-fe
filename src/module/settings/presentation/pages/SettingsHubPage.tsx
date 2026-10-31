@@ -12,10 +12,10 @@ import {
 } from '@mantine/core';
 import { IconArrowUpRight, IconSearch } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
-import SettingsLayout from '../components/SettingsLayout';
-import { settingsGroups } from '../settingsNavigation';
-import { useSettingsOverview, OverviewStatus } from './useSettingsOverview';
-import classes from './SettingsHubPage.module.css';
+import SettingsLayout from '@/module/settings/presentation/components/SettingsLayout';
+import { settingsGroups } from '@/module/settings/presentation/settingsNavigation';
+import { useSettingsOverview, OverviewStatus } from '@/module/settings/presentation/hooks/useSettingsOverview';
+import classes from '@/module/settings/presentation/pages/SettingsHubPage.module.css';
 
 export default function SettingsHubPage() {
   const navigate = useNavigate();

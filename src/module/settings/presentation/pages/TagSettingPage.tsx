@@ -28,9 +28,9 @@ import {
   IconTag,
   IconTrash,
 } from '@tabler/icons-react';
-import SettingsLayout from '../components/SettingsLayout';
-import { useCreateTag, useDeleteTag, useTags, useUpdateTag } from '../hooks/useSettingQueries';
-import type { Tag } from '../services/settingApi';
+import SettingsLayout from '@/module/settings/presentation/components/SettingsLayout';
+import { useCreateTag, useDeleteTag, useTags, useUpdateTag } from '@/module/settings/presentation/hooks/useSettingQueries';
+import type { Tag } from '@/module/settings/infrastructure/settingApi';
 
 const PRESET_COLORS = [
   '#3B82F6', // Blue
