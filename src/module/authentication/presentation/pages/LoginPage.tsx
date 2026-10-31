@@ -10,6 +10,7 @@ import { ForgotPasswordForm } from '@/module/authentication/presentation/compone
 
 import { useTranslation } from '@/i18n';
 
+import { FORGOT_PASSWORD_ENABLED } from '@/module/authentication/domain/authFeatures';
 interface LoginPageProps {
   initialMode?: 'login' | 'forgot';
 }
@@ -19,7 +20,7 @@ export default function LoginPage({ initialMode = 'login' }: LoginPageProps) {
   const location = useLocation();
   const isForgotPath = location.pathname.includes('forgot-password');
   const [mode, setMode] = useState<'login' | 'forgot'>(
-    isForgotPath || initialMode === 'forgot' ? 'forgot' : 'login'
+    FORGOT_PASSWORD_ENABLED && (isForgotPath || initialMode === 'forgot') ? 'forgot' : 'login'
   );
   const [presetEmail, setPresetEmail] = useState('');
 
@@ -94,7 +95,7 @@ export default function LoginPage({ initialMode = 'login' }: LoginPageProps) {
             {/* Dynamic View: Login vs Forgot Password */}
             {mode === 'login' ? (
               <LoginForm
-                onForgotPassword={handleOpenForgotPassword}
+                onForgotPassword={FORGOT_PASSWORD_ENABLED ? handleOpenForgotPassword : undefined}
                 onSubmit={handleLoginSubmit}
                 isPending={isPending}
               />

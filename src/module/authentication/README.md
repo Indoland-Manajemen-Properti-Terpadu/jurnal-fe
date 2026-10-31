@@ -31,7 +31,7 @@ Namespace `authentication` (`id` and `en`) with parity tests in `src/i18n/locale
 
 ## Known gaps (kept as is)
 
-- **Forgot password is simulated.** `ForgotPasswordForm` waits 1.2 seconds, then shows "link sent" and "check your email" without calling any endpoint; no email is sent. The same goes for "resend". It needs a real endpoint before it is shown to users.
+- **Forgot password is switched off** (`FORGOT_PASSWORD_ENABLED = false` in `domain/authFeatures.ts`): there is no backend endpoint yet, and the form only pretended to send an email. The login link is hidden and `/forgot-password` shows the login view. When the endpoint exists, call it from `ForgotPasswordForm` (show the real error on failure) and flip the flag.
 - The legacy `post` helper returns the error response instead of throwing, so a failed login only reaches the error notification because reading `tokens.access` on the error response throws inside `onSuccess`. Fixing the helper's semantics is a separate decision (spec section 11).
 - "Remember me" is collected but never used.
 - The login page claims "SSL 256-bit encrypted connection", "audit trail and data encryption" and "100% balanced" as static marketing text, not measured values.
