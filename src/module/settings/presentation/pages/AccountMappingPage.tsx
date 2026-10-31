@@ -40,7 +40,7 @@ import {
   useUpdateAccountMappingBatch,
 } from '@/module/settings/presentation/hooks/useSettingQueries';
 import { getJournalAccounts } from '@/module/chart-of-accounts';
-import type { AccountMappingItem } from '@/module/settings/infrastructure/settingApi';
+import type { AccountMappingItem } from '@/module/settings/domain/settingTypes';
 
 const GROUP_LABELS: Record<string, { label: string; color: string }> = {
   ar_ap: { label: 'Piutang & Hutang (AR/AP)', color: 'blue' },

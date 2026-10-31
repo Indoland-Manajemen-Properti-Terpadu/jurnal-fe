@@ -27,6 +27,8 @@ import {
   createTag,
   updateTag,
   deleteTag,
+} from '@/module/settings/infrastructure/settingApi';
+import type {
   CreateNumberFormatPayload,
   UpdateNumberFormatPayload,
   CreatePaymentTermPayload,
@@ -36,7 +38,7 @@ import {
   CreateTaxPayload,
   UpdateTaxPayload,
   TagListParams,
-} from '@/module/settings/infrastructure/settingApi';
+} from '@/module/settings/domain/settingTypes';
 
 export const settingKeys = {
   all: ['settings'] as const,
@@ -529,4 +531,3 @@ export const useDeleteTag = () => {
     },
   });
 };
-

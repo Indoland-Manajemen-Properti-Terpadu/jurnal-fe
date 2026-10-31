@@ -43,7 +43,7 @@ import {
   useUpdatePaymentMethod,
 } from '@/module/settings/presentation/hooks/useSettingQueries';
 import { getJournalAccounts } from '@/module/chart-of-accounts';
-import type { PaymentMethod } from '@/module/settings/infrastructure/settingApi';
+import type { PaymentMethod } from '@/module/settings/domain/settingTypes';
 
 export default function PaymentMethodPage() {
   const { data: methods = [], isLoading, refetch } = usePaymentMethods();

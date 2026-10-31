@@ -33,7 +33,7 @@ import {
 import SettingsLayout from '@/module/settings/presentation/components/SettingsLayout';
 import { useCreateTax, useDeleteTax, useTaxes, useUpdateTax } from '@/module/settings/presentation/hooks/useSettingQueries';
 import { getJournalAccounts } from '@/module/chart-of-accounts';
-import type { Tax } from '@/module/settings/infrastructure/settingApi';
+import type { Tax } from '@/module/settings/domain/settingTypes';
 
 export default function TaxSettingPage() {
   const { data: taxes = [], isLoading, refetch } = useTaxes();

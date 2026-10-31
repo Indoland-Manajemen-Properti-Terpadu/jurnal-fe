@@ -38,7 +38,7 @@ import {
   useNumberFormats,
   useUpdateNumberFormat,
 } from '@/module/settings/presentation/hooks/useSettingQueries';
-import type { NumberFormat, NumberFormatType } from '@/module/settings/infrastructure/settingApi';
+import type { NumberFormat, NumberFormatType } from '@/module/settings/domain/settingTypes';
 
 export default function NumberFormatPage() {
   const { data: formats = [], isLoading, refetch } = useNumberFormats();

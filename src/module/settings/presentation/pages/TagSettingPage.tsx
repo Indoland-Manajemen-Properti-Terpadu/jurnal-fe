@@ -30,7 +30,7 @@ import {
 } from '@tabler/icons-react';
 import SettingsLayout from '@/module/settings/presentation/components/SettingsLayout';
 import { useCreateTag, useDeleteTag, useTags, useUpdateTag } from '@/module/settings/presentation/hooks/useSettingQueries';
-import type { Tag } from '@/module/settings/infrastructure/settingApi';
+import type { Tag } from '@/module/settings/domain/settingTypes';
 
 const PRESET_COLORS = [
   '#3B82F6', // Blue

@@ -1,5 +1,26 @@
 import apiClient from '@/lib/http/apiClient';
 import { API_SETTINGS } from '@/services/endpoint';
+import type {
+  GeneralSetting,
+  AccountMappingAccount,
+  AccountMappingItem,
+  AccountMappingsByGroup,
+  NumberFormatType,
+  NumberFormat,
+  CreateNumberFormatPayload,
+  UpdateNumberFormatPayload,
+  PaymentTerm,
+  CreatePaymentTermPayload,
+  UpdatePaymentTermPayload,
+  PaymentMethod,
+  CreatePaymentMethodPayload,
+  UpdatePaymentMethodPayload,
+  Tax,
+  CreateTaxPayload,
+  UpdateTaxPayload,
+  Tag,
+  TagListParams,
+} from '@/module/settings/domain/settingTypes';
 
 type ApiEnvelope<T> = {
   code: number;
@@ -10,13 +31,6 @@ type ApiEnvelope<T> = {
 /* =========================================================================
  * GENERAL SETTINGS
  * ========================================================================= */
-export type GeneralSetting = {
-  id: string;
-  site?: string;
-  decimalPrecision: number;
-  createdAt?: string;
-  updatedAt?: string;
-};
 
 export const fetchGeneralSettings = async (): Promise<GeneralSetting> => {
   const { data } = await apiClient.get<ApiEnvelope<GeneralSetting>>(
@@ -38,31 +52,6 @@ export const updateGeneralSettings = async (decimalPrecision: number): Promise<G
 /* =========================================================================
  * ACCOUNT MAPPINGS
  * ========================================================================= */
-export type AccountMappingAccount = {
-  id: string;
-  name: string;
-  accountNumber?: string;
-  isArchived?: boolean;
-  type?: string;
-};
-
-export type AccountMappingItem = {
-  id: string;
-  site?: string;
-  key: string;
-  label: string;
-  group: 'ar_ap' | 'sales' | 'purchase' | 'inventory' | 'other' | string;
-  account?: AccountMappingAccount | null;
-};
-
-export type AccountMappingsByGroup = {
-  ar_ap?: AccountMappingItem[];
-  sales?: AccountMappingItem[];
-  purchase?: AccountMappingItem[];
-  inventory?: AccountMappingItem[];
-  other?: AccountMappingItem[];
-  [groupKey: string]: AccountMappingItem[] | undefined;
-};
 
 export const fetchAccountMappings = async (): Promise<AccountMappingsByGroup> => {
   const { data } = await apiClient.get<ApiEnvelope<AccountMappingsByGroup>>(
@@ -99,35 +88,6 @@ export const updateAccountMappingBatch = async (
 /* =========================================================================
  * NUMBER FORMATS
  * ========================================================================= */
-export type NumberFormatType = 'invoice' | 'transaction';
-
-export type NumberFormat = {
-  id: string;
-  site?: string;
-  type: NumberFormatType;
-  prefix: string;
-  suffix: string;
-  status: 'active' | 'inactive';
-  startNumber: number;
-  currentNumber: number;
-  deleted?: boolean;
-  createdAt?: string;
-  updatedAt?: string;
-};
-
-export type CreateNumberFormatPayload = {
-  type: NumberFormatType;
-  prefix: string;
-  suffix?: string;
-  startNumber?: number;
-};
-
-export type UpdateNumberFormatPayload = {
-  prefix?: string;
-  suffix?: string;
-  startNumber?: number;
-  status?: 'active' | 'inactive';
-};
 
 export const fetchNumberFormats = async (): Promise<NumberFormat[]> => {
   const { data } = await apiClient.get<ApiEnvelope<NumberFormat[]>>(
@@ -164,26 +124,6 @@ export const deleteNumberFormat = async (id: string): Promise<void> => {
 /* =========================================================================
  * PAYMENT TERMS
  * ========================================================================= */
-export type PaymentTerm = {
-  id: string;
-  site?: string;
-  name: string;
-  days: number;
-  isDefault?: boolean;
-  deleted?: boolean;
-  createdAt?: string;
-  updatedAt?: string;
-};
-
-export type CreatePaymentTermPayload = {
-  name: string;
-  days: number;
-};
-
-export type UpdatePaymentTermPayload = {
-  name?: string;
-  days?: number;
-};
 
 export const fetchPaymentTerms = async (page = 1): Promise<PaymentTerm[]> => {
   const { data } = await apiClient.get<ApiEnvelope<{ data: PaymentTerm[] } | PaymentTerm[]>>(
@@ -223,33 +163,6 @@ export const deletePaymentTerm = async (id: string): Promise<void> => {
 /* =========================================================================
  * PAYMENT METHODS
  * ========================================================================= */
-export type PaymentMethod = {
-  id: string;
-  site?: string;
-  name: string;
-  adminFee: number;
-  external_id?: string;
-  isDefault?: boolean;
-  defaultAccount?: any;
-  feeAccount?: any;
-  deleted?: boolean;
-  createdAt?: string;
-  updatedAt?: string;
-};
-
-export type CreatePaymentMethodPayload = {
-  name: string;
-  adminFee?: number;
-  defaultAccount?: string | null;
-  feeAccount?: string | null;
-};
-
-export type UpdatePaymentMethodPayload = {
-  name?: string;
-  adminFee?: number;
-  defaultAccount?: string | null;
-  feeAccount?: string | null;
-};
 
 export const fetchPaymentMethods = async (page = 1): Promise<PaymentMethod[]> => {
   const { data } = await apiClient.get<ApiEnvelope<{ data: PaymentMethod[] } | PaymentMethod[]>>(
@@ -289,32 +202,6 @@ export const deletePaymentMethod = async (id: string): Promise<void> => {
 /* =========================================================================
  * TAXES
  * ========================================================================= */
-export type Tax = {
-  id: string;
-  site?: any;
-  name: string;
-  rate: number;
-  description?: string | null;
-  salesAccount?: any;
-  purchaseAccount?: any;
-  deleted?: boolean;
-  createdAt?: string;
-  updatedAt?: string;
-};
-
-export type CreateTaxPayload = {
-  name: string;
-  rate: number | string;
-  salesAccount?: string;
-  purchaseAccount?: string;
-};
-
-export type UpdateTaxPayload = {
-  name?: string;
-  rate?: number | string;
-  salesAccount?: string;
-  purchaseAccount?: string;
-};
 
 export const fetchTaxes = async (): Promise<Tax[]> => {
   const { data } = await apiClient.get<ApiEnvelope<{ data: Tax[] } | Tax[]>>(
@@ -343,20 +230,6 @@ export const deleteTax = async (id: string): Promise<void> => {
 /* =========================================================================
  * TAGS
  * ========================================================================= */
-export type Tag = {
-  id: string;
-  site?: string;
-  name: string;
-  color?: string;
-  deleted?: boolean;
-  createdAt?: string;
-  updatedAt?: string;
-};
-
-export type TagListParams = {
-  page?: number;
-  search?: string;
-};
 
 export const fetchTags = async (params?: TagListParams): Promise<Tag[]> => {
   const query = new URLSearchParams();

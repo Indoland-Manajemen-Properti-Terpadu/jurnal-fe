@@ -36,7 +36,7 @@ import {
   usePaymentTerms,
   useUpdatePaymentTerm,
 } from '@/module/settings/presentation/hooks/useSettingQueries';
-import type { PaymentTerm } from '@/module/settings/infrastructure/settingApi';
+import type { PaymentTerm } from '@/module/settings/domain/settingTypes';
 
 export default function PaymentTermPage() {
   const { data: terms = [], isLoading, refetch } = usePaymentTerms();
