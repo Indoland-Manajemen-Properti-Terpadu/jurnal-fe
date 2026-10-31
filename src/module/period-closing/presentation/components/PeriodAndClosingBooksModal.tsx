@@ -45,7 +45,7 @@ const CheckMessage = () => {
 
   return (
     <Stack gap="md" align="stretch" justify="center">
-      <Text fz={14} fw={400} c={themeColors.black[9]}>
+      <Text fz="var(--jurnal-text-sm)" fw={400} c={themeColors.black[9]}>
         {t('modal.checkMessage')}
       </Text>
     </Stack>
@@ -134,10 +134,10 @@ export const PeriodAndClosingBooksModal: React.FC<PeriodAndClosingBooksModalProp
           >
             <Image src={KeyPeriodeImage} fit="contain" height={250} />
           </Container>
-          <Text fz={20} fw={600} c={themeColors.black[9]} ta="center">
+          <Text fz="var(--jurnal-text-xl)" fw={600} c={themeColors.black[9]} ta="center">
             {t('modal.featureTitle')}
           </Text>
-          <Text fz={14} fw={500} c={themeColors.gray[7]} ta="center">
+          <Text fz="var(--jurnal-text-sm)" fw={500} c={themeColors.gray[7]} ta="center">
             {t('modal.featureDescription')}
           </Text>
           <InformationAlert

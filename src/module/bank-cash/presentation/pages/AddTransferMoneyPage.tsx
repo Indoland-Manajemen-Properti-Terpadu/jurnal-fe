@@ -281,7 +281,7 @@ export const AddTransferMoneyPage = () => {
                         styles={{
                           input: {
                             fontWeight: 700,
-                            fontSize: 16,
+                            fontSize: 'var(--jurnal-text-md)',
                             color: 'var(--mantine-color-primary-9)',
                           },
                         }}

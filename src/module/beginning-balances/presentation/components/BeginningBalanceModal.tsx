@@ -54,7 +54,7 @@ export const BeginningBalanceModal: React.FC<BeginningBalanceModalProps> = ({
             <IconScale size={18} />
           </ThemeIcon>
           <div>
-            <Text fw={700} fz={16} c="dark.8">
+            <Text fw={700} fz="var(--jurnal-text-md)" c="dark.8">
               {t('startModal.title')}
             </Text>
             <Text size="xs" c="dimmed">
@@ -66,7 +66,7 @@ export const BeginningBalanceModal: React.FC<BeginningBalanceModalProps> = ({
       styles={{
         header: {
           padding: '16px 20px',
-          borderBottom: '1px solid #E5E7EB',
+          borderBottom: '1px solid var(--mantine-color-gray-2)',
         },
         body: {
           padding: '20px',

@@ -50,7 +50,7 @@ export function LandingFooter() {
             <p
               style={{
                 marginTop: 14,
-                fontSize: 14,
+                fontSize: 'var(--jurnal-text-sm)',
                 lineHeight: 1.6,
                 color: 'var(--lp-muted)',
                 maxWidth: 320,

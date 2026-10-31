@@ -20,7 +20,7 @@ export function AssetDisposalNotice({ asset }: Readonly<AssetDisposalNoticeProps
       radius="lg"
       p="md"
       style={{
-        backgroundColor: 'rgba(254, 243, 199, 0.4)',
+        backgroundColor: 'color-mix(in srgb, var(--mantine-color-amber-1) 40%, transparent)',
         borderColor: 'var(--mantine-color-orange-3)',
       }}
     >

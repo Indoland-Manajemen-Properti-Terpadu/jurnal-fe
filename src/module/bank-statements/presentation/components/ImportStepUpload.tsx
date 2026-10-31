@@ -42,10 +42,10 @@ const ImportStepUpload = ({
             fallbackSrc="https://placehold.co/150x150?text=Illustration"
           />
           <Stack gap="xs">
-            <Text fw={600} fz={18} c={themeColors.black[9]}>
+            <Text fw={600} fz="var(--jurnal-text-lg)" c={themeColors.black[9]}>
               {t('importModal.upload.heading')}
             </Text>
-            <Text fw={400} fz={14} c={themeColors.gray[7]}>
+            <Text fw={400} fz="var(--jurnal-text-sm)" c={themeColors.gray[7]}>
               {t('importModal.upload.body')}
             </Text>
           </Stack>
@@ -61,7 +61,7 @@ const ImportStepUpload = ({
               border: `2px dashed ${themeColors.black[2]}`,
               borderRadius: theme.radius.md,
               padding: theme.spacing.xl,
-              backgroundColor: '#ffffff',
+              backgroundColor: 'var(--mantine-color-white)',
               cursor: 'pointer',
               transition: 'background-color 0.2s ease',
               '&:hover': {
@@ -91,7 +91,7 @@ const ImportStepUpload = ({
             withBorder
             p="sm"
             radius="md"
-            style={{ borderColor: 'red', backgroundColor: '#fff5f5' }}
+            style={{ borderColor: 'red', backgroundColor: 'var(--mantine-color-red-0)' }}
           >
             <Group justify="space-between">
               <Group gap="sm">
@@ -109,7 +109,7 @@ const ImportStepUpload = ({
 
         {(uploading || files.length > 0) && (
           <Stack gap="xs">
-            <Text fw={600} fz={14} c={themeColors.black[9]}>
+            <Text fw={600} fz="var(--jurnal-text-sm)" c={themeColors.black[9]}>
               {t('importModal.upload.uploadedFiles')}
             </Text>
             {files.map((file, index) => (

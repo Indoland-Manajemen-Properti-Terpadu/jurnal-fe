@@ -30,10 +30,10 @@ export const AddAccountReadinessCard: React.FC<AddAccountReadinessCardProps> = (
             <IconShieldCheck size={16} />
           </ThemeIcon>
           <div>
-            <Text fw={700} fz={13} c="dark.8">
+            <Text fw={700} fz="var(--jurnal-text-sm)" c="dark.8">
               {t('form.validationCardTitle')}
             </Text>
-            <Text fz={11} c="dimmed">
+            <Text fz="var(--jurnal-text-xs)" c="dimmed">
               {t('form.validationCardSubtitle')}
             </Text>
           </div>
@@ -62,7 +62,7 @@ export const AddAccountReadinessCard: React.FC<AddAccountReadinessCardProps> = (
                 {check.pass ? <IconCheck size={12} stroke={2.5} /> : <IconCircleDot size={12} />}
               </ThemeIcon>
               <Text
-                fz={12}
+                fz="var(--jurnal-text-xs)"
                 c={check.pass ? 'dark.8' : 'dimmed'}
                 fw={check.pass ? 500 : 400}
                 truncate

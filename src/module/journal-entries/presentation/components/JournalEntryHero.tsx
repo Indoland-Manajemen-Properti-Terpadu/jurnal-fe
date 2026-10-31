@@ -44,7 +44,8 @@ const JournalEntryHero: React.FC<JournalEntryHeroProps> = ({ entry, isBalanced }
             variant="light"
             style={{
               border: '2px solid var(--mantine-color-gray-2)',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+              boxShadow:
+                '0 4px 12px color-mix(in srgb, var(--mantine-color-black) 5%, transparent)',
             }}
           >
             <IconNotebook size={40} />

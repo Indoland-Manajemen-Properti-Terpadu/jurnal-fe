@@ -5,24 +5,24 @@
   border-radius: rem(8px);
   font-size: rem(12px);
   font-weight: 500;
-  color: #64748b;
+  color: var(--mantine-color-slate-5);
   text-decoration: none;
   transition: all 150ms ease;
 }
 
 .footerLink:hover {
-  color: #053079;
-  background-color: rgba(5, 48, 121, 0.05);
+  color: var(--mantine-color-primary-6);
+  background-color: color-mix(in srgb, var(--mantine-color-primary-6) 5%, transparent);
   text-decoration: none;
 }
 
 .linkIcon {
-  color: #94a3b8;
+  color: var(--mantine-color-slate-4);
   transition: color 150ms ease;
 }
 
 .footerLink:hover .linkIcon {
-  color: #09b2ff;
+  color: var(--mantine-color-secondary-6);
 }
 
 .versionTag {
@@ -31,8 +31,8 @@
   font-size: rem(11px);
   font-family: var(--mantine-font-family-monospace, monospace);
   font-weight: 600;
-  color: #64748b;
-  background-color: rgba(15, 23, 42, 0.04);
-  border: rem(1px) solid rgba(15, 23, 42, 0.06);
+  color: var(--mantine-color-slate-5);
+  background-color: color-mix(in srgb, var(--mantine-color-slate-9) 4%, transparent);
+  border: rem(1px) solid color-mix(in srgb, var(--mantine-color-slate-9) 6%, transparent);
 }
 

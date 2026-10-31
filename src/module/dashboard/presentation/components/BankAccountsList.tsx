@@ -61,9 +61,11 @@ export function BankAccountsList({
                 p="sm"
                 onClick={() => onOpenAccount?.(acc)}
                 style={{
-                  border: '1px solid rgba(15, 23, 42, 0.06)',
+                  border:
+                    '1px solid color-mix(in srgb, var(--mantine-color-slate-9) 6%, transparent)',
                   borderRadius: 12,
-                  backgroundColor: 'rgba(255, 255, 255, 0.65)',
+                  backgroundColor:
+                    'color-mix(in srgb, var(--mantine-color-white) 65%, transparent)',
                 }}
               >
                 <Group justify="space-between" wrap="nowrap" mb={6}>

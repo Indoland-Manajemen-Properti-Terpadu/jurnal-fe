@@ -64,7 +64,8 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
         variant="light"
         color={color}
         style={{
-          boxShadow: '0 8px 20px rgba(5, 48, 121, 0.08)',
+          boxShadow:
+            '0 8px 20px color-mix(in srgb, var(--mantine-color-primary-6) 8%, transparent)',
           marginBottom: 4,
         }}
       >
@@ -100,4 +101,3 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
 };
 
 export default EmptyState;
-

@@ -47,7 +47,7 @@ export function KpiTile({
               </Text>
             )}
             {description && (
-              <Text fz={11.5} c="dimmed" mt={4} lh={1.35}>
+              <Text fz="var(--jurnal-text-xs)" c="dimmed" mt={4} lh={1.35}>
                 {description}
               </Text>
             )}
@@ -59,7 +59,8 @@ export function KpiTile({
           <Box
             pt={8}
             style={{
-              borderTop: '1px solid rgba(15, 23, 42, 0.06)',
+              borderTop:
+                '1px solid color-mix(in srgb, var(--mantine-color-slate-9) 6%, transparent)',
             }}
           >
             <Group justify="space-between" align="center" wrap="nowrap">

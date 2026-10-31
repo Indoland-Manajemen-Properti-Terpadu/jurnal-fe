@@ -7,7 +7,7 @@
 }
 
 .summaryLabel {
-  font-size: 11px;
+  font-size: var(--jurnal-text-xs);
   font-weight: 700;
   color: var(--mantine-color-dimmed);
   margin-bottom: 4px;

@@ -53,11 +53,11 @@ export function TopDebtorsList({
             p="xs"
             onClick={() => onOpenDebtor?.(d)}
             style={{
-              border: '1px solid rgba(15, 23, 42, 0.06)',
+              border: '1px solid color-mix(in srgb, var(--mantine-color-slate-9) 6%, transparent)',
               borderRadius: 12,
               backgroundColor: d.isOverdue
-                ? 'rgba(254, 242, 242, 0.65)'
-                : 'rgba(255, 255, 255, 0.6)',
+                ? 'color-mix(in srgb, var(--mantine-color-red-0) 65%, transparent)'
+                : 'color-mix(in srgb, var(--mantine-color-white) 60%, transparent)',
             }}
           >
             <Group justify="space-between" wrap="nowrap">

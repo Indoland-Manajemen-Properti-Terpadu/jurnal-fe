@@ -36,14 +36,14 @@ const CashFlowTable: React.FC = () => {
       >
         <Group justify="space-between">
           <Stack gap={1}>
-            <Text c={themeColors.black[9]} fz={14} fw={500}>
+            <Text c={themeColors.black[9]} fz="var(--jurnal-text-sm)" fw={500}>
               {t('common.report')}
             </Text>
-            <Text c={themeColors.gray[6]} fz={14} fw={500}>
+            <Text c={themeColors.gray[6]} fz="var(--jurnal-text-sm)" fw={500}>
               {t('common.period', { date: PROTOTYPE_REPORT_DATE })}
             </Text>
           </Stack>
-          <Text c={themeColors.black[9]} fz={14} fw={500}>
+          <Text c={themeColors.black[9]} fz="var(--jurnal-text-sm)" fw={500}>
             {t('common.totalValue', { amount: formatCurrency(PROTOTYPE_BALANCE_SHEET_TOTAL) })}
           </Text>
         </Group>

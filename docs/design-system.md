@@ -123,8 +123,8 @@ Headings h1..h6 are semibold with slightly negative tracking; use `<Title order>
 
 **Don't**
 
-- Hex, `rgb()` or named colours outside `src/theme/tokens/` (hex only in `palette.ts` and `colors.ts`).
-- Pixel font sizes (`font-size: 13px`, `fz={13}`): pick a size from the scale.
+- Hex, `rgb()` or named colours outside `src/theme/tokens/` (hex only in `palette.ts` and `colors.ts`). Use `var(--mantine-color-<scale>-<0..9>)` for a palette shade (0 is 50, 9 is 900), and `color-mix(in srgb, var(--mantine-color-primary-6) 12%, transparent)` for a translucent one. A colour the API stores (tag colours) comes from `palette` in TS, never from a literal.
+- Pixel font sizes (`font-size: 13px`, `fz={13}`): pick a size from the scale (`xs` 12, `sm` 14, `md` 16, `lg` 18, `xl` 20, `2xl` 24, `3xl` 32). Fluid `clamp()` display sizes are the only exception. `src/theme/noHardcodedStyles.test.ts` fails the build on a hex, `rgb()` or px font size outside `src/theme`.
 - Spacing or radius off the 4px grid, or raw `z-index` numbers.
 - Declaring a `--jurnal-*` variable anywhere except `cssVariables.ts` (a test fails if you do).
 - A second token file, a new global stylesheet, `!important` against Mantine, or a dark-mode branch.

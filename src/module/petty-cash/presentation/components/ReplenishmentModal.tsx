@@ -177,10 +177,10 @@ export const ReplenishmentModal: React.FC<Props> = ({
             <IconRefresh size={18} />
           </ThemeIcon>
           <div>
-            <Text fw={700} fz={15} c="dark.9">
+            <Text fw={700} fz="var(--jurnal-text-sm)" c="dark.9">
               {tp('replenishment.title')}
             </Text>
-            <Text fz={11} c="dimmed">
+            <Text fz="var(--jurnal-text-xs)" c="dimmed">
               {tp('replenishment.subtitle')}
             </Text>
           </div>
@@ -241,7 +241,7 @@ export const ReplenishmentModal: React.FC<Props> = ({
           {/* Vouchers Checklist Table */}
           <Box>
             <Group justify="space-between" mb="xs">
-              <Text fw={700} fz={13} c="dark.9">
+              <Text fw={700} fz="var(--jurnal-text-sm)" c="dark.9">
                 {tp('replenishment.selectVouchersPrefix')}
                 {selectedVoucherIds.length} {tp('replenishment.selectedSuffix')}
               </Text>
@@ -303,17 +303,17 @@ export const ReplenishmentModal: React.FC<Props> = ({
                             />
                           </Table.Td>
                           <Table.Td>
-                            <Text fz={12} fw={700} ff="monospace" c="primary.9">
+                            <Text fz="var(--jurnal-text-xs)" fw={700} ff="monospace" c="primary.9">
                               {v.voucherNumber}
                             </Text>
                           </Table.Td>
                           <Table.Td>
-                            <Text fz={11} c="dimmed">
+                            <Text fz="var(--jurnal-text-xs)" c="dimmed">
                               {dateFormatV1(v.date)}
                             </Text>
                           </Table.Td>
                           <Table.Td>
-                            <Text fz={12} c="dark.8" lineClamp={1}>
+                            <Text fz="var(--jurnal-text-xs)" c="dark.8" lineClamp={1}>
                               {v.description}
                             </Text>
                           </Table.Td>
@@ -323,7 +323,7 @@ export const ReplenishmentModal: React.FC<Props> = ({
                             </Badge>
                           </Table.Td>
                           <Table.Td style={{ textAlign: 'right' }}>
-                            <Text fz={12} fw={700} c="dark.8" ff="monospace">
+                            <Text fz="var(--jurnal-text-xs)" fw={700} c="dark.8" ff="monospace">
                               {formatCurrency(v.amount)}
                             </Text>
                           </Table.Td>

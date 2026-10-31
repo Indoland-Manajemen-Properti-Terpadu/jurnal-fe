@@ -91,7 +91,7 @@ export default function BankStatementTable({
     {
       accessor: 'transactionName',
       title: (
-        <Text size="sm" fz={14} fw={500} c={themeColors.black[9]}>
+        <Text size="sm" fz="var(--jurnal-text-sm)" fw={500} c={themeColors.black[9]}>
           {t('table.columns.description')}
         </Text>
       ),
@@ -106,12 +106,12 @@ export default function BankStatementTable({
     {
       accessor: 'transactionDate',
       title: (
-        <Text size="sm" fz={14} fw={500} ta="center" c={themeColors.black[9]}>
+        <Text size="sm" fz="var(--jurnal-text-sm)" fw={500} ta="center" c={themeColors.black[9]}>
           {t('table.columns.date')}
         </Text>
       ),
       render: (element: Result) => (
-        <Text size="sm" fz={14} fw={400} c={themeColors.black[9]} ta="center">
+        <Text size="sm" fz="var(--jurnal-text-sm)" fw={400} c={themeColors.black[9]} ta="center">
           {element.transactionDate ? dateFormatV1(element.transactionDate) : '-'}
         </Text>
       ),
@@ -119,12 +119,12 @@ export default function BankStatementTable({
     {
       accessor: 'receive',
       title: (
-        <Text size="sm" fz={14} fw={500} c={themeColors.black[9]}>
+        <Text size="sm" fz="var(--jurnal-text-sm)" fw={500} c={themeColors.black[9]}>
           {t('table.columns.received')}
         </Text>
       ),
       render: (element: Result) => (
-        <Text size="sm" fz={14} fw={400} c={themeColors.black[9]}>
+        <Text size="sm" fz="var(--jurnal-text-sm)" fw={400} c={themeColors.black[9]}>
           {formatCurrency(element.debit || 0)}
         </Text>
       ),
@@ -132,12 +132,12 @@ export default function BankStatementTable({
     {
       accessor: 'sent',
       title: (
-        <Text size="sm" fz={14} fw={500} c={themeColors.black[9]}>
+        <Text size="sm" fz="var(--jurnal-text-sm)" fw={500} c={themeColors.black[9]}>
           {t('table.columns.sent')}
         </Text>
       ),
       render: (element: Result) => (
-        <Text size="sm" fz={14} fw={400} c={themeColors.black[9]}>
+        <Text size="sm" fz="var(--jurnal-text-sm)" fw={400} c={themeColors.black[9]}>
           {formatCurrency(element.credit || 0)}
         </Text>
       ),
@@ -145,12 +145,12 @@ export default function BankStatementTable({
     {
       accessor: 'balance',
       title: (
-        <Text size="sm" fz={14} fw={500} c={themeColors.black[9]}>
+        <Text size="sm" fz="var(--jurnal-text-sm)" fw={500} c={themeColors.black[9]}>
           {t('table.columns.balance')}
         </Text>
       ),
       render: (element: Result) => (
-        <Text size="sm" fz={14} fw={400} c={themeColors.black[9]}>
+        <Text size="sm" fz="var(--jurnal-text-sm)" fw={400} c={themeColors.black[9]}>
           {formatCurrency(element.debit || 0)}
         </Text>
       ),
@@ -158,7 +158,7 @@ export default function BankStatementTable({
     {
       accessor: 'reconciled',
       title: (
-        <Text size="sm" fz={14} fw={500} ta="center" c={themeColors.black[9]}>
+        <Text size="sm" fz="var(--jurnal-text-sm)" fw={500} ta="center" c={themeColors.black[9]}>
           {t('table.columns.status')}
         </Text>
       ),
@@ -171,7 +171,7 @@ export default function BankStatementTable({
     {
       accessor: 'action',
       title: (
-        <Text size="xs" fz={14} fw={500} ta="center" c={themeColors.black[9]}>
+        <Text size="xs" fz="var(--jurnal-text-sm)" fw={500} ta="center" c={themeColors.black[9]}>
           {t('table.columns.action')}
         </Text>
       ),
@@ -234,7 +234,7 @@ export default function BankStatementTable({
         columns={columns}
         records={filteredRecords}
         styles={{
-          root: { borderColor: '#E9ECEF' },
+          root: { borderColor: 'var(--mantine-color-gray-2)' },
         }}
       />
 

@@ -4,7 +4,7 @@
   height: rem(42px);
   display: flex;
   align-items: center;
-  color: #475569;
+  color: var(--mantine-color-slate-6);
   font-size: rem(14px);
   line-height: rem(20px);
   font-weight: 500;
@@ -18,17 +18,17 @@
     transform 150ms ease;
 
   &:hover {
-    background-color: rgba(5, 48, 121, 0.05);
-    color: #0f172a;
+    background-color: color-mix(in srgb, var(--mantine-color-primary-6) 5%, transparent);
+    color: var(--mantine-color-slate-9);
   }
 
   &[data-active] {
-    color: #fff;
+    color: var(--mantine-color-white);
     font-weight: 600;
-    background: linear-gradient(135deg, #053079 0%, #0a4fb5 60%, #09b2ff 140%);
+    background: linear-gradient(135deg, var(--mantine-color-primary-6) 0%, var(--mantine-color-primary-7) 60%, var(--mantine-color-secondary-6) 140%);
     box-shadow:
-      0 1px 0 rgba(255, 255, 255, 0.25) inset,
-      0 10px 22px -10px rgba(5, 48, 121, 0.7);
+      0 1px 0 color-mix(in srgb, var(--mantine-color-white) 25%, transparent) inset,
+      0 10px 22px -10px color-mix(in srgb, var(--mantine-color-primary-6) 70%, transparent);
   }
 }
 
@@ -61,8 +61,8 @@
   width: rem(1.5px);
   background: linear-gradient(
     180deg,
-    rgba(5, 48, 121, 0.22) 0%,
-    rgba(203, 213, 225, 0.45) 100%
+    color-mix(in srgb, var(--mantine-color-primary-6) 22%, transparent) 0%,
+    color-mix(in srgb, var(--mantine-color-slate-3) 45%, transparent) 100%
   );
   border-radius: rem(2px);
   content: '';
@@ -77,7 +77,7 @@
   min-height: rem(36px);
   padding: rem(7px) rem(12px) rem(7px) rem(10px);
   border-radius: rem(9px);
-  color: #64748b;
+  color: var(--mantine-color-slate-5);
   font-size: rem(13px);
   line-height: rem(18px);
   font-weight: 500;
@@ -93,35 +93,35 @@
     transform 140ms ease;
 
   &:hover {
-    color: #0f172a;
-    background-color: rgba(5, 48, 121, 0.04);
+    color: var(--mantine-color-slate-9);
+    background-color: color-mix(in srgb, var(--mantine-color-primary-6) 4%, transparent);
     transform: translateX(rem(2px));
 
     .subIcon {
-      color: #053079;
+      color: var(--mantine-color-primary-6);
     }
 
     .bullet {
-      background-color: #64748b;
+      background-color: var(--mantine-color-slate-5);
       transform: scale(1.15);
     }
   }
 
   &[data-active] {
-    color: #053079;
+    color: var(--mantine-color-primary-6);
     font-weight: 600;
-    background: linear-gradient(90deg, rgba(5, 48, 121, 0.08) 0%, rgba(9, 178, 255, 0.04) 100%);
-    border-color: rgba(5, 48, 121, 0.14);
-    box-shadow: 0 rem(2px) rem(6px) -rem(2px) rgba(5, 48, 121, 0.08);
+    background: linear-gradient(90deg, color-mix(in srgb, var(--mantine-color-primary-6) 8%, transparent) 0%, color-mix(in srgb, var(--mantine-color-secondary-6) 4%, transparent) 100%);
+    border-color: color-mix(in srgb, var(--mantine-color-primary-6) 14%, transparent);
+    box-shadow: 0 rem(2px) rem(6px) -rem(2px) color-mix(in srgb, var(--mantine-color-primary-6) 8%, transparent);
 
     .subIcon {
-      color: #053079;
+      color: var(--mantine-color-primary-6);
     }
 
     .bullet {
-      background-color: #053079;
+      background-color: var(--mantine-color-primary-6);
       transform: scale(1.2);
-      box-shadow: 0 0 0 rem(3px) rgba(9, 178, 255, 0.25);
+      box-shadow: 0 0 0 rem(3px) color-mix(in srgb, var(--mantine-color-secondary-6) 25%, transparent);
     }
   }
 }
@@ -133,14 +133,14 @@
   transform: translateY(-50%);
   width: rem(3px);
   height: rem(16px);
-  background: linear-gradient(180deg, #053079 0%, #09b2ff 100%);
+  background: linear-gradient(180deg, var(--mantine-color-primary-6) 0%, var(--mantine-color-secondary-6) 100%);
   border-radius: rem(4px);
-  box-shadow: 0 0 rem(6px) rgba(5, 48, 121, 0.35);
+  box-shadow: 0 0 rem(6px) color-mix(in srgb, var(--mantine-color-primary-6) 35%, transparent);
   content: '';
 }
 
 .subIcon {
-  color: #94a3b8;
+  color: var(--mantine-color-slate-4);
   flex-shrink: 0;
   transition:
     color 140ms ease,
@@ -152,7 +152,7 @@
   width: rem(6px);
   height: rem(6px);
   border-radius: 50%;
-  background-color: #cbd5e1;
+  background-color: var(--mantine-color-slate-3);
   flex-shrink: 0;
   transition:
     background-color 140ms ease,

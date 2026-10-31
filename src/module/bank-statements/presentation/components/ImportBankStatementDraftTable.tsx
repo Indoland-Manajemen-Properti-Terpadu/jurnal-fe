@@ -19,7 +19,7 @@ interface ImportBankStatementDraftTableProps {
 }
 
 const headTableStyle = {
-  fontSize: 14,
+  fontSize: 'var(--jurnal-text-sm)',
   fontWeight: 500,
   color: themeColors.black[9],
 };
@@ -88,7 +88,7 @@ const ImportBankStatementDraftTable = ({
       render: (element) => (
         <Text
           size="sm"
-          fz={14}
+          fz="var(--jurnal-text-sm)"
           fw={400}
           c={!element.isDescriptionValid ? themeColors.red[6] : themeColors.black[9]}
         >
@@ -106,7 +106,7 @@ const ImportBankStatementDraftTable = ({
       render: (element) => (
         <Text
           size="sm"
-          fz={14}
+          fz="var(--jurnal-text-sm)"
           fw={400}
           c={!element.isDateValid ? themeColors.red[6] : themeColors.black[9]}
           ta="center"
@@ -121,7 +121,7 @@ const ImportBankStatementDraftTable = ({
       render: (element) => (
         <Text
           size="sm"
-          fz={14}
+          fz="var(--jurnal-text-sm)"
           fw={400}
           c={!element.isReceivedValid ? themeColors.red[6] : themeColors.black[9]}
         >
@@ -135,7 +135,7 @@ const ImportBankStatementDraftTable = ({
       render: (element) => (
         <Text
           size="sm"
-          fz={14}
+          fz="var(--jurnal-text-sm)"
           fw={400}
           c={!element.isSpentValid ? themeColors.red[6] : themeColors.black[9]}
         >
@@ -147,7 +147,7 @@ const ImportBankStatementDraftTable = ({
       accessor: 'Balance',
       title: <Text style={headTableStyle}>{t('draftTable.balance')}</Text>,
       render: () => (
-        <Text size="sm" fz={14} fw={400} c={themeColors.black[9]}>
+        <Text size="sm" fz="var(--jurnal-text-sm)" fw={400} c={themeColors.black[9]}>
           {formatCurrency(0)}
         </Text>
       ),
@@ -190,7 +190,7 @@ const ImportBankStatementDraftTable = ({
           backgroundColor: !record.isValid ? themeColors.red[0] : 'inherit',
         })}
         styles={{
-          root: { borderColor: '#E9ECEF' },
+          root: { borderColor: 'var(--mantine-color-gray-2)' },
         }}
       />
 

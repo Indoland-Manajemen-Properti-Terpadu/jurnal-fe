@@ -28,7 +28,7 @@ export const LedgerKpiCard: React.FC<LedgerKpiCardProps> = ({
           {label}
         </Text>
         <Text
-          fz={22}
+          fz="var(--jurnal-text-xl)"
           fw={800}
           c={valueColor}
           mt={4}

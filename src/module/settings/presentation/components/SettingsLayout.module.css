@@ -19,7 +19,7 @@
 .groupLabel {
   padding: 0 12px 6px;
   color: var(--mantine-color-dimmed);
-  font-size: 11px;
+  font-size: var(--jurnal-text-xs);
   font-weight: 700;
   letter-spacing: 0.07em;
   text-transform: uppercase;
@@ -34,7 +34,7 @@
   min-height: 40px;
   padding: 8px 12px;
   border-radius: var(--mantine-radius-md);
-  font-size: 13px;
+  font-size: var(--jurnal-text-sm);
   text-align: left;
 }
 

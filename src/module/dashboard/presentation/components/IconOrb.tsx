@@ -3,12 +3,36 @@ import { Box } from '@mantine/core';
 import classes from './dashboard.module.css';
 
 const GRADIENTS: Record<string, [string, string, string]> = {
-  primary: ['#053079', '#0a4fb5', 'rgba(5,48,121,0.45)'],
-  cyan: ['#0284c7', '#09B2FF', 'rgba(9,178,255,0.45)'],
-  teal: ['#0f766e', '#14b8a6', 'rgba(20,184,166,0.45)'],
-  orange: ['#c2410c', '#f59e0b', 'rgba(245,158,11,0.45)'],
-  red: ['#b91c1c', '#ef4444', 'rgba(239,68,68,0.45)'],
-  violet: ['#5b21b6', '#8b5cf6', 'rgba(139,92,246,0.45)'],
+  primary: [
+    'var(--mantine-color-primary-6)',
+    'var(--mantine-color-primary-7)',
+    'color-mix(in srgb, var(--mantine-color-primary-6) 45%, transparent)',
+  ],
+  cyan: [
+    'var(--mantine-color-sky-6)',
+    'var(--mantine-color-secondary-6)',
+    'color-mix(in srgb, var(--mantine-color-secondary-6) 45%, transparent)',
+  ],
+  teal: [
+    'var(--mantine-color-teal-7)',
+    'var(--mantine-color-teal-5)',
+    'color-mix(in srgb, var(--mantine-color-teal-5) 45%, transparent)',
+  ],
+  orange: [
+    'var(--mantine-color-orange-7)',
+    'var(--mantine-color-amber-5)',
+    'color-mix(in srgb, var(--mantine-color-amber-5) 45%, transparent)',
+  ],
+  red: [
+    'var(--mantine-color-red-7)',
+    'var(--mantine-color-red-5)',
+    'color-mix(in srgb, var(--mantine-color-red-5) 45%, transparent)',
+  ],
+  violet: [
+    'var(--mantine-color-violet-8)',
+    'var(--mantine-color-violet-5)',
+    'color-mix(in srgb, var(--mantine-color-violet-5) 45%, transparent)',
+  ],
 };
 
 export function IconOrb({

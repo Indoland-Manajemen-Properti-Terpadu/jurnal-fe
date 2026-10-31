@@ -45,10 +45,10 @@ export const EditAccountIdentitySection: React.FC<EditAccountIdentitySectionProp
           <IconFileInvoice size={20} />
         </ThemeIcon>
         <div>
-          <Text fw={700} fz={15} c="dark.8">
+          <Text fw={700} fz="var(--jurnal-text-sm)" c="dark.8">
             {t('edit.identityTitle')}
           </Text>
-          <Text fz={12} c="dimmed">
+          <Text fz="var(--jurnal-text-xs)" c="dimmed">
             {t('edit.identitySubtitle')}
           </Text>
         </div>
@@ -116,14 +116,14 @@ export const EditAccountIdentitySection: React.FC<EditAccountIdentitySectionProp
           <Group justify="space-between" align="center">
             <Stack gap={2}>
               <Group gap={6}>
-                <Text fw={600} fz={13} c="dark.8">
+                <Text fw={600} fz="var(--jurnal-text-sm)" c="dark.8">
                   {t('edit.contraTitle')}
                 </Text>
                 <Badge size="xs" variant="light" color={form.values.isContra ? 'orange' : 'gray'}>
                   {form.values.isContra ? t('form.badgeActive') : t('form.badgeInactive')}
                 </Badge>
               </Group>
-              <Text fz={12} c="dimmed">
+              <Text fz="var(--jurnal-text-xs)" c="dimmed">
                 {t('edit.contraDesc')}
               </Text>
             </Stack>

@@ -68,7 +68,7 @@ export default function StatsBankCashGrid({ accounts, loading }: StatsBankCashGr
               <Text fz="lg" fw={650} c="dark.9" className={classes.tabular}>
                 {detail.value}
               </Text>
-              <Text fz={11} c="dimmed">
+              <Text fz="var(--jurnal-text-xs)" c="dimmed">
                 {detail.hint}
               </Text>
             </Stack>

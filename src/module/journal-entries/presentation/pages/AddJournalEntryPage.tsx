@@ -158,10 +158,10 @@ export const AddJournalEntryPage: React.FC = () => {
                       <IconFileInvoice size={20} />
                     </ThemeIcon>
                     <div>
-                      <Text fw={700} fz={15} c="dark.8">
+                      <Text fw={700} fz="var(--jurnal-text-sm)" c="dark.8">
                         {t('form.infoTitle')}
                       </Text>
-                      <Text fz={12} c="dimmed">
+                      <Text fz="var(--jurnal-text-xs)" c="dimmed">
                         {t('form.infoSubtitle')}
                       </Text>
                     </div>
@@ -191,14 +191,14 @@ export const AddJournalEntryPage: React.FC = () => {
                         onChange={(e) => setTransactionNumber(e.target.value)}
                         styles={{ input: { height: 40 } }}
                       />
-                      <Text fz={11} c="dimmed" mt={4}>
+                      <Text fz="var(--jurnal-text-xs)" c="dimmed" mt={4}>
                         {t('form.numberHint')}
                       </Text>
                     </Grid.Col>
 
                     <Grid.Col span={{ base: 12, sm: 4 }}>
                       <Stack gap={4}>
-                        <Text fz={14} fw={500} c="dark.8">
+                        <Text fz="var(--jurnal-text-sm)" fw={500} c="dark.8">
                           {t('form.tagLabel')}
                         </Text>
                         <TagInput value={tags} onChange={setTags} />
@@ -215,10 +215,10 @@ export const AddJournalEntryPage: React.FC = () => {
                         <IconListNumbers size={20} />
                       </ThemeIcon>
                       <div>
-                        <Text fw={700} fz={15} c="dark.8">
+                        <Text fw={700} fz="var(--jurnal-text-sm)" c="dark.8">
                           {t('form.linesTitle')}
                         </Text>
-                        <Text fz={12} c="dimmed">
+                        <Text fz="var(--jurnal-text-xs)" c="dimmed">
                           {t('form.linesSubtitle')}
                         </Text>
                       </div>
@@ -240,10 +240,10 @@ export const AddJournalEntryPage: React.FC = () => {
                       <IconPaperclip size={20} />
                     </ThemeIcon>
                     <div>
-                      <Text fw={700} fz={15} c="dark.8">
+                      <Text fw={700} fz="var(--jurnal-text-sm)" c="dark.8">
                         {t('form.memoTitle')}
                       </Text>
-                      <Text fz={12} c="dimmed">
+                      <Text fz="var(--jurnal-text-xs)" c="dimmed">
                         {t('form.memoSubtitle')}
                       </Text>
                     </div>
@@ -257,7 +257,7 @@ export const AddJournalEntryPage: React.FC = () => {
                       autosize
                       value={notes}
                       onChange={(e) => setNotes(e.target.value)}
-                      styles={{ input: { fontSize: 13 } }}
+                      styles={{ input: { fontSize: 'var(--jurnal-text-sm)' } }}
                     />
 
                     <CustomDropzone
@@ -272,7 +272,7 @@ export const AddJournalEntryPage: React.FC = () => {
                           <Text fz="xs" fw={600} c="dark.8">
                             {t('form.dropDescription')}
                           </Text>
-                          <Text fz={11} c="dimmed">
+                          <Text fz="var(--jurnal-text-xs)" c="dimmed">
                             {t('form.dropHint')}
                           </Text>
                         </Stack>

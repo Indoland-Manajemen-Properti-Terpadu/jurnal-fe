@@ -60,7 +60,7 @@ export function EbookModal({
                   background: ebook.gradient,
                   padding: '20px',
                   borderRadius: 12,
-                  color: '#fff',
+                  color: 'var(--mantine-color-white)',
                   marginBottom: 16,
                 }}
               >

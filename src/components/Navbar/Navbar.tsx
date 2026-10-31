@@ -157,7 +157,7 @@ const NavbarComponent = ({
                 padding: '0 6px',
                 height: 18,
                 minWidth: 18,
-                fontSize: 10,
+                fontSize: 'var(--jurnal-text-xs)',
                 fontWeight: 700,
                 lineHeight: '18px',
               }}
@@ -247,7 +247,7 @@ const NavbarComponent = ({
               <Text fz="sm" fw={700} c="dark.8" truncate>
                 {displayName}
               </Text>
-              <Text fz={11} c="dimmed" truncate>
+              <Text fz="var(--jurnal-text-xs)" c="dimmed" truncate>
                 Jurnal Accounting
               </Text>
             </Box>

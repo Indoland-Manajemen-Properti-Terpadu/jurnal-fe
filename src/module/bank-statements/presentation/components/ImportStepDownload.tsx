@@ -27,10 +27,10 @@ const ImportStepDownload = () => {
           h="auto"
           fallbackSrc="https://placehold.co/200x200?text=Illustration"
         />
-        <Text ta="center" fw={600} fz={18} c={themeColors.black[9]}>
+        <Text ta="center" fw={600} fz="var(--jurnal-text-lg)" c={themeColors.black[9]}>
           {t('importModal.download.heading')}
         </Text>
-        <Text ta="center" fw={400} fz={14} c={themeColors.gray[7]} maw={800}>
+        <Text ta="center" fw={400} fz="var(--jurnal-text-sm)" c={themeColors.gray[7]} maw={800}>
           {t('importModal.download.body')}
         </Text>
         <Button

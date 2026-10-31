@@ -56,7 +56,12 @@ const IncomeStatementTable: React.FC<IncomeStatementTableProps> = ({ fromDate, t
             <React.Fragment key={report.name}>
               <Table.Tr>
                 <Table.Td colSpan={2} style={headTableStyle}>
-                  <Text fz={14} w={500} gradient={gradientColors.mainGR} variant="gradient">
+                  <Text
+                    fz="var(--jurnal-text-sm)"
+                    w={500}
+                    gradient={gradientColors.mainGR}
+                    variant="gradient"
+                  >
                     {report.name}
                   </Text>
                 </Table.Td>

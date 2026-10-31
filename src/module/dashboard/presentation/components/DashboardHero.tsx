@@ -32,9 +32,9 @@ interface DashboardHeroProps {
 }
 
 const COLORS = {
-  assets: '#7dd3fc',
-  liabilities: '#fcd34d',
-  equity: '#6ee7b7',
+  assets: 'var(--mantine-color-sky-3)',
+  liabilities: 'var(--mantine-color-amber-3)',
+  equity: 'var(--mantine-color-emerald-3)',
 };
 
 const clampPct = (n: number) => Math.min(100, Math.max(0, n));

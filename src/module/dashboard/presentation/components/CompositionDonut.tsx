@@ -39,7 +39,7 @@ export function CompositionDonut({
               cy={90}
               r={r}
               fill="none"
-              stroke="rgba(15,23,42,0.06)"
+              stroke="color-mix(in srgb, var(--mantine-color-slate-9) 6%, transparent)"
               strokeWidth={20}
             />
             {total > 0 &&
@@ -65,7 +65,7 @@ export function CompositionDonut({
               })}
           </svg>
           <Stack gap={0} align="center" justify="center" pos="absolute" inset={0}>
-            <Text fz={11} c="dimmed" fw={600}>
+            <Text fz="var(--jurnal-text-xs)" c="dimmed" fw={600}>
               {centerLabel}
             </Text>
             <Text fw={800} c="dark.9" size="md">
@@ -83,8 +83,10 @@ export function CompositionDonut({
                 p={8}
                 style={{
                   borderRadius: 10,
-                  border: '1px solid rgba(15, 23, 42, 0.05)',
-                  backgroundColor: 'rgba(255, 255, 255, 0.55)',
+                  border:
+                    '1px solid color-mix(in srgb, var(--mantine-color-slate-9) 5%, transparent)',
+                  backgroundColor:
+                    'color-mix(in srgb, var(--mantine-color-white) 55%, transparent)',
                 }}
               >
                 <Group justify="space-between" wrap="nowrap">
@@ -114,8 +116,9 @@ export function CompositionDonut({
           p="sm"
           style={{
             borderRadius: 12,
-            backgroundColor: 'rgba(9, 178, 255, 0.06)',
-            border: '1px solid rgba(9, 178, 255, 0.2)',
+            backgroundColor: 'color-mix(in srgb, var(--mantine-color-secondary-6) 6%, transparent)',
+            border:
+              '1px solid color-mix(in srgb, var(--mantine-color-secondary-6) 20%, transparent)',
           }}
         >
           <Group justify="space-between" align="center" wrap="wrap" gap="xs">
@@ -127,7 +130,7 @@ export function CompositionDonut({
                 <Text size="xs" fw={700} c="primary.9">
                   {t('netWorkingCapital')}
                 </Text>
-                <Text fz={11} c="dimmed">
+                <Text fz="var(--jurnal-text-xs)" c="dimmed">
                   {t('insightWorkingCapitalDesc')}
                 </Text>
               </Box>

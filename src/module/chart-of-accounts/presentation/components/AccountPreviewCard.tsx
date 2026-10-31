@@ -93,10 +93,10 @@ export const AccountPreviewCard: React.FC<AccountPreviewCardProps> = ({
             <IconEye size={17} />
           </ThemeIcon>
           <div>
-            <Text fw={700} fz={13} c="dark.8">
+            <Text fw={700} fz="var(--jurnal-text-sm)" c="dark.8">
               {t('form.previewTitle')}
             </Text>
-            <Text fz={11} c="dimmed">
+            <Text fz="var(--jurnal-text-xs)" c="dimmed">
               {t('form.previewSubtitle')}
             </Text>
           </div>
@@ -128,7 +128,7 @@ export const AccountPreviewCard: React.FC<AccountPreviewCardProps> = ({
                 color="primary.9"
                 radius="sm"
                 ff="monospace"
-                fz={12}
+                fz="var(--jurnal-text-xs)"
                 fw={700}
                 px={8}
                 py={4}
@@ -168,10 +168,10 @@ export const AccountPreviewCard: React.FC<AccountPreviewCardProps> = ({
           </Group>
 
           <Box>
-            <Text fw={800} fz={15} c="dark.9" lh={1.3}>
+            <Text fw={800} fz="var(--jurnal-text-sm)" c="dark.9" lh={1.3}>
               {accountName || t('form.previewUnnamed')}
             </Text>
-            <Text fz={12} c="dimmed" mt={2}>
+            <Text fz="var(--jurnal-text-xs)" c="dimmed" mt={2}>
               {t('form.accountCategory')}:{' '}
               <Text span fw={600} c="dark.7">
                 {categoryName || t('form.previewUncategorized')}
@@ -182,7 +182,7 @@ export const AccountPreviewCard: React.FC<AccountPreviewCardProps> = ({
           {accountType === 'SubAccount' && parentAccountLabel && (
             <Group gap={6} align="center" wrap="nowrap">
               <IconCornerDownRight size={14} color={themeColors.slate[5]} />
-              <Text fz={11.5} c="dimmed" truncate>
+              <Text fz="var(--jurnal-text-xs)" c="dimmed" truncate>
                 {t('form.parentAccount')}:{' '}
                 <Text span fw={600} c="dark.8">
                   {parentAccountLabel}
@@ -194,7 +194,7 @@ export const AccountPreviewCard: React.FC<AccountPreviewCardProps> = ({
           {accountType === 'HeaderAccount' && childAccountLabel && (
             <Group gap={6} align="center" wrap="nowrap">
               <IconHierarchy2 size={14} color={themeColors.slate[5]} />
-              <Text fz={11.5} c="dimmed" truncate>
+              <Text fz="var(--jurnal-text-xs)" c="dimmed" truncate>
                 {t('form.subAccount')}:{' '}
                 <Text span fw={600} c="dark.8">
                   {childAccountLabel}
@@ -204,17 +204,17 @@ export const AccountPreviewCard: React.FC<AccountPreviewCardProps> = ({
           )}
 
           {desc && (
-            <Text fz={11} c="dimmed" lineClamp={2} fs="italic">
+            <Text fz="var(--jurnal-text-xs)" c="dimmed" lineClamp={2} fs="italic">
               &ldquo;{desc}&rdquo;
             </Text>
           )}
 
           <Divider my={2} style={{ opacity: 0.6 }} />
 
-          <Group justify="space-between" fz={11} c="dimmed">
+          <Group justify="space-between" fz="var(--jurnal-text-xs)" c="dimmed">
             <Group gap={4}>
               <IconKey size={13} />
-              <Text fz={11} c="dimmed">
+              <Text fz="var(--jurnal-text-xs)" c="dimmed">
                 {t('form.previewAccess')}:{' '}
                 <Text span fw={600} c="dark.7">
                   {accessLabel}
@@ -235,7 +235,7 @@ export const AccountPreviewCard: React.FC<AccountPreviewCardProps> = ({
 
       {/* Instant Cause-and-Effect Balance Behavior Simulation */}
       <Box mt="sm">
-        <Text fz={11} fw={700} c="dimmed" tt="uppercase" lts={0.4} mb={6}>
+        <Text fz="var(--jurnal-text-xs)" fw={700} c="dimmed" tt="uppercase" lts={0.4} mb={6}>
           {t('form.behaviorSimulationTitle')}
         </Text>
         <SimpleGrid cols={2} spacing="xs">
@@ -256,11 +256,16 @@ export const AccountPreviewCard: React.FC<AccountPreviewCardProps> = ({
               ) : (
                 <IconArrowDownRight size={14} color="var(--mantine-color-orange-7)" />
               )}
-              <Text fz={10.5} fw={700} c="dark.7">
+              <Text fz="var(--jurnal-text-xs)" fw={700} c="dark.7">
                 {t('form.whenDebited')}
               </Text>
             </Group>
-            <Text fz={11} fw={700} c={effectiveDebit ? 'teal.8' : 'orange.8'} mt={2}>
+            <Text
+              fz="var(--jurnal-text-xs)"
+              fw={700}
+              c={effectiveDebit ? 'teal.8' : 'orange.8'}
+              mt={2}
+            >
               {effectiveDebit ? t('form.balanceIncreases') : t('form.balanceDecreases')}
             </Text>
           </Paper>
@@ -282,11 +287,16 @@ export const AccountPreviewCard: React.FC<AccountPreviewCardProps> = ({
               ) : (
                 <IconArrowDownRight size={14} color="var(--mantine-color-orange-7)" />
               )}
-              <Text fz={10.5} fw={700} c="dark.7">
+              <Text fz="var(--jurnal-text-xs)" fw={700} c="dark.7">
                 {t('form.whenCredited')}
               </Text>
             </Group>
-            <Text fz={11} fw={700} c={!effectiveDebit ? 'teal.8' : 'orange.8'} mt={2}>
+            <Text
+              fz="var(--jurnal-text-xs)"
+              fw={700}
+              c={!effectiveDebit ? 'teal.8' : 'orange.8'}
+              mt={2}
+            >
               {!effectiveDebit ? t('form.balanceIncreases') : t('form.balanceDecreases')}
             </Text>
           </Paper>

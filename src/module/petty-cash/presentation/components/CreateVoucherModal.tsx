@@ -136,10 +136,10 @@ export const CreateVoucherModal: React.FC<Props> = ({
             <IconFileInvoice size={18} />
           </ThemeIcon>
           <div>
-            <Text fw={700} fz={15} c="dark.9">
+            <Text fw={700} fz="var(--jurnal-text-sm)" c="dark.9">
               {tp('createVoucher.title')}
             </Text>
-            <Text fz={11} c="dimmed">
+            <Text fz="var(--jurnal-text-xs)" c="dimmed">
               {tp('createVoucher.subtitle')}
             </Text>
           </div>
@@ -233,14 +233,14 @@ export const CreateVoucherModal: React.FC<Props> = ({
           {!isOverLimit && numAmount > 0 && (
             <Paper withBorder radius="md" p="xs" bg="primary.0">
               <Group justify="space-between">
-                <Text fz={11} c="primary.9">
+                <Text fz="var(--jurnal-text-xs)" c="primary.9">
                   {tp('createVoucher.remaining')}{' '}
                   <Text span fw={700}>
                     {formatCurrency(maxAvailable)} - {formatCurrency(numAmount)} ={' '}
                     {formatCurrency(remainingAfter)}
                   </Text>
                 </Text>
-                <Text fz={11} fw={700} c="primary.8">
+                <Text fz="var(--jurnal-text-xs)" fw={700} c="primary.8">
                   {tp('createVoucher.enough')}
                 </Text>
               </Group>

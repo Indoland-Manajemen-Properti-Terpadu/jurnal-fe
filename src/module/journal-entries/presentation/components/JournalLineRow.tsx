@@ -47,7 +47,9 @@ const JournalLineRow = ({
     transition,
     zIndex: isDragging ? 100 : 1,
     position: 'relative' as const,
-    boxShadow: isDragging ? '0 6px 16px rgba(0,0,0,0.12)' : 'none',
+    boxShadow: isDragging
+      ? '0 6px 16px color-mix(in srgb, var(--mantine-color-black) 12%, transparent)'
+      : 'none',
     opacity: isDragging ? 0.9 : 1,
   };
 
@@ -73,7 +75,7 @@ const JournalLineRow = ({
         styles={{
           input: {
             height: 38,
-            fontSize: 13,
+            fontSize: 'var(--jurnal-text-sm)',
             fontWeight: filled ? 600 : 400,
             color: filled ? `var(--mantine-color-${color}-8)` : undefined,
             backgroundColor: otherFilled ? 'var(--mantine-color-gray-1)' : 'white',
@@ -127,7 +129,7 @@ const JournalLineRow = ({
           onChange={(value) => updateTransaction(index, 'account', value || '')}
           rightSection={<IconChevronDown size={14} />}
           comboboxProps={{ width: 450, position: 'bottom-start' }}
-          styles={{ input: { height: 38, fontSize: 13 } }}
+          styles={{ input: { height: 38, fontSize: 'var(--jurnal-text-sm)' } }}
         />
       </Grid.Col>
 
@@ -136,7 +138,7 @@ const JournalLineRow = ({
           placeholder={t('editor.descriptionPlaceholder')}
           value={item.description}
           onChange={(e) => updateTransaction(index, 'description', e.target.value)}
-          styles={{ input: { height: 38, fontSize: 13 } }}
+          styles={{ input: { height: 38, fontSize: 'var(--jurnal-text-sm)' } }}
         />
       </Grid.Col>
 

@@ -30,7 +30,7 @@ export default function PettyCashDetailPage() {
       <AppShellLayout withFooter>
         <Box className={classes.page} p={{ base: 'md', sm: 'xl' }}>
           <Paper withBorder radius="lg" p={{ base: 'xl', sm: 48 }} ta="center" maw={680} mx="auto">
-            <Text fz={22} fw={700}>
+            <Text fz="var(--jurnal-text-xl)" fw={700}>
               {t('pettyCashFundNotFound')}
             </Text>
             <Text c="dimmed" mt="xs">

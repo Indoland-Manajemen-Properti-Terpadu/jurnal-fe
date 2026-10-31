@@ -63,11 +63,13 @@ const JournalEntryTable: React.FC<JournalEntryTableProps> = ({
     <Stack>
       <Table>
         <Table.Thead>
-          <Table.Tr style={{ ...headTableStyle, fontSize: 14, fontWeight: 500 }}>
+          <Table.Tr
+            style={{ ...headTableStyle, fontSize: 'var(--jurnal-text-sm)', fontWeight: 500 }}
+          >
             <Table.Td colSpan={8} ta="left" width="50%">
               <>
                 {t('common.report')}
-                <Text c={themeColors.gray[6]} fz={14} fw={500}>
+                <Text c={themeColors.gray[6]} fz="var(--jurnal-text-sm)" fw={500}>
                   {t('common.periodNoSpace')} {formattedPeriod}
                 </Text>
               </>
@@ -88,11 +90,17 @@ const JournalEntryTable: React.FC<JournalEntryTableProps> = ({
             <React.Fragment key={JE.id}>
               <Table.Tr>
                 <Table.Td colSpan={12} style={categoryStyle}>
-                  <Text fz={14} w={500} span gradient={gradientColors.mainGR} variant="gradient">
+                  <Text
+                    fz="var(--jurnal-text-sm)"
+                    w={500}
+                    span
+                    gradient={gradientColors.mainGR}
+                    variant="gradient"
+                  >
                     {t('journalEntry.entryHash')}
                     {JE.transactionNumber}
                   </Text>
-                  <Text fz={14} span c={themeColors.gray[6]} ml={8}>
+                  <Text fz="var(--jurnal-text-sm)" span c={themeColors.gray[6]} ml={8}>
                     {t('journalEntry.createdDate')} {dateFormatV1(JE.transactionDate!)})
                   </Text>
                 </Table.Td>
@@ -114,7 +122,9 @@ const JournalEntryTable: React.FC<JournalEntryTableProps> = ({
               )}
             </React.Fragment>
           ))}
-          <Table.Tr style={{ ...categoryStyle, fontSize: 14, fontWeight: 500 }}>
+          <Table.Tr
+            style={{ ...categoryStyle, fontSize: 'var(--jurnal-text-sm)', fontWeight: 500 }}
+          >
             <Table.Td colSpan={8}>{t('journalEntry.total')}</Table.Td>
             <Table.Td colSpan={2} ta="left">
               {formatCurrency(totalDebit)}

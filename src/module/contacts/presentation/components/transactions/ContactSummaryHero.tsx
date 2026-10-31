@@ -24,7 +24,7 @@ export function ContactSummaryHero({ contact, outstanding, transactionCount }: R
       style={{
         background:
           'linear-gradient(135deg, var(--mantine-color-white) 65%, var(--mantine-color-secondary-0) 100%)',
-        boxShadow: '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
+        boxShadow: '0 4px 20px -2px color-mix(in srgb, var(--mantine-color-black) 5%, transparent)',
       }}
     >
       <Group justify="space-between" align="flex-start" wrap="wrap" gap="lg">
@@ -35,10 +35,11 @@ export function ContactSummaryHero({ contact, outstanding, transactionCount }: R
             color="primary"
             variant="light"
             fw={700}
-            fz={28}
+            fz="var(--jurnal-text-2xl)"
             style={{
               border: '2px solid var(--mantine-color-gray-2)',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+              boxShadow:
+                '0 4px 12px color-mix(in srgb, var(--mantine-color-black) 5%, transparent)',
             }}
           >
             {initials}
@@ -98,7 +99,7 @@ export function ContactSummaryHero({ contact, outstanding, transactionCount }: R
           bg="white"
           style={{
             minWidth: 260,
-            boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
+            boxShadow: '0 2px 10px color-mix(in srgb, var(--mantine-color-black) 3%, transparent)',
             border: '1px solid var(--mantine-color-gray-2)',
           }}
         >
@@ -107,7 +108,7 @@ export function ContactSummaryHero({ contact, outstanding, transactionCount }: R
               {t('transactions.outstandingTitle')}
             </Text>
             <Text
-              fz={24}
+              fz="var(--jurnal-text-2xl)"
               fw={800}
               c={outstanding > 0 ? 'orange.8' : 'teal.8'}
               style={{ fontVariantNumeric: 'tabular-nums' }}

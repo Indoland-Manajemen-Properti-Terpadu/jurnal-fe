@@ -82,7 +82,7 @@ export function ContactStatsGrid({
                 <Text size="xs" c="dimmed" fw={600} tt="uppercase" lts={0.5}>
                   {stat.title}
                 </Text>
-                <Text fz={26} fw={800} c="dark.8" mt={4} lh={1.1}>
+                <Text fz="var(--jurnal-text-2xl)" fw={800} c="dark.8" mt={4} lh={1.1}>
                   {stat.value.toLocaleString('id-ID')}
                 </Text>
                 <Text size="xs" c="dimmed" mt={4}>

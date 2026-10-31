@@ -27,19 +27,19 @@ const slides: SlideData[] = [
     id: 'slide1',
     badgeColor: 'blue',
     image: SlideImg1,
-    kpiIcon: <IconReceipt2 size={20} color="#60a5fa" />,
+    kpiIcon: <IconReceipt2 size={20} color="var(--mantine-color-blue-4)" />,
   },
   {
     id: 'slide2',
     badgeColor: 'teal',
     image: SlideImg2,
-    kpiIcon: <IconScale size={20} color="#34d399" />,
+    kpiIcon: <IconScale size={20} color="var(--mantine-color-emerald-4)" />,
   },
   {
     id: 'slide3',
     badgeColor: 'violet',
     image: SlideImg3,
-    kpiIcon: <IconShieldCheck size={20} color="#a78bfa" />,
+    kpiIcon: <IconShieldCheck size={20} color="var(--mantine-color-violet-4)" />,
   },
 ];
 
@@ -67,8 +67,8 @@ export const AuthVisualSide: React.FC = () => {
         padding: '40px 48px',
         overflow: 'hidden',
         background:
-          'radial-gradient(circle at 10% 15%, rgba(37, 99, 235, 0.35) 0%, transparent 45%), radial-gradient(circle at 90% 85%, rgba(124, 58, 237, 0.28) 0%, transparent 45%), #0a0f1d',
-        color: '#ffffff',
+          'radial-gradient(circle at 10% 15%, color-mix(in srgb, var(--mantine-color-blue-6) 35%, transparent) 0%, transparent 45%), radial-gradient(circle at 90% 85%, color-mix(in srgb, var(--mantine-color-violet-6) 28%, transparent) 0%, transparent 45%), var(--mantine-color-slate-9)',
+        color: 'var(--mantine-color-white)',
       }}
     >
       {/* Subtle Background Pattern Mesh */}
@@ -76,7 +76,8 @@ export const AuthVisualSide: React.FC = () => {
         style={{
           position: 'absolute',
           inset: 0,
-          backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px)',
+          backgroundImage:
+            'radial-gradient(color-mix(in srgb, var(--mantine-color-white) 8%, transparent) 1px, transparent 1px)',
           backgroundSize: '28px 28px',
           opacity: 0.5,
           pointerEvents: 'none',
@@ -104,9 +105,9 @@ export const AuthVisualSide: React.FC = () => {
           radius="xl"
           styles={{
             root: {
-              borderColor: 'rgba(255, 255, 255, 0.25)',
-              color: '#93c5fd',
-              backgroundColor: 'rgba(255, 255, 255, 0.05)',
+              borderColor: 'color-mix(in srgb, var(--mantine-color-white) 25%, transparent)',
+              color: 'var(--mantine-color-blue-3)',
+              backgroundColor: 'color-mix(in srgb, var(--mantine-color-white) 5%, transparent)',
             },
           }}
         >
@@ -122,11 +123,12 @@ export const AuthVisualSide: React.FC = () => {
             position: 'relative',
             borderRadius: '16px',
             overflow: 'hidden',
-            border: '1px solid rgba(255, 255, 255, 0.15)',
-            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 40px rgba(37, 99, 235, 0.2)',
+            border: '1px solid color-mix(in srgb, var(--mantine-color-white) 15%, transparent)',
+            boxShadow:
+              '0 25px 50px -12px color-mix(in srgb, var(--mantine-color-black) 60%, transparent), 0 0 40px color-mix(in srgb, var(--mantine-color-blue-6) 20%, transparent)',
             marginBottom: '32px',
             height: '240px',
-            backgroundColor: 'rgba(15, 23, 42, 0.8)',
+            backgroundColor: 'color-mix(in srgb, var(--mantine-color-slate-9) 80%, transparent)',
           }}
         >
           <Image
@@ -144,7 +146,7 @@ export const AuthVisualSide: React.FC = () => {
               position: 'absolute',
               inset: 0,
               background:
-                'linear-gradient(to top, rgba(10, 15, 29, 0.9) 0%, rgba(10, 15, 29, 0.2) 60%, transparent 100%)',
+                'linear-gradient(to top, color-mix(in srgb, var(--mantine-color-slate-9) 90%, transparent) 0%, color-mix(in srgb, var(--mantine-color-slate-9) 20%, transparent) 60%, transparent 100%)',
             }}
           />
 
@@ -159,9 +161,10 @@ export const AuthVisualSide: React.FC = () => {
               right: '16px',
               backdropFilter: 'blur(16px)',
               WebkitBackdropFilter: 'blur(16px)',
-              backgroundColor: 'rgba(15, 23, 42, 0.75)',
-              border: '1px solid rgba(255, 255, 255, 0.15)',
-              boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)',
+              backgroundColor: 'color-mix(in srgb, var(--mantine-color-slate-9) 75%, transparent)',
+              border: '1px solid color-mix(in srgb, var(--mantine-color-white) 15%, transparent)',
+              boxShadow:
+                '0 8px 24px color-mix(in srgb, var(--mantine-color-black) 40%, transparent)',
             }}
           >
             <Group justify="space-between" align="center">
@@ -170,7 +173,10 @@ export const AuthVisualSide: React.FC = () => {
                   variant="light"
                   radius="md"
                   size={36}
-                  style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
+                  style={{
+                    backgroundColor:
+                      'color-mix(in srgb, var(--mantine-color-white) 10%, transparent)',
+                  }}
                 >
                   {current.kpiIcon}
                 </ThemeIcon>
@@ -214,7 +220,10 @@ export const AuthVisualSide: React.FC = () => {
                 height: '6px',
                 width: activeSlide === idx ? '32px' : '8px',
                 borderRadius: '3px',
-                backgroundColor: activeSlide === idx ? '#38bdf8' : 'rgba(255, 255, 255, 0.25)',
+                backgroundColor:
+                  activeSlide === idx
+                    ? 'var(--mantine-color-sky-4)'
+                    : 'color-mix(in srgb, var(--mantine-color-white) 25%, transparent)',
                 cursor: 'pointer',
                 transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
               }}
@@ -229,14 +238,14 @@ export const AuthVisualSide: React.FC = () => {
         style={{
           position: 'relative',
           zIndex: 2,
-          borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+          borderTop: '1px solid color-mix(in srgb, var(--mantine-color-white) 10%, transparent)',
         }}
       >
         <Group justify="space-between" align="center" wrap="wrap" gap="sm">
           <Group gap="xs" align="center">
             <Group gap={2}>
               {[...Array(5)].map((_, i) => (
-                <IconStarFilled key={i} size={14} color="#fbbf24" />
+                <IconStarFilled key={i} size={14} color="var(--mantine-color-amber-4)" />
               ))}
             </Group>
             <Text size="xs" c="gray.3" fw={500}>
@@ -245,7 +254,7 @@ export const AuthVisualSide: React.FC = () => {
           </Group>
 
           <Group gap={6} align="center">
-            <IconCheck size={14} color="#34d399" />
+            <IconCheck size={14} color="var(--mantine-color-emerald-4)" />
             <Text size="xs" c="gray.4">
               {ta('visual.standard')}
             </Text>

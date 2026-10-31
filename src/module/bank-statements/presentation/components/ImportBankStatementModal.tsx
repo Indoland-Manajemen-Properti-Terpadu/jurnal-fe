@@ -100,7 +100,7 @@ const ImportBankStatementModal: React.FC<ImportBankStatementModalProps> = ({
       onClose={onClose}
       withCloseButton
       title={
-        <Text fw={600} fz={18} c={themeColors.black[9]}>
+        <Text fw={600} fz="var(--jurnal-text-lg)" c={themeColors.black[9]}>
           {t('importModal.title')}
         </Text>
       }

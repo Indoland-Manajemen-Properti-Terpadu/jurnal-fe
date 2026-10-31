@@ -67,8 +67,8 @@ export function FinalCtaSection({ onLogin }: FinalCtaSectionProps) {
             <div
               style={{
                 marginTop: 24,
-                fontSize: 13,
-                color: 'rgba(255,255,255,0.7)',
+                fontSize: 'var(--jurnal-text-sm)',
+                color: 'color-mix(in srgb, var(--mantine-color-white) 70%, transparent)',
                 display: 'flex',
                 justifyContent: 'center',
                 gap: 24,

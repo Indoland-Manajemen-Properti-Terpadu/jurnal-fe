@@ -33,10 +33,10 @@ export const JournalValidationCard: React.FC<JournalValidationCardProps> = ({
             <IconShieldCheck size={16} />
           </ThemeIcon>
           <div>
-            <Text fw={700} fz={13} c="dark.8">
+            <Text fw={700} fz="var(--jurnal-text-sm)" c="dark.8">
               {t('validation.title')}
             </Text>
-            <Text fz={11} c="dimmed">
+            <Text fz="var(--jurnal-text-xs)" c="dimmed">
               {t('validation.subtitle')}
             </Text>
           </div>
@@ -64,7 +64,11 @@ export const JournalValidationCard: React.FC<JournalValidationCardProps> = ({
               >
                 {c.pass ? <IconCheck size={12} stroke={2.5} /> : <IconCircleDot size={12} />}
               </ThemeIcon>
-              <Text fz={12} c={c.pass ? 'dark.8' : 'dimmed'} fw={c.pass ? 500 : 400}>
+              <Text
+                fz="var(--jurnal-text-xs)"
+                c={c.pass ? 'dark.8' : 'dimmed'}
+                fw={c.pass ? 500 : 400}
+              >
                 {c.label}
               </Text>
             </Group>

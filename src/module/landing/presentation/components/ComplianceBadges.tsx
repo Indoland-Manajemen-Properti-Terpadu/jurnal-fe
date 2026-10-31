@@ -24,7 +24,7 @@ export function ComplianceBadges() {
         padding: '24px 32px',
         borderRadius: 16,
         border: '1px solid var(--lp-line)',
-        background: '#f8fafc',
+        background: 'var(--mantine-color-slate-0)',
         display: 'flex',
         justifyContent: 'space-around',
         alignItems: 'center',
@@ -43,7 +43,7 @@ export function ComplianceBadges() {
               <Text fw={750} fz="xs">
                 {t(`testimonials.badges.${badge.id}.title`)}
               </Text>
-              <Text fz={11} c="dimmed">
+              <Text fz="var(--jurnal-text-xs)" c="dimmed">
                 {t(`testimonials.badges.${badge.id}.desc`)}
               </Text>
             </div>

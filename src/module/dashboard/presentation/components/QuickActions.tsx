@@ -24,8 +24,8 @@ export function QuickActions({ actions }: Readonly<{ actions: QuickAction[] }>) 
           p="sm"
           style={{
             borderRadius: 14,
-            border: '1px solid rgba(15, 23, 42, 0.07)',
-            backgroundColor: 'rgba(255, 255, 255, 0.72)',
+            border: '1px solid color-mix(in srgb, var(--mantine-color-slate-9) 7%, transparent)',
+            backgroundColor: 'color-mix(in srgb, var(--mantine-color-white) 72%, transparent)',
           }}
         >
           <Stack gap={8}>

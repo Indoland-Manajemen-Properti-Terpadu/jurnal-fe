@@ -42,7 +42,7 @@ export default function LoginPage({ initialMode = 'login' }: LoginPageProps) {
         height: '100vh',
         margin: 0,
         overflow: 'hidden',
-        backgroundColor: '#ffffff',
+        backgroundColor: 'var(--mantine-color-white)',
       }}
     >
       {/* Left Column: Visual Branding & Product Showcase (Side-by-side) */}
@@ -66,7 +66,7 @@ export default function LoginPage({ initialMode = 'login' }: LoginPageProps) {
           flexDirection: 'column',
           justifyContent: 'space-between',
           overflowY: 'auto',
-          backgroundColor: '#f8fafc',
+          backgroundColor: 'var(--mantine-color-slate-0)',
           padding: '24px',
         }}
       >
@@ -110,7 +110,7 @@ export default function LoginPage({ initialMode = 'login' }: LoginPageProps) {
         {/* Security & Copyright Footer */}
         <Box ta="center" pt="md">
           <Group justify="center" gap={6} align="center" mb={4}>
-            <IconShieldCheck size={16} color="#10b981" />
+            <IconShieldCheck size={16} color="var(--mantine-color-emerald-5)" />
             <Text size="xs" c="dimmed" fw={500}>
               {ta('page.secure')}
             </Text>

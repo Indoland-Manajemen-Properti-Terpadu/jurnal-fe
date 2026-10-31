@@ -22,7 +22,7 @@ const SaveAsDraftModal = ({ opened, onClose, onSave }: SaveAsDraftModalProps) =>
       onClose={onClose}
       withCloseButton={true}
       title={
-        <Text fz={16} fw={600} c={themeColors.black[9]}>
+        <Text fz="var(--jurnal-text-md)" fw={600} c={themeColors.black[9]}>
           {t('saveDraft.title')}
         </Text>
       }
@@ -41,7 +41,7 @@ const SaveAsDraftModal = ({ opened, onClose, onSave }: SaveAsDraftModalProps) =>
     >
       <Stack gap="md" align="stretch" justify="center">
         <Divider />
-        <Text fz={14} fw={400} c={themeColors.gray[7]}>
+        <Text fz="var(--jurnal-text-sm)" fw={400} c={themeColors.gray[7]}>
           {t('saveDraft.question')}
         </Text>
       </Stack>

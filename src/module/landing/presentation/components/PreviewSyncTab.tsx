@@ -67,15 +67,15 @@ export function PreviewSyncTab({ isSynced, onToggleSync }: PreviewSyncTabProps) 
             <Text fw={700} fz="xs">
               {t(`preview.sync.items.${event.id}.title`)}
             </Text>
-            <Text fz={11} c="dimmed">
+            <Text fz="var(--jurnal-text-xs)" c="dimmed">
               {t(`preview.sync.items.${event.id}.subtitle`)}
             </Text>
           </div>
           <div>
-            <Text fz={11} fw={600}>
+            <Text fz="var(--jurnal-text-xs)" fw={600}>
               {t(`preview.sync.items.${event.id}.debit`)}
             </Text>
-            <Text fz={11} c="dimmed">
+            <Text fz="var(--jurnal-text-xs)" c="dimmed">
               {t(`preview.sync.items.${event.id}.credit`)}
             </Text>
           </div>

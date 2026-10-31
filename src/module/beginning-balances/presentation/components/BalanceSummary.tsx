@@ -56,7 +56,7 @@ const BalanceSummary: React.FC<Props> = ({
               <Text size="xs" c="dimmed" fw={600} tt="uppercase" lts={0.5}>
                 {t('summary.totalDebit')}
               </Text>
-              <Text fz={22} fw={800} c="teal.8" mt={4} lh={1.1} ff="monospace">
+              <Text fz="var(--jurnal-text-xl)" fw={800} c="teal.8" mt={4} lh={1.1} ff="monospace">
                 {formatCurrency(totalDebit)}
               </Text>
               <Text size="xs" c="dimmed" mt={4}>
@@ -75,7 +75,7 @@ const BalanceSummary: React.FC<Props> = ({
               <Text size="xs" c="dimmed" fw={600} tt="uppercase" lts={0.5}>
                 {t('summary.totalCredit')}
               </Text>
-              <Text fz={22} fw={800} c="red.8" mt={4} lh={1.1} ff="monospace">
+              <Text fz="var(--jurnal-text-xl)" fw={800} c="red.8" mt={4} lh={1.1} ff="monospace">
                 {formatCurrency(totalCredit)}
               </Text>
               <Text size="xs" c="dimmed" mt={4}>
@@ -95,7 +95,7 @@ const BalanceSummary: React.FC<Props> = ({
                 {t('summary.balanceStatus')}
               </Text>
               <Text
-                fz={22}
+                fz="var(--jurnal-text-xl)"
                 fw={800}
                 c={isBalanced ? 'teal.8' : isEmpty ? 'dark.6' : 'orange.8'}
                 mt={4}
@@ -119,7 +119,7 @@ const BalanceSummary: React.FC<Props> = ({
               <Text size="xs" c="dimmed" fw={600} tt="uppercase" lts={0.5}>
                 {t('summary.cutoffDate')}
               </Text>
-              <Text fz={20} fw={800} c="blue.8" mt={4} lh={1.1}>
+              <Text fz="var(--jurnal-text-xl)" fw={800} c="blue.8" mt={4} lh={1.1}>
                 {selectedDate ? dayjs(selectedDate).format('DD MMM YYYY') : '-'}
               </Text>
               <Text size="xs" c="dimmed" mt={4}>

@@ -177,7 +177,7 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
             variant="light"
             radius="md"
             icon={<IconInfoCircle size={18} />}
-            styles={{ message: { fontSize: '12px', lineHeight: 1.5 } }}
+            styles={{ message: { fontSize: 'var(--jurnal-text-xs)', lineHeight: 1.5 } }}
           >
             {ta('forgot.emailHint')}
           </Alert>

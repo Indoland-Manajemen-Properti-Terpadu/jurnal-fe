@@ -299,22 +299,22 @@ function DashboardPage() {
                     {
                       label: t('sliceCurrentAssets'),
                       value: bs?.totalCurrentAssets ?? 0,
-                      color: '#09B2FF',
+                      color: 'var(--mantine-color-secondary-6)',
                     },
                     {
                       label: t('sliceNonCurrentAssets'),
                       value: bs?.totalNonCurrentAssets ?? 0,
-                      color: '#053079',
+                      color: 'var(--mantine-color-primary-6)',
                     },
                     {
                       label: t('sliceLiabilities'),
                       value: bs?.totalLiabilities ?? 0,
-                      color: '#f59e0b',
+                      color: 'var(--mantine-color-amber-5)',
                     },
                     {
                       label: t('sliceEquity'),
                       value: bs?.totalEquity ?? 0,
-                      color: '#14b8a6',
+                      color: 'var(--mantine-color-teal-5)',
                     },
                   ]}
                 />

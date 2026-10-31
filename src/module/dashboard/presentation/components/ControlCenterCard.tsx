@@ -83,8 +83,9 @@ export function ControlCenterCard({
               className={classes.rowHover}
               onClick={row.onClick}
               style={{
-                border: '1px solid rgba(15,23,42,0.06)',
-                background: 'rgba(255,255,255,0.65)',
+                border:
+                  '1px solid color-mix(in srgb, var(--mantine-color-slate-9) 6%, transparent)',
+                background: 'color-mix(in srgb, var(--mantine-color-white) 65%, transparent)',
               }}
             >
               <Group gap="xs" wrap="nowrap" style={{ minWidth: 0 }}>

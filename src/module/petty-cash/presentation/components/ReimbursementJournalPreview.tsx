@@ -26,7 +26,7 @@ export const ReimbursementJournalPreview: React.FC<ReimbursementJournalPreviewPr
           <ThemeIcon size={24} radius="md" variant="light" color="primary">
             <IconScale size={14} />
           </ThemeIcon>
-          <Text fw={700} fz={12} c="dark.9">
+          <Text fw={700} fz="var(--jurnal-text-xs)" c="dark.9">
             {tp('replenishment.previewTitle')}
           </Text>
         </Group>
@@ -35,7 +35,7 @@ export const ReimbursementJournalPreview: React.FC<ReimbursementJournalPreviewPr
         </Badge>
       </Group>
 
-      <Text fz={11} c="dimmed" mb="xs">
+      <Text fz="var(--jurnal-text-xs)" c="dimmed" mb="xs">
         {tp('replenishment.previewNote')}
       </Text>
 
@@ -46,25 +46,25 @@ export const ReimbursementJournalPreview: React.FC<ReimbursementJournalPreviewPr
           borderRadius: 6,
           border: '1px solid var(--mantine-color-gray-2)',
           fontFamily: 'monospace',
-          fontSize: 11,
+          fontSize: 'var(--jurnal-text-xs)',
         }}
       >
         {breakdown.map((item) => (
           <Group key={item.code} justify="space-between" py={2}>
-            <Text fz={11} c="dark.8">
+            <Text fz="var(--jurnal-text-xs)" c="dark.8">
               (Dr) {item.code} - {item.name}
             </Text>
-            <Text fz={11} fw={700} c="dark.8">
+            <Text fz="var(--jurnal-text-xs)" fw={700} c="dark.8">
               {formatCurrency(item.amount)}
             </Text>
           </Group>
         ))}
         <Divider my={4} />
         <Group justify="space-between" py={2}>
-          <Text fz={11} c="dark.8">
+          <Text fz="var(--jurnal-text-xs)" c="dark.8">
             (Cr) {bankLabel}
           </Text>
-          <Text fz={11} fw={700} c="dark.8">
+          <Text fz="var(--jurnal-text-xs)" fw={700} c="dark.8">
             {formatCurrency(total)}
           </Text>
         </Group>

@@ -85,7 +85,7 @@ export default function CashMapping() {
       title: t('cashMapping.colDate'),
       width: 200,
       render: (element: JournalTransactionTable) => (
-        <Text c={themeColors.black[9]} fz={14}>
+        <Text c={themeColors.black[9]} fz="var(--jurnal-text-sm)">
           {element.date}
         </Text>
       ),
@@ -94,7 +94,7 @@ export default function CashMapping() {
       accessor: 'received',
       title: t('cashMapping.colReceived'),
       render: (element: JournalTransactionTable) => (
-        <Text c={themeColors.black[9]} fz={14}>
+        <Text c={themeColors.black[9]} fz="var(--jurnal-text-sm)">
           {formatCurrency(element.received)}
         </Text>
       ),
@@ -103,7 +103,7 @@ export default function CashMapping() {
       accessor: 'sent',
       title: t('cashMapping.colSent'),
       render: (element: JournalTransactionTable) => (
-        <Text c={themeColors.black[9]} fz={14}>
+        <Text c={themeColors.black[9]} fz="var(--jurnal-text-sm)">
           {formatCurrency(element.sent)}
         </Text>
       ),
@@ -113,7 +113,7 @@ export default function CashMapping() {
       title: t('cashMapping.colDescription'),
       width: 300,
       render: (element: JournalTransactionTable) => (
-        <Text c={themeColors.black[9]} fz={14}>
+        <Text c={themeColors.black[9]} fz="var(--jurnal-text-sm)">
           {element.description}
         </Text>
       ),

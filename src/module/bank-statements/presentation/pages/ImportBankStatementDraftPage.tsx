@@ -80,7 +80,12 @@ const ImportBankStatementDraftPage = () => {
   return (
     <AppShellLayout
       footer={
-        <Group p="md" justify="flex-end" bg="white" style={{ borderTop: '1px solid #E9ECEF' }}>
+        <Group
+          p="md"
+          justify="flex-end"
+          bg="white"
+          style={{ borderTop: '1px solid var(--mantine-color-gray-2)' }}
+        >
           <Button variant="light" color={themeColors.gray[7]} onClick={() => navigate(-1)}>
             {t('importDraft.cancel')}
           </Button>
@@ -105,7 +110,7 @@ const ImportBankStatementDraftPage = () => {
                   </ActionIcon>
                   <Stack gap={2}>
                     <Title order={5}>{t('importDraft.title')}</Title>
-                    <Text c={themeColors.gray[6]} fz={14}>
+                    <Text c={themeColors.gray[6]} fz="var(--jurnal-text-sm)">
                       {t('importDraft.subtitle')}
                     </Text>
                   </Stack>
