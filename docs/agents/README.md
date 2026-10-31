@@ -1,6 +1,6 @@
 # Working Agreement for Agents and Contributors
 
-Entry point: the root [`AGENTS.md`](../../AGENTS.md). This page holds the scope rules and the work process; the technical rules live in the topic documents listed there.
+Scope rules, the work process and the task workflows. The technical rules live in the topic documents indexed in the root [`AGENTS.md`](../../AGENTS.md).
 
 ## Scope and change boundaries
 
@@ -14,7 +14,7 @@ Entry point: the root [`AGENTS.md`](../../AGENTS.md). This page holds the scope 
 
 ## Work process
 
-1. Read `AGENTS.md` and the documents it points to for your task, inspect the relevant implementation and API contracts, and check `git status` before editing.
+1. Read the topic documents your task needs (indexed in `AGENTS.md`), inspect the relevant implementation and API contracts, and check `git status` before editing.
 2. Confirm the requested outcome and keep the change within that scope. Ask before changing external systems, expanding behavior, adding dependencies, changing public contracts, or performing a broad migration.
 3. Make the smallest cohesive change that follows the architecture. Improve messy structure in the affected area when it directly helps the requested work and preserves behavior.
 4. Review the diff for accidental changes, secrets, generated files, and unrelated formatting. Preserve all user-owned changes.

@@ -41,6 +41,6 @@ An accounting-logic review is recorded in the conversation that produced this mi
 - Lint baseline total: 159 down to 135.
 - Dead files found inside modules were removed in the same change (dashboard spatial canvas, old report tables, orphan CSS modules in `user-management`).
 - `tailwind.config.js` was dead (Tailwind v4 never loads it; the built CSS is byte-identical without it) and was removed.
-- Agent documentation is consolidated: the root `AGENTS.md` is the only entry (`CLAUDE.md`, `GEMINI.md` and `.github/copilot-instructions.md` only point to it), the rules live once in `docs/`, and the task workflows are in `docs/agents/workflows/`. `.codex/` and the thin `.github/{agents,commands,prompts,instructions}` adapters were removed.
+- Agent documentation is consolidated: the root `AGENTS.md` is the only entry (`CLAUDE.md` and `GEMINI.md` are one-line `@AGENTS.md` imports so those tools load it directly; Copilot reads `AGENTS.md` natively), the rules live once in `docs/`, and the task workflows are in `docs/agents/workflows/`. `.codex/` and the thin `.github/{agents,commands,prompts,instructions}` adapters were removed.
 
 - Module styles: every hex colour, `rgb()`/`rgba()` literal and px font size in `src/module` and `src/components` was replaced by a palette variable, `color-mix()` or a text token (about 125 files, nearest-shade mapping for the few off-palette values, so some tints moved by a shade). `src/theme/noHardcodedStyles.test.ts` keeps it that way.

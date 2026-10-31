@@ -286,7 +286,7 @@ Aturan scope dan perubahan ada di [`docs/agents/README.md`](docs/agents/README.m
 
 ## Design Guardrail untuk AI Agent
 
-Aturan desain dan UI ada di [`docs/ui-guidelines.md`](docs/ui-guidelines.md) dan [`docs/design-system.md`](docs/design-system.md), termasuk referensi Figma dan token tema. `AGENTS.md` dan `GEMINI.md` hanya menunjuk ke aturan tersebut agar tidak ada standar yang saling bertentangan.
+Aturan desain dan UI ada di [`docs/ui-guidelines.md`](docs/ui-guidelines.md) dan [`docs/design-system.md`](docs/design-system.md), termasuk referensi Figma dan token tema.
 
 ---
 
