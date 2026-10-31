@@ -1,5 +1,4 @@
 import {
-  ActionIcon,
   Breadcrumbs,
   BreadcrumbsProps,
   Flex,
@@ -11,7 +10,7 @@ import {
   Title,
   useMantineTheme,
 } from '@mantine/core';
-import { IconRefresh } from '@tabler/icons-react';
+import {} from '@tabler/icons-react';
 import { useColorScheme } from '@mantine/hooks';
 import { gradientColors } from '@/theme';
 import { ReactNode } from 'react';
@@ -20,13 +19,13 @@ type PageHeaderProps = {
   title: string;
   // subtittle?: string;
   withinBreadcums?: boolean;
-  breadcrumbItems?: any;
+  breadcrumbItems?: ReactNode;
   actionButton?: ReactNode;
   actionButtons?: {
     variant: string;
     gradient?: MantineGradient;
     label: string;
-    icon?: any;
+    icon?: React.ElementType;
     color?: string;
     textColor?: string;
     style?: React.CSSProperties;
@@ -35,7 +34,7 @@ type PageHeaderProps = {
 } & PaperProps;
 
 const PageHeader = (props: PageHeaderProps) => {
-  const { withinBreadcums, breadcrumbItems, title, actionButton, actionButtons, ...others } = props;
+  const { withinBreadcums, breadcrumbItems, title, actionButton } = props;
   const theme = useMantineTheme();
   const colorScheme = useColorScheme();
 

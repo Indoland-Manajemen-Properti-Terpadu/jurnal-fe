@@ -8,7 +8,7 @@ export function formatCurrency(amount: number, withDecimals: boolean = true): st
 }
 
 export function sanitizedInput(amount: string): number {
-  return parseInt(amount.replace(/^0+(?=\d)/, ''));
+  return parseInt(amount.replace(/^0+(?=\d)/, ''), 10);
 }
 
 export function numberFormat(value: number | undefined): string {

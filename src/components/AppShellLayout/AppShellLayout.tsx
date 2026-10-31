@@ -1,8 +1,8 @@
 import { ReactNode } from 'react';
 import { AppShell, Container, rem } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import AppMain from '@/components/AppMain';
-import FooterNav from '@/components/FooterNav';
+import { AppMain } from '@/components/AppMain';
+import { FooterNav } from '@/components/FooterNav';
 import HeaderNav from '@/components/HeaderNav/HeaderNav';
 import NavbarComponent from '@/components/Navbar/Navbar';
 
@@ -103,4 +103,4 @@ const AppShellLayout = ({
   );
 };
 
-export default AppShellLayout;
+export { AppShellLayout };

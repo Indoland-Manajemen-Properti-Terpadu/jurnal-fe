@@ -26,7 +26,7 @@ import { TextMediumGR } from '@/components/Text/CustomText';
 // import { useRoleStore } from '@/store/useRole';
 
 import PageHeaderV2 from '@/components/PageHeader/PageHeaderV2';
-import AppShellLayout from '@/components/AppShellLayout';
+import { AppShellLayout } from '@/components/AppShellLayout';
 import classes from '@/module/user-management/presentation/pages/EditUserPage.module.css';
 import { useUserByEmail } from '@/module/user-management/presentation/hooks/useUserByEmail';
 

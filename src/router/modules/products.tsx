@@ -1,5 +1,5 @@
 import type { RouteObject } from 'react-router-dom';
-import AppShellLayout from '@/components/AppShellLayout';
+import { AppShellLayout } from '@/components/AppShellLayout';
 import { ProductDetailPage, ProductsPage } from '@/module/products';
 import { routes } from '../routes';
 

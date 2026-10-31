@@ -1,7 +1,7 @@
 import { Container, Paper, Stack, Flex } from '@mantine/core';
 import { IconFileAnalytics } from '@tabler/icons-react';
 import { ReportPageHeader } from '@/module/reports/presentation/components/shared/ReportPageHeader';
-import AppShellLayout from '@/components/AppShellLayout';
+import { AppShellLayout } from '@/components/AppShellLayout';
 import TrialBalanceTable from '@/module/reports/presentation/components/trial-balance/TrialBalanceTable';
 import { useState } from 'react';
 import FilterDate from '@/module/reports/presentation/components/shared/FilterDate';

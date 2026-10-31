@@ -12,4 +12,4 @@ const AppMain = ({ children }: AppMainProps) => (
   </Box>
 );
 
-export default AppMain;
+export { AppMain };

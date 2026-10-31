@@ -11,7 +11,7 @@ import {
   Title,
 } from '@mantine/core';
 import { IconArrowLeft, IconX } from '@tabler/icons-react';
-import AppShellLayout from '@/components/AppShellLayout';
+import { AppShellLayout } from '@/components/AppShellLayout';
 import type { SaleDisplay } from '../../hooks/useSaleDisplay';
 
 export function SaleDetailLoading() {

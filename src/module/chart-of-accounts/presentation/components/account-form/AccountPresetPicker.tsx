@@ -1,5 +1,5 @@
 import React from 'react';
-import { Badge, Button, Grid, Group, Paper, SimpleGrid, Text } from '@mantine/core';
+import { Badge, Button, Group, Paper, SimpleGrid, Text } from '@mantine/core';
 import { IconSparkles } from '@tabler/icons-react';
 import { themeColors } from '@/theme';
 import { useTranslation } from '@/i18n';

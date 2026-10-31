@@ -28,8 +28,8 @@ import {
 import { DateInput } from '@mantine/dates';
 import dayjs from 'dayjs';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import AppShellLayout from '@/components/AppShellLayout';
-import ModuleHeader from '@/components/ModuleHeader/ModuleHeader';
+import { AppShellLayout } from '@/components/AppShellLayout';
+import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
 import { routes } from '@/router/routes';
 import { formatCurrency } from '@/utils/formatCurrency';
 import { useJournalAccounts } from '@/module/chart-of-accounts';

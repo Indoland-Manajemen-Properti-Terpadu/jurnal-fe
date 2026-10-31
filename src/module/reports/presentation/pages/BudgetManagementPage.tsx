@@ -2,7 +2,7 @@ import { Container, Grid, Paper, Stack, Title, Group, Select, Button, Flex } fro
 import { gradientColors } from '@/theme';
 import { DatePickerInput } from '@mantine/dates';
 import { IconCalendar, IconChevronDown, IconFileExport } from '@tabler/icons-react';
-import AppShellLayout from '@/components/AppShellLayout';
+import { AppShellLayout } from '@/components/AppShellLayout';
 import { useState } from 'react';
 
 import { useTranslation } from '@/i18n';

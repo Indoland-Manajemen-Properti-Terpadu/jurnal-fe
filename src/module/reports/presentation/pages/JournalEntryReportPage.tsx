@@ -3,7 +3,7 @@ import { Container, Grid, Paper, Stack, Text, Select, Button, Flex } from '@mant
 import { DatePickerInput } from '@mantine/dates';
 import { IconCalendar, IconChevronDown, IconFileExport, IconTimeline } from '@tabler/icons-react';
 import { ReportPageHeader } from '@/module/reports/presentation/components/shared/ReportPageHeader';
-import jsPDF from 'jspdf';
+import JsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
@@ -14,7 +14,7 @@ import { useJournalEntryReport } from '@/module/reports/presentation/hooks/useJo
 import { getDateRange } from '@/utils/dateRange';
 import { dateFormatTimeZone } from '@/utils/formatDate';
 import JournalEntryTable from '@/module/reports/presentation/components/journal-entry/JournalEntryTable';
-import AppShellLayout from '@/components/AppShellLayout';
+import { AppShellLayout } from '@/components/AppShellLayout';
 import { ReportJournalEntryModel } from '@/module/reports/domain/JournalEntry.types';
 import { formatCurrency } from '@/utils/formatCurrency';
 
@@ -85,7 +85,7 @@ const JournalEntryReportPage: React.FC = () => {
 
   // Export the report to PDF
   const exportToPDF = () => {
-    const doc = new jsPDF();
+    const doc = new JsPDF();
     const tableColumns = [
       t('journalEntry.colNumber'),
       t('journalEntry.colDate'),
@@ -243,7 +243,7 @@ const generateTableData = (entries: ReportJournalEntryModel[]) => {
 };
 
 const addReportHeader = (
-  doc: jsPDF,
+  doc: JsPDF,
   title: string,
   period: string,
   start: string | null,
@@ -257,9 +257,9 @@ const addReportHeader = (
   }
 };
 
-const addTotalsToPDF = (doc: jsPDF, totalDebit: number, totalCredit: number) => {
+const addTotalsToPDF = (doc: JsPDF, totalDebit: number, totalCredit: number) => {
   const finalY =
-    (doc as jsPDF & { lastAutoTable?: { finalY?: number } }).lastAutoTable?.finalY || 32;
+    (doc as JsPDF & { lastAutoTable?: { finalY?: number } }).lastAutoTable?.finalY || 32;
   doc.text(`Total Debit: ${totalDebit}`, 14, finalY + 10);
   doc.text(`Total Credit: ${totalCredit}`, 14, finalY + 18);
 };

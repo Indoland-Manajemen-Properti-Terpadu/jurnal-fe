@@ -1,18 +1,1 @@
-{
-  "@typescript-eslint/no-explicit-any": 25,
-  "@typescript-eslint/no-shadow": 2,
-  "@typescript-eslint/no-unused-vars": 24,
-  "arrow-body-style": 9,
-  "import/newline-after-import": 1,
-  "import/no-duplicates": 4,
-  "import/no-named-as-default": 12,
-  "import/no-restricted-paths": 6,
-  "import/order": 8,
-  "max-lines": 1,
-  "new-cap": 1,
-  "no-alert": 3,
-  "no-multi-assign": 2,
-  "no-restricted-exports": 9,
-  "radix": 1,
-  "react/jsx-boolean-value": 7
-}
+{}

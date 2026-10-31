@@ -26,7 +26,7 @@ import {
 import { notifications } from '@mantine/notifications';
 import { IMAGE_MIME_TYPE, PDF_MIME_TYPE } from '@mantine/dropzone';
 import dayjs from 'dayjs';
-import AppShellLayout from '@/components/AppShellLayout';
+import { AppShellLayout } from '@/components/AppShellLayout';
 import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
 import { useTranslation } from '@/i18n';
 import { routes } from '@/router/routes';

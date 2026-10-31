@@ -12,7 +12,7 @@ import {
 import { IconAlertTriangle, IconBuildingBank, IconCoin, IconWallet } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import AppShellLayout from '@/components/AppShellLayout';
+import { AppShellLayout } from '@/components/AppShellLayout';
 import { routes } from '@/router/routes';
 import { useAuthStore } from '@/store/useAuthentications';
 import { useTranslation } from '@/i18n';

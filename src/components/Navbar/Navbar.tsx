@@ -132,7 +132,9 @@ const NavbarComponent = ({
   const pendingCountQuery = usePendingChangesCount();
   const rawCount = pendingCountQuery.data;
   const pendingCount =
-    typeof rawCount === 'number' ? rawCount : ((rawCount as any)?.data?.count ?? 0);
+    typeof rawCount === 'number'
+      ? rawCount
+      : ((rawCount as { data?: { count?: number } } | undefined)?.data?.count ?? 0);
 
   const handleLogout = () => {
     clearTokens();

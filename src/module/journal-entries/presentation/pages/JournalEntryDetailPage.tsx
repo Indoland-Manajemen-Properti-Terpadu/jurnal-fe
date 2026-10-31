@@ -16,7 +16,7 @@ import {
 import { IconArrowLeft, IconPrinter, IconTrash, IconX } from '@tabler/icons-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useDisclosure } from '@mantine/hooks';
-import AppShellLayout from '@/components/AppShellLayout';
+import { AppShellLayout } from '@/components/AppShellLayout';
 import { useTranslation } from '@/i18n';
 import { routes } from '@/router/routes';
 import { isDetailBalanced, sumAmounts } from '../../domain/journalRules';

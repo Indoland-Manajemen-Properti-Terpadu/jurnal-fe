@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Text, Stack, Container, Select } from '@mantine/core';
-import { useNavigate } from 'react-router';
 import { themeColors } from '@/theme';
 import { formatCurrency } from '@/utils/formatCurrency';
 import { IconChevronDown } from '@tabler/icons-react';
@@ -70,7 +69,6 @@ const elements: JournalTransactionTable[] = [
 ];
 
 export default function CashMapping() {
-  const navigate = useNavigate();
   const { t } = useTranslation('chartOfAccounts');
   const [selectedRecords, setSelectedRecords] = useState<JournalTransactionTable[]>([]);
   const { accounts } = useJournalAccounts();
@@ -122,7 +120,7 @@ export default function CashMapping() {
       accessor: 'account',
       title: t('cashMapping.colAccount'),
       width: 300,
-      render: (element: JournalTransactionTable) => (
+      render: () => (
         <Select
           key="accounts"
           placeholder={t('cashMapping.chooseAccount')}
@@ -140,7 +138,7 @@ export default function CashMapping() {
       accessor: 'tax',
       title: t('cashMapping.colTax'),
       width: 200,
-      render: (element: JournalTransactionTable) => (
+      render: () => (
         <Select
           key="accounts"
           placeholder={t('cashMapping.chooseTax')}

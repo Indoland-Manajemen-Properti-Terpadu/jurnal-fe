@@ -7,7 +7,7 @@ export interface LanguageOption {
   flag: string;
 }
 
-export type TranslationDictionary = Record<string, Record<string, any>>;
+export type TranslationDictionary = Record<string, Record<string, unknown>>;
 
 export interface I18nContextState {
   language: SupportedLanguage;
