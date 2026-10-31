@@ -13,9 +13,14 @@ import {
 } from '@mantine/core';
 import { IconCheck, IconInfoCircle } from '@tabler/icons-react';
 import { formatCurrency } from '@/utils/FormatCurrency';
-import type { PettyCashCount, PettyCashFund, PettyCashVoucher } from '@/module/petty-cash/domain/pettyCashTypes';
+import type {
+  PettyCashCount,
+  PettyCashFund,
+  PettyCashVoucher,
+} from '@/module/petty-cash/domain/pettyCashTypes';
 import classes from '@/module/petty-cash/presentation/components/PettyCashOverlay.module.css';
 
+import { calculateCashCount } from '@/module/petty-cash/domain/cashCount';
 interface Props {
   opened: boolean;
   onClose: () => void;
@@ -51,29 +56,19 @@ export function CashCountModal({
     setNotes('');
   }, [funds, opened, selectedFund]);
 
-  const totalPhysicalCash = useMemo(
-    () => DENOMINATIONS.reduce((total, value) => total + value * (counts[value] || 0), 0),
-    [counts]
-  );
-
-  const totalUnreimbursedVouchers = useMemo(
-    () =>
-      vouchers
-        .filter(
-          (voucher) =>
-            voucher.fundId === activeFund?.id &&
-            ['PENDING_REIMBURSE', 'PAID', 'REIMBURSEMENT_PENDING'].includes(voucher.status)
-        )
-        .reduce((total, voucher) => total + voucher.amount, 0),
-    [activeFund?.id, vouchers]
-  );
-
   const pagu = activeFund?.pagu || 0;
-  const actualTotal = totalPhysicalCash + totalUnreimbursedVouchers;
-  const variance = actualTotal - pagu;
+  const { totalPhysicalCash, totalUnreimbursedVouchers, actualTotal, variance, status } = useMemo(
+    () =>
+      calculateCashCount({
+        fundId: activeFund?.id,
+        pagu,
+        denominations: DENOMINATIONS,
+        counts,
+        vouchers,
+      }),
+    [activeFund?.id, pagu, counts, vouchers]
+  );
   const hasCountStarted = Object.values(counts).some((count) => count > 0);
-  const status: PettyCashCount['status'] =
-    variance === 0 ? 'BALANCED' : variance < 0 ? 'SHORT' : 'OVER';
 
   const handleFundChange = (value: string | null) => {
     if (!value) return;

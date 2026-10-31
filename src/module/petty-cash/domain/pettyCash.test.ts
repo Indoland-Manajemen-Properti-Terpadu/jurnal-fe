@@ -201,3 +201,73 @@ describe('petty cash fund routing', () => {
     expect(findFundById(state.funds, 'missing-fund')).toBeUndefined();
   });
 });
+
+describe('petty cash arithmetic on cents', () => {
+  const cents = (overrides: Partial<PettyCashFund>): PettyCashPrototypeState => ({
+    ...state,
+    funds: [{ ...fund, ...overrides }],
+    vouchers: [],
+  });
+
+  it('keeps the balance and the pending reimbursement exact after paying a voucher', () => {
+    const next = recordPaidVoucher(cents({ currentBalance: 0.3, pendingReimburseAmount: 0.2 }), {
+      ...voucher,
+      id: 'v',
+      amount: 0.1,
+      status: 'PAID',
+    });
+
+    expect(next.funds[0].currentBalance).toBe(0.2);
+    expect(next.funds[0].pendingReimburseAmount).toBe(0.3);
+  });
+
+  it('accepts a reimbursement whose total equals the voucher amounts to the cent', () => {
+    const two: PettyCashPrototypeState = {
+      ...state,
+      vouchers: [
+        { ...voucher, id: 'a', amount: 0.1, status: 'PAID' },
+        { ...voucher, id: 'b', amount: 0.2, status: 'PAID' },
+      ],
+    };
+
+    const next = submitReplenishment(two, {
+      ...reimbursement,
+      voucherIds: ['a', 'b'],
+      voucherCount: 2,
+      totalAmount: 0.3,
+    });
+
+    expect(next.reimbursements[0].totalAmount).toBe(0.3);
+    expect(next.vouchers.map((item) => item.status)).toEqual([
+      'REIMBURSEMENT_PENDING',
+      'REIMBURSEMENT_PENDING',
+    ]);
+  });
+
+  it('restores cash exactly and never above the ceiling when disbursed', () => {
+    const approved: PettyCashPrototypeState = {
+      ...state,
+      funds: [{ ...fund, pagu: 0.3, currentBalance: 0.1, pendingReimburseAmount: 0.2 }],
+      reimbursements: [{ ...reimbursement, status: 'APPROVED', totalAmount: 0.2, voucherIds: [] }],
+    };
+    const overfilled: PettyCashPrototypeState = {
+      ...approved,
+      funds: [{ ...fund, pagu: 0.25, currentBalance: 0.1, pendingReimburseAmount: 0.2 }],
+    };
+
+    const exact = disburseReplenishment(approved, reimbursement.id, '2026-10-22T00:00:00.000Z');
+    const capped = disburseReplenishment(overfilled, reimbursement.id, '2026-10-22T00:00:00.000Z');
+
+    expect(exact.funds[0]).toMatchObject({ currentBalance: 0.3, pendingReimburseAmount: 0 });
+    expect(capped.funds[0].currentBalance).toBe(0.25);
+  });
+
+  it('marks the fund low when the balance falls to the alert threshold exactly', () => {
+    const next = recordPaidVoucher(
+      cents({ currentBalance: 0.3, minThresholdAlert: 0.2, pendingReimburseAmount: 0 }),
+      { ...voucher, id: 'v', amount: 0.1, status: 'PAID' }
+    );
+
+    expect(next.funds[0].status).toBe('LOW_BALANCE');
+  });
+});

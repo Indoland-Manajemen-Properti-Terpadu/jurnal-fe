@@ -18,8 +18,13 @@ import {
 import { IconBuildingBank, IconRefresh, IconScale } from '@tabler/icons-react';
 import { formatCurrency } from '@/utils/FormatCurrency';
 import { dateFormatV1 } from '@/utils/FormatDate';
-import { PettyCashFund, PettyCashReimbursement, PettyCashVoucher } from '@/module/petty-cash/domain/pettyCashTypes';
+import {
+  PettyCashFund,
+  PettyCashReimbursement,
+  PettyCashVoucher,
+} from '@/module/petty-cash/domain/pettyCashTypes';
 
+import { summarizeReimbursement } from '@/module/petty-cash/domain/reimbursementSummary';
 interface Props {
   opened: boolean;
   onClose: () => void;
@@ -76,25 +81,10 @@ export const ReplenishmentModal: React.FC<Props> = ({
     [eligibleVouchers, selectedVoucherIds]
   );
 
-  const totalReimburseAmount = selectedVoucherObjects.reduce((acc, v) => acc + (v.amount || 0), 0);
-
-  // Expense grouping for accounting journal preview
-  const expenseBreakdown = useMemo(() => {
-    const map = new Map<string, { code: string; name: string; amount: number }>();
-    selectedVoucherObjects.forEach((v) => {
-      const existing = map.get(v.expenseAccount.code);
-      if (existing) {
-        existing.amount += v.amount;
-      } else {
-        map.set(v.expenseAccount.code, {
-          code: v.expenseAccount.code,
-          name: v.expenseAccount.name,
-          amount: v.amount,
-        });
-      }
-    });
-    return Array.from(map.values());
-  }, [selectedVoucherObjects]);
+  const { total: totalReimburseAmount, breakdown: expenseBreakdown } = useMemo(
+    () => summarizeReimbursement(selectedVoucherObjects),
+    [selectedVoucherObjects]
+  );
 
   const handleToggleSelectAll = (checked: boolean) => {
     if (checked) {
