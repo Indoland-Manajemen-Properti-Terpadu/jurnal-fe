@@ -50,6 +50,14 @@ app composition root -> everything
 - Other features are used only through `@/module/<feature>` (its `index.ts`).
 - `src/components` never imports from `src/module`.
 
+## View, business logic and data access
+
+- Pages and view components render state, collect input and forward user intent. They never call Axios or fetch, build endpoints, hold accounting rules or coordinate multi-step business workflows.
+- Business rules and calculations live in `domain` (or `application` use cases) where they can be tested without rendering React.
+- API access, API DTOs, response mapping and repository adapters live in the feature's `infrastructure`. Do not use domain entities as raw API response types; map at the boundary when shapes or meanings differ.
+- Presentation hooks adapt domain code to React and TanStack Query. Keep query keys and query hooks inside the feature; pages consume typed results and render loading, empty, error and success states.
+- Shared UI and helpers live in the shared folders above. Do not create a second shared-components or API-client directory. Avoid circular dependencies and deep imports across features.
+
 ## State ownership
 
 | State                                                 | Owner                                                                                            |
@@ -58,19 +66,23 @@ app composition root -> everything
 | Client state shared across pages                      | Zustand store in the feature's `presentation/stores`, or `src/store` when shared across features |
 | Local input and view state                            | React or Mantine form state                                                                      |
 
-Server responses are never mirrored in Zustand. Financial mutations are not optimistic.
+Server responses are never mirrored in Zustand, and global state is not used for something with one consumer. Mutations give clear pending and failure feedback and block duplicate submits. Financial mutations (journal, ledger, balance) are not optimistic unless correctness and rollback are established for that operation.
 
 ## HTTP
 
 All HTTP goes through `src/lib/http/apiClient.ts` (Bearer token, 401 refresh with a request queue, redirect to login, global loading bar), called only from a feature's `infrastructure/`. The legacy helpers `get/post/put/del/patch` return `error.response` or `null` on failure and are `@deprecated`; migrated code uses the default `apiClient` and handles errors explicitly. Responses use the envelope `{ code, message, data, pagination? }`.
 
-## Accounting rules
+## Accounting and money
 
-Pure ledger rules (normal balance, journal balance, opening-balance and reconciliation gates) live in `src/lib/accounting` with no React or HTTP. Gates are exact and reject sub-cent amounts; display helpers round half up to the cent. See [`src/lib/accounting/README.md`](../src/lib/accounting/README.md).
+Ledger rules and money handling are in [accounting.md](accounting.md).
 
-## Money
+## API integration
 
-Money math uses integer minor units through `src/lib/money` (`toMinor`, `fromMinor`, `sumMinor`). See [ADR 0005](adr/0005-integer-money-and-localstorage-tokens.md) and [migration/money-audit.md](migration/money-audit.md).
+- Route all HTTP through the shared client and the feature's infrastructure; never from a page or component.
+- Do not guess endpoints, permissions, tenant or site scoping, accounting rules or response shapes. Verify them in backend documentation or an authorized Postman collection; if evidence is missing, state the assumption and ask before building a contract-dependent change.
+- Use Postman CLI only for an explicitly in-scope API task and only against the authorized collection and environment.
+- Keep credentials and secrets out of source control and logs; do not change token storage or authorization behavior without approval.
+- Normalize API errors at the boundary without swallowing useful details; show safe, actionable messages and keep technical detail out of user-facing copy.
 
 ## Guardrails (checked by CI on every PR)
 

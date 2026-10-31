@@ -234,7 +234,7 @@ https://api-jurnal.proapps.id/
 https://jurnal-api.proapps.id
 ```
 
-Aturan akses API, konfigurasi endpoint, dan penanganan kredensial dipusatkan di [konteks project agent](.codex/PROJECT_CONTEXT.md).
+Aturan akses API, endpoint, dan penanganan kredensial ada di [`docs/architecture.md`](docs/architecture.md#api-integration).
 
 ---
 
@@ -246,11 +246,11 @@ Indeks dokumentasi ada di [`docs/README.md`](docs/README.md): [arsitektur](docs/
 
 ## Standar Kode
 
-Seluruh aturan arsitektur, penamaan, state management, akses API, testing, dan UI dipusatkan di [konteks project agent](.codex/PROJECT_CONTEXT.md). Workflow tugas agent tersedia di [`.codex/workflows/`](.codex/README.md). README ini berisi dokumentasi produk, setup, dan perintah yang tersedia.
+Seluruh aturan arsitektur, penamaan, akuntansi, UI, dan i18n diindeks di [`AGENTS.md`](AGENTS.md). Workflow tugas ada di [`docs/agents/`](docs/agents/README.md). README ini berisi dokumentasi produk, setup, dan perintah yang tersedia.
 
 ## Testing dan Quality Gate
 
-Aturan verifikasi dipusatkan di [konteks project agent](.codex/PROJECT_CONTEXT.md). Daftar script yang tersedia ada di bagian [Script Tersedia](#script-tersedia); konfigurasi CI yang aktif ada di [`.github/workflows/`](.github/workflows).
+Aturan verifikasi ada di [`docs/conventions.md`](docs/conventions.md#testing-and-verification). Daftar script yang tersedia ada di bagian [Script Tersedia](#script-tersedia); konfigurasi CI yang aktif ada di [`.github/workflows/`](.github/workflows).
 
 ---
 
@@ -268,25 +268,25 @@ Preview hasil build:
 yarn preview
 ```
 
-Gunakan [workflow kesiapan deployment](.codex/workflows/deployment-readiness.md) sebelum menyiapkan perubahan untuk deployment.
+Gunakan [workflow kesiapan deployment](docs/agents/workflows/deployment-readiness.md) sebelum menyiapkan perubahan untuk deployment.
 
 ---
 
 ## Panduan Kontribusi
 
-Aturan scope, arsitektur, dan perubahan dipusatkan di [konteks project agent](.codex/PROJECT_CONTEXT.md).
+Aturan scope dan perubahan ada di [`docs/agents/README.md`](docs/agents/README.md); arsitektur di [`docs/architecture.md`](docs/architecture.md).
 
 ---
 
 ## Catatan Pengembangan
 
-- Stack yang digunakan tercatat di bagian [Teknologi](#teknologi). Aturan penggunaan dan perubahan stack ada di [konteks project agent](.codex/PROJECT_CONTEXT.md).
+- Stack yang digunakan tercatat di bagian [Teknologi](#teknologi). Aturan penggunaan dan perubahan stack ada di [`docs/conventions.md`](docs/conventions.md).
 
 ---
 
 ## Design Guardrail untuk AI Agent
 
-Aturan desain dan implementasi UI untuk agent dipusatkan di [konteks project agent](.codex/PROJECT_CONTEXT.md), termasuk sumber referensi Figma dan token theme lokal. `AGENTS.md` dan `GEMINI.md` hanya menunjuk ke aturan tersebut agar tidak ada standar yang saling bertentangan.
+Aturan desain dan UI ada di [`docs/ui-guidelines.md`](docs/ui-guidelines.md) dan [`docs/design-system.md`](docs/design-system.md), termasuk referensi Figma dan token tema. `AGENTS.md` dan `GEMINI.md` hanya menunjuk ke aturan tersebut agar tidak ada standar yang saling bertentangan.
 
 ---
 
