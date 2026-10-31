@@ -26,6 +26,7 @@ import { reconciliation } from './reconciliation';
 import { accountLedger } from './accountLedger';
 import { reports } from './reports';
 import { bankCash } from './bankCash';
+import { pettyCash } from './pettyCash';
 
 export const id = {
   common,
@@ -56,6 +57,7 @@ export const id = {
   accountLedger,
   reports,
   bankCash,
+  pettyCash,
 };
 
 export default id;

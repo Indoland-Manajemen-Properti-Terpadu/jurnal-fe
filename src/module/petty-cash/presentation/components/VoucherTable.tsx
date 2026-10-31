@@ -40,6 +40,7 @@ export const VoucherTable: React.FC<Props> = ({
   onFundFilterChange,
   fundOptions = [],
 }) => {
+  const { t: tp } = useTranslation('pettyCash');
   const { t } = useTranslation('journal');
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -212,7 +213,7 @@ export const VoucherTable: React.FC<Props> = ({
       {totalPages > 1 && (
         <Group justify="space-between" align="center">
           <Text size="xs" c="dimmed">
-            Halaman {page} dari {totalPages}
+            {tp('common.page')} {page} {tp('common.of')} {totalPages}
           </Text>
           <Pagination value={page} onChange={setPage} total={totalPages} size="sm" radius="md" />
         </Group>

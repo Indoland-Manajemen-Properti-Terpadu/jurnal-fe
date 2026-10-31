@@ -5,25 +5,28 @@ import { dateFormatV1 } from '@/utils/FormatDate';
 import type { PettyCashVoucher } from '@/module/petty-cash/domain/pettyCashTypes';
 import classes from '@/module/petty-cash/presentation/components/PettyCashOverlay.module.css';
 
+import { useTranslation } from '@/i18n';
+
 interface Props {
   opened: boolean;
   onClose: () => void;
   voucher: PettyCashVoucher | null;
 }
 
-const STATUS_LABELS: Record<PettyCashVoucher['status'], string> = {
-  DRAFT: 'Draf',
-  SUBMITTED: 'Diajukan',
-  APPROVED: 'Disetujui',
-  PAID: 'Sudah dibayar',
-  PENDING_REIMBURSE: 'Belum diajukan',
-  REIMBURSEMENT_PENDING: 'Menunggu pengisian kembali',
-  REIMBURSED: 'Sudah diganti',
-  REJECTED: 'Ditolak',
-  VOID: 'Dibatalkan',
+const STATUS_LABEL_KEYS: Record<PettyCashVoucher['status'], string> = {
+  DRAFT: 'drawer.statusDraft',
+  SUBMITTED: 'drawer.statusSubmitted',
+  APPROVED: 'drawer.statusApproved',
+  PAID: 'drawer.statusPaid',
+  PENDING_REIMBURSE: 'drawer.statusPending',
+  REIMBURSEMENT_PENDING: 'drawer.statusReplenishing',
+  REIMBURSED: 'drawer.statusReimbursed',
+  REJECTED: 'drawer.statusRejected',
+  VOID: 'drawer.statusVoid',
 };
 
 export function VoucherDetailDrawer({ opened, onClose, voucher }: Props) {
+  const { t: tp } = useTranslation('pettyCash');
   if (!voucher) return null;
 
   return (
@@ -37,7 +40,7 @@ export function VoucherDetailDrawer({ opened, onClose, voucher }: Props) {
       title={
         <Box>
           <Text fw={650} fz="md" c="dark.9">
-            Rincian voucher
+            {tp('drawer.title')}
           </Text>
           <Text fz="xs" c="dimmed" mt={2}>
             {voucher.voucherNumber}
@@ -50,13 +53,13 @@ export function VoucherDetailDrawer({ opened, onClose, voucher }: Props) {
           <Group justify="space-between" align="flex-end" gap="md">
             <Box>
               <Text size="xs" c="dimmed" mb={6}>
-                Nilai pengeluaran
+                {tp('drawer.amount')}
               </Text>
               <Text className={classes.amount}>{formatCurrency(voucher.amount)}</Text>
             </Box>
             <Box className={classes.status} mb={5}>
               <span className={classes.statusDot} aria-hidden="true" />
-              {STATUS_LABELS[voucher.status]}
+              {tp(STATUS_LABEL_KEYS[voucher.status])}
             </Box>
           </Group>
           <Text fz="xs" c="dimmed" mt="sm">
@@ -66,15 +69,15 @@ export function VoucherDetailDrawer({ opened, onClose, voucher }: Props) {
 
         <Box component="dl" className={classes.detailList}>
           <div className={classes.detailRow}>
-            <dt>Dana kas kecil</dt>
+            <dt>{tp('drawer.fund')}</dt>
             <dd>{voucher.fundName}</dd>
           </div>
           <div className={classes.detailRow}>
-            <dt>Penerima</dt>
+            <dt>{tp('drawer.beneficiary')}</dt>
             <dd>{voucher.beneficiary}</dd>
           </div>
           <div className={classes.detailRow}>
-            <dt>Akun beban</dt>
+            <dt>{tp('drawer.account')}</dt>
             <dd>
               <Text span c="dimmed" fw={500} mr={6}>
                 {voucher.expenseAccount.code}
@@ -83,14 +86,14 @@ export function VoucherDetailDrawer({ opened, onClose, voucher }: Props) {
             </dd>
           </div>
           <div className={classes.detailRow}>
-            <dt>No. bukti</dt>
-            <dd>{voucher.receiptNumber || 'Tidak dicantumkan'}</dd>
+            <dt>{tp('drawer.receiptNo')}</dt>
+            <dd>{voucher.receiptNumber || tp('drawer.notProvided')}</dd>
           </div>
         </Box>
 
         <Box>
           <Text fz="xs" c="dimmed" mb={7}>
-            Keperluan
+            {tp('common.purpose')}
           </Text>
           <Text fz="sm" c="dark.8" lh={1.65}>
             {voucher.description}
@@ -105,10 +108,10 @@ export function VoucherDetailDrawer({ opened, onClose, voucher }: Props) {
                 {voucher.attachmentName}
               </Text>
               <Text fz={11} c="dimmed">
-                Bukti pengeluaran
+                {tp('drawer.evidence')}
               </Text>
             </Box>
-            <ActionIcon variant="subtle" color="primary" aria-label="Unduh lampiran">
+            <ActionIcon variant="subtle" color="primary" aria-label={tp('drawer.download')}>
               <IconDownload size={17} />
             </ActionIcon>
           </Box>
@@ -118,12 +121,11 @@ export function VoucherDetailDrawer({ opened, onClose, voucher }: Props) {
           <Group gap={8} mb="xs">
             <IconFileText size={17} color="var(--mantine-color-gray-6)" />
             <Text fz="sm" fw={650}>
-              Pencatatan akuntansi
+              {tp('drawer.accounting')}
             </Text>
           </Group>
           <Text fz="xs" c="dimmed" lh={1.55}>
-            Voucher ini menjadi dasar jurnal saat pengisian kembali dicairkan. Belum ada jurnal baru
-            yang diposting dari halaman ini.
+            {tp('drawer.accountingNote')}
           </Text>
         </Box>
 
@@ -131,14 +133,14 @@ export function VoucherDetailDrawer({ opened, onClose, voucher }: Props) {
           <IconUserCheck size={17} />
           <Box>
             <Text fz="xs" c="dimmed">
-              Dicatat oleh
+              {tp('drawer.recordedBy')}
             </Text>
             <Text fz="sm" fw={600} c="dark.8">
               {voucher.createdBy}
             </Text>
             {voucher.approvedBy && (
               <Text fz="xs" c="dimmed" mt={6}>
-                Diverifikasi oleh {voucher.approvedBy}
+                {tp('drawer.verifiedBy')} {voucher.approvedBy}
                 {voucher.approvedAt ? `, ${dateFormatV1(voucher.approvedAt)}` : ''}
               </Text>
             )}
@@ -146,7 +148,7 @@ export function VoucherDetailDrawer({ opened, onClose, voucher }: Props) {
         </Box>
 
         <Anchor component="button" type="button" size="sm" onClick={onClose} ta="left">
-          Tutup rincian
+          {tp('drawer.close')}
         </Anchor>
       </Stack>
     </Drawer>

@@ -4,7 +4,6 @@ import {
   Box,
   Button,
   Checkbox,
-  Divider,
   Group,
   Modal,
   Paper,
@@ -15,7 +14,7 @@ import {
   Textarea,
   ThemeIcon,
 } from '@mantine/core';
-import { IconBuildingBank, IconRefresh, IconScale } from '@tabler/icons-react';
+import { IconBuildingBank, IconRefresh } from '@tabler/icons-react';
 import { formatCurrency } from '@/utils/FormatCurrency';
 import { dateFormatV1 } from '@/utils/FormatDate';
 import {
@@ -25,6 +24,9 @@ import {
 } from '@/module/petty-cash/domain/pettyCashTypes';
 
 import { summarizeReimbursement } from '@/module/petty-cash/domain/reimbursementSummary';
+import { useTranslation } from '@/i18n';
+import { ReimbursementJournalPreview } from '@/module/petty-cash/presentation/components/ReimbursementJournalPreview';
+
 interface Props {
   opened: boolean;
   onClose: () => void;
@@ -42,6 +44,7 @@ export const ReplenishmentModal: React.FC<Props> = ({
   vouchers,
   onSubmitReimbursement,
 }) => {
+  const { t: tp } = useTranslation('pettyCash');
   const [fundId, setFundId] = useState<string>(selectedFund?.id || funds[0]?.id || '');
   const activeFund = funds.find((f) => f.id === fundId) || selectedFund || funds[0];
 
@@ -142,7 +145,7 @@ export const ReplenishmentModal: React.FC<Props> = ({
 
   const fundSelectData = funds.map((f) => ({
     value: f.id,
-    label: `${f.name} (Pagu: ${formatCurrency(f.pagu)})`,
+    label: tp('replenishment.fundOption', { name: f.name, ceiling: formatCurrency(f.pagu) }),
     disabled: f.status === 'FROZEN',
   }));
 
@@ -175,10 +178,10 @@ export const ReplenishmentModal: React.FC<Props> = ({
           </ThemeIcon>
           <div>
             <Text fw={700} fz={15} c="dark.9">
-              Pengajuan Pengisian Kembali Kas Kecil (Reimbursement)
+              {tp('replenishment.title')}
             </Text>
             <Text fz={11} c="dimmed">
-              Metode Imprest: Penggantian dana atas bukti pengeluaran yang telah diverifikasi
+              {tp('replenishment.subtitle')}
             </Text>
           </div>
         </Group>
@@ -189,16 +192,16 @@ export const ReplenishmentModal: React.FC<Props> = ({
           {/* Fund & Bank Selector */}
           <Group grow align="flex-start">
             <Select
-              label="Dana Kas Kecil yang Diganti"
-              placeholder="Pilih akun kas kecil..."
+              label={tp('replenishment.fund')}
+              placeholder={tp('replenishment.fundPlaceholder')}
               data={fundSelectData}
               value={fundId}
               onChange={(val) => val && setFundId(val)}
               required
             />
             <Select
-              label="Rekening Bank Sumber Penggantian"
-              placeholder="Pilih rekening bank pencair..."
+              label={tp('replenishment.bank')}
+              placeholder={tp('replenishment.bankPlaceholder')}
               data={bankSelectData}
               value={bankId}
               onChange={(val) => val && setBankId(val)}
@@ -212,13 +215,13 @@ export const ReplenishmentModal: React.FC<Props> = ({
             <Group justify="space-between" wrap="wrap">
               <div>
                 <Text size="xs" c="dimmed">
-                  Pagu Tetap (Limit):{' '}
+                  {tp('replenishment.ceiling')}{' '}
                   <Text span fw={700} c="dark.8">
                     {formatCurrency(activeFund?.pagu || 0)}
                   </Text>
                 </Text>
                 <Text size="xs" c="dimmed">
-                  Kas Fisik Saat Ini:{' '}
+                  {tp('replenishment.currentCash')}{' '}
                   <Text span fw={700} c="teal.8">
                     {formatCurrency(activeFund?.currentBalance || 0)}
                   </Text>
@@ -226,7 +229,7 @@ export const ReplenishmentModal: React.FC<Props> = ({
               </div>
               <div style={{ textAlign: 'right' }}>
                 <Text size="xs" c="dimmed">
-                  Estimasi Kas Setelah Reimburse:{' '}
+                  {tp('replenishment.estimateAfter')}{' '}
                   <Text span fw={800} c="teal.9">
                     {formatCurrency((activeFund?.currentBalance || 0) + totalReimburseAmount)}
                   </Text>
@@ -239,10 +242,11 @@ export const ReplenishmentModal: React.FC<Props> = ({
           <Box>
             <Group justify="space-between" mb="xs">
               <Text fw={700} fz={13} c="dark.9">
-                Pilih Voucher Pengeluaran untuk Diganti ({selectedVoucherIds.length} terpilih)
+                {tp('replenishment.selectVouchersPrefix')}
+                {selectedVoucherIds.length} {tp('replenishment.selectedSuffix')}
               </Text>
               <Checkbox
-                label="Pilih Semua Voucher"
+                label={tp('replenishment.selectAll')}
                 size="xs"
                 checked={
                   eligibleVouchers.length > 0 &&
@@ -265,7 +269,7 @@ export const ReplenishmentModal: React.FC<Props> = ({
               {eligibleVouchers.length === 0 ? (
                 <Box p="md" ta="center">
                   <Text size="xs" c="dimmed">
-                    Tidak ada voucher berstatus belum diganti pada kas kecil ini.
+                    {tp('replenishment.noVouchers')}
                   </Text>
                 </Box>
               ) : (
@@ -273,11 +277,11 @@ export const ReplenishmentModal: React.FC<Props> = ({
                   <Table.Thead bg="gray.0">
                     <Table.Tr>
                       <Table.Th style={{ width: 40 }} />
-                      <Table.Th>No. Voucher</Table.Th>
-                      <Table.Th>Tanggal</Table.Th>
-                      <Table.Th>Keperluan</Table.Th>
-                      <Table.Th>Akun Beban</Table.Th>
-                      <Table.Th style={{ textAlign: 'right' }}>Nominal</Table.Th>
+                      <Table.Th>{tp('common.voucherNumber')}</Table.Th>
+                      <Table.Th>{tp('common.date')}</Table.Th>
+                      <Table.Th>{tp('common.purpose')}</Table.Th>
+                      <Table.Th>{tp('common.expenseAccount')}</Table.Th>
+                      <Table.Th style={{ textAlign: 'right' }}>{tp('common.amount')}</Table.Th>
                     </Table.Tr>
                   </Table.Thead>
                   <Table.Tbody>
@@ -332,62 +336,15 @@ export const ReplenishmentModal: React.FC<Props> = ({
             </Paper>
           </Box>
 
-          {/* Double-Entry Auto Journal Preview */}
-          <Paper withBorder radius="md" p="md" bg="gray.0">
-            <Group justify="space-between" mb="xs">
-              <Group gap={6}>
-                <ThemeIcon size={24} radius="md" variant="light" color="primary">
-                  <IconScale size={14} />
-                </ThemeIcon>
-                <Text fw={700} fz={12} c="dark.9">
-                  Simulasi Otomatis Jurnal Pengisian Kembali (General Ledger)
-                </Text>
-              </Group>
-              <Badge color="primary" variant="light" size="sm">
-                Seimbang: {formatCurrency(totalReimburseAmount)}
-              </Badge>
-            </Group>
-
-            <Text fz={11} c="dimmed" mb="xs">
-              Saat pengisian kembali ini dicairkan, sistem akan mendebit seluruh akun beban
-              operasional dan mengkredit rekening bank penarik:
-            </Text>
-
-            <Box
-              p="xs"
-              bg="white"
-              style={{
-                borderRadius: 6,
-                border: '1px solid var(--mantine-color-gray-2)',
-                fontFamily: 'monospace',
-                fontSize: 11,
-              }}
-            >
-              {expenseBreakdown.map((item) => (
-                <Group key={item.code} justify="space-between" py={2}>
-                  <Text fz={11} c="dark.8">
-                    (Dr) {item.code} - {item.name}
-                  </Text>
-                  <Text fz={11} fw={700} c="dark.8">
-                    {formatCurrency(item.amount)}
-                  </Text>
-                </Group>
-              ))}
-              <Divider my={4} />
-              <Group justify="space-between" py={2}>
-                <Text fz={11} c="dark.8">
-                  (Cr) {selectedBank?.label ?? activeFund?.bankSourceAccount.name}
-                </Text>
-                <Text fz={11} fw={700} c="dark.8">
-                  {formatCurrency(totalReimburseAmount)}
-                </Text>
-              </Group>
-            </Box>
-          </Paper>
+          <ReimbursementJournalPreview
+            total={totalReimburseAmount}
+            breakdown={expenseBreakdown}
+            bankLabel={selectedBank?.label ?? activeFund?.bankSourceAccount.name}
+          />
 
           <Textarea
-            label="Catatan Pengajuan (Opsional)"
-            placeholder="Catatan tambahan untuk verifikasi bagian keuangan..."
+            label={tp('replenishment.notes')}
+            placeholder={tp('replenishment.notesPlaceholder')}
             rows={2}
             value={notes}
             onChange={(e) => setNotes(e.currentTarget.value)}
@@ -395,7 +352,7 @@ export const ReplenishmentModal: React.FC<Props> = ({
 
           <Group justify="flex-end" mt="md">
             <Button variant="default" onClick={onClose}>
-              Batal
+              {tp('common.cancel')}
             </Button>
             <Button
               type="submit"
@@ -404,7 +361,8 @@ export const ReplenishmentModal: React.FC<Props> = ({
               disabled={selectedVoucherIds.length === 0 || totalReimburseAmount <= 0}
               leftSection={<IconRefresh size={16} />}
             >
-              Ajukan Pengisian Kembali ({formatCurrency(totalReimburseAmount)})
+              {tp('replenishment.submitPrefix')}
+              {formatCurrency(totalReimburseAmount)})
             </Button>
           </Group>
         </Stack>

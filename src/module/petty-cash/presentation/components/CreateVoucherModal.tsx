@@ -28,6 +28,8 @@ import { formatCurrency } from '@/utils/FormatCurrency';
 import { PettyCashFund, PettyCashVoucher } from '@/module/petty-cash/domain/pettyCashTypes';
 import { MOCK_EXPENSE_ACCOUNTS } from '@/module/petty-cash/infrastructure/mockPettyCashFunds';
 
+import { useTranslation } from '@/i18n';
+
 interface Props {
   opened: boolean;
   onClose: () => void;
@@ -43,6 +45,7 @@ export const CreateVoucherModal: React.FC<Props> = ({
   selectedFund,
   onSubmit,
 }) => {
+  const { t: tp } = useTranslation('pettyCash');
   const [fundId, setFundId] = useState<string>(selectedFund?.id || funds[0]?.id || '');
   const [date, setDate] = useState<string | null>(dayjs().format('YYYY-MM-DD'));
   const [beneficiary, setBeneficiary] = useState('');
@@ -109,7 +112,10 @@ export const CreateVoucherModal: React.FC<Props> = ({
 
   const fundSelectData = funds.map((f) => ({
     value: f.id,
-    label: `${f.name} (Sisa Fisik: ${formatCurrency(f.currentBalance)})`,
+    label: tp('createVoucher.fundOption', {
+      name: f.name,
+      balance: formatCurrency(f.currentBalance),
+    }),
     disabled: f.status === 'FROZEN',
   }));
 
@@ -131,10 +137,10 @@ export const CreateVoucherModal: React.FC<Props> = ({
           </ThemeIcon>
           <div>
             <Text fw={700} fz={15} c="dark.9">
-              Catat Voucher Pengeluaran Kas Kecil
+              {tp('createVoucher.title')}
             </Text>
             <Text fz={11} c="dimmed">
-              Pencatatan bukti kwitansi / Bukti Pengeluaran Kas Kecil (BPKK)
+              {tp('createVoucher.subtitle')}
             </Text>
           </div>
         </Group>
@@ -144,9 +150,9 @@ export const CreateVoucherModal: React.FC<Props> = ({
         <Stack gap="md">
           {/* Fund Selector */}
           <Select
-            label="Akun Kas Kecil Sumber"
-            description="Pilih pos kas kecil pemegang dana operasional"
-            placeholder="Pilih dana kas kecil..."
+            label={tp('createVoucher.fund')}
+            description={tp('createVoucher.fundHint')}
+            placeholder={tp('createVoucher.fundPlaceholder')}
             data={fundSelectData}
             value={fundId}
             onChange={(val) => val && setFundId(val)}
@@ -156,8 +162,8 @@ export const CreateVoucherModal: React.FC<Props> = ({
           <Grid gutter="sm">
             <Grid.Col span={{ base: 12, sm: 6 }}>
               <DatePickerInput
-                label="Tanggal Transaksi"
-                placeholder="Pilih tanggal..."
+                label={tp('createVoucher.date')}
+                placeholder={tp('createVoucher.datePlaceholder')}
                 value={date}
                 onChange={setDate}
                 leftSection={<IconCalendar size={16} />}
@@ -167,8 +173,8 @@ export const CreateVoucherModal: React.FC<Props> = ({
 
             <Grid.Col span={{ base: 12, sm: 6 }}>
               <TextInput
-                label="Penerima Dana (Beneficiary)"
-                placeholder="Contoh: Bambang (Driver), Toko Gramedia"
+                label={tp('createVoucher.beneficiary')}
+                placeholder={tp('createVoucher.beneficiaryPlaceholder')}
                 value={beneficiary}
                 onChange={(e) => setBeneficiary(e.currentTarget.value)}
                 required
@@ -178,9 +184,9 @@ export const CreateVoucherModal: React.FC<Props> = ({
 
           {/* Expense Account */}
           <Select
-            label="Kategori / Pos Akun Beban (COA)"
-            description="Klasifikasi pembukuan saat reimbursement nanti"
-            placeholder="Pilih akun beban operasional..."
+            label={tp('createVoucher.account')}
+            description={tp('createVoucher.accountHint')}
+            placeholder={tp('createVoucher.accountPlaceholder')}
             data={expenseSelectData}
             value={expenseAccountId}
             onChange={(val) => val && setExpenseAccountId(val)}
@@ -190,8 +196,8 @@ export const CreateVoucherModal: React.FC<Props> = ({
 
           {/* Amount & Realtime Balance Check */}
           <NumberInput
-            label="Nominal Pengeluaran (Rp)"
-            description={`Maksimum uang fisik tersedia di kasir: ${formatCurrency(maxAvailable)}`}
+            label={tp('createVoucher.amount')}
+            description={tp('createVoucher.maxAvailable', { amount: formatCurrency(maxAvailable) })}
             placeholder="0"
             prefix="Rp "
             thousandSeparator="."
@@ -201,7 +207,7 @@ export const CreateVoucherModal: React.FC<Props> = ({
             onChange={(val) => setAmount(typeof val === 'number' ? val : '')}
             error={
               isOverLimit
-                ? `Nominal melebihi sisa kas fisik (${formatCurrency(maxAvailable)})!`
+                ? tp('createVoucher.exceeds', { amount: formatCurrency(maxAvailable) })
                 : undefined
             }
             required
@@ -211,14 +217,15 @@ export const CreateVoucherModal: React.FC<Props> = ({
           {isOverLimit && (
             <Alert
               icon={<IconAlertCircle size={16} />}
-              title="Peringatan Kas Tidak Cukup"
+              title={tp('createVoucher.insufficientTitle')}
               color="red"
               variant="light"
               radius="md"
             >
-              Saldo fisik uang tunai pada kas kecil ini tidak mencukupi untuk pembayaran{' '}
-              <strong>{formatCurrency(numAmount)}</strong>. Harap ajukan{' '}
-              <strong>Pengisian Kembali (Reimbursement)</strong> terlebih dahulu.
+              {tp('createVoucher.insufficientBefore')} <strong>{formatCurrency(numAmount)}</strong>
+              {tp('createVoucher.insufficientMiddle')}{' '}
+              <strong>{tp('createVoucher.insufficientAction')}</strong>{' '}
+              {tp('createVoucher.insufficientAfter')}
             </Alert>
           )}
 
@@ -227,22 +234,22 @@ export const CreateVoucherModal: React.FC<Props> = ({
             <Paper withBorder radius="md" p="xs" bg="primary.0">
               <Group justify="space-between">
                 <Text fz={11} c="primary.9">
-                  Simulasi Sisa Kas Fisik:{' '}
+                  {tp('createVoucher.remaining')}{' '}
                   <Text span fw={700}>
                     {formatCurrency(maxAvailable)} - {formatCurrency(numAmount)} ={' '}
                     {formatCurrency(remainingAfter)}
                   </Text>
                 </Text>
                 <Text fz={11} fw={700} c="primary.8">
-                  Kas Cukup ✓
+                  {tp('createVoucher.enough')}
                 </Text>
               </Group>
             </Paper>
           )}
 
           <Textarea
-            label="Deskripsi Keperluan Pengeluaran"
-            placeholder="Tuliskan tujuan pengeluaran, nomor plat kendaraan, atau rincian barang..."
+            label={tp('createVoucher.description')}
+            placeholder={tp('createVoucher.descriptionPlaceholder')}
             rows={2}
             value={description}
             onChange={(e) => setDescription(e.currentTarget.value)}
@@ -252,8 +259,8 @@ export const CreateVoucherModal: React.FC<Props> = ({
           <Grid gutter="sm">
             <Grid.Col span={{ base: 12, sm: 6 }}>
               <TextInput
-                label="Nomor Struk / Nota Fisik"
-                placeholder="Contoh: SPBU-8812, INV-0091"
+                label={tp('createVoucher.receipt')}
+                placeholder={tp('createVoucher.receiptPlaceholder')}
                 value={receiptNumber}
                 onChange={(e) => setReceiptNumber(e.currentTarget.value)}
               />
@@ -261,8 +268,8 @@ export const CreateVoucherModal: React.FC<Props> = ({
 
             <Grid.Col span={{ base: 12, sm: 6 }}>
               <FileInput
-                label="Lampiran Bukti / Kwitansi"
-                placeholder="Unggah foto struk/nota..."
+                label={tp('createVoucher.attachment')}
+                placeholder={tp('createVoucher.attachmentPlaceholder')}
                 leftSection={<IconPaperclip size={16} />}
                 value={attachment}
                 onChange={setAttachment}
@@ -273,7 +280,7 @@ export const CreateVoucherModal: React.FC<Props> = ({
 
           <Group justify="flex-end" mt="md">
             <Button variant="default" onClick={onClose}>
-              Batal
+              {tp('common.cancel')}
             </Button>
             <Button
               type="submit"
@@ -282,7 +289,7 @@ export const CreateVoucherModal: React.FC<Props> = ({
               disabled={isOverLimit || numAmount <= 0 || !beneficiary.trim()}
               leftSection={<IconPlus size={16} />}
             >
-              Simpan Voucher Pengeluaran
+              {tp('createVoucher.submit')}
             </Button>
           </Group>
         </Stack>
