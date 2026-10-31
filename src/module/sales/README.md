@@ -38,3 +38,8 @@ Server data and cache are TanStack Query (`saleKeys`, unchanged). Errors from `s
 - The generated invoice PDF file name is `Faktur-<number>.pdf` in both languages.
 - The mapper treats non-number amounts as 0 (strings are not parsed) until the backend confirms whether it sends decimal strings.
 - The invoice detail does not offer edit, void or delete; there are no endpoints wired for them.
+
+## Totals and statuses (2026-10-31)
+
+- A discount (percentage or nominal) is capped at the subtotal, so the total and the final amount are never negative.
+- Draft and void sales are not receivables: `isPastDue` is false for them and `summarizeSales` leaves them out of every figure, like the dashboard does.

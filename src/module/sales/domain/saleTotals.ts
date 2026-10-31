@@ -45,14 +45,22 @@ const adjustmentCents = (type: 'percentage' | 'nominal', value: number, subtotal
   if (!(value > 0)) {
     return 0;
   }
-  return type === 'percentage' ? roundMinor((subtotal * value) / 100) : toCents(value);
+  const amount = type === 'percentage' ? roundMinor((subtotal * value) / 100) : toCents(value);
+  return amount;
 };
+
+/** A discount can never exceed the amount it applies to. */
+const cappedDiscountCents = (
+  type: 'percentage' | 'nominal',
+  value: number,
+  subtotal: number
+): number => Math.min(adjustmentCents(type, value, subtotal), subtotal);
 
 export const calculateSaleTotals = (input: SaleTotalsInput): SaleTotals => {
   const lines = input.lines.map(lineCents);
   const subtotal = sumMinor(lines.map((line) => line.subtotal));
   const tax = sumMinor(lines.map((line) => line.tax));
-  const discount = adjustmentCents(input.discountType, input.discountValue, subtotal);
+  const discount = cappedDiscountCents(input.discountType, input.discountValue, subtotal);
   const withholding = adjustmentCents(input.withholdingType, input.withholdingValue, subtotal);
   const total = subtotal - discount + tax;
 
@@ -70,20 +78,30 @@ export const calculateSaleTotals = (input: SaleTotalsInput): SaleTotals => {
 export const remainingAfterPayment = (remainingAmount: number, paymentAmount: number): number =>
   fromCents(toCents(remainingAmount) - toCents(paymentAmount));
 
-export const isPastDue = (sale: Pick<Sale, 'remainingAmount' | 'dueDate'>, now: number): boolean =>
+/** Draft and void sales are not receivables, so they are never overdue. */
+const NOT_RECEIVABLE = ['DRAFT', 'VOID'];
+const isReceivable = (sale: Pick<Sale, 'status'>): boolean =>
+  !NOT_RECEIVABLE.includes(String(sale.status || '').toUpperCase());
+
+export const isPastDue = (
+  sale: Pick<Sale, 'remainingAmount' | 'dueDate' | 'status'>,
+  now: number
+): boolean =>
+  isReceivable(sale) &&
   sale.remainingAmount > 0 &&
   Boolean(sale.dueDate) &&
   new Date(sale.dueDate as string).getTime() < now;
 
 export const summarizeSales = (sales: Sale[], now: number): SaleListSummary => {
+  const receivables = sales.filter(isReceivable);
   const cents = (pick: (sale: Sale) => number) =>
-    sumMinor(sales.map((sale) => toCents(pick(sale) || 0)));
+    sumMinor(receivables.map((sale) => toCents(pick(sale) || 0)));
 
   return {
     totalAmount: fromCents(cents((sale) => sale.finalAmount)),
     paidAmount: fromCents(cents((sale) => sale.paidAmount)),
     remainingAmount: fromCents(cents((sale) => sale.remainingAmount)),
-    overdueCount: sales.filter((sale) => isPastDue(sale, now)).length,
+    overdueCount: receivables.filter((sale) => isPastDue(sale, now)).length,
   };
 };
 
