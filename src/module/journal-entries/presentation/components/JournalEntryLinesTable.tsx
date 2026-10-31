@@ -21,7 +21,7 @@ import {
   IconBook2,
 } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
-import { formatCurrency } from '@/utils/FormatCurrency';
+import { formatCurrency } from '@/utils/formatCurrency';
 import { routes } from '@/router/routes';
 import { EmptyState } from '@/components/EmptyState';
 import { useTranslation } from '@/i18n';

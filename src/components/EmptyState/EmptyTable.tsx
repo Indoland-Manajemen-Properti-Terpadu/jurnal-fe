@@ -1,6 +1,6 @@
 import React from 'react';
 import { Stack, Text, Image, AspectRatio, Paper } from '@mantine/core';
-import defaultEmptyImage from '@/assets/img/Empty-Dataa.svg'
+import defaultEmptyImage from '@/assets/images/illustrations/empty-table.svg'
 
 interface EmptyStateProps {
     title?: string;

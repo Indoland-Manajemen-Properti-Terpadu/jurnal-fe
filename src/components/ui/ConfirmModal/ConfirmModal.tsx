@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Button, CloseButton, Group, Image, Modal, Stack, Text } from '@mantine/core';
 import { IconTrash } from '@tabler/icons-react';
-import deleteModalImage from '@/assets/img/vectors/delete_modal.svg';
+import deleteModalImage from '@/assets/images/illustrations/delete-confirm.svg';
 
 import type { ConfirmModalProps } from './ConfirmModal.types';
 

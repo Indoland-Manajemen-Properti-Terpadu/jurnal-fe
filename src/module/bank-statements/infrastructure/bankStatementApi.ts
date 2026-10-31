@@ -1,6 +1,6 @@
 import axios from 'axios';
 import apiClient from '@/lib/http/apiClient';
-import { API_ACCOUNT } from '@/services/endpoint';
+import { API_ACCOUNT } from '@/lib/http/endpoints';
 import type { ConfirmImportPayload } from '../domain/importDraft';
 import { toStatementRows } from './bankStatementMapper';
 import type { BankStatementModelV2 } from '../domain/bankStatement';

@@ -1,4 +1,4 @@
-import { API_ACCOUNT } from '@/services/endpoint';
+import { API_ACCOUNT } from '@/lib/http/endpoints';
 import { useQuery } from '@tanstack/react-query';
 import { get } from '@/lib/http/apiClient';
 import { CategoryAccountModel } from '../../domain/categoryAccount';

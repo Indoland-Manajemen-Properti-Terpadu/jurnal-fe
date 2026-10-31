@@ -1,5 +1,5 @@
 import { themeColors } from '@/theme';
-import { dateFormatV2 } from '@/utils/FormatDate';
+import { dateFormatV2 } from '@/utils/formatDate';
 import { Box, Group, Stack, Text } from '@mantine/core';
 
 import { useTranslation } from '@/i18n';

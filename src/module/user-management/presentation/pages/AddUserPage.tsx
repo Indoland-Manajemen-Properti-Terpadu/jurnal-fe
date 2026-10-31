@@ -20,7 +20,7 @@ import { IconCards, IconUsers } from '@tabler/icons-react';
 import { routes } from '@/router/routes';
 import { useNavigate } from 'react-router-dom';
 import { gradientColors, themeColors } from '@/theme';
-import UserType from '@/../public/mocks/UserType.json';
+import { USER_TYPES } from '@/module/user-management/domain/userTypeOptions';
 import AppShellLayout from '@/components/AppShellLayout';
 import { TextMediumGR } from '@/components/Text/CustomText';
 import PageHeaderV2 from '@/components/PageHeader/PageHeaderV2';
@@ -48,11 +48,11 @@ export default function AddUserPage() {
   // const { defaultRoles, additionalRoles } = useRoleStore();
   const [activeTabUser, setActiveTabUser] = useState<string>('ListUser');
 
-  // * Combobox UserType Handler
+  // * Combobox USER_TYPES Handler
   const combobox = useCombobox({
     onDropdownClose: () => combobox.resetSelectedOption(),
   });
-  const options = UserType.map((item) => (
+  const options = USER_TYPES.map((item) => (
     <Combobox.Option value={item} key={item}>
       {item}
     </Combobox.Option>

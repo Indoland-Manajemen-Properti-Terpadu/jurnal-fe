@@ -14,7 +14,7 @@ import {
 import { DateInput } from '@mantine/dates';
 import dayjs from 'dayjs';
 import { IconCheck, IconCoins } from '@tabler/icons-react';
-import { formatCurrency } from '@/utils/FormatCurrency';
+import { formatCurrency } from '@/utils/formatCurrency';
 import { PayPurchasePayload, PurchaseBill } from '@/module/purchases/domain/purchase';
 import { useTranslation } from '@/i18n';
 

@@ -3,7 +3,7 @@ import { IconTrash } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import { themeColors } from '@/theme';
 import { themeText } from '@/theme/constants';
-import DeleteIllustration from '@/assets/img/vectors/delete_modal.svg';
+import DeleteIllustration from '@/assets/images/illustrations/delete-confirm.svg';
 
 interface DeleteJournalEntryModalProps {
   opened: boolean;

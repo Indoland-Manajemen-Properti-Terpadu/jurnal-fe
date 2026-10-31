@@ -1,6 +1,6 @@
 import axios from 'axios';
 import apiClient from '@/lib/http/apiClient';
-import { API_ACCOUNT, BASE_URL } from '@/services/endpoint';
+import { API_ACCOUNT, BASE_URL } from '@/lib/http/endpoints';
 import type {
   AccountOption,
   MasterDataInput,

@@ -11,8 +11,8 @@ import {
   Tooltip,
 } from '@mantine/core';
 import { IconEye, IconPaperclip } from '@tabler/icons-react';
-import { formatCurrency } from '@/utils/FormatCurrency';
-import { dateFormatV1 } from '@/utils/FormatDate';
+import { formatCurrency } from '@/utils/formatCurrency';
+import { dateFormatV1 } from '@/utils/formatDate';
 import { PettyCashVoucher } from '@/module/petty-cash/domain/pettyCashTypes';
 import { useTranslation } from '@/i18n';
 

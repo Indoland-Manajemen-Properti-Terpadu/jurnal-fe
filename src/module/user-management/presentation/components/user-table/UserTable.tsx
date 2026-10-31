@@ -18,7 +18,7 @@ import { openConfirmModal } from '@mantine/modals';
 import { gradientColors, themeColors } from '@/theme';
 import { ActiveBadge, InactiveBadge } from '@/components/Badge/Badge';
 import EmptyState from '@/components/EmptyState/EmptyTable';
-import defaultEmptyImage from '@/assets/img/Empty-Data.svg';
+import defaultEmptyImage from '@/assets/images/illustrations/empty-data.svg';
 import LoadingErrorState from '@/module/user-management/presentation/components/user-table/ErrorHandlingUserTable';
 import { AllUserModel, Result } from '@/module/user-management/domain/userTypes';
 import { navigate } from '@/router';

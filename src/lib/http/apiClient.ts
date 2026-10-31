@@ -1,7 +1,7 @@
 /* eslint-disable linebreak-style */
 import axios from 'axios';
 import { routes } from '@/router/routes';
-import { BASE_URL, API_AUTH } from '@/services/endpoint';
+import { BASE_URL, API_AUTH } from '@/lib/http/endpoints';
 import { useAuthStore } from '@/store/useAuthentications';
 import { useApiLoadingStore } from '@/store/useApiLoading';
 

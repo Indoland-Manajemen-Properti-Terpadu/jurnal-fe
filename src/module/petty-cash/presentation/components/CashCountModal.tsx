@@ -12,7 +12,7 @@ import {
   TextInput,
 } from '@mantine/core';
 import { IconCheck, IconInfoCircle } from '@tabler/icons-react';
-import { formatCurrency } from '@/utils/FormatCurrency';
+import { formatCurrency } from '@/utils/formatCurrency';
 import type {
   PettyCashCount,
   PettyCashFund,

@@ -14,7 +14,7 @@ import {
   Tooltip,
 } from '@mantine/core';
 import { IconAlertTriangle, IconCheck, IconChevronLeft, IconSearch } from '@tabler/icons-react';
-import { formatCurrency } from '@/utils/FormatCurrency';
+import { formatCurrency } from '@/utils/formatCurrency';
 import { useTranslation } from '@/i18n';
 import type {
   ImportFilter,

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { AspectRatio, Box, Center, Grid, Group, Image, Paper, Text } from '@mantine/core';
 import { IconShieldCheck } from '@tabler/icons-react';
 import { useLocation } from 'react-router-dom';
-import LogoProapps from '@/assets/img/proapps-logo.svg';
+import LogoProapps from '@/assets/images/brand/logo.svg';
 import { useLogin } from '@/module/authentication/presentation/hooks/useLogin';
 import { AuthVisualSide } from '@/module/authentication/presentation/components/AuthVisualSide';
 import { LoginForm } from '@/module/authentication/presentation/components/LoginForm';

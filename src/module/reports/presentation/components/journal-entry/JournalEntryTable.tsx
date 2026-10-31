@@ -1,8 +1,8 @@
 import React from 'react';
 import { Stack, Table, Text } from '@mantine/core';
 import { gradientColors, themeColors } from '@/theme';
-import { formatCurrency } from '@/utils/FormatCurrency';
-import { dateFormatV1, dateFormatV2 } from '@/utils/FormatDate';
+import { formatCurrency } from '@/utils/formatCurrency';
+import { dateFormatV1, dateFormatV2 } from '@/utils/formatDate';
 import EmptyState from '@/components/EmptyState/EmptyTable';
 import { ReportJournalEntryModel } from '@/module/reports/domain/JournalEntry.types';
 import { calcJournalEntryTotals } from '@/module/reports/domain/journalEntryTotals';

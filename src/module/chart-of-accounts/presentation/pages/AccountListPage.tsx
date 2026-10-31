@@ -15,7 +15,7 @@ import { ConfirmModal } from '@/components';
 import { routes } from '@/router/routes';
 import { useDraftAccount, BeginningBalanceModal } from '@/module/beginning-balances';
 import { PeriodAndClosingBooksModal } from '@/module/period-closing';
-import deleteModalImage from '@/assets/img/vectors/delete_modal.svg';
+import deleteModalImage from '@/assets/images/illustrations/delete-confirm.svg';
 import useAccountStore from '../hooks/useAccountStore';
 import { useDeleteAccount } from '../hooks/useDeleteAccount';
 import { SettingAccountModal } from './SettingAccountModal';

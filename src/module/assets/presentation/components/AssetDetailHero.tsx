@@ -14,7 +14,7 @@ import {
 } from '@mantine/core';
 import { IconCalendar, IconCheck, IconCopy } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
-import { formatCurrency } from '@/utils/FormatCurrency';
+import { formatCurrency } from '@/utils/formatCurrency';
 import { AssetItem } from '@/module/assets/domain/asset';
 import {
   depreciationPercent,

@@ -25,7 +25,7 @@ import { useTranslation } from '@/i18n';
 import { routes } from '@/router/routes';
 import { ConfirmModal } from '@/components';
 import { JournalEmptyState } from '@/components/EmptyState/JournalEmptyState';
-import deleteModalImage from '@/assets/img/vectors/delete_modal.svg';
+import deleteModalImage from '@/assets/images/illustrations/delete-confirm.svg';
 import {
   JournalEntriesTable,
   useDeleteJournalEntries,

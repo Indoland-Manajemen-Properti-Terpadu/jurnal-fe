@@ -21,7 +21,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
 import { ConfirmModal } from '@/components';
-import importModalImage from '@/assets/img/vectors/import.svg';
+import importModalImage from '@/assets/images/illustrations/import.svg';
 import ImportBankStatementDraftTable from '../components/ImportBankStatementDraftTable';
 import { buildConfirmPayload } from '../../domain/importDraft';
 import { loadImportPreview } from '../../infrastructure/importDraftStorage';

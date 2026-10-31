@@ -1,11 +1,11 @@
 import React from 'react';
 import { Stack, Table, Text } from '@mantine/core';
 import { gradientColors, themeColors } from '@/theme';
-import { formatCurrency } from '@/utils/FormatCurrency';
+import { formatCurrency } from '@/utils/formatCurrency';
 import EmptyState from '@/components/EmptyState/EmptyTable';
 import { useEquityChangeReport } from '@/module/reports/presentation/hooks/useEquityChangeReport';
 import { NotFound } from '@/components/ErrorPage/NotFound';
-import { dateFormatV2 } from '@/utils/FormatDate';
+import { dateFormatV2 } from '@/utils/formatDate';
 
 import { useTranslation } from '@/i18n';
 

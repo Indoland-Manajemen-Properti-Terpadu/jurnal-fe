@@ -5,12 +5,12 @@ import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 import AppShellLayout from '@/components/AppShellLayout';
 import { ConfirmModal } from '@/components';
-import deleteModalImage from '@/assets/img/vectors/delete_modal.svg';
+import deleteModalImage from '@/assets/images/illustrations/delete-confirm.svg';
 import { useJournalAccounts, type JournalAccounts } from '@/module/chart-of-accounts';
 import { routes } from '@/router/routes';
 import { useTranslation } from '@/i18n';
-import { formatCurrency } from '@/utils/FormatCurrency';
-import { dateFormatV1 } from '@/utils/FormatDate';
+import { formatCurrency } from '@/utils/formatCurrency';
+import { dateFormatV1 } from '@/utils/formatDate';
 import {
   buildBalancePayload,
   checkOpeningPublish,

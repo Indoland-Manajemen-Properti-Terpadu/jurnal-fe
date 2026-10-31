@@ -1,5 +1,5 @@
 import { Box, Group, Paper, Progress, SimpleGrid, Stack, Text } from '@mantine/core';
-import { formatCurrency } from '@/utils/FormatCurrency';
+import { formatCurrency } from '@/utils/formatCurrency';
 import type { PettyCashFund } from '@/module/petty-cash/domain/pettyCashTypes';
 
 interface Props {

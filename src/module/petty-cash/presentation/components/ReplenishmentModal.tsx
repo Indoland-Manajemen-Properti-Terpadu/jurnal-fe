@@ -15,8 +15,8 @@ import {
   ThemeIcon,
 } from '@mantine/core';
 import { IconBuildingBank, IconRefresh } from '@tabler/icons-react';
-import { formatCurrency } from '@/utils/FormatCurrency';
-import { dateFormatV1 } from '@/utils/FormatDate';
+import { formatCurrency } from '@/utils/formatCurrency';
+import { dateFormatV1 } from '@/utils/formatDate';
 import {
   PettyCashFund,
   PettyCashReimbursement,

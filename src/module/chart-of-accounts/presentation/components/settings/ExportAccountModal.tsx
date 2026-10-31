@@ -13,7 +13,7 @@ import {
   ThemeIcon,
 } from '@mantine/core';
 import { IconDownload, IconFileSpreadsheet, IconInfoCircle } from '@tabler/icons-react';
-import ImageExport from '@/assets/img/SettingsAccount-Export.svg';
+import ImageExport from '@/assets/images/illustrations/settings-account-export.svg';
 import { useTranslation } from '@/i18n';
 import { useAccountSettings } from '../../hooks/useAccountSettings';
 

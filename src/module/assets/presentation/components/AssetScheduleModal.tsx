@@ -13,7 +13,7 @@ import {
   ThemeIcon,
 } from '@mantine/core';
 import { IconCalendarStats, IconMapPin, IconTimeline } from '@tabler/icons-react';
-import { formatCurrency } from '@/utils/FormatCurrency';
+import { formatCurrency } from '@/utils/formatCurrency';
 import { AssetItem } from '@/module/assets/domain/asset';
 import {
   depreciationPercent,

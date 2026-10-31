@@ -3,8 +3,8 @@ import { AppShell, Container, rem } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import AppMain from '@/components/AppMain';
 import FooterNav from '@/components/FooterNav';
-import HeaderNav from '@/components/HeaderNav/page';
-import NavbarComponent from '@/components/Navbar/page';
+import HeaderNav from '@/components/HeaderNav/HeaderNav';
+import NavbarComponent from '@/components/Navbar/Navbar';
 import { semanticColors } from '@/theme/constants';
 import { primaryColor } from '@/theme';
 

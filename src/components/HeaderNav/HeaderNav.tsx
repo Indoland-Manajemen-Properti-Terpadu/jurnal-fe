@@ -34,7 +34,7 @@ import { useAuthStore } from '@/store/useAuthentications';
 import { usePendingChangesCount } from '@/module/pending-changes';
 import { useTranslation } from '@/i18n';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
-import classes from './page.module.css';
+import classes from '@/components/HeaderNav/HeaderNav.module.css';
 
 type HeaderNavProps = {
   mobileOpened?: boolean;

@@ -2,14 +2,15 @@ import { Button, Container, Flex, Image, Text } from '@mantine/core';
 import { IconDownload } from '@tabler/icons-react';
 import { themeColors } from '@/theme';
 import { useTranslation } from '@/i18n';
-import importTemplateImage from '@/assets/img/vectors/real estate _ blueprint, blueprints, plan, plans, city, development, building.svg';
+import importTemplateImage from '@/assets/images/illustrations/import-template.svg';
 
-const TEMPLATE_FILE = 'Bank Statement Template ProApps.csv';
+const TEMPLATE_URL = '/templates/csv/bank-statement-template.csv';
+const TEMPLATE_DOWNLOAD_NAME = 'Bank Statement Template ProApps.csv';
 
 const downloadTemplate = () => {
   const link = document.createElement('a');
-  link.href = `/templates/csv/${TEMPLATE_FILE}`;
-  link.download = TEMPLATE_FILE;
+  link.href = TEMPLATE_URL;
+  link.download = TEMPLATE_DOWNLOAD_NAME;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);

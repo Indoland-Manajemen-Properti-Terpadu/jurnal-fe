@@ -36,10 +36,10 @@ import { useAuthStore } from '@/store/useAuthentications';
 import { routes } from '@/router/routes';
 import { usePendingChangesCount } from '@/module/pending-changes';
 import { useTranslation } from '@/i18n';
-import { LinksGroup } from './Links/page';
-import classes from './page.module.css';
-import LogoProapps from '@/assets/img/proapps-brand-badge.svg';
-import IconProapps from '@/assets/img/proapps-brand-icon.svg';
+import { LinksGroup } from '@/components/Navbar/Links/NavLinksGroup';
+import classes from '@/components/Navbar/Navbar.module.css';
+import LogoProapps from '@/assets/images/brand/badge.svg';
+import IconProapps from '@/assets/images/brand/mark.svg';
 import { themeColors } from '@/theme';
 
 const getNavGroups = (t: (key: string) => string) => [

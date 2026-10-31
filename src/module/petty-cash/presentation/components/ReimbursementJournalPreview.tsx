@@ -1,7 +1,7 @@
 import React from 'react';
 import { Badge, Box, Divider, Group, Paper, Text, ThemeIcon } from '@mantine/core';
 import { IconScale } from '@tabler/icons-react';
-import { formatCurrency } from '@/utils/FormatCurrency';
+import { formatCurrency } from '@/utils/formatCurrency';
 import { useTranslation } from '@/i18n';
 
 import type { ReimbursementLine } from '@/module/petty-cash/domain/reimbursementSummary';

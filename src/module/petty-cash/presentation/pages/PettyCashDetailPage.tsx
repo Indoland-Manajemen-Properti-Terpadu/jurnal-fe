@@ -5,7 +5,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import ModuleHeader from '@/components/ModuleHeader/ModuleHeader';
 import { useTranslation } from '@/i18n';
 import { routes } from '@/router/routes';
-import { dateFormatV1 } from '@/utils/FormatDate';
+import { dateFormatV1 } from '@/utils/formatDate';
 import AppShellLayout from '@/components/AppShellLayout';
 import { CreateVoucherModal } from '@/module/petty-cash/presentation/components/CreateVoucherModal';
 import { PettyCashBalancePanel } from '@/module/petty-cash/presentation/components/PettyCashBalancePanel';

@@ -1,5 +1,5 @@
 import apiClient from '@/lib/http/apiClient';
-import { API_SETTINGS } from '@/services/endpoint';
+import { API_SETTINGS } from '@/lib/http/endpoints';
 import type {
   GeneralSetting,
   AccountMappingItem,

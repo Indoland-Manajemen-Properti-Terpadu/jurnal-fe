@@ -1,5 +1,5 @@
 import { Stack, Image, Title, Text, Button } from '@mantine/core';
-import EmptyDataImage from '@/assets/img/vectors/Empty-Data.svg';
+import EmptyDataImage from '@/assets/images/illustrations/empty-data.svg';
 import { MoneyWavyIcon } from '@phosphor-icons/react';
 
 interface JournalEmptyStateProps {

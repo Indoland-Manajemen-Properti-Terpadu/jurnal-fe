@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Box, Collapse, Group, Text, Tooltip, UnstyledButton } from '@mantine/core';
 import { CaretRight } from '@phosphor-icons/react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import classes from './page.module.css';
+import classes from '@/components/Navbar/Links/NavLinksGroup.module.css';
 import { isNavigationChildActive, isNavigationLinkActive } from '../activeNavigation';
 
 interface LinksGroupProps {

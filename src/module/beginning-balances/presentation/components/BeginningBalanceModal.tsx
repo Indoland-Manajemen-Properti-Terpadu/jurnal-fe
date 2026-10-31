@@ -6,7 +6,7 @@ import { routes } from '@/router/routes';
 import { notifications } from '@mantine/notifications';
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
-import { dateFormatV1 } from '@/utils/FormatDate';
+import { dateFormatV1 } from '@/utils/formatDate';
 import { useTranslation } from '@/i18n';
 import { useInitialBalanceStore } from '../store/useInitialBalanceStore';
 

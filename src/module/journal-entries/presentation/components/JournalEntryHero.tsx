@@ -13,7 +13,7 @@ import {
 } from '@mantine/core';
 import { IconAlertTriangle, IconCheck, IconCopy, IconNotebook } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
-import { dateFormatV1 } from '@/utils/FormatDate';
+import { dateFormatV1 } from '@/utils/formatDate';
 import type { JournalEntryDetail } from '../../domain/journalEntry';
 
 interface JournalEntryHeroProps {

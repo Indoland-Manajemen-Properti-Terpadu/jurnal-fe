@@ -1,6 +1,6 @@
 import { Box, Group, Paper, Stack, Text } from '@mantine/core';
 import { useTranslation } from '@/i18n';
-import { formatCurrency } from '@/utils/FormatCurrency';
+import { formatCurrency } from '@/utils/formatCurrency';
 import { AssetItem } from '@/module/assets/domain/asset';
 import { isNonDepreciable, toSafeNumber } from '@/module/assets/domain/depreciation';
 

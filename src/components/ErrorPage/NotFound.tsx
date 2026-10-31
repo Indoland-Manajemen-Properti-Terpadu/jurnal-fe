@@ -1,6 +1,6 @@
 import { Image, Container, Title, Text, Button, SimpleGrid } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
-import image from '@/assets/img/404.svg';
+import image from '@/assets/images/illustrations/not-found.svg';
 import classes from './NotFound.module.css';
 
 export function NotFound() {

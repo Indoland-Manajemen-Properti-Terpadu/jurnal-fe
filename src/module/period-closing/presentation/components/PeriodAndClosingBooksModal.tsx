@@ -9,7 +9,7 @@ import { routes } from '@/router/routes';
 import { InformationAlert } from '@/components/Alert/Alert';
 import CustomConfirmModal from '@/components/Modals/ConfirmModal';
 import { useTranslation } from '@/i18n';
-import KeyPeriodeImage from '@/assets/img/closing_period.svg';
+import KeyPeriodeImage from '@/assets/images/illustrations/closing-period.svg';
 import { PROTOTYPE_LOCK_DATE } from '../../domain/prototypeData';
 import usePeriodModalStore from '../store/usePeriodModals';
 

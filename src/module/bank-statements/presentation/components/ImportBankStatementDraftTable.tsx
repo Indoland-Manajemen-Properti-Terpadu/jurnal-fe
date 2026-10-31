@@ -1,6 +1,6 @@
 import { ActionIcon, Group, Text, TextInput, Modal, Stack, Button, Flex } from '@mantine/core';
 import { DataTable, DataTableColumn } from 'mantine-datatable';
-import { formatCurrency } from '@/utils/FormatCurrency';
+import { formatCurrency } from '@/utils/formatCurrency';
 import EmptyState from '@/components/EmptyState/EmptyTable';
 import { IconCalendar, IconPencil, IconTrash } from '@tabler/icons-react';
 import { themeColors } from '@/theme';

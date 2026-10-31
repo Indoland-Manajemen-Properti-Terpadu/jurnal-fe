@@ -11,9 +11,9 @@ import {
   ActionIcon,
 } from '@mantine/core';
 import { IconArrowDownRight, IconArrowUpRight, IconX } from '@tabler/icons-react';
-import { numberFormat } from '@/utils/FormatCurrency';
+import { numberFormat } from '@/utils/formatCurrency';
 import EmptyState from '@/components/EmptyState/EmptyTable';
-import defaultEmptyImage from '@/assets/img/Empty-Dataa.svg';
+import defaultEmptyImage from '@/assets/images/illustrations/empty-table.svg';
 import type { JournalAccounts } from '@/module/chart-of-accounts';
 import { useTranslation } from '@/i18n';
 import {
