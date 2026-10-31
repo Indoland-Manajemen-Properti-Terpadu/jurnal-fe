@@ -1,16 +1,13 @@
 import { Container, Paper, Stack, Flex } from '@mantine/core';
 import { IconFileAnalytics } from '@tabler/icons-react';
 import { ReportPageHeader } from '@/module/reports/presentation/components/shared/ReportPageHeader';
-import { DatePickerInput } from '@mantine/dates';
-import { IconCalendar, IconChevronDown, IconFileExport } from '@tabler/icons-react';
-import { formatCurrency } from '@/utils/FormatCurrency';
 import AppShellLayout from '@/components/AppShellLayout';
-import BalanceSheetTable from '@/module/reports/presentation/components/balance-sheet/BalanceSheetTable';
 import TrialBalanceTable from '@/module/reports/presentation/components/trial-balance/TrialBalanceTable';
 import { useState } from 'react';
 import FilterDate from '@/module/reports/presentation/components/shared/FilterDate';
 
 import { useTranslation } from '@/i18n';
+
 const PAPER_PROPS = {
   p: 'md',
   shadow: 'md',
@@ -18,7 +15,6 @@ const PAPER_PROPS = {
 };
 const TrialBalancePage = () => {
   const { t } = useTranslation('reports');
-  const totalBalanceSheet = 200000;
   const [fromDate, setFromDate] = useState<string | undefined>();
   const [toDate, setToDate] = useState<string | undefined>();
 

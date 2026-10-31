@@ -8,6 +8,7 @@ import { ReportJournalEntryModel } from '@/module/reports/domain/JournalEntry.ty
 import { calcJournalEntryTotals } from '@/module/reports/domain/journalEntryTotals';
 
 import { useTranslation } from '@/i18n';
+
 const headTableStyle = {
   backgroundColor: themeColors.primary[0],
   borderColor: themeColors.gray[1],

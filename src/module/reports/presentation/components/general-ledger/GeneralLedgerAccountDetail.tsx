@@ -17,14 +17,7 @@ import {
   Title,
   Tooltip,
 } from '@mantine/core';
-import {
-  IconArrowDown,
-  IconArrowUp,
-  IconBook2,
-  IconExternalLink,
-  IconSearch,
-  IconX,
-} from '@tabler/icons-react';
+import { IconBook2, IconExternalLink, IconSearch, IconX } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 import { EmptyState } from '@/components/EmptyState';
 import type {
@@ -34,6 +27,7 @@ import type {
 import { displayDate, formatCount, formatMoney } from '@/module/reports/domain/reportFormat';
 
 import { useTranslation } from '@/i18n';
+
 interface GeneralLedgerAccountDetailProps {
   account: GeneralLedgerAccount | null;
   transactions: GeneralLedgerTransaction[];

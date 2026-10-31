@@ -22,6 +22,7 @@ import type { BalanceSheetData } from '@/module/reports/domain/balanceSheet.type
 import { displayDate, formatMoney } from '@/module/reports/domain/reportFormat';
 
 import { useTranslation } from '@/i18n';
+
 interface BalanceSheetSummaryCardsProps {
   data: BalanceSheetData;
 }

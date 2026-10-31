@@ -1,8 +1,7 @@
 import React from 'react';
-import { Alert, Box, Button, Grid, Group, Paper, Skeleton, Stack, Text } from '@mantine/core';
+import { Alert, Box, Button, Grid, Group, Skeleton, Stack, Text } from '@mantine/core';
 import { IconAlertTriangle, IconRefresh, IconScale } from '@tabler/icons-react';
 import AppShellLayout from '@/components/AppShellLayout';
-import { EmptyState } from '@/components/EmptyState';
 import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
 import { routes } from '@/router/routes';
 import { useBalanceSheet } from '@/module/reports/presentation/hooks/useBalanceSheet';
@@ -11,6 +10,7 @@ import { BalanceSheetSummaryCards } from '@/module/reports/presentation/componen
 import { BalanceSheetLayoutViews } from '@/module/reports/presentation/components/balance-sheet/BalanceSheetLayoutViews';
 
 import { useTranslation } from '@/i18n';
+
 export default function BalanceSheetPage() {
   const { t } = useTranslation('reports');
   const balanceSheet = useBalanceSheet();

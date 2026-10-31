@@ -13,6 +13,7 @@ import { GeneralLedgerAccountDetail } from '@/module/reports/presentation/compon
 import { GeneralLedgerConsolidatedTable } from '@/module/reports/presentation/components/general-ledger/GeneralLedgerConsolidatedTable';
 
 import { useTranslation } from '@/i18n';
+
 export default function GeneralLedgerPage() {
   const { t } = useTranslation('reports');
   const ledger = useGeneralLedger();

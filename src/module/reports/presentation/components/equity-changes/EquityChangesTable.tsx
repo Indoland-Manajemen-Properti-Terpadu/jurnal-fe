@@ -2,25 +2,17 @@ import React from 'react';
 import { Stack, Table, Text } from '@mantine/core';
 import { gradientColors, themeColors } from '@/theme';
 import { formatCurrency } from '@/utils/FormatCurrency';
-import { JournalAccounts } from '@/module/chart-of-accounts';
 import EmptyState from '@/components/EmptyState/EmptyTable';
 import { useEquityChangeReport } from '@/module/reports/presentation/hooks/useEquityChangeReport';
 import { NotFound } from '@/components/ErrorPage/NotFound';
 import { dateFormatV2 } from '@/utils/FormatDate';
 
 import { useTranslation } from '@/i18n';
+
 const rowStyle = {
   borderColor: themeColors.gray[1],
   borderWidth: '1px',
   borderStyle: 'solid',
-};
-
-const headTableStyle = {
-  bg: themeColors.primary[0],
-  borderColor: themeColors.gray[1],
-  borderWidth: '1px',
-  borderStyle: 'solid',
-  borderCollapse: 'collapse' as const,
 };
 
 const sectionCategoryStyle = {
@@ -39,7 +31,6 @@ const EquityChangesTable: React.FC<EquityChangeTableProps> = ({ fromDate, toDate
     isError,
     isLoading,
   } = useEquityChangeReport({ fromDate: fromDate!, toDate: toDate! });
-  const lastDate = '19 Sept 2021';
 
   if (isError) {
     return <NotFound />;

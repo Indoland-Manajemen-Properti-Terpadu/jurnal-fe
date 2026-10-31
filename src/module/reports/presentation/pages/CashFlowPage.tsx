@@ -15,13 +15,12 @@ import { themeColors } from '@/theme';
 import { DatePickerInput } from '@mantine/dates';
 import { IconCalendar, IconChevronDown, IconFileExport } from '@tabler/icons-react';
 import { formatCurrency } from '@/utils/FormatCurrency';
-import BalanceSheetTable from '@/module/reports/presentation/components/balance-sheet/BalanceSheetTable';
 import AppShellLayout from '@/components/AppShellLayout';
-import IncomeStatementTable from '@/module/reports/presentation/components/income-statement/IncomeStatementTable';
 import CashFlowTable from '@/module/reports/presentation/components/cash-flow/CashFlowTable';
 
 import { useTranslation } from '@/i18n';
 import { usePeriodOptions } from '@/module/reports/presentation/hooks/usePeriodOptions';
+
 const PAPER_PROPS = {
   p: 'md',
   shadow: 'md',
@@ -58,7 +57,7 @@ const CashFlowPage = () => {
                       valueFormat="DD/MM/YYYY"
                       highlightToday
                       size="xs"
-                      clearable={true}
+                      clearable
                       rightSection={<IconCalendar size={16} />}
                     />
                   </Grid.Col>
@@ -77,7 +76,7 @@ const CashFlowPage = () => {
                       rightSection={<IconChevronDown size={16} />}
                       data={periodOptions}
                       placeholder="Select Period"
-                      defaultValue={'All Period'}
+                      defaultValue="All Period"
                       size="xs"
                     />
                   </Grid.Col>

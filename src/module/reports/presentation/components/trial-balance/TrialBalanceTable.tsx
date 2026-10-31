@@ -4,12 +4,9 @@ import { gradientColors, themeColors } from '@/theme';
 import { formatCurrency } from '@/utils/FormatCurrency';
 import { useTrialBalanceReport } from '@/module/reports/presentation/hooks/useTrialBalanceReport';
 import { NotFound } from '@/components/ErrorPage/NotFound';
-import {
-  TrialBalanceReport,
-  Account,
-  Reports,
-} from '@/module/reports/domain/TrialBalanceReport.types';
+import { Account, Reports } from '@/module/reports/domain/TrialBalanceReport.types';
 import { useTranslation } from '@/i18n';
+
 interface TrialBalanceTableProps {
   fromDate: string;
   toDate: string;
@@ -17,13 +14,13 @@ interface TrialBalanceTableProps {
 
 const TrialBalanceTable: React.FC<TrialBalanceTableProps> = ({ fromDate, toDate }) => {
   const { t } = useTranslation('reports');
-  const { data: Reports, isError } = useTrialBalanceReport(fromDate, toDate);
+  const { data: report, isError } = useTrialBalanceReport(fromDate, toDate);
 
   if (isError) {
     return <NotFound />;
   }
 
-  if (!Reports?.data.length) {
+  if (!report?.data.length) {
     return <Text>{t('common.noDataForRange')}</Text>;
   }
 
@@ -98,7 +95,7 @@ const TrialBalanceTable: React.FC<TrialBalanceTableProps> = ({ fromDate, toDate 
         <Table.Tbody>
           {/* Category Name */}
 
-          {Reports.data?.map((item: Reports) => (
+          {report.data?.map((item: Reports) => (
             <React.Fragment key={item.category}>
               {/* Category Header Section*/}
               <Table.Tr>
@@ -193,9 +190,9 @@ const TrialBalanceTable: React.FC<TrialBalanceTableProps> = ({ fromDate, toDate 
               backgroundColor: themeColors.gray[1],
             }}
           >
-            {Reports.total.totalDebitBeginningBalance >= 0
-              ? formatCurrency(Reports.total.totalDebitBeginningBalance)
-              : `(${formatCurrency(Math.abs(Reports.total.totalDebitBeginningBalance))})`}
+            {report.total.totalDebitBeginningBalance >= 0
+              ? formatCurrency(report.total.totalDebitBeginningBalance)
+              : `(${formatCurrency(Math.abs(report.total.totalDebitBeginningBalance))})`}
           </Table.Td>
           <Table.Td
             fz="sm"
@@ -206,9 +203,9 @@ const TrialBalanceTable: React.FC<TrialBalanceTableProps> = ({ fromDate, toDate 
               backgroundColor: themeColors.gray[1],
             }}
           >
-            {Reports.total.totalCreditBeginningBalance >= 0
-              ? formatCurrency(Reports.total.totalCreditBeginningBalance)
-              : `(${formatCurrency(Math.abs(Reports.total.totalCreditBeginningBalance))})`}
+            {report.total.totalCreditBeginningBalance >= 0
+              ? formatCurrency(report.total.totalCreditBeginningBalance)
+              : `(${formatCurrency(Math.abs(report.total.totalCreditBeginningBalance))})`}
           </Table.Td>
           <Table.Td
             fz="sm"
@@ -219,9 +216,9 @@ const TrialBalanceTable: React.FC<TrialBalanceTableProps> = ({ fromDate, toDate 
               backgroundColor: themeColors.gray[1],
             }}
           >
-            {Reports.total.totalDebitChanges >= 0
-              ? formatCurrency(Reports.total.totalDebitChanges)
-              : `(${formatCurrency(Math.abs(Reports.total.totalDebitChanges))})`}
+            {report.total.totalDebitChanges >= 0
+              ? formatCurrency(report.total.totalDebitChanges)
+              : `(${formatCurrency(Math.abs(report.total.totalDebitChanges))})`}
           </Table.Td>
           <Table.Td
             fz="sm"
@@ -232,9 +229,9 @@ const TrialBalanceTable: React.FC<TrialBalanceTableProps> = ({ fromDate, toDate 
               backgroundColor: themeColors.gray[1],
             }}
           >
-            {Reports.total.totalCreditChanges >= 0
-              ? formatCurrency(Reports.total.totalCreditChanges)
-              : `(${formatCurrency(Math.abs(Reports.total.totalCreditChanges))})`}
+            {report.total.totalCreditChanges >= 0
+              ? formatCurrency(report.total.totalCreditChanges)
+              : `(${formatCurrency(Math.abs(report.total.totalCreditChanges))})`}
           </Table.Td>
           <Table.Td
             fz="sm"
@@ -245,9 +242,9 @@ const TrialBalanceTable: React.FC<TrialBalanceTableProps> = ({ fromDate, toDate 
               backgroundColor: themeColors.gray[1],
             }}
           >
-            {Reports.total.totalDebitBeginningBalance >= 0
-              ? formatCurrency(Reports.total.totalDebitBeginningBalance)
-              : `(${formatCurrency(Math.abs(Reports.total.totalDebitBeginningBalance))})`}
+            {report.total.totalDebitBeginningBalance >= 0
+              ? formatCurrency(report.total.totalDebitBeginningBalance)
+              : `(${formatCurrency(Math.abs(report.total.totalDebitBeginningBalance))})`}
           </Table.Td>
           <Table.Td
             fz="sm"
@@ -258,9 +255,9 @@ const TrialBalanceTable: React.FC<TrialBalanceTableProps> = ({ fromDate, toDate 
               backgroundColor: themeColors.gray[1],
             }}
           >
-            {Reports.total.totalCreditEndingBalance >= 0
-              ? formatCurrency(Reports.total.totalCreditEndingBalance)
-              : `(${formatCurrency(Math.abs(Reports.total.totalCreditEndingBalance))})`}
+            {report.total.totalCreditEndingBalance >= 0
+              ? formatCurrency(report.total.totalCreditEndingBalance)
+              : `(${formatCurrency(Math.abs(report.total.totalCreditEndingBalance))})`}
           </Table.Td>
         </Table.Tr>
       </Table>

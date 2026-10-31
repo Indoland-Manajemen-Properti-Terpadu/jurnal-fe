@@ -1,4 +1,4 @@
-import { Box, Group, Stack, Table, Text } from '@mantine/core';
+import { Stack, Table, Text } from '@mantine/core';
 import { gradientColors, themeColors } from '@/theme';
 import { formatCurrency } from '@/utils/FormatCurrency';
 import { useBalanceSheetSummaryReport } from '@/module/reports/presentation/hooks/useBalanceSheetSummaryReport';
@@ -15,8 +15,8 @@ interface BalanceSheetTableProps {
 
 const BalanceSheetTable: React.FC<BalanceSheetTableProps> = ({ fromDate, toDate }) => {
   const { data: reports, isError } = useBalanceSheetSummaryReport({
-    fromDate: fromDate,
-    toDate: toDate,
+    fromDate,
+    toDate,
   });
   if (isError) {
     return <NotFound />;

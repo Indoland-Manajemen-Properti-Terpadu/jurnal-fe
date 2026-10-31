@@ -1,28 +1,13 @@
-import {
-  Container,
-  Grid,
-  Paper,
-  Stack,
-  Title,
-  Text,
-  Group,
-  Select,
-  Button,
-  Flex,
-  Box,
-} from '@mantine/core';
-import { gradientColors, themeColors } from '@/theme';
+import { Container, Grid, Paper, Stack, Title, Group, Select, Button, Flex } from '@mantine/core';
+import { gradientColors } from '@/theme';
 import { DatePickerInput } from '@mantine/dates';
-import { IconCalendar, IconChevronDown, IconFileExport, IconX } from '@tabler/icons-react';
-import { formatCurrency } from '@/utils/FormatCurrency';
+import { IconCalendar, IconChevronDown, IconFileExport } from '@tabler/icons-react';
 import AppShellLayout from '@/components/AppShellLayout';
-import EquityChangesTable from '@/module/reports/presentation/components/equity-changes/EquityChangesTable';
 import { useState } from 'react';
-import { navigate } from '@/router';
-import { routes } from '@/router/routes';
 
 import { useTranslation } from '@/i18n';
 import { usePeriodOptions } from '@/module/reports/presentation/hooks/usePeriodOptions';
+
 const PAPER_PROPS = {
   p: 'md',
   shadow: 'md',
@@ -31,7 +16,6 @@ const PAPER_PROPS = {
 const BudgetManagementPage = () => {
   const { t } = useTranslation('reports');
   const periodOptions = usePeriodOptions();
-  const lastDate = '19 Sept 2021';
   const [startDate, setStartDate] = useState<string | null>(null);
   const [endDate, setEndDate] = useState<string | null>(null);
   const [selectedPeriod, setSelectedPeriod] = useState<string | null>('All Period');

@@ -11,6 +11,7 @@ import type {
 import { getPresetDateRange, type PeriodPreset } from '@/module/reports/domain/reportFormat';
 
 import { useTranslation } from '@/i18n';
+
 export function useBalanceSheet() {
   const { t } = useTranslation('reports');
   const [preset, setPreset] = useState<PeriodPreset>('this_month');
@@ -55,7 +56,7 @@ export function useBalanceSheet() {
     staleTime: 60_000,
   });
 
-  const data = query.data;
+  const { data } = query;
 
   // Filter accounts helper
   const filterAccounts = (accounts: BalanceSheetAccountItem[]): BalanceSheetAccountItem[] => {

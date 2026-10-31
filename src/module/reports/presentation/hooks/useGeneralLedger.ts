@@ -3,7 +3,6 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 import { generalLedgerApi } from '@/module/reports/infrastructure/generalLedgerApi';
 import type {
-  GeneralLedgerAccount,
   GeneralLedgerExportType,
   GeneralLedgerReport,
   ReportPeriod,
@@ -11,6 +10,7 @@ import type {
 import { getPresetDateRange, type PeriodPreset } from '@/module/reports/domain/reportFormat';
 
 import { useTranslation } from '@/i18n';
+
 export function useGeneralLedger() {
   const { t } = useTranslation('reports');
   const [preset, setPreset] = useState<PeriodPreset>('this_month');
@@ -106,9 +106,10 @@ export function useGeneralLedger() {
   }, [selectedAccount, transactionSearch, transactionSort]);
 
   // Total transactions count
-  const totalTransactionsCount = useMemo(() => {
-    return accounts.reduce((acc, curr) => acc + curr.transactions.length, 0);
-  }, [accounts]);
+  const totalTransactionsCount = useMemo(
+    () => accounts.reduce((acc, curr) => acc + curr.transactions.length, 0),
+    [accounts]
+  );
 
   // Check debit-credit balance
   const isBalanced = useMemo(() => {

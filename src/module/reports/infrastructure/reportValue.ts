@@ -12,3 +12,13 @@ export function safeString(value: unknown, fallback = ''): string {
   if (value != null) return String(value);
   return fallback;
 }
+
+export type RawRecord = Record<string, unknown>;
+
+export function asRecord(value: unknown): RawRecord {
+  return value && typeof value === 'object' ? (value as RawRecord) : {};
+}
+
+export function asArray(value: unknown): unknown[] {
+  return Array.isArray(value) ? value : [];
+}

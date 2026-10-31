@@ -3,10 +3,11 @@ import type {
   GeneralLedgerReport,
   GeneralLedgerTransaction,
 } from '@/module/reports/domain/generalLedger.types';
-import { safeNumber, safeString } from './reportValue';
+import { asArray, asRecord, safeNumber, safeString, type RawRecord } from './reportValue';
 
-function mapTransaction(source: any): GeneralLedgerTransaction {
-  if (!source || typeof source !== 'object') {
+function mapTransaction(rawSource: unknown): GeneralLedgerTransaction {
+  const source: RawRecord = asRecord(rawSource);
+  if (!rawSource || typeof rawSource !== 'object') {
     return {
       transactionDate: '',
       transactionNumber: '-',
@@ -29,15 +30,16 @@ function mapTransaction(source: any): GeneralLedgerTransaction {
   };
 }
 
-function mapAccount(source: any): GeneralLedgerAccount {
-  const accountInfo = source?.account || {};
+function mapAccount(rawSource: unknown): GeneralLedgerAccount {
+  const source = asRecord(rawSource);
+  const accountInfo = asRecord(source.account);
   const categoryRaw = accountInfo.category;
   const categoryName =
-    typeof categoryRaw === 'string' ? categoryRaw : safeString(categoryRaw?.name, 'Lainnya');
+    typeof categoryRaw === 'string'
+      ? categoryRaw
+      : safeString(asRecord(categoryRaw).name, 'Lainnya');
 
-  const transactions = Array.isArray(source?.transactions)
-    ? source.transactions.map(mapTransaction)
-    : [];
+  const transactions = asArray(source.transactions).map(mapTransaction);
 
   return {
     id: safeString(accountInfo.id || accountInfo._id || source.id),
@@ -53,11 +55,11 @@ function mapAccount(source: any): GeneralLedgerAccount {
   };
 }
 
-export function mapGeneralLedgerResponse(raw: any): GeneralLedgerReport {
-  const data = raw?.data || raw || {};
-  const accounts = Array.isArray(data.accounts) ? data.accounts.map(mapAccount) : [];
+export function mapGeneralLedgerResponse(raw: unknown): GeneralLedgerReport {
+  const data = asRecord(asRecord(raw).data || raw);
+  const accounts = asArray(data.accounts).map(mapAccount);
 
-  const lock = data.periodLockInfo || null;
+  const lock = data.periodLockInfo ? asRecord(data.periodLockInfo) : null;
 
   return {
     accounts,

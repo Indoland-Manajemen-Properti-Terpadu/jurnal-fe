@@ -4,14 +4,13 @@ import { DatePickerInput } from '@mantine/dates';
 import { IconCalendar, IconChevronDown } from '@tabler/icons-react';
 import { format, startOfMonth, startOfWeek, subDays } from 'date-fns';
 
-import { useTranslation } from '@/i18n';
 import { usePeriodOptions } from '@/module/reports/presentation/hooks/usePeriodOptions';
+
 interface FilterDateProps {
   onFilterChange: (fromDate: string | undefined, toDate: string | undefined) => void;
 }
 
 const FilterDate: React.FC<FilterDateProps> = ({ onFilterChange }) => {
-  const { t } = useTranslation('reports');
   const periodOptions = usePeriodOptions();
   const initialFromDate = format(new Date('2024-01-01'), 'yyyy-MM-dd');
   const initialToDate = format(new Date(), 'yyyy-MM-dd');
@@ -29,15 +28,15 @@ const FilterDate: React.FC<FilterDateProps> = ({ onFilterChange }) => {
     onFilterChange(formattedFromDate, formattedToDate);
   }, [value, onFilterChange]);
 
-  const handlePeriodChange = (value: string | null) => {
-    if (!value) return; // Prevent setting null values
+  const handlePeriodChange = (period: string | null) => {
+    if (!period) return; // Prevent setting null values
 
-    setSelectedPeriod(value);
+    setSelectedPeriod(period);
 
     let newFromDate: string | null = null;
     let newToDate: string | null = format(new Date(), 'yyyy-MM-dd');
 
-    switch (value) {
+    switch (period) {
       case 'Today':
         newFromDate = format(new Date(), 'yyyy-MM-dd');
         newToDate = format(new Date(), 'yyyy-MM-dd');

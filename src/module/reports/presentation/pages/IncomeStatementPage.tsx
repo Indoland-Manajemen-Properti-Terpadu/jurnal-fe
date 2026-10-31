@@ -10,6 +10,7 @@ import { REPORT_EXPORT_ENDPOINTS } from '@/module/reports/infrastructure/reportE
 import { exportReport } from '@/module/reports/infrastructure/exportReport';
 
 import { useTranslation } from '@/i18n';
+
 const PAPER_PROPS = {
   p: 'md',
   shadow: 'md',

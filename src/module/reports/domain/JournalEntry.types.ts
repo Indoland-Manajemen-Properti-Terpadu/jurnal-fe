@@ -34,15 +34,15 @@ export interface Account {
   name: string;
   accountNumber: string;
   category: Category;
-  subAccount: any[];
+  subAccount: unknown[];
   amount: number;
   debit: number;
   credit: number;
   isAllUser: boolean;
   isBankAndCash: boolean;
   level: string;
-  reconciliationDetail: any[];
-  journals: any[];
+  reconciliationDetail: unknown[];
+  journals: unknown[];
   deleted: boolean;
   createdAt: Date;
   updatedAt: Date;

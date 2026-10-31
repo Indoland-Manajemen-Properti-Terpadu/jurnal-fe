@@ -4,7 +4,6 @@ import {
   Badge,
   Box,
   Button,
-  Card,
   Grid,
   Group,
   Paper,
@@ -17,7 +16,6 @@ import {
   Title,
 } from '@mantine/core';
 import {
-  IconArrowRight,
   IconBook2,
   IconBooks,
   IconCheck,
@@ -37,11 +35,11 @@ import { routes } from '@/router/routes';
 import { ReportCard } from '@/module/reports/presentation/components/catalog/ReportCard';
 import {
   reportCatalogData,
-  reportCategories,
   type ReportCategory,
 } from '@/module/reports/presentation/components/catalog/reportCatalogData';
 
 import { useTranslation } from '@/i18n';
+
 export default function ReportCatalogPage() {
   const { t, currentLanguage } = useTranslation('reports');
   const [activeCategory, setActiveCategory] = useState<ReportCategory>('all');

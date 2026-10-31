@@ -2,8 +2,6 @@ import React from 'react';
 import {
   Badge,
   Box,
-  Card,
-  Grid,
   Group,
   Paper,
   SimpleGrid,
@@ -28,6 +26,7 @@ import type {
 import { displayDate, formatCount, formatMoney } from '@/module/reports/domain/reportFormat';
 
 import { useTranslation } from '@/i18n';
+
 interface GeneralLedgerSummaryCardsProps {
   report: GeneralLedgerReport;
   period: ReportPeriod;

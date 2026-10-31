@@ -4,6 +4,7 @@ import { formatCurrency } from '@/utils/FormatCurrency';
 import { gradientColors, themeColors } from '@/theme';
 
 import { useTranslation } from '@/i18n';
+
 type RowProps = {
   total: number;
 };
@@ -31,30 +32,12 @@ type HeaderTableProps = {
   title: string;
 };
 
-interface TableRowProps {
-  label: string;
-  value: number;
-  fontWeight?: number;
-}
-const HeaderTable: React.FC<HeaderTableProps> = ({ title }) => {
-  return (
-    <Table.Tr>
-      <Table.Td colSpan={2} style={headTableStyle}>
-        <Text fz="sm" w={600} gradient={gradientColors.mainGR} variant="gradient">
-          {title}
-        </Text>
-      </Table.Td>
-    </Table.Tr>
-  );
-};
-
-const TableRow: React.FC<TableRowProps> = ({ label, value, fontWeight = 400 }) => (
-  <Table.Tr style={rowStyle}>
-    <Table.Td fz="sm" style={{ fontWeight }}>
-      {label}
-    </Table.Td>
-    <Table.Td fz="sm" style={{ textAlign: 'right', fontWeight }}>
-      {formatCurrency(value)}
+const HeaderTable: React.FC<HeaderTableProps> = ({ title }) => (
+  <Table.Tr>
+    <Table.Td colSpan={2} style={headTableStyle}>
+      <Text fz="sm" w={600} gradient={gradientColors.mainGR} variant="gradient">
+        {title}
+      </Text>
     </Table.Td>
   </Table.Tr>
 );

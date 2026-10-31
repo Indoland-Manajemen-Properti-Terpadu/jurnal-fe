@@ -16,6 +16,7 @@ import type { GeneralLedgerAccount } from '@/module/reports/domain/generalLedger
 import { formatCount, formatMoney } from '@/module/reports/domain/reportFormat';
 
 import { useTranslation } from '@/i18n';
+
 interface GeneralLedgerAccountSidebarProps {
   accounts: GeneralLedgerAccount[];
   selectedAccountId: string | null;
@@ -74,7 +75,7 @@ export const GeneralLedgerAccountSidebar: React.FC<GeneralLedgerAccountSidebarPr
           <Box py="xl" ta="center">
             <Text size="xs" c="dimmed">
               {t('generalLedger.sidebarNoMatch')}
-              {search}"
+              {search}&quot;
             </Text>
           </Box>
         ) : (

@@ -11,14 +11,14 @@ import {
   Table,
   Text,
   TextInput,
-  Tooltip,
 } from '@mantine/core';
-import { IconArrowRight, IconEye, IconSearch, IconX } from '@tabler/icons-react';
+import { IconEye, IconSearch, IconX } from '@tabler/icons-react';
 import { EmptyState } from '@/components/EmptyState';
 import type { GeneralLedgerAccount } from '@/module/reports/domain/generalLedger.types';
 import { formatCount, formatMoney } from '@/module/reports/domain/reportFormat';
 
 import { useTranslation } from '@/i18n';
+
 interface GeneralLedgerConsolidatedTableProps {
   accounts: GeneralLedgerAccount[];
   onSelectAccount: (accountId: string) => void;
@@ -43,17 +43,19 @@ export const GeneralLedgerConsolidatedTable: React.FC<GeneralLedgerConsolidatedT
   }, [accounts, search]);
 
   // Aggregate totals
-  const totals = useMemo(() => {
-    return filtered.reduce(
-      (acc, curr) => ({
-        openingBalance: acc.openingBalance + curr.openingBalance,
-        periodDebit: acc.periodDebit + curr.periodDebit,
-        periodCredit: acc.periodCredit + curr.periodCredit,
-        closingBalance: acc.closingBalance + curr.closingBalance,
-      }),
-      { openingBalance: 0, periodDebit: 0, periodCredit: 0, closingBalance: 0 }
-    );
-  }, [filtered]);
+  const totals = useMemo(
+    () =>
+      filtered.reduce(
+        (acc, curr) => ({
+          openingBalance: acc.openingBalance + curr.openingBalance,
+          periodDebit: acc.periodDebit + curr.periodDebit,
+          periodCredit: acc.periodCredit + curr.periodCredit,
+          closingBalance: acc.closingBalance + curr.closingBalance,
+        }),
+        { openingBalance: 0, periodDebit: 0, periodCredit: 0, closingBalance: 0 }
+      ),
+    [filtered]
+  );
 
   return (
     <Paper withBorder radius="lg" p="lg" bg="white" shadow="xs">

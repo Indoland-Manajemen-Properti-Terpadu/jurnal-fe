@@ -50,8 +50,7 @@ export const exportReport = async ({
 
     document.body.removeChild(link);
     window.URL.revokeObjectURL(urlObject);
-  } catch (error) {
-    console.error(error);
+  } catch {
     alert(errorExportFailed);
   }
 };

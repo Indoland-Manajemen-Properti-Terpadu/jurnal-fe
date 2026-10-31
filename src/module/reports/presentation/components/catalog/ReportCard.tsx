@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import type { ReportItem } from '@/module/reports/presentation/components/catalog/reportCatalogData';
 
 import { useTranslation } from '@/i18n';
+
 interface ReportCardProps {
   report: ReportItem;
 }

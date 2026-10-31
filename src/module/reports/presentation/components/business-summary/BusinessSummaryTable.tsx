@@ -1,14 +1,7 @@
 import React from 'react';
-import { Stack, Table, Text } from '@mantine/core';
-import { gradientColors, themeColors } from '@/theme';
-import { formatCurrency } from '@/utils/FormatCurrency';
+import { Stack, Table } from '@mantine/core';
+import { themeColors } from '@/theme';
 import { useJournalAccounts } from '@/module/chart-of-accounts';
-import {
-  CashFlowfromOA,
-  CashFlowfromIA,
-  CashFlowfromFA,
-  EndingCashPosition,
-} from '@/module/reports/presentation/components/cash-flow/CashFlowTableRow';
 import {
   BalanceSheetSummary,
   CashFlowSummary,
@@ -22,15 +15,8 @@ const rowStyle = {
   borderStyle: 'solid',
 };
 
-const headTableStyle = {
-  backgroundColor: themeColors.gray[0],
-  borderColor: themeColors.gray[1],
-  borderWidth: '1px',
-  borderStyle: 'solid',
-};
-
 const BusinessSummaryTable: React.FC = () => {
-  const { accounts, isError } = useJournalAccounts();
+  useJournalAccounts();
   return (
     <Stack>
       <Table withTableBorder style={rowStyle}>

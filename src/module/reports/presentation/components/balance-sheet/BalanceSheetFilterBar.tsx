@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   ActionIcon,
-  Box,
   Button,
   Group,
   Menu,
@@ -33,6 +32,7 @@ import type {
 import type { PeriodPreset } from '@/module/reports/domain/reportFormat';
 
 import { useTranslation } from '@/i18n';
+
 interface BalanceSheetFilterBarProps {
   preset: PeriodPreset;
   onPresetChange: (preset: PeriodPreset) => void;

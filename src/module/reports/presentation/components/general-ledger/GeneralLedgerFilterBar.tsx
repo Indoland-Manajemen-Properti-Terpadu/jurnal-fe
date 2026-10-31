@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   ActionIcon,
-  Box,
   Button,
   Group,
   Menu,
@@ -22,7 +21,6 @@ import {
   IconFilter,
   IconListDetails,
   IconPrinter,
-  IconRefresh,
   IconTable,
 } from '@tabler/icons-react';
 import type {
@@ -32,6 +30,7 @@ import type {
 import type { PeriodPreset } from '@/module/reports/domain/reportFormat';
 
 import { useTranslation } from '@/i18n';
+
 interface GeneralLedgerFilterBarProps {
   preset: PeriodPreset;
   onPresetChange: (preset: PeriodPreset) => void;

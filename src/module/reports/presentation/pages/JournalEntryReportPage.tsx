@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Container, Grid, Paper, Stack, Title, Text, Select, Button, Flex } from '@mantine/core';
+import { Container, Grid, Paper, Stack, Text, Select, Button, Flex } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
 import { IconCalendar, IconChevronDown, IconFileExport, IconTimeline } from '@tabler/icons-react';
 import { ReportPageHeader } from '@/module/reports/presentation/components/shared/ReportPageHeader';
@@ -16,11 +16,10 @@ import { dateFormatTimeZone } from '@/utils/FormatDate';
 import JournalEntryTable from '@/module/reports/presentation/components/journal-entry/JournalEntryTable';
 import AppShellLayout from '@/components/AppShellLayout';
 import { ReportJournalEntryModel } from '@/module/reports/domain/JournalEntry.types';
-import { dateTimeNow } from '@/utils/DateTimeNow';
-import { getTime } from 'date-fns';
 import { formatCurrency } from '@/utils/FormatCurrency';
 
 import { useTranslation } from '@/i18n';
+import { calcJournalEntryTotals } from '@/module/reports/domain/journalEntryTotals';
 import { usePeriodOptions } from '@/module/reports/presentation/hooks/usePeriodOptions';
 // Dayjs Plugins
 dayjs.extend(timezone);
@@ -42,7 +41,6 @@ const JournalEntryReportPage: React.FC = () => {
   const [endDate, setEndDate] = useState<string | null>(null);
   const [selectedPeriod, setSelectedPeriod] = useState<string>('All Period');
   const [isCustomDate, setIsCustomDate] = useState(false);
-  const [value, setValue] = useState<[Date | null, Date | null]>([null, null]);
 
   const { data: journalEntries, isLoading } = useJournalEntryReport();
 
@@ -206,10 +204,10 @@ const JournalEntryReportPage: React.FC = () => {
 };
 
 // Helper Functions
-const getOldestDate = (entries: any[]) =>
+const getOldestDate = (entries: ReportJournalEntryModel[]) =>
   new Date(Math.min(...entries.map((entry) => new Date(entry.transactionDate).getTime())));
 
-const getLatestDate = (entries: any[], noDataLabel: string) => {
+const getLatestDate = (entries: ReportJournalEntryModel[], noDataLabel: string) => {
   if (!entries.length) return noDataLabel;
   const latestDate = Math.max(...entries.map((entry) => new Date(entry.transactionDate).getTime()));
   return new Date(latestDate);
@@ -227,9 +225,7 @@ const isEntryWithinDateRange = (date: string, start: string | null, end: string 
 };
 
 const generateTableData = (entries: ReportJournalEntryModel[]) => {
-  const tableRows: any[] = [];
-  let totalDebit = 0;
-  let totalCredit = 0;
+  const tableRows: string[][] = [];
 
   entries.forEach((entry) => {
     entry.transactionDetail.forEach((txn) => {
@@ -240,12 +236,10 @@ const generateTableData = (entries: ReportJournalEntryModel[]) => {
         formatCurrency(txn.debit || 0),
         formatCurrency(txn.credit || 0),
       ]);
-      totalDebit += txn.debit || 0;
-      totalCredit += txn.credit || 0;
     });
   });
 
-  return { tableRows, totalDebit, totalCredit };
+  return { tableRows, ...calcJournalEntryTotals(entries) };
 };
 
 const addReportHeader = (
@@ -264,7 +258,8 @@ const addReportHeader = (
 };
 
 const addTotalsToPDF = (doc: jsPDF, totalDebit: number, totalCredit: number) => {
-  const finalY = (doc as any).lastAutoTable.finalY || 32;
+  const finalY =
+    (doc as jsPDF & { lastAutoTable?: { finalY?: number } }).lastAutoTable?.finalY || 32;
   doc.text(`Total Debit: ${totalDebit}`, 14, finalY + 10);
   doc.text(`Total Credit: ${totalCredit}`, 14, finalY + 18);
 };

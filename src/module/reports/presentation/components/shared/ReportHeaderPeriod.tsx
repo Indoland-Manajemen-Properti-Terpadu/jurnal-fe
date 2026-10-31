@@ -3,6 +3,7 @@ import { dateFormatV2 } from '@/utils/FormatDate';
 import { Box, Group, Stack, Text } from '@mantine/core';
 
 import { useTranslation } from '@/i18n';
+
 interface ReportHeaderPeriodProps {
   fromDate: string;
   toDate: string;

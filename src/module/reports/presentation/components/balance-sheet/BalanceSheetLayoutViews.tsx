@@ -11,12 +11,13 @@ import {
   ThemeIcon,
   Title,
 } from '@mantine/core';
-import { IconBuildingBank, IconCoins, IconFileInvoice, IconScale } from '@tabler/icons-react';
+import { IconBuildingBank, IconCoins, IconFileInvoice } from '@tabler/icons-react';
 import type { BalanceSheetData } from '@/module/reports/domain/balanceSheet.types';
 import { BalanceSheetAccountTable } from '@/module/reports/presentation/components/balance-sheet/BalanceSheetAccountTable';
 import { formatMoney } from '@/module/reports/domain/reportFormat';
 
 import { useTranslation } from '@/i18n';
+
 interface BalanceSheetLayoutViewsProps {
   data: BalanceSheetData;
   viewMode: 'standard' | 'side_by_side';

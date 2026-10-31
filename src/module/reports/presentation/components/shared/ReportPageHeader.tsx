@@ -3,6 +3,7 @@ import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
 import { routes } from '@/router/routes';
 
 import { useTranslation } from '@/i18n';
+
 interface ReportPageHeaderProps {
   icon: Icon;
   title: string;

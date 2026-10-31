@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Group, Stack, Table, Text } from '@mantine/core';
+import { Stack, Table, Text } from '@mantine/core';
 import { gradientColors, themeColors } from '@/theme';
 import { formatCurrency } from '@/utils/FormatCurrency';
 import { useIncomeStatementReport } from '@/module/reports/presentation/hooks/useIncomeStatementReport';
@@ -9,6 +9,7 @@ import { NotFound } from '@/components/ErrorPage/NotFound';
 import ReportHeaderPeriod from '@/module/reports/presentation/components/shared/ReportHeaderPeriod';
 
 import { useTranslation } from '@/i18n';
+
 const rowStyle = {
   borderColor: themeColors.gray[1],
   borderWidth: '1px',

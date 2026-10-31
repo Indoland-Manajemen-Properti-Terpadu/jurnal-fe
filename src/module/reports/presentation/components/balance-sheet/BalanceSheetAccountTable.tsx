@@ -4,6 +4,7 @@ import type { BalanceSheetAccountItem } from '@/module/reports/domain/balanceShe
 import { formatMoney } from '@/module/reports/domain/reportFormat';
 
 import { useTranslation } from '@/i18n';
+
 interface BalanceSheetAccountTableProps {
   title: string;
   accounts: BalanceSheetAccountItem[];

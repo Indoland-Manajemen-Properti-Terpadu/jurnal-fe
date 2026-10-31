@@ -3,10 +3,10 @@ import type {
   BalanceSheetData,
   BalanceSheetQueryParams,
 } from '@/module/reports/domain/balanceSheet.types';
-import { safeNumber, safeString } from './reportValue';
+import { asArray, asRecord, safeNumber, safeString } from './reportValue';
 
-function mapAccountItem(source: any): BalanceSheetAccountItem {
-  if (!source || typeof source !== 'object') {
+function mapAccountItem(rawSource: unknown): BalanceSheetAccountItem {
+  if (!rawSource || typeof rawSource !== 'object') {
     return {
       accountId: null,
       accountNumber: null,
@@ -16,6 +16,8 @@ function mapAccountItem(source: any): BalanceSheetAccountItem {
       balance: 0,
     };
   }
+
+  const source = asRecord(rawSource);
 
   return {
     accountId: source.accountId ? safeString(source.accountId) : null,
@@ -28,19 +30,20 @@ function mapAccountItem(source: any): BalanceSheetAccountItem {
 }
 
 export function mapBalanceSheetResponse(
-  raw: any,
+  raw: unknown,
   queryParams: BalanceSheetQueryParams
 ): BalanceSheetData {
-  const data = raw?.data || raw || {};
+  const wrapped = asRecord(asRecord(raw).data);
+  const data = asRecord(asRecord(raw).data || raw);
 
   // Assets
-  const rawAssets = data.assets || {};
-  const currentAssets: BalanceSheetAccountItem[] = Array.isArray(rawAssets.currentAssets)
-    ? rawAssets.currentAssets.map(mapAccountItem)
-    : [];
-  const nonCurrentAssets: BalanceSheetAccountItem[] = Array.isArray(rawAssets.nonCurrentAssets)
-    ? rawAssets.nonCurrentAssets.map(mapAccountItem)
-    : [];
+  const rawAssets = asRecord(data.assets);
+  const currentAssets: BalanceSheetAccountItem[] = asArray(rawAssets.currentAssets).map(
+    mapAccountItem
+  );
+  const nonCurrentAssets: BalanceSheetAccountItem[] = asArray(rawAssets.nonCurrentAssets).map(
+    mapAccountItem
+  );
   const depreciationAmortization: BalanceSheetAccountItem[] = Array.isArray(
     rawAssets.depreciationAmortization
   )
@@ -65,7 +68,7 @@ export function mapBalanceSheetResponse(
   const calculatedTotalAssets =
     totalCurrentAssets + totalNonCurrentAssets + totalDepreciationAmortization;
   const totalAssets =
-    raw.data?.totalAssets != null ? safeNumber(data.totalAssets) : calculatedTotalAssets;
+    wrapped.totalAssets != null ? safeNumber(data.totalAssets) : calculatedTotalAssets;
 
   // Liabilities
   const rawLiabilities = data.liabilities;
@@ -94,21 +97,18 @@ export function mapBalanceSheetResponse(
       0
     );
   } else if (rawLiabilities && typeof rawLiabilities === 'object') {
-    currentLiabilities = Array.isArray(rawLiabilities.currentLiabilities)
-      ? rawLiabilities.currentLiabilities.map(mapAccountItem)
-      : [];
-    nonCurrentLiabilities = Array.isArray(rawLiabilities.nonCurrentLiabilities)
-      ? rawLiabilities.nonCurrentLiabilities.map(mapAccountItem)
-      : [];
+    const liabilitiesRecord = asRecord(rawLiabilities);
+    currentLiabilities = asArray(liabilitiesRecord.currentLiabilities).map(mapAccountItem);
+    nonCurrentLiabilities = asArray(liabilitiesRecord.nonCurrentLiabilities).map(mapAccountItem);
     allLiabilities = [...currentLiabilities, ...nonCurrentLiabilities];
     totalCurrentLiabilities =
-      safeNumber(rawLiabilities.totalCurrentLiabilities) ||
+      safeNumber(liabilitiesRecord.totalCurrentLiabilities) ||
       currentLiabilities.reduce(
         (sum: number, item: BalanceSheetAccountItem) => sum + item.balance,
         0
       );
     totalNonCurrentLiabilities =
-      safeNumber(rawLiabilities.totalNonCurrentLiabilities) ||
+      safeNumber(liabilitiesRecord.totalNonCurrentLiabilities) ||
       nonCurrentLiabilities.reduce(
         (sum: number, item: BalanceSheetAccountItem) => sum + item.balance,
         0
@@ -117,19 +117,19 @@ export function mapBalanceSheetResponse(
 
   const calculatedTotalLiabilities = totalCurrentLiabilities + totalNonCurrentLiabilities;
   const totalLiabilities =
-    raw.data?.totalLiabilities != null
+    wrapped.totalLiabilities != null
       ? safeNumber(data.totalLiabilities)
       : calculatedTotalLiabilities;
 
   // Equity
-  const rawEquity = Array.isArray(data.equity) ? data.equity : [];
+  const rawEquity = asArray(data.equity);
   const equity: BalanceSheetAccountItem[] = rawEquity.map(mapAccountItem);
   const calculatedTotalEquity = equity.reduce(
     (sum: number, item: BalanceSheetAccountItem) => sum + item.balance,
     0
   );
   const totalEquity =
-    raw.data?.totalEquity != null ? safeNumber(data.totalEquity) : calculatedTotalEquity;
+    wrapped.totalEquity != null ? safeNumber(data.totalEquity) : calculatedTotalEquity;
 
   const totalLiabilitiesAndEquity = totalLiabilities + totalEquity;
   const isBalanced = Math.abs(totalAssets - totalLiabilitiesAndEquity) < 0.01;

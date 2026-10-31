@@ -4,17 +4,11 @@ import { formatCurrency } from '@/utils/FormatCurrency';
 import { gradientColors, themeColors } from '@/theme';
 
 import { useTranslation } from '@/i18n';
+
 type RowProps = {
   total: number;
 };
 const rowStyle = {
-  borderColor: themeColors.gray[1],
-  borderWidth: '1px',
-  borderStyle: 'solid',
-};
-
-const sectionInsideCategory = {
-  backgroundColor: themeColors.gray[0],
   borderColor: themeColors.gray[1],
   borderWidth: '1px',
   borderStyle: 'solid',
@@ -36,17 +30,15 @@ interface TableRowProps {
   type?: 'percentage' | 'price' | 'days';
   total: number;
 }
-const HeaderTable: React.FC<HeaderTableProps> = ({ title }) => {
-  return (
-    <Table.Tr>
-      <Table.Td colSpan={2} style={headTableStyle}>
-        <Text fz="sm" w={600} gradient={gradientColors.mainGR} variant="gradient">
-          {title}
-        </Text>
-      </Table.Td>
-    </Table.Tr>
-  );
-};
+const HeaderTable: React.FC<HeaderTableProps> = ({ title }) => (
+  <Table.Tr>
+    <Table.Td colSpan={2} style={headTableStyle}>
+      <Text fz="sm" w={600} gradient={gradientColors.mainGR} variant="gradient">
+        {title}
+      </Text>
+    </Table.Td>
+  </Table.Tr>
+);
 
 const TableRow: React.FC<TableRowProps> = ({ label, type, total }) => {
   let displayTotal;
@@ -74,7 +66,7 @@ const TableRow: React.FC<TableRowProps> = ({ label, type, total }) => {
   );
 };
 
-export const IncomeStatementSummary: React.FC<RowProps> = ({ total }) => {
+export const IncomeStatementSummary: React.FC<RowProps> = () => {
   const { t } = useTranslation('reports');
   return (
     <>
@@ -87,7 +79,7 @@ export const IncomeStatementSummary: React.FC<RowProps> = ({ total }) => {
     </>
   );
 };
-export const BalanceSheetSummary: React.FC<RowProps> = ({ total }) => {
+export const BalanceSheetSummary: React.FC<RowProps> = () => {
   const { t } = useTranslation('reports');
   return (
     <>
@@ -101,7 +93,7 @@ export const BalanceSheetSummary: React.FC<RowProps> = ({ total }) => {
   );
 };
 
-export const CashFlowSummary: React.FC<RowProps> = ({ total }) => {
+export const CashFlowSummary: React.FC<RowProps> = () => {
   const { t } = useTranslation('reports');
   return (
     <>
@@ -115,7 +107,7 @@ export const CashFlowSummary: React.FC<RowProps> = ({ total }) => {
   );
 };
 
-export const InsightReport: React.FC<RowProps> = ({ total }) => {
+export const InsightReport: React.FC<RowProps> = () => {
   const { t } = useTranslation('reports');
   return (
     <>

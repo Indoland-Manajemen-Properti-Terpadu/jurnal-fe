@@ -1,21 +1,6 @@
-import {
-  Container,
-  Grid,
-  Paper,
-  Stack,
-  Title,
-  Text,
-  Group,
-  Select,
-  Button,
-  Flex,
-  Notification,
-} from '@mantine/core';
+import { Container, Paper, Stack, Flex, Notification } from '@mantine/core';
 import { IconArrowsExchange } from '@tabler/icons-react';
 import { ReportPageHeader } from '@/module/reports/presentation/components/shared/ReportPageHeader';
-import { DatePickerInput } from '@mantine/dates';
-import { IconCalendar, IconChevronDown, IconFileExport, IconX } from '@tabler/icons-react';
-import { formatCurrency } from '@/utils/FormatCurrency';
 import AppShellLayout from '@/components/AppShellLayout';
 import EquityChangesTable from '@/module/reports/presentation/components/equity-changes/EquityChangesTable';
 import { useState } from 'react';
@@ -25,6 +10,7 @@ import ExportMenu from '@/module/reports/presentation/components/shared/ExportMe
 import FilterDate from '@/module/reports/presentation/components/shared/FilterDate';
 
 import { useTranslation } from '@/i18n';
+
 const PAPER_PROPS = {
   p: 'md',
   shadow: 'md',

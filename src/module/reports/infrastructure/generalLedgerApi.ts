@@ -10,8 +10,9 @@ import { mapGeneralLedgerResponse } from './generalLedgerMapper';
 function parseErrorMessage(error: unknown): string {
   if (axios.isAxiosError(error)) {
     if (error.response?.status === 403) return 'Akses ke laporan buku besar ditolak.';
-    if (error.response?.status === 404)
+    if (error.response?.status === 404) {
       return 'Laporan buku besar tidak tersedia untuk periode ini.';
+    }
     if (!error.response) return 'Koneksi ke server terputus. Pastikan koneksi internet stabil.';
     const msg = (error.response?.data as { message?: string })?.message;
     if (msg) return msg;
