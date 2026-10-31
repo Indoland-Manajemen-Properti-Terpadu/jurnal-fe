@@ -21,7 +21,7 @@ Status per module: [../migration/STATUS.md](../migration/STATUS.md).
 | `fulfillment` | `src/module/fulfillment` | [README](../../src/module/fulfillment/README.md) |
 | `bank-cash` | `src/module/BankCash` | pending (M2) |
 | `petty-cash` | `src/module/BankCash/PettyCash` | pending (M2) |
-| `reports` | `src/module/ResultReport` | pending (M2) |
+| `reports` | `src/module/ResultReport` | [README](../../src/module/reports/README.md) |
 | `chart-of-accounts`, `journal-entries`, `account-ledger`, `bank-statements`, `reconciliation`, `beginning-balances`, `period-closing` | `src/module/GeneralJournal` | pending (M3) |
 | `settings` | `src/module/SettingMenu` | pending (M4) |
 | `user-management` | `src/module/SettingMenu/UserManagement` | pending (M4) |

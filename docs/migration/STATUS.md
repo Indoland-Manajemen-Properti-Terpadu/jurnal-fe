@@ -49,7 +49,7 @@ Priority changed: the ledger (`GeneralJournal`) goes before the remaining small 
 |---|---|---|---|---|---|---|
 | `BankCash` to `bank-cash` | todo | todo | todo | todo | todo | R3 |
 | `BankCash/PettyCash` to `petty-cash` | todo | todo | todo | todo | todo | R3 |
-| `ResultReport` to `reports` | todo | todo | todo | todo | todo | R3 |
+| `ResultReport` to `reports` | done | done | done | done | done | R3 |
 
 ## Milestone 3: Core ledger (R2), split of `GeneralJournal`
 

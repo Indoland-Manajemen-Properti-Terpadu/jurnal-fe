@@ -18,18 +18,20 @@ import {
 import UserManagement from '@/module/SettingMenu/UserManagement/Main/pages/UserManagement';
 import AddUserForm from '@/module/SettingMenu/UserManagement/User/components/AddUserForm/AddUserForm';
 import AddRoleForm from '@/module/SettingMenu/UserManagement/Role/components/AddRoleForm/AddRoleForm';
-import ReportCatalogPage from '@/module/ResultReport/Catalog/pages/ReportCatalogPage';
-import BalanceSheetPage from '@/module/ResultReport/BalanceSheet/pages/BalanceSheetPage';
+import {
+  ReportCatalogPage,
+  BalanceSheetPage,
+  TrialBalancePage,
+  IncomeStatementPage,
+  IncomeStatementBudgetPage,
+  CashFlowPage,
+  JournalEntryReportPage,
+  BusinessSummaryPage,
+  EquityChangesPage,
+  BudgetManagementPage,
+  GeneralLedgerPage,
+} from '@/module/reports';
 import { ImportBankStatementDraftPage } from '@/module/bank-statements';
-import TrialBalancePage from '@/module/ResultReport/BusinessOverview/page/TrialBalancePage';
-import IncomeStatementPage from '@/module/ResultReport/BusinessOverview/page/IncomeStatementPage';
-import CashFlowPage from '@/module/ResultReport/BusinessOverview/page/CashFlowPage';
-import JournalEntryPage from '@/module/ResultReport/BusinessOverview/page/JournalEntryPage';
-import BusinessSumaryPage from '@/module/ResultReport/BusinessOverview/page/BusinessSumaryPage';
-import IncomeStatementBudgetPage from '@/module/ResultReport/BusinessOverview/page/IncomeStatementBudgetPage';
-import GeneralLedgerPage from '@/module/ResultReport/GeneralLedger/pages/GeneralLedgerPage';
-import EquityChangesPage from '@/module/ResultReport/BusinessOverview/page/EquityChangesPage';
-import BudgetManagementPage from '@/module/ResultReport/BusinessOverview/page/BudgetManagementPage';
 import AddTransferMoneyPage from '@/module/BankCash/TransferMoney/pages/AddTransferMoney';
 import AddReceiveMoneyPage from '@/module/BankCash/ReceiveMoney/page/AddReceiveMoney';
 import BankAndCashMainPage from '@/module/BankCash/Main/pages/BankAndCashMainPage';
@@ -242,11 +244,15 @@ const router = createBrowserRouter([
   },
   {
     path: routes.resultReport.journalEntry,
-    element: <JournalEntryPage />,
+    element: <JournalEntryReportPage />,
   },
   {
-    path: routes.resultReport.businessSumary,
-    element: <BusinessSumaryPage />,
+    path: routes.resultReport.businessSummary,
+    element: <BusinessSummaryPage />,
+  },
+  {
+    path: routes.resultReport.legacyBusinessSumary,
+    element: <Navigate to={routes.resultReport.businessSummary} replace />,
   },
   {
     path: routes.resultReport.incomeStatementBudget,
