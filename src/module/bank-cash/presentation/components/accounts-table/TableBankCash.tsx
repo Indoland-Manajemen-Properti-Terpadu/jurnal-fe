@@ -36,7 +36,7 @@ import { useNavigate } from 'react-router-dom';
 import { routes } from '@/router/routes';
 import { formatCurrency } from '@/utils/FormatCurrency';
 import { JournalAccounts } from '@/module/chart-of-accounts';
-import { isBankAccount } from '@/module/bank-cash/presentation/components/stats/StatsBankCashGrid';
+import { isBankAccount } from '@/module/bank-cash/domain/bankCashSummary';
 import { useTranslation } from '@/i18n';
 import EmptyState from '@/components/EmptyState/EmptyState';
 import classes from '@/module/bank-cash/presentation/components/accounts-table/TableBankCash.module.css';

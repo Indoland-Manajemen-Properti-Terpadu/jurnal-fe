@@ -40,6 +40,11 @@ import { formatCurrency } from '@/utils/FormatCurrency';
 import { useJournalAccounts } from '@/module/chart-of-accounts';
 import { useBankCashTransactionMutation } from '@/module/bank-cash/infrastructure/bankCashTransactionService';
 import { useTranslation } from '@/i18n';
+import {
+  balanceAfter,
+  buildSentPayload,
+  sumLineAmounts,
+} from '@/module/bank-cash/domain/transactionPayload';
 
 interface SentItemRow {
   id: string;
@@ -104,9 +109,7 @@ export const AddSentMoneyPage = () => {
   }, [bankAndCashAccounts, payFromAccountId]);
 
   // Calculate Total
-  const totalAmount = useMemo(() => {
-    return items.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
-  }, [items]);
+  const totalAmount = useMemo(() => sumLineAmounts(items), [items]);
 
   // Row Manipulation
   const handleAddItem = () => {
@@ -140,33 +143,19 @@ export const AddSentMoneyPage = () => {
     e.preventDefault();
     if (!isFormValid || !payFromAccountId) return;
 
-    const payload = {
-      transactionDate,
-      notes:
-        notes.trim() ||
-        `Pengeluaran kas dari ${selectedPayAccount?.name || 'Kas/Bank'}${recipientName ? ` untuk ${recipientName}` : ''}`,
-      transactionDetail: [
-        // Debit: Akun-akun biaya / beban / pengeluaran
-        ...items.map((it) => ({
-          account: it.accountId,
-          description:
-            it.description.trim() || `Pengeluaran kas${recipientName ? ` - ${recipientName}` : ''}`,
-          debit: Number(it.amount),
-        })),
-        // Kredit: Akun Kas & Bank sumber pembayaran
-        {
-          account: payFromAccountId,
-          description:
-            notes.trim() || `Pengeluaran kas${recipientName ? ` kepada ${recipientName}` : ''}`,
-          credit: totalAmount,
-        },
-      ],
-    };
-
-    submitSent(payload);
+    submitSent(
+      buildSentPayload({
+        transactionDate,
+        payFromAccountId,
+        payFromAccountName: selectedPayAccount?.name,
+        recipientName,
+        notes,
+        items,
+      })
+    );
   };
 
-  const remainingBalance = (selectedPayAccount?.amount || 0) - totalAmount;
+  const remainingBalance = balanceAfter(selectedPayAccount?.amount || 0, totalAmount);
   const isOverdraft = remainingBalance < 0;
 
   return (

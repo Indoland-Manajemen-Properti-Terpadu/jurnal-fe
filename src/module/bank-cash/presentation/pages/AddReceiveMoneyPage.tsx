@@ -43,6 +43,7 @@ import { formatCurrency } from '@/utils/FormatCurrency';
 import { useJournalAccounts } from '@/module/chart-of-accounts';
 import { useBankCashTransactionMutation } from '@/module/bank-cash/infrastructure/bankCashTransactionService';
 import { useTranslation } from '@/i18n';
+import { buildReceivePayload, sumLineAmounts } from '@/module/bank-cash/domain/transactionPayload';
 
 interface ReceiveItemRow {
   id: string;
@@ -107,9 +108,7 @@ export const AddReceiveMoneyPage = () => {
   }, [bankAndCashAccounts, depositToAccountId]);
 
   // Calculate Total
-  const totalAmount = useMemo(() => {
-    return items.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
-  }, [items]);
+  const totalAmount = useMemo(() => sumLineAmounts(items), [items]);
 
   // Row Manipulation
   const handleAddItem = () => {
@@ -143,30 +142,16 @@ export const AddReceiveMoneyPage = () => {
     e.preventDefault();
     if (!isFormValid || !depositToAccountId) return;
 
-    const payload = {
-      transactionDate,
-      notes:
-        notes.trim() ||
-        `Penerimaan kas masuk ke ${selectedDepositAccount?.name || 'Kas/Bank'}${payerName ? ` dari ${payerName}` : ''}`,
-      transactionDetail: [
-        // Debit: Akun Kas & Bank yang bertambah
-        {
-          account: depositToAccountId,
-          description:
-            notes.trim() || `Penerimaan kas masuk${payerName ? ` dari ${payerName}` : ''}`,
-          debit: totalAmount,
-        },
-        // Kredit: Akun-akun sumber penerimaan
-        ...items.map((it) => ({
-          account: it.accountId,
-          description:
-            it.description.trim() || `Penerimaan kas${payerName ? ` - ${payerName}` : ''}`,
-          credit: Number(it.amount),
-        })),
-      ],
-    };
-
-    submitReceive(payload);
+    submitReceive(
+      buildReceivePayload({
+        transactionDate,
+        depositToAccountId,
+        depositAccountName: selectedDepositAccount?.name,
+        payerName,
+        notes,
+        items,
+      })
+    );
   };
 
   return (

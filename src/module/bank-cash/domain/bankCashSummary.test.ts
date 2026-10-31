@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { JournalAccounts } from '@/module/chart-of-accounts';
-import { summarizeBankCashAccounts } from '@/module/bank-cash/presentation/components/stats/StatsBankCashGrid';
+import { summarizeBankCashAccounts } from '@/module/bank-cash/domain/bankCashSummary';
 
 const account = (
   id: string,
@@ -32,6 +32,20 @@ describe('summarizeBankCashAccounts', () => {
       bankAccountCount: 1,
       cashAccountCount: 1,
       accountCount: 2,
+    });
+  });
+});
+
+describe('summarizeBankCashAccounts with decimals', () => {
+  it('adds balances without float drift', () => {
+    const accounts = [
+      { id: 'a', name: 'Bank BCA', amount: 0.1, isBankAndCash: true, category: { name: 'Bank' } },
+      { id: 'b', name: 'Bank BRI', amount: 0.2, isBankAndCash: true, category: { name: 'Bank' } },
+    ] as JournalAccounts[];
+
+    expect(summarizeBankCashAccounts(accounts)).toMatchObject({
+      totalBankBalance: 0.3,
+      totalLiquidity: 0.3,
     });
   });
 });

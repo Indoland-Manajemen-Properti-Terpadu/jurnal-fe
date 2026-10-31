@@ -1,50 +1,9 @@
 import { Box, Group, Paper, SimpleGrid, Skeleton, Stack, Text } from '@mantine/core';
 import { formatCurrency } from '@/utils/FormatCurrency';
 import type { JournalAccounts } from '@/module/chart-of-accounts';
+import { summarizeBankCashAccounts } from '@/module/bank-cash/domain/bankCashSummary';
 import { useTranslation } from '@/i18n';
 import classes from '@/module/bank-cash/presentation/components/stats/StatsBankCashGrid.module.css';
-
-export const isBankAccount = (account: JournalAccounts): boolean => {
-  const name = (account.name || '').toLowerCase();
-  const categoryName = (account.category?.name || '').toLowerCase();
-  return (
-    categoryName.includes('bank') ||
-    name.includes('bank') ||
-    name.includes('bca') ||
-    name.includes('mandiri') ||
-    name.includes('bri') ||
-    name.includes('bni') ||
-    name.includes('cimb') ||
-    name.includes('permata') ||
-    name.includes('danamon') ||
-    name.includes('bsi') ||
-    name.includes('giro') ||
-    name.includes('rekening')
-  );
-};
-
-export function summarizeBankCashAccounts(accounts: JournalAccounts[]) {
-  const managedAccounts = (accounts || []).filter((account) => account.isBankAndCash);
-  const bankAccounts = managedAccounts.filter(isBankAccount);
-  const cashAccounts = managedAccounts.filter((account) => !isBankAccount(account));
-  const totalBankBalance = bankAccounts.reduce(
-    (total, account) => total + (Number(account.amount) || 0),
-    0
-  );
-  const totalCashBalance = cashAccounts.reduce(
-    (total, account) => total + (Number(account.amount) || 0),
-    0
-  );
-
-  return {
-    totalLiquidity: totalBankBalance + totalCashBalance,
-    totalBankBalance,
-    totalCashBalance,
-    bankAccountCount: bankAccounts.length,
-    cashAccountCount: cashAccounts.length,
-    accountCount: managedAccounts.length,
-  };
-}
 
 export type StatsBankCashGridProps = {
   accounts: JournalAccounts[];

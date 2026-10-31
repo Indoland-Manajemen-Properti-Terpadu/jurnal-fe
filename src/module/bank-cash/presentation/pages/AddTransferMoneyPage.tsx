@@ -38,6 +38,7 @@ import { formatCurrency } from '@/utils/FormatCurrency';
 import { useJournalAccounts } from '@/module/chart-of-accounts';
 import { useBankCashTransactionMutation } from '@/module/bank-cash/infrastructure/bankCashTransactionService';
 import { useTranslation } from '@/i18n';
+import { buildTransferPayload } from '@/module/bank-cash/domain/transactionPayload';
 
 export const AddTransferMoneyPage = () => {
   const navigate = useNavigate();
@@ -93,26 +94,19 @@ export const AddTransferMoneyPage = () => {
     e.preventDefault();
     if (!isFormValid || !accountFromId || !accountToId) return;
 
-    const payload = {
-      transactionDate,
-      notes:
-        notes.trim() ||
-        `Transfer dana dari ${selectedFromAccount?.name || 'Kas'} ke ${selectedToAccount?.name || 'Bank'}`,
-      transactionDetail: [
-        {
-          account: accountToId,
-          description: `Transfer masuk dari ${selectedFromAccount?.name || 'Akun Asal'} (${selectedFromAccount?.accountNumber || ''})`,
-          debit: amount,
-        },
-        {
-          account: accountFromId,
-          description: `Transfer keluar ke ${selectedToAccount?.name || 'Akun Tujuan'} (${selectedToAccount?.accountNumber || ''})`,
-          credit: amount,
-        },
-      ],
-    };
-
-    submitTransfer(payload);
+    submitTransfer(
+      buildTransferPayload({
+        transactionDate,
+        fromAccountId: accountFromId,
+        fromAccountName: selectedFromAccount?.name,
+        fromAccountNumber: selectedFromAccount?.accountNumber,
+        toAccountId: accountToId,
+        toAccountName: selectedToAccount?.name,
+        toAccountNumber: selectedToAccount?.accountNumber,
+        amount,
+        notes,
+      })
+    );
   };
 
   return (
