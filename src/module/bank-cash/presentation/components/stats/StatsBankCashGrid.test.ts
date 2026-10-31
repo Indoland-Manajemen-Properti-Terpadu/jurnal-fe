@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { JournalAccounts } from '@/module/chart-of-accounts';
-import { summarizeBankCashAccounts } from './StatsBankCashGrid';
+import { summarizeBankCashAccounts } from '@/module/bank-cash/presentation/components/stats/StatsBankCashGrid';
 
 const account = (
   id: string,

@@ -13,12 +13,12 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { routes } from '@/router/routes';
 import ModuleHeader from '@/components/ModuleHeader/ModuleHeader';
-import BankAndCashLayout from './Layout';
-import StatsBankCashGrid from '../components/StatsBankCashGrid/StatsBankCashGrid';
-import { TableBankCash } from '../components/Table/TableBankCash';
+import BankAndCashLayout from '@/module/bank-cash/presentation/pages/BankAndCashLayout';
+import StatsBankCashGrid from '@/module/bank-cash/presentation/components/stats/StatsBankCashGrid';
+import { TableBankCash } from '@/module/bank-cash/presentation/components/accounts-table/TableBankCash';
 import { useJournalAccounts } from '@/module/chart-of-accounts';
 import { useTranslation } from '@/i18n';
-import classes from './BankAndCashMainPage.module.css';
+import classes from '@/module/bank-cash/presentation/pages/BankAndCashMainPage.module.css';
 
 export function BankAndCashMainPage() {
   const navigate = useNavigate();

@@ -1,7 +1,7 @@
 import type { StoryObj } from '@storybook/react';
 import MOCKS from '@/../public/mocks/StatsGrid.json';
 
-import StatsGrid from './StatsBankCashGrid';
+import StatsGrid from '@/module/bank-cash/presentation/components/stats/StatsBankCashGrid';
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta = {

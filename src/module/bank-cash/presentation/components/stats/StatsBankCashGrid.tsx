@@ -2,7 +2,7 @@ import { Box, Group, Paper, SimpleGrid, Skeleton, Stack, Text } from '@mantine/c
 import { formatCurrency } from '@/utils/FormatCurrency';
 import type { JournalAccounts } from '@/module/chart-of-accounts';
 import { useTranslation } from '@/i18n';
-import classes from './StatsBankCashGrid.module.css';
+import classes from '@/module/bank-cash/presentation/components/stats/StatsBankCashGrid.module.css';
 
 export const isBankAccount = (account: JournalAccounts): boolean => {
   const name = (account.name || '').toLowerCase();

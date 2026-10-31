@@ -41,7 +41,7 @@ import ModuleHeader from '@/components/ModuleHeader/ModuleHeader';
 import { routes } from '@/router/routes';
 import { formatCurrency } from '@/utils/FormatCurrency';
 import { useJournalAccounts } from '@/module/chart-of-accounts';
-import { useBankCashTransactionMutation } from '../../services/bankCashTransactionService';
+import { useBankCashTransactionMutation } from '@/module/bank-cash/infrastructure/bankCashTransactionService';
 import { useTranslation } from '@/i18n';
 
 interface ReceiveItemRow {

@@ -12,7 +12,7 @@ import ModuleHeader from '@/components/ModuleHeader/ModuleHeader';
 import { useTranslation } from '@/i18n';
 import { formatCurrency } from '@/utils/FormatCurrency';
 import { dateFormatV1 } from '@/utils/FormatDate';
-import BankAndCashLayout from '../../Main/pages/Layout';
+import BankAndCashLayout from '@/module/bank-cash/presentation/pages/BankAndCashLayout';
 import { CashCountModal } from '../components/CashCountModal';
 import { CreateVoucherModal } from '../components/CreateVoucherModal';
 import { PettyCashBalancePanel } from '../components/PettyCashBalancePanel';

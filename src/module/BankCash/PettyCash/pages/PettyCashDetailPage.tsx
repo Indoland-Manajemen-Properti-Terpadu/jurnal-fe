@@ -6,7 +6,7 @@ import ModuleHeader from '@/components/ModuleHeader/ModuleHeader';
 import { useTranslation } from '@/i18n';
 import { routes } from '@/router/routes';
 import { dateFormatV1 } from '@/utils/FormatDate';
-import BankAndCashLayout from '../../Main/pages/Layout';
+import BankAndCashLayout from '@/module/bank-cash/presentation/pages/BankAndCashLayout';
 import { CreateVoucherModal } from '../components/CreateVoucherModal';
 import { PettyCashBalancePanel } from '../components/PettyCashBalancePanel';
 import { VoucherDetailDrawer } from '../components/VoucherDetailDrawer';
