@@ -1,3 +1,6 @@
+import type { CountListParams } from '@/module/petty-cash/infrastructure/pettyCashCountApi';
+import type { ReimbursementListParams } from '@/module/petty-cash/infrastructure/pettyCashReplenishmentApi';
+import type { ReplenishmentPreviewInput } from '@/module/petty-cash/domain/replenishment';
 import type {
   CashBookParams,
   FundListParams,
@@ -22,6 +25,19 @@ export const pettyCashKeys = {
   vouchers: (scope: string) => [...pettyCashKeys.all(scope), 'vouchers'] as const,
   voucherList: (scope: string, params: VoucherListParams) =>
     [...pettyCashKeys.vouchers(scope), 'list', params] as const,
+  counts: (scope: string) => [...pettyCashKeys.all(scope), 'counts'] as const,
+  countList: (scope: string, params: CountListParams) =>
+    [...pettyCashKeys.counts(scope), 'list', params] as const,
+  count: (scope: string, countId: string) =>
+    [...pettyCashKeys.counts(scope), 'detail', countId] as const,
+  reimbursements: (scope: string) => [...pettyCashKeys.all(scope), 'reimbursements'] as const,
+  reimbursementList: (scope: string, params: ReimbursementListParams) =>
+    [...pettyCashKeys.reimbursements(scope), 'list', params] as const,
+  reimbursement: (scope: string, id: string) =>
+    [...pettyCashKeys.reimbursements(scope), 'detail', id] as const,
+  replenishmentPreview: (scope: string, input: ReplenishmentPreviewInput, date: string) =>
+    // Outside the reimbursements key: a saved change refreshes those, not a throwaway preview.
+    [...pettyCashKeys.all(scope), 'replenishment-preview', input, date] as const,
   voucher: (scope: string, voucherId: string) =>
     [...pettyCashKeys.vouchers(scope), 'detail', voucherId] as const,
 };

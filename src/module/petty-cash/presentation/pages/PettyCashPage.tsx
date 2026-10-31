@@ -70,7 +70,7 @@ export default function PettyCashPage() {
               onChange={(fundId) => setParams({ [FUND_PARAM]: fundId }, { replace: true })}
             />
           </Paper>
-          <PettyCashWorkspace key={selected.id} fund={selected} />
+          <PettyCashWorkspace key={selected.id} fund={selected} initialTab={params.get('tab')} />
         </>
       )}
     </PettyCashPageFrame>

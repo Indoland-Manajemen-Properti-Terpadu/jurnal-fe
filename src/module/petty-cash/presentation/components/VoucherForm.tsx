@@ -1,5 +1,5 @@
-import { useRef, useState, type ReactNode } from 'react';
-import { Grid, Group, Paper, Stack, Switch, Text, TextInput, ThemeIcon } from '@mantine/core';
+import { useRef, useState } from 'react';
+import { Grid, Stack, Switch, TextInput } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
 import dayjs from 'dayjs';
 import {
@@ -27,6 +27,7 @@ import {
 } from '@/module/petty-cash/domain/voucherForm';
 import { AttachmentDeleteDialog } from '@/module/petty-cash/presentation/components/AttachmentDeleteDialog';
 import { QueryErrorState } from '@/module/petty-cash/presentation/components/QueryErrorState';
+import { SectionCard } from '@/module/petty-cash/presentation/components/SectionCard';
 import { VoucherAttachmentsField } from '@/module/petty-cash/presentation/components/VoucherAttachmentsField';
 import { VoucherFormSummary } from '@/module/petty-cash/presentation/components/VoucherFormSummary';
 import { VoucherLinesEditor } from '@/module/petty-cash/presentation/components/VoucherLinesEditor';
@@ -43,32 +44,6 @@ interface Props {
   fund: PettyCashFund;
   /** Present when editing a draft or rejected voucher. */
   voucher?: PettyCashVoucherRecord;
-}
-
-function SectionCard({
-  icon,
-  title,
-  subtitle,
-  children,
-}: Readonly<{ icon: ReactNode; title: string; subtitle: string; children: ReactNode }>) {
-  return (
-    <Paper withBorder radius="md" p="lg" bg="white" shadow="xs">
-      <Group gap="sm" mb="md" wrap="nowrap">
-        <ThemeIcon size={36} radius="md" variant="light" color="primary">
-          {icon}
-        </ThemeIcon>
-        <div>
-          <Text fw={700} fz={15}>
-            {title}
-          </Text>
-          <Text fz={12} c="dimmed">
-            {subtitle}
-          </Text>
-        </div>
-      </Group>
-      {children}
-    </Paper>
-  );
 }
 
 /** Record or edit a petty cash voucher: information, expense lines, optional tax invoice and receipts. */

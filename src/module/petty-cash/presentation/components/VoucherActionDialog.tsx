@@ -1,6 +1,5 @@
-import { useState } from 'react';
-import { Button, Group, Modal, Stack, Text, Textarea } from '@mantine/core';
 import { useTranslation } from '@/i18n';
+import { DecisionDialog } from '@/module/petty-cash/presentation/components/DecisionDialog';
 
 export type VoucherDialogKind = 'approve' | 'reject' | 'void';
 
@@ -21,71 +20,37 @@ export function VoucherActionDialog({
   onConfirm,
 }: Readonly<Props>) {
   const { t } = useTranslation('pettyCash');
-  const [reason, setReason] = useState('');
-  const [touched, setTouched] = useState(false);
-  const needsReason = kind === 'reject' || kind === 'void';
-  const reasonMissing = needsReason && reason.trim() === '';
-
-  const close = () => {
-    setReason('');
-    setTouched(false);
-    onClose();
-  };
-
-  const confirm = () => {
-    if (reasonMissing) {
-      setTouched(true);
-      return;
-    }
-    onConfirm(needsReason ? reason.trim() : undefined);
-  };
 
   return (
-    <Modal
+    <DecisionDialog
       opened={kind !== null}
-      onClose={close}
-      centered
-      radius="md"
-      title={
-        kind ? <Text fw={700}>{t(`actions.${kind}Title`, { number: voucherNumber })}</Text> : null
+      title={kind ? t(`actions.${kind}Title`, { number: voucherNumber }) : ''}
+      body={
+        kind === 'approve'
+          ? t('actions.approveBody')
+          : kind === 'void'
+            ? t('actions.voidBody')
+            : undefined
       }
-      closeButtonProps={{ 'aria-label': t('common.close') }}
-    >
-      {kind && (
-        <Stack gap="md">
-          {kind === 'approve' && <Text size="sm">{t('actions.approveBody')}</Text>}
-          {kind === 'void' && <Text size="sm">{t('actions.voidBody')}</Text>}
-          {needsReason && (
-            <Textarea
-              label={t(kind === 'reject' ? 'actions.rejectReason' : 'actions.voidReason')}
-              placeholder={t(
-                kind === 'reject'
-                  ? 'actions.rejectReasonPlaceholder'
-                  : 'actions.voidReasonPlaceholder'
-              )}
-              value={reason}
-              onChange={(event) => setReason(event.currentTarget.value)}
-              error={touched && reasonMissing ? t('actions.reasonRequired') : undefined}
-              minRows={3}
-              autosize
-              data-autofocus
-              required
-            />
-          )}
-          <Group justify="flex-end" gap="sm">
-            <Button variant="default" onClick={close} disabled={loading}>
-              {t('actions.keep')}
-            </Button>
-            <Button
-              color={kind === 'approve' ? 'primary' : 'red'}
-              loading={loading}
-              onClick={confirm}
-            >
-              {t(`actions.${kind}`)}
-            </Button>
-          </Group>
-        </Stack>
-      )}
-    </Modal>
+      reasonLabel={
+        kind === 'reject'
+          ? t('actions.rejectReason')
+          : kind === 'void'
+            ? t('actions.voidReason')
+            : undefined
+      }
+      reasonPlaceholder={
+        kind === 'reject'
+          ? t('actions.rejectReasonPlaceholder')
+          : kind === 'void'
+            ? t('actions.voidReasonPlaceholder')
+            : undefined
+      }
+      confirmLabel={kind ? t(`actions.${kind}`) : ''}
+      confirmColor={kind === 'approve' ? 'primary' : 'red'}
+      loading={loading}
+      onClose={onClose}
+      onConfirm={onConfirm}
+    />
   );
 }

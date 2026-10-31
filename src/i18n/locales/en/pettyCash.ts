@@ -1,3 +1,5 @@
+import { pettyCashCounts } from './pettyCashCounts';
+
 export const pettyCash = {
   common: {
     page: 'Page',
@@ -29,7 +31,12 @@ export const pettyCash = {
     notFound: 'Petty cash fund not found',
     notFoundDescription: 'This fund may have been removed, or the link is wrong.',
     backToList: 'Back to petty cash funds',
-    tabs: { vouchers: 'Vouchers', cashBook: 'Cash book' },
+    tabs: {
+      vouchers: 'Vouchers',
+      counts: 'Cash counts',
+      replenishments: 'Replenishments',
+      cashBook: 'Cash book',
+    },
   },
   balance: {
     available: 'Available cash',
@@ -222,6 +229,8 @@ export const pettyCash = {
     deleteAttachment: 'Delete receipt {{name}}',
     approveTitle: 'Approve voucher {{number}}?',
     approveBody: 'Once approved, the voucher joins the replenishment queue.',
+    cancelReplenishment: 'Cancel replenishment',
+    disburse: 'Pay out',
     rejectTitle: 'Reject voucher {{number}}',
     rejectReason: 'Reason for rejection',
     rejectReasonPlaceholder: 'Explain so the creator can fix it',
@@ -245,10 +254,21 @@ export const pettyCash = {
     approved: 'Voucher {{number}} approved.',
     rejected: 'Voucher {{number}} rejected.',
     voided: 'Voucher {{number}} voided.',
+    countCreated: 'Cash count {{number}} saved as a draft.',
+    countSubmitted: 'Cash count {{number}} submitted.',
+    countApproved: 'Cash count {{number}} approved.',
+    countRejected: 'Cash count {{number}} rejected.',
+    replenishmentCreated: 'Replenishment {{number}} requested.',
+    replenishmentApproved: 'Replenishment {{number}} approved.',
+    replenishmentRejected: 'Replenishment {{number}} rejected.',
+    replenishmentCancelled: 'Replenishment {{number}} cancelled.',
+    replenishmentDisbursed: 'Replenishment {{number}} paid out. Cash on hand is now {{cash}}.',
+    replenishmentDisbursedNoCash: 'Replenishment {{number}} paid out.',
     attachmentUploaded: 'Receipt added.',
     attachmentDeleted: 'Receipt deleted.',
     failedTitle: 'Not completed',
   },
+  ...pettyCashCounts,
   errors: {
     generic: 'Something went wrong. Please try again in a moment.',
     rejected: 'This request could not be processed. Please check your entries.',

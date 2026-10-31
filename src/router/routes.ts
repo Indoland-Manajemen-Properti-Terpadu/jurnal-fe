@@ -30,6 +30,8 @@ export const routes = {
     detail: '/bank-cash/petty-cash/:fundId',
     voucherAdd: '/bank-cash/petty-cash/:fundId/voucher/add',
     voucherEdit: '/bank-cash/petty-cash/:fundId/voucher/:voucherId/edit',
+    countAdd: '/bank-cash/petty-cash/:fundId/count/add',
+    replenishmentAdd: '/bank-cash/petty-cash/:fundId/replenishment/add',
   },
 
   contacts: {

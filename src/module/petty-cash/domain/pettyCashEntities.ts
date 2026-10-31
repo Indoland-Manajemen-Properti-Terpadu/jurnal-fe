@@ -1,5 +1,7 @@
 import type {
+  CountStatus,
   FundStatus,
+  ReimbursementStatus,
   VoucherSource,
   VoucherStatus,
 } from '@/module/petty-cash/domain/pettyCashStatus';
@@ -166,4 +168,115 @@ export interface PettyCashLookups {
   taxes: TaxRef[];
   tags: Array<{ id: string; name: string; color: string }>;
   users: UserRef[];
+}
+
+export type VarianceType = 'SHORT' | 'OVER' | 'BALANCED';
+
+/** Pieces counted per denomination, as the backend stores them. */
+export interface CountDenominations {
+  notes: Record<string, number>;
+  coins: Record<string, number>;
+}
+
+export interface CountRecord {
+  id: string;
+  countNumber: string;
+  fund: { id: string; code: string; name: string; custodianId: string };
+  countedAt: string;
+  countedBy: UserRef | null;
+  witnessedBy: UserRef | null;
+  denominations: CountDenominations;
+  totalPhysicalCash: number;
+  pendingVoucherTotal: number;
+  outstandingAdvanceTotal: number;
+  /** pagu - pending vouchers - outstanding advances, worked out by the backend. */
+  expectedCash: number;
+  /** Counted minus expected: negative is a shortage. */
+  varianceAmount: number;
+  varianceType: VarianceType;
+  reason: string | null;
+  status: CountStatus;
+  submittedAt: string | null;
+  approvedBy: UserRef | null;
+  approvedAt: string | null;
+  rejectedBy: UserRef | null;
+  rejectedAt: string | null;
+  rejectedReason: string | null;
+  settledByReimbursementId: string | null;
+  /** A cash movement happened after the count, so it no longer reflects the cash in the box. */
+  isStale: boolean;
+  createdAt: string;
+}
+
+export interface ReimbursementItem {
+  voucherId: string;
+  /** Present in the detail answer only; list items carry just the voucher id. */
+  voucher: {
+    voucherNumber: string;
+    transactionDate: string;
+    beneficiary: string;
+    totalAmount: number;
+    status: VoucherStatus;
+  } | null;
+  amount: number;
+}
+
+export interface ReimbursementRecord {
+  id: string;
+  reimbursementNumber: string;
+  fund: { id: string; code: string; name: string; custodianId: string };
+  requestDate: string;
+  bankAccount: AccountRef;
+  count: {
+    id: string;
+    countNumber: string;
+    countedAt: string;
+    varianceAmount: number;
+    varianceType: VarianceType;
+    status: CountStatus;
+  } | null;
+  items: ReimbursementItem[];
+  voucherTotal: number;
+  /** Open variance of the approved count: negative is a shortage the fund gets refilled for. */
+  varianceAmount: number;
+  /** What the bank pays: vouchers plus the shortage (or minus a surplus). */
+  totalAmount: number;
+  status: ReimbursementStatus;
+  notes: string | null;
+  submittedBy: UserRef | null;
+  submittedAt: string | null;
+  approvedBy: UserRef | null;
+  approvedAt: string | null;
+  rejectedBy: UserRef | null;
+  rejectedAt: string | null;
+  rejectedReason: string | null;
+  cancelledBy: UserRef | null;
+  cancelledAt: string | null;
+  disbursedBy: UserRef | null;
+  disbursedAt: string | null;
+  disbursementDate: string | null;
+  journalId: string | null;
+  /** Only in the answer to a disbursement. */
+  cashBalanceAfter: number | null;
+}
+
+export interface JournalPreviewLine {
+  account: string;
+  debit: number;
+  credit: number;
+}
+
+export interface ReplenishmentPreview {
+  voucherTotal: number;
+  varianceAmount: number;
+  varianceType: VarianceType;
+  totalAmount: number;
+  voucherCount: number;
+  countId: string | null;
+  expenseBreakdown: Array<{ accountId: string; account: string; amount: number }>;
+  taxBreakdown: Array<{ accountId: string; account: string; amount: number }>;
+  journalPreview: JournalPreviewLine[];
+  isBalanced: boolean;
+  cashAfterDisbursement: number;
+  warnings: Array<{ code: string; message: string }>;
 }

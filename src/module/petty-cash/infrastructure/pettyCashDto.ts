@@ -1,5 +1,7 @@
 import type {
+  CountStatus,
   FundStatus,
+  ReimbursementStatus,
   VoucherSource,
   VoucherStatus,
 } from '@/module/petty-cash/domain/pettyCashStatus';
@@ -159,4 +161,100 @@ export interface MyPermissionsDto {
     update: boolean;
     delete: boolean;
   }>;
+}
+
+export type VarianceTypeDto = 'SHORT' | 'OVER' | 'BALANCED';
+
+export interface CountDto {
+  id: string;
+  fund: { id: string; code: string; name: string; custodian: string };
+  countNumber: string;
+  countedAt: string;
+  countedBy: UserRefDto | null;
+  witnessedBy: UserRefDto | null;
+  /** Banknote pieces by denomination, plus a nested `coins` object. */
+  denominations: Record<string, number | Record<string, number>>;
+  totalPhysicalCash: number;
+  pendingVoucherTotal: number;
+  outstandingAdvanceTotal: number;
+  expectedCash: number;
+  varianceAmount: number;
+  varianceType: VarianceTypeDto;
+  reason: string | null;
+  status: CountStatus;
+  submittedAt: string | null;
+  approvedBy: UserRefDto | null;
+  approvedAt: string | null;
+  rejectedBy: UserRefDto | null;
+  rejectedAt: string | null;
+  rejectedReason: string | null;
+  settledByReimbursement: string | null;
+  isStale?: boolean;
+  createdAt: string;
+}
+
+export interface ReimbursementItemDto {
+  /** An object in the detail answer, a bare id in list items. */
+  voucher:
+    | string
+    | {
+        id: string;
+        voucherNumber: string;
+        transactionDate: string;
+        beneficiary: string;
+        totalAmount: number;
+        status: VoucherStatus;
+      };
+  amount: number;
+}
+
+export interface ReimbursementDto {
+  id: string;
+  reimbursementNumber: string;
+  fund: { id: string; code: string; name: string; custodian: string };
+  requestDate: string;
+  bankAccount: AccountRefDto;
+  count: {
+    id: string;
+    countNumber: string;
+    countedAt: string;
+    varianceAmount: number;
+    varianceType: VarianceTypeDto;
+    status: CountStatus;
+  } | null;
+  items: ReimbursementItemDto[];
+  voucherTotal: number;
+  varianceAmount: number;
+  totalAmount: number;
+  status: ReimbursementStatus;
+  notes: string | null;
+  submittedBy: UserRefDto | null;
+  submittedAt: string | null;
+  approvedBy: UserRefDto | null;
+  approvedAt: string | null;
+  rejectedBy: UserRefDto | null;
+  rejectedAt: string | null;
+  rejectedReason: string | null;
+  cancelledBy: UserRefDto | null;
+  cancelledAt: string | null;
+  disbursedBy: UserRefDto | null;
+  disbursedAt: string | null;
+  disbursementDate: string | null;
+  journal: string | null;
+  cashBalanceAfter?: number;
+}
+
+export interface ReplenishmentPreviewDto {
+  voucherTotal: number;
+  varianceAmount: number;
+  varianceType: VarianceTypeDto;
+  totalAmount: number;
+  voucherCount: number;
+  countId: string | null;
+  expenseBreakdown: Array<{ accountId: string; account: string; amount: number }>;
+  taxBreakdown: Array<{ accountId: string; account: string; amount: number }>;
+  journalPreview: Array<{ account: string; debit: number; credit: number }>;
+  isBalanced: boolean;
+  cashAfterDisbursement: number;
+  warnings: Array<{ code: string; message: string }>;
 }

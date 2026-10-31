@@ -78,7 +78,7 @@ describe('voucher writes', () => {
     expect(post).toHaveBeenCalledWith(
       '/v1/petty-cash/vouchers',
       { fundId: 'f1', ...input, submit: false },
-      { headers: { 'Idempotency-Key': 'key-1' } }
+      { timeout: 60000, headers: { 'Idempotency-Key': 'key-1' } }
     );
   });
 
@@ -100,13 +100,17 @@ describe('voucher writes', () => {
     expect(form.has('description')).toBe(false);
     expect(JSON.parse(form.get('lines') as string)).toEqual(input.lines);
     expect((form.getAll('attachments')[0] as File).name).toBe('nota.png');
-    expect(config).toEqual({ headers: { 'Idempotency-Key': 'key-2' } });
+    expect(config).toEqual({ timeout: 120000, headers: { 'Idempotency-Key': 'key-2' } });
   });
 
   it('updates with PATCH and never submits as part of the update', async () => {
     patch.mockResolvedValue(ok);
     await updateVoucher('v1', input);
-    expect(patch).toHaveBeenCalledWith('/v1/petty-cash/vouchers/v1', { ...input, submit: false });
+    expect(patch).toHaveBeenCalledWith(
+      '/v1/petty-cash/vouchers/v1',
+      { ...input, submit: false },
+      { timeout: 60000 }
+    );
   });
 
   it.each([
@@ -116,6 +120,7 @@ describe('voucher writes', () => {
     post.mockResolvedValue(ok);
     await call();
     expect(post).toHaveBeenCalledWith(`/v1/petty-cash/vouchers/v1/${action}`, undefined, {
+      timeout: 60000,
       headers: { 'Idempotency-Key': 'k' },
     });
   });
@@ -142,7 +147,9 @@ describe('voucher writes', () => {
     expect((form.getAll('attachments')[0] as File).name).toBe('nota.pdf');
 
     await deleteVoucherAttachment('v1', 'a1');
-    expect(del).toHaveBeenCalledWith('/v1/petty-cash/vouchers/v1/attachments/a1');
+    expect(del).toHaveBeenCalledWith('/v1/petty-cash/vouchers/v1/attachments/a1', {
+      timeout: 60000,
+    });
   });
 
   it('rethrows a normalized error with the domain code', async () => {
@@ -156,5 +163,20 @@ describe('voucher writes', () => {
 
     expect(failure).toBeInstanceOf(PettyCashError);
     expect(failure).toMatchObject({ kind: 'domain', code: 'ATTACHMENT_REQUIRED' });
+  });
+
+  it('sets a longer timeout for uploads than for ordinary writes, and a timeout is an unknown outcome', async () => {
+    post.mockResolvedValue(ok);
+    await uploadVoucherAttachments('v1', [new File(['x'], 'a.png', { type: 'image/png' })]);
+    expect((post.mock.calls[0][2] as { timeout: number }).timeout).toBe(120000);
+
+    post.mockRejectedValue(
+      Object.assign(new Error('timeout of 60000ms exceeded'), {
+        isAxiosError: true,
+        code: 'ECONNABORTED',
+      })
+    );
+    const failure = await approveVoucher('v1', 'k').catch((error: unknown) => error);
+    expect(failure).toMatchObject({ kind: 'network' });
   });
 });

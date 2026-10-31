@@ -24,7 +24,7 @@ export const useOpenAttachment = () => {
       }
     } catch {
       tab?.close();
-      notifications.show({ color: 'red', message: t('drawer.attachmentFailed') });
+      notifications.show({ color: 'orange', message: t('drawer.attachmentFailed') });
     } finally {
       setOpeningId(null);
     }

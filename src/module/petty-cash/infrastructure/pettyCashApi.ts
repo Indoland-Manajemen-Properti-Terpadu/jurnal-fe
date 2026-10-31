@@ -1,4 +1,3 @@
-import apiClient from '@/lib/http/apiClient';
 import { BASE_URL } from '@/lib/http/endpoints';
 import type {
   CashBook,
@@ -21,10 +20,8 @@ import type {
 } from '@/module/petty-cash/infrastructure/pettyCashDto';
 import { readUserIdFromToken } from '@/module/petty-cash/infrastructure/accessToken';
 import { PETTY_CASH_API } from '@/module/petty-cash/infrastructure/pettyCashEndpoints';
-import {
-  PettyCashError,
-  toPettyCashError,
-} from '@/module/petty-cash/infrastructure/pettyCashErrors';
+import { PettyCashError } from '@/module/petty-cash/infrastructure/pettyCashErrors';
+import { http } from '@/module/petty-cash/infrastructure/pettyCashHttp';
 import {
   toAccessProfile,
   toCashBook,
@@ -33,7 +30,6 @@ import {
   toPage,
   toVoucher,
 } from '@/module/petty-cash/infrastructure/pettyCashMappers';
-import { cleanParams } from '@/module/petty-cash/infrastructure/queryParams';
 
 export interface PageParams {
   page?: number;
@@ -59,29 +55,13 @@ export interface CashBookParams extends PageParams {
   to?: string;
 }
 
-/** Every call rethrows a normalized `PettyCashError`; callers never see the raw Axios error. */
-const request = async <T>(call: () => Promise<{ data: T }>): Promise<T> => {
-  try {
-    const { data } = await call();
-    return data;
-  } catch (error) {
-    throw toPettyCashError(error);
-  }
-};
-
 export const listFunds = async (params: FundListParams = {}): Promise<Page<PettyCashFund>> => {
-  const body = await request(() =>
-    apiClient.get<ApiEnvelope<PageDto<FundDto>>>(PETTY_CASH_API.funds, {
-      params: cleanParams({ ...params }),
-    })
-  );
+  const body = await http.get<ApiEnvelope<PageDto<FundDto>>>(PETTY_CASH_API.funds, { ...params });
   return toPage(body.data, toFund);
 };
 
 export const getFund = async (fundId: string): Promise<PettyCashFund> => {
-  const body = await request(() =>
-    apiClient.get<ApiEnvelope<FundDto>>(PETTY_CASH_API.fund(fundId))
-  );
+  const body = await http.get<ApiEnvelope<FundDto>>(PETTY_CASH_API.fund(fundId));
   return toFund(body.data);
 };
 
@@ -89,34 +69,28 @@ export const getCashBook = async (
   fundId: string,
   params: CashBookParams = {}
 ): Promise<CashBook> => {
-  const body = await request(() =>
-    apiClient.get<ApiEnvelope<CashBookDto>>(PETTY_CASH_API.cashBook(fundId), {
-      params: cleanParams({ ...params }),
-    })
-  );
+  const body = await http.get<ApiEnvelope<CashBookDto>>(PETTY_CASH_API.cashBook(fundId), {
+    ...params,
+  });
   return toCashBook(body.data);
 };
 
 export const getLookups = async (): Promise<PettyCashLookups> => {
-  const body = await request(() => apiClient.get<ApiEnvelope<LookupsDto>>(PETTY_CASH_API.lookups));
+  const body = await http.get<ApiEnvelope<LookupsDto>>(PETTY_CASH_API.lookups);
   return toLookups(body.data);
 };
 
 export const listVouchers = async (
   params: VoucherListParams = {}
 ): Promise<Page<PettyCashVoucherRecord>> => {
-  const body = await request(() =>
-    apiClient.get<ApiEnvelope<PageDto<VoucherDto>>>(PETTY_CASH_API.vouchers, {
-      params: cleanParams({ ...params }),
-    })
-  );
+  const body = await http.get<ApiEnvelope<PageDto<VoucherDto>>>(PETTY_CASH_API.vouchers, {
+    ...params,
+  });
   return toPage(body.data, toVoucher);
 };
 
 export const getVoucher = async (voucherId: string): Promise<PettyCashVoucherRecord> => {
-  const body = await request(() =>
-    apiClient.get<ApiEnvelope<VoucherDto>>(PETTY_CASH_API.voucher(voucherId))
-  );
+  const body = await http.get<ApiEnvelope<VoucherDto>>(PETTY_CASH_API.voucher(voucherId));
   return toVoucher(body.data);
 };
 
@@ -127,10 +101,8 @@ export const getVoucher = async (voucherId: string): Promise<PettyCashVoucherRec
 export const getAttachmentLink = async (
   attachmentId: string
 ): Promise<{ url: string; expiresAt: string }> => {
-  const body = await request(() =>
-    apiClient.get<ApiEnvelope<{ url: string; expiresAt: string }>>(
-      PETTY_CASH_API.attachmentUrl(attachmentId)
-    )
+  const body = await http.get<ApiEnvelope<{ url: string; expiresAt: string }>>(
+    PETTY_CASH_API.attachmentUrl(attachmentId)
   );
   const { url, expiresAt } = body.data;
   // The link is opened without a bearer token, so it must stay on the API host.
@@ -142,13 +114,9 @@ export const getAttachmentLink = async (
 /** `me/permissions` answers without the `{ code, message, data }` envelope. */
 export const getAccessProfile = async (): Promise<PettyCashAccessProfile> => {
   const userId = readUserIdFromToken(localStorage.getItem('accessToken'));
-  const permissions = await request(() =>
-    apiClient.get<MyPermissionsDto>(PETTY_CASH_API.myPermissions)
-  );
+  const permissions = await http.get<MyPermissionsDto>(PETTY_CASH_API.myPermissions);
   return toAccessProfile(userId, permissions);
 };
-
-const IDEMPOTENCY_HEADER = 'Idempotency-Key';
 
 const voucherFrom = (body: ApiEnvelope<VoucherDto>) => toVoucher(body.data);
 
@@ -162,15 +130,12 @@ export const createVoucher = async (
   idempotencyKey: string
 ): Promise<PettyCashVoucherRecord> => {
   const { fundId, input, submit, files = [] } = params;
-  const config = { headers: { [IDEMPOTENCY_HEADER]: idempotencyKey } };
 
   if (files.length === 0) {
-    const body = await request(() =>
-      apiClient.post<ApiEnvelope<VoucherDto>>(
-        PETTY_CASH_API.vouchers,
-        { fundId, ...input, submit },
-        config
-      )
+    const body = await http.post<ApiEnvelope<VoucherDto>>(
+      PETTY_CASH_API.vouchers,
+      { fundId, ...input, submit },
+      { idempotencyKey }
     );
     return voucherFrom(body);
   }
@@ -189,9 +154,10 @@ export const createVoucher = async (
   form.append('submit', submit ? 'true' : 'false');
   files.forEach((file) => form.append('attachments', file));
 
-  const body = await request(() =>
-    apiClient.post<ApiEnvelope<VoucherDto>>(PETTY_CASH_API.vouchers, form, config)
-  );
+  const body = await http.post<ApiEnvelope<VoucherDto>>(PETTY_CASH_API.vouchers, form, {
+    idempotencyKey,
+    upload: true,
+  });
   return voucherFrom(body);
 };
 
@@ -200,52 +166,44 @@ export const updateVoucher = async (
   voucherId: string,
   input: VoucherInput
 ): Promise<PettyCashVoucherRecord> => {
-  const body = await request(() =>
-    apiClient.patch<ApiEnvelope<VoucherDto>>(PETTY_CASH_API.voucher(voucherId), {
-      ...input,
-      submit: false,
-    })
-  );
+  const body = await http.patch<ApiEnvelope<VoucherDto>>(PETTY_CASH_API.voucher(voucherId), {
+    ...input,
+    submit: false,
+  });
   return voucherFrom(body);
 };
 
-export const submitVoucher = async (voucherId: string, idempotencyKey: string) => {
-  const body = await request(() =>
-    apiClient.post<ApiEnvelope<VoucherDto>>(
+export const submitVoucher = async (voucherId: string, idempotencyKey: string) =>
+  voucherFrom(
+    await http.post<ApiEnvelope<VoucherDto>>(
       PETTY_CASH_API.voucherAction(voucherId, 'submit'),
       undefined,
-      { headers: { [IDEMPOTENCY_HEADER]: idempotencyKey } }
+      { idempotencyKey }
     )
   );
-  return voucherFrom(body);
-};
 
-export const approveVoucher = async (voucherId: string, idempotencyKey: string) => {
-  const body = await request(() =>
-    apiClient.post<ApiEnvelope<VoucherDto>>(
+export const approveVoucher = async (voucherId: string, idempotencyKey: string) =>
+  voucherFrom(
+    await http.post<ApiEnvelope<VoucherDto>>(
       PETTY_CASH_API.voucherAction(voucherId, 'approve'),
       undefined,
-      { headers: { [IDEMPOTENCY_HEADER]: idempotencyKey } }
+      { idempotencyKey }
     )
   );
-  return voucherFrom(body);
-};
 
 const decideWithReason = async (
   voucherId: string,
   action: 'reject' | 'void',
   reason: string,
   idempotencyKey: string
-) => {
-  const body = await request(() =>
-    apiClient.post<ApiEnvelope<VoucherDto>>(
+) =>
+  voucherFrom(
+    await http.post<ApiEnvelope<VoucherDto>>(
       PETTY_CASH_API.voucherAction(voucherId, action),
       { reason: reason.trim() },
-      { headers: { [IDEMPOTENCY_HEADER]: idempotencyKey } }
+      { idempotencyKey }
     )
   );
-  return voucherFrom(body);
-};
 
 export const rejectVoucher = (voucherId: string, reason: string, idempotencyKey: string) =>
   decideWithReason(voucherId, 'reject', reason, idempotencyKey);
@@ -256,17 +214,16 @@ export const voidVoucher = (voucherId: string, reason: string, idempotencyKey: s
 export const uploadVoucherAttachments = async (voucherId: string, files: File[]) => {
   const form = new FormData();
   files.forEach((file) => form.append('attachments', file));
-  const body = await request(() =>
-    apiClient.post<ApiEnvelope<VoucherDto>>(PETTY_CASH_API.voucherAttachments(voucherId), form)
+  return voucherFrom(
+    await http.post<ApiEnvelope<VoucherDto>>(PETTY_CASH_API.voucherAttachments(voucherId), form, {
+      upload: true,
+    })
   );
-  return voucherFrom(body);
 };
 
-export const deleteVoucherAttachment = async (voucherId: string, attachmentId: string) => {
-  const body = await request(() =>
-    apiClient.delete<ApiEnvelope<VoucherDto>>(
+export const deleteVoucherAttachment = async (voucherId: string, attachmentId: string) =>
+  voucherFrom(
+    await http.delete<ApiEnvelope<VoucherDto>>(
       PETTY_CASH_API.voucherAttachment(voucherId, attachmentId)
     )
   );
-  return voucherFrom(body);
-};

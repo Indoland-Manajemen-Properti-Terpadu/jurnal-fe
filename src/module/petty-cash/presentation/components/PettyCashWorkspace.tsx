@@ -1,20 +1,46 @@
 import { useState } from 'react';
 import { Paper, Stack, Tabs } from '@mantine/core';
-import { IconBook2, IconReceipt2 } from '@tabler/icons-react';
+import { IconBook2, IconCash, IconReceipt2, IconScale } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import type { PettyCashFund } from '@/module/petty-cash/domain/pettyCashEntities';
 import { CashBookPanel } from '@/module/petty-cash/presentation/components/CashBookPanel';
+import { CountDetailDrawer } from '@/module/petty-cash/presentation/components/CountDetailDrawer';
+import { CountList } from '@/module/petty-cash/presentation/components/CountList';
 import { FundInfoStrip } from '@/module/petty-cash/presentation/components/FundInfoStrip';
 import { ImprestBalancePanel } from '@/module/petty-cash/presentation/components/ImprestBalancePanel';
+import { RecordCountButton } from '@/module/petty-cash/presentation/components/RecordCountButton';
+import { ReplenishmentDetailDrawer } from '@/module/petty-cash/presentation/components/ReplenishmentDetailDrawer';
+import { ReplenishmentList } from '@/module/petty-cash/presentation/components/ReplenishmentList';
+import { RequestReplenishmentButton } from '@/module/petty-cash/presentation/components/RequestReplenishmentButton';
 import { VoucherDetailDrawer } from '@/module/petty-cash/presentation/components/VoucherDetailDrawer';
 import { VoucherList } from '@/module/petty-cash/presentation/components/VoucherList';
 import classes from '@/module/petty-cash/presentation/pages/PettyCashPage.module.css';
 
-/** Everything about one fund: position, rules, vouchers and cash book. Later phases add tabs. */
-export function PettyCashWorkspace({ fund }: Readonly<{ fund: PettyCashFund }>) {
+interface Selection {
+  id: string;
+  open: boolean;
+}
+
+const closeSelection = (current: Selection | null): Selection | null =>
+  current ? { ...current, open: false } : null;
+
+const TABS = ['vouchers', 'counts', 'replenishments', 'cashBook'];
+
+/**
+ * Everything about one fund: position, rules, vouchers, cash counts, replenishments and the cash
+ * book. Each drawer keeps its last id while it slides closed, so its body does not blank out.
+ */
+export function PettyCashWorkspace({
+  fund,
+  initialTab,
+}: Readonly<{ fund: PettyCashFund; initialTab?: string | null }>) {
   const { t } = useTranslation('pettyCash');
-  const [tab, setTab] = useState<string | null>('vouchers');
-  const [selected, setSelected] = useState<{ id: string; open: boolean } | null>(null);
+  const [tab, setTab] = useState<string | null>(
+    initialTab && TABS.includes(initialTab) ? initialTab : 'vouchers'
+  );
+  const [voucher, setVoucher] = useState<Selection | null>(null);
+  const [count, setCount] = useState<Selection | null>(null);
+  const [replenishment, setReplenishment] = useState<Selection | null>(null);
 
   return (
     <Stack gap="lg">
@@ -33,6 +59,12 @@ export function PettyCashWorkspace({ fund }: Readonly<{ fund: PettyCashFund }>) 
             <Tabs.Tab value="vouchers" leftSection={<IconReceipt2 size={16} />}>
               {t('workspace.tabs.vouchers')}
             </Tabs.Tab>
+            <Tabs.Tab value="counts" leftSection={<IconScale size={16} />}>
+              {t('workspace.tabs.counts')}
+            </Tabs.Tab>
+            <Tabs.Tab value="replenishments" leftSection={<IconCash size={16} />}>
+              {t('workspace.tabs.replenishments')}
+            </Tabs.Tab>
             <Tabs.Tab value="cashBook" leftSection={<IconBook2 size={16} />}>
               {t('workspace.tabs.cashBook')}
             </Tabs.Tab>
@@ -40,7 +72,21 @@ export function PettyCashWorkspace({ fund }: Readonly<{ fund: PettyCashFund }>) 
           <Tabs.Panel value="vouchers">
             <VoucherList
               fundId={fund.id}
-              onSelectVoucher={(id) => setSelected({ id, open: true })}
+              onSelectVoucher={(id) => setVoucher({ id, open: true })}
+            />
+          </Tabs.Panel>
+          <Tabs.Panel value="counts">
+            <CountList
+              fundId={fund.id}
+              action={<RecordCountButton fund={fund} />}
+              onSelect={(id) => setCount({ id, open: true })}
+            />
+          </Tabs.Panel>
+          <Tabs.Panel value="replenishments">
+            <ReplenishmentList
+              fundId={fund.id}
+              action={<RequestReplenishmentButton fund={fund} />}
+              onSelect={(id) => setReplenishment({ id, open: true })}
             />
           </Tabs.Panel>
           <Tabs.Panel value="cashBook">
@@ -50,9 +96,19 @@ export function PettyCashWorkspace({ fund }: Readonly<{ fund: PettyCashFund }>) 
       </Paper>
       <VoucherDetailDrawer
         fund={fund}
-        voucherId={selected?.id ?? null}
-        opened={Boolean(selected?.open)}
-        onClose={() => setSelected((current) => (current ? { ...current, open: false } : null))}
+        voucherId={voucher?.id ?? null}
+        opened={Boolean(voucher?.open)}
+        onClose={() => setVoucher(closeSelection)}
+      />
+      <CountDetailDrawer
+        countId={count?.id ?? null}
+        opened={Boolean(count?.open)}
+        onClose={() => setCount(closeSelection)}
+      />
+      <ReplenishmentDetailDrawer
+        replenishmentId={replenishment?.id ?? null}
+        opened={Boolean(replenishment?.open)}
+        onClose={() => setReplenishment(closeSelection)}
       />
     </Stack>
   );

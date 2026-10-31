@@ -1,6 +1,6 @@
 import { Button, Group, Paper, Skeleton, Text } from '@mantine/core';
 import { IconArrowLeft, IconCoins } from '@tabler/icons-react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
 import { useTranslation } from '@/i18n';
 import { routes } from '@/router/routes';
@@ -14,6 +14,7 @@ import { PettyCashPageFrame } from '@/module/petty-cash/presentation/pages/Petty
 export default function PettyCashDetailPage() {
   const { fundId } = useParams<{ fundId: string }>();
   const navigate = useNavigate();
+  const [params] = useSearchParams();
   const { t } = useTranslation('pettyCash');
   const validId = isValidObjectId(fundId);
   const query = usePettyCashFund(fundId, validId);
@@ -62,7 +63,9 @@ export default function PettyCashDetailPage() {
         />
       )}
 
-      {validId && fund && <PettyCashWorkspace key={fund.id} fund={fund} />}
+      {validId && fund && (
+        <PettyCashWorkspace key={fund.id} fund={fund} initialTab={params.get('tab')} />
+      )}
     </PettyCashPageFrame>
   );
 }

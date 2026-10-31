@@ -41,6 +41,7 @@ describe('pettyCashApi', () => {
 
     expect(get).toHaveBeenCalledWith('/v1/petty-cash/vouchers', {
       params: { fundId: 'f1', status: 'PENDING_REIMBURSE,IN_REIMBURSEMENT', page: 2 },
+      timeout: 30000,
     });
     expect(page).toEqual({ items: [], page: 2, limit: 25, totalPages: 3, totalResults: 51 });
   });
@@ -87,7 +88,7 @@ describe('pettyCashApi', () => {
     });
     // users/get-id answers 403 for a user without user-management rights, so it is never called.
     expect(get).toHaveBeenCalledTimes(1);
-    expect(get).toHaveBeenCalledWith('/v1/users/me/permissions');
+    expect(get).toHaveBeenCalledWith('/v1/users/me/permissions', { timeout: 30000 });
   });
 
   it('fails as unauthorized when there is no token to read the user from', async () => {
@@ -111,7 +112,7 @@ describe('pettyCashApi', () => {
 
     const link = await getAttachmentLink('a1');
 
-    expect(get).toHaveBeenCalledWith('/v1/petty-cash/attachments/a1/url');
+    expect(get).toHaveBeenCalledWith('/v1/petty-cash/attachments/a1/url', { timeout: 30000 });
     expect(link.url).toMatch(
       /^https?:\/\/.+\/v1\/petty-cash\/attachments\/a1\/file\?expires=1&signature=abc$/
     );

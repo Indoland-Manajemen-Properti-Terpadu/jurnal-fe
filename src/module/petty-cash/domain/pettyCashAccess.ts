@@ -1,6 +1,8 @@
 import {
   voucherActionsFor,
   type VoucherAction,
+  type CountStatus,
+  type ReimbursementStatus,
   type VoucherSource,
   type VoucherStatus,
 } from '@/module/petty-cash/domain/pettyCashStatus';
@@ -74,4 +76,75 @@ export const allowedVoucherActions = (
       (!isCreator(profile, voucher) || fund.singleUserOverride),
   };
   return voucherActionsFor(voucher.status, voucher.source).filter((action) => allows[action]);
+};
+
+export type CountAction = 'submit' | 'approve' | 'reject';
+export type ReimbursementAction = 'approve' | 'reject' | 'cancel' | 'disburse';
+
+/** The counter must be someone other than the custodian of the fund. */
+export const canCountFund = (profile: PettyCashAccessProfile, fund: { custodianId: string }) =>
+  canAccess(profile, 'JP-PC-CNT', 'create') && profile.userId !== fund.custodianId;
+
+/** Only the custodian asks for a replenishment. */
+export const canRequestReplenishment = (profile: PettyCashAccessProfile, fund: FundAccessContext) =>
+  canAccess(profile, 'JP-PC-RMB', 'create') && isFundCustodian(profile, fund);
+
+export interface CountAccessContext {
+  status: CountStatus;
+  countedById: string | null;
+  custodianId: string;
+}
+
+/**
+ * A draft is submitted by the counter; a submitted count is decided by an approver who is neither
+ * the custodian nor the counter.
+ */
+export const allowedCountActions = (
+  profile: PettyCashAccessProfile,
+  count: CountAccessContext
+): CountAction[] => {
+  if (count.status === 'DRAFT') {
+    return count.countedById === profile.userId && canAccess(profile, 'JP-PC-CNT', 'create')
+      ? ['submit']
+      : [];
+  }
+  const independent = profile.userId !== count.custodianId && profile.userId !== count.countedById;
+  return count.status === 'SUBMITTED' && canAccess(profile, 'JP-PC-APR', 'update') && independent
+    ? ['approve', 'reject']
+    : [];
+};
+
+export interface ReimbursementAccessContext {
+  status: ReimbursementStatus;
+  submittedById: string | null;
+  approvedById: string | null;
+}
+
+/**
+ * Approve and reject: an approver other than the submitter. Cancel: the replenishment right, before
+ * the money is paid out. Disburse: an approved request, by someone who neither submitted nor approved it.
+ */
+export const allowedReimbursementActions = (
+  profile: PettyCashAccessProfile,
+  reimbursement: ReimbursementAccessContext
+): ReimbursementAction[] => {
+  const { status } = reimbursement;
+  const actions: ReimbursementAction[] = [];
+  const approver = canAccess(profile, 'JP-PC-APR', 'update');
+
+  if (status === 'SUBMITTED' && approver && profile.userId !== reimbursement.submittedById) {
+    actions.push('approve', 'reject');
+  }
+  if (
+    (status === 'SUBMITTED' || status === 'APPROVED') &&
+    canAccess(profile, 'JP-PC-RMB', 'delete')
+  ) {
+    actions.push('cancel');
+  }
+  const independent =
+    profile.userId !== reimbursement.submittedById && profile.userId !== reimbursement.approvedById;
+  if (status === 'APPROVED' && canAccess(profile, 'JP-PC-DSB', 'update') && independent) {
+    actions.push('disburse');
+  }
+  return actions;
 };

@@ -1,6 +1,3 @@
-import { useQueryClient } from '@tanstack/react-query';
-import { notifications } from '@mantine/notifications';
-import { useTranslation } from '@/i18n';
 import type { PettyCashVoucherRecord } from '@/module/petty-cash/domain/pettyCashEntities';
 import type { VoucherInput } from '@/module/petty-cash/domain/voucherForm';
 import {
@@ -13,37 +10,9 @@ import {
   uploadVoucherAttachments,
   voidVoucher,
 } from '@/module/petty-cash/infrastructure/pettyCashApi';
-import { pettyCashKeys } from '@/module/petty-cash/presentation/hooks/pettyCashKeys';
-import { usePettyCashErrorMessage } from '@/module/petty-cash/presentation/hooks/pettyCashErrorMessage';
-import { usePettyCashScope } from '@/module/petty-cash/presentation/hooks/usePettyCashScope';
+import { usePettyCashNotifier } from '@/module/petty-cash/presentation/hooks/usePettyCashNotifier';
+import { useRefreshPettyCash } from '@/module/petty-cash/presentation/hooks/useRefreshPettyCash';
 import { useIdempotentMutation } from '@/module/petty-cash/presentation/hooks/useIdempotentMutation';
-
-/** A voucher change moves the fund balance, the voucher lists and the cash book. */
-const useRefreshAfterVoucherChange = () => {
-  const queryClient = useQueryClient();
-  const scope = usePettyCashScope();
-  return () =>
-    Promise.all([
-      queryClient.invalidateQueries({ queryKey: pettyCashKeys.vouchers(scope) }),
-      queryClient.invalidateQueries({ queryKey: pettyCashKeys.funds(scope) }),
-    ]);
-};
-
-const useNotifier = () => {
-  const { t } = useTranslation('pettyCash');
-  const describe = usePettyCashErrorMessage();
-  return {
-    success: (key: string, params?: Record<string, string | number>) =>
-      notifications.show({ color: 'teal', message: t(`notify.${key}`, params) }),
-    failure: (error: unknown) =>
-      notifications.show({
-        color: 'red',
-        autoClose: 7000,
-        title: t('notify.failedTitle'),
-        message: describe(error),
-      }),
-  };
-};
 
 export interface CreateVoucherVariables {
   input: VoucherInput;
@@ -52,8 +21,8 @@ export interface CreateVoucherVariables {
 }
 
 export const useCreateVoucher = (fundId: string) => {
-  const refresh = useRefreshAfterVoucherChange();
-  const notify = useNotifier();
+  const refresh = useRefreshPettyCash();
+  const notify = usePettyCashNotifier();
   return useIdempotentMutation<PettyCashVoucherRecord, CreateVoucherVariables>(
     `voucher:create:${fundId}`,
     (variables, key) => createVoucher({ fundId, ...variables }, key),
@@ -84,8 +53,8 @@ export interface UpdateVoucherVariables {
  * a failed submit can be retried without repeating the save or uploading the receipts again.
  */
 export const useUpdateVoucher = (voucherId: string) => {
-  const refresh = useRefreshAfterVoucherChange();
-  const notify = useNotifier();
+  const refresh = useRefreshPettyCash();
+  const notify = usePettyCashNotifier();
   return useIdempotentMutation<PettyCashVoucherRecord, UpdateVoucherVariables>(
     `voucher:update:${voucherId}`,
     async ({ input, files }) => {
@@ -116,8 +85,8 @@ const NOTIFY_KEY: Record<VoucherDecision, string> = {
 
 /** Submit, approve, reject or void one voucher; reject and void carry a reason. */
 export const useVoucherDecision = (voucherId: string, decision: VoucherDecision) => {
-  const refresh = useRefreshAfterVoucherChange();
-  const notify = useNotifier();
+  const refresh = useRefreshPettyCash();
+  const notify = usePettyCashNotifier();
   return useIdempotentMutation<PettyCashVoucherRecord, { reason?: string }>(
     `voucher:${decision}:${voucherId}`,
     ({ reason = '' }, key) => {
@@ -141,8 +110,8 @@ export const useVoucherDecision = (voucherId: string, decision: VoucherDecision)
 };
 
 export const useUploadVoucherAttachments = (voucherId: string) => {
-  const refresh = useRefreshAfterVoucherChange();
-  const notify = useNotifier();
+  const refresh = useRefreshPettyCash();
+  const notify = usePettyCashNotifier();
   return useIdempotentMutation<PettyCashVoucherRecord, { files: File[] }>(
     `voucher:attach:${voucherId}`,
     ({ files }) => uploadVoucherAttachments(voucherId, files),
@@ -160,8 +129,8 @@ export const useUploadVoucherAttachments = (voucherId: string) => {
 };
 
 export const useDeleteVoucherAttachment = (voucherId: string) => {
-  const refresh = useRefreshAfterVoucherChange();
-  const notify = useNotifier();
+  const refresh = useRefreshPettyCash();
+  const notify = usePettyCashNotifier();
   return useIdempotentMutation<PettyCashVoucherRecord, { attachmentId: string }>(
     `voucher:detach:${voucherId}`,
     ({ attachmentId }) => deleteVoucherAttachment(voucherId, attachmentId),

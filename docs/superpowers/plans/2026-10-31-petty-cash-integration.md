@@ -88,11 +88,13 @@ Files under `src/module/petty-cash/`:
 - Reviewer fixes: tax-aware cash-left and approval hint, no crash on huge or sub-cent amounts, gateway failures keep the idempotency key, keys expire after 10 minutes, save and submit are separate steps, lookups failure shown, same file can be re-picked, voucher and fund in the address must match.
 - Not built: a receipt-number duplicate warning on the form before saving (the drawer shows the server warning); voucher number lookups (no endpoint).
 
-## Phase 4: Cash count and reimbursement
+## Phase 4: Cash count and replenishment (done)
 
-- [ ] Opname calculator with denominations (7 notes plus coins), witness picker, live counted total, variance preview labelled as estimate, reason when variance is not zero, submit, approve, reject, `isStale` banner.
-- [ ] Reimbursement wizard: choose vouchers, choose bank (lookups) and optional count, call preview, show expense and tax breakdown and journal preview (disclosure), create, then approve, reject, cancel, disburse as separate role actions.
-- [ ] Show `cashBalanceAfter` and the posted journal reference after disbursement.
+- [x] Cash count: denomination calculator with live subtotals, witness and reason, estimated variance, draft or submit; list, detail drawer (figures, denominations, stale warning) and actions (submit, approve, reject with reason).
+- [x] Replenishment: two-step wizard (vouchers and approved count; bank and server preview with the journal), list, detail drawer and actions (approve, reject, cancel, disburse with a date).
+- [x] Checked in a browser with real writes by five users: counter, approver, custodian, disburser and a witness; positive path (count, approval, request, approval, payout) and negative paths (count draft then rejected, replenishment cancelled).
+- [x] Found live: the preview refuses `notes` (fixed, preview never receives them); the journal table was cramped in the narrow column (moved to the wide column).
+- Decision: the shared `apiClient` was not changed; per-request timeouts live in the module (analysis in FOLLOW-UPS).
 
 ## Phase 5: Kasbon
 

@@ -37,7 +37,7 @@ export function VoucherAttachmentsPanel({ voucher, fund }: Readonly<Props>) {
     const issues = validateAttachmentFiles(files, voucher.attachments.length);
     if (issues.length > 0) {
       notifications.show({
-        color: 'red',
+        color: 'orange',
         message: issues
           .map((issue) => t(`form.fileIssues.${issue.code}`, { name: issue.name }))
           .join(' '),

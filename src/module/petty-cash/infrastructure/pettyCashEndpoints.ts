@@ -13,5 +13,16 @@ export const PETTY_CASH_API = {
   voucherAttachments: (voucherId: string) => `${BASE}/vouchers/${voucherId}/attachments`,
   voucherAttachment: (voucherId: string, attachmentId: string) =>
     `${BASE}/vouchers/${voucherId}/attachments/${attachmentId}`,
+  counts: `${BASE}/counts`,
+  count: (countId: string) => `${BASE}/counts/${countId}`,
+  countAction: (countId: string, action: 'submit' | 'approve' | 'reject') =>
+    `${BASE}/counts/${countId}/${action}`,
+  reimbursements: `${BASE}/reimbursements`,
+  reimbursementPreview: `${BASE}/reimbursements/preview`,
+  reimbursement: (reimbursementId: string) => `${BASE}/reimbursements/${reimbursementId}`,
+  reimbursementAction: (
+    reimbursementId: string,
+    action: 'approve' | 'reject' | 'cancel' | 'disburse'
+  ) => `${BASE}/reimbursements/${reimbursementId}/${action}`,
   myPermissions: '/v1/users/me/permissions',
 };

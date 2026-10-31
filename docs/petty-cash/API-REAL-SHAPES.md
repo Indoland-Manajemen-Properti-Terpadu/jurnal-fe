@@ -269,3 +269,14 @@ Accounting remarks: (1) the variance account was empty and had to be mapped by t
 - **A creator cannot reject their own voucher either**: `403 SOD_VIOLATION` "Pembuat voucher tidak boleh menolak voucher sendiri" (same as approve). The UI hides both for the creator unless the fund allows a single user.
 - Upload (`POST /vouchers/:id/attachments`, field `attachments`) and delete (`DELETE .../attachments/:attachmentId`) worked without an `Idempotency-Key`; `PATCH` too.
 - Some error bodies are **not valid JSON** (a raw newline inside `stack`); for example `GET /v1/users?limit=50` failed to parse in a strict parser. The frontend falls back to the HTTP status when the body cannot be read.
+
+## 10. Cash count and replenishment behavior verified for Phase 4 (2026-10-31)
+
+- **Count list and reimbursement list answer newest first** by default. `sortBy` is accepted (`createdAt:desc`, `countedAt:desc`, `requestDate:desc` returned 200). `search` is not accepted on `/counts`.
+- **The backend's `expectedCash` equals the form's estimate**: `pagu - pendingVoucherAmount - outstandingAdvanceAmount` of the fund detail (3,294,000 in the test; counted 3,289,000 gave `varianceAmount -5000`, `varianceType SHORT`). The form therefore labels the estimate and still lets the saved count carry the official figure.
+- **Roles that worked end to end through the UI:** counter = `pc.witness` (count right, not custodian), witness = `pc.staff`, approver = `pc.approver` (approves counts and replenishments), custodian = `pc.custodian` (requests and cancels replenishments), disburser = `pc.disburser`. A submitter has only "cancel" on their own request; an approver has approve/reject; the disburser has only "pay out".
+- **Approving a newer count** moved the previous approved count to `SUPERSEDED`; the approved count is settled by the replenishment that includes it (`SETTLED`). A rejected count never blocks anything.
+- **`POST /reimbursements/preview` refuses a `notes` field** (400 `"notes" is not allowed`); notes belong to create only. Preview needs no `Idempotency-Key`.
+- **Replenishment payout** was `voucherTotal + shortage` (1,306,000 + 5,000 = 1,311,000) and the journal debited the expenses, the input tax and the variance account (8-10000) against the bank for the same total; after disbursement `cashBalanceAfter` was 4,600,000 (the ceiling minus the 400,000 advance still out) and the fund identity held.
+- **Cancel** of a submitted replenishment returned its vouchers to `PENDING_REIMBURSE`; the reason is required by the app (the backend accepted it). Cancelling an approved one is allowed by the app but was not exercised.
+- **Count draft** created with `submit:false` is `DRAFT`; the counter submits it from the drawer (`POST /counts/:id/submit`), an independent approver rejects it with a reason (`REJECTED`).

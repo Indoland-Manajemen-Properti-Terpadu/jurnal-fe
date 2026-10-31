@@ -1,3 +1,5 @@
+import { pettyCashCounts } from './pettyCashCounts';
+
 export const pettyCash = {
   common: {
     page: 'Halaman',
@@ -29,7 +31,12 @@ export const pettyCash = {
     notFound: 'Kas kecil tidak ditemukan',
     notFoundDescription: 'Kas kecil ini mungkin sudah dihapus atau tautannya salah.',
     backToList: 'Kembali ke daftar kas kecil',
-    tabs: { vouchers: 'Voucher', cashBook: 'Buku kas' },
+    tabs: {
+      vouchers: 'Voucher',
+      counts: 'Opname kas',
+      replenishments: 'Penggantian dana',
+      cashBook: 'Buku kas',
+    },
   },
   balance: {
     available: 'Kas tersedia',
@@ -221,6 +228,8 @@ export const pettyCash = {
     deleteAttachment: 'Hapus bukti {{name}}',
     approveTitle: 'Setujui voucher {{number}}?',
     approveBody: 'Setelah disetujui, voucher masuk antrean penggantian dana.',
+    cancelReplenishment: 'Batalkan penggantian',
+    disburse: 'Cairkan dana',
     rejectTitle: 'Tolak voucher {{number}}',
     rejectReason: 'Alasan penolakan',
     rejectReasonPlaceholder: 'Jelaskan agar pembuat voucher bisa memperbaikinya',
@@ -245,10 +254,21 @@ export const pettyCash = {
     approved: 'Voucher {{number}} disetujui.',
     rejected: 'Voucher {{number}} ditolak.',
     voided: 'Voucher {{number}} dibatalkan.',
+    countCreated: 'Opname {{number}} disimpan sebagai draf.',
+    countSubmitted: 'Opname {{number}} diajukan.',
+    countApproved: 'Opname {{number}} disetujui.',
+    countRejected: 'Opname {{number}} ditolak.',
+    replenishmentCreated: 'Penggantian {{number}} diajukan.',
+    replenishmentApproved: 'Penggantian {{number}} disetujui.',
+    replenishmentRejected: 'Penggantian {{number}} ditolak.',
+    replenishmentCancelled: 'Penggantian {{number}} dibatalkan.',
+    replenishmentDisbursed: 'Penggantian {{number}} dicairkan. Kas di tangan sekarang {{cash}}.',
+    replenishmentDisbursedNoCash: 'Penggantian {{number}} dicairkan.',
     attachmentUploaded: 'Bukti ditambahkan.',
     attachmentDeleted: 'Bukti dihapus.',
     failedTitle: 'Belum berhasil',
   },
+  ...pettyCashCounts,
   errors: {
     generic: 'Terjadi kendala. Coba lagi sebentar lagi.',
     rejected: 'Permintaan belum bisa diproses. Periksa kembali isian Anda.',

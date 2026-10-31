@@ -1,19 +1,21 @@
 # petty-cash
 
-Petty cash (imprest) on the real `/v1/petty-cash` backend. A fund holds a fixed ceiling (`pagu`); the custodian pays small expenses from cash and records vouchers; the ledger is only posted when finance refills the fund. Fund position, the voucher lifecycle (record, edit, submit, approve, reject, void, receipts) and the cash book are on the real backend. Cash count, replenishment, employee advances and fund administration arrive in the next phases (`docs/superpowers/plans/2026-10-31-petty-cash-integration.md`).
+Petty cash (imprest) on the real `/v1/petty-cash` backend. A fund holds a fixed ceiling (`pagu`); the custodian pays small expenses from cash and records vouchers; the ledger is only posted when finance refills the fund. Fund position, the voucher lifecycle, cash counts (opname), replenishments and the cash book are on the real backend. Employee advances (kasbon), fund administration and reports arrive in the next phases (`docs/superpowers/plans/2026-10-31-petty-cash-integration.md`).
 
 Contract and observed behavior: `docs/petty-cash/API-CONTRACT.md` (endpoints) and `docs/petty-cash/API-REAL-SHAPES.md` (shapes, statuses, errors, journals). Open backend questions: `docs/petty-cash/BACKEND-QUESTIONS.md`.
 
 ## Routes (`src/router/routes.ts`)
 
-| Constant                | Path                                                    | Page                                                                      |
-| ----------------------- | ------------------------------------------------------- | ------------------------------------------------------------------------- |
-| `pettyCash.main`        | `/bank-cash/petty-cash`                                 | `PettyCashPage` (fund selector kept in `?fund=`, then the fund workspace) |
-| `pettyCash.detail`      | `/bank-cash/petty-cash/:fundId`                         | `PettyCashDetailPage` (one fund; an unknown id shows the not-found state) |
-| `pettyCash.voucherAdd`  | `/bank-cash/petty-cash/:fundId/voucher/add`             | `VoucherAddPage` (custodian with voucher rights, active fund only)        |
-| `pettyCash.voucherEdit` | `/bank-cash/petty-cash/:fundId/voucher/:voucherId/edit` | `VoucherEditPage` (draft or rejected vouchers only)                       |
+| Constant                     | Path                                                    | Page                                                                             |
+| ---------------------------- | ------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| `pettyCash.main`             | `/bank-cash/petty-cash`                                 | `PettyCashPage` (fund selector kept in `?fund=`, then the fund workspace)        |
+| `pettyCash.detail`           | `/bank-cash/petty-cash/:fundId`                         | `PettyCashDetailPage` (one fund; an unknown id shows the not-found state)        |
+| `pettyCash.voucherAdd`       | `/bank-cash/petty-cash/:fundId/voucher/add`             | `VoucherAddPage` (custodian with voucher rights, active fund only)               |
+| `pettyCash.voucherEdit`      | `/bank-cash/petty-cash/:fundId/voucher/:voucherId/edit` | `VoucherEditPage` (draft or rejected vouchers only)                              |
+| `pettyCash.countAdd`         | `/bank-cash/petty-cash/:fundId/count/add`               | `CountAddPage` (someone with the count right who is not the custodian)           |
+| `pettyCash.replenishmentAdd` | `/bank-cash/petty-cash/:fundId/replenishment/add`       | `ReplenishmentAddPage` (custodian with the replenishment right; two-step wizard) |
 
-`index.ts` exports the four pages. The sidebar links to the first route.
+`index.ts` exports the six pages. `?tab=vouchers|counts|replenishments|cashBook` opens a tab; the form pages return to the tab they came from. The sidebar links to the first route.
 
 ## Endpoints (reads)
 
@@ -22,6 +24,8 @@ All through the shared `apiClient`, in `infrastructure/pettyCashApi.ts`: `GET /f
 ## Endpoints (writes)
 
 `POST /vouchers` (JSON, or multipart when receipts travel with it), `PATCH /vouchers/:id` (replaces the whole voucher), `POST /vouchers/:id/{submit,approve,reject,void}` (reject and void carry a `reason`), `POST /vouchers/:id/attachments`, `DELETE /vouchers/:id/attachments/:attachmentId`. Every write answers with the full voucher. POSTs send an `Idempotency-Key`.
+
+`POST /counts` (JSON, `submit` true or false), `POST /counts/:id/{submit,approve,reject}`, `GET /counts`, `GET /counts/:id`; `GET /reimbursements`, `GET /reimbursements/:id`, `POST /reimbursements/preview` (no key, no notes), `POST /reimbursements`, `POST /reimbursements/:id/{approve,reject,cancel,disburse}`. Timeouts are set per request in `pettyCashHttp.ts` (the shared client is not changed).
 
 ## Layers
 
@@ -42,6 +46,8 @@ All through the shared `apiClient`, in `infrastructure/pettyCashApi.ts`: `GET /f
 - **Actions follow status, menu rights, custodian and segregation of duties** (`allowedVoucherActions`): a creator is not offered approve or reject on their own voucher unless the fund allows a single user.
 - **Gateway failures** (408, 502, 503, 504, or a 5xx without the application's `{ code, message }`) are treated as an unknown outcome, like a dropped connection, so the key is kept. A kept key expires after 10 minutes.
 - **Tax and thresholds:** the cash left and the approval hint use the net amount; with a tax code they are labelled "before tax" and approval is shown as possible, because the backend compares the total (net plus tax).
+- **Cash count:** the form is a denomination calculator (7 banknotes, 4 coins) with live subtotals; the variance shown is an estimate (`expectedCashEstimate`, same formula as the backend) and the saved count carries the official figure. A reason is required when the estimate is not zero, the witness cannot be the custodian or the counter. Count actions: the counter submits a draft, an independent approver (neither custodian nor counter) approves or rejects.
+- **Replenishment:** step 1 chooses the vouchers waiting for replenishment (all preselected) and the approved count that settles with them; step 2 chooses the bank (no default) and shows the server preview: payout = vouchers plus the cash shortage, tax and expense breakdown, journal behind a disclosure and in the wide column. The preview never receives the notes (the backend refuses them). Actions: approve/reject by an approver other than the submitter, cancel by the replenishment right, pay out an approved request by someone who neither submitted nor approved it (the date becomes the journal date).
 - **Poka-yoke:** "Ajukan" is disabled above the available cash or when a required receipt is missing (checked on the net amount; the server decides on tax); "Simpan draf" stays available.
 - **A superadmin counts as custodian** in `isFundCustodian`, because the backend lets a superadmin act as custodian of any fund (open question 1).
 - Imprest equation rows come from `imprestEquation` with the sign each carries in `pagu = cash + vouchers + advances - unsettledVariance`: a shortage is added, a surplus is deducted, so the rows shown add up to the ceiling.
@@ -60,7 +66,7 @@ Namespace `pettyCash` (`id` and `en`): `workspace`, `balance`, `vouchers`, `draw
 
 ## Known gaps
 
-- No cash count, replenishment (reimbursement), employee advance (kasbon), fund administration or report screens yet (Phases 4-6).
+- No employee advance (kasbon), fund administration or report screens yet (Phases 5-6).
 - Verified in a browser as the custodian, as an approver and as a superadmin.
 - Edit-then-submit is coordinated in the form (two sequential mutations); move it to an `application` use case when later phases add similar multi-step workflows.
 - The cash book is ordered by transaction date while the running balance follows the entry sequence, so a back-dated voucher recorded later appears early with the latest balance. Its opening and closing balance follow the date filter; a voucher dated before the fund was opened gives a negative balance (backend question 10).

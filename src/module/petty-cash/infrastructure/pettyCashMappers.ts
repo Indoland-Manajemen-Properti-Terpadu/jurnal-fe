@@ -1,17 +1,23 @@
 import type {
   CashBook,
+  CountRecord,
   Page,
   PettyCashFund,
   PettyCashLookups,
   PettyCashVoucherRecord,
+  ReimbursementRecord,
+  ReplenishmentPreview,
 } from '@/module/petty-cash/domain/pettyCashEntities';
 import type { PettyCashAccessProfile } from '@/module/petty-cash/domain/pettyCashAccess';
 import type {
   CashBookDto,
+  CountDto,
   FundDto,
   LookupsDto,
   MyPermissionsDto,
   PageDto,
+  ReimbursementDto,
+  ReplenishmentPreviewDto,
   VoucherDto,
 } from '@/module/petty-cash/infrastructure/pettyCashDto';
 
@@ -150,3 +156,97 @@ export const toAccessProfile = (userId: string, dto: MyPermissionsDto): PettyCas
     ])
   ),
 });
+
+const dateOrNull = (value: string | null) => (value ? toDateOnly(value) : null);
+
+const splitDenominations = (raw: CountDto['denominations']) => {
+  const notes: Record<string, number> = {};
+  let coins: Record<string, number> = {};
+  Object.entries(raw).forEach(([key, value]) => {
+    if (key === 'coins' && typeof value === 'object') coins = { ...value };
+    else if (typeof value === 'number') notes[key] = value;
+  });
+  return { notes, coins };
+};
+
+export const toCount = (dto: CountDto): CountRecord => ({
+  id: dto.id,
+  countNumber: dto.countNumber,
+  fund: {
+    id: dto.fund.id,
+    code: dto.fund.code,
+    name: dto.fund.name,
+    custodianId: dto.fund.custodian,
+  },
+  countedAt: dto.countedAt,
+  countedBy: dto.countedBy,
+  witnessedBy: dto.witnessedBy,
+  denominations: splitDenominations(dto.denominations),
+  totalPhysicalCash: dto.totalPhysicalCash,
+  pendingVoucherTotal: dto.pendingVoucherTotal,
+  outstandingAdvanceTotal: dto.outstandingAdvanceTotal,
+  expectedCash: dto.expectedCash,
+  varianceAmount: dto.varianceAmount,
+  varianceType: dto.varianceType,
+  reason: dto.reason,
+  status: dto.status,
+  submittedAt: dto.submittedAt,
+  approvedBy: dto.approvedBy,
+  approvedAt: dto.approvedAt,
+  rejectedBy: dto.rejectedBy,
+  rejectedAt: dto.rejectedAt,
+  rejectedReason: dto.rejectedReason,
+  settledByReimbursementId: dto.settledByReimbursement,
+  isStale: dto.isStale ?? false,
+  createdAt: dto.createdAt,
+});
+
+export const toReimbursement = (dto: ReimbursementDto): ReimbursementRecord => ({
+  id: dto.id,
+  reimbursementNumber: dto.reimbursementNumber,
+  fund: {
+    id: dto.fund.id,
+    code: dto.fund.code,
+    name: dto.fund.name,
+    custodianId: dto.fund.custodian,
+  },
+  requestDate: toDateOnly(dto.requestDate),
+  bankAccount: dto.bankAccount,
+  count: dto.count && { ...dto.count, countedAt: dto.count.countedAt },
+  items: dto.items.map((item) =>
+    typeof item.voucher === 'string'
+      ? { voucherId: item.voucher, voucher: null, amount: item.amount }
+      : {
+          voucherId: item.voucher.id,
+          voucher: {
+            voucherNumber: item.voucher.voucherNumber,
+            transactionDate: toDateOnly(item.voucher.transactionDate),
+            beneficiary: item.voucher.beneficiary,
+            totalAmount: item.voucher.totalAmount,
+            status: item.voucher.status,
+          },
+          amount: item.amount,
+        }
+  ),
+  voucherTotal: dto.voucherTotal,
+  varianceAmount: dto.varianceAmount,
+  totalAmount: dto.totalAmount,
+  status: dto.status,
+  notes: dto.notes,
+  submittedBy: dto.submittedBy,
+  submittedAt: dto.submittedAt,
+  approvedBy: dto.approvedBy,
+  approvedAt: dto.approvedAt,
+  rejectedBy: dto.rejectedBy,
+  rejectedAt: dto.rejectedAt,
+  rejectedReason: dto.rejectedReason,
+  cancelledBy: dto.cancelledBy,
+  cancelledAt: dto.cancelledAt,
+  disbursedBy: dto.disbursedBy,
+  disbursedAt: dto.disbursedAt,
+  disbursementDate: dateOrNull(dto.disbursementDate),
+  journalId: dto.journal,
+  cashBalanceAfter: dto.cashBalanceAfter ?? null,
+});
+
+export const toPreview = (dto: ReplenishmentPreviewDto): ReplenishmentPreview => ({ ...dto });
