@@ -27,7 +27,7 @@ import { routes } from '@/router/routes';
 import { useNavigate } from 'react-router-dom';
 import { gradientColors, themeColors } from '@/theme';
 import UserType from '@/../public/mocks/UserType.json';
-import AddUserFormLayout from '@/module/user-management/presentation/pages/AddUserFormLayout';
+import AppShellLayout from '@/components/AppShellLayout';
 import { TextMediumGR } from '@/components/Text/CustomText';
 import AcordionRoleAccess from '@/module/user-management/presentation/components/roles/SelectorRoleAccess';
 import PageHeaderV2 from '@/components/PageHeader/PageHeaderV2';
@@ -35,7 +35,7 @@ import PageHeaderV2 from '@/components/PageHeader/PageHeaderV2';
 const items = [
   { title: 'User Management', href: () => navigate(-1) },
   { title: 'Add User', href: undefined },
-]
+];
 
 const PAPER_PROPS = {
   p: 'md',
@@ -43,7 +43,7 @@ const PAPER_PROPS = {
   radius: 'md',
 };
 
-export default function AddUserForm() {
+export default function AddUserPage() {
   const navigate = useNavigate();
   const timeoutRef = useRef<number>(-1);
   const [email, setEmail] = useState('');
@@ -81,25 +81,14 @@ export default function AddUserForm() {
     }
   };
 
-
-
   return (
-    <AddUserFormLayout
+    <AppShellLayout
       footer={
-        <Group h="100%" px="xl" >
+        <Group h="100%" px="xl">
           <Group justify="space-between" style={{ flex: 1 }}>
-            <Switch
-              defaultChecked
-              color={themeColors.primary[6]}
-              label="Active"
-              size="lg"
-            />
+            <Switch defaultChecked color={themeColors.primary[6]} label="Active" size="lg" />
             <Group>
-              <Button
-                variant="light"
-                color={themeColors.gray[7]}
-                onClick={() => navigate(-1)}
-              >
+              <Button variant="light" color={themeColors.gray[7]} onClick={() => navigate(-1)}>
                 Cancel
               </Button>
               <Button
@@ -117,7 +106,7 @@ export default function AddUserForm() {
       <Container fluid>
         <Stack gap="lg">
           <Paper {...PAPER_PROPS}>
-            <PageHeaderV2 type='withBreadcrumbs' title="User Management" breadcrumbItems={items} />
+            <PageHeaderV2 type="withBreadcrumbs" title="User Management" breadcrumbItems={items} />
           </Paper>
           <Paper {...PAPER_PROPS}>
             <Stack bg="var(--mantine-color-body)" align="stretch" justify="flex-start" gap="sm">
@@ -126,8 +115,8 @@ export default function AddUserForm() {
                 label="Full Name"
                 placeholder="Full name"
                 withAsterisk
-              // error="This field can’t be empty"
-              // {...accountInfoForm.getInputProps('firstname')}
+                // error="This field can’t be empty"
+                // {...accountInfoForm.getInputProps('firstname')}
               />
               <Autocomplete
                 value={email}
@@ -137,7 +126,7 @@ export default function AddUserForm() {
                 rightSection={loading ? <Loader size="1rem" /> : null}
                 label="Email"
                 placeholder="Your email"
-              // error="This field can’t be empty"
+                // error="This field can’t be empty"
               />
               <Combobox
                 store={combobox}
@@ -186,8 +175,8 @@ export default function AddUserForm() {
                   <Space h="md" />
                   {/* <AcordionRoleAccess roles={defaultRoles} /> */}
                 </Tabs.Panel>
-                <Tabs.Panel value='ListRole'>
-                  <Space h='md' />
+                <Tabs.Panel value="ListRole">
+                  <Space h="md" />
                   {/* <AcordionRoleAccess roles={additionalRoles} /> */}
                 </Tabs.Panel>
               </Tabs>
@@ -195,6 +184,6 @@ export default function AddUserForm() {
           </Paper>
         </Stack>
       </Container>
-    </AddUserFormLayout>
+    </AppShellLayout>
   );
 }

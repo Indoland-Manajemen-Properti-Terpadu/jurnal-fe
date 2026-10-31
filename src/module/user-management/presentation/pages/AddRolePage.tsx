@@ -19,8 +19,8 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import UserRole from '@/../public/mocks/Role.json';
 import { gradientColors, themeColors } from '@/theme';
-import classes from '@/module/user-management/presentation/pages/AddRoleForm.module.css';
-import AddRoleFormLayout from '@/module/user-management/presentation/pages/AddRoleFormLayout';
+import classes from '@/module/user-management/presentation/pages/AddRolePage.module.css';
+import AppShellLayout from '@/components/AppShellLayout';
 import { routes } from '@/router/routes';
 import { IconChevronDown, IconChevronRight } from '@tabler/icons-react';
 import { useForm } from '@mantine/form';
@@ -40,7 +40,7 @@ interface Menu {
   delete: boolean;
 }
 
-const AddRoleForm = () => {
+const AddRolePage = () => {
   const [menus, setMenus] = useState<any[]>([]);
   const [menusAccessRole, setMenusAccessRole] = useState<any[]>([]);
   const [checkedRoles, setCheckedRoles] = useState<Menu[]>([]);
@@ -197,7 +197,7 @@ const AddRoleForm = () => {
   };
 
   return (
-    <AddRoleFormLayout
+    <AppShellLayout
       footer={
         <Group h="100%" px="xl">
           <Group justify="space-between" style={{ flex: 1 }}>
@@ -346,8 +346,8 @@ const AddRoleForm = () => {
           </Stack>
         </Paper>
       </Container>
-    </AddRoleFormLayout>
+    </AppShellLayout>
   );
 };
 
-export default AddRoleForm;
+export default AddRolePage;

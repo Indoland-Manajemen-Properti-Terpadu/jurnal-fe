@@ -9,7 +9,7 @@ import { useGetAllUser } from '@/module/user-management/infrastructure/User.serv
 import UserTable from '@/module/user-management/presentation/components/user-table/UserTable';
 import ListRole from '@/module/user-management/presentation/components/roles/ListRole';
 
-export default function UserManagement() {
+export default function UserManagementPage() {
   const { t } = useTranslation('settings');
   const { data: userData, isError, isLoading } = useGetAllUser();
   const [activeTab, setActiveTab] = useState<string | null>('users');

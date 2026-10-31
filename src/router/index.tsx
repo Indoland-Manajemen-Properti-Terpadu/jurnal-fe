@@ -15,9 +15,12 @@ import {
 } from '@/module/period-closing';
 
 // User Management Module
-import UserManagement from '@/module/user-management/presentation/pages/UserManagement';
-import AddUserForm from '@/module/user-management/presentation/pages/AddUserForm';
-import AddRoleForm from '@/module/user-management/presentation/pages/AddRoleForm';
+import {
+  AddRolePage,
+  AddUserPage,
+  EditUserPage,
+  UserManagementPage,
+} from '@/module/user-management';
 import {
   ReportCatalogPage,
   BalanceSheetPage,
@@ -39,7 +42,6 @@ import {
   BankAndCashMainPage,
 } from '@/module/bank-cash';
 import { PettyCashDetailPage, PettyCashPage, PettyCashRouteScope } from '@/module/petty-cash';
-import EditUserForm from '@/module/user-management/presentation/pages/EditUser';
 import {
   AddContactPage,
   ContactMainPage,
@@ -208,19 +210,19 @@ const router = createBrowserRouter([
   // User Management Routes
   {
     path: routes.userManagement.main,
-    element: <UserManagement />,
+    element: <UserManagementPage />,
   },
   {
     path: routes.userManagement.addUser,
-    element: <AddUserForm />,
+    element: <AddUserPage />,
   },
   {
     path: routes.userManagement.editUser,
-    element: <EditUserForm />,
+    element: <EditUserPage />,
   },
   {
     path: routes.userManagement.addRole,
-    element: <AddRoleForm />,
+    element: <AddRolePage />,
   },
 
   // Result Report Routes
