@@ -30,12 +30,12 @@ type TableAccountsProps = {
 };
 
 const HeadTableFont = {
-  fontSize: 14,
+  fontSize: 'var(--jurnal-text-sm)',
   fontWeight: 500,
 };
 
 const ColumnTableFont = {
-  fontSize: 14,
+  fontSize: 'var(--jurnal-text-sm)',
   fontWeight: 400,
 };
 const TableAccounts = ({ data, loading, selectedCategory, searchQuery }: TableAccountsProps) => {

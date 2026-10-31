@@ -65,10 +65,10 @@ export const AddAccountAccessSection: React.FC<AddAccountAccessSectionProps> = (
             <IconShieldCheck size={20} />
           </ThemeIcon>
           <div>
-            <Text fw={700} fz={15} c="dark.8">
+            <Text fw={700} fz="var(--jurnal-text-sm)" c="dark.8">
               {t('form.sec3Title')}
             </Text>
-            <Text fz={12} c="dimmed">
+            <Text fz="var(--jurnal-text-xs)" c="dimmed">
               {t('form.sec3Subtitle')}
             </Text>
           </div>
@@ -145,10 +145,10 @@ export const AddAccountAccessSection: React.FC<AddAccountAccessSectionProps> = (
                         <ItemIcon size={15} />
                       </ThemeIcon>
                     </Group>
-                    <Text fw={700} fz={13} c="dark.8">
+                    <Text fw={700} fz="var(--jurnal-text-sm)" c="dark.8">
                       {item.title}
                     </Text>
-                    <Text fz={11.5} c="dimmed" mt={3} lh={1.35}>
+                    <Text fz="var(--jurnal-text-xs)" c="dimmed" mt={3} lh={1.35}>
                       {item.desc}
                     </Text>
                   </Paper>

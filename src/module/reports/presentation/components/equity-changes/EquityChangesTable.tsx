@@ -57,10 +57,10 @@ const EquityChangesTable: React.FC<EquityChangeTableProps> = ({ fromDate, toDate
           >
             <Table.Th colSpan={4}>
               <Stack gap={1}>
-                <Text c={themeColors.black[9]} fz={14} fw={500}>
+                <Text c={themeColors.black[9]} fz="var(--jurnal-text-sm)" fw={500}>
                   {t('common.report')}
                 </Text>
-                <Text c={themeColors.gray[6]} fz={14} fw={500}>
+                <Text c={themeColors.gray[6]} fz="var(--jurnal-text-sm)" fw={500}>
                   {' '}
                   {t('common.period')} {dateFormatV2(fromDate!!)} - {dateFormatV2(toDate!!)}
                 </Text>
@@ -92,7 +92,12 @@ const EquityChangesTable: React.FC<EquityChangeTableProps> = ({ fromDate, toDate
                 borderStyle: 'solid',
               }}
             >
-              <Text fz={14} w={500} gradient={gradientColors.mainGR} variant="gradient">
+              <Text
+                fz="var(--jurnal-text-sm)"
+                w={500}
+                gradient={gradientColors.mainGR}
+                variant="gradient"
+              >
                 {t('equityChanges.ownerEquity')}
               </Text>
             </Table.Td>
@@ -100,7 +105,7 @@ const EquityChangesTable: React.FC<EquityChangeTableProps> = ({ fromDate, toDate
           {reports.accounts.map((account) => (
             <Table.Tr key={account.name} style={rowStyle}>
               <Table.Td
-                fz={14}
+                fz="var(--jurnal-text-sm)"
                 colSpan={4}
                 style={{ textAlign: 'left', fontWeight: account.isBold ? 600 : 400 }}
               >
@@ -109,28 +114,28 @@ const EquityChangesTable: React.FC<EquityChangeTableProps> = ({ fromDate, toDate
                   : account.name || account.accountNumber}
               </Table.Td>
               <Table.Td
-                fz={14}
+                fz="var(--jurnal-text-sm)"
                 colSpan={2}
                 style={{ textAlign: 'left', fontWeight: account.isBold ? 600 : 400 }}
               >
                 {formatCurrency(account.beginningBalance || 0)}
               </Table.Td>
               <Table.Td
-                fz={14}
+                fz="var(--jurnal-text-sm)"
                 colSpan={2}
                 style={{ textAlign: 'left', fontWeight: account.isBold ? 600 : 400 }}
               >
                 {formatCurrency(account.changesDebit || 0)}
               </Table.Td>
               <Table.Td
-                fz={14}
+                fz="var(--jurnal-text-sm)"
                 colSpan={2}
                 style={{ textAlign: 'left', fontWeight: account.isBold ? 600 : 400 }}
               >
                 {formatCurrency(account.changesCredit || 0)}
               </Table.Td>
               <Table.Td
-                fz={14}
+                fz="var(--jurnal-text-sm)"
                 colSpan={2}
                 style={{ textAlign: 'left', fontWeight: account.isBold ? 600 : 400 }}
               >

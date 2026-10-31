@@ -1,12 +1,4 @@
-import {
-  ActionIcon,
-  Badge,
-  Box,
-  Group,
-  Menu,
-  Text,
-  UnstyledButton,
-} from '@mantine/core';
+import { ActionIcon, Badge, Box, Group, Menu, Text, UnstyledButton } from '@mantine/core';
 import {
   IconCircleFilled,
   IconDotsVertical,
@@ -30,8 +22,12 @@ export const FooterNav = () => {
     <Group justify="space-between" align="center" w="100%" h="100%" wrap="nowrap" gap="md">
       {/* Left: Brand copyright & System status badge */}
       <Group gap="sm" wrap="nowrap">
-        <Text fz={12} fw={500} c="dimmed">
-          &copy; {currentYear} <Text span fw={700} c="primary.9">ProApps</Text> · Jurnal Accounting
+        <Text fz="var(--jurnal-text-xs)" fw={500} c="dimmed">
+          &copy; {currentYear}{' '}
+          <Text span fw={700} c="primary.9">
+            ProApps
+          </Text>{' '}
+          · Jurnal Accounting
         </Text>
         <Badge
           variant="light"
@@ -81,40 +77,49 @@ export const FooterNav = () => {
         <Box hiddenFrom="sm">
           <Menu shadow="xl" width={200} position="top-end" radius="md">
             <Menu.Target>
-              <ActionIcon variant="subtle" color="gray" size="sm" radius="md" aria-label="Footer Menu">
+              <ActionIcon
+                variant="subtle"
+                color="gray"
+                size="sm"
+                radius="md"
+                aria-label="Footer Menu"
+              >
                 <IconDotsVertical size={16} />
               </ActionIcon>
             </Menu.Target>
-          <Menu.Dropdown>
-            <Menu.Label>Bantuan & Kebijakan</Menu.Label>
-            {FOOTER_LINKS.map((link) => {
-              const Icon = link.icon;
-              return (
-                <Menu.Item
-                  key={link.label}
-                  leftSection={<Icon size={14} />}
-                  rightSection={<IconExternalLink size={12} color="gray" />}
-                  component="a"
-                  href={link.href}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  {link.label}
-                </Menu.Item>
-              );
-            })}
-            <Menu.Divider />
-            <Box px="xs" py={4}>
-              <Text size="xs" c="dimmed">
-                Status: <Text span c="teal.7" fw={600}>Online (v2.4.0)</Text>
-              </Text>
-            </Box>
-          </Menu.Dropdown>
-        </Menu>
-      </Box>
+            <Menu.Dropdown>
+              <Menu.Label>Bantuan & Kebijakan</Menu.Label>
+              {FOOTER_LINKS.map((link) => {
+                const Icon = link.icon;
+                return (
+                  <Menu.Item
+                    key={link.label}
+                    leftSection={<Icon size={14} />}
+                    rightSection={<IconExternalLink size={12} color="gray" />}
+                    component="a"
+                    href={link.href}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {link.label}
+                  </Menu.Item>
+                );
+              })}
+              <Menu.Divider />
+              <Box px="xs" py={4}>
+                <Text size="xs" c="dimmed">
+                  Status:{' '}
+                  <Text span c="teal.7" fw={600}>
+                    Online (v2.4.0)
+                  </Text>
+                </Text>
+              </Box>
+            </Menu.Dropdown>
+          </Menu>
+        </Box>
+      </Group>
     </Group>
-  </Group>
-);
+  );
 };
 
 export default FooterNav;

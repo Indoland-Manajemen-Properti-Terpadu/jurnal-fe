@@ -55,7 +55,7 @@ export const VoucherRow: React.FC<VoucherRowProps> = ({
           <Anchor
             component="button"
             type="button"
-            fz={13}
+            fz="var(--jurnal-text-sm)"
             fw={700}
             c="primary.9"
             ff="monospace"
@@ -75,17 +75,17 @@ export const VoucherRow: React.FC<VoucherRowProps> = ({
 
       {/* Date */}
       <Table.Td>
-        <Text fz={12} c="dark.7">
+        <Text fz="var(--jurnal-text-xs)" c="dark.7">
           {dateFormatV1(voucher.date)}
         </Text>
       </Table.Td>
 
       {/* Beneficiary & Fund */}
       <Table.Td>
-        <Text fz={13} fw={600} c="dark.9" lineClamp={1}>
+        <Text fz="var(--jurnal-text-sm)" fw={600} c="dark.9" lineClamp={1}>
           {voucher.beneficiary}
         </Text>
-        <Text fz={11} c="dimmed" lineClamp={1}>
+        <Text fz="var(--jurnal-text-xs)" c="dimmed" lineClamp={1}>
           {voucher.fundName}
         </Text>
       </Table.Td>
@@ -95,14 +95,14 @@ export const VoucherRow: React.FC<VoucherRowProps> = ({
         <Badge variant="light" color="gray" radius="sm" size="xs" ff="monospace" mb={2}>
           {voucher.expenseAccount.code}
         </Badge>
-        <Text fz={12} c="dark.8" lineClamp={1}>
+        <Text fz="var(--jurnal-text-xs)" c="dark.8" lineClamp={1}>
           {voucher.expenseAccount.name}
         </Text>
       </Table.Td>
 
       {/* Description */}
       <Table.Td>
-        <Text fz={12} c="dark.7" lineClamp={2}>
+        <Text fz="var(--jurnal-text-xs)" c="dark.7" lineClamp={2}>
           {voucher.description}
         </Text>
       </Table.Td>
@@ -110,7 +110,7 @@ export const VoucherRow: React.FC<VoucherRowProps> = ({
       {/* Amount */}
       <Table.Td style={{ textAlign: 'right' }}>
         <Text
-          fz={13}
+          fz="var(--jurnal-text-sm)"
           fw={700}
           c="dark.8"
           ff="monospace"

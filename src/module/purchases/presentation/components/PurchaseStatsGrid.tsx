@@ -83,7 +83,7 @@ export const PurchaseStatsGrid: React.FC<PurchaseStatsGridProps> = ({
                   {c.label}
                 </Text>
                 <Text
-                  fz={20}
+                  fz="var(--jurnal-text-xl)"
                   fw={800}
                   c="dark.9"
                   mt={4}

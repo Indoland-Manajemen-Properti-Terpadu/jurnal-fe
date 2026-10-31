@@ -35,7 +35,8 @@ export const ReportCard: React.FC<ReportCardProps> = ({ report }) => {
         root: {
           '&:hover': {
             transform: 'translateY(-3px)',
-            boxShadow: '0 12px 24px -10px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.02)',
+            boxShadow:
+              '0 12px 24px -10px color-mix(in srgb, var(--mantine-color-black) 8%, transparent), 0 4px 6px -2px color-mix(in srgb, var(--mantine-color-black) 2%, transparent)',
             borderColor: 'var(--mantine-color-primary-4)',
           },
         },

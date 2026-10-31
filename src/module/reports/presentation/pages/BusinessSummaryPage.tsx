@@ -42,7 +42,7 @@ const BusinessSummaryPage = () => {
                   <Title order={3}>{t('businessSummary.title')}</Title>
                 </Grid.Col>
               </Grid>
-              <Text c={themeColors.gray[6]} fz={14}>
+              <Text c={themeColors.gray[6]} fz="var(--jurnal-text-sm)">
                 {t('common.latestData')} {lastDate}
               </Text>
             </Stack>
@@ -107,14 +107,14 @@ const BusinessSummaryPage = () => {
                 >
                   <Group justify="space-between">
                     <Stack gap={1}>
-                      <Text c={themeColors.black[9]} fz={14} fw={500}>
+                      <Text c={themeColors.black[9]} fz="var(--jurnal-text-sm)" fw={500}>
                         {t('common.report')}
                       </Text>
-                      <Text c={themeColors.gray[6]} fz={14} fw={500}>
+                      <Text c={themeColors.gray[6]} fz="var(--jurnal-text-sm)" fw={500}>
                         {t('common.period')} {lastDate}
                       </Text>
                     </Stack>
-                    <Text c={themeColors.black[9]} fz={14} fw={500}>
+                    <Text c={themeColors.black[9]} fz="var(--jurnal-text-sm)" fw={500}>
                       {t('common.totalColon')} {formatCurrency(totalBalanceSheet)}
                     </Text>
                   </Group>

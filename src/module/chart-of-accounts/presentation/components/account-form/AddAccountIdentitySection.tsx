@@ -66,10 +66,10 @@ export const AddAccountIdentitySection: React.FC<AddAccountIdentitySectionProps>
             <IconFileInvoice size={20} />
           </ThemeIcon>
           <div>
-            <Text fw={700} fz={15} c="dark.8">
+            <Text fw={700} fz="var(--jurnal-text-sm)" c="dark.8">
               {t('form.sec1Title')}
             </Text>
-            <Text fz={12} c="dimmed">
+            <Text fz="var(--jurnal-text-xs)" c="dimmed">
               {t('form.sec1Subtitle')}
             </Text>
           </div>
@@ -170,7 +170,7 @@ export const AddAccountIdentitySection: React.FC<AddAccountIdentitySectionProps>
                 </ThemeIcon>
                 <Box style={{ minWidth: 0 }}>
                   <Group gap={6} wrap="wrap">
-                    <Text fw={700} fz={13} c="dark.8">
+                    <Text fw={700} fz="var(--jurnal-text-sm)" c="dark.8">
                       {t('form.attrBankCashTitle')}
                     </Text>
                     <Badge
@@ -181,7 +181,7 @@ export const AddAccountIdentitySection: React.FC<AddAccountIdentitySectionProps>
                       {form.values.isBankAndCash ? t('form.badgeActive') : t('form.badgeInactive')}
                     </Badge>
                   </Group>
-                  <Text fz={11.5} c="dimmed" mt={3} lh={1.35}>
+                  <Text fz="var(--jurnal-text-xs)" c="dimmed" mt={3} lh={1.35}>
                     {t('form.attrBankCashDesc')}
                   </Text>
                 </Box>
@@ -222,7 +222,7 @@ export const AddAccountIdentitySection: React.FC<AddAccountIdentitySectionProps>
                 </ThemeIcon>
                 <Box style={{ minWidth: 0 }}>
                   <Group gap={6} wrap="wrap">
-                    <Text fw={700} fz={13} c="dark.8">
+                    <Text fw={700} fz="var(--jurnal-text-sm)" c="dark.8">
                       {t('form.attrContraTitle')}
                     </Text>
                     <Badge
@@ -233,7 +233,7 @@ export const AddAccountIdentitySection: React.FC<AddAccountIdentitySectionProps>
                       {form.values.isContra ? t('form.badgeActive') : t('form.badgeInactive')}
                     </Badge>
                   </Group>
-                  <Text fz={11.5} c="dimmed" mt={3} lh={1.35}>
+                  <Text fz="var(--jurnal-text-xs)" c="dimmed" mt={3} lh={1.35}>
                     {t('form.attrContraDesc')}
                   </Text>
                 </Box>

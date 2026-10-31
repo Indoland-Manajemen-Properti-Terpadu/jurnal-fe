@@ -42,16 +42,11 @@ import { useTranslation } from '@/i18n';
 
 import { DeleteConfirmModal } from '@/module/settings/presentation/components/DeleteConfirmModal';
 
-const PRESET_COLORS = [
-  '#3B82F6', // Blue
-  '#10B981', // Green
-  '#F59E0B', // Amber
-  '#EF4444', // Red
-  '#8B5CF6', // Purple
-  '#EC4899', // Pink
-  '#06B6D4', // Cyan
-  '#64748B', // Slate
-];
+import {
+  DEFAULT_TAG_COLOR,
+  TAG_PRESET_COLORS,
+  tint,
+} from '@/module/settings/presentation/tagColors';
 
 export default function TagSettingPage() {
   const { t: st } = useTranslation('settings');
@@ -74,7 +69,7 @@ export default function TagSettingPage() {
   const form = useForm({
     initialValues: {
       name: '',
-      color: '#3B82F6',
+      color: DEFAULT_TAG_COLOR,
     },
     validate: {
       name: (val) => msg(validateTagName(val)),
@@ -91,7 +86,7 @@ export default function TagSettingPage() {
     setEditingTag(tag);
     form.setValues({
       name: tag.name,
-      color: tag.color || '#3B82F6',
+      color: tag.color || DEFAULT_TAG_COLOR,
     });
     openModal();
   };
@@ -206,7 +201,7 @@ export default function TagSettingPage() {
                   <Table.Tr key={tag.id}>
                     <Table.Td>
                       <Group gap="xs">
-                        <ColorSwatch color={tag.color || '#3B82F6'} size={14} />
+                        <ColorSwatch color={tag.color || DEFAULT_TAG_COLOR} size={14} />
                         <Text fw={600} size="sm" c="dark.8">
                           {tag.name}
                         </Text>
@@ -216,9 +211,9 @@ export default function TagSettingPage() {
                       <Badge
                         styles={{
                           root: {
-                            backgroundColor: `${tag.color || '#3B82F6'}1A`,
-                            color: tag.color || '#3B82F6',
-                            border: `1px solid ${tag.color || '#3B82F6'}4D`,
+                            backgroundColor: tint(tag.color || DEFAULT_TAG_COLOR, 10),
+                            color: tag.color || DEFAULT_TAG_COLOR,
+                            border: `1px solid ${tint(tag.color || DEFAULT_TAG_COLOR, 30)}`,
                           },
                         }}
                         size="md"
@@ -289,14 +284,17 @@ export default function TagSettingPage() {
                 {st('tag.colorLabel')}
               </Text>
               <Group gap="xs">
-                {PRESET_COLORS.map((color) => (
+                {TAG_PRESET_COLORS.map((color) => (
                   <ColorSwatch
                     key={color}
                     color={color}
                     size={28}
                     style={{
                       cursor: 'pointer',
-                      border: form.values.color === color ? '2px solid #0F172A' : 'none',
+                      border:
+                        form.values.color === color
+                          ? '2px solid var(--mantine-color-slate-9)'
+                          : 'none',
                     }}
                     onClick={() => form.setFieldValue('color', color)}
                   />
@@ -312,9 +310,9 @@ export default function TagSettingPage() {
                 mt={4}
                 styles={{
                   root: {
-                    backgroundColor: `${form.values.color || '#3B82F6'}1A`,
-                    color: form.values.color || '#3B82F6',
-                    border: `1px solid ${form.values.color || '#3B82F6'}4D`,
+                    backgroundColor: tint(form.values.color || DEFAULT_TAG_COLOR, 10),
+                    color: form.values.color || DEFAULT_TAG_COLOR,
+                    border: `1px solid ${tint(form.values.color || DEFAULT_TAG_COLOR, 30)}`,
                   },
                 }}
                 size="md"

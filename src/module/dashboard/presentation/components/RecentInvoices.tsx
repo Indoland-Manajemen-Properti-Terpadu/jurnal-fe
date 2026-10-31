@@ -60,9 +60,9 @@ export function RecentInvoices({
             p="xs"
             onClick={() => onOpen?.(s)}
             style={{
-              border: '1px solid rgba(15, 23, 42, 0.06)',
+              border: '1px solid color-mix(in srgb, var(--mantine-color-slate-9) 6%, transparent)',
               borderRadius: 12,
-              backgroundColor: 'rgba(255, 255, 255, 0.6)',
+              backgroundColor: 'color-mix(in srgb, var(--mantine-color-white) 60%, transparent)',
             }}
           >
             <Group justify="space-between" wrap="nowrap">

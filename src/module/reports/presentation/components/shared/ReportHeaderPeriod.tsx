@@ -27,14 +27,14 @@ const ReportHeaderPeriod: React.FC<ReportHeaderPeriodProps> = ({ fromDate, toDat
     >
       <Group justify="space-between">
         <Stack gap={1}>
-          <Text c={themeColors.black[9]} fz={14} fw={500}>
+          <Text c={themeColors.black[9]} fz="var(--jurnal-text-sm)" fw={500}>
             {t('common.report')}
           </Text>
-          <Text c={themeColors.gray[6]} fz={14} fw={500}>
+          <Text c={themeColors.gray[6]} fz="var(--jurnal-text-sm)" fw={500}>
             {t('common.period')} {dateFormatV2(fromDate)} - {dateFormatV2(toDate)}
           </Text>
         </Stack>
-        <Text c={themeColors.black[9]} fz={14} fw={500}>
+        <Text c={themeColors.black[9]} fz="var(--jurnal-text-sm)" fw={500}>
           {t('common.total')}{' '}
         </Text>
       </Group>

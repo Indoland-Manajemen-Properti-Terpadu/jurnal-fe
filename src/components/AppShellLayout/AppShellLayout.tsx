@@ -51,8 +51,9 @@ const AppShellLayout = ({
       <AppShell.Header
         style={{
           height: rem(appShellLayout.headerHeight),
-          borderBottom: '1px solid rgba(15, 23, 42, 0.06)',
-          background: 'rgba(255, 255, 255, 0.78)',
+          borderBottom:
+            '1px solid color-mix(in srgb, var(--mantine-color-slate-9) 6%, transparent)',
+          background: 'color-mix(in srgb, var(--mantine-color-white) 78%, transparent)',
           backdropFilter: 'blur(16px) saturate(160%)',
           WebkitBackdropFilter: 'blur(16px) saturate(160%)',
         }}
@@ -85,8 +86,8 @@ const AppShellLayout = ({
           p={footer ? 0 : 0}
           px={footer ? 'lg' : undefined}
           style={{
-            borderTop: '1px solid rgba(15, 23, 42, 0.06)',
-            background: 'rgba(255, 255, 255, 0.82)',
+            borderTop: '1px solid color-mix(in srgb, var(--mantine-color-slate-9) 6%, transparent)',
+            background: 'color-mix(in srgb, var(--mantine-color-white) 82%, transparent)',
             backdropFilter: 'blur(16px) saturate(160%)',
             WebkitBackdropFilter: 'blur(16px) saturate(160%)',
           }}

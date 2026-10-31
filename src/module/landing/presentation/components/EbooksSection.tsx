@@ -31,7 +31,14 @@ export function EbooksSection({ onOpenEbook }: EbooksSectionProps) {
                   <div className={classes.ebookTag}>{t(`ebooks.items.${book.id}.tag`)}</div>
                   <div>
                     <IconBook2 size={32} stroke={1.5} style={{ opacity: 0.9 }} />
-                    <div style={{ fontWeight: 800, fontSize: 16, marginTop: 8, lineHeight: 1.25 }}>
+                    <div
+                      style={{
+                        fontWeight: 800,
+                        fontSize: 'var(--jurnal-text-md)',
+                        marginTop: 8,
+                        lineHeight: 1.25,
+                      }}
+                    >
                       {title}
                     </div>
                   </div>
@@ -45,13 +52,18 @@ export function EbooksSection({ onOpenEbook }: EbooksSectionProps) {
                     margin: '14px 0',
                     display: 'grid',
                     gap: 6,
-                    fontSize: 12,
-                    color: '#475569',
+                    fontSize: 'var(--jurnal-text-xs)',
+                    color: 'var(--mantine-color-slate-6)',
                   }}
                 >
                   {EBOOK_HIGHLIGHT_KEYS.map((key) => (
                     <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <IconCheck size={14} color="#059669" stroke={2.5} style={{ flexShrink: 0 }} />
+                      <IconCheck
+                        size={14}
+                        color="var(--mantine-color-emerald-6)"
+                        stroke={2.5}
+                        style={{ flexShrink: 0 }}
+                      />
                       <span>{t(`ebooks.items.${book.id}.highlights.${key}`)}</span>
                     </div>
                   ))}

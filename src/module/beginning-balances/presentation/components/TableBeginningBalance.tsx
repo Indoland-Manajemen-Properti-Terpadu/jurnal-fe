@@ -71,7 +71,7 @@ const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
     {
       accessor: 'accountNumber',
       title: (
-        <Text fw={700} fz={13} c="dark.8">
+        <Text fw={700} fz="var(--jurnal-text-sm)" c="dark.8">
           {t('table.code')}
         </Text>
       ),
@@ -97,7 +97,7 @@ const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
     {
       accessor: 'name',
       title: (
-        <Text fw={700} fz={13} c="dark.8">
+        <Text fw={700} fz="var(--jurnal-text-sm)" c="dark.8">
           {t('table.nameAndNormal')}
         </Text>
       ),
@@ -108,7 +108,7 @@ const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
         return (
           <Stack gap={3}>
             <Group gap="xs" wrap="nowrap">
-              <Text fw={isSub ? 500 : 700} fz={14} c="dark.8">
+              <Text fw={isSub ? 500 : 700} fz="var(--jurnal-text-sm)" c="dark.8">
                 {item.name}
               </Text>
               {!isSub && (
@@ -147,7 +147,7 @@ const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
           <ThemeIcon size={20} radius="xl" color="teal" variant="light">
             <IconArrowDownRight size={13} />
           </ThemeIcon>
-          <Text fw={700} fz={13} c="dark.8">
+          <Text fw={700} fz="var(--jurnal-text-sm)" c="dark.8">
             {t('table.debit')}
           </Text>
         </Group>
@@ -181,23 +181,25 @@ const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
                   textAlign: 'right',
                   fontFamily: 'monospace',
                   fontWeight: hasVal ? 700 : 400,
-                  fontSize: 13,
+                  fontSize: 'var(--jurnal-text-sm)',
                   color: hasVal ? 'var(--mantine-color-teal-8)' : 'inherit',
                   backgroundColor: hasVal
                     ? 'var(--mantine-color-teal-0)'
                     : normalDebit
-                      ? '#FFFFFF'
-                      : '#F8FAFC',
+                      ? 'var(--mantine-color-white)'
+                      : 'var(--mantine-color-slate-0)',
                   borderColor: hasVal
                     ? 'var(--mantine-color-teal-5)'
                     : normalDebit
                       ? 'var(--mantine-color-teal-2)'
                       : 'var(--mantine-color-gray-3)',
-                  boxShadow: normalDebit ? '0 1px 2px rgba(0,0,0,0.02)' : 'none',
+                  boxShadow: normalDebit
+                    ? '0 1px 2px color-mix(in srgb, var(--mantine-color-black) 2%, transparent)'
+                    : 'none',
                   transition: 'all 150ms ease',
                   '&:focus': {
                     borderColor: 'var(--mantine-color-teal-6)',
-                    backgroundColor: '#FFFFFF',
+                    backgroundColor: 'var(--mantine-color-white)',
                   },
                 },
               }}
@@ -218,7 +220,7 @@ const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
           <ThemeIcon size={20} radius="xl" color="red" variant="light">
             <IconArrowUpRight size={13} />
           </ThemeIcon>
-          <Text fw={700} fz={13} c="dark.8">
+          <Text fw={700} fz="var(--jurnal-text-sm)" c="dark.8">
             {t('table.credit')}
           </Text>
         </Group>
@@ -253,23 +255,25 @@ const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
                   textAlign: 'right',
                   fontFamily: 'monospace',
                   fontWeight: hasVal ? 700 : 400,
-                  fontSize: 13,
+                  fontSize: 'var(--jurnal-text-sm)',
                   color: hasVal ? 'var(--mantine-color-red-8)' : 'inherit',
                   backgroundColor: hasVal
                     ? 'var(--mantine-color-red-0)'
                     : isNormalCredit
-                      ? '#FFFFFF'
-                      : '#F8FAFC',
+                      ? 'var(--mantine-color-white)'
+                      : 'var(--mantine-color-slate-0)',
                   borderColor: hasVal
                     ? 'var(--mantine-color-red-5)'
                     : isNormalCredit
                       ? 'var(--mantine-color-red-2)'
                       : 'var(--mantine-color-gray-3)',
-                  boxShadow: isNormalCredit ? '0 1px 2px rgba(0,0,0,0.02)' : 'none',
+                  boxShadow: isNormalCredit
+                    ? '0 1px 2px color-mix(in srgb, var(--mantine-color-black) 2%, transparent)'
+                    : 'none',
                   transition: 'all 150ms ease',
                   '&:focus': {
                     borderColor: 'var(--mantine-color-red-6)',
-                    backgroundColor: '#FFFFFF',
+                    backgroundColor: 'var(--mantine-color-white)',
                   },
                 },
               }}

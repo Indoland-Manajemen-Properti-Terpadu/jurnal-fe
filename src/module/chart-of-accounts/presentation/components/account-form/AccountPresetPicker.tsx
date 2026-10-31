@@ -23,7 +23,7 @@ export const AccountPresetPicker: React.FC<AccountPresetPickerProps> = ({ onAppl
     >
       <Group gap={6} mb={8}>
         <IconSparkles size={15} color={themeColors.primary[6]} />
-        <Text fz={12} fw={700} c="dark.7">
+        <Text fz="var(--jurnal-text-xs)" fw={700} c="dark.7">
           {t('form.presetsTitle')}
         </Text>
       </Group>
@@ -75,7 +75,7 @@ export const AccountPresetPicker: React.FC<AccountPresetPickerProps> = ({ onAppl
                 height: 32,
               },
               label: {
-                fontSize: 11.5,
+                fontSize: 'var(--jurnal-text-xs)',
                 fontWeight: 600,
               },
             }}

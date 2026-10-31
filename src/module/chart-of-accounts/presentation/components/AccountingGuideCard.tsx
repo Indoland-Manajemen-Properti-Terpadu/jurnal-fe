@@ -55,10 +55,10 @@ export const AccountingGuideCard: React.FC<AccountingGuideCardProps> = ({ active
             <IconBulb size={16} />
           </ThemeIcon>
           <div>
-            <Text fw={700} fz={13} c="dark.8">
+            <Text fw={700} fz="var(--jurnal-text-sm)" c="dark.8">
               {t('guide.title')}
             </Text>
-            <Text fz={11} c="dimmed">
+            <Text fz="var(--jurnal-text-xs)" c="dimmed">
               {t('guide.subtitle')}
             </Text>
           </div>
@@ -71,13 +71,13 @@ export const AccountingGuideCard: React.FC<AccountingGuideCardProps> = ({ active
       <Accordion variant="separated" radius="md" defaultValue="numbering">
         <Accordion.Item value="numbering">
           <Accordion.Control icon={<IconListNumbers size={16} color={themeColors.primary[6]} />}>
-            <Text fz={12} fw={700}>
+            <Text fz="var(--jurnal-text-xs)" fw={700}>
               {t('guide.numberingTitle')}
             </Text>
           </Accordion.Control>
           <Accordion.Panel>
             <Stack gap={6}>
-              <Text fz={10} fw={700} c="dimmed" tt="uppercase" lts={0.4}>
+              <Text fz="var(--jurnal-text-xs)" fw={700} c="dimmed" tt="uppercase" lts={0.4}>
                 {t('guide.balanceGroup')}
               </Text>
               {rules
@@ -100,7 +100,7 @@ export const AccountingGuideCard: React.FC<AccountingGuideCardProps> = ({ active
                       }}
                     >
                       <Group justify="space-between" wrap="nowrap">
-                        <Text fz={11.5} c="dimmed" truncate>
+                        <Text fz="var(--jurnal-text-xs)" c="dimmed" truncate>
                           <Text span fw={700} ff="monospace" c={isActive ? 'primary.8' : 'dark.8'}>
                             {item.code}
                           </Text>{' '}
@@ -116,7 +116,7 @@ export const AccountingGuideCard: React.FC<AccountingGuideCardProps> = ({ active
 
               <Divider my={2} />
 
-              <Text fz={10} fw={700} c="dimmed" tt="uppercase" lts={0.4}>
+              <Text fz="var(--jurnal-text-xs)" fw={700} c="dimmed" tt="uppercase" lts={0.4}>
                 {t('guide.profitLossGroup')}
               </Text>
               {rules
@@ -139,7 +139,7 @@ export const AccountingGuideCard: React.FC<AccountingGuideCardProps> = ({ active
                       }}
                     >
                       <Group justify="space-between" wrap="nowrap">
-                        <Text fz={11.5} c="dimmed" truncate>
+                        <Text fz="var(--jurnal-text-xs)" c="dimmed" truncate>
                           <Text span fw={700} ff="monospace" c={isActive ? 'primary.8' : 'dark.8'}>
                             {item.code}
                           </Text>{' '}
@@ -158,12 +158,12 @@ export const AccountingGuideCard: React.FC<AccountingGuideCardProps> = ({ active
 
         <Accordion.Item value="contra">
           <Accordion.Control icon={<IconScale size={16} color={themeColors.secondary[6]} />}>
-            <Text fz={12} fw={700}>
+            <Text fz="var(--jurnal-text-xs)" fw={700}>
               {t('guide.contraTitle')}
             </Text>
           </Accordion.Control>
           <Accordion.Panel>
-            <Text fz={11} c="dimmed" lh={1.45}>
+            <Text fz="var(--jurnal-text-xs)" c="dimmed" lh={1.45}>
               {t('guide.contraPrefix')}{' '}
               <Text span fw={600} c="dark.8">
                 {t('guide.contraTerm')}
@@ -172,17 +172,17 @@ export const AccountingGuideCard: React.FC<AccountingGuideCardProps> = ({ active
             </Text>
             <List size="xs" spacing={4} mt={6} c="dimmed">
               <List.Item>
-                <Text span fz={11}>
+                <Text span fz="var(--jurnal-text-xs)">
                   {t('guide.contraEx1')}
                 </Text>
               </List.Item>
               <List.Item>
-                <Text span fz={11}>
+                <Text span fz="var(--jurnal-text-xs)">
                   {t('guide.contraEx2')}
                 </Text>
               </List.Item>
               <List.Item>
-                <Text span fz={11}>
+                <Text span fz="var(--jurnal-text-xs)">
                   {t('guide.contraEx3')}
                 </Text>
               </List.Item>
@@ -192,12 +192,12 @@ export const AccountingGuideCard: React.FC<AccountingGuideCardProps> = ({ active
 
         <Accordion.Item value="hierarchy">
           <Accordion.Control icon={<IconHierarchy2 size={16} color={themeColors.primary[5]} />}>
-            <Text fz={12} fw={700}>
+            <Text fz="var(--jurnal-text-xs)" fw={700}>
               {t('guide.hierarchyTitle')}
             </Text>
           </Accordion.Control>
           <Accordion.Panel>
-            <Text fz={11} c="dimmed" lh={1.45}>
+            <Text fz="var(--jurnal-text-xs)" c="dimmed" lh={1.45}>
               <Text span fw={600} c="dark.8">
                 {t('guide.subTerm')}
               </Text>{' '}

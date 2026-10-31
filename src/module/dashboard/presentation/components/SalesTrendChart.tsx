@@ -32,12 +32,12 @@ export function SalesTrendChart({
         p="xs"
         style={{
           borderRadius: 12,
-          backgroundColor: 'rgba(241, 245, 249, 0.75)',
-          border: '1px solid rgba(15, 23, 42, 0.06)',
+          backgroundColor: 'color-mix(in srgb, var(--mantine-color-slate-1) 75%, transparent)',
+          border: '1px solid color-mix(in srgb, var(--mantine-color-slate-9) 6%, transparent)',
         }}
       >
         <Box px="xs">
-          <Text fz={11} c="dimmed" fw={600}>
+          <Text fz="var(--jurnal-text-xs)" c="dimmed" fw={600}>
             {t('summary6mInvoiced')}
           </Text>
           <Text size="sm" fw={800} c="primary.8" mt={2}>
@@ -47,11 +47,13 @@ export function SalesTrendChart({
         <Box
           px="xs"
           style={{
-            borderLeft: '1px solid rgba(15, 23, 42, 0.06)',
-            borderRight: '1px solid rgba(15, 23, 42, 0.06)',
+            borderLeft:
+              '1px solid color-mix(in srgb, var(--mantine-color-slate-9) 6%, transparent)',
+            borderRight:
+              '1px solid color-mix(in srgb, var(--mantine-color-slate-9) 6%, transparent)',
           }}
         >
-          <Text fz={11} c="dimmed" fw={600}>
+          <Text fz="var(--jurnal-text-xs)" c="dimmed" fw={600}>
             {t('summary6mCollected')}
           </Text>
           <Text size="sm" fw={800} c="teal.7" mt={2}>
@@ -59,7 +61,7 @@ export function SalesTrendChart({
           </Text>
         </Box>
         <Box px="xs">
-          <Text fz={11} c="dimmed" fw={600}>
+          <Text fz="var(--jurnal-text-xs)" c="dimmed" fw={600}>
             {t('summary6mUncollected')}
           </Text>
           <Text size="sm" fw={800} c={total6mUncollected > 0 ? 'orange.8' : 'dark.8'} mt={2}>
@@ -72,19 +74,27 @@ export function SalesTrendChart({
       <Group justify="space-between" align="center" wrap="wrap">
         <Group gap="lg">
           <Group gap={6}>
-            <Box w={11} h={11} style={{ borderRadius: 3, background: '#0a5fbd' }} />
+            <Box
+              w={11}
+              h={11}
+              style={{ borderRadius: 3, background: 'var(--mantine-color-sky-7)' }}
+            />
             <Text size="xs" fw={600} c="dark.6">
               {t('legendInvoiced')}
             </Text>
           </Group>
           <Group gap={6}>
-            <Box w={11} h={11} style={{ borderRadius: 3, background: '#168b7a' }} />
+            <Box
+              w={11}
+              h={11}
+              style={{ borderRadius: 3, background: 'var(--mantine-color-teal-6)' }}
+            />
             <Text size="xs" fw={600} c="dark.6">
               {t('legendCollected')}
             </Text>
           </Group>
         </Group>
-        <Text fz={11} c="dimmed">
+        <Text fz="var(--jurnal-text-xs)" c="dimmed">
           Max: {formatCompact(max)}
         </Text>
       </Group>
@@ -98,7 +108,10 @@ export function SalesTrendChart({
             left={0}
             right={0}
             bottom={`${g * 100}%`}
-            style={{ borderTop: '1px dashed rgba(15,23,42,0.08)' }}
+            style={{
+              borderTop:
+                '1px dashed color-mix(in srgb, var(--mantine-color-slate-9) 8%, transparent)',
+            }}
           />
         ))}
         <Group
@@ -143,7 +156,7 @@ export function SalesTrendChart({
                     h={`${Math.max(3, (d.invoiced / max) * 100)}%`}
                     style={{
                       borderRadius: '8px 8px 4px 4px',
-                      background: '#0a5fbd',
+                      background: 'var(--mantine-color-sky-7)',
                     }}
                   />
                   <Box
@@ -152,7 +165,7 @@ export function SalesTrendChart({
                     h={`${Math.max(3, (d.collected / max) * 100)}%`}
                     style={{
                       borderRadius: '8px 8px 4px 4px',
-                      background: '#168b7a',
+                      background: 'var(--mantine-color-teal-6)',
                     }}
                   />
                 </Group>
@@ -171,7 +184,7 @@ export function SalesTrendChart({
               <Text size="xs" fw={600} c="dark.7" ta="center">
                 {d.label}
               </Text>
-              <Text fz={10} c={pct >= 80 ? 'teal.7' : 'dimmed'} fw={600}>
+              <Text fz="var(--jurnal-text-xs)" c={pct >= 80 ? 'teal.7' : 'dimmed'} fw={600}>
                 {d.invoiced > 0 ? `${pct}%` : '—'}
               </Text>
             </Stack>

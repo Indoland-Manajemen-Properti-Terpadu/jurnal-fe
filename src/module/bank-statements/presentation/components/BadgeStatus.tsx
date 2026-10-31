@@ -18,7 +18,7 @@ const BadgeStatusReconciled = ({ reconciled }: BadgeStatusProps) => {
       bg={themeColors.gray[0]}
       c={themeColors.black[9]}
       fw={400}
-      fz={10}
+      fz="var(--jurnal-text-xs)"
       style={{ textTransform: 'capitalize' }}
     >
       {t('status.unreconciled')}

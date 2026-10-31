@@ -162,7 +162,7 @@ const AddRolePage = () => {
                           </Group>
                         ) : (
                           <>
-                            <Text pl={30} c={themeColors.black[9]} fz={14}>
+                            <Text pl={30} c={themeColors.black[9]} fz="var(--jurnal-text-sm)">
                               {menu.name}
                             </Text>
                           </>

@@ -55,7 +55,7 @@ const ClosingBooksPage = () => {
           <Paper {...PAPER_PROPS}>
             <Stack gap={2}>
               <Title order={3}>{t('closingBooks.title')}</Title>
-              <Text c={themeColors.gray[6]} fz={14}>
+              <Text c={themeColors.gray[6]} fz="var(--jurnal-text-sm)">
                 {t('closingBooks.subtitle', { date: PROTOTYPE_PERIOD_END })}
               </Text>
             </Stack>

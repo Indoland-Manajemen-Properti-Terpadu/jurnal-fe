@@ -188,7 +188,11 @@ const HeaderNav = ({
                 size={38}
                 radius="xl"
                 variant="gradient"
-                gradient={{ from: '#053079', to: '#09B2FF', deg: 135 }}
+                gradient={{
+                  from: 'var(--mantine-color-primary-6)',
+                  to: 'var(--mantine-color-secondary-6)',
+                  deg: 135,
+                }}
                 className={classes.glow}
                 aria-label={t('quickCreate')}
               >
@@ -292,15 +296,19 @@ const HeaderNav = ({
                   size={32}
                   radius="xl"
                   variant="gradient"
-                  gradient={{ from: '#053079', to: '#09B2FF', deg: 135 }}
+                  gradient={{
+                    from: 'var(--mantine-color-primary-6)',
+                    to: 'var(--mantine-color-secondary-6)',
+                    deg: 135,
+                  }}
                 >
                   {displayName.slice(0, 1)}
                 </Avatar>
                 <Box visibleFrom="sm" style={{ minWidth: 0 }}>
-                  <Text fz={13} fw={700} c="dark.8" lh={1.1} truncate maw={120}>
+                  <Text fz="var(--jurnal-text-sm)" fw={700} c="dark.8" lh={1.1} truncate maw={120}>
                     {displayName}
                   </Text>
-                  <Text fz={11} c="dimmed" lh={1.2}>
+                  <Text fz="var(--jurnal-text-xs)" c="dimmed" lh={1.2}>
                     {t('activeAccount')}
                   </Text>
                 </Box>

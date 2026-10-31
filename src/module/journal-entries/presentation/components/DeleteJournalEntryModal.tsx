@@ -32,9 +32,9 @@ const DeleteJournalEntryModal = ({ opened, onClose, onDelete }: DeleteJournalEnt
       radius="lg"
       styles={{
         header: {
-          backgroundColor: '#F9FAFB',
+          backgroundColor: 'var(--mantine-color-gray-0)',
           padding: '16px 20px',
-          borderBottom: '1px solid #E5E7EB',
+          borderBottom: '1px solid var(--mantine-color-gray-2)',
         },
         body: {
           paddingTop: '24px',
@@ -67,10 +67,10 @@ const DeleteJournalEntryModal = ({ opened, onClose, onDelete }: DeleteJournalEnt
             radius="sm"
             styles={{
               root: {
-                backgroundColor: '#F3F4F6',
-                color: '#111827',
+                backgroundColor: 'var(--mantine-color-gray-1)',
+                color: 'var(--mantine-color-gray-9)',
                 '&:hover': {
-                  backgroundColor: '#E5E7EB',
+                  backgroundColor: 'var(--mantine-color-gray-2)',
                 },
               },
             }}

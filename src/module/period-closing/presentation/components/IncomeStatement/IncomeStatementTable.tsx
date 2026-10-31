@@ -90,10 +90,10 @@ const IncomeStatementTable: React.FC = () => {
         }}
       >
         <Group justify="space-between">
-          <Text c={themeColors.black[9]} fz={14} fw={500}>
+          <Text c={themeColors.black[9]} fz="var(--jurnal-text-sm)" fw={500}>
             {t('common.report')}
           </Text>
-          <Text c={themeColors.black[9]} fz={14} fw={500}>
+          <Text c={themeColors.black[9]} fz="var(--jurnal-text-sm)" fw={500}>
             {t('common.totalValue', { amount: formatCurrency(PROTOTYPE_INCOME_TOTAL) })}
           </Text>
         </Group>

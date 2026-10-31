@@ -156,7 +156,7 @@ export const FindAndReconModal: React.FC<FindAndReconModalProps> = ({
         onClose={onClose}
         withCloseButton
         title={
-          <Text fw={700} fz={18} c={themeColors.black[9]}>
+          <Text fw={700} fz="var(--jurnal-text-lg)" c={themeColors.black[9]}>
             {t('modal.title')}
           </Text>
         }

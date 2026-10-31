@@ -41,13 +41,13 @@ export function PreviewSmartJournalTab({
             <Text fw={750} fz="xs" c="dark.8">
               {t('preview.smartJournal.title')}
             </Text>
-            <Text fz={11} c="dimmed">
+            <Text fz="var(--jurnal-text-xs)" c="dimmed">
               {t('preview.smartJournal.subtitle')}
             </Text>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <Text fz={11} fw={600} c="dimmed">
+            <Text fz="var(--jurnal-text-xs)" fw={600} c="dimmed">
               {t('preview.smartJournal.precisionLabel')}
             </Text>
             <div className={classes.smartPrecisionToggle}>
@@ -69,11 +69,11 @@ export function PreviewSmartJournalTab({
           style={{
             ...GRID_ROW_STYLE,
             padding: '10px 18px',
-            background: '#f8fafc',
+            background: 'var(--mantine-color-slate-0)',
             borderBottom: '1px solid var(--lp-line)',
-            fontSize: 11,
+            fontSize: 'var(--jurnal-text-xs)',
             fontWeight: 700,
-            color: '#64748b',
+            color: 'var(--mantine-color-slate-5)',
           }}
         >
           <span>{t('preview.smartJournal.colAccount')}</span>
@@ -87,12 +87,12 @@ export function PreviewSmartJournalTab({
             <Text fw={700} fz="xs">
               {t('preview.smartJournal.rows.bank.account')}
             </Text>
-            <Text fz={11} c="dimmed">
+            <Text fz="var(--jurnal-text-xs)" c="dimmed">
               {t('preview.smartJournal.rows.bank.note')}
             </Text>
           </div>
           <div className={classes.debitAmount}>Rp {formatAmount(81202756.245)}</div>
-          <div style={{ textAlign: 'right', color: '#94a3b8' }}>—</div>
+          <div style={{ textAlign: 'right', color: 'var(--mantine-color-slate-4)' }}>—</div>
           <div style={{ textAlign: 'center' }}>
             <Badge size="xs" color="teal" variant="light">
               {t('preview.smartJournal.rows.bank.badge')}
@@ -105,12 +105,12 @@ export function PreviewSmartJournalTab({
             <Text fw={700} fz="xs">
               {t('preview.smartJournal.rows.chemicals.account')}
             </Text>
-            <Text fz={11} c="dimmed">
+            <Text fz="var(--jurnal-text-xs)" c="dimmed">
               {t('preview.smartJournal.rows.chemicals.note')}
             </Text>
           </div>
           <div className={classes.debitAmount}>Rp {formatAmount(44197243.755)}</div>
-          <div style={{ textAlign: 'right', color: '#94a3b8' }}>—</div>
+          <div style={{ textAlign: 'right', color: 'var(--mantine-color-slate-4)' }}>—</div>
           <div style={{ textAlign: 'center' }}>
             <Badge size="xs" color="teal" variant="light">
               {t('preview.smartJournal.rows.chemicals.badge')}
@@ -123,11 +123,11 @@ export function PreviewSmartJournalTab({
             <Text fw={700} fz="xs">
               {t('preview.smartJournal.rows.payable.account')}
             </Text>
-            <Text fz={11} c="dimmed">
+            <Text fz="var(--jurnal-text-xs)" c="dimmed">
               {t('preview.smartJournal.rows.payable.note')}
             </Text>
           </div>
-          <div style={{ textAlign: 'right', color: '#94a3b8' }}>—</div>
+          <div style={{ textAlign: 'right', color: 'var(--mantine-color-slate-4)' }}>—</div>
           <div className={classes.creditAmount}>Rp {formatAmount(TOTAL_AMOUNT)}</div>
           <div style={{ textAlign: 'center' }}>
             <Badge size="xs" color="indigo" variant="light">
@@ -140,17 +140,17 @@ export function PreviewSmartJournalTab({
           style={{
             ...GRID_ROW_STYLE,
             padding: '12px 18px',
-            background: 'rgb(5 48 121 / 5%)',
-            fontSize: 13,
+            background: 'color-mix(in srgb, var(--mantine-color-primary-6) 5%, transparent)',
+            fontSize: 'var(--jurnal-text-sm)',
             fontWeight: 800,
             color: 'var(--lp-navy)',
           }}
         >
           <span>{t('preview.smartJournal.totalLabel')}</span>
-          <span style={{ textAlign: 'right', color: '#047857' }}>
+          <span style={{ textAlign: 'right', color: 'var(--mantine-color-emerald-7)' }}>
             Rp {formatAmount(TOTAL_AMOUNT)}
           </span>
-          <span style={{ textAlign: 'right', color: '#4338ca' }}>
+          <span style={{ textAlign: 'right', color: 'var(--mantine-color-indigo-7)' }}>
             Rp {formatAmount(TOTAL_AMOUNT)}
           </span>
           <div style={{ textAlign: 'center' }}>

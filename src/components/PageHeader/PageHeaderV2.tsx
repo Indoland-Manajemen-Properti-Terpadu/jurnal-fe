@@ -34,12 +34,7 @@ type PageHeaderV2Props = {
   actionButtons?: ActionButtonProps[];
 };
 
-const PageHeaderV2 = ({
-  type,
-  title,
-  breadcrumbItems,
-  actionButtons,
-}: PageHeaderV2Props) => {
+const PageHeaderV2 = ({ type, title, breadcrumbItems, actionButtons }: PageHeaderV2Props) => {
   const theme = useMantineTheme();
   const colorScheme = useColorScheme();
   const BREADCRUMBS_PROPS: Omit<BreadcrumbsProps, 'children'> = {
@@ -64,10 +59,10 @@ const PageHeaderV2 = ({
       return breadcrumbItems.map((item, index) => (
         <Anchor
           key={index}
-          underline='never'
+          underline="never"
           variant={index === breadcrumbItems.length - 1 ? 'gradient' : 'filled'}
           gradient={index === breadcrumbItems.length - 1 ? gradientColors.gradient : undefined}
-          fz={14}
+          fz="var(--jurnal-text-sm)"
           fw={400}
           c={index === breadcrumbItems.length - 1 ? themeColors.black[9] : 'inherit'}
           onClick={(e) => {
@@ -79,13 +74,10 @@ const PageHeaderV2 = ({
         >
           {item.title}
         </Anchor>
-      )
-      );
+      ));
     }
     return null;
   };
-
-
 
   const renderActionButtons = () =>
     actionButtons?.map((button, index) => (
@@ -155,7 +147,6 @@ const PageHeaderV2 = ({
       default:
         return null;
     }
-
   };
 
   return <>{renderContent()}</>;

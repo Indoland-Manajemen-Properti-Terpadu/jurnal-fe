@@ -120,7 +120,7 @@ const JournalEntryReportPage: React.FC = () => {
           />
           <Paper {...PAPER_PROPS}>
             <Stack gap={1}>
-              <Text c="gray" fz={14}>
+              <Text c="gray" fz="var(--jurnal-text-sm)">
                 {t('journalEntry.lastTransaction')} {dateFormatTimeZone(latestEntryDate)}
               </Text>
             </Stack>

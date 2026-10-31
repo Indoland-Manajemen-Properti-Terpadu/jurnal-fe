@@ -1,6 +1,6 @@
 .search input {
   height: rem(40px);
-  background: rgba(241, 245, 249, 0.8);
+  background: color-mix(in srgb, var(--mantine-color-slate-1) 80%, transparent);
   border: rem(1px) solid transparent;
   transition:
     background-color 150ms ease,
@@ -9,37 +9,37 @@
 }
 
 .search input:focus {
-  background: #fff;
-  border-color: rgba(9, 178, 255, 0.6);
-  box-shadow: 0 0 0 rem(4px) rgba(9, 178, 255, 0.15);
+  background: var(--mantine-color-white);
+  border-color: color-mix(in srgb, var(--mantine-color-secondary-6) 60%, transparent);
+  box-shadow: 0 0 0 rem(4px) color-mix(in srgb, var(--mantine-color-secondary-6) 15%, transparent);
 }
 
 .chip {
   height: rem(36px);
   padding: 0 rem(12px);
   border-radius: rem(999px);
-  color: #053079;
-  background: rgba(5, 48, 121, 0.05);
-  border: rem(1px) solid rgba(5, 48, 121, 0.08);
+  color: var(--mantine-color-primary-6);
+  background: color-mix(in srgb, var(--mantine-color-primary-6) 5%, transparent);
+  border: rem(1px) solid color-mix(in srgb, var(--mantine-color-primary-6) 8%, transparent);
 }
 
 .glow {
-  box-shadow: 0 8px 18px -8px rgba(5, 48, 121, 0.7);
+  box-shadow: 0 8px 18px -8px color-mix(in srgb, var(--mantine-color-primary-6) 70%, transparent);
 }
 
 .iconBtn {
-  border-color: rgba(15, 23, 42, 0.08);
-  background: rgba(255, 255, 255, 0.8);
+  border-color: color-mix(in srgb, var(--mantine-color-slate-9) 8%, transparent);
+  background: color-mix(in srgb, var(--mantine-color-white) 80%, transparent);
 }
 
 .user {
   padding: rem(4px) rem(10px) rem(4px) rem(4px);
   border-radius: rem(999px);
-  border: rem(1px) solid rgba(15, 23, 42, 0.08);
-  background: rgba(255, 255, 255, 0.8);
+  border: rem(1px) solid color-mix(in srgb, var(--mantine-color-slate-9) 8%, transparent);
+  background: color-mix(in srgb, var(--mantine-color-white) 80%, transparent);
   transition: box-shadow 150ms ease;
 }
 
 .user:hover {
-  box-shadow: 0 6px 16px -8px rgba(5, 48, 121, 0.35);
+  box-shadow: 0 6px 16px -8px color-mix(in srgb, var(--mantine-color-primary-6) 35%, transparent);
 }

@@ -196,7 +196,7 @@ export function CashCountModal({
               [tp('cashCount.variance'), variance],
             ].map(([label, value]) => (
               <Box className={classes.summaryItem} key={String(label)}>
-                <Text fz={11} c="dimmed">
+                <Text fz="var(--jurnal-text-xs)" c="dimmed">
                   {label}
                 </Text>
                 <Text fz="sm" fw={650} mt={3}>

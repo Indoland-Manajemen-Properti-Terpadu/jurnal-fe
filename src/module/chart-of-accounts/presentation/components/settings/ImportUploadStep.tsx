@@ -51,11 +51,12 @@ export const ImportUploadStep: React.FC<ImportUploadStepProps> = ({
         style={{
           height: 124,
           borderRadius: 12,
-          background: 'linear-gradient(145deg, #f0f9ff 0%, #e0f2fe 100%)',
+          background:
+            'linear-gradient(145deg, var(--mantine-color-sky-0) 0%, var(--mantine-color-sky-1) 100%)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          border: '1px solid rgba(14, 165, 233, 0.15)',
+          border: '1px solid color-mix(in srgb, var(--mantine-color-sky-5) 15%, transparent)',
         }}
       >
         <Image src={ImageImport} alt={t('settings.modal.importAlt')} h={88} fit="contain" />

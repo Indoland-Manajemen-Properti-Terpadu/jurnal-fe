@@ -127,7 +127,7 @@ export default function PendingChangeRow({
             {formatDateTime(change.createdAt, currentLanguage)}
           </Text>
           {change.updatedAt && change.updatedAt !== change.createdAt && (
-            <Text fz={11} c="dimmed">
+            <Text fz="var(--jurnal-text-xs)" c="dimmed">
               {t('updatedPrefix')} {formatDateTime(change.updatedAt, currentLanguage)}
             </Text>
           )}
@@ -154,9 +154,9 @@ export default function PendingChangeRow({
             radius="md"
             leftSection={<IconCheck size={12} stroke={3} />}
             style={{
-              backgroundColor: '#ecfdf5',
-              color: '#047857',
-              border: '1px solid #a7f3d0',
+              backgroundColor: 'var(--mantine-color-emerald-0)',
+              color: 'var(--mantine-color-emerald-7)',
+              border: '1px solid var(--mantine-color-emerald-2)',
               fontWeight: 700,
             }}
           >

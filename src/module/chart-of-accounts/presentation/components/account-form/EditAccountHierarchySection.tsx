@@ -50,10 +50,10 @@ export const EditAccountHierarchySection: React.FC<EditAccountHierarchySectionPr
           <IconHierarchy2 size={20} />
         </ThemeIcon>
         <div>
-          <Text fw={700} fz={15} c="dark.8">
+          <Text fw={700} fz="var(--jurnal-text-sm)" c="dark.8">
             {t('edit.hierarchyTitle')}
           </Text>
-          <Text fz={12} c="dimmed">
+          <Text fz="var(--jurnal-text-xs)" c="dimmed">
             {t('edit.hierarchySubtitle')}
           </Text>
         </div>
@@ -89,10 +89,10 @@ export const EditAccountHierarchySection: React.FC<EditAccountHierarchySectionPr
                 {t('edit.singleBadge')}
               </Badge>
             </Group>
-            <Text fw={600} fz={13} c="dark.8">
+            <Text fw={600} fz="var(--jurnal-text-sm)" c="dark.8">
               {t('edit.singleTitle')}
             </Text>
-            <Text fz={11} c="dimmed" mt={2}>
+            <Text fz="var(--jurnal-text-xs)" c="dimmed" mt={2}>
               {t('edit.singleDesc')}
             </Text>
           </Paper>
@@ -123,10 +123,10 @@ export const EditAccountHierarchySection: React.FC<EditAccountHierarchySectionPr
                 {t('edit.subBadge')}
               </Badge>
             </Group>
-            <Text fw={600} fz={13} c="dark.8">
+            <Text fw={600} fz="var(--jurnal-text-sm)" c="dark.8">
               {t('edit.subTitle')}
             </Text>
-            <Text fz={11} c="dimmed" mt={2}>
+            <Text fz="var(--jurnal-text-xs)" c="dimmed" mt={2}>
               {t('edit.subDesc')}
             </Text>
           </Paper>
@@ -159,10 +159,10 @@ export const EditAccountHierarchySection: React.FC<EditAccountHierarchySectionPr
                 {t('edit.headerBadge')}
               </Badge>
             </Group>
-            <Text fw={600} fz={13} c="dark.8">
+            <Text fw={600} fz="var(--jurnal-text-sm)" c="dark.8">
               {t('edit.headerTitle')}
             </Text>
-            <Text fz={11} c="dimmed" mt={2}>
+            <Text fz="var(--jurnal-text-xs)" c="dimmed" mt={2}>
               {t('edit.headerDesc')}
             </Text>
           </Paper>
@@ -183,7 +183,7 @@ export const EditAccountHierarchySection: React.FC<EditAccountHierarchySectionPr
               rightSection={<IconChevronDown size={16} />}
               nothingFoundMessage={t('edit.parentNothing')}
             />
-            <Text fz={12} c="dimmed">
+            <Text fz="var(--jurnal-text-xs)" c="dimmed">
               {t('edit.parentHint')}
             </Text>
           </Stack>
@@ -202,7 +202,7 @@ export const EditAccountHierarchySection: React.FC<EditAccountHierarchySectionPr
               rightSection={<IconChevronDown size={16} />}
               nothingFoundMessage={t('edit.childNothing')}
             />
-            <Text fz={12} c="dimmed">
+            <Text fz="var(--jurnal-text-xs)" c="dimmed">
               {t('edit.childHint')}
             </Text>
           </Stack>

@@ -22,13 +22,13 @@ export function AgingList({
         p="sm"
         style={{
           borderRadius: 12,
-          backgroundColor: 'rgba(241, 245, 249, 0.75)',
-          border: '1px solid rgba(15, 23, 42, 0.06)',
+          backgroundColor: 'color-mix(in srgb, var(--mantine-color-slate-1) 75%, transparent)',
+          border: '1px solid color-mix(in srgb, var(--mantine-color-slate-9) 6%, transparent)',
         }}
       >
         <Group justify="space-between" align="center" wrap="nowrap">
           <Box>
-            <Text fz={11} c="dimmed" fw={600} tt="uppercase">
+            <Text fz="var(--jurnal-text-xs)" c="dimmed" fw={600} tt="uppercase">
               {t('agingTotalLabel')}
             </Text>
             <Text size="md" fw={800} c="dark.9" mt={2}>
@@ -63,8 +63,9 @@ export function AgingList({
               p="xs"
               style={{
                 borderRadius: 10,
-                border: '1px solid rgba(15, 23, 42, 0.05)',
-                backgroundColor: 'rgba(255, 255, 255, 0.6)',
+                border:
+                  '1px solid color-mix(in srgb, var(--mantine-color-slate-9) 5%, transparent)',
+                backgroundColor: 'color-mix(in srgb, var(--mantine-color-white) 60%, transparent)',
               }}
             >
               <Group justify="space-between" wrap="nowrap">
@@ -87,7 +88,7 @@ export function AgingList({
                     {b.amount > 0 ? formatIDR(b.amount) : '—'}
                   </Text>
                   {b.amount > 0 && (
-                    <Text fz={10.5} c="dimmed" w={32} ta="right">
+                    <Text fz="var(--jurnal-text-xs)" c="dimmed" w={32} ta="right">
                       ({share}%)
                     </Text>
                   )}

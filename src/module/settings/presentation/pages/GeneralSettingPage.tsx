@@ -53,7 +53,7 @@ export default function GeneralSettingPage() {
               {t('loadGeneralError')}
             </Alert>
           ) : (
-            <Text fw={750} fz={32} c="primary.8">
+            <Text fw={750} fz="var(--jurnal-text-3xl)" c="primary.8">
               {t('precisionValue', { count: general.data?.decimalPrecision ?? 0 })}
             </Text>
           )}

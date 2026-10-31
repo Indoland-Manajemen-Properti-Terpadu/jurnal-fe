@@ -70,7 +70,7 @@ export function SaleStatsGrid({
                 <Text size="xs" c="dimmed" fw={600} tt="uppercase" lts={0.5}>
                   {stat.title}
                 </Text>
-                <Text fz={22} fw={800} c="dark.8" mt={4} lh={1.15}>
+                <Text fz="var(--jurnal-text-xl)" fw={800} c="dark.8" mt={4} lh={1.15}>
                   {stat.value}
                 </Text>
                 <Text size="xs" c="dimmed" mt={4}>

@@ -11,7 +11,7 @@ import { useRoles } from '@/module/user-management/presentation/hooks/useRoles';
 import { useTranslation } from '@/i18n';
 
 const headTableFont = {
-  fontSize: 14,
+  fontSize: 'var(--jurnal-text-sm)',
   fontWeight: 500,
 };
 
@@ -75,24 +75,28 @@ const AdditionalRoleTable: React.FC = () => {
           {AdditionalRole.map((role) => (
             <Table.Tr key={role.id}>
               <Table.Td
-                fz={14}
+                fz="var(--jurnal-text-sm)"
                 colSpan={1}
                 style={{ width: '5%', textAlign: 'left', fontWeight: 400 }}
               >
                 <Checkbox />
               </Table.Td>
               <Table.Td
-                fz={14}
+                fz="var(--jurnal-text-sm)"
                 colSpan={2}
                 style={{ width: '40%', textAlign: 'left', fontWeight: 400 }}
               >
                 {role.name}
               </Table.Td>
-              <Table.Td fz={14} colSpan={6} style={{ textAlign: 'center', fontWeight: 400 }}>
+              <Table.Td
+                fz="var(--jurnal-text-sm)"
+                colSpan={6}
+                style={{ textAlign: 'center', fontWeight: 400 }}
+              >
                 {!role.isDefault ? <ActiveBadge /> : <InactiveBadge />}
               </Table.Td>
               <Table.Td
-                fz={14}
+                fz="var(--jurnal-text-sm)"
                 colSpan={1}
                 style={{ width: '5%', textAlign: 'center', fontWeight: 400 }}
               >

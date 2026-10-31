@@ -107,7 +107,7 @@ export function VoucherDetailDrawer({ opened, onClose, voucher }: Props) {
               <Text fz="xs" fw={600} truncate>
                 {voucher.attachmentName}
               </Text>
-              <Text fz={11} c="dimmed">
+              <Text fz="var(--jurnal-text-xs)" c="dimmed">
                 {tp('drawer.evidence')}
               </Text>
             </Box>

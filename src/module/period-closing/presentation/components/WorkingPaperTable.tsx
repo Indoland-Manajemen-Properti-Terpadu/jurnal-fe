@@ -7,7 +7,7 @@ import { formatCurrency } from '@/utils/formatCurrency';
 import { groupByCategory } from '../../domain/reportTotals';
 
 const cellBorder = { border: `1px solid ${themeColors.gray[2]}` };
-const headerStyle = { ...cellBorder, fontSize: '14', fontWeight: '500' };
+const headerStyle = { ...cellBorder, fontSize: 'var(--jurnal-text-sm)', fontWeight: '500' };
 const totalStyle = {
   textAlign: 'right' as const,
   fontWeight: 600,

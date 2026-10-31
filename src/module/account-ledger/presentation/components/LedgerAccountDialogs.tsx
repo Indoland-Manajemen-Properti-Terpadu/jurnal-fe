@@ -73,7 +73,7 @@ export const LedgerAccountDialogs: React.FC<LedgerAccountDialogsProps> = ({
         cancelLabel={t('common.cancel')}
         confirmLoading={isArchiving}
         confirmButtonProps={{
-          color: account.isArchived ? 'primary' : '#64748b',
+          color: account.isArchived ? 'primary' : 'var(--mantine-color-slate-5)',
           leftSection: <IconArchive size={18} />,
         }}
       />

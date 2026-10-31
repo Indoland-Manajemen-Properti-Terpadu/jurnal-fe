@@ -96,7 +96,7 @@ export function ProductImagePanel({
           icon={<IconInfoCircle size={16} />}
           p="xs"
           mt="md"
-          styles={{ message: { fontSize: 12 } }}
+          styles={{ message: { fontSize: 'var(--jurnal-text-xs)' } }}
         >
           {t('form.nothingEnabled')}
         </Alert>

@@ -68,32 +68,32 @@ const JournalLinesEditor: React.FC = () => {
     <Stack gap="xs">
       <Grid columns={24} gutter="sm" px="xs" py={4} bg="gray.1" style={{ borderRadius: 6 }}>
         <Grid.Col span={1} ta="center">
-          <Text fz={11} fw={700} c="dimmed">
+          <Text fz="var(--jurnal-text-xs)" fw={700} c="dimmed">
             {t('editor.headNumber')}
           </Text>
         </Grid.Col>
         <Grid.Col span={7}>
-          <Text fz={11} fw={700} c="dimmed" tt="uppercase">
+          <Text fz="var(--jurnal-text-xs)" fw={700} c="dimmed" tt="uppercase">
             {t('editor.headAccount')} <RequiredMark />
           </Text>
         </Grid.Col>
         <Grid.Col span={7}>
-          <Text fz={11} fw={700} c="dimmed" tt="uppercase">
+          <Text fz="var(--jurnal-text-xs)" fw={700} c="dimmed" tt="uppercase">
             {t('editor.headDescription')}
           </Text>
         </Grid.Col>
         <Grid.Col span={4} ta="right">
-          <Text fz={11} fw={700} c="dimmed" tt="uppercase">
+          <Text fz="var(--jurnal-text-xs)" fw={700} c="dimmed" tt="uppercase">
             {t('editor.headDebit')} <RequiredMark />
           </Text>
         </Grid.Col>
         <Grid.Col span={4} ta="right">
-          <Text fz={11} fw={700} c="dimmed" tt="uppercase">
+          <Text fz="var(--jurnal-text-xs)" fw={700} c="dimmed" tt="uppercase">
             {t('editor.headCredit')} <RequiredMark />
           </Text>
         </Grid.Col>
         <Grid.Col span={1} ta="center">
-          <Text fz={11} fw={700} c="dimmed">
+          <Text fz="var(--jurnal-text-xs)" fw={700} c="dimmed">
             {t('editor.headAction')}
           </Text>
         </Grid.Col>

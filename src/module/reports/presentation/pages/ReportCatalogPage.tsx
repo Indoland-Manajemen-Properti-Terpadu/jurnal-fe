@@ -85,7 +85,7 @@ export default function ReportCatalogPage() {
             withBorder
             radius="lg"
             p={{ base: 'lg', sm: 'xl' }}
-            bg="linear-gradient(135deg, rgba(238, 242, 255, 0.6) 0%, rgba(240, 253, 250, 0.6) 100%)"
+            bg="linear-gradient(135deg, color-mix(in srgb, var(--mantine-color-indigo-0) 60%, transparent) 0%, color-mix(in srgb, var(--mantine-color-teal-0) 60%, transparent) 100%)"
             style={{ borderColor: 'var(--mantine-color-primary-2)' }}
           >
             <Grid gutter="xl" align="center">

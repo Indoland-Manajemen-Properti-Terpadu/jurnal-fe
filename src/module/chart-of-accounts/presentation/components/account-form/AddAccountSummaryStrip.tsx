@@ -41,7 +41,7 @@ export const AddAccountSummaryStrip: React.FC<AddAccountSummaryStripProps> = ({
             <Text size="xs" c="dimmed" fw={600} tt="uppercase" lts={0.5}>
               {t('form.stripCategoryLabel')}
             </Text>
-            <Text fz={17} fw={800} c="dark.8" mt={4} lh={1.2} truncate>
+            <Text fz="var(--jurnal-text-lg)" fw={800} c="dark.8" mt={4} lh={1.2} truncate>
               {selectedCategoryObj?.name || t('form.stripCategoryUnselected')}
             </Text>
             <Text size="xs" c="dimmed" mt={4} truncate>
@@ -65,7 +65,14 @@ export const AddAccountSummaryStrip: React.FC<AddAccountSummaryStripProps> = ({
             <Text size="xs" c="dimmed" fw={600} tt="uppercase" lts={0.5}>
               {t('form.stripNormalBalanceLabel')}
             </Text>
-            <Text fz={17} fw={800} c={effectiveDebit ? 'teal.8' : 'red.8'} mt={4} lh={1.2} truncate>
+            <Text
+              fz="var(--jurnal-text-lg)"
+              fw={800}
+              c={effectiveDebit ? 'teal.8' : 'red.8'}
+              mt={4}
+              lh={1.2}
+              truncate
+            >
               {effectiveDebit ? t('form.stripDebitNormal') : t('form.stripCreditNormal')}
             </Text>
             <Text
@@ -91,7 +98,7 @@ export const AddAccountSummaryStrip: React.FC<AddAccountSummaryStripProps> = ({
             <Text size="xs" c="dimmed" fw={600} tt="uppercase" lts={0.5}>
               {t('form.stripHierarchyLabel')}
             </Text>
-            <Text fz={17} fw={800} c="dark.8" mt={4} lh={1.2} truncate>
+            <Text fz="var(--jurnal-text-lg)" fw={800} c="dark.8" mt={4} lh={1.2} truncate>
               {selectedAccountType === 'SubAccount'
                 ? t('form.typeSubTitle')
                 : selectedAccountType === 'HeaderAccount'
@@ -119,7 +126,14 @@ export const AddAccountSummaryStrip: React.FC<AddAccountSummaryStripProps> = ({
             <Text size="xs" c="dimmed" fw={600} tt="uppercase" lts={0.5}>
               {t('form.stripReadinessLabel')}
             </Text>
-            <Text fz={17} fw={800} c={isFormValid ? 'teal.7' : 'dark.8'} mt={4} lh={1.2} truncate>
+            <Text
+              fz="var(--jurnal-text-lg)"
+              fw={800}
+              c={isFormValid ? 'teal.7' : 'dark.8'}
+              mt={4}
+              lh={1.2}
+              truncate
+            >
               {t('form.stripReadinessValue', {
                 passed: passedChecksCount,
                 total: totalChecks,

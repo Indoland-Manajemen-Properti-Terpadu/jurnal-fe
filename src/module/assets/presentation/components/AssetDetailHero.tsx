@@ -142,7 +142,13 @@ export function AssetDetailHero({ asset }: Readonly<AssetDetailHeroProps>) {
             <Text size="xs" fw={600} c="dimmed" tt="uppercase" lts={0.5}>
               {t('netBookValue')}
             </Text>
-            <Text fz={24} fw={800} c="teal.8" mt={2} style={{ fontVariantNumeric: 'tabular-nums' }}>
+            <Text
+              fz="var(--jurnal-text-2xl)"
+              fw={800}
+              c="teal.8"
+              mt={2}
+              style={{ fontVariantNumeric: 'tabular-nums' }}
+            >
               {formatCurrency(nbv)}
             </Text>
             <Progress
