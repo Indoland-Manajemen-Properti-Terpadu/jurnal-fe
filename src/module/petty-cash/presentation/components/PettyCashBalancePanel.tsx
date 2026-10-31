@@ -1,6 +1,6 @@
 import { Box, Group, Paper, Progress, SimpleGrid, Stack, Text } from '@mantine/core';
 import { formatCurrency } from '@/utils/FormatCurrency';
-import type { PettyCashFund } from '../types/pettyCash.types';
+import type { PettyCashFund } from '@/module/petty-cash/domain/pettyCashTypes';
 
 interface Props {
   fund: PettyCashFund;

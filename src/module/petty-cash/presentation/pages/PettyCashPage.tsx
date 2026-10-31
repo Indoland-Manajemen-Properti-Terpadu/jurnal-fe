@@ -13,16 +13,16 @@ import { useTranslation } from '@/i18n';
 import { formatCurrency } from '@/utils/FormatCurrency';
 import { dateFormatV1 } from '@/utils/FormatDate';
 import AppShellLayout from '@/components/AppShellLayout';
-import { CashCountModal } from '../components/CashCountModal';
-import { CreateVoucherModal } from '../components/CreateVoucherModal';
-import { PettyCashBalancePanel } from '../components/PettyCashBalancePanel';
-import { PettyCashFundSelector } from '../components/PettyCashFundSelector';
-import { ReplenishmentModal } from '../components/ReplenishmentModal';
-import { VoucherDetailDrawer } from '../components/VoucherDetailDrawer';
-import { VoucherTable } from '../components/VoucherTable';
-import { usePettyCashPrototype } from '../hooks/usePettyCashPrototype';
-import type { PettyCashVoucher } from '../types/pettyCash.types';
-import classes from './PettyCashPage.module.css';
+import { CashCountModal } from '@/module/petty-cash/presentation/components/CashCountModal';
+import { CreateVoucherModal } from '@/module/petty-cash/presentation/components/CreateVoucherModal';
+import { PettyCashBalancePanel } from '@/module/petty-cash/presentation/components/PettyCashBalancePanel';
+import { PettyCashFundSelector } from '@/module/petty-cash/presentation/components/PettyCashFundSelector';
+import { ReplenishmentModal } from '@/module/petty-cash/presentation/components/ReplenishmentModal';
+import { VoucherDetailDrawer } from '@/module/petty-cash/presentation/components/VoucherDetailDrawer';
+import { VoucherTable } from '@/module/petty-cash/presentation/components/VoucherTable';
+import { usePettyCashPrototype } from '@/module/petty-cash/presentation/hooks/usePettyCashPrototype';
+import type { PettyCashVoucher } from '@/module/petty-cash/domain/pettyCashTypes';
+import classes from '@/module/petty-cash/presentation/pages/PettyCashPage.module.css';
 
 export default function PettyCashPage() {
   const { t } = useTranslation('journal');

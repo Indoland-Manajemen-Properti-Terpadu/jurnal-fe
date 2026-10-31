@@ -1,5 +1,5 @@
 import { Outlet } from 'react-router-dom';
-import { PettyCashPrototypeProvider } from '../hooks/usePettyCashPrototype';
+import { PettyCashPrototypeProvider } from '@/module/petty-cash/presentation/hooks/usePettyCashPrototype';
 
 export default function PettyCashRouteScope() {
   return (

@@ -13,8 +13,15 @@ import {
 } from '@mantine/core';
 import { IconCheck, IconInfoCircle } from '@tabler/icons-react';
 import { formatCurrency } from '@/utils/FormatCurrency';
-import type { PettyCashCount, PettyCashFund, PettyCashVoucher } from '../types/pettyCash.types';
-import classes from './PettyCashOverlay.module.css';
+import type {
+  PettyCashCount,
+  PettyCashFund,
+  PettyCashVoucher,
+} from '@/module/petty-cash/domain/pettyCashTypes';
+import classes from '@/module/petty-cash/presentation/components/PettyCashOverlay.module.css';
+
+import { calculateCashCount } from '@/module/petty-cash/domain/cashCount';
+import { useTranslation } from '@/i18n';
 
 interface Props {
   opened: boolean;
@@ -37,6 +44,7 @@ export function CashCountModal({
   vouchers,
   onSubmitCount,
 }: Props) {
+  const { t: tp } = useTranslation('pettyCash');
   const [fundId, setFundId] = useState(selectedFund?.id || funds[0]?.id || '');
   const [counts, setCounts] = useState<Record<number, number>>(emptyCounts);
   const [witnessBy, setWitnessBy] = useState('');
@@ -51,29 +59,19 @@ export function CashCountModal({
     setNotes('');
   }, [funds, opened, selectedFund]);
 
-  const totalPhysicalCash = useMemo(
-    () => DENOMINATIONS.reduce((total, value) => total + value * (counts[value] || 0), 0),
-    [counts]
-  );
-
-  const totalUnreimbursedVouchers = useMemo(
-    () =>
-      vouchers
-        .filter(
-          (voucher) =>
-            voucher.fundId === activeFund?.id &&
-            ['PENDING_REIMBURSE', 'PAID', 'REIMBURSEMENT_PENDING'].includes(voucher.status)
-        )
-        .reduce((total, voucher) => total + voucher.amount, 0),
-    [activeFund?.id, vouchers]
-  );
-
   const pagu = activeFund?.pagu || 0;
-  const actualTotal = totalPhysicalCash + totalUnreimbursedVouchers;
-  const variance = actualTotal - pagu;
+  const { totalPhysicalCash, totalUnreimbursedVouchers, actualTotal, variance, status } = useMemo(
+    () =>
+      calculateCashCount({
+        fundId: activeFund?.id,
+        pagu,
+        denominations: DENOMINATIONS,
+        counts,
+        vouchers,
+      }),
+    [activeFund?.id, pagu, counts, vouchers]
+  );
   const hasCountStarted = Object.values(counts).some((count) => count > 0);
-  const status: PettyCashCount['status'] =
-    variance === 0 ? 'BALANCED' : variance < 0 ? 'SHORT' : 'OVER';
 
   const handleFundChange = (value: string | null) => {
     if (!value) return;
@@ -131,10 +129,10 @@ export function CashCountModal({
       title={
         <Box>
           <Text fw={650} fz="lg" c="dark.9">
-            Opname kas kecil
+            {tp('cashCount.title')}
           </Text>
           <Text fz="sm" c="dimmed" mt={2}>
-            Hitung uang fisik, lalu cocokkan dengan voucher yang belum diganti.
+            {tp('cashCount.subtitle')}
           </Text>
         </Box>
       }
@@ -142,7 +140,7 @@ export function CashCountModal({
       <form onSubmit={handleSubmit}>
         <Stack gap="lg">
           <Select
-            label="Dana yang diperiksa"
+            label={tp('cashCount.fund')}
             data={funds.map((fund) => ({
               value: fund.id,
               label: fund.name,
@@ -156,10 +154,10 @@ export function CashCountModal({
           <Box>
             <Group justify="space-between" mb="xs">
               <Text fz="sm" fw={650}>
-                Uang fisik
+                {tp('cashCount.physicalCash')}
               </Text>
               <Text fz="xs" c="dimmed">
-                Masukkan jumlah lembar atau keping
+                {tp('cashCount.physicalHint')}
               </Text>
             </Group>
             <Box className={classes.countSheet}>
@@ -169,7 +167,7 @@ export function CashCountModal({
                     {formatCurrency(value)}
                   </Text>
                   <NumberInput
-                    aria-label={`Jumlah pecahan ${formatCurrency(value)}`}
+                    aria-label={tp('cashCount.denominationAria', { value: formatCurrency(value) })}
                     min={0}
                     max={1000}
                     value={counts[value] || 0}
@@ -192,10 +190,10 @@ export function CashCountModal({
 
           <Box className={classes.summary}>
             {[
-              ['Fisik dihitung', totalPhysicalCash],
-              ['Voucher belum diganti', totalUnreimbursedVouchers],
-              ['Pagu', pagu],
-              ['Selisih', variance],
+              [tp('cashCount.counted'), totalPhysicalCash],
+              [tp('cashCount.pendingVouchers'), totalUnreimbursedVouchers],
+              [tp('cashCount.ceiling'), pagu],
+              [tp('cashCount.variance'), variance],
             ].map(([label, value]) => (
               <Box className={classes.summaryItem} key={String(label)}>
                 <Text fz={11} c="dimmed">
@@ -212,26 +210,26 @@ export function CashCountModal({
             <IconInfoCircle size={18} style={{ flex: '0 0 auto' }} />
             <Text fz="xs" lh={1.5}>
               {!hasCountStarted
-                ? 'Mulai isi jumlah pecahan untuk melihat hasil rekonsiliasi.'
+                ? tp('cashCount.hintStart')
                 : status === 'BALANCED'
-                  ? 'Kas fisik dan voucher sudah sama dengan pagu.'
+                  ? tp('cashCount.hintBalanced')
                   : status === 'SHORT'
-                    ? `Terdapat selisih kurang ${formatCurrency(Math.abs(variance))}. Simpan hasil untuk ditelusuri, bukan langsung dijurnal.`
-                    : `Terdapat selisih lebih ${formatCurrency(variance)}. Simpan hasil untuk ditelusuri.`}
+                    ? tp('cashCount.hintShort', { amount: formatCurrency(Math.abs(variance)) })
+                    : tp('cashCount.hintOver', { amount: formatCurrency(variance) })}
             </Text>
           </Box>
 
           <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
             <TextInput
-              label="Saksi pemeriksa"
-              placeholder="Nama pemeriksa"
+              label={tp('cashCount.witness')}
+              placeholder={tp('cashCount.witnessPlaceholder')}
               value={witnessBy}
               onChange={(event) => setWitnessBy(event.currentTarget.value)}
               required
             />
             <TextInput
-              label="Catatan"
-              placeholder="Opsional"
+              label={tp('cashCount.notes')}
+              placeholder={tp('cashCount.optional')}
               value={notes}
               onChange={(event) => setNotes(event.currentTarget.value)}
             />
@@ -239,10 +237,10 @@ export function CashCountModal({
 
           <Group justify="flex-end" gap="sm">
             <Button variant="default" onClick={onClose}>
-              Batal
+              {tp('common.cancel')}
             </Button>
             <Button type="submit" color="primary" leftSection={<IconCheck size={16} />}>
-              Simpan hasil opname
+              {tp('cashCount.submit')}
             </Button>
           </Group>
         </Stack>

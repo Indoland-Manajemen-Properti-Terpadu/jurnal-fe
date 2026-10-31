@@ -3,7 +3,8 @@ import type {
   PettyCashFund,
   PettyCashReimbursement,
   PettyCashVoucher,
-} from '../types/pettyCash.types';
+} from '@/module/petty-cash/domain/pettyCashTypes';
+import { addAmounts, compareAmounts, subtractAmounts, sumAmounts } from './pettyCashMoney';
 
 export interface PettyCashPrototypeState {
   funds: PettyCashFund[];
@@ -22,19 +23,20 @@ export function recordPaidVoucher(
   const fund = state.funds.find((item) => item.id === voucher.fundId);
   if (!fund) throw new Error('FUND_NOT_FOUND');
   if (fund.status === 'FROZEN') throw new Error('FUND_FROZEN');
-  if (voucher.amount > fund.currentBalance) throw new Error('INSUFFICIENT_CASH');
+  if (compareAmounts(voucher.amount, fund.currentBalance) > 0) throw new Error('INSUFFICIENT_CASH');
 
   return {
     ...state,
     vouchers: [voucher, ...state.vouchers],
     funds: state.funds.map((item) => {
       if (item.id !== voucher.fundId) return item;
-      const currentBalance = item.currentBalance - voucher.amount;
+      const currentBalance = subtractAmounts(item.currentBalance, voucher.amount);
       return {
         ...item,
         currentBalance,
-        pendingReimburseAmount: item.pendingReimburseAmount + voucher.amount,
-        status: currentBalance <= item.minThresholdAlert ? 'LOW_BALANCE' : 'ACTIVE',
+        pendingReimburseAmount: addAmounts(item.pendingReimburseAmount, voucher.amount),
+        status:
+          compareAmounts(currentBalance, item.minThresholdAlert) <= 0 ? 'LOW_BALANCE' : 'ACTIVE',
       };
     }),
   };
@@ -56,8 +58,8 @@ export function submitReplenishment(
   if (eligibleVouchers.length !== reimbursement.voucherIds.length) {
     throw new Error('INVALID_REIMBURSEMENT_VOUCHER');
   }
-  const voucherTotal = eligibleVouchers.reduce((total, voucher) => total + voucher.amount, 0);
-  if (voucherTotal !== reimbursement.totalAmount) {
+  const voucherTotal = sumAmounts(eligibleVouchers.map((voucher) => voucher.amount));
+  if (compareAmounts(voucherTotal, reimbursement.totalAmount) !== 0) {
     throw new Error('REIMBURSEMENT_TOTAL_MISMATCH');
   }
 
@@ -106,15 +108,17 @@ export function disburseReplenishment(
     funds: state.funds.map((fund) => {
       if (fund.id !== reimbursement.fundId) return fund;
 
-      const currentBalance = Math.min(fund.pagu, fund.currentBalance + reimbursement.totalAmount);
+      const restored = addAmounts(fund.currentBalance, reimbursement.totalAmount);
+      const currentBalance = compareAmounts(restored, fund.pagu) > 0 ? fund.pagu : restored;
       return {
         ...fund,
         currentBalance,
         pendingReimburseAmount: Math.max(
           0,
-          fund.pendingReimburseAmount - reimbursement.totalAmount
+          subtractAmounts(fund.pendingReimburseAmount, reimbursement.totalAmount)
         ),
-        status: currentBalance <= fund.minThresholdAlert ? 'LOW_BALANCE' : 'ACTIVE',
+        status:
+          compareAmounts(currentBalance, fund.minThresholdAlert) <= 0 ? 'LOW_BALANCE' : 'ACTIVE',
       };
     }),
   };

@@ -1,6 +1,6 @@
 import { Group, Select, Stack, Text } from '@mantine/core';
 import { IconBuilding } from '@tabler/icons-react';
-import type { PettyCashFund } from '../types/pettyCash.types';
+import type { PettyCashFund } from '@/module/petty-cash/domain/pettyCashTypes';
 
 interface Props {
   funds: PettyCashFund[];
