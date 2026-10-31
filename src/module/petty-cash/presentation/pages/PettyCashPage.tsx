@@ -4,6 +4,7 @@ import { useSearchParams } from 'react-router-dom';
 import { EmptyState } from '@/components/EmptyState';
 import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
 import { useTranslation } from '@/i18n';
+import { FundAdminMenu } from '@/module/petty-cash/presentation/components/FundAdminMenu';
 import { RecordVoucherButton } from '@/module/petty-cash/presentation/components/RecordVoucherButton';
 import { FundSelector } from '@/module/petty-cash/presentation/components/FundSelector';
 import { PettyCashWorkspace } from '@/module/petty-cash/presentation/components/PettyCashWorkspace';
@@ -30,7 +31,15 @@ export default function PettyCashPage() {
         icon={IconCoins}
         title={t('workspace.title')}
         description={t('workspace.subtitle')}
-        actions={selected && <RecordVoucherButton fund={selected} />}
+        actions={
+          <>
+            <FundAdminMenu
+              fund={selected}
+              onCreated={(fundId) => setParams({ [FUND_PARAM]: fundId }, { replace: true })}
+            />
+            {selected && <RecordVoucherButton fund={selected} />}
+          </>
+        }
       />
 
       {funds.isLoading && <Skeleton height={240} radius="lg" />}

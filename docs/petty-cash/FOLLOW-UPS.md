@@ -57,6 +57,16 @@ Data uji baru (bagian dari F3): PCA/202610/0007 (menunggu persetujuan, Rp 90.000
 
 Tidak teruji langsung: langkah verifikasi pemegang kas/keuangan setelah pengajuan ulang, dan alih ke piutang (hanya dialog yang dicek).
 
+## Fase 6: laporan, jejak audit, administrasi dana
+
+Selesai: tab Laporan (umur voucher, ringkasan biaya, uang muka per karyawan, rekonsiliasi, cek akhir periode), jejak perubahan di keempat drawer, menu Kelola dana (dana baru, ubah pengaturan, sesuaikan pagu, tutup dana). Tab Laporan dan jejak perubahan hanya tampil untuk pemegang hak baca JP-PC (pc.staff mendapat 403 dari backend tanpa hak itu).
+
+Diuji langsung: kelima laporan; ubah pengaturan dana PC-HQ (hari pertanggungjawaban 7 ke 8 lalu kembali ke 7); sesuaikan pagu PC-HQ naik Rp 100.000 lalu turun kembali lewat 1-10003 (dua jurnal antara 1-10002 dan 1-10003 dengan alasan "TEST PC verifikasi fase 6", bagian dari F3).
+
+Belum diuji tulis: dana baru (validasi form saja) dan tutup dana (tidak bisa dibatalkan); alur ini perlu persetujuan sebelum dicoba di Demo Site. Perhatikan juga: pilihan rekening bank pada form memuat semua akun kas dan bank; belum diketahui apakah backend membatasi jenis akun untuk pendanaan.
+
+Antarmuka blokir, buka blokir, dan pengecualian uang muka (hook `useChangeRestriction` siap) belum dibuat.
+
 ## Ditunda dari tinjauan Fase 3 (dengan alasan)
 
 - Alur ubah-lalu-ajukan dikoordinasi di komponen form (dua mutasi berurutan) dan belum di lapisan `application`. Cukup aman untuk satu alur; pindahkan ke use case bila Fase 4 dan 5 menambah alur multi-langkah serupa.

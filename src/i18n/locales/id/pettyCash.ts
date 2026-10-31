@@ -1,4 +1,5 @@
 import { advanceNotify, pettyCashAdvances } from './pettyCashAdvances';
+import { fundNotify, pettyCashFunds } from './pettyCashFunds';
 import { pettyCashReports } from './pettyCashReports';
 import { pettyCashCounts } from './pettyCashCounts';
 
@@ -252,6 +253,7 @@ export const pettyCash = {
   },
   notify: {
     ...advanceNotify,
+    ...fundNotify,
     created: 'Voucher {{number}} disimpan sebagai draf.',
     createdSubmitted: 'Voucher {{number}} diajukan.',
     updated: 'Voucher {{number}} diperbarui.',
@@ -276,6 +278,7 @@ export const pettyCash = {
   ...pettyCashCounts,
   ...pettyCashAdvances,
   ...pettyCashReports,
+  ...pettyCashFunds,
   errors: {
     generic: 'Terjadi kendala. Coba lagi sebentar lagi.',
     rejected: 'Permintaan belum bisa diproses. Periksa kembali isian Anda.',

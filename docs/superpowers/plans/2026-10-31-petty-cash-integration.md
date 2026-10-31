@@ -104,9 +104,9 @@ Files under `src/module/petty-cash/`:
 
 ## Phase 6: Fund administration, reports, audit
 
-- [ ] Fund create wizard (account, pagu, custodian, funding bank, thresholds, advance rules), update, adjust pagu, close with open-items explanation.
-- [ ] Reports: pending vouchers aging, expense summary (account, tag, month), advances by user, reconciliation, period-end check.
-- [ ] Audit timeline per document from `GET /audit-logs`.
+- [x] Fund create form (account, pagu, custodian, funding bank, thresholds, advance rules), update, adjust pagu, close (create and close verified by form validation only).
+- [x] Reports: pending vouchers aging, expense summary (account, tag, month), advances by user, reconciliation, period-end check.
+- [x] Audit timeline per document from `GET /audit-logs`.
 
 ## Phase 7: QA and docs
 

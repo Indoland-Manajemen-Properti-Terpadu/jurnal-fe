@@ -24,6 +24,8 @@ export const PETTY_CASH_API = {
     reimbursementId: string,
     action: 'approve' | 'reject' | 'cancel' | 'disburse'
   ) => `${BASE}/reimbursements/${reimbursementId}/${action}`,
+  fundPaguAdjustments: (fundId: string) => `${BASE}/funds/${fundId}/pagu-adjustments`,
+  fundClose: (fundId: string) => `${BASE}/funds/${fundId}/close`,
   reportPendingVouchers: `${BASE}/reports/pending-vouchers`,
   reportExpenseSummary: `${BASE}/reports/expense-summary`,
   reportAdvancesByUser: `${BASE}/reports/advances-by-user`,

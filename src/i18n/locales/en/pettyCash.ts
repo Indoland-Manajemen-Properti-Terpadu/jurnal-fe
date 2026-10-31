@@ -1,4 +1,5 @@
 import { advanceNotify, pettyCashAdvances } from './pettyCashAdvances';
+import { fundNotify, pettyCashFunds } from './pettyCashFunds';
 import { pettyCashReports } from './pettyCashReports';
 import { pettyCashCounts } from './pettyCashCounts';
 
@@ -252,6 +253,7 @@ export const pettyCash = {
   },
   notify: {
     ...advanceNotify,
+    ...fundNotify,
     created: 'Voucher {{number}} saved as a draft.',
     createdSubmitted: 'Voucher {{number}} submitted.',
     updated: 'Voucher {{number}} updated.',
@@ -276,6 +278,7 @@ export const pettyCash = {
   ...pettyCashCounts,
   ...pettyCashAdvances,
   ...pettyCashReports,
+  ...pettyCashFunds,
   errors: {
     generic: 'Something went wrong. Please try again in a moment.',
     rejected: 'This request could not be processed. Please check your entries.',
