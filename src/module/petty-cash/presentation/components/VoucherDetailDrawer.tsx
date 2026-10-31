@@ -5,6 +5,7 @@ import { formatCurrency } from '@/utils/formatCurrency';
 import { dateFormatV1 } from '@/utils/formatDate';
 import type { PettyCashFund } from '@/module/petty-cash/domain/pettyCashEntities';
 import { voucherBreakdown } from '@/module/petty-cash/domain/pettyCashView';
+import { AuditTimeline } from '@/module/petty-cash/presentation/components/AuditTimeline';
 import { PettyCashStatusBadge } from '@/module/petty-cash/presentation/components/PettyCashStatusBadge';
 import { VoucherActions } from '@/module/petty-cash/presentation/components/VoucherActions';
 import { VoucherAttachmentsPanel } from '@/module/petty-cash/presentation/components/VoucherAttachmentsPanel';
@@ -213,6 +214,7 @@ export function VoucherDetailDrawer({ fund, voucherId, opened, onClose }: Readon
               />
             </Stack>
           </Box>
+          <AuditTimeline entityType="VOUCHER" entityId={voucher.id} />
           <VoucherActions voucher={voucher} fund={fund} onChanged={onClose} />
         </Stack>
       )}

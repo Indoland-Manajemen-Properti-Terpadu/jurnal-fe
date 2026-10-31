@@ -1,4 +1,5 @@
 import { advanceNotify, pettyCashAdvances } from './pettyCashAdvances';
+import { pettyCashReports } from './pettyCashReports';
 import { pettyCashCounts } from './pettyCashCounts';
 
 export const pettyCash = {
@@ -37,6 +38,7 @@ export const pettyCash = {
       counts: 'Cash counts',
       replenishments: 'Replenishments',
       advances: 'Advances',
+      reports: 'Reports',
       cashBook: 'Cash book',
     },
   },
@@ -273,6 +275,7 @@ export const pettyCash = {
   },
   ...pettyCashCounts,
   ...pettyCashAdvances,
+  ...pettyCashReports,
   errors: {
     generic: 'Something went wrong. Please try again in a moment.',
     rejected: 'This request could not be processed. Please check your entries.',

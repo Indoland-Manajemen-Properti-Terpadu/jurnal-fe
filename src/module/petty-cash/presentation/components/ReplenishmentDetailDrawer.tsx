@@ -2,6 +2,7 @@ import { Box, Divider, Drawer, Group, Skeleton, Stack, Table, Text } from '@mant
 import { useTranslation } from '@/i18n';
 import { formatCurrency } from '@/utils/formatCurrency';
 import { dateFormatV1 } from '@/utils/formatDate';
+import { AuditTimeline } from '@/module/petty-cash/presentation/components/AuditTimeline';
 import { PettyCashStatusBadge } from '@/module/petty-cash/presentation/components/PettyCashStatusBadge';
 import { QueryErrorState } from '@/module/petty-cash/presentation/components/QueryErrorState';
 import { ReplenishmentActions } from '@/module/petty-cash/presentation/components/ReplenishmentActions';
@@ -162,6 +163,7 @@ export function ReplenishmentDetailDrawer({ replenishmentId, opened, onClose }: 
             </Table.ScrollContainer>
           </Box>
 
+          <AuditTimeline entityType="REIMBURSEMENT" entityId={record.id} />
           <ReplenishmentActions record={record} onChanged={onClose} />
         </Stack>
       )}

@@ -5,6 +5,7 @@ import { formatCurrency } from '@/utils/formatCurrency';
 import { dateFormatV1 } from '@/utils/formatDate';
 import { denominationRows } from '@/module/petty-cash/domain/cashCount';
 import { CountActions } from '@/module/petty-cash/presentation/components/CountActions';
+import { AuditTimeline } from '@/module/petty-cash/presentation/components/AuditTimeline';
 import { PettyCashStatusBadge } from '@/module/petty-cash/presentation/components/PettyCashStatusBadge';
 import { QueryErrorState } from '@/module/petty-cash/presentation/components/QueryErrorState';
 import { VarianceText } from '@/module/petty-cash/presentation/components/VarianceText';
@@ -156,6 +157,7 @@ export function CountDetailDrawer({ countId, opened, onClose }: Readonly<Props>)
             </Table.ScrollContainer>
           </Box>
 
+          <AuditTimeline entityType="COUNT" entityId={count.id} />
           <CountActions count={count} onChanged={onClose} />
         </Stack>
       )}

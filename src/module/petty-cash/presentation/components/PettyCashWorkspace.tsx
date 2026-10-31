@@ -1,7 +1,15 @@
 import { useState } from 'react';
 import { Paper, Stack, Tabs } from '@mantine/core';
-import { IconBook2, IconCash, IconReceipt2, IconScale, IconWallet } from '@tabler/icons-react';
+import {
+  IconBook2,
+  IconCash,
+  IconChartBar,
+  IconReceipt2,
+  IconScale,
+  IconWallet,
+} from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
+import { usePettyCashAccess } from '@/module/petty-cash/presentation/hooks/usePettyCashAccess';
 import type { PettyCashFund } from '@/module/petty-cash/domain/pettyCashEntities';
 import { AdvanceDetailDrawer } from '@/module/petty-cash/presentation/components/AdvanceDetailDrawer';
 import { AdvanceStatusBanner } from '@/module/petty-cash/presentation/components/AdvanceStatusBanner';
@@ -14,6 +22,7 @@ import { ImprestBalancePanel } from '@/module/petty-cash/presentation/components
 import { RecordCountButton } from '@/module/petty-cash/presentation/components/RecordCountButton';
 import { ReplenishmentDetailDrawer } from '@/module/petty-cash/presentation/components/ReplenishmentDetailDrawer';
 import { ReplenishmentList } from '@/module/petty-cash/presentation/components/ReplenishmentList';
+import { ReportsPanel } from '@/module/petty-cash/presentation/components/ReportsPanel';
 import { RequestAdvanceButton } from '@/module/petty-cash/presentation/components/RequestAdvanceButton';
 import { RequestReplenishmentButton } from '@/module/petty-cash/presentation/components/RequestReplenishmentButton';
 import { VoucherDetailDrawer } from '@/module/petty-cash/presentation/components/VoucherDetailDrawer';
@@ -28,7 +37,7 @@ interface Selection {
 const closeSelection = (current: Selection | null): Selection | null =>
   current ? { ...current, open: false } : null;
 
-const TABS = ['vouchers', 'counts', 'replenishments', 'advances', 'cashBook'];
+const TABS = ['vouchers', 'counts', 'replenishments', 'advances', 'cashBook', 'reports'];
 
 /**
  * Everything about one fund: position, rules, vouchers, cash counts, replenishments and the cash
@@ -39,6 +48,7 @@ export function PettyCashWorkspace({
   initialTab,
 }: Readonly<{ fund: PettyCashFund; initialTab?: string | null }>) {
   const { t } = useTranslation('pettyCash');
+  const canReadReports = usePettyCashAccess().can('JP-PC', 'read');
   const [tab, setTab] = useState<string | null>(
     initialTab && TABS.includes(initialTab) ? initialTab : 'vouchers'
   );
@@ -54,7 +64,7 @@ export function PettyCashWorkspace({
       <FundInfoStrip fund={fund} />
       <Paper withBorder radius="lg" p="md" bg="white">
         <Tabs
-          value={tab}
+          value={tab === 'reports' && !canReadReports ? 'vouchers' : tab}
           onChange={setTab}
           color="primary"
           variant="pills"
@@ -77,6 +87,11 @@ export function PettyCashWorkspace({
             <Tabs.Tab value="cashBook" leftSection={<IconBook2 size={16} />}>
               {t('workspace.tabs.cashBook')}
             </Tabs.Tab>
+            {canReadReports && (
+              <Tabs.Tab value="reports" leftSection={<IconChartBar size={16} />}>
+                {t('workspace.tabs.reports')}
+              </Tabs.Tab>
+            )}
           </Tabs.List>
           <Tabs.Panel value="vouchers">
             <VoucherList
@@ -105,6 +120,11 @@ export function PettyCashWorkspace({
               onSelect={(id) => setAdvance({ id, open: true })}
             />
           </Tabs.Panel>
+          {canReadReports && (
+            <Tabs.Panel value="reports">
+              <ReportsPanel fundId={fund.id} />
+            </Tabs.Panel>
+          )}
           <Tabs.Panel value="cashBook">
             <CashBookPanel fundId={fund.id} />
           </Tabs.Panel>

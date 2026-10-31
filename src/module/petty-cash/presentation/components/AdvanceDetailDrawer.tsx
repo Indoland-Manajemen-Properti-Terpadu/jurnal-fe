@@ -6,6 +6,7 @@ import { dateFormatV1 } from '@/utils/formatDate';
 import { settlementBalance } from '@/module/petty-cash/domain/advance';
 import type { AdvanceRecord, PettyCashFund } from '@/module/petty-cash/domain/pettyCashEntities';
 import { AdvanceActions } from '@/module/petty-cash/presentation/components/AdvanceActions';
+import { AuditTimeline } from '@/module/petty-cash/presentation/components/AuditTimeline';
 import { PettyCashStatusBadge } from '@/module/petty-cash/presentation/components/PettyCashStatusBadge';
 import { QueryErrorState } from '@/module/petty-cash/presentation/components/QueryErrorState';
 import { useAdvance } from '@/module/petty-cash/presentation/hooks/useAdvanceQueries';
@@ -240,6 +241,7 @@ export function AdvanceDetailDrawer({ fund, advanceId, opened, onClose }: Readon
             </Stack>
           </Box>
 
+          <AuditTimeline entityType="ADVANCE" entityId={advance.id} />
           <AdvanceActions advance={advance} fund={fund} onChanged={onClose} />
         </Stack>
       )}

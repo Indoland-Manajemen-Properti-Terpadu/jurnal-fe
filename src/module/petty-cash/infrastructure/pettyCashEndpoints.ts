@@ -24,6 +24,12 @@ export const PETTY_CASH_API = {
     reimbursementId: string,
     action: 'approve' | 'reject' | 'cancel' | 'disburse'
   ) => `${BASE}/reimbursements/${reimbursementId}/${action}`,
+  reportPendingVouchers: `${BASE}/reports/pending-vouchers`,
+  reportExpenseSummary: `${BASE}/reports/expense-summary`,
+  reportAdvancesByUser: `${BASE}/reports/advances-by-user`,
+  reportReconciliation: `${BASE}/reports/reconciliation`,
+  periodEndCheck: `${BASE}/period-end-check`,
+  auditLogs: `${BASE}/audit-logs`,
   advances: `${BASE}/advances`,
   advance: (advanceId: string) => `${BASE}/advances/${advanceId}`,
   advanceAction: (

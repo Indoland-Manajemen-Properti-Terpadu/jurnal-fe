@@ -1,4 +1,5 @@
 import { advanceNotify, pettyCashAdvances } from './pettyCashAdvances';
+import { pettyCashReports } from './pettyCashReports';
 import { pettyCashCounts } from './pettyCashCounts';
 
 export const pettyCash = {
@@ -37,6 +38,7 @@ export const pettyCash = {
       counts: 'Opname kas',
       replenishments: 'Penggantian dana',
       advances: 'Uang muka',
+      reports: 'Laporan',
       cashBook: 'Buku kas',
     },
   },
@@ -273,6 +275,7 @@ export const pettyCash = {
   },
   ...pettyCashCounts,
   ...pettyCashAdvances,
+  ...pettyCashReports,
   errors: {
     generic: 'Terjadi kendala. Coba lagi sebentar lagi.',
     rejected: 'Permintaan belum bisa diproses. Periksa kembali isian Anda.',
