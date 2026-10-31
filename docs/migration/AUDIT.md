@@ -40,4 +40,5 @@ An accounting-logic review is recorded in the conversation that produced this mi
 - Design system: one source of truth in `src/theme/tokens`, CSS variables generated from it, global CSS in `src/styles`, rules in [../design-system.md](../design-system.md). A bug was fixed where every colour tuple was a 951-entry sparse array.
 - Lint baseline total: 159 down to 135.
 - Dead files found inside modules were removed in the same change (dashboard spatial canvas, old report tables, orphan CSS modules in `user-management`).
-- Still open: `tailwind.config.js` is dead (Tailwind v4 never loads it) and still hard-codes the font; it needs your OK to delete. About 57 hard-coded `px` font sizes and 6 hex colours remain in module CSS, mostly `landing` and `dashboard`.
+- `tailwind.config.js` was dead (Tailwind v4 never loads it; the built CSS is byte-identical without it) and was removed. About 57 hard-coded `px` font sizes and 6 hex colours remain in module CSS, mostly `landing` and `dashboard`.
+- Agent documentation is consolidated: the root `AGENTS.md` is the only entry (`CLAUDE.md`, `GEMINI.md` and `.github/copilot-instructions.md` only point to it), the rules live once in `docs/`, and the task workflows are in `docs/agents/workflows/`. `.codex/` and the thin `.github/{agents,commands,prompts,instructions}` adapters were removed.

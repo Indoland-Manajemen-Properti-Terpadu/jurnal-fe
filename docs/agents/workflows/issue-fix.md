@@ -6,4 +6,4 @@
 4. Implement only the approved change and preserve unrelated work.
 5. Run verification only when requested or included in the agreed task scope. Report the exact checks and any remaining uncertainty.
 
-Follow [`PROJECT_CONTEXT.md`](../PROJECT_CONTEXT.md) for all engineering decisions.
+Follow the documents indexed in [`AGENTS.md`](../../../AGENTS.md) for all engineering decisions.

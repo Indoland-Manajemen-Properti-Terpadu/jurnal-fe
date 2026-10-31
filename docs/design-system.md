@@ -1,6 +1,6 @@
 # Design System
 
-How Jurnal ProApps is styled: the tokens, where they live, and the rules for using them. Project-wide UI rules (layouts, icons, empty states) stay in [`.codex/PROJECT_CONTEXT.md`](../.codex/PROJECT_CONTEXT.md#ui-and-accessibility).
+How Jurnal ProApps is styled: the tokens, where they live, and the rules for using them. Product vision, page layouts, icons and empty states are in [ui-guidelines.md](ui-guidelines.md).
 
 ## Principles
 
@@ -150,7 +150,7 @@ These fail AA for text and must not carry meaning alone: success 2.28, warning 2
 
 ## Changing or adding a token
 
-Follow [`.codex/workflows/design-token-change.md`](../.codex/workflows/design-token-change.md). In code:
+Follow [`agents/workflows/design-token-change.md`](agents/workflows/design-token-change.md). In code:
 
 1. Edit the value in `src/theme/tokens/<group>.ts`. A colour goes in `palette.ts`; give it a role in `colors.ts` if components need it by meaning.
 2. If CSS needs it, check that its group is in `jurnalCssVariables` (`cssVariables.ts`); groups are emitted automatically as `--jurnal-<group>-<kebab-name>`.
