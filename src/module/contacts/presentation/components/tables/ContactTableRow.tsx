@@ -214,7 +214,7 @@ export function ContactTableRow({
                 leftSection={<IconReceipt2 size={14} />}
                 onClick={() =>
                   navigate(
-                    routes.Contact.TransactionDetailByContact.replace(':idAccount', contact.id)
+                    routes.contacts.transactions.replace(':idAccount', contact.id)
                   )
                 }
               >

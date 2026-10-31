@@ -18,7 +18,7 @@ export function ReportPageHeader({ icon, title, description }: ReportPageHeaderP
       title={title}
       description={description}
       breadcrumbs={[
-        { label: t('common.reportsBreadcrumb'), to: routes.resultReport.main },
+        { label: t('common.reportsBreadcrumb'), to: routes.reports.main },
         { label: title },
       ]}
     />

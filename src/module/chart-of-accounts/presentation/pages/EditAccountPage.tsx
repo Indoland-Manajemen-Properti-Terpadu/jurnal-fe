@@ -178,7 +178,7 @@ export const EditAccountJournalPage: React.FC = () => {
   };
 
   const handleCancel = () => {
-    navigate(routes.generalJournal.main);
+    navigate(routes.chartOfAccounts.main);
   };
 
   if (isDetailError) {

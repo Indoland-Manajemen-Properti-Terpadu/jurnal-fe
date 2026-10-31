@@ -65,7 +65,7 @@ export function DetailContactPage() {
   const handleArchive = async () => {
     if (!contact) return;
     await archiveMutation.mutateAsync(contact.id);
-    navigate(routes.Contact.Main);
+    navigate(routes.contacts.main);
   };
 
   const changeStatus = (value: string | null) => {
@@ -101,7 +101,7 @@ export function DetailContactPage() {
               <Button
                 mt="sm"
                 leftSection={<IconArrowLeft size={16} />}
-                onClick={() => navigate(routes.Contact.Main)}
+                onClick={() => navigate(routes.contacts.main)}
               >
                 {t('backToContacts')}
               </Button>
@@ -125,7 +125,7 @@ export function DetailContactPage() {
                 <Button
                   variant="default"
                   leftSection={<IconArrowLeft size={16} />}
-                  onClick={() => navigate(routes.Contact.Main)}
+                  onClick={() => navigate(routes.contacts.main)}
                 >
                   {t('backToContacts')}
                 </Button>

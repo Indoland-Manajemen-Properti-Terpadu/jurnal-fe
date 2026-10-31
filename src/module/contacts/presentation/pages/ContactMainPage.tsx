@@ -117,7 +117,7 @@ export function ContactMainPage() {
   };
 
   const handleOpenDetail = (contact: Contact) => {
-    navigate(routes.Contact.DetailContact.replace(':idAccount', contact.id));
+    navigate(routes.contacts.detail.replace(':idAccount', contact.id));
   };
 
   const handleFormSubmit = async (values: ContactFormValues) => {

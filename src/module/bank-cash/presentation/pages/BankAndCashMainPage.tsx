@@ -50,26 +50,26 @@ export function BankAndCashMainPage() {
                   <Menu.Dropdown>
                     <Menu.Item
                       leftSection={<IconArrowsExchange size={16} />}
-                      onClick={() => navigate(routes.BankAndCash.AddTransferMoney)}
+                      onClick={() => navigate(routes.bankCash.addTransfer)}
                     >
                       {t('transferMoney')}
                     </Menu.Item>
                     <Menu.Item
                       leftSection={<IconArrowDownRight size={16} />}
-                      onClick={() => navigate(routes.BankAndCash.AddReceiveMoney)}
+                      onClick={() => navigate(routes.bankCash.addReceive)}
                     >
                       {t('receiveMoney')}
                     </Menu.Item>
                     <Menu.Item
                       leftSection={<IconArrowUpRight size={16} />}
-                      onClick={() => navigate(routes.BankAndCash.AddSentMoney)}
+                      onClick={() => navigate(routes.bankCash.addSent)}
                     >
                       {t('sendMoney')}
                     </Menu.Item>
                     <Menu.Divider />
                     <Menu.Item
                       leftSection={<IconFileSpreadsheet size={16} />}
-                      onClick={() => navigate(routes.generalJournal.addTransactionJournal)}
+                      onClick={() => navigate(routes.journalEntries.add)}
                     >
                       {t('manualJournalEntry')}
                     </Menu.Item>
@@ -81,7 +81,7 @@ export function BankAndCashMainPage() {
                   size="sm"
                   radius="md"
                   leftSection={<IconPlus size={16} />}
-                  onClick={() => navigate(routes.generalJournal.addAccountJournal)}
+                  onClick={() => navigate(routes.chartOfAccounts.add)}
                 >
                   {t('addCashBankAccount')}
                 </Button>

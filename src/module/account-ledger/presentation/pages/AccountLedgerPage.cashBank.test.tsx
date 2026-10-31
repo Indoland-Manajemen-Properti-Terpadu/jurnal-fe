@@ -177,7 +177,7 @@ describe('cash/bank ledger page (characterization)', () => {
     options.onSuccess();
     expect(fns.notify).not.toHaveBeenCalled();
     await waitFor(() =>
-      expect(screen.getByTestId('location')).toHaveTextContent(routes.generalJournal.main)
+      expect(screen.getByTestId('location')).toHaveTextContent(routes.chartOfAccounts.main)
     );
   });
 
@@ -189,7 +189,7 @@ describe('cash/bank ledger page (characterization)', () => {
       await user.click(await screen.findByRole('menuitem', { name: item, hidden: true }));
       expect(screen.getByTestId('location')).toHaveTextContent(path);
     };
-    await open('Transfer Uang', routes.BankAndCash.AddTransferMoney);
+    await open('Transfer Uang', routes.bankCash.addTransfer);
   });
 
   it('deletes the selected entries from the entries tab', async () => {

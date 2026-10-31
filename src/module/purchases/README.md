@@ -2,7 +2,7 @@
 
 Purchase bills (accounts payable): list, filter and sort supplier bills, create a bill, record a payment and delete a bill. The data is a browser-only prototype stored in `localStorage`; there is no backend yet.
 
-- **Route:** `routes.baseModules.purchases` (`/purchases`). The old `/pembelian` (`routes.baseModules.legacyPurchases`) redirects to it; `src/router/legacyRedirects.test.tsx` covers the redirect.
+- **Route:** `routes.purchases.main` (`/purchases`). The old `/pembelian` (`routes.legacyPaths.purchases`) redirects to it; `src/router/legacyRedirects.test.tsx` covers the redirect.
 - **Page:** `presentation/pages/PurchasesPage.tsx`, exported from `index.ts` as `PurchasesPage`. It renders `AppShellLayout` directly.
 - **Endpoints:** none.
 - **Storage:** key `jurnal_purchase_bills_data` (unchanged), value is a JSON array of `PurchaseBill`. `infrastructure/localStoragePurchaseRepository.ts` implements the `PurchaseRepository` port (`domain/purchaseRepository.ts`); the seed `INITIAL_PURCHASE_BILLS` lives in `infrastructure/purchaseSeed.ts` (vendor names are data, not UI strings).

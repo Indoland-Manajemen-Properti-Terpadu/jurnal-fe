@@ -46,7 +46,7 @@ const BudgetManagementPage = () => {
                 <Button
                   variant="gradient"
                   gradient={gradientColors.gradient}
-                  // onClick={() => navigate(routes.generalJournal.addAccountJournal)}
+                  // onClick={() => navigate(routes.chartOfAccounts.add)}
                 >
                   {t('budget.add')}
                 </Button>

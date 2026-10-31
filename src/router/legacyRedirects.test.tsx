@@ -11,8 +11,8 @@ const elementOf = (matches: ReturnType<typeof matchRoutes>) => {
 
 describe('legacy route redirects', () => {
   it('keeps /pembelian as a legacy path that differs from the new route', () => {
-    expect(routes.baseModules.legacyPurchases).toBe('/pembelian');
-    expect(routes.baseModules.purchases).toBe('/purchases');
+    expect(routes.legacyPaths.purchases).toBe('/pembelian');
+    expect(routes.purchases.main).toBe('/purchases');
   });
 
   it('renders a redirect element to /purchases for /pembelian', () => {
@@ -32,23 +32,42 @@ describe('legacy route redirects', () => {
   });
 
   it('redirects the misspelled business-sumary report URL to business-summary', () => {
-    expect(routes.resultReport.legacyBusinessSumary).toBe(
+    expect(routes.legacyPaths.reportsBusinessSumary).toBe(
       '/result-reports/business-overview/business-sumary'
     );
-    expect(routes.resultReport.businessSummary).toBe(
+    expect(routes.reports.businessSummary).toBe(
       '/result-reports/business-overview/business-summary'
     );
 
-    const element = elementOf(matchRoutes(router.routes, routes.resultReport.legacyBusinessSumary));
+    const element = elementOf(matchRoutes(router.routes, routes.legacyPaths.reportsBusinessSumary));
 
-    expect(element?.props?.to).toBe(routes.resultReport.businessSummary);
+    expect(element?.props?.to).toBe(routes.reports.businessSummary);
     expect(element?.props?.replace).toBe(true);
   });
 
   it('serves the business-summary report with the page, not a redirect', () => {
-    const element = elementOf(matchRoutes(router.routes, routes.resultReport.businessSummary));
+    const element = elementOf(matchRoutes(router.routes, routes.reports.businessSummary));
 
     expect(element).toBeDefined();
     expect(element?.props?.to).toBeUndefined();
+  });
+
+  it.each([
+    ['/kontak', '/contact'],
+    ['/asset', '/assets'],
+    ['/settings/approval-setting', '/pending-changes'],
+  ])('redirects %s to %s with replace', (legacy, current) => {
+    const element = elementOf(matchRoutes(router.routes, legacy));
+
+    expect(element?.props?.to).toBe(current);
+    expect(element?.props?.replace).toBe(true);
+  });
+
+  it('lists every old URL in legacyPaths with its redirect registered', () => {
+    const registered = Object.values(routes.legacyPaths).map(
+      (path) => matchRoutes(router.routes, path)?.at(-1)?.route.path
+    );
+
+    expect(registered).toEqual(Object.values(routes.legacyPaths));
   });
 });

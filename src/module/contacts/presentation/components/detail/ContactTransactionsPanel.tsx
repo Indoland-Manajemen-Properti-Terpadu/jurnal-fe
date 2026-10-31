@@ -70,7 +70,7 @@ export function ContactTransactionsPanel({
                 variant="light"
                 onClick={() =>
                   navigate(
-                    routes.Contact.TransactionDetailByContact.replace(':idAccount', contactId)
+                    routes.contacts.transactions.replace(':idAccount', contactId)
                   )
                 }
               >

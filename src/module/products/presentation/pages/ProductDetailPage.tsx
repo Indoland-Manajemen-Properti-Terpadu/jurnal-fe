@@ -36,7 +36,7 @@ export function ProductDetailPage() {
   const saveProductMutation = useSaveProduct(id);
   const deleteProductMutation = useDeleteProduct();
 
-  const goToList = () => navigate(routes.baseModules.products);
+  const goToList = () => navigate(routes.products.main);
 
   const handleEditSubmit = async (values: ProductFormValues) => {
     await saveProductMutation.mutateAsync(values);

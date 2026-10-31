@@ -14,7 +14,7 @@ Company and accounting settings: a hub with a configuration overview, decimal pr
 | `settings.paymentMethods` | `/settings/payment-methods` | `PaymentMethodPage` |
 | `settings.numberFormats` | `/settings/number-formats` | `NumberFormatPage` |
 | `settings.tags` | `/settings/tags` | `TagSettingPage` |
-| `baseModules.companySetting` | `/settings/company-setting` | `CompanySettingPage` |
+| `settings.company` | `/settings/company-setting` | `CompanySettingPage` |
 
 `/settings/approval-setting` redirects to pending changes (the old approval stub page was removed). `index.ts` exports the nine pages and `SettingsLayout`, which `UserManagement` renders inside.
 

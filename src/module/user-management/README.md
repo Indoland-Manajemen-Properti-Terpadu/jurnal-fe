@@ -4,12 +4,12 @@ Users and access roles: a user list and role tabs (default and additional) under
 
 ## Routes (`src/router/routes.ts`)
 
-| Constant | Path | Page |
-| --- | --- | --- |
-| `userManagement.main` / `list` | `/settings/user-management` | `UserManagementPage` (users tab, roles tab) |
-| `userManagement.addUser` | `/settings/user-management/add-user-form` | `AddUserPage` |
-| `userManagement.editUser` | `/settings/user-management/edit-user/:email` | `EditUserPage` |
-| `userManagement.addRole` | `/settings/user-management/add-role-form` | `AddRolePage` |
+| Constant                       | Path                                         | Page                                        |
+| ------------------------------ | -------------------------------------------- | ------------------------------------------- |
+| `userManagement.main` / `list` | `/settings/user-management`                  | `UserManagementPage` (users tab, roles tab) |
+| `userManagement.addUser`       | `/settings/user-management/add-user-form`    | `AddUserPage`                               |
+| `userManagement.editUser`      | `/settings/user-management/edit-user/:email` | `EditUserPage`                              |
+| `userManagement.addRole`       | `/settings/user-management/add-role-form`    | `AddRolePage`                               |
 
 `index.ts` exports the four pages plus `useUsers` and `useRoles`, which the chart-of-accounts add and edit pages use to pick users and roles.
 
@@ -36,5 +36,4 @@ Namespace `userManagement` (`id` and `en`), with parity tests in `src/i18n/local
 
 - Add Role builds the payload but does not call the API; `useAddRole` exists for when it does.
 - Add User has no submit; Edit User's Finish only navigates; deleting a user from the table does nothing after the confirmation.
-- The row menu opens the edit URL with a literal `:email`.
 - The user table search state is never changed (no search box is rendered).

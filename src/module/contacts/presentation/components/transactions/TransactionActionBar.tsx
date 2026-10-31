@@ -39,8 +39,8 @@ export function TransactionActionBar({
           leftSection={<IconArrowLeft size={18} />}
           onClick={() =>
             contactId
-              ? navigate(routes.Contact.DetailContact.replace(':idAccount', contactId))
-              : navigate(routes.Contact.Main)
+              ? navigate(routes.contacts.detail.replace(':idAccount', contactId))
+              : navigate(routes.contacts.main)
           }
         >
           {t('transactions.back')}

@@ -6,19 +6,19 @@ Financial reports: a catalog page and ten report pages (balance sheet, general l
 
 | Constant                                                          | Path                                                         | Page                                             |
 | ----------------------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------ |
-| `resultReport.main`                                               | `/result-reports`                                            | `ReportCatalogPage`                              |
-| `resultReport.balanceSheet`                                       | `/result-reports/business-overview/balance-sheet`            | `BalanceSheetPage`                               |
-| `resultReport.generalLedgerReport`                                | `.../general-ledger`                                         | `GeneralLedgerPage`                              |
-| `resultReport.trialBalance`                                       | `.../trial-balance`                                          | `TrialBalancePage`                               |
-| `resultReport.incomeStatement`                                    | `.../income-statement`                                       | `IncomeStatementPage`                            |
-| `resultReport.incomeStatementBudget`                              | `.../income-statement-budget`                                | `IncomeStatementBudgetPage`                      |
-| `resultReport.cashFlow`                                           | `.../cash-flow`                                              | `CashFlowPage`                                   |
-| `resultReport.journalEntry`                                       | `.../journal-entry`                                          | `JournalEntryReportPage`                         |
-| `resultReport.businessSummary`                                    | `.../business-summary`                                       | `BusinessSummaryPage`                            |
-| `resultReport.equityChanges`                                      | `.../equity-changes`                                         | `EquityChangesPage`                              |
-| `resultReport.budgetManagement`, `SettingBudget.BudgetManagement` | `.../budget-management`, `/setting-budget/budget-management` | `BudgetManagementPage` (same page on both paths) |
+| `reports.main`                                               | `/result-reports`                                            | `ReportCatalogPage`                              |
+| `reports.balanceSheet`                                       | `/result-reports/business-overview/balance-sheet`            | `BalanceSheetPage`                               |
+| `reports.generalLedger`                                | `.../general-ledger`                                         | `GeneralLedgerPage`                              |
+| `reports.trialBalance`                                       | `.../trial-balance`                                          | `TrialBalancePage`                               |
+| `reports.incomeStatement`                                    | `.../income-statement`                                       | `IncomeStatementPage`                            |
+| `reports.incomeStatementBudget`                              | `.../income-statement-budget`                                | `IncomeStatementBudgetPage`                      |
+| `reports.cashFlow`                                           | `.../cash-flow`                                              | `CashFlowPage`                                   |
+| `reports.journalEntries`                                       | `.../journal-entry`                                          | `JournalEntryReportPage`                         |
+| `reports.businessSummary`                                    | `.../business-summary`                                       | `BusinessSummaryPage`                            |
+| `reports.equityChanges`                                      | `.../equity-changes`                                         | `EquityChangesPage`                              |
+| `reports.budgetManagement`, `budgeting.budgetManagement` | `.../budget-management`, `/setting-budget/budget-management` | `BudgetManagementPage` (same page on both paths) |
 
-`resultReport.legacyBusinessSumary` (`.../business-sumary`, the old misspelling) redirects to `businessSummary`. `resultReport.businessOverview` has no page and is a known orphan in `routes.test.ts`. `index.ts` exports the eleven pages.
+`legacyPaths.reportsBusinessSumary` (`.../business-sumary`, the old misspelling) redirects to `reports.businessSummary`. `index.ts` exports the eleven pages.
 
 ## Endpoints
 

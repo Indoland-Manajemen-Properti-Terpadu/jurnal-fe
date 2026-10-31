@@ -57,7 +57,7 @@ function JournalEntriesTable({
               fz="var(--jurnal-text-sm)"
               onClick={() =>
                 navigate(
-                  routes.generalJournal.detailTransactionJournal.replace(':idTransaction', row.id)
+                  routes.journalEntries.detail.replace(':idTransaction', row.id)
                 )
               }
             >
@@ -158,7 +158,7 @@ function JournalEntriesTable({
               radius="md"
               onClick={() =>
                 navigate(
-                  routes.generalJournal.detailTransactionJournal.replace(':idTransaction', row.id)
+                  routes.journalEntries.detail.replace(':idTransaction', row.id)
                 )
               }
             >

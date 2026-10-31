@@ -12,12 +12,11 @@ src/
   utils/        small pure helpers (camelCase files): formatCurrency, formatDate, dateRange
   constants/    static reference data (banks, Indonesian regions)
   store/        client state shared across features (auth, api loading)
-  types/        types shared across features
   i18n/         locales and the useTranslation hook
   theme/        design system: tokens, Mantine theme, CSS variables (docs/design-system.md)
   styles/       global CSS and font loading
   assets/       images/{brand,illustrations,auth} (kebab-case names)
-  router/       route table and route constants
+  router/       routes.ts (path constants), modules/<feature>.tsx (route objects per module), legacy redirects
 public/         favicon and downloadable templates (templates/csv); no mock data
 ```
 
@@ -49,6 +48,13 @@ app composition root -> everything
 - Pages render state and forward intent. They do not call HTTP, build endpoints or contain accounting rules.
 - Other features are used only through `@/module/<feature>` (its `index.ts`).
 - `src/components` never imports from `src/module`.
+
+## Routes
+
+- Path constants live in `src/router/routes.ts`: one group per feature module, named like the module folder in camelCase (`bankCash`, `chartOfAccounts`, ...), keys `main`, `detail`, `add`, `edit`, then descriptive names. The file never imports a component, so modules can read it without import cycles.
+- Each module registers its pages in `src/router/modules/<module>.tsx` (an array of route objects); `src/router/index.tsx` only composes them and adds the not-found route last.
+- A public URL is never changed in place: the old path goes to `routes.legacyPaths` and gets a redirect in `src/router/modules/legacy.tsx`. `routes.test.ts` checks that every constant resolves to a page, that no path is used twice and that names are camelCase; `legacyRedirects.test.tsx` checks the redirects.
+- To add a route: add the constant, add the route object to the module's file, and list it in the module README.
 
 ## View, business logic and data access
 

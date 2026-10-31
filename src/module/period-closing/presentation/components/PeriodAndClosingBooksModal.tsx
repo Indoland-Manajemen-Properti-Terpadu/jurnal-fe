@@ -80,7 +80,7 @@ export const PeriodAndClosingBooksModal: React.FC<PeriodAndClosingBooksModalProp
       message: t('common.draftNotice'),
     });
     closeAllModals();
-    navigate(routes.generalJournal.closingBooks);
+    navigate(routes.periodClosing.closingBooks);
   };
 
   const benefitItems = [t('modal.benefitItem1'), t('modal.benefitItem2')];

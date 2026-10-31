@@ -83,8 +83,8 @@ const BeginningBalanceHeader: React.FC<Props> = ({
         </Stack>
       }
       breadcrumbs={[
-        { label: t('page.generalLedger'), to: routes.generalJournal.main },
-        { label: t('page.chartOfAccounts'), to: routes.generalJournal.main },
+        { label: t('page.generalLedger'), to: routes.chartOfAccounts.main },
+        { label: t('page.chartOfAccounts'), to: routes.chartOfAccounts.main },
         { label: t('page.title') },
       ]}
       actions={

@@ -33,7 +33,7 @@ describe('AccountListHeaderActions navigation', () => {
     await user.click(screen.getByRole('button', { name: 'Aksi Lainnya' }));
     await user.click(await screen.findByRole('menuitem', { name: 'Tambah Transaksi Jurnal' }));
     expect(screen.getByTestId('location')).toHaveTextContent(
-      routes.generalJournal.addTransactionJournal
+      routes.journalEntries.add
     );
   });
 

@@ -207,17 +207,6 @@ Peta folder (`src/module`, `src/components`, `src/lib`, `src/theme`, `src/styles
 
 Daftar modul fitur, README masing-masing, dan statusnya ada di [`docs/modules/README.md`](docs/modules/README.md) dan [`docs/migration/STATUS.md`](docs/migration/STATUS.md).
 
----------------- | ---------------------------------------------------------------------------------------- |
-| `Authentication` | Halaman dan flow autentikasi pengguna.                                                   |
-| `Dashboard`      | Halaman dashboard utama.                                                                 |
-| `GeneralJournal` | Jurnal umum, akun, transaksi, saldo awal, bank statement, period lock, dan closing book. |
-| `BankCash`       | Transfer, penerimaan, pengeluaran, serta ringkasan bank dan kas.                         |
-| `Contact`        | Manajemen kontak dan transaksi terkait kontak.                                           |
-| `ResultReport`   | Laporan neraca, laba rugi, arus kas, trial balance, general ledger, dan laporan lain.    |
-| `SettingBudget`  | Pengelolaan anggaran.                                                                    |
-| `SettingMenu`    | Pengaturan aplikasi, pengguna, dan role.                                                 |
-| `LandingPage`    | Halaman awal aplikasi.                                                                   |
-
 ---
 
 ## Konfigurasi API

@@ -190,7 +190,7 @@ const AccountLedgerContent: React.FC<AccountLedgerPageProps> = ({ variant }) => 
 };
 
 /**
- * Ledger of one account (routes `detailAccount` and `detailAccountNonCB`). Keyed by variant: both
+ * Ledger of one account (routes `accountLedger.cashBank` and `accountLedger.nonCashBank`). Keyed by variant: both
  * routes render this component, and the tab ids differ, so a switch between them must remount.
  */
 const AccountLedgerPage: React.FC<AccountLedgerPageProps> = ({ variant }) => (

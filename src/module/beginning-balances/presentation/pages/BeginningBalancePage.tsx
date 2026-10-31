@@ -142,7 +142,7 @@ const BeginningBalancePage: React.FC = () => {
     publishDraftBalance(buildPayload(), {
       onSuccess: () => {
         setIsPublishModalOpen(false);
-        navigate(routes.generalJournal.main);
+        navigate(routes.chartOfAccounts.main);
       },
     });
   };
@@ -186,7 +186,7 @@ const BeginningBalancePage: React.FC = () => {
               difference={difference}
               isSavingDraft={isSavingDraft}
               isPublishing={isPublishing}
-              onBack={() => navigate(routes.generalJournal.main)}
+              onBack={() => navigate(routes.chartOfAccounts.main)}
               onOpenLogs={() => setIsLogsModalOpen(true)}
               onOpenReset={() => setIsResetModalOpen(true)}
               onSaveDraft={handleSaveDraft}

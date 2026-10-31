@@ -55,7 +55,7 @@ const FinancialStatementPage = () => {
       footer={
         <PeriodFooter
           onBack={() => navigate(-1)}
-          onNext={() => navigate(routes.PeriodAndClosingBook.ListPLandCB)}
+          onNext={() => navigate(routes.periodClosing.list)}
           nextLabel={t('common.confirm')}
         />
       }

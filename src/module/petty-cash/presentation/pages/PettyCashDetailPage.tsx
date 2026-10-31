@@ -36,7 +36,7 @@ export default function PettyCashDetailPage() {
             <Text c="dimmed" mt="xs">
               {t('pettyCashFundNotFoundDescription')}
             </Text>
-            <Button mt="xl" variant="light" onClick={() => navigate(routes.BankAndCash.PettyCash)}>
+            <Button mt="xl" variant="light" onClick={() => navigate(routes.pettyCash.main)}>
               {t('pettyCashBack')}
             </Button>
           </Paper>
@@ -60,7 +60,7 @@ export default function PettyCashDetailPage() {
                 <Button
                   variant="default"
                   leftSection={<IconArrowLeft size={16} />}
-                  onClick={() => navigate(routes.BankAndCash.PettyCash)}
+                  onClick={() => navigate(routes.pettyCash.main)}
                 >
                   {t('pettyCashBack')}
                 </Button>

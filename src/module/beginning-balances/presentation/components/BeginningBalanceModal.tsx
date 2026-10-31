@@ -38,7 +38,7 @@ export const BeginningBalanceModal: React.FC<BeginningBalanceModalProps> = ({
 
     setConversionDate(new Date(selectedDate));
     onClose();
-    navigate(routes.generalJournal.beginningBalance);
+    navigate(routes.beginningBalances.main);
   };
 
   return (

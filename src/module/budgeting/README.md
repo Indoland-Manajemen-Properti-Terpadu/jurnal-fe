@@ -2,7 +2,7 @@
 
 Placeholder module for budget planning. It renders `BaseModulePage` with a title and the active route; there is no domain logic, endpoint or state yet.
 
-- **Route:** `routes.baseModules.budgetPlanning` (`/budget-planning`)
+- **Route:** `routes.budgeting.planning` (`/budget-planning`)
 - **Page:** `presentation/pages/BudgetPlanningPage.tsx`, exported from `index.ts`
 - **i18n namespace:** `budgeting` (`id` primary, `en`)
 - **Endpoints / state:** none

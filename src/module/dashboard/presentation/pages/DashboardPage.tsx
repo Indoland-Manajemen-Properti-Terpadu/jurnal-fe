@@ -150,9 +150,9 @@ function DashboardPage() {
             equityRatio={health.equityRatio}
             isRefreshing={isFetching}
             onRefresh={() => queryClient.invalidateQueries({ queryKey: dashboardKeys.all })}
-            onOpenPeriod={() => navigate(routes.PeriodAndClosingBook.ListPLandCB)}
-            onOpenBalanceSheet={() => navigate(routes.resultReport.balanceSheet)}
-            onCreateJournal={() => navigate(routes.generalJournal.addTransactionJournal)}
+            onOpenPeriod={() => navigate(routes.periodClosing.list)}
+            onOpenBalanceSheet={() => navigate(routes.reports.balanceSheet)}
+            onCreateJournal={() => navigate(routes.journalEntries.add)}
           />
 
           <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }} spacing="lg">
@@ -166,7 +166,7 @@ function DashboardPage() {
               delay={40}
               spatialTilt={spatialMode}
               hint={t('kpiCashHint', { count: bankAccounts.length })}
-              onClick={() => navigate(routes.BankAndCash.Main)}
+              onClick={() => navigate(routes.bankCash.main)}
             />
             <KpiTile
               label={t('kpiReceivableLabel')}
@@ -252,7 +252,7 @@ function DashboardPage() {
                       color="primary"
                       size="xs"
                       radius="md"
-                      onClick={() => navigate(routes.BankAndCash.Main)}
+                      onClick={() => navigate(routes.bankCash.main)}
                     >
                       {t('btnManageCash')}
                     </Button>
@@ -261,7 +261,7 @@ function DashboardPage() {
                 <BankAccountsList
                   accounts={bankAccounts}
                   loading={balanceQ.isLoading}
-                  onOpenAccount={() => navigate(routes.BankAndCash.Main)}
+                  onOpenAccount={() => navigate(routes.bankCash.main)}
                 />
               </GlassCard>
             </Grid.Col>
@@ -284,7 +284,7 @@ function DashboardPage() {
                       color="primary"
                       size="xs"
                       radius="md"
-                      onClick={() => navigate(routes.resultReport.balanceSheet)}
+                      onClick={() => navigate(routes.reports.balanceSheet)}
                     >
                       {t('btnViewBalanceSheet')}
                     </Button>
@@ -369,7 +369,7 @@ function DashboardPage() {
                   onOpen={(a) =>
                     a.journalId &&
                     navigate(
-                      routes.generalJournal.detailTransactionJournal.replace(
+                      routes.journalEntries.detail.replace(
                         ':idTransaction',
                         a.journalId
                       )

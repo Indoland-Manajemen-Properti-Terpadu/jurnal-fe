@@ -292,7 +292,7 @@ export const TableBankCash: React.FC<TableBankCashProps> = ({
                       icon={<IconCoins size={36} stroke={1.5} />}
                       actionLabel={t('addCashBankAccount')}
                       actionIcon={<IconPlus size={14} />}
-                      onAction={() => navigate(routes.generalJournal.addAccountJournal)}
+                      onAction={() => navigate(routes.chartOfAccounts.add)}
                       py={48}
                     />
                   ) : (

@@ -24,7 +24,7 @@ export const useCreateJournalEntry = () => {
         title: tr('toast.createdTitle'),
         message: tr('toast.createdMessage'),
       });
-      navigate(routes.generalJournal.main);
+      navigate(routes.chartOfAccounts.main);
     },
     onError: (error) => {
       notifications.show({

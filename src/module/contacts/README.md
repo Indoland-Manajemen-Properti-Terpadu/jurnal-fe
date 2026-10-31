@@ -6,12 +6,12 @@ Contact master data (customers, vendors, employees and other parties): list with
 
 | Constant | Path | Page |
 | --- | --- | --- |
-| `routes.Contact.Main` | `/contact` | `ContactMainPage` (list, form modal, groups modal, import modal, archive confirm) |
-| `routes.Contact.AddContact` | `/contact/add` | `AddContactPage` |
-| `routes.Contact.DetailContact` | `/contact/:idAccount` | `DetailContactPage` (view and edit) |
-| `routes.Contact.TransactionDetailByContact` | `/contact/:idAccount/transaction-detail` | `TransactionDetailByContactPage` |
+| `routes.contacts.main` | `/contact` | `ContactMainPage` (list, form modal, groups modal, import modal, archive confirm) |
+| `routes.contacts.add` | `/contact/add` | `AddContactPage` |
+| `routes.contacts.detail` | `/contact/:idAccount` | `DetailContactPage` (view and edit) |
+| `routes.contacts.transactions` | `/contact/:idAccount/transaction-detail` | `TransactionDetailByContactPage` |
 
-`/kontak` (`routes.baseModules.contactsMaster`) redirects to `/contact`. `index.ts` exports the four pages plus `fetchContacts` and `fetchPaymentTerms` (used by sales).
+`/kontak` (`routes.legacyPaths.contacts`) redirects to `/contact`. `index.ts` exports the four pages plus `fetchContacts` and `fetchPaymentTerms` (used by sales).
 
 ## Endpoints (`CONTACT_ENDPOINTS` in `infrastructure/contactApi.ts`)
 

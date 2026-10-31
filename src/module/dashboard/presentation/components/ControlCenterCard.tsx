@@ -65,14 +65,14 @@ export function ControlCenterCard({
               color: 'violet',
               label: t('ctrlTotalContacts'),
               value: contactsLoading ? '…' : String(contactTotal),
-              onClick: () => navigate(routes.Contact.Main),
+              onClick: () => navigate(routes.contacts.main),
             },
             {
               icon: IconCalendarStats,
               color: activePeriodName ? 'primary' : 'gray',
               label: t('ctrlActivePeriod'),
               value: activePeriodName ?? t('periodOpenValue'),
-              onClick: () => navigate(routes.PeriodAndClosingBook.ListPLandCB),
+              onClick: () => navigate(routes.periodClosing.list),
             },
           ].map((row) => (
             <Group
@@ -121,25 +121,25 @@ export function ControlCenterCard({
                 label: t('qaGeneralJournal'),
                 icon: IconNotebook,
                 tone: 'primary',
-                onClick: () => navigate(routes.generalJournal.addTransactionJournal),
+                onClick: () => navigate(routes.journalEntries.add),
               },
               {
                 label: t('qaReceiveMoney'),
                 icon: IconCoin,
                 tone: 'teal',
-                onClick: () => navigate(routes.BankAndCash.AddReceiveMoney),
+                onClick: () => navigate(routes.bankCash.addReceive),
               },
               {
                 label: t('qaSendMoney'),
                 icon: IconWallet,
                 tone: 'orange',
-                onClick: () => navigate(routes.BankAndCash.AddSentMoney),
+                onClick: () => navigate(routes.bankCash.addSent),
               },
               {
                 label: t('qaTransferCash'),
                 icon: IconBuildingBank,
                 tone: 'cyan',
-                onClick: () => navigate(routes.BankAndCash.AddTransferMoney),
+                onClick: () => navigate(routes.bankCash.addTransfer),
               },
             ]}
           />

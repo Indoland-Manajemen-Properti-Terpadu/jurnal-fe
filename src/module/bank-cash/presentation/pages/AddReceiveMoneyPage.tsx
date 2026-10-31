@@ -171,7 +171,7 @@ export const AddReceiveMoneyPage = () => {
                 variant="default"
                 radius="md"
                 leftSection={<IconArrowLeft size={16} />}
-                onClick={() => navigate(routes.BankAndCash.Main)}
+                onClick={() => navigate(routes.bankCash.main)}
               >
                 {tb('common.backToCashBank')}
               </Button>

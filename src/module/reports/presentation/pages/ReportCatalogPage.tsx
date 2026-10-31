@@ -110,7 +110,7 @@ export default function ReportCatalogPage() {
                 <Group gap="md" mt="lg">
                   <Button
                     component={Link}
-                    to={routes.resultReport.generalLedgerReport}
+                    to={routes.reports.generalLedger}
                     color="primary"
                     size="sm"
                     radius="md"
