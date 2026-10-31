@@ -70,7 +70,7 @@ Server responses are never mirrored in Zustand, and global state is not used for
 
 ## HTTP
 
-All HTTP goes through `src/lib/http/apiClient.ts` (Bearer token, 401 refresh with a request queue, redirect to login, global loading bar), called only from a feature's `infrastructure/`. The legacy helpers `get/post/put/del/patch` return `error.response` or `null` on failure and are `@deprecated`; migrated code uses the default `apiClient` and handles errors explicitly. Responses use the envelope `{ code, message, data, pagination? }`.
+All HTTP goes through `src/lib/http/apiClient.ts` (Bearer token, 401 refresh with a request queue, redirect to login, global loading bar), called only from a feature's `infrastructure/`. The client rejects on an HTTP error, so queries report `isError` and mutations their `onError`; there are no error-swallowing helpers (the old `get/post/put/del/patch/download` ones were removed). Responses use the envelope `{ code, message, data, pagination? }`.
 
 ## Accounting and money
 

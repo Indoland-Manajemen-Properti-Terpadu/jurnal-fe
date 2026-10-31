@@ -4,18 +4,18 @@ Financial reports: a catalog page and ten report pages (balance sheet, general l
 
 ## Routes (`src/router/routes.ts`)
 
-| Constant | Path | Page |
-| --- | --- | --- |
-| `resultReport.main` | `/result-reports` | `ReportCatalogPage` |
-| `resultReport.balanceSheet` | `/result-reports/business-overview/balance-sheet` | `BalanceSheetPage` |
-| `resultReport.generalLedgerReport` | `.../general-ledger` | `GeneralLedgerPage` |
-| `resultReport.trialBalance` | `.../trial-balance` | `TrialBalancePage` |
-| `resultReport.incomeStatement` | `.../income-statement` | `IncomeStatementPage` |
-| `resultReport.incomeStatementBudget` | `.../income-statement-budget` | `IncomeStatementBudgetPage` |
-| `resultReport.cashFlow` | `.../cash-flow` | `CashFlowPage` |
-| `resultReport.journalEntry` | `.../journal-entry` | `JournalEntryReportPage` |
-| `resultReport.businessSummary` | `.../business-summary` | `BusinessSummaryPage` |
-| `resultReport.equityChanges` | `.../equity-changes` | `EquityChangesPage` |
+| Constant                                                          | Path                                                         | Page                                             |
+| ----------------------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------ |
+| `resultReport.main`                                               | `/result-reports`                                            | `ReportCatalogPage`                              |
+| `resultReport.balanceSheet`                                       | `/result-reports/business-overview/balance-sheet`            | `BalanceSheetPage`                               |
+| `resultReport.generalLedgerReport`                                | `.../general-ledger`                                         | `GeneralLedgerPage`                              |
+| `resultReport.trialBalance`                                       | `.../trial-balance`                                          | `TrialBalancePage`                               |
+| `resultReport.incomeStatement`                                    | `.../income-statement`                                       | `IncomeStatementPage`                            |
+| `resultReport.incomeStatementBudget`                              | `.../income-statement-budget`                                | `IncomeStatementBudgetPage`                      |
+| `resultReport.cashFlow`                                           | `.../cash-flow`                                              | `CashFlowPage`                                   |
+| `resultReport.journalEntry`                                       | `.../journal-entry`                                          | `JournalEntryReportPage`                         |
+| `resultReport.businessSummary`                                    | `.../business-summary`                                       | `BusinessSummaryPage`                            |
+| `resultReport.equityChanges`                                      | `.../equity-changes`                                         | `EquityChangesPage`                              |
 | `resultReport.budgetManagement`, `SettingBudget.BudgetManagement` | `.../budget-management`, `/setting-budget/budget-management` | `BudgetManagementPage` (same page on both paths) |
 
 `resultReport.legacyBusinessSumary` (`.../business-sumary`, the old misspelling) redirects to `businessSummary`. `resultReport.businessOverview` has no page and is a known orphan in `routes.test.ts`. `index.ts` exports the eleven pages.
@@ -29,7 +29,7 @@ Financial reports: a catalog page and ten report pages (balance sheet, general l
 ## Layers
 
 - `domain/`: report types (`balanceSheet`, `balanceSheetReport`, `generalLedger`, `TrialBalanceReport`, `JournalEntry`, `IncomeStatement`, `EquityChange`), `reportFormat` (money and date display, period presets) and `journalEntryTotals`, with tests.
-- `infrastructure/`: `balanceSheetApi` + `balanceSheetMapper`, `generalLedgerApi` + `generalLedgerMapper`, `businessOverviewApi` (the five legacy-helper fetches), `exportReport` (download and save a file), `reportEndpoints`, `reportValue` (`safeNumber`, `safeString`, `asRecord`, `asArray`).
+- `infrastructure/`: `balanceSheetApi` + `balanceSheetMapper`, `generalLedgerApi` + `generalLedgerMapper`, `businessOverviewApi` (the five report fetches), `exportReport` (download and save a file), `reportEndpoints`, `reportValue` (`safeNumber`, `safeString`, `asRecord`, `asArray`).
 - `presentation/`: pages, components grouped per report (`shared`, `balance-sheet`, `general-ledger`, `catalog`, ...), hooks (`useBalanceSheet`, `useGeneralLedger`, one `use*Report` per business-overview report, `usePeriodOptions`). The catalog data (`catalog/reportCatalogData.ts`) lives here because it holds icon components.
 
 ## Domain rules
@@ -49,7 +49,7 @@ Namespace `reports` (`id` and `en`), composed from `reportsCommon`, `reportsCata
 
 ## Known gaps
 
-- The five `businessOverviewApi` fetches use the legacy `get` helper, which returns the Axios error response (or `null`) instead of throwing, so a failed report renders its empty state rather than an error state. Changing that is a behavior change reserved for a separate decision.
+- A failed report request rejects, so the trial balance, income statement and equity pages show their error state (not found); the journal entry report and balance sheet summary show their empty state because they have no error branch yet.
 - Cash flow, business summary, income statement budget and budget management are placeholder pages: their tables show fixed sample numbers and sample dates (`19 Sept 2021`, `Budget Testing 1`), and `BusinessSummaryTable` and `CashFlowTable` call `useJournalAccounts()` without using the result (kept to preserve the request). The "Business Sumary Report" title keeps its typo because it is visible text.
 - English-only legacy text (cash flow and summary rows, journal, equity and budget tables) has the same English value in `id` and `en`; real Indonesian copy is a product decision.
 - Export failures on the income statement and equity changes pages still use `alert` (3 `no-alert` and 1 `new-cap` for `jsPDF` remain in the lint baseline).

@@ -8,8 +8,8 @@ import ModuleHeader from '@/components/ModuleHeader/ModuleHeader';
 import { routes } from '@/router/routes';
 import { useTranslation } from '@/i18n';
 import { useRoles, useUsers } from '@/module/user-management';
-import { GetCategoryAccount } from '../hooks/useCategoryAccounts';
-import { useGetCategoryInfo } from '../hooks/useCategoryInfo';
+import { useCategoryAccounts } from '@/module/chart-of-accounts/presentation/hooks/useCategoryAccounts';
+import { useCategoryInfo } from '@/module/chart-of-accounts/presentation/hooks/useCategoryInfo';
 import { useAddAccount } from '../hooks/useAddAccount';
 import { useAccountFormOptions } from '../hooks/useAccountFormOptions';
 import { useAccountPlacementState } from '../hooks/useAccountPlacementState';
@@ -41,7 +41,7 @@ export const AddAccountJournalPage: React.FC = () => {
   const validationMessage = (key: string | null) => (key ? t(key) : null);
 
   // Queries
-  const { data: categoryAccounts, isLoading: isLoadingCategories } = GetCategoryAccount();
+  const { data: categoryAccounts, isLoading: isLoadingCategories } = useCategoryAccounts();
   const { data: usersData, isLoading: isLoadingUsers } = useUsers();
   const { data: rolesData, isLoading: isLoadingRoles } = useRoles();
   const addAccountMutation = useAddAccount();
@@ -81,7 +81,7 @@ export const AddAccountJournalPage: React.FC = () => {
   } = useAccountPlacementState();
 
   // Category Info query for suggestions & hierarchy options
-  const { data: categoryInfo } = useGetCategoryInfo(form.values.category);
+  const { data: categoryInfo } = useCategoryInfo(form.values.category);
 
   // Derived Grouped Dropdown Data (Grouped by Neraca 1-3 vs Laba Rugi 4-8)
   const categoryOptions = useMemo(

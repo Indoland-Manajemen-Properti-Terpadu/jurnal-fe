@@ -1,4 +1,4 @@
-import { download } from '@/lib/http/apiClient';
+import apiClient from '@/lib/http/apiClient';
 
 interface ExportReportParams {
   url: string; // The endpoint for the report
@@ -28,7 +28,10 @@ export const exportReport = async ({
   errorExportFailed = 'Failed to export the report. Please try again.',
 }: ExportReportParams) => {
   try {
-    const response = await download(url, { fromDate, toDate, type });
+    const response = await apiClient.get<Blob>(url, {
+      params: { fromDate, toDate, type },
+      responseType: 'blob',
+    });
     if (!response || !response.data) {
       throw new Error(errorNoData);
     }

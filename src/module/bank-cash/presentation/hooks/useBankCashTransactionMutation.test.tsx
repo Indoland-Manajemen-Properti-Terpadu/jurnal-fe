@@ -3,10 +3,18 @@ import { MemoryRouter } from 'react-router-dom';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
-import { postV2 } from '@/lib/http/apiClient';
+import apiClient from '@/lib/http/apiClient';
 import { useBankCashTransactionMutation } from './useBankCashTransactionMutation';
 
-vi.mock('@/lib/http/apiClient', () => ({ postV2: vi.fn() }));
+vi.mock('@/lib/http/apiClient', () => ({ default: { post: vi.fn() } }));
+
+const post = vi.mocked(apiClient.post);
+/** What the shared client rejects with on an HTTP error (axios.isAxiosError looks at this flag). */
+const httpError = (status: number, data: unknown) =>
+  Object.assign(new Error(`Request failed with status code ${status}`), {
+    isAxiosError: true,
+    response: { status, statusText: '', data },
+  });
 vi.mock('@mantine/notifications', () => ({ notifications: { show: vi.fn() } }));
 
 const navigate = vi.fn();
@@ -34,13 +42,13 @@ const setup = () => {
 
 describe('useBankCashTransactionMutation', () => {
   beforeEach(() => {
-    vi.mocked(postV2).mockReset();
+    post.mockReset();
     vi.mocked(notifications.show).mockReset();
     navigate.mockReset();
   });
 
   it('refreshes the account and journal queries and returns to cash and bank on success', async () => {
-    vi.mocked(postV2).mockResolvedValue({ status: 201, data: {} } as never);
+    post.mockResolvedValue({ status: 201, data: {} } as never);
     const { hook, invalidate } = setup();
 
     act(() => hook.result.current.mutate(payload));
@@ -58,10 +66,7 @@ describe('useBankCashTransactionMutation', () => {
   });
 
   it('shows the error and stays on the form when the post fails', async () => {
-    vi.mocked(postV2).mockResolvedValue({
-      status: 400,
-      data: { message: 'Periode terkunci' },
-    } as never);
+    post.mockRejectedValue(httpError(400, { message: 'Periode terkunci' }));
     const { hook, invalidate } = setup();
 
     act(() => hook.result.current.mutate(payload));

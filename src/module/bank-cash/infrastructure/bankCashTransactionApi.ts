@@ -1,6 +1,21 @@
-import { postV2 } from '@/lib/http/apiClient';
+import axios from 'axios';
+import apiClient from '@/lib/http/apiClient';
 import { API_ACCOUNT } from '@/lib/http/endpoints';
 import type { BankCashTransactionPayload } from '@/module/bank-cash/domain/transactionTypes';
+
+const DEFAULT_FAILURE = 'Gagal membukukan transaksi kas & bank ke sistem akuntansi.';
+
+/** The server's own message when it sent one, otherwise the status text, otherwise a default. */
+const failureMessage = (error: unknown): string => {
+  if (axios.isAxiosError(error)) {
+    return (
+      (error.response?.data as { message?: string } | undefined)?.message ||
+      error.response?.statusText ||
+      DEFAULT_FAILURE
+    );
+  }
+  return DEFAULT_FAILURE;
+};
 
 export const submitBankCashTransaction = async (data: BankCashTransactionPayload) => {
   const payload: Record<string, unknown> = {
@@ -23,13 +38,10 @@ export const submitBankCashTransaction = async (data: BankCashTransactionPayload
     payload.tags = data.tags;
   }
 
-  const response = await postV2(API_ACCOUNT.POST_TRANSACTION_ACCOUNT, payload);
-  if (!response || (response.status !== 200 && response.status !== 201)) {
-    const errorMsg =
-      response?.data?.message ||
-      response?.statusText ||
-      'Gagal membukukan transaksi kas & bank ke sistem akuntansi.';
-    throw new Error(errorMsg);
+  try {
+    const response = await apiClient.post(API_ACCOUNT.POST_TRANSACTION_ACCOUNT, payload);
+    return response.data;
+  } catch (error) {
+    throw new Error(failureMessage(error));
   }
-  return response.data;
 };

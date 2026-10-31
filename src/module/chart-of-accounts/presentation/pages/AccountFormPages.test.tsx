@@ -16,7 +16,7 @@ vi.mock('@/module/user-management', () => ({
   useRoles: () => ({ data: [], isLoading: false }),
 }));
 vi.mock('../hooks/useCategoryAccounts', () => ({
-  GetCategoryAccount: () => ({
+  useCategoryAccounts: () => ({
     data: [
       { id: 'c-kb', categoryID: 'KB', name: 'Kas & Bank', isDebit: true },
       { id: 'c-pen', categoryID: 'PEN', name: 'Pendapatan', isDebit: false },
@@ -25,7 +25,7 @@ vi.mock('../hooks/useCategoryAccounts', () => ({
   }),
 }));
 vi.mock('../hooks/useCategoryInfo', () => ({
-  useGetCategoryInfo: (id?: string) => ({
+  useCategoryInfo: (id?: string) => ({
     data: id
       ? {
           suggestedAccountNumber: '1-10001',
