@@ -13,6 +13,14 @@ How money and ledger rules are handled in the frontend. Product behavior comes f
 
 Money math uses integer minor units through `src/lib/money` (`toMinor`, `fromMinor`, `sumMinor`). Convert at the API boundary, sum with `sumMinor`, never add or compare money as floats in views. See [ADR 0005](adr/0005-integer-money-and-localstorage-tokens.md) and [migration/money-audit.md](migration/money-audit.md).
 
+## Tax, discount and depreciation
+
+- **VAT (PPN) base:** VAT is charged on the price after the discount (DPP). An invoice discount is shared over the lines in proportion to their subtotal before each line's tax is computed; withholding (PPh) uses subtotal minus discount. A discount never exceeds the amount it applies to.
+- **Receivables:** draft and void sales are not receivables (never overdue, not in receivable totals). A payment may not be zero, negative or above what is still owed.
+- **Revenue:** monthly sales are net sales before VAT and withholding, not the invoice total.
+- **Working capital:** current assets minus current liabilities only.
+- **Depreciation:** list and schedule share one rule per method; the final year closes to the residual value.
+
 ## Ledger rules
 
 Pure ledger rules (normal balance, journal balance, opening-balance and reconciliation gates, chart-of-accounts prefix) live in `src/lib/accounting` with no React or HTTP. Gates are exact and reject sub-cent amounts; display helpers round half up to the cent. A backend category flag or code always wins over a name keyword. See [`src/lib/accounting/README.md`](../src/lib/accounting/README.md).

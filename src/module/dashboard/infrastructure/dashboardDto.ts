@@ -35,6 +35,8 @@ export type SaleDto = {
   dueDate?: string | null;
   status?: string;
   finalAmount?: unknown;
+  subtotal?: unknown;
+  discountAmount?: unknown;
   total?: unknown;
   paidAmount?: unknown;
   remainingAmount?: unknown;

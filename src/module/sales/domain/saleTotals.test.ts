@@ -120,10 +120,35 @@ const totals = (
   });
 
 describe('calculateSaleTotals', () => {
-  it.each([
-    [[{ quantity: 2, unitPrice: 1000000, rate: 11 }], 'percentage', 10, 'nominal', 50000],
-    [[{ quantity: 1, unitPrice: 100, rate: 0 }], 'nominal', 0, 'nominal', 500],
-    [
+  it('matches the legacy float result when there is no discount (nothing to charge tax before)', () => {
+    const items = [{ quantity: 1, unitPrice: 100, rate: 0 }];
+
+    expect(totals(items, 'nominal', 0, 'nominal', 500)).toEqual(
+      legacyCalculate(items, 'nominal', 0, 'nominal', 500)
+    );
+  });
+
+  it('charges VAT on the price after the discount (DPP) and withholds on the same base', () => {
+    const result = totals(
+      [{ quantity: 2, unitPrice: 1000000, rate: 11 }],
+      'percentage',
+      10,
+      'nominal',
+      50000
+    );
+
+    expect(result).toEqual({
+      subtotal: 2000000,
+      discountAmount: 200000,
+      taxTotal: 198000,
+      total: 1998000,
+      withholdingAmount: 50000,
+      finalAmount: 1948000,
+    });
+  });
+
+  it('shares an invoice discount over the lines so only taxed lines carry their part', () => {
+    const result = totals(
       [
         { quantity: 3, unitPrice: 250000, rate: 11 },
         { quantity: 1, unitPrice: 1200000, rate: 0 },
@@ -131,16 +156,33 @@ describe('calculateSaleTotals', () => {
       'nominal',
       100000,
       'percentage',
-      2,
-    ],
-  ] as const)(
-    'matches the legacy float result for whole-rupiah input %#',
-    (items, dt, dv, wt, wv) => {
-      expect(totals([...items], dt, dv, wt, wv)).toEqual(
-        legacyCalculate([...items], dt, dv, wt, wv)
-      );
-    }
-  );
+      2
+    );
+
+    expect(result.subtotal).toBe(1950000);
+    expect(result.discountAmount).toBe(100000);
+    expect(result.taxTotal).toBe(78269.23);
+    expect(result.total).toBe(1928269.23);
+    expect(result.withholdingAmount).toBe(37000);
+    expect(result.finalAmount).toBe(1891269.23);
+  });
+
+  it('keeps the discount shares exact when they do not divide evenly', () => {
+    const result = totals(
+      [
+        { quantity: 1, unitPrice: 100, rate: 10 },
+        { quantity: 1, unitPrice: 100, rate: 10 },
+        { quantity: 1, unitPrice: 100, rate: 10 },
+      ],
+      'nominal',
+      100
+    );
+
+    expect(result.discountAmount).toBe(100);
+    // 100 over 3 lines = 33.33 + 33.33 + 33.34, so the taxable parts are 66.67, 66.67 and 66.66
+    expect(result.taxTotal).toBe(20.01);
+    expect(result.total).toBe(220.01);
+  });
 
   it('adds decimal amounts without float drift', () => {
     const result = totals([
@@ -171,7 +213,7 @@ describe('calculateSaleTotals', () => {
     expect(totals([{ quantity: 1, unitPrice: 1000.01, rate: 11 }]).taxTotal).toBe(110);
   });
 
-  it('applies a percentage discount and withholding to the subtotal', () => {
+  it('applies a percentage discount, then VAT and withholding on what is left', () => {
     const result = totals(
       [{ quantity: 1, unitPrice: 1000.5, rate: 11 }],
       'percentage',
@@ -181,9 +223,10 @@ describe('calculateSaleTotals', () => {
     );
 
     expect(result.discountAmount).toBe(125.06);
-    expect(result.withholdingAmount).toBe(20.01);
-    expect(result.total).toBe(985.5);
-    expect(result.finalAmount).toBe(965.49);
+    expect(result.taxTotal).toBe(96.3);
+    expect(result.withholdingAmount).toBe(17.51);
+    expect(result.total).toBe(971.74);
+    expect(result.finalAmount).toBe(954.23);
   });
 
   it('ignores zero or negative discount and withholding values', () => {

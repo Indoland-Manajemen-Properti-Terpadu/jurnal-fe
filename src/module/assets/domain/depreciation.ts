@@ -60,6 +60,22 @@ export const resolveAssetStatus = (
   return current === 'disposed' ? 'disposed' : 'active';
 };
 
+/**
+ * Expense of one year of double-declining-balance depreciation: the rate is twice the straight-line
+ * rate, never takes the book value below the residual value, and the last year closes to it.
+ */
+const decliningYearExpense = (
+  beginning: number,
+  residual: number,
+  usefulLifeYears: number,
+  year: number
+): number => {
+  const expense = Math.round(beginning * (2 / usefulLifeYears));
+  return beginning - expense < residual || year >= usefulLifeYears
+    ? Math.max(0, beginning - residual)
+    : expense;
+};
+
 export const calculateAssetDepreciation = (
   cost: number,
   residual: number,
@@ -93,21 +109,22 @@ export const calculateAssetDepreciation = (
   }
 
   if (method === 'double_declining') {
-    const annualRate = 2 / usefulLifeYears;
+    // Same year-by-year rule as the schedule, so the list and the schedule always agree: the
+    // balance falls by the declining rate each year and the last year closes to the residual value.
+    if (monthsElapsed >= totalMonths) {
+      return { accumulatedDepreciation: Math.round(cost - residual), netBookValue: residual };
+    }
+    const fullYears = Math.floor(monthsElapsed / 12);
+    const partialYearFraction = (monthsElapsed % 12) / 12;
     let currentBookValue = cost;
-    const yearsElapsed = Math.min(usefulLifeYears, monthsElapsed / 12);
-    const fullYears = Math.floor(yearsElapsed);
-    const partialYearFraction = yearsElapsed - fullYears;
-
-    for (let y = 0; y < fullYears; y += 1) {
-      const depYear = currentBookValue * annualRate;
-      currentBookValue = Math.max(residual, currentBookValue - depYear);
+    for (let year = 1; year <= fullYears; year += 1) {
+      currentBookValue -= decliningYearExpense(currentBookValue, residual, usefulLifeYears, year);
     }
-    if (partialYearFraction > 0 && currentBookValue > residual) {
-      const depPartial = currentBookValue * annualRate * partialYearFraction;
-      currentBookValue = Math.max(residual, currentBookValue - depPartial);
+    if (partialYearFraction > 0) {
+      currentBookValue -=
+        decliningYearExpense(currentBookValue, residual, usefulLifeYears, fullYears + 1) *
+        partialYearFraction;
     }
-
     return {
       accumulatedDepreciation: Math.round(cost - currentBookValue),
       netBookValue: Math.round(currentBookValue),
@@ -147,7 +164,6 @@ export const generateDepreciationSchedule = (asset: AssetItem): DepreciationSche
   const depreciableAmount = Math.max(0, acquisitionCost - residualValue);
   const annualDep =
     depreciationMethod === 'straight_line' ? Math.round(depreciableAmount / usefulLifeYears) : 0;
-  const rate = 2 / usefulLifeYears;
 
   for (let i = 1; i <= usefulLifeYears; i += 1) {
     const isLastYear = i === usefulLifeYears;
@@ -157,10 +173,7 @@ export const generateDepreciationSchedule = (asset: AssetItem): DepreciationSche
         ? Math.max(0, currentBeginning - residualValue)
         : Math.min(annualDep, currentBeginning - residualValue);
     } else {
-      expense = Math.round(currentBeginning * rate);
-      if (currentBeginning - expense < residualValue || isLastYear) {
-        expense = Math.max(0, currentBeginning - residualValue);
-      }
+      expense = decliningYearExpense(currentBeginning, residualValue, usefulLifeYears, i);
     }
     runningAccum += expense;
     const ending = Math.max(residualValue, currentBeginning - expense);

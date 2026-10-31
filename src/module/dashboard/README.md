@@ -33,3 +33,8 @@ Namespace `dashboard` (`id` and `en`); `src/i18n/locales/dashboard.test.ts` chec
 - `getReceivableAging` and `getTopDebtors` keep Indonesian default labels for callers that pass none; the page always passes translated ones.
 - Currency and date formats use fixed `id-ID` number formatting (dates follow the language).
 - A sum beyond about 90 trillion rupiah would exceed safe integer cents and throw.
+
+## Financial figures (2026-10-31)
+
+- **Net working capital** is current assets minus current liabilities. Current liabilities are all balance sheet liabilities except long-term ones (category `KJP`, or a name containing "panjang"); without line detail the total liabilities are used.
+- **Monthly sales** (the revenue tile) sums net sales, the invoice subtotal minus the discount, before VAT and before withholding. The invoice total is only the fallback when the API sends no subtotal.

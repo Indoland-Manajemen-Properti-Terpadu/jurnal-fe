@@ -43,3 +43,7 @@ Server data and cache are TanStack Query (`saleKeys`, unchanged). Errors from `s
 
 - A discount (percentage or nominal) is capped at the subtotal, so the total and the final amount are never negative.
 - Draft and void sales are not receivables: `isPastDue` is false for them and `summarizeSales` leaves them out of every figure, like the dashboard does.
+
+## VAT and withholding base (2026-10-31)
+
+The create-invoice preview charges VAT on the price after the discount (the tax base, DPP): the invoice discount is shared over the lines in proportion to their subtotal (largest remainder, so the shares add up exactly) and each line's tax is computed on what is left of it. Withholding (PPh) uses the same base, subtotal minus discount. Before, VAT and withholding were computed on the subtotal before the discount, so a discounted invoice showed too much tax. The preview is informational; the server owns the posted amounts.

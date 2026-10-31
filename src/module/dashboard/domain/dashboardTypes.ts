@@ -29,6 +29,8 @@ export type SaleSummary = {
   dueDate: string | null;
   status: string;
   finalAmount: number;
+  /** Sales before VAT and withholding (subtotal minus discount); absent when the API sent no subtotal. */
+  netSales?: number;
   paidAmount: number;
   remainingAmount: number;
 };

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { DataTable } from 'mantine-datatable';
 import {
   Badge,
@@ -37,6 +37,9 @@ const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
   selectedCategory = null,
 }) => {
   const { t } = useTranslation('beginningBalances');
+  // The text being typed in one field, so a trailing comma or decimal digits survive re-formatting.
+  const [draft, setDraft] = useState<{ key: string; text: string } | null>(null);
+  const shown = (key: string, formatted: string) => (draft?.key === key ? draft.text : formatted);
   // Filter records based on search and category
   const filteredRecords = useMemo(
     () =>
@@ -60,10 +63,12 @@ const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
   );
 
   const handleValueChange = (accountId: string, field: 'debit' | 'credit', rawString: string) => {
+    setDraft({ key: `${accountId}:${field}`, text: rawString });
     onChange(applyAmountEntry(data, accountId, field, rawString));
   };
 
   const handleClearRow = (accountId: string) => {
+    setDraft(null);
     onChange(clearAccountRow(data, accountId));
   };
 
@@ -171,8 +176,9 @@ const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
                   Rp
                 </Text>
               }
-              value={hasVal ? numberFormat(debitVal) : ''}
+              value={shown(`${accountKey(item)}:debit`, hasVal ? numberFormat(debitVal) : '')}
               onChange={(e) => handleValueChange(accountKey(item), 'debit', e.target.value)}
+              onBlur={() => setDraft(null)}
               styles={{
                 root: {
                   width: '100%',
@@ -245,8 +251,9 @@ const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
                   Rp
                 </Text>
               }
-              value={hasVal ? numberFormat(creditVal) : ''}
+              value={shown(`${accountKey(item)}:credit`, hasVal ? numberFormat(creditVal) : '')}
               onChange={(e) => handleValueChange(accountKey(item), 'credit', e.target.value)}
+              onBlur={() => setDraft(null)}
               styles={{
                 root: {
                   width: '100%',

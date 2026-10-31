@@ -46,3 +46,11 @@ describe('dashboardMapper', () => {
     expect(bs.totalEquity).toBe(0);
   });
 });
+
+describe('mapSale net sales', () => {
+  it('is the subtotal minus the discount, and absent when the API sends no subtotal', () => {
+    expect(mapSale({ id: 'a', finalAmount: 1110, subtotal: 1000, discountAmount: 0 }).netSales).toBe(1000);
+    expect(mapSale({ id: 'b', finalAmount: 990, subtotal: 1000, discountAmount: 100 }).netSales).toBe(900);
+    expect(mapSale({ id: 'c', finalAmount: 500 }).netSales).toBeUndefined();
+  });
+});

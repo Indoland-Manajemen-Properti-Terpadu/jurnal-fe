@@ -67,15 +67,36 @@ export const mergeDraftIntoAccounts = (
     };
   });
 
-/** Integer-only entry: every non digit is dropped; entering a positive value clears the other side. */
+/**
+ * Parses an amount typed or pasted in the Indonesian format into a number rounded to the cent.
+ * A comma is the decimal mark and dots group thousands (`1.500,50` is 1500.5); a dot followed by
+ * one or two final digits is read as a decimal point (`1500.5`); any other dot is a thousands
+ * separator (`1.500.000`). Everything else that is not a digit is dropped, and a negative sign is
+ * ignored because the side (debit or credit) carries the direction.
+ */
+export const parseAmountEntry = (raw: string): number => {
+  const text = raw.replace(/[^\d.,]/g, '');
+  let normalized: string;
+  if (text.includes(',')) {
+    normalized = text.replace(/\./g, '').replace(',', '.');
+  } else if (/^\d+\.\d{1,2}$/.test(text)) {
+    normalized = text;
+  } else {
+    normalized = text.replace(/\./g, '');
+  }
+  const value = Number(normalized.replace(/(\..*)\./g, '$1'));
+  if (!Number.isFinite(value)) return 0;
+  return Math.round(Number((value * 100).toPrecision(15))) / 100;
+};
+
+/** Typed entry: parsed to the cent; entering a positive value clears the other side. */
 export const applyAmountEntry = (
   rows: JournalAccounts[],
   accountId: string,
   field: 'debit' | 'credit',
   raw: string
 ): JournalAccounts[] => {
-  const digits = raw.replace(/\D/g, '');
-  const value = digits ? parseInt(digits, 10) : 0;
+  const value = parseAmountEntry(raw);
   const opposite = field === 'debit' ? 'credit' : 'debit';
   return rows.map((acc) =>
     accountKey(acc) === accountId
