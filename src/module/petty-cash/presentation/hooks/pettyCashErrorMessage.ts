@@ -20,6 +20,8 @@ export const KNOWN_ERROR_CODES = [
   'EXPENSE_ACCOUNT_REQUIRED',
   'INVALID_EXPENSE_ACCOUNT',
   'FUND_HAS_OPEN_ITEMS',
+  'TAX_INVOICE_REQUIRED',
+  'FUTURE_DATE_NOT_ALLOWED',
 ] as const;
 
 type Translate = (key: string) => string;

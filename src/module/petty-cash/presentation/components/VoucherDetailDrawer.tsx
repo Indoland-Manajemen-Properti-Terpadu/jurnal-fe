@@ -1,26 +1,18 @@
-import {
-  Alert,
-  Anchor,
-  Box,
-  Divider,
-  Drawer,
-  Group,
-  Skeleton,
-  Stack,
-  Table,
-  Text,
-} from '@mantine/core';
-import { IconAlertTriangle, IconPaperclip } from '@tabler/icons-react';
+import { Alert, Box, Divider, Drawer, Group, Skeleton, Stack, Table, Text } from '@mantine/core';
+import { IconAlertTriangle } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import { formatCurrency } from '@/utils/formatCurrency';
 import { dateFormatV1 } from '@/utils/formatDate';
+import type { PettyCashFund } from '@/module/petty-cash/domain/pettyCashEntities';
 import { voucherBreakdown } from '@/module/petty-cash/domain/pettyCashView';
 import { PettyCashStatusBadge } from '@/module/petty-cash/presentation/components/PettyCashStatusBadge';
+import { VoucherActions } from '@/module/petty-cash/presentation/components/VoucherActions';
+import { VoucherAttachmentsPanel } from '@/module/petty-cash/presentation/components/VoucherAttachmentsPanel';
 import { QueryErrorState } from '@/module/petty-cash/presentation/components/QueryErrorState';
-import { useOpenAttachment } from '@/module/petty-cash/presentation/hooks/useOpenAttachment';
 import { usePettyCashVoucher } from '@/module/petty-cash/presentation/hooks/usePettyCashQueries';
 
 interface Props {
+  fund: PettyCashFund;
   /** Kept while the drawer slides closed, so the body does not blank out during the transition. */
   voucherId: string | null;
   opened: boolean;
@@ -56,10 +48,9 @@ const warningText = (
     : t('drawer.warningGeneric');
 };
 
-export function VoucherDetailDrawer({ voucherId, opened, onClose }: Readonly<Props>) {
+export function VoucherDetailDrawer({ fund, voucherId, opened, onClose }: Readonly<Props>) {
   const { t, currentLanguage } = useTranslation('pettyCash');
   const query = usePettyCashVoucher(voucherId ?? undefined);
-  const { open, openingId } = useOpenAttachment();
   const voucher = query.data;
   const totals = voucher ? voucherBreakdown(voucher.lines, voucher.totalAmount) : null;
 
@@ -198,39 +189,7 @@ export function VoucherDetailDrawer({ voucherId, opened, onClose }: Readonly<Pro
             </Stack>
           </Box>
 
-          <Box>
-            <Text fw={700} mb="xs">
-              {t('drawer.attachments')}
-            </Text>
-            {voucher.attachments.length === 0 ? (
-              <Text size="sm" c="dimmed">
-                {t('drawer.noAttachments')}
-              </Text>
-            ) : (
-              <Stack gap={6}>
-                {voucher.attachments.map((attachment) => (
-                  <Anchor
-                    key={attachment.id}
-                    component="button"
-                    type="button"
-                    size="sm"
-                    ta="left"
-                    disabled={openingId === attachment.id}
-                    onClick={() => open(attachment.id)}
-                    aria-label={t('drawer.openAttachment', { name: attachment.fileName })}
-                  >
-                    <Group gap={6} wrap="nowrap">
-                      <IconPaperclip size={14} />
-                      {attachment.fileName}
-                    </Group>
-                  </Anchor>
-                ))}
-                <Text size="xs" c="dimmed">
-                  {t('drawer.attachmentLinkNote')}
-                </Text>
-              </Stack>
-            )}
-          </Box>
+          <VoucherAttachmentsPanel voucher={voucher} fund={fund} />
 
           <Box>
             <Text fw={700} mb="xs">
@@ -254,6 +213,7 @@ export function VoucherDetailDrawer({ voucherId, opened, onClose }: Readonly<Pro
               />
             </Stack>
           </Box>
+          <VoucherActions voucher={voucher} fund={fund} onChanged={onClose} />
         </Stack>
       )}
     </Drawer>

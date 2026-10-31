@@ -7,6 +7,7 @@ import type {
   PettyCashLookups,
   PettyCashVoucherRecord,
 } from '@/module/petty-cash/domain/pettyCashEntities';
+import type { VoucherInput } from '@/module/petty-cash/domain/voucherForm';
 import type { PettyCashAccessProfile } from '@/module/petty-cash/domain/pettyCashAccess';
 import type { FundStatus, VoucherStatus } from '@/module/petty-cash/domain/pettyCashStatus';
 import type {
@@ -145,4 +146,127 @@ export const getAccessProfile = async (): Promise<PettyCashAccessProfile> => {
     apiClient.get<MyPermissionsDto>(PETTY_CASH_API.myPermissions)
   );
   return toAccessProfile(userId, permissions);
+};
+
+const IDEMPOTENCY_HEADER = 'Idempotency-Key';
+
+const voucherFrom = (body: ApiEnvelope<VoucherDto>) => toVoucher(body.data);
+
+/**
+ * Create is JSON, or multipart when receipts travel with it (`lines` is then a JSON string and
+ * `submit` the text "true"/"false"). `submit: true` sends the voucher straight into approval or,
+ * below the fund's approval threshold, into the waiting-for-replenishment state.
+ */
+export const createVoucher = async (
+  params: { fundId: string; input: VoucherInput; submit: boolean; files?: File[] },
+  idempotencyKey: string
+): Promise<PettyCashVoucherRecord> => {
+  const { fundId, input, submit, files = [] } = params;
+  const config = { headers: { [IDEMPOTENCY_HEADER]: idempotencyKey } };
+
+  if (files.length === 0) {
+    const body = await request(() =>
+      apiClient.post<ApiEnvelope<VoucherDto>>(
+        PETTY_CASH_API.vouchers,
+        { fundId, ...input, submit },
+        config
+      )
+    );
+    return voucherFrom(body);
+  }
+
+  const form = new FormData();
+  form.append('fundId', fundId);
+  form.append('date', input.date);
+  form.append('beneficiary', input.beneficiary);
+  (['receiptNumber', 'description', 'taxInvoiceNumber', 'vendorTaxId'] as const).forEach(
+    (field) => {
+      const value = input[field];
+      if (value !== undefined) form.append(field, value);
+    }
+  );
+  form.append('lines', JSON.stringify(input.lines));
+  form.append('submit', submit ? 'true' : 'false');
+  files.forEach((file) => form.append('attachments', file));
+
+  const body = await request(() =>
+    apiClient.post<ApiEnvelope<VoucherDto>>(PETTY_CASH_API.vouchers, form, config)
+  );
+  return voucherFrom(body);
+};
+
+/** Update replaces the whole voucher (draft or rejected only); a rejected one returns to draft. */
+export const updateVoucher = async (
+  voucherId: string,
+  input: VoucherInput
+): Promise<PettyCashVoucherRecord> => {
+  const body = await request(() =>
+    apiClient.patch<ApiEnvelope<VoucherDto>>(PETTY_CASH_API.voucher(voucherId), {
+      ...input,
+      submit: false,
+    })
+  );
+  return voucherFrom(body);
+};
+
+export const submitVoucher = async (voucherId: string, idempotencyKey: string) => {
+  const body = await request(() =>
+    apiClient.post<ApiEnvelope<VoucherDto>>(
+      PETTY_CASH_API.voucherAction(voucherId, 'submit'),
+      undefined,
+      { headers: { [IDEMPOTENCY_HEADER]: idempotencyKey } }
+    )
+  );
+  return voucherFrom(body);
+};
+
+export const approveVoucher = async (voucherId: string, idempotencyKey: string) => {
+  const body = await request(() =>
+    apiClient.post<ApiEnvelope<VoucherDto>>(
+      PETTY_CASH_API.voucherAction(voucherId, 'approve'),
+      undefined,
+      { headers: { [IDEMPOTENCY_HEADER]: idempotencyKey } }
+    )
+  );
+  return voucherFrom(body);
+};
+
+const decideWithReason = async (
+  voucherId: string,
+  action: 'reject' | 'void',
+  reason: string,
+  idempotencyKey: string
+) => {
+  const body = await request(() =>
+    apiClient.post<ApiEnvelope<VoucherDto>>(
+      PETTY_CASH_API.voucherAction(voucherId, action),
+      { reason: reason.trim() },
+      { headers: { [IDEMPOTENCY_HEADER]: idempotencyKey } }
+    )
+  );
+  return voucherFrom(body);
+};
+
+export const rejectVoucher = (voucherId: string, reason: string, idempotencyKey: string) =>
+  decideWithReason(voucherId, 'reject', reason, idempotencyKey);
+
+export const voidVoucher = (voucherId: string, reason: string, idempotencyKey: string) =>
+  decideWithReason(voucherId, 'void', reason, idempotencyKey);
+
+export const uploadVoucherAttachments = async (voucherId: string, files: File[]) => {
+  const form = new FormData();
+  files.forEach((file) => form.append('attachments', file));
+  const body = await request(() =>
+    apiClient.post<ApiEnvelope<VoucherDto>>(PETTY_CASH_API.voucherAttachments(voucherId), form)
+  );
+  return voucherFrom(body);
+};
+
+export const deleteVoucherAttachment = async (voucherId: string, attachmentId: string) => {
+  const body = await request(() =>
+    apiClient.delete<ApiEnvelope<VoucherDto>>(
+      PETTY_CASH_API.voucherAttachment(voucherId, attachmentId)
+    )
+  );
+  return voucherFrom(body);
 };

@@ -1,10 +1,11 @@
-import { Button, Paper, Skeleton, Text } from '@mantine/core';
+import { Button, Group, Paper, Skeleton, Text } from '@mantine/core';
 import { IconArrowLeft, IconCoins } from '@tabler/icons-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
 import { useTranslation } from '@/i18n';
 import { routes } from '@/router/routes';
 import { isValidObjectId } from '@/module/petty-cash/domain/pettyCashView';
+import { RecordVoucherButton } from '@/module/petty-cash/presentation/components/RecordVoucherButton';
 import { PettyCashWorkspace } from '@/module/petty-cash/presentation/components/PettyCashWorkspace';
 import { QueryErrorState } from '@/module/petty-cash/presentation/components/QueryErrorState';
 import { usePettyCashFund } from '@/module/petty-cash/presentation/hooks/usePettyCashQueries';
@@ -28,9 +29,12 @@ export default function PettyCashDetailPage() {
         title={fund?.name ?? t('workspace.title')}
         description={fund ? fund.code : t('workspace.subtitle')}
         actions={
-          <Button variant="default" leftSection={<IconArrowLeft size={16} />} onClick={goBack}>
-            {t('common.back')}
-          </Button>
+          <Group gap="sm">
+            <Button variant="default" leftSection={<IconArrowLeft size={16} />} onClick={goBack}>
+              {t('common.back')}
+            </Button>
+            {fund && <RecordVoucherButton fund={fund} />}
+          </Group>
         }
       />
 

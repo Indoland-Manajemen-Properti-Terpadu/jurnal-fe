@@ -102,6 +102,20 @@ describe('toPettyCashError', () => {
     expect(toPettyCashError(new Error('boom')).kind).toBe('unknown');
   });
 
+  it.each([408, 502, 503, 504])(
+    'treats HTTP %i as an unknown outcome, like a dropped connection',
+    (status) => {
+      expect(toPettyCashError(httpError(status, '<html>Bad gateway</html>')).kind).toBe('network');
+    }
+  );
+
+  it('treats a 5xx without the application envelope as unknown, but keeps an answered 500 as an answer', () => {
+    expect(toPettyCashError(httpError(500, 'proxy page')).kind).toBe('network');
+    expect(
+      toPettyCashError(httpError(500, { code: 500, message: 'Internal Server Error' })).kind
+    ).toBe('unknown');
+  });
+
   it('returns the same instance when already normalized', () => {
     const error = toPettyCashError(httpError(404, { data: { errorCode: 'NOT_FOUND' } }));
     expect(toPettyCashError(error)).toBe(error);

@@ -15,12 +15,14 @@ import { usePettyCashAccessProfile } from '@/module/petty-cash/presentation/hook
  * false, so no action is offered that the server would then refuse.
  */
 export const usePettyCashAccess = () => {
-  const { data: profile, isLoading, isError } = usePettyCashAccessProfile();
+  const { data: profile, isLoading, isError, error, refetch } = usePettyCashAccessProfile();
 
   return useMemo(
     () => ({
       isLoading,
       isError,
+      error,
+      refetch,
       userId: profile?.userId ?? null,
       can: (menu: PettyCashMenu, action: MenuAction) =>
         profile ? canAccess(profile, menu, action) : false,
@@ -29,6 +31,6 @@ export const usePettyCashAccess = () => {
       voucherActions: (voucher: VoucherAccessContext, fund: FundAccessContext) =>
         profile ? allowedVoucherActions(profile, voucher, fund) : [],
     }),
-    [profile, isLoading, isError]
+    [profile, isLoading, isError, error, refetch]
   );
 };

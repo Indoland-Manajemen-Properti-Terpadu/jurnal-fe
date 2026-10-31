@@ -49,6 +49,7 @@ export function PettyCashWorkspace({ fund }: Readonly<{ fund: PettyCashFund }>) 
         </Tabs>
       </Paper>
       <VoucherDetailDrawer
+        fund={fund}
         voucherId={selected?.id ?? null}
         opened={Boolean(selected?.open)}
         onClose={() => setSelected((current) => (current ? { ...current, open: false } : null))}

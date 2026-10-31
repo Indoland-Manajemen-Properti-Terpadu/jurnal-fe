@@ -49,3 +49,11 @@ Jurnal selalu seimbang. Saldo GL akun kas kecil tetap sebesar pagu. Persamaan `p
 30. Filter `custodianId` di `GET /funds` (atau konfirmasi bahwa FE menyaring dari `custodian.id`).
 31. Daftar user untuk picker saksi, penyetuju, dan pencair yang sudah disaring menurut hak akses (`lookups.users` mengembalikan semua user site).
 32. `GET /advance-status/me` untuk peran custodian tanpa hak `JP-PC-ADV` mengembalikan 403. Bagaimana FE tahu status blokir user itu?
+
+## F. Ditemukan di Fase 3 (P2)
+
+33. **Idempotency-Key menyimpan balasan gagal.** Key yang sama dengan body gagal yang sama memutar ulang 400; key yang sama dengan body yang sudah diperbaiki menghasilkan 422 `IDEMPOTENCY_KEY_REUSED`. Apakah balasan 5xx juga disimpan, berapa lama (TTL), dan apakah ini memang diinginkan? FE sekarang memakai key baru setelah setiap jawaban server dan hanya memakai ulang key saat koneksi putus.
+34. **Ambang bukti wajib (`attachmentRequiredThreshold`):** apakah dibandingkan dengan nominal sebelum pajak atau total termasuk pajak? FE hanya memeriksa nominal sebelum pajak; server yang menentukan.
+35. **"Hari ini" untuk `FUTURE_DATE_NOT_ALLOWED`:** zona waktu apa yang dipakai server? FE membatasi tanggal sampai hari ini menurut zona waktu browser.
+36. **Beberapa respons error bukan JSON valid** (karakter newline mentah di `stack`), misalnya `GET /v1/users?limit=50`. Mohon diperbaiki bersama penghapusan `stack`.
+37. **Desimal pada nominal:** nominal 100,5 diterima. Bagaimana pembulatan PPN dan batas jumlah desimal? FE membatasi input ke rupiah bulat sampai ada jawaban.

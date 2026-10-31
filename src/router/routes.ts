@@ -28,6 +28,8 @@ export const routes = {
   pettyCash: {
     main: '/bank-cash/petty-cash',
     detail: '/bank-cash/petty-cash/:fundId',
+    voucherAdd: '/bank-cash/petty-cash/:fundId/voucher/add',
+    voucherEdit: '/bank-cash/petty-cash/:fundId/voucher/:voucherId/edit',
   },
 
   contacts: {

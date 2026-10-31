@@ -94,10 +94,15 @@ export const toPettyCashError = (error: unknown): PettyCashError => {
     });
   }
 
+  // A timeout or a gateway failure is not an answer from the application: the request may still have
+  // been processed, so it is handled like a dropped connection.
+  if ([408, 502, 503, 504].includes(status)) return new PettyCashError({ kind: 'network', status });
   if (status === 401) return new PettyCashError({ kind: 'unauthorized', status });
   if (status === 403) return new PettyCashError({ kind: 'forbidden', status, serverMessage });
   if (status >= 400 && status < 500 && serverMessage) {
     return new PettyCashError({ kind: 'domain', status, serverMessage });
   }
+  // A 5xx without the application's { code, message } envelope comes from a proxy in front of it.
+  if (status >= 500 && !serverMessage) return new PettyCashError({ kind: 'network', status });
   return new PettyCashError({ kind: 'unknown', status });
 };
