@@ -317,7 +317,7 @@ describe('discount cap and non-receivable statuses', () => {
     expect(result.total).toBe(90000);
   });
 
-  const sale = (status: string, remaining: number): Sale =>
+  const saleWith = (status: string, remaining: number): Sale =>
     ({
       id: status,
       status,
@@ -328,14 +328,14 @@ describe('discount cap and non-receivable statuses', () => {
     }) as unknown as Sale;
 
   it('does not treat a draft or void sale as overdue', () => {
-    expect(isPastDue(sale('DRAFT', 500), Date.now())).toBe(false);
-    expect(isPastDue(sale('VOID', 500), Date.now())).toBe(false);
-    expect(isPastDue(sale('UNPAID', 500), Date.now())).toBe(true);
+    expect(isPastDue(saleWith('DRAFT', 500), Date.now())).toBe(false);
+    expect(isPastDue(saleWith('VOID', 500), Date.now())).toBe(false);
+    expect(isPastDue(saleWith('UNPAID', 500), Date.now())).toBe(true);
   });
 
   it('leaves draft and void sales out of the receivable summary', () => {
     const summary = summarizeSales(
-      [sale('DRAFT', 500), sale('VOID', 700), sale('UNPAID', 300)],
+      [saleWith('DRAFT', 500), saleWith('VOID', 700), saleWith('UNPAID', 300)],
       Date.now()
     );
 

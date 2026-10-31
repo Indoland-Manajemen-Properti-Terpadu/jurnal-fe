@@ -161,17 +161,17 @@ describe('summarizePurchases', () => {
 });
 
 describe('applyPayment limits', () => {
-  const bill = { totalAmount: 1000, paidAmount: 0 };
+  const unpaid = { totalAmount: 1000, paidAmount: 0 };
 
   it('rejects a payment above what is still owed', () => {
-    expect(() => applyPayment(bill, 5000)).toThrow(RangeError);
+    expect(() => applyPayment(unpaid, 5000)).toThrow(RangeError);
     expect(() => applyPayment({ totalAmount: 1000, paidAmount: 900 }, 100.01)).toThrow(RangeError);
   });
 
   it('rejects a zero, negative or invalid payment', () => {
-    expect(() => applyPayment(bill, 0)).toThrow(RangeError);
-    expect(() => applyPayment(bill, -5)).toThrow(RangeError);
-    expect(() => applyPayment(bill, Number.NaN)).toThrow(RangeError);
+    expect(() => applyPayment(unpaid, 0)).toThrow(RangeError);
+    expect(() => applyPayment(unpaid, -5)).toThrow(RangeError);
+    expect(() => applyPayment(unpaid, Number.NaN)).toThrow(RangeError);
   });
 
   it('accepts the exact remaining amount and settles the bill', () => {
