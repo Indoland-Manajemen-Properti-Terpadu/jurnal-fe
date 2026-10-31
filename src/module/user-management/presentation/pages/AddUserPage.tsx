@@ -17,7 +17,6 @@ import {
 } from '@mantine/core';
 import { useRef, useState } from 'react';
 import { IconCards, IconUsers } from '@tabler/icons-react';
-import { navigate } from '@/router';
 import { routes } from '@/router/routes';
 import { useNavigate } from 'react-router-dom';
 import { gradientColors, themeColors } from '@/theme';
@@ -26,10 +25,7 @@ import AppShellLayout from '@/components/AppShellLayout';
 import { TextMediumGR } from '@/components/Text/CustomText';
 import PageHeaderV2 from '@/components/PageHeader/PageHeaderV2';
 
-const items = [
-  { title: 'User Management', href: () => navigate(-1) },
-  { title: 'Add User', href: undefined },
-];
+import { useTranslation } from '@/i18n';
 
 const PAPER_PROPS = {
   p: 'md',
@@ -38,7 +34,12 @@ const PAPER_PROPS = {
 };
 
 export default function AddUserPage() {
+  const { t: tu } = useTranslation('userManagement');
   const navigate = useNavigate();
+  const items = [
+    { title: tu('common.userManagement'), href: () => navigate(-1) },
+    { title: tu('user.add'), href: undefined },
+  ];
   const timeoutRef = useRef<number>(-1);
   const [email, setEmail] = useState('');
   const [emailDisplay, setEmailDisplay] = useState<string[]>([]);
@@ -80,17 +81,22 @@ export default function AddUserPage() {
       footer={
         <Group h="100%" px="xl">
           <Group justify="space-between" style={{ flex: 1 }}>
-            <Switch defaultChecked color={themeColors.primary[6]} label="Active" size="lg" />
+            <Switch
+              defaultChecked
+              color={themeColors.primary[6]}
+              label={tu('common.active')}
+              size="lg"
+            />
             <Group>
               <Button variant="light" color={themeColors.gray[7]} onClick={() => navigate(-1)}>
-                Cancel
+                {tu('common.cancel')}
               </Button>
               <Button
                 variant="gradient"
                 gradient={gradientColors.gradient}
                 onClick={() => navigate(routes.userManagement.main)}
               >
-                Add Transaction
+                {tu('user.addTransaction')}
               </Button>
             </Group>
           </Group>
@@ -100,14 +106,18 @@ export default function AddUserPage() {
       <Container fluid>
         <Stack gap="lg">
           <Paper {...PAPER_PROPS}>
-            <PageHeaderV2 type="withBreadcrumbs" title="User Management" breadcrumbItems={items} />
+            <PageHeaderV2
+              type="withBreadcrumbs"
+              title={tu('common.userManagement')}
+              breadcrumbItems={items}
+            />
           </Paper>
           <Paper {...PAPER_PROPS}>
             <Stack bg="var(--mantine-color-body)" align="stretch" justify="flex-start" gap="sm">
-              <TextMediumGR>User Information</TextMediumGR>
+              <TextMediumGR>{tu('user.info')}</TextMediumGR>
               <TextInput
-                label="Full Name"
-                placeholder="Full name"
+                label={tu('common.fullName')}
+                placeholder={tu('user.fullNameField')}
                 withAsterisk
                 // error="This field can’t be empty"
                 // {...accountInfoForm.getInputProps('firstname')}
@@ -118,8 +128,8 @@ export default function AddUserPage() {
                 withAsterisk
                 onChange={handleChange}
                 rightSection={loading ? <Loader size="1rem" /> : null}
-                label="Email"
-                placeholder="Your email"
+                label={tu('common.email')}
+                placeholder={tu('common.yourEmail')}
                 // error="This field can’t be empty"
               />
               <Combobox
@@ -135,13 +145,13 @@ export default function AddUserPage() {
                     type="button"
                     withAsterisk
                     pointer
-                    label="Type User"
+                    label={tu('common.typeUser')}
                     // error="This field can’t be empty"
                     rightSection={<Combobox.Chevron />}
                     rightSectionPointerEvents="none"
                     onClick={() => combobox.toggleDropdown()}
                   >
-                    {userType ?? <Input.Placeholder>Chose type user</Input.Placeholder>}
+                    {userType ?? <Input.Placeholder>{tu('common.chooseType')}</Input.Placeholder>}
                   </InputBase>
                 </Combobox.Target>
 
@@ -149,7 +159,7 @@ export default function AddUserPage() {
                   <Combobox.Options>{options}</Combobox.Options>
                 </Combobox.Dropdown>
               </Combobox>
-              <TextMediumGR>User Role </TextMediumGR>
+              <TextMediumGR>{tu('user.userRole')} </TextMediumGR>
               <Tabs
                 variant="outline"
                 value={activeTabUser}
@@ -158,10 +168,10 @@ export default function AddUserPage() {
               >
                 <Tabs.List>
                   <Tabs.Tab value="ListUser" leftSection={<IconUsers size={14} />}>
-                    Default Role
+                    {tu('common.defaultRole')}
                   </Tabs.Tab>
                   <Tabs.Tab value="ListRole" leftSection={<IconCards size={14} />}>
-                    Additional Role
+                    {tu('common.additionalRole')}
                   </Tabs.Tab>
                 </Tabs.List>
 

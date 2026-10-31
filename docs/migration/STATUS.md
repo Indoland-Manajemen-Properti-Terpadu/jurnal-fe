@@ -68,6 +68,6 @@ Priority changed: the ledger (`GeneralJournal`) goes before the remaining small 
 | Module | Structure | Names | i18n | Docs | Tests | Release |
 |---|---|---|---|---|---|---|
 | `SettingMenu` to `settings` | done | done | done | done | done | R4 |
-| `SettingMenu/UserManagement` to `user-management` | todo | todo | todo | todo | todo | R4 |
+| `SettingMenu/UserManagement` to `user-management` | done | done | done | done | done | R4 |
 | `Authentication` to `authentication` | todo | todo | todo | todo | todo | R4 |
 | Final audit, ratchets set to `error` repo-wide | todo | n/a | n/a | todo | n/a | R4 |

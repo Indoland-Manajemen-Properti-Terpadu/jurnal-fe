@@ -18,7 +18,6 @@ import {
 } from '@mantine/core';
 import { useRef, useState } from 'react';
 import { IconCards, IconChevronDown, IconUsers } from '@tabler/icons-react';
-import { navigate } from '@/router';
 import { routes } from '@/router/routes';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { gradientColors, themeColors } from '@/theme';
@@ -31,10 +30,7 @@ import AppShellLayout from '@/components/AppShellLayout';
 import classes from '@/module/user-management/presentation/pages/EditUserPage.module.css';
 import { useUserByEmail } from '@/module/user-management/presentation/hooks/useUserByEmail';
 
-const items = [
-  { title: 'User Management', href: () => navigate(-1) },
-  { title: 'Add User', href: undefined },
-];
+import { useTranslation } from '@/i18n';
 
 const PAPER_PROPS = {
   p: 'md',
@@ -43,7 +39,12 @@ const PAPER_PROPS = {
 };
 
 function EditUserPage() {
+  const { t: tu } = useTranslation('userManagement');
   const navigate = useNavigate();
+  const items = [
+    { title: tu('common.userManagement'), href: () => navigate(-1) },
+    { title: tu('user.add'), href: undefined },
+  ];
   const location = useLocation();
   const userEmail = location.state?.email;
   const { data: UserDetail, isLoading, error } = useUserByEmail(userEmail);
@@ -84,11 +85,15 @@ function EditUserPage() {
   };
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div>{tu('user.loading')}</div>;
   }
 
   if (error) {
-    return <div>Error: {error.message}</div>;
+    return (
+      <div>
+        {tu('user.errorPrefix')} {error.message}
+      </div>
+    );
   }
 
   return (
@@ -97,17 +102,22 @@ function EditUserPage() {
         <div className={classes.footer}>
           <Group h="100%" px="md">
             <Group justify="space-between" style={{ flex: 1 }}>
-              <Switch defaultChecked color={themeColors.primary[6]} label="Active" size="lg" />
+              <Switch
+                defaultChecked
+                color={themeColors.primary[6]}
+                label={tu('common.active')}
+                size="lg"
+              />
               <Group>
                 <Button variant="light" color={themeColors.gray[7]} onClick={() => navigate(-1)}>
-                  Cancel
+                  {tu('common.cancel')}
                 </Button>
                 <Button
                   variant="gradient"
                   gradient={gradientColors.gradient}
                   onClick={() => navigate(routes.userManagement.main)}
                 >
-                  Finish
+                  {tu('user.finish')}
                 </Button>
               </Group>
             </Group>
@@ -118,11 +128,11 @@ function EditUserPage() {
       <Container fluid>
         <Stack gap="lg">
           <Paper {...PAPER_PROPS}>
-            <PageHeaderV2 type="withBreadcrumbs" title="Edit User" breadcrumbItems={items} />
+            <PageHeaderV2 type="withBreadcrumbs" title={tu('user.edit')} breadcrumbItems={items} />
           </Paper>
           <Paper {...PAPER_PROPS}>
             <Stack align="stretch" justify="flex-start" gap="sm">
-              <TextInput label="Name" withAsterisk />
+              <TextInput label={tu('user.name')} withAsterisk />
               <Text>{UserDetail?.name} </Text>
 
               <Autocomplete
@@ -131,8 +141,8 @@ function EditUserPage() {
                 withAsterisk
                 onChange={handleChange}
                 rightSection={loading ? <Loader size="1rem" /> : null}
-                label="Email"
-                placeholder="Your email"
+                label={tu('common.email')}
+                placeholder={tu('common.yourEmail')}
               />
               <Combobox
                 store={combobox}
@@ -147,12 +157,12 @@ function EditUserPage() {
                     type="button"
                     withAsterisk
                     pointer
-                    label="Type User"
+                    label={tu('common.typeUser')}
                     rightSection={<IconChevronDown size={14} />}
                     rightSectionPointerEvents="none"
                     onClick={() => combobox.toggleDropdown()}
                   >
-                    {userType ?? <Input.Placeholder>Chose type user</Input.Placeholder>}
+                    {userType ?? <Input.Placeholder>{tu('common.chooseType')}</Input.Placeholder>}
                   </InputBase>
                 </Combobox.Target>
 
@@ -160,7 +170,7 @@ function EditUserPage() {
                   <Combobox.Options>{options}</Combobox.Options>
                 </Combobox.Dropdown>
               </Combobox>
-              <TextMediumGR>Role Access </TextMediumGR>
+              <TextMediumGR>{tu('common.roleAccess')} </TextMediumGR>
               <Tabs
                 variant="outline"
                 value={activeTabRole}
@@ -170,10 +180,10 @@ function EditUserPage() {
               >
                 <Tabs.List>
                   <Tabs.Tab value="DefaultRole" leftSection={<IconUsers size={14} />}>
-                    Default Role
+                    {tu('common.defaultRole')}
                   </Tabs.Tab>
                   <Tabs.Tab value="AdditionalRole" leftSection={<IconCards size={14} />}>
-                    Additional Role
+                    {tu('common.additionalRole')}
                   </Tabs.Tab>
                 </Tabs.List>
                 <Tabs.Panel value="DefaultRole">

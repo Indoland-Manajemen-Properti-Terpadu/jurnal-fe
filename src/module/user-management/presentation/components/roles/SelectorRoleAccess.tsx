@@ -1,13 +1,16 @@
 import { Accordion, Group, List, Switch, Text } from '@mantine/core';
 import { gradientColors } from '@/theme';
-import classes from '@/module/SettingMenu/UserManagement/Role/components/RoleTable.module.css';
 import { AccessRole } from '@/types/AccessRole/getAccessRole';
+
+import { useTranslation } from '@/i18n';
+import classes from '@/module/SettingMenu/UserManagement/Role/components/RoleTable.module.css';
 
 interface AcordionRoleAccessProps {
   roles: AccessRole[];
 }
 
 const AcordionRoleAccess = ({ roles }: AcordionRoleAccessProps) => {
+  const { t: tu } = useTranslation('userManagement');
   return (
     <Accordion variant="contained" chevronPosition="left" multiple>
       {roles.map((item) => (
@@ -26,7 +29,7 @@ const AcordionRoleAccess = ({ roles }: AcordionRoleAccessProps) => {
                 gradient={gradientColors.mainGR}
                 className={classes.descriptionTitle}
               >
-                Description
+                {tu('common.description')}
               </Text>
               <List size="xs" withPadding className={classes.accordionList}>
                 {(item.description?.split('\n') || []).map((line) => (

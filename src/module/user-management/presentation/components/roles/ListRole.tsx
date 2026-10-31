@@ -5,21 +5,14 @@ import AdditionalRoleTable from '@/module/user-management/presentation/component
 import classes from '@/module/user-management/presentation/components/roles/ListRole.module.css';
 import DefaultRoleTable from '@/module/user-management/presentation/components/roles/DefaultRole';
 
+import { useTranslation } from '@/i18n';
+
 const ListRole = () => {
+  const { t: tu } = useTranslation('userManagement');
   const [activeTabRole, setActiveTabRole] = useState<string>('DefaultRole');
 
   return (
     <Stack align="stretch" justify="flex - start" gap="md" mt="md">
-      {/* <Grid  >
-                <Grid.Col span={4}>
-                    <Autocomplete
-                        rightSection={<IconSearch size={12} />}
-                        placeholder="Find Role"
-                        data={filteredRoles.length > 0 ? filteredRoles : roles.map((role) => role.name)}
-                        onSearchChange={handleFilterRoles}
-                    />
-                </Grid.Col>
-            </Grid > */}
       <Tabs
         value={activeTabRole}
         onChange={(value) => setActiveTabRole(value!)}
@@ -28,10 +21,10 @@ const ListRole = () => {
       >
         <Tabs.List>
           <Tabs.Tab value="DefaultRole" leftSection={<IconUsers size={14} />}>
-            Default Role
+            {tu('common.defaultRole')}
           </Tabs.Tab>
           <Tabs.Tab value="AdditionalRole" leftSection={<IconCards size={14} />}>
-            Additional Role
+            {tu('common.additionalRole')}
           </Tabs.Tab>
         </Tabs.List>
         <Tabs.Panel value="DefaultRole">

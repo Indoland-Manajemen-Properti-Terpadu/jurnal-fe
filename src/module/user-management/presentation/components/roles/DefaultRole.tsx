@@ -5,13 +5,7 @@ import { themeColors } from '@/theme';
 import { IconInfoCircle } from '@tabler/icons-react';
 import { useDefaultRoles } from '@/module/user-management/presentation/hooks/useRoles';
 
-const headTableStyle = {
-  bg: themeColors.primary[0],
-  borderColor: themeColors.gray[1],
-  borderWidth: '1px',
-  borderStyle: 'solid',
-  borderCollapse: 'collapse' as const,
-};
+import { useTranslation } from '@/i18n';
 
 const headTableFont = {
   fontSize: 14,
@@ -19,10 +13,11 @@ const headTableFont = {
 };
 
 const DefaultRoleTable: React.FC = () => {
+  const { t: tu } = useTranslation('userManagement');
   const { data: DefaultRole, isError } = useDefaultRoles();
 
   if (isError) {
-    return <Loader c="red">Failed to load data.</Loader>;
+    return <Loader c="red">{tu('common.loadFailed')}</Loader>;
   }
   if (!DefaultRole) {
     return <EmptyState />;
@@ -42,10 +37,10 @@ const DefaultRoleTable: React.FC = () => {
         <Table.Thead>
           <Table.Tr>
             <Table.Th colSpan={10} ta="left" style={{ ...headTableFont, width: '40%' }}>
-              Role Name
+              {tu('common.roleName')}
             </Table.Th>
             <Table.Th colSpan={2} ta="center" style={{ ...headTableFont, width: '5%' }}>
-              Action
+              {tu('common.action')}
             </Table.Th>
           </Table.Tr>
         </Table.Thead>
@@ -64,7 +59,7 @@ const DefaultRoleTable: React.FC = () => {
                 colSpan={2}
                 style={{ width: '5%', textAlign: 'center', fontWeight: 400 }}
               >
-                <ActionIcon variant="light" color="gray" aria-label="Settings">
+                <ActionIcon variant="light" color="gray" aria-label={tu('common.settings')}>
                   <IconInfoCircle size={16} stroke={1.5} />
                 </ActionIcon>
               </Table.Td>

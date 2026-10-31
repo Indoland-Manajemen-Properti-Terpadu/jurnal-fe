@@ -51,7 +51,7 @@ export interface UserDetail {
   name: string;
   email: string;
   role: string;
-  accessRole: any[];
+  accessRole: unknown[];
   isEmailVerified: boolean;
   site: Site;
   createdAt: Date;

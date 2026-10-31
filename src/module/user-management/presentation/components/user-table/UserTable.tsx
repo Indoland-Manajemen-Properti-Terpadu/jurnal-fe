@@ -25,6 +25,8 @@ import { navigate } from '@/router';
 import { routes } from '@/router/routes';
 import { IconDots, IconEdit, IconTrash } from '@tabler/icons-react';
 
+import { useTranslation } from '@/i18n';
+
 type UserTableProps = {
   data: AllUserModel;
   isError?: boolean;
@@ -36,8 +38,9 @@ const ICON_SIZE = {
 };
 
 const UserTable = ({ data = { results: [] }, isError, isLoading }: UserTableProps) => {
+  const { t: tu } = useTranslation('userManagement');
   const [selectedRecords, setSelectedRecords] = useState<Result[]>([]);
-  const [query, setQuery] = useState('');
+  const [query] = useState('');
   const [debouncedQuery] = useDebouncedValue(query, 200);
 
   const results = data.results || [];
@@ -55,19 +58,16 @@ const UserTable = ({ data = { results: [] }, isError, isLoading }: UserTableProp
 
   const actionDelete = () =>
     openConfirmModal({
-      title: 'Delete this user',
+      title: tu('user.deleteTitle'),
       centered: true,
       children: (
         <Text size="sm" c="black">
-          Are you sure you want to delete this user? This action is destructive and you will have to
-          contact support to restore your data.
+          {tu('user.deleteBody')}
         </Text>
       ),
       withCloseButton: false,
-      labels: { confirm: 'Delete User', cancel: 'Cancel' },
+      labels: { confirm: tu('user.deleteConfirm'), cancel: tu('common.cancel') },
       confirmProps: { color: 'red' },
-      onCancel: () => console.log('Cancel'),
-      onConfirm: () => console.log('Confirmed'),
     });
 
   const columns: DataTableProps<Result>['columns'] = [
@@ -75,7 +75,7 @@ const UserTable = ({ data = { results: [] }, isError, isLoading }: UserTableProp
       accessor: 'name',
       title: (
         <Text size="sm" fz={14} fw={500} c={themeColors.black[9]}>
-          Full Name
+          {tu('common.fullName')}
         </Text>
       ),
       render: ({ name, email }) => (
@@ -107,7 +107,7 @@ const UserTable = ({ data = { results: [] }, isError, isLoading }: UserTableProp
                 <Grid>
                   <Grid.Col span={4}>
                     <Text c={themeColors.gray[6]} fz={10}>
-                      First Name
+                      {tu('user.firstName')}
                     </Text>
                   </Grid.Col>
                   <Grid.Col span={8}>
@@ -121,7 +121,7 @@ const UserTable = ({ data = { results: [] }, isError, isLoading }: UserTableProp
                 <Grid>
                   <Grid.Col span={4}>
                     <Text c={themeColors.gray[6]} fz={10}>
-                      Last Name
+                      {tu('user.lastName')}
                     </Text>
                   </Grid.Col>
                   <Grid.Col span={8}>
@@ -135,7 +135,7 @@ const UserTable = ({ data = { results: [] }, isError, isLoading }: UserTableProp
                 <Grid>
                   <Grid.Col span={4}>
                     <Text c={themeColors.gray[6]} fz={10}>
-                      Email
+                      {tu('common.email')}
                     </Text>
                   </Grid.Col>
                   <Grid.Col span={8}>
@@ -154,7 +154,7 @@ const UserTable = ({ data = { results: [] }, isError, isLoading }: UserTableProp
       accessor: 'role',
       title: (
         <Text size="sm" fz={14} fw={500} c={themeColors.black[9]}>
-          Role Access
+          {tu('common.roleAccess')}
         </Text>
       ),
       render: ({ role }) => (
@@ -167,7 +167,7 @@ const UserTable = ({ data = { results: [] }, isError, isLoading }: UserTableProp
       accessor: 'role',
       title: (
         <Text size="sm" fz={14} fw={500} c={themeColors.black[9]}>
-          Type User
+          {tu('common.typeUser')}
         </Text>
       ),
       render: ({ role }) => (
@@ -180,7 +180,7 @@ const UserTable = ({ data = { results: [] }, isError, isLoading }: UserTableProp
       accessor: 'isEmailVerified',
       title: (
         <Text size="sm" fz={14} fw={500} ta="center" c={themeColors.black[9]}>
-          Status
+          {tu('common.status')}
         </Text>
       ),
       render: ({ isEmailVerified }) => (
@@ -192,13 +192,13 @@ const UserTable = ({ data = { results: [] }, isError, isLoading }: UserTableProp
       textAlign: 'center',
       title: (
         <Text size="sm" fz={14} fw={500} ta="center" c={themeColors.black[9]}>
-          Actions
+          {tu('common.actions')}
         </Text>
       ),
       render: (item) => (
         <Menu>
           <Menu.Target>
-            <ActionIcon variant="light" color="gray" aria-label="Settings">
+            <ActionIcon variant="light" color="gray" aria-label={tu('common.settings')}>
               <IconDots style={{ width: '70%', height: '70%' }} stroke={1.5} />
             </ActionIcon>
           </Menu.Target>
@@ -209,14 +209,14 @@ const UserTable = ({ data = { results: [] }, isError, isLoading }: UserTableProp
                 navigate(routes.userManagement.editUser, { state: { email: item.email!! } })
               }
             >
-              Edit
+              {tu('common.edit')}
             </Menu.Item>
             <Menu.Item
               leftSection={<IconTrash style={ICON_SIZE} />}
               onClick={actionDelete}
               c={themeColors.red[6]}
             >
-              Delete
+              {tu('common.delete')}
             </Menu.Item>
           </Menu.Dropdown>
         </Menu>
@@ -229,7 +229,7 @@ const UserTable = ({ data = { results: [] }, isError, isLoading }: UserTableProp
       <LoadingErrorState isLoading={isLoading} isError={isError} />
       {results.length === 0 ? (
         <EmptyState
-          title="There are no users available yet"
+          title={tu('user.empty')}
           imageSrc={defaultEmptyImage}
           imageAlt="No data found"
         />

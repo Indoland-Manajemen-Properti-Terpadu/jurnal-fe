@@ -1,12 +1,15 @@
 import { ErrorAlert } from '@/components';
 import { Center, Loader } from '@mantine/core';
 
+import { useTranslation } from '@/i18n';
+
 type LoadingErrorStateProps = {
   isLoading?: boolean;
   isError?: boolean;
 };
 
 const LoadingErrorState: React.FC<LoadingErrorStateProps> = ({ isLoading, isError }) => {
+  const { t: tu } = useTranslation('userManagement');
   if (isLoading) {
     return (
       <Center style={{ height: '100vh' }}>
@@ -16,9 +19,7 @@ const LoadingErrorState: React.FC<LoadingErrorStateProps> = ({ isLoading, isErro
   }
 
   if (isError) {
-    return (
-      <ErrorAlert title="Error loading users" message="An error occurred while loading the data" />
-    );
+    return <ErrorAlert title={tu('user.errorTitle')} message={tu('user.errorMessage')} />;
   }
   return null;
 };
