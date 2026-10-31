@@ -23,14 +23,3 @@ export const GetDefaultRole = (options = {}) =>
     },
     ...options,
   });
-
-export const GetAdditionalRole = (options = {}) =>
-  useQuery<AccessRole[]>({
-    queryKey: ['additional_role'],
-    queryFn: async () => {
-      const result = await get(API_ACCESS_ROLE.GET_ROLE, { isDefault: false });
-      return result;
-    },
-
-    ...options,
-  });

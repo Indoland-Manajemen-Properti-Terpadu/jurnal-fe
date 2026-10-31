@@ -25,7 +25,6 @@ import { routes } from '@/router/routes';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { gradientColors, themeColors } from '@/theme';
 import UserType from '@/../public/mocks/UserType.json';
-import classes from './EditUser.module.css';
 import { TextMediumGR } from '@/components/Text/CustomText';
 // import { useRoleStore } from '@/store/useRole';
 
