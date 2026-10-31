@@ -1,4 +1,4 @@
-import { roundToCents } from '../domain/dashboardMoney';
+import { roundToCents, subtractAmounts } from '../domain/dashboardMoney';
 import type {
   AuditLogEntry,
   BalanceSheetLine,
@@ -60,6 +60,10 @@ export const mapSale = (s: SaleDto): SaleSummary => ({
   dueDate: s.dueDate ?? null,
   status: String(s.status ?? 'DRAFT').toUpperCase(),
   finalAmount: toMoney(s.finalAmount ?? s.total),
+  netSales:
+    s.subtotal === undefined
+      ? undefined
+      : subtractAmounts(toMoney(s.subtotal), toMoney(s.discountAmount)),
   paidAmount: toMoney(s.paidAmount),
   remainingAmount: toMoney(s.remainingAmount),
 });

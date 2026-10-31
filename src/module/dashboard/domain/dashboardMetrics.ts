@@ -43,7 +43,8 @@ export const getSalesKpis = (sales: SaleSummary[], now = new Date()) => {
     openCount: open.length,
     overdueAmount: sum(overdue.map((s) => s.remainingAmount)),
     overdueCount: overdue.length,
-    monthRevenue: sum(thisMonth.map((s) => s.finalAmount)),
+    // Revenue is sales before VAT and withholding; the invoice total is only the fallback.
+    monthRevenue: sum(thisMonth.map((s) => s.netSales ?? s.finalAmount)),
     monthCount: thisMonth.length,
     draftCount: drafts.length,
     draftAmount: sum(drafts.map((s) => s.finalAmount)),
@@ -255,6 +256,22 @@ export type FinancialHealthSummary = {
   cashRatio: number;
 };
 
+/**
+ * Liabilities due within the year: everything except long-term liabilities (category `KJP` or a
+ * name with "panjang"). Without the line detail only the total is known, so it is used as is.
+ */
+export const getCurrentLiabilities = (bs?: BalanceSheetSummary): number => {
+  if (!bs) return 0;
+  if (bs.liabilities.length === 0) return bs.totalLiabilities;
+  return sumAmounts(
+    bs.liabilities
+      .filter(
+        (line) => line.categoryId !== 'KJP' && !line.categoryName.toLowerCase().includes('panjang')
+      )
+      .map((line) => line.balance)
+  );
+};
+
 export const getFinancialHealthSummary = (
   bs?: BalanceSheetSummary,
   cash = 0
@@ -265,7 +282,7 @@ export const getFinancialHealthSummary = (
   const totalCurrentAssets = bs?.totalCurrentAssets ?? 0;
   const totalLiabilitiesAndEquity = sumAmounts([totalLiabilities, totalEquity]);
   const isBalanced = !bs || sameAmount(totalAssets, totalLiabilitiesAndEquity);
-  const netWorkingCapital = subtractAmounts(totalCurrentAssets, totalLiabilities);
+  const netWorkingCapital = subtractAmounts(totalCurrentAssets, getCurrentLiabilities(bs));
   const denom = Math.max(1, Math.abs(totalAssets));
 
   return {

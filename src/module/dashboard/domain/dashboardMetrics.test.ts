@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   getCashBalance,
+  getCurrentLiabilities,
   getFinancialHealthSummary,
   getMonthlyTrend,
   getReceivableAging,
@@ -241,5 +242,64 @@ describe('dashboardMetrics', () => {
       expect(h.netWorkingCapital).toBe(0.2);
       expect(getFinancialHealthSummary({ ...bs, totalEquity: 0.21 }, 0).isBalanced).toBe(false);
     });
+  });
+});
+
+describe('net working capital and monthly revenue', () => {
+  const liability = (categoryId: string, categoryName: string, balance: number) => ({
+    accountId: categoryId,
+    accountNumber: null,
+    accountName: categoryName,
+    categoryId,
+    categoryName,
+    balance,
+  });
+
+  it('subtracts only current liabilities from current assets', () => {
+    const bs: BalanceSheetSummary = {
+      ...mockBalanceSheet,
+      liabilities: [
+        liability('AH', 'Hutang Usaha', 20_000_000),
+        liability('KLL', 'Kewajiban Lancar', 10_000_000),
+        liability('KJP', 'Hutang Bank', 90_000_000),
+      ],
+    };
+
+    expect(getCurrentLiabilities(bs)).toBe(30_000_000);
+    expect(getFinancialHealthSummary(bs, 0).netWorkingCapital).toBe(170_000_000);
+  });
+
+  it('treats a name with "panjang" as long term and falls back to the total without line detail', () => {
+    const bs: BalanceSheetSummary = {
+      ...mockBalanceSheet,
+      liabilities: [
+        liability('X', 'Utang Jangka Panjang', 50_000_000),
+        liability('Y', 'Utang Dagang', 5_000_000),
+      ],
+    };
+
+    expect(getCurrentLiabilities(bs)).toBe(5_000_000);
+    expect(getCurrentLiabilities(mockBalanceSheet)).toBe(120_000_000);
+    expect(getCurrentLiabilities(undefined)).toBe(0);
+  });
+
+  it('counts monthly revenue from net sales (before VAT), falling back to the invoice total', () => {
+    const now = new Date('2026-10-20T00:00:00Z');
+    const base: SaleSummary = {
+      id: 's1',
+      transactionNumber: 'INV-1',
+      customerName: 'A',
+      transactionDate: '2026-10-05',
+      dueDate: null,
+      status: 'UNPAID',
+      finalAmount: 1_110_000,
+      netSales: 1_000_000,
+      paidAmount: 0,
+      remainingAmount: 1_110_000,
+    };
+    const noNet: SaleSummary = { ...base, id: 's2', netSales: undefined, finalAmount: 500_000 };
+
+    expect(getSalesKpis([base], now).monthRevenue).toBe(1_000_000);
+    expect(getSalesKpis([base, noNet], now).monthRevenue).toBe(1_500_000);
   });
 });

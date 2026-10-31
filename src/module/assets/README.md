@@ -26,3 +26,7 @@ Namespace `assets` (`id` primary, `en`), reused and completed. `src/i18n/locales
 - Dates use the fixed `id-ID` format regardless of the selected language.
 - A failed `localStorage` write is silent (the in-memory list still changes); the former `console.error` calls were removed.
 - Moving to a backend means a new `AssetRepository` adapter and TanStack Query hooks.
+
+## Double declining balance (2026-10-31)
+
+The asset list and the yearly schedule use one rule (`decliningYearExpense`): each year takes twice the straight-line rate of the remaining balance, never goes below the residual value, and the last year closes to the residual value. Before, the list kept a continuous partial-year formula that never reached the residual value, so an asset past its useful life still showed a book value above it while the schedule showed it fully depreciated. A partial year is that year's schedule expense times the elapsed share of the year.

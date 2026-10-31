@@ -31,7 +31,7 @@ const account = (over: Partial<JournalAccounts> = {}): JournalAccounts => ({
   ...over,
 });
 
-describe('I4 integer-only entry in TableBeginningBalance (characterization)', () => {
+describe('I4 amount entry in TableBeginningBalance', () => {
   const setup = (data: JournalAccounts[]) => {
     const onChange = vi.fn();
     render(<TableBeginningBalance data={data} onChange={onChange} />);
@@ -39,10 +39,16 @@ describe('I4 integer-only entry in TableBeginningBalance (characterization)', ()
     return { onChange, debitInput: inputs[0], creditInput: inputs[1] };
   };
 
-  it('strips every non digit, so decimals are read as a larger integer', () => {
+  it('reads Indonesian-format decimals as decimals, not as a larger integer', () => {
     const { onChange, debitInput } = setup([account()]);
     fireEvent.change(debitInput, { target: { value: '1.500,50' } });
-    expect(onChange.mock.calls[0][0][0].debit).toBe(150050);
+    expect(onChange.mock.calls[0][0][0].debit).toBe(1500.5);
+  });
+
+  it('keeps what is being typed visible while it is incomplete (a trailing comma)', () => {
+    const { debitInput } = setup([account()]);
+    fireEvent.change(debitInput, { target: { value: '1.500,' } });
+    expect(debitInput).toHaveValue('1.500,');
   });
 
   it('reads letters only as zero', () => {
