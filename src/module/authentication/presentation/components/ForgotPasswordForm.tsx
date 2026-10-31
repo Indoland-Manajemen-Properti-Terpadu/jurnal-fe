@@ -15,6 +15,10 @@ import {
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import {
+  validateEmail,
+  type CredentialValidationKey,
+} from '@/module/authentication/domain/credentialRules';
+import {
   IconArrowLeft,
   IconCheck,
   IconInfoCircle,
@@ -23,6 +27,8 @@ import {
   IconRefresh,
   IconSend,
 } from '@tabler/icons-react';
+
+import { useTranslation } from '@/i18n';
 
 interface ForgotPasswordFormProps {
   onBackToLogin: () => void;
@@ -33,15 +39,17 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
   onBackToLogin,
   defaultEmail = '',
 }) => {
+  const { t: ta } = useTranslation('authentication');
   const [isSuccess, setIsSuccess] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const msg = (key: CredentialValidationKey | null) => (key ? ta(key) : null);
   const form = useForm({
     initialValues: {
       email: defaultEmail,
     },
     validate: {
-      email: (val) => (/^\S+@\S+\.\S+$/.test(val) ? null : 'Masukkan alamat email yang valid'),
+      email: (val) => msg(validateEmail(val)),
     },
   });
 
@@ -54,8 +62,8 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
       notifications.show({
         color: 'teal',
         icon: <IconCheck size={16} />,
-        title: 'Tautan Terkirim',
-        message: `Instruksi pemulihan kata sandi telah dikirim ke ${values.email}.`,
+        title: ta('forgot.sentTitle'),
+        message: ta('forgot.sentMessage', { email: values.email }),
       });
     }, 1200);
   };
@@ -67,8 +75,8 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
       notifications.show({
         color: 'teal',
         icon: <IconCheck size={16} />,
-        title: 'Tautan Dikirim Ulang',
-        message: `Email instruksi baru telah dikirimkan ke ${form.values.email}.`,
+        title: ta('forgot.resentTitle'),
+        message: ta('forgot.resentMessage', { email: form.values.email }),
       });
     }, 800);
   };
@@ -76,22 +84,16 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
   if (isSuccess) {
     return (
       <Stack gap="lg" ta="center" py="md">
-        <ThemeIcon
-          size={64}
-          radius="xl"
-          color="teal"
-          variant="light"
-          mx="auto"
-        >
+        <ThemeIcon size={64} radius="xl" color="teal" variant="light" mx="auto">
           <IconMailCheck size={36} stroke={1.8} />
         </ThemeIcon>
 
         <Box>
           <Title order={3} c="dark.9" fw={800}>
-            Periksa Email Anda 📬
+            {ta('forgot.checkEmail')}
           </Title>
           <Text size="sm" c="dimmed" mt={4}>
-            Kami telah mengirimkan tautan pemulihan kata sandi ke:
+            {ta('forgot.sentTo')}
           </Text>
           <Badge
             size="lg"
@@ -106,18 +108,12 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
         </Box>
 
         <Text size="xs" c="gray.6" lh={1.6} px="md">
-          Silakan buka kotak masuk atau folder spam email Anda dan klik tombol di dalamnya untuk mengatur ulang kata sandi baru. Tautan ini berlaku selama 60 menit.
+          {ta('forgot.checkInbox')}
         </Text>
 
         <Stack gap="sm" mt="md">
-          <Button
-            size="md"
-            radius="md"
-            color="primary"
-            fullWidth
-            onClick={onBackToLogin}
-          >
-            Kembali ke Halaman Masuk
+          <Button size="md" radius="md" color="primary" fullWidth onClick={onBackToLogin}>
+            {ta('forgot.backToSignIn')}
           </Button>
 
           <Button
@@ -128,7 +124,7 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
             onClick={handleResend}
             loading={isSubmitting}
           >
-            Tidak menerima email? Kirim ulang
+            {ta('forgot.resend')}
           </Button>
         </Stack>
       </Stack>
@@ -146,20 +142,20 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
             size="sm"
             radius="md"
             onClick={onBackToLogin}
-            aria-label="Kembali ke Login"
+            aria-label={ta('forgot.backToLogin')}
           >
             <IconArrowLeft size={18} />
           </ActionIcon>
           <Text size="xs" fw={700} c="primary.7" tt="uppercase">
-            Bantuan Akun
+            {ta('forgot.help')}
           </Text>
         </Group>
 
         <Title order={2} c="dark.9" fw={800} lh={1.25}>
-          Lupa Kata Sandi? 🔑
+          {ta('forgot.title')}
         </Title>
         <Text size="sm" c="gray.6" mt={4} lh={1.5}>
-          Masukkan alamat email yang terdaftar. Kami akan mengirimkan instruksi dan tautan untuk membuat kata sandi baru.
+          {ta('forgot.intro')}
         </Text>
       </Box>
 
@@ -167,8 +163,8 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <Stack gap="md">
           <TextInput
-            label="Alamat Email Terdaftar"
-            placeholder="nama@perusahaan.com"
+            label={ta('forgot.emailLabel')}
+            placeholder={ta('login.emailPlaceholder')}
             size="md"
             radius="md"
             required
@@ -183,7 +179,7 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
             icon={<IconInfoCircle size={18} />}
             styles={{ message: { fontSize: '12px', lineHeight: 1.5 } }}
           >
-            Pastikan email yang dimasukkan sama dengan yang terdaftar di akun ProApps Jurnal Anda.
+            {ta('forgot.emailHint')}
           </Alert>
 
           <Button
@@ -196,7 +192,7 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
             loading={isSubmitting}
             leftSection={<IconSend size={16} />}
           >
-            Kirim Tautan Pemulihan
+            {ta('forgot.submit')}
           </Button>
 
           <Button
@@ -207,11 +203,10 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
             fullWidth
             onClick={onBackToLogin}
           >
-            Batal dan Kembali ke Login
+            {ta('forgot.cancel')}
           </Button>
         </Stack>
       </form>
     </Stack>
   );
 };
-

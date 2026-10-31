@@ -72,8 +72,7 @@ import {
 import AppShellLayout from '@/components/AppShellLayout';
 import { PendingChangesPage } from '@/module/pending-changes';
 import { NotFound } from '@/components/ErrorPage/NotFound';
-import LoginPage from '@/module/Authentication/Login/pages/LoginPage';
-import OAuthCallback from '@/module/Authentication/Login/pages/OAuthCallback';
+import { LoginPage, OAuthCallbackPage } from '@/module/authentication';
 import { DashboardPage } from '@/module/dashboard';
 import { LandingPage } from '@/module/landing';
 import { ProfilePage } from '@/module/profile';
@@ -94,7 +93,7 @@ const router = createBrowserRouter([
   },
   {
     path: routes.oauthCallback,
-    element: <OAuthCallback />,
+    element: <OAuthCallbackPage />,
   },
   {
     path: routes.dashboard,

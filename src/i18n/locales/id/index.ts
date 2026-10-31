@@ -29,6 +29,7 @@ import { reports } from './reports';
 import { bankCash } from './bankCash';
 import { pettyCash } from './pettyCash';
 import { userManagement } from './userManagement';
+import { authentication } from './authentication';
 
 export const id = {
   common,
@@ -61,6 +62,7 @@ export const id = {
   bankCash,
   pettyCash,
   userManagement,
+  authentication,
 };
 
 export default id;

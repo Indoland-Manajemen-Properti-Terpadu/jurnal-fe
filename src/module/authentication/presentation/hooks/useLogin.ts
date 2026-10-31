@@ -1,21 +1,18 @@
 import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { notifications } from '@mantine/notifications';
-import { post } from '@/lib/http/apiClient';
-import { API_AUTH } from '@/services/endpoint';
 import { routes } from '@/router/routes';
 import { useAuthStore } from '@/store/useAuthentications';
-import { LoginModelResponse } from '../types/LoginModelResponse';
+import { useTranslation } from '@/i18n';
+import { login, type LoginCredentials } from '@/module/authentication/infrastructure/authApi';
 
-export const useOAuthExchange = () => {
+export const useLogin = () => {
   const navigate = useNavigate();
   const { setTokens, setUserName } = useAuthStore();
+  const { t: ta } = useTranslation('authentication');
 
   return useMutation({
-    mutationFn: async (code: string) => {
-      const result = await post(API_AUTH.POST_OAUTH_EXCHANGE, { code });
-      return result as LoginModelResponse;
-    },
+    mutationFn: (body: LoginCredentials) => login(body),
     onSuccess: (data) => {
       const { tokens, user } = data;
       setTokens(tokens.access.token, tokens.refresh.token);
@@ -23,19 +20,18 @@ export const useOAuthExchange = () => {
       notifications.show({
         color: 'green',
         autoClose: 3000,
-        title: 'Login Successful!',
-        message: 'Welcome to Journal Proapps. Let’s get started!',
+        title: ta('login.successTitle'),
+        message: ta('login.successMessage', { name: user.name }),
       });
       navigate(routes.dashboard);
     },
-    onError: (error) => {
+    onError: () => {
       notifications.show({
         color: 'red',
         autoClose: 3000,
-        title: 'Authentication Failed',
-        message: 'Unable to authenticate with Jurnal. Please try again.',
+        title: ta('login.deniedTitle'),
+        message: ta('login.deniedMessage'),
       });
-      navigate(routes.login);
     },
   });
 };

@@ -13,14 +13,16 @@ import {
   Title,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import {
-  IconArrowRight,
-  IconHome,
-  IconLock,
-  IconMail,
-} from '@tabler/icons-react';
+import { IconArrowRight, IconHome, IconLock, IconMail } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 import { routes } from '@/router/routes';
+import {
+  validateEmail,
+  validatePassword,
+  type CredentialValidationKey,
+} from '@/module/authentication/domain/credentialRules';
+
+import { useTranslation } from '@/i18n';
 
 interface LoginFormProps {
   onForgotPassword: (currentEmail?: string) => void;
@@ -28,11 +30,9 @@ interface LoginFormProps {
   isPending: boolean;
 }
 
-export const LoginForm: React.FC<LoginFormProps> = ({
-  onForgotPassword,
-  onSubmit,
-  isPending,
-}) => {
+export const LoginForm: React.FC<LoginFormProps> = ({ onForgotPassword, onSubmit, isPending }) => {
+  const { t: ta } = useTranslation('authentication');
+  const msg = (key: CredentialValidationKey | null) => (key ? ta(key) : null);
   const form = useForm({
     initialValues: {
       email: '',
@@ -40,8 +40,8 @@ export const LoginForm: React.FC<LoginFormProps> = ({
       rememberMe: false,
     },
     validate: {
-      email: (val) => (/^\S+@\S+\.\S+$/.test(val) ? null : 'Alamat email tidak valid'),
-      password: (val) => (val.length < 6 ? 'Kata sandi minimal 6 karakter' : null),
+      email: (val) => msg(validateEmail(val)),
+      password: (val) => msg(validatePassword(val)),
     },
   });
 
@@ -54,10 +54,10 @@ export const LoginForm: React.FC<LoginFormProps> = ({
       {/* Form Header */}
       <Box>
         <Title order={2} c="dark.9" fw={800} lh={1.25}>
-          Selamat Datang Kembali 👋
+          {ta('login.welcome')}
         </Title>
         <Text size="sm" c="gray.6" mt={4} lh={1.5}>
-          Masuk ke akun Anda untuk mengakses sistem pembukuan dan laporan keuangan bisnis.
+          {ta('login.intro')}
         </Text>
       </Box>
 
@@ -65,8 +65,8 @@ export const LoginForm: React.FC<LoginFormProps> = ({
       <form onSubmit={form.onSubmit(handleFormSubmit)}>
         <Stack gap="md">
           <TextInput
-            label="Alamat Email"
-            placeholder="nama@perusahaan.com"
+            label={ta('login.emailLabel')}
+            placeholder={ta('login.emailPlaceholder')}
             size="md"
             radius="md"
             required
@@ -75,8 +75,8 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           />
 
           <PasswordInput
-            label="Kata Sandi"
-            placeholder="Masukkan kata sandi akun Anda"
+            label={ta('login.passwordLabel')}
+            placeholder={ta('login.passwordPlaceholder')}
             size="md"
             radius="md"
             required
@@ -86,7 +86,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
 
           <Group justify="space-between" align="center" mt={2}>
             <Checkbox
-              label="Ingat saya"
+              label={ta('login.remember')}
               size="sm"
               {...form.getInputProps('rememberMe', { type: 'checkbox' })}
             />
@@ -98,7 +98,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
               c="primary.7"
               onClick={() => onForgotPassword(form.values.email)}
             >
-              Lupa kata sandi?
+              {ta('login.forgot')}
             </Anchor>
           </Group>
 
@@ -112,10 +112,10 @@ export const LoginForm: React.FC<LoginFormProps> = ({
             loading={isPending}
             rightSection={<IconArrowRight size={18} />}
           >
-            Masuk ke Akun
+            {ta('login.submit')}
           </Button>
 
-          <Divider label="atau" labelPosition="center" my="xs" />
+          <Divider label={ta('login.or')} labelPosition="center" my="xs" />
 
           <Button
             component={Link}
@@ -126,11 +126,10 @@ export const LoginForm: React.FC<LoginFormProps> = ({
             fullWidth
             leftSection={<IconHome size={18} />}
           >
-            Kembali ke Beranda
+            {ta('login.backHome')}
           </Button>
         </Stack>
       </form>
     </Stack>
   );
 };
-
