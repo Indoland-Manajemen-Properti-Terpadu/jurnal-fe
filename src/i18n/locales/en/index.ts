@@ -25,6 +25,7 @@ import { chartOfAccounts } from './chartOfAccounts';
 import { reconciliation } from './reconciliation';
 import { accountLedger } from './accountLedger';
 import { reports } from './reports';
+import { bankCash } from './bankCash';
 
 export const en = {
   common,
@@ -54,6 +55,7 @@ export const en = {
   reconciliation,
   accountLedger,
   reports,
+  bankCash,
 };
 
 export default en;

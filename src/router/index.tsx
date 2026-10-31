@@ -32,10 +32,12 @@ import {
   GeneralLedgerPage,
 } from '@/module/reports';
 import { ImportBankStatementDraftPage } from '@/module/bank-statements';
-import AddTransferMoneyPage from '@/module/BankCash/TransferMoney/pages/AddTransferMoney';
-import AddReceiveMoneyPage from '@/module/BankCash/ReceiveMoney/page/AddReceiveMoney';
-import BankAndCashMainPage from '@/module/BankCash/Main/pages/BankAndCashMainPage';
-import AddSentMoneyPage from '@/module/BankCash/SentMoney/page/AddSentMoney';
+import {
+  AddReceiveMoneyPage,
+  AddSentMoneyPage,
+  AddTransferMoneyPage,
+  BankAndCashMainPage,
+} from '@/module/bank-cash';
 import PettyCashPage from '@/module/BankCash/PettyCash/pages/PettyCashPage';
 import PettyCashDetailPage from '@/module/BankCash/PettyCash/pages/PettyCashDetailPage';
 import PettyCashRouteScope from '@/module/BankCash/PettyCash/pages/PettyCashRouteScope';

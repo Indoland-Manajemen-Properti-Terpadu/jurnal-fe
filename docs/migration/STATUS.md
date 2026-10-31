@@ -47,7 +47,7 @@ Priority changed: the ledger (`GeneralJournal`) goes before the remaining small 
 
 | Module | Structure | Names | i18n | Docs | Tests | Release |
 |---|---|---|---|---|---|---|
-| `BankCash` to `bank-cash` | todo | todo | todo | todo | todo | R3 |
+| `BankCash` to `bank-cash` | done | done | done | done | done | R3 |
 | `BankCash/PettyCash` to `petty-cash` | todo | todo | todo | todo | todo | R3 |
 | `ResultReport` to `reports` | done | done | done | done | done | R3 |
 
