@@ -11,7 +11,9 @@ import { REPORT_ENDPOINTS, REPORT_EXPORT_ENDPOINTS } from './reportEndpoints';
 vi.mock('@/lib/http/apiClient', () => ({ get: vi.fn().mockResolvedValue('payload') }));
 
 describe('business overview report API', () => {
-  beforeEach(() => vi.mocked(get).mockClear());
+  beforeEach(() => {
+    vi.mocked(get).mockClear();
+  });
 
   it('keeps the endpoint paths the backend serves', () => {
     expect(REPORT_ENDPOINTS.JOURNAL_ENTRY).toMatch(/\/v1\/report\/journal-entry$/);
