@@ -4,9 +4,8 @@ import { ReportPageHeader } from '@/module/reports/presentation/components/share
 import { DatePickerInput } from "@mantine/dates";
 import { IconCalendar, IconChevronDown, IconFileExport } from "@tabler/icons-react";
 import { formatCurrency } from "@/utils/FormatCurrency";
-import BalanceSheetLayout from "@/module/reports/presentation/pages/Layout";
+import AppShellLayout from '@/components/AppShellLayout';
 import BalanceSheetTable from "@/module/reports/presentation/components/balance-sheet/BalanceSheetTable";
-import BusinessOverviewLayout from "@/module/reports/presentation/pages/Layout";
 import TrialBalanceTable from "@/module/reports/presentation/components/trial-balance/TrialBalanceTable";
 import { useState } from "react";
 import FilterDate from "@/module/reports/presentation/components/shared/FilterDate";
@@ -27,7 +26,7 @@ const TrialBalancePage = () => {
     };
 
     return (
-        <BusinessOverviewLayout>
+        <AppShellLayout>
             <Container fluid>
                 <Stack gap="lg">
                     <ReportPageHeader icon={IconFileAnalytics} title="Neraca Saldo" description="Periksa saldo debit dan kredit akun sebelum menyusun laporan keuangan." />
@@ -41,7 +40,7 @@ const TrialBalancePage = () => {
                     </Paper>
                 </Stack>
             </Container>
-        </BusinessOverviewLayout>
+        </AppShellLayout>
     )
 }
 

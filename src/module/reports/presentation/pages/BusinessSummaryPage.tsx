@@ -4,21 +4,21 @@ import { DatePickerInput } from "@mantine/dates";
 import { IconCalendar, IconChevronDown, IconFileExport } from "@tabler/icons-react";
 import { formatCurrency } from "@/utils/FormatCurrency";
 import BalanceSheetTable from "@/module/reports/presentation/components/balance-sheet/BalanceSheetTable";
-import BusinessOverviewLayout from "@/module/reports/presentation/pages/Layout";
-import IncomeStatementTable from "@/module/reports/presentation/components/income-statement/IncomeStatmentTable";
+import AppShellLayout from '@/components/AppShellLayout';
+import IncomeStatementTable from "@/module/reports/presentation/components/income-statement/IncomeStatementTable";
 import CashFlowTable from "@/module/reports/presentation/components/cash-flow/CashFlowTable";
-import BusinessSumaryTable from "@/module/reports/presentation/components/business-summary/BusinessSumaryTable";
+import BusinessSummaryTable from "@/module/reports/presentation/components/business-summary/BusinessSummaryTable";
 
 const PAPER_PROPS = {
     p: 'md',
     shadow: 'md',
     radius: 'md',
 };
-const BusinessSumaryPage = () => {
+const BusinessSummaryPage = () => {
     const lastDate = 'Sept 19, 2024 at 12:22:12 (GMT+7)'
     const totalBalanceSheet = 200000
     return (
-        <BusinessOverviewLayout>
+        <AppShellLayout>
             <Container fluid>
                 <Stack gap="lg">
                     <Paper {...PAPER_PROPS}>
@@ -101,15 +101,15 @@ const BusinessSumaryPage = () => {
                                         <Text c={themeColors.black[9]} fz={14} fw={500}>Total : {formatCurrency(totalBalanceSheet)}</Text>
                                     </Group>
                                 </Box>
-                                <BusinessSumaryTable />
+                                <BusinessSummaryTable />
 
                             </Stack>
                         </Stack>
                     </Paper>
                 </Stack>
             </Container>
-        </BusinessOverviewLayout>
+        </AppShellLayout>
     )
 }
 
-export default BusinessSumaryPage;
+export default BusinessSummaryPage;

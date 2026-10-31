@@ -18,18 +18,20 @@ import {
 import UserManagement from '@/module/SettingMenu/UserManagement/Main/pages/UserManagement';
 import AddUserForm from '@/module/SettingMenu/UserManagement/User/components/AddUserForm/AddUserForm';
 import AddRoleForm from '@/module/SettingMenu/UserManagement/Role/components/AddRoleForm/AddRoleForm';
-import ReportCatalogPage from '@/module/reports/presentation/pages/ReportCatalogPage';
-import BalanceSheetPage from '@/module/reports/presentation/pages/BalanceSheetPage';
+import {
+  ReportCatalogPage,
+  BalanceSheetPage,
+  TrialBalancePage,
+  IncomeStatementPage,
+  IncomeStatementBudgetPage,
+  CashFlowPage,
+  JournalEntryReportPage,
+  BusinessSummaryPage,
+  EquityChangesPage,
+  BudgetManagementPage,
+  GeneralLedgerPage,
+} from '@/module/reports';
 import { ImportBankStatementDraftPage } from '@/module/bank-statements';
-import TrialBalancePage from '@/module/reports/presentation/pages/TrialBalancePage';
-import IncomeStatementPage from '@/module/reports/presentation/pages/IncomeStatementPage';
-import CashFlowPage from '@/module/reports/presentation/pages/CashFlowPage';
-import JournalEntryPage from '@/module/reports/presentation/pages/JournalEntryPage';
-import BusinessSumaryPage from '@/module/reports/presentation/pages/BusinessSumaryPage';
-import IncomeStatementBudgetPage from '@/module/reports/presentation/pages/IncomeStatementBudgetPage';
-import GeneralLedgerPage from '@/module/reports/presentation/pages/GeneralLedgerPage';
-import EquityChangesPage from '@/module/reports/presentation/pages/EquityChangesPage';
-import BudgetManagementPage from '@/module/reports/presentation/pages/BudgetManagementPage';
 import AddTransferMoneyPage from '@/module/BankCash/TransferMoney/pages/AddTransferMoney';
 import AddReceiveMoneyPage from '@/module/BankCash/ReceiveMoney/page/AddReceiveMoney';
 import BankAndCashMainPage from '@/module/BankCash/Main/pages/BankAndCashMainPage';
@@ -242,11 +244,15 @@ const router = createBrowserRouter([
   },
   {
     path: routes.resultReport.journalEntry,
-    element: <JournalEntryPage />,
+    element: <JournalEntryReportPage />,
   },
   {
-    path: routes.resultReport.businessSumary,
-    element: <BusinessSumaryPage />,
+    path: routes.resultReport.businessSummary,
+    element: <BusinessSummaryPage />,
+  },
+  {
+    path: routes.resultReport.legacyBusinessSumary,
+    element: <Navigate to={routes.resultReport.businessSummary} replace />,
   },
   {
     path: routes.resultReport.incomeStatementBudget,

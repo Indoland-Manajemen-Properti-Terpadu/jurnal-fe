@@ -4,8 +4,8 @@ import { DatePickerInput } from "@mantine/dates";
 import { IconCalendar, IconChevronDown, IconFileExport } from "@tabler/icons-react";
 import { formatCurrency } from "@/utils/FormatCurrency";
 import BalanceSheetTable from "@/module/reports/presentation/components/balance-sheet/BalanceSheetTable";
-import BusinessOverviewLayout from "@/module/reports/presentation/pages/Layout";
-import IncomeStatementTable from "@/module/reports/presentation/components/income-statement/IncomeStatmentTable";
+import AppShellLayout from '@/components/AppShellLayout';
+import IncomeStatementTable from "@/module/reports/presentation/components/income-statement/IncomeStatementTable";
 import CashFlowTable from "@/module/reports/presentation/components/cash-flow/CashFlowTable";
 
 const PAPER_PROPS = {
@@ -17,7 +17,7 @@ const CashFlowPage = () => {
     const lastDate = 'Sept 19, 2024 at 12:22:12 (GMT+7)'
     const totalBalanceSheet = 200000
     return (
-        <BusinessOverviewLayout>
+        <AppShellLayout>
             <Container fluid>
                 <Stack gap="lg">
                     <Paper {...PAPER_PROPS}>
@@ -107,7 +107,7 @@ const CashFlowPage = () => {
                     </Paper>
                 </Stack>
             </Container>
-        </BusinessOverviewLayout>
+        </AppShellLayout>
     )
 }
 

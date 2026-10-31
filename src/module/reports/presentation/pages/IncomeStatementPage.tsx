@@ -1,8 +1,8 @@
 import { Container, Paper, Stack, Flex, Notification } from "@mantine/core";
 import { IconChartBar } from '@tabler/icons-react';
 import { ReportPageHeader } from '@/module/reports/presentation/components/shared/ReportPageHeader';
-import BusinessOverviewLayout from "@/module/reports/presentation/pages/Layout";
-import IncomeStatementTable from "@/module/reports/presentation/components/income-statement/IncomeStatmentTable";
+import AppShellLayout from '@/components/AppShellLayout';
+import IncomeStatementTable from "@/module/reports/presentation/components/income-statement/IncomeStatementTable";
 import { useState } from "react";
 import FilterDate from "@/module/reports/presentation/components/shared/FilterDate";
 import ExportMenu from "@/module/reports/presentation/components/shared/ExportMenu";
@@ -46,7 +46,7 @@ const IncomeStatementPage = () => {
     };
 
     return (
-        <BusinessOverviewLayout>
+        <AppShellLayout>
             <Container fluid>
                 <Stack gap="lg">
                     <ReportPageHeader icon={IconChartBar} title="Laba Rugi" description="Tinjau pendapatan dan beban untuk memahami hasil usaha selama periode." />
@@ -65,7 +65,7 @@ const IncomeStatementPage = () => {
                     </Paper>
                 </Stack>
             </Container>
-        </BusinessOverviewLayout>
+        </AppShellLayout>
     )
 }
 

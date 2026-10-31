@@ -8,13 +8,13 @@ import {
   CashFlowfromIA,
   CashFlowfromFA,
   EndingCashPosition,
-} from '@/module/reports/presentation/components/cash-flow/TableRow';
+} from '@/module/reports/presentation/components/cash-flow/CashFlowTableRow';
 import {
-  BalanceSheetSumary,
-  CashFlowSumary,
-  IncomeStatementSumary,
+  BalanceSheetSummary,
+  CashFlowSummary,
+  IncomeStatementSummary,
   InsightReport,
-} from '@/module/reports/presentation/components/business-summary/TableRow';
+} from '@/module/reports/presentation/components/business-summary/BusinessSummaryTableRow';
 
 const rowStyle = {
   borderColor: themeColors.gray[1],
@@ -29,15 +29,15 @@ const headTableStyle = {
   borderStyle: 'solid',
 };
 
-const BusinessSumaryTable: React.FC = () => {
+const BusinessSummaryTable: React.FC = () => {
   const { accounts, isError } = useJournalAccounts();
   return (
     <Stack>
       <Table withTableBorder style={rowStyle}>
         <Table.Tbody>
-          <IncomeStatementSumary total={3000} />
-          <BalanceSheetSumary total={3000} />
-          <CashFlowSumary total={3000} />
+          <IncomeStatementSummary total={3000} />
+          <BalanceSheetSummary total={3000} />
+          <CashFlowSummary total={3000} />
           <InsightReport total={3000} />
         </Table.Tbody>
       </Table>
@@ -45,4 +45,4 @@ const BusinessSumaryTable: React.FC = () => {
   );
 };
 
-export default BusinessSumaryTable;
+export default BusinessSummaryTable;

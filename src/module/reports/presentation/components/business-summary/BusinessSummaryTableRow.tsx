@@ -74,7 +74,7 @@ const TableRow: React.FC<TableRowProps> = ({ label, type, total }) => {
 };
 
 
-export const IncomeStatementSumary: React.FC<RowProps> = ({ total }) => (
+export const IncomeStatementSummary: React.FC<RowProps> = ({ total }) => (
     <>
         <HeaderTable title={'Income Statement Summary'} />
         <TableRow label="Revenue" total={200} />
@@ -85,7 +85,7 @@ export const IncomeStatementSumary: React.FC<RowProps> = ({ total }) => (
 
     </>
 );
-export const BalanceSheetSumary: React.FC<RowProps> = ({ total }) => (
+export const BalanceSheetSummary: React.FC<RowProps> = ({ total }) => (
     <>
         <HeaderTable title={'Balance Sheet Summary'} />
         <TableRow label="Revenue" total={200} />
@@ -97,7 +97,7 @@ export const BalanceSheetSumary: React.FC<RowProps> = ({ total }) => (
     </>
 );
 
-export const CashFlowSumary: React.FC<RowProps> = ({ total }) => (
+export const CashFlowSummary: React.FC<RowProps> = ({ total }) => (
     <>
         <HeaderTable title={'Cash Flow Summary'} />
         <TableRow label="Revenue" total={200} />

@@ -30,4 +30,25 @@ describe('legacy route redirects', () => {
     expect(matches).not.toBeNull();
     expect(element?.props?.to).toBeUndefined();
   });
+
+  it('redirects the misspelled business-sumary report URL to business-summary', () => {
+    expect(routes.resultReport.legacyBusinessSumary).toBe(
+      '/result-reports/business-overview/business-sumary'
+    );
+    expect(routes.resultReport.businessSummary).toBe(
+      '/result-reports/business-overview/business-summary'
+    );
+
+    const element = elementOf(matchRoutes(router.routes, routes.resultReport.legacyBusinessSumary));
+
+    expect(element?.props?.to).toBe(routes.resultReport.businessSummary);
+    expect(element?.props?.replace).toBe(true);
+  });
+
+  it('serves the business-summary report with the page, not a redirect', () => {
+    const element = elementOf(matchRoutes(router.routes, routes.resultReport.businessSummary));
+
+    expect(element).toBeDefined();
+    expect(element?.props?.to).toBeUndefined();
+  });
 });

@@ -3,7 +3,7 @@ import { gradientColors, themeColors } from "@/theme";
 import { DatePickerInput } from "@mantine/dates";
 import { IconCalendar, IconChevronDown, IconFileExport, IconX } from "@tabler/icons-react";
 import { formatCurrency } from "@/utils/FormatCurrency";
-import BusinessOverviewLayout from "@/module/reports/presentation/pages/Layout";
+import AppShellLayout from '@/components/AppShellLayout';
 import EquityChangesTable from "@/module/reports/presentation/components/equity-changes/EquityChangesTable";
 import { useState } from "react";
 import { navigate } from "@/router";
@@ -22,7 +22,7 @@ const BudgetManagementPage = () => {
 
 
     return (
-        <BusinessOverviewLayout>
+        <AppShellLayout>
             <Container fluid>
                 <Stack gap="lg">
                     <Paper {...PAPER_PROPS}>
@@ -111,7 +111,7 @@ const BudgetManagementPage = () => {
                     </Paper>
                 </Stack>
             </Container>
-        </BusinessOverviewLayout>
+        </AppShellLayout>
     )
 }
 

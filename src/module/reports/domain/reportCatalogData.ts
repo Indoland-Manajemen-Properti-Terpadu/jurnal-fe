@@ -120,7 +120,7 @@ export const reportCatalogData: ReportItem[] = [
     title: 'Ringkasan Bisnis',
     englishTitle: 'Business Executive Summary',
     description: 'Ikhtisar ringkas metrik performa utama perusahaan dari penjualan, kas, hingga laba operasional untuk manajemen.',
-    route: routes.resultReport.businessSumary,
+    route: routes.resultReport.businessSummary,
     category: 'management',
     icon: IconChartPie,
     color: 'pink',

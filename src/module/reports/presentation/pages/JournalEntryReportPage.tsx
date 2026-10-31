@@ -24,7 +24,7 @@ import { GetJournalEntryReport } from "@/module/reports/infrastructure/JournalEn
 import { getDateRange } from "@/utils/DateRange";
 import { dateFormatTimeZone } from "@/utils/FormatDate";
 import JournalEntryTable from "@/module/reports/presentation/components/journal-entry/JournalEntryTable";
-import BusinessOverviewLayout from "@/module/reports/presentation/pages/Layout";
+import AppShellLayout from '@/components/AppShellLayout';
 import { ReportJournalEntryModel } from "@/module/reports/domain/JournalEntry.types";
 import { dateTimeNow } from "@/utils/DateTimeNow";
 import { getTime } from "date-fns";
@@ -44,7 +44,7 @@ const PAPER_PROPS = {
 
 const PERIOD_OPTIONS = ["All Period", "Today", "Yesterday", "This Week", "This Month", "This Year"];
 
-const JournalEntryPage: React.FC = () => {
+const JournalEntryReportPage: React.FC = () => {
     // State Management
     const [startDate, setStartDate] = useState<string | null>(null);
     const [endDate, setEndDate] = useState<string | null>(null);
@@ -112,7 +112,7 @@ const JournalEntryPage: React.FC = () => {
 
 
     return (
-        <BusinessOverviewLayout>
+        <AppShellLayout>
             <Container fluid>
                 <Stack gap="lg">
                     <ReportPageHeader icon={IconTimeline} title="Jurnal Umum" description="Periksa daftar pencatatan transaksi dan detail jurnal dalam periode." />
@@ -194,7 +194,7 @@ const JournalEntryPage: React.FC = () => {
                     </Paper>
                 </Stack>
             </Container>
-        </BusinessOverviewLayout>
+        </AppShellLayout>
     );
 };
 
@@ -257,4 +257,4 @@ const addTotalsToPDF = (doc: jsPDF, totalDebit: number, totalCredit: number) => 
 };
 
 
-export default JournalEntryPage;
+export default JournalEntryReportPage;

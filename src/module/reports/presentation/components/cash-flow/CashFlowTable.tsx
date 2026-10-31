@@ -5,7 +5,7 @@ import { formatCurrency } from '@/utils/FormatCurrency';
 import { useJournalAccounts } from '@/module/chart-of-accounts';
 
 import EmptyState from '@/components/EmptyState/EmptyTable';
-import { CashFlowfromFA, CashFlowfromIA, CashFlowfromOA, EndingCashPosition } from '@/module/reports/presentation/components/cash-flow/TableRow';
+import { CashFlowfromFA, CashFlowfromIA, CashFlowfromOA, EndingCashPosition } from '@/module/reports/presentation/components/cash-flow/CashFlowTableRow';
 
 const rowStyle = {
   borderColor: themeColors.gray[1],
