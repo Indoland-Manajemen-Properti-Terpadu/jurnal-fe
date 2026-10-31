@@ -70,4 +70,6 @@ Priority changed: the ledger (`GeneralJournal`) goes before the remaining small 
 | `SettingMenu` to `settings` | done | done | done | done | done | R4 |
 | `SettingMenu/UserManagement` to `user-management` | done | done | done | done | done | R4 |
 | `Authentication` to `authentication` | done | done | done | done | done | R4 |
-| Final audit, ratchets set to `error` repo-wide | todo | n/a | n/a | todo | n/a | R4 |
+| Final audit, ratchets set to `error` repo-wide | done | n/a | n/a | done | n/a | R4 |
+
+The audit is [AUDIT.md](AUDIT.md). The ratchets are still `warn` with a baseline of 159: flipping them to `error` needs approval (spec section 11, item 6) and is not done.
