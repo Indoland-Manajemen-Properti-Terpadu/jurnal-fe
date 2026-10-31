@@ -27,9 +27,9 @@ import { routes } from '@/router/routes';
 import { useNavigate } from 'react-router-dom';
 import { gradientColors, themeColors } from '@/theme';
 import UserType from '@/../public/mocks/UserType.json';
-import AddUserFormLayout from './Layout';
+import AddUserFormLayout from '@/module/user-management/presentation/pages/AddUserFormLayout';
 import { TextMediumGR } from '@/components/Text/CustomText';
-import AcordionRoleAccess from '@/module/SettingMenu/UserManagement/Role/components/SelectorRoleAccess';
+import AcordionRoleAccess from '@/module/user-management/presentation/components/roles/SelectorRoleAccess';
 import PageHeaderV2 from '@/components/PageHeader/PageHeaderV2';
 
 const items = [

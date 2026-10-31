@@ -6,7 +6,7 @@ import { IconDots, IconEye, IconEdit, IconTrash } from '@tabler/icons-react';
 import { ActiveBadge, InactiveBadge } from '@/components/Badge/Badge';
 import { notifications } from '@mantine/notifications';
 import { DeleteJournalEntryModal as DeleteTransactionModal } from '@/module/journal-entries';
-import { GetRoles } from '../../Service/Role.service';
+import { GetRoles } from '@/module/user-management/infrastructure/Role.service';
 
 const rowStyle = {
   borderColor: themeColors.gray[1],

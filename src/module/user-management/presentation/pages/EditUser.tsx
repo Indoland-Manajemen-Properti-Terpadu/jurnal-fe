@@ -29,8 +29,8 @@ import { TextMediumGR } from '@/components/Text/CustomText';
 // import { useRoleStore } from '@/store/useRole';
 
 import PageHeaderV2 from '@/components/PageHeader/PageHeaderV2';
-import EditUserFormLayout from '../components/EditUserForm/Layout';
-import { GetUserByEmail } from '../service/User.service';
+import EditUserFormLayout from '@/module/user-management/presentation/pages/EditUserFormLayout';
+import { GetUserByEmail } from '@/module/user-management/infrastructure/User.service';
 
 const items = [
     { title: 'User Management', href: () => navigate(-1) },

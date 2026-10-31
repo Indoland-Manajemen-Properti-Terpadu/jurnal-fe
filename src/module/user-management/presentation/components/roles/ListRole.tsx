@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Stack, Tabs } from '@mantine/core';
 import { IconCards, IconUsers } from '@tabler/icons-react';
-import AdditionalRoleTable from '../components/TableAdditionalRole/AdditionalRole';
-import classes from './ListRole.module.css';
-import DefaultRoleTable from '../components/TableDefaultRole/DefaultRole';
+import AdditionalRoleTable from '@/module/user-management/presentation/components/roles/AdditionalRole';
+import classes from '@/module/user-management/presentation/components/roles/ListRole.module.css';
+import DefaultRoleTable from '@/module/user-management/presentation/components/roles/DefaultRole';
 
 
 const ListRole = () => {

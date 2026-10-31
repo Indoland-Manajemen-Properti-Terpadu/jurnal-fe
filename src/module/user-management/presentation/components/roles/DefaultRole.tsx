@@ -3,7 +3,7 @@ import EmptyState from "@/components/EmptyState/EmptyTable";
 import { ActionIcon, Loader, Pagination, Stack, Table, Text } from "@mantine/core";
 import { themeColors } from "@/theme";
 import { IconInfoCircle } from "@tabler/icons-react";
-import { GetDefaultRole } from "../../Service/Role.service";
+import { GetDefaultRole } from "@/module/user-management/infrastructure/Role.service";
 
 const headTableStyle = {
   bg: themeColors.primary[0],

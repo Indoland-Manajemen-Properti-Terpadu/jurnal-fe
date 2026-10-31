@@ -1,6 +1,6 @@
 import { Accordion, Group, List, Switch, Text } from '@mantine/core';
 import { gradientColors } from '@/theme';
-import classes from './RoleTable.module.css';
+import classes from '@/module/SettingMenu/UserManagement/Role/components/RoleTable.module.css';
 import { AccessRole } from '@/types/AccessRole/getAccessRole';
 
 interface AcordionRoleAccessProps {

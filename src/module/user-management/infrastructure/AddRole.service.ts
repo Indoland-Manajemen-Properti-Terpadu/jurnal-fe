@@ -4,7 +4,7 @@ import { routes } from '@/router/routes';
 import { useNavigate } from 'react-router-dom';
 import { API_ACCOUNT } from '@/services/endpoint';
 import { post } from '@/lib/http/apiClient';
-import { AddRolePayload } from '../Types/AddRolePayload';
+import { AddRolePayload } from '@/module/user-management/domain/AddRolePayload';
 
 export const useAddRole = () => {
   const navigate = useNavigate();

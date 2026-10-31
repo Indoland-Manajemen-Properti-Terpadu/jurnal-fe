@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import AppShellLayout from '@/components/AppShellLayout';
-import classes from './EditUser.module.css';
+import classes from '@/module/user-management/presentation/pages/EditUser.module.css';
 
 type Props = {
   children: ReactNode;

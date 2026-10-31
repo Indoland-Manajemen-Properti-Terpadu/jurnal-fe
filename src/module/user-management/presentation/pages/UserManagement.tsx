@@ -5,9 +5,9 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
 import { routes } from '@/router/routes';
 import { SettingsLayout } from '@/module/settings';
-import { useGetAllUser } from '@/module/SettingMenu/UserManagement/User/service/User.service';
-import UserTable from '../../User/components/UserTable/UserTable';
-import ListRole from '../../Role/pages/ListRole';
+import { useGetAllUser } from '@/module/user-management/infrastructure/User.service';
+import UserTable from '@/module/user-management/presentation/components/user-table/UserTable';
+import ListRole from '@/module/user-management/presentation/components/roles/ListRole';
 
 export default function UserManagement() {
   const { t } = useTranslation('settings');

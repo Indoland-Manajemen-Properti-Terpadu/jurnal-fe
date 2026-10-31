@@ -29,8 +29,8 @@ import { AccountPreviewCard, AccountingGuideCard } from '../components';
 import { EditAccountIdentitySection } from '../components/account-form/EditAccountIdentitySection';
 import { EditAccountHierarchySection } from '../components/account-form/EditAccountHierarchySection';
 import { EditAccountAccessSection } from '../components/account-form/EditAccountAccessSection';
-import { useGetAllUser } from '@/module/SettingMenu/UserManagement/User/service/User.service';
-import { GetRoles } from '@/module/SettingMenu/UserManagement/Role/Service/Role.service';
+import { useGetAllUser } from '@/module/user-management/infrastructure/User.service';
+import { GetRoles } from '@/module/user-management/infrastructure/Role.service';
 
 export const EditAccountJournalPage: React.FC = () => {
   const navigate = useNavigate();

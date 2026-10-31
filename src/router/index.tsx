@@ -15,9 +15,9 @@ import {
 } from '@/module/period-closing';
 
 // User Management Module
-import UserManagement from '@/module/SettingMenu/UserManagement/Main/pages/UserManagement';
-import AddUserForm from '@/module/SettingMenu/UserManagement/User/components/AddUserForm/AddUserForm';
-import AddRoleForm from '@/module/SettingMenu/UserManagement/Role/components/AddRoleForm/AddRoleForm';
+import UserManagement from '@/module/user-management/presentation/pages/UserManagement';
+import AddUserForm from '@/module/user-management/presentation/pages/AddUserForm';
+import AddRoleForm from '@/module/user-management/presentation/pages/AddRoleForm';
 import {
   ReportCatalogPage,
   BalanceSheetPage,
@@ -39,7 +39,7 @@ import {
   BankAndCashMainPage,
 } from '@/module/bank-cash';
 import { PettyCashDetailPage, PettyCashPage, PettyCashRouteScope } from '@/module/petty-cash';
-import EditUserForm from '@/module/SettingMenu/UserManagement/User/pages/EditUser';
+import EditUserForm from '@/module/user-management/presentation/pages/EditUser';
 import {
   AddContactPage,
   ContactMainPage,
