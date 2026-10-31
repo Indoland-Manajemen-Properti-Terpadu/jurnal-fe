@@ -1,6 +1,6 @@
 # petty-cash
 
-Petty cash (imprest) on the real `/v1/petty-cash` backend. A fund holds a fixed ceiling (`pagu`); the custodian pays small expenses from cash and records vouchers; the ledger is only posted when finance refills the fund. Fund position, the voucher lifecycle, cash counts (opname), replenishments and the cash book are on the real backend. Employee advances (kasbon), fund administration and reports arrive in the next phases (`docs/superpowers/plans/2026-10-31-petty-cash-integration.md`).
+Petty cash (imprest) on the real `/v1/petty-cash` backend. A fund holds a fixed ceiling (`pagu`); the custodian pays small expenses from cash and records vouchers; the ledger is only posted when finance refills the fund. Fund position, the voucher lifecycle, cash counts (opname), replenishments and the cash book are on the real backend. Employee advances (kasbon), fund administration, reports and the change history are on the real backend too (plan: `docs/superpowers/plans/2026-10-31-petty-cash-integration.md`).
 
 Contract and observed behavior: `docs/petty-cash/API-CONTRACT.md` (endpoints) and `docs/petty-cash/API-REAL-SHAPES.md` (shapes, statuses, errors, journals). Open backend questions: `docs/petty-cash/BACKEND-QUESTIONS.md`.
 
@@ -15,7 +15,7 @@ Contract and observed behavior: `docs/petty-cash/API-CONTRACT.md` (endpoints) an
 | `pettyCash.countAdd`         | `/bank-cash/petty-cash/:fundId/count/add`               | `CountAddPage` (someone with the count right who is not the custodian)           |
 | `pettyCash.replenishmentAdd` | `/bank-cash/petty-cash/:fundId/replenishment/add`       | `ReplenishmentAddPage` (custodian with the replenishment right; two-step wizard) |
 
-`index.ts` exports the six pages. `?tab=vouchers|counts|replenishments|cashBook` opens a tab; the form pages return to the tab they came from. The sidebar links to the first route.
+`index.ts` exports the six pages. `?tab=vouchers|counts|replenishments|advances|cashBook|reports` opens a tab (`reports` needs the read right on `JP-PC`); the form pages return to the tab they came from. The sidebar links to the first route.
 
 ## Endpoints (reads)
 
@@ -26,6 +26,14 @@ All through the shared `apiClient`, in `infrastructure/pettyCashApi.ts`: `GET /f
 `POST /vouchers` (JSON, or multipart when receipts travel with it), `PATCH /vouchers/:id` (replaces the whole voucher), `POST /vouchers/:id/{submit,approve,reject,void}` (reject and void carry a `reason`), `POST /vouchers/:id/attachments`, `DELETE /vouchers/:id/attachments/:attachmentId`. Every write answers with the full voucher. POSTs send an `Idempotency-Key`.
 
 `POST /counts` (JSON, `submit` true or false), `POST /counts/:id/{submit,approve,reject}`, `GET /counts`, `GET /counts/:id`; `GET /reimbursements`, `GET /reimbursements/:id`, `POST /reimbursements/preview` (no key, no notes), `POST /reimbursements`, `POST /reimbursements/:id/{approve,reject,cancel,disburse}`. Timeouts are set per request in `pettyCashHttp.ts` (the shared client is not changed).
+
+## Endpoints (advances, funds, reports)
+
+Advances (`pettyCashAdvanceApi.ts`): `GET /advances`, `/advances/:id`, `POST /advances`, `POST /advances/:id/{approve,reject,cancel,disburse,settlement,custodian-verify,custodian-reject,finance-verify,finance-reject,convert-to-receivable}`, `POST /advances/:id/attachments`, `PATCH /advances/:id/settlement-accounts`, `GET /advance-status/me|:userId`, `POST /advance-status/:userId/{block,unblock,override}`. A settlement is JSON, or multipart with receipts (`lines` as JSON text).
+
+Funds (`pettyCashFundApi.ts`): `POST /funds`, `PATCH /funds/:id` (only changed fields; the ceiling cannot be patched), `POST /funds/:id/pagu-adjustments`, `POST /funds/:id/close`.
+
+Reports and history (`pettyCashReportApi.ts`): `GET /reports/{pending-vouchers,expense-summary,advances-by-user,reconciliation}`, `GET /period-end-check?date=`, `GET /audit-logs?entityType&entityId`.
 
 ## Layers
 
@@ -49,6 +57,9 @@ All through the shared `apiClient`, in `infrastructure/pettyCashApi.ts`: `GET /f
 - **Cash count:** the form is a denomination calculator (7 banknotes, 4 coins) with live subtotals; the variance shown is an estimate (`expectedCashEstimate`, same formula as the backend) and the saved count carries the official figure. A reason is required when the estimate is not zero, the witness cannot be the custodian or the counter. Count actions: the counter submits a draft, an independent approver (neither custodian nor counter) approves or rejects.
 - **Replenishment:** step 1 chooses the vouchers waiting for replenishment (all preselected) and the approved count that settles with them; step 2 chooses the bank (no default) and shows the server preview: payout = vouchers plus the cash shortage, tax and expense breakdown, journal behind a disclosure and in the wide column. The preview never receives the notes (the backend refuses them). Actions: approve/reject by an approver other than the submitter, cancel by the replenishment right, pay out an approved request by someone who neither submitted nor approved it (the date becomes the journal date).
 - **Poka-yoke:** "Ajukan" is disabled above the available cash or when a required receipt is missing (checked on the net amount; the server decides on tax); "Simpan draf" stays available.
+- **Advance workflow, one person per step** (`allowedAdvanceActions`): the requester asks, uploads, settles and cancels; an approver other than the requester approves or rejects; the custodian (not the requester) hands over the cash and verifies receipts; finance verification needs an approver who is neither the requester nor the custodian who verified. Expense accounts of settlement lines are chosen by verifiers and are required before finance verification. Converting an unsettled advance to employee receivable belongs to the control right (`JP-PC-CTL`). The user's own standing (`advance-status/me`) is only requested by users with the advance right.
+- **Fund administration** is offered by menu right on `JP-PC` (create, update, delete for close). `toFundPatch` sends only what changed; changing the custodian or the status requires a reason. Funding a new fund from a bank needs the petty cash account balance to be 0; otherwise the backend refuses and the form keeps its input.
+- **Reports and change history** are read-only and shown only with the read right on `JP-PC`; an unknown audit action is shown as a general update.
 - **A superadmin counts as custodian** in `isFundCustodian`, because the backend lets a superadmin act as custodian of any fund (open question 1).
 - Imprest equation rows come from `imprestEquation` with the sign each carries in `pagu = cash + vouchers + advances - unsettledVariance`: a shortage is added, a surplus is deducted, so the rows shown add up to the ceiling.
 - The voucher drawer shows net and tax only when they add up to the server total; otherwise only the server total.
@@ -66,8 +77,9 @@ Namespace `pettyCash` (`id` and `en`): `workspace`, `balance`, `vouchers`, `draw
 
 ## Known gaps
 
-- No employee advance (kasbon), fund administration or report screens yet (Phases 5-6).
-- Verified in a browser as the custodian, as an approver and as a superadmin.
+- No screen yet for blocking, unblocking or granting an exception to an employee's advance requests (hooks `useChangeRestriction` exist).
+- Creating a fund and closing one were checked by form validation and a refused request only; the Demo Site has no empty petty cash account to fund from.
+- Verified in a browser as the staff member, custodian, approver and superadmin, including the full advance workflow and fund ceiling adjustments.
 - Edit-then-submit is coordinated in the form (two sequential mutations); move it to an `application` use case when later phases add similar multi-step workflows.
 - The cash book is ordered by transaction date while the running balance follows the entry sequence, so a back-dated voucher recorded later appears early with the latest balance. Its opening and closing balance follow the date filter; a voucher dated before the fund was opened gives a negative balance (backend question 10).
 - Superadmin custodian behavior and several accounting questions wait on the backend (`docs/petty-cash/BACKEND-QUESTIONS.md`).
