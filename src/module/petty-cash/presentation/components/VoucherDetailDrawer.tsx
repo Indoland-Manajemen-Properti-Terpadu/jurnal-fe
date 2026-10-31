@@ -1,158 +1,261 @@
-import { ActionIcon, Anchor, Box, Drawer, Group, Stack, Text } from '@mantine/core';
-import { IconDownload, IconFileText, IconPaperclip, IconUserCheck } from '@tabler/icons-react';
+import {
+  Alert,
+  Anchor,
+  Box,
+  Divider,
+  Drawer,
+  Group,
+  Skeleton,
+  Stack,
+  Table,
+  Text,
+} from '@mantine/core';
+import { IconAlertTriangle, IconPaperclip } from '@tabler/icons-react';
+import { useTranslation } from '@/i18n';
 import { formatCurrency } from '@/utils/formatCurrency';
 import { dateFormatV1 } from '@/utils/formatDate';
-import type { PettyCashVoucher } from '@/module/petty-cash/domain/pettyCashTypes';
-import classes from '@/module/petty-cash/presentation/components/PettyCashOverlay.module.css';
-
-import { useTranslation } from '@/i18n';
+import { voucherBreakdown } from '@/module/petty-cash/domain/pettyCashView';
+import { PettyCashStatusBadge } from '@/module/petty-cash/presentation/components/PettyCashStatusBadge';
+import { QueryErrorState } from '@/module/petty-cash/presentation/components/QueryErrorState';
+import { useOpenAttachment } from '@/module/petty-cash/presentation/hooks/useOpenAttachment';
+import { usePettyCashVoucher } from '@/module/petty-cash/presentation/hooks/usePettyCashQueries';
 
 interface Props {
+  /** Kept while the drawer slides closed, so the body does not blank out during the transition. */
+  voucherId: string | null;
   opened: boolean;
   onClose: () => void;
-  voucher: PettyCashVoucher | null;
 }
 
-const STATUS_LABEL_KEYS: Record<PettyCashVoucher['status'], string> = {
-  DRAFT: 'drawer.statusDraft',
-  SUBMITTED: 'drawer.statusSubmitted',
-  APPROVED: 'drawer.statusApproved',
-  PAID: 'drawer.statusPaid',
-  PENDING_REIMBURSE: 'drawer.statusPending',
-  REIMBURSEMENT_PENDING: 'drawer.statusReplenishing',
-  REIMBURSED: 'drawer.statusReimbursed',
-  REJECTED: 'drawer.statusRejected',
-  VOID: 'drawer.statusVoid',
+const KNOWN_WARNING_CODES = ['DUPLICATE_RECEIPT_NUMBER'];
+
+const money = (amount: number) => formatCurrency(amount, false);
+
+function Field({ label, value }: Readonly<{ label: string; value?: string | null }>) {
+  if (!value) return null;
+  return (
+    <Box>
+      <Text size="xs" c="dimmed">
+        {label}
+      </Text>
+      <Text size="sm" fw={600}>
+        {value}
+      </Text>
+    </Box>
+  );
+}
+
+const warningText = (
+  warning: { code: string; message: string },
+  language: string,
+  t: (key: string) => string
+) => {
+  if (language === 'id' && warning.message) return warning.message;
+  return KNOWN_WARNING_CODES.includes(warning.code)
+    ? t(`drawer.warningCodes.${warning.code}`)
+    : t('drawer.warningGeneric');
 };
 
-export function VoucherDetailDrawer({ opened, onClose, voucher }: Props) {
-  const { t: tp } = useTranslation('pettyCash');
-  if (!voucher) return null;
+export function VoucherDetailDrawer({ voucherId, opened, onClose }: Readonly<Props>) {
+  const { t, currentLanguage } = useTranslation('pettyCash');
+  const query = usePettyCashVoucher(voucherId ?? undefined);
+  const { open, openingId } = useOpenAttachment();
+  const voucher = query.data;
+  const totals = voucher ? voucherBreakdown(voucher.lines, voucher.totalAmount) : null;
 
   return (
     <Drawer
       opened={opened}
       onClose={onClose}
       position="right"
-      size={480}
-      padding={0}
-      classNames={{ body: classes.drawerBody, header: classes.drawerHeader }}
+      size="lg"
       title={
-        <Box>
-          <Text fw={650} fz="md" c="dark.9">
-            {tp('drawer.title')}
-          </Text>
-          <Text fz="xs" c="dimmed" mt={2}>
-            {voucher.voucherNumber}
-          </Text>
-        </Box>
+        <Group gap="sm">
+          <Text fw={700}>{voucher?.voucherNumber ?? t('drawer.title')}</Text>
+          {voucher && <PettyCashStatusBadge kind="voucher" status={voucher.status} />}
+        </Group>
       }
+      closeButtonProps={{ 'aria-label': t('common.close') }}
     >
-      <Stack className={classes.drawerContent} gap="xl">
-        <Box className={classes.amountBlock}>
-          <Group justify="space-between" align="flex-end" gap="md">
-            <Box>
-              <Text size="xs" c="dimmed" mb={6}>
-                {tp('drawer.amount')}
-              </Text>
-              <Text className={classes.amount}>{formatCurrency(voucher.amount)}</Text>
-            </Box>
-            <Box className={classes.status} mb={5}>
-              <span className={classes.statusDot} aria-hidden="true" />
-              {tp(STATUS_LABEL_KEYS[voucher.status])}
-            </Box>
+      {query.isLoading && (
+        <Stack gap="sm">
+          <Skeleton height={20} />
+          <Skeleton height={20} width="70%" />
+          <Skeleton height={120} />
+        </Stack>
+      )}
+
+      {query.isError && (
+        <QueryErrorState
+          title={t('drawer.loadFailed')}
+          error={query.error}
+          onRetry={() => query.refetch()}
+        />
+      )}
+
+      {voucher && totals && (
+        <Stack gap="lg">
+          {voucher.warnings.length > 0 && (
+            <Alert
+              color="orange"
+              variant="light"
+              radius="md"
+              icon={<IconAlertTriangle size={16} />}
+              title={t('drawer.warnings')}
+            >
+              {voucher.warnings.map((warning) => (
+                <Text key={`${warning.code}-${warning.message}`} size="sm">
+                  {warningText(warning, currentLanguage, t)}
+                </Text>
+              ))}
+            </Alert>
+          )}
+
+          <Group grow align="flex-start">
+            <Field label={t('drawer.beneficiary')} value={voucher.beneficiary} />
+            <Field label={t('drawer.date')} value={dateFormatV1(voucher.transactionDate)} />
           </Group>
-          <Text fz="xs" c="dimmed" mt="sm">
-            {dateFormatV1(voucher.date)}
-          </Text>
-        </Box>
-
-        <Box component="dl" className={classes.detailList}>
-          <div className={classes.detailRow}>
-            <dt>{tp('drawer.fund')}</dt>
-            <dd>{voucher.fundName}</dd>
-          </div>
-          <div className={classes.detailRow}>
-            <dt>{tp('drawer.beneficiary')}</dt>
-            <dd>{voucher.beneficiary}</dd>
-          </div>
-          <div className={classes.detailRow}>
-            <dt>{tp('drawer.account')}</dt>
-            <dd>
-              <Text span c="dimmed" fw={500} mr={6}>
-                {voucher.expenseAccount.code}
-              </Text>
-              {voucher.expenseAccount.name}
-            </dd>
-          </div>
-          <div className={classes.detailRow}>
-            <dt>{tp('drawer.receiptNo')}</dt>
-            <dd>{voucher.receiptNumber || tp('drawer.notProvided')}</dd>
-          </div>
-        </Box>
-
-        <Box>
-          <Text fz="xs" c="dimmed" mb={7}>
-            {tp('common.purpose')}
-          </Text>
-          <Text fz="sm" c="dark.8" lh={1.65}>
-            {voucher.description}
-          </Text>
-        </Box>
-
-        {voucher.attachmentName && (
-          <Box className={classes.attachment}>
-            <IconPaperclip size={17} color="var(--mantine-color-gray-6)" />
-            <Box style={{ minWidth: 0, flex: 1 }}>
-              <Text fz="xs" fw={600} truncate>
-                {voucher.attachmentName}
-              </Text>
-              <Text fz="var(--jurnal-text-xs)" c="dimmed">
-                {tp('drawer.evidence')}
-              </Text>
-            </Box>
-            <ActionIcon variant="subtle" color="primary" aria-label={tp('drawer.download')}>
-              <IconDownload size={17} />
-            </ActionIcon>
-          </Box>
-        )}
-
-        <Box>
-          <Group gap={8} mb="xs">
-            <IconFileText size={17} color="var(--mantine-color-gray-6)" />
-            <Text fz="sm" fw={650}>
-              {tp('drawer.accounting')}
-            </Text>
+          <Group grow align="flex-start">
+            <Field label={t('drawer.receipt')} value={voucher.receiptNumber} />
+            <Field label={t('drawer.taxInvoice')} value={voucher.taxInvoiceNumber} />
           </Group>
-          <Text fz="xs" c="dimmed" lh={1.55}>
-            {tp('drawer.accountingNote')}
-          </Text>
-        </Box>
+          <Field label={t('drawer.vendorTaxId')} value={voucher.vendorTaxId} />
+          <Field label={t('drawer.description')} value={voucher.description} />
 
-        <Box className={classes.audit}>
-          <IconUserCheck size={17} />
           <Box>
-            <Text fz="xs" c="dimmed">
-              {tp('drawer.recordedBy')}
+            <Text fw={700} mb="xs">
+              {t('drawer.lines')}
             </Text>
-            <Text fz="sm" fw={600} c="dark.8">
-              {voucher.createdBy}
+            <Table.ScrollContainer minWidth={420}>
+              <Table verticalSpacing="xs">
+                <Table.Thead>
+                  <Table.Tr>
+                    <Table.Th>{t('drawer.lineAccount')}</Table.Th>
+                    <Table.Th ta="right">{t('drawer.lineNet')}</Table.Th>
+                    <Table.Th ta="right">{t('drawer.lineTax')}</Table.Th>
+                  </Table.Tr>
+                </Table.Thead>
+                <Table.Tbody>
+                  {voucher.lines.map((line) => (
+                    <Table.Tr key={line.lineNo}>
+                      <Table.Td>
+                        {line.expenseAccount && (
+                          <Text size="sm" fw={600}>
+                            {line.expenseAccount.accountNumber} · {line.expenseAccount.name}
+                          </Text>
+                        )}
+                        {line.description && (
+                          <Text size="xs" c="dimmed">
+                            {line.description}
+                          </Text>
+                        )}
+                      </Table.Td>
+                      <Table.Td ta="right">{money(line.amount)}</Table.Td>
+                      <Table.Td ta="right">
+                        {line.tax ? (
+                          <>
+                            {money(line.taxAmount)}
+                            <Text size="xs" c="dimmed">
+                              {line.tax.name}
+                            </Text>
+                          </>
+                        ) : (
+                          '-'
+                        )}
+                      </Table.Td>
+                    </Table.Tr>
+                  ))}
+                </Table.Tbody>
+              </Table>
+            </Table.ScrollContainer>
+            <Stack gap={4} mt="sm">
+              {totals.reconciles && (
+                <>
+                  <Group justify="space-between">
+                    <Text size="sm" c="dimmed">
+                      {t('drawer.net')}
+                    </Text>
+                    <Text size="sm">{money(totals.net)}</Text>
+                  </Group>
+                  <Group justify="space-between">
+                    <Text size="sm" c="dimmed">
+                      {t('drawer.tax')}
+                    </Text>
+                    <Text size="sm">{money(totals.tax)}</Text>
+                  </Group>
+                </>
+              )}
+              <Divider />
+              <Group justify="space-between">
+                <Text fw={700}>{t('drawer.total')}</Text>
+                <Text fw={700}>{money(voucher.totalAmount)}</Text>
+              </Group>
+              {totals.reconciles && (
+                <Text size="xs" c="dimmed">
+                  {t('drawer.taxNote')}
+                </Text>
+              )}
+            </Stack>
+          </Box>
+
+          <Box>
+            <Text fw={700} mb="xs">
+              {t('drawer.attachments')}
             </Text>
-            {voucher.approvedBy && (
-              <Text fz="xs" c="dimmed" mt={6}>
-                {tp('drawer.verifiedBy')} {voucher.approvedBy}
-                {voucher.approvedAt ? `, ${dateFormatV1(voucher.approvedAt)}` : ''}
+            {voucher.attachments.length === 0 ? (
+              <Text size="sm" c="dimmed">
+                {t('drawer.noAttachments')}
               </Text>
+            ) : (
+              <Stack gap={6}>
+                {voucher.attachments.map((attachment) => (
+                  <Anchor
+                    key={attachment.id}
+                    component="button"
+                    type="button"
+                    size="sm"
+                    ta="left"
+                    disabled={openingId === attachment.id}
+                    onClick={() => open(attachment.id)}
+                    aria-label={t('drawer.openAttachment', { name: attachment.fileName })}
+                  >
+                    <Group gap={6} wrap="nowrap">
+                      <IconPaperclip size={14} />
+                      {attachment.fileName}
+                    </Group>
+                  </Anchor>
+                ))}
+                <Text size="xs" c="dimmed">
+                  {t('drawer.attachmentLinkNote')}
+                </Text>
+              </Stack>
             )}
           </Box>
-        </Box>
 
-        <Anchor component="button" type="button" size="sm" onClick={onClose} ta="left">
-          {tp('drawer.close')}
-        </Anchor>
-      </Stack>
+          <Box>
+            <Text fw={700} mb="xs">
+              {t('drawer.history')}
+            </Text>
+            <Stack gap="xs">
+              <Field label={t('drawer.createdBy')} value={voucher.requestedBy?.name} />
+              <Field
+                label={t('drawer.submittedAt')}
+                value={voucher.submittedAt ? dateFormatV1(voucher.submittedAt) : null}
+              />
+              <Field label={t('drawer.approvedBy')} value={voucher.approvedBy?.name} />
+              {/* The backend keeps the old reasons after a voucher leaves REJECTED or VOID. */}
+              <Field
+                label={t('drawer.rejectedReason')}
+                value={voucher.status === 'REJECTED' ? voucher.rejectedReason : null}
+              />
+              <Field
+                label={t('drawer.voidReason')}
+                value={voucher.status === 'VOID' ? voucher.voidReason : null}
+              />
+            </Stack>
+          </Box>
+        </Stack>
+      )}
     </Drawer>
   );
 }
-
-export default VoucherDetailDrawer;
