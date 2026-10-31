@@ -31,7 +31,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { capitalize } from 'lodash';
 import { routes } from '@/router/routes';
 import { useAuthStore } from '@/store/useAuthentications';
-import { usePendingChangesCount } from '@/module/dashboard/presentation/hooks/useDashboardQueries';
+import { usePendingChangesCount } from '@/module/pending-changes';
 import { useTranslation } from '@/i18n';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import classes from './page.module.css';
