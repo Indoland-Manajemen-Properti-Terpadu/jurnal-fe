@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Center, Loader, Stack, Text } from "@mantine/core";
-import { useOAuthExchange } from "../service/OAuth.service";
+import { useOAuthExchange } from "@/module/authentication/infrastructure/OAuth.service";
 
 export default function OAuthCallback() {
   const [searchParams] = useSearchParams();

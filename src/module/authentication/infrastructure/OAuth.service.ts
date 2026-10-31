@@ -5,7 +5,7 @@ import { post } from '@/lib/http/apiClient';
 import { API_AUTH } from '@/services/endpoint';
 import { routes } from '@/router/routes';
 import { useAuthStore } from '@/store/useAuthentications';
-import { LoginModelResponse } from '../types/LoginModelResponse';
+import { LoginModelResponse } from '@/module/authentication/domain/LoginModelResponse';
 
 export const useOAuthExchange = () => {
   const navigate = useNavigate();

@@ -13,10 +13,10 @@ import {
 import { IconShieldCheck } from '@tabler/icons-react';
 import { useLocation } from 'react-router-dom';
 import LogoProapps from '@/assets/img/proapps-logo.svg';
-import { useLogin } from '../service/Login.service';
-import { AuthVisualSide } from '../components/AuthVisualSide';
-import { LoginForm } from '../components/LoginForm';
-import { ForgotPasswordForm } from '../components/ForgotPasswordForm';
+import { useLogin } from '@/module/authentication/infrastructure/Login.service';
+import { AuthVisualSide } from '@/module/authentication/presentation/components/AuthVisualSide';
+import { LoginForm } from '@/module/authentication/presentation/components/LoginForm';
+import { ForgotPasswordForm } from '@/module/authentication/presentation/components/ForgotPasswordForm';
 
 interface LoginPageProps {
   initialMode?: 'login' | 'forgot';

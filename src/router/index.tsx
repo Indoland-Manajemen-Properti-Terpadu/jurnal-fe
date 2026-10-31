@@ -72,8 +72,8 @@ import {
 import AppShellLayout from '@/components/AppShellLayout';
 import { PendingChangesPage } from '@/module/pending-changes';
 import { NotFound } from '@/components/ErrorPage/NotFound';
-import LoginPage from '@/module/Authentication/Login/pages/LoginPage';
-import OAuthCallback from '@/module/Authentication/Login/pages/OAuthCallback';
+import LoginPage from '@/module/authentication/presentation/pages/LoginPage';
+import OAuthCallback from '@/module/authentication/presentation/pages/OAuthCallback';
 import { DashboardPage } from '@/module/dashboard';
 import { LandingPage } from '@/module/landing';
 import { ProfilePage } from '@/module/profile';
