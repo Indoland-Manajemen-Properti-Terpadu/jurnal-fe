@@ -10,10 +10,23 @@ export const API_AUTH = {
 export const API_USERS = {
   GET_ALL_USER: `/v1/users`,
   GET_USER_DETAIL: `/v1/users/get-id`,
+  USER: (userId: string) => `/v1/users/${userId}`,
+  ME: `/v1/users/me`,
+  MY_PERMISSIONS: `/v1/users/me/permissions`,
+  MY_PASSWORD: `/v1/users/me/password`,
 };
 
 export const API_ACCESS_ROLE = {
   GET_ROLE: `/v1/access-role`,
+  ROLE: (roleId: string) => `/v1/access-role/${roleId}`,
+};
+
+export const API_MENUS = {
+  GET_MENUS: `/v1/menus`,
+};
+
+export const API_RBAC_AUDIT = {
+  GET_LOGS: `/v1/rbac-audit-logs`,
 };
 
 export const API_SITE = {
@@ -58,8 +71,6 @@ export const API_ACCOUNT = {
   GET_JOURNAL_DETAILS_FOR_RECON: `${BASE_URL}/v1/reconciliation/bank-statements/:bankStatementId/journal-details`,
 
   ARCHIVE_ACCOUNT: `${BASE_URL}/v1/accounts/:accountId/archive`,
-
-  POST_ADD_ROLE: `${BASE_URL}/v1/access-role/`,
 };
 
 export const API_TAGS = {

@@ -1,9 +1,12 @@
 import {
+  applyRolePermissions,
   buildRolePayload,
   createInitialPermissions,
-  setMenuPermission,
+  permissionLetters,
+  permissionsFromLetters,
+  setColumnPermission,
+  setPermission,
   supportsPermission,
-  toggleChildPermission,
   type PermissionMenu,
 } from './rolePermissions';
 
@@ -47,108 +50,109 @@ describe('supportsPermission', () => {
   });
 });
 
-describe('toggleChildPermission', () => {
-  it('ticks the parent when a child is ticked', () => {
-    const next = toggleChildPermission(
-      menus,
-      createInitialPermissions(menus),
-      'journal-list',
-      'read'
-    );
+describe('setPermission', () => {
+  it('changes one menu and leaves its parent and siblings alone', () => {
+    const start = createInitialPermissions(menus);
 
-    expect(flags(next, 'journal-list').read).toBe(true);
-    expect(flags(next, 'journal').read).toBe(true);
+    const result = setPermission(start, 'journal-list', 'read', true);
+
+    expect(flags(result, 'journal-list').read).toBe(true);
+    expect(flags(result, 'journal').read).toBe(false);
+    expect(flags(result, 'journal-report').read).toBe(false);
   });
 
-  it('unticks the parent when the last ticked child is unticked', () => {
-    let next = toggleChildPermission(
-      menus,
-      createInitialPermissions(menus),
-      'journal-list',
-      'read'
-    );
-    next = toggleChildPermission(menus, next, 'journal-list', 'read');
+  it('can switch a right off again', () => {
+    const on = setPermission(createInitialPermissions(menus), 'dashboard', 'read', true);
 
-    expect(flags(next, 'journal-list').read).toBe(false);
-    expect(flags(next, 'journal').read).toBe(false);
-  });
-
-  it('keeps the parent ticked while another child is still ticked', () => {
-    let next = toggleChildPermission(
-      menus,
-      createInitialPermissions(menus),
-      'journal-list',
-      'read'
-    );
-    next = toggleChildPermission(menus, next, 'journal-report', 'read');
-    next = toggleChildPermission(menus, next, 'journal-list', 'read');
-
-    expect(flags(next, 'journal-report').read).toBe(true);
-    expect(flags(next, 'journal').read).toBe(true);
-  });
-
-  it('toggles a menu without a parent on its own and leaves the others alone', () => {
-    const initial = createInitialPermissions(menus);
-    const next = toggleChildPermission(menus, initial, 'dashboard', 'read');
-
-    expect(flags(next, 'dashboard').read).toBe(true);
-    expect(flags(next, 'journal').read).toBe(false);
-  });
-
-  it('does not change the permissions it was given', () => {
-    const initial = createInitialPermissions(menus);
-    const snapshot = JSON.stringify(initial);
-
-    toggleChildPermission(menus, initial, 'journal-list', 'read');
-
-    expect(JSON.stringify(initial)).toBe(snapshot);
+    expect(flags(setPermission(on, 'dashboard', 'read', false), 'dashboard').read).toBe(false);
   });
 });
 
-describe('setMenuPermission', () => {
-  it('sets a parent and only the children that support the permission', () => {
-    const next = setMenuPermission(
-      menus,
-      createInitialPermissions(menus),
-      'journal',
-      'create',
-      true
-    );
+describe('setColumnPermission', () => {
+  it('sets only menus that support the permission', () => {
+    const result = setColumnPermission(menus, createInitialPermissions(menus), 'delete', true);
 
-    expect(flags(next, 'journal').create).toBe(true);
-    expect(flags(next, 'journal-list').create).toBe(true);
-    expect(flags(next, 'journal-report').create).toBe(false);
+    expect(flags(result, 'journal').delete).toBe(true);
+    expect(flags(result, 'journal-list').delete).toBe(true);
+    expect(flags(result, 'journal-report').delete).toBe(false);
+    expect(flags(result, 'dashboard').delete).toBe(false);
   });
 
-  it('clears the parent and its supporting children', () => {
-    let next = setMenuPermission(menus, createInitialPermissions(menus), 'journal', 'read', true);
-    next = setMenuPermission(menus, next, 'journal', 'read', false);
-
-    expect(flags(next, 'journal').read).toBe(false);
-    expect(flags(next, 'journal-list').read).toBe(false);
-    expect(flags(next, 'journal-report').read).toBe(false);
-  });
-
-  it('sets a menu without children on its own', () => {
-    const next = setMenuPermission(
+  it('skips menus the caller may not change', () => {
+    const result = setColumnPermission(
       menus,
       createInitialPermissions(menus),
-      'dashboard',
       'read',
-      true
+      true,
+      (menuId) => menuId !== 'dashboard'
     );
 
-    expect(flags(next, 'dashboard').read).toBe(true);
+    expect(flags(result, 'journal').read).toBe(true);
+    expect(flags(result, 'dashboard').read).toBe(false);
+  });
+
+  it('clears the column', () => {
+    const all = setColumnPermission(menus, createInitialPermissions(menus), 'read', true);
+
+    const cleared = setColumnPermission(menus, all, 'read', false);
+
+    expect(cleared.every((entry) => !entry.read)).toBe(true);
   });
 });
 
 describe('buildRolePayload', () => {
-  it('sends the role name and every permission entry', () => {
-    const permissions = createInitialPermissions(menus);
+  it('sends only menus with a right, keyed by menuId, and drops unsupported rights', () => {
+    const permissions = createInitialPermissions(menus).map((entry) =>
+      entry.menuId === 'journal-report'
+        ? { ...entry, read: true, delete: true }
+        : entry.menuId === 'dashboard'
+          ? { ...entry, read: true }
+          : entry
+    );
 
-    expect(buildRolePayload('Auditor', permissions)).toEqual({
+    expect(buildRolePayload(menus, ' Auditor ', ' Melihat laporan ', permissions)).toEqual({
       name: 'Auditor',
-      menuAccessRolePermission: permissions,
+      description: 'Melihat laporan',
+      menuAccessRolePermission: [
+        { menuId: 'journal-report', create: false, read: true, update: false, delete: false },
+        { menuId: 'dashboard', create: false, read: true, update: false, delete: false },
+      ],
     });
+  });
+
+  it('sends an empty list for a role without rights', () => {
+    const payload = buildRolePayload(menus, 'Kosong', '', createInitialPermissions(menus));
+
+    expect(payload.menuAccessRolePermission).toEqual([]);
+  });
+
+  it('leaves the description out when it is empty', () => {
+    const payload = buildRolePayload(menus, 'Kosong', '   ', createInitialPermissions(menus));
+
+    expect(payload).not.toHaveProperty('description');
+  });
+});
+
+describe('applyRolePermissions', () => {
+  it('switches on what the role grants and leaves the rest off', () => {
+    const result = applyRolePermissions(menus, [
+      { menuId: 'dashboard', create: false, read: true, update: false, delete: false },
+    ]);
+
+    expect(flags(result, 'dashboard').read).toBe(true);
+    expect(flags(result, 'journal').read).toBe(false);
+    expect(result).toHaveLength(4);
+  });
+});
+
+describe('permission letters', () => {
+  it('writes letters in c, r, u, d order', () => {
+    expect(permissionLetters({ delete: true, create: true, read: true })).toBe('crd');
+    expect(permissionLetters(undefined)).toBe('');
+  });
+
+  it('reads letters back and ignores unknown ones', () => {
+    expect(permissionsFromLetters('cru')).toEqual(['create', 'read', 'update']);
+    expect(permissionsFromLetters('x')).toEqual([]);
   });
 });
