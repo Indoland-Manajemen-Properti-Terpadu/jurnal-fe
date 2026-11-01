@@ -62,7 +62,6 @@ export function FundSettingsFields({ value, onChange, errorOf }: Readonly<Props>
           {money('attachmentRequiredThreshold')}
           <NumberInput
             label={t('fundAdmin.warningThresholdPct')}
-            description={t('fundAdmin.warningThresholdPctHint')}
             value={value.warningThresholdPct}
             onChange={(next) => set({ warningThresholdPct: asField(next) })}
             error={errorOf('warningThresholdPct')}
@@ -72,6 +71,9 @@ export function FundSettingsFields({ value, onChange, errorOf }: Readonly<Props>
             decimalScale={0}
           />
         </SimpleGrid>
+        <Text size="xs" c="dimmed">
+          {t('fundAdmin.warningThresholdPctHint')}
+        </Text>
       </Stack>
       <Stack gap="sm">
         <Text fw={650} size="sm">
