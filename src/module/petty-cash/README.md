@@ -77,7 +77,7 @@ Namespace `pettyCash` (`id` and `en`): `workspace`, `balance`, `vouchers`, `draw
 
 ## Known gaps
 
-- No screen yet for blocking, unblocking or granting an exception to an employee's advance requests (hooks `useChangeRestriction` exist).
+- Blocking, unblocking and granting an exception to an employee's advance requests lives in Reports > Advances by employee (control right `JP-PC-CTL`, which also needs the read right on `JP-PC` to reach that tab). Block and unblock were verified live; the exception needs an overdue advance and was not.
 - Creating a fund and closing one were checked by form validation and a refused request only; the Demo Site has no empty petty cash account to fund from.
 - Verified in a browser as the staff member, custodian, approver and superadmin, including the full advance workflow and fund ceiling adjustments.
 - Edit-then-submit is coordinated in the form (two sequential mutations); move it to an `application` use case when later phases add similar multi-step workflows.

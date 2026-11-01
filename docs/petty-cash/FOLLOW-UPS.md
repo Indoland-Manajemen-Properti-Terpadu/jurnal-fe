@@ -65,7 +65,7 @@ Diuji langsung: kelima laporan; ubah pengaturan dana PC-HQ (hari pertanggungjawa
 
 Belum diuji tulis: dana baru (validasi form saja) dan tutup dana (tidak bisa dibatalkan); alur ini perlu persetujuan sebelum dicoba di Demo Site. Perhatikan juga: pilihan rekening bank pada form memuat semua akun kas dan bank; belum diketahui apakah backend membatasi jenis akun untuk pendanaan.
 
-Antarmuka blokir, buka blokir, dan pengecualian uang muka (hook `useChangeRestriction` siap) belum dibuat.
+Antarmuka blokir, buka blokir, dan pengecualian uang muka ada di Laporan > Uang muka per karyawan > Kelola pengajuan (hak kontrol JP-PC-CTL). Blokir dan buka blokir diuji langsung pada pc.staff (dikembalikan normal). Pengecualian (override) belum teruji karena butuh uang muka yang lewat jatuh tempo; bentuk permintaan `{ until, reason }` mengikuti kontrak Postman.
 
 ## Verifikasi alur uang muka (selesai, 2026-10-31)
 

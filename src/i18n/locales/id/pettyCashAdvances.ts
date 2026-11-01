@@ -173,6 +173,12 @@ export const pettyCashAdvances = {
     revoke: 'Cabut pengecualian',
     reason: 'Alasan',
     reasonPlaceholder: 'Jelaskan alasannya',
+    clear: 'Pengajuan uang muka berjalan normal.',
+    held: 'Pengajuan uang muka sedang ditahan.',
+    action: 'Tindakan',
+    untilHint:
+      'Selama pengecualian berlaku, karyawan tetap bisa mengajukan walau ada uang muka lewat jatuh tempo.',
+    issue: { REQUIRED: 'Wajib diisi.', PAST_DATE: 'Tanggal tidak boleh sudah lewat.' },
     until: 'Berlaku sampai',
   },
 };

@@ -172,6 +172,12 @@ export const pettyCashAdvances = {
     revoke: 'Revoke exception',
     reason: 'Reason',
     reasonPlaceholder: 'Explain why',
+    clear: 'Advance requests are working normally.',
+    held: 'Advance requests are on hold.',
+    action: 'Action',
+    untilHint:
+      'While the exception lasts, the employee can still request despite an overdue advance.',
+    issue: { REQUIRED: 'Required.', PAST_DATE: 'The date cannot be in the past.' },
     until: 'Valid until',
   },
 };
