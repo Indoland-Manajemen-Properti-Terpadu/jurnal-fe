@@ -1,14 +1,49 @@
 import { useState } from 'react';
-import { Alert, Box, Paper, Stack, Text } from '@mantine/core';
+import { Alert, Box, Button, Paper, Stack, Text } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
 import dayjs from 'dayjs';
-import { IconAlertCircle, IconCircleCheck } from '@tabler/icons-react';
+import { IconAlertCircle, IconArrowRight, IconCircleCheck } from '@tabler/icons-react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
+import { routes } from '@/router/routes';
 import { formatCurrency } from '@/utils/formatCurrency';
 import { ReportShell } from '@/module/petty-cash/presentation/components/reports/ReportShell';
+import { usePettyCashAccess } from '@/module/petty-cash/presentation/hooks/usePettyCashAccess';
 import { usePeriodEndCheck } from '@/module/petty-cash/presentation/hooks/useReportQueries';
 
 const KNOWN_ACTIONS = ['REIMBURSE', 'SETTLE'];
+/** The suggested next step, as a button where this user can take it and as plain text otherwise. */
+function NextStep({ action, fundId }: Readonly<{ action: string; fundId: string }>) {
+  const { t } = useTranslation('pettyCash');
+  const navigate = useNavigate();
+  const access = usePettyCashAccess();
+  const label = t(`reports.periodEnd.action.${action}`);
+  const canAct = action === 'REIMBURSE' ? access.can('JP-PC-RMB', 'create') : true;
+
+  if (!canAct) {
+    return (
+      <Text size="sm" fw={600} mt="xs">
+        {label}
+      </Text>
+    );
+  }
+  const target =
+    action === 'REIMBURSE'
+      ? routes.pettyCash.replenishmentAdd.replace(':fundId', fundId)
+      : `${routes.pettyCash.main}?fund=${fundId}&tab=advances`;
+  return (
+    <Button
+      mt="sm"
+      size="xs"
+      variant="light"
+      rightSection={<IconArrowRight size={14} />}
+      onClick={() => navigate(target)}
+    >
+      {label}
+    </Button>
+  );
+}
+
 const money = (amount: number) => formatCurrency(amount, false);
 
 /** What is still open at a closing date, fund by fund, with the next step for each. */
@@ -74,9 +109,7 @@ export function PeriodEndReport() {
                 </Box>
               )}
               {KNOWN_ACTIONS.includes(entry.suggestedAction) && (
-                <Text size="sm" fw={600} mt="xs">
-                  {t(`reports.periodEnd.action.${entry.suggestedAction}`)}
-                </Text>
+                <NextStep action={entry.suggestedAction} fundId={entry.fund.id} />
               )}
             </Paper>
           ))}
