@@ -1,95 +1,74 @@
 import {
-  formatJoinedDate,
-  formatUpdatedDate,
+  canChangePassword,
+  formatDate,
   getPasswordChecks,
-  isAdminRole,
+  initialsOf,
   isProfileDirty,
-  validateNewPassword,
   validatePersonalInfo,
   type Profile,
 } from './profile';
 
 const profile: Profile = {
   id: 'u1',
-  name: 'Budi',
+  name: 'Budi Santoso',
   email: 'budi@example.com',
-  role: 'admin',
+  role: 'user',
+  isActive: true,
   isEmailVerified: true,
+  roles: [],
 };
 
 describe('validatePersonalInfo', () => {
-  it('accepts a name and an email', () => {
-    expect(validatePersonalInfo('Budi', 'budi@example.com')).toBeNull();
-  });
-
-  it('rejects blank or whitespace-only values', () => {
-    expect(validatePersonalInfo('', 'a@b.c')).toBe('empty');
-    expect(validatePersonalInfo('Budi', '   ')).toBe('empty');
-  });
-});
-
-describe('validateNewPassword', () => {
-  it('rejects fewer than 8 characters before checking the confirmation', () => {
-    expect(validateNewPassword('abc1234', 'different')).toBe('tooShort');
-  });
-
-  it('rejects a confirmation that differs', () => {
-    expect(validateNewPassword('abc12345', 'abc12346')).toBe('mismatch');
-  });
-
-  it('accepts exactly 8 matching characters, letters not required', () => {
-    expect(validateNewPassword('12345678', '12345678')).toBeNull();
-  });
-});
-
-describe('getPasswordChecks', () => {
-  it('reports each requirement', () => {
-    expect(getPasswordChecks('abc12345', 'abc12345')).toEqual({
-      isMinLength: true,
-      hasLetter: true,
-      hasNumber: true,
-      isMatch: true,
-    });
-    expect(getPasswordChecks('abcdefg', '')).toEqual({
-      isMinLength: false,
-      hasLetter: true,
-      hasNumber: false,
-      isMatch: false,
-    });
-  });
-
-  it('does not treat two empty values as a match', () => {
-    expect(getPasswordChecks('', '').isMatch).toBe(false);
+  it('needs a name and a valid email', () => {
+    expect(validatePersonalInfo(' ', 'a@b.id')).toBe('nameEmpty');
+    expect(validatePersonalInfo('Budi', 'not-an-email')).toBe('emailInvalid');
+    expect(validatePersonalInfo('Budi', ' budi@example.com ')).toBeNull();
   });
 });
 
 describe('isProfileDirty', () => {
-  it('is false for the stored values and true after an edit', () => {
-    expect(isProfileDirty(profile, 'Budi', 'budi@example.com')).toBe(false);
-    expect(isProfileDirty(profile, 'Budi ', 'budi@example.com')).toBe(true);
+  it('ignores surrounding spaces and reports a real change', () => {
+    expect(isProfileDirty(profile, ' Budi Santoso ', 'budi@example.com')).toBe(false);
+    expect(isProfileDirty(profile, 'Budi S', 'budi@example.com')).toBe(true);
+    expect(isProfileDirty(profile, 'Budi Santoso', 'baru@example.com')).toBe(true);
   });
 });
 
-describe('isAdminRole', () => {
-  it('is true only for admin and superadmin', () => {
-    expect(isAdminRole('admin')).toBe(true);
-    expect(isAdminRole('superadmin')).toBe(true);
-    expect(isAdminRole('staff')).toBe(false);
-    expect(isAdminRole(undefined)).toBe(false);
+describe('password rules', () => {
+  it('checks each requirement on its own', () => {
+    expect(getPasswordChecks('lama1234', 'abc', 'abd')).toEqual({
+      isMinLength: false,
+      hasLetter: true,
+      hasNumber: false,
+      isMatch: false,
+      isDifferent: true,
+    });
+  });
+
+  it('allows a change only when everything holds', () => {
+    expect(canChangePassword('lama1234', 'baru12345', 'baru12345')).toBe(true);
+    expect(canChangePassword('', 'baru12345', 'baru12345')).toBe(false);
+    expect(canChangePassword('lama1234', 'baru12345', 'baru1234')).toBe(false);
+    expect(canChangePassword('lama1234', 'lama1234', 'lama1234')).toBe(false);
+    expect(canChangePassword('lama1234', 'hurufsaja', 'hurufsaja')).toBe(false);
+    expect(canChangePassword('lama1234', '12345678', '12345678')).toBe(false);
+    expect(canChangePassword('lama1234', 'baru1', 'baru1')).toBe(false);
   });
 });
 
-describe('date formatting', () => {
-  it('formats the joined date in Indonesian long form', () => {
-    expect(formatJoinedDate('2026-03-15T12:00:00.000Z')).toBe('15 Maret 2026');
+describe('initialsOf', () => {
+  it('takes two letters from the name', () => {
+    expect(initialsOf('Sari Wulandari')).toBe('SW');
+    expect(initialsOf('Finance')).toBe('FI');
+    expect(initialsOf('  budi   santoso  putra ')).toBe('BS');
+    expect(initialsOf('   ')).toBe('?');
   });
+});
 
-  it('includes the date for the updated stamp', () => {
-    expect(formatUpdatedDate('2026-03-15T12:00:00.000Z')).toContain('15 Maret 2026');
-  });
-
-  it('returns a dash when the date is missing', () => {
-    expect(formatJoinedDate(undefined)).toBe('-');
-    expect(formatUpdatedDate(undefined)).toBe('-');
+describe('formatDate', () => {
+  it('follows the language and shows a dash when there is no date', () => {
+    expect(formatDate(undefined, 'id')).toBe('-');
+    expect(formatDate('2026-03-15T12:00:00.000Z', 'id')).toContain('Maret');
+    expect(formatDate('2026-03-15T12:00:00.000Z', 'en')).toContain('March');
   });
 });

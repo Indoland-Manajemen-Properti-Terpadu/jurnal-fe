@@ -1,172 +1,117 @@
 import { useState } from 'react';
-import {
-  Badge,
-  Box,
-  Button,
-  Divider,
-  Grid,
-  Group,
-  PasswordInput,
-  Paper,
-  Stack,
-  Text,
-  ThemeIcon,
-  Title,
-} from '@mantine/core';
+import { Alert, Button, Grid, PasswordInput, Stack } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { IconDeviceDesktop, IconInfoCircle, IconLock } from '@tabler/icons-react';
+import { IconInfoCircle, IconKey } from '@tabler/icons-react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
+import { routes } from '@/router/routes';
+import { useAuthStore } from '@/store/useAuthentications';
+import { canChangePassword, getPasswordChecks } from '../../domain/profile';
 import {
-  getPasswordChecks,
-  validateNewPassword,
-  type Profile,
-  type UpdateProfileInput,
-} from '../../domain/profile';
+  PasswordChangeFailure,
+  type PasswordChangeError,
+} from '../../infrastructure/passwordError';
+import { useChangePassword } from '../hooks/useProfileQueries';
 import { PasswordChecklist } from './PasswordChecklist';
+import { SectionCard } from './SectionCard';
 
-interface SecurityTabProps {
-  user?: Profile;
-  isSaving: boolean;
-  onSubmit: (input: UpdateProfileInput, onSuccess?: () => void) => void;
-}
-
-export function SecurityTab({ user, isSaving, onSubmit }: SecurityTabProps) {
+export function SecurityTab() {
   const { t } = useTranslation('profile');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const navigate = useNavigate();
+  const clearTokens = useAuthStore((state) => state.clearTokens);
+  const change = useChangePassword();
+  const [current, setCurrent] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmation, setConfirmation] = useState('');
+  const [failure, setFailure] = useState<PasswordChangeError | null>(null);
 
-  const checks = getPasswordChecks(newPassword, confirmPassword);
+  const checks = getPasswordChecks(current, password, confirmation);
+  const ready = canChangePassword(current, password, confirmation);
 
-  const clearInputs = () => {
-    setNewPassword('');
-    setConfirmPassword('');
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user?.id) return;
-
-    const error = validateNewPassword(newPassword, confirmPassword);
-    if (error) {
-      notifications.show({
-        color: 'red',
-        title: t('notifications.validationTitle'),
-        message: t(
-          error === 'tooShort' ? 'notifications.passwordTooShort' : 'notifications.passwordMismatch'
-        ),
-      });
-      return;
-    }
-
-    onSubmit({ id: user.id, password: newPassword }, clearInputs);
+  const submit = () => {
+    if (!ready) return;
+    setFailure(null);
+    change.mutate(
+      { currentPassword: current, newPassword: password },
+      {
+        onSuccess: () => {
+          notifications.show({
+            color: 'teal',
+            title: t('notifications.successTitle'),
+            message: t('security.changed'),
+          });
+          // The API signs the user out of every device, so continue from the sign-in page.
+          clearTokens();
+          navigate(routes.login);
+        },
+        onError: (error) =>
+          setFailure(error instanceof PasswordChangeFailure ? error.kind : 'unknown'),
+      }
+    );
   };
 
   return (
-    <Grid gutter="md">
-      <Grid.Col span={{ base: 12, md: 7 }}>
-        <Paper withBorder radius="md" p="xl">
-          <Title order={4} mb="xs" c="primary.9">
-            {t('security.title')}
-          </Title>
-          <Text size="sm" c="dimmed" mb="lg">
-            {t('security.description')}
-          </Text>
-
-          <form onSubmit={handleSubmit}>
-            <Stack gap="md">
-              <PasswordInput
-                label={t('security.newPasswordLabel')}
-                placeholder={t('security.newPasswordPlaceholder')}
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.currentTarget.value)}
-                leftSection={<IconLock size={18} />}
-                required
-              />
-
-              <PasswordInput
-                label={t('security.confirmLabel')}
-                placeholder={t('security.confirmPlaceholder')}
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.currentTarget.value)}
-                leftSection={<IconLock size={18} />}
-                required
-              />
-
-              <PasswordChecklist checks={checks} />
-
-              <Group justify="flex-end" gap="sm" mt="md">
-                <Button
-                  variant="default"
-                  onClick={clearInputs}
-                  disabled={!newPassword && !confirmPassword}
-                >
-                  {t('security.resetInput')}
-                </Button>
-                <Button
-                  type="submit"
-                  color="primary.6"
-                  disabled={!checks.isMinLength || !checks.isMatch}
-                  loading={isSaving}
-                >
-                  {t('security.submit')}
-                </Button>
-              </Group>
-            </Stack>
-          </form>
-        </Paper>
-      </Grid.Col>
-
-      <Grid.Col span={{ base: 12, md: 5 }}>
-        <Stack gap="md">
-          <Paper withBorder radius="md" p="md">
-            <Group gap="xs" mb="xs">
-              <ThemeIcon size={28} radius="md" color="teal" variant="light">
-                <IconDeviceDesktop size={16} />
-              </ThemeIcon>
-              <Title order={5} c="primary.9">
-                {t('security.sessionTitle')}
-              </Title>
-            </Group>
-            <Text size="xs" c="dimmed" mb="sm">
-              {t('security.sessionText')}
-            </Text>
-
-            <Stack gap="xs">
-              <Group justify="space-between">
-                <Text size="xs" c="dimmed">
-                  {t('security.encryptionMethod')}
-                </Text>
-                <Badge size="xs" variant="outline" color="blue">
-                  {t('security.encryptionValue')}
-                </Badge>
-              </Group>
-              <Divider />
-              <Group justify="space-between">
-                <Text size="xs" c="dimmed">
-                  {t('security.refreshStatus')}
-                </Text>
-                <Badge size="xs" color="teal">
-                  {t('security.refreshValue')}
-                </Badge>
-              </Group>
-            </Stack>
-          </Paper>
-
-          <Paper withBorder radius="md" p="md" bg="blue.0">
-            <Group align="flex-start" gap="xs">
-              <IconInfoCircle size={20} color="var(--mantine-color-primary-6)" />
-              <Box style={{ flex: 1 }}>
-                <Text size="xs" fw={700} c="primary.9">
-                  {t('security.tipsTitle')}
-                </Text>
-                <Text size="xs" c="primary.8" mt={2} lh={1.4}>
-                  {t('security.tipsText')}
-                </Text>
-              </Box>
-            </Group>
-          </Paper>
-        </Stack>
-      </Grid.Col>
-    </Grid>
+    <SectionCard icon={IconKey} title={t('security.title')} subtitle={t('security.subtitle')}>
+      <Grid gutter="lg" align="flex-start">
+        <Grid.Col span={{ base: 12, md: 7 }}>
+          <Stack
+            gap="md"
+            component="form"
+            onSubmit={(event) => {
+              event.preventDefault();
+              submit();
+            }}
+          >
+            <PasswordInput
+              label={t('security.current')}
+              autoComplete="current-password"
+              value={current}
+              onChange={(event) => {
+                setCurrent(event.currentTarget.value);
+                setFailure(null);
+              }}
+              error={
+                failure === 'currentIncorrect' ? t('security.errors.currentIncorrect') : undefined
+              }
+            />
+            <PasswordInput
+              label={t('security.new')}
+              autoComplete="new-password"
+              value={password}
+              onChange={(event) => {
+                setPassword(event.currentTarget.value);
+                setFailure(null);
+              }}
+              error={failure === 'sameAsCurrent' ? t('security.errors.sameAsCurrent') : undefined}
+            />
+            <PasswordInput
+              label={t('security.confirm')}
+              autoComplete="new-password"
+              value={confirmation}
+              onChange={(event) => setConfirmation(event.currentTarget.value)}
+              error={
+                confirmation !== '' && password !== confirmation
+                  ? t('security.errors.mismatch')
+                  : undefined
+              }
+            />
+            {(failure === 'invalid' || failure === 'network' || failure === 'unknown') && (
+              <Alert color="red" variant="light" role="alert">
+                {t(`security.errors.${failure}`)}
+              </Alert>
+            )}
+            <Alert color="blue" variant="light" icon={<IconInfoCircle size={18} />}>
+              {t('security.notice')}
+            </Alert>
+            <Button type="submit" loading={change.isPending} disabled={!ready}>
+              {change.isPending ? t('security.submitting') : t('security.submit')}
+            </Button>
+          </Stack>
+        </Grid.Col>
+        <Grid.Col span={{ base: 12, md: 5 }}>
+          <PasswordChecklist checks={checks} />
+        </Grid.Col>
+      </Grid>
+    </SectionCard>
   );
 }
