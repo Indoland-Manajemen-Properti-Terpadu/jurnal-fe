@@ -72,4 +72,4 @@ Priority changed: the ledger (`GeneralJournal`) goes before the remaining small 
 | `Authentication` to `authentication` | done | done | done | done | done | R4 |
 | Final audit, ratchets set to `error` repo-wide | done | n/a | n/a | done | n/a | R4 |
 
-The audit is [AUDIT.md](AUDIT.md). The ratchets are still `warn` with a baseline of 159: flipping them to `error` needs approval (spec section 11, item 6) and is not done.
+The audit is [AUDIT.md](AUDIT.md). The ESLint ratchet baseline (`eslint-baseline.json`) is now empty: every rule that was counted has been cleared, and `yarn lint` fails on any new violation.
