@@ -1,149 +1,71 @@
-import { useState } from 'react';
-import { Box, Button, Group, Paper, SimpleGrid, Stack, Text } from '@mantine/core';
-import { IconArrowLeft, IconCoins, IconPlus } from '@tabler/icons-react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Button, Group, Paper, Skeleton, Text } from '@mantine/core';
+import { IconArrowLeft, IconCoins } from '@tabler/icons-react';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
 import { useTranslation } from '@/i18n';
 import { routes } from '@/router/routes';
-import { dateFormatV1 } from '@/utils/formatDate';
-import { AppShellLayout } from '@/components/AppShellLayout';
-import { CreateVoucherModal } from '@/module/petty-cash/presentation/components/CreateVoucherModal';
-import { PettyCashBalancePanel } from '@/module/petty-cash/presentation/components/PettyCashBalancePanel';
-import { VoucherDetailDrawer } from '@/module/petty-cash/presentation/components/VoucherDetailDrawer';
-import { VoucherTable } from '@/module/petty-cash/presentation/components/VoucherTable';
-import { findFundById } from '@/module/petty-cash/domain/pettyCash';
-import { usePettyCashPrototype } from '@/module/petty-cash/presentation/hooks/usePettyCashPrototype';
-import type { PettyCashVoucher } from '@/module/petty-cash/domain/pettyCashTypes';
-import classes from '@/module/petty-cash/presentation/pages/PettyCashPage.module.css';
+import { isValidObjectId } from '@/module/petty-cash/domain/pettyCashView';
+import { RecordVoucherButton } from '@/module/petty-cash/presentation/components/RecordVoucherButton';
+import { PettyCashWorkspace } from '@/module/petty-cash/presentation/components/PettyCashWorkspace';
+import { QueryErrorState } from '@/module/petty-cash/presentation/components/QueryErrorState';
+import { usePettyCashFund } from '@/module/petty-cash/presentation/hooks/usePettyCashQueries';
+import { PettyCashPageFrame } from '@/module/petty-cash/presentation/pages/PettyCashPageFrame';
 
 export default function PettyCashDetailPage() {
   const { fundId } = useParams<{ fundId: string }>();
   const navigate = useNavigate();
-  const { t } = useTranslation('journal');
-  const prototype = usePettyCashPrototype();
-  const fund = findFundById(prototype.funds, fundId);
-  const [voucherModalOpen, setVoucherModalOpen] = useState(false);
-  const [selectedVoucher, setSelectedVoucher] = useState<PettyCashVoucher | null>(null);
-
-  if (!fund) {
-    return (
-      <AppShellLayout withFooter>
-        <Box className={classes.page} p={{ base: 'md', sm: 'xl' }}>
-          <Paper withBorder radius="lg" p={{ base: 'xl', sm: 48 }} ta="center" maw={680} mx="auto">
-            <Text fz="var(--jurnal-text-xl)" fw={700}>
-              {t('pettyCashFundNotFound')}
-            </Text>
-            <Text c="dimmed" mt="xs">
-              {t('pettyCashFundNotFoundDescription')}
-            </Text>
-            <Button mt="xl" variant="light" onClick={() => navigate(routes.pettyCash.main)}>
-              {t('pettyCashBack')}
-            </Button>
-          </Paper>
-        </Box>
-      </AppShellLayout>
-    );
-  }
-
-  const fundVouchers = prototype.vouchers.filter((voucher) => voucher.fundId === fund.id);
+  const [params] = useSearchParams();
+  const { t } = useTranslation('pettyCash');
+  const validId = isValidObjectId(fundId);
+  const query = usePettyCashFund(fundId, validId);
+  const fund = query.data;
+  // A malformed id is answered with a 400 and no screen of its own, so it is treated as not found.
+  const notFound = !validId || query.error?.code === 'NOT_FOUND';
+  const goBack = () => navigate(routes.pettyCash.main);
 
   return (
-    <AppShellLayout withFooter>
-      <Box className={classes.page} p={{ base: 'md', sm: 'xl' }}>
-        <Stack className={classes.workspace} gap="lg">
-          <ModuleHeader
-            icon={IconCoins}
-            title={fund.name}
-            description={`${fund.code} · ${t('pettyCashFixedFund')}`}
-            actions={
-              <Group gap="sm">
-                <Button
-                  variant="default"
-                  leftSection={<IconArrowLeft size={16} />}
-                  onClick={() => navigate(routes.pettyCash.main)}
-                >
-                  {t('pettyCashBack')}
-                </Button>
-                <Button
-                  color="primary"
-                  leftSection={<IconPlus size={16} />}
-                  onClick={() => setVoucherModalOpen(true)}
-                >
-                  {t('pettyCashRecordExpense')}
-                </Button>
-              </Group>
-            }
-          />
-
-          <PettyCashBalancePanel
-            fund={fund}
-            labels={{
-              available: t('pettyCashAvailable'),
-              ceiling: t('pettyCashCeiling'),
-              unreimbursed: t('pettyCashUnreimbursed'),
-              accountability: t('pettyCashAccountability'),
-              used: t('pettyCashUsed'),
-              lowBalance: t('pettyCashLowBalance'),
-              availableStatus: t('pettyCashAvailableStatus'),
-            }}
-          />
-
-          <Paper withBorder radius="lg" p="lg">
-            <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="lg">
-              <Box>
-                <Text size="xs" c="dimmed">
-                  {t('pettyCashCustodian')}
-                </Text>
-                <Text fw={650} mt={4}>
-                  {fund.custodianName}
-                </Text>
-                <Text size="xs" c="dimmed">
-                  {fund.custodianRole}
-                </Text>
-              </Box>
-              <Box>
-                <Text size="xs" c="dimmed">
-                  {t('pettyCashSourceBank')}
-                </Text>
-                <Text fw={650} mt={4}>
-                  {fund.bankSourceAccount.name}
-                </Text>
-                <Text size="xs" c="dimmed">
-                  {fund.bankSourceAccount.accountNumber}
-                </Text>
-              </Box>
-              <Box>
-                <Text size="xs" c="dimmed">
-                  {t('pettyCashLastCount')}
-                </Text>
-                <Text fw={650} mt={4}>
-                  {dateFormatV1(fund.lastOpnameDate)}
-                </Text>
-              </Box>
-            </SimpleGrid>
-          </Paper>
-
-          <Paper withBorder radius="lg" p="md">
-            <Text fw={700} mb="md">
-              {t('pettyCashRecentExpenses')}
-            </Text>
-            <VoucherTable vouchers={fundVouchers} onViewVoucherDetail={setSelectedVoucher} />
-          </Paper>
-        </Stack>
-      </Box>
-
-      <CreateVoucherModal
-        opened={voucherModalOpen}
-        onClose={() => setVoucherModalOpen(false)}
-        funds={prototype.funds}
-        selectedFund={fund}
-        onSubmit={prototype.createPaidVoucher}
+    <PettyCashPageFrame>
+      <ModuleHeader
+        icon={IconCoins}
+        title={fund?.name ?? t('workspace.title')}
+        description={fund ? fund.code : t('workspace.subtitle')}
+        actions={
+          <Group gap="sm">
+            <Button variant="default" leftSection={<IconArrowLeft size={16} />} onClick={goBack}>
+              {t('common.back')}
+            </Button>
+            {fund && <RecordVoucherButton fund={fund} />}
+          </Group>
+        }
       />
-      <VoucherDetailDrawer
-        opened={Boolean(selectedVoucher)}
-        onClose={() => setSelectedVoucher(null)}
-        voucher={selectedVoucher}
-      />
-    </AppShellLayout>
+
+      {validId && query.isLoading && <Skeleton height={240} radius="lg" />}
+
+      {notFound && (
+        <Paper withBorder radius="lg" p={{ base: 'xl', sm: 48 }} ta="center" maw={680} mx="auto">
+          <Text fz="var(--jurnal-text-xl)" fw={700}>
+            {t('workspace.notFound')}
+          </Text>
+          <Text c="dimmed" mt="xs">
+            {t('workspace.notFoundDescription')}
+          </Text>
+          <Button mt="xl" variant="light" onClick={goBack}>
+            {t('workspace.backToList')}
+          </Button>
+        </Paper>
+      )}
+
+      {validId && query.isError && !notFound && (
+        <QueryErrorState
+          title={t('workspace.loadFailed')}
+          error={query.error}
+          onRetry={() => query.refetch()}
+        />
+      )}
+
+      {validId && fund && (
+        <PettyCashWorkspace key={fund.id} fund={fund} initialTab={params.get('tab')} />
+      )}
+    </PettyCashPageFrame>
   );
 }
