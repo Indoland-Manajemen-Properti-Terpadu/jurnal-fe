@@ -57,3 +57,9 @@ Jurnal selalu seimbang. Saldo GL akun kas kecil tetap sebesar pagu. Persamaan `p
 35. **"Hari ini" untuk `FUTURE_DATE_NOT_ALLOWED`:** zona waktu apa yang dipakai server? FE membatasi tanggal sampai hari ini menurut zona waktu browser.
 36. **Beberapa respons error bukan JSON valid** (karakter newline mentah di `stack`), misalnya `GET /v1/users?limit=50`. Mohon diperbaiki bersama penghapusan `stack`.
 37. **Desimal pada nominal:** nominal 100,5 diterima. Bagaimana pembulatan PPN dan batas jumlah desimal? FE membatasi input ke rupiah bulat sampai ada jawaban.
+
+## G. Ditemukan di Fase 6 (P2)
+
+38. **Nilai `action` pada `GET /audit-logs` tidak didokumentasikan** di koleksi Postman. Nilai yang teramati: `FUND` (`CREATE`, `UPDATE`, `SOD_OVERRIDE`), `VOUCHER` (`CREATE`, `UPDATE`, `SUBMIT`, `APPROVE`, `REJECT`, `VOID`, `REMOVE_ATTACHMENT`), `COUNT` (`CREATE`, `SUBMIT`, `APPROVE`, `REJECT`), `REIMBURSEMENT` (`SUBMIT`, `APPROVE`, `REJECT`, `CANCEL`, `DISBURSE`), `ADVANCE` (`CREATE`, `APPROVE`, `REJECT`, `CANCEL`, `DISBURSE`, `SUBMIT_SETTLEMENT`, `SET_SETTLEMENT_ACCOUNTS`, `CUSTODIAN_VERIFY`, `CUSTODIAN_REJECT`, `FINANCE_VERIFY`, `FINANCE_REJECT`, `CONVERT_TO_RECEIVABLE`), `USER_RESTRICTION` (`BLOCK`, `UNBLOCK`, `OVERRIDE_OVERDUE`, `REMOVE_OVERRIDE`). Mohon konfirmasi daftar lengkapnya, termasuk aksi yang belum pernah terjadi di Demo Site (penutupan dana, penyesuaian pagu), agar FE tidak menampilkan "Data diperbarui" untuk aksi yang belum dikenal.
+39. **Contoh request audit log di koleksi Postman** dikirim dengan parameter kosong dan ditolak 400 (sama dengan butir 2 di API-CONTRACT). Mohon contoh diperbaiki.
+40. **Hak baca laporan dan audit:** `GET /reports/*`, `/period-end-check`, dan `/audit-logs` menjawab 403 untuk user tanpa hak baca `JP-PC` walau punya hak lain di modul (misalnya kasbon). Apakah pemohon kasbon memang tidak boleh melihat jejak dokumennya sendiri?
