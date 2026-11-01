@@ -89,30 +89,40 @@ export const getPeriodEndCheck = async (date: string): Promise<PeriodEndCheck> =
 
 interface AuditDto {
   id: string;
+  entityType: string;
   action: string;
   performedBy: { name: string } | null;
   reason: string | null;
   createdAt: string;
 }
 
-export const listAuditLog = async (
-  entityType: AuditEntityType,
-  entityId: string,
-  page = 1
-): Promise<Page<AuditEntry>> => {
+export interface AuditLogParams {
+  entityType?: AuditEntityType;
+  entityId?: string;
+  action?: string;
+  page?: number;
+  limit?: number;
+}
+
+/** Newest first. Every filter is optional; the backend offers no date or user filter. */
+export const listAuditLogs = async (params: AuditLogParams = {}): Promise<Page<AuditEntry>> => {
   const { data } = await http.get<ApiEnvelope<PageDto<AuditDto>>>(PETTY_CASH_API.auditLogs, {
-    entityType,
-    entityId,
-    page,
-    limit: 50,
+    ...params,
   });
   return toPage(data, (item) => ({
     id: item.id,
+    entityType: item.entityType,
     action: item.action,
     byName: item.performedBy?.name ?? '',
     reason: item.reason,
     createdAt: item.createdAt,
   }));
 };
+
+export const listAuditLog = (
+  entityType: AuditEntityType,
+  entityId: string,
+  page = 1
+): Promise<Page<AuditEntry>> => listAuditLogs({ entityType, entityId, page, limit: 50 });
 
 export type { AgingBucket };

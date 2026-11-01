@@ -96,6 +96,7 @@ export type AuditEntityType = (typeof AUDIT_ENTITY_TYPES)[number];
 
 export interface AuditEntry {
   id: string;
+  entityType: string;
   action: string;
   byName: string;
   reason: string | null;
@@ -126,3 +127,26 @@ export const AUDIT_ACTIONS = [
   'OVERRIDE_OVERDUE',
   'REMOVE_OVERRIDE',
 ];
+
+/** Actions seen per kind of document, for the action filter of the audit log. */
+export const AUDIT_ACTIONS_BY_TYPE: Record<AuditEntityType, string[]> = {
+  FUND: ['CREATE', 'UPDATE', 'SOD_OVERRIDE'],
+  VOUCHER: ['CREATE', 'UPDATE', 'SUBMIT', 'APPROVE', 'REJECT', 'VOID', 'REMOVE_ATTACHMENT'],
+  COUNT: ['CREATE', 'SUBMIT', 'APPROVE', 'REJECT'],
+  REIMBURSEMENT: ['SUBMIT', 'APPROVE', 'REJECT', 'CANCEL', 'DISBURSE'],
+  ADVANCE: [
+    'CREATE',
+    'APPROVE',
+    'REJECT',
+    'CANCEL',
+    'DISBURSE',
+    'SUBMIT_SETTLEMENT',
+    'SET_SETTLEMENT_ACCOUNTS',
+    'CUSTODIAN_VERIFY',
+    'CUSTODIAN_REJECT',
+    'FINANCE_VERIFY',
+    'FINANCE_REJECT',
+    'CONVERT_TO_RECEIVABLE',
+  ],
+  USER_RESTRICTION: ['BLOCK', 'UNBLOCK', 'OVERRIDE_OVERDUE', 'REMOVE_OVERRIDE'],
+};

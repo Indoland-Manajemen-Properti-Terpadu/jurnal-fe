@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import type {
   AdvanceUserRow,
   AuditEntityType,
@@ -18,6 +18,8 @@ import {
   getPeriodEndCheck,
   getReconciliationReport,
   listAuditLog,
+  listAuditLogs,
+  type AuditLogParams,
 } from '@/module/petty-cash/infrastructure/pettyCashReportApi';
 import { pettyCashKeys } from '@/module/petty-cash/presentation/hooks/pettyCashKeys';
 import { usePettyCashScope } from '@/module/petty-cash/presentation/hooks/usePettyCashScope';
@@ -74,5 +76,14 @@ export const useAuditLog = (entityType: AuditEntityType, entityId: string | unde
     queryKey: pettyCashKeys.audit(scope, entityType, entityId ?? ''),
     queryFn: () => listAuditLog(entityType, entityId as string),
     enabled: Boolean(entityId),
+  });
+};
+
+export const useAuditLogs = (params: AuditLogParams) => {
+  const scope = usePettyCashScope();
+  return useQuery<Page<AuditEntry>, PettyCashError>({
+    queryKey: pettyCashKeys.report(scope, 'audit-log', params),
+    queryFn: () => listAuditLogs(params),
+    placeholderData: keepPreviousData,
   });
 };

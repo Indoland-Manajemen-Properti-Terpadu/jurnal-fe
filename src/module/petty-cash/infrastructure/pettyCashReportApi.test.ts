@@ -1,6 +1,7 @@
 import apiClient from '@/lib/http/apiClient';
 import {
   getPendingVouchersReport,
+  listAuditLogs,
   getReconciliationReport,
   listAuditLog,
 } from '@/module/petty-cash/infrastructure/pettyCashReportApi';
@@ -49,7 +50,15 @@ describe('report API', () => {
     get.mockResolvedValue(
       reply({
         results: [
-          { id: 'a', action: 'APPROVE', performedBy: null, reason: null, createdAt: 't', ip: 'x' },
+          {
+            id: 'a',
+            entityType: 'VOUCHER',
+            action: 'APPROVE',
+            performedBy: null,
+            reason: null,
+            createdAt: 't',
+            ip: 'x',
+          },
         ],
         page: 1,
         limit: 50,
@@ -60,10 +69,22 @@ describe('report API', () => {
     const page = await listAuditLog('VOUCHER', 'v1');
     expect(page.items[0]).toEqual({
       id: 'a',
+      entityType: 'VOUCHER',
       action: 'APPROVE',
       byName: '',
       reason: null,
       createdAt: 't',
     });
+  });
+
+  it('sends only the filters that were chosen to the audit log', async () => {
+    get.mockResolvedValue(
+      reply({ results: [], page: 2, limit: 20, totalPages: 3, totalResults: 41 })
+    );
+    await listAuditLogs({ entityType: 'ADVANCE', action: undefined, page: 2, limit: 20 });
+    expect(get.mock.calls[0]?.[1]).toMatchObject({
+      params: { entityType: 'ADVANCE', page: 2, limit: 20 },
+    });
+    expect((get.mock.calls[0]?.[1] as { params: object }).params).not.toHaveProperty('action');
   });
 });

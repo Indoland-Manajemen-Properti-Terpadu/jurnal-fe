@@ -33,7 +33,7 @@ Advances (`pettyCashAdvanceApi.ts`): `GET /advances`, `/advances/:id`, `POST /ad
 
 Funds (`pettyCashFundApi.ts`): `POST /funds`, `PATCH /funds/:id` (only changed fields; the ceiling cannot be patched), `POST /funds/:id/pagu-adjustments`, `POST /funds/:id/close`.
 
-Reports and history (`pettyCashReportApi.ts`): `GET /reports/{pending-vouchers,expense-summary,advances-by-user,reconciliation}`, `GET /period-end-check?date=`, `GET /audit-logs?entityType&entityId`.
+Reports and history (`pettyCashReportApi.ts`): `GET /reports/{pending-vouchers,expense-summary,advances-by-user,reconciliation}`, `GET /period-end-check?date=`, `GET /audit-logs?entityType&entityId&action&page&limit` (all optional; no date or user filter, newest first).
 
 ## Layers
 
@@ -59,7 +59,7 @@ Reports and history (`pettyCashReportApi.ts`): `GET /reports/{pending-vouchers,e
 - **Poka-yoke:** "Ajukan" is disabled above the available cash or when a required receipt is missing (checked on the net amount; the server decides on tax); "Simpan draf" stays available.
 - **Advance workflow, one person per step** (`allowedAdvanceActions`): the requester asks, uploads, settles and cancels; an approver other than the requester approves or rejects; the custodian (not the requester) hands over the cash and verifies receipts; finance verification needs an approver who is neither the requester nor the custodian who verified. Expense accounts of settlement lines are chosen by verifiers and are required before finance verification. Converting an unsettled advance to employee receivable belongs to the control right (`JP-PC-CTL`). The user's own standing (`advance-status/me`) is only requested by users with the advance right.
 - **Fund administration** is offered by menu right on `JP-PC` (create, update, delete for close). `toFundPatch` sends only what changed; changing the custodian or the status requires a reason. Funding a new fund from a bank needs the petty cash account balance to be 0; otherwise the backend refuses and the form keeps its input.
-- **Reports and change history** are read-only and shown only with the read right on `JP-PC`; an unknown audit action is shown as a general update.
+- **Reports, the audit trail section (global list filterable by document type and action) and the per-document change history** are read-only and shown only with the read right on `JP-PC`; an unknown audit action is shown as a general update.
 - **A superadmin counts as custodian** in `isFundCustodian`, because the backend lets a superadmin act as custodian of any fund (open question 1).
 - Imprest equation rows come from `imprestEquation` with the sign each carries in `pagu = cash + vouchers + advances - unsettledVariance`: a shortage is added, a surplus is deducted, so the rows shown add up to the ceiling.
 - The voucher drawer shows net and tax only when they add up to the server total; otherwise only the server total.
