@@ -15,7 +15,7 @@ hotfix/*           cut from main-frontend
 
 - No direct pushes to `main-frontend`, `staging` or `develop-frontend`. Branch protection requires a PR, applies to admins, and blocks force pushes and deletions. The payloads are in [`.github/branch-protection/`](../.github/branch-protection).
 - Work branches are squash-merged into `develop-frontend` after CI is green. CI is not yet a required status check on the protected branches (it is applied after the first green PR run; see `.github/branch-protection/README.md`), so until then reviewers must not merge a red PR.
-- `main-frontend` requires 1 approval and applies to admins: a hotfix author needs another maintainer to approve.
+- `main-frontend` requires a PR and applies to admins, but no approving review: the team is currently one developer, so a required review would only block releases. Raise `required_approving_review_count` in [`.github/branch-protection/main-frontend.json`](../.github/branch-protection/main-frontend.json) and in the repository settings when a second maintainer joins.
 - Promotion is `develop-frontend` to `staging` to `main-frontend`, each by PR. The `guard` job in `.github/workflows/deploy.yml` (logic in `scripts/lib/deployGuard.mjs`, with tests) refuses to deploy a commit that is not a merged PR from an allowed source: `staging` or `hotfix/*` into `main-frontend`; `develop-frontend`, `main-frontend` (hotfix back-merge) or `hotfix/*` into `staging`. It retries briefly because GitHub can lag in linking a commit to its PR.
 - Releases are tagged `vMAJOR.MINOR.PATCH` on `main-frontend`.
 
@@ -29,7 +29,7 @@ hotfix/*           cut from main-frontend
 ## Hotfix
 
 1. Branch `hotfix/<topic>` from `main-frontend`.
-2. PR into `main-frontend` (1 approval), then merge `main-frontend` back into `staging` and `develop-frontend`.
+2. PR into `main-frontend`, then merge `main-frontend` back into `staging` and `develop-frontend`.
 
 ## Staying in sync during the restructure
 
