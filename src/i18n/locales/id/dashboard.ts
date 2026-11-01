@@ -74,7 +74,7 @@ export const dashboard = {
   kpiOverdueDesc: 'Tagihan lewat batas waktu bayar',
   kpiRevenueLabel: 'Penjualan Bulan Ini',
   kpiRevenueHint: '{{count}} faktur terbit · {{draft}} draft',
-  kpiRevenueDesc: 'Total faktur terbit bulan berjalan',
+  kpiRevenueDesc: 'Penjualan bersih (tanpa PPN) faktur terbit bulan berjalan',
 
   // Alerts
   alertTitleOverdue: 'Perhatian: {{count}} Faktur Melewati Jatuh Tempo',
@@ -155,6 +155,11 @@ export const dashboard = {
   qaReceiveMoney: 'Terima Uang',
   qaSendMoney: 'Kirim Uang',
   qaTransferCash: 'Transfer Kas',
+
+  userFallback: 'Finance',
+  bankAccountFallback: 'Kas & Bank',
+  periodOpenValue: 'OPEN',
+  generalCustomer: 'Pelanggan Umum',
 };
 
 export default dashboard;

@@ -1,4 +1,4 @@
-import { Group, Stack, Text, rem, ActionIcon, Paper, Box } from '@mantine/core';
+import { Group, Stack, Text, rem, ActionIcon, Box } from '@mantine/core';
 import { IconUpload, IconX, IconTrash, IconFileText } from '@tabler/icons-react';
 import {
   Dropzone,
@@ -7,10 +7,8 @@ import {
   FileWithPath,
   MIME_TYPES,
 } from '@mantine/dropzone';
-import { themeColors } from '@/theme';
-import { useFileStore } from '@/store/GeneralJournal/useFileStore';
+import { textStyles, themeColors } from '@/theme';
 import { CloudArrowUpIcon } from '@phosphor-icons/react';
-import { themeText } from '@/theme/constants';
 
 interface DropzoneComponentProps extends Partial<DropzoneProps> {
   title?: string;
@@ -22,6 +20,9 @@ interface DropzoneComponentProps extends Partial<DropzoneProps> {
   subDescription?: React.ReactNode;
   uploadedTitle?: string;
   showUploadedFiles?: boolean;
+  /** Files already chosen by the parent; the list under the drop area shows them. */
+  files?: File[];
+  onRemoveFile?: (fileName: string) => void;
 }
 
 const CustomDropzone: React.FC<DropzoneComponentProps> = ({
@@ -34,15 +35,17 @@ const CustomDropzone: React.FC<DropzoneComponentProps> = ({
   subDescription,
   uploadedTitle = 'File Terunggah',
   showUploadedFiles = true,
+  files = [],
+  onRemoveFile,
   ...props
 }) => {
-  const files = useFileStore((state) => state.files);
-  const removeFile = useFileStore((state) => state.removeFile);
   const hasFiles = showUploadedFiles && files.length > 0;
 
   return (
     <Stack gap="xs">
-      <Text style={themeText.label.label2} c={themeColors.black[0]}>{title}</Text>
+      <Text style={textStyles.label} c={themeColors.black[0]}>
+        {title}
+      </Text>
       <Dropzone
         title={title}
         onDrop={(f) => handleDrop && handleDrop(f)}
@@ -78,11 +81,11 @@ const CustomDropzone: React.FC<DropzoneComponentProps> = ({
               weight="duotone"
             />
           </Dropzone.Idle>
-          <Text style={themeText.label.label2} c={themeColors.black[9]}>
+          <Text style={textStyles.label} c={themeColors.black[9]}>
             {description}
           </Text>
           {subDescription && (
-            <Text style={themeText.label.label2} c={themeColors.gray[5]}>
+            <Text style={textStyles.label} c={themeColors.gray[5]}>
               {subDescription}
             </Text>
           )}
@@ -91,18 +94,18 @@ const CustomDropzone: React.FC<DropzoneComponentProps> = ({
 
       {hasFiles ? (
         <Stack gap="xs" mt="sm">
-          <Text style={themeText.label.label2} c={themeColors.black[0]}>{uploadedTitle}</Text>
+          <Text style={textStyles.label} c={themeColors.black[0]}>
+            {uploadedTitle}
+          </Text>
           {files.map((file) => (
             <Box
               key={file.name}
-              p='md'
+              p="md"
               bg={themeColors.slate[0]}
-
               style={{
                 borderRadius: 8,
                 border: `1px solid ${themeColors.slate[2]}`,
               }}
-
             >
               <Group justify="space-between" wrap="nowrap">
                 <Group gap="sm" wrap="nowrap">
@@ -119,7 +122,9 @@ const CustomDropzone: React.FC<DropzoneComponentProps> = ({
                     <IconFileText size={20} color={themeColors.blue[6]} />
                   </Box>
                   <Stack gap={2}>
-                    <Text size="sm" fw={500} c={themeColors.black[9]}>{file.name}</Text>
+                    <Text size="sm" fw={500} c={themeColors.black[9]}>
+                      {file.name}
+                    </Text>
                     <Text size="10px" c={themeColors.gray[5]}>
                       {(file.size / 1024 / 1024).toFixed(0)} mb | 100% • Complete
                     </Text>
@@ -128,7 +133,7 @@ const CustomDropzone: React.FC<DropzoneComponentProps> = ({
                 <ActionIcon
                   variant="subtle"
                   color="gray"
-                  onClick={() => removeFile(file.name)}
+                  onClick={() => onRemoveFile?.(file.name)}
                   aria-label={`Hapus ${file.name}`}
                 >
                   <IconTrash size={18} color={themeColors.slate[5]} />

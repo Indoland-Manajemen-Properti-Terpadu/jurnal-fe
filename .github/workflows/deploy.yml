@@ -11,7 +11,25 @@ env:
   IMAGE_NAME: indoland-manajemen-properti-terpadu/jurnal-fe
 
 jobs:
+  # Enforces the promotion order that branch protection cannot express:
+  # develop-frontend -> staging -> main-frontend, hotfix/* into either, and the
+  # main-frontend -> staging hotfix back-merge. Logic and tests: scripts/lib/deployGuard.mjs.
+  guard:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Require a merged PR from an allowed source branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/deployGuard.mjs "${{ github.ref_name }}" "${{ github.sha }}" "${{ github.repository }}"
+
   build-and-deploy:
+    needs: guard
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -51,7 +69,12 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG }}
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
 
+      # Deploys are manual for now: the backend team pulls the `production` image (or a
+      # commit-SHA tag, for rollback) from ghcr.io on the server, which is moving. The runner
+      # cannot reach port 22 (i/o timeout), so this step must not fail the run. When the new
+      # server is ready, remove `continue-on-error` (or replace the step with a self-hosted runner).
       - name: Deploy to server via SSH
+        continue-on-error: true
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.SERVER_HOST }}

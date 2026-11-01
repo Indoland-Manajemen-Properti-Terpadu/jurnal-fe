@@ -75,7 +75,7 @@ export const dashboard = {
   kpiOverdueDesc: 'Invoices past their payment due date',
   kpiRevenueLabel: 'Current Month Sales',
   kpiRevenueHint: '{{count}} issued · {{draft}} drafts',
-  kpiRevenueDesc: 'Total invoices issued this month',
+  kpiRevenueDesc: 'Net sales (excluding VAT) of invoices issued this month',
 
   // Alerts
   alertTitleOverdue: 'Attention: {{count}} Overdue Invoices Awaiting Payment',
@@ -157,6 +157,11 @@ export const dashboard = {
   qaReceiveMoney: 'Receive Money',
   qaSendMoney: 'Send Money',
   qaTransferCash: 'Transfer Cash',
+
+  userFallback: 'Finance',
+  bankAccountFallback: 'Cash & Bank',
+  periodOpenValue: 'OPEN',
+  generalCustomer: 'General Customer',
 };
 
 export default dashboard;

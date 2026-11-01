@@ -18,18 +18,6 @@
     "jsx": "react-jsx",
     "paths": {
       "@/*": ["./src/*"],
-      "@app/*": ["./src/*"],
-      "@features/*": ["./src/module/*"],
-      "@shared/*": ["./src/*"],
-      "@components": ["./src/components"],
-      "@hooks": ["./src/hooks"],
-      "@services": ["./src/services"],
-      "@store": ["./src/store"],
-      "@types": ["./src/types"],
-      "@utils": ["./src/utils"],
-      "@router": ["./src/router"],
-      "@theme": ["./src/theme"],
-      "@assets": ["./src/assets"],
       "@test-utils": ["./test-utils"]
     }
   },

@@ -181,12 +181,14 @@ http://localhost:5173
 | `yarn build`           | Menjalankan TypeScript compiler lalu membuat build produksi. |
 | `yarn preview`         | Menjalankan preview hasil build produksi.                    |
 | `yarn typecheck`       | Mengecek tipe TypeScript tanpa menghasilkan output build.    |
-| `yarn lint`            | Menjalankan ESLint dan Stylelint.                            |
+| `yarn lint`            | Menjalankan ESLint ratchet dan Stylelint.                    |
+| `yarn lint:ratchet`    | Gagal bila jumlah pelanggaran ESLint naik dari baseline.     |
 | `yarn lint:eslint`     | Mengecek kode TypeScript dan React dengan ESLint.            |
 | `yarn lint:eslint:fix` | Memperbaiki issue ESLint yang bisa diperbaiki otomatis.      |
 | `yarn lint:stylelint`  | Mengecek file CSS dengan Stylelint.                          |
 | `yarn prettier`        | Mengecek format file TypeScript dan TSX.                     |
 | `yarn prettier:write`  | Memformat file TypeScript dan TSX.                           |
+| `yarn prettier:changed`| Mengecek format hanya pada file yang berubah dari base.      |
 | `yarn vitest`          | Menjalankan unit test satu kali.                             |
 | `yarn vitest:watch`    | Menjalankan test dalam mode watch.                           |
 | `yarn test`            | Menjalankan typecheck, prettier, lint, vitest, dan build.    |
@@ -197,46 +199,13 @@ http://localhost:5173
 
 ## Struktur Proyek
 
-Pohon berikut merangkum struktur yang sudah ada di repository. Struktur target untuk perubahan baru dan aturan migrasi bertahap dijelaskan di [konteks project agent](.codex/PROJECT_CONTEXT.md).
-
-```text
-jurnal-fe/
-├── public/                 # Asset publik, mock data, dan template CSV
-├── src/
-│   ├── assets/             # Asset visual, font, dan stylesheet global layout
-│   ├── components/         # Komponen reusable lintas modul
-│   ├── examples/           # Contoh implementasi komponen atau pola teknis
-│   ├── hooks/              # Custom hooks aplikasi
-│   ├── lib/                # Konfigurasi library eksternal
-│   ├── module/             # Modul fitur utama aplikasi
-│   ├── router/             # Konfigurasi route aplikasi
-│   ├── services/           # API client, endpoint, dan error boundary
-│   ├── store/              # State management global
-│   ├── theme/              # Tema Mantine dan style global
-│   ├── types/              # TypeScript type dan interface
-│   └── utils/              # Helper utility umum
-├── test-utils/             # Helper render dan setup testing
-├── package.json            # Dependency dan script proyek
-├── tsconfig.json           # Konfigurasi TypeScript
-├── vite.config.mjs         # Konfigurasi Vite dan Vitest
-└── README.md               # Dokumentasi proyek
-```
+Peta folder (`src/module`, `src/components`, `src/lib`, `src/theme`, `src/styles`, dan seterusnya) beserta aturan dependensinya ada di satu tempat: [`docs/architecture.md`](docs/architecture.md). Design system (token, tipografi, warna) ada di [`docs/design-system.md`](docs/design-system.md).
 
 ---
 
 ## Modul Aplikasi
 
-| Modul            | Deskripsi                                                                                |
-| ---------------- | ---------------------------------------------------------------------------------------- |
-| `Authentication` | Halaman dan flow autentikasi pengguna.                                                   |
-| `Dashboard`      | Halaman dashboard utama.                                                                 |
-| `GeneralJournal` | Jurnal umum, akun, transaksi, saldo awal, bank statement, period lock, dan closing book. |
-| `BankCash`       | Transfer, penerimaan, pengeluaran, serta ringkasan bank dan kas.                         |
-| `Contact`        | Manajemen kontak dan transaksi terkait kontak.                                           |
-| `ResultReport`   | Laporan neraca, laba rugi, arus kas, trial balance, general ledger, dan laporan lain.    |
-| `SettingBudget`  | Pengelolaan anggaran.                                                                    |
-| `SettingMenu`    | Pengaturan aplikasi, pengguna, dan role.                                                 |
-| `LandingPage`    | Halaman awal aplikasi.                                                                   |
+Daftar modul fitur, README masing-masing, dan statusnya ada di [`docs/modules/README.md`](docs/modules/README.md) dan [`docs/migration/STATUS.md`](docs/migration/STATUS.md).
 
 ---
 
@@ -244,8 +213,8 @@ jurnal-fe/
 
 Konfigurasi API berada pada:
 
-- `src/lib/axios.ts`
-- `src/services/endpoint.ts`
+- `src/lib/http/apiClient.ts` (client HTTP tunggal dengan interceptor token)
+- `src/lib/http/endpoints.ts` (konstanta endpoint; dipindah ke tiap fitur saat migrasi)
 
 Saat ini aplikasi mengarah ke layanan API ProApps berikut:
 
@@ -254,17 +223,23 @@ https://api-jurnal.proapps.id/
 https://jurnal-api.proapps.id
 ```
 
-Aturan akses API, konfigurasi endpoint, dan penanganan kredensial dipusatkan di [konteks project agent](.codex/PROJECT_CONTEXT.md).
+Aturan akses API, endpoint, dan penanganan kredensial ada di [`docs/architecture.md`](docs/architecture.md#api-integration).
+
+---
+
+## Dokumentasi
+
+Indeks dokumentasi ada di [`docs/README.md`](docs/README.md): [arsitektur](docs/architecture.md), [design system](docs/design-system.md), [konvensi](docs/conventions.md), [branching dan rilis](docs/branching-and-release.md), [keputusan arsitektur (ADR)](docs/adr), dan [status migrasi](docs/migration/STATUS.md).
 
 ---
 
 ## Standar Kode
 
-Seluruh aturan arsitektur, penamaan, state management, akses API, testing, dan UI dipusatkan di [konteks project agent](.codex/PROJECT_CONTEXT.md). Workflow tugas agent tersedia di [`.codex/workflows/`](.codex/README.md). README ini berisi dokumentasi produk, setup, dan perintah yang tersedia.
+Seluruh aturan arsitektur, penamaan, akuntansi, UI, dan i18n diindeks di [`AGENTS.md`](AGENTS.md). Workflow tugas ada di [`docs/agents/`](docs/agents/README.md). README ini berisi dokumentasi produk, setup, dan perintah yang tersedia.
 
 ## Testing dan Quality Gate
 
-Aturan verifikasi dipusatkan di [konteks project agent](.codex/PROJECT_CONTEXT.md). Daftar script yang tersedia ada di bagian [Script Tersedia](#script-tersedia); konfigurasi CI yang aktif ada di [`.github/workflows/`](.github/workflows).
+Aturan verifikasi ada di [`docs/conventions.md`](docs/conventions.md#testing-and-verification). Daftar script yang tersedia ada di bagian [Script Tersedia](#script-tersedia); konfigurasi CI yang aktif ada di [`.github/workflows/`](.github/workflows).
 
 ---
 
@@ -282,25 +257,25 @@ Preview hasil build:
 yarn preview
 ```
 
-Gunakan [workflow kesiapan deployment](.codex/workflows/deployment-readiness.md) sebelum menyiapkan perubahan untuk deployment.
+Gunakan [workflow kesiapan deployment](docs/agents/workflows/deployment-readiness.md) sebelum menyiapkan perubahan untuk deployment.
 
 ---
 
 ## Panduan Kontribusi
 
-Aturan scope, arsitektur, dan perubahan dipusatkan di [konteks project agent](.codex/PROJECT_CONTEXT.md).
+Aturan scope dan perubahan ada di [`docs/agents/README.md`](docs/agents/README.md); arsitektur di [`docs/architecture.md`](docs/architecture.md).
 
 ---
 
 ## Catatan Pengembangan
 
-- Stack yang digunakan tercatat di bagian [Teknologi](#teknologi). Aturan penggunaan dan perubahan stack ada di [konteks project agent](.codex/PROJECT_CONTEXT.md).
+- Stack yang digunakan tercatat di bagian [Teknologi](#teknologi). Aturan penggunaan dan perubahan stack ada di [`docs/conventions.md`](docs/conventions.md).
 
 ---
 
 ## Design Guardrail untuk AI Agent
 
-Aturan desain dan implementasi UI untuk agent dipusatkan di [konteks project agent](.codex/PROJECT_CONTEXT.md), termasuk sumber referensi Figma dan token theme lokal. `AGENTS.md`, `GEMINI.md`, dan `STYLING_GUIDE.md` hanya menunjuk ke aturan tersebut agar tidak ada standar yang saling bertentangan.
+Aturan desain dan UI ada di [`docs/ui-guidelines.md`](docs/ui-guidelines.md) dan [`docs/design-system.md`](docs/design-system.md), termasuk referensi Figma dan token tema.
 
 ---
 

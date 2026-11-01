@@ -51,7 +51,7 @@ export const LanguageSwitcher = ({ variant = 'compact' }: LanguageSwitcherProps)
               >
                 <Group justify="space-between" align="flex-start" mb="xs">
                   <Group gap="sm">
-                    <Text fz={28}>{item.flag}</Text>
+                    <Text fz="var(--jurnal-text-2xl)">{item.flag}</Text>
                     <div>
                       <Group gap={6} align="center">
                         <Text fw={700} fz="md" c="dark.8">
@@ -101,7 +101,7 @@ export const LanguageSwitcher = ({ variant = 'compact' }: LanguageSwitcherProps)
         >
           <Group gap={6} wrap="nowrap">
             <Translate size={16} weight="duotone" color="var(--mantine-color-blue-6)" />
-            <Text fz={13} fw={700} c="dark.7">
+            <Text fz="var(--jurnal-text-sm)" fw={700} c="dark.7">
               {activeLang.flag} {activeLang.code.toUpperCase()}
             </Text>
             <CaretDown size={12} weight="bold" color="var(--mantine-color-gray-5)" />
@@ -116,7 +116,7 @@ export const LanguageSwitcher = ({ variant = 'compact' }: LanguageSwitcherProps)
             <Menu.Item
               key={item.code}
               onClick={() => handleSelectLanguage(item.code)}
-              leftSection={<Text fz={16}>{item.flag}</Text>}
+              leftSection={<Text fz="var(--jurnal-text-md)">{item.flag}</Text>}
               rightSection={
                 isSelected ? (
                   <Check size={14} weight="bold" color="var(--mantine-color-blue-6)" />

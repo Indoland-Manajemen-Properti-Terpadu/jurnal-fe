@@ -1,0 +1,66 @@
+/* App-wide Mantine component overrides, wired through `classNames` in mantineTheme.ts. */
+
+.buttonRoot {
+  font-weight: var(--jurnal-font-weight-medium);
+  transition: all var(--jurnal-duration-fast) var(--jurnal-ease-standard);
+}
+
+.buttonRoot:hover {
+  transform: translateY(-1px);
+}
+
+.input {
+  font-size: var(--jurnal-text-sm);
+}
+
+.input:focus {
+  border-color: var(--mantine-color-primary-5);
+}
+
+.inputLabel {
+  /* 13px: the form-label size from the existing forms, deliberately between sm and xs. */
+  font-size: 0.8125rem;
+  font-weight: var(--jurnal-font-weight-semibold);
+  color: var(--jurnal-color-text-primary);
+  margin-bottom: var(--jurnal-space-1);
+}
+
+.paperRoot {
+  transition: box-shadow var(--jurnal-duration-fast) var(--jurnal-ease-standard);
+}
+
+.table {
+  border-radius: var(--mantine-radius-md);
+  overflow: hidden;
+}
+
+.tableHead {
+  background-color: var(--jurnal-color-bg-subtle);
+}
+
+.tableTh {
+  font-size: var(--jurnal-text-sm);
+  font-weight: var(--jurnal-font-weight-medium);
+  color: var(--jurnal-color-text-primary);
+  padding: var(--jurnal-space-3) var(--jurnal-space-4);
+  border-bottom: 1px solid var(--jurnal-color-border-muted);
+}
+
+.tableTd {
+  font-size: var(--jurnal-text-sm);
+  padding: var(--jurnal-space-3) var(--jurnal-space-4);
+  border-bottom: 1px solid var(--jurnal-color-surface-muted);
+}
+
+.tableTr {
+  transition: background-color var(--jurnal-duration-fast) var(--jurnal-ease-standard);
+}
+
+.tableTr:hover {
+  background-color: var(--jurnal-color-bg-subtle);
+}
+
+.modalTitle {
+  font-size: var(--jurnal-text-lg);
+  font-weight: var(--jurnal-font-weight-semibold);
+}
