@@ -1,5 +1,5 @@
 import { useI18nStore, AVAILABLE_LANGUAGES } from './store';
-import { SupportedLanguage, LanguageOption } from './types';
+import { SupportedLanguage } from './types';
 
 export * from './types';
 export { AVAILABLE_LANGUAGES };
@@ -14,19 +14,18 @@ export { AVAILABLE_LANGUAGES };
  */
 export function useTranslation(namespace?: string) {
   const language = useI18nStore((state) => state.language);
-  const setLanguage = useI18nStore((state) => state.setLanguage);
+  const changeLanguage = useI18nStore((state) => state.setLanguage);
   const translate = useI18nStore((state) => state.translate);
 
-  const t = (key: string, params?: Record<string, string | number>) => {
-    return translate(key, params, namespace);
-  };
+  const translateKey = (key: string, params?: Record<string, string | number>) =>
+    translate(key, params, namespace);
 
   return {
-    t,
+    t: translateKey,
     currentLanguage: language,
     i18n: {
       language,
-      changeLanguage: setLanguage,
+      changeLanguage,
     },
   };
 }

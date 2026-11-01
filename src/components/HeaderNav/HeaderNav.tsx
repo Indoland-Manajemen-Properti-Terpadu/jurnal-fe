@@ -94,11 +94,7 @@ const SECTION_DEFS: Array<{ prefix: string; titleKey: string; groupKey: string }
   { prefix: '/profile', titleKey: 'profile', groupKey: 'groupAccount' },
 ];
 
-const HeaderNav = ({
-  desktopOpened: _desktopOpened,
-  toggleMobile,
-  mobileOpened,
-}: HeaderNavProps) => {
+const HeaderNav = ({ toggleMobile, mobileOpened }: HeaderNavProps) => {
   const { userName, clearTokens } = useAuthStore();
   const navigate = useNavigate();
   const { pathname } = useLocation();
@@ -118,14 +114,16 @@ const HeaderNav = ({
   }, [pathname, t]);
 
   const displayName = capitalize(userName || 'Finance');
-  const today = useMemo(() => {
-    return new Intl.DateTimeFormat(currentLanguage === 'id' ? 'id-ID' : 'en-US', {
-      weekday: 'short',
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
-    }).format(new Date());
-  }, [currentLanguage]);
+  const today = useMemo(
+    () =>
+      new Intl.DateTimeFormat(currentLanguage === 'id' ? 'id-ID' : 'en-US', {
+        weekday: 'short',
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      }).format(new Date()),
+    [currentLanguage]
+  );
 
   const handleLogout = () => {
     clearTokens();

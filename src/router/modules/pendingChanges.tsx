@@ -1,5 +1,5 @@
 import type { RouteObject } from 'react-router-dom';
-import AppShellLayout from '@/components/AppShellLayout';
+import { AppShellLayout } from '@/components/AppShellLayout';
 import { PendingChangesPage } from '@/module/pending-changes';
 import { routes } from '../routes';
 

@@ -12,6 +12,11 @@ import { CommitImportPayload, AccountImportParsedData } from '../../domain/setti
 
 const NS = 'chartOfAccounts';
 
+type ApiError = Error & { response?: { data?: { message?: string } } };
+
+/** Server message when the API sent one, otherwise the error's own message. */
+const apiMessage = (error: Error) => (error as ApiError).response?.data?.message || error.message;
+
 export const useAccountSettings = () => {
   const queryClient = useQueryClient();
 
@@ -29,7 +34,7 @@ export const useAccountSettings = () => {
         color: 'teal',
       });
     },
-    onError: (error: any) => {
+    onError: (error) => {
       notifications.show({
         title: t('settings.toast.templateFailTitle', undefined, NS),
         message: error?.message || t('settings.toast.templateFailMsg', undefined, NS),
@@ -41,13 +46,10 @@ export const useAccountSettings = () => {
   // Upload & Parse File for Validation Preview
   const uploadImportMutation = useMutation<AccountImportParsedData, Error, File>({
     mutationFn: uploadAccountImportFile,
-    onError: (error: any) => {
+    onError: (error) => {
       notifications.show({
         title: t('settings.toast.uploadFailTitle', undefined, NS),
-        message:
-          error?.response?.data?.message ||
-          error?.message ||
-          t('settings.toast.uploadFailMsg', undefined, NS),
+        message: apiMessage(error) || t('settings.toast.uploadFailMsg', undefined, NS),
         color: 'red',
       });
     },
@@ -56,7 +58,7 @@ export const useAccountSettings = () => {
   // Commit Import Correct Data
   const commitImportMutation = useMutation({
     mutationFn: (payload: CommitImportPayload) => commitAccountImport(payload),
-    onSuccess: (data) => {
+    onSuccess: () => {
       invalidateAccounts();
       notifications.show({
         title: t('settings.toast.commitOkTitle', undefined, NS),
@@ -64,13 +66,10 @@ export const useAccountSettings = () => {
         color: 'teal',
       });
     },
-    onError: (error: any) => {
+    onError: (error) => {
       notifications.show({
         title: t('settings.toast.commitFailTitle', undefined, NS),
-        message:
-          error?.response?.data?.message ||
-          error?.message ||
-          t('settings.toast.commitFailMsg', undefined, NS),
+        message: apiMessage(error) || t('settings.toast.commitFailMsg', undefined, NS),
         color: 'red',
       });
     },
@@ -86,13 +85,10 @@ export const useAccountSettings = () => {
         color: 'teal',
       });
     },
-    onError: (error: any) => {
+    onError: (error) => {
       notifications.show({
         title: t('settings.toast.exportFailTitle', undefined, NS),
-        message:
-          error?.response?.data?.message ||
-          error?.message ||
-          t('settings.toast.exportFailMsg', undefined, NS),
+        message: apiMessage(error) || t('settings.toast.exportFailMsg', undefined, NS),
         color: 'red',
       });
     },
@@ -109,13 +105,10 @@ export const useAccountSettings = () => {
         color: 'teal',
       });
     },
-    onError: (error: any) => {
+    onError: (error) => {
       notifications.show({
         title: t('settings.toast.resetFailTitle', undefined, NS),
-        message:
-          error?.response?.data?.message ||
-          error?.message ||
-          t('settings.toast.resetFailMsg', undefined, NS),
+        message: apiMessage(error) || t('settings.toast.resetFailMsg', undefined, NS),
         color: 'red',
       });
     },

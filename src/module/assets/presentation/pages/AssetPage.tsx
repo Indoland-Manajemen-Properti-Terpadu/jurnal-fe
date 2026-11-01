@@ -3,7 +3,7 @@ import { ActionIcon, Box, Button, Group, Paper, Stack, Tooltip } from '@mantine/
 import { IconBuildingWarehouse, IconPlus, IconRefresh } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
-import ConfirmModal from '@/components/ui/ConfirmModal/ConfirmModal';
+import { ConfirmModal } from '@/components/ui/ConfirmModal/ConfirmModal';
 import { routes } from '@/router/routes';
 import { AssetStatsGrid } from '@/module/assets/presentation/components/AssetStatsGrid';
 import { AssetTable } from '@/module/assets/presentation/components/AssetTable';

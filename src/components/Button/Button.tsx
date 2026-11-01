@@ -30,6 +30,7 @@ export const DefaultButton: React.FC<CustomTextProps> = ({
     color={c}
     leftSection={leftSection}
     size={size}
+    disabled={disabled}
     onClick={onClick}
   >
     {children}
@@ -44,7 +45,7 @@ export const GradientButton: React.FC<CustomTextProps> = ({
   disabled = false,
   gradient = buttonGradient.gradient,
 }) => (
-  <Button variant={variant} ff={ff} gradient={gradient} onClick={onClick}>
+  <Button variant={variant} ff={ff} gradient={gradient} disabled={disabled} onClick={onClick}>
     {children}
   </Button>
 );

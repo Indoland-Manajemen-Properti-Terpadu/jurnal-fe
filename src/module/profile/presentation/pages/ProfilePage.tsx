@@ -6,7 +6,7 @@ import {
   IconUser,
   IconUserCircle,
 } from '@tabler/icons-react';
-import AppShellLayout from '@/components/AppShellLayout';
+import { AppShellLayout } from '@/components/AppShellLayout';
 import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
 import { useTranslation } from '@/i18n';
 import { PersonalInfoTab } from '../components/PersonalInfoTab';

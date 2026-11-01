@@ -1,7 +1,7 @@
 import React from 'react';
 import { Alert, Box, Button, Grid, Group, Paper, Skeleton, Stack, Text } from '@mantine/core';
 import { IconAlertTriangle, IconBook2, IconRefresh } from '@tabler/icons-react';
-import AppShellLayout from '@/components/AppShellLayout';
+import { AppShellLayout } from '@/components/AppShellLayout';
 import { EmptyState } from '@/components/EmptyState';
 import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
 import { routes } from '@/router/routes';

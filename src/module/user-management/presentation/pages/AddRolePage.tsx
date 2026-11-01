@@ -15,7 +15,7 @@ import {
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { gradientColors, themeColors } from '@/theme';
-import AppShellLayout from '@/components/AppShellLayout';
+import { AppShellLayout } from '@/components/AppShellLayout';
 import { routes } from '@/router/routes';
 import { IconChevronDown, IconChevronRight } from '@tabler/icons-react';
 import { useForm } from '@mantine/form';

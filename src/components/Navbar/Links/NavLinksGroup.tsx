@@ -6,7 +6,7 @@ import classes from '@/components/Navbar/Links/NavLinksGroup.module.css';
 import { isNavigationChildActive, isNavigationLinkActive } from '../activeNavigation';
 
 interface LinksGroupProps {
-  icon?: any;
+  icon?: React.ElementType;
   label: string;
   initiallyOpened?: boolean;
   link?: string;
@@ -14,7 +14,7 @@ interface LinksGroupProps {
   links?: {
     label: string;
     link: string;
-    icon?: any;
+    icon?: React.ElementType;
     badge?: React.ReactNode;
   }[];
   closeSidebar: () => void;

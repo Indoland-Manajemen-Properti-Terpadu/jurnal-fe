@@ -92,7 +92,7 @@ export const PeriodAndClosingBooksModal: React.FC<PeriodAndClosingBooksModalProp
         size="55rem"
         opened={opened}
         onClose={onClose}
-        withCloseButton={true}
+        withCloseButton
         title={<TextMediumGR>{t('modal.title')}</TextMediumGR>}
         labels={{
           confirm: (
@@ -165,7 +165,7 @@ export const PeriodAndClosingBooksModal: React.FC<PeriodAndClosingBooksModalProp
         size="55rem"
         opened={PLDateSettingOpened}
         onClose={closeAllModals}
-        withCloseButton={true}
+        withCloseButton
         title={<TextMediumGR>{t('modal.lockDateTitle')}</TextMediumGR>}
         labels={{
           confirm: (
@@ -201,7 +201,7 @@ export const PeriodAndClosingBooksModal: React.FC<PeriodAndClosingBooksModalProp
         key="PLConfirm"
         opened={PLConfirmOpened}
         onClose={cancelToCheckPL}
-        withCloseButton={true}
+        withCloseButton
         title={<TextMediumGR>{t('modal.checkTitle')}</TextMediumGR>}
         labels={{
           confirm: (
@@ -229,7 +229,7 @@ export const PeriodAndClosingBooksModal: React.FC<PeriodAndClosingBooksModalProp
         size="55rem"
         opened={CBDateSettingOpened}
         onClose={closeAllModals}
-        withCloseButton={true}
+        withCloseButton
         title={<TextMediumGR>{t('modal.closingDateTitle')}</TextMediumGR>}
         labels={{
           confirm: (
@@ -268,7 +268,7 @@ export const PeriodAndClosingBooksModal: React.FC<PeriodAndClosingBooksModalProp
         key="CBConfirm"
         opened={CBConfirmOpened}
         onClose={cancelToCheckCB}
-        withCloseButton={true}
+        withCloseButton
         title={<TextMediumGR>{t('modal.checkTitle')}</TextMediumGR>}
         labels={{
           confirm: (

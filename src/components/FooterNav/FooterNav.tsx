@@ -121,5 +121,3 @@ export const FooterNav = () => {
     </Group>
   );
 };
-
-export default FooterNav;

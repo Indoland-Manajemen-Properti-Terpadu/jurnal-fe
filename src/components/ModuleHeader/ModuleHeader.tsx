@@ -82,6 +82,3 @@ export function ModuleHeader({
     </Paper>
   );
 }
-
-export default ModuleHeader;
-

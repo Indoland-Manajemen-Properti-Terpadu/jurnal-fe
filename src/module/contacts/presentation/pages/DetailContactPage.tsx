@@ -10,9 +10,9 @@ import {
   IconUser,
 } from '@tabler/icons-react';
 import { useNavigate, useParams } from 'react-router-dom';
-import AppShellLayout from '@/components/AppShellLayout';
+import { AppShellLayout } from '@/components/AppShellLayout';
 import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
-import ConfirmModal from '@/components/ui/ConfirmModal/ConfirmModal';
+import { ConfirmModal } from '@/components/ui/ConfirmModal/ConfirmModal';
 import { useTranslation } from '@/i18n';
 import { routes } from '@/router/routes';
 import { ContactFormModal } from '@/module/contacts/presentation/components/form/ContactFormModal';

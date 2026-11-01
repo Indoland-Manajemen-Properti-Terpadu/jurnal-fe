@@ -3,7 +3,7 @@ import { Alert, Button, Center, Container, Loader, Stack, Text, Title } from '@m
 import { IconAlertCircle } from '@tabler/icons-react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
-import AppShellLayout from '@/components/AppShellLayout';
+import { AppShellLayout } from '@/components/AppShellLayout';
 import { accountDetailData, useDetailAccount } from '@/module/chart-of-accounts';
 import { useJournalEntriesByAccount, type JournalEntryByAccount } from '@/module/journal-entries';
 import { summarizeMutations, unwrapAccountDetail } from '../../domain/ledgerSummary';

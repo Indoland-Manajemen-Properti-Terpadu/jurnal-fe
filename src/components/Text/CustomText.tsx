@@ -1,7 +1,6 @@
 import React from 'react';
 import { Group, MantineGradient, Text } from '@mantine/core';
-import classes from './CustomText.module.css';
-import { gradientColors, themeColors } from '@/theme';
+import { gradientColors } from '@/theme';
 
 type CustomTextProps = {
   children: React.ReactNode;

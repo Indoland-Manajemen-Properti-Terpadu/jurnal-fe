@@ -23,10 +23,13 @@ const apiClient = axios.create({
 let isRefreshing = false;
 let refreshSubscribers: Array<{
   resolve: (token: string) => void;
-  reject: (error: any) => void;
+  reject: (error: unknown) => void;
 }> = [];
 
-const subscribeTokenRefresh = (resolve: (token: string) => void, reject: (error: any) => void) => {
+const subscribeTokenRefresh = (
+  resolve: (token: string) => void,
+  reject: (error: unknown) => void
+) => {
   refreshSubscribers.push({ resolve, reject });
 };
 
@@ -35,7 +38,7 @@ const onRefreshed = (token: string) => {
   refreshSubscribers = [];
 };
 
-const onRefreshError = (error: any) => {
+const onRefreshError = (error: unknown) => {
   refreshSubscribers.forEach(({ reject }) => reject(error));
   refreshSubscribers = [];
 };
@@ -81,7 +84,7 @@ apiClient.interceptors.response.use(
               originalRequest.headers.Authorization = `Bearer ${token}`;
               resolve(apiClient(originalRequest));
             },
-            (refreshErr: any) => {
+            (refreshErr: unknown) => {
               reject(refreshErr);
             }
           );

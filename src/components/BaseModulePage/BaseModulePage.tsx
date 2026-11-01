@@ -38,4 +38,4 @@ const BaseModulePage = ({ title, description, routePath }: BaseModulePageProps) 
   );
 };
 
-export default BaseModulePage;
+export { BaseModulePage };

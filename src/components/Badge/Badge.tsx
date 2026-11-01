@@ -1,7 +1,7 @@
 import { Badge, rem } from '@mantine/core';
 import { IconLock } from '@tabler/icons-react';
-import classes from './StatusUser.module.css';
 import { themeColors } from '@/theme';
+import classes from './StatusUser.module.css';
 
 const STATUS_STYLES: Record<string, { bg: string; color: string }> = {
   active: {
@@ -50,13 +50,7 @@ export const InactiveBadge = () => (
 
 // General Ledger Table Components
 export const AllRoleBadge = () => (
-  <Badge
-    color="blue"
-    radius="sm"
-    bg={themeColors.blue[6]}
-    c="white"
-    className={classes.badgeText}
-  >
+  <Badge color="blue" radius="sm" bg={themeColors.blue[6]} c="white" className={classes.badgeText}>
     All Users
   </Badge>
 );

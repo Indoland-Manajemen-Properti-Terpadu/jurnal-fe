@@ -3,7 +3,7 @@ import { Center, Container, Loader, Paper, Stack, Text } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
-import AppShellLayout from '@/components/AppShellLayout';
+import { AppShellLayout } from '@/components/AppShellLayout';
 import { ConfirmModal } from '@/components';
 import deleteModalImage from '@/assets/images/illustrations/delete-confirm.svg';
 import { useJournalAccounts, type JournalAccounts } from '@/module/chart-of-accounts';

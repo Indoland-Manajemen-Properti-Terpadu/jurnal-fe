@@ -28,7 +28,7 @@ import {
   IconX,
 } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
-import AppShellLayout from '@/components/AppShellLayout';
+import { AppShellLayout } from '@/components/AppShellLayout';
 import { EmptyState } from '@/components/EmptyState';
 import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
 import { routes } from '@/router/routes';

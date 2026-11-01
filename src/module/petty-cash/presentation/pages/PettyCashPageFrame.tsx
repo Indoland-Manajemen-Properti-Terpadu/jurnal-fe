@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { Box, Stack } from '@mantine/core';
-import AppShellLayout from '@/components/AppShellLayout';
+import { AppShellLayout } from '@/components/AppShellLayout';
 import classes from '@/module/petty-cash/presentation/pages/PettyCashPage.module.css';
 
 /** Shared page wrapper (Standard A in docs/ui-guidelines.md) for the list and detail routes. */

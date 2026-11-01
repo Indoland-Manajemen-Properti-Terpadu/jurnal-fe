@@ -9,7 +9,7 @@ let detail: Record<string, unknown> | undefined;
 let detailError = false;
 
 vi.mock('@/components/AppShellLayout', () => ({
-  default: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  AppShellLayout: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 vi.mock('@/module/user-management', () => ({
   useUsers: () => ({ data: { results: [] }, isLoading: false }),

@@ -15,7 +15,7 @@ import { themeColors } from '@/theme';
 import { DatePickerInput } from '@mantine/dates';
 import { IconCalendar, IconChevronDown, IconFileExport } from '@tabler/icons-react';
 import { formatCurrency } from '@/utils/formatCurrency';
-import AppShellLayout from '@/components/AppShellLayout';
+import { AppShellLayout } from '@/components/AppShellLayout';
 import IncomeStatementTable from '@/module/reports/presentation/components/income-statement/IncomeStatementTable';
 
 import { useTranslation } from '@/i18n';

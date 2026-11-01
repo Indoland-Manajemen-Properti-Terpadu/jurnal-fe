@@ -7,7 +7,7 @@ import { DataTable, type DataTableColumn } from 'mantine-datatable';
 import { themeColors } from '@/theme';
 import { useTranslation } from '@/i18n';
 import CustomConfirmModal from '@/components/Modals/ConfirmModal';
-import ConfirmModal from '@/components/ui/ConfirmModal/ConfirmModal';
+import { ConfirmModal } from '@/components/ui/ConfirmModal/ConfirmModal';
 import uploadTemplateImage from '@/assets/images/illustrations/reconcile.svg';
 import { formatCurrency } from '@/utils/formatCurrency';
 import { dateFormatV1 } from '@/utils/formatDate';

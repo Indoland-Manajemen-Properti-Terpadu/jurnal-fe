@@ -13,7 +13,7 @@ import {
 import { useDebouncedValue } from '@mantine/hooks';
 import { IconSearch, IconX } from '@tabler/icons-react';
 import { useParams } from 'react-router-dom';
-import AppShellLayout from '@/components/AppShellLayout';
+import { AppShellLayout } from '@/components/AppShellLayout';
 import { useTranslation } from '@/i18n';
 import {
   TRANSACTION_STATUS_FILTERS,

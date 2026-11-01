@@ -12,8 +12,8 @@ import {
 } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { routes } from '@/router/routes';
-import ModuleHeader from '@/components/ModuleHeader/ModuleHeader';
-import AppShellLayout from '@/components/AppShellLayout';
+import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
+import { AppShellLayout } from '@/components/AppShellLayout';
 import StatsBankCashGrid from '@/module/bank-cash/presentation/components/stats/StatsBankCashGrid';
 import { TableBankCash } from '@/module/bank-cash/presentation/components/accounts-table/TableBankCash';
 import { useJournalAccounts } from '@/module/chart-of-accounts';

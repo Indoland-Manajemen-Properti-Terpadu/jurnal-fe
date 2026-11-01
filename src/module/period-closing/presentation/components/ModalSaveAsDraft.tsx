@@ -20,7 +20,7 @@ const SaveAsDraftModal = ({ opened, onClose, onSave }: SaveAsDraftModalProps) =>
     <CustomConfirmModal
       opened={opened}
       onClose={onClose}
-      withCloseButton={true}
+      withCloseButton
       title={
         <Text fz="var(--jurnal-text-md)" fw={600} c={themeColors.black[9]}>
           {t('saveDraft.title')}

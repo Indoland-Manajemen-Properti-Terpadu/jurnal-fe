@@ -15,4 +15,4 @@ const ErrorAlert = ({ message, ...others }: Props) => {
   );
 };
 
-export default ErrorAlert;
+export { ErrorAlert };
