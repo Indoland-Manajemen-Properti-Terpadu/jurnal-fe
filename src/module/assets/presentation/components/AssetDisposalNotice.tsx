@@ -1,7 +1,7 @@
 import { Box, Group, Paper, Text, ThemeIcon } from '@mantine/core';
 import { IconScale } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
-import { formatCurrency } from '@/utils/FormatCurrency';
+import { formatCurrency } from '@/utils/formatCurrency';
 import { AssetItem } from '@/module/assets/domain/asset';
 import { formatAssetDate } from '@/module/assets/presentation/components/formatAssetDate';
 
@@ -20,7 +20,7 @@ export function AssetDisposalNotice({ asset }: Readonly<AssetDisposalNoticeProps
       radius="lg"
       p="md"
       style={{
-        backgroundColor: 'rgba(254, 243, 199, 0.4)',
+        backgroundColor: 'color-mix(in srgb, var(--mantine-color-amber-1) 40%, transparent)',
         borderColor: 'var(--mantine-color-orange-3)',
       }}
     >

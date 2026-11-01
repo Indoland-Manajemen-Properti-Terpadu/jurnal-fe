@@ -166,7 +166,7 @@ export function PersonalInfoTab({ user, isSaving, onSubmit }: PersonalInfoTabPro
             p="md"
             style={{
               background:
-                'linear-gradient(135deg, rgba(5, 48, 121, 0.04) 0%, rgba(9, 178, 255, 0.08) 100%)',
+                'linear-gradient(135deg, color-mix(in srgb, var(--mantine-color-primary-6) 4%, transparent) 0%, color-mix(in srgb, var(--mantine-color-secondary-6) 8%, transparent) 100%)',
             }}
           >
             <Group align="flex-start" gap="sm" wrap="nowrap">

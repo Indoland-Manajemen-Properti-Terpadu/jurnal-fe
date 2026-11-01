@@ -69,7 +69,7 @@ const ImportBankStatementModal: React.FC<ImportBankStatementModalProps> = ({
     importBankStatement(files[0], {
       onSuccess: () => {
         onContinue();
-        navigate(routes.generalJournal.bankStatementDraftImport.replace(':idAccount', idAccount));
+        navigate(routes.bankStatements.importDraft.replace(':idAccount', idAccount));
         setFiles([]);
         setActive(0);
         onClose();
@@ -100,7 +100,7 @@ const ImportBankStatementModal: React.FC<ImportBankStatementModalProps> = ({
       onClose={onClose}
       withCloseButton
       title={
-        <Text fw={600} fz={18} c={themeColors.black[9]}>
+        <Text fw={600} fz="var(--jurnal-text-lg)" c={themeColors.black[9]}>
           {t('importModal.title')}
         </Text>
       }

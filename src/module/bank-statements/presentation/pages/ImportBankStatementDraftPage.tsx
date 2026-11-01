@@ -16,12 +16,12 @@ import {
 import { gradientColors, themeColors } from '@/theme';
 import { IconInfoCircle, IconTrash } from '@tabler/icons-react';
 import { ArrowLeftIcon, PlusIcon } from '@phosphor-icons/react';
-import AppShellLayout from '@/components/AppShellLayout';
+import { AppShellLayout } from '@/components/AppShellLayout';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
 import { ConfirmModal } from '@/components';
-import importModalImage from '@/assets/img/vectors/import.svg';
+import importModalImage from '@/assets/images/illustrations/import.svg';
 import ImportBankStatementDraftTable from '../components/ImportBankStatementDraftTable';
 import { buildConfirmPayload } from '../../domain/importDraft';
 import { loadImportPreview } from '../../infrastructure/importDraftStorage';
@@ -80,7 +80,12 @@ const ImportBankStatementDraftPage = () => {
   return (
     <AppShellLayout
       footer={
-        <Group p="md" justify="flex-end" bg="white" style={{ borderTop: '1px solid #E9ECEF' }}>
+        <Group
+          p="md"
+          justify="flex-end"
+          bg="white"
+          style={{ borderTop: '1px solid var(--mantine-color-gray-2)' }}
+        >
           <Button variant="light" color={themeColors.gray[7]} onClick={() => navigate(-1)}>
             {t('importDraft.cancel')}
           </Button>
@@ -105,7 +110,7 @@ const ImportBankStatementDraftPage = () => {
                   </ActionIcon>
                   <Stack gap={2}>
                     <Title order={5}>{t('importDraft.title')}</Title>
-                    <Text c={themeColors.gray[6]} fz={14}>
+                    <Text c={themeColors.gray[6]} fz="var(--jurnal-text-sm)">
                       {t('importDraft.subtitle')}
                     </Text>
                   </Stack>

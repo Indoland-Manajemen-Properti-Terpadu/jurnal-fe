@@ -9,7 +9,7 @@ import { routes } from '@/router/routes';
 import { InformationAlert } from '@/components/Alert/Alert';
 import CustomConfirmModal from '@/components/Modals/ConfirmModal';
 import { useTranslation } from '@/i18n';
-import KeyPeriodeImage from '@/assets/img/closing_period.svg';
+import KeyPeriodeImage from '@/assets/images/illustrations/closing-period.svg';
 import { PROTOTYPE_LOCK_DATE } from '../../domain/prototypeData';
 import usePeriodModalStore from '../store/usePeriodModals';
 
@@ -45,7 +45,7 @@ const CheckMessage = () => {
 
   return (
     <Stack gap="md" align="stretch" justify="center">
-      <Text fz={14} fw={400} c={themeColors.black[9]}>
+      <Text fz="var(--jurnal-text-sm)" fw={400} c={themeColors.black[9]}>
         {t('modal.checkMessage')}
       </Text>
     </Stack>
@@ -80,7 +80,7 @@ export const PeriodAndClosingBooksModal: React.FC<PeriodAndClosingBooksModalProp
       message: t('common.draftNotice'),
     });
     closeAllModals();
-    navigate(routes.generalJournal.closingBooks);
+    navigate(routes.periodClosing.closingBooks);
   };
 
   const benefitItems = [t('modal.benefitItem1'), t('modal.benefitItem2')];
@@ -92,7 +92,7 @@ export const PeriodAndClosingBooksModal: React.FC<PeriodAndClosingBooksModalProp
         size="55rem"
         opened={opened}
         onClose={onClose}
-        withCloseButton={true}
+        withCloseButton
         title={<TextMediumGR>{t('modal.title')}</TextMediumGR>}
         labels={{
           confirm: (
@@ -134,10 +134,10 @@ export const PeriodAndClosingBooksModal: React.FC<PeriodAndClosingBooksModalProp
           >
             <Image src={KeyPeriodeImage} fit="contain" height={250} />
           </Container>
-          <Text fz={20} fw={600} c={themeColors.black[9]} ta="center">
+          <Text fz="var(--jurnal-text-xl)" fw={600} c={themeColors.black[9]} ta="center">
             {t('modal.featureTitle')}
           </Text>
-          <Text fz={14} fw={500} c={themeColors.gray[7]} ta="center">
+          <Text fz="var(--jurnal-text-sm)" fw={500} c={themeColors.gray[7]} ta="center">
             {t('modal.featureDescription')}
           </Text>
           <InformationAlert
@@ -165,7 +165,7 @@ export const PeriodAndClosingBooksModal: React.FC<PeriodAndClosingBooksModalProp
         size="55rem"
         opened={PLDateSettingOpened}
         onClose={closeAllModals}
-        withCloseButton={true}
+        withCloseButton
         title={<TextMediumGR>{t('modal.lockDateTitle')}</TextMediumGR>}
         labels={{
           confirm: (
@@ -201,7 +201,7 @@ export const PeriodAndClosingBooksModal: React.FC<PeriodAndClosingBooksModalProp
         key="PLConfirm"
         opened={PLConfirmOpened}
         onClose={cancelToCheckPL}
-        withCloseButton={true}
+        withCloseButton
         title={<TextMediumGR>{t('modal.checkTitle')}</TextMediumGR>}
         labels={{
           confirm: (
@@ -229,7 +229,7 @@ export const PeriodAndClosingBooksModal: React.FC<PeriodAndClosingBooksModalProp
         size="55rem"
         opened={CBDateSettingOpened}
         onClose={closeAllModals}
-        withCloseButton={true}
+        withCloseButton
         title={<TextMediumGR>{t('modal.closingDateTitle')}</TextMediumGR>}
         labels={{
           confirm: (
@@ -268,7 +268,7 @@ export const PeriodAndClosingBooksModal: React.FC<PeriodAndClosingBooksModalProp
         key="CBConfirm"
         opened={CBConfirmOpened}
         onClose={cancelToCheckCB}
-        withCloseButton={true}
+        withCloseButton
         title={<TextMediumGR>{t('modal.checkTitle')}</TextMediumGR>}
         labels={{
           confirm: (

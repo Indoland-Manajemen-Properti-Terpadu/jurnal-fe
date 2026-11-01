@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { Text, Stack, Container, Select } from '@mantine/core';
-import { useNavigate } from 'react-router';
 import { themeColors } from '@/theme';
-import { formatCurrency } from '@/utils/FormatCurrency';
+import { formatCurrency } from '@/utils/formatCurrency';
 import { IconChevronDown } from '@tabler/icons-react';
 import { DataTable } from 'mantine-datatable';
 import EmptyState from '@/components/EmptyState/EmptyTable';
@@ -70,7 +69,6 @@ const elements: JournalTransactionTable[] = [
 ];
 
 export default function CashMapping() {
-  const navigate = useNavigate();
   const { t } = useTranslation('chartOfAccounts');
   const [selectedRecords, setSelectedRecords] = useState<JournalTransactionTable[]>([]);
   const { accounts } = useJournalAccounts();
@@ -85,7 +83,7 @@ export default function CashMapping() {
       title: t('cashMapping.colDate'),
       width: 200,
       render: (element: JournalTransactionTable) => (
-        <Text c={themeColors.black[9]} fz={14}>
+        <Text c={themeColors.black[9]} fz="var(--jurnal-text-sm)">
           {element.date}
         </Text>
       ),
@@ -94,7 +92,7 @@ export default function CashMapping() {
       accessor: 'received',
       title: t('cashMapping.colReceived'),
       render: (element: JournalTransactionTable) => (
-        <Text c={themeColors.black[9]} fz={14}>
+        <Text c={themeColors.black[9]} fz="var(--jurnal-text-sm)">
           {formatCurrency(element.received)}
         </Text>
       ),
@@ -103,7 +101,7 @@ export default function CashMapping() {
       accessor: 'sent',
       title: t('cashMapping.colSent'),
       render: (element: JournalTransactionTable) => (
-        <Text c={themeColors.black[9]} fz={14}>
+        <Text c={themeColors.black[9]} fz="var(--jurnal-text-sm)">
           {formatCurrency(element.sent)}
         </Text>
       ),
@@ -113,7 +111,7 @@ export default function CashMapping() {
       title: t('cashMapping.colDescription'),
       width: 300,
       render: (element: JournalTransactionTable) => (
-        <Text c={themeColors.black[9]} fz={14}>
+        <Text c={themeColors.black[9]} fz="var(--jurnal-text-sm)">
           {element.description}
         </Text>
       ),
@@ -122,7 +120,7 @@ export default function CashMapping() {
       accessor: 'account',
       title: t('cashMapping.colAccount'),
       width: 300,
-      render: (element: JournalTransactionTable) => (
+      render: () => (
         <Select
           key="accounts"
           placeholder={t('cashMapping.chooseAccount')}
@@ -140,7 +138,7 @@ export default function CashMapping() {
       accessor: 'tax',
       title: t('cashMapping.colTax'),
       width: 200,
-      render: (element: JournalTransactionTable) => (
+      render: () => (
         <Select
           key="accounts"
           placeholder={t('cashMapping.chooseTax')}

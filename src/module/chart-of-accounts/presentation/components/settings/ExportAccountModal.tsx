@@ -13,7 +13,7 @@ import {
   ThemeIcon,
 } from '@mantine/core';
 import { IconDownload, IconFileSpreadsheet, IconInfoCircle } from '@tabler/icons-react';
-import ImageExport from '@/assets/img/SettingsAccount-Export.svg';
+import ImageExport from '@/assets/images/illustrations/settings-account-export.svg';
 import { useTranslation } from '@/i18n';
 import { useAccountSettings } from '../../hooks/useAccountSettings';
 
@@ -69,11 +69,12 @@ export const ExportAccountModal: React.FC<ExportAccountModalProps> = ({
           style={{
             height: 124,
             borderRadius: 12,
-            background: 'linear-gradient(145deg, #f0fdfa 0%, #ccfbf1 100%)',
+            background:
+              'linear-gradient(145deg, var(--mantine-color-teal-0) 0%, var(--mantine-color-teal-1) 100%)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            border: '1px solid rgba(20, 184, 166, 0.15)',
+            border: '1px solid color-mix(in srgb, var(--mantine-color-teal-5) 15%, transparent)',
           }}
         >
           <Image src={ImageExport} alt={t('settings.export.alt')} h={88} fit="contain" />

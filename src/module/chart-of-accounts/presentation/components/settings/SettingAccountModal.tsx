@@ -8,9 +8,9 @@ import {
   IconUpload,
 } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
-import ImageImport from '@/assets/img/SettingsAccount-Import.svg';
-import ImageExport from '@/assets/img/SettingsAccount-Export.svg';
-import ImageRestore from '@/assets/img/SettingsAccount-Restore.svg';
+import ImageImport from '@/assets/images/illustrations/settings-account-import.svg';
+import ImageExport from '@/assets/images/illustrations/settings-account-export.svg';
+import ImageRestore from '@/assets/images/illustrations/settings-account-restore.svg';
 import { SettingAccountAction } from '@/module/chart-of-accounts/domain/settingAccount';
 import { SettingActionCard } from './SettingActionCard';
 import { SETTING_ACTION_THEMES } from './settingActionThemes';

@@ -69,8 +69,15 @@ export const applyPayment = (
   bill: Pick<PurchaseBill, 'totalAmount' | 'paidAmount'>,
   amount: number
 ): PaymentResult => {
+  if (!Number.isFinite(amount) || amount <= 0) {
+    throw new RangeError('Payment must be a positive amount');
+  }
+  const owed = toCents(bill.totalAmount) - toCents(bill.paidAmount);
+  if (toCents(amount) > owed) {
+    throw new RangeError('Payment exceeds the remaining amount');
+  }
   const paid = sumMinor([toCents(bill.paidAmount), toCents(amount)]);
-  const remaining = Math.max(0, toCents(bill.totalAmount) - paid);
+  const remaining = toCents(bill.totalAmount) - paid;
   return {
     paidAmount: toAmount(paid),
     remainingAmount: toAmount(remaining),

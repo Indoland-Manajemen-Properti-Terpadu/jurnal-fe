@@ -2,11 +2,11 @@ import { Text, Anchor, Group, Badge, ActionIcon, Tooltip } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
 import { themeColors } from '@/theme';
-import { formatCurrency } from '@/utils/FormatCurrency';
+import { formatCurrency } from '@/utils/formatCurrency';
 import { DataTable } from 'mantine-datatable';
 import { routes } from '@/router/routes';
 import EmptyState from '@/components/EmptyState/EmptyTable';
-import { dateFormatV1 } from '@/utils/FormatDate';
+import { dateFormatV1 } from '@/utils/formatDate';
 import { IconEye } from '@tabler/icons-react';
 import useFilterTransaction from '../store/useFilterTransactionStore';
 import type { JournalEntryByAccount } from '../../domain/journalEntry';
@@ -20,7 +20,7 @@ interface JournalEntriesTableProps {
 }
 
 const headTableStyle = {
-  fontSize: 13,
+  fontSize: 'var(--jurnal-text-sm)',
   fontWeight: 600,
   color: themeColors.black[9],
 };
@@ -54,11 +54,9 @@ function JournalEntriesTable({
               underline="hover"
               fw={600}
               c="primary.6"
-              fz={14}
+              fz="var(--jurnal-text-sm)"
               onClick={() =>
-                navigate(
-                  routes.generalJournal.detailTransactionJournal.replace(':idTransaction', row.id)
-                )
+                navigate(routes.journalEntries.detail.replace(':idTransaction', row.id))
               }
             >
               {t('entriesTable.entryLink', { number: row.transactionNumber })}
@@ -71,7 +69,7 @@ function JournalEntriesTable({
       accessor: 'transactionDate',
       title: <Text style={headTableStyle}>{t('entriesTable.date')}</Text>,
       render: (row: JournalEntryByAccount) => (
-        <Text c="dark.7" fz={13}>
+        <Text c="dark.7" fz="var(--jurnal-text-sm)">
           {dateFormatV1(row.transactionDate)}
         </Text>
       ),
@@ -80,7 +78,7 @@ function JournalEntriesTable({
       accessor: 'contact',
       title: <Text style={headTableStyle}>{t('entriesTable.contact')}</Text>,
       render: () => (
-        <Text c="dimmed" fz={13}>
+        <Text c="dimmed" fz="var(--jurnal-text-sm)">
           -
         </Text>
       ),
@@ -95,7 +93,7 @@ function JournalEntriesTable({
         <Text
           c={row.debit && row.debit > 0 ? 'teal.7' : 'dimmed'}
           fw={row.debit && row.debit > 0 ? 600 : 400}
-          fz={13}
+          fz="var(--jurnal-text-sm)"
           ta="right"
           style={{ fontVariantNumeric: 'tabular-nums' }}
         >
@@ -113,7 +111,7 @@ function JournalEntriesTable({
         <Text
           c={row.credit && row.credit > 0 ? 'red.7' : 'dimmed'}
           fw={row.credit && row.credit > 0 ? 600 : 400}
-          fz={13}
+          fz="var(--jurnal-text-sm)"
           ta="right"
           style={{ fontVariantNumeric: 'tabular-nums' }}
         >
@@ -133,7 +131,7 @@ function JournalEntriesTable({
           <Text
             c="dark.8"
             fw={700}
-            fz={13}
+            fz="var(--jurnal-text-sm)"
             ta="right"
             style={{ fontVariantNumeric: 'tabular-nums' }}
           >
@@ -157,9 +155,7 @@ function JournalEntriesTable({
               size="sm"
               radius="md"
               onClick={() =>
-                navigate(
-                  routes.generalJournal.detailTransactionJournal.replace(':idTransaction', row.id)
-                )
+                navigate(routes.journalEntries.detail.replace(':idTransaction', row.id))
               }
             >
               <IconEye size={16} />

@@ -60,4 +60,4 @@
 
 ## Referensi
 
-Pastikan perubahan mengikuti [konteks engineering project](../.codex/PROJECT_CONTEXT.md), [konvensi](../docs/conventions.md), dan workflow yang relevan.
+Pastikan perubahan mengikuti [aturan project](../AGENTS.md), [konvensi](../docs/conventions.md), dan workflow yang relevan.

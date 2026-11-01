@@ -1,7 +1,7 @@
 import React from 'react';
 import { Group, Paper, SimpleGrid, Skeleton, Stack, Text, ThemeIcon } from '@mantine/core';
 import { IconAlertTriangle, IconCheck, IconClock, IconReceipt2 } from '@tabler/icons-react';
-import { formatCurrency } from '@/utils/FormatCurrency';
+import { formatCurrency } from '@/utils/formatCurrency';
 import { PurchaseBill } from '@/module/purchases/domain/purchase';
 import { summarizePurchases } from '@/module/purchases/domain/purchaseTotals';
 import { useTranslation } from '@/i18n';
@@ -83,7 +83,7 @@ export const PurchaseStatsGrid: React.FC<PurchaseStatsGridProps> = ({
                   {c.label}
                 </Text>
                 <Text
-                  fz={20}
+                  fz="var(--jurnal-text-xl)"
                   fw={800}
                   c="dark.9"
                   mt={4}

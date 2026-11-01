@@ -3,13 +3,14 @@ import { Alert, Box, Button, Grid, Paper, Skeleton, Stack } from '@mantine/core'
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from '@mantine/form';
 import { IconArrowLeft, IconCheck, IconLock, IconNotebook } from '@tabler/icons-react';
-import AppShellLayout from '@/components/AppShellLayout';
+import { AppShellLayout } from '@/components/AppShellLayout';
 import { NotFound } from '@/components/ErrorPage/NotFound';
-import ModuleHeader from '@/components/ModuleHeader/ModuleHeader';
+import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
 import { routes } from '@/router/routes';
 import { useTranslation } from '@/i18n';
-import { GetCategoryAccount } from '../hooks/useCategoryAccounts';
-import { useGetCategoryInfo } from '../hooks/useCategoryInfo';
+import { useCategoryAccounts } from '@/module/chart-of-accounts/presentation/hooks/useCategoryAccounts';
+import { useCategoryInfo } from '@/module/chart-of-accounts/presentation/hooks/useCategoryInfo';
+import { useRoles, useUsers } from '@/module/user-management';
 import { useUpdateAccount } from '../hooks/useUpdateAccount';
 import { useDetailAccount } from '../hooks/useDetailAccount';
 import { useAccountFormOptions } from '../hooks/useAccountFormOptions';
@@ -29,8 +30,6 @@ import { AccountPreviewCard, AccountingGuideCard } from '../components';
 import { EditAccountIdentitySection } from '../components/account-form/EditAccountIdentitySection';
 import { EditAccountHierarchySection } from '../components/account-form/EditAccountHierarchySection';
 import { EditAccountAccessSection } from '../components/account-form/EditAccountAccessSection';
-import { useGetAllUser } from '@/module/SettingMenu/UserManagement/User/service/User.service';
-import { GetRoles } from '@/module/SettingMenu/UserManagement/Role/Service/Role.service';
 
 export const EditAccountJournalPage: React.FC = () => {
   const navigate = useNavigate();
@@ -49,9 +48,9 @@ export const EditAccountJournalPage: React.FC = () => {
   const categoryEditable = canChangeCategory(isLocked);
 
   // Queries
-  const { data: categoryAccounts, isLoading: isLoadingCategories } = GetCategoryAccount();
-  const { data: usersData, isLoading: isLoadingUsers } = useGetAllUser();
-  const { data: rolesData, isLoading: isLoadingRoles } = GetRoles();
+  const { data: categoryAccounts, isLoading: isLoadingCategories } = useCategoryAccounts();
+  const { data: usersData, isLoading: isLoadingUsers } = useUsers();
+  const { data: rolesData, isLoading: isLoadingRoles } = useRoles();
   const updateAccountMutation = useUpdateAccount(idAccount!);
 
   // Form State
@@ -89,7 +88,7 @@ export const EditAccountJournalPage: React.FC = () => {
   } = useAccountPlacementState();
 
   // Category Info query for suggestions & hierarchy options
-  const { data: categoryInfo } = useGetCategoryInfo(form.values.category);
+  const { data: categoryInfo } = useCategoryInfo(form.values.category);
 
   // Populate data when accountDetail arrives
   useEffect(() => {
@@ -106,18 +105,19 @@ export const EditAccountJournalPage: React.FC = () => {
   }, [accountDetail]);
 
   // Derived Dropdown Data
-  const categoryOptions = useMemo(() => {
-    return (
+  const categoryOptions = useMemo(
+    () =>
       categoryAccounts?.map((category) => ({
         value: category.id || '',
         label: category.name || t('form.unnamedCategory'),
-      })) || []
-    );
-  }, [categoryAccounts, currentLanguage]);
+      })) || [],
+    [categoryAccounts, currentLanguage]
+  );
 
-  const selectedCategoryObj = useMemo(() => {
-    return categoryAccounts?.find((cat) => cat.id === form.values.category);
-  }, [categoryAccounts, form.values.category]);
+  const selectedCategoryObj = useMemo(
+    () => categoryAccounts?.find((cat) => cat.id === form.values.category),
+    [categoryAccounts, form.values.category]
+  );
 
   const {
     userOptions,
@@ -179,7 +179,7 @@ export const EditAccountJournalPage: React.FC = () => {
   };
 
   const handleCancel = () => {
-    navigate(routes.generalJournal.main);
+    navigate(routes.chartOfAccounts.main);
   };
 
   if (isDetailError) {

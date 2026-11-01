@@ -1,9 +1,8 @@
 import { Button, Group, Stack, Text, Modal, Image } from '@mantine/core';
 import { IconTrash } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
-import { themeColors } from '@/theme';
-import { themeText } from '@/theme/constants';
-import DeleteIllustration from '@/assets/img/vectors/delete_modal.svg';
+import { headingStyles, textStyles, themeColors } from '@/theme';
+import DeleteIllustration from '@/assets/images/illustrations/delete-confirm.svg';
 
 interface DeleteJournalEntryModalProps {
   opened: boolean;
@@ -25,7 +24,7 @@ const DeleteJournalEntryModal = ({ opened, onClose, onDelete }: DeleteJournalEnt
       centered
       withCloseButton
       title={
-        <Text style={themeText.heading.h6} c={themeColors.black[9]}>
+        <Text style={headingStyles.h6} c={themeColors.black[9]}>
           {t('deleteModal.title')}
         </Text>
       }
@@ -33,9 +32,9 @@ const DeleteJournalEntryModal = ({ opened, onClose, onDelete }: DeleteJournalEnt
       radius="lg"
       styles={{
         header: {
-          backgroundColor: '#F9FAFB',
+          backgroundColor: 'var(--mantine-color-gray-0)',
           padding: '16px 20px',
-          borderBottom: '1px solid #E5E7EB',
+          borderBottom: '1px solid var(--mantine-color-gray-2)',
         },
         body: {
           paddingTop: '24px',
@@ -47,14 +46,14 @@ const DeleteJournalEntryModal = ({ opened, onClose, onDelete }: DeleteJournalEnt
 
         <Stack gap={4} align="center">
           <Text
-            style={{ ...themeText.label.label1, maxWidth: '280px' }}
+            style={{ ...textStyles.labelLg, maxWidth: '280px' }}
             fw={600}
             ta="center"
             c={themeColors.black[9]}
           >
             {t('deleteModal.question')}
           </Text>
-          <Text style={themeText.body.body4} c={themeColors.gray[5]} ta="center">
+          <Text style={textStyles.bodyXs} c={themeColors.gray[5]} ta="center">
             {t('deleteModal.warning')}
           </Text>
         </Stack>
@@ -68,10 +67,10 @@ const DeleteJournalEntryModal = ({ opened, onClose, onDelete }: DeleteJournalEnt
             radius="sm"
             styles={{
               root: {
-                backgroundColor: '#F3F4F6',
-                color: '#111827',
+                backgroundColor: 'var(--mantine-color-gray-1)',
+                color: 'var(--mantine-color-gray-9)',
                 '&:hover': {
-                  backgroundColor: '#E5E7EB',
+                  backgroundColor: 'var(--mantine-color-gray-2)',
                 },
               },
             }}

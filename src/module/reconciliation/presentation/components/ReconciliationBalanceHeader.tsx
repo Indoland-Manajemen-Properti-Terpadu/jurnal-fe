@@ -1,7 +1,7 @@
 import { Box, Group, SimpleGrid, Stack, Text } from '@mantine/core';
 import { themeColors } from '@/theme';
 import { useTranslation } from '@/i18n';
-import { formatCurrency } from '@/utils/FormatCurrency';
+import { formatCurrency } from '@/utils/formatCurrency';
 
 /** Negative balances are shown in parentheses, zero or missing as 0. */
 const formatBalance = (amount?: number): string => {

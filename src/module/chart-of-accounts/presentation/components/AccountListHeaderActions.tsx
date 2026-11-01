@@ -63,7 +63,7 @@ export const AccountListHeaderActions: React.FC<AccountListHeaderActionsProps> =
           <Menu.Label>{t('list.menuTransactions')}</Menu.Label>
           <Menu.Item
             leftSection={<IconPlus size={16} />}
-            onClick={() => navigate(routes.generalJournal.addTransactionJournal)}
+            onClick={() => navigate(routes.journalEntries.add)}
           >
             {t('list.addJournalTransaction')}
           </Menu.Item>
@@ -88,7 +88,7 @@ export const AccountListHeaderActions: React.FC<AccountListHeaderActionsProps> =
         size="md"
         radius="md"
         leftSection={<IconPlus size={18} />}
-        onClick={() => navigate(routes.generalJournal.addAccountJournal)}
+        onClick={() => navigate(routes.chartOfAccounts.add)}
       >
         {t('list.addAccount')}
       </Button>

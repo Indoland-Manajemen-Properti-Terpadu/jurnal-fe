@@ -25,5 +25,5 @@ Chart of accounts: account list, add/edit account forms, account detail query, s
   - `canDeleteAccount` and `canArchiveAccount` are called by the `account-ledger` header menu; the list itself only reaches delete and archive through the selection (locked rows cannot be selected).
   - R7 (resolved): the "import bank statement" item was removed from the list header menu (it navigated with the `:idAccount` placeholder unfilled). The working entry is the import modal in the reconciliation tab of a cash/bank account.
   - Strings that were English in the code (delete toasts, `CashMapping` headers, "Unnamed category" and "Unnamed Role") keep that text as the `id` value; they still need an Indonesian wording.
-  - `GetCategoryAccount` and `useGetCategoryInfo` still use the swallowing `get` helper; archiving from the detail pages refetches `['detail_account', id]` but not `['accounts']`.
+  - Archiving from the detail pages refetches `['detail_account', id]` but not `['accounts']`.
   - The journal namespace keeps the old form keys (other modules may use them); this module no longer reads them.

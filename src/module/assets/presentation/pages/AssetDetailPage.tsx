@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Box, Grid, Stack } from '@mantine/core';
 import { useNavigate, useParams } from 'react-router-dom';
-import ConfirmModal from '@/components/ui/ConfirmModal/ConfirmModal';
+import { ConfirmModal } from '@/components/ui/ConfirmModal/ConfirmModal';
 import { useTranslation } from '@/i18n';
 import { routes } from '@/router/routes';
 import { AssetItem } from '@/module/assets/domain/asset';
@@ -34,7 +34,7 @@ export const AssetDetailPage: React.FC = () => {
 
   const schedule = useMemo(() => (asset ? generateDepreciationSchedule(asset) : []), [asset]);
 
-  const goToList = () => navigate(routes.baseModules.assets);
+  const goToList = () => navigate(routes.assets.main);
 
   if (isLoading) return <AssetDetailSkeleton />;
   if (!asset) return <AssetNotFound onBack={goToList} />;

@@ -24,8 +24,8 @@ import {
   IconX,
 } from '@tabler/icons-react';
 import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
-import ConfirmModal from '@/components/ui/ConfirmModal/ConfirmModal';
-import AppShellLayout from '@/components/AppShellLayout';
+import { ConfirmModal } from '@/components/ui/ConfirmModal/ConfirmModal';
+import { AppShellLayout } from '@/components/AppShellLayout';
 import { PurchaseStatsGrid } from '@/module/purchases/presentation/components/PurchaseStatsGrid';
 import { PurchaseTable } from '@/module/purchases/presentation/components/PurchaseTable';
 import { CreatePurchaseModal } from '@/module/purchases/presentation/components/CreatePurchaseModal';

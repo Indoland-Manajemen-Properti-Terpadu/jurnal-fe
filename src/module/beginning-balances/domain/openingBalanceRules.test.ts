@@ -2,6 +2,7 @@ import type { JournalAccounts } from '@/module/chart-of-accounts';
 import {
   accountKey,
   applyAmountEntry,
+  parseAmountEntry,
   buildBalancePayload,
   checkOpeningPublish,
   getBalanceState,
@@ -129,7 +130,7 @@ describe('opening balance row helpers', () => {
 
   it('keeps the opposite side only when the typed value is zero', () => {
     const rows = [row({ credit: 400 })];
-    expect(applyAmountEntry(rows, 'a1', 'debit', '1.500,50')[0].debit).toBe(150050);
+    expect(applyAmountEntry(rows, 'a1', 'debit', '1.500,50')[0].debit).toBe(1500.5);
     expect(applyAmountEntry(rows, 'a1', 'debit', '250')[0].credit).toBe(0);
     expect(applyAmountEntry(rows, 'a1', 'debit', '0')[0].credit).toBe(400);
   });
@@ -142,5 +143,27 @@ describe('opening balance row helpers', () => {
       accounts: [{ account: 'a1', accounts: 'a1', debit: 10, credit: 0 }],
     });
     expect(payload.accounts).toBe(payload.balances);
+  });
+});
+
+describe('parseAmountEntry', () => {
+  it.each([
+    ['1.500,50', 1500.5],
+    ['1500,5', 1500.5],
+    ['1500.5', 1500.5],
+    ['1500.50', 1500.5],
+    ['1.500', 1500],
+    ['1.500.000', 1500000],
+    ['1.500.000,25', 1500000.25],
+    ['250', 250],
+    ['0,5', 0.5],
+    ['Rp 2.000', 2000],
+    ['-300', 300],
+    ['12,345', 12.35],
+    ['', 0],
+    ['abc', 0],
+    [',', 0],
+  ])('reads %j as %d', (raw, expected) => {
+    expect(parseAmountEntry(raw)).toBe(expected);
   });
 });

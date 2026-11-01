@@ -1,5 +1,4 @@
 import {
-  ActionIcon,
   Breadcrumbs,
   BreadcrumbsProps,
   Flex,
@@ -11,7 +10,7 @@ import {
   Title,
   useMantineTheme,
 } from '@mantine/core';
-import { IconRefresh } from '@tabler/icons-react';
+import {} from '@tabler/icons-react';
 import { useColorScheme } from '@mantine/hooks';
 import { gradientColors } from '@/theme';
 import { ReactNode } from 'react';
@@ -20,13 +19,13 @@ type PageHeaderProps = {
   title: string;
   // subtittle?: string;
   withinBreadcums?: boolean;
-  breadcrumbItems?: any;
+  breadcrumbItems?: ReactNode;
   actionButton?: ReactNode;
   actionButtons?: {
     variant: string;
     gradient?: MantineGradient;
     label: string;
-    icon?: any;
+    icon?: React.ElementType;
     color?: string;
     textColor?: string;
     style?: React.CSSProperties;
@@ -35,7 +34,7 @@ type PageHeaderProps = {
 } & PaperProps;
 
 const PageHeader = (props: PageHeaderProps) => {
-  const { withinBreadcums, breadcrumbItems, title, actionButton, actionButtons, ...others } = props;
+  const { withinBreadcums, breadcrumbItems, title, actionButton } = props;
   const theme = useMantineTheme();
   const colorScheme = useColorScheme();
 
@@ -86,24 +85,30 @@ const PageHeader = (props: PageHeaderProps) => {
         <Stack>
           <Title order={5}>{title}</Title>
           {breadcrumbItems && (
-            <Text variant="gradient" gradient={gradientColors.gradient} fz={12} fw={400}>
+            <Text
+              variant="gradient"
+              gradient={gradientColors.gradient}
+              fz="var(--jurnal-text-xs)"
+              fw={400}
+            >
               <Breadcrumbs {...BREADCRUMBS_PROPS}>{breadcrumbItems}</Breadcrumbs>
             </Text>
           )}
         </Stack>
-        <Flex gap="sm">
-          {actionButton}
-        </Flex>
+        <Flex gap="sm">{actionButton}</Flex>
       </Flex>
     );
   } else {
     content = (
       <Stack gap="sm">
         <Title order={3}>{title}</Title>
-        <Text variant="gradient" gradient={gradientColors.mainGR} fz={12} fw={400}>
-          <Breadcrumbs {...BREADCRUMBS_PROPS} >
-            {breadcrumbItems}
-          </Breadcrumbs>
+        <Text
+          variant="gradient"
+          gradient={gradientColors.mainGR}
+          fz="var(--jurnal-text-xs)"
+          fw={400}
+        >
+          <Breadcrumbs {...BREADCRUMBS_PROPS}>{breadcrumbItems}</Breadcrumbs>
         </Text>
       </Stack>
     );

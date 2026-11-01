@@ -13,7 +13,7 @@ import {
 } from '@mantine/core';
 import { IconAlertTriangle, IconCheck, IconCopy, IconNotebook } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
-import { dateFormatV1 } from '@/utils/FormatDate';
+import { dateFormatV1 } from '@/utils/formatDate';
 import type { JournalEntryDetail } from '../../domain/journalEntry';
 
 interface JournalEntryHeroProps {
@@ -44,7 +44,8 @@ const JournalEntryHero: React.FC<JournalEntryHeroProps> = ({ entry, isBalanced }
             variant="light"
             style={{
               border: '2px solid var(--mantine-color-gray-2)',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+              boxShadow:
+                '0 4px 12px color-mix(in srgb, var(--mantine-color-black) 5%, transparent)',
             }}
           >
             <IconNotebook size={40} />

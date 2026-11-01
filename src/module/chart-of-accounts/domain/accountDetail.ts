@@ -8,14 +8,14 @@ export interface DetailAccountModel {
   accountNumber?: string;
   description?: string;
   category?: Category;
-  subAccount?: any[];
+  subAccount?: unknown[];
   amount?: number;
   draftAmount?: number;
   isPublished?: boolean;
   isAllUser?: boolean;
   level?: string;
-  reconciliationDetail?: any[];
-  journals?: any[];
+  reconciliationDetail?: unknown[];
+  journals?: unknown[];
   site?: Site;
   deleted?: boolean;
   createdAt?: Date;
@@ -40,28 +40,26 @@ export interface Site {
   updatedAt?: Date;
 }
 
-export const accountDetailData = (data?: Partial<DetailAccountModel>): DetailAccountModel => {
-  return {
-    id: data?.id || '',
-    isLocked: data?.isLocked || false,
-    isArchived: data?.isArchived || false,
-    name: data?.name || 'N/A',
-    type: data?.type || 'N/A',
-    isContra: data?.isContra,
-    accountNumber: data?.accountNumber || 'N/A',
-    description: data?.description || '',
-    category: data?.category || { id: '', name: 'N/A' },
-    subAccount: data?.subAccount || [],
-    amount: data?.amount || 0,
-    draftAmount: data?.draftAmount || 0,
-    isPublished: data?.isPublished || false,
-    isAllUser: data?.isAllUser || false,
-    level: data?.level || '0',
-    reconciliationDetail: data?.reconciliationDetail || [],
-    journals: data?.journals || [],
-    site: data?.site || { id: '', name: 'N/A' },
-    deleted: data?.deleted || false,
-    createdAt: data?.createdAt || new Date(),
-    updatedAt: data?.updatedAt || new Date(),
-  };
-};
+export const accountDetailData = (data?: Partial<DetailAccountModel>): DetailAccountModel => ({
+  id: data?.id || '',
+  isLocked: data?.isLocked || false,
+  isArchived: data?.isArchived || false,
+  name: data?.name || 'N/A',
+  type: data?.type || 'N/A',
+  isContra: data?.isContra,
+  accountNumber: data?.accountNumber || 'N/A',
+  description: data?.description || '',
+  category: data?.category || { id: '', name: 'N/A' },
+  subAccount: data?.subAccount || [],
+  amount: data?.amount || 0,
+  draftAmount: data?.draftAmount || 0,
+  isPublished: data?.isPublished || false,
+  isAllUser: data?.isAllUser || false,
+  level: data?.level || '0',
+  reconciliationDetail: data?.reconciliationDetail || [],
+  journals: data?.journals || [],
+  site: data?.site || { id: '', name: 'N/A' },
+  deleted: data?.deleted || false,
+  createdAt: data?.createdAt || new Date(),
+  updatedAt: data?.updatedAt || new Date(),
+});

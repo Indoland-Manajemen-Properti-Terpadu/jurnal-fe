@@ -25,7 +25,10 @@ export const LedgerTabsShell: React.FC<LedgerTabsShellProps> = ({
       variant="pills"
       radius="md"
     >
-      <Tabs.List mb="md" style={{ borderBottom: '1px solid #E9ECEF', paddingBottom: 12 }}>
+      <Tabs.List
+        mb="md"
+        style={{ borderBottom: '1px solid var(--mantine-color-gray-2)', paddingBottom: 12 }}
+      >
         {tabs}
       </Tabs.List>
       {panels}

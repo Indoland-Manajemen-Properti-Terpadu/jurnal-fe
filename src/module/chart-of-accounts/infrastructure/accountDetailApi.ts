@@ -1,4 +1,4 @@
-import { API_ACCOUNT } from '@/services/endpoint';
+import { API_ACCOUNT } from '@/lib/http/endpoints';
 import apiClient from '@/lib/http/apiClient';
 import { DetailAccountModel } from '../domain/accountDetail';
 

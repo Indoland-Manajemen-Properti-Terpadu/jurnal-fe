@@ -6,7 +6,7 @@ import {
   IconWallet,
 } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
-import { formatCurrency } from '@/utils/FormatCurrency';
+import { formatCurrency } from '@/utils/formatCurrency';
 import { LedgerKpiCard } from './LedgerKpiCard';
 
 interface CashBankKpiCardsProps {

@@ -1,6 +1,6 @@
 import axios from 'axios';
 import apiClient from '@/lib/http/apiClient';
-import { API_USERS } from '@/services/endpoint';
+import { API_USERS } from '@/lib/http/endpoints';
 import type { Profile, UpdateProfileInput } from '../domain/profile';
 import type { ApiMessageDto, ProfileDto } from './profileDto';
 import { toProfile, toUpdateRequest } from './profileMapper';

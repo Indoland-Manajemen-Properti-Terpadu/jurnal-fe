@@ -2,14 +2,14 @@
 
 Catalog of goods and services, plus the two master lists that feed it (product categories and units). Each product carries its default selling, buying and inventory settings: accounts, tax, unit price and minimum stock.
 
-- **Routes:** `routes.baseModules.products` (`/products`, list with Products / Categories / Units tabs) and `routes.baseModules.productDetail` (`/products/:id`). The router wraps both pages in `AppShellLayout`; the pages do not render it (same approach as `pending-changes`, so `AppShellLayout -> Navbar -> module -> page` cannot become an import cycle).
+- **Routes:** `routes.products.main` (`/products`, list with Products / Categories / Units tabs) and `routes.products.detail` (`/products/:id`). The router wraps both pages in `AppShellLayout`; the pages do not render it (same approach as `pending-changes`, so `AppShellLayout -> Navbar -> module -> page` cannot become an import cycle).
 - **Public API (`index.ts`):** `ProductsPage`, `ProductDetailPage`, and `fetchProducts` / `fetchTaxes` (used by the Sale module). `MasterDataPanel` and `ModuleHeader` are generic but no other module imports them, so they stay internal in `presentation/components`; if another module needs them, export them from `index.ts` (do not move them to `src/components`).
 - **Endpoints** (`infrastructure/productApi.ts`, `PRODUCT_ENDPOINTS`):
   - `GET /v1/products` (`page`, `limit`, `search`), `GET|PUT|DELETE /v1/products/:id`, `POST /v1/products`. Create and update send `multipart/form-data` (`buyingInfo[...]`, `sellingInfo[...]`, `inventoryInfo[...]`, optional `image`).
   - `GET|POST /v1/product-categories`, `DELETE /v1/product-categories/:id`
   - `GET|POST /v1/units`, `DELETE /v1/units/:id`
   - `GET /v1/taxes`
-  - Chart of accounts for the account selects: `API_ACCOUNT.GET_ALL_ACCOUNT` from `src/services/endpoint.ts` (the same call the journal module makes, now done here instead of importing the GeneralJournal service).
+  - Chart of accounts for the account selects: `API_ACCOUNT.GET_ALL_ACCOUNT` from `src/lib/http/endpoints.ts` (the same call the journal module makes, now done here instead of importing the GeneralJournal service).
 - **Layers:** `domain/` (entity types, `productFormat`, `productRules`), `infrastructure/` (API calls, DTOs with legacy field aliases, mapper), `presentation/hooks` (TanStack Query hooks, form hook, reference label hook), `presentation/components` (table, form and its sections, image panel, master data panel and modal, detail header / settings cards / audit panel, stats, toolbar), `presentation/pages`.
 
 ## Domain rules

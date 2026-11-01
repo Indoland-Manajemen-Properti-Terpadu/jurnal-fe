@@ -81,9 +81,9 @@ describe('applyPayment', () => {
     });
   });
 
-  it('settles a bill and never goes below zero remaining', () => {
-    expect(applyPayment({ totalAmount: 4995000, paidAmount: 2500000 }, 5000000)).toEqual({
-      paidAmount: 7500000,
+  it('settles a bill with the exact remaining amount', () => {
+    expect(applyPayment({ totalAmount: 4995000, paidAmount: 2500000 }, 2495000)).toEqual({
+      paidAmount: 4995000,
       remainingAmount: 0,
       status: 'PAID',
     });
@@ -156,6 +156,29 @@ describe('summarizePurchases', () => {
       overdueAmount: 100.1,
       overdueCount: 1,
       billCount: 2,
+    });
+  });
+});
+
+describe('applyPayment limits', () => {
+  const unpaid = { totalAmount: 1000, paidAmount: 0 };
+
+  it('rejects a payment above what is still owed', () => {
+    expect(() => applyPayment(unpaid, 5000)).toThrow(RangeError);
+    expect(() => applyPayment({ totalAmount: 1000, paidAmount: 900 }, 100.01)).toThrow(RangeError);
+  });
+
+  it('rejects a zero, negative or invalid payment', () => {
+    expect(() => applyPayment(unpaid, 0)).toThrow(RangeError);
+    expect(() => applyPayment(unpaid, -5)).toThrow(RangeError);
+    expect(() => applyPayment(unpaid, Number.NaN)).toThrow(RangeError);
+  });
+
+  it('accepts the exact remaining amount and settles the bill', () => {
+    expect(applyPayment({ totalAmount: 1000, paidAmount: 900 }, 100)).toEqual({
+      paidAmount: 1000,
+      remainingAmount: 0,
+      status: 'PAID',
     });
   });
 });

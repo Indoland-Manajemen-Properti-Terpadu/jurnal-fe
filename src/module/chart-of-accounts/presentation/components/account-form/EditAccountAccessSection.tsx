@@ -46,10 +46,10 @@ export const EditAccountAccessSection: React.FC<EditAccountAccessSectionProps> =
           <IconShieldCheck size={20} />
         </ThemeIcon>
         <div>
-          <Text fw={700} fz={15} c="dark.8">
+          <Text fw={700} fz="var(--jurnal-text-sm)" c="dark.8">
             {t('edit.accessTitle')}
           </Text>
-          <Text fz={12} c="dimmed">
+          <Text fz="var(--jurnal-text-xs)" c="dimmed">
             {t('edit.accessSubtitle')}
           </Text>
         </div>
@@ -77,7 +77,7 @@ export const EditAccountAccessSection: React.FC<EditAccountAccessSectionProps> =
                   value="AllUsers"
                   color="primary"
                   label={
-                    <Text fz={13} fw={500} c="dark.8">
+                    <Text fz="var(--jurnal-text-sm)" fw={500} c="dark.8">
                       {t('edit.allUsers')}
                     </Text>
                   }
@@ -86,7 +86,7 @@ export const EditAccountAccessSection: React.FC<EditAccountAccessSectionProps> =
                   value="SpecialUsers"
                   color="primary"
                   label={
-                    <Text fz={13} fw={500} c="dark.8">
+                    <Text fz="var(--jurnal-text-sm)" fw={500} c="dark.8">
                       {t('edit.specialUsers')}
                     </Text>
                   }
@@ -95,7 +95,7 @@ export const EditAccountAccessSection: React.FC<EditAccountAccessSectionProps> =
                   value="CertainRoles"
                   color="primary"
                   label={
-                    <Text fz={13} fw={500} c="dark.8">
+                    <Text fz="var(--jurnal-text-sm)" fw={500} c="dark.8">
                       {t('edit.certainRoles')}
                     </Text>
                   }

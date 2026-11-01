@@ -27,7 +27,7 @@ export const JournalBalanceMetrics: React.FC = () => {
             <Text size="xs" c="dimmed" fw={700} tt="uppercase" lts={0.5}>
               {t('metrics.totalDebit')}
             </Text>
-            <Text fz={20} fw={800} c="teal.8" mt={4} lh={1.2}>
+            <Text fz="var(--jurnal-text-xl)" fw={800} c="teal.8" mt={4} lh={1.2}>
               Rp {totalDebit.toLocaleString('id-ID', { minimumFractionDigits: 2 })}
             </Text>
             <Text size="xs" c="dimmed" mt={4}>
@@ -47,7 +47,7 @@ export const JournalBalanceMetrics: React.FC = () => {
             <Text size="xs" c="dimmed" fw={700} tt="uppercase" lts={0.5}>
               {t('metrics.totalCredit')}
             </Text>
-            <Text fz={20} fw={800} c="red.8" mt={4} lh={1.2}>
+            <Text fz="var(--jurnal-text-xl)" fw={800} c="red.8" mt={4} lh={1.2}>
               Rp {totalCredit.toLocaleString('id-ID', { minimumFractionDigits: 2 })}
             </Text>
             <Text size="xs" c="dimmed" mt={4}>
@@ -106,7 +106,7 @@ export const JournalBalanceMetrics: React.FC = () => {
                 </Badge>
               </Group>
             ) : (
-              <Text fz={18} fw={700} c="dark.5" mt={4}>
+              <Text fz="var(--jurnal-text-lg)" fw={700} c="dark.5" mt={4}>
                 {t('metrics.waiting')}
               </Text>
             )}
@@ -136,7 +136,7 @@ export const JournalBalanceMetrics: React.FC = () => {
             <Text size="xs" c="dimmed" fw={700} tt="uppercase" lts={0.5}>
               {t('metrics.rowsTitle')}
             </Text>
-            <Text fz={20} fw={800} c="dark.8" mt={4} lh={1.2}>
+            <Text fz="var(--jurnal-text-xl)" fw={800} c="dark.8" mt={4} lh={1.2}>
               {t('metrics.rowsValue', { count: transactions.length })}
             </Text>
             <Text size="xs" c="dimmed" mt={4}>

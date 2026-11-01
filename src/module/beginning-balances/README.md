@@ -2,7 +2,7 @@
 
 Opening balances of the general ledger: the user picks a conversion (cut-off) date, enters a debit or credit amount per account, saves a draft, and publishes when the totals match.
 
-- **Route** (unchanged): `routes.generalJournal.beginningBalance` (`/general-journal/beginning-balance`).
+- **Route** (unchanged): `routes.beginningBalances.main` (`/general-journal/beginning-balance`).
 - **Public API (`index.ts`):** `BeginningBalancePage` (router), `BeginningBalanceModal` (start modal opened from the General Journal page) and `useDraftAccount` (that page reads `draftAccounts?.status === false` to decide between the modal and the page).
 - **Endpoints** (`API_ACCOUNT`): `GET get/draft-start-amount`, `GET get/draft-start-amount/logs`, `POST set/draft-start-amount`, `POST set/save-start-amount`. The account list comes from `useJournalAccounts` in `@/module/chart-of-accounts`.
 - **Layers:** `domain/` (types, `openingBalanceRules.ts`), `infrastructure/` (`draftBalanceApi.ts`, `draftBalanceMapper.ts`), `presentation/` (page, components, hooks, `useInitialBalanceStore`).
@@ -34,3 +34,7 @@ Namespace `beginningBalances` (`id` text verbatim from the old code and the `jou
 - The merge effect reads `conversionDate` but does not list it as a dependency. This is intentional: adding it would re-merge the draft over the amounts being typed when the date changes. Not changed.
 - No guard against double counting a parent and its children, and no cut-off versus earliest journal check (see the M3 plan, "Not enforced today").
 - Amounts are plain numbers summed with floats; whole-rupiah integers only, so no drift.
+
+## Amount entry (2026-10-31)
+
+The debit and credit fields accept the Indonesian format: comma as the decimal mark and dots as thousands (`1.500,50` is 1500.50), also `1500.5` and plain integers, rounded to the cent. Before, every non-digit was dropped and `1.500,50` became 150050. The text being typed stays visible until the field loses focus, so a trailing comma or decimal digits are not reformatted away.

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Box, Grid, Group, LoadingOverlay, Modal, Stack, Text, ThemeIcon } from '@mantine/core';
 import { IconEdit } from '@tabler/icons-react';
 import { useNavigate, useParams } from 'react-router-dom';
-import ConfirmModal from '@/components/ui/ConfirmModal/ConfirmModal';
+import { ConfirmModal } from '@/components/ui/ConfirmModal/ConfirmModal';
 import { useTranslation } from '@/i18n';
 import { routes } from '@/router/routes';
 import type { ProductFormValues } from '@/module/products/domain/product';
@@ -36,7 +36,7 @@ export function ProductDetailPage() {
   const saveProductMutation = useSaveProduct(id);
   const deleteProductMutation = useDeleteProduct();
 
-  const goToList = () => navigate(routes.baseModules.products);
+  const goToList = () => navigate(routes.products.main);
 
   const handleEditSubmit = async (values: ProductFormValues) => {
     await saveProductMutation.mutateAsync(values);

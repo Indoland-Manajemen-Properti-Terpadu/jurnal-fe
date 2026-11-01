@@ -2,7 +2,7 @@
 
 Public marketing page for Jurnal ProApps. It presents the product, a live preview mockup, a comparison table, free e-books, testimonials, FAQ and a login call to action.
 
-- **Route:** `routes.landingPage` (`/`, see `src/router/routes.ts`); the login buttons navigate to `routes.login`.
+- **Route:** `routes.landing` (`/`, see `src/router/routes.ts`); the login buttons navigate to `routes.login`.
 - **Page:** `presentation/pages/LandingPage.tsx`, exported from `index.ts` as `LandingPage`. It only holds state and composes the sections.
 - **Endpoints:** none.
 - **State:** local React state only (active preview tab, decimal precision, demo sync toggle, e-book modal and email). Nothing is persisted or sent to a server.

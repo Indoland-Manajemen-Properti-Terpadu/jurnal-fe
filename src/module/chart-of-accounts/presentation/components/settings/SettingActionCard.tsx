@@ -67,7 +67,9 @@ export const SettingActionCard: React.FC<SettingActionCardProps> = ({
         borderWidth: selected ? 2 : 1,
         borderColor: selected ? theme.selectedBorder : 'var(--mantine-color-gray-3)',
         backgroundColor: selected ? theme.selectedBg : 'white',
-        boxShadow: selected ? theme.selectedShadow : '0 2px 8px rgba(0, 0, 0, 0.04)',
+        boxShadow: selected
+          ? theme.selectedShadow
+          : '0 2px 8px color-mix(in srgb, var(--mantine-color-black) 4%, transparent)',
         transform: selected ? 'translateY(-2px)' : undefined,
       }}
     >

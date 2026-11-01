@@ -17,7 +17,7 @@ import {
 import { useDebouncedValue } from '@mantine/hooks';
 import { IconCategory, IconPackage, IconPlus, IconRefresh, IconRuler } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
-import ConfirmModal from '@/components/ui/ConfirmModal/ConfirmModal';
+import { ConfirmModal } from '@/components/ui/ConfirmModal/ConfirmModal';
 import { useTranslation } from '@/i18n';
 import { ModuleHeader } from '@/module/products/presentation/components/ModuleHeader';
 import { ProductTable } from '@/module/products/presentation/components/ProductTable';

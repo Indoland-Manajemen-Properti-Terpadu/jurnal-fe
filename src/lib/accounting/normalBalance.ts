@@ -19,8 +19,12 @@ export interface NormalBalanceInput {
   categoryName?: string;
 }
 
+/** Cost of sales and selling expenses contain "penjualan" but grow on the debit side. */
+const DEBIT_PHRASES = ['harga pokok', 'pokok penjualan', 'beban penjualan', 'biaya penjualan'];
+
 export const isCreditCategoryName = (categoryName?: string): boolean => {
   const name = (categoryName || '').toLowerCase();
+  if (DEBIT_PHRASES.some((phrase) => name.includes(phrase))) return false;
   return CREDIT_KEYWORDS.some((keyword) => name.includes(keyword));
 };
 

@@ -26,7 +26,7 @@ function StatCard({ label, value, caption, valueColor, icon, iconColor }: StatCa
           <Text size="xs" c="dimmed" fw={600} tt="uppercase" lts={0.5}>
             {label}
           </Text>
-          <Text fz={26} fw={800} c={valueColor} mt={4} lh={1.1}>
+          <Text fz="var(--jurnal-text-2xl)" fw={800} c={valueColor} mt={4} lh={1.1}>
             {value}
           </Text>
           <Text size="xs" c="dimmed" mt={4}>

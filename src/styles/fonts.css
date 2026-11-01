@@ -1,0 +1,5 @@
+/*
+ * Figtree, the only typeface. Load exactly the weights in tokens/typography.ts
+ * (fontWeights); `display=swap` shows the fallback until Figtree arrives.
+ */
+@import 'https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap';

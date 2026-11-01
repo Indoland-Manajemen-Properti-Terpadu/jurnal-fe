@@ -1,6 +1,6 @@
 import axios from 'axios';
 import apiClient from '@/lib/http/apiClient';
-import { API_ACCOUNT, API_TAGS } from '@/services/endpoint';
+import { API_ACCOUNT, API_TAGS } from '@/lib/http/endpoints';
 import type {
   JournalEntryByAccount,
   JournalEntryDetail,

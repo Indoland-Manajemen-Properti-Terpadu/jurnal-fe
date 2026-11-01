@@ -42,13 +42,21 @@ export function ComparisonSection() {
                       <div style={{ color: 'var(--lp-navy)', fontWeight: 800 }}>
                         {t('comparison.brandTitle')}
                       </div>
-                      <div style={{ fontSize: 11, color: 'var(--lp-sky)', fontWeight: 600 }}>
+                      <div
+                        style={{
+                          fontSize: 'var(--jurnal-text-xs)',
+                          color: 'var(--lp-sky)',
+                          fontWeight: 600,
+                        }}
+                      >
                         {t('comparison.brandTagline')}
                       </div>
                     </div>
                   </Group>
                 </th>
-                <th style={{ width: '30%', color: '#64748b' }}>{t('comparison.colCompetitors')}</th>
+                <th style={{ width: '30%', color: 'var(--mantine-color-slate-5)' }}>
+                  {t('comparison.colCompetitors')}
+                </th>
               </tr>
             </thead>
             <tbody>

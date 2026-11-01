@@ -2,7 +2,7 @@
 
 Fixed asset register: list, filter and sort assets, add or edit an asset with a live depreciation preview, view the yearly depreciation schedule, dispose of (sell) an asset and delete it. The data is a browser-only prototype stored in `localStorage`; there is no backend yet.
 
-- **Routes:** `routes.baseModules.assets` (`/assets`), `routes.baseModules.assetMaster` (`/asset`) and `routes.baseModules.assetDetail` (`/assets/:id`), unchanged. The router wraps `AssetPage` and `AssetDetailPage` in `AppShellLayout` (the pages do not render it), so `AppShellLayout -> Navbar -> ... -> page` cannot become an import cycle.
+- **Routes:** `routes.assets.main` (`/assets`), `routes.legacyPaths.assets` (`/asset`) and `routes.assets.detail` (`/assets/:id`), unchanged. The router wraps `AssetPage` and `AssetDetailPage` in `AppShellLayout` (the pages do not render it), so `AppShellLayout -> Navbar -> ... -> page` cannot become an import cycle.
 - **Public API (`index.ts`):** `AssetPage`, `AssetDetailPage`.
 - **Endpoints:** none.
 - **Storage:** key `jurnal_fixed_assets_data` (unchanged), value is a JSON array of `AssetItem` (unchanged shape). `infrastructure/localStorageAssetRepository.ts` implements the `AssetRepository` port (`domain/assetRepository.ts`); the seed lives in `infrastructure/assetSeed.ts`. On load, depreciation, net book value and status of every non-disposed asset are recalculated for today.
@@ -26,3 +26,7 @@ Namespace `assets` (`id` primary, `en`), reused and completed. `src/i18n/locales
 - Dates use the fixed `id-ID` format regardless of the selected language.
 - A failed `localStorage` write is silent (the in-memory list still changes); the former `console.error` calls were removed.
 - Moving to a backend means a new `AssetRepository` adapter and TanStack Query hooks.
+
+## Double declining balance (2026-10-31)
+
+The asset list and the yearly schedule use one rule (`decliningYearExpense`): each year takes twice the straight-line rate of the remaining balance, never goes below the residual value, and the last year closes to the residual value. Before, the list kept a continuous partial-year formula that never reached the residual value, so an asset past its useful life still showed a book value above it while the schedule showed it fully depreciated. A partial year is that year's schedule expense times the elapsed share of the year.

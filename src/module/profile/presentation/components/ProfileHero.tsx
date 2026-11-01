@@ -42,7 +42,8 @@ export function ProfileHero({ user }: ProfileHeroProps) {
       <Box
         p={{ base: 'md', sm: 'xl' }}
         style={{
-          background: 'linear-gradient(135deg, #053079 0%, #0d47a1 55%, #09B2FF 100%)',
+          background:
+            'linear-gradient(135deg, var(--mantine-color-primary-6) 0%, var(--mantine-color-blue-8) 55%, var(--mantine-color-secondary-6) 100%)',
           position: 'relative',
         }}
       >
@@ -52,12 +53,13 @@ export function ProfileHero({ user }: ProfileHeroProps) {
             radius={88}
             color="primary.8"
             style={{
-              border: '3.5px solid #ffffff',
-              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.25)',
-              backgroundColor: '#ffffff',
-              color: '#053079',
+              border: '3.5px solid var(--mantine-color-white)',
+              boxShadow:
+                '0 4px 12px color-mix(in srgb, var(--mantine-color-black) 25%, transparent)',
+              backgroundColor: 'var(--mantine-color-white)',
+              color: 'var(--mantine-color-primary-6)',
               fontWeight: 700,
-              fontSize: '2rem',
+              fontSize: 'var(--jurnal-text-3xl)',
             }}
           >
             {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
@@ -84,7 +86,9 @@ export function ProfileHero({ user }: ProfileHeroProps) {
                   variant="light"
                   color="teal.0"
                   c="white"
-                  leftSection={<IconCircleCheckFilled size={14} color="#38d9a9" />}
+                  leftSection={
+                    <IconCircleCheckFilled size={14} color="var(--mantine-color-emerald-4)" />
+                  }
                 >
                   {t('hero.verified')}
                 </Badge>
@@ -97,7 +101,10 @@ export function ProfileHero({ user }: ProfileHeroProps) {
 
             <Group gap="md" wrap="wrap" mt={4}>
               <Group gap={6}>
-                <IconMail size={16} color="rgba(255, 255, 255, 0.85)" />
+                <IconMail
+                  size={16}
+                  color="color-mix(in srgb, var(--mantine-color-white) 85%, transparent)"
+                />
                 <Text size="sm" c="white" opacity={0.9}>
                   {user?.email || t('emptyValue')}
                 </Text>
@@ -105,7 +112,10 @@ export function ProfileHero({ user }: ProfileHeroProps) {
 
               {user?.site?.name && (
                 <Group gap={6}>
-                  <IconBuilding size={16} color="rgba(255, 255, 255, 0.85)" />
+                  <IconBuilding
+                    size={16}
+                    color="color-mix(in srgb, var(--mantine-color-white) 85%, transparent)"
+                  />
                   <Text size="sm" c="white" opacity={0.9}>
                     {t('hero.site', { name: user.site.name })}
                   </Text>
@@ -113,7 +123,10 @@ export function ProfileHero({ user }: ProfileHeroProps) {
               )}
 
               <Group gap={6}>
-                <IconCalendar size={16} color="rgba(255, 255, 255, 0.85)" />
+                <IconCalendar
+                  size={16}
+                  color="color-mix(in srgb, var(--mantine-color-white) 85%, transparent)"
+                />
                 <Text size="sm" c="white" opacity={0.9}>
                   {t('hero.joined', { date: formatJoinedDate(user?.createdAt) })}
                 </Text>

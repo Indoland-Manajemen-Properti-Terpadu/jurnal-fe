@@ -39,7 +39,7 @@ const JournalTotals: React.FC = () => {
         <Grid.Col span={1} />
         <Grid.Col span={7}>
           <Group gap="xs">
-            <Text fw={700} fz={13} c="dark.8">
+            <Text fw={700} fz="var(--jurnal-text-sm)" c="dark.8">
               {t('totals.title')}
             </Text>
             {isBalanced ? (
@@ -64,27 +64,27 @@ const JournalTotals: React.FC = () => {
         </Grid.Col>
         <Grid.Col span={7}>
           {hasValues && !isBalanced && (
-            <Text fz={11} c="red.7" fw={500}>
+            <Text fz="var(--jurnal-text-xs)" c="red.7" fw={500}>
               {t('totals.hint')}
             </Text>
           )}
         </Grid.Col>
         <Grid.Col span={4}>
           <Box ta="right">
-            <Text fz={11} c="dimmed" fw={600} tt="uppercase">
+            <Text fz="var(--jurnal-text-xs)" c="dimmed" fw={600} tt="uppercase">
               {t('totals.totalDebit')}
             </Text>
-            <Text fw={700} fz={14} c="teal.8">
+            <Text fw={700} fz="var(--jurnal-text-sm)" c="teal.8">
               Rp {money(totalDebit)}
             </Text>
           </Box>
         </Grid.Col>
         <Grid.Col span={4}>
           <Box ta="right">
-            <Text fz={11} c="dimmed" fw={600} tt="uppercase">
+            <Text fz="var(--jurnal-text-xs)" c="dimmed" fw={600} tt="uppercase">
               {t('totals.totalCredit')}
             </Text>
-            <Text fw={700} fz={14} c="red.8">
+            <Text fw={700} fz="var(--jurnal-text-sm)" c="red.8">
               Rp {money(totalCredit)}
             </Text>
           </Box>

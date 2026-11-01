@@ -55,7 +55,7 @@ const FinancialStatementPage = () => {
       footer={
         <PeriodFooter
           onBack={() => navigate(-1)}
-          onNext={() => navigate(routes.PeriodAndClosingBook.ListPLandCB)}
+          onNext={() => navigate(routes.periodClosing.list)}
           nextLabel={t('common.confirm')}
         />
       }
@@ -65,7 +65,7 @@ const FinancialStatementPage = () => {
           <Paper {...PAPER_PROPS}>
             <Stack gap={2}>
               <Title order={3}>{t('financialStatement.title')}</Title>
-              <Text c={themeColors.gray[6]} fz={14}>
+              <Text c={themeColors.gray[6]} fz="var(--jurnal-text-sm)">
                 {t('financialStatement.subtitle', { date: PROTOTYPE_PERIOD_END })}
               </Text>
             </Stack>

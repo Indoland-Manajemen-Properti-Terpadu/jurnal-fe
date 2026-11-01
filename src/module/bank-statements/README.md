@@ -4,7 +4,7 @@ Imports a bank statement file for a cash/bank account and lists the imported row
 
 ## Routes
 
-- `/general-journal/bank-statement/:idAccount/import` (`routes.generalJournal.bankStatementDraftImport`): the draft page where the parsed rows are checked before the import is confirmed.
+- `/general-journal/bank-statement/:idAccount/import` (`routes.bankStatements.importDraft`): the draft page where the parsed rows are checked before the import is confirmed.
 - No route of its own for the list: `BankStatementTable` and `ImportBankStatementModal` render inside the account detail page (`account-ledger`, `CashBankTabs`) and the reconciliation table.
 
 ## Public API (`index.ts`)

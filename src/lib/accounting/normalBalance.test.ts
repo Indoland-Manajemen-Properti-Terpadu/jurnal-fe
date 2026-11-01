@@ -25,3 +25,19 @@ describe('isDebitNormal', () => {
     expect(isDebitNormal({ categoryName: 'Modal', isContra: true })).toBe(true);
   });
 });
+
+describe('cost of sales and selling expenses', () => {
+  it.each([
+    'Harga Pokok Penjualan',
+    'Beban Penjualan',
+    'Biaya Penjualan',
+    'Pokok Penjualan Barang',
+  ])('are debit normal even though the name contains "penjualan": %s', (name) => {
+    expect(isDebitNormal({ categoryName: name })).toBe(true);
+  });
+
+  it('keeps plain sales revenue credit normal', () => {
+    expect(isDebitNormal({ categoryName: 'Penjualan' })).toBe(false);
+    expect(isDebitNormal({ categoryName: 'Pendapatan Penjualan' })).toBe(false);
+  });
+});

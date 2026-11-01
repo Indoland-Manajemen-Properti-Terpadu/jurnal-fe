@@ -10,12 +10,12 @@ import {
 } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
-import ModuleHeader from '@/components/ModuleHeader/ModuleHeader';
+import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
 import { ConfirmModal } from '@/components';
 import { routes } from '@/router/routes';
 import { useDraftAccount, BeginningBalanceModal } from '@/module/beginning-balances';
 import { PeriodAndClosingBooksModal } from '@/module/period-closing';
-import deleteModalImage from '@/assets/img/vectors/delete_modal.svg';
+import deleteModalImage from '@/assets/images/illustrations/delete-confirm.svg';
 import useAccountStore from '../hooks/useAccountStore';
 import { useDeleteAccount } from '../hooks/useDeleteAccount';
 import { SettingAccountModal } from './SettingAccountModal';
@@ -99,7 +99,7 @@ const GeneralJournalPage: React.FC = () => {
       openModal('beginningBalance');
       return;
     }
-    navigate(routes.generalJournal.beginningBalance);
+    navigate(routes.beginningBalances.main);
   };
 
   return (

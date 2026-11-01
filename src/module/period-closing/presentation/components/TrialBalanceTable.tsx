@@ -3,7 +3,7 @@ import { Stack, Table, Text } from '@mantine/core';
 import { useJournalAccounts } from '@/module/chart-of-accounts';
 import { gradientColors, themeColors } from '@/theme';
 import { useTranslation } from '@/i18n';
-import { formatCurrency } from '@/utils/FormatCurrency';
+import { formatCurrency } from '@/utils/formatCurrency';
 import { groupByCategory } from '../../domain/reportTotals';
 
 const cellBorder = { border: `1px solid ${themeColors.gray[2]}` };

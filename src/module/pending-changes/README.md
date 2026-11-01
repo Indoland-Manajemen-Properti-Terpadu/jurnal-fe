@@ -4,7 +4,7 @@ Approval queue for changes that ProApps (the operational system) sends to the bo
 
 - **Route:** `routes.pendingChanges.main` (`/pending-changes`, see `src/router/routes.ts`).
 - **Public API (`index.ts`):** `PendingChangesPage` and `usePendingChangesCount`. The Navbar badge uses the count hook. `src/module/Dashboard` has its own separate count hook; it is not shared.
-- **Endpoints** (constants in `src/services/endpoint.ts`, `API_PENDING_CHANGES`):
+- **Endpoints** (constants in `src/lib/http/endpoints.ts`, `API_PENDING_CHANGES`):
   - `GET /v1/pending-changes` with `page`, `limit`, `type`, `status`, `search`; the response is either `{ data, pagination }` or a bare array.
   - `GET /v1/pending-changes/count`
   - `PUT /v1/pending-changes/:id/approve`

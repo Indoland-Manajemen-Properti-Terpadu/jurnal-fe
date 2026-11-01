@@ -1,7 +1,7 @@
 /* eslint-disable linebreak-style */
 import axios from 'axios';
 import { routes } from '@/router/routes';
-import { BASE_URL, API_AUTH } from '@/services/endpoint';
+import { BASE_URL, API_AUTH } from '@/lib/http/endpoints';
 import { useAuthStore } from '@/store/useAuthentications';
 import { useApiLoadingStore } from '@/store/useApiLoading';
 
@@ -23,10 +23,13 @@ const apiClient = axios.create({
 let isRefreshing = false;
 let refreshSubscribers: Array<{
   resolve: (token: string) => void;
-  reject: (error: any) => void;
+  reject: (error: unknown) => void;
 }> = [];
 
-const subscribeTokenRefresh = (resolve: (token: string) => void, reject: (error: any) => void) => {
+const subscribeTokenRefresh = (
+  resolve: (token: string) => void,
+  reject: (error: unknown) => void
+) => {
   refreshSubscribers.push({ resolve, reject });
 };
 
@@ -35,7 +38,7 @@ const onRefreshed = (token: string) => {
   refreshSubscribers = [];
 };
 
-const onRefreshError = (error: any) => {
+const onRefreshError = (error: unknown) => {
   refreshSubscribers.forEach(({ reject }) => reject(error));
   refreshSubscribers = [];
 };
@@ -81,7 +84,7 @@ apiClient.interceptors.response.use(
               originalRequest.headers.Authorization = `Bearer ${token}`;
               resolve(apiClient(originalRequest));
             },
-            (refreshErr: any) => {
+            (refreshErr: unknown) => {
               reject(refreshErr);
             }
           );
@@ -139,124 +142,5 @@ apiClient.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-
-/**
- * @deprecated Legacy helper: on failure it returns `error.response` (or `null`) instead of throwing.
- * New code uses the default `apiClient` export inside `infrastructure/` and handles errors explicitly.
- */
-export const get = async (url: string, params?: any) => {
-  try {
-    const response = await apiClient.get(url, { params });
-    return response.data;
-  } catch (error: any) {
-    console.error(error);
-    if (axios.isAxiosError(error)) {
-      return error.response;
-    }
-    return null;
-  }
-};
-
-/**
- * @deprecated Legacy helper: on failure it returns `error.response` (or `null`) instead of throwing.
- * New code uses the default `apiClient` export inside `infrastructure/` and handles errors explicitly.
- */
-export const download = async (url: string, params?: any) => {
-  try {
-    const response = await apiClient.get(url, { params, responseType: 'blob' });
-    return response;
-  } catch (error: any) {
-    console.error(error);
-    if (axios.isAxiosError(error)) {
-      return error.response;
-    }
-    return null;
-  }
-};
-
-/**
- * @deprecated Legacy helper: on failure it returns `error.response` (or `null`) instead of throwing.
- * New code uses the default `apiClient` export inside `infrastructure/` and handles errors explicitly.
- */
-export const postV2 = async (url: string, data: any) => {
-  try {
-    const response = await apiClient.post(url, data);
-    return response;
-  } catch (error) {
-    console.error(error);
-    if (axios.isAxiosError(error)) {
-      return error.response;
-    }
-    return null;
-  }
-};
-
-/**
- * @deprecated Legacy helper: on failure it returns `error.response` (or `null`) instead of throwing.
- * New code uses the default `apiClient` export inside `infrastructure/` and handles errors explicitly.
- */
-export const post = async (url: string, data: any) => {
-  try {
-    const response = await apiClient.post(url, data);
-    return response.data;
-  } catch (error) {
-    console.error(error);
-    if (axios.isAxiosError(error)) {
-      return error.response;
-    }
-    return null;
-  }
-};
-
-/**
- * @deprecated Legacy helper: on failure it returns `error.response` (or `null`) instead of throwing.
- * New code uses the default `apiClient` export inside `infrastructure/` and handles errors explicitly.
- */
-export const put = async (url: string, data: any) => {
-  try {
-    const response = await apiClient.put(url, data);
-    return response.data;
-  } catch (error) {
-    console.error(error);
-    if (axios.isAxiosError(error)) {
-      return error.response;
-    }
-    return null;
-  }
-};
-
-/**
- * @deprecated Legacy helper: on failure it returns `error.response` (or `null`) instead of throwing.
- * New code uses the default `apiClient` export inside `infrastructure/` and handles errors explicitly.
- */
-export const del = async (url: string, data?: any) => {
-  try {
-    const response = await apiClient.delete(url, { data });
-    return response.data;
-  } catch (error) {
-    console.error(error);
-    if (axios.isAxiosError(error)) {
-      return error.response;
-    }
-    return null;
-  }
-};
-
-/**
- * @deprecated Legacy helper: on failure it returns `error.response` (or `null`) instead of throwing.
- * New code uses the default `apiClient` export inside `infrastructure/` and handles errors explicitly.
- */
-export const patch = async (url: string, data: any) => {
-  try {
-    const response = await apiClient.patch(url, data);
-    return response.data;
-  } catch (error) {
-    console.error(error);
-    if (axios.isAxiosError(error)) {
-      return error.response;
-    }
-    return null;
-  }
-};
 
 export default apiClient;

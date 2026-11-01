@@ -29,15 +29,15 @@ Priority changed: the ledger (`GeneralJournal`) goes before the remaining small 
 
 | Module (current to target) | Structure | Names | i18n | Docs | Tests | Release |
 |---|---|---|---|---|---|---|
-| `Contact` + `Kontak` to `contacts` | todo | todo | todo | todo | todo | R3 |
+| `Contact` + `Kontak` to `contacts` | done | done | done | done | done | R3 |
 | `products` | done | done | done | done | done | R1 |
-| `Sale` to `sales` | todo | todo | todo | todo | todo | R3 |
+| `Sale` to `sales` | done | done | done | done | done | R3 |
 | `Pembelian` to `purchases` | done | done | done | done | done | R1 |
 | `Asset` to `assets` | done | done | done | done | done | R1 |
 | `PendingChanges` to `pending-changes` | done | done | done | done | done | R1 |
 | `Profile` to `profile` | done | done | done | done | done | R1 |
 | `LandingPage` to `landing` | done | done | done | done | done | R1 |
-| `Dashboard` to `dashboard` | todo | todo | todo | todo | todo | R3 |
+| `Dashboard` to `dashboard` | done | done | done | done | done | R3 |
 | `SettingBudget` + `BudgetPlanning` to `budgeting` | done | done | done | done | done | R1 |
 | `Cost` to `costs` | done | done | done | done | done | R1 |
 | `Production` to `production` | done | done | done | done | done | R1 |
@@ -47,9 +47,9 @@ Priority changed: the ledger (`GeneralJournal`) goes before the remaining small 
 
 | Module | Structure | Names | i18n | Docs | Tests | Release |
 |---|---|---|---|---|---|---|
-| `BankCash` to `bank-cash` | todo | todo | todo | todo | todo | R3 |
-| `BankCash/PettyCash` to `petty-cash` | todo | todo | todo | todo | todo | R3 |
-| `ResultReport` to `reports` | todo | todo | todo | todo | todo | R3 |
+| `BankCash` to `bank-cash` | done | done | done | done | done | R3 |
+| `BankCash/PettyCash` to `petty-cash` | done | done | done | done | done | R3 |
+| `ResultReport` to `reports` | done | done | done | done | done | R3 |
 
 ## Milestone 3: Core ledger (R2), split of `GeneralJournal`
 
@@ -67,7 +67,9 @@ Priority changed: the ledger (`GeneralJournal`) goes before the remaining small 
 
 | Module | Structure | Names | i18n | Docs | Tests | Release |
 |---|---|---|---|---|---|---|
-| `SettingMenu` to `settings` | todo | todo | todo | todo | todo | R4 |
-| `SettingMenu/UserManagement` to `user-management` | todo | todo | todo | todo | todo | R4 |
-| `Authentication` to `authentication` | todo | todo | todo | todo | todo | R4 |
-| Final audit, ratchets set to `error` repo-wide | todo | n/a | n/a | todo | n/a | R4 |
+| `SettingMenu` to `settings` | done | done | done | done | done | R4 |
+| `SettingMenu/UserManagement` to `user-management` | done | done | done | done | done | R4 |
+| `Authentication` to `authentication` | done | done | done | done | done | R4 |
+| Final audit, ratchets set to `error` repo-wide | done | n/a | n/a | done | n/a | R4 |
+
+The audit is [AUDIT.md](AUDIT.md). The ratchets are still `warn` with a baseline of 159: flipping them to `error` needs approval (spec section 11, item 6) and is not done.

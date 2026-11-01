@@ -1,6 +1,6 @@
 import { cleanup, configure, screen, userEvent, waitFor, within } from '@test-utils';
 import { routes } from '@/router/routes';
-import { formatCurrency as rawFormatCurrency } from '@/utils/FormatCurrency';
+import { formatCurrency as rawFormatCurrency } from '@/utils/formatCurrency';
 import {
   bankStatementsMock,
   chartOfAccountsMock,
@@ -15,7 +15,7 @@ import {
 import AccountLedgerPage from './AccountLedgerPage';
 
 vi.mock('@/components/AppShellLayout', () => ({
-  default: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  AppShellLayout: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 vi.mock('@mantine/notifications', async () => {
   const { fns: mocked } = await import('../../testing/ledgerMocks');
@@ -223,7 +223,7 @@ describe('non cash/bank ledger page (characterization)', () => {
     expect(payload).toEqual({ accountIds: ['acc-1'] });
     options.onSuccess();
     await waitFor(() =>
-      expect(screen.getByTestId('location')).toHaveTextContent(routes.generalJournal.main)
+      expect(screen.getByTestId('location')).toHaveTextContent(routes.chartOfAccounts.main)
     );
     // The success toast comes from the shared useDeleteAccount hook only.
     expect(fns.notify).not.toHaveBeenCalled();
@@ -272,7 +272,7 @@ describe('non cash/bank ledger page (characterization)', () => {
     const user = userEvent.setup();
     await user.click(screen.getByRole('button', { name: /Ubah Akun/ }));
     expect(screen.getByTestId('location')).toHaveTextContent(
-      routes.generalJournal.editAccountJournal.replace(':idAccount', 'acc-1')
+      routes.chartOfAccounts.edit.replace(':idAccount', 'acc-1')
     );
   });
 

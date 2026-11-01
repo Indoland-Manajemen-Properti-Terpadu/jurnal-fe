@@ -13,7 +13,7 @@ import {
   ThemeIcon,
 } from '@mantine/core';
 import { IconAlertTriangle, IconRotateClockwise } from '@tabler/icons-react';
-import ImageRestore from '@/assets/img/SettingsAccount-Restore.svg';
+import ImageRestore from '@/assets/images/illustrations/settings-account-restore.svg';
 import { useTranslation } from '@/i18n';
 import { useAccountSettings } from '../../hooks/useAccountSettings';
 
@@ -77,11 +77,12 @@ export const RestoreAccountModal: React.FC<RestoreAccountModalProps> = ({
           style={{
             height: 124,
             borderRadius: 12,
-            background: 'linear-gradient(145deg, #fff1f2 0%, #ffe4e6 100%)',
+            background:
+              'linear-gradient(145deg, var(--mantine-color-rose-0) 0%, var(--mantine-color-rose-1) 100%)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            border: '1px solid rgba(225, 29, 72, 0.15)',
+            border: '1px solid color-mix(in srgb, var(--mantine-color-rose-6) 15%, transparent)',
           }}
         >
           <Image src={ImageRestore} alt={t('settings.restore.alt')} h={88} fit="contain" />

@@ -1,6 +1,6 @@
 import { cleanup, configure, screen, userEvent, waitFor, within } from '@test-utils';
 import { routes } from '@/router/routes';
-import { formatCurrency as rawFormatCurrency } from '@/utils/FormatCurrency';
+import { formatCurrency as rawFormatCurrency } from '@/utils/formatCurrency';
 import {
   bankStatementsMock,
   chartOfAccountsMock,
@@ -15,7 +15,7 @@ import {
 import AccountLedgerPage from './AccountLedgerPage';
 
 vi.mock('@/components/AppShellLayout', () => ({
-  default: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  AppShellLayout: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 vi.mock('@mantine/notifications', async () => {
   const { fns: mocked } = await import('../../testing/ledgerMocks');
@@ -177,7 +177,7 @@ describe('cash/bank ledger page (characterization)', () => {
     options.onSuccess();
     expect(fns.notify).not.toHaveBeenCalled();
     await waitFor(() =>
-      expect(screen.getByTestId('location')).toHaveTextContent(routes.generalJournal.main)
+      expect(screen.getByTestId('location')).toHaveTextContent(routes.chartOfAccounts.main)
     );
   });
 
@@ -189,7 +189,7 @@ describe('cash/bank ledger page (characterization)', () => {
       await user.click(await screen.findByRole('menuitem', { name: item, hidden: true }));
       expect(screen.getByTestId('location')).toHaveTextContent(path);
     };
-    await open('Transfer Uang', routes.BankAndCash.AddTransferMoney);
+    await open('Transfer Uang', routes.bankCash.addTransfer);
   });
 
   it('deletes the selected entries from the entries tab', async () => {

@@ -3,14 +3,14 @@ import { Center, Container, Loader, Paper, Stack, Text } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
-import AppShellLayout from '@/components/AppShellLayout';
+import { AppShellLayout } from '@/components/AppShellLayout';
 import { ConfirmModal } from '@/components';
-import deleteModalImage from '@/assets/img/vectors/delete_modal.svg';
+import deleteModalImage from '@/assets/images/illustrations/delete-confirm.svg';
 import { useJournalAccounts, type JournalAccounts } from '@/module/chart-of-accounts';
 import { routes } from '@/router/routes';
 import { useTranslation } from '@/i18n';
-import { formatCurrency } from '@/utils/FormatCurrency';
-import { dateFormatV1 } from '@/utils/FormatDate';
+import { formatCurrency } from '@/utils/formatCurrency';
+import { dateFormatV1 } from '@/utils/formatDate';
 import {
   buildBalancePayload,
   checkOpeningPublish,
@@ -142,7 +142,7 @@ const BeginningBalancePage: React.FC = () => {
     publishDraftBalance(buildPayload(), {
       onSuccess: () => {
         setIsPublishModalOpen(false);
-        navigate(routes.generalJournal.main);
+        navigate(routes.chartOfAccounts.main);
       },
     });
   };
@@ -186,7 +186,7 @@ const BeginningBalancePage: React.FC = () => {
               difference={difference}
               isSavingDraft={isSavingDraft}
               isPublishing={isPublishing}
-              onBack={() => navigate(routes.generalJournal.main)}
+              onBack={() => navigate(routes.chartOfAccounts.main)}
               onOpenLogs={() => setIsLogsModalOpen(true)}
               onOpenReset={() => setIsResetModalOpen(true)}
               onSaveDraft={handleSaveDraft}

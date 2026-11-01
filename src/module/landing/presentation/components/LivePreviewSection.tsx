@@ -65,7 +65,7 @@ export function LivePreviewSection({
               </div>
               <div className={classes.windowTitle}>
                 <span>app.jurnalproapps.com</span>
-                <span style={{ color: '#cbd5e1' }}>/</span>
+                <span style={{ color: 'var(--mantine-color-slate-3)' }}>/</span>
                 <span className={classes.windowPill}>
                   <IconBuildingBank size={13} color="var(--lp-navy)" /> {t('preview.company')}
                 </span>

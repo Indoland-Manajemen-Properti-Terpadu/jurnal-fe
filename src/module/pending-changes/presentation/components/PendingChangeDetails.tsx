@@ -25,7 +25,7 @@ export default function PendingChangeDetails({ change }: PendingChangeDetailsPro
         <Text size="sm" fw={800} c="orange.9" ff="monospace">
           +{formatIDR(payload.newLateFeeAmount ?? payload.amount)}
         </Text>
-        <Text fz={11} c="dimmed">
+        <Text fz="var(--jurnal-text-xs)" c="dimmed">
           {t('lateFeeFine')}
         </Text>
       </Stack>
@@ -45,7 +45,7 @@ export default function PendingChangeDetails({ change }: PendingChangeDetailsPro
             </Badge>
           )}
           {payload.transactionNumber && (
-            <Text fz={11} c="dark.6">
+            <Text fz="var(--jurnal-text-xs)" c="dark.6">
               #{payload.transactionNumber}
             </Text>
           )}
@@ -61,12 +61,12 @@ export default function PendingChangeDetails({ change }: PendingChangeDetailsPro
           {t('detailDeletion')}
         </Badge>
         {payload.originalAmount !== undefined && (
-          <Text fz={11} c="dimmed" ff="monospace">
+          <Text fz="var(--jurnal-text-xs)" c="dimmed" ff="monospace">
             {t('invoiceAmountLabel')} {formatIDR(payload.originalAmount)}
           </Text>
         )}
         {payload.reason && (
-          <Text fz={11} c="dark.7" lineClamp={1}>
+          <Text fz="var(--jurnal-text-xs)" c="dark.7" lineClamp={1}>
             {payload.reason}
           </Text>
         )}
@@ -81,7 +81,7 @@ export default function PendingChangeDetails({ change }: PendingChangeDetailsPro
         <Text size="sm" fw={800} c="dark.8" ff="monospace">
           {formatIDR(genericAmount.value)}
         </Text>
-        <Text fz={11} c="dimmed">
+        <Text fz="var(--jurnal-text-xs)" c="dimmed">
           {payload.description || payload.note || change.type}
         </Text>
       </Stack>
@@ -100,7 +100,7 @@ export default function PendingChangeDetails({ change }: PendingChangeDetailsPro
   return (
     <Stack gap={2}>
       {entries.slice(0, 2).map(([key, val]) => (
-        <Text key={key} fz={11} c="dark.7" truncate>
+        <Text key={key} fz="var(--jurnal-text-xs)" c="dark.7" truncate>
           <Text span fw={600} c="dimmed">
             {key}:
           </Text>{' '}
@@ -108,7 +108,7 @@ export default function PendingChangeDetails({ change }: PendingChangeDetailsPro
         </Text>
       ))}
       {entries.length > 2 && (
-        <Text fz={10} c="dimmed">
+        <Text fz="var(--jurnal-text-xs)" c="dimmed">
           {t('moreFields', { count: entries.length - 2 })}
         </Text>
       )}

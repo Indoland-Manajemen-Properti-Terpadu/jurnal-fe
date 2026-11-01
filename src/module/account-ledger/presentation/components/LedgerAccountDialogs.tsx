@@ -1,8 +1,8 @@
 import { IconArchive } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import { ConfirmModal } from '@/components';
-import deleteModalImage from '@/assets/img/vectors/delete_modal.svg';
-import arsipkanIcon from '@/assets/img/vectors/arsipkan.svg';
+import deleteModalImage from '@/assets/images/illustrations/delete-confirm.svg';
+import arsipkanIcon from '@/assets/images/illustrations/archive.svg';
 import type { LedgerVariant } from '../../domain/ledgerVariant';
 
 interface LedgerAccountDialogsProps {
@@ -73,7 +73,7 @@ export const LedgerAccountDialogs: React.FC<LedgerAccountDialogsProps> = ({
         cancelLabel={t('common.cancel')}
         confirmLoading={isArchiving}
         confirmButtonProps={{
-          color: account.isArchived ? 'primary' : '#64748b',
+          color: account.isArchived ? 'primary' : 'var(--mantine-color-slate-5)',
           leftSection: <IconArchive size={18} />,
         }}
       />

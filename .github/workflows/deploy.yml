@@ -69,7 +69,12 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG }}
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
 
+      # Deploys are manual for now: the backend team pulls the `production` image (or a
+      # commit-SHA tag, for rollback) from ghcr.io on the server, which is moving. The runner
+      # cannot reach port 22 (i/o timeout), so this step must not fail the run. When the new
+      # server is ready, remove `continue-on-error` (or replace the step with a self-hosted runner).
       - name: Deploy to server via SSH
+        continue-on-error: true
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.SERVER_HOST }}

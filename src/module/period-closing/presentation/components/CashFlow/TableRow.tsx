@@ -1,7 +1,7 @@
 import React from 'react';
 import { Table, Text } from '@mantine/core';
 import { useTranslation } from '@/i18n';
-import { formatCurrency } from '@/utils/FormatCurrency';
+import { formatCurrency } from '@/utils/formatCurrency';
 import { gradientColors, themeColors } from '@/theme';
 
 type RowProps = {

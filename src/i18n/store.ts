@@ -11,7 +11,7 @@ export const AVAILABLE_LANGUAGES: LanguageOption[] = [
   { code: 'en', label: 'English', nativeLabel: 'English (US)', flag: '🇺🇸' },
 ];
 
-export const translations: Record<SupportedLanguage, any> = {
+export const translations: Record<SupportedLanguage, Record<string, unknown>> = {
   id,
   en,
 };
@@ -68,11 +68,11 @@ export const useI18nStore = create<I18nStoreState>((set, get) => ({
     const segments = fullPath.split('.');
 
     // Helper to traverse object
-    const resolve = (lang: SupportedLanguage): any => {
-      let current: any = translations[lang];
+    const resolve = (lang: SupportedLanguage): unknown => {
+      let current: unknown = translations[lang];
       for (const seg of segments) {
         if (!current || typeof current !== 'object') return undefined;
-        current = current[seg];
+        current = (current as Record<string, unknown>)[seg];
       }
       return current;
     };
@@ -96,11 +96,13 @@ export const useI18nStore = create<I18nStoreState>((set, get) => ({
 
     // Interpolation {param} or {{param}}
     if (params) {
-      return Object.entries(params).reduce((str, [k, v]) => {
-        return str
-          .replace(new RegExp(`\\{\\{${k}\\}\\}`, 'g'), String(v))
-          .replace(new RegExp(`\\{${k}\\}`, 'g'), String(v));
-      }, result);
+      return Object.entries(params).reduce(
+        (str, [k, v]) =>
+          str
+            .replace(new RegExp(`\\{\\{${k}\\}\\}`, 'g'), String(v))
+            .replace(new RegExp(`\\{${k}\\}`, 'g'), String(v)),
+        result
+      );
     }
 
     return result;

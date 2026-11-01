@@ -8,13 +8,8 @@ const collectPaths = (value: unknown): string[] => {
   return [];
 };
 
-// Constants that exist in routes.ts but have no page behind them and no references in src.
-// They are listed here, not silently skipped, so a new orphan fails the test.
-// Decide in the milestone that owns each module whether to build the page or delete the constant.
-const KNOWN_ORPHANS = new Set(['/setting-budget/budget-IS', '/result-reports/business-overview']);
-
 const concretePaths = [...new Set(collectPaths(routes))]
-  .filter((path) => path !== '*' && !KNOWN_ORPHANS.has(path))
+  .filter((path) => path !== '*')
   .map((path) => path.replace(/:[A-Za-z]+/g, 'x'));
 
 describe('route manifest', () => {
@@ -23,5 +18,21 @@ describe('route manifest', () => {
 
     expect(matches).not.toBeNull();
     expect(matches?.at(-1)?.route.path).not.toBe('*');
+  });
+});
+
+describe('route constants', () => {
+  it('never use the same path twice, so a constant has one meaning', () => {
+    const paths = collectPaths(routes);
+
+    expect(paths.filter((path, index) => paths.indexOf(path) !== index)).toEqual([]);
+  });
+
+  it('keep every group named like a camelCase module and every key camelCase', () => {
+    const names = Object.entries(routes).flatMap(([group, value]) =>
+      typeof value === 'string' ? [group] : [group, ...Object.keys(value)]
+    );
+
+    expect(names.filter((name) => !/^[a-z][A-Za-z0-9]*$/.test(name))).toEqual([]);
   });
 });

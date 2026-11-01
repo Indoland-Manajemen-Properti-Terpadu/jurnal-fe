@@ -4,7 +4,7 @@ import { useJournalAccounts, type JournalAccounts } from '@/module/chart-of-acco
 import EmptyState from '@/components/EmptyState/EmptyTable';
 import { gradientColors, themeColors } from '@/theme';
 import { useTranslation } from '@/i18n';
-import { formatCurrency } from '@/utils/FormatCurrency';
+import { formatCurrency } from '@/utils/formatCurrency';
 import { sumAmounts } from '@/module/period-closing/domain/reportTotals';
 import {
   PROTOTYPE_COST_OF_REVENUE,
@@ -90,10 +90,10 @@ const IncomeStatementTable: React.FC = () => {
         }}
       >
         <Group justify="space-between">
-          <Text c={themeColors.black[9]} fz={14} fw={500}>
+          <Text c={themeColors.black[9]} fz="var(--jurnal-text-sm)" fw={500}>
             {t('common.report')}
           </Text>
-          <Text c={themeColors.black[9]} fz={14} fw={500}>
+          <Text c={themeColors.black[9]} fz="var(--jurnal-text-sm)" fw={500}>
             {t('common.totalValue', { amount: formatCurrency(PROTOTYPE_INCOME_TOTAL) })}
           </Text>
         </Group>

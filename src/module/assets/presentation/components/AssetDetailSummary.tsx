@@ -1,6 +1,6 @@
 import { Box, Group, Paper, Stack, Text } from '@mantine/core';
 import { useTranslation } from '@/i18n';
-import { formatCurrency } from '@/utils/FormatCurrency';
+import { formatCurrency } from '@/utils/formatCurrency';
 import { AssetItem } from '@/module/assets/domain/asset';
 import { isNonDepreciable, toSafeNumber } from '@/module/assets/domain/depreciation';
 
@@ -20,7 +20,7 @@ function SummaryRow({ label, value, valueProps, divider = true }: Readonly<Summa
     <Group
       justify="space-between"
       py={4}
-      style={divider ? { borderBottom: '1px solid #f1f5f9' } : undefined}
+      style={divider ? { borderBottom: '1px solid var(--mantine-color-slate-1)' } : undefined}
     >
       <Text size="xs" c="dimmed">
         {label}
@@ -83,9 +83,9 @@ export function AssetDetailSummary({ asset }: Readonly<AssetDetailSummaryProps>)
         <Box
           p="sm"
           style={{
-            backgroundColor: '#f8fafc',
+            backgroundColor: 'var(--mantine-color-slate-0)',
             borderRadius: 8,
-            border: '1px solid #f1f5f9',
+            border: '1px solid var(--mantine-color-slate-1)',
           }}
         >
           <Text size="xs" c="dark.7" lh={1.6}>

@@ -12,10 +12,10 @@ import {
 } from '@/components/Badge/Badge';
 import { themeColors } from '@/theme';
 import { useTranslation } from '@/i18n';
-import { formatCurrency } from '@/utils/FormatCurrency';
+import { formatCurrency } from '@/utils/formatCurrency';
 import { routes } from '@/router/routes';
 import EmptyState from '@/components/EmptyState/EmptyTable';
-import defaultEmptyImage from '@/assets/img/Empty-Data.svg';
+import defaultEmptyImage from '@/assets/images/illustrations/empty-data.svg';
 import { JournalAccounts } from '../../domain/journalAccount';
 import { isAccountSelectable } from '../../domain/accountRules';
 import classes from '../pages/AccountList.module.css';
@@ -30,12 +30,12 @@ type TableAccountsProps = {
 };
 
 const HeadTableFont = {
-  fontSize: 14,
+  fontSize: 'var(--jurnal-text-sm)',
   fontWeight: 500,
 };
 
 const ColumnTableFont = {
-  fontSize: 14,
+  fontSize: 'var(--jurnal-text-sm)',
   fontWeight: 400,
 };
 const TableAccounts = ({ data, loading, selectedCategory, searchQuery }: TableAccountsProps) => {
@@ -100,8 +100,8 @@ const TableAccounts = ({ data, loading, selectedCategory, searchQuery }: TableAc
             underline="never"
             onClick={() => {
               const path = item.isBankAndCash
-                ? routes.generalJournal.detailAccount
-                : routes.generalJournal.detailAccountNonCB;
+                ? routes.accountLedger.cashBank
+                : routes.accountLedger.nonCashBank;
               navigate(path.replace(':idAccount', item.id!!));
             }}
             className={classes.accountNameColumn}
@@ -216,8 +216,8 @@ const TableAccounts = ({ data, loading, selectedCategory, searchQuery }: TableAc
                 underline="never"
                 onClick={() => {
                   const path = item.isBankAndCash
-                    ? routes.generalJournal.detailAccount
-                    : routes.generalJournal.detailAccountNonCB;
+                    ? routes.accountLedger.cashBank
+                    : routes.accountLedger.nonCashBank;
                   navigate(path.replace(':idAccount', item.id!!));
                 }}
                 className={classes.accountNameColumn}

@@ -66,10 +66,10 @@ export const AddAccountHierarchySection: React.FC<AddAccountHierarchySectionProp
             <IconHierarchy2 size={20} />
           </ThemeIcon>
           <div>
-            <Text fw={700} fz={15} c="dark.8">
+            <Text fw={700} fz="var(--jurnal-text-sm)" c="dark.8">
               {t('form.sec2Title')}
             </Text>
-            <Text fz={12} c="dimmed">
+            <Text fz="var(--jurnal-text-xs)" c="dimmed">
               {t('form.sec2Subtitle')}
             </Text>
           </div>
@@ -131,10 +131,10 @@ export const AddAccountHierarchySection: React.FC<AddAccountHierarchySectionProp
                     {opt.badge}
                   </Badge>
                 </Group>
-                <Text fw={700} fz={13} c="dark.8">
+                <Text fw={700} fz="var(--jurnal-text-sm)" c="dark.8">
                   {opt.title}
                 </Text>
-                <Text fz={11.5} c="dimmed" mt={3} lh={1.35}>
+                <Text fz="var(--jurnal-text-xs)" c="dimmed" mt={3} lh={1.35}>
                   {opt.desc}
                 </Text>
               </Paper>
@@ -168,7 +168,7 @@ export const AddAccountHierarchySection: React.FC<AddAccountHierarchySectionProp
 
             {/* Visual Tree Representation */}
             <Paper withBorder radius="md" p="sm" bg="gray.0">
-              <Text fz={11} fw={700} c="dimmed" mb={6}>
+              <Text fz="var(--jurnal-text-xs)" fw={700} c="dimmed" mb={6}>
                 {t('form.hierarchyVisualLabel')}
               </Text>
               <Stack gap={4}>
@@ -176,7 +176,7 @@ export const AddAccountHierarchySection: React.FC<AddAccountHierarchySectionProp
                   <Badge size="xs" color="indigo" variant="light">
                     {t('form.treeParentBadge')}
                   </Badge>
-                  <Text fz={12} fw={600} c="dark.7">
+                  <Text fz="var(--jurnal-text-xs)" fw={600} c="dark.7">
                     {parentAccountLabel || t('form.treeParentPending')}
                   </Text>
                 </Group>
@@ -185,10 +185,10 @@ export const AddAccountHierarchySection: React.FC<AddAccountHierarchySectionProp
                   <Badge size="xs" color="teal" variant="filled">
                     {t('form.treeNewSub')}
                   </Badge>
-                  <Text fz={12} fw={700} c="primary.8" ff="monospace">
+                  <Text fz="var(--jurnal-text-xs)" fw={700} c="primary.8" ff="monospace">
                     [{form.values.accountNumber || '—'}]
                   </Text>
-                  <Text fz={12} fw={700} c="dark.9">
+                  <Text fz="var(--jurnal-text-xs)" fw={700} c="dark.9">
                     {form.values.name || t('form.previewUnnamed')}
                   </Text>
                 </Group>
@@ -215,7 +215,7 @@ export const AddAccountHierarchySection: React.FC<AddAccountHierarchySectionProp
 
             {/* Visual Tree Representation */}
             <Paper withBorder radius="md" p="sm" bg="gray.0">
-              <Text fz={11} fw={700} c="dimmed" mb={6}>
+              <Text fz="var(--jurnal-text-xs)" fw={700} c="dimmed" mb={6}>
                 {t('form.hierarchyVisualLabel')}
               </Text>
               <Stack gap={4}>
@@ -223,10 +223,10 @@ export const AddAccountHierarchySection: React.FC<AddAccountHierarchySectionProp
                   <Badge size="xs" color="indigo" variant="filled">
                     {t('form.treeNewHeader')}
                   </Badge>
-                  <Text fz={12} fw={700} c="primary.8" ff="monospace">
+                  <Text fz="var(--jurnal-text-xs)" fw={700} c="primary.8" ff="monospace">
                     [{form.values.accountNumber || '—'}]
                   </Text>
-                  <Text fz={12} fw={700} c="dark.9">
+                  <Text fz="var(--jurnal-text-xs)" fw={700} c="dark.9">
                     {form.values.name || t('form.previewUnnamed')}
                   </Text>
                 </Group>
@@ -235,7 +235,7 @@ export const AddAccountHierarchySection: React.FC<AddAccountHierarchySectionProp
                   <Badge size="xs" color="teal" variant="light">
                     {t('form.treeSubBadge')}
                   </Badge>
-                  <Text fz={12} fw={600} c="dark.7">
+                  <Text fz="var(--jurnal-text-xs)" fw={600} c="dark.7">
                     {childAccountLabel || t('form.treeChildPending')}
                   </Text>
                 </Group>

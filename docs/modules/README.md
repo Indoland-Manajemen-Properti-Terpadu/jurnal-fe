@@ -19,10 +19,10 @@ Status per module: [../migration/STATUS.md](../migration/STATUS.md).
 | `costs` | `src/module/costs` | [README](../../src/module/costs/README.md) |
 | `production` | `src/module/production` | [README](../../src/module/production/README.md) |
 | `fulfillment` | `src/module/fulfillment` | [README](../../src/module/fulfillment/README.md) |
-| `bank-cash` | `src/module/BankCash` | pending (M2) |
-| `petty-cash` | `src/module/BankCash/PettyCash` | pending (M2) |
-| `reports` | `src/module/ResultReport` | pending (M2) |
+| `bank-cash` | `src/module/BankCash` | [README](../../src/module/bank-cash/README.md) |
+| `petty-cash` | `src/module/BankCash/PettyCash` | [README](../../src/module/petty-cash/README.md) |
+| `reports` | `src/module/ResultReport` | [README](../../src/module/reports/README.md) |
 | `chart-of-accounts`, `journal-entries`, `account-ledger`, `bank-statements`, `reconciliation`, `beginning-balances`, `period-closing` | `src/module/GeneralJournal` | pending (M3) |
-| `settings` | `src/module/SettingMenu` | pending (M4) |
-| `user-management` | `src/module/SettingMenu/UserManagement` | pending (M4) |
-| `authentication` | `src/module/Authentication` | pending (M4) |
+| `settings` | `src/module/SettingMenu` | [README](../../src/module/settings/README.md) |
+| `user-management` | `src/module/SettingMenu/UserManagement` | [README](../../src/module/user-management/README.md) |
+| `authentication` | `src/module/Authentication` | [README](../../src/module/authentication/README.md) |

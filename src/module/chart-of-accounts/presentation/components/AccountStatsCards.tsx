@@ -68,7 +68,7 @@ export const AccountStatsCards: React.FC<AccountStatsCardsProps> = ({ stats }) =
               <Text size="xs" c="dimmed" fw={600} tt="uppercase" lts={0.5}>
                 {title}
               </Text>
-              <Text fz={26} fw={800} c={valueColor} mt={4} lh={1.1}>
+              <Text fz="var(--jurnal-text-2xl)" fw={800} c={valueColor} mt={4} lh={1.1}>
                 {value.toLocaleString('id-ID')}
               </Text>
               <Text size="xs" c="dimmed" mt={4}>

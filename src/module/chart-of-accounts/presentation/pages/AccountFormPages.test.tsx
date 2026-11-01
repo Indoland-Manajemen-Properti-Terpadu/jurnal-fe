@@ -9,16 +9,14 @@ let detail: Record<string, unknown> | undefined;
 let detailError = false;
 
 vi.mock('@/components/AppShellLayout', () => ({
-  default: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  AppShellLayout: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
-vi.mock('@/module/SettingMenu/UserManagement/User/service/User.service', () => ({
-  useGetAllUser: () => ({ data: { results: [] }, isLoading: false }),
-}));
-vi.mock('@/module/SettingMenu/UserManagement/Role/Service/Role.service', () => ({
-  GetRoles: () => ({ data: [], isLoading: false }),
+vi.mock('@/module/user-management', () => ({
+  useUsers: () => ({ data: { results: [] }, isLoading: false }),
+  useRoles: () => ({ data: [], isLoading: false }),
 }));
 vi.mock('../hooks/useCategoryAccounts', () => ({
-  GetCategoryAccount: () => ({
+  useCategoryAccounts: () => ({
     data: [
       { id: 'c-kb', categoryID: 'KB', name: 'Kas & Bank', isDebit: true },
       { id: 'c-pen', categoryID: 'PEN', name: 'Pendapatan', isDebit: false },
@@ -27,7 +25,7 @@ vi.mock('../hooks/useCategoryAccounts', () => ({
   }),
 }));
 vi.mock('../hooks/useCategoryInfo', () => ({
-  useGetCategoryInfo: (id?: string) => ({
+  useCategoryInfo: (id?: string) => ({
     data: id
       ? {
           suggestedAccountNumber: '1-10001',

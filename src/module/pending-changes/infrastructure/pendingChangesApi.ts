@@ -1,6 +1,6 @@
 import axios from 'axios';
 import apiClient from '@/lib/http/apiClient';
-import { API_PENDING_CHANGES } from '@/services/endpoint';
+import { API_PENDING_CHANGES } from '@/lib/http/endpoints';
 import type { PendingChangeListParams, PendingChangeListResult } from '../domain/pendingChange';
 import type {
   ApiEnvelope,

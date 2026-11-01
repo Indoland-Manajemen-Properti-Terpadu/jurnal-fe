@@ -79,6 +79,52 @@ describe('depreciation rules', () => {
       ).toEqual({ accumulatedDepreciation: 52000000, netBookValue: 48000000 });
     });
 
+    it('double declining reaches the residual value at the end of the useful life, like the schedule', () => {
+      const asset = {
+        acquisitionCost: 100000000,
+        residualValue: 0,
+        usefulLifeYears: 5,
+        depreciationMethod: 'double_declining' as const,
+        acquisitionDate: '2020-01-01',
+      };
+      const afterLife = calculateAssetDepreciation(
+        100000000,
+        0,
+        5,
+        'double_declining',
+        '2020-01-01',
+        new Date('2026-01-01')
+      );
+      const lastRow = generateDepreciationSchedule(makeAsset(asset)).at(-1);
+
+      expect(afterLife).toEqual({ accumulatedDepreciation: 100000000, netBookValue: 0 });
+      expect(lastRow?.endingBookValue).toBe(afterLife.netBookValue);
+      expect(lastRow?.accumulatedDepreciation).toBe(afterLife.accumulatedDepreciation);
+    });
+
+    it('double declining agrees with the schedule at every year end', () => {
+      const asset = makeAsset({
+        acquisitionCost: 100000000,
+        residualValue: 10000000,
+        usefulLifeYears: 5,
+        depreciationMethod: 'double_declining',
+        acquisitionDate: '2020-01-01',
+      });
+      const schedule = generateDepreciationSchedule(asset);
+
+      schedule.forEach((row, index) => {
+        const result = calculateAssetDepreciation(
+          100000000,
+          10000000,
+          5,
+          'double_declining',
+          '2020-01-01',
+          new Date(2020 + index + 1, 0, 1)
+        );
+        expect(result.netBookValue).toBe(row.endingBookValue);
+      });
+    });
+
     it('method none or zero life keeps the cost', () => {
       expect(calculateAssetDepreciation(500000, 500000, 0, 'none', '2020-01-01')).toEqual({
         accumulatedDepreciation: 0,

@@ -3,14 +3,13 @@ import { Box, Button, Grid, Group, Paper, Stack } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from '@mantine/form';
 import { IconArrowLeft, IconCheck, IconNotebook, IconRotateClockwise } from '@tabler/icons-react';
-import AppShellLayout from '@/components/AppShellLayout';
-import ModuleHeader from '@/components/ModuleHeader/ModuleHeader';
+import { AppShellLayout } from '@/components/AppShellLayout';
+import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
 import { routes } from '@/router/routes';
 import { useTranslation } from '@/i18n';
-import { useGetAllUser } from '@/module/SettingMenu/UserManagement/User/service/User.service';
-import { GetRoles } from '@/module/SettingMenu/UserManagement/Role/Service/Role.service';
-import { GetCategoryAccount } from '../hooks/useCategoryAccounts';
-import { useGetCategoryInfo } from '../hooks/useCategoryInfo';
+import { useRoles, useUsers } from '@/module/user-management';
+import { useCategoryAccounts } from '@/module/chart-of-accounts/presentation/hooks/useCategoryAccounts';
+import { useCategoryInfo } from '@/module/chart-of-accounts/presentation/hooks/useCategoryInfo';
 import { useAddAccount } from '../hooks/useAddAccount';
 import { useAccountFormOptions } from '../hooks/useAccountFormOptions';
 import { useAccountPlacementState } from '../hooks/useAccountPlacementState';
@@ -42,9 +41,9 @@ export const AddAccountJournalPage: React.FC = () => {
   const validationMessage = (key: string | null) => (key ? t(key) : null);
 
   // Queries
-  const { data: categoryAccounts, isLoading: isLoadingCategories } = GetCategoryAccount();
-  const { data: usersData, isLoading: isLoadingUsers } = useGetAllUser();
-  const { data: rolesData, isLoading: isLoadingRoles } = GetRoles();
+  const { data: categoryAccounts, isLoading: isLoadingCategories } = useCategoryAccounts();
+  const { data: usersData, isLoading: isLoadingUsers } = useUsers();
+  const { data: rolesData, isLoading: isLoadingRoles } = useRoles();
   const addAccountMutation = useAddAccount();
 
   // Form State
@@ -82,7 +81,7 @@ export const AddAccountJournalPage: React.FC = () => {
   } = useAccountPlacementState();
 
   // Category Info query for suggestions & hierarchy options
-  const { data: categoryInfo } = useGetCategoryInfo(form.values.category);
+  const { data: categoryInfo } = useCategoryInfo(form.values.category);
 
   // Derived Grouped Dropdown Data (Grouped by Neraca 1-3 vs Laba Rugi 4-8)
   const categoryOptions = useMemo(
@@ -226,7 +225,7 @@ export const AddAccountJournalPage: React.FC = () => {
   };
 
   const handleCancel = () => {
-    navigate(routes.generalJournal.main);
+    navigate(routes.chartOfAccounts.main);
   };
 
   const hasSuggestedDiff =

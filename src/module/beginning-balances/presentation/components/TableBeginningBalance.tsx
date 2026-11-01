@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { DataTable } from 'mantine-datatable';
 import {
   Badge,
@@ -11,9 +11,9 @@ import {
   ActionIcon,
 } from '@mantine/core';
 import { IconArrowDownRight, IconArrowUpRight, IconX } from '@tabler/icons-react';
-import { numberFormat } from '@/utils/FormatCurrency';
+import { numberFormat } from '@/utils/formatCurrency';
 import EmptyState from '@/components/EmptyState/EmptyTable';
-import defaultEmptyImage from '@/assets/img/Empty-Dataa.svg';
+import defaultEmptyImage from '@/assets/images/illustrations/empty-table.svg';
 import type { JournalAccounts } from '@/module/chart-of-accounts';
 import { useTranslation } from '@/i18n';
 import {
@@ -37,6 +37,9 @@ const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
   selectedCategory = null,
 }) => {
   const { t } = useTranslation('beginningBalances');
+  // The text being typed in one field, so a trailing comma or decimal digits survive re-formatting.
+  const [draft, setDraft] = useState<{ key: string; text: string } | null>(null);
+  const shown = (key: string, formatted: string) => (draft?.key === key ? draft.text : formatted);
   // Filter records based on search and category
   const filteredRecords = useMemo(
     () =>
@@ -60,10 +63,12 @@ const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
   );
 
   const handleValueChange = (accountId: string, field: 'debit' | 'credit', rawString: string) => {
+    setDraft({ key: `${accountId}:${field}`, text: rawString });
     onChange(applyAmountEntry(data, accountId, field, rawString));
   };
 
   const handleClearRow = (accountId: string) => {
+    setDraft(null);
     onChange(clearAccountRow(data, accountId));
   };
 
@@ -71,7 +76,7 @@ const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
     {
       accessor: 'accountNumber',
       title: (
-        <Text fw={700} fz={13} c="dark.8">
+        <Text fw={700} fz="var(--jurnal-text-sm)" c="dark.8">
           {t('table.code')}
         </Text>
       ),
@@ -97,7 +102,7 @@ const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
     {
       accessor: 'name',
       title: (
-        <Text fw={700} fz={13} c="dark.8">
+        <Text fw={700} fz="var(--jurnal-text-sm)" c="dark.8">
           {t('table.nameAndNormal')}
         </Text>
       ),
@@ -108,7 +113,7 @@ const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
         return (
           <Stack gap={3}>
             <Group gap="xs" wrap="nowrap">
-              <Text fw={isSub ? 500 : 700} fz={14} c="dark.8">
+              <Text fw={isSub ? 500 : 700} fz="var(--jurnal-text-sm)" c="dark.8">
                 {item.name}
               </Text>
               {!isSub && (
@@ -147,7 +152,7 @@ const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
           <ThemeIcon size={20} radius="xl" color="teal" variant="light">
             <IconArrowDownRight size={13} />
           </ThemeIcon>
-          <Text fw={700} fz={13} c="dark.8">
+          <Text fw={700} fz="var(--jurnal-text-sm)" c="dark.8">
             {t('table.debit')}
           </Text>
         </Group>
@@ -171,8 +176,9 @@ const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
                   Rp
                 </Text>
               }
-              value={hasVal ? numberFormat(debitVal) : ''}
+              value={shown(`${accountKey(item)}:debit`, hasVal ? numberFormat(debitVal) : '')}
               onChange={(e) => handleValueChange(accountKey(item), 'debit', e.target.value)}
+              onBlur={() => setDraft(null)}
               styles={{
                 root: {
                   width: '100%',
@@ -181,23 +187,25 @@ const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
                   textAlign: 'right',
                   fontFamily: 'monospace',
                   fontWeight: hasVal ? 700 : 400,
-                  fontSize: 13,
+                  fontSize: 'var(--jurnal-text-sm)',
                   color: hasVal ? 'var(--mantine-color-teal-8)' : 'inherit',
                   backgroundColor: hasVal
                     ? 'var(--mantine-color-teal-0)'
                     : normalDebit
-                      ? '#FFFFFF'
-                      : '#F8FAFC',
+                      ? 'var(--mantine-color-white)'
+                      : 'var(--mantine-color-slate-0)',
                   borderColor: hasVal
                     ? 'var(--mantine-color-teal-5)'
                     : normalDebit
                       ? 'var(--mantine-color-teal-2)'
                       : 'var(--mantine-color-gray-3)',
-                  boxShadow: normalDebit ? '0 1px 2px rgba(0,0,0,0.02)' : 'none',
+                  boxShadow: normalDebit
+                    ? '0 1px 2px color-mix(in srgb, var(--mantine-color-black) 2%, transparent)'
+                    : 'none',
                   transition: 'all 150ms ease',
                   '&:focus': {
                     borderColor: 'var(--mantine-color-teal-6)',
-                    backgroundColor: '#FFFFFF',
+                    backgroundColor: 'var(--mantine-color-white)',
                   },
                 },
               }}
@@ -218,7 +226,7 @@ const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
           <ThemeIcon size={20} radius="xl" color="red" variant="light">
             <IconArrowUpRight size={13} />
           </ThemeIcon>
-          <Text fw={700} fz={13} c="dark.8">
+          <Text fw={700} fz="var(--jurnal-text-sm)" c="dark.8">
             {t('table.credit')}
           </Text>
         </Group>
@@ -243,8 +251,9 @@ const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
                   Rp
                 </Text>
               }
-              value={hasVal ? numberFormat(creditVal) : ''}
+              value={shown(`${accountKey(item)}:credit`, hasVal ? numberFormat(creditVal) : '')}
               onChange={(e) => handleValueChange(accountKey(item), 'credit', e.target.value)}
+              onBlur={() => setDraft(null)}
               styles={{
                 root: {
                   width: '100%',
@@ -253,23 +262,25 @@ const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
                   textAlign: 'right',
                   fontFamily: 'monospace',
                   fontWeight: hasVal ? 700 : 400,
-                  fontSize: 13,
+                  fontSize: 'var(--jurnal-text-sm)',
                   color: hasVal ? 'var(--mantine-color-red-8)' : 'inherit',
                   backgroundColor: hasVal
                     ? 'var(--mantine-color-red-0)'
                     : isNormalCredit
-                      ? '#FFFFFF'
-                      : '#F8FAFC',
+                      ? 'var(--mantine-color-white)'
+                      : 'var(--mantine-color-slate-0)',
                   borderColor: hasVal
                     ? 'var(--mantine-color-red-5)'
                     : isNormalCredit
                       ? 'var(--mantine-color-red-2)'
                       : 'var(--mantine-color-gray-3)',
-                  boxShadow: isNormalCredit ? '0 1px 2px rgba(0,0,0,0.02)' : 'none',
+                  boxShadow: isNormalCredit
+                    ? '0 1px 2px color-mix(in srgb, var(--mantine-color-black) 2%, transparent)'
+                    : 'none',
                   transition: 'all 150ms ease',
                   '&:focus': {
                     borderColor: 'var(--mantine-color-red-6)',
-                    backgroundColor: '#FFFFFF',
+                    backgroundColor: 'var(--mantine-color-white)',
                   },
                 },
               }}

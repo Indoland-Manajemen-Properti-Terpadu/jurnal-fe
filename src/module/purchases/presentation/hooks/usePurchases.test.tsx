@@ -95,7 +95,7 @@ describe('usePurchases characterization', () => {
     expect(bill.subtotal).toBe(400);
   });
 
-  it('pays part of a bill, then settles it, never going below zero remaining', () => {
+  it('pays part of a bill, then settles it, and rejects an overpayment', () => {
     const { result } = renderHook(() => usePurchases());
     const pay = (amount: number) =>
       act(() => {
@@ -118,7 +118,15 @@ describe('usePurchases characterization', () => {
 
     pay(5000000);
     bill = storedBills().find((b: { id: string }) => b.id === 'bill-004');
-    expect(bill).toMatchObject({ paidAmount: 8500000, remainingAmount: 0, status: 'PAID' });
+    expect(bill).toMatchObject({
+      paidAmount: 3500000,
+      remainingAmount: 1495000,
+      status: 'PARTIAL',
+    });
+
+    pay(1495000);
+    bill = storedBills().find((b: { id: string }) => b.id === 'bill-004');
+    expect(bill).toMatchObject({ paidAmount: 4995000, remainingAmount: 0, status: 'PAID' });
   });
 
   it('deletes a bill and persists the list', () => {

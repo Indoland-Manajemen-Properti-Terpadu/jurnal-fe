@@ -1,5 +1,5 @@
 import type { StoryObj } from '@storybook/react';
-import MOCKS from '@/../public/mocks/StatsGrid.json';
+import MOCKS from './StatsGrid.mock.json';
 
 import StatsGrid from './StatsGrid';
 

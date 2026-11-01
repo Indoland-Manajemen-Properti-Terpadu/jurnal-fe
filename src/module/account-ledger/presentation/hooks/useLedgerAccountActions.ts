@@ -57,7 +57,7 @@ export const useLedgerAccountActions = ({ idAccount, variant, isArchived }: Opti
       {
         onSuccess: () => {
           setIsDeleteModalOpen(false);
-          navigate(routes.generalJournal.main);
+          navigate(routes.chartOfAccounts.main);
         },
       }
     );

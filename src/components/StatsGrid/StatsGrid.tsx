@@ -1,8 +1,8 @@
 import { PaperProps, SimpleGrid, Skeleton } from '@mantine/core';
 import StatsCard from '@/components/StatsCard/StatsCard';
-import classes from './StatsGrid.module.css';
 import { ReactNode } from 'react';
 import { ErrorAlert } from '@/components';
+import classes from './StatsGrid.module.css';
 
 type StatsGridProps = {
   data?: { title: string; value: string; amount: number; diff: number; period?: string }[];
@@ -26,8 +26,8 @@ export default function StatsGrid({ data, loading, error, paperProps }: StatsGri
         >
           {loading
             ? Array.from({ length: 4 }).map((o, i) => (
-              <Skeleton key={`stats-loading-${i}`} visible={true} height={200} />
-            ))
+                <Skeleton key={`stats-loading-${i}`} visible height={200} />
+              ))
             : stats}
         </SimpleGrid>
       )}

@@ -1,0 +1,180 @@
+.control {
+  position: relative;
+  width: 100%;
+  height: rem(42px);
+  display: flex;
+  align-items: center;
+  color: var(--mantine-color-slate-6);
+  font-size: rem(14px);
+  line-height: rem(20px);
+  font-weight: 500;
+  padding: rem(8px) rem(10px);
+  border-radius: rem(12px);
+  margin-bottom: rem(4px);
+  transition:
+    background-color 150ms ease,
+    color 150ms ease,
+    box-shadow 200ms ease,
+    transform 150ms ease;
+
+  &:hover {
+    background-color: color-mix(in srgb, var(--mantine-color-primary-6) 5%, transparent);
+    color: var(--mantine-color-slate-9);
+  }
+
+  &[data-active] {
+    color: var(--mantine-color-white);
+    font-weight: 600;
+    background: linear-gradient(135deg, var(--mantine-color-primary-6) 0%, var(--mantine-color-primary-7) 60%, var(--mantine-color-secondary-6) 140%);
+    box-shadow:
+      0 1px 0 color-mix(in srgb, var(--mantine-color-white) 25%, transparent) inset,
+      0 10px 22px -10px color-mix(in srgb, var(--mantine-color-primary-6) 70%, transparent);
+  }
+}
+
+.control[data-collapsed] {
+  justify-content: center;
+  padding: rem(8px);
+}
+
+.label {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.subtree {
+  position: relative;
+  margin: rem(3px) 0 rem(6px) rem(21px);
+  padding-left: rem(14px);
+  display: flex;
+  flex-direction: column;
+  gap: rem(2px);
+}
+
+.subtree::before {
+  position: absolute;
+  top: rem(2px);
+  bottom: rem(4px);
+  left: 0;
+  width: rem(1.5px);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--mantine-color-primary-6) 22%, transparent) 0%,
+    color-mix(in srgb, var(--mantine-color-slate-3) 45%, transparent) 100%
+  );
+  border-radius: rem(2px);
+  content: '';
+}
+
+.subLink {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: rem(36px);
+  padding: rem(7px) rem(12px) rem(7px) rem(10px);
+  border-radius: rem(9px);
+  color: var(--mantine-color-slate-5);
+  font-size: rem(13px);
+  line-height: rem(18px);
+  font-weight: 500;
+  text-decoration: none;
+  background-color: transparent;
+  border: rem(1px) solid transparent;
+  cursor: pointer;
+  transition:
+    background-color 140ms ease,
+    color 140ms ease,
+    border-color 140ms ease,
+    box-shadow 140ms ease,
+    transform 140ms ease;
+
+  &:hover {
+    color: var(--mantine-color-slate-9);
+    background-color: color-mix(in srgb, var(--mantine-color-primary-6) 4%, transparent);
+    transform: translateX(rem(2px));
+
+    .subIcon {
+      color: var(--mantine-color-primary-6);
+    }
+
+    .bullet {
+      background-color: var(--mantine-color-slate-5);
+      transform: scale(1.15);
+    }
+  }
+
+  &[data-active] {
+    color: var(--mantine-color-primary-6);
+    font-weight: 600;
+    background: linear-gradient(90deg, color-mix(in srgb, var(--mantine-color-primary-6) 8%, transparent) 0%, color-mix(in srgb, var(--mantine-color-secondary-6) 4%, transparent) 100%);
+    border-color: color-mix(in srgb, var(--mantine-color-primary-6) 14%, transparent);
+    box-shadow: 0 rem(2px) rem(6px) -rem(2px) color-mix(in srgb, var(--mantine-color-primary-6) 8%, transparent);
+
+    .subIcon {
+      color: var(--mantine-color-primary-6);
+    }
+
+    .bullet {
+      background-color: var(--mantine-color-primary-6);
+      transform: scale(1.2);
+      box-shadow: 0 0 0 rem(3px) color-mix(in srgb, var(--mantine-color-secondary-6) 25%, transparent);
+    }
+  }
+}
+
+.subLink[data-active]::before {
+  position: absolute;
+  left: rem(-15px);
+  top: 50%;
+  transform: translateY(-50%);
+  width: rem(3px);
+  height: rem(16px);
+  background: linear-gradient(180deg, var(--mantine-color-primary-6) 0%, var(--mantine-color-secondary-6) 100%);
+  border-radius: rem(4px);
+  box-shadow: 0 0 rem(6px) color-mix(in srgb, var(--mantine-color-primary-6) 35%, transparent);
+  content: '';
+}
+
+.subIcon {
+  color: var(--mantine-color-slate-4);
+  flex-shrink: 0;
+  transition:
+    color 140ms ease,
+    transform 140ms ease;
+}
+
+.bullet {
+  display: inline-block;
+  width: rem(6px);
+  height: rem(6px);
+  border-radius: 50%;
+  background-color: var(--mantine-color-slate-3);
+  flex-shrink: 0;
+  transition:
+    background-color 140ms ease,
+    transform 140ms ease,
+    box-shadow 140ms ease;
+}
+
+.subLabel {
+  flex: 1;
+  font-size: rem(13px);
+  line-height: rem(18px);
+  color: inherit;
+  font-weight: inherit;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chevron {
+  transition: transform 150ms ease;
+}
+
+.chevron[data-rotate] {
+  transform: rotate(90deg);
+}

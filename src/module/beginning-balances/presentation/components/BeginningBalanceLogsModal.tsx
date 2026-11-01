@@ -16,8 +16,8 @@ import {
 } from '@mantine/core';
 import { IconHistory, IconCheck, IconFileText, IconCalendar, IconUser } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
-import { formatDate } from '@/utils/FormatDate';
-import { formatCurrency } from '@/utils/FormatCurrency';
+import { formatDate } from '@/utils/formatDate';
+import { formatCurrency } from '@/utils/formatCurrency';
 import { useDraftBalanceLogs } from '../hooks/useDraftBalance';
 
 interface BeginningBalanceLogsModalProps {
@@ -47,7 +47,7 @@ export const BeginningBalanceLogsModal: React.FC<BeginningBalanceLogsModalProps>
             <IconHistory size={18} />
           </ThemeIcon>
           <div>
-            <Text fw={700} fz={16} c="dark.8">
+            <Text fw={700} fz="var(--jurnal-text-md)" c="dark.8">
               {t('logs.title')}
             </Text>
             <Text size="xs" c="dimmed">
@@ -59,7 +59,7 @@ export const BeginningBalanceLogsModal: React.FC<BeginningBalanceLogsModalProps>
       styles={{
         header: {
           padding: '16px 20px',
-          borderBottom: '1px solid #E5E7EB',
+          borderBottom: '1px solid var(--mantine-color-gray-2)',
         },
         body: {
           padding: '20px',

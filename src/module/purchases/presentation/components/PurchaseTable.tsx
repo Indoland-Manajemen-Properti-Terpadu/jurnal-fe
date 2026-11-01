@@ -19,7 +19,7 @@ import {
   IconUser,
 } from '@tabler/icons-react';
 import { EmptyState } from '@/components/EmptyState/EmptyState';
-import { formatCurrency } from '@/utils/FormatCurrency';
+import { formatCurrency } from '@/utils/formatCurrency';
 import { PurchaseBill } from '@/module/purchases/domain/purchase';
 import { paidPercent } from '@/module/purchases/domain/purchaseTotals';
 import { useTranslation } from '@/i18n';

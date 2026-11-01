@@ -20,7 +20,7 @@ import {
 import { DateInput } from '@mantine/dates';
 import dayjs from 'dayjs';
 import { IconPlus, IconReceipt2, IconTrash } from '@tabler/icons-react';
-import { formatCurrency } from '@/utils/FormatCurrency';
+import { formatCurrency } from '@/utils/formatCurrency';
 import { CreatePurchaseFormValues } from '@/module/purchases/domain/purchase';
 import { calculateTotals } from '@/module/purchases/domain/purchaseTotals';
 import { useTranslation } from '@/i18n';

@@ -3,7 +3,7 @@ import { Alert, Button, Center, Container, Loader, Stack, Text, Title } from '@m
 import { IconAlertCircle } from '@tabler/icons-react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
-import AppShellLayout from '@/components/AppShellLayout';
+import { AppShellLayout } from '@/components/AppShellLayout';
 import { accountDetailData, useDetailAccount } from '@/module/chart-of-accounts';
 import { useJournalEntriesByAccount, type JournalEntryByAccount } from '@/module/journal-entries';
 import { summarizeMutations, unwrapAccountDetail } from '../../domain/ledgerSummary';
@@ -190,7 +190,7 @@ const AccountLedgerContent: React.FC<AccountLedgerPageProps> = ({ variant }) => 
 };
 
 /**
- * Ledger of one account (routes `detailAccount` and `detailAccountNonCB`). Keyed by variant: both
+ * Ledger of one account (routes `accountLedger.cashBank` and `accountLedger.nonCashBank`). Keyed by variant: both
  * routes render this component, and the tab ids differ, so a switch between them must remount.
  */
 const AccountLedgerPage: React.FC<AccountLedgerPageProps> = ({ variant }) => (

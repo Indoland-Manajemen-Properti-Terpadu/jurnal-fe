@@ -1,6 +1,6 @@
 import { Box, Group, Paper, SimpleGrid, Skeleton, Text, ThemeIcon } from '@mantine/core';
 import { IconCoins, IconScale, IconTool, IconTrendingDown } from '@tabler/icons-react';
-import { formatCurrency } from '@/utils/FormatCurrency';
+import { formatCurrency } from '@/utils/formatCurrency';
 import { AssetItem } from '@/module/assets/domain/asset';
 import { summarizeAssets } from '@/module/assets/domain/depreciation';
 import { useTranslation } from '@/i18n';

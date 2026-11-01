@@ -1,0 +1,69 @@
+/*
+ * Global stylesheet. Imported once by App.tsx after the Mantine stylesheets.
+ * Holds only cascade setup, base element rules and third-party overrides; component
+ * styling lives in CSS modules and src/theme. Values come from the `--jurnal-*`
+ * variables that src/theme/cssVariables.ts generates.
+ */
+
+/* Mantine's stylesheets are unlayered, so they beat these layers. Tailwind runs without
+   preflight so it cannot reset Mantine. */
+@layer mantine, mantine-datatable, theme, base, components, utilities;
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/utilities.css' layer(utilities);
+
+body {
+  font-family: var(--jurnal-font-family);
+}
+
+/* Scrollbar (WebKit/Blink) */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--jurnal-color-surface-muted);
+  border-radius: var(--mantine-radius-sm);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--mantine-color-gray-5);
+  border-radius: var(--mantine-radius-sm);
+  transition: background var(--jurnal-duration-fast) var(--jurnal-ease-standard);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--mantine-color-gray-6);
+}
+
+/* mantine-datatable */
+.mantine-datatable {
+  border-radius: var(--mantine-radius-md);
+  overflow: hidden;
+}
+
+.mantine-datatable-header {
+  background-color: var(--jurnal-color-bg-subtle);
+  font-weight: var(--jurnal-font-weight-medium);
+  font-size: var(--jurnal-text-sm);
+}
+
+.mantine-datatable-row:hover {
+  background-color: var(--jurnal-color-bg-subtle);
+  transition: background-color var(--jurnal-duration-fast) var(--jurnal-ease-standard);
+}
+
+.mantine-datatable-empty-state {
+  padding: var(--jurnal-space-10) var(--jurnal-space-5);
+}
+
+.mantine-datatable-pagination {
+  padding: var(--jurnal-space-4);
+  border-top: 1px solid var(--jurnal-color-border-muted);
+}
+
+@media print {
+  body {
+    background: var(--jurnal-color-white);
+  }
+}

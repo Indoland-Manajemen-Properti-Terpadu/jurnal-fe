@@ -106,8 +106,8 @@ export const LedgerHeader: React.FC<LedgerHeaderProps> = ({
       title={account.name || t(`${variant}.headerFallbackTitle`)}
       description={description}
       breadcrumbs={[
-        { label: t('common.breadcrumbRoot'), to: routes.generalJournal.main },
-        { label: breadcrumbSection, to: routes.generalJournal.main },
+        { label: t('common.breadcrumbRoot'), to: routes.chartOfAccounts.main },
+        { label: breadcrumbSection, to: routes.chartOfAccounts.main },
         { label: `${account.name} (${account.accountNumber})` },
       ]}
       actions={
@@ -116,7 +116,7 @@ export const LedgerHeader: React.FC<LedgerHeaderProps> = ({
             variant="default"
             size="sm"
             leftSection={<IconArrowLeft size={16} />}
-            onClick={() => navigate(routes.generalJournal.main)}
+            onClick={() => navigate(routes.chartOfAccounts.main)}
           >
             {t('common.back')}
           </Button>
@@ -126,9 +126,7 @@ export const LedgerHeader: React.FC<LedgerHeaderProps> = ({
             size="sm"
             color="primary"
             leftSection={<IconPencil size={16} />}
-            onClick={() =>
-              navigate(routes.generalJournal.editAccountJournal.replace(':idAccount', idAccount))
-            }
+            onClick={() => navigate(routes.chartOfAccounts.edit.replace(':idAccount', idAccount))}
           >
             {t('common.editAccount')}
           </Button>

@@ -1,0 +1,78 @@
+.navbar {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  background:
+    radial-gradient(420px 260px at 0% 0%, color-mix(in srgb, var(--mantine-color-secondary-6) 10%, transparent), transparent 70%),
+    radial-gradient(360px 240px at 100% 100%, color-mix(in srgb, var(--mantine-color-primary-6) 8%, transparent), transparent 70%),
+    linear-gradient(180deg, var(--mantine-color-white) 0%, var(--mantine-color-slate-0) 100%);
+  border-right: rem(1px) solid color-mix(in srgb, var(--mantine-color-slate-9) 6%, transparent);
+}
+
+.header {
+  height: rem(72px);
+  padding: 0 rem(16px);
+  display: flex;
+  align-items: center;
+  border-bottom: rem(1px) solid color-mix(in srgb, var(--mantine-color-slate-9) 6%, transparent);
+}
+
+.links {
+  flex: 1;
+}
+
+.linksInner {
+  padding: rem(16px) rem(14px);
+}
+
+.footer {
+  padding: rem(14px);
+  border-top: rem(1px) solid color-mix(in srgb, var(--mantine-color-slate-9) 6%, transparent);
+}
+
+.userCard {
+  display: flex;
+  align-items: center;
+  gap: rem(10px);
+  padding: rem(10px);
+  border-radius: rem(14px);
+  background: color-mix(in srgb, var(--mantine-color-white) 75%, transparent);
+  border: rem(1px) solid color-mix(in srgb, var(--mantine-color-slate-9) 6%, transparent);
+  box-shadow: 0 8px 20px -14px color-mix(in srgb, var(--mantine-color-primary-6) 35%, transparent);
+}
+
+.navbar[data-collapsed] .userCard {
+  justify-content: center;
+  padding: rem(8px);
+}
+
+.logout {
+  display: grid;
+  place-items: center;
+  width: rem(34px);
+  height: rem(34px);
+  border-radius: rem(10px);
+  color: var(--jurnal-color-danger);
+  transition: background-color 120ms ease;
+}
+
+.logout:hover {
+  background-color: var(--jurnal-color-danger-subtle);
+}
+
+.linkHeader {
+  color: var(--mantine-color-slate-4);
+  font-size: rem(11px);
+  font-weight: 700;
+  line-height: rem(16px);
+  letter-spacing: rem(1px);
+  white-space: nowrap;
+}
+
+.navbar[data-collapsed] .linkHeader {
+  text-align: center;
+  padding-left: 0;
+}

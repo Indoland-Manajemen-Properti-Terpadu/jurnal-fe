@@ -6,7 +6,7 @@ import {
   IconScale,
 } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
-import { formatCurrency } from '@/utils/FormatCurrency';
+import { formatCurrency } from '@/utils/formatCurrency';
 import type { MutationSummary } from '../../domain/ledgerSummary';
 import type { NormalSide } from '../../domain/normalBalance';
 import { LedgerKpiCard } from './LedgerKpiCard';

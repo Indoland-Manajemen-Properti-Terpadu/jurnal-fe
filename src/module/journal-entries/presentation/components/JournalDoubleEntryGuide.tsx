@@ -13,10 +13,10 @@ export const JournalDoubleEntryGuide: React.FC = () => {
           <IconBulb size={16} />
         </ThemeIcon>
         <div>
-          <Text fw={700} fz={13} c="dark.8">
+          <Text fw={700} fz="var(--jurnal-text-sm)" c="dark.8">
             {t('guide.title')}
           </Text>
-          <Text fz={11} c="dimmed">
+          <Text fz="var(--jurnal-text-xs)" c="dimmed">
             {t('guide.subtitle')}
           </Text>
         </div>
@@ -25,14 +25,14 @@ export const JournalDoubleEntryGuide: React.FC = () => {
       <Accordion variant="separated" radius="md" defaultValue="double-entry">
         <Accordion.Item value="double-entry">
           <Accordion.Control icon={<IconScale size={16} color={themeColors.primary[6]} />}>
-            <Text fz={12} fw={600}>
+            <Text fz="var(--jurnal-text-xs)" fw={600}>
               {t('guide.normalTitle')}
             </Text>
           </Accordion.Control>
           <Accordion.Panel>
-            <Stack gap={6} fz={11}>
+            <Stack gap={6} fz="var(--jurnal-text-xs)">
               <Group justify="space-between">
-                <Text fz={11} c="dimmed">
+                <Text fz="var(--jurnal-text-xs)" c="dimmed">
                   <Text span fw={700} c="dark.8">
                     {t('guide.assetExpense')}
                   </Text>
@@ -42,7 +42,7 @@ export const JournalDoubleEntryGuide: React.FC = () => {
                 </Badge>
               </Group>
               <Group justify="space-between">
-                <Text fz={11} c="dimmed">
+                <Text fz="var(--jurnal-text-xs)" c="dimmed">
                   <Text span fw={700} c="dark.8">
                     {t('guide.liabilityEquity')}
                   </Text>
@@ -52,7 +52,7 @@ export const JournalDoubleEntryGuide: React.FC = () => {
                 </Badge>
               </Group>
               <Group justify="space-between">
-                <Text fz={11} c="dimmed">
+                <Text fz="var(--jurnal-text-xs)" c="dimmed">
                   <Text span fw={700} c="dark.8">
                     {t('guide.income')}
                   </Text>
@@ -67,14 +67,14 @@ export const JournalDoubleEntryGuide: React.FC = () => {
 
         <Accordion.Item value="checklist">
           <Accordion.Control icon={<IconChecklist size={16} color={themeColors.secondary[6]} />}>
-            <Text fz={12} fw={600}>
+            <Text fz="var(--jurnal-text-xs)" fw={600}>
               {t('guide.rulesTitle')}
             </Text>
           </Accordion.Control>
           <Accordion.Panel>
             <List size="xs" spacing={4} c="dimmed">
               <List.Item>
-                <Text span fz={11}>
+                <Text span fz="var(--jurnal-text-xs)">
                   {t('guide.rule1Before')}{' '}
                   <Text span fw={600} c="dark.8">
                     {t('guide.rule1Strong')}
@@ -83,7 +83,7 @@ export const JournalDoubleEntryGuide: React.FC = () => {
                 </Text>
               </List.Item>
               <List.Item>
-                <Text span fz={11}>
+                <Text span fz="var(--jurnal-text-xs)">
                   {t('guide.rule2Before')}{' '}
                   <Text span fw={600} c="dark.8">
                     {t('guide.rule2Strong')}
@@ -92,12 +92,12 @@ export const JournalDoubleEntryGuide: React.FC = () => {
                 </Text>
               </List.Item>
               <List.Item>
-                <Text span fz={11}>
+                <Text span fz="var(--jurnal-text-xs)">
                   {t('guide.rule3')}
                 </Text>
               </List.Item>
               <List.Item>
-                <Text span fz={11}>
+                <Text span fz="var(--jurnal-text-xs)">
                   {t('guide.rule4')}
                 </Text>
               </List.Item>

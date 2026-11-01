@@ -23,16 +23,17 @@ export const useUpdateAccount = (accountId: string) => {
         title: t('toast.updateOkTitle', undefined, NS),
         message: t('toast.updateOkMsg', undefined, NS),
       });
-      navigate(routes.generalJournal.main);
+      navigate(routes.chartOfAccounts.main);
     },
-    onError: (error: any) => {
+    onError: (error) => {
+      const apiError = error as Error & { response?: { data?: { message?: string } } };
       notifications.show({
         color: 'red',
         autoClose: 5000,
         title: t('toast.updateFailTitle', undefined, NS),
         message:
-          error?.response?.data?.message ||
-          error?.message ||
+          apiError.response?.data?.message ||
+          apiError.message ||
           t('toast.updateFailMsg', undefined, NS),
       });
     },

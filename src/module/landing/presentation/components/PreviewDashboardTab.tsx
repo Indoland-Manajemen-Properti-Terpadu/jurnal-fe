@@ -47,7 +47,7 @@ export function PreviewDashboardTab() {
             {t('preview.dashboard.autoPosted')}
           </Badge>
         </Group>
-        <div style={{ display: 'grid', gap: 8, fontSize: 13 }}>
+        <div style={{ display: 'grid', gap: 8, fontSize: 'var(--jurnal-text-sm)' }}>
           {LEDGER_ENTRIES.map((entry) => (
             <div
               key={entry.id}
@@ -55,14 +55,14 @@ export function PreviewDashboardTab() {
                 display: 'flex',
                 justifyContent: 'space-between',
                 padding: '8px 12px',
-                background: '#f8fafc',
+                background: 'var(--mantine-color-slate-0)',
                 borderRadius: 6,
               }}
             >
               <span>
                 <strong>{entry.ref}</strong> {t(`preview.dashboard.entries.${entry.id}`)}
               </span>
-              <span style={{ fontWeight: 700, color: '#047857' }}>
+              <span style={{ fontWeight: 700, color: 'var(--mantine-color-emerald-7)' }}>
                 {t('preview.dashboard.balancedAmount', { amount: entry.amount })}
               </span>
             </div>

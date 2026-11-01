@@ -1,6 +1,6 @@
 import { Badge, Box, Group, Paper, Table, Text } from '@mantine/core';
 import { useTranslation } from '@/i18n';
-import { formatCurrency } from '@/utils/FormatCurrency';
+import { formatCurrency } from '@/utils/formatCurrency';
 import { AssetItem, DepreciationScheduleItem } from '@/module/assets/domain/asset';
 import { isNonDepreciable } from '@/module/assets/domain/depreciation';
 
@@ -12,7 +12,7 @@ export type AssetDetailScheduleCardProps = {
 const NUMBER_CELL = {
   textAlign: 'right',
   fontVariantNumeric: 'tabular-nums',
-  fontSize: 13,
+  fontSize: 'var(--jurnal-text-sm)',
 } as const;
 
 export function AssetDetailScheduleCard({
@@ -67,7 +67,13 @@ export function AssetDetailScheduleCard({
                     {t('yearShort', { number: row.yearNumber })}
                   </Badge>
                 </Table.Td>
-                <Table.Td style={{ textAlign: 'center', fontWeight: 600, fontSize: 13 }}>
+                <Table.Td
+                  style={{
+                    textAlign: 'center',
+                    fontWeight: 600,
+                    fontSize: 'var(--jurnal-text-sm)',
+                  }}
+                >
                   {row.yearDate}
                 </Table.Td>
                 <Table.Td style={NUMBER_CELL}>{formatCurrency(row.beginningBookValue)}</Table.Td>

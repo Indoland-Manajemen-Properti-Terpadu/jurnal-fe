@@ -4,8 +4,8 @@ The ledger screen of one account: header with the account actions, KPI row and a
 
 ## Routes (unchanged, rendered by the router with a `variant`)
 
-- `/general-journal/detail-account-cb/:idAccount` (`routes.generalJournal.detailAccount`): `<AccountLedgerPage variant="cashBank" />`. Four tabs: journal entries, bank statement, bank reconciliation, cash mapping. KPI: ledger balance, bank balance, reconciliation status, entry count. Orange alert when bank rows are unreconciled.
-- `/general-journal/detail-account/:idAccount` (`routes.generalJournal.detailAccountNonCB`): `<AccountLedgerPage variant="nonCashBank" />`. Two tabs: movements and account information. KPI: balance, normal side, total debit, total credit.
+- `/general-journal/detail-account-cb/:idAccount` (`routes.accountLedger.cashBank`): `<AccountLedgerPage variant="cashBank" />`. Four tabs: journal entries, bank statement, bank reconciliation, cash mapping. KPI: ledger balance, bank balance, reconciliation status, entry count. Orange alert when bank rows are unreconciled.
+- `/general-journal/detail-account/:idAccount` (`routes.accountLedger.nonCashBank`): `<AccountLedgerPage variant="nonCashBank" />`. Two tabs: movements and account information. KPI: balance, normal side, total debit, total credit.
 
 ## Public API (`index.ts`)
 

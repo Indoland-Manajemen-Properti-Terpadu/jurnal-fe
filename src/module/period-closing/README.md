@@ -2,7 +2,7 @@
 
 **UI prototype, no backend.** Period lock and closing the books: a start modal, a trial balance working paper, a financial statement preview (trial balance, income statement, balance sheet, cash flow) and a list page. No request is made to save, lock or close anything. Do not present it as a working feature.
 
-- **Routes** (`src/router/routes.ts`, unchanged): `routes.generalJournal.closingBooks` (`/settings/general-journal/closing-books`), `routes.PeriodAndClosingBook.FinancialStatement` (`/settings/general-journal/period-lock/financial-statement`), `routes.PeriodAndClosingBook.ListPLandCB` (`/settings/general-journal/closing-books/list/period-lock`).
+- **Routes** (`src/router/routes.ts`, unchanged): `routes.periodClosing.closingBooks` (`/settings/general-journal/closing-books`), `routes.periodClosing.financialStatement` (`/settings/general-journal/period-lock/financial-statement`), `routes.periodClosing.list` (`/settings/general-journal/closing-books/list/period-lock`).
 - **Public API (`index.ts`):** `ClosingBooksPage`, `FinancialStatementPage`, `PeriodClosingListPage` (router) and `PeriodAndClosingBooksModal` (opened from the General Journal page).
 - **Endpoints:** none. The only data call is the account list through `useJournalAccounts` from `@/module/chart-of-accounts`; the report tables group and display it.
 - **Layers:** `domain/` (`reportTotals.ts` sums and grouping, `prototypeData.ts` fixed placeholder figures), `presentation/pages`, `presentation/components`, `presentation/store/usePeriodModals.ts` (Zustand flags of the modal flow, moved from `src/store/useModals.ts`).
