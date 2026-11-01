@@ -7,9 +7,10 @@ import { render, screen, waitFor } from '@test-utils';
 import { useI18nStore } from '@/i18n/store';
 import { ProfilePage } from '@/module/profile';
 
-const { getMock, patchMock, showMock } = vi.hoisted(() => ({
+const { getMock, patchMock, postMock, showMock } = vi.hoisted(() => ({
   getMock: vi.fn(),
   patchMock: vi.fn(),
+  postMock: vi.fn(),
   showMock: vi.fn(),
 }));
 
@@ -20,11 +21,10 @@ vi.mock('@/components/AppShellLayout', () => ({
 vi.mock('@mantine/notifications', () => ({ notifications: { show: showMock } }));
 
 vi.mock('@/lib/http/apiClient', () => ({
-  get: (...args: unknown[]) => getMock(...args),
-  patch: (...args: unknown[]) => patchMock(...args),
   default: {
-    get: async (...args: unknown[]) => ({ data: await getMock(...args) }),
-    patch: async (...args: unknown[]) => ({ data: await patchMock(...args) }),
+    get: async (url: string) => ({ data: await getMock(url) }),
+    patch: async (url: string, body: unknown) => ({ data: await patchMock(url, body) }),
+    post: async (url: string, body: unknown) => ({ data: await postMock(url, body) }),
   },
 }));
 
@@ -32,13 +32,30 @@ const user = {
   id: 'user-1',
   name: 'Budi Santoso',
   email: 'budi@example.com',
-  role: 'admin',
-  accessRole: [],
+  role: 'user',
+  isActive: true,
   isEmailVerified: true,
-  site: { id: 'site-1', name: 'Site Jakarta' },
+  accessRole: [{ id: 'r1', name: 'Kasir', description: 'Mengelola penjualan\nDan kas' }],
+  site: { id: 'site-1', name: 'Site Jakarta', external_site_id: '991276' },
   createdAt: '2026-03-15T12:00:00.000Z',
   updatedAt: '2026-04-20T12:00:00.000Z',
 };
+
+const rights = (extra: Record<string, boolean | string> = {}) => ({
+  menuId: 'JP-SALES',
+  name: 'Sales',
+  read: true,
+  create: false,
+  update: false,
+  delete: false,
+  ...extra,
+});
+
+const serve = (profile: object = user, permissions: object[] = [rights()], role = 'user') =>
+  getMock.mockImplementation(async (url: string) => {
+    if (url.endsWith('/permissions')) return { role, permissions };
+    return profile;
+  });
 
 const renderPage = () => {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -53,130 +70,138 @@ const renderPage = () => {
 
 describe('<ProfilePage />', () => {
   beforeEach(() => {
-    getMock.mockReset().mockResolvedValue(user);
-    patchMock.mockReset().mockResolvedValue({ code: 200, data: {} });
+    serve();
+    patchMock.mockReset().mockResolvedValue({});
+    postMock.mockReset().mockResolvedValue('');
     showMock.mockClear();
   });
   afterEach(() => act(() => useI18nStore.getState().setLanguage('id')));
 
-  it('shows the loading text, then the fetched user in the hero', async () => {
+  it('shows who the user is: name, email, status, role, site and dates', async () => {
     renderPage();
 
-    expect(screen.getByText('Memuat profil pengguna...')).toBeInTheDocument();
     expect(await screen.findByRole('heading', { name: 'Budi Santoso' })).toBeInTheDocument();
-    expect(screen.getAllByText('Terverifikasi').length).toBeGreaterThan(0);
-    expect(screen.getByText('Bergabung: 15 Maret 2026')).toBeInTheDocument();
-    expect(screen.getByText('Site: Site Jakarta')).toBeInTheDocument();
-    expect(screen.getByText('Aktif & Terverifikasi')).toBeInTheDocument();
+    expect(screen.getByText('budi@example.com')).toBeInTheDocument();
+    expect(screen.getByText('Akun aktif')).toBeInTheDocument();
+    expect(screen.getByText('Email terverifikasi')).toBeInTheDocument();
+    expect(screen.getByText('Kasir')).toBeInTheDocument();
+    expect(screen.getAllByText('Site Jakarta').length).toBeGreaterThan(0);
+    expect(screen.getByText('15 Maret 2026')).toBeInTheDocument();
   });
 
-  it('keeps save disabled until a field changes, then patches trimmed values', async () => {
+  it('follows the language for dates and labels', async () => {
+    renderPage();
+    await screen.findByRole('heading', { name: 'Budi Santoso' });
+
+    act(() => useI18nStore.getState().setLanguage('en'));
+
+    expect(await screen.findByText('March 15, 2026')).toBeInTheDocument();
+    expect(screen.getByText('Account active')).toBeInTheDocument();
+  });
+
+  it('keeps name and email read-only for someone who cannot manage users', async () => {
+    renderPage();
+    await screen.findByRole('heading', { name: 'Budi Santoso' });
+
+    expect(screen.getByLabelText('Nama lengkap')).toHaveAttribute('readonly');
+    expect(screen.getByText(/hanya dapat diubah oleh administrator/)).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Simpan Perubahan' })).toBeNull();
+  });
+
+  it('lets someone who may update users edit, with save off until something changes', async () => {
+    serve(user, [rights({ menuId: 'JP-SETT-UM', name: 'User Management', update: true })]);
     const actor = userEvent.setup();
     renderPage();
     await screen.findByRole('heading', { name: 'Budi Santoso' });
-    await waitFor(() => expect(screen.getByLabelText(/Nama Lengkap/)).toHaveValue('Budi Santoso'));
-    const save = screen.getByRole('button', { name: 'Simpan Perubahan' });
+    const save = await screen.findByRole('button', { name: 'Simpan Perubahan' });
     expect(save).toBeDisabled();
 
-    const nameInput = screen.getByLabelText(/Nama Lengkap/);
-    await actor.clear(nameInput);
-    await actor.type(nameInput, '  Budi Baru  ');
+    const name = screen.getByLabelText(/Nama lengkap/);
+    await actor.clear(name);
+    await actor.type(name, '  Budi S  ');
     expect(save).toBeEnabled();
     await actor.click(save);
 
-    await waitFor(() =>
-      expect(patchMock).toHaveBeenCalledWith('/v1/users/user-1', {
-        name: 'Budi Baru',
-        email: 'budi@example.com',
-      })
-    );
-    await waitFor(() =>
-      expect(showMock).toHaveBeenCalledWith({
-        color: 'teal',
-        title: 'Berhasil',
-        message: 'Perubahan profil berhasil disimpan.',
-      })
-    );
+    await waitFor(() => expect(patchMock).toHaveBeenCalledTimes(1));
+    expect(patchMock).toHaveBeenCalledWith('/v1/users/user-1', {
+      name: 'Budi S',
+      email: 'budi@example.com',
+    });
+    expect(showMock).toHaveBeenCalledWith(expect.objectContaining({ color: 'teal' }));
   });
 
-  it('rejects an empty name with a validation notification and no request', async () => {
+  it('changes the password with the current one and signs out afterwards', async () => {
+    localStorage.setItem('accessToken', 'token');
     const actor = userEvent.setup();
     renderPage();
     await screen.findByRole('heading', { name: 'Budi Santoso' });
-    await waitFor(() => expect(screen.getByLabelText(/Nama Lengkap/)).toHaveValue('Budi Santoso'));
+    await actor.click(screen.getByRole('tab', { name: /Keamanan/ }));
 
-    await actor.clear(screen.getByLabelText(/Nama Lengkap/));
-    await actor.type(screen.getByLabelText(/Nama Lengkap/), '   ');
-    await actor.click(screen.getByRole('button', { name: 'Simpan Perubahan' }));
-
-    await waitFor(() =>
-      expect(showMock).toHaveBeenCalledWith({
-        color: 'red',
-        title: 'Validasi Gagal',
-        message: 'Nama dan email tidak boleh kosong.',
-      })
-    );
-    expect(patchMock).not.toHaveBeenCalled();
-  });
-
-  it('restores the fetched values on cancel', async () => {
-    const actor = userEvent.setup();
-    renderPage();
-    await screen.findByRole('heading', { name: 'Budi Santoso' });
-    await waitFor(() => expect(screen.getByLabelText(/Nama Lengkap/)).toHaveValue('Budi Santoso'));
-
-    await actor.type(screen.getByLabelText(/Nama Lengkap/), 'X');
-    await actor.click(screen.getByRole('button', { name: 'Batal' }));
-
-    expect(screen.getByLabelText(/Nama Lengkap/)).toHaveValue('Budi Santoso');
-  });
-
-  it('enables the password submit only for 8+ characters that match, and patches the password', async () => {
-    const actor = userEvent.setup();
-    renderPage();
-    await screen.findByRole('heading', { name: 'Budi Santoso' });
-    await waitFor(() => expect(screen.getByLabelText(/Nama Lengkap/)).toHaveValue('Budi Santoso'));
-    await actor.click(screen.getByRole('tab', { name: /Keamanan & Kata Sandi/ }));
-
-    const submit = screen.getByRole('button', { name: 'Perbarui Kata Sandi' });
-    await actor.type(screen.getByLabelText(/^Kata Sandi Baru/), 'abc12345');
+    const submit = screen.getByRole('button', { name: 'Ganti Kata Sandi' });
     expect(submit).toBeDisabled();
-    await actor.type(screen.getByLabelText(/Konfirmasi Kata Sandi Baru/), 'abc12345');
+    await actor.type(screen.getByLabelText(/Kata sandi saat ini/), 'lama12345');
+    await actor.type(screen.getByLabelText(/^Kata sandi baru/), 'baru12345');
+    await actor.type(screen.getByLabelText(/Ulangi kata sandi baru/), 'baru12345');
     expect(submit).toBeEnabled();
     await actor.click(submit);
 
-    await waitFor(() =>
-      expect(patchMock).toHaveBeenCalledWith('/v1/users/user-1', { password: 'abc12345' })
-    );
-    await waitFor(() => expect(screen.getByLabelText(/^Kata Sandi Baru/)).toHaveValue(''));
+    await waitFor(() => expect(postMock).toHaveBeenCalledTimes(1));
+    expect(postMock).toHaveBeenCalledWith('/v1/users/me/password', {
+      currentPassword: 'lama12345',
+      newPassword: 'baru12345',
+    });
+    await waitFor(() => expect(localStorage.getItem('accessToken')).toBeNull());
+    expect(showMock).toHaveBeenCalledWith(expect.objectContaining({ color: 'teal' }));
   });
 
-  it('shows the permission matrix with administrator access for an admin', async () => {
+  it('says so next to the field when the current password is wrong', async () => {
+    postMock.mockRejectedValue({
+      isAxiosError: true,
+      response: { status: 400, data: { message: 'Current password is incorrect' } },
+    });
     const actor = userEvent.setup();
     renderPage();
     await screen.findByRole('heading', { name: 'Budi Santoso' });
-    await waitFor(() => expect(screen.getByLabelText(/Nama Lengkap/)).toHaveValue('Budi Santoso'));
-    await actor.click(screen.getByRole('tab', { name: /Hak Akses & Peran/ }));
+    await actor.click(screen.getByRole('tab', { name: /Keamanan/ }));
 
-    expect(screen.getByText('Master Data & Pengaturan Entitas')).toBeInTheDocument();
-    expect(screen.getByText('Administrator')).toBeInTheDocument();
-    expect(screen.getAllByText('Penuh (Baca & Tulis)')).toHaveLength(4);
+    await actor.type(screen.getByLabelText(/Kata sandi saat ini/), 'salah12345');
+    await actor.type(screen.getByLabelText(/^Kata sandi baru/), 'baru12345');
+    await actor.type(screen.getByLabelText(/Ulangi kata sandi baru/), 'baru12345');
+    await actor.click(screen.getByRole('button', { name: 'Ganti Kata Sandi' }));
+
+    expect(await screen.findByText('Kata sandi saat ini tidak cocok.')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Ganti Kata Sandi' })).toBeEnabled();
   });
 
-  it('falls back to placeholders when the user has no site or dates', async () => {
-    getMock.mockResolvedValue({
-      ...user,
-      role: 'staff',
-      isEmailVerified: false,
-      site: undefined,
-      createdAt: undefined,
-      updatedAt: undefined,
-    });
+  it('lists the menus the user can use and folds the ones without access', async () => {
+    serve(user, [
+      rights(),
+      { ...rights({ read: false }), menuId: 'JP-GL', name: 'General Ledger' },
+    ]);
+    const actor = userEvent.setup();
+    renderPage();
+    await screen.findByRole('heading', { name: 'Budi Santoso' });
+    await actor.click(screen.getByRole('tab', { name: /Hak Akses/ }));
+
+    expect(await screen.findByText('Anda dapat memakai 1 menu.')).toBeInTheDocument();
+    expect(screen.getByText('Sales')).toBeInTheDocument();
+    expect(screen.getByText('Menu tanpa akses (1)')).toBeInTheDocument();
+  });
+
+  it('tells a superadmin they have full access', async () => {
+    serve({ ...user, role: 'superadmin', accessRole: [] }, [rights()], 'superadmin');
+    const actor = userEvent.setup();
+    renderPage();
+    await screen.findByRole('heading', { name: 'Budi Santoso' });
+    await actor.click(screen.getByRole('tab', { name: /Hak Akses/ }));
+
+    expect(await screen.findByText(/memiliki akses penuh ke semua menu/)).toBeInTheDocument();
+  });
+
+  it('offers a retry when the profile cannot be loaded', async () => {
+    getMock.mockRejectedValue(new Error('down'));
     renderPage();
 
-    expect(await screen.findByText('Aktif (Belum Verifikasi)')).toBeInTheDocument();
-    expect(screen.getByText('Bergabung: -')).toBeInTheDocument();
-    expect(screen.getByText('Utama')).toBeInTheDocument();
-    expect(screen.getAllByText('STAFF').length).toBeGreaterThan(0);
+    expect(await screen.findByRole('button', { name: 'Coba lagi' })).toBeInTheDocument();
   });
 });

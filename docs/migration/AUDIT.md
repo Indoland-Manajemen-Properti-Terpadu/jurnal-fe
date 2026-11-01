@@ -24,7 +24,7 @@ All 26 feature modules under `src/module/` follow the feature-first layout (`dom
 ## Findings kept as documented gaps (not fixed by the migration)
 
 - `authentication`: forgot-password is simulated (no request, a fake "link sent" message).
-- `user-management`: Add Role, Add User and delete do not call the API (dummy UI).
+- `user-management`: resolved on `feat/user-management-rbac`; users, roles and the change history now use the API (see the module README for the remaining gaps).
 - `petty-cash`: prototype only, status vocabulary differs from the backend spec, and `disburseReplenishment` has no screen.
 - `bank-cash`: `isBankAccount` counts every account in the "Kas & Bank" category as bank.
 - `settings`: tax rate has no upper bound.

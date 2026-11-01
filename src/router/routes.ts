@@ -141,8 +141,10 @@ export const routes = {
   userManagement: {
     main: '/settings/user-management',
     addUser: '/settings/user-management/add-user-form',
-    editUser: '/settings/user-management/edit-user/:email',
+    editUser: '/settings/user-management/edit-user/:userId',
     addRole: '/settings/user-management/add-role-form',
+    roleDetail: '/settings/user-management/roles/:id',
+    editRole: '/settings/user-management/roles/:id/edit',
   },
 
   // Old URLs that still work: each one redirects to its current page (see router/legacy.tsx).
