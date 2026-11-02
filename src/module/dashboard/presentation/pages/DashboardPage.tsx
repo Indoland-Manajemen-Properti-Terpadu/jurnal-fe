@@ -342,8 +342,8 @@ function DashboardPage() {
                 subtitle={
                   bs
                     ? t('compositionSubtitleWithDate', {
-                        date: formatDate(bs.endDate, currentLanguage),
-                      })
+                      date: formatDate(bs.endDate, currentLanguage),
+                    })
                     : t('compositionSubtitleDefault')
                 }
                 right={

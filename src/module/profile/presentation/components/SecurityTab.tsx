@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Alert, Button, Grid, PasswordInput, Stack } from '@mantine/core';
+import { Alert, Button, Grid, Group, PasswordInput, Stack } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconInfoCircle, IconKey } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
@@ -52,7 +52,7 @@ export function SecurityTab() {
 
   return (
     <SectionCard icon={IconKey} title={t('security.title')} subtitle={t('security.subtitle')}>
-      <Grid gutter="lg" align="flex-start">
+      <Grid gutter="xl" align="flex-start">
         <Grid.Col span={{ base: 12, md: 7 }}>
           <Stack
             gap="md"
@@ -96,20 +96,24 @@ export function SecurityTab() {
               }
             />
             {(failure === 'invalid' || failure === 'network' || failure === 'unknown') && (
-              <Alert color="red" variant="light" role="alert">
+              <Alert color="red" variant="light" radius="md" role="alert">
                 {t(`security.errors.${failure}`)}
               </Alert>
             )}
-            <Alert color="blue" variant="light" icon={<IconInfoCircle size={18} />}>
-              {t('security.notice')}
-            </Alert>
-            <Button type="submit" loading={change.isPending} disabled={!ready}>
-              {change.isPending ? t('security.submitting') : t('security.submit')}
-            </Button>
+            <Group justify="flex-end" mt="xs">
+              <Button type="submit" loading={change.isPending} disabled={!ready}>
+                {change.isPending ? t('security.submitting') : t('security.submit')}
+              </Button>
+            </Group>
           </Stack>
         </Grid.Col>
         <Grid.Col span={{ base: 12, md: 5 }}>
-          <PasswordChecklist checks={checks} />
+          <Stack gap="md">
+            <PasswordChecklist checks={checks} />
+            <Alert color="blue" variant="light" radius="md" icon={<IconInfoCircle size={18} />}>
+              {t('security.notice')}
+            </Alert>
+          </Stack>
         </Grid.Col>
       </Grid>
     </SectionCard>

@@ -1,8 +1,6 @@
 import type { ReactNode } from 'react';
 import {
-  Anchor,
   Box,
-  Breadcrumbs,
   Group,
   Paper,
   Stack,
@@ -11,7 +9,6 @@ import {
   Title,
 } from '@mantine/core';
 import type { Icon } from '@tabler/icons-react';
-import { Link } from 'react-router-dom';
 
 export type Crumb = { label: string; to?: string };
 
@@ -28,7 +25,6 @@ export function ModuleHeader({
   icon: HeaderIcon,
   title,
   description,
-  breadcrumbs,
   actions,
 }: Readonly<ModuleHeaderProps>) {
   return (
@@ -42,21 +38,7 @@ export function ModuleHeader({
       }}
     >
       <Stack gap="sm">
-        {breadcrumbs && breadcrumbs.length > 0 && (
-          <Breadcrumbs separatorMargin={6}>
-            {breadcrumbs.map((crumb) =>
-              crumb.to ? (
-                <Anchor key={crumb.label} component={Link} to={crumb.to} size="xs" c="dimmed">
-                  {crumb.label}
-                </Anchor>
-              ) : (
-                <Text key={crumb.label} size="xs" c="primary.6" fw={600}>
-                  {crumb.label}
-                </Text>
-              )
-            )}
-          </Breadcrumbs>
-        )}
+
         <Group justify="space-between" align="flex-start" wrap="wrap" gap="md">
           <Group align="flex-start" gap="md" wrap="nowrap" style={{ flex: 1, minWidth: 260 }}>
             <ThemeIcon

@@ -1,40 +1,35 @@
 import {
   IconBuildingStore,
-  IconCalendar,
   IconClock,
   IconCreditCard,
   IconHash,
-  IconHistory,
-  IconLayoutGrid,
-  IconLock,
   IconPercentage,
   IconSettings,
   IconSitemap,
   IconTag,
   IconUsers,
-  IconWorld,
 } from '@tabler/icons-react';
 import type { Icon } from '@tabler/icons-react';
 import { routes } from '@/router/routes';
 
-export type SettingsItem = { key: string; path?: string; icon: Icon };
+export type SettingsItem = { key: string; path: string; icon: Icon };
 export type SettingsGroup = { key: string; items: SettingsItem[] };
 
+/**
+ * Single source of truth for the settings sub-menus. The app sidebar renders one
+ * expandable menu per group; a group with a single item renders as a direct link.
+ */
 export const settingsGroups: SettingsGroup[] = [
-  { key: 'overview', items: [{ key: 'hub', path: routes.settings.main, icon: IconLayoutGrid }] },
   {
-    key: 'organization',
+    key: 'general',
     items: [
       { key: 'company', path: routes.settings.company, icon: IconBuildingStore },
-      { key: 'regional', icon: IconWorld },
+      { key: 'general', path: routes.settings.general, icon: IconSettings },
     ],
   },
   {
     key: 'accounting',
     items: [
-      { key: 'general', path: routes.settings.general, icon: IconSettings },
-      { key: 'fiscalYear', icon: IconCalendar },
-      { key: 'lockDate', icon: IconLock },
       { key: 'accountMapping', path: routes.settings.accountMapping, icon: IconSitemap },
       { key: 'taxes', path: routes.settings.taxes, icon: IconPercentage },
     ],
@@ -50,9 +45,21 @@ export const settingsGroups: SettingsGroup[] = [
   },
   {
     key: 'access',
-    items: [
-      { key: 'users', path: routes.userManagement.main, icon: IconUsers },
-      { key: 'auditLog', icon: IconHistory },
-    ],
+    items: [{ key: 'users', path: routes.userManagement.main, icon: IconUsers }],
   },
 ];
+
+export const defaultSettingsPath = settingsGroups[0].items[0].path;
+
+/** Finds the settings page (and its category) that owns the given pathname. */
+export function findSettingsEntry(
+  pathname: string
+): { group: SettingsGroup; item: SettingsItem } | undefined {
+  for (const group of settingsGroups) {
+    const item = group.items.find(
+      (candidate) => pathname === candidate.path || pathname.startsWith(`${candidate.path}/`)
+    );
+    if (item) return { group, item };
+  }
+  return undefined;
+}

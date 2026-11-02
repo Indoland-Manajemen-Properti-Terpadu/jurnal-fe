@@ -1,3 +1,4 @@
+import { Navigate } from 'react-router-dom';
 import type { RouteObject } from 'react-router-dom';
 import {
   AccountMappingPage,
@@ -6,14 +7,15 @@ import {
   NumberFormatPage,
   PaymentMethodPage,
   PaymentTermPage,
-  SettingsHubPage,
   TagSettingPage,
   TaxSettingPage,
 } from '@/module/settings';
+import { defaultSettingsPath } from '@/components/Navbar/settingsMenu';
 import { routes } from '../routes';
 
 export const settingsRoutes: RouteObject[] = [
-  { path: routes.settings.main, element: <SettingsHubPage /> },
+  // No settings landing page: each category is a sub-menu in the sidebar.
+  { path: routes.settings.main, element: <Navigate to={defaultSettingsPath} replace /> },
   { path: routes.settings.general, element: <GeneralSettingPage /> },
   { path: routes.settings.company, element: <CompanySettingPage /> },
   { path: routes.settings.accountMapping, element: <AccountMappingPage /> },
