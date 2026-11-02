@@ -1,12 +1,12 @@
 # settings
 
-Company and accounting settings: a hub with a configuration overview, decimal precision, default account mapping, taxes, payment terms, payment methods, document number formats, transaction tags and the company profile page. Formerly `SettingMenu` (user management is a separate module, `SettingMenu/UserManagement` until it migrates).
+Company and accounting settings, exposed as categorized sub-menus in the app sidebar (no settings hub page): decimal precision, default account mapping, taxes, payment terms, payment methods, document number formats, transaction tags and the company profile page. Formerly `SettingMenu` (user management is a separate module, `SettingMenu/UserManagement` until it migrates).
 
 ## Routes (`src/router/routes.ts`)
 
 | Constant | Path | Page |
 | --- | --- | --- |
-| `settings.main` | `/settings` | `SettingsHubPage` |
+| `settings.main` | `/settings` | redirects to the first settings page |
 | `settings.general` | `/settings/general` | `GeneralSettingPage` (decimal precision, read only) |
 | `settings.accountMapping` | `/settings/account-mapping` | `AccountMappingPage` |
 | `settings.taxes` | `/settings/taxes` | `TaxSettingPage` |
@@ -16,7 +16,7 @@ Company and accounting settings: a hub with a configuration overview, decimal pr
 | `settings.tags` | `/settings/tags` | `TagSettingPage` |
 | `settings.company` | `/settings/company-setting` | `CompanySettingPage` |
 
-`/settings/approval-setting` redirects to pending changes (the old approval stub page was removed). `index.ts` exports the nine pages and `SettingsLayout`, which `UserManagement` renders inside.
+`/settings/approval-setting` redirects to pending changes (the old approval stub page was removed). `index.ts` exports the eight pages and `SettingsLayout`, which `UserManagement` renders inside.
 
 ## Endpoints (`API_SETTINGS`, `infrastructure/settingApi.ts`)
 
@@ -26,7 +26,7 @@ Company and accounting settings: a hub with a configuration overview, decimal pr
 
 - `domain/`: `settingTypes` (API shapes), `settingRules` (validators that return an i18n key, `previewNumber`, `buildTaxPayload`, `DEFAULT_TAX_RATE`), `accountOptions` (select options of accounts). All have tests.
 - `infrastructure/`: `settingApi` (the HTTP calls).
-- `presentation/`: pages, components (`SettingsLayout`, `DeleteConfirmModal`, `PaymentMethodFormModal`, `NumberFormatFormModal`), hooks (one file per resource, `settingKeys`, `useAccountOptions`, `useSettingsOverview`) and `settingsNavigation`.
+- `presentation/`: pages, components (`SettingsLayout`, `DeleteConfirmModal`, `PaymentMethodFormModal`, `NumberFormatFormModal`), hooks (one file per resource, `settingKeys`, `useAccountOptions`). The sidebar categories (General, Accounting, Transactions & Documents, Users & Access) are defined in `src/components/Navbar/settingsMenu.ts`, the single source for the sidebar and the page breadcrumbs.
 
 ## Domain rules
 

@@ -38,3 +38,10 @@ Namespace `dashboard` (`id` and `en`); `src/i18n/locales/dashboard.test.ts` chec
 
 - **Net working capital** is current assets minus current liabilities. Current liabilities are all balance sheet liabilities except long-term ones (category `KJP`, or a name containing "panjang"); without line detail the total liabilities are used.
 - **Monthly sales** (the revenue tile) sums net sales, the invoice subtotal minus the discount, before VAT and before withholding. The invoice total is only the fallback when the API sends no subtotal.
+
+## Dashboard presentation (2026-11-02)
+
+- Compact greeting header, financial KPI cards with mini-charts, billing/collection chart beside the blue work queue panel, receivable priorities beside aging, account distribution and financial position, then journal activity. The active accounting period appears once as read-only information in the work queue.
+- Sales-derived figures explicitly cover the latest loaded transactions, capped at 100. The six-month chart groups invoices and their collected amounts by invoice month; it is not a cash receipt date report.
+- Funding shares appear only for a balanced sheet with positive assets and nonnegative liabilities/equity. Negative equity stays visible numerically; missing balance data never claims balanced books.
+- Failed queries show unavailable states rather than zero balances. Charts support keyboard/touch tooltips; decorative tilt and entrance animations are removed.

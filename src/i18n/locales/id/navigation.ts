@@ -1,4 +1,6 @@
 export const navigation = {
+  openMenu: 'Buka navigasi',
+  userMenu: 'Menu pengguna',
   // Groups
   groupMain: 'Utama',
   groupTransactions: 'Transaksi',
@@ -37,7 +39,6 @@ export const navigation = {
   assets: 'Asset',
   contacts: 'Kontak',
   settings: 'Pengaturan',
-  settingsHub: 'Pusat Pengaturan',
   generalSettings: 'Pengaturan Umum',
   accountMapping: 'Pemetaan Akun',
   taxes: 'Pajak',

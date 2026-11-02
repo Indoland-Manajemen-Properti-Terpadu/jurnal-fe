@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { Box, Collapse, Group, Text, Tooltip, UnstyledButton } from '@mantine/core';
 import { CaretRight } from '@phosphor-icons/react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -20,6 +20,8 @@ interface LinksGroupProps {
   closeSidebar: () => void;
   collapsed?: boolean;
   siblingLinks?: string[];
+  /** Clicking the parent only expands/collapses the sub-menu instead of navigating. */
+  expandOnly?: boolean;
 }
 
 export function LinksGroup(props: LinksGroupProps) {
@@ -33,13 +35,13 @@ export function LinksGroup(props: LinksGroupProps) {
     closeSidebar,
     collapsed = false,
     siblingLinks = [],
+    expandOnly = false,
   } = props;
+  const subtreeId = useId();
   const navigate = useNavigate();
   const location = useLocation();
 
   const hasLinks = Array.isArray(links);
-  const [opened, setOpened] = useState(initiallyOpened || false);
-
   const isParentActive =
     link &&
     isNavigationLinkActive(location.pathname, link, siblingLinks.length ? siblingLinks : [link]);
@@ -48,6 +50,8 @@ export function LinksGroup(props: LinksGroupProps) {
     hasLinks &&
     links.some((item) => isNavigationChildActive(location.pathname, item.link, childLinks));
   const isActive = Boolean(isParentActive || isChildActive);
+  // Start open when this section is active so the sidebar height is stable on first paint.
+  const [opened, setOpened] = useState(initiallyOpened || (isActive && !collapsed));
 
   useEffect(() => {
     if (collapsed) {
@@ -58,7 +62,8 @@ export function LinksGroup(props: LinksGroupProps) {
   }, [isActive, collapsed]);
 
   const handleNavigation = () => {
-    if (link) {
+    // expandOnly groups only navigate (to their first page) when the sidebar is collapsed.
+    if (link && (!expandOnly || collapsed)) {
       navigate(link);
       closeSidebar();
     }
@@ -76,6 +81,7 @@ export function LinksGroup(props: LinksGroupProps) {
         key={item.label}
         className={classes.subLink}
         data-active={isCurrentChild || undefined}
+        aria-current={isCurrentChild ? 'page' : undefined}
         onClick={() => {
           navigate(item.link);
           closeSidebar();
@@ -106,7 +112,11 @@ export function LinksGroup(props: LinksGroupProps) {
         <UnstyledButton
           onClick={handleNavigation}
           className={classes.control}
-          data-active={isActive || undefined}
+          data-active={(isActive && (!hasLinks || collapsed)) || undefined}
+          data-section-active={(hasLinks && isActive) || undefined}
+          aria-expanded={hasLinks && !collapsed ? opened : undefined}
+          aria-controls={hasLinks && !collapsed ? subtreeId : undefined}
+          aria-current={isActive && !hasLinks ? 'page' : undefined}
           data-collapsed={collapsed || undefined}
         >
           <Group justify="space-between" gap={8} wrap="nowrap" w="100%">
@@ -140,7 +150,9 @@ export function LinksGroup(props: LinksGroupProps) {
       </Tooltip>
       {!collapsed && hasLinks && (
         <Collapse in={opened}>
-          <Box className={classes.subtree}>{items}</Box>
+          <Box id={subtreeId} className={classes.subtree}>
+            {items}
+          </Box>
         </Collapse>
       )}
     </>

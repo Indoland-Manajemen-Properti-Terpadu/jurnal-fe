@@ -7,10 +7,8 @@ import {
   Burger,
   Group,
   Indicator,
-  Kbd,
   Menu,
   Text,
-  TextInput,
   Tooltip,
   UnstyledButton,
 } from '@mantine/core';
@@ -19,7 +17,6 @@ import {
   CalendarBlank,
   CaretDown,
   GearSix,
-  MagnifyingGlass,
   Plus,
   SignOut,
   UserCircle,
@@ -139,34 +136,17 @@ const HeaderNav = ({ toggleMobile, mobileOpened }: HeaderNavProps) => {
           onClick={toggleMobile}
           hiddenFrom="md"
           size="sm"
-          aria-label="Buka menu"
+          aria-label={t('openMenu')}
         />
         <Box style={{ minWidth: 0 }}>
           <Text size="xs" c="dimmed" fw={600} tt="uppercase" lts={0.8} visibleFrom="xs">
             {section.group}
           </Text>
-          <Text fw={800} fz={{ base: 16, sm: 19 }} c="dark.8" lh={1.2} truncate>
+          <Text fw={700} fz={{ base: 'sm', sm: 'lg' }} c="dark.8" lh={1.2} truncate>
             {section.title}
           </Text>
         </Box>
       </Group>
-
-      {/* Center: command search */}
-      <TextInput
-        visibleFrom="md"
-        placeholder={
-          currentLanguage === 'id'
-            ? 'Cari akun, jurnal, kontak…'
-            : 'Search accounts, journals, contacts…'
-        }
-        leftSection={<MagnifyingGlass size={18} weight="bold" />}
-        rightSection={<Kbd size="xs">⌘K</Kbd>}
-        rightSectionWidth={48}
-        radius="xl"
-        className={classes.search}
-        style={{ flex: 1, maxWidth: 420 }}
-        aria-label="Pencarian global"
-      />
 
       {/* Right: actions */}
       <Group gap={8} wrap="nowrap">
@@ -179,19 +159,14 @@ const HeaderNav = ({ toggleMobile, mobileOpened }: HeaderNavProps) => {
           </Text>
         </Group>
 
-        <Menu shadow="xl" width={220} radius="lg" position="bottom-end">
+        <Menu shadow="md" width={220} radius="lg" position="bottom-end">
           <Menu.Target>
             <Tooltip label={t('quickCreate')} withArrow>
               <ActionIcon
-                size={38}
-                radius="xl"
-                variant="gradient"
-                gradient={{
-                  from: 'var(--mantine-color-primary-6)',
-                  to: 'var(--mantine-color-secondary-6)',
-                  deg: 135,
-                }}
-                className={classes.glow}
+                size={36}
+                radius="md"
+                variant="filled"
+                color="primary"
                 aria-label={t('quickCreate')}
               >
                 <Plus size={18} weight="bold" />
@@ -227,7 +202,7 @@ const HeaderNav = ({ toggleMobile, mobileOpened }: HeaderNavProps) => {
           </Menu.Dropdown>
         </Menu>
 
-        <Menu shadow="xl" width={300} radius="lg" position="bottom-end">
+        <Menu shadow="md" width={300} radius="lg" position="bottom-end">
           <Menu.Target>
             <Indicator
               inline
@@ -239,8 +214,8 @@ const HeaderNav = ({ toggleMobile, mobileOpened }: HeaderNavProps) => {
               withBorder
             >
               <ActionIcon
-                size={38}
-                radius="xl"
+                size={36}
+                radius="md"
                 variant="default"
                 className={classes.iconBtn}
                 aria-label={t('notifications')}
@@ -286,28 +261,16 @@ const HeaderNav = ({ toggleMobile, mobileOpened }: HeaderNavProps) => {
           </Menu.Dropdown>
         </Menu>
 
-        <Menu shadow="xl" width={220} radius="lg" position="bottom-end">
+        <Menu shadow="md" width={220} radius="lg" position="bottom-end">
           <Menu.Target>
-            <UnstyledButton className={classes.user} aria-label="Menu pengguna">
+            <UnstyledButton className={classes.user} aria-label={t('userMenu')}>
               <Group gap={8} wrap="nowrap">
-                <Avatar
-                  size={32}
-                  radius="xl"
-                  variant="gradient"
-                  gradient={{
-                    from: 'var(--mantine-color-primary-6)',
-                    to: 'var(--mantine-color-secondary-6)',
-                    deg: 135,
-                  }}
-                >
+                <Avatar size={32} radius="md" variant="light" color="primary">
                   {displayName.slice(0, 1)}
                 </Avatar>
                 <Box visibleFrom="sm" style={{ minWidth: 0 }}>
                   <Text fz="var(--jurnal-text-sm)" fw={700} c="dark.8" lh={1.1} truncate maw={120}>
                     {displayName}
-                  </Text>
-                  <Text fz="var(--jurnal-text-xs)" c="dimmed" lh={1.2}>
-                    {t('activeAccount')}
                   </Text>
                 </Box>
                 <CaretDown size={14} weight="bold" color="var(--mantine-color-gray-5)" />

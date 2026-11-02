@@ -1,6 +1,16 @@
-import { Avatar, Badge, Box, Divider, Group, Paper, Stack, Text, Title } from '@mantine/core';
 import {
-  IconBuilding,
+  Avatar,
+  Badge,
+  Box,
+  Divider,
+  Group,
+  Paper,
+  Stack,
+  Text,
+  Title,
+  ThemeIcon,
+} from '@mantine/core';
+import {
   IconCalendar,
   IconCircleCheck,
   IconCircleDashed,
@@ -23,16 +33,16 @@ function Fact({
   children,
 }: Readonly<{ icon: ReactNode; label: string; children: ReactNode }>) {
   return (
-    <Group gap="sm" wrap="nowrap" align="flex-start">
-      <Box c="dimmed" pt={2}>
+    <Group gap="sm" wrap="nowrap" align="center">
+      <ThemeIcon size={34} radius="md" variant="light" color="primary">
         {icon}
-      </Box>
-      <div style={{ minWidth: 0 }}>
-        <Text fz={11} c="dimmed" fw={600} tt="uppercase" lts={0.5}>
+      </ThemeIcon>
+      <Box style={{ minWidth: 0 }}>
+        <Text fz="xs" c="dimmed" fw={600} lh={1.2}>
           {label}
         </Text>
-        <div>{children}</div>
-      </div>
+        <Box mt={2}>{children}</Box>
+      </Box>
     </Group>
   );
 }
@@ -43,97 +53,107 @@ export function IdentityCard({ user }: Readonly<{ user: Profile }>) {
   const showLegacyRole = roleNames.length === 0 && user.role === 'superadmin';
 
   return (
-    <Paper withBorder radius="lg" bg="white" p={0} style={{ overflow: 'hidden' }}>
-      <Box
-        h={96}
-        style={{
-          background:
-            'linear-gradient(120deg, var(--mantine-color-primary-7) 0%, var(--mantine-color-primary-5) 55%, var(--mantine-color-secondary-5) 100%)',
-        }}
-      />
-      <Stack gap="md" px="lg" pb="lg" mt={-44}>
-        <Avatar
-          size={88}
-          radius={88}
-          color="primary"
-          variant="filled"
-          fz={30}
-          fw={700}
-          style={{
-            border: '4px solid var(--mantine-color-white)',
-            boxShadow: '0 4px 14px color-mix(in srgb, var(--mantine-color-black) 18%, transparent)',
-          }}
-        >
-          {initialsOf(user.name)}
-        </Avatar>
-
-        <div>
-          <Title order={3} fz={20} lh={1.25} c="primary.9" style={{ wordBreak: 'break-word' }}>
-            {user.name || t('identity.defaultName')}
-          </Title>
-          <Text size="sm" c="dimmed" style={{ wordBreak: 'break-all' }}>
-            {user.email}
-          </Text>
-        </div>
-
-        <Group gap={6}>
-          <Badge
+    <Paper withBorder radius="lg" bg="white" p={{ base: 'md', sm: 'lg' }}>
+      <Group justify="space-between" align="center" wrap="wrap" gap="lg">
+        <Group gap="lg" wrap="nowrap" align="center" style={{ minWidth: 0, flex: '1 1 320px' }}>
+          <Avatar
+            size={72}
+            radius="xl"
+            color="primary"
             variant="light"
-            color={user.isActive ? 'green' : 'gray'}
-            leftSection={
-              user.isActive ? <IconCircleCheck size={13} /> : <IconCircleDashed size={13} />
-            }
-            {...pill}
+            fz="xl"
+            fw={700}
+            style={{
+              border: '2px solid var(--mantine-color-primary-1)',
+              flexShrink: 0,
+            }}
           >
-            {user.isActive ? t('identity.active') : t('identity.inactive')}
-          </Badge>
-          <Badge
-            variant="light"
-            color={user.isEmailVerified ? 'blue' : 'gray'}
-            leftSection={<IconShieldCheck size={13} />}
-            {...pill}
-          >
-            {user.isEmailVerified ? t('identity.verified') : t('identity.unverified')}
-          </Badge>
-        </Group>
+            {initialsOf(user.name)}
+          </Avatar>
 
-        <Divider />
-
-        <Stack gap="md">
-          <Fact icon={<IconShieldCheck size={16} />} label={t('identity.roles')}>
-            <Group gap={6} mt={4}>
+          <Stack gap={6} style={{ minWidth: 0 }}>
+            <Group gap="xs" align="center" wrap="wrap">
+              <Title
+                order={3}
+                fz="xl"
+                fw={700}
+                lh={1.25}
+                c="primary.9"
+                style={{ wordBreak: 'break-word' }}
+              >
+                {user.name || t('identity.defaultName')}
+              </Title>
               {roleNames.map((name) => (
-                <Badge key={name} variant="light" color="primary" {...pill}>
+                <Badge
+                  key={name}
+                  variant="light"
+                  color="primary"
+                  leftSection={<IconShieldCheck size={13} />}
+                  {...pill}
+                >
                   {name}
                 </Badge>
               ))}
               {showLegacyRole && (
-                <Badge variant="light" color="primary" {...pill}>
+                <Badge
+                  variant="light"
+                  color="primary"
+                  leftSection={<IconShieldCheck size={13} />}
+                  {...pill}
+                >
                   {t('identity.superAdmin')}
                 </Badge>
               )}
               {roleNames.length === 0 && !showLegacyRole && (
-                <Text size="sm" c="dimmed">
+                <Badge variant="light" color="gray" {...pill}>
                   {t('identity.noRole')}
-                </Text>
+                </Badge>
               )}
             </Group>
-          </Fact>
-          {user.site && (
-            <Fact icon={<IconBuilding size={16} />} label={t('identity.site')}>
-              <Text size="sm" fw={500}>
-                {user.site.name}
+
+            <Text size="sm" c="dimmed" style={{ wordBreak: 'break-all' }}>
+              {user.email}
+            </Text>
+
+            <Group gap={6} mt={2}>
+              <Badge
+                variant="light"
+                color={user.isActive ? 'teal' : 'gray'}
+                leftSection={
+                  user.isActive ? <IconCircleCheck size={13} /> : <IconCircleDashed size={13} />
+                }
+                {...pill}
+              >
+                {user.isActive ? t('identity.active') : t('identity.inactive')}
+              </Badge>
+              <Badge
+                variant="light"
+                color={user.isEmailVerified ? 'blue' : 'gray'}
+                leftSection={<IconShieldCheck size={13} />}
+                {...pill}
+              >
+                {user.isEmailVerified ? t('identity.verified') : t('identity.unverified')}
+              </Badge>
+            </Group>
+          </Stack>
+        </Group>
+
+        <Paper withBorder shadow="none" radius="md" px="md" py="sm" bg="gray.0">
+          <Group gap="lg" wrap="wrap">
+            <Fact icon={<IconCalendar size={18} />} label={t('identity.joined')}>
+              <Text size="sm" fw={600} c="primary.9">
+                {formatDate(user.createdAt, currentLanguage)}
               </Text>
             </Fact>
-          )}
-          <Fact icon={<IconCalendar size={16} />} label={t('identity.joined')}>
-            <Text size="sm">{formatDate(user.createdAt, currentLanguage)}</Text>
-          </Fact>
-          <Fact icon={<IconClockEdit size={16} />} label={t('identity.updated')}>
-            <Text size="sm">{formatDate(user.updatedAt, currentLanguage, true)}</Text>
-          </Fact>
-        </Stack>
-      </Stack>
+            <Divider orientation="vertical" color="gray.2" visibleFrom="xs" />
+            <Fact icon={<IconClockEdit size={18} />} label={t('identity.updated')}>
+              <Text size="sm" fw={600} c="primary.9">
+                {formatDate(user.updatedAt, currentLanguage, true)}
+              </Text>
+            </Fact>
+          </Group>
+        </Paper>
+      </Group>
     </Paper>
   );
 }

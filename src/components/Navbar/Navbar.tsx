@@ -11,6 +11,7 @@ import {
   Avatar,
   Badge,
 } from '@mantine/core';
+import { useLayoutEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   AddressBook,
@@ -31,9 +32,23 @@ import {
   ShieldCheck,
   Coins,
   Wallet,
+  Buildings,
+  Calculator,
+  ArrowsLeftRight,
+  UsersThree,
+  IdentificationCard,
+  Sliders,
+  TreeStructure,
+  Percent,
+  ClockCountdown,
+  CreditCard,
+  Hash,
+  Tag,
+  UserCircle,
 } from '@phosphor-icons/react';
 import { useAuthStore } from '@/store/useAuthentications';
 import { routes } from '@/router/routes';
+import { settingsGroups } from '@/components/Navbar/settingsMenu';
 import { usePendingChangesCount } from '@/module/pending-changes';
 import { useTranslation } from '@/i18n';
 import { LinksGroup } from '@/components/Navbar/Links/NavLinksGroup';
@@ -42,13 +57,35 @@ import LogoProapps from '@/assets/images/brand/badge.svg';
 import IconProapps from '@/assets/images/brand/mark.svg';
 import { themeColors } from '@/theme';
 
-const getNavGroups = (t: (key: string) => string) => [
+const settingsGroupIcons: Record<string, React.ElementType> = {
+  general: Buildings,
+  accounting: Calculator,
+  transactions: ArrowsLeftRight,
+  access: UsersThree,
+};
+
+const settingsItemIcons: Record<string, React.ElementType> = {
+  company: IdentificationCard,
+  general: Sliders,
+  accountMapping: TreeStructure,
+  taxes: Percent,
+  paymentTerms: ClockCountdown,
+  paymentMethods: CreditCard,
+  numberFormats: Hash,
+  tags: Tag,
+};
+
+// Remembered across page changes: every page mounts its own shell, which would otherwise
+// reset the sidebar scroll to the top after each navigation.
+let savedSidebarScroll = 0;
+
+const getNavGroups = (t: (key: string) => string, ts: (key: string) => string) => [
   {
     title: t('groupMain').toUpperCase(),
     links: [
-      { label: t('dashboard'), icon: HouseLine, link: '/dashboard' },
-      { label: t('financialReports'), icon: ChartPieSlice, link: '/result-reports' },
-      { label: t('budgetPlanning'), icon: Money, link: '/budget-planning' },
+      { label: t('dashboard'), icon: HouseLine, link: routes.dashboard },
+      { label: t('financialReports'), icon: ChartPieSlice, link: routes.reports.main },
+      { label: t('budgetPlanning'), icon: Money, link: routes.budgeting.planning },
     ],
   },
   {
@@ -63,40 +100,54 @@ const getNavGroups = (t: (key: string) => string) => [
           { label: t('pettyCash'), icon: Coins, link: routes.pettyCash.main },
         ],
       },
-      { label: t('sales'), icon: Storefront, link: '/sales' },
+      { label: t('sales'), icon: Storefront, link: routes.sales.main },
       { label: t('purchases'), icon: ShoppingCart, link: routes.purchases.main },
-      { label: t('expenses'), icon: Receipt, link: '/finance/cost' },
+      { label: t('expenses'), icon: Receipt, link: routes.costs.main },
       { label: t('pendingChanges'), icon: ShieldCheck, link: routes.pendingChanges.main },
     ],
   },
   {
     title: t('groupOperations').toUpperCase(),
     links: [
-      { label: t('products'), icon: BoundingBox, link: '/products' },
+      { label: t('products'), icon: BoundingBox, link: routes.products.main },
       {
         label: t('production'),
         icon: Storefront,
-        link: '/production',
+        link: routes.production.main,
       },
-      { label: t('fulfillment'), icon: Truck, link: '/fulfillment' },
+      { label: t('fulfillment'), icon: Truck, link: routes.fulfillment.main },
     ],
   },
   {
     title: t('groupMasterData').toUpperCase(),
     links: [
-      { label: t('chartOfAccounts'), icon: ListBullets, link: '/general-journal' },
-      { label: t('assets'), icon: Toolbox, link: '/asset' },
-      { label: t('contacts'), icon: AddressBook, link: '/contact' },
+      { label: t('chartOfAccounts'), icon: ListBullets, link: routes.chartOfAccounts.main },
+      { label: t('assets'), icon: Toolbox, link: routes.assets.main },
+      { label: t('contacts'), icon: AddressBook, link: routes.contacts.main },
     ],
   },
   {
-    title: t('groupOthers').toUpperCase(),
+    title: t('groupSettings').toUpperCase(),
     links: [
-      {
-        label: t('settings'),
-        icon: GearSix,
-        link: routes.settings.main,
-      },
+      ...settingsGroups.map((group) => {
+        const Icon = settingsGroupIcons[group.key] ?? GearSix;
+        const [first] = group.items;
+        if (group.items.length === 1) {
+          return { label: ts(`item.${first.key}`), icon: Icon, link: first.path };
+        }
+        return {
+          label: ts(`group.${group.key}`),
+          icon: Icon,
+          link: first.path,
+          expandOnly: true,
+          links: group.items.map((item) => ({
+            label: ts(`item.${item.key}`),
+            icon: settingsItemIcons[item.key],
+            link: item.path,
+          })),
+        };
+      }),
+      { label: t('profile'), icon: UserCircle, link: routes.profile },
     ],
   },
 ];
@@ -116,7 +167,8 @@ const NavbarComponent = ({
 }: NavigationProps) => {
   const navigate = useNavigate();
   const { t } = useTranslation('navigation');
-  const navGroups = getNavGroups(t);
+  const { t: ts } = useTranslation('settings');
+  const navGroups = getNavGroups(t, ts);
   const navigationLinks = navGroups.flatMap((group) =>
     group.links.flatMap((item) => ('link' in item && item.link ? [item.link] : []))
   );
@@ -135,6 +187,13 @@ const NavbarComponent = ({
     typeof rawCount === 'number'
       ? rawCount
       : ((rawCount as { data?: { count?: number } } | undefined)?.data?.count ?? 0);
+
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const restoredRef = useRef(false);
+  useLayoutEffect(() => {
+    if (viewportRef.current) viewportRef.current.scrollTop = savedSidebarScroll;
+    restoredRef.current = true;
+  }, []);
 
   const handleLogout = () => {
     clearTokens();
@@ -230,7 +289,15 @@ const NavbarComponent = ({
         </Group>
       </div>
 
-      <ScrollArea className={classes.links} type={collapsed ? 'never' : 'hover'} scrollbarSize={6}>
+      <ScrollArea
+        className={classes.links}
+        type={collapsed ? 'never' : 'hover'}
+        scrollbarSize={6}
+        viewportRef={viewportRef}
+        onScrollPositionChange={({ y }) => {
+          if (restoredRef.current) savedSidebarScroll = y;
+        }}
+      >
         <div className={classes.linksInner}>{links}</div>
       </ScrollArea>
 

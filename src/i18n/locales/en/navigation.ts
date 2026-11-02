@@ -1,4 +1,6 @@
 export const navigation = {
+  openMenu: 'Open navigation',
+  userMenu: 'User menu',
   // Groups
   groupMain: 'Main',
   groupTransactions: 'Transactions',
@@ -37,7 +39,6 @@ export const navigation = {
   assets: 'Assets',
   contacts: 'Contacts',
   settings: 'Settings',
-  settingsHub: 'Settings Center',
   generalSettings: 'General Settings',
   accountMapping: 'Account Mapping',
   taxes: 'Taxes',

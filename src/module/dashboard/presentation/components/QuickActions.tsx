@@ -17,18 +17,8 @@ export function QuickActions({ actions }: Readonly<{ actions: QuickAction[] }>) 
   return (
     <SimpleGrid cols={2} spacing="xs">
       {actions.map((a) => (
-        <UnstyledButton
-          key={a.label}
-          onClick={a.onClick}
-          className={classes.rowHover}
-          p="sm"
-          style={{
-            borderRadius: 14,
-            border: '1px solid color-mix(in srgb, var(--mantine-color-slate-9) 7%, transparent)',
-            backgroundColor: 'color-mix(in srgb, var(--mantine-color-white) 72%, transparent)',
-          }}
-        >
-          <Stack gap={8}>
+        <UnstyledButton key={a.label} onClick={a.onClick} className={classes.rowHover} p="sm">
+          <Stack gap="xs">
             <IconOrb icon={a.icon} tone={a.tone} />
             <Group justify="space-between" wrap="nowrap" gap={4}>
               <Text size="xs" fw={700} c="dark.8" truncate>

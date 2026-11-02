@@ -297,3 +297,13 @@ export const getFinancialHealthSummary = (
     cashRatio: totalAssets > 0 ? Math.max(0, (cash / denom) * 100) : 0,
   };
 };
+
+/** The same net-sales basis as the monthly KPI, repeated over the displayed months. */
+export const getMonthlyNetSalesTrend = (sales: SaleSummary[], months: MonthlyPoint[]) =>
+  months.map((point) => {
+    const [year, month] = point.key.split('-').map(Number);
+    return {
+      label: point.label,
+      value: getSalesKpis(sales, new Date(year, month, 1)).monthRevenue,
+    };
+  });

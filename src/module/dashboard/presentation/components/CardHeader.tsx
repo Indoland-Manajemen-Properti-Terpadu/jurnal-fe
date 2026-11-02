@@ -7,7 +7,7 @@ export function CardHeader({
   right,
 }: Readonly<{ title: string; subtitle?: string; right?: ReactNode }>) {
   return (
-    <Group justify="space-between" align="flex-start" mb="md" wrap="nowrap" gap="sm">
+    <Group justify="space-between" align="flex-start" mb="md" wrap="wrap" gap="sm">
       <Box style={{ minWidth: 0 }}>
         <Text fw={700} fz="var(--jurnal-text-sm)" c="dark.9" lh={1.25}>
           {title}

@@ -5,10 +5,7 @@
   min-height: 100%;
   display: flex;
   flex-direction: column;
-  background:
-    radial-gradient(420px 260px at 0% 0%, color-mix(in srgb, var(--mantine-color-secondary-6) 10%, transparent), transparent 70%),
-    radial-gradient(360px 240px at 100% 100%, color-mix(in srgb, var(--mantine-color-primary-6) 8%, transparent), transparent 70%),
-    linear-gradient(180deg, var(--mantine-color-white) 0%, var(--mantine-color-slate-0) 100%);
+  background: var(--jurnal-color-surface);
   border-right: rem(1px) solid color-mix(in srgb, var(--mantine-color-slate-9) 6%, transparent);
 }
 
@@ -64,8 +61,8 @@
 }
 
 .linkHeader {
-  color: var(--mantine-color-slate-4);
-  font-size: rem(11px);
+  color: var(--jurnal-color-text-secondary);
+  font-size: var(--jurnal-text-xs);
   font-weight: 700;
   line-height: rem(16px);
   letter-spacing: rem(1px);
