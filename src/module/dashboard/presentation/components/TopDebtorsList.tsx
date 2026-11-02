@@ -52,22 +52,10 @@ export function TopDebtorsList({
             className={classes.rowHover}
             p="xs"
             onClick={() => onOpenDebtor?.(d)}
-            style={{
-              border: '1px solid color-mix(in srgb, var(--mantine-color-slate-9) 6%, transparent)',
-              borderRadius: 12,
-              backgroundColor: d.isOverdue
-                ? 'color-mix(in srgb, var(--mantine-color-red-0) 65%, transparent)'
-                : 'color-mix(in srgb, var(--mantine-color-white) 60%, transparent)',
-            }}
           >
-            <Group justify="space-between" wrap="nowrap">
+            <Group justify="space-between" wrap="wrap">
               <Group gap="xs" wrap="nowrap" style={{ minWidth: 0 }}>
-                <ThemeIcon
-                  size={34}
-                  radius="md"
-                  color={d.isOverdue ? 'red' : 'blue'}
-                  variant="light"
-                >
+                <ThemeIcon size={34} radius="md" color="gray" variant="light">
                   <IconUserExclamation size={17} />
                 </ThemeIcon>
                 <Box style={{ minWidth: 0 }}>
@@ -75,11 +63,11 @@ export function TopDebtorsList({
                     {d.customerName}
                   </Text>
                   <Group gap={6}>
-                    <Badge size="xs" variant="light" color={d.isOverdue ? 'red' : 'gray'}>
+                    <Badge size="xs" variant="light" color="gray">
                       {d.invoiceCount} {t('invoiceUnit')}
                     </Badge>
                     {d.oldestDueDate && (
-                      <Text size="xs" c={d.isOverdue ? 'red.7' : 'dimmed'}>
+                      <Text size="xs" c="dimmed">
                         {t('dueDateLabel')} {formatDate(d.oldestDueDate, currentLanguage)}
                       </Text>
                     )}
@@ -88,11 +76,11 @@ export function TopDebtorsList({
               </Group>
 
               <Stack gap={2} align="flex-end" style={{ flexShrink: 0 }}>
-                <Text size="sm" fw={700} c={d.isOverdue ? 'red.8' : 'dark.9'}>
+                <Text size="sm" fw={700} c="dark.9">
                   {formatIDR(d.totalOutstanding)}
                 </Text>
                 {d.isOverdue && (
-                  <Badge size="xs" color="red" variant="filled">
+                  <Badge size="xs" color="orange" variant="light">
                     {t('overdueBadge')}
                   </Badge>
                 )}

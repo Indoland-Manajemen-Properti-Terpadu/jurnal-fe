@@ -1,11 +1,21 @@
 export const dashboard = {
+  miniSixMonths: '6 bulan',
+  miniOfReceivables: 'Dari piutang',
+  miniCollected: 'Tertagih',
+  miniAccounts: 'Saldo positif',
+  fundingLabel: 'Sumber pendanaan aset',
+  balanceUnavailable: 'Data neraca belum tersedia.',
+  dataErrorDescription:
+    'Angka pada bagian terkait belum tersedia. Muat ulang untuk mencoba kembali.',
+  dataErrorTitle: 'Sebagian data belum berhasil dimuat',
+  salesScope:
+    'Angka penjualan dan piutang mencakup {{count}} transaksi terakhir yang dimuat (maksimal 100).',
   greetingMorning: 'Selamat pagi',
   greetingAfternoon: 'Selamat siang',
   greetingEvening: 'Selamat sore',
   greetingNight: 'Selamat malam',
 
-  heroSubtitle:
-    'Pantau posisi kas, keseimbangan neraca, kualitas piutang, dan aktivitas pembukuan dalam satu ringkasan.',
+  heroSubtitle: 'Posisi kas, penagihan, dan prioritas pembukuan Anda.',
   spatialModeLabel: 'Mode Spasial 3D',
   spatialModeOn: 'Spasial 3D Aktif',
   spatialModeOff: 'Mode Standar',
@@ -13,9 +23,6 @@ export const dashboard = {
   btnCreateJournal: 'Buat Jurnal',
   btnSalesInvoice: 'Faktur Penjualan',
   btnRefresh: 'Muat Ulang',
-
-  periodLockedUntil: 'Periode {{name}} terkunci s.d. {{date}}',
-  periodUnlocked: 'Periode pembukuan terbuka (belum dikunci)',
 
   // Fundamental Accounting Equation
   equationTitle: 'Ringkasan Posisi Keuangan',
@@ -89,8 +96,9 @@ export const dashboard = {
   healthyBannerDesc: 'Tidak ada faktur jatuh tempo atau antrean perubahan yang tertunda saat ini.',
 
   // Charts & Widgets
-  trendTitle: 'Tren Penagihan & Penerimaan Kas (6 Bulan)',
-  trendSubtitle: 'Perbandingan nilai faktur terbit terhadap pembayaran kas yang diterima',
+  trendTitle: 'Tagihan & penerimaan',
+  trendSubtitle:
+    'Enam bulan berdasarkan bulan terbit faktur: nilai tagihan dan pembayaran yang telah diterima.',
   collectionBadge: 'Koleksi {{rate}}%',
   legendInvoiced: 'Ditagihkan (Faktur)',
   legendCollected: 'Terbayar (Kas Masuk)',
@@ -99,7 +107,7 @@ export const dashboard = {
   summary6mUncollected: 'Sisa Belum Tertagih',
   noTrendData: 'Belum ada faktur terbit dalam 6 bulan terakhir.',
 
-  agingTitle: 'Umur Piutang (Receivable Aging)',
+  agingTitle: 'Umur piutang',
   agingSubtitle: 'Klasifikasi sisa tagihan berdasarkan tingkat keterlambatan',
   agingTotalLabel: 'Total Piutang Terbuka',
   agingBucketCurrent: 'Belum jatuh tempo',
@@ -108,21 +116,21 @@ export const dashboard = {
   agingBucket60Plus: 'Terlambat > 60 hari',
   invoiceUnit: 'faktur',
 
-  bankTitle: 'Distribusi Rekening Kas & Bank',
+  bankTitle: 'Distribusi kas & bank',
   bankSubtitle: 'Posisi saldo riil pada masing-masing akun kas dan bank operasional',
   btnManageCash: 'Kelola Kas & Bank',
-  bankShareOfTotal: '{{pct}}% dari total kas',
+  bankShareOfTotal: '{{pct}}% dari saldo positif',
   bankEmpty: 'Belum ada rekening kas atau bank yang terdaftar.',
 
-  compositionTitle: 'Komposisi & Anatomi Neraca',
+  compositionTitle: 'Posisi keuangan',
   compositionSubtitleWithDate: 'Posisi keseimbangan neraca per {{date}}',
-  compositionSubtitleDefault: 'Proporsi aset lancar, aset tetap, kewajiban, dan ekuitas',
+  compositionSubtitleDefault: 'Aset, kewajiban, dan ekuitas',
   btnViewBalanceSheet: 'Buka Neraca',
   sliceCurrentAssets: 'Aset Lancar',
   sliceNonCurrentAssets: 'Aset Tidak Lancar',
   sliceLiabilities: 'Kewajiban (Hutang)',
   sliceEquity: 'Ekuitas (Modal)',
-  insightWorkingCapitalDesc: 'Selisih Aset Lancar terhadap Kewajiban (cadangan likuiditas bersih)',
+  insightWorkingCapitalDesc: 'Aset lancar dikurangi kewajiban lancar',
 
   // Tabbed Receivables / Invoices card
   tabTopDebtors: 'Prioritas Penagihan',
@@ -144,8 +152,8 @@ export const dashboard = {
   actionDelete: 'menghapus jurnal',
 
   // Control Center & Quick Actions
-  controlTitle: 'Pusat Kontrol & Pintasan Cepat',
-  controlSubtitle: 'Status antrean sistem dan akses instan transaksi harian',
+  controlTitle: 'Pekerjaan hari ini',
+  controlSubtitle: 'Tinjau persetujuan dan lanjutkan draf transaksi.',
   ctrlPendingChanges: 'Persetujuan Tertunda',
   ctrlDraftInvoices: 'Faktur Berstatus Draft',
   ctrlTotalContacts: 'Total Kontak & Mitra',

@@ -1,5 +1,5 @@
 import { Menu, UnstyledButton, Group, Text, Card, Stack, Badge, ThemeIcon } from '@mantine/core';
-import { CaretDown, Check, Translate } from '@phosphor-icons/react';
+import { CaretDown, Check } from '@phosphor-icons/react';
 import { notifications } from '@mantine/notifications';
 import { useTranslation, AVAILABLE_LANGUAGES, SupportedLanguage } from '@/i18n';
 
@@ -91,18 +91,17 @@ export const LanguageSwitcher = ({ variant = 'compact' }: LanguageSwitcherProps)
       <Menu.Target>
         <UnstyledButton
           style={{
-            padding: '6px 10px',
-            borderRadius: 24,
-            border: '1px solid var(--mantine-color-gray-3)',
+            padding: 'var(--mantine-spacing-xs)',
+            borderRadius: 'var(--mantine-radius-md)',
+            border: '1px solid transparent',
             backgroundColor: 'var(--mantine-color-white)',
             transition: 'all 0.15s ease',
           }}
           aria-label="Pilih bahasa / Select language"
         >
           <Group gap={6} wrap="nowrap">
-            <Translate size={16} weight="duotone" color="var(--mantine-color-blue-6)" />
             <Text fz="var(--jurnal-text-sm)" fw={700} c="dark.7">
-              {activeLang.flag} {activeLang.code.toUpperCase()}
+              {activeLang.code.toUpperCase()}
             </Text>
             <CaretDown size={12} weight="bold" color="var(--mantine-color-gray-5)" />
           </Group>

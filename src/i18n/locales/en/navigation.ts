@@ -1,4 +1,6 @@
 export const navigation = {
+  openMenu: 'Open navigation',
+  userMenu: 'User menu',
   // Groups
   groupMain: 'Main',
   groupTransactions: 'Transactions',

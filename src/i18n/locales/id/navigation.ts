@@ -1,4 +1,6 @@
 export const navigation = {
+  openMenu: 'Buka navigasi',
+  userMenu: 'Menu pengguna',
   // Groups
   groupMain: 'Utama',
   groupTransactions: 'Transaksi',
