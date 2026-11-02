@@ -1,11 +1,20 @@
 export const dashboard = {
+  miniSixMonths: '6 months',
+  miniOfReceivables: 'Of receivables',
+  miniCollected: 'Collected',
+  miniAccounts: 'Positive balances',
+  fundingLabel: 'How assets are financed',
+  balanceUnavailable: 'Balance sheet data is not available.',
+  dataErrorDescription: 'Figures in affected sections are unavailable. Refresh to try again.',
+  dataErrorTitle: 'Some data could not be loaded',
+  salesScope:
+    'Sales and receivable figures cover the latest {{count}} loaded transactions (maximum 100).',
   greetingMorning: 'Good morning',
   greetingAfternoon: 'Good afternoon',
   greetingEvening: 'Good evening',
   greetingNight: 'Good evening',
 
-  heroSubtitle:
-    'Track cash position, balance sheet health, receivable quality, and accounting activity in one overview.',
+  heroSubtitle: 'Your cash position, collections, and accounting priorities.',
   spatialModeLabel: '3D Spatial Mode',
   spatialModeOn: '3D Spatial Active',
   spatialModeOff: 'Standard View',
@@ -13,9 +22,6 @@ export const dashboard = {
   btnCreateJournal: 'New Journal Entry',
   btnSalesInvoice: 'Sales Invoice',
   btnRefresh: 'Refresh',
-
-  periodLockedUntil: 'Period {{name}} locked until {{date}}',
-  periodUnlocked: 'Accounting period open (unlocked)',
 
   // Fundamental Accounting Equation
   equationTitle: 'Financial Position Overview',
@@ -91,8 +97,8 @@ export const dashboard = {
     'No overdue invoices or pending approval items require urgent action right now.',
 
   // Charts & Widgets
-  trendTitle: '6-Month Billing & Cash Collection Trend',
-  trendSubtitle: 'Comparison of issued invoice value vs. actual cash payments received',
+  trendTitle: 'Billing & collections',
+  trendSubtitle: 'Six months by invoice issue month: billed value and payments collected to date.',
   collectionBadge: '{{rate}}% Collected',
   legendInvoiced: 'Invoiced (Billed)',
   legendCollected: 'Collected (Cash In)',
@@ -101,7 +107,7 @@ export const dashboard = {
   summary6mUncollected: 'Uncollected Balance',
   noTrendData: 'No published invoices in the last 6 months.',
 
-  agingTitle: 'Receivable Aging Analysis',
+  agingTitle: 'Receivable aging',
   agingSubtitle: 'Remaining receivable balances grouped by days past due',
   agingTotalLabel: 'Total Open Receivables',
   agingBucketCurrent: 'Current (Not due)',
@@ -110,21 +116,21 @@ export const dashboard = {
   agingBucket60Plus: '> 60 days overdue',
   invoiceUnit: 'invoices',
 
-  bankTitle: 'Cash & Bank Account Distribution',
+  bankTitle: 'Cash across accounts',
   bankSubtitle: 'Actual balance across each operational cash and bank account',
   btnManageCash: 'Manage Cash & Bank',
-  bankShareOfTotal: '{{pct}}% of total cash',
+  bankShareOfTotal: '{{pct}}% of positive balances',
   bankEmpty: 'No cash or bank accounts registered yet.',
 
-  compositionTitle: 'Balance Sheet Structure & Anatomy',
+  compositionTitle: 'Financial position',
   compositionSubtitleWithDate: 'Balance sheet position as of {{date}}',
-  compositionSubtitleDefault: 'Proportion of current assets, fixed assets, liabilities, and equity',
+  compositionSubtitleDefault: 'Assets, liabilities, and equity',
   btnViewBalanceSheet: 'Open Balance Sheet',
   sliceCurrentAssets: 'Current Assets',
   sliceNonCurrentAssets: 'Non-Current Assets',
   sliceLiabilities: 'Liabilities',
   sliceEquity: 'Equity',
-  insightWorkingCapitalDesc: 'Current Assets minus Liabilities (net short-term liquidity buffer)',
+  insightWorkingCapitalDesc: 'Current assets minus current liabilities',
 
   // Tabbed Receivables / Invoices card
   tabTopDebtors: 'Collection Priority',
@@ -146,8 +152,8 @@ export const dashboard = {
   actionDelete: 'deleted journal',
 
   // Control Center & Quick Actions
-  controlTitle: 'Control Center & Quick Actions',
-  controlSubtitle: 'System queue status and instant daily transaction launchers',
+  controlTitle: 'Today’s work',
+  controlSubtitle: 'Review approvals and continue draft transactions.',
   ctrlPendingChanges: 'Pending Approvals',
   ctrlDraftInvoices: 'Draft Invoices',
   ctrlTotalContacts: 'Total Contacts & Partners',

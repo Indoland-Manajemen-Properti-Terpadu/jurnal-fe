@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { Box, Collapse, Group, Text, Tooltip, UnstyledButton } from '@mantine/core';
 import { CaretRight } from '@phosphor-icons/react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -34,6 +34,7 @@ export function LinksGroup(props: LinksGroupProps) {
     collapsed = false,
     siblingLinks = [],
   } = props;
+  const subtreeId = useId();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -76,6 +77,7 @@ export function LinksGroup(props: LinksGroupProps) {
         key={item.label}
         className={classes.subLink}
         data-active={isCurrentChild || undefined}
+        aria-current={isCurrentChild ? 'page' : undefined}
         onClick={() => {
           navigate(item.link);
           closeSidebar();
@@ -106,7 +108,11 @@ export function LinksGroup(props: LinksGroupProps) {
         <UnstyledButton
           onClick={handleNavigation}
           className={classes.control}
-          data-active={isActive || undefined}
+          data-active={(isActive && (!hasLinks || collapsed)) || undefined}
+          data-section-active={(hasLinks && isActive) || undefined}
+          aria-expanded={hasLinks && !collapsed ? opened : undefined}
+          aria-controls={hasLinks && !collapsed ? subtreeId : undefined}
+          aria-current={isActive && !hasLinks ? 'page' : undefined}
           data-collapsed={collapsed || undefined}
         >
           <Group justify="space-between" gap={8} wrap="nowrap" w="100%">
@@ -140,7 +146,9 @@ export function LinksGroup(props: LinksGroupProps) {
       </Tooltip>
       {!collapsed && hasLinks && (
         <Collapse in={opened}>
-          <Box className={classes.subtree}>{items}</Box>
+          <Box id={subtreeId} className={classes.subtree}>
+            {items}
+          </Box>
         </Collapse>
       )}
     </>

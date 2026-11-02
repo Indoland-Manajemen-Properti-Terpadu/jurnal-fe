@@ -1,45 +1,26 @@
-.search input {
-  height: rem(40px);
-  background: color-mix(in srgb, var(--mantine-color-slate-1) 80%, transparent);
-  border: rem(1px) solid transparent;
-  transition:
-    background-color 150ms ease,
-    border-color 150ms ease,
-    box-shadow 150ms ease;
-}
-
-.search input:focus {
-  background: var(--mantine-color-white);
-  border-color: color-mix(in srgb, var(--mantine-color-secondary-6) 60%, transparent);
-  box-shadow: 0 0 0 rem(4px) color-mix(in srgb, var(--mantine-color-secondary-6) 15%, transparent);
-}
-
 .chip {
-  height: rem(36px);
-  padding: 0 rem(12px);
-  border-radius: rem(999px);
-  color: var(--mantine-color-primary-6);
-  background: color-mix(in srgb, var(--mantine-color-primary-6) 5%, transparent);
-  border: rem(1px) solid color-mix(in srgb, var(--mantine-color-primary-6) 8%, transparent);
-}
-
-.glow {
-  box-shadow: 0 8px 18px -8px color-mix(in srgb, var(--mantine-color-primary-6) 70%, transparent);
+  color: var(--jurnal-color-text-secondary);
+  padding-right: var(--mantine-spacing-sm);
+  margin-right: var(--mantine-spacing-xs);
+  border-right: 1px solid var(--jurnal-color-border-subtle);
 }
 
 .iconBtn {
-  border-color: color-mix(in srgb, var(--mantine-color-slate-9) 8%, transparent);
-  background: color-mix(in srgb, var(--mantine-color-white) 80%, transparent);
+  border-color: var(--jurnal-color-border-subtle);
+  background: var(--jurnal-color-surface);
 }
 
 .user {
-  padding: rem(4px) rem(10px) rem(4px) rem(4px);
-  border-radius: rem(999px);
-  border: rem(1px) solid color-mix(in srgb, var(--mantine-color-slate-9) 8%, transparent);
-  background: color-mix(in srgb, var(--mantine-color-white) 80%, transparent);
-  transition: box-shadow 150ms ease;
+  padding: rem(4px) rem(8px);
+  border-radius: var(--mantine-radius-md);
+  transition: background-color 150ms ease;
 }
 
 .user:hover {
-  box-shadow: 0 6px 16px -8px color-mix(in srgb, var(--mantine-color-primary-6) 35%, transparent);
+  background: var(--jurnal-color-surface-hover);
+}
+
+.user:focus-visible {
+  outline: 2px solid var(--jurnal-color-primary);
+  outline-offset: 2px;
 }

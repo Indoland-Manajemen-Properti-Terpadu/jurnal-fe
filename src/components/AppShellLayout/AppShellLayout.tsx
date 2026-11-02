@@ -53,9 +53,7 @@ const AppShellLayout = ({
           height: rem(appShellLayout.headerHeight),
           borderBottom:
             '1px solid color-mix(in srgb, var(--mantine-color-slate-9) 6%, transparent)',
-          background: 'color-mix(in srgb, var(--mantine-color-white) 78%, transparent)',
-          backdropFilter: 'blur(16px) saturate(160%)',
-          WebkitBackdropFilter: 'blur(16px) saturate(160%)',
+          background: 'var(--jurnal-color-surface)',
         }}
       >
         <Container fluid h="100%" px={{ base: 'md', sm: 'lg' }}>
@@ -87,9 +85,7 @@ const AppShellLayout = ({
           px={footer ? 'lg' : undefined}
           style={{
             borderTop: '1px solid color-mix(in srgb, var(--mantine-color-slate-9) 6%, transparent)',
-            background: 'color-mix(in srgb, var(--mantine-color-white) 82%, transparent)',
-            backdropFilter: 'blur(16px) saturate(160%)',
-            WebkitBackdropFilter: 'blur(16px) saturate(160%)',
+            background: 'var(--jurnal-color-surface)',
           }}
         >
           {footer ?? (
