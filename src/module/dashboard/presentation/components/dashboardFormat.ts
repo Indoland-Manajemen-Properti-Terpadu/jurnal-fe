@@ -9,6 +9,7 @@ const idrCompact = new Intl.NumberFormat('id-ID', {
   notation: 'compact',
   maximumFractionDigits: 1,
 });
+const enCompact = new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 });
 const dateFmtId = new Intl.DateTimeFormat('id-ID', {
   day: 'numeric',
   month: 'short',
@@ -33,7 +34,8 @@ export const timeFmtEn = new Intl.DateTimeFormat('en-US', {
 });
 
 export const formatIDR = (v: number) => idr.format(v);
-export const formatCompact = (v: number) => `Rp ${idrCompact.format(v)}`;
+export const formatCompact = (v: number, lang: 'id' | 'en' = 'id') =>
+  `Rp ${(lang === 'en' ? enCompact : idrCompact).format(v)}`;
 export const formatDate = (iso?: string | null, lang: 'id' | 'en' = 'id') => {
   if (!iso) return '—';
   const d = new Date(iso);

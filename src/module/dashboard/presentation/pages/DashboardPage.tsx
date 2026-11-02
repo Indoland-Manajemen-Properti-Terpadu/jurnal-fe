@@ -1,15 +1,15 @@
 import { useMemo, useState } from 'react';
 import {
   Badge,
-  Box,
   Button,
   Grid,
   Group,
   SegmentedControl,
   SimpleGrid,
   Stack,
+  Text,
+  Alert,
 } from '@mantine/core';
-import { IconAlertTriangle, IconBuildingBank, IconCoin, IconWallet } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { AppShellLayout } from '@/components/AppShellLayout';
@@ -22,9 +22,14 @@ import { ActivityFeed } from '@/module/dashboard/presentation/components/Activit
 import { AgingList } from '@/module/dashboard/presentation/components/AgingList';
 import { BankAccountsList } from '@/module/dashboard/presentation/components/BankAccountsList';
 import { CardHeader } from '@/module/dashboard/presentation/components/CardHeader';
-import { CompositionDonut } from '@/module/dashboard/presentation/components/CompositionDonut';
+import { BalancePosition } from '@/module/dashboard/presentation/components/BalancePosition';
 import { GlassCard } from '@/module/dashboard/presentation/components/GlassCard';
 import { ControlCenterCard } from '@/module/dashboard/presentation/components/ControlCenterCard';
+import {
+  MiniBars,
+  CollectionRing,
+  OverdueShare,
+} from '@/module/dashboard/presentation/components/MetricVisual';
 import { KpiTile } from '@/module/dashboard/presentation/components/KpiTile';
 import { RecentInvoices } from '@/module/dashboard/presentation/components/RecentInvoices';
 import { SalesTrendChart } from '@/module/dashboard/presentation/components/SalesTrendChart';
@@ -38,7 +43,6 @@ import {
   dashboardKeys,
   useAccountingPeriods,
   useBalanceSheetSummary,
-  useContactTotal,
   useJournalAuditLogs,
   usePendingChangesCount,
   useRecentSales,
@@ -49,6 +53,7 @@ import {
   getCashBalance,
   getFinancialHealthSummary,
   getMonthlyTrend,
+  getMonthlyNetSalesTrend,
   getReceivableAging,
   getSalesKpis,
   getTopDebtors,
@@ -60,7 +65,6 @@ function DashboardPage() {
   const { userName } = useAuthStore();
   const { t, currentLanguage } = useTranslation('dashboard');
 
-  const spatialMode = false;
   const [receivableTab, setReceivableTab] = useState<'debtors' | 'invoices'>('debtors');
 
   const balanceQ = useBalanceSheetSummary();
@@ -68,7 +72,6 @@ function DashboardPage() {
   const pendingQ = usePendingChangesCount();
   const periodsQ = useAccountingPeriods();
   const auditQ = useJournalAuditLogs();
-  const contactsQ = useContactTotal();
 
   const sales = useMemo(() => salesQ.data?.items ?? [], [salesQ.data]);
   const kpi = useMemo(() => getSalesKpis(sales), [sales]);
@@ -76,6 +79,7 @@ function DashboardPage() {
     () => getMonthlyTrend(sales, 6, new Date(), currentLanguage),
     [sales, currentLanguage]
   );
+  const netSalesTrend = useMemo(() => getMonthlyNetSalesTrend(sales, trend), [sales, trend]);
   const aging = useMemo(
     () =>
       getReceivableAging(sales, new Date(), {
@@ -109,9 +113,7 @@ function DashboardPage() {
     [sales]
   );
 
-  const isFetching = [balanceQ, salesQ, pendingQ, periodsQ, auditQ, contactsQ].some(
-    (q) => q.isFetching
-  );
+  const isFetching = [balanceQ, salesQ, pendingQ, periodsQ, auditQ].some((q) => q.isFetching);
 
   const greetingText = useMemo(() => {
     const h = new Date().getHours();
@@ -123,246 +125,263 @@ function DashboardPage() {
 
   return (
     <AppShellLayout withFooter>
-      <Box className={classes.stage}>
-        <Box className={`${classes.orb} ${classes.orbA}`} />
-        <Box className={`${classes.orb} ${classes.orbB}`} />
+      <Stack className={classes.stage} gap="lg">
+        <DashboardHero
+          greeting={greetingText}
+          userName={userName || t('userFallback')}
+          isRefreshing={isFetching}
+          onRefresh={() => queryClient.invalidateQueries({ queryKey: dashboardKeys.all })}
+          onCreateJournal={() => navigate(routes.journalEntries.add)}
+        />
 
-        <Stack gap="lg">
-          {/* ---------- Financial overview hero ---------- */}
-          <DashboardHero
-            greeting={greetingText}
-            userName={userName || t('userFallback')}
-            periodLabel={
-              activePeriod
-                ? t('periodLockedUntil', {
-                    name: activePeriod.name,
-                    date: formatDate(activePeriod.endDate, currentLanguage),
-                  })
-                : t('periodUnlocked')
+        {[balanceQ, salesQ, pendingQ, periodsQ, auditQ].some((q) => q.isError) && (
+          <Alert color="orange" title={t('dataErrorTitle')}>
+            {t('dataErrorDescription')}
+          </Alert>
+        )}
+        <SimpleGrid className={classes.kpiStrip} cols={{ base: 1, xs: 2, xl: 4 }} spacing="sm">
+          <KpiTile
+            visual={
+              !balanceQ.isError && (
+                <MiniBars
+                  points={bankAccounts
+                    .filter((account) => account.balance > 0)
+                    .slice(0, 6)
+                    .map((account) => ({ label: account.accountName, value: account.balance }))}
+                  label={t('miniAccounts')}
+                />
+              )
             }
-            isPeriodLocked={activePeriod?.type === 'LOCK' || activePeriod?.type === 'CLOSE'}
-            isBalanced={health.isBalanced}
-            hasData={Boolean(bs)}
-            totalAssets={health.totalAssets}
-            totalLiabilities={health.totalLiabilities}
-            totalEquity={health.totalEquity}
-            liabilityRatio={health.liabilityRatio}
-            equityRatio={health.equityRatio}
-            isRefreshing={isFetching}
-            onRefresh={() => queryClient.invalidateQueries({ queryKey: dashboardKeys.all })}
-            onOpenPeriod={() => navigate(routes.periodClosing.list)}
-            onOpenBalanceSheet={() => navigate(routes.reports.balanceSheet)}
-            onCreateJournal={() => navigate(routes.journalEntries.add)}
+            label={t('kpiCashLabel')}
+            value={balanceQ.isError ? '—' : formatIDR(cash)}
+            compactValue={balanceQ.isError ? '—' : formatCompact(cash, currentLanguage)}
+            loading={balanceQ.isLoading}
+            hint={!balanceQ.isError && t('kpiCashHint', { count: bankAccounts.length })}
+            onClick={() => navigate(routes.bankCash.main)}
           />
-
-          <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }} spacing="lg">
-            <KpiTile
-              label={t('kpiCashLabel')}
-              value={formatIDR(cash)}
-              description={t('kpiCashDesc')}
-              icon={IconBuildingBank}
-              tone="primary"
-              loading={balanceQ.isLoading}
-              delay={40}
-              spatialTilt={spatialMode}
-              hint={t('kpiCashHint', { count: bankAccounts.length })}
-              onClick={() => navigate(routes.bankCash.main)}
-            />
-            <KpiTile
-              label={t('kpiReceivableLabel')}
-              value={formatIDR(kpi.outstanding)}
-              description={t('kpiReceivableDesc')}
-              icon={IconWallet}
-              tone="cyan"
-              loading={salesQ.isLoading}
-              delay={90}
-              spatialTilt={spatialMode}
-              hint={t('kpiReceivableHint', { count: kpi.openCount })}
-              onClick={() => navigate(routes.sales.main)}
-            />
-            <KpiTile
-              label={t('kpiOverdueLabel')}
-              value={formatIDR(kpi.overdueAmount)}
-              description={t('kpiOverdueDesc')}
-              icon={IconAlertTriangle}
-              tone={kpi.overdueCount > 0 ? 'red' : 'teal'}
-              loading={salesQ.isLoading}
-              delay={140}
-              spatialTilt={spatialMode}
-              hint={
-                kpi.overdueCount > 0
+          <KpiTile
+            visual={
+              !salesQ.isError &&
+              kpi.totalInvoiced > 0 && (
+                <CollectionRing rate={kpi.collectionRate} label={t('miniCollected')} />
+              )
+            }
+            label={t('kpiReceivableLabel')}
+            value={salesQ.isError ? '—' : formatIDR(kpi.outstanding)}
+            compactValue={salesQ.isError ? '—' : formatCompact(kpi.outstanding, currentLanguage)}
+            loading={salesQ.isLoading}
+            hint={!salesQ.isError && t('kpiReceivableHint', { count: kpi.openCount })}
+            onClick={() => navigate(routes.sales.main)}
+          />
+          <KpiTile
+            visual={
+              !salesQ.isError && (
+                <OverdueShare
+                  amount={kpi.overdueAmount}
+                  total={kpi.outstanding}
+                  label={t('miniOfReceivables')}
+                />
+              )
+            }
+            label={t('kpiOverdueLabel')}
+            value={salesQ.isError ? '—' : formatIDR(kpi.overdueAmount)}
+            compactValue={salesQ.isError ? '—' : formatCompact(kpi.overdueAmount, currentLanguage)}
+            loading={salesQ.isLoading}
+            hint={
+              salesQ.isError
+                ? null
+                : kpi.overdueCount > 0
                   ? t('kpiOverdueHintActive', { count: kpi.overdueCount })
                   : t('kpiOverdueHintClear')
-              }
-              onClick={() => navigate(routes.sales.main)}
-            />
-            <KpiTile
-              label={t('kpiRevenueLabel')}
-              value={formatIDR(kpi.monthRevenue)}
-              description={t('kpiRevenueDesc')}
-              icon={IconCoin}
-              tone="teal"
-              loading={salesQ.isLoading}
-              delay={190}
-              spatialTilt={spatialMode}
-              hint={t('kpiRevenueHint', { count: kpi.monthCount, draft: kpi.draftCount })}
-              onClick={() => navigate(routes.sales.main)}
-            />
-          </SimpleGrid>
+            }
+            onClick={() => navigate(routes.sales.main)}
+          />
+          <KpiTile
+            visual={
+              !salesQ.isError && <MiniBars points={netSalesTrend} label={t('miniSixMonths')} />
+            }
+            label={t('kpiRevenueLabel')}
+            value={salesQ.isError ? '—' : formatIDR(kpi.monthRevenue)}
+            compactValue={salesQ.isError ? '—' : formatCompact(kpi.monthRevenue, currentLanguage)}
+            loading={salesQ.isLoading}
+            hint={
+              !salesQ.isError &&
+              t('kpiRevenueHint', { count: kpi.monthCount, draft: kpi.draftCount })
+            }
+            onClick={() => navigate(routes.sales.main)}
+          />
+        </SimpleGrid>
+        <Text size="xs" c="dimmed" className={classes.scopeNote}>
+          {t('salesScope', { count: sales.length })}
+        </Text>
 
-          <Grid gutter="lg">
-            <Grid.Col span={{ base: 12, lg: 8 }}>
-              <GlassCard spatialTilt={spatialMode} delay={220} h="100%">
-                <CardHeader
-                  title={t('trendTitle')}
-                  subtitle={t('trendSubtitle')}
-                  right={
-                    <Badge
-                      variant="light"
-                      color={kpi.collectionRate >= 80 ? 'teal' : 'orange'}
-                      size="lg"
-                      radius="md"
-                    >
-                      {t('collectionBadge', { rate: kpi.collectionRate.toFixed(0) })}
-                    </Badge>
-                  }
-                />
+        <Grid gutter="lg">
+          <Grid.Col span={{ base: 12, lg: 8 }}>
+            <GlassCard h="100%">
+              <CardHeader
+                title={t('trendTitle')}
+                subtitle={t('trendSubtitle')}
+                right={
+                  <Badge variant="light" color="primary" size="lg" radius="md">
+                    {salesQ.isError || salesQ.isLoading
+                      ? '—'
+                      : t('collectionBadge', { rate: kpi.collectionRate.toFixed(0) })}
+                  </Badge>
+                }
+              />
+              {salesQ.isError ? (
+                <Text size="sm" c="dimmed">
+                  {t('dataErrorDescription')}
+                </Text>
+              ) : (
                 <SalesTrendChart data={trend} loading={salesQ.isLoading} />
-              </GlassCard>
-            </Grid.Col>
+              )}
+            </GlassCard>
+          </Grid.Col>
 
-            <Grid.Col span={{ base: 12, lg: 4 }}>
-              <GlassCard spatialTilt={spatialMode} delay={260} h="100%">
-                <CardHeader title={t('agingTitle')} subtitle={t('agingSubtitle')} />
-                <AgingList buckets={aging} loading={salesQ.isLoading} />
-              </GlassCard>
-            </Grid.Col>
-          </Grid>
+          <ControlCenterCard
+            pendingCount={pendingQ.data ?? 0}
+            pendingLoading={pendingQ.isLoading}
+            pendingError={pendingQ.isError}
+            draftError={salesQ.isError}
+            draftCount={kpi.draftCount}
+            draftLoading={salesQ.isLoading}
+            activePeriodName={periodsQ.isError || periodsQ.isLoading ? '—' : activePeriod?.name}
+          />
+        </Grid>
 
-          <Grid gutter="lg">
-            {/* Cash & Bank Accounts Distribution */}
-            <Grid.Col span={{ base: 12, lg: 6 }}>
-              <GlassCard spatialTilt={spatialMode} delay={300} h="100%">
-                <CardHeader
-                  title={t('bankTitle')}
-                  subtitle={t('bankSubtitle')}
-                  right={
-                    <Button
-                      variant="light"
-                      color="primary"
-                      size="xs"
-                      radius="md"
-                      onClick={() => navigate(routes.bankCash.main)}
-                    >
-                      {t('btnManageCash')}
-                    </Button>
-                  }
+        <Grid gutter="lg">
+          <Grid.Col span={{ base: 12, lg: 8 }}>
+            <GlassCard h="100%">
+              <Group justify="space-between" align="center" mb="md" wrap="wrap" gap="xs">
+                <SegmentedControl
+                  size="xs"
+                  radius="md"
+                  color="primary"
+                  value={receivableTab}
+                  onChange={(v) => setReceivableTab(v as 'debtors' | 'invoices')}
+                  data={[
+                    { label: t('tabTopDebtors'), value: 'debtors' },
+                    { label: t('tabRecentInvoices'), value: 'invoices' },
+                  ]}
                 />
+                <Button variant="subtle" size="xs" onClick={() => navigate(routes.sales.main)}>
+                  {t('btnViewAllSales')}
+                </Button>
+              </Group>
+
+              {salesQ.isError ? (
+                <Text size="sm" c="dimmed">
+                  {t('dataErrorDescription')}
+                </Text>
+              ) : receivableTab === 'debtors' ? (
+                <TopDebtorsList
+                  debtors={topDebtors}
+                  loading={salesQ.isLoading}
+                  onOpenDebtor={() => navigate(routes.sales.main)}
+                />
+              ) : (
+                <RecentInvoices
+                  items={recentSales}
+                  loading={salesQ.isLoading}
+                  onOpen={(s) => navigate(routes.sales.detail.replace(':id', s.id))}
+                />
+              )}
+            </GlassCard>
+          </Grid.Col>
+
+          <Grid.Col span={{ base: 12, lg: 4 }}>
+            <GlassCard h="100%">
+              <CardHeader title={t('agingTitle')} subtitle={t('agingSubtitle')} />
+              {salesQ.isError ? (
+                <Text size="sm" c="dimmed">
+                  {t('dataErrorDescription')}
+                </Text>
+              ) : (
+                <AgingList buckets={aging} loading={salesQ.isLoading} />
+              )}
+            </GlassCard>
+          </Grid.Col>
+        </Grid>
+
+        <Grid gutter="lg">
+          <Grid.Col span={{ base: 12, lg: 6 }}>
+            <GlassCard h="100%">
+              <CardHeader
+                title={t('bankTitle')}
+                subtitle={t('bankSubtitle')}
+                right={
+                  <Button
+                    variant="light"
+                    color="primary"
+                    size="xs"
+                    radius="md"
+                    onClick={() => navigate(routes.bankCash.main)}
+                  >
+                    {t('btnManageCash')}
+                  </Button>
+                }
+              />
+              {balanceQ.isError ? (
+                <Text size="sm" c="dimmed">
+                  {t('dataErrorDescription')}
+                </Text>
+              ) : (
                 <BankAccountsList
                   accounts={bankAccounts}
                   loading={balanceQ.isLoading}
                   onOpenAccount={() => navigate(routes.bankCash.main)}
                 />
-              </GlassCard>
-            </Grid.Col>
-
-            {/* Balance Sheet Composition Donut + Net Working Capital */}
-            <Grid.Col span={{ base: 12, lg: 6 }}>
-              <GlassCard spatialTilt={spatialMode} delay={340} h="100%">
-                <CardHeader
-                  title={t('compositionTitle')}
-                  subtitle={
-                    bs
-                      ? t('compositionSubtitleWithDate', {
-                          date: formatDate(bs.endDate, currentLanguage),
-                        })
-                      : t('compositionSubtitleDefault')
-                  }
-                  right={
-                    <Button
-                      variant="light"
-                      color="primary"
-                      size="xs"
-                      radius="md"
-                      onClick={() => navigate(routes.reports.balanceSheet)}
-                    >
-                      {t('btnViewBalanceSheet')}
-                    </Button>
-                  }
-                />
-                <CompositionDonut
-                  loading={balanceQ.isLoading}
-                  centerLabel={t('totalAssets')}
-                  centerValue={bs ? formatCompact(bs.totalAssets) : '—'}
-                  netWorkingCapital={bs ? health.netWorkingCapital : undefined}
-                  slices={[
-                    {
-                      label: t('sliceCurrentAssets'),
-                      value: bs?.totalCurrentAssets ?? 0,
-                      color: 'var(--mantine-color-secondary-6)',
-                    },
-                    {
-                      label: t('sliceNonCurrentAssets'),
-                      value: bs?.totalNonCurrentAssets ?? 0,
-                      color: 'var(--mantine-color-primary-6)',
-                    },
-                    {
-                      label: t('sliceLiabilities'),
-                      value: bs?.totalLiabilities ?? 0,
-                      color: 'var(--mantine-color-amber-5)',
-                    },
-                    {
-                      label: t('sliceEquity'),
-                      value: bs?.totalEquity ?? 0,
-                      color: 'var(--mantine-color-teal-5)',
-                    },
-                  ]}
-                />
-              </GlassCard>
-            </Grid.Col>
-          </Grid>
-
-          <Grid gutter="lg">
-            {/* Col 1: Tabbed Collection Priority & Recent Sales Invoices */}
-            <Grid.Col span={{ base: 12, lg: 5 }}>
-              <GlassCard spatialTilt={spatialMode} delay={380} h="100%">
-                <Group justify="space-between" align="center" mb="md" wrap="wrap" gap="xs">
-                  <SegmentedControl
+              )}
+            </GlassCard>
+          </Grid.Col>
+          <Grid.Col span={{ base: 12, lg: 6 }}>
+            <GlassCard h="100%">
+              <CardHeader
+                title={t('compositionTitle')}
+                subtitle={
+                  bs
+                    ? t('compositionSubtitleWithDate', {
+                        date: formatDate(bs.endDate, currentLanguage),
+                      })
+                    : t('compositionSubtitleDefault')
+                }
+                right={
+                  <Button
+                    variant="light"
+                    color="primary"
                     size="xs"
                     radius="md"
-                    color="primary"
-                    value={receivableTab}
-                    onChange={(v) => setReceivableTab(v as 'debtors' | 'invoices')}
-                    data={[
-                      { label: t('tabTopDebtors'), value: 'debtors' },
-                      { label: t('tabRecentInvoices'), value: 'invoices' },
-                    ]}
-                  />
-                  <Button variant="subtle" size="xs" onClick={() => navigate(routes.sales.main)}>
-                    {t('btnViewAllSales')}
+                    onClick={() => navigate(routes.reports.balanceSheet)}
+                  >
+                    {t('btnViewBalanceSheet')}
                   </Button>
-                </Group>
+                }
+              />
+              <BalancePosition
+                hasData={Boolean(bs) && !balanceQ.isError}
+                loading={balanceQ.isLoading}
+                isBalanced={health.isBalanced}
+                assets={health.totalAssets}
+                liabilities={health.totalLiabilities}
+                equity={health.totalEquity}
+                liabilityRatio={health.liabilityRatio}
+                equityRatio={health.equityRatio}
+                workingCapital={health.netWorkingCapital}
+              />
+            </GlassCard>
+          </Grid.Col>
+        </Grid>
 
-                {receivableTab === 'debtors' ? (
-                  <TopDebtorsList
-                    debtors={topDebtors}
-                    loading={salesQ.isLoading}
-                    onOpenDebtor={() => navigate(routes.sales.main)}
-                  />
-                ) : (
-                  <RecentInvoices
-                    items={recentSales}
-                    loading={salesQ.isLoading}
-                    onOpen={(s) => navigate(routes.sales.detail.replace(':id', s.id))}
-                  />
-                )}
-              </GlassCard>
-            </Grid.Col>
-
-            {/* Col 2: General Ledger Audit Trail */}
-            <Grid.Col span={{ base: 12, md: 6, lg: 4 }}>
-              <GlassCard spatialTilt={spatialMode} delay={420} h="100%">
-                <CardHeader title={t('activityTitle')} subtitle={t('activitySubtitle')} />
+        <Grid gutter="lg">
+          <Grid.Col span={12}>
+            <GlassCard h="100%">
+              <CardHeader title={t('activityTitle')} subtitle={t('activitySubtitle')} />
+              {auditQ.isError ? (
+                <Text size="sm" c="dimmed">
+                  {t('dataErrorDescription')}
+                </Text>
+              ) : (
                 <ActivityFeed
                   items={auditQ.data ?? []}
                   loading={auditQ.isLoading}
@@ -371,21 +390,11 @@ function DashboardPage() {
                     navigate(routes.journalEntries.detail.replace(':idTransaction', a.journalId))
                   }
                 />
-              </GlassCard>
-            </Grid.Col>
-
-            <ControlCenterCard
-              pendingCount={pendingQ.data ?? 0}
-              pendingLoading={pendingQ.isLoading}
-              draftCount={kpi.draftCount}
-              draftLoading={salesQ.isLoading}
-              contactTotal={contactsQ.data ?? 0}
-              contactsLoading={contactsQ.isLoading}
-              activePeriodName={activePeriod?.name}
-            />
-          </Grid>
-        </Stack>
-      </Box>
+              )}
+            </GlassCard>
+          </Grid.Col>
+        </Grid>
+      </Stack>
     </AppShellLayout>
   );
 }

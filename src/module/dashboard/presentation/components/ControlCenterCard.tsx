@@ -1,4 +1,4 @@
-import { Badge, Box, Divider, Grid, Group, Stack, Text } from '@mantine/core';
+import { Badge, Box, Button, Grid, Group, Stack, Text, UnstyledButton } from '@mantine/core';
 import {
   IconBuildingBank,
   IconCalendarStats,
@@ -6,94 +6,78 @@ import {
   IconFileInvoice,
   IconNotebook,
   IconShieldCheck,
-  IconUsers,
   IconWallet,
 } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { routes } from '@/router/routes';
 import { useTranslation } from '@/i18n';
 import classes from './dashboard.module.css';
-import { CardHeader } from './CardHeader';
-import { GlassCard } from './GlassCard';
-import { QuickActions } from './QuickActions';
 
 type ControlCenterCardProps = {
   pendingCount: number;
   pendingLoading: boolean;
+  pendingError: boolean;
+  draftError: boolean;
   draftCount: number;
   draftLoading: boolean;
-  contactTotal: number;
-  contactsLoading: boolean;
   activePeriodName?: string;
 };
 
 export function ControlCenterCard({
   pendingCount,
   pendingLoading,
+  pendingError,
+  draftError,
   draftCount,
   draftLoading,
-  contactTotal,
-  contactsLoading,
   activePeriodName,
 }: Readonly<ControlCenterCardProps>) {
   const navigate = useNavigate();
   const { t } = useTranslation('dashboard');
 
   return (
-    <Grid.Col span={{ base: 12, md: 6, lg: 3 }}>
-      <GlassCard spatialTilt={false} delay={460} h="100%">
-        <CardHeader title={t('controlTitle')} subtitle={t('controlSubtitle')} />
+    <Grid.Col span={{ base: 12, lg: 4 }}>
+      <Box className={classes.workPanel} h="100%">
+        <Text size="lg" fw={600} c="white">
+          {t('controlTitle')}
+        </Text>
+        <Text size="xs" className={classes.workSubtitle} mt={4} mb="lg">
+          {t('controlSubtitle')}
+        </Text>
 
         <Stack gap="xs">
           {[
             {
               icon: IconShieldCheck,
-              color: pendingCount > 0 ? 'orange' : 'teal',
+              color: pendingCount > 0 ? 'orange' : 'gray',
               label: t('ctrlPendingChanges'),
-              value: pendingLoading ? '…' : String(pendingCount),
+              value: pendingError ? '—' : pendingLoading ? '…' : String(pendingCount),
               onClick: () => navigate(routes.pendingChanges.main),
             },
             {
               icon: IconFileInvoice,
-              color: draftCount > 0 ? 'blue' : 'gray',
+              color: draftCount > 0 ? 'primary' : 'gray',
               label: t('ctrlDraftInvoices'),
-              value: draftLoading ? '…' : String(draftCount),
+              value: draftError ? '—' : draftLoading ? '…' : String(draftCount),
               onClick: () => navigate(routes.sales.main),
-            },
-            {
-              icon: IconUsers,
-              color: 'violet',
-              label: t('ctrlTotalContacts'),
-              value: contactsLoading ? '…' : String(contactTotal),
-              onClick: () => navigate(routes.contacts.main),
-            },
-            {
-              icon: IconCalendarStats,
-              color: activePeriodName ? 'primary' : 'gray',
-              label: t('ctrlActivePeriod'),
-              value: activePeriodName ?? t('periodOpenValue'),
-              onClick: () => navigate(routes.periodClosing.list),
             },
           ].map((row) => (
             <Group
+              component={UnstyledButton}
+              w="100%"
               key={row.label}
               justify="space-between"
               wrap="nowrap"
               p={8}
-              className={classes.rowHover}
+              className={`${classes.workRow} ${classes.workRowInteractive}`}
               onClick={row.onClick}
-              style={{
-                border:
-                  '1px solid color-mix(in srgb, var(--mantine-color-slate-9) 6%, transparent)',
-                background: 'color-mix(in srgb, var(--mantine-color-white) 65%, transparent)',
-              }}
             >
               <Group gap="xs" wrap="nowrap" style={{ minWidth: 0 }}>
                 <Box
                   w={30}
                   h={30}
-                  bg={`${row.color}.0`}
-                  c={`${row.color}.7`}
+                  bg="transparent"
+                  c="white"
                   style={{
                     borderRadius: 8,
                     display: 'grid',
@@ -103,20 +87,46 @@ export function ControlCenterCard({
                 >
                   <row.icon size={16} />
                 </Box>
-                <Text size="xs" fw={600} c="dark.7" truncate>
+                <Text size="xs" fw={600} c="white" truncate>
                   {row.label}
                 </Text>
               </Group>
-              <Badge variant="light" color={row.color} size="sm" radius="sm">
+              <Badge variant="white" color="primary" size="sm" radius="sm">
                 {row.value}
               </Badge>
             </Group>
           ))}
 
-          <Divider my={4} label={t('quickActionsLabel')} labelPosition="center" />
+          <Group w="100%" justify="space-between" wrap="nowrap" p={8} className={classes.workRow}>
+            <Group gap="xs" wrap="nowrap" style={{ minWidth: 0 }}>
+              <Box
+                w={30}
+                h={30}
+                bg="transparent"
+                c="white"
+                style={{
+                  borderRadius: 8,
+                  display: 'grid',
+                  placeItems: 'center',
+                  flexShrink: 0,
+                }}
+              >
+                <IconCalendarStats size={16} />
+              </Box>
+              <Text size="xs" fw={600} c="white" truncate>
+                {t('ctrlActivePeriod')}
+              </Text>
+            </Group>
+            <Badge variant="white" color="primary" size="sm" radius="sm">
+              {activePeriodName ?? t('periodOpenValue')}
+            </Badge>
+          </Group>
 
-          <QuickActions
-            actions={[
+          <Text size="xs" className={classes.workSubtitle} mt="md">
+            {t('quickActionsLabel')}
+          </Text>
+          <Box className={classes.workActions}>
+            {[
               {
                 label: t('qaGeneralJournal'),
                 icon: IconNotebook,
@@ -126,25 +136,37 @@ export function ControlCenterCard({
               {
                 label: t('qaReceiveMoney'),
                 icon: IconCoin,
-                tone: 'teal',
+                tone: 'primary',
                 onClick: () => navigate(routes.bankCash.addReceive),
               },
               {
                 label: t('qaSendMoney'),
                 icon: IconWallet,
-                tone: 'orange',
+                tone: 'primary',
                 onClick: () => navigate(routes.bankCash.addSent),
               },
               {
                 label: t('qaTransferCash'),
                 icon: IconBuildingBank,
-                tone: 'cyan',
+                tone: 'primary',
                 onClick: () => navigate(routes.bankCash.addTransfer),
               },
-            ]}
-          />
+            ].map((action) => (
+              <Button
+                key={action.label}
+                variant="subtle"
+                className={classes.workAction}
+                size="xs"
+                justify="flex-start"
+                leftSection={<action.icon size={16} />}
+                onClick={action.onClick}
+              >
+                {action.label}
+              </Button>
+            ))}
+          </Box>
         </Stack>
-      </GlassCard>
+      </Box>
     </Grid.Col>
   );
 }

@@ -60,15 +60,8 @@ export function BankAccountsList({
                 className={classes.rowHover}
                 p="sm"
                 onClick={() => onOpenAccount?.(acc)}
-                style={{
-                  border:
-                    '1px solid color-mix(in srgb, var(--mantine-color-slate-9) 6%, transparent)',
-                  borderRadius: 12,
-                  backgroundColor:
-                    'color-mix(in srgb, var(--mantine-color-white) 65%, transparent)',
-                }}
               >
-                <Group justify="space-between" wrap="nowrap" mb={6}>
+                <Group justify="space-between" wrap="wrap" mb={8}>
                   <Group gap="xs" wrap="nowrap" style={{ minWidth: 0 }}>
                     <ThemeIcon size={34} radius="md" color="primary" variant="light">
                       <IconBuildingBank size={17} />
@@ -77,7 +70,7 @@ export function BankAccountsList({
                       <Text size="sm" fw={600} c="dark.8" truncate>
                         {acc.accountName}
                       </Text>
-                      <Text size="xs" c="dimmed" ff="monospace">
+                      <Text size="xs" c="dimmed">
                         {acc.accountNumber ?? t('bankAccountFallback')}
                       </Text>
                     </Box>
@@ -92,7 +85,13 @@ export function BankAccountsList({
                     </Text>
                   </Stack>
                 </Group>
-                <Progress value={pct} size={5} radius="xl" color="primary.5" />
+                <Progress
+                  value={pct}
+                  size={8}
+                  radius="sm"
+                  color="primary.5"
+                  aria-label={acc.accountName}
+                />
               </UnstyledButton>
             );
           })}
