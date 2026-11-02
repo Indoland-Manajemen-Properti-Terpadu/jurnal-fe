@@ -97,7 +97,14 @@ export function AccessTab({ user, access }: Readonly<AccessTabProps>) {
             {t('access.menusEmpty')}
           </Text>
         ) : (
-          <Paper withBorder shadow="none" radius="md" bg="white" p={0} style={{ overflow: 'hidden' }}>
+          <Paper
+            withBorder
+            shadow="none"
+            radius="md"
+            bg="white"
+            p={0}
+            style={{ overflow: 'hidden' }}
+          >
             <Table.ScrollContainer minWidth={420}>
               <Table highlightOnHover verticalSpacing="sm" horizontalSpacing="md">
                 <Table.Thead bg="gray.0">

@@ -262,9 +262,7 @@ export default function AccountMappingPage() {
                     <Table.Tbody>
                       {groupedItems.map(([groupKey, items]) => {
                         const labelKey = GROUP_LABELS[groupKey];
-                        const groupTitle = labelKey
-                          ? st(labelKey)
-                          : groupKey.replace(/_/g, ' ');
+                        const groupTitle = labelKey ? st(labelKey) : groupKey.replace(/_/g, ' ');
 
                         return (
                           <Fragment key={groupKey}>

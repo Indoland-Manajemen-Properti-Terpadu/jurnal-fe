@@ -1,5 +1,15 @@
 import { useState } from 'react';
-import { Alert, Button, Grid, Group, Paper, SimpleGrid, Stack, Text, TextInput } from '@mantine/core';
+import {
+  Alert,
+  Button,
+  Grid,
+  Group,
+  Paper,
+  SimpleGrid,
+  Stack,
+  Text,
+  TextInput,
+} from '@mantine/core';
 import { IconBuilding, IconInfoCircle, IconUser } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import {
@@ -109,7 +119,9 @@ export function AccountTab({ user, canEdit, isSaving, onSubmit }: Readonly<Accou
                   {user.site.name}
                 </Text>
               </Paper>
-              {user.site.code && <CopyIdField label={t('account.siteCode')} value={user.site.code} />}
+              {user.site.code && (
+                <CopyIdField label={t('account.siteCode')} value={user.site.code} />
+              )}
             </Stack>
           </SectionCard>
         </Grid.Col>

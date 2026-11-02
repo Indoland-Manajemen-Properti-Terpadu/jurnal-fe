@@ -1,4 +1,15 @@
-import { Avatar, Badge, Box, Divider, Group, Paper, Stack, Text, Title, ThemeIcon } from '@mantine/core';
+import {
+  Avatar,
+  Badge,
+  Box,
+  Divider,
+  Group,
+  Paper,
+  Stack,
+  Text,
+  Title,
+  ThemeIcon,
+} from '@mantine/core';
 import {
   IconCalendar,
   IconCircleCheck,
@@ -62,7 +73,14 @@ export function IdentityCard({ user }: Readonly<{ user: Profile }>) {
 
           <Stack gap={6} style={{ minWidth: 0 }}>
             <Group gap="xs" align="center" wrap="wrap">
-              <Title order={3} fz="xl" fw={700} lh={1.25} c="primary.9" style={{ wordBreak: 'break-word' }}>
+              <Title
+                order={3}
+                fz="xl"
+                fw={700}
+                lh={1.25}
+                c="primary.9"
+                style={{ wordBreak: 'break-word' }}
+              >
                 {user.name || t('identity.defaultName')}
               </Title>
               {roleNames.map((name) => (

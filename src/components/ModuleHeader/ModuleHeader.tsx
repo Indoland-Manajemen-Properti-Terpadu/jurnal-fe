@@ -1,13 +1,5 @@
 import type { ReactNode } from 'react';
-import {
-  Box,
-  Group,
-  Paper,
-  Stack,
-  Text,
-  ThemeIcon,
-  Title,
-} from '@mantine/core';
+import { Box, Group, Paper, Stack, Text, ThemeIcon, Title } from '@mantine/core';
 import type { Icon } from '@tabler/icons-react';
 
 export type Crumb = { label: string; to?: string };
@@ -38,7 +30,6 @@ export function ModuleHeader({
       }}
     >
       <Stack gap="sm">
-
         <Group justify="space-between" align="flex-start" wrap="wrap" gap="md">
           <Group align="flex-start" gap="md" wrap="nowrap" style={{ flex: 1, minWidth: 260 }}>
             <ThemeIcon
