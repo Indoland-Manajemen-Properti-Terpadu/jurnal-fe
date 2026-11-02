@@ -18,26 +18,26 @@ export function PasswordChecklist({ checks }: Readonly<PasswordChecklistProps>) 
   ];
 
   return (
-    <Paper withBorder radius="md" p="md" bg="gray.0">
+    <Paper withBorder shadow="none" radius="md" p="md" bg="gray.0">
       <Text size="xs" fw={700} mb="xs" c="dimmed" tt="uppercase" lts={0.5}>
         {t('security.checklistTitle')}
       </Text>
-      <List spacing={6} size="sm" center aria-live="polite">
+      <List spacing={8} size="sm" center aria-live="polite">
         {items.map((item) => (
           <List.Item
             key={item.label}
             icon={
               <ThemeIcon
-                size={18}
+                size={20}
                 radius="xl"
                 variant="light"
-                color={item.passed ? 'green' : 'gray'}
+                color={item.passed ? 'teal' : 'gray'}
               >
                 {item.passed ? <IconCheck size={12} /> : <IconX size={12} />}
               </ThemeIcon>
             }
           >
-            <Text span size="sm" c={item.passed ? 'green.8' : 'dimmed'}>
+            <Text span size="sm" fw={item.passed ? 500 : 400} c={item.passed ? 'teal.8' : 'dimmed'}>
               {item.label}
             </Text>
           </List.Item>

@@ -2,7 +2,7 @@
   min-height: 90vh;
 
   @mixin light {
-    background-color: var(--mantine-color-gray-1);
+    background-color: var(--jurnal-color-bg-subtle);
   }
 
   @mixin dark {
