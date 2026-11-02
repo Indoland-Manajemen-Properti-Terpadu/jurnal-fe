@@ -39,7 +39,6 @@ export const navigation = {
   assets: 'Asset',
   contacts: 'Kontak',
   settings: 'Pengaturan',
-  settingsHub: 'Pusat Pengaturan',
   generalSettings: 'Pengaturan Umum',
   accountMapping: 'Pemetaan Akun',
   taxes: 'Pajak',

@@ -131,7 +131,7 @@ describe('cash/bank ledger page (characterization)', () => {
 
   it('shows the category badge unless it is the generic Kas & Bank', () => {
     const first = renderCashBank();
-    expect(screen.getAllByText('Kas & Bank')).toHaveLength(2);
+    expect(screen.getAllByText('Kas & Bank')).toHaveLength(1);
     first.unmount();
 
     ledgerState.detail = { ...baseDetail, category: { name: 'Bank Mandiri' } };

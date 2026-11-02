@@ -3,7 +3,7 @@
 Account page of the signed-in user: an identity card, personal details, a password change and a read-only view of the user's roles and menu rights. It is a protected page rendered inside `AppShellLayout`.
 
 - **Route:** `routes.profile` (`/profile`, see `src/router/routes.ts`); the page is exported from `index.ts` as `ProfilePage`.
-- **Layout:** `IdentityCard` (cover, initials avatar, status and verification badges, roles, site, dates) beside a pill-tab panel with `AccountTab`, `SecurityTab` and `AccessTab`. Sections use the local `SectionCard`.
+- **Layout:** Horizontal `IdentityCard` summary banner (initials avatar, name, role and status badges, joined/updated timestamps) stacked above a unified `Paper` pill-tab container (`AccountTab`, `SecurityTab`, and `AccessTab`). Inner sections use the flat bordered `SectionCard`.
 
 ## Endpoints (`infrastructure/profileApi.ts`)
 

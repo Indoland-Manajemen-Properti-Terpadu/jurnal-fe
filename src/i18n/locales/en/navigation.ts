@@ -39,7 +39,6 @@ export const navigation = {
   assets: 'Assets',
   contacts: 'Contacts',
   settings: 'Settings',
-  settingsHub: 'Settings Center',
   generalSettings: 'General Settings',
   accountMapping: 'Account Mapping',
   taxes: 'Taxes',

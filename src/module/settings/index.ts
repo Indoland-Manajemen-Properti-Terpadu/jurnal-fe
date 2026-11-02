@@ -1,4 +1,3 @@
-export { default as SettingsHubPage } from './presentation/pages/SettingsHubPage';
 export { default as GeneralSettingPage } from './presentation/pages/GeneralSettingPage';
 export { default as CompanySettingPage } from './presentation/pages/CompanySettingPage';
 export { default as AccountMappingPage } from './presentation/pages/AccountMappingPage';

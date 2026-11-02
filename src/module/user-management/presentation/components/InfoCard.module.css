@@ -1,0 +1,32 @@
+.card {
+  display: block;
+  height: 100%;
+  min-width: 0;
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease,
+    background-color 150ms ease;
+}
+
+.card[data-interactive]:hover {
+  background-color: var(--jurnal-color-surface-hover);
+}
+
+.value {
+  font-size: var(--jurnal-text-xl);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.visual {
+  flex-shrink: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    transition: none;
+  }
+}

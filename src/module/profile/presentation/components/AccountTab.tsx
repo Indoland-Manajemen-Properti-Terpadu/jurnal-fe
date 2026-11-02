@@ -1,5 +1,15 @@
 import { useState } from 'react';
-import { Alert, Button, Group, Stack, TextInput } from '@mantine/core';
+import {
+  Alert,
+  Button,
+  Grid,
+  Group,
+  Paper,
+  SimpleGrid,
+  Stack,
+  Text,
+  TextInput,
+} from '@mantine/core';
 import { IconBuilding, IconInfoCircle, IconUser } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import {
@@ -28,6 +38,9 @@ export function AccountTab({ user, canEdit, isSaving, onSubmit }: Readonly<Accou
 
   const error: PersonalInfoError | null = validatePersonalInfo(name, email);
   const dirty = isProfileDirty(user, name, email);
+  const readOnlyInputStyles = !canEdit
+    ? { input: { backgroundColor: 'var(--mantine-color-gray-0)' } }
+    : undefined;
 
   const save = () => {
     setTouched(true);
@@ -42,58 +55,77 @@ export function AccountTab({ user, canEdit, isSaving, onSubmit }: Readonly<Accou
   };
 
   return (
-    <Stack gap="lg">
-      <SectionCard
-        icon={IconUser}
-        title={t('account.personalTitle')}
-        subtitle={t('account.personalSubtitle')}
-      >
-        {!canEdit && (
-          <Alert color="blue" variant="light" icon={<IconInfoCircle size={18} />}>
-            {t('account.readOnlyNote')}
-          </Alert>
-        )}
-        <TextInput
-          label={t('account.name')}
-          placeholder={t('account.namePlaceholder')}
-          value={name}
-          readOnly={!canEdit}
-          withAsterisk={canEdit}
-          onChange={(event) => setName(event.currentTarget.value)}
-          error={touched && error === 'nameEmpty' ? t('account.nameEmpty') : undefined}
-        />
-        <TextInput
-          label={t('account.email')}
-          placeholder={t('account.emailPlaceholder')}
-          type="email"
-          value={email}
-          readOnly={!canEdit}
-          withAsterisk={canEdit}
-          onChange={(event) => setEmail(event.currentTarget.value)}
-          error={touched && error === 'emailInvalid' ? t('account.emailInvalid') : undefined}
-        />
-        {canEdit && (
-          <Group justify="flex-end">
-            <Button variant="default" onClick={reset} disabled={!dirty || isSaving}>
-              {t('account.reset')}
-            </Button>
-            <Button onClick={save} loading={isSaving} disabled={!dirty}>
-              {isSaving ? t('account.saving') : t('account.save')}
-            </Button>
-          </Group>
-        )}
-      </SectionCard>
+    <Grid gutter="lg" align="stretch">
+      <Grid.Col span={{ base: 12, md: user.site ? 7 : 12 }}>
+        <SectionCard
+          icon={IconUser}
+          title={t('account.personalTitle')}
+          subtitle={t('account.personalSubtitle')}
+        >
+          <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
+            <TextInput
+              label={t('account.name')}
+              placeholder={t('account.namePlaceholder')}
+              value={name}
+              readOnly={!canEdit}
+              withAsterisk={canEdit}
+              styles={readOnlyInputStyles}
+              onChange={(event) => setName(event.currentTarget.value)}
+              error={touched && error === 'nameEmpty' ? t('account.nameEmpty') : undefined}
+            />
+            <TextInput
+              label={t('account.email')}
+              placeholder={t('account.emailPlaceholder')}
+              type="email"
+              value={email}
+              readOnly={!canEdit}
+              withAsterisk={canEdit}
+              styles={readOnlyInputStyles}
+              onChange={(event) => setEmail(event.currentTarget.value)}
+              error={touched && error === 'emailInvalid' ? t('account.emailInvalid') : undefined}
+            />
+          </SimpleGrid>
+
+          {!canEdit ? (
+            <Alert color="blue" variant="light" radius="md" icon={<IconInfoCircle size={18} />}>
+              {t('account.readOnlyNote')}
+            </Alert>
+          ) : (
+            <Group justify="flex-end" mt="xs">
+              <Button variant="default" onClick={reset} disabled={!dirty || isSaving}>
+                {t('account.reset')}
+              </Button>
+              <Button onClick={save} loading={isSaving} disabled={!dirty}>
+                {isSaving ? t('account.saving') : t('account.save')}
+              </Button>
+            </Group>
+          )}
+        </SectionCard>
+      </Grid.Col>
 
       {user.site && (
-        <SectionCard
-          icon={IconBuilding}
-          title={t('account.siteTitle')}
-          subtitle={t('account.siteSubtitle')}
-        >
-          <TextInput label={t('account.siteName')} value={user.site.name} readOnly />
-          {user.site.code && <CopyIdField label={t('account.siteCode')} value={user.site.code} />}
-        </SectionCard>
+        <Grid.Col span={{ base: 12, md: 5 }}>
+          <SectionCard
+            icon={IconBuilding}
+            title={t('account.siteTitle')}
+            subtitle={t('account.siteSubtitle')}
+          >
+            <Stack gap="md">
+              <Paper withBorder shadow="none" radius="md" p="sm" bg="gray.0">
+                <Text size="xs" c="dimmed" fw={600} mb={2}>
+                  {t('account.siteName')}
+                </Text>
+                <Text size="sm" fw={600} c="primary.9">
+                  {user.site.name}
+                </Text>
+              </Paper>
+              {user.site.code && (
+                <CopyIdField label={t('account.siteCode')} value={user.site.code} />
+              )}
+            </Stack>
+          </SectionCard>
+        </Grid.Col>
       )}
-    </Stack>
+    </Grid>
   );
 }

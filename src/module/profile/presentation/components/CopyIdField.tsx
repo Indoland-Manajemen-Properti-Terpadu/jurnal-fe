@@ -1,5 +1,5 @@
-import { Button, CopyButton, TextInput, Tooltip } from '@mantine/core';
-import { IconCheck, IconCopy, IconInfoCircle } from '@tabler/icons-react';
+import { ActionIcon, CopyButton, TextInput, Tooltip } from '@mantine/core';
+import { IconCheck, IconCopy, IconHash } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 
 interface CopyIdFieldProps {
@@ -7,7 +7,7 @@ interface CopyIdFieldProps {
   value?: string;
 }
 
-export function CopyIdField({ label, value }: CopyIdFieldProps) {
+export function CopyIdField({ label, value }: Readonly<CopyIdFieldProps>) {
   const { t } = useTranslation('profile');
 
   return (
@@ -15,15 +15,21 @@ export function CopyIdField({ label, value }: CopyIdFieldProps) {
       label={label}
       value={value || t('emptyValue')}
       readOnly
-      leftSection={<IconInfoCircle size={18} />}
+      leftSection={<IconHash size={16} />}
       rightSection={
         value ? (
           <CopyButton value={value} timeout={2000}>
             {({ copied, copy }) => (
               <Tooltip label={copied ? t('copyField.copied') : t('copyField.copy')} withArrow>
-                <Button variant="subtle" color="gray" size="xs" p={4} onClick={copy}>
-                  {copied ? <IconCheck size={16} color="teal" /> : <IconCopy size={16} />}
-                </Button>
+                <ActionIcon
+                  variant="subtle"
+                  color={copied ? 'teal' : 'gray'}
+                  size="sm"
+                  onClick={copy}
+                  aria-label={copied ? t('copyField.copied') : t('copyField.copy')}
+                >
+                  {copied ? <IconCheck size={16} /> : <IconCopy size={16} />}
+                </ActionIcon>
               </Tooltip>
             )}
           </CopyButton>

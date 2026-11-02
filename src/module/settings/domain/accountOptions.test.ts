@@ -30,4 +30,30 @@ describe('buildAccountOptions', () => {
 
     expect(options).toEqual([{ value: 'a', label: 'Kas' }]);
   });
+
+  it('flattens nested subAccount entries and inherits parent category when missing', () => {
+    const options = buildAccountOptions(
+      [
+        {
+          id: 'parent',
+          accountNumber: '2-30000',
+          name: 'Kewajiban Jangka Pendek',
+          category: { name: 'Liabilitas' },
+          subAccount: [
+            {
+              id: 'child',
+              accountNumber: '2-30001',
+              name: 'Deposit Fit Out',
+            },
+          ],
+        },
+      ],
+      (account) => ` (${account.category?.name ?? 'Akun'})`
+    );
+
+    expect(options).toEqual([
+      { value: 'parent', label: '2-30000 - Kewajiban Jangka Pendek (Liabilitas)' },
+      { value: 'child', label: '2-30001 - Deposit Fit Out (Liabilitas)' },
+    ]);
+  });
 });

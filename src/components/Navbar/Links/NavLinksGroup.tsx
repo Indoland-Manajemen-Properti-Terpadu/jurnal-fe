@@ -20,6 +20,8 @@ interface LinksGroupProps {
   closeSidebar: () => void;
   collapsed?: boolean;
   siblingLinks?: string[];
+  /** Clicking the parent only expands/collapses the sub-menu instead of navigating. */
+  expandOnly?: boolean;
 }
 
 export function LinksGroup(props: LinksGroupProps) {
@@ -33,14 +35,13 @@ export function LinksGroup(props: LinksGroupProps) {
     closeSidebar,
     collapsed = false,
     siblingLinks = [],
+    expandOnly = false,
   } = props;
   const subtreeId = useId();
   const navigate = useNavigate();
   const location = useLocation();
 
   const hasLinks = Array.isArray(links);
-  const [opened, setOpened] = useState(initiallyOpened || false);
-
   const isParentActive =
     link &&
     isNavigationLinkActive(location.pathname, link, siblingLinks.length ? siblingLinks : [link]);
@@ -49,6 +50,8 @@ export function LinksGroup(props: LinksGroupProps) {
     hasLinks &&
     links.some((item) => isNavigationChildActive(location.pathname, item.link, childLinks));
   const isActive = Boolean(isParentActive || isChildActive);
+  // Start open when this section is active so the sidebar height is stable on first paint.
+  const [opened, setOpened] = useState(initiallyOpened || (isActive && !collapsed));
 
   useEffect(() => {
     if (collapsed) {
@@ -59,7 +62,8 @@ export function LinksGroup(props: LinksGroupProps) {
   }, [isActive, collapsed]);
 
   const handleNavigation = () => {
-    if (link) {
+    // expandOnly groups only navigate (to their first page) when the sidebar is collapsed.
+    if (link && (!expandOnly || collapsed)) {
       navigate(link);
       closeSidebar();
     }

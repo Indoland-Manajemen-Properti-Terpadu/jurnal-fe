@@ -15,6 +15,11 @@ export const userManagement = {
     roles: 'Peran',
     history: 'Riwayat Perubahan',
   },
+  overview: {
+    users: 'Total pengguna',
+    roles: 'Total peran',
+    customRoles: 'Peran kustom',
+  },
   perm: {
     read: 'Lihat',
     create: 'Buat',
