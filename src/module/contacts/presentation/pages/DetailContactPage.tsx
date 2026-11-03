@@ -1,8 +1,20 @@
 import { useMemo, useState } from 'react';
-import { Box, Button, Group, Paper, Skeleton, Stack, Tabs, Text, Title } from '@mantine/core';
+import {
+  Badge,
+  Box,
+  Button,
+  Group,
+  Paper,
+  Skeleton,
+  Stack,
+  Tabs,
+  Text,
+  Title,
+} from '@mantine/core';
 import {
   IconAddressBook,
   IconArchive,
+  IconArchiveOff,
   IconArrowLeft,
   IconEdit,
   IconInfoCircle,
@@ -16,15 +28,17 @@ import { ConfirmModal } from '@/components/ui/ConfirmModal/ConfirmModal';
 import { useTranslation } from '@/i18n';
 import { routes } from '@/router/routes';
 import { ContactFormModal } from '@/module/contacts/presentation/components/form/ContactFormModal';
+import { ArchivedContactIndicator } from '@/module/contacts/presentation/components/ArchivedContactIndicator';
 import { ContactProfileSections } from '@/module/contacts/presentation/components/ContactProfileSections';
-import { ContactDetailHero } from '@/module/contacts/presentation/components/detail/ContactDetailHero';
 import { ContactTransactionsPanel } from '@/module/contacts/presentation/components/detail/ContactTransactionsPanel';
+import { getContactTypeBadgeConfig } from '@/module/contacts/domain/contactFormat';
 import {
   useAccountOptions,
   useArchiveContact,
   useContact,
   useExportContactTransactions,
   useSaveContact,
+  useUnarchiveContact,
 } from '@/module/contacts/presentation/hooks/useContactQueries';
 import { useContactTransactionView } from '@/module/contacts/presentation/hooks/useContactTransactionView';
 import type { ContactFormValues } from '@/module/contacts/domain/contact';
@@ -49,6 +63,7 @@ export function DetailContactPage() {
   const exportMutation = useExportContactTransactions(idAccount);
   const saveMutation = useSaveContact(contactQuery.data?.id);
   const archiveMutation = useArchiveContact();
+  const unarchiveMutation = useUnarchiveContact();
   const contact = contactQuery.data;
 
   const accountMap = useMemo(
@@ -68,6 +83,11 @@ export function DetailContactPage() {
     navigate(routes.contacts.main);
   };
 
+  const handleUnarchive = async () => {
+    if (!contact) return;
+    await unarchiveMutation.mutateAsync(contact.id);
+  };
+
   const changeStatus = (value: string | null) => {
     setStatus((value ?? 'all') as TransactionStatusFilter);
     setPage(1);
@@ -78,8 +98,8 @@ export function DetailContactPage() {
       <AppShellLayout>
         <Box p={{ base: 'md', sm: 'xl' }}>
           <Stack gap="lg" aria-label={t('loading')}>
-            <Skeleton height={56} radius="md" />
-            <Skeleton height={220} radius="lg" />
+            <Skeleton height={112} radius="lg" />
+            <Skeleton height={56} radius="lg" />
             <Skeleton height={350} radius="lg" />
           </Stack>
         </Box>
@@ -91,7 +111,7 @@ export function DetailContactPage() {
     return (
       <AppShellLayout>
         <Box p={{ base: 'md', sm: 'xl' }}>
-          <Paper withBorder radius="lg" p="xl">
+          <Paper withBorder radius="lg" p="xl" shadow="none">
             <Stack align="center" gap="sm" ta="center">
               <IconInfoCircle size={36} color="var(--mantine-color-red-6)" />
               <Title order={3}>{t('notFoundTitle')}</Title>
@@ -118,8 +138,29 @@ export function DetailContactPage() {
         <Stack gap="lg">
           <ModuleHeader
             icon={IconAddressBook}
-            title={t('pageTitle')}
-            description={t('pageDescription')}
+            title={
+              <Group gap={8} wrap="nowrap">
+                {contact.displayName}
+                {contact.deleted && <ArchivedContactIndicator label={t('archived')} />}
+              </Group>
+            }
+            description={
+              <Group gap="xs" wrap="wrap">
+                {contact.contactType.map((type) => {
+                  const config = getContactTypeBadgeConfig(type);
+                  return (
+                    <Badge key={type} color={config.color} variant="light">
+                      {t(`type.${type}`)}
+                    </Badge>
+                  );
+                })}
+                {contact.contactGroups?.map((group) => (
+                  <Badge key={group} color="gray" variant="outline">
+                    {group}
+                  </Badge>
+                ))}
+              </Group>
+            }
             actions={
               <Group gap="xs" wrap="wrap">
                 <Button
@@ -129,7 +170,7 @@ export function DetailContactPage() {
                 >
                   {t('backToContacts')}
                 </Button>
-                {!contact.deleted && (
+                {!contact.deleted ? (
                   <Button
                     variant="default"
                     color="red"
@@ -137,6 +178,15 @@ export function DetailContactPage() {
                     onClick={() => setArchiveOpen(true)}
                   >
                     {t('archive')}
+                  </Button>
+                ) : (
+                  <Button
+                    variant="default"
+                    leftSection={<IconArchiveOff size={16} />}
+                    onClick={handleUnarchive}
+                    loading={unarchiveMutation.isPending}
+                  >
+                    {t('unarchive')}
                   </Button>
                 )}
                 <Button leftSection={<IconEdit size={16} />} onClick={() => setEditOpen(true)}>
@@ -146,8 +196,6 @@ export function DetailContactPage() {
             }
           />
 
-          <ContactDetailHero contact={contact} />
-
           <Tabs
             value={activeTab}
             onChange={setActiveTab}
@@ -155,7 +203,7 @@ export function DetailContactPage() {
             variant="pills"
             radius="md"
           >
-            <Paper withBorder radius="lg" p="sm" mb="lg">
+            <Paper withBorder radius="lg" p="sm" mb="lg" shadow="none">
               <Tabs.List className={classes.tabList}>
                 <Tabs.Tab value="profile" leftSection={<IconUser size={16} />}>
                   {t('profileTab')}

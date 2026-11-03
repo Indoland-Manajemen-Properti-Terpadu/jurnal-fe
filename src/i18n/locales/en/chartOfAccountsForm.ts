@@ -17,7 +17,7 @@ export const chartOfAccountsForm = {
     attrBankCashTitle: 'Cash & Bank Module Integration',
     attrContraDesc:
       'Reverses the normal balance side (Debit ↔ Credit) to offset a primary account (e.g., Accumulated Depreciation, Sales Discounts).',
-    attrContraTitle: 'Contra Account Mode',
+    attrContraTitle: 'Contra Account',
     backToCoaList: 'Back to Account List',
     badgeActive: 'Active',
     badgeInactive: 'Inactive',

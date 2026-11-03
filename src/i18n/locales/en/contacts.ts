@@ -16,6 +16,7 @@ export const contacts = {
       'Manage every profile of your business partners, customers, suppliers, property units, and employees. Link them to receivable and payable accounts for consistent, accurate transaction recording.',
     refreshTooltip: 'Reload data',
     refreshAria: 'Refresh contacts',
+    moreActions: 'More actions',
     manageGroups: 'Manage Groups',
     export: 'Export Data',
     import: 'Import Contacts',
@@ -30,6 +31,7 @@ export const contacts = {
     },
     searchPlaceholder: 'Search name, company, contact number, or email...',
     clearSearch: 'Clear search',
+    showArchived: 'Show Archived',
     archiveTitle: 'Archive This Contact?',
     archiveMessage:
       'Are you sure you want to archive the contact "{name}"? Archived contacts will not appear in new transaction choices.',
@@ -41,6 +43,14 @@ export const contacts = {
     back: 'Back',
   },
   stats: {
+    heading: 'Contact type breakdown',
+    shareHint: 'Count and share by type',
+    chartLabel: 'Contact type distribution',
+    multiTypeHint: 'A contact can belong to more than one type.',
+    normalizedHint:
+      'Multi-type contacts count in each type; segment lengths are normalized to fit one bar.',
+    unclassified: 'No type',
+    unavailable: 'Summary could not be loaded',
     total: 'Total Contacts',
     totalHint: 'All registered entities',
     customers: 'Customers',
@@ -51,6 +61,7 @@ export const contacts = {
     employeesHint: 'Internal staff',
     units: 'Units',
     unitsHint: 'Residents & properties',
+    others: 'Other',
   },
   table: {
     columns: {
@@ -63,7 +74,9 @@ export const contacts = {
     },
     receivable: 'Receivable: {account}',
     payable: 'Payable: {account}',
+    otherTypes: '({count}) other types',
     systemDefault: 'System Default',
+    archived: 'Archived',
     viewTooltip: 'View Details',
     viewAria: 'View Contact Details',
     editTooltip: 'Edit Contact',
@@ -73,6 +86,7 @@ export const contacts = {
     menuEdit: 'Edit Data',
     menuHistory: 'Transaction History',
     menuArchive: 'Archive Contact',
+    menuUnarchive: 'Restore Contact',
     emptyTitle: 'No Matching Contacts',
     emptyDescription:
       'Try adjusting the search keyword or contact type filter, or add a new contact to start recording transactions.',
@@ -121,6 +135,8 @@ export const contacts = {
     updateFailed: 'Could not update the contact.',
     archived: 'Contact "{name}" was archived.',
     archiveFailed: 'Could not archive the contact.',
+    unarchived: 'Contact "{name}" was restored.',
+    unarchiveFailed: 'Could not restore the contact.',
     transactionsExported: 'Contact transactions were exported.',
     transactionsExportFailed: 'Could not export contact transactions.',
     groupCreated: 'New contact group was created.',

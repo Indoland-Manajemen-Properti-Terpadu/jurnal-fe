@@ -73,3 +73,7 @@ Priority changed: the ledger (`GeneralJournal`) goes before the remaining small 
 | Final audit, ratchets set to `error` repo-wide | done | n/a | n/a | done | n/a | R4 |
 
 The audit is [AUDIT.md](AUDIT.md). The ESLint ratchet baseline (`eslint-baseline.json`) is now empty: every rule that was counted has been cleared, and `yarn lint` fails on any new violation.
+
+## Release update (2026-11-03)
+
+Follow-up polish for account setup, contacts, journal entries, petty cash, and the shared module header was merged to `develop-frontend` in PR #78 and promoted to `staging` in PR #79. The migration statuses above remain unchanged. The staging image build and push completed, but the server deployment could not connect over SSH on port 22; the running staging application was not updated, so the staging smoke test is still pending.

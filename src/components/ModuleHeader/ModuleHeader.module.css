@@ -1,0 +1,27 @@
+.intro {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--mantine-spacing-md);
+  flex: 1 1 rem(420px);
+  min-width: 0;
+}
+
+.copy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mantine-spacing-xs);
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  color: var(--jurnal-color-text-primary);
+  line-height: 1.2;
+}
+
+.description {
+  max-width: rem(680px);
+  color: var(--jurnal-color-text-secondary);
+  font-size: var(--jurnal-text-sm);
+  line-height: 1.5;
+}

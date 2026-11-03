@@ -18,7 +18,7 @@ export const chartOfAccountsForm = {
     attrBankCashTitle: 'Integrasi Modul Kas & Bank',
     attrContraDesc:
       'Membalik posisi saldo normal (Debit ↔ Kredit) untuk mengurangi nilai akun utama sejenis (misal: Akumulasi Penyusutan, Diskon).',
-    attrContraTitle: 'Akun Kontra (Contra Account)',
+    attrContraTitle: 'Akun Kontra',
     backToCoaList: 'Kembali ke Daftar Akun',
     badgeActive: 'Aktif',
     badgeInactive: 'Non-Aktif',

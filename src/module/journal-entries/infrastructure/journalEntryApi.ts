@@ -7,7 +7,7 @@ import type {
   JournalEntryPayload,
   TagsResponse,
 } from '../domain/journalEntry';
-import { toCreateBody, toEntriesByAccount, toEntryDetail } from './journalEntryMapper';
+import { toCreateFormData, toEntriesByAccount, toEntryDetail } from './journalEntryMapper';
 
 /** The server's own message of a failed request, or the fallback. */
 export const errorMessage = (error: unknown, fallback: string): string =>
@@ -29,16 +29,13 @@ export const fetchJournalEntriesByAccount = async (
   return toEntriesByAccount(data);
 };
 
-/**
- * Creates a journal entry. Only HTTP 200 counts as success (R7): any other status, including a
- * 2xx such as 201, is reported as a failure although the server may have saved the entry.
- */
+/** Creates a journal entry. Any successful HTTP 2xx response is accepted. */
 export const createJournalEntry = async (payload: JournalEntryPayload): Promise<unknown> => {
   let response;
   try {
     response = await apiClient.post<unknown>(
       API_ACCOUNT.POST_TRANSACTION_ACCOUNT,
-      toCreateBody(payload)
+      toCreateFormData(payload)
     );
   } catch (error) {
     if (axios.isAxiosError<{ message?: string }>(error) && error.response) {
@@ -46,7 +43,7 @@ export const createJournalEntry = async (payload: JournalEntryPayload): Promise<
     }
     throw error;
   }
-  if (response.status !== 200) {
+  if (response.status < 200 || response.status >= 300) {
     const body = response.data as { message?: string } | null;
     throw new Error(body?.message ?? response.statusText ?? 'Unknown Error');
   }

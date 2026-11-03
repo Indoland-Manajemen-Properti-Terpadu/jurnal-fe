@@ -4,18 +4,18 @@ Contact master data (customers, vendors, employees and other parties): list with
 
 ## Routes (`src/router/routes.ts`)
 
-| Constant | Path | Page |
-| --- | --- | --- |
-| `routes.contacts.main` | `/contact` | `ContactMainPage` (list, form modal, groups modal, import modal, archive confirm) |
-| `routes.contacts.add` | `/contact/add` | `AddContactPage` |
-| `routes.contacts.detail` | `/contact/:idAccount` | `DetailContactPage` (view and edit) |
-| `routes.contacts.transactions` | `/contact/:idAccount/transaction-detail` | `TransactionDetailByContactPage` |
+| Constant                       | Path                                     | Page                                                                              |
+| ------------------------------ | ---------------------------------------- | --------------------------------------------------------------------------------- |
+| `routes.contacts.main`         | `/contact`                               | `ContactMainPage` (list, form modal, groups modal, import modal, archive confirm) |
+| `routes.contacts.add`          | `/contact/add`                           | `AddContactPage`                                                                  |
+| `routes.contacts.detail`       | `/contact/:idAccount`                    | `DetailContactPage` (view and edit)                                               |
+| `routes.contacts.transactions` | `/contact/:idAccount/transaction-detail` | `TransactionDetailByContactPage`                                                  |
 
 `/kontak` (`routes.legacyPaths.contacts`) redirects to `/contact`. `index.ts` exports the four pages plus `fetchContacts` and `fetchPaymentTerms` (used by sales).
 
 ## Endpoints (`CONTACT_ENDPOINTS` in `infrastructure/contactApi.ts`)
 
-`/v1/contacts` (list, create), `/v1/contacts/:id` (read, update), `/v1/contacts/:id/archive`, `/v1/contacts/groups` and `/groups/:id`, `/v1/contacts/export`, `/v1/contacts/template/download`, `/v1/contacts/import`, `/v1/payment-terms`, `/v1/accounts/filtered?category=AP|AR`, `/v1/sales/customer/:id` and `/export`. Chart-of-accounts options come from `@/module/chart-of-accounts` (`getJournalAccounts`). `contactSync` is declared but unused.
+`/v1/contacts` (list, create), `/v1/contacts/:id` (read, update), `/v1/contacts/:id/archive` and `/v1/contacts/:id/unarchive`, `/v1/contacts/groups` and `/groups/:id`, `/v1/contacts/export`, `/v1/contacts/template/download`, `/v1/contacts/import`, `/v1/payment-terms`, `/v1/accounts/filtered?category=AP|AR`, `/v1/sales/customer/:id` and `/export`. Chart-of-accounts options come from `@/module/chart-of-accounts` (`getJournalAccounts`). `contactSync` is declared but unused.
 
 ## Layers
 

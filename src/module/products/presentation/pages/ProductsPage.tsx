@@ -19,7 +19,7 @@ import { IconCategory, IconPackage, IconPlus, IconRefresh, IconRuler } from '@ta
 import { useNavigate } from 'react-router-dom';
 import { ConfirmModal } from '@/components/ui/ConfirmModal/ConfirmModal';
 import { useTranslation } from '@/i18n';
-import { ModuleHeader } from '@/module/products/presentation/components/ModuleHeader';
+import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
 import { ProductTable } from '@/module/products/presentation/components/ProductTable';
 import { ProductForm } from '@/module/products/presentation/components/ProductForm';
 import { MasterDataPanel } from '@/module/products/presentation/components/MasterDataPanel';

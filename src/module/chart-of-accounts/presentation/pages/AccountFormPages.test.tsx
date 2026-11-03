@@ -71,7 +71,7 @@ describe('AddAccountPage rules (characterization: I6)', () => {
     expect(saveButton(/simpan/i)).toBeDisabled();
   });
 
-  it('a preset sets category, suggested code, cash/bank flag and submits the payload', async () => {
+  it('a preset sets category and code without sending the cash/bank flag', async () => {
     const user = userEvent.setup();
     renderAdd();
     await user.click(screen.getByRole('button', { name: /bank/i }));
@@ -84,7 +84,6 @@ describe('AddAccountPage rules (characterization: I6)', () => {
       accountNumber: '1-10001',
       category: 'c-kb',
       taxType: undefined,
-      isBankAndCash: true,
       isContra: false,
       desc: undefined,
       isAllUser: true,

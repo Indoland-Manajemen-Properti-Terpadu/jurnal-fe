@@ -59,10 +59,10 @@ export const AddAccountHierarchySection: React.FC<AddAccountHierarchySectionProp
   const { t } = useTranslation('chartOfAccounts');
 
   return (
-    <Paper withBorder radius="md" p="lg" bg="white" shadow="xs">
+    <Paper withBorder radius="md" p="lg" bg="white" shadow="none">
       <Group justify="space-between" align="flex-start" mb="md" wrap="wrap" gap="sm">
         <Group gap="sm" wrap="nowrap">
-          <ThemeIcon size={36} radius="md" variant="light" color="teal">
+          <ThemeIcon size={36} radius="md" variant="light" color="primary">
             <IconHierarchy2 size={20} />
           </ThemeIcon>
           <div>
@@ -74,7 +74,7 @@ export const AddAccountHierarchySection: React.FC<AddAccountHierarchySectionProp
             </Text>
           </div>
         </Group>
-        <Badge variant="light" color="teal" size="sm">
+        <Badge variant="light" color="gray" size="sm">
           {t('form.step2')}
         </Badge>
       </Group>
@@ -93,14 +93,14 @@ export const AddAccountHierarchySection: React.FC<AddAccountHierarchySectionProp
               value: 'SubAccount',
               title: t('form.typeSubTitle'),
               badge: t('form.typeSubBadge'),
-              badgeColor: 'teal',
+              badgeColor: 'gray',
               desc: t('form.typeSubDesc'),
             },
             {
               value: 'HeaderAccount',
               title: t('form.typeHeaderTitle'),
               badge: t('form.typeHeaderBadge'),
-              badgeColor: 'indigo',
+              badgeColor: 'gray',
               desc: t('form.typeHeaderDesc'),
             },
           ].map((opt) => {
