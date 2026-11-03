@@ -19,6 +19,7 @@ type ContactTableProps = {
   onView: (contact: Contact) => void;
   onEdit: (contact: Contact) => void;
   onArchive: (contact: Contact) => void;
+  onUnarchive: (contact: Contact) => void;
 };
 
 const PAGE_SIZES = [10, 25, 50];
@@ -36,6 +37,7 @@ export function ContactTable({
   onView,
   onEdit,
   onArchive,
+  onUnarchive,
 }: Readonly<ContactTableProps>) {
   const { t } = useTranslation('contacts');
 
@@ -75,6 +77,7 @@ export function ContactTable({
                   onView={onView}
                   onEdit={onEdit}
                   onArchive={onArchive}
+                  onUnarchive={onUnarchive}
                 />
               ))
             )}

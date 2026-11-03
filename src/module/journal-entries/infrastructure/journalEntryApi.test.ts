@@ -15,19 +15,21 @@ const payload: JournalEntryPayload = {
   tags: [],
 };
 
-describe('createJournalEntry (success only on HTTP 200)', () => {
+describe('createJournalEntry', () => {
   it('resolves with the body on 200', async () => {
     vi.mocked(apiClient.post).mockResolvedValue({ status: 200, data: { ok: true } });
     await expect(createJournalEntry(payload)).resolves.toEqual({ ok: true });
   });
 
-  it('rejects a 201 even though the request went through', async () => {
+  it('resolves with the body when the server creates an entry with HTTP 201', async () => {
     vi.mocked(apiClient.post).mockResolvedValue({
       status: 201,
       statusText: 'Created',
-      data: {},
+      data: { message: 'Journal transaction created successfully' },
     });
-    await expect(createJournalEntry(payload)).rejects.toThrow('Created');
+    await expect(createJournalEntry(payload)).resolves.toEqual({
+      message: 'Journal transaction created successfully',
+    });
   });
 
   it('rejects with the server message on an error status', async () => {

@@ -23,7 +23,7 @@ export const AddAccountReadinessCard: React.FC<AddAccountReadinessCardProps> = (
   const { t } = useTranslation('chartOfAccounts');
 
   return (
-    <Paper withBorder radius="md" p="md" bg="white" shadow="xs">
+    <Paper withBorder radius="md" p="md" bg="white" shadow="none">
       <Group justify="space-between" mb="xs" wrap="nowrap">
         <Group gap="xs" wrap="nowrap">
           <ThemeIcon size={28} radius="md" variant="light" color={isFormValid ? 'teal' : 'blue'}>

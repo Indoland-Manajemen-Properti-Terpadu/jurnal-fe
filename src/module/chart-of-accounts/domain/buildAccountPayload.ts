@@ -24,14 +24,15 @@ export interface AccountPlacement {
 /** Same payload for create and update. Header and Sub accounts are always visible to all users. */
 export const buildAccountPayload = (
   values: AccountFormValues,
-  placement: AccountPlacement
+  placement: AccountPlacement,
+  options: { includeBankCash?: boolean } = {}
 ): AddAccountPayload => {
   const payload: AddAccountPayload = {
     name: values.name.trim(),
     accountNumber: values.accountNumber.trim(),
     category: values.category,
     taxType: values.taxType || undefined,
-    isBankAndCash: values.isBankAndCash,
+    ...(options.includeBankCash === false ? {} : { isBankAndCash: values.isBankAndCash }),
     isContra: values.isContra,
     desc: values.desc.trim() || undefined,
     isAllUser: true,

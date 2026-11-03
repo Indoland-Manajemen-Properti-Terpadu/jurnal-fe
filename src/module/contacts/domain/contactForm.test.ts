@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Contact } from './contact';
-import { contactToFormValues, emptyContactForm } from './contactForm';
+import { contactToFormValues, emptyContactForm, isValidEmail } from './contactForm';
 
 const contact = (overrides: Partial<Contact> = {}): Contact => ({
   id: 'c',
@@ -52,5 +52,20 @@ describe('contactToFormValues', () => {
       maxReceivable: { isActive: true, amount: 100.5 },
       maxPayable: { isActive: false, amount: 0 },
     });
+  });
+});
+
+describe('isValidEmail', () => {
+  it.each([
+    ['', false],
+    ['  ', false],
+    ['user@example.com', true],
+    ['user.name+tag@example.co.id', true],
+    ['userexample.com', false],
+    ['user@', false],
+    ['user@example', false],
+    ['user name@example.com', false],
+  ])('validates %j as %s', (email, expected) => {
+    expect(isValidEmail(email)).toBe(expected);
   });
 });

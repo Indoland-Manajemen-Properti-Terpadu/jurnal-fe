@@ -1,4 +1,10 @@
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  keepPreviousData,
+  useMutation,
+  useQueries,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 import { t } from '@/i18n';
 import {
@@ -20,9 +26,14 @@ import {
   importContacts,
   updateContact,
   updateContactGroup,
+  unarchiveContact,
   type ContactTransactionParams,
 } from '@/module/contacts/infrastructure/contactApi';
-import type { ContactFormValues, ContactListParams } from '@/module/contacts/domain/contact';
+import {
+  CONTACT_TYPES,
+  type ContactFormValues,
+  type ContactListParams,
+} from '@/module/contacts/domain/contact';
 
 export const contactKeys = {
   all: ['contacts'] as const,
@@ -56,6 +67,28 @@ export const useContacts = (params: ContactListParams) =>
     queryFn: () => fetchContacts(params),
     placeholderData: keepPreviousData,
   });
+
+export const useContactOverview = (archived = false) => {
+  const filters = [undefined, ...CONTACT_TYPES];
+  const results = useQueries({
+    queries: filters.map((contactType) => {
+      const params = { page: 1, limit: 1, contactType, archived };
+      return {
+        queryKey: contactKeys.list(params),
+        queryFn: () => fetchContacts(params),
+        staleTime: 5 * 60 * 1000,
+      };
+    }),
+  });
+
+  return {
+    isLoading: results.some((result) => result.isPending),
+    isFetching: results.some((result) => result.isFetching),
+    isError: results.some((result) => result.isError),
+    counts: results.map((result) => result.data?.pagination.total ?? 0),
+    refetch: () => Promise.all(results.map((result) => result.refetch())),
+  };
+};
 
 export const useContact = (id: string | undefined) =>
   useQuery({
@@ -109,6 +142,21 @@ export const useArchiveContact = () => {
     },
     onError: (error) => {
       notifyError(error, 'notify.archiveFailed');
+    },
+  });
+};
+
+export const useUnarchiveContact = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => unarchiveContact(id),
+    onSuccess: (contact) => {
+      notifySuccess(tr('notify.unarchived', { name: contact.displayName }));
+      queryClient.invalidateQueries({ queryKey: contactKeys.all });
+    },
+    onError: (error) => {
+      notifyError(error, 'notify.unarchiveFailed');
     },
   });
 };

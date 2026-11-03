@@ -19,6 +19,7 @@ type Props = {
 export function AddressRegionFields({ form, kind }: Readonly<Props>) {
   const { t } = useTranslation('contacts');
   const path = `addresses.${kind}.detail`;
+  const zipCodePath = `${path}.zipCode`;
   const { province, city } = form.values.addresses[kind].detail;
 
   const provinceOptions = useMemo(() => buildProvinceOptions(province), [province]);
@@ -70,8 +71,15 @@ export function AddressRegionFields({ form, kind }: Readonly<Props>) {
         <TextInput
           label={t('form.address.zip.label')}
           placeholder={t('form.address.zip.placeholder')}
+          type="text"
+          inputMode="numeric"
+          pattern="[0-9]*"
           maxLength={5}
           {...form.getInputProps(`${path}.zipCode`)}
+          onChange={(event) => {
+            const zipCode = event.currentTarget.value.replace(/\D/g, '').slice(0, 5);
+            form.setFieldValue(zipCodePath, zipCode);
+          }}
         />
       </Grid.Col>
     </Grid>

@@ -1,0 +1,122 @@
+.overview {
+  display: grid;
+  grid-template-columns: minmax(180px, 0.75fr) minmax(0, 3fr);
+  gap: var(--jurnal-space-8);
+  background: var(--jurnal-color-surface);
+}
+
+.total {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  padding-right: var(--jurnal-space-6);
+  border-right: 1px solid var(--jurnal-color-border-subtle);
+}
+
+.totalValue {
+  color: var(--jurnal-color-primary);
+  font-size: var(--jurnal-text-4xl);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+  margin: var(--jurnal-space-2) 0;
+}
+
+.breakdown {
+  min-width: 0;
+  justify-content: center;
+}
+
+.bar {
+  display: flex;
+  overflow: hidden;
+  width: 100%;
+  height: var(--jurnal-space-6);
+  border-radius: var(--mantine-radius-md);
+  background: var(--jurnal-color-surface-muted);
+}
+
+.segment {
+  height: 100%;
+  min-width: 2px;
+}
+
+.unclassified {
+  height: 100%;
+  background: var(--mantine-color-gray-3);
+}
+
+.segment[data-type='customers'],
+.dot[data-type='customers'] {
+  background: var(--mantine-color-primary-7);
+}
+
+.segment[data-type='suppliers'],
+.dot[data-type='suppliers'] {
+  background: var(--mantine-color-secondary-7);
+}
+
+.segment[data-type='employees'],
+.dot[data-type='employees'] {
+  background: var(--mantine-color-teal-6);
+}
+
+.segment[data-type='units'],
+.dot[data-type='units'] {
+  background: var(--mantine-color-indigo-5);
+}
+
+.segment[data-type='others'],
+.dot[data-type='others'] {
+  background: var(--mantine-color-gray-6);
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--jurnal-space-3) var(--jurnal-space-6);
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: var(--jurnal-space-2);
+  min-width: 0;
+}
+
+.dot {
+  flex: 0 0 var(--jurnal-space-3);
+  width: var(--jurnal-space-3);
+  height: var(--jurnal-space-3);
+  border-radius: 50%;
+}
+
+.unclassifiedDot {
+  flex: 0 0 var(--jurnal-space-3);
+  width: var(--jurnal-space-3);
+  height: var(--jurnal-space-3);
+  border-radius: 50%;
+  background: var(--mantine-color-gray-3);
+}
+
+.typeLabel {
+  white-space: nowrap;
+}
+
+.count {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 48em) {
+  .overview {
+    grid-template-columns: 1fr;
+    gap: var(--jurnal-space-5);
+  }
+
+  .total {
+    border-right: 0;
+    padding-right: 0;
+  }
+}

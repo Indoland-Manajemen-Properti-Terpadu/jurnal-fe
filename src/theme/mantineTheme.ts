@@ -93,7 +93,7 @@ export const myTheme = createTheme({
     DateInput: DateInput.extend(smallInputDefaults),
     DatePickerInput: DatePickerInput.extend(smallInputDefaults),
     Paper: Paper.extend({
-      defaultProps: { p: 'md', radius: 'md', shadow: 'sm' },
+      defaultProps: { p: 'md', radius: 'md', shadow: 'none' },
       classNames: { root: classes.paperRoot },
     }),
     Table: Table.extend({

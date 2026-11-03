@@ -12,6 +12,7 @@ import {
   Tooltip,
 } from '@mantine/core';
 import {
+  IconArrowRight,
   IconBuildingBank,
   IconCheck,
   IconCopy,
@@ -81,6 +82,32 @@ function InfoRow({
           {value || t('notProvided')}
         </Text>
       )}
+    </div>
+  );
+}
+
+function AccountMappingRow({
+  label,
+  value,
+  linked,
+}: {
+  label: string;
+  value: string;
+  linked: boolean;
+}) {
+  return (
+    <div className={classes.mappingRow} data-linked={linked || undefined}>
+      <span className={classes.mappingArrow} aria-hidden="true">
+        <IconArrowRight size={18} stroke={1.8} />
+      </span>
+      <div className={classes.infoRow}>
+        <Text fz="xs" c="dimmed" fw={600}>
+          {label}
+        </Text>
+        <Text fz="sm" fw={600} className={classes.breakValue}>
+          {value}
+        </Text>
+      </div>
     </div>
   );
 }
@@ -200,7 +227,7 @@ export function ContactProfileSections({ contact, accountMap }: Props) {
   return (
     <div className={classes.profileGrid}>
       <Stack gap="lg">
-        <Paper withBorder radius="lg" p={{ base: 'md', sm: 'lg' }}>
+        <Paper withBorder radius="lg" p={{ base: 'md', sm: 'lg' }} shadow="none">
           <SectionTitle
             icon={IconUser}
             title={t('identityTitle')}
@@ -234,7 +261,7 @@ export function ContactProfileSections({ contact, accountMap }: Props) {
           )}
         </Paper>
 
-        <Paper withBorder radius="lg" p={{ base: 'md', sm: 'lg' }}>
+        <Paper withBorder radius="lg" p={{ base: 'md', sm: 'lg' }} shadow="none">
           <SectionTitle
             icon={IconMapPin}
             title={t('addressesTitle')}
@@ -250,7 +277,7 @@ export function ContactProfileSections({ contact, accountMap }: Props) {
           </SimpleGrid>
         </Paper>
 
-        <Paper withBorder radius="lg" p={{ base: 'md', sm: 'lg' }}>
+        <Paper withBorder radius="lg" p={{ base: 'md', sm: 'lg' }} shadow="none">
           <SectionTitle
             icon={IconBuildingBank}
             title={t('bankAccounts')}
@@ -284,20 +311,28 @@ export function ContactProfileSections({ contact, accountMap }: Props) {
       </Stack>
 
       <Stack gap="lg">
-        <Paper withBorder radius="lg" p={{ base: 'md', sm: 'lg' }}>
+        <Paper
+          withBorder
+          radius="lg"
+          p={{ base: 'md', sm: 'lg' }}
+          className={classes.accountingCard}
+          shadow="none"
+        >
           <SectionTitle
             icon={IconFileInvoice}
             title={t('accountingTitle')}
             subtitle={t('accountingSubtitle')}
           />
           <Stack gap="md">
-            <InfoRow
+            <AccountMappingRow
               label={t('receivableAccount')}
               value={resolveAccountName(contact.mappingAccount?.arAccount, accountMap)}
+              linked={Boolean(contact.mappingAccount?.arAccount)}
             />
-            <InfoRow
+            <AccountMappingRow
               label={t('payableAccount')}
               value={resolveAccountName(contact.mappingAccount?.apAccount, accountMap)}
+              linked={Boolean(contact.mappingAccount?.apAccount)}
             />
             <Divider />
             <InfoRow label={t('paymentTerm')} value={paymentTerm} />
@@ -309,7 +344,7 @@ export function ContactProfileSections({ contact, accountMap }: Props) {
           </Stack>
         </Paper>
 
-        <Paper withBorder radius="lg" p={{ base: 'md', sm: 'lg' }}>
+        <Paper withBorder radius="lg" p={{ base: 'md', sm: 'lg' }} shadow="none">
           <Text fw={700} fz="md" mb="md">
             {t('recordTitle')}
           </Text>

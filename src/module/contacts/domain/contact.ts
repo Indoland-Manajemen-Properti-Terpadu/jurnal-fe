@@ -108,6 +108,7 @@ export type Paginated<T> = {
 export type ContactListParams = {
   page: number;
   limit: number;
+  archived?: boolean;
   search?: string;
   contactType?: string;
 };

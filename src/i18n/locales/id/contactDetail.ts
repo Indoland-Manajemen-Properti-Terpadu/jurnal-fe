@@ -7,6 +7,7 @@ export const contactDetail = {
   backToContacts: 'Kembali ke Kontak',
   archive: 'Arsipkan',
   editContact: 'Ubah Kontak',
+  unarchive: 'Pulihkan',
   contactRecord: 'Profil kontak',
   contactNumber: 'Nomor kontak',
   invoiceLimitNote:
