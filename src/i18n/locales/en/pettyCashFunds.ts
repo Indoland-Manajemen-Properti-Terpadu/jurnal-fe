@@ -8,7 +8,7 @@ export const fundNotify = {
 
 export const pettyCashFunds = {
   fundAdmin: {
-    menu: 'Manage funds',
+    menu: 'More actions',
     create: 'New fund',
     edit: 'Edit settings',
     adjust: 'Adjust ceiling',

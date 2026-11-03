@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import {
   Grid,
   Group,
@@ -15,7 +15,10 @@ import type { UseFormReturnType } from '@mantine/form';
 import { IconUser } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import { CONTACT_TYPES, type ContactFormValues } from '@/module/contacts/domain/contact';
-import { buildGroupOptions } from '@/module/contacts/domain/contactAccountOptions';
+import {
+  buildGroupOptions,
+  resolveContactGroupIds,
+} from '@/module/contacts/domain/contactAccountOptions';
 import { IDENTITY_TYPE_KEYS, PREFIX_KEYS } from '@/module/contacts/domain/contactForm';
 import { useContactGroups } from '@/module/contacts/presentation/hooks/useContactQueries';
 
@@ -26,6 +29,16 @@ export function ContactGeneralTab({ form }: Readonly<Props>) {
   const groupsQuery = useContactGroups();
 
   const groupOptions = useMemo(() => buildGroupOptions(groupsQuery.data ?? []), [groupsQuery.data]);
+  useEffect(() => {
+    if (!groupsQuery.data || !form.values.contactGroups?.length) return;
+    const resolved = resolveContactGroupIds(form.values.contactGroups, groupsQuery.data);
+    if (
+      resolved.every(Boolean) &&
+      resolved.some((id, index) => id !== form.values.contactGroups?.[index])
+    ) {
+      form.setFieldValue('contactGroups', resolved);
+    }
+  }, [groupsQuery.data, form.values.contactGroups]);
   const contactTypeOptions = CONTACT_TYPES.map((type) => ({
     value: type,
     label: t(`form.options.contactType.${type}`),
@@ -163,7 +176,10 @@ export function ContactGeneralTab({ form }: Readonly<Props>) {
           <TextInput
             label={t('form.general.email.label')}
             placeholder={t('form.general.email.placeholder')}
+            withAsterisk
             value={form.values.emails[0] ?? ''}
+            error={form.errors.emails}
+            onBlur={() => form.validateField('emails')}
             onChange={(e) => {
               const next = [...form.values.emails];
               next[0] = e.currentTarget.value;

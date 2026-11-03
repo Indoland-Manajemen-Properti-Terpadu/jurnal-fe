@@ -48,7 +48,11 @@ export const mapContact = (dto: ContactDto): Contact => ({
   addresses: dto.addresses ?? null,
   emails: Array.isArray(dto.emails) ? dto.emails : [],
   contactType: Array.isArray(dto.contactType) ? (dto.contactType as ContactType[]) : [],
-  contactGroups: Array.isArray(dto.contactGroups) ? dto.contactGroups : [],
+  contactGroups: Array.isArray(dto.contactGroups)
+    ? dto.contactGroups
+        .map((group) => (typeof group === 'string' ? group : group?.name || group?.id || ''))
+        .filter(Boolean)
+    : [],
   companyName: dto.companyName ?? dto.company_name ?? null,
   npwp: dto.npwp ?? null,
   otherInfo: dto.otherInfo ?? dto.other_info ?? null,

@@ -58,10 +58,10 @@ export const AddAccountAccessSection: React.FC<AddAccountAccessSectionProps> = (
   const { t } = useTranslation('chartOfAccounts');
 
   return (
-    <Paper withBorder radius="md" p="lg" bg="white" shadow="xs">
+    <Paper withBorder radius="md" p="lg" bg="white" shadow="none">
       <Group justify="space-between" align="flex-start" mb="md" wrap="wrap" gap="sm">
         <Group gap="sm" wrap="nowrap">
-          <ThemeIcon size={36} radius="md" variant="light" color="indigo">
+          <ThemeIcon size={36} radius="md" variant="light" color="primary">
             <IconShieldCheck size={20} />
           </ThemeIcon>
           <div>
@@ -73,7 +73,7 @@ export const AddAccountAccessSection: React.FC<AddAccountAccessSectionProps> = (
             </Text>
           </div>
         </Group>
-        <Badge variant="light" color="indigo" size="sm">
+        <Badge variant="light" color="gray" size="sm">
           {t('form.step3')}
         </Badge>
       </Group>

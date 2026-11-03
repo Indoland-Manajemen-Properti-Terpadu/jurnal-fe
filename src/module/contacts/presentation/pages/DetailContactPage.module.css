@@ -1,47 +1,3 @@
-.hero {
-  position: relative;
-  overflow: hidden;
-  background: linear-gradient(115deg, var(--mantine-color-primary-0), var(--mantine-color-white) 72%);
-}
-
-.hero::after {
-  position: absolute;
-  top: -84px;
-  right: -74px;
-  width: 250px;
-  height: 250px;
-  border: 1px solid var(--mantine-color-primary-1);
-  border-radius: 50%;
-  content: '';
-  pointer-events: none;
-}
-
-.heroContent {
-  position: relative;
-  z-index: 1;
-}
-
-.heroIdentity {
-  min-width: 0;
-  flex: 1;
-}
-
-.heroAvatar {
-  flex-shrink: 0;
-  border: 1px solid var(--mantine-color-primary-2);
-}
-
-.heroTitle {
-  overflow-wrap: anywhere;
-}
-
-.heroSummary {
-  min-width: min(100%, 230px);
-  align-self: stretch;
-  border-left: 1px solid var(--mantine-color-primary-2);
-  padding-left: var(--mantine-spacing-xl);
-}
-
 .profileGrid {
   display: grid;
   grid-template-columns: minmax(0, 1.65fr) minmax(280px, 1fr);
@@ -51,6 +7,36 @@
 
 .profileGrid > * {
   min-width: 0;
+}
+
+.accountingCard {
+  border-top: 3px solid var(--jurnal-color-primary);
+}
+
+.mappingRow {
+  display: flex;
+  align-items: center;
+  gap: var(--mantine-spacing-sm);
+  padding: var(--mantine-spacing-sm);
+  border: 1px solid var(--jurnal-color-border-subtle);
+  border-radius: var(--mantine-radius-md);
+  background: var(--jurnal-color-bg-subtle);
+}
+
+.mappingArrow {
+  display: grid;
+  place-items: center;
+  flex: 0 0 rem(32px);
+  width: rem(32px);
+  height: rem(32px);
+  border-radius: var(--mantine-radius-md);
+  background: var(--mantine-color-gray-1);
+  color: var(--jurnal-color-text-secondary);
+}
+
+.mappingRow[data-linked] .mappingArrow {
+  background: var(--jurnal-color-primary-subtle);
+  color: var(--jurnal-color-primary);
 }
 
 .sectionIcon {
@@ -108,18 +94,6 @@
 }
 
 @media (max-width: 48em) {
-  .heroSummary {
-    min-width: 100%;
-    border-left: 0;
-    border-top: 1px solid var(--mantine-color-primary-2);
-    padding: var(--mantine-spacing-md) 0 0;
-  }
-
-  .heroAvatar {
-    width: 60px;
-    height: 60px;
-  }
-
   .transactionActions > * {
     flex: 1 1 100%;
   }

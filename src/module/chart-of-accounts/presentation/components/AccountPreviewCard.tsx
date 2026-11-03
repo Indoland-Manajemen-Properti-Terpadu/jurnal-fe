@@ -86,7 +86,7 @@ export const AccountPreviewCard: React.FC<AccountPreviewCardProps> = ({
   }
 
   return (
-    <Paper withBorder radius="md" p="md" bg="white" shadow="xs">
+    <Paper withBorder radius="md" p="md" bg="white" shadow="none">
       <Group justify="space-between" mb="xs" wrap="nowrap">
         <Group gap="xs" wrap="nowrap">
           <ThemeIcon size={30} radius="md" variant="light" color="primary">

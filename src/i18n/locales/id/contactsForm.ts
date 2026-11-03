@@ -14,6 +14,9 @@ export const contactsForm = {
     validation: {
       displayName: 'Nama tampilan wajib diisi',
       contactType: 'Pilih minimal satu tipe kontak',
+      emailRequired: 'Email wajib diisi.',
+      emailInvalid: 'Masukkan alamat email dengan format yang valid.',
+      groupsUnavailable: 'Grup kontak belum dapat diverifikasi. Muat ulang dan coba lagi.',
     },
     options: {
       contactType: {

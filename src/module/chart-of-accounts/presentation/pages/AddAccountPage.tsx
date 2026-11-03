@@ -17,10 +17,8 @@ import {
   getCategoryPrefix,
   hasAccountCode,
   hasValidName,
-  isCashBankCategory,
   isHierarchyAndAccessValid,
   MIN_CREATE_NAME_LENGTH,
-  resolveEffectiveDebit,
   validateAccountCategory,
   validateAccountCode,
   validateCreateName,
@@ -28,8 +26,7 @@ import {
 import { ACCOUNT_PRESETS, findPresetCategory } from '../../domain/accountPresets';
 import { groupCategoryOptions } from '../../domain/categoryOptions';
 import { buildAccountPayload } from '../../domain/buildAccountPayload';
-import { AccountPreviewCard, AccountingGuideCard } from '../components';
-import { AddAccountSummaryStrip } from '../components/account-form/AddAccountSummaryStrip';
+import { AccountPreviewCard } from '../components';
 import { AddAccountIdentitySection } from '../components/account-form/AddAccountIdentitySection';
 import { AddAccountHierarchySection } from '../components/account-form/AddAccountHierarchySection';
 import { AddAccountAccessSection } from '../components/account-form/AddAccountAccessSection';
@@ -106,12 +103,6 @@ export const AddAccountJournalPage: React.FC = () => {
     }
   }, [categoryInfo?.suggestedAccountNumber]);
 
-  // Auto-sync isBankAndCash when category is Cash & Bank
-  useEffect(() => {
-    if (!selectedCategoryObj) return;
-    form.setFieldValue('isBankAndCash', isCashBankCategory(selectedCategoryObj));
-  }, [selectedCategoryObj?.id]);
-
   // Reset hierarchy selection when changing account type
   useEffect(() => {
     if (selectedAccountType === 'SingleAccount') {
@@ -151,11 +142,6 @@ export const AddAccountJournalPage: React.FC = () => {
 
   const isIncomeStatementCategory = useMemo(() => Number(activePrefix) >= 4, [activePrefix]);
 
-  const effectiveDebit = useMemo(
-    () => resolveEffectiveDebit(selectedCategoryObj?.isDebit, form.values.isContra),
-    [selectedCategoryObj?.isDebit, form.values.isContra]
-  );
-
   // Readiness Checks
   const hasCategory = Boolean(form.values.category);
   const hasCode = hasAccountCode(form.values.accountNumber);
@@ -188,7 +174,6 @@ export const AddAccountJournalPage: React.FC = () => {
 
     const cat = findPresetCategory(presetKey, categoryAccounts);
     if (cat?.id) form.setFieldValue('category', cat.id);
-    form.setFieldValue('isBankAndCash', preset.isBankAndCash);
     form.setFieldValue('isContra', preset.isContra);
     if (!form.values.name) form.setFieldValue('name', t(preset.defaultNameKey));
   };
@@ -213,14 +198,18 @@ export const AddAccountJournalPage: React.FC = () => {
     }
 
     addAccountMutation.mutate(
-      buildAccountPayload(form.values, {
-        accountType: selectedAccountType,
-        parentId: headAccountId,
-        childId: subAccountId,
-        accessScope,
-        specialUsers,
-        certainRoles,
-      })
+      buildAccountPayload(
+        form.values,
+        {
+          accountType: selectedAccountType,
+          parentId: headAccountId,
+          childId: subAccountId,
+          accessScope,
+          specialUsers,
+          certainRoles,
+        },
+        { includeBankCash: false }
+      )
     );
   };
 
@@ -262,20 +251,7 @@ export const AddAccountJournalPage: React.FC = () => {
             }
           />
 
-          <AddAccountSummaryStrip
-            selectedCategoryObj={selectedCategoryObj}
-            isIncomeStatementCategory={isIncomeStatementCategory}
-            effectiveDebit={effectiveDebit}
-            isContra={form.values.isContra}
-            selectedAccountType={selectedAccountType}
-            parentAccountLabel={parentAccountLabel}
-            childAccountLabel={childAccountLabel}
-            isFormValid={isFormValid}
-            passedChecksCount={passedChecksCount}
-            totalChecks={readinessChecks.length}
-          />
-
-          {/* 3. Main 8 / 4 Split Grid (Standard B) */}
+          {/* Form and live review */}
           <Grid gutter="lg" align="flex-start">
             {/* Left Column: Structured Form Cards */}
             <Grid.Col span={{ base: 12, lg: 8 }}>
@@ -331,7 +307,6 @@ export const AddAccountJournalPage: React.FC = () => {
                   categoryName={selectedCategoryObj?.name || ''}
                   isDebit={selectedCategoryObj?.isDebit ?? true}
                   isContra={form.values.isContra}
-                  isBankAndCash={form.values.isBankAndCash}
                   accountType={selectedAccountType}
                   parentAccountLabel={parentAccountLabel}
                   childAccountLabel={childAccountLabel}
@@ -348,11 +323,7 @@ export const AddAccountJournalPage: React.FC = () => {
                   isFormValid={isFormValid}
                 />
 
-                {/* 3. Accounting Standards & 8-Group Numbering Guide Card */}
-                <AccountingGuideCard activePrefix={activePrefix} />
-
-                {/* 4. Sticky Submit Action Card */}
-                <Paper withBorder radius="md" p="md" bg="white" shadow="xs">
+                <Paper withBorder radius="md" p="md" bg="white" shadow="none">
                   <Stack gap="xs">
                     <Button
                       size="md"
@@ -364,16 +335,6 @@ export const AddAccountJournalPage: React.FC = () => {
                       onClick={handleAddAccount}
                     >
                       {t('form.saveAccountBtn')}
-                    </Button>
-                    <Button
-                      size="md"
-                      fullWidth
-                      variant="subtle"
-                      color="gray"
-                      onClick={handleCancel}
-                      disabled={addAccountMutation.isPending}
-                    >
-                      {t('form.cancelBtn')}
                     </Button>
                   </Stack>
                 </Paper>

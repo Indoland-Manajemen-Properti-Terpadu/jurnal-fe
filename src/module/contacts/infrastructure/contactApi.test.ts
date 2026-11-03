@@ -63,7 +63,9 @@ describe('contact payloads (characterization)', () => {
   it('builds the create payload with trimming, nulls and filtered lists', async () => {
     http.post.mockResolvedValue({ data: { data: { id: 'new' } } });
 
-    const created = await createContact(formValues({ external_id: ' ext-1 ' }));
+    const created = await createContact(
+      formValues({ external_id: ' ext-1 ', contactGroups: ['group-1'] })
+    );
 
     expect(created.id).toBe('new');
     const [url, payload] = http.post.mock.calls[0];
@@ -86,7 +88,7 @@ describe('contact payloads (characterization)', () => {
         },
       },
       otherInfo: null,
-      contactGroups: [],
+      contactGroups: ['group-1'],
       bankAccounts: [{ bankName: 'BCA', branch: '', accountHolder: 'Budi', accountNumber: '123' }],
       mappingAccount: { arAccount: 'ar-1', apAccount: null, defaultPaymentTerm: 30 },
       external_id: 'ext-1',
@@ -127,9 +129,17 @@ describe('list and transaction fetchers (characterization)', () => {
     const result = await fetchContacts({ page: 2, limit: 10, search: '  ab ', contactType: '' });
 
     expect(http.get).toHaveBeenCalledWith('/v1/contacts', {
-      params: { page: 2, limit: 10, search: 'ab', contactType: undefined },
+      params: { page: 2, limit: 10, archived: false, search: 'ab', contactType: undefined },
     });
     expect(result.pagination).toEqual({ total: 2, page: 2, limit: 10, totalPages: 7 });
+  });
+
+  it('passes archived=true when archived contacts are shown', async () => {
+    http.get.mockResolvedValue({ data: { data: { data: [], pagination: {} } } });
+    await fetchContacts({ page: 1, limit: 10, archived: true });
+    expect(http.get).toHaveBeenCalledWith('/v1/contacts', {
+      params: { page: 1, limit: 10, archived: true, search: undefined, contactType: undefined },
+    });
   });
 
   it('computes total pages from the total when the server sends none', async () => {

@@ -40,7 +40,7 @@ export type ContactDto = {
   addresses?: ContactAddresses | null;
   emails?: string[] | null;
   contactType?: unknown;
-  contactGroups?: string[] | null;
+  contactGroups?: Array<string | { id?: string; name?: string }> | null;
   companyName?: string | null;
   company_name?: string | null;
   npwp?: string | null;

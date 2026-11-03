@@ -3,6 +3,7 @@ import { Button, Menu } from '@mantine/core';
 import {
   IconAdjustments,
   IconChevronDown,
+  IconDots,
   IconLock,
   IconPlus,
   IconSettings,
@@ -40,8 +41,8 @@ export function FundAdminMenu({
       <Menu position="bottom-end" shadow="md" withinPortal>
         <Menu.Target>
           <Button
-            variant="light"
-            leftSection={<IconSettings size={16} />}
+            variant="default"
+            leftSection={<IconDots size={16} />}
             rightSection={<IconChevronDown size={14} />}
           >
             {t('fundAdmin.menu')}

@@ -7,6 +7,7 @@ export const contactDetail = {
   backToContacts: 'Back to Contacts',
   archive: 'Archive',
   editContact: 'Edit Contact',
+  unarchive: 'Restore',
   contactRecord: 'Contact profile',
   contactNumber: 'Contact number',
   invoiceLimitNote:

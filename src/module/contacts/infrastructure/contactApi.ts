@@ -21,6 +21,7 @@ export const CONTACT_ENDPOINTS = {
   contacts: '/v1/contacts',
   contactDetail: (id: string) => `/v1/contacts/${id}`,
   contactArchive: (id: string) => `/v1/contacts/${id}/archive`,
+  contactUnarchive: (id: string) => `/v1/contacts/${id}/unarchive`,
   contactGroups: '/v1/contacts/groups',
   contactGroupDetail: (id: string) => `/v1/contacts/groups/${id}`,
   contactExport: '/v1/contacts/export',
@@ -69,6 +70,7 @@ export const fetchContacts = async (params: ContactListParams): Promise<Paginate
       params: {
         page: params.page,
         limit: params.limit,
+        archived: params.archived ?? false,
         search: params.search?.trim() || undefined,
         contactType: params.contactType || undefined,
       },
@@ -108,6 +110,13 @@ export const updateContact = async (id: string, values: ContactFormValues): Prom
 export const archiveContact = async (id: string): Promise<Contact> => {
   const { data } = await apiClient.patch<ApiEnvelope<ContactDto>>(
     CONTACT_ENDPOINTS.contactArchive(id)
+  );
+  return mapContact(data.data);
+};
+
+export const unarchiveContact = async (id: string): Promise<Contact> => {
+  const { data } = await apiClient.patch<ApiEnvelope<ContactDto>>(
+    CONTACT_ENDPOINTS.contactUnarchive(id)
   );
   return mapContact(data.data);
 };

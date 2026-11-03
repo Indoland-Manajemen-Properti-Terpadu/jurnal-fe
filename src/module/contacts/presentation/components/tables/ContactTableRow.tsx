@@ -12,6 +12,7 @@ import {
 } from '@mantine/core';
 import {
   IconArchive,
+  IconArchiveOff,
   IconDotsVertical,
   IconEdit,
   IconEye,
@@ -30,6 +31,7 @@ import {
 } from '@/module/contacts/domain/contactFormat';
 import { getInitials } from '@/module/contacts/domain/contactTransactions';
 import { contactTypeLabel } from '../contactTypeLabel';
+import { ArchivedContactIndicator } from '../ArchivedContactIndicator';
 
 type Props = {
   contact: Contact;
@@ -37,6 +39,7 @@ type Props = {
   onView: (contact: Contact) => void;
   onEdit: (contact: Contact) => void;
   onArchive: (contact: Contact) => void;
+  onUnarchive: (contact: Contact) => void;
 };
 
 export function ContactTableRow({
@@ -45,6 +48,7 @@ export function ContactTableRow({
   onView,
   onEdit,
   onArchive,
+  onUnarchive,
 }: Readonly<Props>) {
   const navigate = useNavigate();
   const { t } = useTranslation('contacts');
@@ -55,6 +59,9 @@ export function ContactTableRow({
   const phone = contact.phones?.mobile || contact.phones?.telephone;
   const arLabel = resolveAccountName(contact.mappingAccount?.arAccount, accountMap);
   const apLabel = resolveAccountName(contact.mappingAccount?.apAccount, accountMap);
+  const contactTypes = contact.contactType ?? [];
+  const visibleContactTypes = contactTypes.slice(0, 2);
+  const remainingTypeCount = contactTypes.length - visibleContactTypes.length;
 
   return (
     <Table.Tr
@@ -71,9 +78,12 @@ export function ContactTableRow({
             {initials}
           </Avatar>
           <Box style={{ minWidth: 160 }}>
-            <Text fw={600} size="sm" c="primary.9" lh={1.3}>
-              {contact.displayName}
-            </Text>
+            <Group gap={6} wrap="wrap">
+              <Text fw={600} size="sm" c="primary.9" lh={1.3}>
+                {contact.displayName}
+              </Text>
+              {contact.deleted && <ArchivedContactIndicator label={t('table.archived')} />}
+            </Group>
             <Text size="xs" ff="monospace" c="dimmed" mt={2}>
               {contact.contactNumber || '—'}
             </Text>
@@ -84,8 +94,8 @@ export function ContactTableRow({
       {/* 2. Tipe Kontak */}
       <Table.Td>
         <Group gap={4} wrap="wrap">
-          {contact.contactType && contact.contactType.length > 0 ? (
-            contact.contactType.map((type: ContactType) => (
+          {visibleContactTypes.length > 0 ? (
+            visibleContactTypes.map((type: ContactType) => (
               <Badge
                 key={type}
                 color={getContactTypeBadgeConfig(type).color}
@@ -100,6 +110,11 @@ export function ContactTableRow({
             <Text size="xs" c="dimmed">
               {t('types.Lainnya')}
             </Text>
+          )}
+          {remainingTypeCount > 0 && (
+            <Badge color="gray" variant="light" size="sm" radius="sm">
+              {t('table.otherTypes', { count: remainingTypeCount })}
+            </Badge>
           )}
         </Group>
       </Table.Td>
@@ -218,14 +233,26 @@ export function ContactTableRow({
               >
                 {t('table.menuHistory')}
               </Menu.Item>
-              <Menu.Divider />
-              <Menu.Item
-                color="red"
-                leftSection={<IconArchive size={14} />}
-                onClick={() => onArchive(contact)}
-              >
-                {t('table.menuArchive')}
-              </Menu.Item>
+              {!contact.deleted && (
+                <>
+                  <Menu.Divider />
+                  <Menu.Item
+                    color="red"
+                    leftSection={<IconArchive size={14} />}
+                    onClick={() => onArchive(contact)}
+                  >
+                    {t('table.menuArchive')}
+                  </Menu.Item>
+                </>
+              )}
+              {contact.deleted && (
+                <Menu.Item
+                  leftSection={<IconArchiveOff size={14} />}
+                  onClick={() => onUnarchive(contact)}
+                >
+                  {t('table.menuUnarchive')}
+                </Menu.Item>
+              )}
             </Menu.Dropdown>
           </Menu>
         </Group>

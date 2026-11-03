@@ -45,7 +45,7 @@ export function ContactTransactionsPanel({
   const { t } = useTranslation('contactDetail');
 
   return (
-    <Paper withBorder radius="lg" p={{ base: 'md', sm: 'lg' }}>
+    <Paper withBorder radius="lg" p={{ base: 'md', sm: 'lg' }} shadow="none">
       <Stack gap="md">
         <Group justify="space-between" align="flex-start" gap="md">
           <div>
