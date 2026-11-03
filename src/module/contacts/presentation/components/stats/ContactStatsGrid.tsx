@@ -1,102 +1,124 @@
-import { Group, Paper, SimpleGrid, Text, ThemeIcon } from '@mantine/core';
-import {
-  IconAddressBook,
-  IconBriefcase,
-  IconHome2,
-  IconTruckDelivery,
-  IconUserCheck,
-} from '@tabler/icons-react';
+import { Box, Group, Paper, Skeleton, Stack, Text } from '@mantine/core';
 import { useTranslation } from '@/i18n';
+import classes from './ContactStatsGrid.module.css';
 
 type ContactStatsProps = {
-  total: number;
-  customers: number;
-  suppliers: number;
-  employees: number;
-  units?: number;
+  counts: number[];
+  isLoading: boolean;
+  isError: boolean;
 };
 
-export function ContactStatsGrid({
-  total,
-  customers,
-  suppliers,
-  employees,
-  units = 0,
-}: Readonly<ContactStatsProps>) {
+export function ContactStatsGrid({ counts, isLoading, isError }: Readonly<ContactStatsProps>) {
   const { t } = useTranslation('contacts');
-  const stats = [
-    {
-      title: t('stats.total'),
-      value: total,
-      description: t('stats.totalHint'),
-      icon: IconAddressBook,
-      color: 'primary',
-    },
-    {
-      title: t('stats.customers'),
-      value: customers,
-      description: t('stats.customersHint'),
-      icon: IconUserCheck,
-      color: 'teal',
-    },
-    {
-      title: t('stats.suppliers'),
-      value: suppliers,
-      description: t('stats.suppliersHint'),
-      icon: IconTruckDelivery,
-      color: 'blue',
-    },
-    {
-      title: t('stats.employees'),
-      value: employees,
-      description: t('stats.employeesHint'),
-      icon: IconBriefcase,
-      color: 'indigo',
-    },
-    {
-      title: t('stats.units'),
-      value: units,
-      description: t('stats.unitsHint'),
-      icon: IconHome2,
-      color: 'cyan',
-    },
-  ];
+  const [total = 0, customers = 0, suppliers = 0, employees = 0, units = 0, others = 0] = counts;
+  const types = [
+    { key: 'customers', count: customers },
+    { key: 'suppliers', count: suppliers },
+    { key: 'employees', count: employees },
+    { key: 'units', count: units },
+    { key: 'others', count: others },
+  ] as const;
+  const assigned = types.reduce((sum, type) => sum + type.count, 0);
+  const scale = Math.max(total, assigned);
+  const unclassified = Math.max(0, total - assigned);
+  const formatted = (value: number) => value.toLocaleString('id-ID');
+  const formattedPercent = (value: number) =>
+    `${value.toLocaleString('id-ID', { maximumFractionDigits: 1, minimumFractionDigits: value > 0 && value < 1 ? 1 : 0 })}%`;
 
   return (
-    <SimpleGrid cols={{ base: 1, sm: 2, md: 5 }} spacing="md">
-      {stats.map((stat) => {
-        const StatIcon = stat.icon;
-        return (
-          <Paper
-            key={stat.title}
-            withBorder
-            radius="md"
-            p="md"
-            bg="white"
-            style={{
-              transition: 'transform 150ms ease, box-shadow 150ms ease',
-            }}
-          >
-            <Group justify="space-between" align="flex-start">
-              <div>
-                <Text size="xs" c="dimmed" fw={600} tt="uppercase" lts={0.5}>
-                  {stat.title}
+    <Paper
+      component="section"
+      withBorder
+      radius="lg"
+      p={{ base: 'md', sm: 'lg' }}
+      shadow="none"
+      className={classes.overview}
+      aria-label={t('stats.heading')}
+    >
+      <Box className={classes.total}>
+        <Text fz="xs" fw={700} c="dimmed" tt="uppercase" lts="0.06em">
+          {t('stats.total')}
+        </Text>
+        {isLoading ? (
+          <Skeleton height={38} width={120} mt="sm" />
+        ) : (
+          <Text className={classes.totalValue}>{isError ? '—' : formatted(total)}</Text>
+        )}
+        <Text fz="sm" c="dimmed">
+          {isError ? t('stats.unavailable') : t('stats.totalHint')}
+        </Text>
+      </Box>
+
+      <Stack gap="sm" className={classes.breakdown}>
+        <Group justify="space-between" align="baseline" gap="xs">
+          <Text fw={700} fz="sm">
+            {t('stats.heading')}
+          </Text>
+          <Text fz="xs" c="dimmed">
+            {t('stats.shareHint')}
+          </Text>
+        </Group>
+        {isLoading ? (
+          <Skeleton height={24} radius="xl" />
+        ) : (
+          <div className={classes.bar} role="img" aria-label={t('stats.chartLabel')}>
+            {!isError &&
+              types.map(({ key, count }) =>
+                count > 0 ? (
+                  <div
+                    key={key}
+                    className={classes.segment}
+                    data-type={key}
+                    style={{ width: `${(count / scale) * 100}%` }}
+                    title={`${t(`stats.${key}`)}: ${formatted(count)}`}
+                  />
+                ) : null
+              )}
+            {!isError && unclassified > 0 && (
+              <div
+                className={classes.unclassified}
+                style={{ width: `${(unclassified / scale) * 100}%` }}
+              />
+            )}
+          </div>
+        )}
+        <div className={classes.legend}>
+          {types.map(({ key, count }) => {
+            const percent = total > 0 ? (count / total) * 100 : 0;
+            return (
+              <Box key={key} className={classes.legendItem}>
+                <span className={classes.dot} data-type={key} aria-hidden="true" />
+                <Text fz="sm" className={classes.typeLabel}>
+                  {t(`stats.${key}`)}
                 </Text>
-                <Text fz="var(--jurnal-text-2xl)" fw={800} c="dark.8" mt={4} lh={1.1}>
-                  {stat.value.toLocaleString('id-ID')}
-                </Text>
-                <Text size="xs" c="dimmed" mt={4}>
-                  {stat.description}
-                </Text>
-              </div>
-              <ThemeIcon size={40} radius="md" variant="light" color={stat.color}>
-                <StatIcon size={20} />
-              </ThemeIcon>
-            </Group>
-          </Paper>
-        );
-      })}
-    </SimpleGrid>
+                {isLoading ? (
+                  <Skeleton height={18} width={72} />
+                ) : (
+                  <Text fz="sm" fw={700} className={classes.count}>
+                    {isError ? '—' : formatted(count)}
+                    <Text span c="dimmed" fw={500} fz="xs" ml={6}>
+                      {isError ? '' : formattedPercent(percent)}
+                    </Text>
+                  </Text>
+                )}
+              </Box>
+            );
+          })}
+          {unclassified > 0 && !isLoading && !isError && (
+            <Box className={classes.legendItem}>
+              <span className={classes.unclassifiedDot} aria-hidden="true" />
+              <Text fz="sm">{t('stats.unclassified')}</Text>
+              <Text fz="sm" fw={700} className={classes.count}>
+                {formatted(unclassified)}
+              </Text>
+            </Box>
+          )}
+        </div>
+        <Text fz="xs" c="dimmed">
+          {assigned > total ? t('stats.normalizedHint') : t('stats.multiTypeHint')}
+        </Text>
+      </Stack>
+    </Paper>
   );
 }
 

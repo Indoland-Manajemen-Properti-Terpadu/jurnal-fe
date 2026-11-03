@@ -5,8 +5,10 @@ import {
   Button,
   Group,
   LoadingOverlay,
+  Menu,
   Paper,
   Stack,
+  Switch,
   Tabs,
   TextInput,
   Tooltip,
@@ -17,6 +19,7 @@ import {
   IconBriefcase,
   IconCategory,
   IconDownload,
+  IconDots,
   IconHome2,
   IconPlus,
   IconRefresh,
@@ -42,9 +45,11 @@ import { ContactGroupsModal } from '@/module/contacts/presentation/components/fo
 import {
   useAccountOptions,
   useArchiveContact,
+  useContactOverview,
   useContacts,
   useExportContacts,
   useSaveContact,
+  useUnarchiveContact,
 } from '@/module/contacts/presentation/hooks/useContactQueries';
 import {
   CONTACT_TYPES,
@@ -52,7 +57,6 @@ import {
   type ContactFormValues,
   type ContactType,
 } from '@/module/contacts/domain/contact';
-import { countContactTypes } from '@/module/contacts/domain/contactFormat';
 
 const TAB_ICONS: Record<ContactType, Icon> = {
   Pelanggan: IconUserCheck,
@@ -70,6 +74,7 @@ export function ContactMainPage() {
   const [searchInput, setSearchInput] = useState('');
   const [debouncedSearch] = useDebouncedValue(searchInput, 400);
   const [activeTab, setActiveTab] = useState<string>('all');
+  const [showArchived, setShowArchived] = useState(false);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
 
@@ -87,9 +92,11 @@ export function ContactMainPage() {
   const contactsQuery = useContacts({
     page,
     limit,
+    archived: showArchived,
     search: debouncedSearch.trim() || undefined,
     contactType: activeTab === 'all' ? undefined : activeTab,
   });
+  const overview = useContactOverview(showArchived);
 
   const accountsQuery = useAccountOptions();
 
@@ -105,6 +112,7 @@ export function ContactMainPage() {
   // Mutations
   const saveMutation = useSaveContact(editingContact?.id);
   const archiveMutation = useArchiveContact();
+  const unarchiveMutation = useUnarchiveContact();
 
   const handleOpenCreate = () => {
     setEditingContact(undefined);
@@ -142,17 +150,10 @@ export function ContactMainPage() {
   const total = pagination?.total ?? 0;
   const totalPages = pagination?.totalPages ?? 1;
 
-  // Approximate metrics for overview cards
-  const stats = useMemo(
-    () => ({ total, ...countContactTypes(contactsList) }),
-    [contactsList, total]
-  );
-
   return (
     <AppShellLayout>
       <Box p={{ base: 'md', sm: 'xl' }}>
         <Stack gap="lg">
-          {/* Module Header */}
           <ModuleHeader
             icon={IconAddressBook}
             title={t('main.title')}
@@ -164,38 +165,45 @@ export function ContactMainPage() {
                     variant="default"
                     size="lg"
                     radius="md"
-                    onClick={() => contactsQuery.refetch()}
-                    loading={contactsQuery.isFetching}
+                    onClick={() => {
+                      contactsQuery.refetch();
+                      overview.refetch();
+                    }}
+                    loading={contactsQuery.isFetching || overview.isFetching}
                     aria-label={t('main.refreshAria')}
                   >
                     <IconRefresh size={18} />
                   </ActionIcon>
                 </Tooltip>
 
-                <Button
-                  variant="default"
-                  leftSection={<IconCategory size={16} />}
-                  onClick={() => setGroupsModalOpened(true)}
-                >
-                  {t('main.manageGroups')}
-                </Button>
-
-                <Button
-                  variant="default"
-                  leftSection={<IconDownload size={16} />}
-                  loading={exportContactsMutation.isPending}
-                  onClick={() => exportContactsMutation.mutate()}
-                >
-                  {t('main.export')}
-                </Button>
-
-                <Button
-                  variant="default"
-                  leftSection={<IconUpload size={16} />}
-                  onClick={() => setImportModalOpened(true)}
-                >
-                  {t('main.import')}
-                </Button>
+                <Menu position="bottom-end" shadow="none" withArrow>
+                  <Menu.Target>
+                    <Button variant="default" leftSection={<IconDots size={18} />}>
+                      {t('main.moreActions')}
+                    </Button>
+                  </Menu.Target>
+                  <Menu.Dropdown>
+                    <Menu.Item
+                      leftSection={<IconCategory size={16} />}
+                      onClick={() => setGroupsModalOpened(true)}
+                    >
+                      {t('main.manageGroups')}
+                    </Menu.Item>
+                    <Menu.Item
+                      leftSection={<IconDownload size={16} />}
+                      disabled={exportContactsMutation.isPending}
+                      onClick={() => exportContactsMutation.mutate()}
+                    >
+                      {t('main.export')}
+                    </Menu.Item>
+                    <Menu.Item
+                      leftSection={<IconUpload size={16} />}
+                      onClick={() => setImportModalOpened(true)}
+                    >
+                      {t('main.import')}
+                    </Menu.Item>
+                  </Menu.Dropdown>
+                </Menu>
 
                 <Button
                   color="primary"
@@ -208,17 +216,14 @@ export function ContactMainPage() {
             }
           />
 
-          {/* Quick Stats Grid */}
           <ContactStatsGrid
-            total={stats.total}
-            customers={stats.customers}
-            suppliers={stats.suppliers}
-            employees={stats.employees}
-            units={stats.units}
+            counts={overview.counts}
+            isLoading={overview.isLoading}
+            isError={overview.isError}
           />
 
           {/* Main Content Tabs */}
-          <Paper withBorder radius="lg" p="md" bg="white">
+          <Paper withBorder radius="lg" p="md" bg="white" shadow="none">
             <Tabs
               value={activeTab}
               onChange={handleTabChange}
@@ -242,7 +247,7 @@ export function ContactMainPage() {
 
               <Stack gap="md">
                 {/* Filter & Search Bar */}
-                <Group justify="space-between" wrap="wrap" gap="sm">
+                <Group justify="flex-start" wrap="wrap" gap="md">
                   <TextInput
                     placeholder={t('main.searchPlaceholder')}
                     leftSection={<IconSearch size={16} />}
@@ -265,6 +270,15 @@ export function ContactMainPage() {
                       setPage(1);
                     }}
                     w={{ base: '100%', sm: 360 }}
+                  />
+                  <Switch
+                    checked={showArchived}
+                    onChange={(event) => {
+                      setShowArchived(event.currentTarget.checked);
+                      setPage(1);
+                    }}
+                    label={t('main.showArchived')}
+                    color="primary"
                   />
                 </Group>
 
@@ -290,6 +304,7 @@ export function ContactMainPage() {
                     onView={handleOpenDetail}
                     onEdit={handleOpenEdit}
                     onArchive={(contact) => setArchiveTarget(contact)}
+                    onUnarchive={(contact) => unarchiveMutation.mutate(contact.id)}
                   />
                 </Box>
               </Stack>

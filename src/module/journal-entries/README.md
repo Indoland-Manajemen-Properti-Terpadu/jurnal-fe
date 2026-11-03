@@ -14,7 +14,7 @@ Creates, lists and shows manual general journal entries (double entry). It is th
 
 ## Endpoints
 
-- `POST /v1/journal` create. Body built by `toCreateBody`. Only HTTP 200 counts as success.
+- `POST /v1/journal` create. Multipart body built by `toCreateFormData`; transaction details and tags are JSON fields, and each file is sent in an `attachments` field. Any HTTP 2xx response counts as success.
 - `GET /v1/journal/account/:idAccount` entries of an account (several response shapes, `toEntriesByAccount`).
 - `GET /v1/journal/detail/:id` one entry.
 - `DELETE /v1/journal/:id` delete. Bulk delete sends N parallel DELETE requests.
@@ -45,8 +45,6 @@ Namespace `journalEntries` (`id` and `en`, parity test in `src/i18n/locales/jour
 
 ## Known gaps (documented, not changed)
 
-- Create succeeds only on HTTP 200: a 201 would be reported as a failure.
-- `attachments` go inside a JSON body as `File` objects, which serialize to `{}`. Whether the backend accepts multipart or a separate upload is undocumented.
 - Bulk delete is not atomic: if one DELETE fails the others may already be deleted.
 - Not enforced: closed-period check, future date guard, posting to header or archived accounts, journal edit or reversal.
 - The dropzone accepts 5 MB (the component default) while the hint says 30 MB.

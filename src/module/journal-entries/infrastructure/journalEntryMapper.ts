@@ -5,10 +5,8 @@ import type {
 } from '../domain/journalEntry';
 
 /**
- * Body of `POST /v1/journal`. A zero amount side is left out, `transactionNumber` only when it
- * is a number, `notes` only when not blank, `tags` and `attachments` only when not empty.
- * `attachments` holds `File` objects inside a JSON body: the backend contract for them is
- * undocumented (see the README), so it is kept exactly as before.
+ * Normalizes fields of `POST /v1/journal`. A zero amount side is left out, `transactionNumber`
+ * only when it is a number, and optional values only when present.
  */
 export const toCreateBody = (data: JournalEntryPayload): Record<string, unknown> => {
   const body: Record<string, unknown> = {
@@ -34,6 +32,28 @@ export const toCreateBody = (data: JournalEntryPayload): Record<string, unknown>
     body.attachments = data.attachments;
   }
   return body;
+};
+
+/** Encodes a journal entry as multipart form data so files are sent as binary attachments. */
+export const toCreateFormData = (data: JournalEntryPayload): FormData => {
+  const body = toCreateBody(data);
+  const formData = new FormData();
+
+  Object.entries(body).forEach(([key, value]) => {
+    if (key === 'attachments' && Array.isArray(value)) {
+      value.forEach((file) => formData.append('attachments', file as File));
+      return;
+    }
+
+    if (Array.isArray(value) || (value !== null && typeof value === 'object')) {
+      formData.append(key, JSON.stringify(value));
+      return;
+    }
+
+    formData.append(key, String(value));
+  });
+
+  return formData;
 };
 
 type Envelope = { data?: unknown; results?: unknown } | null | undefined;

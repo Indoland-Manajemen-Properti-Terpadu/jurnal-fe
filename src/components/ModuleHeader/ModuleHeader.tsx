@@ -1,18 +1,19 @@
 import type { ReactNode } from 'react';
-import { Box, Group, Paper, Stack, Text, ThemeIcon, Title } from '@mantine/core';
+import { Box, Group, Paper, ThemeIcon, Title } from '@mantine/core';
 import type { Icon } from '@tabler/icons-react';
+import classes from './ModuleHeader.module.css';
 
 export type Crumb = { label: string; to?: string };
 
 export type ModuleHeaderProps = {
   icon: Icon;
-  title: string;
+  title: ReactNode;
   description: ReactNode;
   breadcrumbs?: Crumb[];
   actions?: ReactNode;
 };
 
-/** Shared feature header with breadcrumbs, icon gradient, title, and descriptive subtitle. */
+/** Shared feature header for module pages. */
 export function ModuleHeader({
   icon: HeaderIcon,
   title,
@@ -20,38 +21,21 @@ export function ModuleHeader({
   actions,
 }: Readonly<ModuleHeaderProps>) {
   return (
-    <Paper
-      radius="lg"
-      p={{ base: 'md', sm: 'lg' }}
-      withBorder
-      style={{
-        background:
-          'linear-gradient(120deg, var(--mantine-color-white) 55%, var(--mantine-color-secondary-0))',
-      }}
-    >
-      <Stack gap="sm">
-        <Group justify="space-between" align="flex-start" wrap="wrap" gap="md">
-          <Group align="flex-start" gap="md" wrap="nowrap" style={{ flex: 1, minWidth: 260 }}>
-            <ThemeIcon
-              size={48}
-              radius="md"
-              variant="gradient"
-              gradient={{ from: 'primary.6', to: 'secondary.6', deg: 135 }}
-            >
-              <HeaderIcon size={24} stroke={1.8} />
-            </ThemeIcon>
-            <Box>
-              <Title order={2} fz={{ base: 20, sm: 24 }} c="primary.9" lh={1.2}>
-                {title}
-              </Title>
-              <Text size="sm" c="dimmed" mt={6} maw={680} lh={1.6}>
-                {description}
-              </Text>
-            </Box>
-          </Group>
-          {actions && <Group gap="sm">{actions}</Group>}
-        </Group>
-      </Stack>
+    <Paper radius="lg" p={{ base: 'md', sm: 'lg' }} withBorder bg="white" shadow="none">
+      <Group justify="space-between" align="flex-start" wrap="wrap" gap="lg">
+        <Box className={classes.intro}>
+          <ThemeIcon size={48} radius="md" color="primary" variant="filled">
+            <HeaderIcon size={24} stroke={1.8} />
+          </ThemeIcon>
+          <Box className={classes.copy}>
+            <Title order={2} fz={{ base: 20, sm: 24 }} className={classes.title}>
+              {title}
+            </Title>
+            <Box className={classes.description}>{description}</Box>
+          </Box>
+        </Box>
+        {actions && <Group gap="sm">{actions}</Group>}
+      </Group>
     </Paper>
   );
 }

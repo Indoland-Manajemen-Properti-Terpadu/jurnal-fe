@@ -32,6 +32,11 @@ describe('buildAccountPayload', () => {
     });
   });
 
+  it('omits isBankAndCash for account creation', () => {
+    const payload = buildAccountPayload(values, single, { includeBankCash: false });
+    expect(payload).not.toHaveProperty('isBankAndCash');
+  });
+
   it('sends the allowed users or roles for a restricted single account', () => {
     expect(
       buildAccountPayload(values, { ...single, accessScope: 'SpecialUsers', specialUsers: ['u1'] })

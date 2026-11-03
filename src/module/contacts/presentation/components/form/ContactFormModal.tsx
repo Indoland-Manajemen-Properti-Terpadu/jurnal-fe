@@ -21,7 +21,9 @@ import {
 } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import type { Contact, ContactFormValues } from '@/module/contacts/domain/contact';
+import { resolveContactGroupIds } from '@/module/contacts/domain/contactAccountOptions';
 import { useContactForm } from '@/module/contacts/presentation/hooks/useContactForm';
+import { useContactGroups } from '@/module/contacts/presentation/hooks/useContactQueries';
 import { ContactAddressTab } from './ContactAddressTab';
 import { ContactBankTab } from './ContactBankTab';
 import { ContactGeneralTab } from './ContactGeneralTab';
@@ -45,12 +47,22 @@ export function ContactFormModal({
   const { t } = useTranslation('contacts');
   const [activeTab, setActiveTab] = useState<string | null>('general');
   const form = useContactForm(opened, contact);
+  const groupsQuery = useContactGroups();
 
   useEffect(() => {
     if (opened) setActiveTab('general');
   }, [opened, contact]);
 
   const bankCount = form.values.bankAccounts.length;
+  const handleSubmit = (values: ContactFormValues) => {
+    const groupIds = resolveContactGroupIds(values.contactGroups ?? [], groupsQuery.data ?? []);
+    if (groupIds.some((id) => !id)) {
+      form.setFieldError('contactGroups', t('form.validation.groupsUnavailable'));
+      setActiveTab('general');
+      return;
+    }
+    onSubmit({ ...values, contactGroups: groupIds });
+  };
 
   return (
     <Modal
@@ -82,7 +94,7 @@ export function ContactFormModal({
         blur: 3,
       }}
     >
-      <form onSubmit={form.onSubmit(onSubmit)}>
+      <form onSubmit={form.onSubmit(handleSubmit)}>
         <Stack gap="lg">
           <Tabs
             value={activeTab}

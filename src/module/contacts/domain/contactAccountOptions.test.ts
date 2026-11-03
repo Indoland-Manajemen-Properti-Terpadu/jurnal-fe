@@ -4,6 +4,7 @@ import {
   buildGroupOptions,
   buildPaymentTermOptions,
   groupAccountOptions,
+  resolveContactGroupIds,
 } from './contactAccountOptions';
 
 describe('contactAccountOptions', () => {
@@ -47,7 +48,10 @@ describe('contactAccountOptions', () => {
         { id: '2', name: 'VIP' },
         { id: '3', name: '' },
       ])
-    ).toEqual([{ value: 'VIP', label: 'VIP' }]);
+    ).toEqual([
+      { value: '1', label: 'VIP' },
+      { value: '2', label: 'VIP' },
+    ]);
 
     expect(
       buildPaymentTermOptions(
@@ -62,5 +66,14 @@ describe('contactAccountOptions', () => {
       { value: '0', label: 'COD (Langsung Tunai)' },
       { value: '15', label: 'Net 15 (15 hari)' },
     ]);
+  });
+
+  it('resolves saved group names and selected IDs to ID values', () => {
+    const groups = [
+      { id: 'g1', name: 'Vendor' },
+      { id: 'g2', name: 'VIP' },
+    ];
+    expect(resolveContactGroupIds(['Vendor', 'g2'], groups)).toEqual(['g1', 'g2']);
+    expect(resolveContactGroupIds(['Missing'], groups)).toEqual(['']);
   });
 });

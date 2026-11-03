@@ -16,6 +16,7 @@ export const contacts = {
       'Kelola seluruh profil rekanan bisnis, pelanggan, pemasok, unit properti, dan karyawan. Hubungkan dengan akun piutang dan hutang untuk kemudahan pencatatan transaksi yang konsisten dan akurat.',
     refreshTooltip: 'Muat ulang data',
     refreshAria: 'Refresh kontak',
+    moreActions: 'Aksi lainnya',
     manageGroups: 'Kelola Grup',
     export: 'Ekspor Data',
     import: 'Impor Kontak',
@@ -30,6 +31,7 @@ export const contacts = {
     },
     searchPlaceholder: 'Cari nama, perusahaan, nomor kontak, atau email...',
     clearSearch: 'Hapus pencarian',
+    showArchived: 'Lihat Diarsipkan',
     archiveTitle: 'Arsipkan Kontak Ini?',
     archiveMessage:
       'Apakah Anda yakin ingin mengarsipkan kontak "{name}"? Kontak yang diarsipkan tidak akan muncul dalam pilihan transaksi baru.',
@@ -42,6 +44,14 @@ export const contacts = {
     back: 'Kembali',
   },
   stats: {
+    heading: 'Komposisi tipe kontak',
+    shareHint: 'Jumlah dan proporsi per tipe',
+    chartLabel: 'Distribusi tipe kontak',
+    multiTypeHint: 'Satu kontak dapat memiliki lebih dari satu tipe.',
+    normalizedHint:
+      'Kontak multi-tipe dihitung pada setiap tipenya; panjang segmen dinormalisasi agar muat dalam satu bar.',
+    unclassified: 'Tanpa tipe',
+    unavailable: 'Ringkasan belum dapat dimuat',
     total: 'Total Kontak',
     totalHint: 'Seluruh entitas terdaftar',
     customers: 'Pelanggan',
@@ -52,6 +62,7 @@ export const contacts = {
     employeesHint: 'Staf internal',
     units: 'Unit',
     unitsHint: 'Penghuni & properti',
+    others: 'Lainnya',
   },
   table: {
     columns: {
@@ -64,7 +75,9 @@ export const contacts = {
     },
     receivable: 'Piutang: {account}',
     payable: 'Hutang: {account}',
+    otherTypes: '({count}) tipe lainnya',
     systemDefault: 'Standar Sistem',
+    archived: 'Diarsipkan',
     viewTooltip: 'Lihat Detail',
     viewAria: 'Lihat Detail Kontak',
     editTooltip: 'Ubah Kontak',
@@ -74,6 +87,7 @@ export const contacts = {
     menuEdit: 'Ubah Data',
     menuHistory: 'Riwayat Transaksi',
     menuArchive: 'Arsipkan Kontak',
+    menuUnarchive: 'Pulihkan Kontak',
     emptyTitle: 'Belum Ada Kontak yang Cocok',
     emptyDescription:
       'Coba sesuaikan kata kunci pencarian atau filter tipe kontak, atau tambahkan kontak baru untuk mulai mencatat transaksi.',
@@ -122,6 +136,8 @@ export const contacts = {
     updateFailed: 'Gagal memperbarui kontak.',
     archived: 'Kontak "{name}" berhasil diarsipkan.',
     archiveFailed: 'Gagal mengarsipkan kontak.',
+    unarchived: 'Kontak "{name}" berhasil dipulihkan.',
+    unarchiveFailed: 'Gagal memulihkan kontak.',
     transactionsExported: 'Ekspor transaksi kontak berhasil diunduh.',
     transactionsExportFailed: 'Gagal mengekspor transaksi kontak.',
     groupCreated: 'Grup kontak baru berhasil dibuat.',

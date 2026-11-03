@@ -65,12 +65,18 @@ export const buildGroupOptions = (groups: ContactGroup[]): SelectOption[] => {
   const seen = new Set<string>();
   const options: SelectOption[] = [];
   groups.forEach((group) => {
-    if (group.name && !seen.has(group.name)) {
-      seen.add(group.name);
-      options.push({ value: group.name, label: group.name });
+    if (group.id && group.name && !seen.has(group.id)) {
+      seen.add(group.id);
+      options.push({ value: group.id, label: group.name });
     }
   });
   return options;
+};
+
+export const resolveContactGroupIds = (values: string[], groups: ContactGroup[]): string[] => {
+  const byId = new Set(groups.map((group) => group.id));
+  const byName = new Map(groups.map((group) => [group.name, group.id]));
+  return values.map((value) => (byId.has(value) ? value : (byName.get(value) ?? '')));
 };
 
 /** One option per distinct number of days; `immediateLabel` replaces "0 days". */

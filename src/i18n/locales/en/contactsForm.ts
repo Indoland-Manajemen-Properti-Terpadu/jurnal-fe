@@ -14,6 +14,9 @@ export const contactsForm = {
     validation: {
       displayName: 'Display name is required',
       contactType: 'Select at least one contact type',
+      emailRequired: 'Email is required.',
+      emailInvalid: 'Enter a valid email address.',
+      groupsUnavailable: 'Contact groups could not be verified. Reload and try again.',
     },
     options: {
       contactType: {

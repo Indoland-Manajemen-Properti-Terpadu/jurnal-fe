@@ -16,6 +16,12 @@ const emptyLimit = () => ({ isActive: false, amount: 0 });
 
 export const DEFAULT_PAYMENT_TERM_DAYS = 30;
 
+/** Checks whether a supplied value uses a basic email format. */
+export const isValidEmail = (value: string): boolean => {
+  const email = value.trim();
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+};
+
 export const PREFIX_KEYS = [
   'Bapak',
   'Ibu',

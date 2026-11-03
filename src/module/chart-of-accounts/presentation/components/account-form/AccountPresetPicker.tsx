@@ -29,30 +29,26 @@ export const AccountPresetPicker: React.FC<AccountPresetPickerProps> = ({ onAppl
       </Group>
       <SimpleGrid cols={{ base: 1, xs: 2, sm: 3 }} spacing="xs">
         {[
-          { key: 'bank', label: t('form.presetBank'), color: 'blue', prefix: '1-1' },
+          { key: 'bank', label: t('form.presetBank'), prefix: '1-1' },
           {
             key: 'pettyCash',
             label: t('form.presetPettyCash'),
-            color: 'cyan',
             prefix: '1-1',
           },
           {
             key: 'receivable',
             label: t('form.presetReceivable'),
-            color: 'indigo',
             prefix: '1-2',
           },
           {
             key: 'accumDepr',
             label: t('form.presetAccumDepr'),
-            color: 'orange',
             prefix: '1-5',
           },
-          { key: 'revenue', label: t('form.presetRevenue'), color: 'teal', prefix: '4-1' },
+          { key: 'revenue', label: t('form.presetRevenue'), prefix: '4-1' },
           {
             key: 'expense',
             label: t('form.presetExpense'),
-            color: 'grape',
             prefix: '6-1',
           },
         ].map((preset) => (
@@ -65,7 +61,7 @@ export const AccountPresetPicker: React.FC<AccountPresetPickerProps> = ({ onAppl
             justify="flex-start"
             fullWidth
             leftSection={
-              <Badge size="xs" variant="light" color={preset.color} ff="monospace">
+              <Badge size="xs" variant="light" color="primary" ff="monospace">
                 {preset.prefix}
               </Badge>
             }

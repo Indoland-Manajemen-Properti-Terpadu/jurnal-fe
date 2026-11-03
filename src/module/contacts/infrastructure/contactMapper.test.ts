@@ -2,6 +2,14 @@ import { describe, expect, it } from 'vitest';
 import { mapContact, mapPagination } from './contactMapper';
 
 describe('mapContact (characterization)', () => {
+  it('normalizes populated contact groups to displayable names', () => {
+    const contact = mapContact({
+      id: 'c-1',
+      contactGroups: [{ id: 'g1', name: 'Vendor' }, 'Existing', { id: 'g2' }],
+    });
+    expect(contact.contactGroups).toEqual(['Vendor', 'Existing', 'g2']);
+  });
+
   it('maps snake_case fallbacks and defaults', () => {
     const contact = mapContact({
       _id: 'c-9',
