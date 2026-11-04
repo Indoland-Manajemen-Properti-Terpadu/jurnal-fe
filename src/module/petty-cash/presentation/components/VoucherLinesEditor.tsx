@@ -2,6 +2,7 @@ import {
   ActionIcon,
   Button,
   Grid,
+  MultiSelect,
   NumberInput,
   Paper,
   Select,
@@ -43,6 +44,7 @@ export function VoucherLinesEditor({
     label: `${account.accountNumber} · ${account.name}`,
   }));
   const taxes = (lookups?.taxes ?? []).map((tax) => ({ value: tax.id, label: tax.name }));
+  const tags = (lookups?.tags ?? []).map((tag) => ({ value: tag.id, label: tag.name }));
 
   return (
     <Stack gap="sm">
@@ -122,6 +124,21 @@ export function VoucherLinesEditor({
                   <IconTrash size={18} />
                 </ActionIcon>
               </Grid.Col>
+              {tags.length > 0 && (
+                <Grid.Col span={12}>
+                  <MultiSelect
+                    label={t('form.tags')}
+                    description={t('form.tagsHint')}
+                    placeholder={line.tagIds.length > 0 ? undefined : t('form.tagsPlaceholder')}
+                    data={tags}
+                    value={line.tagIds}
+                    onChange={(tagIds) => update(line.key, { tagIds })}
+                    clearable
+                    searchable
+                    clearButtonProps={{ 'aria-label': t('common.clearFilters') }}
+                  />
+                </Grid.Col>
+              )}
             </Grid>
           </Paper>
         );

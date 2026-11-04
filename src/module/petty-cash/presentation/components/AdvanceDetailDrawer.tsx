@@ -1,14 +1,26 @@
-import { Anchor, Box, Divider, Drawer, Group, Skeleton, Stack, Table, Text } from '@mantine/core';
+import { Anchor, Group, Stack } from '@mantine/core';
 import { IconPaperclip } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import { formatCurrency } from '@/utils/formatCurrency';
 import { dateFormatV1 } from '@/utils/formatDate';
 import { settlementBalance } from '@/module/petty-cash/domain/advance';
+import { advanceJourney } from '@/module/petty-cash/domain/documentJourney';
 import type { AdvanceRecord, PettyCashFund } from '@/module/petty-cash/domain/pettyCashEntities';
 import { AdvanceActions } from '@/module/petty-cash/presentation/components/AdvanceActions';
 import { AuditTimeline } from '@/module/petty-cash/presentation/components/AuditTimeline';
+import {
+  AmountRows,
+  AmountSummary,
+  DetailFacts,
+  DetailSection,
+  LineItems,
+} from '@/module/petty-cash/presentation/components/DetailKit';
+import {
+  DocumentDrawer,
+  DocumentNotice,
+} from '@/module/petty-cash/presentation/components/DocumentDrawer';
+import { JourneySection } from '@/module/petty-cash/presentation/components/JourneySection';
 import { PettyCashStatusBadge } from '@/module/petty-cash/presentation/components/PettyCashStatusBadge';
-import { QueryErrorState } from '@/module/petty-cash/presentation/components/QueryErrorState';
 import { useAdvance } from '@/module/petty-cash/presentation/hooks/useAdvanceQueries';
 import { useOpenAttachment } from '@/module/petty-cash/presentation/hooks/useOpenAttachment';
 import { usePettyCashLookups } from '@/module/petty-cash/presentation/hooks/usePettyCashQueries';
@@ -23,78 +35,50 @@ interface Props {
 
 const money = (amount: number) => formatCurrency(amount, false);
 
-function Row({
-  label,
-  children,
-  strong,
-}: Readonly<{ label: string; children: React.ReactNode; strong?: boolean }>) {
-  return (
-    <Group justify="space-between" wrap="nowrap" gap="md" align="flex-start">
-      <Text size="sm" c={strong ? 'dark.9' : 'dimmed'} fw={strong ? 700 : 400}>
-        {label}
-      </Text>
-      <Text size="sm" fw={strong ? 700 : 600} ta="right" component="div">
-        {children}
-      </Text>
-    </Group>
-  );
-}
+const BALANCE_LABEL = {
+  EXTRA: 'advanceDrawer.extra',
+  RETURN: 'advanceDrawer.returned',
+  EVEN: 'advanceDrawer.even',
+} as const;
 
 function SettlementSection({ advance }: Readonly<{ advance: AdvanceRecord }>) {
   const { t } = useTranslation('pettyCash');
   const { settlement } = advance;
   const balance = settlementBalance(advance.amount, settlement.actualTotal);
   return (
-    <Box>
-      <Text fw={700} mb="xs">
-        {t('advanceDrawer.settlement')}
-      </Text>
-      <Stack gap="xs">
-        {settlement.beneficiary && (
-          <Row label={t('settlementForm.beneficiary')}>{settlement.beneficiary}</Row>
-        )}
-        {settlement.transactionDate && (
-          <Row label={t('settlementForm.date')}>{dateFormatV1(settlement.transactionDate)}</Row>
-        )}
-        {settlement.lines.length > 0 && (
-          <Table.ScrollContainer minWidth={360}>
-            <Table verticalSpacing="xs">
-              <Table.Tbody>
-                {settlement.lines.map((line) => (
-                  <Table.Tr key={line.lineNo}>
-                    <Table.Td>
-                      <Text size="sm" fw={600}>
-                        {line.description}
-                      </Text>
-                      <Text size="xs" c="dimmed">
-                        {line.expenseAccount
-                          ? `${line.expenseAccount.accountNumber} · ${line.expenseAccount.name}`
-                          : t('advanceDrawer.noAccount')}
-                      </Text>
-                    </Table.Td>
-                    <Table.Td ta="right">{money(line.amount)}</Table.Td>
-                  </Table.Tr>
-                ))}
-              </Table.Tbody>
-            </Table>
-          </Table.ScrollContainer>
-        )}
-        <Divider />
-        <Row label={t('advanceDrawer.spent')}>{money(settlement.actualTotal)}</Row>
-        <Row
-          label={t(
-            balance.kind === 'EXTRA'
-              ? 'advanceDrawer.extra'
-              : balance.kind === 'RETURN'
-                ? 'advanceDrawer.returned'
-                : 'advanceDrawer.even'
-          )}
-          strong
-        >
-          {balance.kind === 'EVEN' ? '' : money(balance.amount)}
-        </Row>
+    <DetailSection title={t('advanceDrawer.settlement')}>
+      <Stack gap="sm">
+        <DetailFacts
+          facts={[
+            { label: t('settlementForm.beneficiary'), value: settlement.beneficiary },
+            {
+              label: t('settlementForm.date'),
+              value: settlement.transactionDate ? dateFormatV1(settlement.transactionDate) : null,
+            },
+          ]}
+        />
+        <LineItems
+          items={settlement.lines.map((line) => ({
+            key: String(line.lineNo),
+            title: line.description,
+            subtitle: line.expenseAccount
+              ? `${line.expenseAccount.accountNumber} · ${line.expenseAccount.name}`
+              : t('advanceDrawer.noAccount'),
+            amount: money(line.amount),
+          }))}
+        />
+        <AmountRows
+          rows={[
+            { label: t('advanceDrawer.spent'), value: money(settlement.actualTotal) },
+            {
+              label: t(BALANCE_LABEL[balance.kind]),
+              value: balance.kind === 'EVEN' ? '' : money(balance.amount),
+              total: true,
+            },
+          ]}
+        />
       </Stack>
-    </Box>
+    </DetailSection>
   );
 }
 
@@ -105,104 +89,80 @@ export function AdvanceDetailDrawer({ fund, advanceId, opened, onClose }: Readon
   const attachment = useOpenAttachment();
   const advance = query.data;
   const nameOf = (userId: string) =>
-    lookups.data?.users.find((user) => user.id === userId)?.name ?? '-';
+    lookups.data?.users.find((user) => user.id === userId)?.name ?? null;
+  const verified = advance && advance.status !== 'DISBURSED';
 
   return (
-    <Drawer
+    <DocumentDrawer
       opened={opened}
       onClose={onClose}
-      position="right"
-      size="lg"
-      title={
-        <Group gap="sm">
-          <Text fw={700}>{advance?.advanceNumber ?? t('advanceDrawer.title')}</Text>
-          {advance && <PettyCashStatusBadge kind="advance" status={advance.status} />}
-        </Group>
-      }
-      closeButtonProps={{ 'aria-label': t('common.close') }}
+      kindLabel={t('advanceDrawer.title')}
+      number={advance?.advanceNumber}
+      status={advance && <PettyCashStatusBadge kind="advance" status={advance.status} />}
+      loading={query.isLoading}
+      error={query.isError ? query.error : null}
+      loadFailed={t('advanceDrawer.loadFailed')}
+      onRetry={() => query.refetch()}
+      actions={advance && <AdvanceActions advance={advance} fund={fund} onChanged={onClose} />}
     >
-      {query.isLoading && (
-        <Stack gap="sm">
-          <Skeleton height={20} />
-          <Skeleton height={140} />
-        </Stack>
-      )}
-      {query.isError && (
-        <QueryErrorState
-          title={t('advanceDrawer.loadFailed')}
-          error={query.error}
-          onRetry={() => query.refetch()}
-        />
-      )}
-
       {advance && (
-        <Stack gap="lg">
-          <Stack gap="xs">
-            <Row label={t('advanceDrawer.requester')}>{advance.requester.name}</Row>
-            <Row label={t('advanceDrawer.purpose')}>{advance.purpose}</Row>
-            <Row label={t('advanceDrawer.requested')}>{money(advance.requestedAmount)}</Row>
-            {advance.amount !== advance.requestedAmount && (
-              <Row label={t('advanceDrawer.approved')}>{money(advance.amount)}</Row>
-            )}
-            {advance.approvedBy && (
-              <Row label={t('advanceDrawer.approvedBy')}>{advance.approvedBy.name}</Row>
-            )}
-            {advance.disbursedBy && (
-              <Row label={t('advanceDrawer.disbursedBy')}>{advance.disbursedBy.name}</Row>
-            )}
-            {advance.dueAt && (
-              <Row label={t('advanceDrawer.due')}>{dateFormatV1(advance.dueAt)}</Row>
-            )}
-            {advance.custodianVerifiedBy && advance.status !== 'DISBURSED' && (
-              <Row label={t('advanceDrawer.custodianVerifiedBy')}>
-                {advance.custodianVerifiedBy.name}
-              </Row>
-            )}
-            {advance.financeVerifiedBy && advance.status !== 'DISBURSED' && (
-              <Row label={t('advanceDrawer.financeVerifiedBy')}>
-                {advance.financeVerifiedBy.name}
-              </Row>
-            )}
-            <Divider />
-            <Row label={t('advanceDrawer.outstanding')} strong>
-              {money(advance.outstandingAmount)}
-            </Row>
-          </Stack>
+        <>
+          <AmountSummary
+            label={t('advanceDrawer.outstanding')}
+            amount={money(advance.outstandingAmount)}
+            meta={[
+              t('detail.requested', { amount: money(advance.requestedAmount) }),
+              advance.amount !== advance.requestedAmount
+                ? t('detail.approvedAmount', { amount: money(advance.amount) })
+                : null,
+            ]
+              .filter(Boolean)
+              .join(' · ')}
+          />
 
           {advance.rejectedReason && (
-            <Box>
-              <Text size="xs" c="dimmed">
-                {t('advanceDrawer.rejectedReason')}
-              </Text>
-              <Text size="sm" fw={600}>
-                {advance.rejectedReason}
-              </Text>
-            </Box>
+            <DocumentNotice tone="refusal" title={t('advanceDrawer.rejectedReason')}>
+              {advance.rejectedReason}
+            </DocumentNotice>
           )}
           {advance.settlementRejectedReason && advance.status === 'DISBURSED' && (
-            <Box>
-              <Text size="xs" c="dimmed">
-                {t('advanceDrawer.settlementRejectedReason')}
-              </Text>
-              <Text size="sm" fw={600}>
-                {advance.settlementRejectedReason}
-              </Text>
-            </Box>
+            <DocumentNotice tone="warning" title={t('advanceDrawer.settlementRejectedReason')}>
+              {advance.settlementRejectedReason}
+            </DocumentNotice>
           )}
-          {advance.receivableAmount > 0 && (
-            <Text size="sm" c="teal.8" fw={600}>
-              {t('advanceDrawer.receivable')}: {money(advance.receivableAmount)}
-            </Text>
-          )}
+
+          <DetailSection title={t('detail.info')}>
+            <DetailFacts
+              facts={[
+                { label: t('advanceDrawer.requester'), value: advance.requester.name },
+                {
+                  label: t('advanceDrawer.due'),
+                  value: advance.dueAt ? dateFormatV1(advance.dueAt) : null,
+                },
+                { label: t('advanceDrawer.purpose'), value: advance.purpose, wide: true },
+                { label: t('advanceDrawer.approvedBy'), value: advance.approvedBy?.name },
+                { label: t('advanceDrawer.disbursedBy'), value: advance.disbursedBy?.name },
+                {
+                  label: t('advanceDrawer.custodianVerifiedBy'),
+                  value: verified ? advance.custodianVerifiedBy?.name : null,
+                },
+                {
+                  label: t('advanceDrawer.financeVerifiedBy'),
+                  value: verified ? advance.financeVerifiedBy?.name : null,
+                },
+                {
+                  label: t('advanceDrawer.receivable'),
+                  value: advance.receivableAmount > 0 ? money(advance.receivableAmount) : null,
+                },
+              ]}
+            />
+          </DetailSection>
 
           {advance.settlement.submittedAt && <SettlementSection advance={advance} />}
 
           {advance.attachments.length > 0 && (
-            <Box>
-              <Text fw={700} mb="xs">
-                {t('advanceDrawer.attachments')}
-              </Text>
-              <Stack gap={4}>
+            <DetailSection title={t('advanceDrawer.attachments')}>
+              <Stack gap={6}>
                 {advance.attachments.map((file) => (
                   <Anchor
                     key={file.id}
@@ -220,31 +180,13 @@ export function AdvanceDetailDrawer({ fund, advanceId, opened, onClose }: Readon
                   </Anchor>
                 ))}
               </Stack>
-            </Box>
+            </DetailSection>
           )}
 
-          <Box>
-            <Text fw={700} mb="xs">
-              {t('advanceDrawer.timeline')}
-            </Text>
-            <Stack gap={6}>
-              {advance.statusHistory.map((entry, index) => (
-                <Group key={`${entry.status}-${entry.at}-${index}`} gap="xs" wrap="nowrap">
-                  <PettyCashStatusBadge kind="advance" status={entry.status} />
-                  <Text size="xs" c="dimmed">
-                    {dateFormatV1(entry.at)} ·{' '}
-                    {t('advanceDrawer.byUser', { name: nameOf(entry.byId) })}
-                    {entry.note ? ` · ${entry.note}` : ''}
-                  </Text>
-                </Group>
-              ))}
-            </Stack>
-          </Box>
-
+          <JourneySection steps={advanceJourney(advance, nameOf)} statusKind="advance" />
           <AuditTimeline entityType="ADVANCE" entityId={advance.id} />
-          <AdvanceActions advance={advance} fund={fund} onChanged={onClose} />
-        </Stack>
+        </>
       )}
-    </Drawer>
+    </DocumentDrawer>
   );
 }

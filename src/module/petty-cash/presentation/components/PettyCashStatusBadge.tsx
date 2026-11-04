@@ -13,6 +13,7 @@ import {
   type StatusTone,
   type VoucherStatus,
 } from '@/module/petty-cash/domain/pettyCashStatus';
+import { TONE_COLOR } from '@/module/petty-cash/presentation/components/toneColor';
 
 type Props =
   | { kind: 'fund'; status: FundStatus }
@@ -20,15 +21,6 @@ type Props =
   | { kind: 'count'; status: CountStatus }
   | { kind: 'reimbursement'; status: ReimbursementStatus }
   | { kind: 'advance'; status: AdvanceStatus };
-
-const TONE_COLOR: Record<StatusTone, string> = {
-  neutral: 'gray',
-  info: 'blue',
-  warning: 'orange',
-  success: 'teal',
-  danger: 'red',
-  muted: 'gray',
-};
 
 const toneOf = (props: Props): StatusTone => {
   switch (props.kind) {
@@ -56,6 +48,9 @@ export function PettyCashStatusBadge(props: Readonly<Props>) {
       variant={tone === 'muted' ? 'outline' : 'light'}
       radius="sm"
       tt="none"
+      // A status is short; it must never be cut to an ellipsis inside a narrow table cell.
+      style={{ flexShrink: 0, maxWidth: 'none' }}
+      styles={{ label: { overflow: 'visible' } }}
     >
       {t(`status.${props.kind}.${props.status}`)}
     </Badge>

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Select } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
-import dayjs from 'dayjs';
+import { todayWib } from '@/module/petty-cash/domain/wibDate';
 import { useTranslation } from '@/i18n';
 import type { PettyCashFund } from '@/module/petty-cash/domain/pettyCashEntities';
 import { DecisionDialog } from '@/module/petty-cash/presentation/components/DecisionDialog';
@@ -15,7 +15,7 @@ export function CloseFundDialog({
   onClose,
 }: Readonly<{ fund: PettyCashFund; opened: boolean; onClose: () => void }>) {
   const { t } = useTranslation('pettyCash');
-  const today = dayjs().format('YYYY-MM-DD');
+  const today = todayWib();
   const lookups = usePettyCashLookups();
   const close = useCloseFund(fund.id);
   const [bankAccountId, setBankAccountId] = useState<string | null>(null);

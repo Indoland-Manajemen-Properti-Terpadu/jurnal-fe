@@ -1,0 +1,47 @@
+.frame {
+  overflow: hidden;
+  transition: opacity 150ms ease;
+}
+
+.frame[data-stale='true'] {
+  opacity: 0.55;
+}
+
+.th {
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 600;
+  color: var(--mantine-color-gray-6);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  background: var(--mantine-color-gray-0);
+  border-bottom: 1px solid var(--mantine-color-gray-2);
+}
+
+.row {
+  cursor: pointer;
+  transition: background-color 120ms ease;
+}
+
+.row:hover {
+  background: var(--mantine-color-gray-0);
+}
+
+.row:focus-visible {
+  outline: 2px solid var(--mantine-color-primary-5);
+  outline-offset: -2px;
+}
+
+.td {
+  vertical-align: middle;
+  border-bottom: 1px solid var(--mantine-color-gray-1);
+}
+
+.num {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.footer {
+  border-top: 1px solid var(--mantine-color-gray-2);
+}

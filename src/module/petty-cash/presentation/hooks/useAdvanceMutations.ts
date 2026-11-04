@@ -64,6 +64,8 @@ export interface AdvanceDecisionInput {
   reason?: string;
   /** Approval only: less than requested is allowed. */
   amount?: number;
+  /** Disburse and custodian verify: the pocket the cash comes from or returns to. */
+  pocket?: string;
 }
 
 const DECIDE: Record<
@@ -74,8 +76,9 @@ const DECIDE: Record<
     approveAdvance(id, { amount, note: reason?.trim() || undefined }, key),
   reject: (id, { reason = '' }, key) => rejectAdvance(id, reason, key),
   cancel: (id, { reason = '' }, key) => cancelAdvance(id, reason, key),
-  disburse: (id, _input, key) => disburseAdvance(id, key),
-  custodianVerify: (id, { reason = '' }, key) => custodianVerifyAdvance(id, reason, key),
+  disburse: (id, { pocket }, key) => disburseAdvance(id, key, pocket),
+  custodianVerify: (id, { reason = '', pocket }, key) =>
+    custodianVerifyAdvance(id, reason, key, pocket),
   custodianReject: (id, { reason = '' }, key) => custodianRejectAdvance(id, reason, key),
   financeVerify: (id, { reason = '' }, key) => financeVerifyAdvance(id, reason, key),
   financeReject: (id, { reason = '' }, key) => financeRejectAdvance(id, reason, key),
@@ -145,7 +148,7 @@ export const useConvertAdvance = (advanceId: string) => {
   const notify = usePettyCashNotifier();
   return useIdempotentMutation<
     AdvanceRecord,
-    { bankAccountId: string; date: string; reason: string }
+    { bankAccountId: string; date: string; reason: string; pocket?: string }
   >(
     `advance:convert:${advanceId}`,
     (input, key) => convertAdvanceToReceivable(advanceId, input, key),

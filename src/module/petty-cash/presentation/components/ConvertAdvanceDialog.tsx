@@ -1,12 +1,16 @@
 import { useState } from 'react';
 import { Select } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
-import dayjs from 'dayjs';
+import { todayWib } from '@/module/petty-cash/domain/wibDate';
 import { useTranslation } from '@/i18n';
 import type { AdvanceRecord } from '@/module/petty-cash/domain/pettyCashEntities';
+import { PocketSelect } from '@/module/petty-cash/presentation/components/PocketSelect';
 import { DecisionDialog } from '@/module/petty-cash/presentation/components/DecisionDialog';
 import { useConvertAdvance } from '@/module/petty-cash/presentation/hooks/useAdvanceMutations';
-import { usePettyCashLookups } from '@/module/petty-cash/presentation/hooks/usePettyCashQueries';
+import {
+  usePettyCashFund,
+  usePettyCashLookups,
+} from '@/module/petty-cash/presentation/hooks/usePettyCashQueries';
 
 interface Props {
   advance: AdvanceRecord;
@@ -17,11 +21,13 @@ interface Props {
 /** A controller moves an unsettled advance to employee receivable, refilling the fund from the bank. */
 export function ConvertAdvanceDialog({ advance, opened, onClose }: Readonly<Props>) {
   const { t } = useTranslation('pettyCash');
-  const today = dayjs().format('YYYY-MM-DD');
+  const today = todayWib();
   const lookups = usePettyCashLookups();
   const convert = useConvertAdvance(advance.id);
   const [bankAccountId, setBankAccountId] = useState<string | null>(null);
   const [date, setDate] = useState(today);
+  const fund = usePettyCashFund(advance.fund.id, opened);
+  const [pocket, setPocket] = useState<string | null>(null);
 
   return (
     <DecisionDialog
@@ -37,7 +43,12 @@ export function ConvertAdvanceDialog({ advance, opened, onClose }: Readonly<Prop
       onClose={onClose}
       onConfirm={(reason) =>
         convert.mutate(
-          { bankAccountId: bankAccountId as string, date, reason: reason ?? '' },
+          {
+            bankAccountId: bankAccountId as string,
+            date,
+            reason: reason ?? '',
+            ...(pocket ? { pocket } : {}),
+          },
           { onSuccess: onClose }
         )
       }
@@ -52,6 +63,13 @@ export function ConvertAdvanceDialog({ advance, opened, onClose }: Readonly<Prop
         onChange={setBankAccountId}
         searchable
         required
+      />
+      <PocketSelect
+        pockets={fund.data?.pockets ?? []}
+        value={pocket ?? advance.disbursePocket ?? ''}
+        onChange={setPocket}
+        label={t('pocketAdmin.refillTo')}
+        showBalance={false}
       />
       <DatePickerInput
         label={t('advanceActions.convertDate')}

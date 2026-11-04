@@ -1,87 +1,88 @@
-import { Alert, Badge, Paper, Table, Text } from '@mantine/core';
-import { IconAlertCircle } from '@tabler/icons-react';
+import { Group, Stack, Text } from '@mantine/core';
+import { IconAlertTriangle, IconCircleCheck, IconScale } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import { formatCurrency } from '@/utils/formatCurrency';
+import { DocumentTable, TwoLine } from '@/module/petty-cash/presentation/components/DocumentTable';
+import { DocumentNotice } from '@/module/petty-cash/presentation/components/DocumentDrawer';
 import { ReportShell } from '@/module/petty-cash/presentation/components/reports/ReportShell';
 import { useReconciliationReport } from '@/module/petty-cash/presentation/hooks/useReportQueries';
 
 const money = (amount: number) => formatCurrency(amount, false);
 
-/** Pagu, ledger and cash book per fund; any difference is spelled out beside the status. */
+/** Pagu, ledger and cash book per fund; any difference is spelled out under the result. */
 export function ReconciliationReport() {
   const { t } = useTranslation('pettyCash');
   const query = useReconciliationReport();
   const rows = query.data ?? [];
 
   return (
-    <ReportShell hint={t('reports.reconciliation.hint')} query={query}>
-      {rows.length === 0 ? (
-        <Text size="sm" c="dimmed">
-          {t('reports.empty')}
-        </Text>
-      ) : (
-        <Paper withBorder radius="md" bg="white" style={{ overflow: 'hidden' }}>
-          <Table.ScrollContainer minWidth={640}>
-            <Table verticalSpacing="sm" horizontalSpacing="md">
-              <Table.Thead bg="gray.0">
-                <Table.Tr>
-                  <Table.Th>{t('reports.reconciliation.columns.fund')}</Table.Th>
-                  <Table.Th ta="right">{t('reports.reconciliation.columns.pagu')}</Table.Th>
-                  <Table.Th ta="right">{t('reports.reconciliation.columns.gl')}</Table.Th>
-                  <Table.Th ta="right">{t('reports.reconciliation.columns.cashBook')}</Table.Th>
-                  <Table.Th>{t('reports.reconciliation.columns.status')}</Table.Th>
-                </Table.Tr>
-              </Table.Thead>
-              <Table.Tbody>
-                {rows.map((row) => (
-                  <Table.Tr key={row.fund.id}>
-                    <Table.Td>
-                      <Text size="sm" fw={600}>
-                        {row.fund.code} · {row.fund.name}
-                      </Text>
-                      <Text size="xs" c="dimmed">
-                        {row.fund.accountNumber}
-                      </Text>
-                    </Table.Td>
-                    <Table.Td ta="right">{money(row.pagu)}</Table.Td>
-                    <Table.Td ta="right">{money(row.glBalance)}</Table.Td>
-                    <Table.Td ta="right">{money(row.cashBookBalance)}</Table.Td>
-                    <Table.Td>
-                      <Badge
-                        color={row.isOk ? 'teal' : 'orange'}
-                        variant="light"
-                        radius="sm"
-                        tt="none"
-                      >
-                        {t(row.isOk ? 'reports.reconciliation.ok' : 'reports.reconciliation.notOk')}
-                      </Badge>
-                      {row.glDifference !== 0 && (
-                        <Text size="xs" c="dimmed">
-                          {t('reports.reconciliation.glDifference', {
-                            amount: money(row.glDifference),
-                          })}
-                        </Text>
-                      )}
-                      {row.cashBookDifference !== 0 && (
-                        <Text size="xs" c="dimmed">
-                          {t('reports.reconciliation.cashBookDifference', {
-                            amount: money(row.cashBookDifference),
-                          })}
-                        </Text>
-                      )}
-                    </Table.Td>
-                  </Table.Tr>
-                ))}
-              </Table.Tbody>
-            </Table>
-          </Table.ScrollContainer>
-        </Paper>
-      )}
+    <ReportShell
+      title={t('reports.sections.reconciliation')}
+      hint={t('reports.reconciliation.hint')}
+    >
       {rows.some((row) => !row.isImprestBalanced) && (
-        <Alert color="orange" icon={<IconAlertCircle size={18} />} radius="md">
-          {t('reports.reconciliation.notBalanced')}
-        </Alert>
+        <DocumentNotice tone="warning">{t('reports.reconciliation.notBalanced')}</DocumentNotice>
       )}
+      <DocumentTable
+        filters={null}
+        columns={[
+          { key: 'fund', label: t('reports.reconciliation.columns.fund') },
+          { key: 'pagu', label: t('reports.reconciliation.columns.pagu'), numeric: true },
+          { key: 'gl', label: t('reports.reconciliation.columns.gl'), numeric: true },
+          { key: 'cashBook', label: t('reports.reconciliation.columns.cashBook'), numeric: true },
+          { key: 'status', label: t('reports.reconciliation.columns.status') },
+        ]}
+        items={query.data}
+        rowKey={(row) => row.fund.id}
+        cells={(row) => [
+          <TwoLine
+            key="fund"
+            primary={`${row.fund.code} · ${row.fund.name}`}
+            secondary={row.fund.accountNumber}
+          />,
+          money(row.pagu),
+          money(row.glBalance),
+          money(row.cashBookBalance),
+          <Stack key="status" gap={2}>
+            <Group gap={6} wrap="nowrap">
+              {row.isOk ? (
+                <IconCircleCheck size={15} color="var(--mantine-color-teal-7)" />
+              ) : (
+                <IconAlertTriangle size={15} color="var(--mantine-color-orange-7)" />
+              )}
+              <Text size="sm" fw={500} c={row.isOk ? 'dark.8' : 'orange.8'}>
+                {t(row.isOk ? 'reports.reconciliation.ok' : 'reports.reconciliation.notOk')}
+              </Text>
+            </Group>
+            {row.glDifference !== 0 && (
+              <Text size="xs" c="dimmed">
+                {t('reports.reconciliation.glDifference', { amount: money(row.glDifference) })}
+              </Text>
+            )}
+            {row.cashBookDifference !== 0 && (
+              <Text size="xs" c="dimmed">
+                {t('reports.reconciliation.cashBookDifference', {
+                  amount: money(row.cashBookDifference),
+                })}
+              </Text>
+            )}
+          </Stack>,
+        ]}
+        minWidth={680}
+        loading={query.isLoading}
+        fetching={query.isFetching}
+        stale={false}
+        error={
+          query.isError
+            ? { title: t('reports.loadFailed'), error: query.error, onRetry: () => query.refetch() }
+            : null
+        }
+        empty={{
+          icon: <IconScale size={32} />,
+          title: t('reports.emptyTitle'),
+          description: t('reports.empty'),
+        }}
+      />
     </ReportShell>
   );
 }

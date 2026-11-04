@@ -21,6 +21,10 @@ Money math uses integer minor units through `src/lib/money` (`toMinor`, `fromMin
 - **Working capital:** current assets minus current liabilities only.
 - **Depreciation:** list and schedule share one rule per method; the final year closes to the residual value.
 
+## Petty cash pockets
+
+A petty cash fund's pockets (cash box, bank account, e-wallet) share one ledger account and only itemize the cash book. The general ledger balance equals the ceiling, a transfer between pockets posts no journal, and the screens never recompute pocket balances. Per-pocket bank reconciliation is not supported; see [ADR 0006](adr/0006-petty-cash-pockets.md).
+
 ## Ledger rules
 
 Pure ledger rules (normal balance, journal balance, opening-balance and reconciliation gates, chart-of-accounts prefix) live in `src/lib/accounting` with no React or HTTP. Gates are exact and reject sub-cent amounts; display helpers round half up to the cent. A backend category flag or code always wins over a name keyword. See [`src/lib/accounting/README.md`](../src/lib/accounting/README.md).

@@ -1,5 +1,6 @@
 import type { PettyCashFund } from '@/module/petty-cash/domain/pettyCashEntities';
 import type { toCreateFundInput, toPaguInput } from '@/module/petty-cash/domain/fundAdmin';
+import type { toAddPocketInput, toTransferInput } from '@/module/petty-cash/domain/pockets';
 import type { ApiEnvelope, FundDto } from '@/module/petty-cash/infrastructure/pettyCashDto';
 import { PETTY_CASH_API } from '@/module/petty-cash/infrastructure/pettyCashEndpoints';
 import { http } from '@/module/petty-cash/infrastructure/pettyCashHttp';
@@ -46,3 +47,31 @@ export const closeFund = async (
       { idempotencyKey }
     )
   );
+
+/**
+ * Pocket writes answer with the pocket or the fund depending on the call; the screens reload the
+ * fund afterwards, so the answer is not read.
+ */
+export const addPocket = async (
+  fundId: string,
+  input: ReturnType<typeof toAddPocketInput>
+): Promise<void> => {
+  await http.post<unknown>(PETTY_CASH_API.fundPockets(fundId), input);
+};
+
+export const updatePocket = async (
+  fundId: string,
+  code: string,
+  patch: Record<string, unknown>
+): Promise<void> => {
+  await http.patch<unknown>(PETTY_CASH_API.fundPocket(fundId, code), patch);
+};
+
+/** Moves cash between pockets of one fund; no journal, two cash book entries. */
+export const transferBetweenPockets = async (
+  fundId: string,
+  input: ReturnType<typeof toTransferInput>,
+  idempotencyKey: string
+): Promise<void> => {
+  await http.post<unknown>(PETTY_CASH_API.fundPocketTransfers(fundId), input, { idempotencyKey });
+};

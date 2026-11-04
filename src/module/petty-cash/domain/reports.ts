@@ -126,14 +126,39 @@ export const AUDIT_ACTIONS = [
   'UNBLOCK',
   'OVERRIDE_OVERDUE',
   'REMOVE_OVERRIDE',
+  'PAGU_ADJUSTMENT',
+  'CLOSE',
+  'ADD_POCKET',
+  'UPDATE_POCKET',
+  'POCKET_TRANSFER',
+  'APPROVE_FINANCE',
+  'APPROVE_BM',
+  'APPROVE_CF',
 ];
 
 /** Actions seen per kind of document, for the action filter of the audit log. */
 export const AUDIT_ACTIONS_BY_TYPE: Record<AuditEntityType, string[]> = {
-  FUND: ['CREATE', 'UPDATE', 'SOD_OVERRIDE'],
+  FUND: [
+    'CREATE',
+    'UPDATE',
+    'SOD_OVERRIDE',
+    'PAGU_ADJUSTMENT',
+    'CLOSE',
+    'ADD_POCKET',
+    'UPDATE_POCKET',
+    'POCKET_TRANSFER',
+  ],
   VOUCHER: ['CREATE', 'UPDATE', 'SUBMIT', 'APPROVE', 'REJECT', 'VOID', 'REMOVE_ATTACHMENT'],
-  COUNT: ['CREATE', 'SUBMIT', 'APPROVE', 'REJECT'],
-  REIMBURSEMENT: ['SUBMIT', 'APPROVE', 'REJECT', 'CANCEL', 'DISBURSE'],
+  COUNT: ['CREATE', 'SUBMIT', 'APPROVE_FINANCE', 'APPROVE_BM', 'APPROVE_CF', 'REJECT'],
+  REIMBURSEMENT: [
+    'SUBMIT',
+    'APPROVE_FINANCE',
+    'APPROVE_BM',
+    'APPROVE_CF',
+    'REJECT',
+    'CANCEL',
+    'DISBURSE',
+  ],
   ADVANCE: [
     'CREATE',
     'APPROVE',

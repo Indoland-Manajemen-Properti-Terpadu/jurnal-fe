@@ -18,7 +18,16 @@ const TODAY = '2026-10-31';
 const valid = (over: Partial<VoucherDraft> = {}): VoucherDraft => ({
   ...emptyDraft(TODAY),
   beneficiary: 'Toko Buku A',
-  lines: [{ key: 'l1', expenseAccountId: 'acc1', description: '', amount: 50000, taxId: null }],
+  lines: [
+    {
+      key: 'l1',
+      expenseAccountId: 'acc1',
+      description: '',
+      amount: 50000,
+      taxId: null,
+      tagIds: [],
+    },
+  ],
   ...over,
 });
 
@@ -52,6 +61,7 @@ describe('validateVoucherDraft', () => {
         description: '',
         amount: 1000 as number | '',
         taxId: null,
+        tagIds: [],
       },
       {
         key: 'b',
@@ -59,6 +69,7 @@ describe('validateVoucherDraft', () => {
         description: '',
         amount: '' as number | '',
         taxId: null,
+        tagIds: [],
       },
       {
         key: 'c',
@@ -66,6 +77,7 @@ describe('validateVoucherDraft', () => {
         description: '',
         amount: 0 as number | '',
         taxId: null,
+        tagIds: [],
       },
       {
         key: 'd',
@@ -73,6 +85,7 @@ describe('validateVoucherDraft', () => {
         description: '',
         amount: 10.5 as number | '',
         taxId: null,
+        tagIds: [],
       },
     ];
     expect(paths(valid({ lines }))).toEqual([
@@ -85,7 +98,14 @@ describe('validateVoucherDraft', () => {
 
   it('allows a tax code on a line only when a tax invoice number is given', () => {
     const lines = [
-      { key: 'a', expenseAccountId: 'acc1', description: '', amount: 1000, taxId: 'tax1' },
+      {
+        key: 'a',
+        expenseAccountId: 'acc1',
+        description: '',
+        amount: 1000,
+        taxId: 'tax1',
+        tagIds: [],
+      },
     ];
     expect(paths(valid({ lines }))).toContain('lines.0.taxId:TAX_NEEDS_INVOICE');
     expect(paths(valid({ lines, taxInvoiceNumber: '010.000-26.1' }))).toEqual([]);
@@ -101,6 +121,7 @@ describe('draftNet', () => {
         description: '',
         amount: 100000 as number | '',
         taxId: null,
+        tagIds: [],
       },
       {
         key: 'b',
@@ -108,8 +129,16 @@ describe('draftNet', () => {
         description: '',
         amount: 50000 as number | '',
         taxId: null,
+        tagIds: [],
       },
-      { key: 'c', expenseAccountId: 'x', description: '', amount: '' as number | '', taxId: null },
+      {
+        key: 'c',
+        expenseAccountId: 'x',
+        description: '',
+        amount: '' as number | '',
+        taxId: null,
+        tagIds: [],
+      },
     ];
     expect(draftNet(valid({ lines }))).toBe(150000);
   });
@@ -122,7 +151,14 @@ describe('toVoucherInput', () => {
       description: '   ',
       receiptNumber: ' R-1 ',
       lines: [
-        { key: 'a', expenseAccountId: 'acc1', description: ' Kertas ', amount: 50000, taxId: null },
+        {
+          key: 'a',
+          expenseAccountId: 'acc1',
+          description: ' Kertas ',
+          amount: 50000,
+          taxId: null,
+          tagIds: [],
+        },
       ],
     });
     expect(toVoucherInput(draft)).toEqual({
@@ -135,7 +171,14 @@ describe('toVoucherInput', () => {
 
   it('keeps a tax code only together with the tax invoice number and drops it otherwise', () => {
     const lines = [
-      { key: 'a', expenseAccountId: 'acc1', description: '', amount: 1000, taxId: 'tax1' },
+      {
+        key: 'a',
+        expenseAccountId: 'acc1',
+        description: '',
+        amount: 1000,
+        taxId: 'tax1',
+        tagIds: [],
+      },
     ];
     expect(
       toVoucherInput(valid({ lines, taxInvoiceNumber: ' 010.1 ', vendorTaxId: ' 01.2 ' }))
@@ -166,6 +209,7 @@ describe('draftFromVoucher', () => {
           amount: 100000,
           tax: { id: 'tax1', name: 'PPN 11%', rate: 11 },
           taxAmount: 11000,
+          tagIds: [],
         },
       ],
     } as unknown as PettyCashVoucherRecord;
@@ -179,7 +223,14 @@ describe('draftFromVoucher', () => {
       vendorTaxId: '',
     });
     expect(draft.lines).toEqual([
-      { key: 'k1', expenseAccountId: 'acc1', description: 'Kertas', amount: 100000, taxId: 'tax1' },
+      {
+        key: 'k1',
+        expenseAccountId: 'acc1',
+        description: 'Kertas',
+        amount: 100000,
+        taxId: 'tax1',
+        tagIds: [],
+      },
     ]);
   });
 });
@@ -247,6 +298,7 @@ describe('amounts that cannot be represented', () => {
       description: '',
       amount: 100000000000000 as number | '',
       taxId: null,
+      tagIds: [],
     },
   ];
   const sub = [
@@ -256,6 +308,7 @@ describe('amounts that cannot be represented', () => {
       description: '',
       amount: 100.123 as number | '',
       taxId: null,
+      tagIds: [],
     },
   ];
 
@@ -274,6 +327,7 @@ describe('amounts that cannot be represented', () => {
         description: '',
         amount: MAX_AMOUNT as number | '',
         taxId: null,
+        tagIds: [],
       },
     ];
     const over = [
@@ -283,6 +337,7 @@ describe('amounts that cannot be represented', () => {
         description: '',
         amount: (MAX_AMOUNT + 1) as number | '',
         taxId: null,
+        tagIds: [],
       },
     ];
     expect(paths(valid({ lines: at }))).toEqual([]);
@@ -308,5 +363,63 @@ describe('approvalHint', () => {
   it('shows no hint for a small amount without tax, or no amount at all', () => {
     expect(approvalHint(950000, 1000000, false)).toBe('NONE');
     expect(approvalHint(0, 1000000, true)).toBe('NONE');
+  });
+});
+
+describe('voucher pocket', () => {
+  it('omits the pocket when none was chosen, so the backend uses the cash box', () => {
+    expect(toVoucherInput(valid({ pocket: '' }))).not.toHaveProperty('pocket');
+  });
+
+  it('sends the chosen pocket', () => {
+    expect(toVoucherInput(valid({ pocket: 'BCA-KK' })).pocket).toBe('BCA-KK');
+  });
+});
+
+describe('voucher line tags', () => {
+  const lineWith = (tagIds: string[]) =>
+    valid({
+      lines: [
+        {
+          key: 'l1',
+          expenseAccountId: 'acc1',
+          description: '',
+          amount: 50000,
+          taxId: null,
+          tagIds,
+        },
+      ],
+    });
+
+  it('sends the tag ids of a line, and none when the line has no tag', () => {
+    expect(toVoucherInput(lineWith(['t1', 't2'])).lines[0].tagIds).toEqual(['t1', 't2']);
+    expect(toVoucherInput(lineWith([])).lines[0]).not.toHaveProperty('tagIds');
+  });
+
+  it('keeps the tags of a stored voucher when it is edited, because an update replaces the lines', () => {
+    const record = {
+      transactionDate: TODAY,
+      beneficiary: 'Toko',
+      receiptNumber: '',
+      description: '',
+      taxInvoiceNumber: null,
+      vendorTaxId: null,
+      pocket: 'TUNAI',
+      lines: [
+        {
+          lineNo: 1,
+          expenseAccountId: 'acc1',
+          expenseAccount: null,
+          description: '',
+          amount: 1000,
+          tax: null,
+          taxAmount: 0,
+          tagIds: ['t9'],
+        },
+      ],
+    } as unknown as PettyCashVoucherRecord;
+    const draft = draftFromVoucher(record, () => 'k1');
+    expect(draft.lines[0].tagIds).toEqual(['t9']);
+    expect(toVoucherInput(draft).lines[0].tagIds).toEqual(['t9']);
   });
 });

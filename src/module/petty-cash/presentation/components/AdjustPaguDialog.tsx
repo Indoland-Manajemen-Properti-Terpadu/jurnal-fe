@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { NumberInput, Select, Text } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
-import dayjs from 'dayjs';
+import { todayWib } from '@/module/petty-cash/domain/wibDate';
 import { useTranslation } from '@/i18n';
 import { formatCurrency } from '@/utils/formatCurrency';
 import {
@@ -11,6 +11,7 @@ import {
   type PaguAdjustmentDraft,
 } from '@/module/petty-cash/domain/fundAdmin';
 import type { PettyCashFund } from '@/module/petty-cash/domain/pettyCashEntities';
+import { PocketSelect } from '@/module/petty-cash/presentation/components/PocketSelect';
 import { DecisionDialog } from '@/module/petty-cash/presentation/components/DecisionDialog';
 import { useAdjustPagu } from '@/module/petty-cash/presentation/hooks/useFundMutations';
 import { usePettyCashLookups } from '@/module/petty-cash/presentation/hooks/usePettyCashQueries';
@@ -24,11 +25,12 @@ export function AdjustPaguDialog({
   onClose,
 }: Readonly<{ fund: PettyCashFund; opened: boolean; onClose: () => void }>) {
   const { t } = useTranslation('pettyCash');
-  const today = dayjs().format('YYYY-MM-DD');
+  const today = todayWib();
   const lookups = usePettyCashLookups();
   const adjust = useAdjustPagu(fund.id);
   const [draft, setDraft] = useState<PaguAdjustmentDraft>({
     newPagu: '',
+    pocket: null,
     bankAccountId: null,
     date: today,
     reason: '',
@@ -82,6 +84,12 @@ export function AdjustPaguDialog({
           )}
         </Text>
       )}
+      <PocketSelect
+        pockets={fund.pockets}
+        value={draft.pocket ?? ''}
+        onChange={(pocket) => setDraft({ ...draft, pocket })}
+        label={t(direction.kind === 'DECREASE' ? 'pocketAdmin.takenFrom' : 'pocketAdmin.addedTo')}
+      />
       <Select
         label={t('fundAdmin.adjustBank')}
         data={(lookups.data?.bankAccounts ?? []).map((account) => ({

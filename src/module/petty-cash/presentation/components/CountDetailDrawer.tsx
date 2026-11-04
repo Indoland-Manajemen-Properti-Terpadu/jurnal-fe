@@ -1,13 +1,23 @@
-import { Alert, Box, Divider, Drawer, Group, Skeleton, Stack, Table, Text } from '@mantine/core';
-import { IconAlertTriangle } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import { formatCurrency } from '@/utils/formatCurrency';
 import { dateFormatV1 } from '@/utils/formatDate';
 import { denominationRows } from '@/module/petty-cash/domain/cashCount';
-import { CountActions } from '@/module/petty-cash/presentation/components/CountActions';
+import { countJourney } from '@/module/petty-cash/domain/documentJourney';
 import { AuditTimeline } from '@/module/petty-cash/presentation/components/AuditTimeline';
+import { CountActions } from '@/module/petty-cash/presentation/components/CountActions';
+import {
+  AmountRows,
+  AmountSummary,
+  DetailFacts,
+  DetailSection,
+  LineItems,
+} from '@/module/petty-cash/presentation/components/DetailKit';
+import {
+  DocumentDrawer,
+  DocumentNotice,
+} from '@/module/petty-cash/presentation/components/DocumentDrawer';
+import { JourneySection } from '@/module/petty-cash/presentation/components/JourneySection';
 import { PettyCashStatusBadge } from '@/module/petty-cash/presentation/components/PettyCashStatusBadge';
-import { QueryErrorState } from '@/module/petty-cash/presentation/components/QueryErrorState';
 import { VarianceText } from '@/module/petty-cash/presentation/components/VarianceText';
 import { useCount } from '@/module/petty-cash/presentation/hooks/useCountQueries';
 
@@ -20,147 +30,122 @@ interface Props {
 
 const money = (amount: number) => formatCurrency(amount, false);
 
-function Row({ label, children }: Readonly<{ label: string; children: React.ReactNode }>) {
-  return (
-    <Group justify="space-between" wrap="nowrap" gap="md">
-      <Text size="sm" c="dimmed">
-        {label}
-      </Text>
-      <Text size="sm" fw={600} ta="right" component="div">
-        {children}
-      </Text>
-    </Group>
-  );
-}
-
 export function CountDetailDrawer({ countId, opened, onClose }: Readonly<Props>) {
   const { t } = useTranslation('pettyCash');
   const query = useCount(countId ?? undefined);
   const count = query.data;
-  const rows = count ? denominationRows(count.denominations) : [];
 
   return (
-    <Drawer
+    <DocumentDrawer
       opened={opened}
       onClose={onClose}
-      position="right"
-      size="lg"
-      title={
-        <Group gap="sm">
-          <Text fw={700}>{count?.countNumber ?? t('countDrawer.title')}</Text>
-          {count && <PettyCashStatusBadge kind="count" status={count.status} />}
-        </Group>
-      }
-      closeButtonProps={{ 'aria-label': t('common.close') }}
+      kindLabel={t('countDrawer.title')}
+      number={count?.countNumber}
+      status={count && <PettyCashStatusBadge kind="count" status={count.status} />}
+      loading={query.isLoading}
+      error={query.isError ? query.error : null}
+      loadFailed={t('countDrawer.loadFailed')}
+      onRetry={() => query.refetch()}
+      actions={count && <CountActions count={count} onChanged={onClose} />}
     >
-      {query.isLoading && (
-        <Stack gap="sm">
-          <Skeleton height={20} />
-          <Skeleton height={120} />
-        </Stack>
-      )}
-      {query.isError && (
-        <QueryErrorState
-          title={t('countDrawer.loadFailed')}
-          error={query.error}
-          onRetry={() => query.refetch()}
-        />
-      )}
-
       {count && (
-        <Stack gap="lg">
-          {count.isStale && count.status !== 'SETTLED' && (
-            <Alert
-              color="orange"
-              variant="light"
-              radius="md"
-              icon={<IconAlertTriangle size={16} />}
-            >
-              {t('countDrawer.stale')}
-            </Alert>
-          )}
+        <>
+          <AmountSummary
+            label={t('detail.totalCounted')}
+            amount={money(count.totalCounted)}
+            meta={
+              <VarianceText type={count.varianceType} amount={count.varianceAmount} size="xs" />
+            }
+          />
 
-          <Stack gap="xs">
-            <Row label={t('countDrawer.counted')}>{money(count.totalPhysicalCash)}</Row>
-            <Row label={t('countDrawer.expected')}>{money(count.expectedCash)}</Row>
-            <Row label={t('countDrawer.pendingVouchers')}>{money(count.pendingVoucherTotal)}</Row>
-            <Row label={t('countDrawer.advances')}>{money(count.outstandingAdvanceTotal)}</Row>
-            <Divider />
-            <Row label={t('countDrawer.variance')}>
-              <VarianceText type={count.varianceType} amount={count.varianceAmount} />
-            </Row>
-          </Stack>
-
-          {count.reason && (
-            <Box>
-              <Text size="xs" c="dimmed">
-                {t('countDrawer.reason')}
-              </Text>
-              <Text size="sm" fw={600}>
-                {count.reason}
-              </Text>
-            </Box>
-          )}
           {count.status === 'REJECTED' && count.rejectedReason && (
-            <Box>
-              <Text size="xs" c="dimmed">
-                {t('countDrawer.rejectedReason')}
-              </Text>
-              <Text size="sm" fw={600}>
-                {count.rejectedReason}
-              </Text>
-            </Box>
+            <DocumentNotice tone="refusal" title={t('countDrawer.rejectedReason')}>
+              {count.rejectedReason}
+            </DocumentNotice>
           )}
-          {count.status === 'SETTLED' && (
-            <Text size="sm" c="dimmed">
-              {t('countDrawer.settled')}
-            </Text>
+          {count.isStale && count.status !== 'SETTLED' && (
+            <DocumentNotice tone="warning">{t('countDrawer.stale')}</DocumentNotice>
           )}
 
-          <Stack gap="xs">
-            <Row label={t('countDrawer.counter')}>{count.countedBy?.name}</Row>
-            <Row label={t('countDrawer.witness')}>{count.witnessedBy?.name}</Row>
-            <Row label={t('countDrawer.countedAt')}>{dateFormatV1(count.countedAt)}</Row>
-            {count.approvedBy && (
-              <Row label={t('countDrawer.approvedBy')}>{count.approvedBy.name}</Row>
-            )}
-          </Stack>
+          <DetailSection title={t('detail.countResult')}>
+            <AmountRows
+              rows={[
+                { label: t('detail.totalCounted'), value: money(count.totalCounted) },
+                { label: t('countDrawer.expected'), value: money(count.expectedCash) },
+                {
+                  label: t('countDrawer.pendingVouchers'),
+                  value: money(count.pendingVoucherTotal),
+                },
+                { label: t('countDrawer.advances'), value: money(count.outstandingAdvanceTotal) },
+                {
+                  label: t('countDrawer.variance'),
+                  value: <VarianceText type={count.varianceType} amount={count.varianceAmount} />,
+                  total: true,
+                },
+              ]}
+            />
+          </DetailSection>
 
-          <Box>
-            <Text fw={700} mb="xs">
-              {t('countDrawer.denominations')}
-            </Text>
-            <Table.ScrollContainer minWidth={320}>
-              <Table verticalSpacing="xs">
-                <Table.Thead>
-                  <Table.Tr>
-                    <Table.Th>{t('countDrawer.denomination')}</Table.Th>
-                    <Table.Th ta="right">{t('countDrawer.pieces')}</Table.Th>
-                    <Table.Th ta="right">{t('countDrawer.subtotal')}</Table.Th>
-                  </Table.Tr>
-                </Table.Thead>
-                <Table.Tbody>
-                  {rows.map((row) => (
-                    <Table.Tr key={`${row.kind}-${row.value}`}>
-                      <Table.Td>
-                        {money(row.value)}{' '}
-                        <Text span size="xs" c="dimmed">
-                          {t(row.kind === 'note' ? 'countDrawer.banknotes' : 'countDrawer.coins')}
-                        </Text>
-                      </Table.Td>
-                      <Table.Td ta="right">{row.pieces}</Table.Td>
-                      <Table.Td ta="right">{money(row.subtotal)}</Table.Td>
-                    </Table.Tr>
-                  ))}
-                </Table.Tbody>
-              </Table>
-            </Table.ScrollContainer>
-          </Box>
+          {count.pocketResults.length > 1 && (
+            <DetailSection title={t('detail.perPocket')}>
+              <LineItems
+                items={count.pocketResults.map((result) => ({
+                  key: result.pocket,
+                  title: result.name,
+                  subtitle: t('detail.pocketLine', {
+                    book: money(result.expected),
+                    counted: money(result.counted),
+                  }),
+                  amount: (
+                    <VarianceText
+                      type={
+                        result.variance < 0 ? 'SHORT' : result.variance > 0 ? 'OVER' : 'BALANCED'
+                      }
+                      amount={result.variance}
+                    />
+                  ),
+                }))}
+              />
+            </DetailSection>
+          )}
 
+          <DetailSection title={t('detail.info')}>
+            <DetailFacts
+              facts={[
+                { label: t('countDrawer.counter'), value: count.countedBy?.name },
+                { label: t('countDrawer.witness'), value: count.witnessedBy?.name },
+                {
+                  label: t('countDrawer.countedAt'),
+                  value: dateFormatV1(count.countedAt, 'DD MMM YYYY · HH:mm'),
+                },
+                { label: t('countDrawer.reason'), value: count.reason, wide: true },
+                {
+                  label: t('detail.settlement'),
+                  value: count.status === 'SETTLED' ? t('countDrawer.settled') : null,
+                  wide: true,
+                },
+              ]}
+            />
+          </DetailSection>
+
+          <DetailSection title={t('countDrawer.denominations')}>
+            <LineItems
+              items={denominationRows(count.denominations).map((row) => ({
+                key: `${row.kind}-${row.value}`,
+                title: money(row.value),
+                subtitle: t('detail.pieces', {
+                  kind: t(row.kind === 'note' ? 'countDrawer.banknotes' : 'countDrawer.coins'),
+                  count: row.pieces,
+                }),
+                amount: money(row.subtotal),
+              }))}
+            />
+          </DetailSection>
+
+          <JourneySection steps={countJourney(count)} />
           <AuditTimeline entityType="COUNT" entityId={count.id} />
-          <CountActions count={count} onChanged={onClose} />
-        </Stack>
+        </>
       )}
-    </Drawer>
+    </DocumentDrawer>
   );
 }

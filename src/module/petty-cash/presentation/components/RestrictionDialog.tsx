@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import { Alert, Button, Group, Modal, Radio, Stack, Text, Textarea } from '@mantine/core';
+import { Alert, Button, Radio, Stack, Text, Textarea } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
 import dayjs from 'dayjs';
 import { IconAlertCircle, IconCircleCheck } from '@tabler/icons-react';
+import { DialogFrame } from '@/module/petty-cash/presentation/components/DialogFrame';
+import { todayWib } from '@/module/petty-cash/domain/wibDate';
 import { useTranslation } from '@/i18n';
 import { dateFormatV1 } from '@/utils/formatDate';
 import {
@@ -23,7 +25,7 @@ interface Props {
 /** A controller blocks, unblocks, or grants an exception to one employee's advance requests. */
 export function RestrictionDialog({ userId, name, opened, onClose }: Readonly<Props>) {
   const { t } = useTranslation('pettyCash');
-  const today = dayjs().format('YYYY-MM-DD');
+  const today = todayWib();
   const status = useAdvanceStatus(opened ? userId : undefined);
   const change = useChangeRestriction(userId);
   const [kind, setKind] = useState<RestrictionKind | null>(null);
@@ -63,13 +65,25 @@ export function RestrictionDialog({ userId, name, opened, onClose }: Readonly<Pr
   };
 
   return (
-    <Modal
+    <DialogFrame
       opened={opened}
       onClose={close}
-      centered
-      radius="md"
-      title={<Text fw={700}>{t('restriction.title', { name })}</Text>}
-      closeButtonProps={{ 'aria-label': t('common.close') }}
+      title={t('restriction.title', { name })}
+      footer={
+        <>
+          <Button variant="default" onClick={close} disabled={change.isPending}>
+            {t('actions.keep')}
+          </Button>
+          <Button
+            color={chosen === 'block' ? 'red' : 'primary'}
+            loading={change.isPending}
+            disabled={!chosen}
+            onClick={submit}
+          >
+            {chosen ? t(`restriction.${chosen}`) : t('restriction.manage')}
+          </Button>
+        </>
+      }
     >
       <Stack gap="md">
         {info && (
@@ -129,20 +143,7 @@ export function RestrictionDialog({ userId, name, opened, onClose }: Readonly<Pr
             required
           />
         )}
-        <Group justify="flex-end" gap="sm">
-          <Button variant="default" onClick={close} disabled={change.isPending}>
-            {t('actions.keep')}
-          </Button>
-          <Button
-            color={chosen === 'block' ? 'red' : 'primary'}
-            loading={change.isPending}
-            disabled={!chosen}
-            onClick={submit}
-          >
-            {chosen ? t(`restriction.${chosen}`) : t('restriction.manage')}
-          </Button>
-        </Group>
       </Stack>
-    </Modal>
+    </DialogFrame>
   );
 }
