@@ -1,92 +1,83 @@
 import React from 'react';
-import { Badge, Button, Group, Stack, Text } from '@mantine/core';
+import { Button, Group, Stack, Text, Tooltip } from '@mantine/core';
 import {
   IconArrowLeft,
   IconCheck,
   IconDeviceFloppy,
   IconHistory,
-  IconRotate,
   IconScale,
 } from '@tabler/icons-react';
 import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
-import { routes } from '@/router/routes';
 import { useTranslation } from '@/i18n';
-import { formatCurrency } from '@/utils/formatCurrency';
 import { dateFormatV1 } from '@/utils/formatDate';
-import type { BalanceState } from '../../domain/beginningBalance';
 
 type Props = {
   statusLabel: string;
-  statusColor: string;
   isPublished: boolean;
+  hasUnsavedChanges: boolean;
   selectedDate: string | null;
-  balanceState: BalanceState;
-  difference: number;
+  canSaveDraft: boolean;
+  saveDraftHint: string | null;
+  canPublish: boolean;
+  publishHint: string | null;
   isSavingDraft: boolean;
   isPublishing: boolean;
   onBack: () => void;
   onOpenLogs: () => void;
-  onOpenReset: () => void;
   onSaveDraft: () => void;
   onPublish: () => void;
 };
 
-const BADGE_COLOR: Record<BalanceState, string> = {
-  balanced: 'teal',
-  empty: 'gray',
-  unbalanced: 'orange',
-};
+/** A disabled button gets no hover events, so the tooltip with the reason sits on a wrapper. */
+const WithReason: React.FC<{ reason: string | null; children: React.ReactNode }> = ({
+  reason,
+  children,
+}) => (
+  <Tooltip label={reason} disabled={!reason} withArrow>
+    <span>{children}</span>
+  </Tooltip>
+);
 
 const BeginningBalanceHeader: React.FC<Props> = ({
   statusLabel,
-  statusColor,
   isPublished,
+  hasUnsavedChanges,
   selectedDate,
-  balanceState,
-  difference,
+  canSaveDraft,
+  saveDraftHint,
+  canPublish,
+  publishHint,
   isSavingDraft,
   isPublishing,
   onBack,
   onOpenLogs,
-  onOpenReset,
   onSaveDraft,
   onPublish,
 }) => {
   const { t } = useTranslation('beginningBalances');
-
-  const balanceLabel = {
-    balanced: t('header.balanced'),
-    empty: t('header.empty'),
-    unbalanced: t('header.difference', { amount: formatCurrency(difference) }),
-  }[balanceState];
 
   return (
     <ModuleHeader
       icon={IconScale}
       title={t('page.title')}
       description={
-        <Stack gap={6}>
-          <Group gap="xs" wrap="wrap" align="center">
-            <Badge variant="filled" color={statusColor} radius="sm">
-              {t('status.badge', { status: statusLabel })}
-            </Badge>
-            <Badge variant="light" color="indigo" radius="sm">
-              {t('header.conversionDate', { date: dateFormatV1(selectedDate || new Date()) })}
-            </Badge>
-            <Badge variant="light" color={BADGE_COLOR[balanceState]} radius="sm">
-              {balanceLabel}
-            </Badge>
-          </Group>
-          <Text size="sm" c="dimmed" mt={2}>
+        <Stack gap={4}>
+          <Text fz="var(--jurnal-text-sm)" c="dimmed">
             {t('page.subtitle')}
+          </Text>
+          <Text fz="var(--jurnal-text-sm)" c="dimmed">
+            <Text span fw={600} c="dark.7" fz="inherit">
+              {statusLabel}
+            </Text>
+            {` · ${t('header.conversionDate', { date: dateFormatV1(selectedDate || new Date()) })}`}
+            {hasUnsavedChanges && (
+              <Text span c="orange.8" fz="inherit">
+                {` · ${t('status.unsaved')}`}
+              </Text>
+            )}
           </Text>
         </Stack>
       }
-      breadcrumbs={[
-        { label: t('page.generalLedger'), to: routes.chartOfAccounts.main },
-        { label: t('page.chartOfAccounts'), to: routes.chartOfAccounts.main },
-        { label: t('page.title') },
-      ]}
       actions={
         <Group gap="xs" wrap="wrap">
           <Button
@@ -105,35 +96,31 @@ const BeginningBalanceHeader: React.FC<Props> = ({
           >
             {t('page.changeHistory')}
           </Button>
-          <Button
-            variant="subtle"
-            color="gray"
-            size="sm"
-            leftSection={<IconRotate size={16} />}
-            onClick={onOpenReset}
-          >
-            {t('page.resetBalance')}
-          </Button>
-          <Button
-            variant="light"
-            color="primary"
-            size="sm"
-            leftSection={<IconDeviceFloppy size={16} />}
-            onClick={onSaveDraft}
-            loading={isSavingDraft}
-          >
-            {t('page.saveDraft')}
-          </Button>
-          <Button
-            variant="gradient"
-            gradient={{ from: 'primary.6', to: 'secondary.6', deg: 135 }}
-            size="sm"
-            leftSection={<IconCheck size={16} />}
-            onClick={onPublish}
-            loading={isPublishing}
-          >
-            {isPublished ? t('page.updateAndPublish') : t('page.publish')}
-          </Button>
+          {!isPublished && (
+            <WithReason reason={saveDraftHint}>
+              <Button
+                variant="default"
+                size="sm"
+                leftSection={<IconDeviceFloppy size={16} />}
+                onClick={onSaveDraft}
+                loading={isSavingDraft}
+                disabled={!canSaveDraft}
+              >
+                {t('page.saveDraft')}
+              </Button>
+            </WithReason>
+          )}
+          <WithReason reason={publishHint}>
+            <Button
+              size="sm"
+              leftSection={<IconCheck size={16} />}
+              onClick={onPublish}
+              loading={isPublishing}
+              disabled={!canPublish}
+            >
+              {isPublished ? t('page.updateAndPublish') : t('page.publish')}
+            </Button>
+          </WithReason>
         </Group>
       }
     />

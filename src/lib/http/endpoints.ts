@@ -51,6 +51,8 @@ export const API_ACCOUNT = {
   GET_CATEGORY_ACCOUNT: `${BASE_URL}/v1/category-accounts`,
   GET_CATEGORY_INFO: `${BASE_URL}/v1/accounts/category-info`,
 
+  GET_ACCOUNTING_PERIOD_CHECK: `${BASE_URL}/v1/accounting-periods/check`,
+  GET_SIMPLE_ACCOUNTS: `${BASE_URL}/v1/accounts/simple`,
   GET_DRAFT_BALANCE: `${BASE_URL}/v1/accounts/get/draft-start-amount`,
   GET_DRAFT_BALANCE_LOGS: `${BASE_URL}/v1/accounts/get/draft-start-amount/logs`,
   POST_DRAFT_BALANCE: `${BASE_URL}/v1/accounts/set/draft-start-amount`,

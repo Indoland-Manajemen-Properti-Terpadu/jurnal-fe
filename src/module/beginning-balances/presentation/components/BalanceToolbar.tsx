@@ -1,96 +1,150 @@
 import React from 'react';
-import { ActionIcon, Badge, Button, Group, Select, TextInput } from '@mantine/core';
+import { ActionIcon, Button, Group, Select, Stack, Switch, Text, TextInput } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
-import { IconCalendar, IconSearch, IconX } from '@tabler/icons-react';
+import { IconCalendar, IconRotate, IconSearch, IconX } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
+
+const CLASSES = [1, 2, 3, 4, 5, 6, 7, 8];
 
 type Props = {
   searchQuery: string;
   onSearchChange: (value: string) => void;
-  selectedCategory: string | null;
-  onCategoryChange: (value: string | null) => void;
-  categoryOptions: { value: string; label: string }[];
+  accountClass: number | null;
+  onAccountClassChange: (value: number | null) => void;
+  onlyFilled: boolean;
+  onOnlyFilledChange: (value: boolean) => void;
   selectedDate: string | null;
   onDateChange: (value: string | null) => void;
+  dateError?: string | null;
+  maxDate?: string | Date;
+  shownCount: number;
   accountCount: number;
+  canReset: boolean;
+  onReset: () => void;
 };
 
 const BalanceToolbar: React.FC<Props> = ({
   searchQuery,
   onSearchChange,
-  selectedCategory,
-  onCategoryChange,
-  categoryOptions,
+  accountClass,
+  onAccountClassChange,
+  onlyFilled,
+  onOnlyFilledChange,
   selectedDate,
   onDateChange,
+  dateError,
+  maxDate,
+  shownCount,
   accountCount,
+  canReset,
+  onReset,
 }) => {
   const { t } = useTranslation('beginningBalances');
+  const hasFilter = Boolean(searchQuery) || accountClass !== null || onlyFilled;
 
   return (
-    <Group justify="space-between" align="center" wrap="wrap" gap="sm">
-      <Group gap="sm" style={{ flex: 1, minWidth: 280 }} wrap="wrap">
-        <TextInput
-          placeholder={t('toolbar.search')}
-          size="sm"
-          radius="md"
-          leftSection={<IconSearch size={16} />}
-          rightSection={
-            searchQuery ? (
-              <ActionIcon variant="subtle" size="xs" onClick={() => onSearchChange('')}>
-                <IconX size={12} />
-              </ActionIcon>
-            ) : null
-          }
-          value={searchQuery}
-          onChange={(e) => onSearchChange(e.currentTarget.value)}
-          style={{ flex: 1, minWidth: 220, maxWidth: 360 }}
-        />
+    <Stack gap="xs">
+      <Group justify="space-between" align="center" wrap="wrap" gap="sm">
+        <Group gap="md" style={{ flex: 1, minWidth: 280 }} wrap="wrap">
+          <TextInput
+            aria-label={t('toolbar.search')}
+            placeholder={t('toolbar.search')}
+            size="sm"
+            radius="md"
+            leftSection={<IconSearch size={16} />}
+            rightSection={
+              searchQuery ? (
+                <ActionIcon
+                  variant="subtle"
+                  color="gray"
+                  size="xs"
+                  onClick={() => onSearchChange('')}
+                  aria-label={t('toolbar.clearSearch')}
+                >
+                  <IconX size={12} />
+                </ActionIcon>
+              ) : null
+            }
+            value={searchQuery}
+            onChange={(event) => onSearchChange(event.currentTarget.value)}
+            style={{ flex: 1, minWidth: 220, maxWidth: 320 }}
+          />
 
-        <Select
-          placeholder={t('toolbar.categoryFilter')}
-          size="sm"
-          radius="md"
-          data={categoryOptions}
-          value={selectedCategory || 'all'}
-          onChange={(val) => onCategoryChange(val === 'all' ? null : val)}
-          style={{ width: 190 }}
-          clearable={false}
-        />
+          <Select
+            aria-label={t('toolbar.classFilter')}
+            placeholder={t('toolbar.classFilter')}
+            size="sm"
+            radius="md"
+            data={[
+              { value: 'all', label: t('toolbar.allClasses') },
+              ...CLASSES.map((digit) => ({
+                value: String(digit),
+                label: t(`accountClass.${digit}`),
+              })),
+            ]}
+            value={accountClass === null ? 'all' : String(accountClass)}
+            onChange={(value) =>
+              onAccountClassChange(!value || value === 'all' ? null : Number(value))
+            }
+            allowDeselect={false}
+            style={{ width: 220 }}
+          />
 
-        <DatePickerInput
-          placeholder={t('toolbar.conversionDate')}
-          valueFormat="DD/MM/YYYY"
-          size="sm"
-          radius="md"
-          leftSection={<IconCalendar size={16} />}
-          value={selectedDate}
-          onChange={onDateChange}
-          style={{ width: 170 }}
-        />
+          <Switch
+            label={t('toolbar.onlyFilled')}
+            checked={onlyFilled}
+            onChange={(event) => onOnlyFilledChange(event.currentTarget.checked)}
+          />
+        </Group>
 
-        {(searchQuery || selectedCategory) && (
+        <Group gap="sm" wrap="wrap">
+          <DatePickerInput
+            aria-label={t('toolbar.conversionDate')}
+            placeholder={t('toolbar.conversionDate')}
+            valueFormat="DD/MM/YYYY"
+            size="sm"
+            radius="md"
+            leftSection={<IconCalendar size={16} />}
+            value={selectedDate}
+            onChange={onDateChange}
+            error={dateError}
+            maxDate={maxDate}
+            style={{ width: 170 }}
+          />
           <Button
             variant="subtle"
             color="gray"
             size="sm"
+            leftSection={<IconRotate size={16} />}
+            onClick={onReset}
+            disabled={!canReset}
+          >
+            {t('page.resetBalance')}
+          </Button>
+        </Group>
+      </Group>
+
+      {hasFilter && (
+        <Group gap="xs">
+          <Text fz="var(--jurnal-text-sm)" c="dimmed">
+            {t('toolbar.showing', { shown: shownCount, total: accountCount })}
+          </Text>
+          <Button
+            variant="subtle"
+            color="gray"
+            size="compact-sm"
+            leftSection={<IconX size={14} />}
             onClick={() => {
               onSearchChange('');
-              onCategoryChange(null);
+              onAccountClassChange(null);
+              onOnlyFilledChange(false);
             }}
-            leftSection={<IconX size={14} />}
           >
             {t('toolbar.resetFilter')}
           </Button>
-        )}
-      </Group>
-
-      <Group gap="xs">
-        <Badge variant="light" color="gray" size="lg">
-          {t('toolbar.accountCount', { count: accountCount })}
-        </Badge>
-      </Group>
-    </Group>
+        </Group>
+      )}
+    </Stack>
   );
 };
 
