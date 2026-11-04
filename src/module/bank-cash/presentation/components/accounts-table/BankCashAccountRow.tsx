@@ -15,7 +15,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { routes } from '@/router/routes';
 import { formatCurrency } from '@/utils/formatCurrency';
-import { JournalAccounts } from '@/module/chart-of-accounts';
+import { canEditAccount, JournalAccounts } from '@/module/chart-of-accounts';
 import { withAccountPrefill } from '@/module/bank-cash/domain/accountPrefill';
 import { isBankAccount } from '@/module/bank-cash/domain/bankCashSummary';
 import { useTranslation } from '@/i18n';
@@ -196,17 +196,20 @@ export const BankCashAccountRow: React.FC<{ account: JournalAccounts }> = ({ acc
             >
               {t('sendFromThis')}
             </Menu.Item>
+            {canEditAccount(account) && (
+              <>
+                <Menu.Divider />
 
-            <Menu.Divider />
-
-            <Menu.Item
-              leftSection={<IconPencil size={15} />}
-              onClick={() =>
-                navigate(routes.chartOfAccounts.edit.replace(':idAccount', account.id))
-              }
-            >
-              {t('editAccount')}
-            </Menu.Item>
+                <Menu.Item
+                  leftSection={<IconPencil size={15} />}
+                  onClick={() =>
+                    navigate(routes.chartOfAccounts.edit.replace(':idAccount', account.id))
+                  }
+                >
+                  {t('editAccount')}
+                </Menu.Item>
+              </>
+            )}
           </Menu.Dropdown>
         </Menu>
       </Table.Td>
