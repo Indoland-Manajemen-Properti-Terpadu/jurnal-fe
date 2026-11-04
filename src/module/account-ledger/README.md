@@ -4,8 +4,8 @@ The ledger screen of one account: header with the account actions, KPI row and a
 
 ## Routes (unchanged, rendered by the router with a `variant`)
 
-- `/general-journal/detail-account-cb/:idAccount` (`routes.accountLedger.cashBank`): `<AccountLedgerPage variant="cashBank" />`. Four tabs: journal entries, bank statement, bank reconciliation, cash mapping. KPI: ledger balance, bank balance, reconciliation status, entry count. Orange alert when bank rows are unreconciled.
-- `/general-journal/detail-account/:idAccount` (`routes.accountLedger.nonCashBank`): `<AccountLedgerPage variant="nonCashBank" />`. Two tabs: movements and account information. KPI: balance, normal side, total debit, total credit.
+- `/general-journal/detail-account-cb/:idAccount` (`routes.accountLedger.cashBank`): `<AccountLedgerPage variant="cashBank" />`. Four tabs: journal entries, bank statement, bank reconciliation, cash mapping. Summary: ledger balance, the movement of the imported bank statement rows (received minus sent: not a bank balance, there is no opening balance in a statement), reconciliation status (none / matched / pending, with the number of unmatched statement rows and journal lines), entry count with the last movement date. Orange alert when bank rows are unreconciled.
+- `/general-journal/detail-account/:idAccount` (`routes.accountLedger.nonCashBank`): `<AccountLedgerPage variant="nonCashBank" />`. One card with the movements (no tab bar: the account information tab was removed; the parent of a sub account is named in the header). Summary: balance (the normal side is its hint), total debit, total credit, movement count with the last movement date.
 
 ## Public API (`index.ts`)
 
@@ -13,15 +13,15 @@ The ledger screen of one account: header with the account actions, KPI row and a
 
 ## Layout
 
-- `domain/`: `normalBalance` (`getNormalBalance`), `ledgerSummary` (`summarizeMutations`, `countUnreconciled`, `countStatements`, `unwrapAccountDetail`), `serverMessage`, `ledgerVariant`. Pure and tested.
+- `domain/`: `normalBalance` (`getNormalBalance`), `ledgerSummary` (`summarizeMutations`, `countUnreconciled`, `countReconciliationRows`, `countStatements`, `unwrapAccountDetail`), `ledgerPresentation` (`formatBalance`: a negative balance in brackets everywhere on the page, `getReconciliationState`, `balanceDifference`, `latestTransactionDate`), `serverMessage`, `ledgerVariant`. Pure and tested.
 - `presentation/pages/AccountLedgerPage.tsx`: shared page (keyed by variant, so a switch between the two routes remounts it: the tab ids differ).
-- `presentation/components/`: `LedgerHeader`, `LedgerAccountMenu`, `LedgerCreateActions`, `LedgerAccountDialogs`, `LedgerKpiCard` with `CashBankKpiCards` and `NonCashBankKpiCards`, `LedgerTabsShell`, the tab hosts `CashBankTabs` and `NonCashBankTabs`, `LedgerTransactionsPanel`, `AccountInfoPanel`.
+- `presentation/components/`: `LedgerHeader`, `LedgerAccountMenu`, `LedgerCreateActions`, `LedgerAccountDialogs`, `LedgerSummaryBar` (one surface with hairline dividers instead of four cards) fed by `CashBankSummary` and `NonCashBankSummary`, `TabCount`, `LedgerTabsShell`, the tab hosts `CashBankTabs` and `NonCashBankPanel`, `LedgerTransactionsPanel`.
 - `presentation/hooks/`: `useLedgerAccountActions` (archive/restore and delete with the modal state), `useCashBankSummary` (reconciliation and bank statement figures).
 - `testing/ledgerMocks.tsx`: module mocks for the page tests (not imported by production code).
 
 ## Endpoints
 
-None of its own; it only uses hooks of the sibling modules (`useDetailAccount`, `archiveAccount`, `useDeleteAccount`, `useJournalEntriesByAccount`, `useDeleteJournalEntries`, `useBankStatement`, `useReconciliation`), always through their `index.ts`.
+None of its own; it only uses hooks of the sibling modules (`useDetailAccount`, `archiveAccount`, `useDeleteAccount`, `useJournalEntriesByAccount`, `useVoidJournalEntries`, `useBankStatement`, `useReconciliation`), always through their `index.ts`.
 
 ## State
 
@@ -50,4 +50,8 @@ The page used no swallowing helper: `archiveAccount` and the delete hooks alread
 
 ## Toasts
 
-Deleting entries or an account toasts once (success and failure), from the shared hooks `useDeleteJournalEntries` and `useDeleteAccount`. The page only closes the modal, clears the selection, invalidates queries and navigates. Archive and restore toast from the page (no shared hook). A failed entry delete now shows the hook's generic message instead of the server message.
+Voiding entries (there is no bulk delete: an entry can only be voided, and only when `canVoid` is true) or deleting an account toasts once (success and failure), from the shared hooks `useVoidJournalEntries` and `useDeleteAccount`. The page only closes the modal, clears the selection, invalidates queries and navigates. Archive and restore toast from the page (no shared hook). A failed void shows a count ("n voided, m not") instead of the server message.
+
+## Layout and colour rules
+
+Standard A page (`Box` with `p`, `Stack gap="lg"`): header, one summary surface, one tab card. One primary action in the header (`Buat Transaksi`, solid primary like the account list); the transactions toolbar has no second create button, only search, date, refresh, and the selection controls (count, clear, delete). The only badges left are real statuses in the header (locked, archived) and the orange count on the reconciliation tab when rows are unmatched; tab counts are plain numbers. Colour carries a status only: the reconciliation dot (none: grey, matched: green, pending: orange). An account without any bank statement row is shown as "no data", never as matched. The journal table (`journal-entries`) shows the entry memo instead of a contact column that was always "-", writes an empty debit or credit side as a dash, and uses one neutral colour for both sides. The info tab shows the account level, its parent (`headerAccount`) or its sub account count.

@@ -86,8 +86,9 @@ describe('non cash/bank ledger page (characterization)', () => {
   it('lets the backend category isDebit flag win over the keywords', () => {
     ledgerState.detail = { ...baseDetail, category: { name: 'Hutang Usaha', isDebit: true } };
     renderNonCash();
-    expect(screen.getByText(/Hutang Usaha • Saldo Normal: Debit/)).toBeInTheDocument();
-    expect(screen.getByText('Bertambah pada sisi Debit')).toBeInTheDocument();
+    expect(screen.getAllByText('Hutang Usaha').length).toBeGreaterThan(0);
+    expect(screen.getByText('Saldo Normal: Debit')).toBeInTheDocument();
+    expect(screen.getByText('Saldo normal di sisi Debit')).toBeInTheDocument();
   });
 
   it('flips the normal balance of a contra account', () => {
@@ -97,27 +98,30 @@ describe('non cash/bank ledger page (characterization)', () => {
       category: { name: 'Aset Tetap', isDebit: true },
     };
     renderNonCash();
-    expect(screen.getByText(/Aset Tetap • Saldo Normal: Kredit/)).toBeInTheDocument();
-    expect(screen.getByText('Bertambah pada sisi Kredit')).toBeInTheDocument();
+    expect(screen.getAllByText('Aset Tetap').length).toBeGreaterThan(0);
+    expect(screen.getByText('Saldo Normal: Kredit')).toBeInTheDocument();
+    expect(screen.getByText('Saldo normal di sisi Kredit')).toBeInTheDocument();
   });
 
   it('derives the normal balance from the category name when the backend sends no flag', () => {
     ledgerState.detail = { ...baseDetail, category: { name: 'Hutang Usaha' } };
     renderNonCash();
-    expect(screen.getByText(/Hutang Usaha • Saldo Normal: Kredit/)).toBeInTheDocument();
-    expect(screen.getByText('Bertambah pada sisi Kredit')).toBeInTheDocument();
+    expect(screen.getAllByText('Hutang Usaha').length).toBeGreaterThan(0);
+    expect(screen.getByText('Saldo Normal: Kredit')).toBeInTheDocument();
+    expect(screen.getByText('Saldo normal di sisi Kredit')).toBeInTheDocument();
   });
 
   it('falls back to the account type when the category has no name', () => {
     ledgerState.detail = { ...baseDetail, category: { name: '' }, type: 'Modal' };
     renderNonCash();
-    expect(screen.getByText('Bertambah pada sisi Kredit')).toBeInTheDocument();
+    expect(screen.getByText('Saldo normal di sisi Kredit')).toBeInTheDocument();
   });
 
   it('defaults to a debit normal balance', () => {
     renderNonCash();
-    expect(screen.getByText(/Kas & Bank • Saldo Normal: Debit/)).toBeInTheDocument();
-    expect(screen.getByText('Bertambah pada sisi Debit')).toBeInTheDocument();
+    expect(screen.getAllByText('Kas & Bank').length).toBeGreaterThan(0);
+    expect(screen.getByText('Saldo Normal: Debit')).toBeInTheDocument();
+    expect(screen.getByText('Saldo normal di sisi Debit')).toBeInTheDocument();
   });
 
   it('sums the debit and credit mutations and counts the non zero sides', () => {
@@ -130,25 +134,25 @@ describe('non cash/bank ledger page (characterization)', () => {
     renderNonCash();
     expect(screen.getByText(formatCurrency(1200.5))).toBeInTheDocument();
     expect(screen.getByText(formatCurrency(300))).toBeInTheDocument();
-    expect(screen.getByText('2 transaksi pada sisi debit')).toBeInTheDocument();
-    expect(screen.getByText('1 transaksi pada sisi kredit')).toBeInTheDocument();
-    expect(screen.getByRole('tab', { name: /Mutasi Jurnal Transaksi/ })).toHaveTextContent('4');
+    expect(screen.getByText('Transaksi sisi debit: 2')).toBeInTheDocument();
+    expect(screen.getByText('Transaksi sisi kredit: 1')).toBeInTheDocument();
+    expect(screen.getByText('4')).toBeInTheDocument();
+    expect(screen.queryByRole('tab')).not.toBeInTheDocument();
   });
 
   it('shows the account balance and zero totals without entries', () => {
     renderNonCash();
     expect(screen.getAllByText(formatCurrency(1500000.5)).length).toBeGreaterThan(0);
-    expect(screen.getByText('0 transaksi pada sisi debit')).toBeInTheDocument();
+    expect(screen.getByText('Transaksi sisi debit: 0')).toBeInTheDocument();
   });
 
-  it('hides archive and delete for a locked account (I7)', async () => {
+  it('gives a locked account no edit button and no manage menu (I7)', () => {
     ledgerState.detail = { ...baseDetail, isLocked: true };
     renderNonCash();
-    const user = userEvent.setup();
-    await user.click(screen.getByRole('button', { name: 'Menu Aksi', hidden: true }));
-    expect(await screen.findByText('Manajemen Akun')).toBeInTheDocument();
-    expect(screen.queryByRole('menuitem', { name: 'Arsipkan Akun' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('menuitem', { name: 'Hapus Akun' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Ubah Akun' })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Menu Aksi', hidden: true })
+    ).not.toBeInTheDocument();
     expect(screen.getByText('Terkunci')).toBeInTheDocument();
   });
 
@@ -229,18 +233,18 @@ describe('non cash/bank ledger page (characterization)', () => {
     expect(fns.notify).not.toHaveBeenCalled();
   });
 
-  it('deletes the selected entries and invalidates the lists', async () => {
+  it('voids the selected entries and invalidates the lists', async () => {
     ledgerState.transactions = [journalRow(10, 0, 'a'), journalRow(0, 10, 'b')];
     const { client } = renderNonCash();
     const user = userEvent.setup();
     await user.click(screen.getByRole('button', { name: 'select-all-rows', hidden: true }));
-    await user.click(screen.getByRole('button', { name: /Hapus Terpilih \(2\)/, hidden: true }));
+    await user.click(screen.getByRole('button', { name: /Batalkan Terpilih \(2\)/, hidden: true }));
     const dialog = await screen.findByRole('dialog', { hidden: true });
     await user.click(
-      within(dialog).getByRole('button', { name: 'Hapus 2 Transaksi', hidden: true })
+      within(dialog).getByRole('button', { name: 'Batalkan 2 Jurnal', hidden: true })
     );
-    expect(fns.deleteEntries).toHaveBeenCalledTimes(1);
-    const [payload, options] = fns.deleteEntries.mock.calls[0];
+    expect(fns.voidEntries).toHaveBeenCalledTimes(1);
+    const [payload, options] = fns.voidEntries.mock.calls[0];
     expect(payload).toEqual({ ids: ['a', 'b'], idAccount: 'acc-1' });
     options.onSuccess();
     expect(client.invalidateQueries).toHaveBeenCalledWith({
@@ -249,22 +253,25 @@ describe('non cash/bank ledger page (characterization)', () => {
     expect(client.invalidateQueries).toHaveBeenCalledWith({
       queryKey: ['detail_account', 'acc-1'],
     });
-    // Success and failure toasts come from the shared useDeleteJournalEntries hook only.
+    // Success and failure toasts come from the shared useVoidJournalEntries hook only.
     expect(fns.notify).not.toHaveBeenCalled();
     expect(options.onError).toBeUndefined();
   });
 
-  it('shows the account profile in the info tab', async () => {
-    ledgerState.detail = { ...baseDetail, level: '2', draftAmount: 500, isAllUser: true };
+  it('has no tab bar and no account information tab', () => {
     renderNonCash();
-    const user = userEvent.setup();
-    await user.click(screen.getByRole('tab', { name: /Informasi & Atribut Akun/ }));
-    expect(screen.getByText('Rincian Profil Akun')).toBeInTheDocument();
-    expect(screen.getByText(/Level 2/).textContent).toBe('Level 2 (Sub Akun)');
-    expect(screen.getByText('Dapat Disesuaikan')).toBeInTheDocument();
-    expect(screen.getByText('Semua Pengguna')).toBeInTheDocument();
-    expect(screen.getByText(formatCurrency(500))).toBeInTheDocument();
-    expect(screen.getByText('Menambah Saldo Akun (+)')).toBeInTheDocument();
+    expect(screen.queryByRole('tab')).not.toBeInTheDocument();
+    expect(screen.queryByText(/Informasi & Atribut Akun/)).not.toBeInTheDocument();
+  });
+
+  it('names the parent of a sub account in the header', () => {
+    ledgerState.detail = {
+      ...baseDetail,
+      level: 'sub',
+      headerAccount: { id: 'h1', name: 'Kas dan Setara Kas', accountNumber: '1-10000' },
+    };
+    renderNonCash();
+    expect(screen.getByText('Induk: 1-10000 Kas dan Setara Kas')).toBeInTheDocument();
   });
 
   it('navigates to the edit page and back', async () => {

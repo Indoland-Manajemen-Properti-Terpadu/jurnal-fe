@@ -10,7 +10,7 @@ interface LedgerAccountMenuProps {
   onDelete: () => void;
 }
 
-/** "More" menu of the header. I7: a locked account offers neither archive nor delete. */
+/** "More" menu of the header. I7: a locked account offers neither archive nor delete, so it gets no menu. */
 export const LedgerAccountMenu: React.FC<LedgerAccountMenuProps> = ({
   account,
   isArchiving,
@@ -21,10 +21,13 @@ export const LedgerAccountMenu: React.FC<LedgerAccountMenuProps> = ({
   const showArchive = canArchiveAccount(account);
   const showDelete = canDeleteAccount(account);
 
+  // A locked account offers neither action; an empty menu would only show its title.
+  if (!showArchive && !showDelete) return null;
+
   return (
     <Menu position="bottom-end" shadow="md" width={200} withArrow>
       <Menu.Target>
-        <ActionIcon variant="default" size="lg" radius="md" aria-label={t('common.actionMenu')}>
+        <ActionIcon variant="default" size={42} radius="md" aria-label={t('common.actionMenu')}>
           <IconDotsVertical size={18} />
         </ActionIcon>
       </Menu.Target>
