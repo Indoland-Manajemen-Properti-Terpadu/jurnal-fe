@@ -1,322 +1,181 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { DataTable } from 'mantine-datatable';
-import {
-  Badge,
-  Group,
-  Stack,
-  Text,
-  TextInput,
-  ThemeIcon,
-  Tooltip,
-  ActionIcon,
-} from '@mantine/core';
-import { IconArrowDownRight, IconArrowUpRight, IconX } from '@tabler/icons-react';
+import { ActionIcon, Stack, Text, TextInput, Tooltip } from '@mantine/core';
+import { IconX } from '@tabler/icons-react';
 import { numberFormat } from '@/utils/formatCurrency';
 import EmptyState from '@/components/EmptyState/EmptyTable';
 import defaultEmptyImage from '@/assets/images/illustrations/empty-table.svg';
-import type { JournalAccounts } from '@/module/chart-of-accounts';
 import { useTranslation } from '@/i18n';
-import {
-  accountKey,
-  applyAmountEntry,
-  clearAccountRow,
-  isNormalDebit,
-} from '../../domain/openingBalanceRules';
+import type { OpeningRow } from '../../domain/beginningBalance';
+import { formatAmountInput } from '../../domain/openingBalanceRules';
+
+type Side = 'debit' | 'credit';
 
 type TableBeginningBalanceProps = {
-  data: JournalAccounts[];
-  onChange: (updated: JournalAccounts[]) => void;
-  searchQuery?: string;
-  selectedCategory?: string | null;
+  /** The rows to show; the page already applied the filter. */
+  records: OpeningRow[];
+  onEnter: (accountId: string, field: Side, raw: string) => void;
+  onClear: (accountId: string) => void;
+  /** Changes when the filter changes, so the table goes back to the first page. */
+  resetKey?: string;
 };
 
+const PAGE_SIZES = [25, 50, 100];
+
+const headStyle = { fontSize: 'var(--jurnal-text-sm)', fontWeight: 600 } as const;
+
 const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
-  data,
-  onChange,
-  searchQuery = '',
-  selectedCategory = null,
+  records,
+  onEnter,
+  onClear,
+  resetKey = '',
 }) => {
   const { t } = useTranslation('beginningBalances');
   // The text being typed in one field, so a trailing comma or decimal digits survive re-formatting.
-  const [draft, setDraft] = useState<{ key: string; text: string } | null>(null);
-  const shown = (key: string, formatted: string) => (draft?.key === key ? draft.text : formatted);
-  // Filter records based on search and category
-  const filteredRecords = useMemo(
-    () =>
-      data.filter((item) => {
-        const q = searchQuery.toLowerCase().trim();
-        const matchesSearch =
-          !q ||
-          (item.name && item.name.toLowerCase().includes(q)) ||
-          (item.accountNumber && item.accountNumber.toLowerCase().includes(q)) ||
-          (item.category?.name && item.category.name.toLowerCase().includes(q));
+  const [typing, setTyping] = useState<{ key: string; text: string } | null>(null);
 
-        const matchesCategory =
-          !selectedCategory ||
-          selectedCategory === 'all' ||
-          item.category?.name?.toLowerCase() === selectedCategory.toLowerCase() ||
-          item.category?.categoryID === selectedCategory;
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(PAGE_SIZES[0]);
+  useEffect(() => setPage(1), [resetKey, pageSize]);
+  const pageCount = Math.max(1, Math.ceil(records.length / pageSize));
+  const current = Math.min(page, pageCount);
+  const pageRecords = records.slice((current - 1) * pageSize, current * pageSize);
 
-        return matchesSearch && matchesCategory;
-      }),
-    [data, searchQuery, selectedCategory]
-  );
+  // Format while typing and keep the caret after the same digit: the text gets dots, so the
+  // caret index of the raw text is mapped to the same count of digits and comma in the new one.
+  const handleType = (
+    accountId: string,
+    field: Side,
+    input: HTMLInputElement,
+    raw: string = input.value
+  ) => {
+    const caret = raw === input.value ? (input.selectionStart ?? raw.length) : raw.length;
+    const significant = raw.slice(0, caret).replace(/[^\d,]/g, '').length;
+    const text = formatAmountInput(raw);
+    setTyping({ key: `${accountId}:${field}`, text });
+    onEnter(accountId, field, text);
 
-  const handleValueChange = (accountId: string, field: 'debit' | 'credit', rawString: string) => {
-    setDraft({ key: `${accountId}:${field}`, text: rawString });
-    onChange(applyAmountEntry(data, accountId, field, rawString));
+    let position = 0;
+    let seen = 0;
+    while (position < text.length && seen < significant) {
+      if (/[\d,]/.test(text[position])) seen += 1;
+      position += 1;
+    }
+    requestAnimationFrame(() => input.setSelectionRange(position, position));
   };
 
-  const handleClearRow = (accountId: string) => {
-    setDraft(null);
-    onChange(clearAccountRow(data, accountId));
+  const amountCell = (row: OpeningRow, field: Side) => {
+    const key = `${row.id}:${field}`;
+    const amount = row[field];
+    const filled = amount > 0;
+    const offSide = filled && row.normalSide !== field;
+
+    return (
+      <Stack gap={2} align="flex-end">
+        <TextInput
+          aria-label={`${t(`table.${field}`)} ${row.accountNumber}`}
+          placeholder="0"
+          size="xs"
+          radius="md"
+          inputMode="decimal"
+          leftSection={
+            <Text size="xs" c="dimmed">
+              Rp
+            </Text>
+          }
+          value={typing?.key === key ? typing.text : filled ? numberFormat(amount) : ''}
+          onChange={(event) => handleType(row.id, field, event.target)}
+          onPaste={(event) => {
+            // A pasted decimal with a dot (`1500.50`, from a sheet) is a decimal, not thousands.
+            const pasted = event.clipboardData.getData('text').trim();
+            if (/^\d+\.\d{1,2}$/.test(pasted)) {
+              event.preventDefault();
+              handleType(row.id, field, event.currentTarget, pasted.replace('.', ','));
+            }
+          }}
+          onBlur={() => setTyping(null)}
+          w="100%"
+          styles={{
+            input: {
+              textAlign: 'right',
+              fontVariantNumeric: 'tabular-nums',
+              fontWeight: filled ? 600 : 400,
+              borderColor: filled ? 'var(--mantine-color-primary-3)' : undefined,
+            },
+          }}
+        />
+        {offSide && (
+          <Text fz="var(--jurnal-text-xs)" c="dimmed">
+            {t('table.offSide')}
+          </Text>
+        )}
+      </Stack>
+    );
   };
 
   const columns = [
     {
       accessor: 'accountNumber',
-      title: (
-        <Text fw={700} fz="var(--jurnal-text-sm)" c="dark.8">
-          {t('table.code')}
+      title: <Text style={headStyle}>{t('table.code')}</Text>,
+      width: 120,
+      render: (row: OpeningRow) => (
+        <Text fz="var(--jurnal-text-sm)" fw={600} c="primary.8" style={{ whiteSpace: 'nowrap' }}>
+          {row.accountNumber}
         </Text>
       ),
-      width: 140,
-      render: (item: JournalAccounts) => {
-        const isSub = Number(item.level) > 1 || item.level === 'sub';
-        return (
-          <Group gap={6} wrap="nowrap" style={{ paddingLeft: isSub ? 16 : 0 }}>
-            <Badge
-              variant="outline"
-              color={isSub ? 'gray' : 'primary'}
-              radius="sm"
-              ff="monospace"
-              size="sm"
-              fw={700}
-            >
-              {item.accountNumber}
-            </Badge>
-          </Group>
-        );
-      },
     },
     {
       accessor: 'name',
-      title: (
-        <Text fw={700} fz="var(--jurnal-text-sm)" c="dark.8">
-          {t('table.nameAndNormal')}
-        </Text>
+      title: <Text style={headStyle}>{t('table.name')}</Text>,
+      render: (row: OpeningRow) => (
+        <div>
+          <Text fz="var(--jurnal-text-sm)" fw={500} c="dark.8">
+            {row.name}
+          </Text>
+          <Text fz="var(--jurnal-text-xs)" c="dimmed">
+            {row.normalSide === 'debit' ? t('table.normalDebit') : t('table.normalCredit')}
+            {row.isContra ? ` · ${t('table.contra')}` : ''}
+          </Text>
+        </div>
       ),
-      render: (item: JournalAccounts) => {
-        const isSub = Number(item.level) > 1 || item.level === 'sub';
-        const normalDebit = isNormalDebit(item.category?.name, item.category?.isDebit);
-
-        return (
-          <Stack gap={3}>
-            <Group gap="xs" wrap="nowrap">
-              <Text fw={isSub ? 500 : 700} fz="var(--jurnal-text-sm)" c="dark.8">
-                {item.name}
-              </Text>
-              {!isSub && (
-                <Badge size="xs" variant="light" color="indigo" radius="sm">
-                  {t('table.parent')}
-                </Badge>
-              )}
-            </Group>
-            <Group gap={6} wrap="wrap" align="center">
-              <Text size="xs" c="dimmed">
-                {item.category?.name || t('table.defaultCategory')}
-              </Text>
-              <Text size="xs" c="dimmed">
-                •
-              </Text>
-              <Badge
-                size="xs"
-                variant="light"
-                color={normalDebit ? 'teal' : 'red'}
-                radius="sm"
-                leftSection={
-                  normalDebit ? <IconArrowDownRight size={11} /> : <IconArrowUpRight size={11} />
-                }
-              >
-                {normalDebit ? t('table.suggestedDebit') : t('table.suggestedCredit')}
-              </Badge>
-            </Group>
-          </Stack>
-        );
-      },
     },
     {
       accessor: 'debit',
-      title: (
-        <Group justify="flex-end" gap={6}>
-          <ThemeIcon size={20} radius="xl" color="teal" variant="light">
-            <IconArrowDownRight size={13} />
-          </ThemeIcon>
-          <Text fw={700} fz="var(--jurnal-text-sm)" c="dark.8">
-            {t('table.debit')}
-          </Text>
-        </Group>
-      ),
-      width: 220,
+      title: <Text style={headStyle}>{t('table.debit')}</Text>,
+      width: 210,
       textAlignment: 'right' as const,
-      render: (item: JournalAccounts) => {
-        const debitVal = item.debit || 0;
-        const hasVal = debitVal > 0;
-        const normalDebit = isNormalDebit(item.category?.name, item.category?.isDebit);
-        const isContraFilled = hasVal && !normalDebit;
-
-        return (
-          <Stack gap={2} align="flex-end">
-            <TextInput
-              placeholder={normalDebit ? t('table.placeholderSuggested') : '0'}
-              size="xs"
-              radius="md"
-              leftSection={
-                <Text size="xs" fw={600} c={hasVal ? 'teal.7' : normalDebit ? 'teal.6' : 'dimmed'}>
-                  Rp
-                </Text>
-              }
-              value={shown(`${accountKey(item)}:debit`, hasVal ? numberFormat(debitVal) : '')}
-              onChange={(e) => handleValueChange(accountKey(item), 'debit', e.target.value)}
-              onBlur={() => setDraft(null)}
-              styles={{
-                root: {
-                  width: '100%',
-                },
-                input: {
-                  textAlign: 'right',
-                  fontFamily: 'monospace',
-                  fontWeight: hasVal ? 700 : 400,
-                  fontSize: 'var(--jurnal-text-sm)',
-                  color: hasVal ? 'var(--mantine-color-teal-8)' : 'inherit',
-                  backgroundColor: hasVal
-                    ? 'var(--mantine-color-teal-0)'
-                    : normalDebit
-                      ? 'var(--mantine-color-white)'
-                      : 'var(--mantine-color-slate-0)',
-                  borderColor: hasVal
-                    ? 'var(--mantine-color-teal-5)'
-                    : normalDebit
-                      ? 'var(--mantine-color-teal-2)'
-                      : 'var(--mantine-color-gray-3)',
-                  boxShadow: normalDebit
-                    ? '0 1px 2px color-mix(in srgb, var(--mantine-color-black) 2%, transparent)'
-                    : 'none',
-                  transition: 'all 150ms ease',
-                  '&:focus': {
-                    borderColor: 'var(--mantine-color-teal-6)',
-                    backgroundColor: 'var(--mantine-color-white)',
-                  },
-                },
-              }}
-            />
-            {isContraFilled && (
-              <Badge size="xs" color="orange" variant="light" radius="xs">
-                {t('table.contraSide')}
-              </Badge>
-            )}
-          </Stack>
-        );
-      },
+      render: (row: OpeningRow) => amountCell(row, 'debit'),
     },
     {
       accessor: 'credit',
-      title: (
-        <Group justify="flex-end" gap={6}>
-          <ThemeIcon size={20} radius="xl" color="red" variant="light">
-            <IconArrowUpRight size={13} />
-          </ThemeIcon>
-          <Text fw={700} fz="var(--jurnal-text-sm)" c="dark.8">
-            {t('table.credit')}
-          </Text>
-        </Group>
-      ),
-      width: 220,
+      title: <Text style={headStyle}>{t('table.credit')}</Text>,
+      width: 210,
       textAlignment: 'right' as const,
-      render: (item: JournalAccounts) => {
-        const creditVal = item.credit || 0;
-        const hasVal = creditVal > 0;
-        const normalDebit = isNormalDebit(item.category?.name, item.category?.isDebit);
-        const isNormalCredit = !normalDebit;
-        const isContraFilled = hasVal && normalDebit;
-
-        return (
-          <Stack gap={2} align="flex-end">
-            <TextInput
-              placeholder={isNormalCredit ? t('table.placeholderSuggested') : '0'}
-              size="xs"
-              radius="md"
-              leftSection={
-                <Text size="xs" fw={600} c={hasVal ? 'red.7' : isNormalCredit ? 'red.6' : 'dimmed'}>
-                  Rp
-                </Text>
-              }
-              value={shown(`${accountKey(item)}:credit`, hasVal ? numberFormat(creditVal) : '')}
-              onChange={(e) => handleValueChange(accountKey(item), 'credit', e.target.value)}
-              onBlur={() => setDraft(null)}
-              styles={{
-                root: {
-                  width: '100%',
-                },
-                input: {
-                  textAlign: 'right',
-                  fontFamily: 'monospace',
-                  fontWeight: hasVal ? 700 : 400,
-                  fontSize: 'var(--jurnal-text-sm)',
-                  color: hasVal ? 'var(--mantine-color-red-8)' : 'inherit',
-                  backgroundColor: hasVal
-                    ? 'var(--mantine-color-red-0)'
-                    : isNormalCredit
-                      ? 'var(--mantine-color-white)'
-                      : 'var(--mantine-color-slate-0)',
-                  borderColor: hasVal
-                    ? 'var(--mantine-color-red-5)'
-                    : isNormalCredit
-                      ? 'var(--mantine-color-red-2)'
-                      : 'var(--mantine-color-gray-3)',
-                  boxShadow: isNormalCredit
-                    ? '0 1px 2px color-mix(in srgb, var(--mantine-color-black) 2%, transparent)'
-                    : 'none',
-                  transition: 'all 150ms ease',
-                  '&:focus': {
-                    borderColor: 'var(--mantine-color-red-6)',
-                    backgroundColor: 'var(--mantine-color-white)',
-                  },
-                },
-              }}
-            />
-            {isContraFilled && (
-              <Badge size="xs" color="orange" variant="light" radius="xs">
-                {t('table.contraSide')}
-              </Badge>
-            )}
-          </Stack>
-        );
-      },
+      render: (row: OpeningRow) => amountCell(row, 'credit'),
     },
     {
       accessor: 'actions',
       title: '',
-      width: 50,
+      width: 48,
       textAlignment: 'center' as const,
-      render: (item: JournalAccounts) => {
-        const hasAny = (item.debit || 0) > 0 || (item.credit || 0) > 0;
-        if (!hasAny) return null;
-
-        return (
+      render: (row: OpeningRow) =>
+        row.debit > 0 || row.credit > 0 ? (
           <Tooltip label={t('table.clearRow')}>
             <ActionIcon
               variant="subtle"
               color="gray"
               size="sm"
               radius="md"
-              onClick={() => handleClearRow(accountKey(item))}
+              aria-label={`${t('table.clearRow')} ${row.accountNumber}`}
+              onClick={() => {
+                setTyping(null);
+                onClear(row.id);
+              }}
             >
               <IconX size={14} />
             </ActionIcon>
           </Tooltip>
-        );
-      },
+        ) : null,
     },
   ];
 
@@ -325,10 +184,20 @@ const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
       withTableBorder
       borderRadius="md"
       highlightOnHover
-      records={filteredRecords}
+      records={pageRecords}
       columns={columns}
-      minHeight={320}
-      verticalSpacing="sm"
+      verticalSpacing="xs"
+      idAccessor="id"
+      totalRecords={records.length}
+      page={current}
+      onPageChange={setPage}
+      recordsPerPage={pageSize}
+      recordsPerPageOptions={PAGE_SIZES}
+      onRecordsPerPageChange={setPageSize}
+      recordsPerPageLabel={t('table.perPage')}
+      paginationText={({ from, to, totalRecords }) =>
+        t('table.paginationText', { from, to, total: totalRecords })
+      }
       noRecordsText={t('table.noRecords')}
       emptyState={
         <EmptyState
