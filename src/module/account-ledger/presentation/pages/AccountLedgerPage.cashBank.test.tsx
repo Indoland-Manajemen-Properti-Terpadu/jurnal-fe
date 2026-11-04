@@ -82,33 +82,60 @@ describe('cash/bank ledger page (characterization)', () => {
 
   it('shows the unreconciled alert and counts', () => {
     ledgerState.recon = {
-      bankStatements: [{ isReconciled: false }, { isReconciled: true }, { isReconciled: false }],
-      balance: 0,
+      bankStatements: [{ isReconciled: false }, { isReconciled: false }],
+      unreconciledJournalDetails: [{}, {}, {}],
     };
+    ledgerState.bankStatement = { results: [{}, {}, {}] };
     renderCashBank();
     expect(
       screen.getByText('Perhatian: Terdapat Transaksi Belum Rekonsiliasi')
     ).toBeInTheDocument();
     expect(screen.getByText('2 Belum Rekon')).toBeInTheDocument();
-    expect(screen.getByText('Memerlukan pencocokan data')).toBeInTheDocument();
+    expect(screen.getByText('2 rekening koran dan 3 jurnal belum dicocokkan')).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: /Rekonsiliasi Bank/ })).toHaveTextContent('2');
-    // balance 0 is kept (nullish fallback), not replaced by the ledger amount
-    expect(screen.getByText(formatCurrency(0))).toBeInTheDocument();
   });
 
-  it('shows the matched state without unreconciled rows', () => {
-    ledgerState.recon = { bankStatements: [{ isReconciled: true }], balance: 250 };
+  it('shows the matched state when statements exist and none is left unmatched', () => {
+    // the reconciliation list holds only unmatched rows, so a matched account has none left
+    ledgerState.recon = { bankStatements: [], unreconciledJournalDetails: [] };
+    ledgerState.bankStatement = { results: [{ debit: 250 }] };
     renderCashBank();
     expect(screen.queryByText('Perhatian: Terdapat Transaksi Belum Rekonsiliasi')).toBeNull();
     expect(screen.getByText('Seimbang (Match)')).toBeInTheDocument();
     expect(screen.getByText('Semua transaksi bank cocok')).toBeInTheDocument();
-    expect(screen.getByRole('tab', { name: /Rekonsiliasi Bank/ })).toHaveTextContent('Match');
-    expect(screen.getByText(formatCurrency(250))).toBeInTheDocument();
+    // the tab carries no badge when matched; a badge is kept for a real warning only
+    expect(screen.getByRole('tab', { name: /Rekonsiliasi Bank/ })).not.toHaveTextContent('Match');
   });
 
-  it('falls back to the ledger amount when the bank balance is unknown', () => {
+  it('tells how many journal lines are not on the statement yet when all rows are matched', () => {
+    ledgerState.recon = { bankStatements: [], unreconciledJournalDetails: [{}, {}] };
+    ledgerState.bankStatement = { results: [{ debit: 1 }] };
     renderCashBank();
-    expect(screen.getAllByText(formatCurrency(1500000.5))).toHaveLength(2);
+    expect(screen.getByText('Seimbang (Match)')).toBeInTheDocument();
+    expect(screen.getByText('2 jurnal belum ada di rekening koran')).toBeInTheDocument();
+  });
+
+  it('does not call an account without imported statements matched', () => {
+    ledgerState.recon = { bankStatements: [] };
+    renderCashBank();
+    expect(screen.queryByText('Seimbang (Match)')).toBeNull();
+    expect(screen.getByText('Belum Ada Data')).toBeInTheDocument();
+    expect(screen.getByText('Belum ada rekening koran untuk dicocokkan')).toBeInTheDocument();
+    expect(screen.getByText('Belum ada rekening koran')).toBeInTheDocument();
+  });
+
+  it('shows the movement of the imported statements, not a balance', () => {
+    ledgerState.bankStatement = { results: [{ debit: 1000 }, { credit: 250 }] };
+    renderCashBank();
+    expect(screen.getByText('Mutasi Rekening Koran')).toBeInTheDocument();
+    expect(screen.getByText(formatCurrency(750))).toBeInTheDocument();
+    expect(screen.getByText('2 baris diimpor')).toBeInTheDocument();
+  });
+
+  it('writes a negative ledger balance in brackets, like the table', () => {
+    ledgerState.detail = { ...baseDetail, amount: -13562000 };
+    renderCashBank();
+    expect(screen.getAllByText(`(${formatCurrency(13562000)})`).length).toBeGreaterThan(0);
   });
 
   it('counts statements from results, else from resultTransaction', () => {
@@ -126,7 +153,7 @@ describe('cash/bank ledger page (characterization)', () => {
     ledgerState.transactions = [journalRow(1, 0, 'a'), journalRow(0, 1, 'b')];
     renderCashBank();
     expect(screen.getByRole('tab', { name: /Jurnal Transaksi/ })).toHaveTextContent('2');
-    expect(screen.getByText(`${(2).toLocaleString('id-ID')} Mutasi`)).toBeInTheDocument();
+    expect(screen.getByText('Total Jurnal Tercatat').parentElement).toHaveTextContent('2');
   });
 
   it('shows the category badge unless it is the generic Kas & Bank', () => {
@@ -139,15 +166,23 @@ describe('cash/bank ledger page (characterization)', () => {
     expect(screen.getByText('Bank Mandiri')).toBeInTheDocument();
   });
 
-  it('hides archive and delete for a locked account (I7)', async () => {
+  it('gives a locked account no edit button and no manage menu, only the Terkunci status (I7)', () => {
     ledgerState.detail = { ...baseDetail, isLocked: true };
     renderCashBank();
+    expect(screen.queryByRole('button', { name: 'Ubah Akun' })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Menu Aksi', hidden: true })
+    ).not.toBeInTheDocument();
+    expect(screen.getByText('Terkunci')).toBeInTheDocument();
+    expect(screen.queryByText('Akun Terkunci')).not.toBeInTheDocument();
+  });
+
+  it('offers edit and the manage menu for an open account', async () => {
+    renderCashBank();
+    expect(screen.getByRole('button', { name: 'Ubah Akun' })).toBeInTheDocument();
     const user = userEvent.setup();
     await user.click(screen.getByRole('button', { name: 'Menu Aksi', hidden: true }));
     expect(await screen.findByText('Manajemen Akun')).toBeInTheDocument();
-    expect(screen.queryByRole('menuitem', { name: 'Arsipkan Akun' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('menuitem', { name: 'Hapus Akun' })).not.toBeInTheDocument();
-    expect(screen.getByText('Akun Terkunci')).toBeInTheDocument();
   });
 
   it('archives with the cash/bank wording', async () => {
@@ -192,17 +227,17 @@ describe('cash/bank ledger page (characterization)', () => {
     await open('Transfer Uang', routes.bankCash.addTransfer);
   });
 
-  it('deletes the selected entries from the entries tab', async () => {
+  it('voids the selected entries from the entries tab', async () => {
     ledgerState.transactions = [journalRow(10, 0, 'a')];
     const { client } = renderCashBank();
     const user = userEvent.setup();
     await user.click(screen.getByRole('button', { name: 'select-all-rows', hidden: true }));
-    await user.click(screen.getByRole('button', { name: /Hapus Terpilih \(1\)/, hidden: true }));
+    await user.click(screen.getByRole('button', { name: /Batalkan Terpilih \(1\)/, hidden: true }));
     const dialog = await screen.findByRole('dialog', { hidden: true });
     await user.click(
-      within(dialog).getByRole('button', { name: 'Hapus 1 Transaksi', hidden: true })
+      within(dialog).getByRole('button', { name: 'Batalkan 1 Jurnal', hidden: true })
     );
-    const [payload, options] = fns.deleteEntries.mock.calls[0];
+    const [payload, options] = fns.voidEntries.mock.calls[0];
     expect(payload).toEqual({ ids: ['a'], idAccount: 'acc-1' });
     options.onSuccess();
     expect(fns.notify).not.toHaveBeenCalled();

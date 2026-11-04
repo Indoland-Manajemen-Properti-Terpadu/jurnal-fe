@@ -20,7 +20,7 @@ export const fns = {
   deleteAccount: vi.fn(),
   deleteAccountPending: false,
   archiveAccount: vi.fn(),
-  deleteEntries: vi.fn(),
+  voidEntries: vi.fn(),
   refetchTransactions: vi.fn(),
   refetchDetail: vi.fn(),
   notify: vi.fn(),
@@ -81,7 +81,7 @@ export const journalEntriesMock = async () => {
       isError: ledgerState.transactionsError,
       refetch: fns.refetchTransactions,
     }),
-    useDeleteJournalEntries: () => ({ mutate: fns.deleteEntries, isPending: false }),
+    useVoidJournalEntries: () => ({ mutate: fns.voidEntries, isPending: false }),
     JournalEntriesTable: ({
       data,
       selectedRecords,

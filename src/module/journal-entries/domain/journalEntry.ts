@@ -1,3 +1,4 @@
+import type { RawJournalTags } from './journalTags';
 /** A journal entry as the backend returns it, and the payload that creates one. */
 
 export interface JournalSite {
@@ -72,7 +73,18 @@ export interface JournalEntryDetail {
   transactionType?: string;
   transactionDetail?: JournalEntryLine[];
   attachments?: JournalAttachment[];
-  tags?: string;
+  tags?: RawJournalTags;
+  /** `ACTIVE`, `VOID` (cancelled) or `REVERSAL` (the entry that cancelled another). */
+  status?: string;
+  /** Whether the server lets this entry be voided; an edit is a void plus a new entry. */
+  canVoid?: boolean;
+  /** Why it cannot be voided (a petty cash entry, one that is already void, ...). */
+  voidBlockedReason?: string | null;
+  /** Id of the reversal entry, for a void entry. */
+  reversedBy?: string | null;
+  /** Id of the entry this one reverses, for a reversal entry. */
+  reverses?: string | null;
+  sourceType?: string | null;
   site?: JournalSite;
   deleted?: boolean;
   createdAt?: Date | string;
@@ -117,6 +129,9 @@ export interface JournalEntryByAccount {
   transactionDate: Date;
   transactionDetail: AccountEntryLine[];
   status: string;
+  /** Whether the server allows a void, and why not (`voidBlockedReason`). */
+  canVoid?: boolean;
+  voidBlockedReason?: string | null;
   amount: number;
   credit: number;
   debit: number;

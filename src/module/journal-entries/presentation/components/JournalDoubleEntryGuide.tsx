@@ -1,73 +1,51 @@
 import React from 'react';
-import { Accordion, Badge, Group, List, Paper, Stack, Text, ThemeIcon } from '@mantine/core';
-import { IconBulb, IconChecklist, IconScale } from '@tabler/icons-react';
+import { Accordion, Group, List, Paper, Stack, Text } from '@mantine/core';
 import { useTranslation } from '@/i18n';
-import { themeColors } from '@/theme';
 
+/** A short refresher that stays closed until it is wanted; the form is the main thing on the page. */
 export const JournalDoubleEntryGuide: React.FC = () => {
   const { t } = useTranslation('journalEntries');
-  return (
-    <Paper withBorder radius="md" p="md" bg="white" shadow="xs">
-      <Group gap="xs" mb="xs">
-        <ThemeIcon size={28} radius="md" variant="light" color="yellow">
-          <IconBulb size={16} />
-        </ThemeIcon>
-        <div>
-          <Text fw={700} fz="var(--jurnal-text-sm)" c="dark.8">
-            {t('guide.title')}
-          </Text>
-          <Text fz="var(--jurnal-text-xs)" c="dimmed">
-            {t('guide.subtitle')}
-          </Text>
-        </div>
-      </Group>
+  const normalBalances = [
+    { label: t('guide.assetExpense'), side: t('guide.debitPlus') },
+    { label: t('guide.liabilityEquity'), side: t('guide.creditPlus') },
+    { label: t('guide.income'), side: t('guide.creditPlus') },
+  ];
 
-      <Accordion variant="separated" radius="md" defaultValue="double-entry">
+  return (
+    <Paper withBorder radius="md" p="md" bg="white" shadow="none">
+      <Text fw={700} fz="var(--jurnal-text-sm)" c="dark.8">
+        {t('guide.title')}
+      </Text>
+      <Text fz="var(--jurnal-text-xs)" c="dimmed" mb="xs">
+        {t('guide.subtitle')}
+      </Text>
+
+      <Accordion variant="default" radius="md" chevronPosition="right">
         <Accordion.Item value="double-entry">
-          <Accordion.Control icon={<IconScale size={16} color={themeColors.primary[6]} />}>
-            <Text fz="var(--jurnal-text-xs)" fw={600}>
+          <Accordion.Control>
+            <Text fz="var(--jurnal-text-sm)" fw={600}>
               {t('guide.normalTitle')}
             </Text>
           </Accordion.Control>
           <Accordion.Panel>
-            <Stack gap={6} fz="var(--jurnal-text-xs)">
-              <Group justify="space-between">
-                <Text fz="var(--jurnal-text-xs)" c="dimmed">
-                  <Text span fw={700} c="dark.8">
-                    {t('guide.assetExpense')}
+            <Stack gap={6}>
+              {normalBalances.map((item) => (
+                <Group key={item.label} justify="space-between" wrap="nowrap">
+                  <Text fz="var(--jurnal-text-xs)" fw={600} c="dark.8">
+                    {item.label}
                   </Text>
-                </Text>
-                <Badge size="xs" variant="light" color="teal">
-                  {t('guide.debitPlus')}
-                </Badge>
-              </Group>
-              <Group justify="space-between">
-                <Text fz="var(--jurnal-text-xs)" c="dimmed">
-                  <Text span fw={700} c="dark.8">
-                    {t('guide.liabilityEquity')}
+                  <Text fz="var(--jurnal-text-xs)" c="dimmed">
+                    {item.side}
                   </Text>
-                </Text>
-                <Badge size="xs" variant="light" color="red">
-                  {t('guide.creditPlus')}
-                </Badge>
-              </Group>
-              <Group justify="space-between">
-                <Text fz="var(--jurnal-text-xs)" c="dimmed">
-                  <Text span fw={700} c="dark.8">
-                    {t('guide.income')}
-                  </Text>
-                </Text>
-                <Badge size="xs" variant="light" color="red">
-                  {t('guide.creditPlus')}
-                </Badge>
-              </Group>
+                </Group>
+              ))}
             </Stack>
           </Accordion.Panel>
         </Accordion.Item>
 
         <Accordion.Item value="checklist">
-          <Accordion.Control icon={<IconChecklist size={16} color={themeColors.secondary[6]} />}>
-            <Text fz="var(--jurnal-text-xs)" fw={600}>
+          <Accordion.Control>
+            <Text fz="var(--jurnal-text-sm)" fw={600}>
               {t('guide.rulesTitle')}
             </Text>
           </Accordion.Control>

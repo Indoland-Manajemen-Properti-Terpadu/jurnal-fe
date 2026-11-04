@@ -16,6 +16,8 @@ interface Source {
   parentId: string | null;
   /** Selected sub (create) or child (edit) account id. */
   childId: string | null;
+  /** Current parent of the edited account; kept in the list even when the category info omits it (a locked parent). */
+  currentParent?: AccountRef;
 }
 
 const accountOption = (acc: AccountRef) => ({
@@ -31,6 +33,7 @@ export const useAccountFormOptions = ({
   possibleSubAccounts,
   parentId,
   childId,
+  currentParent,
 }: Source) => {
   const { t, currentLanguage } = useTranslation('chartOfAccounts');
   const userOptions = useMemo(
@@ -51,10 +54,14 @@ export const useAccountFormOptions = ({
     [rolesData, currentLanguage]
   );
 
-  const headAccountOptions = useMemo(
-    () => possibleHeadAccounts?.map(accountOption) || [],
-    [possibleHeadAccounts]
-  );
+  const headAccountOptions = useMemo(() => {
+    const candidates = possibleHeadAccounts ?? [];
+    const withCurrent =
+      currentParent && !candidates.some((account) => account.id === currentParent.id)
+        ? [currentParent, ...candidates]
+        : candidates;
+    return withCurrent.map(accountOption);
+  }, [possibleHeadAccounts, currentParent]);
 
   const subAccountOptions = useMemo(
     () => possibleSubAccounts?.map(accountOption) || [],

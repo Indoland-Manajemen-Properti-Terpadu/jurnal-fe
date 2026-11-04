@@ -34,6 +34,7 @@ export const navigation = {
   detailJournalTransaction: 'Detail Transaksi Jurnal',
   beginningBalance: 'Saldo Awal Akun',
   accountDetailCB: 'Detail Akun Kas & Bank',
+  importBankStatement: 'Impor Rekening Koran',
   accountDetailNonCB: 'Detail Buku Besar',
   closingBooks: 'Tutup Buku & Kunci Periode',
   assets: 'Asset',

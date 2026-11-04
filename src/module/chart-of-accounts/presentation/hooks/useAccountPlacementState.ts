@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 /** Hierarchy and access state shared by the add and edit account forms. */
 export const useAccountPlacementState = () => {
@@ -8,6 +8,18 @@ export const useAccountPlacementState = () => {
   const [accessScope, setAccessScope] = useState<string>('AllUsers');
   const [specialUsers, setSpecialUsers] = useState<string[]>([]);
   const [certainRoles, setCertainRoles] = useState<string[]>([]);
+
+  // Changing the account type drops the selection that no longer applies
+  useEffect(() => {
+    if (accountType === 'SingleAccount') {
+      setParentId(null);
+      setChildId(null);
+    } else if (accountType === 'SubAccount') {
+      setChildId(null);
+    } else if (accountType === 'HeaderAccount') {
+      setParentId(null);
+    }
+  }, [accountType]);
 
   return {
     accountType,

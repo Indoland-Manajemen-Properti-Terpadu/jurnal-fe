@@ -53,7 +53,11 @@ export interface HierarchyAccessInput {
   certainRolesCount: number;
 }
 
-/** I6: a Sub account needs its head account; a single account with a restricted scope needs members. */
+/** A Header account is always visible to all users; Single and Sub accounts choose their access. */
+export const accountHasAccessChoice = (accountType: string): boolean =>
+  accountType !== 'HeaderAccount';
+
+/** I6: a Sub account needs its head account; an account with a restricted scope needs members. */
 export const isHierarchyAndAccessValid = ({
   accountType,
   headAccountId,
@@ -62,7 +66,7 @@ export const isHierarchyAndAccessValid = ({
   certainRolesCount,
 }: HierarchyAccessInput): boolean => {
   if (accountType === 'SubAccount' && !headAccountId) return false;
-  if (accountType === 'SingleAccount') {
+  if (accountHasAccessChoice(accountType)) {
     if (accessScope === 'SpecialUsers' && specialUsersCount === 0) return false;
     if (accessScope === 'CertainRoles' && certainRolesCount === 0) return false;
   }
@@ -81,5 +85,6 @@ export const canDeleteAccount = (account: { isLocked?: boolean | string }): bool
 export const canArchiveAccount = (account: { isLocked?: boolean | string }): boolean =>
   !account.isLocked;
 
-/** I7: the category (and the hierarchy) of a locked account cannot be changed. */
-export const canChangeCategory = (isLocked: boolean): boolean => !isLocked;
+/** I7: a locked account cannot be edited at all. */
+export const canEditAccount = (account: { isLocked?: boolean | string }): boolean =>
+  !account.isLocked;

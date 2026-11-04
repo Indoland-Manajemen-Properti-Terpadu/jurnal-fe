@@ -1,20 +1,21 @@
 import { useMemo, useState } from 'react';
-import { Alert, Button, Center, Container, Loader, Stack, Text, Title } from '@mantine/core';
+import { Alert, Box, Button, Center, Loader, Stack, Text, Title } from '@mantine/core';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
 import { AppShellLayout } from '@/components/AppShellLayout';
 import { accountDetailData, useDetailAccount } from '@/module/chart-of-accounts';
 import { useJournalEntriesByAccount, type JournalEntryByAccount } from '@/module/journal-entries';
+import { latestTransactionDate } from '../../domain/ledgerPresentation';
 import { summarizeMutations, unwrapAccountDetail } from '../../domain/ledgerSummary';
 import type { LedgerVariant } from '../../domain/ledgerVariant';
 import { getNormalBalance } from '../../domain/normalBalance';
-import { CashBankKpiCards } from '../components/CashBankKpiCards';
+import { CashBankSummary } from '../components/CashBankSummary';
 import { CashBankTabs } from '../components/CashBankTabs';
 import { LedgerAccountDialogs } from '../components/LedgerAccountDialogs';
 import { LedgerHeader } from '../components/LedgerHeader';
-import { NonCashBankKpiCards } from '../components/NonCashBankKpiCards';
-import { NonCashBankTabs } from '../components/NonCashBankTabs';
+import { NonCashBankSummary } from '../components/NonCashBankSummary';
+import { NonCashBankPanel } from '../components/NonCashBankPanel';
 import { useCashBankSummary } from '../hooks/useCashBankSummary';
 import { useLedgerAccountActions } from '../hooks/useLedgerAccountActions';
 
@@ -45,7 +46,7 @@ const AccountLedgerContent: React.FC<AccountLedgerPageProps> = ({ variant }) => 
   });
 
   const [selectedRecords, setSelectedRecords] = useState<JournalEntryByAccount[]>([]);
-  const [activeTab, setActiveTab] = useState(isCashBank ? 'transaction' : 'transactions');
+  const [activeTab, setActiveTab] = useState('transaction');
 
   const normalBalance = useMemo(
     () =>
@@ -58,6 +59,7 @@ const AccountLedgerContent: React.FC<AccountLedgerPageProps> = ({ variant }) => 
     [account.category?.name, account.category?.isDebit, account.type, account.isContra]
   );
   const metrics = useMemo(() => summarizeMutations(entries.data), [entries.data]);
+  const lastEntryDate = useMemo(() => latestTransactionDate(entries.data), [entries.data]);
 
   // The cash/bank tab shows its own entries loader, the other ledger waits for the entries too.
   const isLoading = isCashBank ? isLoadingAccount : isLoadingAccount || entries.isLoading;
@@ -101,8 +103,8 @@ const AccountLedgerContent: React.FC<AccountLedgerPageProps> = ({ variant }) => 
   return (
     <>
       <AppShellLayout>
-        <Container fluid p={{ base: 'md', sm: 'xl' }}>
-          <Stack gap="xl">
+        <Box p={{ base: 'md', sm: 'xl' }}>
+          <Stack gap="lg">
             <LedgerHeader
               variant={variant}
               idAccount={idAccount}
@@ -132,11 +134,14 @@ const AccountLedgerContent: React.FC<AccountLedgerPageProps> = ({ variant }) => 
                     {t('cashBank.alert.after')}
                   </Alert>
                 )}
-                <CashBankKpiCards
+                <CashBankSummary
                   ledgerAmount={account.amount ?? 0}
-                  bankBalance={summary.bankBalance}
-                  unreconciledCount={summary.unreconciledCount}
+                  statementCount={summary.statementCount}
+                  statementNet={summary.statementNet}
+                  unreconciledStatements={summary.unreconciledCount}
+                  unreconciledJournals={summary.unreconciledJournals}
                   journalCount={journalCount}
+                  lastEntryDate={lastEntryDate}
                 />
                 <CashBankTabs
                   idAccount={idAccount}
@@ -151,26 +156,22 @@ const AccountLedgerContent: React.FC<AccountLedgerPageProps> = ({ variant }) => 
               </>
             ) : (
               <>
-                <NonCashBankKpiCards
+                <NonCashBankSummary
                   amount={account.amount ?? 0}
                   normalBalance={normalBalance}
                   metrics={metrics}
+                  lastEntryDate={lastEntryDate}
                 />
-                <NonCashBankTabs
+                <NonCashBankPanel
                   idAccount={idAccount}
-                  account={account}
-                  normalBalance={normalBalance}
-                  activeTab={activeTab}
-                  onChange={setActiveTab}
                   entries={entries}
                   selectedRecords={selectedRecords}
                   setSelectedRecords={setSelectedRecords}
-                  totalCount={metrics.totalCount}
                 />
               </>
             )}
           </Stack>
-        </Container>
+        </Box>
       </AppShellLayout>
 
       <LedgerAccountDialogs
