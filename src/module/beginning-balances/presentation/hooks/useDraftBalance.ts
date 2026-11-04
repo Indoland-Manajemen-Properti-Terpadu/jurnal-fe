@@ -4,13 +4,27 @@ import { t } from '@/i18n';
 import {
   fetchDraftBalance,
   errorMessage,
+  fetchDateLocked,
   fetchDraftBalanceLogs,
+  fetchSimpleAccounts,
   publishBalance,
   saveDraftBalance,
 } from '../../infrastructure/draftBalanceApi';
 
 const tr = (key: string, params?: Record<string, string | number>) =>
   t(key, params, 'beginningBalances');
+
+/** Whether the conversion date is in a locked period; unknown (not locked) while it loads. */
+export const useDateLocked = (date: string | null) =>
+  useQuery({
+    queryKey: ['accounting-period-check', date],
+    queryFn: () => fetchDateLocked(date as string),
+    enabled: Boolean(date),
+  });
+
+/** Every account for the table. Under `['accounts']`, so a new or changed account refreshes it. */
+export const useSimpleAccounts = () =>
+  useQuery({ queryKey: ['accounts', 'simple'], queryFn: fetchSimpleAccounts });
 
 export const useDraftAccount = () => {
   const { data, isLoading, isError, refetch } = useQuery({

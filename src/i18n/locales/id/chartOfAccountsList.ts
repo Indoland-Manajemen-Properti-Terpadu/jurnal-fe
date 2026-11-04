@@ -10,7 +10,7 @@ export const chartOfAccountsList = {
     addJournalTransaction: 'Tambah Transaksi Jurnal',
     menuLedgerConfig: 'Konfigurasi Buku Besar',
     standardAccounts: 'Atur Akun Standar',
-    beginningBalance: 'Saldo Awal (Beginning Balance)',
+    beginningBalance: 'Saldo Awal',
     periodLock: 'Kunci Periode & Tutup Buku',
     addAccount: 'Tambah Akun',
     stats: {

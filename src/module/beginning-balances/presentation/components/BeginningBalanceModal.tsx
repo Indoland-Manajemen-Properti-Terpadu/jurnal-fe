@@ -114,13 +114,7 @@ export const BeginningBalanceModal: React.FC<BeginningBalanceModalProps> = ({
           <Button variant="default" onClick={onClose} radius="md">
             {t('startModal.cancel')}
           </Button>
-          <Button
-            variant="gradient"
-            gradient={{ from: 'primary.6', to: 'secondary.6', deg: 135 }}
-            onClick={handleConfirm}
-            radius="md"
-            rightSection={<IconArrowRight size={16} />}
-          >
+          <Button onClick={handleConfirm} radius="md" rightSection={<IconArrowRight size={16} />}>
             {t('startModal.continue')}
           </Button>
         </Group>

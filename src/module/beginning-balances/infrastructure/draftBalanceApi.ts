@@ -1,13 +1,27 @@
 import axios from 'axios';
 import apiClient from '@/lib/http/apiClient';
 import { API_ACCOUNT } from '@/lib/http/endpoints';
-import type { DraftBalance } from '../domain/beginningBalance';
-import { toDraftBalance } from './draftBalanceMapper';
+import type { BalanceLine } from '../domain/openingBalanceRules';
+import type { BalanceLog, DraftBalance, SimpleAccount } from '../domain/beginningBalance';
+import { toDateLocked, toDraftBalance, toSimpleAccounts } from './draftBalanceMapper';
 
 export type BalancePayload = {
   period: string;
-  balances: unknown[];
-  accounts: unknown[];
+  balances: BalanceLine[];
+};
+
+/** Whether a date falls in a locked accounting period. */
+export const fetchDateLocked = async (date: string): Promise<boolean> => {
+  const { data } = await apiClient.get<unknown>(API_ACCOUNT.GET_ACCOUNTING_PERIOD_CHECK, {
+    params: { date },
+  });
+  return toDateLocked(data);
+};
+
+/** Every account of the chart (id, name, code, side, contra flag), not one page of the list. */
+export const fetchSimpleAccounts = async (): Promise<SimpleAccount[]> => {
+  const { data } = await apiClient.get<unknown>(API_ACCOUNT.GET_SIMPLE_ACCOUNTS);
+  return toSimpleAccounts(data);
 };
 
 /**
@@ -26,14 +40,11 @@ export const fetchDraftBalance = async (): Promise<DraftBalance | undefined> => 
   }
 };
 
-export type DraftBalanceLog = {
+export type DraftBalanceLog = BalanceLog & {
   id?: string;
   _id?: string;
-  action?: string;
   createdAt: string;
-  period?: string;
   performedBy?: { name?: string; email?: string };
-  balances?: { debit?: number | string; credit?: number | string }[];
 };
 
 export const fetchDraftBalanceLogs = async (): Promise<DraftBalanceLog[]> => {
