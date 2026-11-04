@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Badge, Stack, Tabs } from '@mantine/core';
 import {
   IconArrowsExchange,
@@ -7,11 +6,12 @@ import {
   IconReceipt2,
 } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
-import { BankStatementTable, type BankStatementRow } from '@/module/bank-statements';
+import { BankStatementTable } from '@/module/bank-statements';
 import { CashMapping } from '@/module/chart-of-accounts';
 import type { JournalEntryByAccount } from '@/module/journal-entries';
 import { ReconciliationTable } from '@/module/reconciliation';
 import { LedgerTabsShell } from './LedgerTabsShell';
+import { TabCount } from './TabCount';
 import { LedgerTransactionsPanel } from './LedgerTransactionsPanel';
 
 type PanelProps = React.ComponentProps<typeof LedgerTransactionsPanel>;
@@ -43,7 +43,6 @@ export const CashBankTabs: React.FC<CashBankTabsProps> = ({
   unreconciledCount,
 }) => {
   const { t } = useTranslation('accountLedger');
-  const [selectedStatements, setSelectedStatements] = useState<BankStatementRow[]>([]);
   const journalCount = entries.data?.length || 0;
 
   const tabs = (
@@ -51,13 +50,7 @@ export const CashBankTabs: React.FC<CashBankTabsProps> = ({
       <Tabs.Tab
         value="transaction"
         leftSection={<IconReceipt2 size={16} />}
-        rightSection={
-          journalCount > 0 ? (
-            <Badge size="xs" variant="light" color="primary">
-              {journalCount}
-            </Badge>
-          ) : null
-        }
+        rightSection={<TabCount value={journalCount} />}
       >
         {t('cashBank.tabs.transaction')}
       </Tabs.Tab>
@@ -65,13 +58,7 @@ export const CashBankTabs: React.FC<CashBankTabsProps> = ({
       <Tabs.Tab
         value="bankStatement"
         leftSection={<IconFileSpreadsheet size={16} />}
-        rightSection={
-          statementCount > 0 ? (
-            <Badge size="xs" variant="light" color="blue">
-              {statementCount}
-            </Badge>
-          ) : null
-        }
+        rightSection={<TabCount value={statementCount} />}
       >
         {t('cashBank.tabs.bankStatement')}
       </Tabs.Tab>
@@ -84,11 +71,7 @@ export const CashBankTabs: React.FC<CashBankTabsProps> = ({
             <Badge color="orange" size="xs" circle>
               {unreconciledCount}
             </Badge>
-          ) : (
-            <Badge color="teal" size="xs" variant="light">
-              {t('cashBank.tabs.matched')}
-            </Badge>
-          )
+          ) : null
         }
       >
         {t('cashBank.tabs.reconciliation')}
@@ -113,12 +96,7 @@ export const CashBankTabs: React.FC<CashBankTabsProps> = ({
       </Tabs.Panel>
 
       <Tabs.Panel value="bankStatement" pt="xs">
-        <Stack gap="md">
-          <BankStatementTable
-            selectedRecords={selectedStatements}
-            setSelectedRecords={setSelectedStatements}
-          />
-        </Stack>
+        <BankStatementTable />
       </Tabs.Panel>
 
       <Tabs.Panel value="reconciliation" pt="xs">

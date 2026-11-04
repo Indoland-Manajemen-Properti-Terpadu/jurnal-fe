@@ -11,14 +11,7 @@ import {
   Tooltip,
 } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
-import {
-  IconCalendar,
-  IconPlus,
-  IconRefresh,
-  IconSearch,
-  IconTrash,
-  IconX,
-} from '@tabler/icons-react';
+import { IconCalendar, IconRefresh, IconSearch, IconBan, IconX } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
@@ -28,7 +21,7 @@ import { JournalEmptyState } from '@/components/EmptyState/JournalEmptyState';
 import deleteModalImage from '@/assets/images/illustrations/delete-confirm.svg';
 import {
   JournalEntriesTable,
-  useDeleteJournalEntries,
+  useVoidJournalEntries,
   useFilterTransaction,
   type JournalEntryByAccount,
 } from '@/module/journal-entries';
@@ -50,7 +43,7 @@ interface LedgerTransactionsPanelProps {
 }
 
 /**
- * Filter toolbar, journal rows of the account and the bulk delete of the selected rows. The
+ * Filter toolbar, journal rows of the account and the bulk void of the selected rows. The
  * cash/bank ledger shows its own loading and error state here; the other ledger already waits
  * for the entries before it renders the page.
  */
@@ -64,22 +57,22 @@ export const LedgerTransactionsPanel: React.FC<LedgerTransactionsPanelProps> = (
   const { t } = useTranslation('accountLedger');
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const deleteMutation = useDeleteJournalEntries();
+  const voidMutation = useVoidJournalEntries();
   const { searchQuery, setSearchQuery, selectedDate, setSelectedDate, resetSelection } =
     useFilterTransaction();
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isVoidModalOpen, setIsVoidModalOpen] = useState(false);
   const count = selectedRecords.length;
   const goToCreate = () => navigate(routes.journalEntries.add);
 
-  const handleDeleteSelected = () => {
+  const handleVoidSelected = () => {
     if (!idAccount || count === 0) return;
     const ids = selectedRecords.map((record) => record.id);
-    deleteMutation.mutate(
+    voidMutation.mutate(
       { ids, idAccount },
       {
         onSuccess: () => {
           setSelectedRecords([]);
-          setIsDeleteModalOpen(false);
+          setIsVoidModalOpen(false);
           queryClient.invalidateQueries({ queryKey: ['transaction_by_account', idAccount] });
           queryClient.invalidateQueries({ queryKey: ['detail_account', idAccount] });
         },
@@ -163,15 +156,25 @@ export const LedgerTransactionsPanel: React.FC<LedgerTransactionsPanelProps> = (
           )}
 
           {count > 0 && (
-            <Button
-              size="sm"
-              color="red"
-              variant="light"
-              leftSection={<IconTrash size={16} />}
-              onClick={() => setIsDeleteModalOpen(true)}
-            >
-              {t('entries.deleteSelected', { count })}
-            </Button>
+            <>
+              <Button
+                variant="subtle"
+                color="gray"
+                size="sm"
+                onClick={() => setSelectedRecords([])}
+              >
+                {t('entries.clearSelection')}
+              </Button>
+              <Button
+                size="sm"
+                color="red"
+                variant="light"
+                leftSection={<IconBan size={16} />}
+                onClick={() => setIsVoidModalOpen(true)}
+              >
+                {t('entries.voidSelected', { count })}
+              </Button>
+            </>
           )}
         </Group>
 
@@ -187,16 +190,6 @@ export const LedgerTransactionsPanel: React.FC<LedgerTransactionsPanelProps> = (
               <IconRefresh size={18} />
             </ActionIcon>
           </Tooltip>
-
-          <Button
-            size="sm"
-            variant="gradient"
-            gradient={{ from: 'primary.6', to: 'secondary.6', deg: 135 }}
-            leftSection={<IconPlus size={16} />}
-            onClick={goToCreate}
-          >
-            {t(`entries.${variant}.createButton`)}
-          </Button>
         </Group>
       </Group>
 
@@ -208,22 +201,22 @@ export const LedgerTransactionsPanel: React.FC<LedgerTransactionsPanelProps> = (
       />
 
       <ConfirmModal
-        opened={isDeleteModalOpen}
-        onClose={() => setIsDeleteModalOpen(false)}
-        onConfirm={handleDeleteSelected}
-        title={t('entries.deleteTitle')}
+        opened={isVoidModalOpen}
+        onClose={() => setIsVoidModalOpen(false)}
+        onConfirm={handleVoidSelected}
+        title={t('entries.voidTitle')}
         message={
           <>
-            {t('entries.deleteConfirmBefore')}
-            <strong>{t('entries.deleteConfirmStrong', { count })}</strong>
-            {t('entries.deleteConfirmAfter')}
+            {t('entries.voidConfirmBefore')}
+            <strong>{t('entries.voidConfirmStrong', { count })}</strong>
+            {t('entries.voidConfirmAfter')}
           </>
         }
-        helperText={t('entries.deleteHelper')}
+        helperText={t('entries.voidHelper')}
         imageSrc={deleteModalImage}
-        confirmLabel={t('entries.deleteConfirmLabel', { count })}
+        confirmLabel={t('entries.voidConfirmLabel', { count })}
         cancelLabel={t('common.cancel')}
-        confirmLoading={deleteMutation.isPending}
+        confirmLoading={voidMutation.isPending}
       />
     </Stack>
   );

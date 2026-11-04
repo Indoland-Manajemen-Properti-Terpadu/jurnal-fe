@@ -1,5 +1,5 @@
 import React from 'react';
-import { Badge, Button, Group, Paper, SimpleGrid, Text } from '@mantine/core';
+import { Button, Group, Paper, SimpleGrid, Text } from '@mantine/core';
 import { IconSparkles } from '@tabler/icons-react';
 import { themeColors } from '@/theme';
 import { useTranslation } from '@/i18n';
@@ -61,9 +61,9 @@ export const AccountPresetPicker: React.FC<AccountPresetPickerProps> = ({ onAppl
             justify="flex-start"
             fullWidth
             leftSection={
-              <Badge size="xs" variant="light" color="primary" ff="monospace">
+              <Text fz="var(--jurnal-text-xs)" c="dimmed" ff="monospace">
                 {preset.prefix}
-              </Badge>
+              </Text>
             }
             styles={{
               root: {

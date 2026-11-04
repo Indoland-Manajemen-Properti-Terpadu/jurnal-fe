@@ -1,4 +1,3 @@
-import axios from 'axios';
 import apiClient from '@/lib/http/apiClient';
 import { API_ACCOUNT } from '@/lib/http/endpoints';
 import { recommendedBalance } from '../domain/matchRules';
@@ -46,9 +45,3 @@ export const matchReconciliation = async (payload: MatchPayload): Promise<unknow
   const { data } = await apiClient.post<unknown>(API_ACCOUNT.MATCH_RECONCILIATION, payload);
   return data;
 };
-
-/** The server's own message of a failed match, else the transport message. */
-export const matchErrorMessage = (error: unknown): string | undefined =>
-  axios.isAxiosError<{ message?: string }>(error)
-    ? error.response?.data?.message || error.message
-    : (error as { message?: string } | null)?.message;

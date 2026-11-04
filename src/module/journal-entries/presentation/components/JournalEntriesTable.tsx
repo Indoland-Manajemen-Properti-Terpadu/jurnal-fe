@@ -1,4 +1,5 @@
-import { Text, Anchor, Group, Badge, ActionIcon, Tooltip } from '@mantine/core';
+import { useEffect, useState } from 'react';
+import { Text, Anchor, Group, ActionIcon, Tooltip } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
 import { themeColors } from '@/theme';
@@ -11,6 +12,8 @@ import { IconEye } from '@tabler/icons-react';
 import useFilterTransaction from '../store/useFilterTransactionStore';
 import type { JournalEntryByAccount } from '../../domain/journalEntry';
 import { filterEntries } from '../../domain/entryFilter';
+import { voidGate } from '../../domain/journalVoid';
+import { DEFAULT_PAGE_SIZE, PAGE_SIZE_OPTIONS, paginate } from '../../domain/paginate';
 
 interface JournalEntriesTableProps {
   selectedRecords: JournalEntryByAccount[];
@@ -39,28 +42,54 @@ function JournalEntriesTable({
     ? filterEntries(transaction, searchQuery, selectedDate)
     : undefined;
 
+  // The server answers the whole list; the table only shows a page of it at a time.
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
+  const filtered = searchAndFilterTransaction ?? [];
+  const paged = paginate(filtered, page, pageSize);
+  const showPagination = filtered.length > PAGE_SIZE_OPTIONS[0];
+
+  useEffect(() => {
+    setPage(1);
+  }, [searchQuery, selectedDate, pageSize]);
+
   const columns = [
     {
       accessor: 'transactionNumber',
+      width: 260,
       title: <Text style={headTableStyle}>{t('entriesTable.number')}</Text>,
       render: (row: JournalEntryByAccount) => (
         <Group gap="xs" wrap="nowrap">
           {row.transactionNumber === 0 ? (
-            <Badge color="gray" variant="light" size="sm">
+            <Text c="dimmed" fz="var(--jurnal-text-sm)" fw={500}>
               {t('entriesTable.openingBalance')}
-            </Badge>
+            </Text>
           ) : (
             <Anchor
               underline="hover"
               fw={600}
               c="primary.6"
               fz="var(--jurnal-text-sm)"
+              style={{
+                whiteSpace: 'nowrap',
+                textDecoration: row.status === 'VOID' ? 'line-through' : undefined,
+              }}
               onClick={() =>
                 navigate(routes.journalEntries.detail.replace(':idTransaction', row.id))
               }
             >
               {t('entriesTable.entryLink', { number: row.transactionNumber })}
             </Anchor>
+          )}
+          {row.status === 'VOID' && (
+            <Text c="red.7" fz="var(--jurnal-text-xs)" fw={600}>
+              {t('entriesTable.statusVoid')}
+            </Text>
+          )}
+          {row.status === 'REVERSAL' && (
+            <Text c="dimmed" fz="var(--jurnal-text-xs)" fw={600}>
+              {t('entriesTable.statusReversal')}
+            </Text>
           )}
         </Group>
       ),
@@ -75,11 +104,17 @@ function JournalEntriesTable({
       ),
     },
     {
-      accessor: 'contact',
-      title: <Text style={headTableStyle}>{t('entriesTable.contact')}</Text>,
-      render: () => (
-        <Text c="dimmed" fz="var(--jurnal-text-sm)">
-          -
+      accessor: 'notes',
+      title: <Text style={headTableStyle}>{t('entriesTable.notes')}</Text>,
+      render: (row: JournalEntryByAccount) => (
+        <Text
+          c={row.notes ? 'dark.7' : 'dimmed'}
+          fz="var(--jurnal-text-sm)"
+          w={120}
+          truncate="end"
+          title={row.notes || undefined}
+        >
+          {row.notes || '—'}
         </Text>
       ),
     },
@@ -87,17 +122,17 @@ function JournalEntriesTable({
       accessor: 'debit',
       title: t('entriesTable.debit'),
       textAlignment: 'right' as const,
-      width: 170,
+      width: 140,
       titleStyle: { textAlign: 'right' as const },
       render: (row: JournalEntryByAccount) => (
         <Text
-          c={row.debit && row.debit > 0 ? 'teal.7' : 'dimmed'}
+          c={row.debit && row.debit > 0 ? 'dark.8' : 'dimmed'}
           fw={row.debit && row.debit > 0 ? 600 : 400}
           fz="var(--jurnal-text-sm)"
           ta="right"
           style={{ fontVariantNumeric: 'tabular-nums' }}
         >
-          {formatCurrency(row.debit || 0)}
+          {row.debit && row.debit > 0 ? formatCurrency(row.debit) : '—'}
         </Text>
       ),
     },
@@ -105,17 +140,17 @@ function JournalEntriesTable({
       accessor: 'credit',
       title: t('entriesTable.credit'),
       textAlignment: 'right' as const,
-      width: 170,
+      width: 140,
       titleStyle: { textAlign: 'right' as const },
       render: (row: JournalEntryByAccount) => (
         <Text
-          c={row.credit && row.credit > 0 ? 'red.7' : 'dimmed'}
+          c={row.credit && row.credit > 0 ? 'dark.8' : 'dimmed'}
           fw={row.credit && row.credit > 0 ? 600 : 400}
           fz="var(--jurnal-text-sm)"
           ta="right"
           style={{ fontVariantNumeric: 'tabular-nums' }}
         >
-          {formatCurrency(row.credit || 0)}
+          {row.credit && row.credit > 0 ? formatCurrency(row.credit) : '—'}
         </Text>
       ),
     },
@@ -123,7 +158,7 @@ function JournalEntriesTable({
       accessor: 'status',
       title: t('entriesTable.runningBalance'),
       textAlignment: 'right' as const,
-      width: 190,
+      width: 160,
       titleStyle: { textAlign: 'right' as const },
       render: (row: JournalEntryByAccount) => {
         const bal = row.balance ?? 0;
@@ -145,7 +180,7 @@ function JournalEntriesTable({
       title: t('entriesTable.action'),
       textAlignment: 'center' as const,
       titleStyle: { textAlign: 'center' as const },
-      width: 70,
+      width: 84,
       render: (row: JournalEntryByAccount) => (
         <Group justify="center">
           <Tooltip label={t('entriesTable.viewTooltip')}>
@@ -170,18 +205,35 @@ function JournalEntriesTable({
     return <>{noRecordsContent || <EmptyState />}</>;
   }
 
+  const common = {
+    withTableBorder: true,
+    borderRadius: 'md' as const,
+    highlightOnHover: true,
+    columns,
+    selectedRecords,
+    onSelectedRecordsChange: setSelectedRecords,
+    records: paged.rows,
+    isRecordSelectable: (row: JournalEntryByAccount) =>
+      row.transactionNumber !== 0 && voidGate(row).allowed,
+    noRecordsText: t('entriesTable.noMatch'),
+    verticalSpacing: 'sm' as const,
+  };
+
+  if (!showPagination) return <DataTable {...common} />;
+
   return (
     <DataTable
-      withTableBorder
-      borderRadius="md"
-      highlightOnHover
-      columns={columns}
-      selectedRecords={selectedRecords}
-      onSelectedRecordsChange={setSelectedRecords}
-      records={searchAndFilterTransaction || []}
-      isRecordSelectable={(row: JournalEntryByAccount) => row.transactionNumber !== 0}
-      noRecordsText={t('entriesTable.noMatch')}
-      verticalSpacing="sm"
+      {...common}
+      totalRecords={filtered.length}
+      page={paged.page}
+      onPageChange={setPage}
+      recordsPerPage={pageSize}
+      recordsPerPageOptions={PAGE_SIZE_OPTIONS}
+      onRecordsPerPageChange={setPageSize}
+      recordsPerPageLabel={t('entriesTable.perPage')}
+      paginationText={({ from, to, totalRecords }) =>
+        t('entriesTable.paginationText', { from, to, total: totalRecords })
+      }
     />
   );
 }

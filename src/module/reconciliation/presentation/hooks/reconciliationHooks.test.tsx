@@ -112,12 +112,14 @@ describe('useMatchReconciliation', () => {
     ]);
   });
 
-  it('shows the server message and no success toast when the request fails', async () => {
+  it('shows a reason the user can act on, never the raw server text, and no success toast', async () => {
     const { invalidate } = await run('fail');
     expect(notifications.show).toHaveBeenCalledTimes(1);
-    expect(vi.mocked(notifications.show).mock.calls[0][0]).toMatchObject({
-      message: 'Jumlah tidak sama',
+    const toast = vi.mocked(notifications.show).mock.calls[0][0];
+    expect(toast).toMatchObject({
+      message: 'Rekonsiliasi gagal. Periksa pilihan Anda lalu coba lagi.',
     });
+    expect(String(toast.message)).not.toContain('Jumlah tidak sama');
     expect(invalidate).not.toHaveBeenCalled();
   });
 });

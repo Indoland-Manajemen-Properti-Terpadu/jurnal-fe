@@ -1,5 +1,6 @@
 import { Badge, Button, Group, Stack, Text } from '@mantine/core';
 import {
+  IconArchive,
   IconArrowLeft,
   IconBuildingBank,
   IconLock,
@@ -10,7 +11,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
 import { routes } from '@/router/routes';
 import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
-import type { DetailAccountModel } from '@/module/chart-of-accounts';
+import { canEditAccount, type DetailAccountModel } from '@/module/chart-of-accounts';
 import type { LedgerVariant } from '../../domain/ledgerVariant';
 import type { NormalSide } from '../../domain/normalBalance';
 import { LedgerAccountMenu } from './LedgerAccountMenu';
@@ -44,53 +45,59 @@ export const LedgerHeader: React.FC<LedgerHeaderProps> = ({
 
   const statusBadges = (
     <>
-      {account.isArchived && (
-        <Badge variant="filled" color="gray" size={isCashBank ? undefined : 'sm'} radius="sm">
-          {t('common.archivedBadge')}
+      {account.isLocked && (
+        <Badge variant="light" color="gray" radius="sm" leftSection={<IconLock size={12} />}>
+          {t(`${variant}.lockedBadge`)}
         </Badge>
       )}
-      {account.isLocked && (
-        <Badge
-          variant="light"
-          color={isCashBank ? 'blue' : 'orange'}
-          size={isCashBank ? undefined : 'sm'}
-          radius="sm"
-          leftSection={<IconLock size={12} />}
-        >
-          {t(`${variant}.lockedBadge`)}
+      {account.isArchived && (
+        <Badge variant="light" color="gray" radius="sm" leftSection={<IconArchive size={12} />}>
+          {t('common.archivedBadge')}
         </Badge>
       )}
     </>
   );
 
+  const metaParts = isCashBank
+    ? [
+        t('cashBank.typeBadge'),
+        categoryName && categoryName !== GENERIC_CATEGORY ? categoryName : null,
+      ].filter((part): part is string => Boolean(part))
+    : [
+        categoryName || t('nonCashBank.categoryFallback'),
+        t('nonCashBank.sideLine', { side: t(`common.side.${normalBalance}`) }),
+        account.headerAccount
+          ? t('nonCashBank.parentLine', {
+              parent:
+                `${account.headerAccount.accountNumber ?? ''} ${account.headerAccount.name ?? ''}`.trim(),
+            })
+          : null,
+      ].filter((part): part is string => Boolean(part));
+
   const description = (
     <Stack gap={6}>
       <Group gap="xs" wrap="wrap" align="center">
-        <Badge variant="outline" color="primary" radius="sm" ff="monospace" fw={700}>
+        <Text
+          fz="var(--jurnal-text-sm)"
+          fw={700}
+          c="dark.8"
+          style={{ fontVariantNumeric: 'tabular-nums' }}
+        >
           {account.accountNumber}
-        </Badge>
-        {isCashBank ? (
-          <>
-            <Badge variant="light" color="teal" radius="sm">
-              {t('cashBank.typeBadge')}
-            </Badge>
-            {categoryName && categoryName !== GENERIC_CATEGORY && (
-              <Badge variant="light" color="gray" radius="sm">
-                {categoryName}
-              </Badge>
-            )}
-          </>
-        ) : (
-          <Text size="xs" c="dimmed">
-            {t('nonCashBank.categoryLine', {
-              category: categoryName || t('nonCashBank.categoryFallback'),
-              side: t(`common.side.${normalBalance}`),
-            })}
-          </Text>
-        )}
+        </Text>
+        {metaParts.map((part) => (
+          <Group key={part} gap={6} wrap="nowrap">
+            <Text fz="var(--jurnal-text-sm)" c="dimmed" aria-hidden>
+              ·
+            </Text>
+            <Text fz="var(--jurnal-text-sm)" c="dimmed">
+              {part}
+            </Text>
+          </Group>
+        ))}
         {statusBadges}
       </Group>
-      <Text size="sm" c="dimmed" mt={2}>
+      <Text size="sm" c="dimmed">
         {account.description || t(`${variant}.defaultDescription`)}
       </Text>
     </Stack>
@@ -114,22 +121,23 @@ export const LedgerHeader: React.FC<LedgerHeaderProps> = ({
         <Group gap="xs" wrap="wrap">
           <Button
             variant="default"
-            size="sm"
+            size="md"
             leftSection={<IconArrowLeft size={16} />}
             onClick={() => navigate(routes.chartOfAccounts.main)}
           >
             {t('common.back')}
           </Button>
 
-          <Button
-            variant="light"
-            size="sm"
-            color="primary"
-            leftSection={<IconPencil size={16} />}
-            onClick={() => navigate(routes.chartOfAccounts.edit.replace(':idAccount', idAccount))}
-          >
-            {t('common.editAccount')}
-          </Button>
+          {canEditAccount(account) && (
+            <Button
+              variant="default"
+              size="md"
+              leftSection={<IconPencil size={16} />}
+              onClick={() => navigate(routes.chartOfAccounts.edit.replace(':idAccount', idAccount))}
+            >
+              {t('common.editAccount')}
+            </Button>
+          )}
 
           <LedgerAccountMenu
             account={account}

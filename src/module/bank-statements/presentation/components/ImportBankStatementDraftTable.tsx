@@ -1,7 +1,17 @@
-import { ActionIcon, Group, Text, TextInput, Modal, Stack, Button, Flex } from '@mantine/core';
+import {
+  ActionIcon,
+  Group,
+  Text,
+  TextInput,
+  Modal,
+  Stack,
+  Button,
+  Flex,
+  Tooltip,
+} from '@mantine/core';
 import { DataTable, DataTableColumn } from 'mantine-datatable';
 import { formatCurrency } from '@/utils/formatCurrency';
-import EmptyState from '@/components/EmptyState/EmptyTable';
+import { EmptyState } from '@/components/EmptyState';
 import { IconCalendar, IconPencil, IconTrash } from '@tabler/icons-react';
 import { themeColors } from '@/theme';
 import { useState } from 'react';
@@ -11,12 +21,22 @@ import { useTranslation } from '@/i18n';
 import { useBankStatementStore } from '../store/useBankStatementStore';
 import { BankStatementPreviewItem } from '../../domain/importPreview';
 import { filledSides } from '../../domain/importDraft';
+import { validateImportRow } from '../../domain/importValidation';
+import type { DuplicateReason } from '../../domain/statementSummary';
 
 interface ImportBankStatementDraftTableProps {
   records: BankStatementPreviewItem[];
   selectedRecords?: BankStatementPreviewItem[];
   onSelectedRecordsChange?: (records: BankStatementPreviewItem[]) => void;
+  /** Rows that repeat another row, by `rowIndex`. */
+  duplicates?: Map<number, DuplicateReason>;
 }
+
+/** A plain number is formatted; anything else (`1.000.000,50`) is shown as typed, so it is not read as `1`. */
+const amountOrRaw = (value: string): string => {
+  if (!value) return '-';
+  return /^\d+(\.\d+)?$/.test(value.trim()) ? formatCurrency(Number(value)) : value;
+};
 
 const headTableStyle = {
   fontSize: 'var(--jurnal-text-sm)',
@@ -28,6 +48,7 @@ const ImportBankStatementDraftTable = ({
   records,
   selectedRecords,
   onSelectedRecordsChange,
+  duplicates,
 }: ImportBankStatementDraftTableProps) => {
   const { t } = useTranslation('bankStatements');
   const [editModalOpened, setEditModalOpened] = useState(false);
@@ -51,6 +72,8 @@ const ImportBankStatementDraftTable = ({
   );
 
   const { hasReceived, hasSpent } = filledSides(editData);
+  // An edited row is valid only when it passes the same rules as the preview.
+  const editErrors = editData ? validateImportRow(editData) : [];
 
   const handleFieldChange = (
     field: 'Description' | 'TransactionDate' | 'Received' | 'Spent',
@@ -86,14 +109,21 @@ const ImportBankStatementDraftTable = ({
       accessor: 'Description',
       title: <Text style={headTableStyle}>{t('draftTable.description')}</Text>,
       render: (element) => (
-        <Text
-          size="sm"
-          fz="var(--jurnal-text-sm)"
-          fw={400}
-          c={!element.isDescriptionValid ? themeColors.red[6] : themeColors.black[9]}
-        >
-          {element.Description || '-'}
-        </Text>
+        <Stack gap={2}>
+          <Text
+            size="sm"
+            fz="var(--jurnal-text-sm)"
+            fw={400}
+            c={!element.isDescriptionValid ? themeColors.red[6] : themeColors.black[9]}
+          >
+            {element.Description || '-'}
+          </Text>
+          {duplicates?.has(element.rowIndex) && (
+            <Text fz="var(--jurnal-text-xs)" c="orange.8">
+              {t(`importDraft.duplicates.${duplicates.get(element.rowIndex)}`)}
+            </Text>
+          )}
+        </Stack>
       ),
     },
     {
@@ -125,7 +155,7 @@ const ImportBankStatementDraftTable = ({
           fw={400}
           c={!element.isReceivedValid ? themeColors.red[6] : themeColors.black[9]}
         >
-          {element.Received ? formatCurrency(parseFloat(element.Received) || 0) : '-'}
+          {amountOrRaw(element.Received)}
         </Text>
       ),
     },
@@ -139,16 +169,7 @@ const ImportBankStatementDraftTable = ({
           fw={400}
           c={!element.isSpentValid ? themeColors.red[6] : themeColors.black[9]}
         >
-          {element.Spent ? formatCurrency(parseFloat(element.Spent) || 0) : '-'}
-        </Text>
-      ),
-    },
-    {
-      accessor: 'Balance',
-      title: <Text style={headTableStyle}>{t('draftTable.balance')}</Text>,
-      render: () => (
-        <Text size="sm" fz="var(--jurnal-text-sm)" fw={400} c={themeColors.black[9]}>
-          {formatCurrency(0)}
+          {amountOrRaw(element.Spent)}
         </Text>
       ),
     },
@@ -161,12 +182,26 @@ const ImportBankStatementDraftTable = ({
       ),
       render: (element) => (
         <Group gap="xs" justify="center">
-          <ActionIcon variant="subtle" color="blue" onClick={() => handleEditClick(element)}>
-            <IconPencil size={18} />
-          </ActionIcon>
-          <ActionIcon variant="subtle" color="red" onClick={() => handleDelete(element.rowIndex)}>
-            <IconTrash size={18} />
-          </ActionIcon>
+          <Tooltip label={t('draftTable.editTitle')}>
+            <ActionIcon
+              variant="subtle"
+              color="gray"
+              aria-label={t('draftTable.editTitle')}
+              onClick={() => handleEditClick(element)}
+            >
+              <IconPencil size={18} />
+            </ActionIcon>
+          </Tooltip>
+          <Tooltip label={t('importDraft.deleteSelected', { count: 1 })}>
+            <ActionIcon
+              variant="subtle"
+              color="gray"
+              aria-label={t('importDraft.deleteSelected', { count: 1 })}
+              onClick={() => handleDelete(element.rowIndex)}
+            >
+              <IconTrash size={18} />
+            </ActionIcon>
+          </Tooltip>
         </Group>
       ),
     },
@@ -185,9 +220,15 @@ const ImportBankStatementDraftTable = ({
         records={records}
         selectedRecords={selectedRecords}
         onSelectedRecordsChange={onSelectedRecordsChange}
-        emptyState={<EmptyState />}
+        emptyState={
+          <EmptyState
+            title={t('table.noMatchTitle')}
+            description={t('table.noMatchDescription')}
+            py={32}
+          />
+        }
         rowStyle={(record) => ({
-          backgroundColor: !record.isValid ? themeColors.red[0] : 'inherit',
+          backgroundColor: !record.isValid ? 'var(--mantine-color-red-0)' : 'inherit',
         })}
         styles={{
           root: { borderColor: 'var(--mantine-color-gray-2)' },
@@ -239,16 +280,24 @@ const ImportBankStatementDraftTable = ({
               disabled={hasReceived}
             />
           </Group>
+          {editErrors.length > 0 && (
+            <Stack gap={2}>
+              {editErrors.map((error) => (
+                <Text key={error.code} fz="var(--jurnal-text-xs)" c="red.7">
+                  {t(`importDraft.errors.${error.code}`, { fields: error.detail ?? '' })}
+                </Text>
+              ))}
+            </Stack>
+          )}
           <Flex justify="flex-end" gap="sm" mt="md">
-            <Button variant="light" color="gray" onClick={() => setEditModalOpened(false)}>
+            <Button variant="default" onClick={() => setEditModalOpened(false)}>
               {t('draftTable.cancel')}
             </Button>
             <Button
-              variant="filled"
-              color={themeColors.primary[5]}
+              color="primary"
               onClick={handleSaveChange}
               leftSection={<IconPencil size={16} />}
-              disabled={!isChanged}
+              disabled={!isChanged || editErrors.length > 0}
             >
               {t('draftTable.save')}
             </Button>

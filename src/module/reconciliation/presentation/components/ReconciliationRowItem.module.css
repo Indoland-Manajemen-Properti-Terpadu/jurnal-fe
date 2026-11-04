@@ -1,0 +1,35 @@
+.row {
+  display: grid;
+  grid-template-columns: 1fr;
+  border-top: 1px solid var(--jurnal-color-border-subtle);
+}
+
+.row[data-selected='true'] {
+  background: color-mix(in srgb, var(--mantine-color-primary-6) 5%, transparent);
+}
+
+@media (min-width: 62em) {
+  .row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.bank,
+.journal {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--mantine-spacing-md);
+  padding: var(--mantine-spacing-md);
+  min-width: 0;
+}
+
+.journal {
+  display: block;
+  background: var(--jurnal-color-surface-muted);
+}
+
+@media (min-width: 62em) {
+  .journal {
+    border-left: 1px solid var(--jurnal-color-border-subtle);
+  }
+}

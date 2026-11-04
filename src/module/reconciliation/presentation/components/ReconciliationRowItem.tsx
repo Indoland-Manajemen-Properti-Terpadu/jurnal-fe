@@ -1,197 +1,172 @@
-import { ActionIcon, Box, Checkbox, Group, Paper, SimpleGrid, Stack, Text } from '@mantine/core';
-import { CheckCircle, MagnifyingGlass, Trash } from '@phosphor-icons/react';
-import { themeColors } from '@/theme';
+import { ActionIcon, Button, Checkbox, Group, Stack, Text, Tooltip } from '@mantine/core';
+import { IconAlertTriangle, IconSearch, IconX } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import { formatCurrency } from '@/utils/formatCurrency';
 import { dateFormatV1 } from '@/utils/formatDate';
 import type { BankStatementData, JournalDetail } from '../../domain/reconciliation';
-import DirectionBadge from './DirectionBadge';
+import DirectionText from './DirectionText';
+import classes from './ReconciliationRowItem.module.css';
 
 interface ReconciliationRowItemProps {
   bankStatement: BankStatementData;
   journalTransactions: JournalDetail[];
+  /** Days between the statement and the top suggestion. */
+  dayDifference?: number;
   selected: boolean;
+  /** Another selected row already holds the journal line this row suggests. */
+  blocked: boolean;
+  /** Another row suggests one of the same journal lines. */
+  sharesSuggestion: boolean;
   onToggle: (id: string) => void;
-  onRemove: (id: string) => void;
+  onDismiss: (id: string) => void;
   onFind: (bankStatement: BankStatementData) => void;
 }
 
+const amountText = (amount: number) => (
+  <Text
+    fz="var(--jurnal-text-md)"
+    fw={700}
+    c="dark.8"
+    style={{ fontVariantNumeric: 'tabular-nums' }}
+  >
+    {formatCurrency(Math.abs(amount))}
+  </Text>
+);
+
+/** One statement row on the left, its suggested journal lines (or a search) on the right. */
 const ReconciliationRowItem: React.FC<ReconciliationRowItemProps> = ({
   bankStatement,
   journalTransactions,
+  dayDifference,
   selected,
+  blocked,
+  sharesSuggestion,
   onToggle,
-  onRemove,
+  onDismiss,
   onFind,
 }) => {
   const { t } = useTranslation('reconciliation');
-  const hasJournals = journalTransactions.length > 0;
+  const hasSuggestion = journalTransactions.length > 0;
+  const checkboxDisabled = !hasSuggestion || (blocked && !selected);
 
   return (
-    <SimpleGrid cols={2} spacing={0} style={{ borderTop: `1px solid ${themeColors.gray[1]}` }}>
-      {/* Left side: bank statement */}
-      <Box p="md" bg={themeColors.blue[0]} style={{ position: 'relative' }}>
-        <Group wrap="nowrap" align="center" gap="md">
-          <Checkbox
-            size="xs"
-            radius="xs"
-            disabled={!hasJournals}
-            checked={selected}
-            onChange={() => onToggle(bankStatement.id)}
-            color={themeColors.primary[6]}
-            styles={{
-              input: {
-                cursor: !hasJournals ? 'not-allowed' : 'pointer',
-                '&:not(:checked)': {
-                  backgroundColor: 'white',
-                },
-              },
-            }}
-          />
-          <Paper
-            withBorder
-            p="sm"
-            radius="md"
-            flex={1}
-            bg="white"
-            style={{ borderLeft: `4px solid ${themeColors.blue[6]}` }}
-          >
-            <Stack gap="xs">
-              <Group justify="space-between" align="flex-start">
-                <Stack gap={0}>
-                  <Text size="xs" c={themeColors.gray[6]} fw={400}>
-                    {dateFormatV1(bankStatement.date)}
+    <div className={classes.row} data-selected={selected}>
+      <div className={classes.bank}>
+        <Tooltip
+          label={blocked ? t('row.blockedHint') : t('row.noSuggestionHint')}
+          disabled={!checkboxDisabled}
+          openDelay={300}
+        >
+          <span>
+            <Checkbox
+              aria-label={t('row.select', { description: bankStatement.description })}
+              checked={selected}
+              disabled={checkboxDisabled}
+              onChange={() => onToggle(bankStatement.id)}
+            />
+          </span>
+        </Tooltip>
+        <Group
+          justify="space-between"
+          align="flex-start"
+          wrap="nowrap"
+          style={{ flex: 1, minWidth: 0 }}
+        >
+          <Stack gap={2} style={{ minWidth: 0 }}>
+            <Text fz="var(--jurnal-text-xs)" c="dimmed">
+              {dateFormatV1(bankStatement.date)}
+            </Text>
+            <Text fz="var(--jurnal-text-sm)" fw={600} c="dark.8" lineClamp={2}>
+              {bankStatement.description}
+            </Text>
+          </Stack>
+          <Stack gap={0} align="flex-end" style={{ flexShrink: 0 }}>
+            {amountText(bankStatement.amount)}
+            <DirectionText received={bankStatement.amount > 0} />
+          </Stack>
+        </Group>
+      </div>
+
+      <div className={classes.journal}>
+        {hasSuggestion ? (
+          <Stack gap="xs">
+            {journalTransactions.map((journal) => (
+              <Group key={journal.id} justify="space-between" align="flex-start" wrap="nowrap">
+                <Stack gap={2} style={{ minWidth: 0 }}>
+                  <Text fz="var(--jurnal-text-xs)" c="dimmed">
+                    {dateFormatV1(journal.transactionDate)}
+                    {dayDifference !== undefined &&
+                      ` · ${
+                        dayDifference === 0
+                          ? t('row.sameDay')
+                          : t('row.daysApart', { count: Math.round(dayDifference) })
+                      }`}
                   </Text>
-                  <Text size="sm" fw={600} c={themeColors.black[9]} lineClamp={1}>
-                    {bankStatement.description}
+                  <Text fz="var(--jurnal-text-sm)" fw={600} c="dark.8" lineClamp={2}>
+                    {journal.transactionNumber
+                      ? t('row.journalNumber', { number: journal.transactionNumber })
+                      : journal.description || '—'}
                   </Text>
                 </Stack>
-                <Stack align="flex-end" gap={4}>
-                  <DirectionBadge received={bankStatement.amount > 0} capitalize />
-                  <Text size="md" fw={700} c={themeColors.black[9]}>
-                    {formatCurrency(Math.abs(bankStatement.amount))}
-                  </Text>
+                <Stack gap={0} align="flex-end" style={{ flexShrink: 0 }}>
+                  {amountText(journal.credit || journal.debit)}
+                  <DirectionText received={journal.debit > 0} />
                 </Stack>
               </Group>
-              <Group justify="space-between" align="flex-end">
-                {hasJournals ? (
-                  <Group gap={4}>
-                    <CheckCircle size={16} color={themeColors.green[6]} weight="fill" />
-                    <Text size="xs" c={themeColors.green[6]} fw={500}>
-                      {t('row.matchedCount', { count: journalTransactions.length })}
-                    </Text>
-                  </Group>
-                ) : (
-                  <Group
-                    gap={4}
-                    style={{ cursor: 'pointer' }}
-                    onClick={() => onFind(bankStatement)}
-                  >
-                    <MagnifyingGlass size={16} color={themeColors.gray[5]} />
-                    <Text size="xs" c={themeColors.gray[6]} fw={500}>
-                      {t('row.unmatched')}
-                    </Text>
-                  </Group>
-                )}
-                <ActionIcon
+            ))}
+            {sharesSuggestion && (
+              <Group gap={6} wrap="nowrap" align="flex-start">
+                <IconAlertTriangle size={14} color="var(--mantine-color-orange-7)" />
+                <Text fz="var(--jurnal-text-xs)" c="orange.8">
+                  {t('row.sharedWarning')}
+                </Text>
+              </Group>
+            )}
+            <Group justify="space-between" gap="xs">
+              <Text fz="var(--jurnal-text-xs)" c="dimmed">
+                {t('row.suggestion')}
+              </Text>
+              <Group gap={4}>
+                <Button
                   variant="subtle"
                   color="gray"
-                  size="sm"
-                  onClick={() => onRemove(bankStatement.id)}
+                  size="compact-xs"
+                  leftSection={<IconSearch size={12} />}
+                  onClick={() => onFind(bankStatement)}
                 >
-                  <Trash size={18} weight="regular" color={themeColors.gray[5]} />
-                </ActionIcon>
+                  {t('row.findOther')}
+                </Button>
+                <Tooltip label={t('row.dismiss')}>
+                  <ActionIcon
+                    variant="subtle"
+                    color="gray"
+                    size="sm"
+                    aria-label={t('row.dismiss')}
+                    onClick={() => onDismiss(bankStatement.id)}
+                  >
+                    <IconX size={14} />
+                  </ActionIcon>
+                </Tooltip>
               </Group>
-            </Stack>
-          </Paper>
-        </Group>
-      </Box>
-
-      {/* Right side: journal match */}
-      <Box
-        p="md"
-        bg={themeColors.primary[0]}
-        style={{ borderLeft: `1px solid ${themeColors.gray[1]}` }}
-      >
-        {hasJournals ? (
-          <Stack gap="sm" h="100%" justify="center">
-            {journalTransactions.map((jt, idx) => (
-              <Paper
-                key={idx}
-                withBorder
-                p="sm"
-                radius="md"
-                bg="white"
-                style={{ borderLeft: `4px solid ${themeColors.primary[6]}` }}
-              >
-                <Stack gap="xs">
-                  <Group justify="space-between" align="flex-start">
-                    <Stack gap={0}>
-                      <Text size="xs" c={themeColors.gray[6]} fw={400}>
-                        {dateFormatV1(jt.transactionDate)}
-                      </Text>
-                      <Text size="sm" fw={600} c={themeColors.black[9]} lineClamp={1}>
-                        {jt.transactionNumber
-                          ? t('row.journalNumber', { number: jt.transactionNumber })
-                          : jt.description}
-                      </Text>
-                    </Stack>
-                    <Stack align="flex-end" gap={4}>
-                      <DirectionBadge received={jt.debit > 0} capitalize />
-                      <Text size="md" fw={700} c={themeColors.black[9]}>
-                        {formatCurrency(jt.credit || jt.debit)}
-                      </Text>
-                    </Stack>
-                  </Group>
-                  <Group justify="space-between" align="flex-end">
-                    <Group gap={4}>
-                      <CheckCircle size={16} color={themeColors.green[6]} weight="fill" />
-                      <Text size="xs" c={themeColors.green[6]} fw={500}>
-                        {t('row.matchedWith', { description: bankStatement.description })}
-                      </Text>
-                    </Group>
-                    <ActionIcon
-                      variant="subtle"
-                      color="gray"
-                      size="sm"
-                      onClick={() => onRemove(bankStatement.id)}
-                    >
-                      <Trash size={18} weight="regular" color={themeColors.gray[5]} />
-                    </ActionIcon>
-                  </Group>
-                </Stack>
-              </Paper>
-            ))}
+            </Group>
           </Stack>
         ) : (
-          <Box
-            h="100%"
-            style={{
-              border: `1px dashed ${themeColors.primary[4]}`,
-              borderRadius: '12px',
-              backgroundColor: themeColors.primary[0],
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              minHeight: '110px',
-            }}
-            onClick={() => onFind(bankStatement)}
-          >
-            <Group gap={6}>
-              <MagnifyingGlass size={20} weight="bold" color={themeColors.primary[5]} />
-              <Text size="sm" fw={600} c={themeColors.primary[6]}>
-                {t('row.findAndMatch')}
-              </Text>
-            </Group>
-            <Text size="xs" c={themeColors.primary[6]} fw={500}>
-              {t('row.pickJournal')}
+          <Group justify="space-between" align="center" gap="sm" h="100%">
+            <Text fz="var(--jurnal-text-sm)" c="dimmed">
+              {t('row.noSuggestion')}
             </Text>
-          </Box>
+            <Button
+              variant="default"
+              size="compact-sm"
+              leftSection={<IconSearch size={14} />}
+              onClick={() => onFind(bankStatement)}
+            >
+              {t('row.findAndMatch')}
+            </Button>
+          </Group>
         )}
-      </Box>
-    </SimpleGrid>
+      </div>
+    </div>
   );
 };
 

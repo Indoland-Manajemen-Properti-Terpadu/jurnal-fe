@@ -12,6 +12,12 @@ export const fetchBankStatement = async (idAccount: string): Promise<BankStateme
   return { results: toStatementRows(data) };
 };
 
+/** Deletes an imported row. The server refuses a row that is already reconciled (400). */
+export const deleteBankStatement = async (id: string): Promise<unknown> => {
+  const { data } = await apiClient.delete<unknown>(`${API_ACCOUNT.GET_BANK_STATEMENT}/${id}`);
+  return data;
+};
+
 /** Uploads the file for parsing; the body holds the preview rows. */
 export const uploadBankStatement = async (idAccount: string, file: File): Promise<unknown> => {
   const formData = new FormData();

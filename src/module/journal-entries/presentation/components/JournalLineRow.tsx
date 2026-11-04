@@ -59,7 +59,6 @@ const JournalLineRow = ({
   const amountInput = (side: 'debit' | 'credit') => {
     const filled = side === 'debit' ? isDebitFilled : isCreditFilled;
     const otherFilled = side === 'debit' ? isCreditFilled : isDebitFilled;
-    const color = side === 'debit' ? 'teal' : 'red';
     return (
       <NumberInput
         key={side}
@@ -77,8 +76,8 @@ const JournalLineRow = ({
             height: 38,
             fontSize: 'var(--jurnal-text-sm)',
             fontWeight: filled ? 600 : 400,
-            color: filled ? `var(--mantine-color-${color}-8)` : undefined,
             backgroundColor: otherFilled ? 'var(--mantine-color-gray-1)' : 'white',
+            fontVariantNumeric: 'tabular-nums',
             textAlign: 'right',
           },
         }}
@@ -118,7 +117,7 @@ const JournalLineRow = ({
         </Tooltip>
       </Grid.Col>
 
-      <Grid.Col span={7}>
+      <Grid.Col span={6}>
         <Select
           key="accounts"
           placeholder={t('editor.accountPlaceholder')}
@@ -133,7 +132,7 @@ const JournalLineRow = ({
         />
       </Grid.Col>
 
-      <Grid.Col span={7}>
+      <Grid.Col span={6}>
         <TextInput
           placeholder={t('editor.descriptionPlaceholder')}
           value={item.description}
@@ -142,15 +141,16 @@ const JournalLineRow = ({
         />
       </Grid.Col>
 
-      <Grid.Col span={4}>{amountInput('debit')}</Grid.Col>
-      <Grid.Col span={4}>{amountInput('credit')}</Grid.Col>
+      <Grid.Col span={5}>{amountInput('debit')}</Grid.Col>
+      <Grid.Col span={5}>{amountInput('credit')}</Grid.Col>
 
       <Grid.Col span={1} ta="center">
         <Tooltip label={t('editor.removeTooltip')}>
           <ActionIcon
             disabled={rowCount <= minimumTransaction}
             variant="subtle"
-            color="red"
+            color="gray"
+            aria-label={t('editor.removeTooltip')}
             onClick={() => removeTransaction(index)}
           >
             <IconTrash size={16} />

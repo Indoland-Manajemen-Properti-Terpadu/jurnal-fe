@@ -12,6 +12,12 @@ interface RawAccountDetail {
   isContra?: boolean;
   isLocked?: boolean;
   desc?: string;
+  /** `master` for a top level account, `sub` for a child. */
+  level?: string;
+  /** Children of this account. */
+  subAccount?: { id?: string }[];
+  /** Parent of a Sub account; `null` for a top level account. */
+  headerAccount?: { id?: string; name?: string; accountNumber?: string } | null;
   headAccountId?: string;
   subAccountId?: string;
   isAllUser?: boolean;
@@ -54,11 +60,13 @@ export const mapAccountDetailToFormState = (data: RawAccountDetail): AccountForm
     accountType: 'SingleAccount',
   };
 
-  if (data.headAccountId) {
+  const parentId = data.headerAccount?.id || data.headAccountId;
+  if (parentId || data.level === 'sub') {
     state.accountType = 'SubAccount';
-    state.parentId = data.headAccountId;
-  } else if (data.subAccountId) {
+    state.parentId = parentId;
+  } else if (data.subAccountId || (data.subAccount?.length ?? 0) > 0) {
     state.accountType = 'HeaderAccount';
+    // Existing children are already linked, so none is preselected to link again.
     state.childId = data.subAccountId;
   }
 

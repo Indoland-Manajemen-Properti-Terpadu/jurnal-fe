@@ -66,28 +66,36 @@ const JournalLinesEditor: React.FC = () => {
 
   return (
     <Stack gap="xs">
-      <Grid columns={24} gutter="sm" px="xs" py={4} bg="gray.1" style={{ borderRadius: 6 }}>
+      <Grid
+        columns={24}
+        gutter="sm"
+        align="center"
+        px="xs"
+        py={6}
+        bg="gray.0"
+        style={{ borderRadius: 6, border: '1px solid var(--jurnal-color-border-subtle)' }}
+      >
         <Grid.Col span={1} ta="center">
           <Text fz="var(--jurnal-text-xs)" fw={700} c="dimmed">
             {t('editor.headNumber')}
           </Text>
         </Grid.Col>
-        <Grid.Col span={7}>
+        <Grid.Col span={6}>
           <Text fz="var(--jurnal-text-xs)" fw={700} c="dimmed" tt="uppercase">
             {t('editor.headAccount')} <RequiredMark />
           </Text>
         </Grid.Col>
-        <Grid.Col span={7}>
+        <Grid.Col span={6}>
           <Text fz="var(--jurnal-text-xs)" fw={700} c="dimmed" tt="uppercase">
             {t('editor.headDescription')}
           </Text>
         </Grid.Col>
-        <Grid.Col span={4} ta="right">
+        <Grid.Col span={5} ta="right">
           <Text fz="var(--jurnal-text-xs)" fw={700} c="dimmed" tt="uppercase">
             {t('editor.headDebit')} <RequiredMark />
           </Text>
         </Grid.Col>
-        <Grid.Col span={4} ta="right">
+        <Grid.Col span={5} ta="right">
           <Text fz="var(--jurnal-text-xs)" fw={700} c="dimmed" tt="uppercase">
             {t('editor.headCredit')} <RequiredMark />
           </Text>
@@ -134,19 +142,13 @@ const JournalLinesEditor: React.FC = () => {
           <JournalTotals />
 
           <Button
-            variant="light"
-            color="primary"
+            variant="default"
             fullWidth
             h={42}
             leftSection={<IconPlus size={16} />}
             onClick={() => addTransaction()}
             radius="md"
-            styles={{
-              root: {
-                borderStyle: 'dashed',
-                borderWidth: 1.5,
-              },
-            }}
+            styles={{ root: { borderStyle: 'dashed' } }}
           >
             {t('editor.addRow')}
           </Button>
