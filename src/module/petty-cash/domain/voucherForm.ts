@@ -8,9 +8,12 @@ export interface VoucherLineDraft {
   description: string;
   amount: number | '';
   taxId: string | null;
+  tagIds: string[];
 }
 
 export interface VoucherDraft {
+  /** Pocket code the voucher is paid from; empty uses the cash box. */
+  pocket: string;
   date: string;
   beneficiary: string;
   receiptNumber: string;
@@ -22,13 +25,20 @@ export interface VoucherDraft {
 
 /** The body the backend accepts for create and for update (update replaces the whole voucher). */
 export interface VoucherInput {
+  pocket?: string;
   date: string;
   beneficiary: string;
   receiptNumber?: string;
   description?: string;
   taxInvoiceNumber?: string;
   vendorTaxId?: string;
-  lines: Array<{ expenseAccountId: string; description?: string; amount: number; taxId?: string }>;
+  lines: Array<{
+    expenseAccountId: string;
+    description?: string;
+    amount: number;
+    taxId?: string;
+    tagIds?: string[];
+  }>;
 }
 
 export type VoucherDraftIssueCode =
@@ -56,9 +66,11 @@ export const emptyLine = (key: string = newLineKey()): VoucherLineDraft => ({
   description: '',
   amount: '',
   taxId: null,
+  tagIds: [],
 });
 
 export const emptyDraft = (today: string): VoucherDraft => ({
+  pocket: '',
   date: today,
   beneficiary: '',
   receiptNumber: '',
@@ -133,9 +145,11 @@ export const toVoucherInput = (draft: VoucherDraft): VoucherInput => {
       };
       if (filled(line.description)) out.description = line.description.trim();
       if (line.taxId && invoice) out.taxId = line.taxId;
+      if (line.tagIds.length > 0) out.tagIds = line.tagIds;
       return out;
     }),
   };
+  if (filled(draft.pocket)) input.pocket = draft.pocket;
   if (filled(draft.receiptNumber)) input.receiptNumber = draft.receiptNumber.trim();
   if (filled(draft.description)) input.description = draft.description.trim();
   if (invoice) input.taxInvoiceNumber = invoice;
@@ -147,6 +161,7 @@ export const draftFromVoucher = (
   voucher: PettyCashVoucherRecord,
   makeKey: () => string = newLineKey
 ): VoucherDraft => ({
+  pocket: voucher.pocket,
   date: voucher.transactionDate,
   beneficiary: voucher.beneficiary,
   receiptNumber: voucher.receiptNumber ?? '',
@@ -159,6 +174,7 @@ export const draftFromVoucher = (
     description: line.description ?? '',
     amount: line.amount,
     taxId: line.tax?.id ?? null,
+    tagIds: line.tagIds,
   })),
 });
 

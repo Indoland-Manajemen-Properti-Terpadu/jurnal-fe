@@ -6,6 +6,7 @@ import type {
   VoucherSource,
   VoucherStatus,
 } from '@/module/petty-cash/domain/pettyCashStatus';
+import type { PendingApprover } from '@/module/petty-cash/domain/approval';
 
 /**
  * Entities of the integrated module. Money is whole rupiah as the backend sends it (integers);
@@ -66,6 +67,24 @@ export interface FundBalance {
   isBalanced: boolean;
 }
 
+/**
+ * A balance pocket splits the fund's cash book (cash box, a petty cash bank account, an e-wallet).
+ * All pockets share one ledger account, so the pocket balances add up to the fund's cash balance.
+ * `code` identifies the pocket (`TUNAI` is the built-in cash box); `type` drives the icon and rules.
+ */
+export type PocketType = 'CASH' | 'BANK' | 'EWALLET';
+
+export interface FundPocket {
+  code: string;
+  name: string;
+  type: PocketType;
+  provider: string | null;
+  accountNumber: string | null;
+  accountHolder: string | null;
+  isActive: boolean;
+  balance: number;
+}
+
 export interface PettyCashFund {
   id: string;
   code: string;
@@ -76,6 +95,7 @@ export interface PettyCashFund {
   status: FundStatus;
   settings: FundSettings;
   balance: FundBalance;
+  pockets: FundPocket[];
   lastCountAt: string | null;
   closedAt: string | null;
   createdAt: string;
@@ -92,6 +112,8 @@ export interface VoucherLine {
   amount: number;
   tax: TaxRef | null;
   taxAmount: number;
+  /** Tag ids; resolve names through `lookups.tags`. */
+  tagIds: string[];
 }
 
 export interface Attachment {
@@ -111,6 +133,8 @@ export interface PettyCashVoucherRecord {
   id: string;
   fund: { id: string; code: string; name: string; custodianId: string };
   voucherNumber: string;
+  /** Pocket the voucher is paid from (`TUNAI` unless another was chosen). */
+  pocket: string;
   source: VoucherSource;
   advanceId: string | null;
   transactionDate: string;
@@ -149,6 +173,9 @@ export interface CashBookEntry {
   direction: CashBookDirection;
   amount: number;
   runningBalance: number;
+  /** Pocket code the movement belongs to; null on entries recorded before pockets existed. */
+  pocket: string | null;
+  pocketBalance: number | null;
   refType: string;
   refId: string;
   journalId: string | null;
@@ -165,6 +192,8 @@ export interface CashBook {
 
 export interface PettyCashLookups {
   expenseAccounts: AccountRef[];
+  /** Types a user may add as a pocket (the cash box is built in). */
+  pocketTypes: Array<{ value: string; label: string }>;
   bankAccounts: AccountRef[];
   taxes: TaxRef[];
   tags: Array<{ id: string; name: string; color: string }>;
@@ -188,6 +217,18 @@ export interface CountRecord {
   witnessedBy: UserRef | null;
   denominations: CountDenominations;
   totalPhysicalCash: number;
+  /** Everything counted: the cash box plus the balance of each non-cash pocket. */
+  totalCounted: number;
+  /** Book, expected, counted and variance per pocket; empty for a fund without pockets. */
+  pocketResults: Array<{
+    pocket: string;
+    name: string;
+    type: PocketType;
+    bookBalance: number;
+    expected: number;
+    counted: number;
+    variance: number;
+  }>;
   pendingVoucherTotal: number;
   outstandingAdvanceTotal: number;
   /** pagu - pending vouchers - outstanding advances, worked out by the backend. */
@@ -204,6 +245,8 @@ export interface CountRecord {
   rejectedAt: string | null;
   rejectedReason: string | null;
   settledByReimbursementId: string | null;
+  /** Stages still to approve while submitted; the first one is being waited for. Empty otherwise. */
+  pendingApprovers: PendingApprover[];
   /** A cash movement happened after the count, so it no longer reflects the cash in the box. */
   isStale: boolean;
   createdAt: string;
@@ -259,6 +302,10 @@ export interface ReimbursementRecord {
   journalId: string | null;
   /** Only in the answer to a disbursement. */
   cashBalanceAfter: number | null;
+  /** Stages still to approve while submitted; the first one is being waited for. Empty otherwise. */
+  pendingApprovers: PendingApprover[];
+  /** Pocket that receives the refill; null on older documents. */
+  pocket: string | null;
 }
 
 export interface JournalPreviewLine {
@@ -312,6 +359,8 @@ export interface AdvanceRecord {
   id: string;
   advanceNumber: string;
   fund: { id: string; code: string; name: string; custodianId: string };
+  /** Pocket the cash was handed out from; the leftover returns there by default. */
+  disbursePocket: string | null;
   requester: UserRef;
   purpose: string;
   requestedAmount: number;

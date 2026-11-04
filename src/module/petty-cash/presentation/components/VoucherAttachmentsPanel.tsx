@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { ActionIcon, Anchor, Box, FileButton, Button, Group, Stack, Text } from '@mantine/core';
+import { ActionIcon, Anchor, FileButton, Button, Group, Stack, Text } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconPaperclip, IconPlus, IconTrash } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
@@ -8,6 +8,7 @@ import type {
   PettyCashVoucherRecord,
 } from '@/module/petty-cash/domain/pettyCashEntities';
 import { ATTACHMENT_TYPES, validateAttachmentFiles } from '@/module/petty-cash/domain/voucherForm';
+import { DetailSection } from '@/module/petty-cash/presentation/components/DetailKit';
 import { AttachmentDeleteDialog } from '@/module/petty-cash/presentation/components/AttachmentDeleteDialog';
 import { useAllowedVoucherActions } from '@/module/petty-cash/presentation/hooks/useAllowedVoucherActions';
 import { useOpenAttachment } from '@/module/petty-cash/presentation/hooks/useOpenAttachment';
@@ -48,10 +49,7 @@ export function VoucherAttachmentsPanel({ voucher, fund }: Readonly<Props>) {
   };
 
   return (
-    <Box>
-      <Text fw={700} mb="xs">
-        {t('drawer.attachments')}
-      </Text>
+    <DetailSection title={t('drawer.attachments')}>
       {voucher.attachments.length === 0 ? (
         <Text size="sm" c="dimmed">
           {t('drawer.noAttachments')}
@@ -123,6 +121,6 @@ export function VoucherAttachmentsPanel({ voucher, fund }: Readonly<Props>) {
           remove.mutate({ attachmentId: toDelete.id }, { onSettled: () => setToDelete(null) })
         }
       />
-    </Box>
+    </DetailSection>
   );
 }

@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Button, Group, Modal, Select, Stack, Text } from '@mantine/core';
+import { Button, Select, Stack } from '@mantine/core';
+import { DialogFrame } from '@/module/petty-cash/presentation/components/DialogFrame';
 import { useTranslation } from '@/i18n';
 import { formatCurrency } from '@/utils/formatCurrency';
 import type { AdvanceRecord } from '@/module/petty-cash/domain/pettyCashEntities';
@@ -28,30 +29,12 @@ export function SettlementAccountsDialog({ advance, opened, onClose }: Readonly<
   const complete = lines.every((item) => item.accountId);
 
   return (
-    <Modal
+    <DialogFrame
       opened={opened}
       onClose={onClose}
-      centered
-      radius="md"
-      title={<Text fw={700}>{t('advanceActions.saveAccounts')}</Text>}
-      closeButtonProps={{ 'aria-label': t('common.close') }}
-    >
-      <Stack gap="md">
-        {lines.map(({ line, accountId }) => (
-          <Select
-            key={line.lineNo}
-            label={`${line.description} · ${formatCurrency(line.amount, false)}`}
-            placeholder={t('advanceActions.accountPlaceholder')}
-            data={(lookups.data?.expenseAccounts ?? []).map((account) => ({
-              value: account.id,
-              label: `${account.accountNumber} · ${account.name}`,
-            }))}
-            value={accountId}
-            onChange={(value) => setChosen((current) => ({ ...current, [line.lineNo]: value }))}
-            searchable
-          />
-        ))}
-        <Group justify="flex-end" gap="sm">
+      title={t('advanceActions.saveAccounts')}
+      footer={
+        <>
           <Button variant="default" onClick={onClose} disabled={save.isPending}>
             {t('actions.keep')}
           </Button>
@@ -70,8 +53,25 @@ export function SettlementAccountsDialog({ advance, opened, onClose }: Readonly<
           >
             {t('advanceActions.saveAccounts')}
           </Button>
-        </Group>
+        </>
+      }
+    >
+      <Stack gap="md">
+        {lines.map(({ line, accountId }) => (
+          <Select
+            key={line.lineNo}
+            label={`${line.description} · ${formatCurrency(line.amount, false)}`}
+            placeholder={t('advanceActions.accountPlaceholder')}
+            data={(lookups.data?.expenseAccounts ?? []).map((account) => ({
+              value: account.id,
+              label: `${account.accountNumber} · ${account.name}`,
+            }))}
+            value={accountId}
+            onChange={(value) => setChosen((current) => ({ ...current, [line.lineNo]: value }))}
+            searchable
+          />
+        ))}
       </Stack>
-    </Modal>
+    </DialogFrame>
   );
 }

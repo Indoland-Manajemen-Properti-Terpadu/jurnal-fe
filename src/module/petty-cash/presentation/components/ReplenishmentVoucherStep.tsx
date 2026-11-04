@@ -9,6 +9,7 @@ import type {
   PettyCashVoucherRecord,
 } from '@/module/petty-cash/domain/pettyCashEntities';
 import { selectedTotal, toggleAll, toggleVoucher } from '@/module/petty-cash/domain/replenishment';
+import styles from '@/module/petty-cash/presentation/components/DocumentTable.module.css';
 import { QueryErrorState } from '@/module/petty-cash/presentation/components/QueryErrorState';
 import { SectionCard } from '@/module/petty-cash/presentation/components/SectionCard';
 import type { PettyCashError } from '@/module/petty-cash/infrastructure/pettyCashErrors';
@@ -87,9 +88,9 @@ export function ReplenishmentVoucherStep({
           <Paper withBorder radius="md" style={{ overflow: 'hidden' }}>
             <Table.ScrollContainer minWidth={520}>
               <Table verticalSpacing="sm" horizontalSpacing="md" highlightOnHover>
-                <Table.Thead bg="gray.0">
+                <Table.Thead>
                   <Table.Tr>
-                    <Table.Th w={44}>
+                    <Table.Th w={44} className={styles.th}>
                       <Checkbox
                         checked={allSelected}
                         indeterminate={selectedIds.length > 0 && !allSelected}
@@ -97,16 +98,18 @@ export function ReplenishmentVoucherStep({
                         aria-label={t('replenishForm.selectAll')}
                       />
                     </Table.Th>
-                    <Table.Th>{t('vouchers.columns.number')}</Table.Th>
-                    <Table.Th>{t('vouchers.columns.date')}</Table.Th>
-                    <Table.Th>{t('vouchers.columns.beneficiary')}</Table.Th>
-                    <Table.Th ta="right">{t('vouchers.columns.total')}</Table.Th>
+                    <Table.Th className={styles.th}>{t('vouchers.columns.number')}</Table.Th>
+                    <Table.Th className={styles.th}>{t('vouchers.columns.date')}</Table.Th>
+                    <Table.Th className={styles.th}>{t('vouchers.columns.beneficiary')}</Table.Th>
+                    <Table.Th ta="right" className={styles.th}>
+                      {t('vouchers.columns.total')}
+                    </Table.Th>
                   </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>
                   {items.map((voucher) => (
                     <Table.Tr key={voucher.id}>
-                      <Table.Td>
+                      <Table.Td className={styles.td}>
                         <Checkbox
                           checked={selectedIds.includes(voucher.id)}
                           onChange={() => onSelect(toggleVoucher(selectedIds, voucher.id))}
@@ -115,14 +118,16 @@ export function ReplenishmentVoucherStep({
                           })}
                         />
                       </Table.Td>
-                      <Table.Td>
+                      <Table.Td className={styles.td}>
                         <Text size="sm" fw={650}>
                           {voucher.voucherNumber}
                         </Text>
                       </Table.Td>
-                      <Table.Td>{dateFormatV1(voucher.transactionDate)}</Table.Td>
-                      <Table.Td>{voucher.beneficiary}</Table.Td>
-                      <Table.Td ta="right">
+                      <Table.Td className={`${styles.td} ${styles.num}`}>
+                        {dateFormatV1(voucher.transactionDate)}
+                      </Table.Td>
+                      <Table.Td className={styles.td}>{voucher.beneficiary}</Table.Td>
+                      <Table.Td ta="right" className={`${styles.td} ${styles.num}`}>
                         <Text size="sm" fw={650}>
                           {money(voucher.totalAmount)}
                         </Text>

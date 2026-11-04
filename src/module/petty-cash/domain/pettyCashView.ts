@@ -2,6 +2,7 @@ import { sumMinor, toMinor } from '@/lib/money/money';
 import type {
   AccountRef,
   FundBalance,
+  FundPocket,
   VoucherLine,
 } from '@/module/petty-cash/domain/pettyCashEntities';
 
@@ -58,6 +59,7 @@ const CASH_BOOK_TYPES = [
   'ADVANCE_RETURN',
   'ADVANCE_EXTRA',
   'ADVANCE_RECEIVABLE',
+  'POCKET_TRANSFER',
 ] as const;
 
 export type CashBookTypeKey = (typeof CASH_BOOK_TYPES)[number] | 'OTHER';
@@ -86,6 +88,13 @@ export const imprestEquation = (
   if (variance.kind === 'OVER') rows.push({ key: 'surplus', amount: -variance.amount });
   return rows;
 };
+
+/** Pockets that can take part in a transaction; an inactive one stays visible but is not offered. */
+export const activePockets = (pockets: FundPocket[]) => pockets.filter((pocket) => pocket.isActive);
+
+/** The pocket balances should add up to the fund's cash balance; a gap means the data disagrees. */
+export const pocketsMatchCash = (pockets: FundPocket[], cashBalance: number) =>
+  pockets.length === 0 || sumAmounts(pockets.map((pocket) => pocket.balance)) === cashBalance;
 
 const OBJECT_ID = /^[0-9a-f]{24}$/i;
 

@@ -7,6 +7,12 @@ export const KNOWN_ERROR_CODES = [
   'NOT_FOUND',
   'PETTY_CASH_INSUFFICIENT_BALANCE',
   'SOD_VIOLATION',
+  'APPROVAL_LEVEL_FORBIDDEN',
+  'INVALID_BANK_ACCOUNT',
+  'REIMBURSEMENT_AMOUNT_CHANGED',
+  'POCKET_NOT_FOUND',
+  'POCKET_INACTIVE',
+  'POCKET_BALANCES_REQUIRED',
   'NOT_CUSTODIAN',
   'ATTACHMENT_REQUIRED',
   'INVALID_STATE_TRANSITION',
@@ -26,6 +32,11 @@ export const KNOWN_ERROR_CODES = [
 
 type Translate = (key: string) => string;
 
+const namesPocket = (details: unknown) =>
+  typeof details === 'object' &&
+  details !== null &&
+  typeof (details as { pocket?: unknown }).pocket === 'string';
+
 /**
  * A safe sentence for any petty cash failure. Indonesian domain messages from the server are
  * specific (they name amounts and documents), so Indonesian readers get them as is; English
@@ -36,11 +47,17 @@ export const describePettyCashError = (error: unknown, language: string, t: Tran
 
   switch (normalized.kind) {
     case 'domain': {
-      if (language === 'id' && normalized.serverMessage) return normalized.serverMessage;
       const { code } = normalized;
-      return code && (KNOWN_ERROR_CODES as readonly string[]).includes(code)
-        ? t(`errors.codes.${code}`)
-        : t('errors.rejected');
+      const base =
+        language === 'id' && normalized.serverMessage
+          ? normalized.serverMessage
+          : code && (KNOWN_ERROR_CODES as readonly string[]).includes(code)
+            ? t(`errors.codes.${code}`)
+            : t('errors.rejected');
+      // A shortage that names a pocket can be fixed by moving funds in or choosing another pocket.
+      return code === 'PETTY_CASH_INSUFFICIENT_BALANCE' && namesPocket(normalized.details)
+        ? `${base} ${t('errors.pocketTransferHint')}`
+        : base;
     }
     case 'validation':
       return t('errors.validation');

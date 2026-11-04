@@ -199,6 +199,27 @@ describe('mappers', () => {
     });
   });
 
+  it('maps pockets and treats a fund without them as having none', () => {
+    expect(toFund(fundDto).pockets).toEqual([]);
+    const fund = toFund({
+      ...fundDto,
+      pockets: [
+        { code: 'TUNAI', name: 'Tunai', type: 'CASH', isActive: true, balance: 3000000 },
+        {
+          code: 'BCA-KK',
+          name: 'Rekening BCA',
+          type: 'BANK',
+          provider: 'BCA',
+          accountNumber: '123',
+          isActive: false,
+          balance: 0,
+        },
+      ],
+    });
+    expect(fund.pockets[0]).toMatchObject({ code: 'TUNAI', provider: null, accountHolder: null });
+    expect(fund.pockets[1]).toMatchObject({ provider: 'BCA', isActive: false });
+  });
+
   it('maps a voucher with net line amounts, tax and attachments defaulting to empty', () => {
     const dto: VoucherDto = {
       id: 'v1',

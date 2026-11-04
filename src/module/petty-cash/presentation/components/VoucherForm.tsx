@@ -1,7 +1,6 @@
 import { useRef, useState } from 'react';
 import { Grid, Stack, Switch, TextInput } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
-import dayjs from 'dayjs';
 import {
   IconCalendar,
   IconFileInvoice,
@@ -10,13 +9,17 @@ import {
   IconReceiptTax,
 } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
+import { todayWib } from '@/module/petty-cash/domain/wibDate';
 import { useTranslation } from '@/i18n';
 import { routes } from '@/router/routes';
 import type {
   PettyCashFund,
   PettyCashVoucherRecord,
 } from '@/module/petty-cash/domain/pettyCashEntities';
+import { activePockets } from '@/module/petty-cash/domain/pettyCashView';
+import { defaultPocketCode, pocketBalanceOf } from '@/module/petty-cash/domain/pockets';
 import {
+  cashCheck,
   draftFromVoucher,
   draftNet,
   emptyDraft,
@@ -25,6 +28,7 @@ import {
   validateVoucherDraft,
   type VoucherDraft,
 } from '@/module/petty-cash/domain/voucherForm';
+import { PocketSelect } from '@/module/petty-cash/presentation/components/PocketSelect';
 import { AttachmentDeleteDialog } from '@/module/petty-cash/presentation/components/AttachmentDeleteDialog';
 import { QueryErrorState } from '@/module/petty-cash/presentation/components/QueryErrorState';
 import { SectionCard } from '@/module/petty-cash/presentation/components/SectionCard';
@@ -50,7 +54,7 @@ interface Props {
 export function VoucherForm({ fund, voucher }: Readonly<Props>) {
   const { t } = useTranslation('pettyCash');
   const navigate = useNavigate();
-  const today = dayjs().format('YYYY-MM-DD');
+  const today = todayWib();
   const lookups = usePettyCashLookups();
   const create = useCreateVoucher(fund.id);
   const update = useUpdateVoucher(voucher?.id ?? '');
@@ -105,6 +109,10 @@ export function VoucherForm({ fund, voucher }: Readonly<Props>) {
     const issue = showIssues ? issues.find((item) => item.path === path) : undefined;
     return issue ? t(`form.issues.${issue.code}`) : undefined;
   };
+  const hasPockets = activePockets(fund.pockets).length > 1;
+  const pocketCode = draft.pocket || defaultPocketCode(fund.pockets);
+  const pocketBalance = pocketBalanceOf(fund.pockets, pocketCode);
+  const pocketShort = pocketBalance !== null && cashCheck(draftNet(draft), pocketBalance).exceeds;
   const patch = (changes: Partial<VoucherDraft>) =>
     setDraft((current) => ({ ...current, ...changes }));
 
@@ -172,6 +180,18 @@ export function VoucherForm({ fund, voucher }: Readonly<Props>) {
               subtitle={t('form.infoSubtitle')}
             >
               <Grid gutter="sm">
+                {hasPockets && (
+                  <Grid.Col span={12}>
+                    <PocketSelect
+                      pockets={fund.pockets}
+                      value={draft.pocket}
+                      onChange={(pocket) => patch({ pocket })}
+                      label={t('pocketAdmin.paidFrom')}
+                      description={pocketShort ? undefined : t('pocketAdmin.paidFromHint')}
+                      error={pocketShort ? t('pocketAdmin.insufficientHint') : undefined}
+                    />
+                  </Grid.Col>
+                )}
                 <Grid.Col span={{ base: 12, sm: 6 }}>
                   <DatePickerInput
                     label={t('form.date')}

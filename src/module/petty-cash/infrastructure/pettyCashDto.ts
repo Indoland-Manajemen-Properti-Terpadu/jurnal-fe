@@ -40,6 +40,17 @@ export interface TaxRefDto {
   rate: number;
 }
 
+export interface FundPocketDto {
+  code: string;
+  name: string;
+  type: 'CASH' | 'BANK' | 'EWALLET';
+  provider?: string | null;
+  accountNumber?: string | null;
+  accountHolder?: string | null;
+  isActive: boolean;
+  balance: number;
+}
+
 export interface FundDto {
   id: string;
   code: string;
@@ -59,6 +70,7 @@ export interface FundDto {
   advanceExcludeSaturday: boolean;
   advanceExcludeSunday: boolean;
   status: FundStatus;
+  pockets?: FundPocketDto[];
   closedAt: string | null;
   cashBalance: number;
   availableCash: number;
@@ -83,6 +95,8 @@ export interface VoucherLineDto {
   amount: number;
   tax: TaxRefDto | string | null;
   taxAmount: number;
+  /** Ids of the tags on the line; names come from `lookups.tags`. */
+  tags?: string[];
 }
 
 export interface AttachmentDto {
@@ -97,6 +111,7 @@ export interface VoucherDto {
   id: string;
   fund: { id: string; code: string; name: string; custodian: string };
   voucherNumber: string;
+  pocket?: string;
   source: VoucherSource;
   advance: string | null;
   transactionDate: string;
@@ -131,6 +146,8 @@ export interface CashBookEntryDto {
   direction: 'IN' | 'OUT';
   amount: number;
   runningBalance: number;
+  pocket?: string | null;
+  pocketBalance?: number | null;
   refType: string;
   refId: string;
   journal: string | null;
@@ -146,6 +163,7 @@ export interface CashBookDto extends PageDto<CashBookEntryDto> {
 
 export interface LookupsDto {
   expenseAccounts: AccountRefDto[];
+  pocketTypes?: Array<{ value: string; label: string }>;
   bankAccounts: AccountRefDto[];
   taxes: TaxRefDto[];
   tags: Array<{ id: string; name: string; color: string }>;
@@ -176,6 +194,17 @@ export interface CountDto {
   /** Banknote pieces by denomination, plus a nested `coins` object. */
   denominations: Record<string, number | Record<string, number>>;
   totalPhysicalCash: number;
+  /** Cash plus every non-cash pocket, when the fund has pockets. */
+  totalCounted?: number;
+  pocketResults?: Array<{
+    pocket: string;
+    name: string;
+    type: 'CASH' | 'BANK' | 'EWALLET';
+    bookBalance: number;
+    expected: number;
+    counted: number;
+    variance: number;
+  }>;
   pendingVoucherTotal: number;
   outstandingAdvanceTotal: number;
   expectedCash: number;
@@ -190,6 +219,7 @@ export interface CountDto {
   rejectedAt: string | null;
   rejectedReason: string | null;
   settledByReimbursement: string | null;
+  pendingApprovers?: Array<{ level: string; label: string }>;
   isStale?: boolean;
   createdAt: string;
 }
@@ -243,6 +273,8 @@ export interface ReimbursementDto {
   disbursementDate: string | null;
   journal: string | null;
   cashBalanceAfter?: number;
+  pocket?: string | null;
+  pendingApprovers?: Array<{ level: string; label: string }>;
 }
 
 export interface ReplenishmentPreviewDto {
@@ -272,6 +304,7 @@ export interface AdvanceDto {
   id: string;
   advanceNumber: string;
   fund: { id: string; code: string; name: string; custodian: string };
+  disbursePocket?: string | null;
   requester: UserRefDto;
   purpose: string;
   requestedAmount: number;

@@ -25,6 +25,10 @@ export const PETTY_CASH_API = {
     action: 'approve' | 'reject' | 'cancel' | 'disburse'
   ) => `${BASE}/reimbursements/${reimbursementId}/${action}`,
   fundPaguAdjustments: (fundId: string) => `${BASE}/funds/${fundId}/pagu-adjustments`,
+  fundPockets: (fundId: string) => `${BASE}/funds/${fundId}/pockets`,
+  fundPocket: (fundId: string, code: string) =>
+    `${BASE}/funds/${fundId}/pockets/${encodeURIComponent(code)}`,
+  fundPocketTransfers: (fundId: string) => `${BASE}/funds/${fundId}/pocket-transfers`,
   fundClose: (fundId: string) => `${BASE}/funds/${fundId}/close`,
   reportPendingVouchers: `${BASE}/reports/pending-vouchers`,
   reportExpenseSummary: `${BASE}/reports/expense-summary`,

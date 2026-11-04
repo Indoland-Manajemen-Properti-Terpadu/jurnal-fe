@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Alert, Button, Modal, NumberInput, Stack, Text, Textarea, Group } from '@mantine/core';
+import { Alert, Button, NumberInput, Stack, Text, Textarea } from '@mantine/core';
 import { IconAlertCircle, IconWallet } from '@tabler/icons-react';
+import { DialogFrame } from '@/module/petty-cash/presentation/components/DialogFrame';
 import { useTranslation } from '@/i18n';
 import { formatCurrency } from '@/utils/formatCurrency';
 import {
@@ -57,13 +58,20 @@ export function RequestAdvanceButton({ fund }: Readonly<{ fund: PettyCashFund }>
       >
         {t('advances.request')}
       </Button>
-      <Modal
+      <DialogFrame
         opened={opened}
         onClose={close}
-        centered
-        radius="md"
-        title={<Text fw={700}>{t('advanceRequest.title')}</Text>}
-        closeButtonProps={{ 'aria-label': t('common.close') }}
+        title={t('advanceRequest.title')}
+        footer={
+          <>
+            <Button variant="default" onClick={close} disabled={create.isPending}>
+              {t('actions.keep')}
+            </Button>
+            <Button loading={create.isPending} disabled={blocked} onClick={submit}>
+              {t('advanceRequest.submit')}
+            </Button>
+          </>
+        }
       >
         <Stack gap="md">
           <Text size="sm">{t('advanceRequest.body')}</Text>
@@ -103,16 +111,8 @@ export function RequestAdvanceButton({ fund }: Readonly<{ fund: PettyCashFund }>
             autosize
             required
           />
-          <Group justify="flex-end" gap="sm">
-            <Button variant="default" onClick={close} disabled={create.isPending}>
-              {t('actions.keep')}
-            </Button>
-            <Button loading={create.isPending} disabled={blocked} onClick={submit}>
-              {t('advanceRequest.submit')}
-            </Button>
-          </Group>
         </Stack>
-      </Modal>
+      </DialogFrame>
     </>
   );
 }

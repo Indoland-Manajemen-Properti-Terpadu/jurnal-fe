@@ -1,4 +1,5 @@
-import { Button, Group, Modal, Stack, Text } from '@mantine/core';
+import { Button, Stack, Text } from '@mantine/core';
+import { DialogFrame } from '@/module/petty-cash/presentation/components/DialogFrame';
 import { useTranslation } from '@/i18n';
 
 interface Props {
@@ -13,29 +14,24 @@ export function AttachmentDeleteDialog({ fileName, loading, onClose, onConfirm }
   const { t } = useTranslation('pettyCash');
 
   return (
-    <Modal
+    <DialogFrame
       opened={fileName !== null}
       onClose={onClose}
-      centered
-      radius="md"
-      title={
-        fileName ? (
-          <Text fw={700}>{t('actions.deleteAttachmentTitle', { name: fileName })}</Text>
-        ) : null
-      }
-      closeButtonProps={{ 'aria-label': t('common.close') }}
-    >
-      <Stack gap="md">
-        <Text size="sm">{t('actions.deleteAttachmentBody')}</Text>
-        <Group justify="flex-end" gap="sm">
+      title={fileName ? t('actions.deleteAttachmentTitle', { name: fileName }) : ''}
+      footer={
+        <>
           <Button variant="default" onClick={onClose} disabled={loading}>
             {t('actions.keep')}
           </Button>
           <Button color="red" loading={loading} onClick={onConfirm} data-autofocus>
             {t('actions.deleteAttachmentConfirm')}
           </Button>
-        </Group>
+        </>
+      }
+    >
+      <Stack gap="md">
+        <Text size="sm">{t('actions.deleteAttachmentBody')}</Text>
       </Stack>
-    </Modal>
+    </DialogFrame>
   );
 }

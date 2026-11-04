@@ -1,4 +1,10 @@
 import { MAX_AMOUNT } from '@/module/petty-cash/domain/voucherForm';
+import {
+  emptyPocketDraft,
+  toCreatePocketsInput,
+  validateNewPockets,
+  type PocketDraft,
+} from '@/module/petty-cash/domain/pockets';
 import type { FundSettings, PettyCashFund } from '@/module/petty-cash/domain/pettyCashEntities';
 import type { FundStatus } from '@/module/petty-cash/domain/pettyCashStatus';
 
@@ -57,7 +63,12 @@ export type FundIssueCode =
   | 'TOO_LARGE'
   | 'OVER_100'
   | 'FUTURE_DATE'
-  | 'SAME_AS_CURRENT';
+  | 'SAME_AS_CURRENT'
+  | 'INVALID_CODE'
+  | 'DUPLICATE_CODE'
+  | 'OVER_PAGU'
+  | 'SAME_POCKET'
+  | 'OVER_BALANCE';
 
 export interface FundIssue {
   path: string;
@@ -105,6 +116,8 @@ export interface NewFundDraft {
   /** When chosen, the ceiling is moved from this bank account on the funding date. */
   fundingBankAccountId: string | null;
   fundingDate: string;
+  /** Non-cash pockets opened with the fund; the cash box is implicit. */
+  pockets: PocketDraft[];
   settings: FundSettingsDraft;
 }
 
@@ -116,7 +129,13 @@ export const emptyNewFund = (today: string): NewFundDraft => ({
   pagu: '',
   fundingBankAccountId: null,
   fundingDate: today,
+  pockets: [],
   settings: defaultSettingsDraft(),
+});
+
+export const addPocketDraft = (draft: NewFundDraft): NewFundDraft => ({
+  ...draft,
+  pockets: [...draft.pockets, emptyPocketDraft()],
 });
 
 export const validateNewFund = (draft: NewFundDraft, today: string): FundIssue[] => {
@@ -130,7 +149,14 @@ export const validateNewFund = (draft: NewFundDraft, today: string): FundIssue[]
     if (draft.fundingDate === '') issues.push({ path: 'fundingDate', code: 'REQUIRED' });
     else if (draft.fundingDate > today) issues.push({ path: 'fundingDate', code: 'FUTURE_DATE' });
   }
-  return [...issues, ...validateFundSettings(draft.settings)];
+  return [
+    ...issues,
+    ...validateNewPockets(draft.pockets, draft.pagu).map((issue) => ({
+      path: issue.path,
+      code: issue.code as FundIssueCode,
+    })),
+    ...validateFundSettings(draft.settings),
+  ];
 };
 
 const settingsPayload = (settings: FundSettingsDraft) => ({
@@ -152,6 +178,7 @@ export const toCreateFundInput = (draft: NewFundDraft) => ({
   ...(draft.fundingBankAccountId
     ? { fundingBankAccountId: draft.fundingBankAccountId, fundingDate: draft.fundingDate }
     : {}),
+  ...toCreatePocketsInput(draft.pockets, draft.pagu as number),
   ...settingsPayload(draft.settings),
 });
 
@@ -198,6 +225,8 @@ export const validateFundEdit = (fund: PettyCashFund, draft: EditFundDraft): Fun
 
 export interface PaguAdjustmentDraft {
   newPagu: NumberField;
+  /** Pocket that receives the increase or gives the decrease; null uses the cash box. */
+  pocket?: string | null;
   bankAccountId: string | null;
   date: string;
   reason: string;
@@ -229,6 +258,7 @@ export const paguDirection = (currentPagu: number, newPagu: number) => {
 export const toPaguInput = (draft: PaguAdjustmentDraft) => ({
   newPagu: draft.newPagu as number,
   bankAccountId: draft.bankAccountId as string,
+  ...(draft.pocket ? { pocket: draft.pocket } : {}),
   date: draft.date,
   reason: draft.reason.trim(),
 });

@@ -1,12 +1,18 @@
 import {
+  activePockets,
   cashBookTypeKey,
   imprestEquation,
   isValidObjectId,
+  pocketsMatchCash,
   summarizeVoucherAccounts,
   varianceView,
   voucherBreakdown,
 } from '@/module/petty-cash/domain/pettyCashView';
-import type { FundBalance, VoucherLine } from '@/module/petty-cash/domain/pettyCashEntities';
+import type {
+  FundBalance,
+  FundPocket,
+  VoucherLine,
+} from '@/module/petty-cash/domain/pettyCashEntities';
 
 const line = (over: Partial<VoucherLine> & Pick<VoucherLine, 'amount'>): VoucherLine => ({
   lineNo: 1,
@@ -15,6 +21,7 @@ const line = (over: Partial<VoucherLine> & Pick<VoucherLine, 'amount'>): Voucher
   description: '',
   tax: null,
   taxAmount: 0,
+  tagIds: [],
   ...over,
 });
 
@@ -172,4 +179,41 @@ describe('isValidObjectId', () => {
       expect(isValidObjectId(value)).toBe(false);
     }
   );
+});
+
+const pocket = (over: Partial<FundPocket> & Pick<FundPocket, 'code' | 'balance'>): FundPocket => ({
+  name: over.code,
+  type: 'CASH',
+  provider: null,
+  accountNumber: null,
+  accountHolder: null,
+  isActive: true,
+  ...over,
+});
+
+describe('pockets', () => {
+  it('offers only active pockets for new transactions', () => {
+    const pockets = [
+      pocket({ code: 'TUNAI', balance: 100 }),
+      pocket({ code: 'GOPAY', balance: 0, type: 'EWALLET', isActive: false }),
+    ];
+    expect(activePockets(pockets).map((item) => item.code)).toEqual(['TUNAI']);
+  });
+
+  it('checks that pocket balances add up to the cash balance', () => {
+    const pockets = [
+      pocket({ code: 'TUNAI', balance: 3000000 }),
+      pocket({ code: 'BCA-KK', balance: 2000000 }),
+    ];
+    expect(pocketsMatchCash(pockets, 5000000)).toBe(true);
+    expect(pocketsMatchCash(pockets, 4900000)).toBe(false);
+  });
+
+  it('does not flag a fund without pockets', () => {
+    expect(pocketsMatchCash([], 5000000)).toBe(true);
+  });
+
+  it('labels the pocket transfer cash book type', () => {
+    expect(cashBookTypeKey('POCKET_TRANSFER')).toBe('POCKET_TRANSFER');
+  });
 });

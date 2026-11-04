@@ -21,6 +21,19 @@ describe('describePettyCashError', () => {
     );
   });
 
+  it('suggests a transfer when the shortage names a pocket', () => {
+    const short = new PettyCashError({
+      kind: 'domain',
+      code: 'PETTY_CASH_INSUFFICIENT_BALANCE',
+      serverMessage: 'Saldo kantong BCA tidak cukup',
+      details: { pocket: 'BCA-KK' },
+    });
+    expect(describePettyCashError(short, 'id', t)).toBe(
+      'Saldo kantong BCA tidak cukup t:errors.pocketTransferHint'
+    );
+    expect(describePettyCashError(insufficient, 'id', t)).not.toContain('pocketTransferHint');
+  });
+
   it('translates a known code for English readers', () => {
     expect(describePettyCashError(insufficient, 'en', t)).toBe(
       't:errors.codes.PETTY_CASH_INSUFFICIENT_BALANCE'

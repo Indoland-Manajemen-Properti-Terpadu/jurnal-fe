@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from 'react';
-import { Button, Group, Modal, Stack, Text, Textarea } from '@mantine/core';
+import { Button, Textarea } from '@mantine/core';
+import { DialogFrame } from '@/module/petty-cash/presentation/components/DialogFrame';
 import { useTranslation } from '@/i18n';
 
 interface Props {
@@ -55,31 +56,13 @@ export function DecisionDialog({
   };
 
   return (
-    <Modal
+    <DialogFrame
       opened={opened}
       onClose={close}
-      centered
-      radius="md"
-      title={<Text fw={700}>{title}</Text>}
-      closeButtonProps={{ 'aria-label': t('common.close') }}
-    >
-      <Stack gap="md">
-        {body && <Text size="sm">{body}</Text>}
-        {children}
-        {needsReason && (
-          <Textarea
-            label={reasonLabel}
-            placeholder={reasonPlaceholder}
-            value={reason}
-            onChange={(event) => setReason(event.currentTarget.value)}
-            error={touched && reasonMissing ? t('actions.reasonRequired') : undefined}
-            minRows={3}
-            autosize
-            data-autofocus
-            required
-          />
-        )}
-        <Group justify="flex-end" gap="sm">
+      title={title}
+      description={body}
+      footer={
+        <>
           <Button variant="default" onClick={close} disabled={loading}>
             {t('actions.keep')}
           </Button>
@@ -91,8 +74,23 @@ export function DecisionDialog({
           >
             {confirmLabel}
           </Button>
-        </Group>
-      </Stack>
-    </Modal>
+        </>
+      }
+    >
+      {children}
+      {needsReason && (
+        <Textarea
+          label={reasonLabel}
+          placeholder={reasonPlaceholder}
+          value={reason}
+          onChange={(event) => setReason(event.currentTarget.value)}
+          error={touched && reasonMissing ? t('actions.reasonRequired') : undefined}
+          minRows={3}
+          autosize
+          data-autofocus
+          required
+        />
+      )}
+    </DialogFrame>
   );
 }

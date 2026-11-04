@@ -1,12 +1,14 @@
 import { useRef, useState } from 'react';
 import { Alert, Grid, Select, Stack, Text, Textarea } from '@mantine/core';
-import { IconCoins, IconUsers } from '@tabler/icons-react';
+import { IconBuildingBank, IconCoins, IconUsers } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
 import { routes } from '@/router/routes';
 import {
+  countedGrandTotal,
   countedTotal,
   emptyCountDraft,
+  nonCashTotal,
   expectedCashEstimate,
   toCountInput,
   validateCountDraft,
@@ -14,6 +16,8 @@ import {
   type CountDraft,
 } from '@/module/petty-cash/domain/cashCount';
 import type { PettyCashFund } from '@/module/petty-cash/domain/pettyCashEntities';
+import { activePockets } from '@/module/petty-cash/domain/pettyCashView';
+import { CountPocketFields } from '@/module/petty-cash/presentation/components/CountPocketFields';
 import { CountSummary } from '@/module/petty-cash/presentation/components/CountSummary';
 import { DenominationCalculator } from '@/module/petty-cash/presentation/components/DenominationCalculator';
 import { QueryErrorState } from '@/module/petty-cash/presentation/components/QueryErrorState';
@@ -30,19 +34,23 @@ export function CountForm({ fund }: Readonly<{ fund: PettyCashFund }>) {
   const lookups = usePettyCashLookups();
   const create = useCreateCount(fund.id);
   const formRef = useRef<HTMLDivElement>(null);
-  const [draft, setDraft] = useState<CountDraft>(emptyCountDraft);
+  const nonCashPockets = activePockets(fund.pockets).filter((pocket) => pocket.type !== 'CASH');
+  const pocketCodes = nonCashPockets.map((pocket) => pocket.code);
+  const [draft, setDraft] = useState<CountDraft>(() => emptyCountDraft(pocketCodes));
   const [showIssues, setShowIssues] = useState(false);
 
   const counted = countedTotal(draft);
+  const total = countedGrandTotal(draft);
   const expected = expectedCashEstimate({
     pagu: fund.pagu,
     pendingVoucherAmount: fund.balance.pendingVoucherAmount,
     outstandingAdvanceAmount: fund.balance.outstandingAdvanceAmount,
   });
-  const variance = variancePreview(counted, expected);
+  const variance = variancePreview(total, expected);
   const issues = validateCountDraft(draft, {
     witnessRequired: fund.settings.requireWitness,
     varianceNonZero: variance.type !== 'BALANCED',
+    nonCashPockets: pocketCodes,
   });
 
   // The witness must be neither the custodian nor the counter (the signed-in user).
@@ -72,7 +80,7 @@ export function CountForm({ fund }: Readonly<{ fund: PettyCashFund }>) {
       return;
     }
     try {
-      await create.mutateAsync({ input: toCountInput(draft), submit });
+      await create.mutateAsync({ input: toCountInput(draft, pocketCodes), submit });
       navigate(`${routes.pettyCash.main}?fund=${fund.id}&tab=counts`);
     } catch {
       // the hook already told the user what went wrong
@@ -104,6 +112,21 @@ export function CountForm({ fund }: Readonly<{ fund: PettyCashFund }>) {
                 </Text>
               )}
             </SectionCard>
+
+            {nonCashPockets.length > 0 && (
+              <SectionCard
+                icon={<IconBuildingBank size={18} />}
+                title={t('countForm.pocketsTitle')}
+                subtitle={t('countForm.pocketsSubtitle')}
+              >
+                <CountPocketFields
+                  pockets={nonCashPockets}
+                  draft={draft}
+                  errorFor={errorFor}
+                  onChange={setDraft}
+                />
+              </SectionCard>
+            )}
 
             <SectionCard
               icon={<IconUsers size={18} />}
@@ -147,6 +170,8 @@ export function CountForm({ fund }: Readonly<{ fund: PettyCashFund }>) {
           <div style={{ position: 'sticky', top: 20 }}>
             <CountSummary
               counted={counted}
+              nonCash={nonCashPockets.length > 0 ? nonCashTotal(draft) : undefined}
+              totalCounted={total}
               expected={expected}
               variance={variance}
               pending={create.isPending}

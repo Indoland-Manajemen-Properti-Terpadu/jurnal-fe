@@ -1,0 +1,14 @@
+.footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  margin-top: var(--mantine-spacing-md);
+  padding: var(--mantine-spacing-md) 0;
+  background: var(--mantine-color-white);
+  border-top: 1px solid var(--mantine-color-gray-2);
+}
+
+/* Actions render nothing when the reader may not act; then the footer disappears too. */
+.footer:empty {
+  display: none;
+}
