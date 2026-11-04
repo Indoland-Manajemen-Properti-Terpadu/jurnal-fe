@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { Button, Group } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
-import dayjs from 'dayjs';
 import { IconCash, IconCheck, IconX } from '@tabler/icons-react';
+import { todayWib } from '@/module/petty-cash/domain/wibDate';
 import { useTranslation } from '@/i18n';
 import type { ReimbursementRecord } from '@/module/petty-cash/domain/pettyCashEntities';
 import { isDisbursementDateValid } from '@/module/petty-cash/domain/replenishment';
+import { PocketSelect } from '@/module/petty-cash/presentation/components/PocketSelect';
 import { DecisionDialog } from '@/module/petty-cash/presentation/components/DecisionDialog';
+import { usePettyCashFund } from '@/module/petty-cash/presentation/hooks/usePettyCashQueries';
 import { usePettyCashAccess } from '@/module/petty-cash/presentation/hooks/usePettyCashAccess';
 import { useReplenishmentDecision } from '@/module/petty-cash/presentation/hooks/useReplenishmentMutations';
 
@@ -24,9 +26,11 @@ interface Props {
 export function ReplenishmentActions({ record, onChanged }: Readonly<Props>) {
   const { t } = useTranslation('pettyCash');
   const access = usePettyCashAccess();
-  const today = dayjs().format('YYYY-MM-DD');
+  const today = todayWib();
   const [dialog, setDialog] = useState<Dialog>(null);
   const [date, setDate] = useState(today);
+  const fund = usePettyCashFund(record.fund.id, dialog === 'disburse');
+  const [pocket, setPocket] = useState<string | null>(null);
   const approve = useReplenishmentDecision(record.id, 'approve');
   const reject = useReplenishmentDecision(record.id, 'reject');
   const cancel = useReplenishmentDecision(record.id, 'cancel');
@@ -36,6 +40,7 @@ export function ReplenishmentActions({ record, onChanged }: Readonly<Props>) {
     status: record.status,
     submittedById: record.submittedBy?.id ?? null,
     approvedById: record.approvedBy?.id ?? null,
+    pendingApprovers: record.pendingApprovers,
   });
   if (actions.length === 0) return null;
 
@@ -124,8 +129,20 @@ export function ReplenishmentActions({ record, onChanged }: Readonly<Props>) {
         confirmDisabled={!isDisbursementDateValid(date, today)}
         loading={disburse.isPending}
         onClose={() => setDialog(null)}
-        onConfirm={() => disburse.mutate({ disbursementDate: date }, { onSuccess: done })}
+        onConfirm={() =>
+          disburse.mutate(
+            { disbursementDate: date, pocket: pocket ?? record.pocket ?? undefined },
+            { onSuccess: done }
+          )
+        }
       >
+        <PocketSelect
+          pockets={fund.data?.pockets ?? []}
+          value={pocket ?? record.pocket ?? ''}
+          onChange={setPocket}
+          label={t('pocketAdmin.receivedIn')}
+          showBalance={false}
+        />
         <DatePickerInput
           label={t('decisions.disburseDate')}
           description={t('decisions.disburseDateHint')}

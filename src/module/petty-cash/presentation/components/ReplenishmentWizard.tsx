@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
-import { Button, Grid, Paper, Select, Stack, Stepper, Text, Textarea } from '@mantine/core';
-import dayjs from 'dayjs';
+import { Button, Grid, Select, Stack, Stepper, Textarea } from '@mantine/core';
 import { IconArrowRight, IconBuildingBank, IconSend } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
+import { todayWib } from '@/module/petty-cash/domain/wibDate';
 import { useTranslation } from '@/i18n';
 import { routes } from '@/router/routes';
 import { formatCurrency } from '@/utils/formatCurrency';
@@ -16,10 +16,12 @@ import {
   validateReplenishmentDraft,
   type ReplenishmentDraft,
 } from '@/module/petty-cash/domain/replenishment';
+import { FormSummaryCard } from '@/module/petty-cash/presentation/components/FormSummaryCard';
 import {
   JournalDisclosure,
   PayoutSummary,
 } from '@/module/petty-cash/presentation/components/JournalPreview';
+import { PocketSelect } from '@/module/petty-cash/presentation/components/PocketSelect';
 import { QueryErrorState } from '@/module/petty-cash/presentation/components/QueryErrorState';
 import { ReplenishmentVoucherStep } from '@/module/petty-cash/presentation/components/ReplenishmentVoucherStep';
 import { SectionCard } from '@/module/petty-cash/presentation/components/SectionCard';
@@ -40,7 +42,7 @@ const money = (amount: number) => formatCurrency(amount, false);
 export function ReplenishmentWizard({ fund }: Readonly<{ fund: PettyCashFund }>) {
   const { t } = useTranslation('pettyCash');
   const navigate = useNavigate();
-  const today = dayjs().format('YYYY-MM-DD');
+  const today = todayWib();
   const lookups = usePettyCashLookups();
   const vouchers = usePettyCashVouchers({
     fundId: fund.id,
@@ -126,6 +128,23 @@ export function ReplenishmentWizard({ fund }: Readonly<{ fund: PettyCashFund }>)
   }));
   const readyToSubmit = Boolean(preview.data && preview.data.isBalanced && !preview.isFetching);
 
+  const reviewActions = (
+    <>
+      <Button
+        leftSection={<IconSend size={16} />}
+        loading={create.isPending}
+        disabled={!readyToSubmit}
+        onClick={submit}
+        fullWidth
+      >
+        {t('replenishForm.submit')}
+      </Button>
+      <Button variant="default" disabled={create.isPending} onClick={() => setStep(0)} fullWidth>
+        {t('replenishForm.back')}
+      </Button>
+    </>
+  );
+
   return (
     <Stack gap="lg">
       <Stepper active={step} size="sm" allowNextStepsSelect={false}>
@@ -177,6 +196,14 @@ export function ReplenishmentWizard({ fund }: Readonly<{ fund: PettyCashFund }>)
                   searchable
                   required
                 />
+                <PocketSelect
+                  pockets={fund.pockets}
+                  value={draft.pocket ?? ''}
+                  onChange={(pocket) => setDraft({ ...draft, pocket })}
+                  label={t('pocketAdmin.receivedIn')}
+                  description={t('pocketAdmin.receivedInHint')}
+                  showBalance={false}
+                />
                 <Textarea
                   label={t('replenishForm.notes')}
                   placeholder={t('replenishForm.notesPlaceholder')}
@@ -198,36 +225,31 @@ export function ReplenishmentWizard({ fund }: Readonly<{ fund: PettyCashFund }>)
         <Grid.Col span={{ base: 12, lg: 4 }}>
           <div style={{ position: 'sticky', top: 20 }}>
             {step === 0 && (
-              <Paper withBorder radius="md" p="lg" bg="white" shadow="xs">
-                <Stack gap="sm">
-                  <Text fw={700}>{t('replenishForm.selectedVoucherTotal')}</Text>
-                  <Text size="sm" c="dimmed" aria-live="polite">
-                    {t('replenishForm.selected', { count: effective.voucherIds.length })}
-                  </Text>
-                  <Text fz={24} fw={700}>
-                    {money(selectedTotal(items, effective.voucherIds))}
-                  </Text>
-                  <Text size="xs" c="dimmed">
-                    {t('replenishForm.payoutNextStep')}
-                  </Text>
-                  <Button rightSection={<IconArrowRight size={16} />} onClick={next} fullWidth>
-                    {t('replenishForm.next')}
-                  </Button>
-                  <Button variant="subtle" color="gray" onClick={backToList} fullWidth>
-                    {t('replenishForm.cancel')}
-                  </Button>
-                </Stack>
-              </Paper>
+              <FormSummaryCard
+                title={t('replenishForm.summaryTitle')}
+                rows={[
+                  {
+                    label: t('replenishForm.vouchersChosen'),
+                    value: String(effective.voucherIds.length),
+                  },
+                  {
+                    label: t('replenishForm.selectedVoucherTotal'),
+                    value: money(selectedTotal(items, effective.voucherIds)),
+                    total: true,
+                  },
+                ]}
+                notes={[t('replenishForm.payoutNextStep')]}
+              >
+                <Button rightSection={<IconArrowRight size={16} />} onClick={next} fullWidth>
+                  {t('replenishForm.next')}
+                </Button>
+                <Button variant="subtle" color="gray" onClick={backToList} fullWidth>
+                  {t('replenishForm.cancel')}
+                </Button>
+              </FormSummaryCard>
             )}
             {step === 1 && (
               <Stack gap="md">
-                {!input && (
-                  <Paper withBorder radius="md" p="lg" bg="white" shadow="xs">
-                    <Text size="sm" c="dimmed">
-                      {t('replenishForm.previewHint')}
-                    </Text>
-                  </Paper>
-                )}
                 {preview.isError && (
                   <QueryErrorState
                     title={t('replenishForm.previewFailed')}
@@ -235,31 +257,17 @@ export function ReplenishmentWizard({ fund }: Readonly<{ fund: PettyCashFund }>)
                     onRetry={() => preview.refetch()}
                   />
                 )}
-                {preview.data && <PayoutSummary preview={preview.data} />}
-                {preview.data && (
-                  <Text size="xs" c="dimmed">
-                    {t('replenishForm.previewIndicative')}
-                  </Text>
+                {preview.data ? (
+                  <PayoutSummary preview={preview.data}>{reviewActions}</PayoutSummary>
+                ) : (
+                  <FormSummaryCard
+                    title={t('replenishForm.previewTitle')}
+                    rows={[]}
+                    notes={input ? [] : [t('replenishForm.previewHint')]}
+                  >
+                    {reviewActions}
+                  </FormSummaryCard>
                 )}
-                <Stack gap="xs">
-                  <Button
-                    leftSection={<IconSend size={16} />}
-                    loading={create.isPending}
-                    disabled={!readyToSubmit}
-                    onClick={submit}
-                    fullWidth
-                  >
-                    {t('replenishForm.submit')}
-                  </Button>
-                  <Button
-                    variant="default"
-                    disabled={create.isPending}
-                    onClick={() => setStep(0)}
-                    fullWidth
-                  >
-                    {t('replenishForm.back')}
-                  </Button>
-                </Stack>
               </Stack>
             )}
           </div>

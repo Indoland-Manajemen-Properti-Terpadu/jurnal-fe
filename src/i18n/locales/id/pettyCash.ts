@@ -1,10 +1,13 @@
 import { advanceNotify, pettyCashAdvances } from './pettyCashAdvances';
+import { pettyCashDetail } from './pettyCashDetail';
 import { fundNotify, pettyCashFunds } from './pettyCashFunds';
+import { pettyCashPockets, pocketErrorCodes, pocketNotify } from './pettyCashPockets';
 import { pettyCashReports } from './pettyCashReports';
 import { pettyCashCounts } from './pettyCashCounts';
 
 export const pettyCash = {
   common: {
+    showing: 'Menampilkan {{from}}-{{to}} dari {{total}}',
     page: 'Halaman',
     of: 'dari',
     retry: 'Coba lagi',
@@ -42,6 +45,20 @@ export const pettyCash = {
       reports: 'Laporan',
       cashBook: 'Buku kas',
     },
+  },
+  approval: {
+    title: 'Alur persetujuan',
+    waitingFor: 'Menunggu {{name}}',
+    then: 'Lalu {{name}}',
+    levels: { FINANCE: 'Finance', BM: 'Building Manager', CF: 'Chief Finance' },
+  },
+  pockets: {
+    title: 'Saldo per kantong',
+    hint: 'Rincian kas di tangan, rekening kas kecil, dan e-wallet. Seluruh kantong memakai satu akun kas kecil, jadi jumlahnya sama dengan kas di tangan.',
+    types: { CASH: 'Tunai', BANK: 'Rekening bank', EWALLET: 'E-wallet' },
+    inactive: 'Nonaktif',
+    mismatch:
+      'Jumlah saldo kantong belum sama dengan kas di tangan. Minta finance memeriksa buku kas.',
   },
   balance: {
     available: 'Kas tersedia',
@@ -122,7 +139,10 @@ export const pettyCash = {
     opening: 'Saldo awal',
     closing: 'Saldo akhir',
     datePlaceholder: 'Rentang tanggal',
+    pocketFilter: 'Filter kantong',
+    allPockets: 'Semua kantong',
     columns: {
+      pocket: 'Kantong',
       date: 'Tanggal',
       type: 'Jenis',
       memo: 'Keterangan',
@@ -139,6 +159,7 @@ export const pettyCash = {
       ADVANCE: 'Uang muka karyawan diberikan',
       ADVANCE_RETURN: 'Sisa uang muka dikembalikan',
       ADVANCE_EXTRA: 'Kekurangan uang muka dibayar',
+      POCKET_TRANSFER: 'Pindah dana antar kantong',
       ADVANCE_RECEIVABLE: 'Uang muka dialihkan ke piutang karyawan',
       OTHER: 'Transaksi lain',
     },
@@ -148,6 +169,9 @@ export const pettyCash = {
     loadFailed: 'Buku kas belum bisa ditampilkan',
   },
   form: {
+    tags: 'Tag',
+    tagsHint: 'Opsional. Dipakai untuk mengelompokkan biaya di laporan.',
+    tagsPlaceholder: 'Pilih tag',
     createTitle: 'Catat pengeluaran',
     createSubtitle:
       'Catat pengeluaran kas kecil dengan bukti. Pembukuan baru dibuat saat dana diganti.',
@@ -254,6 +278,7 @@ export const pettyCash = {
   notify: {
     ...advanceNotify,
     ...fundNotify,
+    ...pocketNotify,
     created: 'Voucher {{number}} disimpan sebagai draf.',
     createdSubmitted: 'Voucher {{number}} diajukan.',
     updated: 'Voucher {{number}} diperbarui.',
@@ -279,17 +304,23 @@ export const pettyCash = {
   ...pettyCashAdvances,
   ...pettyCashReports,
   ...pettyCashFunds,
+  ...pettyCashDetail,
+  ...pettyCashPockets,
   errors: {
     generic: 'Terjadi kendala. Coba lagi sebentar lagi.',
     rejected: 'Permintaan belum bisa diproses. Periksa kembali isian Anda.',
     validation: 'Ada isian yang belum sesuai. Periksa kembali kolom yang ditandai.',
     forbidden: 'Anda belum punya hak untuk tindakan ini. Hubungi admin bila perlu.',
     unauthorized: 'Sesi Anda berakhir. Silakan masuk kembali.',
+    pocketTransferHint: 'Pindahkan dana dari kantong lain, atau pilih kantong lain.',
     network: 'Koneksi terputus. Periksa jaringan internet Anda, lalu coba lagi.',
     codes: {
+      ...pocketErrorCodes,
       NOT_FOUND: 'Data tidak ditemukan. Mungkin sudah dihapus atau tautannya salah.',
       PETTY_CASH_INSUFFICIENT_BALANCE: 'Nominal melebihi kas yang tersedia di kas kecil ini.',
       SOD_VIOLATION: 'Tindakan ini harus dilakukan orang lain selain pembuat dokumen.',
+      APPROVAL_LEVEL_FORBIDDEN:
+        'Persetujuan tahap ini bukan untuk Anda. Dokumen menunggu tahap lain.',
       NOT_CUSTODIAN: 'Hanya pemegang kas kecil ini yang bisa melakukan tindakan ini.',
       ATTACHMENT_REQUIRED: 'Lampirkan bukti (nota atau kwitansi) untuk nominal ini.',
       INVALID_STATE_TRANSITION: 'Status dokumen sudah berubah. Muat ulang halaman lalu coba lagi.',

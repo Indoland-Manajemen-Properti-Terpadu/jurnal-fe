@@ -2,7 +2,6 @@ import { useState } from 'react';
 import {
   Button,
   Group,
-  Modal,
   NumberInput,
   Select,
   Stack,
@@ -11,7 +10,8 @@ import {
   Textarea,
 } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
-import dayjs from 'dayjs';
+import { DialogFrame } from '@/module/petty-cash/presentation/components/DialogFrame';
+import { todayWib } from '@/module/petty-cash/domain/wibDate';
 import { useTranslation } from '@/i18n';
 import {
   editDraftFromFund,
@@ -25,6 +25,7 @@ import {
   type NewFundDraft,
 } from '@/module/petty-cash/domain/fundAdmin';
 import type { PettyCashFund } from '@/module/petty-cash/domain/pettyCashEntities';
+import { FundPocketsFields } from '@/module/petty-cash/presentation/components/FundPocketsFields';
 import { FundSettingsFields } from '@/module/petty-cash/presentation/components/FundSettingsFields';
 import {
   useCreateFund,
@@ -43,7 +44,7 @@ interface Props {
 /** One form for opening a fund and for changing its rules; the ceiling moves only by adjustment. */
 export function FundFormDialog({ fund, opened, onClose, onSaved }: Readonly<Props>) {
   const { t } = useTranslation('pettyCash');
-  const today = dayjs().format('YYYY-MM-DD');
+  const today = todayWib();
   const lookups = usePettyCashLookups();
   const create = useCreateFund();
   const update = useUpdateFund(fund?.id ?? '');
@@ -56,7 +57,9 @@ export function FundFormDialog({ fund, opened, onClose, onSaved }: Readonly<Prop
     fund && edit ? validateFundEdit(fund, edit) : validateNewFund(created, today);
   const errorOf = (path: string) => {
     const issue = issues.find((item) => item.path === path);
-    return touched && issue ? t(`fundAdmin.issue.${issue.code}`) : undefined;
+    if (!touched || !issue) return undefined;
+    const group = path.startsWith('pockets') ? 'pocketAdmin' : 'fundAdmin';
+    return t(`${group}.issue.${issue.code}`);
   };
   const patch = fund && edit ? toFundPatch(fund, edit) : {};
   const nothingChanged = Boolean(fund) && Object.keys(patch).length === 0;
@@ -98,18 +101,21 @@ export function FundFormDialog({ fund, opened, onClose, onSaved }: Readonly<Prop
   const pending = create.isPending || update.isPending;
 
   return (
-    <Modal
+    <DialogFrame
       opened={opened}
       onClose={close}
+      title={fund ? t('fundAdmin.editTitle', { name: fund.name }) : t('fundAdmin.createTitle')}
       size="xl"
-      centered
-      radius="md"
-      title={
-        <Text fw={700}>
-          {fund ? t('fundAdmin.editTitle', { name: fund.name }) : t('fundAdmin.createTitle')}
-        </Text>
+      footer={
+        <>
+          <Button variant="default" onClick={close} disabled={pending}>
+            {t('actions.keep')}
+          </Button>
+          <Button loading={pending} onClick={submit}>
+            {fund ? t('fundAdmin.save') : t('fundAdmin.createSubmit')}
+          </Button>
+        </>
       }
-      closeButtonProps={{ 'aria-label': t('common.close') }}
     >
       <Stack gap="lg">
         <Stack gap="sm">
@@ -238,6 +244,15 @@ export function FundFormDialog({ fund, opened, onClose, onSaved }: Readonly<Prop
           )}
         </Stack>
 
+        {!fund && (
+          <FundPocketsFields
+            pockets={created.pockets}
+            pagu={created.pagu}
+            onChange={(pockets) => setCreated({ ...created, pockets })}
+            errorOf={errorOf}
+          />
+        )}
+
         <FundSettingsFields value={settings} onChange={setSettings} errorOf={errorOf} />
 
         {touched && nothingChanged && (
@@ -245,15 +260,7 @@ export function FundFormDialog({ fund, opened, onClose, onSaved }: Readonly<Prop
             {t('fundAdmin.noChanges')}
           </Text>
         )}
-        <Group justify="flex-end" gap="sm">
-          <Button variant="default" onClick={close} disabled={pending}>
-            {t('actions.keep')}
-          </Button>
-          <Button loading={pending} onClick={submit}>
-            {fund ? t('fundAdmin.save') : t('fundAdmin.createSubmit')}
-          </Button>
-        </Group>
       </Stack>
-    </Modal>
+    </DialogFrame>
   );
 }

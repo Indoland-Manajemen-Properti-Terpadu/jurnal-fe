@@ -133,3 +133,15 @@ describe('reconcileDraft', () => {
     expect(result).toMatchObject({ countId: 'c1', notes: 'rutin', bankAccountId: 'b1' });
   });
 });
+
+describe('replenishment pocket', () => {
+  it('sends the chosen pocket on create but not on the preview', () => {
+    const input = toReplenishmentInput('f1', draft({ pocket: 'BCA-KK' }));
+    expect(input.pocket).toBe('BCA-KK');
+    expect(toPreviewInput(input)).not.toHaveProperty('pocket');
+  });
+
+  it('omits the pocket when none was chosen', () => {
+    expect(toReplenishmentInput('f1', draft())).not.toHaveProperty('pocket');
+  });
+});

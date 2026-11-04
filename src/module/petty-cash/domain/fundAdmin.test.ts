@@ -5,6 +5,7 @@ import {
   paguDirection,
   toCreateFundInput,
   toFundPatch,
+  toPaguInput,
   validateFundEdit,
   validateNewFund,
   validatePaguAdjustment,
@@ -122,5 +123,20 @@ describe('ceiling adjustment', () => {
     expect(paguDirection(5, 8)).toEqual({ kind: 'INCREASE', amount: 3 });
     expect(paguDirection(8, 5)).toEqual({ kind: 'DECREASE', amount: 3 });
     expect(paguDirection(5, 5).kind).toBe('NONE');
+  });
+});
+
+describe('toPaguInput pocket', () => {
+  const base = { newPagu: 7000000, bankAccountId: 'b1', date: '2026-11-04', reason: ' naik ' };
+
+  it('adds the pocket only when one was chosen', () => {
+    expect(toPaguInput({ ...base, pocket: 'BCA-KK' })).toEqual({
+      newPagu: 7000000,
+      bankAccountId: 'b1',
+      pocket: 'BCA-KK',
+      date: '2026-11-04',
+      reason: 'naik',
+    });
+    expect(toPaguInput({ ...base, pocket: null })).not.toHaveProperty('pocket');
   });
 });

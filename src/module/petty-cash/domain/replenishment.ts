@@ -5,6 +5,8 @@ export interface ReplenishmentDraft {
   voucherIds: string[];
   bankAccountId: string | null;
   countId: string | null;
+  /** Pocket that receives the refill; null uses the cash box. */
+  pocket?: string | null;
   notes: string;
 }
 
@@ -13,6 +15,7 @@ export interface ReplenishmentInput {
   voucherIds: string[];
   bankAccountId: string;
   countId?: string;
+  pocket?: string;
   notes?: string;
 }
 
@@ -46,18 +49,19 @@ export const toReplenishmentInput = (
     bankAccountId: draft.bankAccountId as string,
   };
   if (draft.countId) input.countId = draft.countId;
+  if (draft.pocket) input.pocket = draft.pocket;
   if (draft.notes.trim()) input.notes = draft.notes.trim();
   return input;
 };
 
-export type ReplenishmentPreviewInput = Omit<ReplenishmentInput, 'notes'>;
+export type ReplenishmentPreviewInput = Omit<ReplenishmentInput, 'notes' | 'pocket'>;
 
 /**
  * The preview accepts the fund, vouchers, bank account and count only; the backend refuses `notes`
  * (400). Leaving them out also means typing a note does not ask for a new preview.
  */
 export const toPreviewInput = (input: ReplenishmentInput): ReplenishmentPreviewInput => {
-  const { notes: _notes, ...rest } = input;
+  const { notes: _notes, pocket: _pocket, ...rest } = input;
   return rest;
 };
 

@@ -1,7 +1,11 @@
 import { useState } from 'react';
 import { render, screen, userEvent } from '@test-utils';
 import { emptyCountDraft, type CountDraft } from '@/module/petty-cash/domain/cashCount';
-import type { ReplenishmentPreview } from '@/module/petty-cash/domain/pettyCashEntities';
+import type {
+  FundPocket,
+  ReplenishmentPreview,
+} from '@/module/petty-cash/domain/pettyCashEntities';
+import { CountPocketFields } from '@/module/petty-cash/presentation/components/CountPocketFields';
 import { CountSummary } from '@/module/petty-cash/presentation/components/CountSummary';
 import { DecisionDialog } from '@/module/petty-cash/presentation/components/DecisionDialog';
 import { DenominationCalculator } from '@/module/petty-cash/presentation/components/DenominationCalculator';
@@ -69,6 +73,64 @@ describe('CountSummary', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Simpan draf' }));
     expect(onSubmit).toHaveBeenCalled();
     expect(onSaveDraft).toHaveBeenCalled();
+  });
+});
+
+describe('CountSummary with pockets', () => {
+  it('lists cash, pocket balances and the total, and says when the count is short', () => {
+    render(
+      <CountSummary
+        counted={1000000}
+        nonCash={2000000}
+        totalCounted={3000000}
+        expected={3100000}
+        variance={{ amount: -100000, type: 'SHORT' }}
+        pending={false}
+        showIssues={false}
+        onCancel={vi.fn()}
+        onSaveDraft={vi.fn()}
+        onSubmit={vi.fn()}
+      />
+    );
+    expect(screen.getByText('Uang tunai di brankas')).toBeInTheDocument();
+    expect(screen.getByText('Saldo rekening dan e-wallet')).toBeInTheDocument();
+    expect(screen.getByText('Total hasil hitung')).toBeInTheDocument();
+    expect(screen.getByText('Rp 3.000.000')).toBeInTheDocument();
+    expect(screen.getByText(/Kekurangan kas Rp\s*100\.000/)).toBeInTheDocument();
+  });
+});
+
+describe('CountPocketFields', () => {
+  const pockets = [
+    {
+      code: 'BCA',
+      name: 'BCA 1102',
+      type: 'BANK',
+      provider: 'BCA',
+      accountNumber: '1102',
+      accountHolder: null,
+      isActive: true,
+      balance: 1500000,
+    },
+  ] as FundPocket[];
+
+  function Harness() {
+    const [draft, setDraft] = useState<CountDraft>(emptyCountDraft(['BCA']));
+    return (
+      <CountPocketFields
+        pockets={pockets}
+        draft={draft}
+        errorFor={() => undefined}
+        onChange={setDraft}
+      />
+    );
+  }
+
+  it('shows the book balance and the variance once a balance is typed', async () => {
+    render(<Harness />);
+    expect(screen.getByText(/Menurut buku Rp\s*1\.500\.000/)).toBeInTheDocument();
+    await userEvent.type(screen.getByRole('textbox', { name: /Saldo BCA 1102/ }), '1400000');
+    expect(screen.getByText(/Kurang Rp\s*100\.000/)).toBeInTheDocument();
   });
 });
 

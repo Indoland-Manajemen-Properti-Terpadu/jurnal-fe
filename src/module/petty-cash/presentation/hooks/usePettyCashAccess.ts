@@ -6,6 +6,8 @@ import {
   allowedVoucherActions,
   canAccess,
   canControlRestrictions,
+  canManagePockets,
+  canTransferBetweenPockets,
   canCountFund,
   canRequestAdvance,
   canRequestReplenishment,
@@ -40,6 +42,9 @@ export const usePettyCashAccess = () => {
         profile ? isFundCustodian(profile, fund) : false,
       voucherActions: (voucher: VoucherAccessContext, fund: FundAccessContext) =>
         profile ? allowedVoucherActions(profile, voucher, fund) : [],
+      canManagePockets: () => (profile ? canManagePockets(profile) : false),
+      canTransferBetweenPockets: (fund: FundAccessContext) =>
+        profile ? canTransferBetweenPockets(profile, fund) : false,
       canCount: (fund: { custodianId: string }) => (profile ? canCountFund(profile, fund) : false),
       canRequestReplenishment: (fund: FundAccessContext) =>
         profile ? canRequestReplenishment(profile, fund) : false,

@@ -8,11 +8,6 @@
   margin-inline: auto;
 }
 
-.toolbar {
-  border: 1px solid var(--mantine-color-gray-3);
-  background: var(--mantine-color-white);
-}
-
 .tabsList {
   gap: rem(4px);
   border-bottom: 1px solid var(--mantine-color-gray-2);

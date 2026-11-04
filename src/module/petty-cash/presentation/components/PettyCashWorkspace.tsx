@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Paper, Stack, Tabs } from '@mantine/core';
 import {
   IconBook2,
@@ -17,8 +17,7 @@ import { AdvanceList } from '@/module/petty-cash/presentation/components/Advance
 import { CashBookPanel } from '@/module/petty-cash/presentation/components/CashBookPanel';
 import { CountDetailDrawer } from '@/module/petty-cash/presentation/components/CountDetailDrawer';
 import { CountList } from '@/module/petty-cash/presentation/components/CountList';
-import { FundInfoStrip } from '@/module/petty-cash/presentation/components/FundInfoStrip';
-import { ImprestBalancePanel } from '@/module/petty-cash/presentation/components/ImprestBalancePanel';
+import { FundOverview } from '@/module/petty-cash/presentation/components/FundOverview';
 import { RecordCountButton } from '@/module/petty-cash/presentation/components/RecordCountButton';
 import { ReplenishmentDetailDrawer } from '@/module/petty-cash/presentation/components/ReplenishmentDetailDrawer';
 import { ReplenishmentList } from '@/module/petty-cash/presentation/components/ReplenishmentList';
@@ -49,7 +48,8 @@ const TABS = ['vouchers', 'counts', 'replenishments', 'advances', 'cashBook', 'r
 export function PettyCashWorkspace({
   fund,
   initialTab,
-}: Readonly<{ fund: PettyCashFund; initialTab?: string | null }>) {
+  switcher,
+}: Readonly<{ fund: PettyCashFund; initialTab?: string | null; switcher?: ReactNode }>) {
   const { t } = useTranslation('pettyCash');
   const access = usePettyCashAccess();
   const canReadReports = access.can('JP-PC', 'read');
@@ -66,9 +66,8 @@ export function PettyCashWorkspace({
 
   return (
     <Stack gap="lg">
-      <ImprestBalancePanel fund={fund} />
+      <FundOverview fund={fund} switcher={switcher} />
       <AdvanceStatusBanner />
-      <FundInfoStrip fund={fund} />
       <Paper withBorder radius="lg" p="md" bg="white">
         <Tabs
           value={
@@ -141,7 +140,7 @@ export function PettyCashWorkspace({
             </Tabs.Panel>
           )}
           <Tabs.Panel value="cashBook">
-            <CashBookPanel fundId={fund.id} />
+            <CashBookPanel fundId={fund.id} pockets={fund.pockets} />
           </Tabs.Panel>
         </Tabs>
       </Paper>

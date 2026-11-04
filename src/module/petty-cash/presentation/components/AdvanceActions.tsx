@@ -11,6 +11,7 @@ import {
 import { useTranslation } from '@/i18n';
 import type { AdvanceRecord, PettyCashFund } from '@/module/petty-cash/domain/pettyCashEntities';
 import { ConvertAdvanceDialog } from '@/module/petty-cash/presentation/components/ConvertAdvanceDialog';
+import { PocketSelect } from '@/module/petty-cash/presentation/components/PocketSelect';
 import { DecisionDialog } from '@/module/petty-cash/presentation/components/DecisionDialog';
 import { SettlementAccountsDialog } from '@/module/petty-cash/presentation/components/SettlementAccountsDialog';
 import { SettlementDialog } from '@/module/petty-cash/presentation/components/SettlementDialog';
@@ -36,8 +37,11 @@ export function AdvanceActions({ advance, fund, onChanged }: Readonly<Props>) {
   const [openCount, setOpenCount] = useState(0);
   const open = (next: Dialog) => {
     setOpenCount((count) => count + 1);
+    // The leftover goes back where the cash came from unless the custodian picks another pocket.
+    setPocket(next === 'custodianVerify' ? (advance.disbursePocket ?? '') : '');
     setDialog(next);
   };
+  const [pocket, setPocket] = useState<string>('');
   const [approved, setApproved] = useState<number | ''>(advance.requestedAmount);
   const approve = useAdvanceDecision(advance.id, 'approve');
   const reject = useAdvanceDecision(advance.id, 'reject');
@@ -212,8 +216,15 @@ export function AdvanceActions({ advance, fund, onChanged }: Readonly<Props>) {
         confirmLabel={t('advanceActions.disburse')}
         loading={disburse.isPending}
         onClose={() => setDialog(null)}
-        onConfirm={() => disburse.mutate({}, { onSuccess: done })}
-      />
+        onConfirm={() => disburse.mutate({ pocket: pocket || undefined }, { onSuccess: done })}
+      >
+        <PocketSelect
+          pockets={fund.pockets}
+          value={pocket}
+          onChange={setPocket}
+          label={t('pocketAdmin.cashFrom')}
+        />
+      </DecisionDialog>
       <DecisionDialog
         opened={dialog === 'custodianVerify'}
         title={t('advanceActions.custodianVerifyTitle', { number })}
@@ -221,8 +232,18 @@ export function AdvanceActions({ advance, fund, onChanged }: Readonly<Props>) {
         confirmLabel={t('advanceActions.custodianVerify')}
         loading={custodianVerify.isPending}
         onClose={() => setDialog(null)}
-        onConfirm={() => custodianVerify.mutate({}, { onSuccess: done })}
-      />
+        onConfirm={() =>
+          custodianVerify.mutate({ pocket: pocket || undefined }, { onSuccess: done })
+        }
+      >
+        <PocketSelect
+          pockets={fund.pockets}
+          value={pocket}
+          onChange={setPocket}
+          label={t('pocketAdmin.settleVia')}
+          description={t('pocketAdmin.settleViaHint')}
+        />
+      </DecisionDialog>
       <DecisionDialog
         opened={dialog === 'financeVerify'}
         title={t('advanceActions.financeVerifyTitle', { number })}

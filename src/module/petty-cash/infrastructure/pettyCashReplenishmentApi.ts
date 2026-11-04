@@ -100,5 +100,6 @@ export const cancelReplenishment = (id: string, reason: string, idempotencyKey: 
 export const disburseReplenishment = (
   id: string,
   disbursementDate: string,
-  idempotencyKey: string
-) => act(id, 'disburse', { disbursementDate }, idempotencyKey);
+  idempotencyKey: string,
+  pocket?: string
+) => act(id, 'disburse', { disbursementDate, ...(pocket ? { pocket } : {}) }, idempotencyKey);

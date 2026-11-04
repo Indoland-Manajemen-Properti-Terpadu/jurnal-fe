@@ -1,112 +1,89 @@
-import { Accordion, Alert, Badge, Divider, Group, Paper, Stack, Table, Text } from '@mantine/core';
-import { IconAlertTriangle, IconCircleCheck } from '@tabler/icons-react';
+import type { ReactNode } from 'react';
+import { Accordion, Stack, Table, Text } from '@mantine/core';
 import { useTranslation } from '@/i18n';
 import { formatCurrency } from '@/utils/formatCurrency';
 import type { ReplenishmentPreview } from '@/module/petty-cash/domain/pettyCashEntities';
+import { AmountRows, type AmountRow } from '@/module/petty-cash/presentation/components/DetailKit';
+import { FormSummaryCard } from '@/module/petty-cash/presentation/components/FormSummaryCard';
 
 const money = (amount: number) => formatCurrency(amount, false);
 
-function Row({
-  label,
-  value,
-  strong,
-}: Readonly<{ label: string; value: string; strong?: boolean }>) {
+function Breakdown({
+  title,
+  lines,
+}: Readonly<{ title: string; lines: { accountId: string; account: string; amount: number }[] }>) {
   return (
-    <Group justify="space-between" wrap="nowrap" gap="md">
-      <Text size="sm" c={strong ? 'dark.9' : 'dimmed'} fw={strong ? 700 : 400}>
-        {label}
+    <Stack gap={6}>
+      <Text size="xs" c="dimmed" fw={700} tt="uppercase" lts={0.4}>
+        {title}
       </Text>
-      <Text size="sm" fw={strong ? 700 : 600} ta="right">
-        {value}
-      </Text>
-    </Group>
+      <AmountRows
+        rows={lines.map((line) => ({ label: line.account, value: money(line.amount) }))}
+      />
+    </Stack>
   );
 }
 
 /**
  * What the replenishment would pay, as the backend works it out: the amount, how it is made up and
- * the balance of the journal. The journal lines themselves are in `JournalDisclosure`.
+ * the balance of the journal. The journal lines themselves are in `JournalDisclosure`. The
+ * actions of the page go in as children.
  */
-export function PayoutSummary({ preview }: Readonly<{ preview: ReplenishmentPreview }>) {
+export function PayoutSummary({
+  preview,
+  children,
+}: Readonly<{ preview: ReplenishmentPreview; children?: ReactNode }>) {
   const { t, currentLanguage } = useTranslation('pettyCash');
   const hasVariance = preview.varianceAmount !== 0;
   const shortage = preview.varianceAmount < 0;
 
+  const rows: AmountRow[] = [
+    { label: t('replenishForm.voucherTotal'), value: money(preview.voucherTotal) },
+    ...(hasVariance
+      ? [
+          {
+            label: t(shortage ? 'replenishForm.shortage' : 'replenishForm.surplus'),
+            value: money(Math.abs(preview.varianceAmount)),
+          },
+        ]
+      : []),
+    { label: t('replenishForm.payout'), value: money(preview.totalAmount), total: true },
+    { label: t('replenishForm.cashAfter'), value: money(preview.cashAfterDisbursement) },
+  ];
+  const notes = [
+    ...(hasVariance
+      ? [t(shortage ? 'replenishForm.shortageNote' : 'replenishForm.surplusNote')]
+      : []),
+    t('replenishForm.previewIndicative'),
+  ];
+
   return (
-    <Paper withBorder radius="md" p="lg" bg="white" shadow="xs">
-      <Stack gap="sm">
-        <Text fw={700}>{t('replenishForm.previewTitle')}</Text>
-
-        <Stack gap={2}>
-          <Text size="sm" c="dimmed">
-            {t('replenishForm.payout')}
-          </Text>
-          <Text fz={28} fw={700} lh={1.1} c="dark.9">
-            {money(preview.totalAmount)}
-          </Text>
-        </Stack>
-
-        <Divider />
-        <Row label={t('replenishForm.voucherTotal')} value={money(preview.voucherTotal)} />
-        {hasVariance && (
-          <>
-            <Row
-              label={t(shortage ? 'replenishForm.shortage' : 'replenishForm.surplus')}
-              value={money(Math.abs(preview.varianceAmount))}
-            />
-            <Text size="xs" c="dimmed">
-              {t(shortage ? 'replenishForm.shortageNote' : 'replenishForm.surplusNote')}
+    <FormSummaryCard
+      title={t('replenishForm.previewTitle')}
+      rows={rows}
+      notes={notes}
+      details={
+        <>
+          <Breakdown title={t('replenishForm.expenseBreakdown')} lines={preview.expenseBreakdown} />
+          {preview.taxBreakdown.length > 0 && (
+            <Breakdown title={t('replenishForm.taxBreakdown')} lines={preview.taxBreakdown} />
+          )}
+          {preview.warnings.map((warning) => (
+            <Text key={`${warning.code}-${warning.message}`} size="xs" c="orange.8" fw={600}>
+              {currentLanguage === 'id' && warning.message
+                ? warning.message
+                : t('replenishForm.warningGeneric')}
             </Text>
-          </>
-        )}
-        <Row label={t('replenishForm.cashAfter')} value={money(preview.cashAfterDisbursement)} />
-
-        <Divider />
-        <Text size="xs" c="dimmed" fw={700} tt="uppercase" lts={0.4}>
-          {t('replenishForm.expenseBreakdown')}
-        </Text>
-        {preview.expenseBreakdown.map((line) => (
-          <Row key={line.accountId} label={line.account} value={money(line.amount)} />
-        ))}
-        {preview.taxBreakdown.length > 0 && (
-          <>
-            <Text size="xs" c="dimmed" fw={700} tt="uppercase" lts={0.4} mt="xs">
-              {t('replenishForm.taxBreakdown')}
-            </Text>
-            {preview.taxBreakdown.map((line) => (
-              <Row key={line.accountId} label={line.account} value={money(line.amount)} />
-            ))}
-          </>
-        )}
-
-        <Badge
-          variant="light"
-          color={preview.isBalanced ? 'teal' : 'orange'}
-          radius="sm"
-          tt="none"
-          leftSection={
-            preview.isBalanced ? <IconCircleCheck size={13} /> : <IconAlertTriangle size={13} />
-          }
-          style={{ alignSelf: 'flex-start' }}
-        >
-          {preview.isBalanced ? t('replenishForm.balanced') : t('replenishForm.unbalanced')}
-        </Badge>
-
-        {preview.warnings.map((warning) => (
-          <Alert
-            key={`${warning.code}-${warning.message}`}
-            variant="light"
-            color="orange"
-            radius="md"
-            icon={<IconAlertTriangle size={16} />}
-          >
-            {currentLanguage === 'id' && warning.message
-              ? warning.message
-              : t('replenishForm.warningGeneric')}
-          </Alert>
-        ))}
-      </Stack>
-    </Paper>
+          ))}
+        </>
+      }
+      status={{
+        tone: preview.isBalanced ? 'ok' : 'warning',
+        text: preview.isBalanced ? t('replenishForm.balanced') : t('replenishForm.unbalanced'),
+      }}
+    >
+      {children}
+    </FormSummaryCard>
   );
 }
 

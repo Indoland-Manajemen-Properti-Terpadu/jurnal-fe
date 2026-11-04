@@ -72,6 +72,16 @@ export const toFund = (dto: FundDto): PettyCashFund => ({
     needsReplenishment: dto.needsReplenishment,
     isBalanced: dto.isBalanced,
   },
+  pockets: (dto.pockets ?? []).map((pocket) => ({
+    code: pocket.code,
+    name: pocket.name,
+    type: pocket.type,
+    provider: pocket.provider ?? null,
+    accountNumber: pocket.accountNumber ?? null,
+    accountHolder: pocket.accountHolder ?? null,
+    isActive: pocket.isActive,
+    balance: pocket.balance,
+  })),
   lastCountAt: dto.lastCountAt,
   closedAt: dto.closedAt,
   createdAt: dto.createdAt,
@@ -87,6 +97,7 @@ export const toVoucher = (dto: VoucherDto): PettyCashVoucherRecord => ({
     custodianId: dto.fund.custodian,
   },
   voucherNumber: dto.voucherNumber,
+  pocket: dto.pocket ?? 'TUNAI',
   source: dto.source,
   advanceId: dto.advance,
   transactionDate: toDateOnly(dto.transactionDate),
@@ -104,6 +115,7 @@ export const toVoucher = (dto: VoucherDto): PettyCashVoucherRecord => ({
     amount: line.amount,
     tax: typeof line.tax === 'object' ? line.tax : null,
     taxAmount: line.taxAmount,
+    tagIds: line.tags ?? [],
   })),
   totalAmount: dto.totalAmount,
   status: dto.status,
@@ -140,6 +152,8 @@ export const toCashBook = (dto: CashBookDto): CashBook => ({
     direction: entry.direction,
     amount: entry.amount,
     runningBalance: entry.runningBalance,
+    pocket: entry.pocket ?? null,
+    pocketBalance: entry.pocketBalance ?? null,
     refType: entry.refType,
     refId: entry.refId,
     journalId: entry.journal,
@@ -148,7 +162,10 @@ export const toCashBook = (dto: CashBookDto): CashBook => ({
   })),
 });
 
-export const toLookups = (dto: LookupsDto): PettyCashLookups => dto;
+export const toLookups = (dto: LookupsDto): PettyCashLookups => ({
+  ...dto,
+  pocketTypes: dto.pocketTypes ?? [],
+});
 
 export const toAccessProfile = (userId: string, dto: MyPermissionsDto): PettyCashAccessProfile => ({
   userId,
@@ -187,6 +204,8 @@ export const toCount = (dto: CountDto): CountRecord => ({
   witnessedBy: dto.witnessedBy,
   denominations: splitDenominations(dto.denominations),
   totalPhysicalCash: dto.totalPhysicalCash,
+  totalCounted: dto.totalCounted ?? dto.totalPhysicalCash,
+  pocketResults: dto.pocketResults ?? [],
   pendingVoucherTotal: dto.pendingVoucherTotal,
   outstandingAdvanceTotal: dto.outstandingAdvanceTotal,
   expectedCash: dto.expectedCash,
@@ -201,6 +220,7 @@ export const toCount = (dto: CountDto): CountRecord => ({
   rejectedAt: dto.rejectedAt,
   rejectedReason: dto.rejectedReason,
   settledByReimbursementId: dto.settledByReimbursement,
+  pendingApprovers: dto.pendingApprovers ?? [],
   isStale: dto.isStale ?? false,
   createdAt: dto.createdAt,
 });
@@ -251,6 +271,8 @@ export const toReimbursement = (dto: ReimbursementDto): ReimbursementRecord => (
   disbursementDate: dateOrNull(dto.disbursementDate),
   journalId: dto.journal,
   cashBalanceAfter: dto.cashBalanceAfter ?? null,
+  pendingApprovers: dto.pendingApprovers ?? [],
+  pocket: dto.pocket ?? null,
 });
 
 export const toPreview = (dto: ReplenishmentPreviewDto): ReplenishmentPreview => ({ ...dto });
@@ -264,6 +286,7 @@ export const toAdvance = (dto: AdvanceDto): AdvanceRecord => ({
     name: dto.fund.name,
     custodianId: dto.fund.custodian,
   },
+  disbursePocket: dto.disbursePocket ?? null,
   requester: dto.requester,
   purpose: dto.purpose,
   requestedAmount: dto.requestedAmount,

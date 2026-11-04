@@ -1,5 +1,7 @@
 > **Source of truth for entity shapes, statuses, state machines, errors and journals is [`API-REAL-SHAPES.md`](API-REAL-SHAPES.md)** (observed on the Demo Site). This file lists every endpoint with its path, query and body. Where the two disagree, `API-REAL-SHAPES.md` wins: markers `[INFERRED]` and `[DOC]` below that real calls contradicted are noted there (section 7).
 
+> **Update 2026-11-04.** The backend added balance **pockets** (cash box, bank account, e-wallet) and **staged approval** (BM then CF) for cash counts and replenishments. They are specified in [section 9](#9-pockets-staged-approval-and-later-additions-2026-11-04) and marked inline below with `(+pockets)` or `(+approval)`. Sources: the updated Postman collection, the backend's written answers (`jurnal-be` `main-backend`, commit `88e8196`) and live calls on the Demo Site.
+
 # Kas Kecil (Petty Cash + Kasbon) API Contract
 
 Compiled 2026-10-31 from:
@@ -150,6 +152,8 @@ The backend validates queries strictly:
 | pagu                                          | number          | yes                                  | imprest ceiling                                                                                                                                                                       |
 | custodianId                                   | ObjectId (user) | yes [INFERRED]                       | from `lookups.users`                                                                                                                                                                  |
 | fundingBankAccountId                          | ObjectId        | optional                             | when set: journal **Dr petty cash / Cr bank** = pagu, and the petty-cash account balance must be 0. When omitted: the account balance must already equal pagu (take-over), no journal |
+| pockets (+pockets)                            | array           | optional                             | non-cash pockets opened with the fund: `{ code, name, type: BANK\|EWALLET, provider?, accountNumber?, accountHolder? }`. The cash box `TUNAI` always exists                           |
+| fundingAllocation (+pockets)                  | array           | optional                             | how the pagu is split: `[{ pocket, amount }]`, the amounts must add up to the pagu. Default: all in `TUNAI`                                                                           |
 | fundingDate                                   | YYYY-MM-DD      | with fundingBankAccountId [INFERRED] |                                                                                                                                                                                       |
 | warningThresholdPct                           | number (%)      | optional                             | low-balance warning                                                                                                                                                                   |
 | voucherApprovalThreshold                      | number          | optional                             | voucher total ≥ this → PENDING_APPROVAL                                                                                                                                               |
@@ -179,9 +183,9 @@ The backend validates queries strictly:
 #### POST `/funds/:fundId/pagu-adjustments`: Adjust pagu (IK)
 
 - Who: Update `JP-PC`.
-- Body: `newPagu` (number), `bankAccountId`, `date` (YYYY-MM-DD), `reason`.
+- Body: `newPagu` (number), `bankAccountId`, `date` (YYYY-MM-DD), `reason`, `pocket` (+pockets, optional, default `TUNAI`: the pocket that receives an increase or gives a decrease).
 - Journal: increase → **Dr petty cash / Cr bank**. Decrease → **Dr bank / Cr petty cash**.
-- Errors: **409** when a reimbursement is in progress (errorCode not named).
+- Errors [DOC, backend answer 19]: `INVALID_STATE_TRANSITION` (closed fund), `PETTY_CASH_PENDING_REIMBURSEMENT` (409), `PETTY_CASH_INSUFFICIENT_BALANCE` (a decrease larger than the available cash), `POCKET_NOT_FOUND`, `POCKET_INACTIVE` (an increase into an inactive pocket), `INVALID_BANK_ACCOUNT`, `PERIOD_LOCKED`, `FUTURE_DATE_NOT_ALLOWED`. A new pagu equal to the current one is a plain 400 without `errorCode`.
 
 #### POST `/funds/:fundId/close`: Close fund (IK)
 
@@ -189,12 +193,12 @@ The backend validates queries strictly:
 - Body: `bankAccountId`, `date`, `reason`.
 - Journal: pagu returns to bank (**Dr bank / Cr petty cash** [INFERRED]).
 - State: → `CLOSED`.
-- Errors: `FUND_HAS_OPEN_ITEMS` (open vouchers, kasbon, reimbursement, opname, or unsettled variance).
+- Errors: `FUND_HAS_OPEN_ITEMS` (409, details in `data.details`) when there is an open voucher (PENDING_APPROVAL, PENDING_REIMBURSE, IN_REIMBURSEMENT), an unfinished kasbon, a SUBMITTED or APPROVED reimbursement, a SUBMITTED or APPROVED count, `unsettledVariance` ≠ 0, or the cash book differs from the pagu. DRAFT vouchers are voided automatically. **Known gap (backend, to fix):** an APPROVED count only becomes SETTLED when a reimbursement is paid out, so a fund can be stuck unclosable after a count is approved with no reimbursement after it.
 
 #### GET `/funds/:fundId/cash-book`: Cash book
 
-- Query: `from`, `to` (YYYY-MM-DD; omit rather than send empty), `page`, `limit`.
-- Response [DOC]: `openingBalance`, `closingBalance`, entries `{ seq, txnDate, type, direction, amount, runningBalance }`. Pagination wrapper shape not observed.
+- Query: `from`, `to` (YYYY-MM-DD; omit rather than send empty), `page`, `limit`, `pocket` (+pockets, optional pocket code: only that pocket's entries, with the opening and closing balance of the pocket).
+- Response [DOC, LIVE]: `openingBalance`, `closingBalance`, entries `{ seq, txnDate, type, direction, amount, runningBalance, pocket, pocketBalance }` (+pockets: `pocket` is the code, `pocketBalance` the balance of that pocket after the entry). `type` `POCKET_TRANSFER` is a move between pockets: an `OUT` entry and an `IN` entry with the same memo. Pagination wrapper shape not observed.
 - Entry `type` values mentioned: `REPLENISHMENT`, `ADVANCE_RETURN`, `ADVANCE_EXTRA` [DOC]. Others are likely voucher spend, kasbon disbursement, opname adjustment, pagu adjustment, funding and close, but are **undocumented**. `direction` values undocumented (IN/OUT?).
 - Live: 404 NOT_FOUND for a nonexistent fund. 400 when `from=` is empty.
 
@@ -213,6 +217,10 @@ The backend validates queries strictly:
     "bankAccounts": [
       { "id": "6acf271a97cb3015c866500d", "accountNumber": "1-10000", "name": "Kas dan Setara Kas" }
     ],
+    "pocketTypes": [
+      { "value": "BANK", "label": "Rekening Bank" },
+      { "value": "EWALLET", "label": "E-Wallet / Kartu Prabayar" }
+    ],
     "taxes": [],
     "tags": [{ "id": "6ad9edc2e683d1cc8904b540", "name": "Fitout", "color": "#3B82F6" }],
     "users": [
@@ -223,6 +231,7 @@ The backend validates queries strictly:
 ```
 
 - `taxes` items: `{ id, name, rate }` [DOC]. Not observed (empty).
+- `pocketTypes` (+pockets) [LIVE 2026-11-04]: the types a user may add as a pocket (`BANK`, `EWALLET`); the cash box is built in and not offered.
 - `bankAccounts` = Kas & Bank accounts **excluding accounts already used by an active fund**. The same list serves "funding bank" and "account for a new fund".
 - Not paginated. The full arrays are returned (72 expense accounts).
 
@@ -758,3 +767,113 @@ The `scratchpad/api-samples/` folder holds one JSON file per call, tokens redact
 - Lookups and status: `lookups.json` (full), `advance-status-*.json`
 - Reports: `report-*.json`, `period-end-check*.json`, `audit-logs*.json`
 - Settings: `account-mappings.json`
+
+---
+
+## 9. Pockets, staged approval and later additions (2026-11-04)
+
+Markers as above; **[LIVE]** was observed on the Demo Site on 2026-11-04, **[ANSWER]** comes from the backend's written answers (commit `88e8196`, not yet checked against the Demo build), **[DOC]** from the updated Postman collection.
+
+### 9.1 Pockets
+
+A fund's cash is split into **pockets** that only itemize the cash book.
+
+| Type (`type`) | Meaning                            | Code                                     |
+| ------------- | ---------------------------------- | ---------------------------------------- |
+| `CASH`        | The cash box, built in             | always `TUNAI`, always active            |
+| `BANK`        | A bank account kept for petty cash | free code, 2-20 letters, digits, `-` `_` |
+| `EWALLET`     | An e-wallet or prepaid card        | same                                     |
+
+- **One ledger account.** All pockets of a fund use the fund's single COA account, so the pocket balances add up to `cashBalance` and the GL balance still equals the pagu. A **transfer between pockets posts no journal.** [DOC]
+- Codes are stored in capitals and are unique per fund. A new pocket starts at balance 0; it is filled by a transfer, a pagu adjustment or a replenishment. [DOC]
+- A pocket is **never deleted**. It can be deactivated (`isActive: false`) only while its balance is 0; the cash box cannot be deactivated. An inactive pocket cannot take part in a new transaction and need not be filled in a count; it is still returned by the fund. [DOC, ANSWER]
+- `GET /funds` and `GET /funds/:fundId` return `pockets[]`: `{ code, name, type, provider, accountNumber, accountHolder, isActive, balance }` [LIVE]. A fund created before pockets answers with one `TUNAI` pocket [ANSWER].
+
+### 9.2 Pocket endpoints
+
+| Method and path                    | Who (menu)                                                                                                                                                          | Idempotency-Key                 | Body [DOC]                                                                                    |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- | --------------------------------------------------------------------------------------------- |
+| POST `/funds/:id/pockets`          | `JP-PC-FUND` update [ANSWER]. The Demo permission list has no `JP-PC-FUND`, only `JP-PC`; the frontend uses `JP-PC-FUND` when a profile has it, else `JP-PC` update | no [ANSWER]                     | `code`, `name`, `type` (`BANK` or `EWALLET`), `provider?`, `accountNumber?`, `accountHolder?` |
+| PATCH `/funds/:id/pockets/:code`   | same                                                                                                                                                                | no                              | `name?`, `provider?`, `accountNumber?`, `accountHolder?`, `isActive?`, `reason?`              |
+| POST `/funds/:id/pocket-transfers` | `JP-PC-CST` update, the custodian of the fund (a superadmin passes [ANSWER])                                                                                        | yes [INFERRED: a business POST] | `fromPocket`, `toPocket`, `amount`, `date` (YYYY-MM-DD), `memo?`                              |
+
+- Transfer errors: `PETTY_CASH_INSUFFICIENT_BALANCE` (source pocket too low), `POCKET_NOT_FOUND`, `POCKET_INACTIVE`. A cash-withdrawal fee is recorded as a normal voucher. [DOC]
+- The shape of the answer of these three writes was not read by the frontend (it reloads the fund); do not rely on it.
+
+### 9.3 The `pocket` field on existing endpoints
+
+| Endpoint                                                | Field             | Meaning                                                                                              | Default                                   |
+| ------------------------------------------------------- | ----------------- | ---------------------------------------------------------------------------------------------------- | ----------------------------------------- |
+| POST `/vouchers` (JSON or multipart), PATCH `/vouchers` | `pocket`          | the pocket the voucher is paid from. **PATCH replaces the voucher, so send the stored pocket again** | `TUNAI`                                   |
+| GET voucher (list and detail) [LIVE]                    | `pocket`          | the pocket of the voucher                                                                            | `TUNAI`                                   |
+| POST `/reimbursements`                                  | `pocket`          | the pocket that receives the refill                                                                  | `TUNAI`                                   |
+| GET reimbursement [LIVE]                                | `pocket`          | as chosen at submission                                                                              | `TUNAI`                                   |
+| POST `/reimbursements/:id/disburse`                     | `pocket`          | the pocket that receives the money; may differ from the submission                                   | the one chosen at submission              |
+| POST `/advances/:id/disburse`                           | `pocket`          | the pocket the cash comes from; stored as `disbursePocket` [LIVE]                                    | `TUNAI`                                   |
+| POST `/advances/:id/custodian-verify`                   | `pocket`          | where the leftover returns (`ADVANCE_RETURN`) or the shortfall is paid from (`ADVANCE_EXTRA`)        | `disbursePocket`                          |
+| POST `/advances/:id/convert-to-receivable`              | `pocket`          | the pocket refilled by the unsettled amount                                                          | `disbursePocket`                          |
+| POST `/funds/:id/pagu-adjustments`                      | `pocket`          | receives an increase, gives a decrease                                                               | `TUNAI`                                   |
+| POST `/counts`                                          | `nonCashBalances` | see 9.5                                                                                              | required for every active non-cash pocket |
+
+`POST /reimbursements/preview` was not sent a pocket by the frontend; whether it accepts one is unverified. The advance finance verification creates a voucher that only carries `disbursePocket` as a marker; it posts no new cash book entry. [ANSWER]
+
+### 9.4 Opening a fund with pockets
+
+`POST /funds` takes `pockets[]` and `fundingAllocation[]` (see the field table in 2.1). The amounts of `fundingAllocation` must add up to `pagu`; without it everything starts in `TUNAI`. The answer carries `pockets` with their balances. [DOC]
+
+### 9.5 Cash count per pocket
+
+- Request: the cash box is counted by `denominations` as before. Every **active non-cash** pocket must also be given as `nonCashBalances: [{ pocket, balance }]`, the balance read from the bank statement or the app. [LIVE]
+- A missing pocket is refused with `400 POCKET_BALANCES_REQUIRED`; `data.details` lists the pocket codes that are missing, for example `["BCA-ENG","GPY","DANA"]`. [LIVE]
+- Detail answer: `pocketResults: [{ pocket, name, type, bookBalance, expected, counted, variance }]`, `totalCounted` (the cash box plus the non-cash pockets) and `totalPhysicalCash` (the cash box only). The total `varianceAmount` is worked out on `totalCounted`. `nonCashBalances` is `null` in the answer. [LIVE]
+- Approving a count adjusts the cash book of every pocket to the counted result and posts no journal. [DOC]
+
+### 9.6 When the balance of a pocket is checked
+
+- A voucher below the approval threshold: the pocket balance is checked **when it is submitted**. [DOC]
+- A voucher at or above the threshold (`PENDING_APPROVAL`): submitting checks only the **fund's** available cash. `reservedAmount` is kept per fund, not per pocket. The chosen pocket is checked **at approval**, so approval can fail with `PETTY_CASH_INSUFFICIENT_BALANCE` whose `data.details` names the `pocket`. Advance disbursement is checked the same way. [ANSWER]
+- The cash book does not shrink while a voucher waits for approval, so the money still counts in the expected cash of a count. [ANSWER]
+
+### 9.7 Staged approval of counts and replenishments
+
+| Field (count and reimbursement) | Meaning [LIVE]                                                                                                                                                 |
+| ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `approvalFlow`                  | the stages fixed at submission: `["BM","CF"]` on a property management site (setting `isPropertyManagement`), `["FINANCE"]` otherwise, `[]` on older documents |
+| `approvalStage`                 | the stage being waited for (`BM`, `CF`, `FINANCE`), `null` when nothing is pending                                                                             |
+| `pendingApprovers`              | `[{ level, label }]`, the stages still to approve in order, the first one being waited for; `[]` when the document is not waiting                              |
+| `approvals`                     | the stages already approved (shape not yet observed; empty on the Demo Site)                                                                                   |
+
+- The approve endpoint is called once per stage, by a different person each time. Menus: `JP-PC-APR-BM` for BM, `JP-PC-APR-CF` for CF, `JP-PC-APR` for the single finance stage (all update). [DOC, LIVE: the two staged menus exist in `GET /users/me/permissions`]
+- Errors: `APPROVAL_LEVEL_FORBIDDEN` (403) without the right of the stage being waited for; `SOD_VIOLATION` when the approver is the custodian, the counter or the submitter, or approved an earlier stage. After the last stage the document is `APPROVED`; for a count, other unsettled counts become `SUPERSEDED` and no journal is posted. [DOC]
+- Audit actions: `APPROVE_FINANCE`, `APPROVE_BM`, `APPROVE_CF` (counts and reimbursements). Voucher and advance approval are unchanged (`JP-PC-APR`, action `APPROVE`).
+- Reimbursement creation waits for BM and then CF too (`approvalStage`).
+
+### 9.8 Paying out a replenishment
+
+- `GET /reimbursements/:id/disbursement-preview?bankAccountId=&pocket=&disbursementDate=` [DOC]: the final amount and journal if the payout is confirmed now. Returns `totalAmount`, `voucherTotal`, `varianceAmount`, `expenseBreakdown`, `taxBreakdown`, `journalPreview`, `isBalanced`, `cashAfterDisbursement`, `pocket`, `bankAccountId`, `submittedTotalAmount`, `changedSinceSubmission` and `warnings` (`REIMBURSEMENT_AMOUNT_CHANGED` when it differs from the submission). It saves nothing. The amount is worked out again because a count approved after submission can change the variance.
+- `POST /reimbursements/:id/disburse` body: `disbursementDate`, `bankAccountId?` (the paying bank, may differ from the submission and is audited), `pocket?`, `expectedTotalAmount?`. When `expectedTotalAmount` differs from the final amount the answer is `409 REIMBURSEMENT_AMOUNT_CHANGED` with the new `data.details.totalAmount` and nothing is posted. The answer carries `cashBalanceAfter`. [DOC]
+- Frontend status: the preview and `expectedTotalAmount` are **not used yet**; the payout sends `disbursementDate` and `pocket` only.
+
+### 9.9 Tags
+
+- Write: `lines[].tagIds: ["<tagId>"]`, ids from `lookups.tags`. Read (list and detail): `lines[].tags` is an **array of tag ids** (names come from `lookups.tags`). [LIVE]
+- `GET /reports/expense-summary?groupBy=tag` counts a line with several tags under each tag; a line without a tag is under "Tanpa tag". [ANSWER]
+
+### 9.10 Other behavior stated by the backend [ANSWER]
+
+- **Time zone:** dates are calendar dates in WIB (`Asia/Jakarta`), stored as midnight UTC of the `YYYY-MM-DD`; "today" for `FUTURE_DATE_NOT_ALLOWED` is WIB.
+- **Superadmin:** `assertCustodian` lets `role === 'superadmin'` through on every custodian action. Separation of duties still applies (a custodian may not pay out or verify their own advance). The backend suggests showing custodian buttons only when `fund.custodian.id === me.id`.
+- **Thresholds:** the attachment and approval thresholds are compared with the voucher **total including tax**, operator `>=`.
+- **Idempotency:** answers are kept 24 hours per site, user and key. Every non-5xx answer (business errors too) is replayed with `Idempotent-Replayed: true`; 5xx answers are dropped so the key can be reused. The same key with another body is `422 IDEMPOTENCY_KEY_REUSED`. Joi validation errors are never stored. Only business POSTs use the key; PATCH, DELETE, attachment upload, pocket add and edit, `settlement-accounts` and block, unblock, override do not.
+- **Status values:** voucher `DRAFT, PENDING_APPROVAL, PENDING_REIMBURSE, IN_REIMBURSEMENT, REIMBURSED, REJECTED, VOID`; reimbursement `SUBMITTED, APPROVED, DISBURSED, REJECTED, CANCELLED`; count `DRAFT, SUBMITTED, APPROVED, SETTLED, REJECTED, SUPERSEDED`; advance `PENDING_APPROVAL, APPROVED, DISBURSED, SETTLEMENT_SUBMITTED, CUSTODIAN_VERIFIED, SETTLED, REJECTED, CANCELLED, CONVERTED_TO_RECEIVABLE`; fund `ACTIVE, INACTIVE, CLOSED`. `OVERDUE` is not a status: it is `reasons[].type` (`MANUAL` or `OVERDUE`), `isOverdue` and the `overdue=true` filter. Voucher warning codes: `DUPLICATE_RECEIPT_NUMBER`, `COUNT_STALE`, `REIMBURSEMENT_AMOUNT_CHANGED`.
+- **Audit `action` values:** FUND `CREATE, UPDATE, SOD_OVERRIDE, PAGU_ADJUSTMENT, CLOSE, ADD_POCKET, UPDATE_POCKET, POCKET_TRANSFER`; VOUCHER `CREATE, UPDATE, SUBMIT, APPROVE, REJECT, VOID, REMOVE_ATTACHMENT`; COUNT `CREATE, SUBMIT, APPROVE_FINANCE, APPROVE_BM, APPROVE_CF, REJECT`; REIMBURSEMENT `SUBMIT, APPROVE_FINANCE, APPROVE_BM, APPROVE_CF, REJECT, CANCEL, DISBURSE`; ADVANCE `CREATE, APPROVE, REJECT, CANCEL, DISBURSE, SUBMIT_SETTLEMENT, SET_SETTLEMENT_ACCOUNTS, CUSTODIAN_VERIFY, CUSTODIAN_REJECT, FINANCE_VERIFY, FINANCE_REJECT, CONVERT_TO_RECEIVABLE`; USER_RESTRICTION `BLOCK, UNBLOCK, OVERRIDE_OVERDUE, REMOVE_OVERRIDE`. Attachment upload and failed attempts are not logged; the log holds `entityId` only, not the document number.
+- **Advance amounts:** `outstandingAmount` is the advance minus `cashSettledNet`: the full advance while the settlement is submitted, the spent amount after the custodian verifies, 0 after finance verifies. Before the custodian verifies, "still to return" is `amount - settlement.actualTotal`. `ADVANCE_EXTRA` (spent more than advanced) is paid by the custodian from the cash at custodian verification and needs available cash.
+- **Variance:** an approved count writes `VARIANCE_ADJUSTMENT` in the cash book without a journal; the journal is posted with the reimbursement that carries the whole `unsettledVariance` (one active reimbursement per fund). A shortage is debited to the `petty_cash_variance` mapping, a surplus credited to it; no custodian receivable. The mapping is checked only when the variance is not 0 (preview, submit, payout), error `DEFAULT_ACCOUNT_NOT_CONFIGURED` (400).
+- **Amounts:** decimals are not refused; Joi accepts 2 decimals and tax is rounded to 2 decimals per line (half away from zero). "Whole rupiah" holds only for whole input.
+
+### 9.11 Known limits and open points
+
+- **Bank reconciliation per bank pocket is not possible** while all pockets share one COA account: the movements of a bank pocket do not match a reconciliation per bank account. The backend is deciding whether to accept this or to split the account per bank pocket; if it splits, transfers between bank pockets will post journals. Do not build anything on per-pocket reconciliation yet. See [ADR 0006](../adr/0006-petty-cash-pockets.md).
+- `JP-PC-FUND` is named by the backend for pocket administration but is absent from the permission list of the Demo Site.
+- Not yet in the backend (answers 2, 10, 13, 21, 22, 25, 29): `unsettledVariance` in `period-end-check`, a voucher date earlier than the fund's formation date is still accepted, `rejectedReason` is not cleared when a voucher returns to DRAFT, `errorCode` is not on every error, a free `status` string is accepted by the voucher, count, reimbursement and advance lists, and `GET /funds` has no `custodianId` filter (it answers 400).
+- Pending a decision (answers 3, 4, 23, 28, 30, 36, 38): the shortage policy, choosing which reimbursement carries the variance, the array envelope of `advances-by-user` and `reconciliation`, PDF and Excel export, a user picker filtered by right, whole-rupiah amounts, and whether a requester may read the audit of their own documents.

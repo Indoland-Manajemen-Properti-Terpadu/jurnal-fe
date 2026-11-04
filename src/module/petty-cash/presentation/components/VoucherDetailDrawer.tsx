@@ -1,16 +1,31 @@
-import { Alert, Box, Divider, Drawer, Group, Skeleton, Stack, Table, Text } from '@mantine/core';
-import { IconAlertTriangle } from '@tabler/icons-react';
+import { Stack, Text } from '@mantine/core';
 import { useTranslation } from '@/i18n';
 import { formatCurrency } from '@/utils/formatCurrency';
 import { dateFormatV1 } from '@/utils/formatDate';
 import type { PettyCashFund } from '@/module/petty-cash/domain/pettyCashEntities';
+import { voucherJourney } from '@/module/petty-cash/domain/documentJourney';
+import { pocketLabel } from '@/module/petty-cash/domain/pockets';
 import { voucherBreakdown } from '@/module/petty-cash/domain/pettyCashView';
 import { AuditTimeline } from '@/module/petty-cash/presentation/components/AuditTimeline';
+import {
+  AmountRows,
+  AmountSummary,
+  DetailFacts,
+  DetailSection,
+  LineItems,
+} from '@/module/petty-cash/presentation/components/DetailKit';
+import {
+  DocumentDrawer,
+  DocumentNotice,
+} from '@/module/petty-cash/presentation/components/DocumentDrawer';
+import { JourneySection } from '@/module/petty-cash/presentation/components/JourneySection';
 import { PettyCashStatusBadge } from '@/module/petty-cash/presentation/components/PettyCashStatusBadge';
 import { VoucherActions } from '@/module/petty-cash/presentation/components/VoucherActions';
 import { VoucherAttachmentsPanel } from '@/module/petty-cash/presentation/components/VoucherAttachmentsPanel';
-import { QueryErrorState } from '@/module/petty-cash/presentation/components/QueryErrorState';
-import { usePettyCashVoucher } from '@/module/petty-cash/presentation/hooks/usePettyCashQueries';
+import {
+  usePettyCashLookups,
+  usePettyCashVoucher,
+} from '@/module/petty-cash/presentation/hooks/usePettyCashQueries';
 
 interface Props {
   fund: PettyCashFund;
@@ -23,20 +38,6 @@ interface Props {
 const KNOWN_WARNING_CODES = ['DUPLICATE_RECEIPT_NUMBER'];
 
 const money = (amount: number) => formatCurrency(amount, false);
-
-function Field({ label, value }: Readonly<{ label: string; value?: string | null }>) {
-  if (!value) return null;
-  return (
-    <Box>
-      <Text size="xs" c="dimmed">
-        {label}
-      </Text>
-      <Text size="sm" fw={600}>
-        {value}
-      </Text>
-    </Box>
-  );
-}
 
 const warningText = (
   warning: { code: string; message: string },
@@ -53,171 +54,111 @@ export function VoucherDetailDrawer({ fund, voucherId, opened, onClose }: Readon
   const { t, currentLanguage } = useTranslation('pettyCash');
   const query = usePettyCashVoucher(voucherId ?? undefined);
   const voucher = query.data;
+  const lookups = usePettyCashLookups();
+  const tagNames = (ids: string[]) =>
+    ids
+      .map((id) => lookups.data?.tags.find((tag) => tag.id === id)?.name)
+      .filter(Boolean)
+      .join(', ');
   const totals = voucher ? voucherBreakdown(voucher.lines, voucher.totalAmount) : null;
 
   return (
-    <Drawer
+    <DocumentDrawer
       opened={opened}
       onClose={onClose}
-      position="right"
-      size="lg"
-      title={
-        <Group gap="sm">
-          <Text fw={700}>{voucher?.voucherNumber ?? t('drawer.title')}</Text>
-          {voucher && <PettyCashStatusBadge kind="voucher" status={voucher.status} />}
-        </Group>
-      }
-      closeButtonProps={{ 'aria-label': t('common.close') }}
+      kindLabel={t('drawer.title')}
+      number={voucher?.voucherNumber}
+      status={voucher && <PettyCashStatusBadge kind="voucher" status={voucher.status} />}
+      loading={query.isLoading}
+      error={query.isError ? query.error : null}
+      loadFailed={t('drawer.loadFailed')}
+      onRetry={() => query.refetch()}
+      actions={voucher && <VoucherActions voucher={voucher} fund={fund} onChanged={onClose} />}
     >
-      {query.isLoading && (
-        <Stack gap="sm">
-          <Skeleton height={20} />
-          <Skeleton height={20} width="70%" />
-          <Skeleton height={120} />
-        </Stack>
-      )}
-
-      {query.isError && (
-        <QueryErrorState
-          title={t('drawer.loadFailed')}
-          error={query.error}
-          onRetry={() => query.refetch()}
-        />
-      )}
-
       {voucher && totals && (
-        <Stack gap="lg">
+        <>
+          <AmountSummary
+            label={t('drawer.total')}
+            amount={money(voucher.totalAmount)}
+            meta={`${voucher.beneficiary} · ${dateFormatV1(voucher.transactionDate)}`}
+          />
+
+          {/* The backend keeps old reasons after a voucher leaves REJECTED or VOID. */}
+          {voucher.status === 'REJECTED' && voucher.rejectedReason && (
+            <DocumentNotice tone="refusal" title={t('drawer.rejectedReason')}>
+              {voucher.rejectedReason}
+            </DocumentNotice>
+          )}
+          {voucher.status === 'VOID' && voucher.voidReason && (
+            <DocumentNotice tone="info" title={t('drawer.voidReason')}>
+              {voucher.voidReason}
+            </DocumentNotice>
+          )}
           {voucher.warnings.length > 0 && (
-            <Alert
-              color="orange"
-              variant="light"
-              radius="md"
-              icon={<IconAlertTriangle size={16} />}
-              title={t('drawer.warnings')}
-            >
+            <DocumentNotice tone="warning" title={t('drawer.warnings')}>
               {voucher.warnings.map((warning) => (
                 <Text key={`${warning.code}-${warning.message}`} size="sm">
                   {warningText(warning, currentLanguage, t)}
                 </Text>
               ))}
-            </Alert>
+            </DocumentNotice>
           )}
 
-          <Group grow align="flex-start">
-            <Field label={t('drawer.beneficiary')} value={voucher.beneficiary} />
-            <Field label={t('drawer.date')} value={dateFormatV1(voucher.transactionDate)} />
-          </Group>
-          <Group grow align="flex-start">
-            <Field label={t('drawer.receipt')} value={voucher.receiptNumber} />
-            <Field label={t('drawer.taxInvoice')} value={voucher.taxInvoiceNumber} />
-          </Group>
-          <Field label={t('drawer.vendorTaxId')} value={voucher.vendorTaxId} />
-          <Field label={t('drawer.description')} value={voucher.description} />
+          <DetailSection title={t('detail.info')}>
+            <DetailFacts
+              facts={[
+                { label: t('drawer.beneficiary'), value: voucher.beneficiary },
+                { label: t('drawer.date'), value: dateFormatV1(voucher.transactionDate) },
+                { label: t('drawer.receipt'), value: voucher.receiptNumber },
+                { label: t('detail.pocket'), value: pocketLabel(fund.pockets, voucher.pocket) },
+                { label: t('drawer.taxInvoice'), value: voucher.taxInvoiceNumber },
+                { label: t('drawer.vendorTaxId'), value: voucher.vendorTaxId },
+                { label: t('drawer.description'), value: voucher.description, wide: true },
+              ]}
+            />
+          </DetailSection>
 
-          <Box>
-            <Text fw={700} mb="xs">
-              {t('drawer.lines')}
-            </Text>
-            <Table.ScrollContainer minWidth={420}>
-              <Table verticalSpacing="xs">
-                <Table.Thead>
-                  <Table.Tr>
-                    <Table.Th>{t('drawer.lineAccount')}</Table.Th>
-                    <Table.Th ta="right">{t('drawer.lineNet')}</Table.Th>
-                    <Table.Th ta="right">{t('drawer.lineTax')}</Table.Th>
-                  </Table.Tr>
-                </Table.Thead>
-                <Table.Tbody>
-                  {voucher.lines.map((line) => (
-                    <Table.Tr key={line.lineNo}>
-                      <Table.Td>
-                        {line.expenseAccount && (
-                          <Text size="sm" fw={600}>
-                            {line.expenseAccount.accountNumber} · {line.expenseAccount.name}
-                          </Text>
-                        )}
-                        {line.description && (
-                          <Text size="xs" c="dimmed">
-                            {line.description}
-                          </Text>
-                        )}
-                      </Table.Td>
-                      <Table.Td ta="right">{money(line.amount)}</Table.Td>
-                      <Table.Td ta="right">
-                        {line.tax ? (
-                          <>
-                            {money(line.taxAmount)}
-                            <Text size="xs" c="dimmed">
-                              {line.tax.name}
-                            </Text>
-                          </>
-                        ) : (
-                          '-'
-                        )}
-                      </Table.Td>
-                    </Table.Tr>
-                  ))}
-                </Table.Tbody>
-              </Table>
-            </Table.ScrollContainer>
-            <Stack gap={4} mt="sm">
-              {totals.reconciles && (
-                <>
-                  <Group justify="space-between">
-                    <Text size="sm" c="dimmed">
-                      {t('drawer.net')}
-                    </Text>
-                    <Text size="sm">{money(totals.net)}</Text>
-                  </Group>
-                  <Group justify="space-between">
-                    <Text size="sm" c="dimmed">
-                      {t('drawer.tax')}
-                    </Text>
-                    <Text size="sm">{money(totals.tax)}</Text>
-                  </Group>
-                </>
-              )}
-              <Divider />
-              <Group justify="space-between">
-                <Text fw={700}>{t('drawer.total')}</Text>
-                <Text fw={700}>{money(voucher.totalAmount)}</Text>
-              </Group>
-              {totals.reconciles && (
-                <Text size="xs" c="dimmed">
-                  {t('drawer.taxNote')}
-                </Text>
-              )}
+          <DetailSection title={t('drawer.lines')}>
+            <Stack gap="sm">
+              <LineItems
+                items={voucher.lines.map((line) => ({
+                  key: String(line.lineNo),
+                  title: line.expenseAccount
+                    ? `${line.expenseAccount.accountNumber} · ${line.expenseAccount.name}`
+                    : line.description,
+                  subtitle: [
+                    line.expenseAccount ? line.description : null,
+                    line.tagIds.length > 0
+                      ? t('detail.tagsLine', { names: tagNames(line.tagIds) })
+                      : null,
+                  ]
+                    .filter(Boolean)
+                    .join(' · '),
+                  amount: money(line.amount),
+                  amountHint: line.tax
+                    ? t('detail.taxOnLine', { name: line.tax.name, amount: money(line.taxAmount) })
+                    : undefined,
+                }))}
+              />
+              <AmountRows
+                rows={[
+                  ...(totals.reconciles
+                    ? [
+                        { label: t('drawer.net'), value: money(totals.net) },
+                        { label: t('drawer.tax'), value: money(totals.tax) },
+                      ]
+                    : []),
+                  { label: t('drawer.total'), value: money(voucher.totalAmount), total: true },
+                ]}
+              />
             </Stack>
-          </Box>
+          </DetailSection>
 
           <VoucherAttachmentsPanel voucher={voucher} fund={fund} />
-
-          <Box>
-            <Text fw={700} mb="xs">
-              {t('drawer.history')}
-            </Text>
-            <Stack gap="xs">
-              <Field label={t('drawer.createdBy')} value={voucher.requestedBy?.name} />
-              <Field
-                label={t('drawer.submittedAt')}
-                value={voucher.submittedAt ? dateFormatV1(voucher.submittedAt) : null}
-              />
-              <Field label={t('drawer.approvedBy')} value={voucher.approvedBy?.name} />
-              {/* The backend keeps the old reasons after a voucher leaves REJECTED or VOID. */}
-              <Field
-                label={t('drawer.rejectedReason')}
-                value={voucher.status === 'REJECTED' ? voucher.rejectedReason : null}
-              />
-              <Field
-                label={t('drawer.voidReason')}
-                value={voucher.status === 'VOID' ? voucher.voidReason : null}
-              />
-            </Stack>
-          </Box>
+          <JourneySection steps={voucherJourney(voucher)} />
           <AuditTimeline entityType="VOUCHER" entityId={voucher.id} />
-          <VoucherActions voucher={voucher} fund={fund} onChanged={onClose} />
-        </Stack>
+        </>
       )}
-    </Drawer>
+    </DocumentDrawer>
   );
 }

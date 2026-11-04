@@ -43,6 +43,8 @@ const NOTIFY: Record<ReplenishmentDecision, string> = {
 export interface ReplenishmentDecisionVariables {
   reason?: string;
   disbursementDate?: string;
+  /** Disburse only: the pocket that receives the refill. */
+  pocket?: string;
 }
 
 /** Approve, reject, cancel or disburse one replenishment; the three that need it carry a reason or a date. */
@@ -51,11 +53,11 @@ export const useReplenishmentDecision = (id: string, decision: ReplenishmentDeci
   const notify = usePettyCashNotifier();
   return useIdempotentMutation<ReimbursementRecord, ReplenishmentDecisionVariables>(
     `replenishment:${decision}:${id}`,
-    ({ reason = '', disbursementDate = '' }, key) => {
+    ({ reason = '', disbursementDate = '', pocket }, key) => {
       if (decision === 'approve') return approveReplenishment(id, key);
       if (decision === 'reject') return rejectReplenishment(id, reason, key);
       if (decision === 'cancel') return cancelReplenishment(id, reason, key);
-      return disburseReplenishment(id, disbursementDate, key);
+      return disburseReplenishment(id, disbursementDate, key, pocket);
     },
     {
       onSuccess: async (record) => {
