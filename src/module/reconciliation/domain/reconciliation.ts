@@ -41,8 +41,11 @@ export interface BankStatementData {
 }
 
 export interface GetReconciliationModel {
+  /** Only the statements that are not reconciled yet; a matched one leaves this list. */
   bankStatements: BankStatementData[];
-  journalDetails: JournalDetail[];
+  /** Journal lines of the account that no bank statement row has matched. */
+  unreconciledJournalDetails?: JournalDetail[];
+  /** Net of the unreconciled statements, not the bank balance. */
   balance?: number;
 }
 
@@ -58,4 +61,6 @@ export interface ReconciliationRow {
   bankStatement: BankStatementData;
   journalTransactions: JournalDetail[];
   isRecommendation: boolean;
+  /** Days between the statement and its top suggestion. */
+  dayDifference?: number;
 }

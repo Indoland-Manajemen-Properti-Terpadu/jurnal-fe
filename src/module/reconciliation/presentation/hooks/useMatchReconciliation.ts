@@ -2,7 +2,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 import { useTranslation } from '@/i18n';
 import { themeColors } from '@/theme';
-import { matchErrorMessage, matchReconciliation } from '../../infrastructure/reconciliationApi';
+import { matchFailureReason } from '../../infrastructure/matchErrors';
+import { matchReconciliation } from '../../infrastructure/reconciliationApi';
 import type { MatchPayload } from '../../domain/reconciliation';
 import { reconciliationKeys } from './reconciliationKeys';
 
@@ -27,7 +28,7 @@ export const useMatchReconciliation = () => {
     onError: (error: unknown) => {
       notifications.show({
         title: t('notifications.failureTitle'),
-        message: matchErrorMessage(error) || t('notifications.matchFailed'),
+        message: t(`notifications.reason.${matchFailureReason(error)}`),
         color: themeColors.red[6],
       });
     },

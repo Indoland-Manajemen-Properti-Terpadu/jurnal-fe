@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { blockedBySharedJournal } from '../../domain/matchGuards';
 import { buildMatch } from '../../domain/matchRules';
 import type {
   BankStatementData,
@@ -38,6 +39,7 @@ export const useReconciliationMatches = (
         bankStatement,
         journalTransactions: bankStatement.recommendations.map((rec) => rec.journalDetail),
         isRecommendation: true,
+        dayDifference: bankStatement.recommendations[0].dayDifference,
       };
     }
     return { bankStatement, journalTransactions: [], isRecommendation: false };
@@ -48,15 +50,15 @@ export const useReconciliationMatches = (
       current.includes(id) ? current.filter((item) => item !== id) : [...current, id]
     );
 
-  const removeMatch = (bankStatementId: string) => {
+  /** Hides a suggestion on this screen only; nothing is changed on the server. */
+  const dismissSuggestion = (bankStatementId: string) => {
     setRemovedRecommendations((prev) => [...prev, bankStatementId]);
     setSelectedIds((prev) => prev.filter((id) => id !== bankStatementId));
   };
 
-  const reset = () => {
-    setSelectedIds([]);
-    setRemovedRecommendations([]);
-  };
+  const clearSelection = () => setSelectedIds([]);
+
+  const restoreSuggestions = () => setRemovedRecommendations([]);
 
   const matchManual = (bankStatement: BankStatementData, journals: JournalDetail[]) => {
     matchRecon(
@@ -71,8 +73,16 @@ export const useReconciliationMatches = (
   };
 
   const matchSelected = () => {
+    // A journal line backs one statement row only; a second row that suggests it is left out
+    // here (the screen blocks it too), because the server fails the whole request otherwise.
+    const blocked = blockedBySharedJournal(rows, selectedIds, idAccount);
     const matches = rows
-      .filter((r) => selectedIds.includes(r.bankStatement.id) && r.journalTransactions.length > 0)
+      .filter(
+        (r) =>
+          selectedIds.includes(r.bankStatement.id) &&
+          !blocked.has(r.bankStatement.id) &&
+          r.journalTransactions.length > 0
+      )
       .map((r) => buildMatch(r.bankStatement, r.journalTransactions, idAccount));
     if (matches.length === 0) return;
     matchRecon(
@@ -91,9 +101,11 @@ export const useReconciliationMatches = (
     rows,
     selectedIds,
     isMatching,
+    dismissedCount: removedRecommendations.length,
     toggleSelection,
-    removeMatch,
-    reset,
+    dismissSuggestion,
+    clearSelection,
+    restoreSuggestions,
     matchManual,
     matchSelected,
   };
