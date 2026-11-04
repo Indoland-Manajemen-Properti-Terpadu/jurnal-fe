@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import {
-  Badge,
   Box,
   Button,
   Grid,
   Group,
+  Input,
   Paper,
   Stack,
   Text,
@@ -38,7 +38,6 @@ import JournalLinesEditor from '../components/JournalLinesEditor';
 import { TagInput } from '../components/TagInput';
 import { useCreateJournalEntry } from '../hooks/useCreateJournalEntry';
 import type { JournalEntryPayload } from '../../domain/journalEntry';
-import { JournalBalanceMetrics } from '../components/JournalBalanceMetrics';
 import { JournalDoubleEntryGuide } from '../components/JournalDoubleEntryGuide';
 import { JournalValidationCard } from '../components/JournalValidationCard';
 
@@ -143,16 +142,13 @@ export const AddJournalEntryPage: React.FC = () => {
             }
           />
 
-          {/* Quick Metrics & Balance Summary Bar */}
-          <JournalBalanceMetrics />
-
           {/* Form Layout: 8 cols Inputs / 4 cols Verification & Assistance */}
           <Grid gutter="lg" align="flex-start">
             {/* Left Column: Form Sections */}
             <Grid.Col span={{ base: 12, lg: 8 }}>
               <Stack gap="lg">
                 {/* Card 1: Informasi Transaksi */}
-                <Paper withBorder radius="md" p="lg" bg="white" shadow="xs">
+                <Paper withBorder radius="md" p="lg" bg="white" shadow="none">
                   <Group gap="sm" mb="md">
                     <ThemeIcon size={36} radius="md" variant="light" color="primary">
                       <IconFileInvoice size={20} />
@@ -179,7 +175,7 @@ export const AddJournalEntryPage: React.FC = () => {
                         maxDate={new Date()}
                         placeholder={t('form.datePlaceholder')}
                         rightSection={<IconCalendar size={18} color={themeColors.gray[5]} />}
-                        styles={{ input: { height: 40 } }}
+                        styles={{ input: { height: 38 } }}
                       />
                     </Grid.Col>
 
@@ -189,7 +185,7 @@ export const AddJournalEntryPage: React.FC = () => {
                         placeholder={t('form.numberPlaceholder')}
                         value={transactionNumber}
                         onChange={(e) => setTransactionNumber(e.target.value)}
-                        styles={{ input: { height: 40 } }}
+                        styles={{ input: { height: 38 } }}
                       />
                       <Text fz="var(--jurnal-text-xs)" c="dimmed" mt={4}>
                         {t('form.numberHint')}
@@ -197,21 +193,18 @@ export const AddJournalEntryPage: React.FC = () => {
                     </Grid.Col>
 
                     <Grid.Col span={{ base: 12, sm: 4 }}>
-                      <Stack gap={4}>
-                        <Text fz="var(--jurnal-text-sm)" fw={500} c="dark.8">
-                          {t('form.tagLabel')}
-                        </Text>
+                      <Input.Wrapper label={t('form.tagLabel')}>
                         <TagInput value={tags} onChange={setTags} />
-                      </Stack>
+                      </Input.Wrapper>
                     </Grid.Col>
                   </Grid>
                 </Paper>
 
                 {/* Card 2: Baris Ayat Jurnal (Table) */}
-                <Paper withBorder radius="md" p="lg" bg="white" shadow="xs">
+                <Paper withBorder radius="md" p="lg" bg="white" shadow="none">
                   <Group justify="space-between" align="flex-start" mb="md">
                     <Group gap="sm">
-                      <ThemeIcon size={36} radius="md" variant="light" color="teal">
+                      <ThemeIcon size={36} radius="md" variant="light" color="primary">
                         <IconListNumbers size={20} />
                       </ThemeIcon>
                       <div>
@@ -223,9 +216,9 @@ export const AddJournalEntryPage: React.FC = () => {
                         </Text>
                       </div>
                     </Group>
-                    <Badge variant="light" color="primary" size="sm">
+                    <Text fz="var(--jurnal-text-xs)" fw={600} c="dimmed">
                       {t('form.linesBadge', { count: transactions.length })}
-                    </Badge>
+                    </Text>
                   </Group>
 
                   <Box>
@@ -234,9 +227,9 @@ export const AddJournalEntryPage: React.FC = () => {
                 </Paper>
 
                 {/* Card 3: Memo & Berkas Lampiran */}
-                <Paper withBorder radius="md" p="lg" bg="white" shadow="xs">
+                <Paper withBorder radius="md" p="lg" bg="white" shadow="none">
                   <Group gap="sm" mb="md">
-                    <ThemeIcon size={36} radius="md" variant="light" color="indigo">
+                    <ThemeIcon size={36} radius="md" variant="light" color="primary">
                       <IconPaperclip size={20} />
                     </ThemeIcon>
                     <div>
@@ -283,18 +276,12 @@ export const AddJournalEntryPage: React.FC = () => {
               </Stack>
             </Grid.Col>
 
-            {/* Right Column: Validation & Assistant */}
+            {/* Right Column: Verification (it owns the save button) & Guide */}
             <Grid.Col span={{ base: 12, lg: 4 }}>
               <Stack gap="md" pos="sticky" top={20}>
-                {/* Live Verification Checklist Card */}
-                <JournalValidationCard transactionDate={transactionDate} />
-
-                {/* Accounting Guidelines Card */}
-                <JournalDoubleEntryGuide />
-
-                {/* Quick Actions Panel */}
-                <Paper withBorder radius="md" p="md" bg="white" shadow="xs">
-                  <Stack gap="xs">
+                <JournalValidationCard
+                  transactionDate={transactionDate}
+                  action={
                     <Button
                       size="md"
                       fullWidth
@@ -306,18 +293,10 @@ export const AddJournalEntryPage: React.FC = () => {
                     >
                       {t('form.save')}
                     </Button>
-                    <Button
-                      size="md"
-                      fullWidth
-                      variant="subtle"
-                      color="gray"
-                      onClick={() => navigate(routes.chartOfAccounts.main)}
-                      disabled={isPending}
-                    >
-                      {t('form.cancel')}
-                    </Button>
-                  </Stack>
-                </Paper>
+                  }
+                />
+
+                <JournalDoubleEntryGuide />
               </Stack>
             </Grid.Col>
           </Grid>

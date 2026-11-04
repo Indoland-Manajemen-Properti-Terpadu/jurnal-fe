@@ -1,49 +1,50 @@
 import React from 'react';
 import {
-  Avatar,
-  Badge,
+  Alert,
+  Anchor,
   Box,
   Button,
-  Card,
   Grid,
   Group,
   Paper,
   Skeleton,
   Stack,
   Text,
-  Title,
 } from '@mantine/core';
-import { IconArrowLeft, IconPrinter, IconTrash, IconX } from '@tabler/icons-react';
+import {
+  IconAlertCircle,
+  IconArrowLeft,
+  IconInfoCircle,
+  IconNotebook,
+  IconPrinter,
+  IconBan,
+} from '@tabler/icons-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useDisclosure } from '@mantine/hooks';
+import { ConfirmModal } from '@/components';
 import { AppShellLayout } from '@/components/AppShellLayout';
+import { EmptyState } from '@/components/EmptyState';
+import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
+import deleteModalImage from '@/assets/images/illustrations/delete-confirm.svg';
+import { SummaryBar, type SummaryItem } from '@/components/SummaryBar';
 import { useTranslation } from '@/i18n';
 import { routes } from '@/router/routes';
-import { isDetailBalanced, sumAmounts } from '../../domain/journalRules';
+import { formatCurrency } from '@/utils/formatCurrency';
+import { absoluteDifference, isDetailBalanced, sumAmounts } from '../../domain/journalRules';
+import { voidGate } from '../../domain/journalVoid';
 import { useJournalEntryDetail } from '../hooks/useJournalEntryDetail';
-import { useDeleteJournalEntry } from '../hooks/useDeleteJournalEntry';
+import { useVoidJournalEntry } from '../hooks/useVoidJournalEntry';
 import JournalEntryLinesTable from '../components/JournalEntryLinesTable';
-import JournalEntryHero from '../components/JournalEntryHero';
+import JournalEntryMeta from '../components/JournalEntryMeta';
 import JournalEntrySidebar from '../components/JournalEntrySidebar';
-import DeleteJournalEntryModal from '../components/DeleteJournalEntryModal';
 
 export const JournalEntryDetailPage: React.FC = () => {
   const { t } = useTranslation('journalEntries');
   const navigate = useNavigate();
   const { idTransaction } = useParams<{ idTransaction: string }>();
   const { journalEntry, isError, isLoading } = useJournalEntryDetail(idTransaction!);
-  const [deleteOpened, { open: openDelete, close: closeDelete }] = useDisclosure(false);
-  const deleteMutation = useDeleteJournalEntry();
-
-  const handleConfirmDelete = () => {
-    if (!idTransaction) return;
-    deleteMutation.mutate(idTransaction, {
-      onSuccess: () => {
-        closeDelete();
-        navigate(routes.chartOfAccounts.main);
-      },
-    });
-  };
+  const [voidOpened, { open: openVoid, close: closeVoid }] = useDisclosure(false);
+  const voidMutation = useVoidJournalEntry();
 
   const lines = journalEntry?.transactionDetail || [];
   const totalDebit = sumAmounts(lines.map((item) => Number(item.debit) || 0));
@@ -55,13 +56,13 @@ export const JournalEntryDetailPage: React.FC = () => {
       <AppShellLayout>
         <Box p={{ base: 'md', sm: 'xl' }}>
           <Stack gap="lg">
-            <Skeleton height={50} radius="md" />
-            <Skeleton height={140} radius="lg" />
+            <Skeleton height={120} radius="lg" />
+            <Skeleton height={86} radius="md" />
             <Grid gutter="lg">
-              <Grid.Col span={{ base: 12, md: 8 }}>
+              <Grid.Col span={{ base: 12, lg: 8 }}>
                 <Skeleton height={350} radius="md" />
               </Grid.Col>
-              <Grid.Col span={{ base: 12, md: 4 }}>
+              <Grid.Col span={{ base: 12, lg: 4 }}>
                 <Skeleton height={350} radius="md" />
               </Grid.Col>
             </Grid>
@@ -75,23 +76,16 @@ export const JournalEntryDetailPage: React.FC = () => {
     return (
       <AppShellLayout>
         <Box p={{ base: 'md', sm: 'xl' }}>
-          <Paper withBorder p="xl" radius="lg" ta="center" bg="white">
-            <Avatar size={64} radius="xl" color="red" variant="light" mx="auto" mb="md">
-              <IconX size={32} />
-            </Avatar>
-            <Title order={3} c="dark.8">
-              {t('detail.notFoundTitle')}
-            </Title>
-            <Text c="dimmed" size="sm" mt="xs" mb="lg">
-              {t('detail.notFoundBody')}
-            </Text>
-            <Button
-              variant="default"
-              leftSection={<IconArrowLeft size={16} />}
-              onClick={() => navigate(routes.chartOfAccounts.main)}
-            >
-              {t('detail.backToJournal')}
-            </Button>
+          <Paper withBorder radius="lg" bg="white" p={0}>
+            <EmptyState
+              icon={<IconAlertCircle size={32} stroke={1.6} />}
+              color="red"
+              title={t('detail.notFoundTitle')}
+              description={t('detail.notFoundBody')}
+              actionLabel={t('detail.backToJournal')}
+              actionIcon={<IconArrowLeft size={16} />}
+              onAction={() => navigate(routes.chartOfAccounts.main)}
+            />
           </Paper>
         </Box>
       </AppShellLayout>
@@ -99,110 +93,168 @@ export const JournalEntryDetailPage: React.FC = () => {
   }
 
   const hasMemo = journalEntry.notes && journalEntry.notes !== '-';
+  const gate = voidGate(journalEntry);
+  const openEntry = (id: string) =>
+    navigate(routes.journalEntries.detail.replace(':idTransaction', id));
+  const linkedId =
+    !gate.allowed && gate.kind === 'void'
+      ? journalEntry.reversedBy
+      : !gate.allowed && gate.kind === 'reversal'
+        ? journalEntry.reverses
+        : null;
+  const numberText = String(journalEntry.transactionNumber ?? '-');
+
+  const handleConfirmVoid = () => {
+    if (!idTransaction) return;
+    voidMutation.mutate({ id: idTransaction, number: numberText }, { onSettled: closeVoid });
+  };
+
+  const summary: SummaryItem[] = [
+    {
+      key: 'debit',
+      label: t('detail.totalDebit'),
+      value: formatCurrency(totalDebit),
+      hint: t('detail.debitHint'),
+    },
+    {
+      key: 'credit',
+      label: t('detail.totalCredit'),
+      value: formatCurrency(totalCredit),
+      hint: t('detail.creditHint'),
+    },
+    {
+      key: 'status',
+      label: t('detail.balanceGap'),
+      value: isBalanced
+        ? t('detail.balanced')
+        : formatCurrency(absoluteDifference(totalDebit, totalCredit)),
+      hint: isBalanced ? t('detail.balancedHint') : t('detail.unbalancedHint'),
+      tone: isBalanced ? 'success' : 'danger',
+    },
+    {
+      key: 'lines',
+      label: t('detail.linesCard'),
+      value: t('detail.linesBadge', { count: lines.length }),
+      hint: t('detail.linesHint'),
+    },
+  ];
 
   return (
     <AppShellLayout>
       <Box p={{ base: 'md', sm: 'xl' }}>
         <Stack gap="lg">
-          <Paper
-            withBorder
-            radius="lg"
-            p={{ base: 'md', sm: 'lg' }}
-            style={{
-              background:
-                'linear-gradient(135deg, var(--mantine-color-white) 60%, var(--mantine-color-secondary-0) 100%)',
-            }}
-          >
-            <Group justify="space-between" align="center" wrap="wrap" gap="sm">
-              <Button
-                variant="subtle"
-                color="gray"
-                leftSection={<IconArrowLeft size={18} />}
-                onClick={() => navigate(-1)}
-              >
-                {t('detail.back')}
-              </Button>
-
-              <Group gap="xs">
+          <ModuleHeader
+            icon={IconNotebook}
+            title={t('detail.heading', { number: numberText })}
+            description={<JournalEntryMeta entry={journalEntry} isBalanced={isBalanced} />}
+            actions={
+              <Group gap="xs" wrap="wrap">
                 <Button
                   variant="default"
+                  size="md"
+                  leftSection={<IconArrowLeft size={16} />}
+                  onClick={() => navigate(-1)}
+                >
+                  {t('detail.back')}
+                </Button>
+                <Button
+                  variant="default"
+                  size="md"
                   leftSection={<IconPrinter size={16} />}
                   onClick={() => window.print()}
                 >
                   {t('detail.print')}
                 </Button>
-
-                <Button
-                  variant="outline"
-                  color="red"
-                  leftSection={<IconTrash size={16} />}
-                  loading={deleteMutation.isPending}
-                  onClick={openDelete}
-                >
-                  {t('detail.delete')}
-                </Button>
+                {gate.allowed && (
+                  <Button
+                    variant="light"
+                    color="red"
+                    size="md"
+                    leftSection={<IconBan size={16} />}
+                    loading={voidMutation.isPending}
+                    onClick={openVoid}
+                  >
+                    {t('detail.void')}
+                  </Button>
+                )}
               </Group>
-            </Group>
-          </Paper>
+            }
+          />
 
-          <JournalEntryHero entry={journalEntry} isBalanced={isBalanced} />
+          {!gate.allowed && (
+            <Alert variant="light" color="gray" radius="md" icon={<IconInfoCircle size={18} />}>
+              <Group gap="xs" wrap="wrap">
+                <Text fz="var(--jurnal-text-sm)">
+                  {gate.kind === 'blocked' && gate.reason
+                    ? gate.reason
+                    : t(`detail.notice.${gate.kind}`)}
+                </Text>
+                {linkedId && (
+                  <Anchor
+                    component="button"
+                    type="button"
+                    fz="var(--jurnal-text-sm)"
+                    fw={600}
+                    onClick={() => openEntry(linkedId)}
+                  >
+                    {t(`detail.noticeLink.${gate.kind}`)}
+                  </Anchor>
+                )}
+              </Group>
+            </Alert>
+          )}
 
-          <Grid gutter="lg">
-            <Grid.Col span={{ base: 12, md: 8 }}>
-              <Stack gap="lg">
-                <Card withBorder radius="md" p="lg" bg="white">
-                  <Group justify="space-between" align="center" mb="md">
-                    <Text fw={700} size="md" c="primary.9">
-                      {t('detail.linesCard')}
-                    </Text>
-                    <Badge size="sm" variant="light" color="primary">
-                      {t('detail.linesBadge', { count: lines.length })}
-                    </Badge>
-                  </Group>
+          <SummaryBar items={summary} />
 
+          <Grid gutter="lg" align="flex-start">
+            <Grid.Col span={{ base: 12, lg: 8 }}>
+              <Stack gap="md">
+                <Paper withBorder radius="md" p="md" bg="white" shadow="none">
+                  <Text fw={700} fz="var(--jurnal-text-sm)" c="dark.8">
+                    {t('detail.linesCard')}
+                  </Text>
+                  <Text fz="var(--jurnal-text-xs)" c="dimmed" mb="sm">
+                    {t('detail.linesSubtitle')}
+                  </Text>
                   <JournalEntryLinesTable
                     transactionDetails={journalEntry.transactionDetail}
                     isLoading={isLoading}
-                    withBorder={false}
                   />
-                </Card>
+                </Paper>
 
-                <Card withBorder radius="md" p="lg" bg="white">
-                  <Text fw={700} size="md" c="primary.9" mb="xs">
+                <Paper withBorder radius="md" p="md" bg="white" shadow="none">
+                  <Text fw={700} fz="var(--jurnal-text-sm)" c="dark.8" mb="xs">
                     {t('detail.memoCard')}
                   </Text>
-                  <Box
-                    p="sm"
-                    style={{
-                      backgroundColor: 'var(--mantine-color-gray-0)',
-                      borderRadius: 8,
-                      minHeight: 72,
-                    }}
+                  <Text
+                    fz="var(--jurnal-text-sm)"
+                    c={hasMemo ? 'dark.8' : 'dimmed'}
+                    style={{ whiteSpace: 'pre-wrap' }}
                   >
-                    <Text size="sm" c={hasMemo ? 'dark.8' : 'dimmed'}>
-                      {hasMemo ? journalEntry.notes : t('detail.memoEmpty')}
-                    </Text>
-                  </Box>
-                </Card>
+                    {hasMemo ? journalEntry.notes : t('detail.memoEmpty')}
+                  </Text>
+                </Paper>
               </Stack>
             </Grid.Col>
 
-            <Grid.Col span={{ base: 12, md: 4 }}>
-              <JournalEntrySidebar
-                entry={journalEntry}
-                totalDebit={totalDebit}
-                totalCredit={totalCredit}
-                isBalanced={isBalanced}
-              />
+            <Grid.Col span={{ base: 12, lg: 4 }}>
+              <JournalEntrySidebar entry={journalEntry} />
             </Grid.Col>
           </Grid>
         </Stack>
       </Box>
 
-      <DeleteJournalEntryModal
-        opened={deleteOpened}
-        onClose={closeDelete}
-        onDelete={handleConfirmDelete}
+      <ConfirmModal
+        opened={voidOpened}
+        onClose={closeVoid}
+        onConfirm={handleConfirmVoid}
+        title={t('void.confirmTitle')}
+        message={t('void.confirmMessage', { number: numberText })}
+        helperText={t('void.confirmHelper')}
+        imageSrc={deleteModalImage}
+        confirmLabel={t('void.confirmLabel')}
+        cancelLabel={t('void.cancel')}
+        confirmLoading={voidMutation.isPending}
       />
     </AppShellLayout>
   );

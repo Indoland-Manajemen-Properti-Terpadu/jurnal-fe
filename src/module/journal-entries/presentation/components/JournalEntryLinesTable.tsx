@@ -1,25 +1,6 @@
 import React from 'react';
-import {
-  Badge,
-  Box,
-  CopyButton,
-  Group,
-  Paper,
-  Skeleton,
-  Table,
-  Text,
-  ThemeIcon,
-  Tooltip,
-  ActionIcon,
-} from '@mantine/core';
-import {
-  IconCheck,
-  IconCopy,
-  IconScale,
-  IconAlertCircle,
-  IconArrowUpRight,
-  IconBook2,
-} from '@tabler/icons-react';
+import { Anchor, Paper, Skeleton, Table, Text } from '@mantine/core';
+import { IconBook2 } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { formatCurrency } from '@/utils/formatCurrency';
 import { routes } from '@/router/routes';
@@ -99,9 +80,27 @@ const JournalEntryLinesTable: React.FC<Props> = ({
     );
   }
 
+  const amount = (value: number | undefined) => (
+    <Text
+      size="sm"
+      fw={value ? 600 : 400}
+      c={value ? 'dark.8' : 'dimmed'}
+      style={{ fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}
+    >
+      {value ? formatCurrency(value) : '—'}
+    </Text>
+  );
+
+  const openAccount = (account: NonNullable<JournalEntryLine['account']>) => {
+    const targetRoute = account.isBankAndCash
+      ? routes.accountLedger.cashBank
+      : routes.accountLedger.nonCashBank;
+    navigate(targetRoute.replace(':idAccount', account.id!));
+  };
+
   return (
-    <Paper withBorder={withBorder} radius="md" bg="white" style={{ overflow: 'hidden' }}>
-      <Table.ScrollContainer minWidth={720}>
+    <Paper withBorder={withBorder} radius="md" bg="white" p={0} style={{ overflow: 'hidden' }}>
+      <Table.ScrollContainer minWidth={640}>
         <Table verticalSpacing="sm" horizontalSpacing="md" highlightOnHover>
           <Table.Thead bg="gray.0">
             <Table.Tr>
@@ -131,175 +130,82 @@ const JournalEntryLinesTable: React.FC<Props> = ({
           <Table.Tbody>
             {transactionDetails.map((txn, index) => {
               const { account } = txn;
-              const hasDebit = (txn.debit || 0) > 0;
-              const hasCredit = (txn.credit || 0) > 0;
-
               return (
-                <Table.Tr
-                  key={txn.id || `txn-${index}`}
-                  style={{
-                    backgroundColor: index % 2 === 1 ? 'var(--mantine-color-gray-0)' : 'white',
-                  }}
-                >
-                  {/* Account Name & Number with Link to Account */}
+                <Table.Tr key={txn.id || `txn-${index}`}>
                   <Table.Td>
-                    <Group gap="xs" align="flex-start" wrap="nowrap">
-                      <ThemeIcon
-                        size={28}
-                        radius="md"
-                        variant="light"
-                        color={account?.isBankAndCash ? 'teal' : 'primary'}
-                        mt={2}
+                    {account?.id ? (
+                      <Anchor
+                        component="button"
+                        type="button"
+                        size="sm"
+                        fw={600}
+                        ta="left"
+                        onClick={() => openAccount(account)}
                       >
-                        <IconBook2 size={16} />
-                      </ThemeIcon>
-
-                      <Box style={{ flex: 1, minWidth: 0 }}>
-                        <Group gap={6} align="center" wrap="nowrap">
-                          {account?.id ? (
-                            <Text
-                              size="sm"
-                              fw={600}
-                              c="primary.9"
-                              style={{
-                                cursor: 'pointer',
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: 4,
-                              }}
-                              onClick={() => {
-                                const targetRoute = account.isBankAndCash
-                                  ? routes.accountLedger.cashBank
-                                  : routes.accountLedger.nonCashBank;
-                                navigate(targetRoute.replace(':idAccount', account.id!));
-                              }}
-                            >
-                              {account.name || t('linesTable.unknownAccount')}
-                              <IconArrowUpRight size={13} style={{ opacity: 0.7 }} />
-                            </Text>
-                          ) : (
-                            <Text size="sm" fw={600} c="dark.8">
-                              {account?.name || '—'}
-                            </Text>
-                          )}
-                        </Group>
-
-                        <Group gap={6} align="center" mt={2} wrap="wrap">
-                          {account?.accountNumber && (
-                            <Group gap={4} wrap="nowrap">
-                              <Badge size="xs" variant="outline" color="gray" radius="sm">
-                                {account.accountNumber}
-                              </Badge>
-                              <CopyButton value={account.accountNumber}>
-                                {({ copied, copy }) => (
-                                  <Tooltip
-                                    label={
-                                      copied
-                                        ? t('linesTable.copied')
-                                        : t('linesTable.copyAccountNumber')
-                                    }
-                                  >
-                                    <ActionIcon
-                                      size="xs"
-                                      variant="subtle"
-                                      color={copied ? 'teal' : 'gray'}
-                                      onClick={copy}
-                                    >
-                                      {copied ? <IconCheck size={11} /> : <IconCopy size={11} />}
-                                    </ActionIcon>
-                                  </Tooltip>
-                                )}
-                              </CopyButton>
-                            </Group>
-                          )}
-
-                          {account?.category?.name && (
-                            <Text size="xs" c="dimmed">
-                              • {account.category.name}
-                            </Text>
-                          )}
-                        </Group>
-                      </Box>
-                    </Group>
+                        {account.name || t('linesTable.unknownAccount')}
+                      </Anchor>
+                    ) : (
+                      <Text size="sm" fw={600} c="dark.8">
+                        {account?.name || '—'}
+                      </Text>
+                    )}
+                    <Text size="xs" c="dimmed" mt={2}>
+                      {[account?.accountNumber, account?.category?.name]
+                        .filter(Boolean)
+                        .join(' · ') || '—'}
+                    </Text>
                   </Table.Td>
 
-                  {/* Description */}
                   <Table.Td>
                     <Text size="sm" c={txn.description ? 'dark.7' : 'dimmed'}>
                       {txn.description || '—'}
                     </Text>
                     {txn.notes && txn.notes !== '-' && (
-                      <Text size="xs" c="dimmed" mt={2} fs="italic">
+                      <Text size="xs" c="dimmed" mt={2}>
                         {t('linesTable.note', { note: txn.notes })}
                       </Text>
                     )}
                   </Table.Td>
 
-                  {/* Debit */}
-                  <Table.Td style={{ textAlign: 'right' }}>
-                    <Text
-                      size="sm"
-                      fw={hasDebit ? 700 : 400}
-                      c={hasDebit ? 'teal.8' : 'dimmed'}
-                      style={{ fontVariantNumeric: 'tabular-nums' }}
-                    >
-                      {hasDebit ? formatCurrency(txn.debit!) : '—'}
-                    </Text>
-                  </Table.Td>
-
-                  {/* Credit */}
-                  <Table.Td style={{ textAlign: 'right' }}>
-                    <Text
-                      size="sm"
-                      fw={hasCredit ? 700 : 400}
-                      c={hasCredit ? 'red.8' : 'dimmed'}
-                      style={{ fontVariantNumeric: 'tabular-nums' }}
-                    >
-                      {hasCredit ? formatCurrency(txn.credit!) : '—'}
-                    </Text>
-                  </Table.Td>
+                  <Table.Td style={{ textAlign: 'right' }}>{amount(txn.debit)}</Table.Td>
+                  <Table.Td style={{ textAlign: 'right' }}>{amount(txn.credit)}</Table.Td>
                 </Table.Tr>
               );
             })}
 
-            {/* Total Balance Summary Row */}
             <Table.Tr
-              style={{
-                backgroundColor: 'var(--mantine-color-gray-1)',
-                borderTop: '2px solid var(--mantine-color-gray-3)',
-              }}
+              bg="gray.0"
+              style={{ borderTop: '1px solid var(--jurnal-color-border-subtle)' }}
             >
               <Table.Td colSpan={2}>
-                <Group gap="xs">
-                  <ThemeIcon
-                    size={24}
-                    radius="md"
-                    variant="light"
-                    color={isBalanced ? 'teal' : 'red'}
-                  >
-                    {isBalanced ? <IconScale size={14} /> : <IconAlertCircle size={14} />}
-                  </ThemeIcon>
-                  <Text fw={700} size="sm" c="dark.9">
-                    {t('linesTable.total')}
+                <Text fw={700} size="sm" c="dark.9">
+                  {t('linesTable.total')}
+                </Text>
+                {!isBalanced && (
+                  <Text size="xs" fw={600} c="red.7" mt={2}>
+                    {t('linesTable.difference', {
+                      amount: formatCurrency(absoluteDifference(totalDebit, totalCredit)),
+                    })}
                   </Text>
-                  {!isBalanced && (
-                    <Badge size="xs" color="red" variant="filled">
-                      {t('linesTable.difference', {
-                        amount: formatCurrency(absoluteDifference(totalDebit, totalCredit)),
-                      })}
-                    </Badge>
-                  )}
-                </Group>
+                )}
               </Table.Td>
-
               <Table.Td style={{ textAlign: 'right' }}>
-                <Text fw={800} size="sm" c="teal.8" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                <Text
+                  fw={700}
+                  size="sm"
+                  c="dark.9"
+                  style={{ fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}
+                >
                   {formatCurrency(totalDebit)}
                 </Text>
               </Table.Td>
-
               <Table.Td style={{ textAlign: 'right' }}>
-                <Text fw={800} size="sm" c="red.8" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                <Text
+                  fw={700}
+                  size="sm"
+                  c="dark.9"
+                  style={{ fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}
+                >
                   {formatCurrency(totalCredit)}
                 </Text>
               </Table.Td>

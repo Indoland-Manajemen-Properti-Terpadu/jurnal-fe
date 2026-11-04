@@ -1,149 +1,136 @@
 import React from 'react';
-import { Badge, Card, Divider, Group, Stack, Text } from '@mantine/core';
-import { IconPaperclip } from '@tabler/icons-react';
+import {
+  ActionIcon,
+  Badge,
+  CopyButton,
+  Divider,
+  Group,
+  Paper,
+  Stack,
+  Text,
+  Tooltip,
+} from '@mantine/core';
+import { IconCheck, IconCopy } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
-import { formatCurrency } from '@/utils/formatCurrency';
-import { dateFormatV1, dateFormatTimeZone } from '@/utils/formatDate';
+import { dateFormatV1 } from '@/utils/formatDate';
+import { tagNames } from '../../domain/journalTags';
 import type { JournalEntryDetail } from '../../domain/journalEntry';
-import { absoluteDifference } from '../../domain/journalRules';
 import JournalAttachments from './JournalAttachments';
 
 interface JournalEntrySidebarProps {
   entry: JournalEntryDetail;
-  totalDebit: number;
-  totalCredit: number;
-  isBalanced: boolean;
 }
 
-const tabular = { fontVariantNumeric: 'tabular-nums' } as const;
+const LABEL_WIDTH = 112;
+const STAMP_FORMAT = 'DD/MM/YYYY HH:mm';
 
-const JournalEntrySidebar: React.FC<JournalEntrySidebarProps> = ({
-  entry,
-  totalDebit,
-  totalCredit,
-  isBalanced,
-}) => {
+const Row: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
+  <Group gap="sm" wrap="nowrap" align="flex-start">
+    <Text fz="var(--jurnal-text-xs)" c="dimmed" w={LABEL_WIDTH} pt={2} style={{ flexShrink: 0 }}>
+      {label}
+    </Text>
+    <div style={{ minWidth: 0, flex: 1 }}>{children}</div>
+  </Group>
+);
+
+const Value: React.FC<{ children: React.ReactNode; muted?: boolean }> = ({ children, muted }) => (
+  <Text
+    fz="var(--jurnal-text-sm)"
+    fw={500}
+    c={muted ? 'dimmed' : 'dark.8'}
+    style={{ wordBreak: 'break-word' }}
+  >
+    {children}
+  </Text>
+);
+
+/** Right column: the facts of the entry, then its attachments. */
+const JournalEntrySidebar: React.FC<JournalEntrySidebarProps> = ({ entry }) => {
   const { t } = useTranslation('journalEntries');
-  const hasTag = entry.tags && entry.tags !== '-';
+  const tags = tagNames(entry.tags);
+  const attachmentCount = (entry.attachments || []).length;
 
   return (
-    <Stack gap="lg">
-      <Card withBorder radius="md" p="lg" bg="white">
-        <Text fw={700} size="md" c="dark.8" mb="sm">
-          {t('detail.summaryTitle')}
-        </Text>
-        <Divider mb="sm" />
-
-        <Stack gap="xs">
-          <Group justify="space-between" align="center">
-            <Text size="sm" c="dimmed">
-              {t('detail.totalDebit')}
-            </Text>
-            <Text size="sm" fw={700} c="teal.8" style={tabular}>
-              {formatCurrency(totalDebit)}
-            </Text>
-          </Group>
-
-          <Group justify="space-between" align="center">
-            <Text size="sm" c="dimmed">
-              {t('detail.totalCredit')}
-            </Text>
-            <Text size="sm" fw={700} c="red.8" style={tabular}>
-              {formatCurrency(totalCredit)}
-            </Text>
-          </Group>
-
-          <Group justify="space-between" align="center">
-            <Text size="sm" c="dimmed">
-              {t('detail.balanceGap')}
-            </Text>
-            <Text size="sm" fw={700} c={isBalanced ? 'teal.7' : 'red.7'} style={tabular}>
-              {formatCurrency(absoluteDifference(totalDebit, totalCredit))}
-            </Text>
-          </Group>
-        </Stack>
-      </Card>
-
-      <Card withBorder radius="md" p="lg" bg="white">
-        <Text fw={700} size="md" c="dark.8" mb="sm">
+    <Stack gap="md">
+      <Paper withBorder radius="md" p="md" bg="white" shadow="none">
+        <Text fw={700} fz="var(--jurnal-text-sm)" c="dark.8">
           {t('detail.auditTitle')}
         </Text>
-        <Divider mb="sm" />
-
+        <Divider my="sm" />
         <Stack gap="xs">
-          <Group justify="space-between" align="center">
-            <Text size="sm" c="dimmed">
-              {t('detail.entityProject')}
-            </Text>
-            <Text size="sm" fw={600} c="dark.8">
-              {entry.site?.name || t('detail.defaultSite')}
-            </Text>
-          </Group>
-
-          <Group justify="space-between" align="center">
-            <Text size="sm" c="dimmed">
-              {t('detail.transactionDate')}
-            </Text>
-            <Text size="sm" fw={600} c="dark.8">
+          <Row label={t('detail.transactionDate')}>
+            <Value>
               {entry.transactionDate ? dateFormatV1(entry.transactionDate.toString()) : '—'}
-            </Text>
-          </Group>
-
-          <Group justify="space-between" align="center">
-            <Text size="sm" c="dimmed">
-              {t('detail.transactionTag')}
-            </Text>
-            <div>
-              {hasTag ? (
-                <Badge size="xs" variant="light" color="primary">
-                  {entry.tags}
-                </Badge>
-              ) : (
-                <Text size="sm" c="dimmed">
-                  —
-                </Text>
-              )}
-            </div>
-          </Group>
-
-          <Group justify="space-between" align="center">
-            <Text size="sm" c="dimmed">
-              {t('detail.createdAt')}
-            </Text>
-            <Text size="xs" c="dark.7">
-              {entry.createdAt ? dateFormatTimeZone(entry.createdAt) : '—'}
-            </Text>
-          </Group>
-
+            </Value>
+          </Row>
+          <Row label={t('detail.entityProject')}>
+            <Value>{entry.site?.name || t('detail.defaultSite')}</Value>
+          </Row>
+          <Row label={t('detail.transactionType')}>
+            <Value muted={!entry.transactionType}>{entry.transactionType || '—'}</Value>
+          </Row>
+          <Row label={t('detail.transactionTag')}>
+            {tags.length > 0 ? (
+              <Group gap={6} wrap="wrap">
+                {tags.map((name) => (
+                  <Badge key={name} variant="light" color="gray" radius="sm" tt="none" fw={500}>
+                    {name}
+                  </Badge>
+                ))}
+              </Group>
+            ) : (
+              <Value muted>—</Value>
+            )}
+          </Row>
+          <Row label={t('detail.createdAt')}>
+            <Value>
+              {entry.createdAt ? dateFormatV1(entry.createdAt.toString(), STAMP_FORMAT) : '—'}
+            </Value>
+          </Row>
           {entry.updatedAt && (
-            <Group justify="space-between" align="center">
-              <Text size="sm" c="dimmed">
-                {t('detail.updatedAt')}
-              </Text>
-              <Text size="xs" c="dark.7">
-                {dateFormatTimeZone(entry.updatedAt)}
-              </Text>
-            </Group>
+            <Row label={t('detail.updatedAt')}>
+              <Value>{dateFormatV1(entry.updatedAt.toString(), STAMP_FORMAT)}</Value>
+            </Row>
+          )}
+          {entry.id && (
+            <Row label={t('detail.systemIdLabel')}>
+              <Group gap={4} wrap="nowrap">
+                <Text fz="var(--jurnal-text-xs)" c="dark.6" ff="monospace" title={entry.id}>
+                  …{entry.id.slice(-10)}
+                </Text>
+                <CopyButton value={entry.id}>
+                  {({ copied, copy }) => (
+                    <Tooltip label={copied ? t('detail.copied') : t('detail.copyId')}>
+                      <ActionIcon
+                        variant="subtle"
+                        color={copied ? 'teal' : 'gray'}
+                        size="xs"
+                        aria-label={t('detail.copyId')}
+                        onClick={copy}
+                      >
+                        {copied ? <IconCheck size={12} /> : <IconCopy size={12} />}
+                      </ActionIcon>
+                    </Tooltip>
+                  )}
+                </CopyButton>
+              </Group>
+            </Row>
           )}
         </Stack>
-      </Card>
+      </Paper>
 
-      <Card withBorder radius="md" p="lg" bg="white">
-        <Group justify="space-between" align="center" mb="sm">
-          <Group gap="xs">
-            <IconPaperclip size={18} color="var(--mantine-color-primary-6)" />
-            <Text fw={700} size="md" c="dark.8">
-              {t('detail.docsTitle')}
-            </Text>
-          </Group>
-          <Badge size="sm" variant="light" color="primary">
-            {t('detail.docsBadge', { count: (entry.attachments || []).length })}
-          </Badge>
+      <Paper withBorder radius="md" p="md" bg="white" shadow="none">
+        <Group justify="space-between" align="center">
+          <Text fw={700} fz="var(--jurnal-text-sm)" c="dark.8">
+            {t('detail.docsTitle')}
+          </Text>
+          <Text fz="var(--jurnal-text-xs)" fw={600} c="dimmed">
+            {t('detail.docsBadge', { count: attachmentCount })}
+          </Text>
         </Group>
-        <Divider mb="sm" />
-
+        <Divider my="sm" />
         <JournalAttachments attachments={entry.attachments} />
-      </Card>
+      </Paper>
     </Stack>
   );
 };
