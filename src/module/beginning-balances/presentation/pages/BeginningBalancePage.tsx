@@ -1,21 +1,30 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { Center, Container, Loader, Paper, Stack, Text } from '@mantine/core';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Box, Button, Center, Loader, Paper, Stack, Text } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
+import { IconCheck } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 import { AppShellLayout } from '@/components/AppShellLayout';
 import { ConfirmModal } from '@/components';
 import deleteModalImage from '@/assets/images/illustrations/delete-confirm.svg';
-import { useJournalAccounts, type JournalAccounts } from '@/module/chart-of-accounts';
+import publishModalImage from '@/assets/images/illustrations/publish-balance.svg';
 import { routes } from '@/router/routes';
 import { useTranslation } from '@/i18n';
 import { formatCurrency } from '@/utils/formatCurrency';
 import { dateFormatV1 } from '@/utils/formatDate';
+import type { OpeningRow } from '../../domain/beginningBalance';
 import {
+  applyAmountEntry,
+  balanceSignature,
   buildBalancePayload,
-  checkOpeningPublish,
+  buildOpeningRows,
+  clearAccountRow,
+  clearAllRows,
+  conversionDateIssue,
+  filterOpeningRows,
   getBalanceState,
-  mergeDraftIntoAccounts,
+  openingActions,
+  resolveSavedBalance,
   summarizeOpeningBalance,
 } from '../../domain/openingBalanceRules';
 import BalanceSummary from '../components/BalanceSummary';
@@ -24,121 +33,139 @@ import BeginningBalanceHeader from '../components/BeginningBalanceHeader';
 import { BeginningBalanceLogsModal } from '../components/BeginningBalanceLogsModal';
 import TableBeginningBalance from '../components/TableBeginningBalance';
 import {
+  useDateLocked,
   useDraftAccount,
+  useDraftBalanceLogs,
   usePublishDraftBalance,
   useSetDraftBalance,
+  useSimpleAccounts,
 } from '../hooks/useDraftBalance';
 import { useInitialBalanceStore } from '../store/useInitialBalanceStore';
+
+const toIsoDate = (value: string | Date | null | undefined): string | null =>
+  value ? dayjs(value).format('YYYY-MM-DD') : null;
 
 const BeginningBalancePage: React.FC = () => {
   const navigate = useNavigate();
   const { t } = useTranslation('beginningBalances');
 
   const { conversionDate, setConversionDate } = useInitialBalanceStore();
-  const { accounts: rawAccounts, isLoading: isLoadingAccounts } = useJournalAccounts();
+  const {
+    data: simpleAccounts,
+    isLoading: isLoadingAccounts,
+    isError: isAccountsError,
+    refetch: refetchAccounts,
+  } = useSimpleAccounts();
   const { draftAccounts, isLoading: isLoadingDraft, refetch: refetchDraft } = useDraftAccount();
+  const isPublished = Boolean(draftAccounts?.isPublished || draftAccounts?.publishedDate);
+  const { data: logs, isLoading: isLoadingLogs } = useDraftBalanceLogs(isPublished);
   const { mutate: setDraftBalance, isPending: isSavingDraft } = useSetDraftBalance();
   const { mutate: publishDraftBalance, isPending: isPublishing } = usePublishDraftBalance();
 
-  const [listAccounts, setListAccounts] = useState<JournalAccounts[]>([]);
+  const [rows, setRows] = useState<OpeningRow[]>([]);
   const [selectedDate, setSelectedDate] = useState<string | null>(
     conversionDate ? dayjs(conversionDate).format('YYYY-MM-DD') : dayjs().format('YYYY-MM-DD')
   );
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [accountClass, setAccountClass] = useState<number | null>(null);
+  const [onlyFilled, setOnlyFilled] = useState(false);
 
   const [isPublishModalOpen, setIsPublishModalOpen] = useState(false);
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
   const [isLogsModalOpen, setIsLogsModalOpen] = useState(false);
 
-  // Merge journal accounts with draft accounts data. `conversionDate` is read but deliberately not
-  // a dependency: re-running on a date change would overwrite the amounts the user is typing.
+  const hasDraft = Boolean(draftAccounts?.id);
+
+  // What the server has: the saved balance (the draft, or the last publish) over the account list.
+  const saved = useMemo(() => resolveSavedBalance(draftAccounts, logs), [draftAccounts, logs]);
+  const draftPeriod = toIsoDate(saved.period);
+  const savedRows = useMemo(
+    () => (simpleAccounts ? buildOpeningRows(simpleAccounts, saved.entries) : []),
+    [simpleAccounts, saved]
+  );
+  const savedSignature = useMemo(
+    () => balanceSignature(savedRows, hasDraft ? draftPeriod : null),
+    [savedRows, hasDraft, draftPeriod]
+  );
+  const currentSignature = balanceSignature(rows, hasDraft ? selectedDate : null);
+  const isDirty = currentSignature !== savedSignature;
+
+  // Fill the table once both answers are in. After that a refetch (for example when the window
+  // regains focus) must not overwrite what is being typed, so it only applies while nothing is
+  // changed on screen.
+  const populated = useRef(false);
+  const dirtyRef = useRef(false);
+  dirtyRef.current = isDirty;
   useEffect(() => {
-    if (!rawAccounts || !Array.isArray(rawAccounts) || rawAccounts.length === 0) return;
-
-    const draftPeriod = draftAccounts?.period
-      ? dayjs(draftAccounts.period).format('YYYY-MM-DD')
-      : null;
-
-    if (draftPeriod && !conversionDate) {
-      setConversionDate(new Date(draftPeriod));
-      setSelectedDate(draftPeriod);
-    } else if (conversionDate) {
-      setSelectedDate(dayjs(conversionDate).format('YYYY-MM-DD'));
-    }
-
-    setListAccounts(mergeDraftIntoAccounts(rawAccounts, draftAccounts?.accounts || []));
-  }, [rawAccounts, draftAccounts]);
+    if (!simpleAccounts || isLoadingDraft || isLoadingLogs) return;
+    if (populated.current && dirtyRef.current) return;
+    populated.current = true;
+    setRows(savedRows);
+    if (draftPeriod && !conversionDate) setSelectedDate(draftPeriod);
+    // `conversionDate` is read, not a dependency: a date change must not re-apply the saved rows.
+  }, [savedRows, simpleAccounts, isLoadingDraft, isLoadingLogs]);
 
   const handleDateChange = (date: string | null) => {
     setSelectedDate(date);
-    if (date) {
-      setConversionDate(new Date(date));
-    }
+    if (date) setConversionDate(new Date(date));
   };
 
   const { totalDebit, totalCredit, difference, isBalanced } = useMemo(
-    () => summarizeOpeningBalance(listAccounts),
-    [listAccounts]
+    () => summarizeOpeningBalance(rows),
+    [rows]
   );
   const balanceState = getBalanceState(totalDebit, totalCredit, isBalanced);
+  const { data: isDateLocked } = useDateLocked(selectedDate);
+  const dateIssue = conversionDateIssue(
+    selectedDate,
+    draftAccounts?.firstTransactionDate,
+    Boolean(isDateLocked)
+  );
+  const dateError = dateIssue
+    ? dateIssue === 'locked'
+      ? t('date.locked')
+      : t('date.afterFirst', { date: dateFormatV1(draftAccounts?.firstTransactionDate ?? '') })
+    : null;
+  const actions = openingActions(balanceState, isDirty, isPublished);
+  const canSaveDraft = actions.canSaveDraft && !dateIssue;
+  const canPublish = actions.canPublish && !dateIssue;
+  const filledCount = useMemo(
+    () => rows.filter((row) => row.debit > 0 || row.credit > 0).length,
+    [rows]
+  );
 
-  const categoryNames = useMemo(() => {
-    const categories = new Set<string>();
-    listAccounts.forEach((acc) => {
-      if (acc.category?.name) categories.add(acc.category.name);
-    });
-    return Array.from(categories);
-  }, [listAccounts]);
-  const categoryOptions = [
-    { value: 'all', label: t('toolbar.allCategories') },
-    ...categoryNames.map((cat) => ({ value: cat, label: cat })),
-  ];
+  const visibleRows = useMemo(
+    () => filterOpeningRows(rows, { query: searchQuery, accountClass, onlyFilled }),
+    [rows, searchQuery, accountClass, onlyFilled]
+  );
 
-  const isPublished = Boolean(draftAccounts?.isPublished || draftAccounts?.publishedDate);
   const statusLabel = isPublished
     ? t('status.published')
-    : draftAccounts?.id
+    : hasDraft
       ? t('status.draft')
       : t('status.new');
-  const statusColor = isPublished ? 'teal' : draftAccounts?.id ? 'yellow.8' : 'blue';
 
-  const buildPayload = () => {
-    const targetDate = selectedDate || conversionDate || new Date();
-    return buildBalancePayload(listAccounts, dayjs(targetDate).format('YYYY-MM-DD'));
-  };
+  const saveDraftHint = canSaveDraft ? null : (dateError ?? t('action.saveDraftNothing'));
+  const publishHint = canPublish
+    ? null
+    : (dateError ??
+      (balanceState === 'empty'
+        ? t('action.publishEmpty')
+        : t('action.publishUnbalanced', { amount: formatCurrency(difference) })));
+
+  const buildPayload = () =>
+    buildBalancePayload(
+      rows,
+      dayjs(selectedDate || conversionDate || new Date()).format('YYYY-MM-DD')
+    );
 
   const handleSaveDraft = () => {
-    setDraftBalance(buildPayload(), {
-      onSuccess: () => {
-        refetchDraft();
-      },
-    });
-  };
-
-  const handleInitiatePublish = () => {
-    const gate = checkOpeningPublish(totalDebit, totalCredit);
-    if (gate === 'empty') {
-      notifications.show({
-        color: 'red',
-        title: t('toast.emptyTitle'),
-        message: t('toast.emptyMessage'),
-      });
-      return;
-    }
-    if (gate === 'unbalanced') {
-      notifications.show({
-        color: 'orange',
-        autoClose: 5000,
-        title: t('toast.unbalancedTitle'),
-        message: t('toast.unbalancedMessage', { amount: formatCurrency(difference) }),
-      });
-      return;
-    }
-    setIsPublishModalOpen(true);
+    if (!canSaveDraft) return;
+    setDraftBalance(buildPayload(), { onSuccess: () => refetchDraft() });
   };
 
   const handleConfirmPublish = () => {
+    if (!canPublish) return;
     publishDraftBalance(buildPayload(), {
       onSuccess: () => {
         setIsPublishModalOpen(false);
@@ -148,7 +175,7 @@ const BeginningBalancePage: React.FC = () => {
   };
 
   const handleConfirmReset = () => {
-    setListAccounts(listAccounts.map((acc) => ({ ...acc, debit: 0, credit: 0 })));
+    setRows(clearAllRows(rows));
     setIsResetModalOpen(false);
     notifications.show({
       color: 'blue',
@@ -157,7 +184,7 @@ const BeginningBalancePage: React.FC = () => {
     });
   };
 
-  if (isLoadingAccounts || isLoadingDraft) {
+  if (isLoadingAccounts || isLoadingDraft || isLoadingLogs) {
     return (
       <AppShellLayout>
         <Center h={450}>
@@ -172,25 +199,43 @@ const BeginningBalancePage: React.FC = () => {
     );
   }
 
+  if (isAccountsError) {
+    return (
+      <AppShellLayout>
+        <Center h={450}>
+          <Stack align="center" gap="sm">
+            <Text size="sm" c="red.6" fw={600}>
+              {t('page.loadFailed')}
+            </Text>
+            <Button variant="light" size="xs" onClick={() => refetchAccounts()}>
+              {t('page.retry')}
+            </Button>
+          </Stack>
+        </Center>
+      </AppShellLayout>
+    );
+  }
+
   return (
     <>
       <AppShellLayout>
-        <Container fluid p={{ base: 'md', sm: 'xl' }}>
-          <Stack gap="xl">
+        <Box p={{ base: 'md', sm: 'xl' }}>
+          <Stack gap="lg">
             <BeginningBalanceHeader
               statusLabel={statusLabel}
-              statusColor={statusColor}
               isPublished={isPublished}
+              hasUnsavedChanges={isDirty}
               selectedDate={selectedDate}
-              balanceState={balanceState}
-              difference={difference}
+              canSaveDraft={canSaveDraft}
+              saveDraftHint={saveDraftHint}
+              canPublish={canPublish}
+              publishHint={publishHint}
               isSavingDraft={isSavingDraft}
               isPublishing={isPublishing}
               onBack={() => navigate(routes.chartOfAccounts.main)}
               onOpenLogs={() => setIsLogsModalOpen(true)}
-              onOpenReset={() => setIsResetModalOpen(true)}
               onSaveDraft={handleSaveDraft}
-              onPublish={handleInitiatePublish}
+              onPublish={() => setIsPublishModalOpen(true)}
             />
 
             <BalanceSummary
@@ -198,31 +243,40 @@ const BeginningBalancePage: React.FC = () => {
               totalCredit={totalCredit}
               difference={difference}
               balanceState={balanceState}
-              selectedDate={selectedDate}
+              filledCount={filledCount}
+              accountCount={rows.length}
             />
 
-            <Paper withBorder radius="lg" p="md" bg="white" shadow="xs">
+            <Paper withBorder radius="lg" p="md" bg="white" shadow="none">
               <Stack gap="md">
                 <BalanceToolbar
                   searchQuery={searchQuery}
                   onSearchChange={setSearchQuery}
-                  selectedCategory={selectedCategory}
-                  onCategoryChange={setSelectedCategory}
-                  categoryOptions={categoryOptions}
+                  accountClass={accountClass}
+                  onAccountClassChange={setAccountClass}
+                  onlyFilled={onlyFilled}
+                  onOnlyFilledChange={setOnlyFilled}
                   selectedDate={selectedDate}
                   onDateChange={handleDateChange}
-                  accountCount={listAccounts.length}
+                  dateError={dateError}
+                  maxDate={draftAccounts?.firstTransactionDate ?? undefined}
+                  shownCount={visibleRows.length}
+                  accountCount={rows.length}
+                  canReset={filledCount > 0}
+                  onReset={() => setIsResetModalOpen(true)}
                 />
                 <TableBeginningBalance
-                  data={listAccounts}
-                  onChange={setListAccounts}
-                  searchQuery={searchQuery}
-                  selectedCategory={selectedCategory}
+                  records={visibleRows}
+                  resetKey={`${searchQuery}|${accountClass}|${onlyFilled}`}
+                  onEnter={(id, field, raw) =>
+                    setRows((prev) => applyAmountEntry(prev, id, field, raw))
+                  }
+                  onClear={(id) => setRows((prev) => clearAccountRow(prev, id))}
                 />
               </Stack>
             </Paper>
           </Stack>
-        </Container>
+        </Box>
       </AppShellLayout>
 
       <ConfirmModal
@@ -237,6 +291,8 @@ const BeginningBalancePage: React.FC = () => {
           </>
         }
         helperText={t('confirmPublish.helper')}
+        imageSrc={publishModalImage}
+        confirmButtonProps={{ color: 'primary', leftSection: <IconCheck size={18} /> }}
         confirmLabel={t('confirmPublish.confirm')}
         cancelLabel={t('confirmPublish.cancel')}
         confirmLoading={isPublishing}

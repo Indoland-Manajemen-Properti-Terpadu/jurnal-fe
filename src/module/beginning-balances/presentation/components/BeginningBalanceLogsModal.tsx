@@ -43,7 +43,7 @@ export const BeginningBalanceLogsModal: React.FC<BeginningBalanceLogsModalProps>
       radius="lg"
       title={
         <Group gap="xs">
-          <ThemeIcon size={32} radius="md" variant="light" color="indigo">
+          <ThemeIcon size={32} radius="md" variant="light" color="primary">
             <IconHistory size={18} />
           </ThemeIcon>
           <div>
@@ -99,7 +99,7 @@ export const BeginningBalanceLogsModal: React.FC<BeginningBalanceLogsModalProps>
         <ScrollArea h={420} offsetScrollbars>
           <Timeline active={0} bulletSize={28} lineWidth={2}>
             {logs.map((log) => {
-              const isPublish = log.action === 'PUBLISH';
+              const isPublish = log.action === 'PUBLISH' || log.action === 'UPDATE';
               const balances = log.balances || [];
               const totalDebit = balances.reduce((sum, b) => sum + (Number(b.debit) || 0), 0);
               const totalCredit = balances.reduce((sum, b) => sum + (Number(b.credit) || 0), 0);
@@ -109,11 +109,11 @@ export const BeginningBalanceLogsModal: React.FC<BeginningBalanceLogsModalProps>
                   key={log.id || log._id || log.createdAt}
                   bullet={
                     isPublish ? (
-                      <ThemeIcon size={24} radius="xl" color="teal">
+                      <ThemeIcon size={24} radius="xl" color="primary">
                         <IconCheck size={14} />
                       </ThemeIcon>
                     ) : (
-                      <ThemeIcon size={24} radius="xl" color="blue">
+                      <ThemeIcon size={24} radius="xl" color="gray" variant="light">
                         <IconFileText size={14} />
                       </ThemeIcon>
                     )
@@ -121,8 +121,12 @@ export const BeginningBalanceLogsModal: React.FC<BeginningBalanceLogsModalProps>
                   title={
                     <Group justify="space-between" align="center" wrap="wrap">
                       <Group gap="xs">
-                        <Badge color={isPublish ? 'teal' : 'blue'} variant="filled" size="sm">
-                          {isPublish ? t('logs.publish') : t('logs.updateDraft')}
+                        <Badge color={isPublish ? 'primary' : 'gray'} variant="light" size="sm">
+                          {log.action === 'UPDATE'
+                            ? t('logs.update')
+                            : isPublish
+                              ? t('logs.publish')
+                              : t('logs.updateDraft')}
                         </Badge>
                         <Text size="xs" c="dimmed">
                           {formatDate(new Date(log.createdAt))}
@@ -131,7 +135,7 @@ export const BeginningBalanceLogsModal: React.FC<BeginningBalanceLogsModalProps>
                     </Group>
                   }
                 >
-                  <Paper withBorder radius="md" p="sm" mt="xs" bg="gray.0">
+                  <Paper withBorder radius="md" p="sm" mt="xs" bg="white" shadow="none">
                     <Stack gap={6}>
                       <Group justify="space-between" align="center">
                         <Group gap={6}>
@@ -158,10 +162,10 @@ export const BeginningBalanceLogsModal: React.FC<BeginningBalanceLogsModalProps>
                           {t('logs.accountsRecorded', { count: balances.length })}
                         </Text>
                         <Group gap="md">
-                          <Text size="xs" fw={600} c="teal.7">
+                          <Text size="xs" fw={600} c="dark.7">
                             {t('logs.debit', { amount: formatCurrency(totalDebit) })}
                           </Text>
-                          <Text size="xs" fw={600} c="red.7">
+                          <Text size="xs" fw={600} c="dark.7">
                             {t('logs.credit', { amount: formatCurrency(totalCredit) })}
                           </Text>
                         </Group>

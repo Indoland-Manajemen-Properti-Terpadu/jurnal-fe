@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 290" fill="none" role="img" aria-label="Buku besar dengan debit dan kredit seimbang">
+  <ellipse cx="240" cy="270" rx="190" ry="12" fill="#E4ECF8"/>
+  <circle cx="236" cy="140" r="122" fill="#EEF3FB"/>
+  <circle cx="372" cy="70" r="38" fill="#DFF3FF"/>
+  <circle cx="92" cy="206" r="26" fill="#DFF3FF"/>
+
+  <!-- ledger page -->
+  <rect x="112" y="44" width="196" height="216" rx="14" fill="#FFFFFF" stroke="#CBD9F0" stroke-width="2"/>
+  <rect x="112" y="44" width="196" height="40" rx="14" fill="#053079"/>
+  <rect x="112" y="68" width="196" height="16" fill="#053079"/>
+  <rect x="130" y="58" width="64" height="9" rx="4.5" fill="#FFFFFF" opacity="0.92"/>
+  <rect x="236" y="58" width="22" height="9" rx="4.5" fill="#09B2FF"/>
+  <rect x="264" y="58" width="22" height="9" rx="4.5" fill="#FFFFFF" opacity="0.55"/>
+  <line x1="226" y1="92" x2="226" y2="214" stroke="#E3EAF6" stroke-width="2"/>
+  <line x1="268" y1="92" x2="268" y2="214" stroke="#E3EAF6" stroke-width="2"/>
+  <g fill="#D5DFF0">
+    <rect x="130" y="102" width="70" height="7" rx="3.5"/>
+    <rect x="130" y="126" width="54" height="7" rx="3.5"/>
+    <rect x="130" y="150" width="76" height="7" rx="3.5"/>
+    <rect x="130" y="174" width="60" height="7" rx="3.5"/>
+    <rect x="130" y="198" width="68" height="7" rx="3.5"/>
+  </g>
+  <g fill="#8FAEE0">
+    <rect x="234" y="102" width="28" height="7" rx="3.5"/>
+    <rect x="234" y="150" width="28" height="7" rx="3.5"/>
+    <rect x="234" y="198" width="28" height="7" rx="3.5"/>
+  </g>
+  <g fill="#7FD3FF">
+    <rect x="276" y="126" width="22" height="7" rx="3.5"/>
+    <rect x="276" y="174" width="22" height="7" rx="3.5"/>
+  </g>
+  <rect x="124" y="222" width="172" height="28" rx="9" fill="#E8F2FF"/>
+  <rect x="130" y="232" width="40" height="8" rx="4" fill="#053079"/>
+  <rect x="232" y="232" width="30" height="8" rx="4" fill="#053079"/>
+  <rect x="274" y="232" width="22" height="8" rx="4" fill="#053079"/>
+
+  <!-- success seal -->
+  <circle cx="304" cy="52" r="27" fill="#FFFFFF"/>
+  <circle cx="304" cy="52" r="22" fill="#12B886"/>
+  <path d="M293 52.5 l8.5 8.5 L316 44" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- balance scale -->
+  <rect x="386" y="150" width="7" height="98" rx="3.5" fill="#053079"/>
+  <rect x="362" y="244" width="56" height="9" rx="4.5" fill="#053079"/>
+  <rect x="338" y="146" width="104" height="7" rx="3.5" fill="#053079"/>
+  <circle cx="389.500" cy="149.500" r="10" fill="#09B2FF" stroke="#FFFFFF" stroke-width="3"/>
+  <g stroke="#7C93BC" stroke-width="2" stroke-linecap="round">
+    <line x1="344" y1="152" x2="326" y2="198"/>
+    <line x1="344" y1="152" x2="362" y2="198"/>
+    <line x1="436" y1="152" x2="418" y2="198"/>
+    <line x1="436" y1="152" x2="454" y2="198"/>
+  </g>
+  <path d="M320 198 H368 Q362 218 344 218 Q326 218 320 198 Z" fill="#09B2FF"/>
+  <path d="M412 198 H460 Q454 218 436 218 Q418 218 412 198 Z" fill="#053079"/>
+  <circle cx="344" cy="191" r="8" fill="#FFC83D" stroke="#E0A100" stroke-width="2"/>
+  <circle cx="428" cy="191" r="8" fill="#FFC83D" stroke="#E0A100" stroke-width="2"/>
+  <circle cx="445" cy="191" r="8" fill="#FFC83D" stroke="#E0A100" stroke-width="2"/>
+
+  <!-- sparkles -->
+  <g fill="#09B2FF">
+    <path d="M82 84 l3 -7 l3 7 l7 3 l-7 3 l-3 7 l-3 -7 l-7 -3 z"/>
+    <path d="M444 92 l2 -5 l2 5 l5 2 l-5 2 l-2 5 l-2 -5 l-5 -2 z" opacity="0.7"/>
+  </g>
+  <g fill="#053079" opacity="0.35">
+    <circle cx="70" cy="140" r="3"/>
+    <circle cx="462" cy="130" r="3"/>
+  </g>
+</svg>
