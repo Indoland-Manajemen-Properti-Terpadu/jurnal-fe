@@ -9,6 +9,8 @@ export interface DetailAccountModel {
   description?: string;
   category?: Category;
   subAccount?: unknown[];
+  /** The parent of a Sub account; `null` for a top level account. */
+  headerAccount?: { id?: string; name?: string; accountNumber?: string } | null;
   amount?: number;
   draftAmount?: number;
   isPublished?: boolean;
@@ -51,6 +53,7 @@ export const accountDetailData = (data?: Partial<DetailAccountModel>): DetailAcc
   description: data?.description || '',
   category: data?.category || { id: '', name: 'N/A' },
   subAccount: data?.subAccount || [],
+  headerAccount: data?.headerAccount ?? null,
   amount: data?.amount || 0,
   draftAmount: data?.draftAmount || 0,
   isPublished: data?.isPublished || false,

@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   Alert,
-  Badge,
   Group,
   Paper,
   Radio,
@@ -28,7 +27,7 @@ interface Option {
   label: string;
 }
 
-interface AddAccountHierarchySectionProps {
+interface AccountHierarchySectionProps {
   form: UseFormReturnType<AccountFormValues>;
   selectedAccountType: string;
   setSelectedAccountType: (value: string) => void;
@@ -40,10 +39,12 @@ interface AddAccountHierarchySectionProps {
   setSubAccountId: (value: string | null) => void;
   parentAccountLabel?: string;
   childAccountLabel?: string;
+  /** The edited account is not "new" in the tree preview. */
+  isEdit?: boolean;
 }
 
-/** Section 2: account structure and hierarchy. */
-export const AddAccountHierarchySection: React.FC<AddAccountHierarchySectionProps> = ({
+/** Section 2: account structure and hierarchy, shared by the add and edit pages. */
+export const AccountHierarchySection: React.FC<AccountHierarchySectionProps> = ({
   form,
   selectedAccountType,
   setSelectedAccountType,
@@ -55,6 +56,7 @@ export const AddAccountHierarchySection: React.FC<AddAccountHierarchySectionProp
   setSubAccountId,
   parentAccountLabel,
   childAccountLabel,
+  isEdit = false,
 }) => {
   const { t } = useTranslation('chartOfAccounts');
 
@@ -74,9 +76,6 @@ export const AddAccountHierarchySection: React.FC<AddAccountHierarchySectionProp
             </Text>
           </div>
         </Group>
-        <Badge variant="light" color="gray" size="sm">
-          {t('form.step2')}
-        </Badge>
       </Group>
 
       <Stack gap="md">
@@ -85,22 +84,16 @@ export const AddAccountHierarchySection: React.FC<AddAccountHierarchySectionProp
             {
               value: 'SingleAccount',
               title: t('form.typeSingleTitle'),
-              badge: t('form.typeSingleBadge'),
-              badgeColor: 'gray',
               desc: t('form.typeSingleDesc'),
             },
             {
               value: 'SubAccount',
               title: t('form.typeSubTitle'),
-              badge: t('form.typeSubBadge'),
-              badgeColor: 'gray',
               desc: t('form.typeSubDesc'),
             },
             {
               value: 'HeaderAccount',
               title: t('form.typeHeaderTitle'),
-              badge: t('form.typeHeaderBadge'),
-              badgeColor: 'gray',
               desc: t('form.typeHeaderDesc'),
             },
           ].map((opt) => {
@@ -120,16 +113,13 @@ export const AddAccountHierarchySection: React.FC<AddAccountHierarchySectionProp
                   transition: 'all 0.15s ease',
                 }}
               >
-                <Group justify="space-between" align="flex-start" mb={6}>
+                <Group mb={6}>
                   <Radio
                     value={opt.value}
                     checked={active}
                     onChange={() => setSelectedAccountType(opt.value)}
                     color="primary"
                   />
-                  <Badge size="xs" variant="light" color={opt.badgeColor}>
-                    {opt.badge}
-                  </Badge>
                 </Group>
                 <Text fw={700} fz="var(--jurnal-text-sm)" c="dark.8">
                   {opt.title}
@@ -173,18 +163,18 @@ export const AddAccountHierarchySection: React.FC<AddAccountHierarchySectionProp
               </Text>
               <Stack gap={4}>
                 <Group gap={6}>
-                  <Badge size="xs" color="indigo" variant="light">
+                  <Text fz="var(--jurnal-text-xs)" fw={600} c="dimmed" tt="uppercase">
                     {t('form.treeParentBadge')}
-                  </Badge>
+                  </Text>
                   <Text fz="var(--jurnal-text-xs)" fw={600} c="dark.7">
                     {parentAccountLabel || t('form.treeParentPending')}
                   </Text>
                 </Group>
                 <Group gap={6} pl={18}>
                   <IconCornerDownRight size={14} color={themeColors.primary[6]} />
-                  <Badge size="xs" color="teal" variant="filled">
-                    {t('form.treeNewSub')}
-                  </Badge>
+                  <Text fz="var(--jurnal-text-xs)" fw={600} c="dimmed" tt="uppercase">
+                    {t(isEdit ? 'form.treeThisAccount' : 'form.treeNewSub')}
+                  </Text>
                   <Text fz="var(--jurnal-text-xs)" fw={700} c="primary.8" ff="monospace">
                     [{form.values.accountNumber || '—'}]
                   </Text>
@@ -220,9 +210,9 @@ export const AddAccountHierarchySection: React.FC<AddAccountHierarchySectionProp
               </Text>
               <Stack gap={4}>
                 <Group gap={6}>
-                  <Badge size="xs" color="indigo" variant="filled">
-                    {t('form.treeNewHeader')}
-                  </Badge>
+                  <Text fz="var(--jurnal-text-xs)" fw={600} c="dimmed" tt="uppercase">
+                    {t(isEdit ? 'form.treeThisAccount' : 'form.treeNewHeader')}
+                  </Text>
                   <Text fz="var(--jurnal-text-xs)" fw={700} c="primary.8" ff="monospace">
                     [{form.values.accountNumber || '—'}]
                   </Text>
@@ -232,9 +222,9 @@ export const AddAccountHierarchySection: React.FC<AddAccountHierarchySectionProp
                 </Group>
                 <Group gap={6} pl={18}>
                   <IconCornerDownRight size={14} color={themeColors.slate[5]} />
-                  <Badge size="xs" color="teal" variant="light">
+                  <Text fz="var(--jurnal-text-xs)" fw={600} c="dimmed" tt="uppercase">
                     {t('form.treeSubBadge')}
-                  </Badge>
+                  </Text>
                   <Text fz="var(--jurnal-text-xs)" fw={600} c="dark.7">
                     {childAccountLabel || t('form.treeChildPending')}
                   </Text>

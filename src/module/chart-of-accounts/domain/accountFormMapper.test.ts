@@ -62,3 +62,38 @@ describe('mapAccountDetailToFormState', () => {
     expect(mapAccountDetailToFormState({}).accessScope).toBeUndefined();
   });
 });
+
+describe('mapAccountDetailToFormState with the real detail shape', () => {
+  it('reads a Sub account and its parent from headerAccount', () => {
+    expect(
+      mapAccountDetailToFormState({
+        level: 'sub',
+        subAccount: [],
+        headerAccount: { id: 'h1', name: 'Induk', accountNumber: '1-1000' },
+      })
+    ).toMatchObject({ accountType: 'SubAccount', parentId: 'h1' });
+  });
+
+  it('keeps a sub level account without a parent as Sub, with no parent chosen', () => {
+    const state = mapAccountDetailToFormState({ level: 'sub', headerAccount: null });
+    expect(state.accountType).toBe('SubAccount');
+    expect(state.parentId).toBeUndefined();
+  });
+
+  it('reads a Header account from its children and preselects no child', () => {
+    const state = mapAccountDetailToFormState({
+      level: 'master',
+      headerAccount: null,
+      subAccount: [{ id: 's1' }, { id: 's2' }],
+    });
+    expect(state.accountType).toBe('HeaderAccount');
+    expect(state.childId).toBeUndefined();
+  });
+
+  it('a top level account without children stays a Single account', () => {
+    expect(
+      mapAccountDetailToFormState({ level: 'master', headerAccount: null, subAccount: [] })
+        .accountType
+    ).toBe('SingleAccount');
+  });
+});

@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   ActionIcon,
-  Badge,
   Checkbox,
   Grid,
   Group,
@@ -24,22 +23,26 @@ import { AccountPresetPicker } from './AccountPresetPicker';
 
 const TAX_CODES = ['PPN', 'PPH', 'PPNBM', 'PBB'];
 
-interface AddAccountIdentitySectionProps {
+interface AccountIdentitySectionProps {
   form: UseFormReturnType<AccountFormValues>;
   categoryOptions: { group: string; items: { value: string; label: string }[] }[];
   isLoadingCategories: boolean;
+  /** A locked account keeps its category. */
+  categoryLocked?: boolean;
   suggestedAccountNumber?: string;
   hasSuggestedDiff: boolean;
   selectedCategoryObj?: CategoryAccountModel;
   isIncomeStatementCategory: boolean;
-  applyPreset: (presetKey: string) => void;
+  /** Quick templates, offered only when creating an account. */
+  applyPreset?: (presetKey: string) => void;
 }
 
-/** Section 1: identity and classification. */
-export const AddAccountIdentitySection: React.FC<AddAccountIdentitySectionProps> = ({
+/** Section 1: identity and classification, shared by the add and edit pages. */
+export const AccountIdentitySection: React.FC<AccountIdentitySectionProps> = ({
   form,
   categoryOptions,
   isLoadingCategories,
+  categoryLocked = false,
   suggestedAccountNumber,
   hasSuggestedDiff,
   selectedCategoryObj,
@@ -65,12 +68,9 @@ export const AddAccountIdentitySection: React.FC<AddAccountIdentitySectionProps>
             </Text>
           </div>
         </Group>
-        <Badge variant="light" color="primary" size="sm">
-          {t('form.step1')}
-        </Badge>
       </Group>
 
-      <AccountPresetPicker onApply={applyPreset} />
+      {applyPreset && <AccountPresetPicker onApply={applyPreset} />}
 
       <Stack gap="md">
         {/* Row 1: 100% Symmetrical 2-Column Category & Account Code */}
@@ -84,7 +84,7 @@ export const AddAccountIdentitySection: React.FC<AddAccountIdentitySectionProps>
               withAsterisk
               searchable
               clearable={false}
-              disabled={isLoadingCategories}
+              disabled={categoryLocked || isLoadingCategories}
               rightSection={<IconChevronDown size={16} />}
               styles={SYMMETRIC_INPUT_STYLES}
               {...form.getInputProps('category')}

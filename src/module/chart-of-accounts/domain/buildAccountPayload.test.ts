@@ -46,15 +46,32 @@ describe('buildAccountPayload', () => {
     ).toMatchObject({ isAllUser: false, allowedRoles: ['r1'] });
   });
 
-  it('a Sub account sends headAccountId and stays visible to all', () => {
+  it('a Sub account sends headAccountId and defaults to all users', () => {
+    const sub = { ...single, accountType: 'SubAccount', parentId: 'h1' };
+    expect(buildAccountPayload(values, sub)).toMatchObject({
+      headAccountId: 'h1',
+      isAllUser: true,
+    });
+  });
+
+  it('a Sub account can be restricted to users or roles', () => {
+    const sub = { ...single, accountType: 'SubAccount', parentId: 'h1' };
+    expect(
+      buildAccountPayload(values, { ...sub, accessScope: 'SpecialUsers', specialUsers: ['u1'] })
+    ).toMatchObject({ headAccountId: 'h1', isAllUser: false, allowedUsers: ['u1'] });
+    expect(
+      buildAccountPayload(values, { ...sub, accessScope: 'CertainRoles', certainRoles: ['r1'] })
+    ).toMatchObject({ headAccountId: 'h1', isAllUser: false, allowedRoles: ['r1'] });
+  });
+
+  it('a Header account ignores the access choice and stays visible to all', () => {
     const payload = buildAccountPayload(values, {
       ...single,
-      accountType: 'SubAccount',
-      parentId: 'h1',
+      accountType: 'HeaderAccount',
       accessScope: 'SpecialUsers',
       specialUsers: ['u1'],
     });
-    expect(payload).toMatchObject({ headAccountId: 'h1', isAllUser: true });
+    expect(payload.isAllUser).toBe(true);
     expect(payload.allowedUsers).toBeUndefined();
   });
 

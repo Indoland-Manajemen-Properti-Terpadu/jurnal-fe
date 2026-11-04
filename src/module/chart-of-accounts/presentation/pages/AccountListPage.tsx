@@ -1,5 +1,16 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Box, Button, Group, Paper, Select, Stack, Switch, Tabs, TextInput } from '@mantine/core';
+import {
+  Box,
+  Button,
+  Group,
+  Paper,
+  Select,
+  Stack,
+  Switch,
+  Tabs,
+  Text,
+  TextInput,
+} from '@mantine/core';
 import {
   IconBuildingBank,
   IconListTree,
@@ -22,7 +33,8 @@ import { SettingAccountModal } from './SettingAccountModal';
 import TableAccounts from '../components/AccountTable';
 import GeneralJournalLayout from './AccountListLayout';
 import { useJournalAccounts } from '../hooks/useJournalAccounts';
-import { countAccountStats, filterAccountsByTab } from '../../domain/accountStats';
+import { countAccountStats } from '../../domain/accountStats';
+import { collectCategoryNames, type AccountFilter } from '../../domain/accountTree';
 import { AccountStatsCards } from '../components/AccountStatsCards';
 import { AccountListHeaderActions } from '../components/AccountListHeaderActions';
 
@@ -37,19 +49,9 @@ const GeneralJournalPage: React.FC = () => {
   const { accounts, isError, isLoading, refetch } = useJournalAccounts(showArchived);
   const journalAccounts = useMemo(() => (Array.isArray(accounts) ? accounts : []), [accounts]);
 
-  const categoryAccounts = useMemo(
-    () =>
-      Array.from(
-        new Set(
-          journalAccounts
-            .map((account) => account.category?.name)
-            .filter((name): name is string => Boolean(name))
-        )
-      ),
-    [journalAccounts]
-  );
+  const categoryAccounts = useMemo(() => collectCategoryNames(journalAccounts), [journalAccounts]);
 
-  const { selectedRecords } = useAccountStore();
+  const { selectedRecords, setSelectedRecords } = useAccountStore();
   const { mutate: deleteAccount, isPending: isDeleting } = useDeleteAccount();
   const { draftAccounts } = useDraftAccount();
 
@@ -69,19 +71,21 @@ const GeneralJournalPage: React.FC = () => {
     setModals((prev) => ({ ...prev, [modalName]: false }));
   };
 
-  useEffect(() => {
-    if (modals.beginningBalance || modals.settingAccount || modals.periodAndClosingBooks) {
-      setSelectedCategory(null);
-    }
-  }, [modals]);
+  // The selection store is global, so a selection must not leak into the next visit.
+  useEffect(() => () => setSelectedRecords([]), [setSelectedRecords]);
 
   const stats = useMemo(() => countAccountStats(journalAccounts), [journalAccounts]);
 
-  // Filter accounts based on quick tab selection
-  const dataToDisplay = useMemo(
-    () => filterAccountsByTab(journalAccounts, activeTab),
-    [journalAccounts, activeTab]
+  const filter = useMemo<AccountFilter>(
+    () => ({ tab: activeTab, category: selectedCategory, search: searchQuery }),
+    [activeTab, selectedCategory, searchQuery]
   );
+
+  const resetFilters = () => {
+    setActiveTab('all');
+    setSelectedCategory(null);
+    setSearchQuery('');
+  };
 
   const handleDeleteAccount = () => {
     const ids = {
@@ -184,27 +188,42 @@ const GeneralJournalPage: React.FC = () => {
 
                   <Group gap="xs">
                     {selectedRecords.length > 0 && (
-                      <Button
-                        color="red"
-                        variant="light"
-                        size="sm"
-                        radius="md"
-                        leftSection={<IconTrash size={16} />}
-                        onClick={() => openModal('deleteConfirmation')}
-                      >
-                        {t('list.deleteSelected', { count: selectedRecords.length })}
-                      </Button>
+                      <>
+                        <Text size="sm" c="dimmed">
+                          {t('list.selectedCount', { count: selectedRecords.length })}
+                        </Text>
+                        <Button
+                          variant="subtle"
+                          color="gray"
+                          size="sm"
+                          radius="md"
+                          onClick={() => setSelectedRecords([])}
+                        >
+                          {t('list.clearSelection')}
+                        </Button>
+                        <Button
+                          color="red"
+                          variant="light"
+                          size="sm"
+                          radius="md"
+                          leftSection={<IconTrash size={16} />}
+                          onClick={() => openModal('deleteConfirmation')}
+                        >
+                          {t('list.deleteSelected', { count: selectedRecords.length })}
+                        </Button>
+                      </>
                     )}
                   </Group>
                 </Group>
 
                 {/* Table Component */}
                 <TableAccounts
-                  data={dataToDisplay}
+                  accounts={journalAccounts}
+                  filter={filter}
                   error={isError}
                   loading={isLoading}
-                  selectedCategory={selectedCategory}
-                  searchQuery={searchQuery}
+                  onRetry={() => refetch()}
+                  onResetFilters={resetFilters}
                 />
               </Stack>
             </Tabs>

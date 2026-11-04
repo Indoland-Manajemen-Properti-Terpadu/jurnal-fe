@@ -1,15 +1,5 @@
 import React from 'react';
-import {
-  Alert,
-  Badge,
-  Group,
-  Paper,
-  Radio,
-  SimpleGrid,
-  Stack,
-  Text,
-  ThemeIcon,
-} from '@mantine/core';
+import { Alert, Group, Paper, Radio, SimpleGrid, Stack, Text, ThemeIcon } from '@mantine/core';
 import {
   IconInfoCircle,
   IconKey,
@@ -19,6 +9,7 @@ import {
 } from '@tabler/icons-react';
 import { themeColors } from '@/theme';
 import { useTranslation } from '@/i18n';
+import { accountHasAccessChoice } from '@/module/chart-of-accounts/domain/accountRules';
 import { SYMMETRIC_INPUT_STYLES } from './accountFormStyles';
 import { AccessMemberSelects } from './AccessMemberSelects';
 
@@ -27,7 +18,7 @@ interface Option {
   label: string;
 }
 
-interface AddAccountAccessSectionProps {
+interface AccountAccessSectionProps {
   selectedAccountType: string;
   accessScope: string;
   setAccessScope: (value: string) => void;
@@ -41,8 +32,8 @@ interface AddAccountAccessSectionProps {
   isLoadingRoles: boolean;
 }
 
-/** Section 3: user access and authorization. */
-export const AddAccountAccessSection: React.FC<AddAccountAccessSectionProps> = ({
+/** Section 3: user access and authorization, shared by the add and edit pages. */
+export const AccountAccessSection: React.FC<AccountAccessSectionProps> = ({
   selectedAccountType,
   accessScope,
   setAccessScope,
@@ -73,13 +64,10 @@ export const AddAccountAccessSection: React.FC<AddAccountAccessSectionProps> = (
             </Text>
           </div>
         </Group>
-        <Badge variant="light" color="gray" size="sm">
-          {t('form.step3')}
-        </Badge>
       </Group>
 
       <Stack gap="md">
-        {selectedAccountType !== 'SingleAccount' ? (
+        {!accountHasAccessChoice(selectedAccountType) ? (
           <Alert
             icon={<IconInfoCircle size={16} />}
             title={t('form.centralizedAccessTitle')}
@@ -155,6 +143,17 @@ export const AddAccountAccessSection: React.FC<AddAccountAccessSectionProps> = (
                 );
               })}
             </SimpleGrid>
+
+            {selectedAccountType === 'SubAccount' && accessScope !== 'AllUsers' && (
+              <Alert
+                icon={<IconInfoCircle size={16} />}
+                title={t('form.subRestrictedTitle')}
+                color="yellow"
+                radius="md"
+              >
+                {t('form.subRestrictedDesc')}
+              </Alert>
+            )}
 
             <AccessMemberSelects
               accessScope={accessScope}
