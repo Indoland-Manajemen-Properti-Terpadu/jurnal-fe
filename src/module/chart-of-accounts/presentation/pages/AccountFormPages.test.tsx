@@ -158,17 +158,20 @@ describe('EditAccountPage rules (characterization: I6, I7)', () => {
   it('shows the hierarchy card and an enabled category when the account is unlocked', async () => {
     renderEdit();
     await screen.findByDisplayValue('Kas Kecil');
-    expect(screen.getByText('Struktur & Hierarki Akun')).toBeInTheDocument();
+    expect(screen.getByText('Struktur & Hierarki Bagan Akun')).toBeInTheDocument();
     expect(screen.queryByText(/Akun Berstatus Terkunci/)).not.toBeInTheDocument();
   });
 
-  it('locks the category select and hides the hierarchy card when the account is locked (I7)', async () => {
+  it('makes a locked account read-only: no save, no checklist, every field disabled (I7)', async () => {
     detail = { ...detail, isLocked: true };
     renderEdit();
-    await screen.findByDisplayValue('Kas Kecil');
+    const name = await screen.findByDisplayValue('Kas Kecil');
     expect(screen.getByText(/Akun Berstatus Terkunci/)).toBeInTheDocument();
-    expect(screen.queryByText('Struktur & Hierarki Akun')).not.toBeInTheDocument();
+    expect(name).toBeDisabled();
     expect(screen.getByRole('textbox', { name: /Kategori Akun/ })).toBeDisabled();
+    expect(screen.queryByRole('button', { name: /simpan perubahan/i })).not.toBeInTheDocument();
+    expect(screen.queryByText('Checklist Kesiapan Akun')).not.toBeInTheDocument();
+    expect(updateMutate).not.toHaveBeenCalled();
   });
 
   it('shows the not found page instead of an empty form when the account fails to load', () => {
@@ -177,5 +180,69 @@ describe('EditAccountPage rules (characterization: I6, I7)', () => {
     renderEdit();
     expect(screen.getByText('Something is not right...')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /simpan perubahan/i })).not.toBeInTheDocument();
+  });
+});
+
+describe('EditAccountPage hierarchy (from the detail response)', () => {
+  beforeEach(() => {
+    updateMutate.mockClear();
+    detailError = false;
+    detail = {
+      name: 'Kas Kecil',
+      accountNumber: '1-10002',
+      category: { id: 'c-kb' },
+      isBankAndCash: true,
+      isContra: false,
+      isAllUser: true,
+      isLocked: false,
+      level: 'master',
+      subAccount: [],
+    };
+  });
+
+  it('opens a Sub account as Sub with its parent from headerAccount and keeps the link on save', async () => {
+    detail = {
+      ...detail,
+      level: 'sub',
+      headerAccount: { id: 'h-locked', name: 'Induk Terkunci', accountNumber: '1-1000' },
+    };
+    const user = userEvent.setup();
+    renderEdit();
+    // The category info omits a locked parent, so it must come from the detail.
+    expect(await screen.findByDisplayValue('[1-1000] Induk Terkunci')).toBeInTheDocument();
+    await user.click(saveButton(/simpan perubahan/i));
+    expect(updateMutate).toHaveBeenCalledWith(
+      expect.objectContaining({ headAccountId: 'h-locked', isAllUser: true })
+    );
+  });
+
+  it('opens an account that has children as a Header account', async () => {
+    detail = { ...detail, subAccount: [{ id: 's1' }] };
+    const user = userEvent.setup();
+    renderEdit();
+    await screen.findByDisplayValue('Kas Kecil');
+    await user.click(saveButton(/simpan perubahan/i));
+    const payload = updateMutate.mock.calls[0][0];
+    expect(payload.isAllUser).toBe(true);
+    expect(payload).not.toHaveProperty('headAccountId');
+    expect(screen.getByText(/Hubungkan Sub Akun Terkait/)).toBeInTheDocument();
+  });
+});
+
+describe('Add and edit pages share one layout', () => {
+  it('edit shows the readiness checklist like add, and no creation presets', async () => {
+    detail = {
+      name: 'Kas Kecil',
+      accountNumber: '1-10002',
+      category: { id: 'c-kb' },
+      isAllUser: true,
+      level: 'master',
+      subAccount: [],
+    };
+    renderEdit();
+    await screen.findByDisplayValue('Kas Kecil');
+    expect(screen.getByText('Checklist Kesiapan Akun')).toBeInTheDocument();
+    expect(screen.getByText('Nama akun telah diisi')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /bank/i })).not.toBeInTheDocument();
   });
 });

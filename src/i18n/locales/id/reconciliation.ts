@@ -1,32 +1,68 @@
 export const reconciliation = {
-  loading: 'Loading data...',
   empty: {
     title: 'Rekonsiliasi Belum Tersedia',
     description:
-      'Rekening koran belum diimpor. Import rekening koran terlebih dahulu untuk memulai rekonsiliasi.',
+      'Rekening koran belum diimpor. Impor rekening koran terlebih dahulu untuk memulai rekonsiliasi.',
     button: 'Impor Rekening Koran',
   },
+  error: {
+    title: 'Data rekonsiliasi belum dapat dimuat',
+    description: 'Periksa koneksi Anda, lalu coba muat ulang.',
+    retry: 'Muat Ulang',
+  },
+  allMatched: {
+    title: 'Semua rekening koran sudah dicocokkan',
+    description:
+      'Tidak ada baris rekening koran yang menunggu. Impor rekening koran baru untuk melanjutkan.',
+  },
+  summary: {
+    statements: 'Rekening koran belum dicocokkan',
+    journals: 'Jurnal belum dicocokkan',
+    difference: 'Selisih kedua sisi',
+    rows: '{count} baris',
+    differenceHint: 'Sisa setelah semua baris dicocokkan',
+    differenceZero: 'Kedua sisi seimbang',
+  },
+  list: {
+    title: '{count} baris rekening koran menunggu',
+    hint: 'Centang saran yang sudah benar, lalu klik Rekonsiliasi. Baris yang sudah dicocokkan tidak muncul lagi.',
+  },
   header: {
-    source: 'Sumber Data',
     bankStatement: 'Rekening Koran',
-    balance: 'Saldo',
-    bookkeeping: 'Pembukuan',
-    journal: 'Jurnal Transaksi',
   },
   direction: {
     received: 'Diterima',
     sent: 'Dikirim',
   },
   row: {
-    matchedCount: 'Cocok dengan {count} Jurnal',
-    unmatched: 'Belum dipasangkan',
+    select: 'Pilih baris {description}',
     journalNumber: 'Jurnal Transaksi #{number}',
-    matchedWith: 'Cocok dengan {description}',
+    suggestion: 'Saran jurnal',
+    sameDay: 'tanggal sama',
+    daysApart: 'selisih {count} hari',
+    noSuggestion: 'Belum ada saran jurnal',
+    noSuggestionHint: 'Cari jurnalnya dulu sebelum dicentang',
+    blockedHint: 'Jurnal ini sudah dipakai baris lain yang dicentang',
+    sharedWarning:
+      'Jurnal ini juga disarankan untuk baris lain. Satu jurnal hanya bisa dipakai satu baris.',
+    findOther: 'Cari jurnal lain',
     findAndMatch: 'Cari & Cocokkan',
-    pickJournal: 'Pilih jurnal untuk dipasangkan',
+    dismiss: 'Abaikan saran ini',
+  },
+  journals: {
+    title: '{count} jurnal belum ada di rekening koran',
+    description:
+      'Jurnal akun ini yang belum punya pasangan di rekening koran. Biasanya transaksi yang belum tercatat bank.',
+    columnDescription: 'Deskripsi',
+    date: 'Tanggal',
+    debit: 'Debit (Rp)',
+    credit: 'Kredit (Rp)',
   },
   actions: {
-    reset: 'Reset',
+    selected: '{count} baris dipilih',
+    nothingSelected: 'Belum ada baris dipilih',
+    restore: 'Tampilkan {count} saran yang diabaikan',
+    clear: 'Batal Pilih',
     reconcile: 'Rekonsiliasi',
     reconcileCount: 'Rekonsiliasi ({count})',
     cancel: 'Batal',
@@ -34,13 +70,13 @@ export const reconciliation = {
   modal: {
     title: 'Cocokkan dengan Rekening Koran',
     searchJournal: 'Cari Jurnal Transaksi',
-    searchPlaceholder: 'Cari kode atau nama akun...',
+    searchPlaceholder: 'Cari deskripsi, kode, atau nama akun...',
     allDates: 'Semua Tanggal',
     columns: {
       description: 'Deskripsi',
       date: 'Tanggal',
-      debit: 'Debit (Dalam Rp)',
-      credit: 'Kredit (Dalam Rp)',
+      debit: 'Debit (Rp)',
+      credit: 'Kredit (Rp)',
     },
     total: 'Total Nominal:',
     selected: 'Dipilih:',
@@ -53,9 +89,18 @@ export const reconciliation = {
     helper: 'Transaksi yang sudah direkonsiliasi tidak dapat dibatalkan.',
   },
   notifications: {
-    successTitle: 'Sukses',
+    successTitle: 'Berhasil',
     matched: 'Transaksi berhasil direkonsiliasi',
     failureTitle: 'Gagal',
-    matchFailed: 'Gagal melakukan rekonsiliasi',
+    reason: {
+      amountMismatch:
+        'Jumlah jurnal tidak sama dengan jumlah rekening koran. Pilih jurnal lain atau cocokkan secara manual.',
+      alreadyReconciled:
+        'Jurnal ini sudah dicocokkan dengan baris rekening koran lain. Muat ulang halaman lalu coba lagi.',
+      statementNotFound:
+        'Baris rekening koran ini sudah dicocokkan atau dihapus. Muat ulang halaman lalu coba lagi.',
+      serverError: 'Terjadi gangguan saat merekonsiliasi. Coba lagi beberapa saat.',
+      unknown: 'Rekonsiliasi gagal. Periksa pilihan Anda lalu coba lagi.',
+    },
   },
 };

@@ -78,5 +78,12 @@ export const toEntriesByAccount = (body: unknown): JournalEntryByAccount[] => {
   );
 };
 
+/** Number of pages of a paged list answer; 1 when the answer is not paged. */
+export const toTotalPages = (body: unknown): number => {
+  const result = body as { data?: { totalPages?: unknown }; totalPages?: unknown } | null;
+  const pages = Number(result?.data?.totalPages ?? result?.totalPages);
+  return Number.isFinite(pages) && pages > 1 ? Math.floor(pages) : 1;
+};
+
 export const toEntryDetail = (body: unknown): JournalEntryDetail =>
   (body as { data: JournalEntryDetail }).data;

@@ -21,7 +21,7 @@ export interface AccountPlacement {
   certainRoles: string[];
 }
 
-/** Same payload for create and update. Header and Sub accounts are always visible to all users. */
+/** Same payload for create and update. A Header account is always visible to all users. */
 export const buildAccountPayload = (
   values: AccountFormValues,
   placement: AccountPlacement,
@@ -40,9 +40,10 @@ export const buildAccountPayload = (
 
   if (placement.accountType === 'HeaderAccount') {
     if (placement.childId) payload.subAccountId = placement.childId;
-  } else if (placement.accountType === 'SubAccount') {
-    if (placement.parentId) payload.headAccountId = placement.parentId;
   } else {
+    if (placement.accountType === 'SubAccount' && placement.parentId) {
+      payload.headAccountId = placement.parentId;
+    }
     payload.isAllUser = placement.accessScope === 'AllUsers';
     if (!payload.isAllUser) {
       if (placement.accessScope === 'SpecialUsers') {

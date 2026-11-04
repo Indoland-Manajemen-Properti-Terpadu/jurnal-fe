@@ -6,6 +6,7 @@ import { InformationAlert } from '@/components/Alert/Alert';
 
 const IMPORTANT_KEYS = [
   'dateFormat',
+  'oneSide',
   'maxRows',
   'noThousands',
   'decimalPoint',

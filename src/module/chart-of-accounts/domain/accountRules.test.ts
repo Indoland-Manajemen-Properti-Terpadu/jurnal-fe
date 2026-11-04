@@ -1,6 +1,6 @@
 import {
   canArchiveAccount,
-  canChangeCategory,
+  canEditAccount,
   canDeleteAccount,
   getCategoryPrefix,
   hasValidName,
@@ -111,7 +111,7 @@ describe('I6 validation rules', () => {
     expect(isHierarchyAndAccessValid({ ...base, headAccountId: 'h1' })).toBe(true);
   });
 
-  it('a single account with a restricted scope needs members; header and sub ignore the scope', () => {
+  it('a single or sub account with a restricted scope needs members; a header ignores the scope', () => {
     const single = {
       accountType: 'SingleAccount',
       headAccountId: null,
@@ -126,6 +126,19 @@ describe('I6 validation rules', () => {
       isHierarchyAndAccessValid({ ...single, accessScope: 'CertainRoles', certainRolesCount: 0 })
     ).toBe(false);
     expect(isHierarchyAndAccessValid({ ...single, accountType: 'HeaderAccount' })).toBe(true);
+  });
+
+  it('a sub account with a restricted scope also needs members', () => {
+    const sub = {
+      accountType: 'SubAccount',
+      headAccountId: 'h1',
+      accessScope: 'SpecialUsers',
+      specialUsersCount: 0,
+      certainRolesCount: 0,
+    };
+    expect(isHierarchyAndAccessValid(sub)).toBe(false);
+    expect(isHierarchyAndAccessValid({ ...sub, specialUsersCount: 1 })).toBe(true);
+    expect(isHierarchyAndAccessValid({ ...sub, accessScope: 'AllUsers' })).toBe(true);
   });
 });
 
@@ -144,11 +157,11 @@ describe('I6 cash/bank auto flag', () => {
 });
 
 describe('I7 locked account predicates', () => {
-  it('a locked account cannot be selected, deleted, archived or change category', () => {
+  it('a locked account cannot be selected, deleted, archived or edited', () => {
     expect(isAccountSelectable({ isLocked: true })).toBe(false);
     expect(canDeleteAccount({ isLocked: true })).toBe(false);
     expect(canArchiveAccount({ isLocked: true })).toBe(false);
-    expect(canChangeCategory(true)).toBe(false);
+    expect(canEditAccount({ isLocked: true })).toBe(false);
   });
 
   it('an open account can', () => {
@@ -156,6 +169,7 @@ describe('I7 locked account predicates', () => {
     expect(isAccountSelectable({})).toBe(true);
     expect(canDeleteAccount({})).toBe(true);
     expect(canArchiveAccount({ isLocked: false })).toBe(true);
-    expect(canChangeCategory(false)).toBe(true);
+    expect(canEditAccount({ isLocked: false })).toBe(true);
+    expect(canEditAccount({})).toBe(true);
   });
 });

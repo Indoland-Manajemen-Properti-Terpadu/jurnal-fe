@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from 'react';
-import { Box, Button, Grid, Group, Paper, Stack } from '@mantine/core';
+import { Box, Button, Grid, Group, Stack } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from '@mantine/form';
 import { IconArrowLeft, IconCheck, IconNotebook, IconRotateClockwise } from '@tabler/icons-react';
@@ -13,8 +13,8 @@ import { useCategoryInfo } from '@/module/chart-of-accounts/presentation/hooks/u
 import { useAddAccount } from '../hooks/useAddAccount';
 import { useAccountFormOptions } from '../hooks/useAccountFormOptions';
 import { useAccountPlacementState } from '../hooks/useAccountPlacementState';
+import { useAccountCategoryOptions } from '../hooks/useAccountCategoryOptions';
 import {
-  getCategoryPrefix,
   hasAccountCode,
   hasValidName,
   isHierarchyAndAccessValid,
@@ -24,17 +24,16 @@ import {
   validateCreateName,
 } from '../../domain/accountRules';
 import { ACCOUNT_PRESETS, findPresetCategory } from '../../domain/accountPresets';
-import { groupCategoryOptions } from '../../domain/categoryOptions';
 import { buildAccountPayload } from '../../domain/buildAccountPayload';
 import { AccountPreviewCard } from '../components';
-import { AddAccountIdentitySection } from '../components/account-form/AddAccountIdentitySection';
-import { AddAccountHierarchySection } from '../components/account-form/AddAccountHierarchySection';
-import { AddAccountAccessSection } from '../components/account-form/AddAccountAccessSection';
-import { AddAccountReadinessCard } from '../components/account-form/AddAccountReadinessCard';
+import { AccountIdentitySection } from '../components/account-form/AccountIdentitySection';
+import { AccountHierarchySection } from '../components/account-form/AccountHierarchySection';
+import { AccountAccessSection } from '../components/account-form/AccountAccessSection';
+import { AccountReadinessCard } from '../components/account-form/AccountReadinessCard';
 
 export const AddAccountJournalPage: React.FC = () => {
   const navigate = useNavigate();
-  const { t, currentLanguage } = useTranslation('chartOfAccounts');
+  const { t } = useTranslation('chartOfAccounts');
   const validationMessage = (key: string | null) => (key ? t(key) : null);
 
   // Queries
@@ -80,21 +79,8 @@ export const AddAccountJournalPage: React.FC = () => {
   // Category Info query for suggestions & hierarchy options
   const { data: categoryInfo } = useCategoryInfo(form.values.category);
 
-  // Derived Grouped Dropdown Data (Grouped by Neraca 1-3 vs Laba Rugi 4-8)
-  const categoryOptions = useMemo(
-    () =>
-      groupCategoryOptions(categoryAccounts || [], {
-        balanceSheet: t('form.balanceSheetGroup'),
-        profitLoss: t('form.profitLossGroup'),
-        unnamed: t('form.unnamedCategory'),
-      }),
-    [categoryAccounts, currentLanguage]
-  );
-
-  const selectedCategoryObj = useMemo(
-    () => categoryAccounts?.find((cat) => cat.id === form.values.category),
-    [categoryAccounts, form.values.category]
-  );
+  const { categoryOptions, selectedCategoryObj, isIncomeStatementCategory } =
+    useAccountCategoryOptions(categoryAccounts, form.values.category, form.values.accountNumber);
 
   // Auto-fill suggested account number when category changes
   useEffect(() => {
@@ -102,18 +88,6 @@ export const AddAccountJournalPage: React.FC = () => {
       form.setFieldValue('accountNumber', categoryInfo.suggestedAccountNumber);
     }
   }, [categoryInfo?.suggestedAccountNumber]);
-
-  // Reset hierarchy selection when changing account type
-  useEffect(() => {
-    if (selectedAccountType === 'SingleAccount') {
-      setHeadAccountId(null);
-      setSubAccountId(null);
-    } else if (selectedAccountType === 'SubAccount') {
-      setSubAccountId(null);
-    } else if (selectedAccountType === 'HeaderAccount') {
-      setHeadAccountId(null);
-    }
-  }, [selectedAccountType]);
 
   const {
     userOptions,
@@ -130,17 +104,6 @@ export const AddAccountJournalPage: React.FC = () => {
     parentId: headAccountId,
     childId: subAccountId,
   });
-
-  // Active Prefix (1–8) for Guide Card & Report Target
-  const activePrefix = useMemo(() => {
-    const codeChar = form.values.accountNumber.trim().charAt(0);
-    if (['1', '2', '3', '4', '5', '6', '7', '8'].includes(codeChar)) {
-      return codeChar;
-    }
-    return getCategoryPrefix(selectedCategoryObj);
-  }, [form.values.accountNumber, selectedCategoryObj]);
-
-  const isIncomeStatementCategory = useMemo(() => Number(activePrefix) >= 4, [activePrefix]);
 
   // Readiness Checks
   const hasCategory = Boolean(form.values.category);
@@ -256,7 +219,7 @@ export const AddAccountJournalPage: React.FC = () => {
             {/* Left Column: Structured Form Cards */}
             <Grid.Col span={{ base: 12, lg: 8 }}>
               <Stack gap="lg">
-                <AddAccountIdentitySection
+                <AccountIdentitySection
                   form={form}
                   categoryOptions={categoryOptions}
                   isLoadingCategories={isLoadingCategories}
@@ -267,7 +230,7 @@ export const AddAccountJournalPage: React.FC = () => {
                   applyPreset={applyPreset}
                 />
 
-                <AddAccountHierarchySection
+                <AccountHierarchySection
                   form={form}
                   selectedAccountType={selectedAccountType}
                   setSelectedAccountType={setSelectedAccountType}
@@ -281,7 +244,7 @@ export const AddAccountJournalPage: React.FC = () => {
                   childAccountLabel={childAccountLabel}
                 />
 
-                <AddAccountAccessSection
+                <AccountAccessSection
                   selectedAccountType={selectedAccountType}
                   accessScope={accessScope}
                   setAccessScope={setAccessScope}
@@ -317,14 +280,11 @@ export const AddAccountJournalPage: React.FC = () => {
                   certainRolesCount={certainRoles.length}
                 />
 
-                <AddAccountReadinessCard
+                <AccountReadinessCard
                   readinessChecks={readinessChecks}
                   passedChecksCount={passedChecksCount}
                   isFormValid={isFormValid}
-                />
-
-                <Paper withBorder radius="md" p="md" bg="white" shadow="none">
-                  <Stack gap="xs">
+                  action={
                     <Button
                       size="md"
                       fullWidth
@@ -336,8 +296,8 @@ export const AddAccountJournalPage: React.FC = () => {
                     >
                       {t('form.saveAccountBtn')}
                     </Button>
-                  </Stack>
-                </Paper>
+                  }
+                />
               </Stack>
             </Grid.Col>
           </Grid>

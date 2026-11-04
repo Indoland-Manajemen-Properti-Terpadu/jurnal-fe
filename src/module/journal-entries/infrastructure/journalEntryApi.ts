@@ -7,7 +7,12 @@ import type {
   JournalEntryPayload,
   TagsResponse,
 } from '../domain/journalEntry';
-import { toCreateFormData, toEntriesByAccount, toEntryDetail } from './journalEntryMapper';
+import {
+  toCreateFormData,
+  toEntriesByAccount,
+  toEntryDetail,
+  toTotalPages,
+} from './journalEntryMapper';
 
 /** The server's own message of a failed request, or the fallback. */
 export const errorMessage = (error: unknown, fallback: string): string =>
@@ -20,13 +25,24 @@ export const fetchJournalEntryDetail = async (idEntry: string): Promise<JournalE
   return toEntryDetail(data);
 };
 
+const ENTRIES_PAGE_SIZE = 100;
+
 export const fetchJournalEntriesByAccount = async (
   idAccount: string
 ): Promise<JournalEntryByAccount[]> => {
-  const { data } = await apiClient.get<unknown>(
-    `${API_ACCOUNT.GET_TRANSACTION_BY_ACCOUNT}/${idAccount}`
-  );
-  return toEntriesByAccount(data);
+  const url = `${API_ACCOUNT.GET_TRANSACTION_BY_ACCOUNT}/${idAccount}`;
+  const fetchPage = async (page: number) =>
+    (await apiClient.get<unknown>(`${url}?limit=${ENTRIES_PAGE_SIZE}&page=${page}`)).data;
+
+  // The server pages the list (10 by default), so every page is read: the table, the balance
+  // and the journal count of the ledger must not stop at the newest ones.
+  const first = await fetchPage(1);
+  const entries = toEntriesByAccount(first);
+  const pages = toTotalPages(first);
+  for (let page = 2; page <= pages; page += 1) {
+    entries.push(...toEntriesByAccount(await fetchPage(page)));
+  }
+  return entries;
 };
 
 /** Creates a journal entry. Any successful HTTP 2xx response is accepted. */
@@ -50,16 +66,39 @@ export const createJournalEntry = async (payload: JournalEntryPayload): Promise<
   return response.data;
 };
 
-export const deleteJournalEntry = async (idEntry: string): Promise<unknown> => {
-  const { data } = await apiClient.delete<unknown>(
-    `${API_ACCOUNT.DEL_TRANSACTION_ACCOUNT}/${idEntry}`
+/** The id the server gave the entry it just created (`{ data: { id } }`), if it sent one. */
+export const createdEntryId = (response: unknown): string | undefined =>
+  (response as { data?: { id?: string } } | null)?.data?.id;
+
+/** Cancels an entry: it becomes `VOID` and the server posts a `REVERSAL` entry. Not reversible. */
+export const voidJournalEntry = async (idEntry: string): Promise<unknown> => {
+  const { data } = await apiClient.post<unknown>(
+    `${API_ACCOUNT.DEL_TRANSACTION_ACCOUNT}/${idEntry}/void`
   );
   return data;
 };
 
-/** Not atomic: N parallel DELETE requests. If one fails the others may already have gone through. */
-export const deleteJournalEntries = (ids: string[]): Promise<unknown[]> =>
-  Promise.all(ids.map(deleteJournalEntry));
+export interface VoidManyResult {
+  voided: number;
+  failed: number;
+}
+
+/**
+ * Voids the entries one after the other. The backend is not safe for a parallel batch (a partly
+ * failing one answers 500), and a failure must not stop the entries after it.
+ */
+export const voidJournalEntries = async (ids: string[]): Promise<VoidManyResult> => {
+  const result: VoidManyResult = { voided: 0, failed: 0 };
+  for (const id of ids) {
+    try {
+      await voidJournalEntry(id);
+      result.voided += 1;
+    } catch {
+      result.failed += 1;
+    }
+  }
+  return result;
+};
 
 export const fetchTags = async (page: number): Promise<TagsResponse> => {
   const { data } = await apiClient.get<TagsResponse>(`${API_TAGS.GET_ALL_TAGS}?page=${page}`);

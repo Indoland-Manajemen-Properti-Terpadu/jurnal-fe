@@ -1,0 +1,46 @@
+.row[data-parent='true'] {
+  background: var(--jurnal-color-surface-muted);
+}
+
+.row[data-selected='true'] {
+  background: color-mix(in srgb, var(--mantine-color-primary-6) 7%, transparent);
+}
+
+.row[data-context='true'] .cell {
+  opacity: 0.6;
+}
+
+.cell {
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.chevron {
+  transition: transform 150ms ease;
+}
+
+.chevron[data-expanded='true'] {
+  transform: rotate(90deg);
+}
+
+.chevronSpacer {
+  display: inline-block;
+  flex-shrink: 0;
+  width: 26px;
+}
+
+.accountLink {
+  color: var(--mantine-color-primary-7);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.accountLink:hover {
+  text-decoration: underline;
+}
+
+.amount {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}

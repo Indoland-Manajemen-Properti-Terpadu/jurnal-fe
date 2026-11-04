@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Badge, Button, Group, Input, Paper, Stack, Text } from '@mantine/core';
+import { Button, Group, Input, Paper, Stack, Text } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
 import { IconCalendar } from '@tabler/icons-react';
 import { MagnifyingGlass, PuzzlePieceIcon } from '@phosphor-icons/react';
@@ -14,7 +14,7 @@ import { dateFormatV1 } from '@/utils/formatDate';
 import { canConfirmMatch, matchesBankDirection, selectedTotal } from '../../domain/matchRules';
 import type { BankStatementData, JournalDetail } from '../../domain/reconciliation';
 import { useJournalDetailsForRecon } from '../hooks/useJournalDetailsForRecon';
-import DirectionBadge from './DirectionBadge';
+import DirectionText from './DirectionText';
 
 interface FindAndReconModalProps {
   opened: boolean;
@@ -86,12 +86,7 @@ export const FindAndReconModal: React.FC<FindAndReconModalProps> = ({
       accessor: 'description',
       title: headerText(t('modal.columns.description')),
       render: (element) => (
-        <Text
-          size="sm"
-          c={themeColors.primary[6]}
-          fw={500}
-          style={{ textDecoration: 'underline', cursor: 'pointer' }}
-        >
+        <Text size="sm" c={themeColors.black[9]} fw={500}>
           {element.description || '-'}
         </Text>
       ),
@@ -163,30 +158,18 @@ export const FindAndReconModal: React.FC<FindAndReconModalProps> = ({
         labels={{
           confirm: (
             <Button
-              variant="filled"
-              bg={canConfirm ? themeColors.primary[5] : themeColors.gray[2]}
+              color="primary"
               onClick={handleConfirm}
               leftSection={<PuzzlePieceIcon size={16} weight="duotone" />}
               disabled={!canConfirm}
-              style={{ color: canConfirm ? 'white' : themeColors.gray[5] }}
             >
-              <Group gap={6}>
-                {t('actions.reconcile')}
-                {selectedRecords.length > 0 && (
-                  <Badge color={themeColors.primary[8]} variant="filled" size="sm">
-                    {selectedRecords.length}
-                  </Badge>
-                )}
-              </Group>
+              {selectedRecords.length > 0
+                ? t('actions.reconcileCount', { count: selectedRecords.length })
+                : t('actions.reconcile')}
             </Button>
           ),
           cancel: (
-            <Button
-              variant="filled"
-              bg={themeColors.blue[0]}
-              c={themeColors.blue[6]}
-              onClick={onClose}
-            >
+            <Button variant="default" onClick={onClose}>
               {t('actions.cancel')}
             </Button>
           ),
@@ -209,7 +192,7 @@ export const FindAndReconModal: React.FC<FindAndReconModalProps> = ({
                     </Text>
                   </Stack>
                   <Stack align="flex-end" gap={4}>
-                    <DirectionBadge received={selectedBankStatement.amount > 0} />
+                    <DirectionText received={selectedBankStatement.amount > 0} />
                     <Text size="sm" fw={700} c={themeColors.black[9]}>
                       {formatCurrency(Math.abs(selectedBankStatement.amount))}
                     </Text>
@@ -287,7 +270,7 @@ export const FindAndReconModal: React.FC<FindAndReconModalProps> = ({
         cancelLabel={t('actions.cancel')}
         imageSrc={uploadTemplateImage}
         confirmButtonProps={{
-          bg: themeColors.primary[5],
+          color: 'primary',
           leftSection: <PuzzlePieceIcon size={16} weight="duotone" />,
         }}
       />

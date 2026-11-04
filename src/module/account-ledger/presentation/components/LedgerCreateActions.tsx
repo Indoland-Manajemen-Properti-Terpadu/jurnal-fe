@@ -11,8 +11,6 @@ import { useTranslation } from '@/i18n';
 import { routes } from '@/router/routes';
 import type { LedgerVariant } from '../../domain/ledgerVariant';
 
-const GRADIENT = { from: 'primary.6', to: 'secondary.6', deg: 135 };
-
 /** Header "create" control: a menu of four cash/bank transactions, or one journal button. */
 export const LedgerCreateActions: React.FC<{ variant: LedgerVariant }> = ({ variant }) => {
   const { t } = useTranslation('accountLedger');
@@ -21,10 +19,9 @@ export const LedgerCreateActions: React.FC<{ variant: LedgerVariant }> = ({ vari
   if (variant === 'nonCashBank') {
     return (
       <Button
-        variant="gradient"
-        gradient={GRADIENT}
-        size="sm"
-        leftSection={<IconPlus size={16} />}
+        color="primary"
+        size="md"
+        leftSection={<IconPlus size={18} />}
         onClick={() => navigate(routes.journalEntries.add)}
       >
         {t('nonCashBank.create.button')}
@@ -36,10 +33,9 @@ export const LedgerCreateActions: React.FC<{ variant: LedgerVariant }> = ({ vari
     <Menu position="bottom-end" shadow="md" width={220} withArrow>
       <Menu.Target>
         <Button
-          variant="gradient"
-          gradient={GRADIENT}
-          size="sm"
-          leftSection={<IconPlus size={16} />}
+          color="primary"
+          size="md"
+          leftSection={<IconPlus size={18} />}
           rightSection={<IconChevronDown size={14} />}
         >
           {t('cashBank.create.button')}

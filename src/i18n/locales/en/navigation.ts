@@ -34,6 +34,7 @@ export const navigation = {
   detailJournalTransaction: 'Journal Entry Details',
   beginningBalance: 'Beginning Balance',
   accountDetailCB: 'Cash & Bank Details',
+  importBankStatement: 'Import Bank Statement',
   accountDetailNonCB: 'General Ledger Details',
   closingBooks: 'Period Lock & Book Closing',
   assets: 'Assets',

@@ -12,7 +12,7 @@ None of its own. `ReconciliationTable` renders inside the account detail page (`
 
 ## Endpoints
 
-- `GET /v1/reconciliation/:idAccount`: statements with `matchedJournalDetail` and `recommendations`, optional `balance`.
+- `GET /v1/reconciliation/:idAccount`: ONLY the statement rows that are not reconciled yet (with `recommendations`), `unreconciledJournalDetails` (journal lines of the account with no statement row) and `balance`, which is the net of those unreconciled rows, not a bank balance. A matched row leaves this list.
 - `GET /v1/reconciliation/bank-statements/:bankStatementId/journal-details`: candidates for the manual modal (`data.results`, other shapes accepted).
 - `POST /v1/reconciliation/match-multiple` `{ matches: [{ bankStatementId, journalDetailIds }] }`. A failed request throws (status >= 400) and the error toast shows the server message.
 
@@ -32,9 +32,15 @@ TanStack Query keys: `['get_reconciliation', idAccount]`, `['journal_details_for
 
 Namespace `reconciliation` (`id` verbatim, `en` added, parity test in `src/i18n/locales/reconciliation.test.ts`).
 
+## Screen
+
+- Summary of the two open sides (statement rows with no journal, journal lines with no statement row, and the difference), then one row per statement: tick box and bank item on the left, the suggested journal line(s) on the right with "same day / n days apart", then a bar with the selection count and the single primary action. Journal lines that wait for a statement are listed below (`UnmatchedJournals`).
+- One journal line can back one statement row. Two imported rows that are alike suggest the same line and the server then fails the whole request (a request that mixes valid and invalid matches even ends in a 500: "Cannot call abortTransaction twice"). `matchGuards.ts` blocks the second ticked row (disabled box with a hint), warns on rows that share a suggestion, and `matchSelected` leaves a blocked row out.
+- The X on a suggestion hides it on this screen only ("restore" brings it back); there is no unmatch on the server (no endpoint), which the confirm dialog says.
+- A failed match shows a reason (`infrastructure/matchErrors.ts`: amount mismatch, already reconciled, row gone, server error), never the raw server text.
+- The empty state tells "nothing imported" (ask to import) from "all rows matched" (the statement list still has rows), because this list drops matched rows.
+
 ## Known gaps (documented, not changed)
 
-- The trash button only hides a recommendation locally; it does not unmatch anything on the server. The "Rekonsiliasi" success dialog says the action cannot be undone, and there is no undo screen.
-- The bank balance in the header is derived from recommendations when the server omits it, so it is not a statement balance.
-- A failed list request now shows the not-found page instead of the empty state (the old shared `get` returned the error body as data).
-- Removed: dead service `GetTransactionByAccountRecon` and its types, the page wrapper with a commented-out modal, and the never-filled `manualMatches` state.
+- No unmatch: a reconciled pair cannot be undone from the app.
+- The backend 500 on a partly failing request is a server defect; the screen avoids sending such a request.
