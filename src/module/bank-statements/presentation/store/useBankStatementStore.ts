@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { t } from '@/i18n';
 import { summarizePreview } from '../../domain/importDraft';
+import { parseServerImportError } from '../../domain/importValidation';
 import type { BankStatementPreviewItem, PreviewSummary } from '../../domain/importPreview';
 
 interface BankStatementState extends PreviewSummary {
@@ -13,11 +14,19 @@ interface BankStatementState extends PreviewSummary {
   deleteItem: (rowIndex: number) => void;
 }
 
+/** The server answers in English; a message it does not know is shown as it came. */
+const describeError = (message: string): string => {
+  const known = parseServerImportError(message);
+  return known
+    ? t(`importDraft.errors.${known.code}`, { fields: known.detail ?? '' }, 'bankStatements')
+    : message;
+};
+
 const rowErrors = (wrongData: BankStatementPreviewItem[]) =>
   wrongData.map((item) =>
     t(
       'importDraft.rowError',
-      { row: item.rowIndex, errors: item.errors.join(', ') },
+      { row: item.rowIndex, errors: item.errors.map(describeError).join(', ') },
       'bankStatements'
     )
   );

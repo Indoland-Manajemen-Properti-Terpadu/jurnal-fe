@@ -71,6 +71,11 @@ const SECTION_DEFS: Array<{ prefix: string; titleKey: string; groupKey: string }
     groupKey: 'groupGeneralJournal',
   },
   {
+    prefix: '/general-journal/bank-statement',
+    titleKey: 'importBankStatement',
+    groupKey: 'groupGeneralJournal',
+  },
+  {
     prefix: '/general-journal/detail-account',
     titleKey: 'accountDetailNonCB',
     groupKey: 'groupGeneralJournal',
