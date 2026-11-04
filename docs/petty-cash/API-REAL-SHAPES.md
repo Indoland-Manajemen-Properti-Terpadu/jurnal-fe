@@ -1,3 +1,5 @@
+> **Update 2026-11-04:** pockets, staged approval and tags are in [section 11](#11-pockets-staged-approval-and-tags-observed-2026-11-04). Where section 11 differs from an older section, section 11 wins.
+
 > Observed on the Jurnal ProApps **Demo Site** on 2026-10-31 by running every flow with five test users. Token-free. The seeded users, roles, fund and documents are test data prefixed "TEST PC". Endpoint paths, queries and bodies are in [`API-CONTRACT.md`](API-CONTRACT.md).
 
 # Kas Kecil + Kasbon: REAL shapes and behavior (observed 2026-10-31, Demo Site)
@@ -280,3 +282,93 @@ Accounting remarks: (1) the variance account was empty and had to be mapped by t
 - **Replenishment payout** was `voucherTotal + shortage` (1,306,000 + 5,000 = 1,311,000) and the journal debited the expenses, the input tax and the variance account (8-10000) against the bank for the same total; after disbursement `cashBalanceAfter` was 4,600,000 (the ceiling minus the 400,000 advance still out) and the fund identity held.
 - **Cancel** of a submitted replenishment returned its vouchers to `PENDING_REIMBURSE`; the reason is required by the app (the backend accepted it). Cancelling an approved one is allowed by the app but was not exercised.
 - **Count draft** created with `submit:false` is `DRAFT`; the counter submits it from the drawer (`POST /counts/:id/submit`), an independent approver rejects it with a reason (`REJECTED`).
+
+## 11. Pockets, staged approval and tags (observed 2026-11-04)
+
+Observed on the Demo Site with `finance2` (superadmin), `pc.witness`, `pc.custodian` and `pc.approver`. Endpoint rules are in [`API-CONTRACT.md` section 9](API-CONTRACT.md#9-pockets-staged-approval-and-later-additions-2026-11-04).
+
+**Fund** (`GET /funds`, `/funds/:id`) gained `pockets[]`. Fund KK-ENG has four, `GPY` and `DANA` being e-wallets:
+
+```json
+"pockets": [
+  { "code": "TUNAI", "name": "Tunai", "type": "CASH", "provider": null, "accountNumber": null,
+    "accountHolder": null, "isActive": true, "balance": 1000000 },
+  { "code": "BCA-ENG", "name": "BCA 1102", "type": "BANK", "provider": "BCA",
+    "accountNumber": "896876871102", "accountHolder": "Paladian Park", "isActive": true, "balance": 4000000 }
+]
+```
+
+The pocket balances add up to `cashBalance` (1,000,000 + 4,000,000 = 5,000,000). Other fund fields are unchanged; `custodianHistory`, `lockVersion`, `accountLockKey` and `lastSeq` are also present and unused.
+
+**Lookups** gained `pocketTypes: [{ value: "BANK", label: "Rekening Bank" }, { value: "EWALLET", label: "E-Wallet / Kartu Prabayar" }]`.
+
+**Cash book entry** gained `pocket` and `pocketBalance`. A transfer is two entries with the same memo; the fund-level `runningBalance` dips and recovers between them because the OUT entry is recorded first:
+
+```json
+{ "seq": 5, "type": "POCKET_TRANSFER", "direction": "OUT", "amount": 4000000, "runningBalance": 1000000,
+  "pocket": "TUNAI", "pocketBalance": 1000000, "refType": "FUND", "journal": null, "memo": "Tarik tunai dari BCA 1102" }
+{ "seq": 6, "type": "POCKET_TRANSFER", "direction": "IN", "amount": 4000000, "runningBalance": 5000000,
+  "pocket": "BCA-ENG", "pocketBalance": 4000000, "refType": "FUND", "journal": null, "memo": "Tarik tunai dari BCA 1102" }
+```
+
+`GET /funds/:id/cash-book?pocket=BCA-ENG` answered `openingBalance 0`, `closingBalance 4000000` and only that pocket's entries.
+
+**Voucher** has `pocket` (`"TUNAI"`), list and detail. `lines[].tags` is an array of tag ids, also in the list: `["6ad9edc2e683d1cc8904b540"]`. Writing `lines[].tagIds` stored it as `tags`. `GET /reports/expense-summary?groupBy=tag` still showed only `Tanpa tag`: the one tagged voucher is a DRAFT, which the report leaves out (backend answer 11). A **DRAFT voucher cannot be voided** (`Voucher berstatus DRAFT tidak bisa di-void`) and there is no endpoint to delete one.
+
+**Count detail** (`GET /counts/:id`) gained:
+
+```json
+{
+  "totalPhysicalCash": 1000000,
+  "totalCounted": 5000000,
+  "expectedCash": 5000000,
+  "varianceAmount": 0,
+  "pocketResults": [
+    {
+      "pocket": "TUNAI",
+      "name": "Tunai",
+      "type": "CASH",
+      "bookBalance": 1000000,
+      "expected": 1000000,
+      "counted": 1000000,
+      "variance": 0
+    },
+    {
+      "pocket": "BCA-ENG",
+      "name": "BCA 1102",
+      "type": "BANK",
+      "bookBalance": 4000000,
+      "expected": 4000000,
+      "counted": 3999980,
+      "variance": -20
+    }
+  ],
+  "nonCashBalances": null,
+  "approvalFlow": ["BM", "CF"],
+  "approvalStage": "BM",
+  "pendingApprovers": [
+    { "level": "BM", "label": "Building Manager" },
+    { "level": "CF", "label": "Chief Finance" }
+  ],
+  "approvals": []
+}
+```
+
+An approved, rejected or settled count has `approvalStage: null` and `pendingApprovers: []`; an older rejected count has `approvalFlow: []`. List items carry the same approval fields.
+
+**Reimbursement** list and detail gained `pocket` (`"TUNAI"`), `approvalFlow`, `approvalStage`, `pendingApprovers` and `approvals`, as for counts. A `DISBURSED` or `CANCELLED` one has `pendingApprovers: []`.
+
+**Advance** gained `disbursePocket` (`"TUNAI"`) on every advance sampled. No separate settlement pocket field was present.
+
+**Errors**
+
+- Count without the non-cash pockets: `400 { message: "Isi saldo kantong BCA 1102, GOPAY, DANA sesuai rekening/aplikasi", data: { errorCode: "POCKET_BALANCES_REQUIRED", details: ["BCA-ENG","GPY","DANA"] } }`. The message names the pockets; `details` holds their codes.
+- A full count (`denominations` plus `nonCashBalances` for every active non-cash pocket, `submit: false`) answered `201` as `DRAFT`.
+
+**Permissions** (`GET /v1/users/me/permissions` of the superadmin) list these petty cash menus: `JP-PC`, `JP-PC-VCH`, `JP-PC-CNT`, `JP-PC-RMB`, `JP-PC-ADV`, `JP-PC-CST`, `JP-PC-APR`, `JP-PC-DSB`, `JP-PC-CTL`, `JP-PC-APR-BM`, `JP-PC-APR-CF`. **`JP-PC-FUND` is not among them.**
+
+**Who can do what** (create or update rights, by test account): `pc.custodian` has `JP-PC-VCH`, `JP-PC-RMB`, `JP-PC-CST`; `pc.approver` has `JP-PC-APR`, `JP-PC-CTL`; `pc.witness` has `JP-PC-CNT`; `pc.staff` has `JP-PC-ADV`.
+
+**Counting is open to anyone with `JP-PC-CNT` who is not the custodian of that fund**, so `pc.witness` can count KK-ENG (custodian Finance) as well as PC-HQ (custodian `pc.custodian`).
+
+**Replenishment wizard facts.** On PC-HQ (`requireCountBeforeReimbursement: false`) three vouchers in `PENDING_REIMBURSE` were put through the wizard to step 2 without an approved count, and `POST /reimbursements/preview` (no pocket sent) answered the payout (225,000), `cashAfterDisbursement` (4,495,000), the expense breakdown and `isBalanced` for them. On KK-ENG (`requireCountBeforeReimbursement: true`) the frontend asks for an `APPROVED` count before step 2; that fund had none, so this was not exercised there. Nothing was submitted.

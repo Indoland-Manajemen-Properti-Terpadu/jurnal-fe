@@ -1,7 +1,10 @@
 import {
   COIN_VALUES,
   denominationRows,
+  countedGrandTotal,
   countedTotal,
+  nonCashTotal,
+  pocketVariance,
   emptyCountDraft,
   expectedCashEstimate,
   pieceSubtotal,
@@ -164,5 +167,62 @@ describe('pieceSubtotal', () => {
     expect(pieceSubtotal(500, '')).toBe(0);
     expect(pieceSubtotal(500, 2.5)).toBe(0);
     expect(pieceSubtotal(500, -1)).toBe(0);
+  });
+});
+
+describe('cash count per pocket', () => {
+  const pockets = ['BCA', 'GOPAY'];
+  const base = () => ({ ...emptyCountDraft(pockets), witnessId: 'w1' });
+  const options = { witnessRequired: true, varianceNonZero: false, nonCashPockets: pockets };
+  const codes = (d: CountDraft, o = options) =>
+    validateCountDraft(d, o).map((i) => `${i.path}:${i.code}`);
+
+  it('seeds an empty balance per pocket code', () => {
+    expect(emptyCountDraft(pockets).nonCash).toEqual({ BCA: '', GOPAY: '' });
+    expect(emptyCountDraft().nonCash).toEqual({});
+  });
+
+  it('adds the typed balances and ignores unusable ones', () => {
+    expect(nonCashTotal({ ...base(), nonCash: { BCA: 100.1, GOPAY: 200.2 } })).toBe(0);
+    expect(nonCashTotal({ ...base(), nonCash: { BCA: 1500000, GOPAY: 250000 } })).toBe(1750000);
+    expect(nonCashTotal({ ...base(), nonCash: { BCA: -5, GOPAY: '' } })).toBe(0);
+  });
+
+  it('adds cash and non-cash into the grand total', () => {
+    const d = { ...withNotes({ '100000': 2 }), nonCash: { BCA: 1500000, GOPAY: 250000 } };
+    expect(countedGrandTotal(d)).toBe(1950000);
+  });
+
+  it('requires every listed pocket, rejects negative and fractional balances', () => {
+    expect(codes({ ...base(), notes: { ...base().notes, '1000': 1 } })).toEqual([
+      'nonCash.BCA:REQUIRED',
+      'nonCash.GOPAY:REQUIRED',
+    ]);
+    const bad = { ...base(), nonCash: { BCA: -1, GOPAY: 10.5 } };
+    expect(codes(bad)).toEqual(['nonCash.BCA:NEGATIVE', 'nonCash.GOPAY:WHOLE_RUPIAH']);
+  });
+
+  it('accepts zero as a typed balance and counts it as entered', () => {
+    expect(codes({ ...base(), nonCash: { BCA: 0, GOPAY: 0 } })).toEqual([]);
+  });
+
+  it('flags nothing counted only when no balance was entered either', () => {
+    expect(codes(base(), { ...options, nonCashPockets: [] })).toEqual(['notes:NOTHING_COUNTED']);
+    expect(codes({ ...base(), nonCash: { BCA: 5000, GOPAY: 0 } })).toEqual([]);
+  });
+
+  it('sends the balances in the order given, only when there are pockets', () => {
+    const d = { ...withNotes({ '1000': 1 }), nonCash: { GOPAY: 250000, BCA: 1500000 } };
+    expect(toCountInput(d, pockets).nonCashBalances).toEqual([
+      { pocket: 'BCA', balance: 1500000 },
+      { pocket: 'GOPAY', balance: 250000 },
+    ]);
+    expect(toCountInput(d)).not.toHaveProperty('nonCashBalances');
+  });
+
+  it('reads a typed pocket balance against the book as a signed variance', () => {
+    expect(pocketVariance(1400000, 1500000)).toEqual({ amount: -100000, type: 'SHORT' });
+    expect(pocketVariance(1600000, 1500000)).toEqual({ amount: 100000, type: 'OVER' });
+    expect(pocketVariance('', 0)).toEqual({ amount: 0, type: 'BALANCED' });
   });
 });

@@ -11,7 +11,6 @@ import { PettyCashWorkspace } from '@/module/petty-cash/presentation/components/
 import { QueryErrorState } from '@/module/petty-cash/presentation/components/QueryErrorState';
 import { usePettyCashFunds } from '@/module/petty-cash/presentation/hooks/usePettyCashQueries';
 import { PettyCashPageFrame } from '@/module/petty-cash/presentation/pages/PettyCashPageFrame';
-import classes from '@/module/petty-cash/presentation/pages/PettyCashPage.module.css';
 
 const FUND_PARAM = 'fund';
 
@@ -72,14 +71,18 @@ export default function PettyCashPage() {
               })}
             </Alert>
           )}
-          <Paper className={classes.toolbar} radius="lg" p="md">
-            <FundSelector
-              funds={items}
-              value={selected.id}
-              onChange={(fundId) => setParams({ [FUND_PARAM]: fundId }, { replace: true })}
-            />
-          </Paper>
-          <PettyCashWorkspace key={selected.id} fund={selected} initialTab={params.get('tab')} />
+          <PettyCashWorkspace
+            key={selected.id}
+            fund={selected}
+            initialTab={params.get('tab')}
+            switcher={
+              <FundSelector
+                funds={items}
+                value={selected.id}
+                onChange={(fundId) => setParams({ [FUND_PARAM]: fundId }, { replace: true })}
+              />
+            }
+          />
         </>
       )}
     </PettyCashPageFrame>

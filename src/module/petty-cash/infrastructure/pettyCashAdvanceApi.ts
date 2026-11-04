@@ -84,10 +84,15 @@ export const rejectAdvance = (id: string, reason: string, key: string) =>
 export const cancelAdvance = (id: string, reason: string, key: string) =>
   act(id, 'cancel', { reason: reason.trim() }, key);
 
-export const disburseAdvance = (id: string, key: string) => act(id, 'disburse', undefined, key);
+/** `pocket` is where the cash comes from; omitted, the backend uses the cash box. */
+export const disburseAdvance = (id: string, key: string, pocket?: string) =>
+  act(id, 'disburse', pocket ? { pocket } : undefined, key);
 
-export const custodianVerifyAdvance = (id: string, note: string, key: string) =>
-  act(id, 'custodian-verify', note.trim() ? { note: note.trim() } : undefined, key);
+/** The leftover (or the shortfall paid) goes to `pocket`; omitted, it is the pocket of the payout. */
+export const custodianVerifyAdvance = (id: string, note: string, key: string, pocket?: string) => {
+  const body = { ...(note.trim() ? { note: note.trim() } : {}), ...(pocket ? { pocket } : {}) };
+  return act(id, 'custodian-verify', Object.keys(body).length > 0 ? body : undefined, key);
+};
 
 export const custodianRejectAdvance = (id: string, reason: string, key: string) =>
   act(id, 'custodian-reject', { reason: reason.trim() }, key);
@@ -101,7 +106,7 @@ export const financeRejectAdvance = (id: string, reason: string, key: string) =>
 /** Moves the unsettled cash to the employee receivable account and refills the fund from the bank. */
 export const convertAdvanceToReceivable = (
   id: string,
-  input: { bankAccountId: string; date: string; reason: string },
+  input: { bankAccountId: string; date: string; reason: string; pocket?: string },
   key: string
 ) => act(id, 'convert-to-receivable', { ...input, reason: input.reason.trim() }, key);
 

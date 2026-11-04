@@ -4,7 +4,6 @@ import {
   Button,
   FileButton,
   Group,
-  Modal,
   NumberInput,
   Paper,
   Stack,
@@ -12,8 +11,9 @@ import {
   TextInput,
 } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
-import dayjs from 'dayjs';
 import { IconPaperclip, IconPlus, IconTrash, IconX } from '@tabler/icons-react';
+import { DialogFrame } from '@/module/petty-cash/presentation/components/DialogFrame';
+import { todayWib } from '@/module/petty-cash/domain/wibDate';
 import { useTranslation } from '@/i18n';
 import { formatCurrency } from '@/utils/formatCurrency';
 import {
@@ -42,7 +42,7 @@ const money = (amount: number) => formatCurrency(amount, false);
 /** The requester accounts for the cash: what was spent (with receipts) and what goes back. */
 export function SettlementDialog({ advance, opened, onClose, onSubmitted }: Readonly<Props>) {
   const { t } = useTranslation('pettyCash');
-  const today = dayjs().format('YYYY-MM-DD');
+  const today = todayWib();
   const submit = useSubmitSettlement(advance.id);
   const [draft, setDraft] = useState<SettlementDraft>(() => emptySettlementDraft(today));
   const [files, setFiles] = useState<File[]>([]);
@@ -91,14 +91,21 @@ export function SettlementDialog({ advance, opened, onClose, onSubmitted }: Read
   ].join(' ');
 
   return (
-    <Modal
+    <DialogFrame
       opened={opened}
       onClose={close}
+      title={t('settlementForm.title', { number: advance.advanceNumber })}
       size="lg"
-      centered
-      radius="md"
-      title={<Text fw={700}>{t('settlementForm.title', { number: advance.advanceNumber })}</Text>}
-      closeButtonProps={{ 'aria-label': t('common.close') }}
+      footer={
+        <>
+          <Button variant="default" onClick={close} disabled={submit.isPending}>
+            {t('actions.keep')}
+          </Button>
+          <Button loading={submit.isPending} onClick={send}>
+            {t('settlementForm.submit')}
+          </Button>
+        </>
+      }
     >
       <Stack gap="md">
         <Text size="sm">{t('settlementForm.body')}</Text>
@@ -272,16 +279,7 @@ export function SettlementDialog({ advance, opened, onClose, onSubmitted }: Read
             </Group>
           </Stack>
         </Paper>
-
-        <Group justify="flex-end" gap="sm">
-          <Button variant="default" onClick={close} disabled={submit.isPending}>
-            {t('actions.keep')}
-          </Button>
-          <Button loading={submit.isPending} onClick={send}>
-            {t('settlementForm.submit')}
-          </Button>
-        </Group>
       </Stack>
-    </Modal>
+    </DialogFrame>
   );
 }

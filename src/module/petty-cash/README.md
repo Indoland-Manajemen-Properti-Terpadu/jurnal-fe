@@ -39,7 +39,7 @@ Reports and history (`pettyCashReportApi.ts`): `GET /reports/{pending-vouchers,e
 
 - `domain/`: `pettyCashEntities` (entities as the app uses them), `pettyCashStatus` (backend statuses, tones, voucher actions per status), `pettyCashAccess` (menu rights, custodian, segregation of duties), `pettyCashView` (variance display, voucher net/tax/total, account summary, cash book type labels). All have tests.
 - `infrastructure/`: `pettyCashApi`, `pettyCashDto`, `pettyCashMappers`, `pettyCashErrors`, `queryParams`, `idempotency`, `pettyCashEndpoints`.
-- `presentation/`: pages (`PettyCashPage`, `PettyCashDetailPage`, `PettyCashPageFrame`), components (`PettyCashWorkspace`, `ImprestBalancePanel`, `FundInfoStrip`, `FundSelector`, `VoucherList`, `VoucherDetailDrawer`, `CashBookPanel`, `PettyCashStatusBadge`, `QueryErrorState`) and hooks (`usePettyCashQueries`, `usePettyCashAccess`, `useIdempotentMutation`, `useOpenAttachment`, `pettyCashErrorMessage`, `pettyCashKeys`).
+- `presentation/`: pages (`PettyCashPage`, `PettyCashDetailPage`, `PettyCashPageFrame`), components (`PettyCashWorkspace`, `FundOverview` (fund identity, available cash, imprest equation, pockets and rules in one card), `FundSelector`, `VoucherList`, `VoucherDetailDrawer`, `CashBookPanel`, `PettyCashStatusBadge`, `QueryErrorState`) and hooks (`usePettyCashQueries`, `usePettyCashAccess`, `useIdempotentMutation`, `useOpenAttachment`, `pettyCashErrorMessage`, `pettyCashKeys`).
 
 ## Rules the screens follow
 
@@ -66,6 +66,56 @@ Reports and history (`pettyCashReportApi.ts`): `GET /reports/{pending-vouchers,e
 - A malformed `:fundId` is shown as not found without calling the API (the backend answers 400).
 - A voucher list item carries `lines[].expenseAccount` as an id only; the list resolves account names through `lookups`. The detail carries the full account.
 - The backend keeps `rejectedReason` and `voidReason` after a voucher leaves those states, so the drawer shows them only while the status matches.
+
+## Pockets (balance pockets)
+
+A fund's cash is split into pockets: `TUNAI` (cash box), `BANK` (a petty cash bank account) and `EWALLET`. They share one ledger account, so pocket balances add up to `cashBalance` and only itemize the cash book; a transfer between pockets posts no journal (`POCKET_TRANSFER` in and out). See [ADR 0006](../../../docs/adr/0006-petty-cash-pockets.md).
+
+- **Read side (done):** `FundDto.pockets[]` (`code`, `name`, `type`, `provider`, `accountNumber`, `accountHolder`, `isActive`, `balance`) maps to `PettyCashFund.pockets`; a fund answered without them has none. `PocketBalances` shows one card per pocket under the imprest panel, inactive ones greyed, and warns when the sum differs from `cashBalance`. The cash book takes `?pocket=` (opening and closing follow it), shows the pocket of each entry, and shows the pocket balance instead of the fund balance while one pocket is filtered.
+- **Manage and move (done):** a new fund can open non-cash pockets and split the ceiling (`FundPocketsFields`; `pockets[]` and `fundingAllocation[]`, the cash box takes the rest, types from `lookups.pocketTypes`). `PocketFormDialog` adds (`POST /funds/:id/pockets`) and edits (`PATCH /funds/:id/pockets/:code`, only changed fields, switch-off only at balance 0, never the cash box). `PocketTransferDialog` moves cash (`POST /funds/:id/pocket-transfers`, with an `Idempotency-Key`). Pocket writes reload the fund instead of reading the answer. Rules and validation are in `domain/pockets.ts`.
+- **Rights:** managing pockets is `JP-PC-FUND` update when the profile carries that menu, otherwise `JP-PC` update (the live permission list of the Demo Site has no `JP-PC-FUND`). Moving cash needs `JP-PC-CST` update and the custodian (a superadmin counts as custodian).
+- **Pocket on transactions (done):** `PocketSelect` is shown only when a fund has two or more active pockets; otherwise nothing is sent and the backend uses the cash box. Voucher (`pocket`, kept on edit because PATCH replaces the whole voucher), replenishment create (`pocket`; not sent to the preview) and its payout (`pocket`, default the one chosen at submit), advance payout (`pocket`) and custodian verification (`pocket`, default `disbursePocket`), advance conversion to receivable, and ceiling adjustment (`pocket`, "added to" or "taken from"). A shortage error that names a pocket adds a hint to move funds or pick another pocket.
+- **Cash count per pocket (done):** the cash box is counted by denomination; every active non-cash pocket gets a balance field (`nonCashBalances: [{ pocket, balance }]`, required by the backend, otherwise `POCKET_BALANCES_REQUIRED`). The form shows the book balance and the difference per pocket (an estimate), the summary works on the grand total (cash plus pockets), and the detail shows `pocketResults`. Rules and tests: `domain/cashCount.ts`.
+- **Balance is checked per pocket only at approval or advance payout** (`reservedAmount` is per fund), so a voucher can pass submit and fail at approve with an insufficient-balance error that carries the pocket. The screens that offer those actions must show it and, for the custodian, point to a transfer.
+- **Limit:** the bank reconciliation does not match per bank pocket (shared account); backend has not decided yet.
+
+## Staged approval
+
+A submitted cash count or replenishment carries `pendingApprovers: [{ level, label }]`, the stages still to approve, in order (the first is being waited for). A property management site goes `BM` then `CF`; any other site has one `FINANCE` stage. `domain/approval.ts` maps the active stage to the menu right: `BM` to `JP-PC-APR-BM`, `CF` to `JP-PC-APR-CF`, `FINANCE` to `JP-PC-APR`. Approve and reject are offered only to the holder of that right, on top of the existing separation of duties (not the custodian, not the counter or submitter). Without `pendingApprovers` the finance right applies; an unknown stage offers nothing. `ApprovalProgress` shows "Waiting for X, then Y" in both detail drawers and compactly in the lists. The server still decides: `APPROVAL_LEVEL_FORBIDDEN` and `SOD_VIOLATION` get their own sentence. Voucher and advance approval are unchanged (`JP-PC-APR`).
+
+## Forms
+
+The voucher form, the cash count form and the replenishment wizard share one layout (ui-guidelines Standard B): `SectionCard`s on the left, and on the right a sticky `FormSummaryCard` (`VoucherFormSummary`, `CountSummary`, the wizard's steps and `PayoutSummary`). The card is a title, `AmountRows` ending in the key figure, small notes, one quiet status line (teal check or orange triangle, like the balance line of `FundOverview`), a red line for what blocks saving, and the full-width actions. No alert boxes in the summary. The replenishment voucher table reuses the `DocumentTable` cell styles.
+
+## Lists
+
+Vouchers, cash counts, replenishments, advances and the cash book share `DocumentTable`: filters left and the count (or the opening and closing balance) with the tab's create action right; a quiet uppercase header; figures right aligned with tabular digits; the status in one column with the awaited approver under it; paging inside the card ("Showing 1-10 of 24"); the table shell kept when empty. A whole document row opens its drawer by click, Enter or Space (`DocumentNumber`, `TwoLine` for two-line cells); cash book rows are plain. The cash count list shows `totalCounted`.
+
+## Tags and dates
+
+- **Tags:** a voucher line can carry tags (`lines[].tagIds` on write, `lines[].tags` as ids on read; names come from `lookups.tags`). The line editor offers a multi-select when the site has tags, the drawer shows the names under the line, and an edit sends the stored tags again because an update replaces the lines.
+- **Dates:** "today" is the WIB calendar date (`todayWib`, `domain/wibDate.ts`), the backend's time zone for `FUTURE_DATE_NOT_ALLOWED` and period locks, not the browser's.
+- **Audit and error wording:** every audit action the backend lists has a sentence (`PAGU_ADJUSTMENT`, `CLOSE`, the pocket actions and `APPROVE_FINANCE`/`BM`/`CF`); an unknown one still reads "Data diperbarui". `INVALID_BANK_ACCOUNT` and `REIMBURSEMENT_AMOUNT_CHANGED` have their own error sentence.
+- **Contract and open points:** `docs/petty-cash/API-CONTRACT.md` section 9 and `API-REAL-SHAPES.md` section 11 describe pockets, staged approval and tags; `BACKEND-QUESTIONS.md` holds the backend's answers and the open questions, `FOLLOW-UPS.md` the decisions waiting for the product owner.
+
+## Reports and dialogs
+
+The reports tab lists the six reports in a side menu (a select on a narrow screen). Each report opens with its title and what it shows (`ReportShell`), then its filters and a `DocumentTable` with the totals bar inside the card (`TotalFigure`); figure tiles use `StatTile`, neutral unless a figure needs attention (the oldest pending bucket). The period-end check reuses the drawer cards (`DetailSection`, `LineItems`). The expense share is a display proportion of the server figures.
+
+Every dialog uses `DialogFrame`: title with a one or two sentence explanation under it, the fields, and the actions in a footer. `DecisionDialog` (approve, reject, void, pay out, transfer, ceiling, close, convert) is built on it. `Modal.Content` gets `p={0}` because the theme pads every `Paper` inline.
+
+## Detail drawers
+
+All four drawers (voucher, cash count, replenishment, advance) follow one layout, so a reader learns it once:
+
+1. `DocumentDrawer` frame: document kind, number and status in the header; loading and error states; actions pinned in a sticky footer that disappears when the reader may not act.
+2. `AmountSummary`: the one figure the document is about (total, total counted, payout, still to account for) with a quiet line of context.
+3. `DocumentNotice`: the only colored block, for a refusal (red), a warning (orange) or a void (gray).
+4. Plain `DetailSection` cards with `DetailFacts` (label above value, two columns), `AmountRows` (a calculation ending in its total) or `LineItems` (lines, vouchers, denominations, per-pocket results).
+5. `JourneySection`: the document journey from `domain/documentJourney.ts`, built from the record's own timestamps, oldest first, followed while it waits by the approval stages (`pendingApprovers`). Advance steps read as events ("Requested", "Cash handed over"), not as status names.
+6. `AuditTimeline`: the change history, folded by default (`CollapsibleSection`), newest first.
+
+`HistoryTimeline` is monochrome on purpose: neutral check markers for what happened, the brand color only for the last step or the stage being waited for (a ring), hollow markers and a dashed line for stages ahead, and a cross for a refusal. Statuses keep their colored badge in the header and lists only. The cash count drawer shows `totalCounted` (cash plus non-cash pockets) and the result per pocket (`pocketResults`).
 
 ## State
 

@@ -11,19 +11,18 @@ interface Props {
 
 export function FundSelector({ funds, value, onChange }: Readonly<Props>) {
   const { t } = useTranslation('pettyCash');
-  const selected = funds.find((fund) => fund.id === value);
 
   return (
     <Select
-      label={t('workspace.fund')}
-      description={selected ? `${selected.code} · ${selected.custodian.name}` : undefined}
+      aria-label={t('workspace.fund')}
       data={funds.map((fund) => ({ value: fund.id, label: `${fund.code} · ${fund.name}` }))}
       value={value}
       onChange={(next) => next && onChange(next)}
       leftSection={<IconBuilding size={16} />}
       allowDeselect={false}
       searchable
-      w={{ base: '100%', sm: 380 }}
+      size="md"
+      w={{ base: '100%', sm: 340 }}
     />
   );
 }

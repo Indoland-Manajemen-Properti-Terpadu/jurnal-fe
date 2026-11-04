@@ -25,6 +25,7 @@ export function CountActions({ count, onChanged }: Readonly<Props>) {
     status: count.status,
     countedById: count.countedBy?.id ?? null,
     custodianId: count.fund.custodianId,
+    pendingApprovers: count.pendingApprovers,
   });
   if (actions.length === 0) return null;
 

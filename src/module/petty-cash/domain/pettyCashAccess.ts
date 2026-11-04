@@ -1,3 +1,4 @@
+import { approvalMenuFor, type PendingApprover } from '@/module/petty-cash/domain/approval';
 import {
   voucherActionsFor,
   type VoucherAction,
@@ -12,7 +13,10 @@ import {
 export type PettyCashMenu =
   | 'JP-PC'
   | 'JP-PC-VCH'
+  | 'JP-PC-FUND'
   | 'JP-PC-APR'
+  | 'JP-PC-APR-BM'
+  | 'JP-PC-APR-CF'
   | 'JP-PC-CNT'
   | 'JP-PC-RMB'
   | 'JP-PC-DSB'
@@ -86,14 +90,34 @@ export type ReimbursementAction = 'approve' | 'reject' | 'cancel' | 'disburse';
 export const canCountFund = (profile: PettyCashAccessProfile, fund: { custodianId: string }) =>
   canAccess(profile, 'JP-PC-CNT', 'create') && profile.userId !== fund.custodianId;
 
+/**
+ * Adding or editing a pocket is a fund administration right. The backend names it `JP-PC-FUND`;
+ * until a profile carries that menu, the update right on `JP-PC` stands in for it.
+ */
+export const canManagePockets = (profile: PettyCashAccessProfile) =>
+  canAccess(profile, profile.rights['JP-PC-FUND'] ? 'JP-PC-FUND' : 'JP-PC', 'update');
+
+/** Moving cash between pockets is a custodian action. */
+export const canTransferBetweenPockets = (
+  profile: PettyCashAccessProfile,
+  fund: FundAccessContext
+) => canAccess(profile, 'JP-PC-CST', 'update') && isFundCustodian(profile, fund);
+
 /** Only the custodian asks for a replenishment. */
 export const canRequestReplenishment = (profile: PettyCashAccessProfile, fund: FundAccessContext) =>
   canAccess(profile, 'JP-PC-RMB', 'create') && isFundCustodian(profile, fund);
+
+/** The signed-in user holds the right of the stage being waited for (BM, CF or the finance stage). */
+export const canApproveNow = (profile: PettyCashAccessProfile, pending: PendingApprover[]) => {
+  const menu = approvalMenuFor(pending);
+  return menu !== null && canAccess(profile, menu, 'update');
+};
 
 export interface CountAccessContext {
   status: CountStatus;
   countedById: string | null;
   custodianId: string;
+  pendingApprovers?: PendingApprover[];
 }
 
 /**
@@ -110,7 +134,9 @@ export const allowedCountActions = (
       : [];
   }
   const independent = profile.userId !== count.custodianId && profile.userId !== count.countedById;
-  return count.status === 'SUBMITTED' && canAccess(profile, 'JP-PC-APR', 'update') && independent
+  return count.status === 'SUBMITTED' &&
+    canApproveNow(profile, count.pendingApprovers ?? []) &&
+    independent
     ? ['approve', 'reject']
     : [];
 };
@@ -119,6 +145,7 @@ export interface ReimbursementAccessContext {
   status: ReimbursementStatus;
   submittedById: string | null;
   approvedById: string | null;
+  pendingApprovers?: PendingApprover[];
 }
 
 /**
@@ -131,7 +158,7 @@ export const allowedReimbursementActions = (
 ): ReimbursementAction[] => {
   const { status } = reimbursement;
   const actions: ReimbursementAction[] = [];
-  const approver = canAccess(profile, 'JP-PC-APR', 'update');
+  const approver = canApproveNow(profile, reimbursement.pendingApprovers ?? []);
 
   if (status === 'SUBMITTED' && approver && profile.userId !== reimbursement.submittedById) {
     actions.push('approve', 'reject');

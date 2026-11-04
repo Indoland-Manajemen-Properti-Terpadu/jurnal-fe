@@ -1,12 +1,26 @@
-import { Box, Divider, Drawer, Group, Skeleton, Stack, Table, Text } from '@mantine/core';
+import { Text } from '@mantine/core';
 import { useTranslation } from '@/i18n';
 import { formatCurrency } from '@/utils/formatCurrency';
 import { dateFormatV1 } from '@/utils/formatDate';
+import { reimbursementJourney } from '@/module/petty-cash/domain/documentJourney';
 import { AuditTimeline } from '@/module/petty-cash/presentation/components/AuditTimeline';
+import {
+  AmountRows,
+  AmountSummary,
+  DetailFacts,
+  DetailSection,
+  LineItems,
+} from '@/module/petty-cash/presentation/components/DetailKit';
+import {
+  DocumentDrawer,
+  DocumentNotice,
+} from '@/module/petty-cash/presentation/components/DocumentDrawer';
+import { JourneySection } from '@/module/petty-cash/presentation/components/JourneySection';
 import { PettyCashStatusBadge } from '@/module/petty-cash/presentation/components/PettyCashStatusBadge';
-import { QueryErrorState } from '@/module/petty-cash/presentation/components/QueryErrorState';
 import { ReplenishmentActions } from '@/module/petty-cash/presentation/components/ReplenishmentActions';
 import { useReimbursement } from '@/module/petty-cash/presentation/hooks/useReplenishmentQueries';
+import { usePettyCashFund } from '@/module/petty-cash/presentation/hooks/usePettyCashQueries';
+import { pocketLabel } from '@/module/petty-cash/domain/pockets';
 
 interface Props {
   /** Kept while the drawer slides closed, so the body does not blank out during the transition. */
@@ -17,156 +31,110 @@ interface Props {
 
 const money = (amount: number) => formatCurrency(amount, false);
 
-function Row({
-  label,
-  children,
-  strong,
-}: Readonly<{ label: string; children: React.ReactNode; strong?: boolean }>) {
-  return (
-    <Group justify="space-between" wrap="nowrap" gap="md">
-      <Text size="sm" c={strong ? 'dark.9' : 'dimmed'} fw={strong ? 700 : 400}>
-        {label}
-      </Text>
-      <Text size="sm" fw={strong ? 700 : 600} ta="right" component="div">
-        {children}
-      </Text>
-    </Group>
-  );
-}
-
 export function ReplenishmentDetailDrawer({ replenishmentId, opened, onClose }: Readonly<Props>) {
   const { t } = useTranslation('pettyCash');
   const query = useReimbursement(replenishmentId ?? undefined);
   const record = query.data;
+  const fund = usePettyCashFund(record?.fund.id);
+  const bank = record ? `${record.bankAccount.accountNumber} · ${record.bankAccount.name}` : '';
 
   return (
-    <Drawer
+    <DocumentDrawer
       opened={opened}
       onClose={onClose}
-      position="right"
-      size="lg"
-      title={
-        <Group gap="sm">
-          <Text fw={700}>{record?.reimbursementNumber ?? t('replenishmentDrawer.title')}</Text>
-          {record && <PettyCashStatusBadge kind="reimbursement" status={record.status} />}
-        </Group>
-      }
-      closeButtonProps={{ 'aria-label': t('common.close') }}
+      kindLabel={t('replenishmentDrawer.title')}
+      number={record?.reimbursementNumber}
+      status={record && <PettyCashStatusBadge kind="reimbursement" status={record.status} />}
+      loading={query.isLoading}
+      error={query.isError ? query.error : null}
+      loadFailed={t('replenishmentDrawer.loadFailed')}
+      onRetry={() => query.refetch()}
+      actions={record && <ReplenishmentActions record={record} onChanged={onClose} />}
     >
-      {query.isLoading && (
-        <Stack gap="sm">
-          <Skeleton height={20} />
-          <Skeleton height={140} />
-        </Stack>
-      )}
-      {query.isError && (
-        <QueryErrorState
-          title={t('replenishmentDrawer.loadFailed')}
-          error={query.error}
-          onRetry={() => query.refetch()}
-        />
-      )}
-
       {record && (
-        <Stack gap="lg">
-          <Stack gap="xs">
-            <Row label={t('replenishmentDrawer.voucherTotal')}>{money(record.voucherTotal)}</Row>
-            {record.varianceAmount !== 0 && (
-              <Row
-                label={t(
-                  record.varianceAmount < 0
-                    ? 'replenishmentDrawer.shortage'
-                    : 'replenishmentDrawer.surplus'
-                )}
-              >
-                {money(Math.abs(record.varianceAmount))}
-              </Row>
-            )}
-            <Divider />
-            <Row label={t('replenishmentDrawer.payout')} strong>
-              {money(record.totalAmount)}
-            </Row>
-          </Stack>
+        <>
+          <AmountSummary
+            label={t('replenishmentDrawer.payout')}
+            amount={money(record.totalAmount)}
+            meta={`${dateFormatV1(record.requestDate)} · ${bank}`}
+          />
 
-          <Stack gap="xs">
-            <Row label={t('replenishmentDrawer.bank')}>
-              {record.bankAccount.accountNumber} · {record.bankAccount.name}
-            </Row>
-            {record.count && (
-              <Row label={t('replenishmentDrawer.count')}>{record.count.countNumber}</Row>
-            )}
-            <Row label={t('replenishmentDrawer.submittedBy')}>{record.submittedBy?.name}</Row>
-            {record.approvedBy && (
-              <Row label={t('replenishmentDrawer.approvedBy')}>{record.approvedBy.name}</Row>
-            )}
-            {record.disbursedBy && (
-              <Row label={t('replenishmentDrawer.disbursedBy')}>{record.disbursedBy.name}</Row>
-            )}
-            {record.disbursementDate && (
-              <Row label={t('replenishmentDrawer.disbursedOn')}>
-                {dateFormatV1(record.disbursementDate)}
-              </Row>
-            )}
-            {record.cancelledBy && (
-              <Row label={t('replenishmentDrawer.cancelledBy')}>{record.cancelledBy.name}</Row>
-            )}
-          </Stack>
-
-          {record.notes && (
-            <Box>
-              <Text size="xs" c="dimmed">
-                {t('replenishmentDrawer.notes')}
-              </Text>
-              <Text size="sm" fw={600}>
-                {record.notes}
-              </Text>
-            </Box>
-          )}
           {record.status === 'REJECTED' && record.rejectedReason && (
-            <Box>
+            <DocumentNotice tone="refusal" title={t('replenishmentDrawer.rejectedReason')}>
+              {record.rejectedReason}
+            </DocumentNotice>
+          )}
+
+          <DetailSection title={t('detail.breakdown')}>
+            <AmountRows
+              rows={[
+                { label: t('replenishmentDrawer.voucherTotal'), value: money(record.voucherTotal) },
+                ...(record.varianceAmount !== 0
+                  ? [
+                      {
+                        label: t(
+                          record.varianceAmount < 0
+                            ? 'replenishmentDrawer.shortage'
+                            : 'replenishmentDrawer.surplus'
+                        ),
+                        value: money(Math.abs(record.varianceAmount)),
+                      },
+                    ]
+                  : []),
+                {
+                  label: t('replenishmentDrawer.payout'),
+                  value: money(record.totalAmount),
+                  total: true,
+                },
+              ]}
+            />
+          </DetailSection>
+
+          <DetailSection title={t('detail.info')}>
+            <DetailFacts
+              facts={[
+                { label: t('replenishmentDrawer.bank'), value: bank },
+                {
+                  label: t('detail.pocket'),
+                  value: pocketLabel(fund.data?.pockets ?? [], record.pocket),
+                },
+                { label: t('replenishmentDrawer.count'), value: record.count?.countNumber },
+                {
+                  label: t('replenishmentDrawer.disbursedOn'),
+                  value: record.disbursementDate ? dateFormatV1(record.disbursementDate) : null,
+                },
+                {
+                  label: t('detail.journal'),
+                  value: record.journalId ? t('detail.journalPosted') : null,
+                },
+              ]}
+            />
+          </DetailSection>
+
+          <DetailSection
+            title={t('replenishmentDrawer.vouchers')}
+            aside={
               <Text size="xs" c="dimmed">
-                {t('replenishmentDrawer.rejectedReason')}
+                {t('detail.itemCount', { count: record.items.length })}
               </Text>
-              <Text size="sm" fw={600}>
-                {record.rejectedReason}
-              </Text>
-            </Box>
-          )}
-          {record.journalId && (
-            <Text size="sm" c="teal.8" fw={600}>
-              {t('replenishmentDrawer.journalPosted')}
-            </Text>
-          )}
+            }
+          >
+            <LineItems
+              items={record.items.map((item) => ({
+                key: item.voucherId,
+                title: item.voucher?.voucherNumber ?? item.voucherId,
+                subtitle: item.voucher
+                  ? `${item.voucher.beneficiary} · ${dateFormatV1(item.voucher.transactionDate)}`
+                  : undefined,
+                amount: money(item.amount),
+              }))}
+            />
+          </DetailSection>
 
-          <Box>
-            <Text fw={700} mb="xs">
-              {t('replenishmentDrawer.vouchers')}
-            </Text>
-            <Table.ScrollContainer minWidth={360}>
-              <Table verticalSpacing="xs">
-                <Table.Tbody>
-                  {record.items.map((item) => (
-                    <Table.Tr key={item.voucherId}>
-                      <Table.Td>
-                        <Text size="sm" fw={600}>
-                          {item.voucher?.voucherNumber}
-                        </Text>
-                        <Text size="xs" c="dimmed">
-                          {item.voucher?.beneficiary}
-                        </Text>
-                      </Table.Td>
-                      <Table.Td ta="right">{money(item.amount)}</Table.Td>
-                    </Table.Tr>
-                  ))}
-                </Table.Tbody>
-              </Table>
-            </Table.ScrollContainer>
-          </Box>
-
+          <JourneySection steps={reimbursementJourney(record)} />
           <AuditTimeline entityType="REIMBURSEMENT" entityId={record.id} />
-          <ReplenishmentActions record={record} onChanged={onClose} />
-        </Stack>
+        </>
       )}
-    </Drawer>
+    </DocumentDrawer>
   );
 }

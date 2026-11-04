@@ -1,10 +1,13 @@
 import { advanceNotify, pettyCashAdvances } from './pettyCashAdvances';
+import { pettyCashDetail } from './pettyCashDetail';
 import { fundNotify, pettyCashFunds } from './pettyCashFunds';
+import { pettyCashPockets, pocketErrorCodes, pocketNotify } from './pettyCashPockets';
 import { pettyCashReports } from './pettyCashReports';
 import { pettyCashCounts } from './pettyCashCounts';
 
 export const pettyCash = {
   common: {
+    showing: 'Showing {{from}}-{{to}} of {{total}}',
     page: 'Page',
     of: 'of',
     retry: 'Try again',
@@ -42,6 +45,19 @@ export const pettyCash = {
       reports: 'Reports',
       cashBook: 'Cash book',
     },
+  },
+  approval: {
+    title: 'Approval flow',
+    waitingFor: 'Waiting for {{name}}',
+    then: 'Then {{name}}',
+    levels: { FINANCE: 'Finance', BM: 'Building Manager', CF: 'Chief Finance' },
+  },
+  pockets: {
+    title: 'Balance per pocket',
+    hint: 'Breakdown of cash on hand, petty cash bank accounts and e-wallets. All pockets use one petty cash account, so they add up to cash on hand.',
+    types: { CASH: 'Cash', BANK: 'Bank account', EWALLET: 'E-wallet' },
+    inactive: 'Inactive',
+    mismatch: 'Pocket balances do not add up to cash on hand. Ask finance to check the cash book.',
   },
   balance: {
     available: 'Available cash',
@@ -122,7 +138,10 @@ export const pettyCash = {
     opening: 'Opening balance',
     closing: 'Closing balance',
     datePlaceholder: 'Date range',
+    pocketFilter: 'Filter by pocket',
+    allPockets: 'All pockets',
     columns: {
+      pocket: 'Pocket',
       date: 'Date',
       type: 'Type',
       memo: 'Memo',
@@ -139,6 +158,7 @@ export const pettyCash = {
       ADVANCE: 'Employee advance given',
       ADVANCE_RETURN: 'Advance leftover returned',
       ADVANCE_EXTRA: 'Advance shortfall paid',
+      POCKET_TRANSFER: 'Transfer between pockets',
       ADVANCE_RECEIVABLE: 'Advance moved to employee receivable',
       OTHER: 'Other transaction',
     },
@@ -148,6 +168,9 @@ export const pettyCash = {
     loadFailed: 'The cash book could not be shown',
   },
   form: {
+    tags: 'Tags',
+    tagsHint: 'Optional. Used to group expenses in reports.',
+    tagsPlaceholder: 'Choose tags',
     createTitle: 'Record an expense',
     createSubtitle:
       'Record a petty cash expense with its receipt. The ledger is only posted when the fund is replenished.',
@@ -254,6 +277,7 @@ export const pettyCash = {
   notify: {
     ...advanceNotify,
     ...fundNotify,
+    ...pocketNotify,
     created: 'Voucher {{number}} saved as a draft.',
     createdSubmitted: 'Voucher {{number}} submitted.',
     updated: 'Voucher {{number}} updated.',
@@ -279,17 +303,23 @@ export const pettyCash = {
   ...pettyCashAdvances,
   ...pettyCashReports,
   ...pettyCashFunds,
+  ...pettyCashDetail,
+  ...pettyCashPockets,
   errors: {
     generic: 'Something went wrong. Please try again in a moment.',
     rejected: 'This request could not be processed. Please check your entries.',
     validation: 'Some fields need attention. Please check the highlighted fields.',
     forbidden: 'You do not have permission for this action. Contact your admin if needed.',
     unauthorized: 'Your session has ended. Please sign in again.',
+    pocketTransferHint: 'Move funds from another pocket, or choose another pocket.',
     network: 'Connection lost. Check your internet connection and try again.',
     codes: {
+      ...pocketErrorCodes,
       NOT_FOUND: 'Not found. It may have been removed, or the link is wrong.',
       PETTY_CASH_INSUFFICIENT_BALANCE: 'The amount is more than the cash available in this fund.',
       SOD_VIOLATION: 'Someone other than the document creator must do this.',
+      APPROVAL_LEVEL_FORBIDDEN:
+        'This approval stage is not yours. The document is waiting for another stage.',
       NOT_CUSTODIAN: 'Only the custodian of this fund can do this.',
       ATTACHMENT_REQUIRED: 'Attach a receipt or proof of payment for this amount.',
       INVALID_STATE_TRANSITION: 'The document status has changed. Reload the page and try again.',

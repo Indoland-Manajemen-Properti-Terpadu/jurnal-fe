@@ -51,6 +51,8 @@ export interface VoucherListParams extends PageParams {
 }
 
 export interface CashBookParams extends PageParams {
+  /** Pocket code; only that pocket's entries, with opening and closing balance of the pocket. */
+  pocket?: string;
   from?: string;
   to?: string;
 }
@@ -144,6 +146,7 @@ export const createVoucher = async (
   form.append('fundId', fundId);
   form.append('date', input.date);
   form.append('beneficiary', input.beneficiary);
+  if (input.pocket !== undefined) form.append('pocket', input.pocket);
   (['receiptNumber', 'description', 'taxInvoiceNumber', 'vendorTaxId'] as const).forEach(
     (field) => {
       const value = input[field];
