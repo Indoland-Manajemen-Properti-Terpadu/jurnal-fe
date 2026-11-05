@@ -1,29 +1,24 @@
-import { ActionIcon, Group, Select, TextInput } from '@mantine/core';
+import { ActionIcon, Group, TextInput } from '@mantine/core';
 import { IconSearch, IconX } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 
-const PAGE_SIZES = [10, 25, 50, 100];
-
 type ProductListToolbarProps = {
   search: string;
-  limit: number;
   onSearchChange: (value: string) => void;
   onSearchClear: () => void;
-  onLimitChange: (limit: number) => void;
 };
 
 export function ProductListToolbar({
   search,
-  limit,
   onSearchChange,
   onSearchClear,
-  onLimitChange,
 }: Readonly<ProductListToolbarProps>) {
   const { t } = useTranslation('products');
   return (
-    <Group justify="space-between" wrap="wrap" gap="sm">
+    <Group gap="sm" wrap="wrap" align="flex-end">
       <TextInput
         placeholder={t('list.searchPlaceholder')}
+        aria-label={t('list.searchPlaceholder')}
         leftSection={<IconSearch size={16} />}
         rightSection={
           search ? (
@@ -34,27 +29,14 @@ export function ProductListToolbar({
               onClick={onSearchClear}
               aria-label={t('list.clearSearch')}
             >
-              <IconX size={14} />
+              <IconX size={12} />
             </ActionIcon>
           ) : null
         }
         value={search}
-        onChange={(e) => onSearchChange(e.currentTarget.value)}
+        onChange={(event) => onSearchChange(event.currentTarget.value)}
         w={{ base: '100%', sm: 320 }}
       />
-
-      <Group gap="xs">
-        <Select
-          placeholder={t('list.limitPlaceholder')}
-          value={String(limit)}
-          onChange={(v) => onLimitChange(Number(v) || 10)}
-          data={PAGE_SIZES.map((size) => ({
-            value: String(size),
-            label: t('list.perPage', { count: size }),
-          }))}
-          w={140}
-        />
-      </Group>
     </Group>
   );
 }

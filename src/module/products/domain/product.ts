@@ -35,6 +35,16 @@ export type Tax = {
 export type AccountOption = {
   id: string;
   label: string;
+  /** Normal balance of the account's category: true = debit, false = credit, null = unknown. */
+  isDebit: boolean | null;
+};
+
+export type MasterDataItem = {
+  id: string;
+  name: string;
+  description: string | null;
+  createdAt: string;
+  code?: string;
 };
 
 export type BuyingInfo = {
@@ -66,6 +76,7 @@ export type Product = {
   externalCode: string | null;
   /** Name of the product's unit (Jam, Bulan, ...), when it has one. */
   unit: string | null;
+  unitId: string | null;
   category: Pick<ProductCategory, 'id' | 'name'> | null;
   buyingInfo: BuyingInfo;
   sellingInfo: SellingInfo;
@@ -84,6 +95,8 @@ export type ProductFormValues = {
   name: string;
   sku: string;
   productCategory: string | null;
+  /** One unit per product; the API cannot clear it once set. */
+  unit: string | null;
   image: File | null;
   buyingInfo: BuyingInfo;
   sellingInfo: SellingInfo;

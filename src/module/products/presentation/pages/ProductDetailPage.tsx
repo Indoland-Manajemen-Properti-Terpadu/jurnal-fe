@@ -12,6 +12,7 @@ import {
   ProductDetailSkeleton,
   ProductNotFound,
 } from '@/module/products/presentation/components/ProductDetailStates';
+import { ProductDetailSummary } from '@/module/products/presentation/components/ProductDetailSummary';
 import { ProductDetailHeader } from '@/module/products/presentation/components/ProductDetailHeader';
 import { ProductForm } from '@/module/products/presentation/components/ProductForm';
 import { ProductSettingsCards } from '@/module/products/presentation/components/ProductSettingsCards';
@@ -59,22 +60,26 @@ export function ProductDetailPage() {
         <Stack gap="lg">
           <ProductDetailHeader
             product={product}
-            imageUrl={resolveProductImageUrl(product.image)}
             onBack={goToList}
             onEdit={() => setEditModalOpened(true)}
             onDelete={() => setDeleteConfirmOpened(true)}
           />
 
-          <Grid gutter="lg">
-            <Grid.Col span={{ base: 12, md: 8 }}>
+          <ProductDetailSummary product={product} taxLabel={taxLabel} />
+
+          <Grid gutter="lg" align="flex-start">
+            <Grid.Col span={{ base: 12, lg: 8 }}>
               <ProductSettingsCards
                 product={product}
                 accountLabel={accountLabel}
                 taxLabel={taxLabel}
               />
             </Grid.Col>
-            <Grid.Col span={{ base: 12, md: 4 }}>
-              <ProductAuditPanel product={product} />
+            <Grid.Col span={{ base: 12, lg: 4 }}>
+              <ProductAuditPanel
+                product={product}
+                imageUrl={resolveProductImageUrl(product.image)}
+              />
             </Grid.Col>
           </Grid>
         </Stack>
