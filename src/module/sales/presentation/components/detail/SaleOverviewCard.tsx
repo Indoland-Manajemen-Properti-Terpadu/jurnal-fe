@@ -1,8 +1,7 @@
+import type { ReactNode } from 'react';
 import {
   ActionIcon,
-  Badge,
   Box,
-  Button,
   CopyButton,
   Divider,
   Group,
@@ -12,39 +11,26 @@ import {
   Title,
   Tooltip,
 } from '@mantine/core';
-import { IconCheck, IconCopy, IconDownload, IconLink, IconReceipt2 } from '@tabler/icons-react';
+import { IconCheck, IconCopy } from '@tabler/icons-react';
 import type { Sale } from '@/module/sales/domain/sale';
-import { getSaleStatusConfig } from '@/module/sales/domain/saleFormat';
 import type { SaleDisplay } from '../../hooks/useSaleDisplay';
+import { SaleStatusBadge } from '../shared/SaleStatusBadge';
 import { DetailField } from './DetailField';
+import { PaymentProgress } from './PaymentProgress';
+import { SaleTimeline } from './SaleTimeline';
 import classes from './SaleDetail.module.css';
 
 type SaleOverviewCardProps = {
   sale: Sale;
   display: SaleDisplay;
-  isDownloading: boolean;
-  isGeneratingLink: boolean;
-  onDownloadPdf: () => void;
-  onGenerateLink: () => void;
-  onRecordPayment: () => void;
+  /** The action bar; it knows which actions this invoice offers. */
+  actions: ReactNode;
 };
 
-export function SaleOverviewCard({
-  sale,
-  display,
-  isDownloading,
-  isGeneratingLink,
-  onDownloadPdf,
-  onGenerateLink,
-  onRecordPayment,
-}: Readonly<SaleOverviewCardProps>) {
+export function SaleOverviewCard({ sale, display, actions }: Readonly<SaleOverviewCardProps>) {
   const { t, money, date } = display;
-  const status = getSaleStatusConfig(sale.status);
-  const statusTranslation = t(`status.${sale.status}`);
-  const statusLabel =
-    statusTranslation && !statusTranslation.startsWith('status.')
-      ? statusTranslation
-      : status.label || sale.status;
+  // A draft or a voided invoice is not a receivable, so it has no outstanding balance to show.
+  const isReceivable = sale.displayStatus.code !== 'DRAFT' && sale.displayStatus.code !== 'VOID';
 
   return (
     <Paper
@@ -78,59 +64,37 @@ export function SaleOverviewCard({
                 </Tooltip>
               )}
             </CopyButton>
-          </Group>
-          <Group gap="xs" mt="sm">
-            <Badge color={status.color} variant={status.variant || 'light'} size="lg">
-              {statusLabel}
-            </Badge>
+            <SaleStatusBadge status={sale.displayStatus} />
           </Group>
           <Text size="sm" c="dimmed" mt="sm">
             {sale.customer?.displayName || t('unknownCustomer')}
           </Text>
         </Box>
-        <Group gap="xs" className={classes.actions}>
-          <Button
-            variant="default"
-            leftSection={<IconDownload size={17} />}
-            loading={isDownloading}
-            onClick={onDownloadPdf}
-          >
-            {t('downloadPdf')}
-          </Button>
-          <Button
-            variant="outline"
-            color="primary"
-            leftSection={<IconLink size={17} />}
-            loading={isGeneratingLink}
-            onClick={onGenerateLink}
-          >
-            {sale.invoiceLink ? t('refreshLink') : t('generateLink')}
-          </Button>
-          {sale.remainingAmount > 0 && (
-            <Button
-              color="primary"
-              leftSection={<IconReceipt2 size={17} />}
-              onClick={onRecordPayment}
-            >
-              {t('recordPayment')}
-            </Button>
-          )}
-        </Group>
+        <Box className={classes.actions}>{actions}</Box>
       </Group>
+      <Divider my="lg" />
+      <SaleTimeline code={sale.displayStatus.code} />
       <Divider my="lg" />
       <SimpleGrid cols={{ base: 2, sm: 4 }} spacing="md" className={classes.facts}>
         <DetailField label={t('transactionDate')}>{date(sale.transactionDate)}</DetailField>
         <DetailField label={t('dueDate')}>{date(sale.dueDate)}</DetailField>
         <DetailField label={t('invoiceTotal')}>{money(sale.finalAmount)}</DetailField>
-        <Box className={classes.balanceFact}>
-          <Text size="xs" fw={700}>
-            {t('remaining')}
-          </Text>
-          <Text size="lg" fw={800} className={classes.amount}>
-            {money(sale.remainingAmount)}
-          </Text>
-        </Box>
+        {isReceivable && (
+          <Box className={classes.balanceFact}>
+            <Text size="xs" fw={700}>
+              {t('remaining')}
+            </Text>
+            <Text size="lg" fw={800} className={classes.amount}>
+              {money(sale.remainingAmount)}
+            </Text>
+          </Box>
+        )}
       </SimpleGrid>
+      {isReceivable && (
+        <Box mt="lg">
+          <PaymentProgress sale={sale} display={display} />
+        </Box>
+      )}
     </Paper>
   );
 }

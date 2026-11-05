@@ -51,6 +51,7 @@ describe('fetchProduct mapping', () => {
           sku: 'SKU-1',
           image: 'uploads/a.png',
           external_code: 'EXT',
+          unit: { id: 'u1', name: 'Bulan' },
           productCategory: { id: 'c1', name: 'Utilitas', categoryCode: 'U' },
           buyingInfo: {
             isPurchased: true,
@@ -75,6 +76,7 @@ describe('fetchProduct mapping', () => {
       sku: 'SKU-1',
       image: 'uploads/a.png',
       externalCode: 'EXT',
+      unit: 'Bulan',
       category: { id: 'c1', name: 'Utilitas' },
       buyingInfo: {
         isPurchased: true,

@@ -1,26 +1,22 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { notifications } from '@mantine/notifications';
-import { t } from '@/i18n';
+import { useQuery } from '@tanstack/react-query';
 import { fetchPaymentTerms, fetchContacts } from '@/module/contacts';
 import { fetchProducts, fetchTaxes } from '@/module/products';
 import { getJournalAccounts } from '@/module/chart-of-accounts';
-import type {
-  CreateSaleFormValues,
-  CreateSalePaymentPayload,
-  SaleListParams,
-} from '../../domain/sale';
+import type { SaleListParams } from '../../domain/sale';
+import { depositAccountOptions } from '../../domain/saleDeposit';
 import {
-  createSale,
-  createSalePayment,
-  downloadInvoicePdf,
   fetchPaymentMethods,
+  fetchPublicInvoice,
   fetchSaleDetail,
+  fetchSaleTags,
   fetchSales,
-  generateInvoiceLink,
-  getApiErrorMessage,
 } from '../../infrastructure/saleApi';
-
-const tr = (key: string, params?: Record<string, string | number>) => t(key, params, 'sales');
+import {
+  fetchReceivablesSummary,
+  fetchSaleStatusCounts,
+  type ReceivablesRange,
+  type StatusCountFilters,
+} from '../../infrastructure/saleReceivablesApi';
 
 export const saleKeys = {
   all: ['sales'] as const,
@@ -35,6 +31,10 @@ export const saleKeys = {
   taxes: () => ['sales', 'taxes'] as const,
   paymentTerms: () => ['sales', 'payment-terms'] as const,
   depositAccounts: () => ['sales', 'deposit-accounts'] as const,
+  tags: () => ['sales', 'tags'] as const,
+  receivables: (range: ReceivablesRange) => [...saleKeys.all, 'receivables', range] as const,
+  counts: (filters: StatusCountFilters) => [...saleKeys.all, 'counts', filters] as const,
+  publicInvoice: (token: string) => ['sales', 'public', token] as const,
 };
 
 export const useSales = (params: SaleListParams = {}) =>
@@ -50,96 +50,6 @@ export const useSaleDetail = (id?: string) =>
     queryFn: () => fetchSaleDetail(id || ''),
     enabled: Boolean(id),
     staleTime: 30_000,
-  });
-
-export const useCreateSale = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (values: CreateSaleFormValues) => createSale(values),
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: saleKeys.lists() });
-      notifications.show({
-        color: 'teal',
-        title: tr('notify.createdTitle'),
-        message: tr('notify.createdMessage', { number: data.transactionNumber }),
-      });
-    },
-    onError: (err) => {
-      notifications.show({
-        color: 'red',
-        title: tr('notify.createFailedTitle'),
-        message: getApiErrorMessage(err, tr('notify.createFailedFallback')),
-      });
-    },
-  });
-};
-
-export const useCreateSalePayment = (saleId?: string) => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (payload: CreateSalePaymentPayload) => createSalePayment(payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: saleKeys.lists() });
-      if (saleId) {
-        queryClient.invalidateQueries({ queryKey: saleKeys.detail(saleId) });
-      }
-      notifications.show({
-        color: 'teal',
-        title: tr('notify.paidTitle'),
-        message: tr('notify.paidMessage'),
-      });
-    },
-    onError: (err) => {
-      notifications.show({
-        color: 'red',
-        title: tr('notify.payFailedTitle'),
-        message: getApiErrorMessage(err, tr('notify.payFailedFallback')),
-      });
-    },
-  });
-};
-
-export const useGenerateInvoiceLink = () =>
-  useMutation({
-    mutationFn: (id: string) => generateInvoiceLink(id),
-    onSuccess: () => {
-      notifications.show({
-        color: 'teal',
-        title: tr('notify.linkTitle'),
-        message: tr('notify.linkMessage'),
-      });
-    },
-    onError: (err) => {
-      notifications.show({
-        color: 'red',
-        title: tr('notify.linkFailedTitle'),
-        message: getApiErrorMessage(err, tr('notify.linkFailedFallback')),
-      });
-    },
-  });
-
-export const useDownloadInvoicePdf = () =>
-  useMutation({
-    mutationFn: async ({ id, filename }: { id: string; filename: string }) => {
-      const blob = await downloadInvoicePdf(id);
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename || `Invoice-${id}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      window.URL.revokeObjectURL(url);
-    },
-    onError: (err) => {
-      notifications.show({
-        color: 'red',
-        title: tr('notify.downloadFailedTitle'),
-        message: getApiErrorMessage(err, tr('notify.downloadFailedFallback')),
-      });
-    },
   });
 
 /* Form dropdown lookups */
@@ -175,6 +85,8 @@ export const useSaleProductOptions = () =>
         code: p.sku || p.externalCode || '',
         price: p.sellingInfo?.unitPrice || 0,
         name: p.name,
+        unit: p.unit ?? '',
+        taxId: p.sellingInfo?.salesTax ?? '',
       }));
     },
     staleTime: 5 * 60_000,
@@ -194,16 +106,39 @@ export const useSalePaymentTerms = () =>
     staleTime: 5 * 60_000,
   });
 
+/** Cash and bank accounts only (headers expand to their sub-accounts). */
 export const useDepositAccounts = () =>
   useQuery({
     queryKey: saleKeys.depositAccounts(),
-    queryFn: async () => {
-      const accounts = await getJournalAccounts();
-      return accounts.map((acc) => ({
-        value: acc.id,
-        label: `${acc.accountNumber || ''} - ${acc.name}`,
-        isBankAndCash: Boolean(acc.isBankAndCash),
-      }));
-    },
+    queryFn: async () => depositAccountOptions(await getJournalAccounts()),
     staleTime: 5 * 60_000,
+  });
+
+export const useSaleTagOptions = () =>
+  useQuery({
+    queryKey: saleKeys.tags(),
+    queryFn: fetchSaleTags,
+    staleTime: 5 * 60_000,
+  });
+
+export const useSaleReceivables = (range: ReceivablesRange) =>
+  useQuery({
+    queryKey: saleKeys.receivables(range),
+    queryFn: () => fetchReceivablesSummary(range),
+    staleTime: 30_000,
+  });
+
+export const useSaleStatusCounts = (filters: StatusCountFilters) =>
+  useQuery({
+    queryKey: saleKeys.counts(filters),
+    queryFn: () => fetchSaleStatusCounts(filters),
+    staleTime: 30_000,
+  });
+
+export const usePublicInvoice = (token?: string) =>
+  useQuery({
+    queryKey: saleKeys.publicInvoice(token || ''),
+    queryFn: () => fetchPublicInvoice(token || ''),
+    enabled: Boolean(token),
+    retry: false,
   });
