@@ -1,30 +1,61 @@
 # purchases
 
-Purchase bills (accounts payable): list, filter and sort supplier bills, create a bill, record a payment and delete a bill. The data is a browser-only prototype stored in `localStorage`; there is no backend yet.
+Procure-to-pay: purchase requests, purchase orders, goods receipts, vendor bills, payment vouchers (including advances), purchase returns, vendor credit and the payables aging report. Every screen talks to the live purchasing API; there is no local data.
 
-- **Route:** `routes.purchases.main` (`/purchases`). The old `/pembelian` (`routes.legacyPaths.purchases`) redirects to it; `src/router/legacyRedirects.test.tsx` covers the redirect.
-- **Page:** `presentation/pages/PurchasesPage.tsx`, exported from `index.ts` as `PurchasesPage`. It renders `AppShellLayout` directly.
-- **Endpoints:** none.
-- **Storage:** key `jurnal_purchase_bills_data` (unchanged), value is a JSON array of `PurchaseBill`. `infrastructure/localStoragePurchaseRepository.ts` implements the `PurchaseRepository` port (`domain/purchaseRepository.ts`); the seed `INITIAL_PURCHASE_BILLS` lives in `infrastructure/purchaseSeed.ts` (vendor names are data, not UI strings).
-- **State:** `presentation/hooks/usePurchases.ts` holds the list in React state and writes every change through the repository. A failed save leaves the list unchanged and shows an error notification.
+The backend rules are in the backend's `PURCHASE_MODULE.md`; this file records what the frontend relies on.
 
-## Domain rules (`domain/`)
+## Routes (`routes.purchases`)
 
-- `purchaseTotals.ts`: line subtotal (`quantity x unitPrice`), tax (`subtotal x rate / 100`), bill totals, payment application (`remaining = max(0, total - paid)`, status `PAID` at zero remaining else `PARTIAL`), paid percentage, dashboard summary, and the derived `OVERDUE` status (open bill with remaining amount and a past due date; `PAID`, `CANCELLED` and `DRAFT` are never changed). Arithmetic runs in integer minor units through `@/lib/money`.
-- `purchaseFilters.ts`: tab counts, tab filter, search (bill number, vendor, notes) and sort.
-- Rounding: unit prices are rounded to the cent, line subtotal and tax are rounded half up to the cent per line. Whole-rupiah amounts give the same results as before; a tax that has more than two decimals (for example 11 % of 1500.50 x 3 = 495.165) is now stored as 495.17 instead of the raw float.
+| Key                                            | Path                                                                            | Page                                        |
+| ---------------------------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------- |
+| `main`                                         | `/purchases?tab=overview\|requests\|orders\|receipts\|bills\|payments\|returns` | `PurchasesPage` (hub, one tab per document) |
+| `payables`                                     | `/purchases/payables`                                                           | `PayablesReportPage`                        |
+| `requestAdd` / `requestDetail` / `requestEdit` | `/purchases/requests/new`, `/:id`, `/:id/edit`                                  | `RequestFormPage`, `RequestDetailPage`      |
+| `orderAdd` / `orderDetail` / `orderEdit`       | `/purchases/orders/new?request=<id>`, `/:id`, `/:id/edit`                       | `OrderFormPage`, `OrderDetailPage`          |
+| `receiptAdd` / `receiptDetail`                 | `/purchases/receipts/new?order=<id>`, `/:id`                                    | `ReceiptFormPage`, `ReceiptDetailPage`      |
+| `billAdd` / `billDetail` / `billEdit`          | `/purchases/bills/new?order=<id>`, `/:id`, `/:id/edit`                          | `BillFormPage`, `BillDetailPage`            |
+| `paymentAdd` / `paymentDetail` / `paymentEdit` | `/purchases/payments/new?bill=<id>` or `?type=advance`, `/:id`, `/:id/edit`     | `PaymentFormPage`, `PaymentDetailPage`      |
+| `returnAdd` / `returnDetail` / `returnEdit`    | `/purchases/returns/new?bill=<id>`, `/:id`, `/:id/edit`                         | `ReturnFormPage`, `ReturnDetailPage`        |
+
+The old `/pembelian` (`routes.legacyPaths.purchases`) still redirects to the hub. Orders, receipts and bills are always created from the previous document, never from an empty form.
+
+## Layers
+
+- `domain/` pure rules: entity types per document, status tones, allowed actions per status (`purchaseActions`), menu access (`purchaseAccess`), the live totals estimate (`purchaseTotals`, integer minor units through `@/lib/money`), form mapping and validation per document, overview ordering.
+- `infrastructure/` endpoints, DTOs as captured from the live service, mappers (DTO to entity), `purchaseApi` (one resource per document), `purchaseLookupApi` (suppliers, purchasable products, taxes, payment methods and terms, the signed-in user's rights) and one error type (`PurchaseError`).
+- `presentation/hooks` TanStack Query hooks. Every key starts with the signed-in user's id. Any successful or failed mutation invalidates all purchasing queries, because documents feed each other. Mutations are never optimistic and block a second submit while pending.
+- `presentation/components/shared` the building blocks every screen reuses: `MetricCard`/`MetricGrid` (number plus a small picture of the same data), `visuals` (`SegmentBar`, `Legend`, `MiniBars`, `RingStat`, the aging colour scale), `InfoGrid` (label over value), `MoneyRows` (one money breakdown), `StatusNote` (the single page-level note), `DetailHighlights`/`DocumentHighlights` (four key facts above a detail page), `Timeline` (document journey and approval steps), plus status badge, list shell, approval panel, attachments, reason modal, supplier and product selects, page frame. Per-document components live in `requests/`, `orders/`, `receipts/`, `bills/`, `payments/`, `returns/`, `reports/`, `hub/`, `lists/`.
+
+## Rules the screens follow
+
+- Colour: brand blue and neutrals. Pictures of data use the primary scale; red appears only for real lateness or refusal (payables aging uses one red hue getting stronger). Icon orbs are always primary light.
+- Type: Figtree on the type scale, no pixel sizes, no monospace. Amounts use tabular figures, right aligned.
+
+- Amounts shown after saving are the server's; the form estimate (`calculateTotals`) is labelled as an estimate.
+- Actions are hidden, not disabled, when the user lacks the right (`usePurchaseAccess`, rights from `/v1/users/me/permissions`) or the status forbids them (`purchaseActions`). The server remains the authority and its refusal is shown politely.
+- Approval buttons come from the document's `approval.canDecide`. Submitting or approving never looks like paying: money moves only at `PAID`.
+- Reject, cancel and void need a reason of at least 3 characters.
+- Files: up to 5 per document, 5 MB each, multipart field `attachments`.
+- Error copy never shows server text for validation or unknown failures. Indonesian business messages from the server are shown as written in Indonesian; English readers get a generic sentence.
+
+## Contract facts that differ from the backend document
+
+Verified against the live service on 2026-11-04:
+
+- A purchase request item has only `product`, `description` and `quantity`. `estimatedPrice` is rejected.
+- List filters accept a single `status` (a comma list is a 400). Lists sort with `sortBy` (per document) and `sortOrder`. Returns do not accept `endDate`.
+- `PUT` bodies are not the create bodies. Order: no `purchaseRequest`, items also carry `quantity`. Bill: no `purchaseOrder`; `dueDate: null` is refused. Voucher: no `vendor` or `type`. Return: no `bill`. Each has its own update hook next to its pages (`useUpdateOrder`, `useUpdateBill`, `useUpdatePaymentVoucher`, `useUpdatePurchaseReturn`).
+- Reject, cancel and void take `{ reason }`; approve takes an optional `{ note }`.
+- Bill variances arrive as `{ type, expected, actual }`; credit applications as `{ source, sourceId, amount, appliedAt, voided }`.
+- The payables aging rows carry `vendor: { id, name }`; `usePayablesReport` normalizes them locally.
+- A bill does not store its payment term, so editing a draft cannot restore the chosen term.
 
 ## i18n
 
-Namespace `purchases` (`id` primary, `en`). `src/i18n/locales/purchases.test.ts` checks identical keys, placeholders and no empty values. Payment method and payment term option values stay Indonesian/English data strings; only labels are translated.
+Namespace `purchases`, assembled from `purchasesCommon`, `purchasesHub`, `purchasesRequests`, `purchasesOrders`, `purchasesReceipts`, `purchasesBills`, `purchasesPayments`, `purchasesReturns` and `purchasesReports` (`id` primary, `en`). `src/i18n/locales/purchases.test.ts` checks identical keys, placeholders and no empty values.
 
 ## Known gaps
 
-- Payment account options (`1-10001 Kas Operasional Kantor`, ...) are mock account names in `PayPurchaseModal`, not read from the chart of accounts.
-- The payment's date, method, account and notes are collected but not stored; only the amount changes the bill.
-- Dates in the table use the fixed `id-ID` format regardless of the selected language.
-- Moving to a backend means a new `PurchaseRepository` adapter and TanStack Query hooks.
-
-## Payment limits (2026-10-31)
-
-`applyPayment` rejects a payment that is not a positive number or exceeds what is still owed (`RangeError`); the hook shows the failure notification and the bill is unchanged. Before, an overpayment marked the bill paid and recorded more paid than the total.
+- Who may approve each step (Settings > Alur Persetujuan) is configured elsewhere and is not part of this module.
+- The overview counts only the first 10 documents per status, so "waiting for your decision" can undercount.
+- Workaround adapters (`billExtras`, the aging normalizer) can be deleted once the shared mappers read those fields directly.

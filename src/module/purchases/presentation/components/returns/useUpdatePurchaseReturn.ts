@@ -1,0 +1,36 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import type { PurchaseReturn } from '@/module/purchases/domain/purchaseDocuments';
+import type { ReturnUpdateInput } from '@/module/purchases/domain/returnForm';
+import { toPurchaseReturn } from '@/module/purchases/infrastructure/purchaseDocumentMappers';
+import type { ApiEnvelope, PurchaseReturnDto } from '@/module/purchases/infrastructure/purchaseDto';
+import { PURCHASE_API } from '@/module/purchases/infrastructure/purchaseEndpoints';
+import { http } from '@/module/purchases/infrastructure/purchaseHttp';
+import { purchaseKeys } from '@/module/purchases/presentation/hooks/purchaseKeys';
+import { usePurchaseNotifier } from '@/module/purchases/presentation/hooks/usePurchaseNotifier';
+import { usePurchaseScope } from '@/module/purchases/presentation/hooks/usePurchaseScope';
+
+/**
+ * Changing a draft return cannot restate its bill (the service refuses it), so the form saves
+ * through this call instead of the shared update hook, which sends the create shape.
+ */
+export const useUpdatePurchaseReturn = (onDone: (doc: PurchaseReturn) => void) => {
+  const client = useQueryClient();
+  const scope = usePurchaseScope();
+  const notify = usePurchaseNotifier();
+  const refresh = () => client.invalidateQueries({ queryKey: purchaseKeys.all(scope) });
+  return useMutation<PurchaseReturn, unknown, { id: string; input: ReturnUpdateInput }>({
+    mutationFn: async ({ id, input }) =>
+      toPurchaseReturn(
+        (await http.put<ApiEnvelope<PurchaseReturnDto>>(PURCHASE_API.return(id), input)).data
+      ),
+    onSuccess: async (doc) => {
+      await refresh();
+      notify.success('updated', doc.number);
+      onDone(doc);
+    },
+    onError: async (error) => {
+      notify.failure(error);
+      await refresh();
+    },
+  });
+};
