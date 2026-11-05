@@ -4,15 +4,14 @@ import { useTranslation } from '@/i18n';
 import type { Product, ProductFormValues } from '@/module/products/domain/product';
 import { resolveProductImageUrl } from '@/module/products/infrastructure/productApi';
 import { useProductForm } from '@/module/products/presentation/hooks/useProductForm';
-import { useCategoryMutations } from '@/module/products/presentation/hooks/useProductQueries';
+import {
+  useCategoryMutations,
+  useUnitMutations,
+} from '@/module/products/presentation/hooks/useProductQueries';
 import { MasterDataFormModal } from './MasterDataFormModal';
 import { ProductImagePanel } from './ProductImagePanel';
-import {
-  GeneralSection,
-  InventorySection,
-  PurchasingSection,
-  SalesSection,
-} from './ProductFormSections';
+import { InventorySection } from './InventorySection';
+import { GeneralSection, PurchasingSection, SalesSection } from './ProductFormSections';
 
 type ProductFormProps = {
   product?: Product;
@@ -28,12 +27,31 @@ function ProductFormComponent({
   onCancel,
 }: Readonly<ProductFormProps>) {
   const { t } = useTranslation('products');
-  const { form, accountData, taxData, categoryData, categoriesLoading } = useProductForm(product);
+  const {
+    form,
+    purchaseAccountData,
+    inventoryAccountData,
+    salesAccountData,
+    receivableAccountData,
+    unitData,
+    unitsLoading,
+    taxData,
+    categoryData,
+    categoriesLoading,
+  } = useProductForm(product);
   const { createMutation: createCategory } = useCategoryMutations();
+  const { createMutation: createUnit } = useUnitMutations();
   const [categoryModalOpened, setCategoryModalOpened] = useState(false);
+  const [unitModalOpened, setUnitModalOpened] = useState(false);
   const [preview, setPreview] = useState<string | null>(
     resolveProductImageUrl(product?.image ?? null)
   );
+
+  const unitProps = {
+    unitData,
+    unitsLoading,
+    onCreateUnit: () => setUnitModalOpened(true),
+  };
 
   const { values } = form;
   const nothingEnabled = !values.buyingInfo.isPurchased && !values.sellingInfo.isSold;
@@ -58,15 +76,27 @@ function ProductFormComponent({
               categoryData={categoryData}
               categoriesLoading={categoriesLoading}
               onCreateCategory={() => setCategoryModalOpened(true)}
+              unit={nothingEnabled ? unitProps : undefined}
             />
-            <SalesSection form={form} accountData={accountData} taxData={taxData} />
-            <PurchasingSection form={form} accountData={accountData} taxData={taxData} />
-            <InventorySection form={form} accountData={accountData} />
+            <SalesSection
+              form={form}
+              taxData={taxData}
+              salesAccountData={salesAccountData}
+              receivableAccountData={receivableAccountData}
+              {...unitProps}
+            />
+            <PurchasingSection
+              form={form}
+              accountData={purchaseAccountData}
+              taxData={taxData}
+              {...unitProps}
+            />
+            <InventorySection form={form} accountData={inventoryAccountData} />
           </Stack>
         </Grid.Col>
 
         <Grid.Col span={{ base: 12, md: 4 }}>
-          <Stack gap="md" justify="space-between" h="100%">
+          <Stack gap="md" pos="sticky" top={0}>
             <ProductImagePanel
               preview={preview}
               nothingEnabled={nothingEnabled}
@@ -111,6 +141,18 @@ function ProductFormComponent({
         onSubmit={async (input) => {
           const created = await createCategory.mutateAsync(input);
           form.setFieldValue('productCategory', created.id);
+        }}
+      />
+
+      <MasterDataFormModal
+        opened={unitModalOpened}
+        onClose={() => setUnitModalOpened(false)}
+        entityLabel={t('masterData.unit')}
+        namePlaceholder={t('masterData.unitPlaceholder')}
+        isSubmitting={createUnit.isPending}
+        onSubmit={async (input) => {
+          const created = await createUnit.mutateAsync(input);
+          form.setFieldValue('unit', created.id);
         }}
       />
     </form>

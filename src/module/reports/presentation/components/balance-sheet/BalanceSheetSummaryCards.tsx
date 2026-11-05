@@ -1,27 +1,17 @@
 import React from 'react';
-import {
-  Badge,
-  Box,
-  Group,
-  Paper,
-  SimpleGrid,
-  Stack,
-  Text,
-  ThemeIcon,
-  Tooltip,
-} from '@mantine/core';
-import {
-  IconAlertTriangle,
-  IconBuildingBank,
-  IconCheck,
-  IconCoins,
-  IconFileInvoice,
-  IconScale,
-} from '@tabler/icons-react';
 import type { BalanceSheetData } from '@/module/reports/domain/balanceSheet.types';
-import { displayDate, formatMoney } from '@/module/reports/domain/reportFormat';
+import { matchRate } from '@/module/reports/domain/balanceSheetInsights';
+import { displayDate, formatMoney, percentOf } from '@/module/reports/domain/reportFormat';
+import { ReportDonut } from '@/module/reports/presentation/components/shared/ReportDonut';
+import { ReportKpiStrip } from '@/module/reports/presentation/components/shared/ReportKpiStrip';
+import { ReportRing } from '@/module/reports/presentation/components/shared/ReportRing';
+import { ReportStatus } from '@/module/reports/presentation/components/shared/ReportStatus';
 
 import { useTranslation } from '@/i18n';
+
+const STRONG = 'var(--mantine-color-primary-6)';
+const MEDIUM = 'var(--mantine-color-primary-3)';
+const SOFT = 'var(--mantine-color-primary-2)';
 
 interface BalanceSheetSummaryCardsProps {
   data: BalanceSheetData;
@@ -29,147 +19,82 @@ interface BalanceSheetSummaryCardsProps {
 
 export const BalanceSheetSummaryCards: React.FC<BalanceSheetSummaryCardsProps> = ({ data }) => {
   const { t } = useTranslation('reports');
+  const difference = formatMoney(Math.abs(data.discrepancy));
+  const match = matchRate(data.totalAssets, data.totalLiabilitiesAndEquity);
+  const funding = data.totalLiabilities + data.totalEquity;
+
   return (
-    <Stack gap="sm">
-      {/* Date Header Info */}
-      <Group justify="space-between" align="center" wrap="wrap" gap="xs">
-        <Group gap="xs" align="center">
-          <Text size="xs" fw={700} c="dimmed" tt="uppercase" style={{ letterSpacing: '0.5px' }}>
-            {t('balanceSheet.cardPosition')}
-          </Text>
-          <Text size="sm" fw={700} c="dark.8">
-            {displayDate(data.endDate)}
-          </Text>
-        </Group>
-
-        <Tooltip
-          label={
-            data.isBalanced
-              ? t('balanceSheet.equationMet')
-              : `Peringatan: Terdapat selisih keseimbangan sebesar ${formatMoney(Math.abs(data.discrepancy))}.`
-          }
-        >
-          <Badge
-            size="md"
-            variant="light"
-            color={data.isBalanced ? 'teal' : 'red'}
-            leftSection={
-              data.isBalanced ? <IconCheck size={14} /> : <IconAlertTriangle size={14} />
-            }
-          >
-            {data.isBalanced
-              ? t('balanceSheet.balanced')
-              : t('balanceSheet.unbalanced', { amount: formatMoney(Math.abs(data.discrepancy)) })}
-          </Badge>
-        </Tooltip>
-      </Group>
-
-      {/* 4 KPI Cards */}
-      <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }} spacing="md">
-        {/* Card 1: Total Aset */}
-        <Paper withBorder radius="lg" p="md" bg="white" shadow="xs">
-          <Group justify="space-between" align="flex-start">
-            <Box>
-              <Text size="xs" fw={600} c="dimmed" tt="uppercase">
-                {t('balanceSheet.cardTotalAssets')}
-              </Text>
-              <Text
-                size="xl"
-                fw={800}
-                c="blue.7"
-                mt={4}
-                style={{ fontVariantNumeric: 'tabular-nums' }}
-              >
-                {formatMoney(data.totalAssets)}
-              </Text>
-            </Box>
-            <ThemeIcon variant="light" color="blue" size={38} radius="md">
-              <IconBuildingBank size={20} />
-            </ThemeIcon>
-          </Group>
-          <Text size="xs" c="dimmed" mt="xs">
-            {t('balanceSheet.cardAssetsHint')}
-          </Text>
-        </Paper>
-
-        {/* Card 2: Total Liabilitas */}
-        <Paper withBorder radius="lg" p="md" bg="white" shadow="xs">
-          <Group justify="space-between" align="flex-start">
-            <Box>
-              <Text size="xs" fw={600} c="dimmed" tt="uppercase">
-                {t('balanceSheet.cardTotalLiabilities')}
-              </Text>
-              <Text
-                size="xl"
-                fw={800}
-                c="orange.7"
-                mt={4}
-                style={{ fontVariantNumeric: 'tabular-nums' }}
-              >
-                {formatMoney(data.totalLiabilities)}
-              </Text>
-            </Box>
-            <ThemeIcon variant="light" color="orange" size={38} radius="md">
-              <IconFileInvoice size={20} />
-            </ThemeIcon>
-          </Group>
-          <Text size="xs" c="dimmed" mt="xs">
-            {t('balanceSheet.cardLiabilitiesHint')}
-          </Text>
-        </Paper>
-
-        {/* Card 3: Total Ekuitas */}
-        <Paper withBorder radius="lg" p="md" bg="white" shadow="xs">
-          <Group justify="space-between" align="flex-start">
-            <Box>
-              <Text size="xs" fw={600} c="dimmed" tt="uppercase">
-                {t('balanceSheet.cardTotalEquity')}
-              </Text>
-              <Text
-                size="xl"
-                fw={800}
-                c="violet.7"
-                mt={4}
-                style={{ fontVariantNumeric: 'tabular-nums' }}
-              >
-                {formatMoney(data.totalEquity)}
-              </Text>
-            </Box>
-            <ThemeIcon variant="light" color="violet" size={38} radius="md">
-              <IconCoins size={20} />
-            </ThemeIcon>
-          </Group>
-          <Text size="xs" c="dimmed" mt="xs">
-            {t('balanceSheet.cardEquityHint')}
-          </Text>
-        </Paper>
-
-        {/* Card 4: Total Liabilitas + Ekuitas */}
-        <Paper withBorder radius="lg" p="md" bg="white" shadow="xs">
-          <Group justify="space-between" align="flex-start">
-            <Box>
-              <Text size="xs" fw={600} c="dimmed" tt="uppercase">
-                {t('balanceSheet.cardLiabilitiesEquity')}
-              </Text>
-              <Text
-                size="xl"
-                fw={800}
-                c="teal.7"
-                mt={4}
-                style={{ fontVariantNumeric: 'tabular-nums' }}
-              >
-                {formatMoney(data.totalLiabilitiesAndEquity)}
-              </Text>
-            </Box>
-            <ThemeIcon variant="light" color="teal" size={38} radius="md">
-              <IconScale size={20} />
-            </ThemeIcon>
-          </Group>
-          <Text size="xs" c="dimmed" mt="xs">
-            {t('balanceSheet.cardMustEqual')}
-          </Text>
-        </Paper>
-      </SimpleGrid>
-    </Stack>
+    <ReportKpiStrip
+      caption={t('balanceSheet.cardPosition')}
+      period={displayDate(data.endDate)}
+      status={
+        !data.isBalanced && (
+          <ReportStatus
+            tone="warn"
+            label={t('balanceSheet.unbalanced', { amount: difference })}
+            tooltip={difference}
+          />
+        )
+      }
+      items={[
+        {
+          key: 'assets',
+          label: t('balanceSheet.cardTotalAssets'),
+          value: formatMoney(data.totalAssets),
+          hint: t('balanceSheet.cardAssetsHint'),
+          visual: (
+            <ReportDonut
+              description={t('balanceSheet.cardTotalAssets')}
+              segments={[
+                { value: data.assets.totalCurrentAssets, tone: STRONG },
+                { value: data.assets.totalNonCurrentAssets, tone: MEDIUM },
+              ]}
+            />
+          ),
+        },
+        {
+          key: 'liabilities',
+          label: t('balanceSheet.cardTotalLiabilities'),
+          value: formatMoney(data.totalLiabilities),
+          hint: t('balanceSheet.cardLiabilitiesHint'),
+          visual: (
+            <ReportDonut
+              description={t('balanceSheet.cardTotalLiabilities')}
+              label={`${Math.round(percentOf(data.totalLiabilities, funding))}%`}
+              segments={[
+                { value: data.liabilities.totalCurrentLiabilities, tone: STRONG },
+                { value: data.liabilities.totalNonCurrentLiabilities, tone: SOFT },
+              ]}
+            />
+          ),
+        },
+        {
+          key: 'equity',
+          label: t('balanceSheet.cardTotalEquity'),
+          value: formatMoney(data.totalEquity),
+          hint: t('balanceSheet.cardEquityHint'),
+          visual: (
+            <ReportDonut
+              description={t('balanceSheet.cardTotalEquity')}
+              label={`${Math.round(percentOf(data.totalEquity, funding))}%`}
+              segments={[{ value: Math.max(0, data.totalEquity), tone: STRONG }]}
+            />
+          ),
+        },
+        {
+          key: 'liabilitiesEquity',
+          label: t('balanceSheet.cardLiabilitiesEquity'),
+          value: formatMoney(data.totalLiabilitiesAndEquity),
+          hint: t('balanceSheet.cardMustEqual'),
+          visual: (
+            <ReportRing
+              value={match}
+              label={`${Math.round(match)}%`}
+              tone={data.isBalanced ? 'var(--mantine-color-teal-6)' : 'var(--mantine-color-red-6)'}
+            />
+          ),
+        },
+      ]}
+    />
   );
 };

@@ -1,14 +1,16 @@
-import type { Product } from './product';
+import type { AccountOption, Product } from './product';
 import {
   buildAccountLabelMap,
   buildTaxLabelMap,
+  filterAccountsByNormalBalance,
   requiredWhen,
   resolveAccountLabel,
   resolveTaxLabel,
+  summarizeProducts,
   toInitialValues,
 } from './productRules';
 
-const accounts = buildAccountLabelMap([{ id: 'a1', label: '1-100 · Kas' }]);
+const accounts = buildAccountLabelMap([{ id: 'a1', label: '1-100 · Kas', isDebit: true }]);
 const taxes = buildTaxLabelMap([{ id: 't1', name: 'PPN', rate: 11 }]);
 
 describe('toInitialValues', () => {
@@ -92,5 +94,50 @@ describe('resolveTaxLabel', () => {
     expect(resolveTaxLabel({ name: 'PPh', rate: 2.5 }, taxes)).toBe('PPh (2.5%)');
     expect(resolveTaxLabel({ name: 'PPh' }, taxes)).toBe('PPh (0%)');
     expect(resolveTaxLabel({ id: 't1' }, taxes)).toBe('PPN (11%)');
+  });
+});
+
+describe('filterAccountsByNormalBalance', () => {
+  const list: AccountOption[] = [
+    { id: 'rev', label: 'Pendapatan', isDebit: false },
+    { id: 'ar', label: 'Piutang', isDebit: true },
+    { id: 'x', label: 'Tanpa kategori', isDebit: null },
+  ];
+
+  it('offers credit accounts for sales and debit accounts for receivables', () => {
+    expect(filterAccountsByNormalBalance(list, 'credit').map((a) => a.id)).toEqual(['rev']);
+    expect(filterAccountsByNormalBalance(list, 'debit').map((a) => a.id)).toEqual(['ar']);
+  });
+
+  it('keeps the account a product already uses selectable', () => {
+    expect(filterAccountsByNormalBalance(list, 'credit', 'ar').map((a) => a.id)).toEqual([
+      'rev',
+      'ar',
+    ]);
+  });
+});
+
+describe('summarizeProducts', () => {
+  const make = (sold: boolean, bought: boolean, tracked: boolean, category = 'c1') =>
+    ({
+      category: { id: category, name: category },
+      sellingInfo: { isSold: sold },
+      buyingInfo: { isPurchased: bought },
+      inventoryInfo: { isTracked: tracked },
+    }) as Product;
+
+  it('counts sold, bought and tracked products against the given total', () => {
+    const items = [
+      make(true, false, false),
+      make(true, true, true),
+      make(false, true, false, 'c2'),
+    ];
+    expect(summarizeProducts(items, 20)).toEqual({
+      total: 20,
+      sold: 2,
+      bought: 2,
+      tracked: 1,
+      categoryCounts: [2, 1],
+    });
   });
 });

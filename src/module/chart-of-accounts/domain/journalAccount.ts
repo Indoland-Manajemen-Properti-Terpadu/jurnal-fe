@@ -10,7 +10,7 @@ export type JournalAccounts = {
   amount: number;
   debit: number | 0;
   credit: number | 0;
-  tax?: number | '-';
+  defaultTax?: DefaultTax | null;
   isAllUser?: boolean;
   isArchived?: boolean;
   level?: string;
@@ -19,6 +19,14 @@ export type JournalAccounts = {
   site?: Site;
   createdAt?: Date;
   updatedAt?: Date;
+};
+
+/** Default tax as the list and detail endpoints populate it. */
+export type DefaultTax = {
+  id: string;
+  name: string;
+  rate?: number;
+  taxCode?: string;
 };
 
 export type Category = {

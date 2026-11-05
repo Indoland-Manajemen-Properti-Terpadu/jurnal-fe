@@ -13,6 +13,7 @@ import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import { useJournalEntryReport } from '@/module/reports/presentation/hooks/useJournalEntryReport';
 import { getDateRange } from '@/utils/dateRange';
 import { dateFormatTimeZone } from '@/utils/formatDate';
+import { ReportUnavailable } from '@/module/reports/presentation/components/shared/ReportUnavailable';
 import JournalEntryTable from '@/module/reports/presentation/components/journal-entry/JournalEntryTable';
 import { AppShellLayout } from '@/components/AppShellLayout';
 import { ReportJournalEntryModel } from '@/module/reports/domain/JournalEntry.types';
@@ -42,7 +43,7 @@ const JournalEntryReportPage: React.FC = () => {
   const [selectedPeriod, setSelectedPeriod] = useState<string>('All Period');
   const [isCustomDate, setIsCustomDate] = useState(false);
 
-  const { data: journalEntries, isLoading } = useJournalEntryReport();
+  const { data: journalEntries, isLoading, isError, refetch } = useJournalEntryReport();
 
   // Updates the date range based on the selected period
   useEffect(() => {
@@ -188,13 +189,17 @@ const JournalEntryReportPage: React.FC = () => {
                 </Button>
               </Flex>
 
-              <JournalEntryTable
-                data={filteredJournalEntries}
-                isLoading={isLoading}
-                period={selectedPeriod}
-                startDate={startDate || ''}
-                endDate={endDate || ''}
-              />
+              {isError ? (
+                <ReportUnavailable embedded onRetry={() => refetch()} />
+              ) : (
+                <JournalEntryTable
+                  data={filteredJournalEntries}
+                  isLoading={isLoading}
+                  period={selectedPeriod}
+                  startDate={startDate || ''}
+                  endDate={endDate || ''}
+                />
+              )}
             </Stack>
           </Paper>
         </Stack>

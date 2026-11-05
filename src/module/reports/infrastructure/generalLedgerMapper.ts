@@ -12,6 +12,7 @@ function mapTransaction(rawSource: unknown): GeneralLedgerTransaction {
       transactionDate: '',
       transactionNumber: '-',
       description: '-',
+      notes: '',
       debit: 0,
       credit: 0,
       balance: 0,
@@ -23,6 +24,7 @@ function mapTransaction(rawSource: unknown): GeneralLedgerTransaction {
     transactionDate: safeString(source.transactionDate),
     transactionNumber: safeString(source.transactionNumber, '-'),
     description: safeString(source.description, '-'),
+    notes: safeString(source.notes),
     debit: safeNumber(source.debit),
     credit: safeNumber(source.credit),
     balance: safeNumber(source.balance),
@@ -47,6 +49,8 @@ function mapAccount(rawSource: unknown): GeneralLedgerAccount {
     name: safeString(accountInfo.name || source.name, 'Akun Tanpa Nama'),
     category: categoryName,
     isContra: accountInfo.isContra === true,
+    isHead: accountInfo.isHead === true,
+    normalBalance: safeString(accountInfo.normalBalance),
     openingBalance: safeNumber(source.openingBalance),
     transactions,
     periodDebit: safeNumber(source.periodDebit),
@@ -59,10 +63,17 @@ export function mapGeneralLedgerResponse(raw: unknown): GeneralLedgerReport {
   const data = asRecord(asRecord(raw).data || raw);
   const accounts = asArray(data.accounts).map(mapAccount);
 
+  const paging = asRecord(data.pagination);
   const lock = data.periodLockInfo ? asRecord(data.periodLockInfo) : null;
 
   return {
     accounts,
+    pagination: {
+      page: safeNumber(paging.page) || 1,
+      limit: safeNumber(paging.limit) || accounts.length,
+      totalAccounts: safeNumber(paging.totalAccounts) || accounts.length,
+      totalPages: safeNumber(paging.totalPages) || 1,
+    },
     periodDebitTotal: safeNumber(data.periodDebitTotal),
     periodCreditTotal: safeNumber(data.periodCreditTotal),
     periodLockName: lock ? safeString(lock.name) : null,

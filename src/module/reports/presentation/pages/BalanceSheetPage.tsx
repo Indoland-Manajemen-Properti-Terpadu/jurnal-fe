@@ -5,8 +5,10 @@ import { AppShellLayout } from '@/components/AppShellLayout';
 import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
 import { routes } from '@/router/routes';
 import { useBalanceSheet } from '@/module/reports/presentation/hooks/useBalanceSheet';
+import { ReportBackButton } from '@/module/reports/presentation/components/shared/ReportBackButton';
 import { BalanceSheetFilterBar } from '@/module/reports/presentation/components/balance-sheet/BalanceSheetFilterBar';
 import { BalanceSheetSummaryCards } from '@/module/reports/presentation/components/balance-sheet/BalanceSheetSummaryCards';
+import { BalanceSheetInsights } from '@/module/reports/presentation/components/balance-sheet/BalanceSheetInsights';
 import { BalanceSheetLayoutViews } from '@/module/reports/presentation/components/balance-sheet/BalanceSheetLayoutViews';
 
 import { useTranslation } from '@/i18n';
@@ -24,6 +26,7 @@ export default function BalanceSheetPage() {
             icon={IconScale}
             title={t('balanceSheet.pageTitle')}
             description={t('balanceSheet.pageDescription')}
+            actions={<ReportBackButton />}
             breadcrumbs={[
               { label: t('common.financialReports'), to: routes.reports.main },
               { label: t('catalog.balanceSheetTitle') },
@@ -40,8 +43,7 @@ export default function BalanceSheetPage() {
             isFetching={balanceSheet.query.isFetching}
             onExport={(type) => balanceSheet.exportMutation.mutate(type)}
             isExporting={balanceSheet.exportMutation.isPending}
-            viewMode={balanceSheet.viewMode}
-            onViewModeChange={balanceSheet.setViewMode}
+            onCancelExport={balanceSheet.cancelExport}
             searchQuery={balanceSheet.searchQuery}
             onSearchQueryChange={balanceSheet.setSearchQuery}
             hasData={Boolean(balanceSheet.data)}
@@ -91,10 +93,12 @@ export default function BalanceSheetPage() {
               {/* Summary KPI Cards & Balance Equation Status */}
               <BalanceSheetSummaryCards data={balanceSheet.data} />
 
+              {/* How the assets are financed and what they are made of */}
+              <BalanceSheetInsights data={balanceSheet.data} />
+
               {/* Main Dual Layout Views (Side-by-side or Vertical) */}
               <BalanceSheetLayoutViews
                 data={balanceSheet.data}
-                viewMode={balanceSheet.viewMode}
                 filteredCurrentAssets={balanceSheet.filteredCurrentAssets}
                 filteredNonCurrentAssets={balanceSheet.filteredNonCurrentAssets}
                 filteredDepreciation={balanceSheet.filteredDepreciation}

@@ -4,7 +4,7 @@ import { gradientColors, themeColors } from '@/theme';
 import { formatCurrency } from '@/utils/formatCurrency';
 import EmptyState from '@/components/EmptyState/EmptyTable';
 import { useEquityChangeReport } from '@/module/reports/presentation/hooks/useEquityChangeReport';
-import { NotFound } from '@/components/ErrorPage/NotFound';
+import { ReportUnavailable } from '@/module/reports/presentation/components/shared/ReportUnavailable';
 import { dateFormatV2 } from '@/utils/formatDate';
 
 import { useTranslation } from '@/i18n';
@@ -30,10 +30,11 @@ const EquityChangesTable: React.FC<EquityChangeTableProps> = ({ fromDate, toDate
     data: reports,
     isError,
     isLoading,
+    refetch,
   } = useEquityChangeReport({ fromDate: fromDate!, toDate: toDate! });
 
   if (isError) {
-    return <NotFound />;
+    return <ReportUnavailable embedded onRetry={() => refetch()} />;
   }
 
   if (isLoading) {

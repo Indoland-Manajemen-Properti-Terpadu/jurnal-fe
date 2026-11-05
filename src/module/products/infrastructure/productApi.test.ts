@@ -3,6 +3,7 @@ import type { ProductFormValues } from '@/module/products/domain/product';
 import {
   createProduct,
   fetchAccountOptions,
+  fetchAllProducts,
   fetchProduct,
   fetchProducts,
   fetchTaxes,
@@ -24,6 +25,7 @@ const formValues = (overrides: Partial<ProductFormValues> = {}): ProductFormValu
   name: '  Listrik ',
   sku: ' ',
   productCategory: 'cat-1',
+  unit: 'u1',
   image: null,
   buyingInfo: { isPurchased: false, unitPrice: 999, purchaseAccount: 'a', purchaseTax: 't' },
   sellingInfo: {
@@ -77,6 +79,7 @@ describe('fetchProduct mapping', () => {
       image: 'uploads/a.png',
       externalCode: 'EXT',
       unit: 'Bulan',
+      unitId: 'u1',
       category: { id: 'c1', name: 'Utilitas' },
       buyingInfo: {
         isPurchased: true,
@@ -155,6 +158,28 @@ describe('fetchProducts', () => {
   });
 });
 
+describe('fetchAllProducts', () => {
+  it('reads every page and joins the items', async () => {
+    const page = (n: number) => ({
+      data: {
+        data: {
+          data: [{ id: `p${n}` }],
+          pagination: { total: 3, page: n, limit: 100, totalPages: 3 },
+        },
+      },
+    });
+    http.get
+      .mockResolvedValueOnce(page(1))
+      .mockResolvedValueOnce(page(2))
+      .mockResolvedValueOnce(page(3));
+
+    const result = await fetchAllProducts();
+
+    expect(result.items.map((p) => p.id)).toEqual(['p1', 'p2', 'p3']);
+    expect(http.get).toHaveBeenCalledTimes(3);
+  });
+});
+
 describe('product payload', () => {
   it('posts a trimmed form-data body and omits disabled sections', async () => {
     http.post.mockResolvedValue({ data: { data: { id: 'new' } } });
@@ -166,6 +191,7 @@ describe('product payload', () => {
     expect(body.get('name')).toBe('Listrik');
     expect(body.get('productCategory')).toBe('cat-1');
     expect(body.has('sku')).toBe(false);
+    expect(body.get('unit')).toBe('u1');
     expect(body.get('buyingInfo[isPurchased]')).toBe('false');
     expect(body.has('buyingInfo[unitPrice]')).toBe(false);
     expect(body.get('sellingInfo[isSold]')).toBe('true');
@@ -202,6 +228,7 @@ describe('lookups', () => {
             id: 'a1',
             name: 'Kas',
             accountNumber: '1-100',
+            category: { isDebit: true },
             subAccount: [{ id: 'a2', name: 'Kas Kecil' }],
           },
         ],
@@ -209,8 +236,8 @@ describe('lookups', () => {
     });
 
     expect(await fetchAccountOptions()).toEqual([
-      { id: 'a1', label: '1-100 · Kas' },
-      { id: 'a2', label: 'Kas Kecil' },
+      { id: 'a1', label: '1-100 · Kas', isDebit: true },
+      { id: 'a2', label: 'Kas Kecil', isDebit: null },
     ]);
   });
 

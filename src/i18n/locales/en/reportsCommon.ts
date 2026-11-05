@@ -22,7 +22,6 @@ export const reportsCommon = {
     show: 'Apply',
     fromDate: 'From Date',
     toDate: 'To Date',
-    quickPeriod: 'Quick Period:',
     thisMonthId: 'This Month',
     lastMonthId: 'Last Month',
     thisQuarterId: 'This Quarter',
@@ -69,5 +68,13 @@ export const reportsCommon = {
     selectDateRange: 'Select start date and end date',
     startDatePeriod: 'Start Date Period',
     endDatePeriod: 'End Date Period',
+    periodLabel: 'Period',
+    unavailableTitle: 'This report is not available yet',
+    unavailableDescription:
+      'The data for this report cannot be shown right now. Try again later, or open another report in the Report Center.',
+    backToReportCenter: 'Back to Report Center',
+    backToReports: 'Back',
+    cancelExport: 'Cancel',
+    exportCanceled: 'Export cancelled.',
   },
 };

@@ -4,7 +4,6 @@ import {
   Box,
   Button,
   Checkbox,
-  Divider,
   Group,
   PasswordInput,
   Stack,
@@ -13,7 +12,7 @@ import {
   Title,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { IconArrowRight, IconHome, IconLock, IconMail } from '@tabler/icons-react';
+import { IconArrowLeft, IconArrowRight, IconLock, IconMail } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 import { routes } from '@/router/routes';
 import {
@@ -51,18 +50,16 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onForgotPassword, onSubmit
   };
 
   return (
-    <Stack gap="lg">
-      {/* Form Header */}
+    <Stack gap="xl">
       <Box>
-        <Title order={2} c="dark.9" fw={800} lh={1.25}>
+        <Title order={1} fz={32} c="dark.9" fw={700} lh={1.2}>
           {ta('login.welcome')}
         </Title>
-        <Text size="sm" c="gray.6" mt={4} lh={1.5}>
+        <Text fz="md" c="dimmed" mt="xs" lh={1.5}>
           {ta('login.intro')}
         </Text>
       </Box>
 
-      {/* Inputs Form */}
       <form onSubmit={form.onSubmit(handleFormSubmit)}>
         <Stack gap="md">
           <TextInput
@@ -71,6 +68,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onForgotPassword, onSubmit
             size="md"
             radius="md"
             required
+            autoComplete="email"
             leftSection={<IconMail size={18} />}
             {...form.getInputProps('email')}
           />
@@ -81,11 +79,12 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onForgotPassword, onSubmit
             size="md"
             radius="md"
             required
+            autoComplete="current-password"
             leftSection={<IconLock size={18} />}
             {...form.getInputProps('password')}
           />
 
-          <Group justify="space-between" align="center" mt={2}>
+          <Group justify="space-between" align="center">
             <Checkbox
               label={ta('login.remember')}
               size="sm"
@@ -111,28 +110,26 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onForgotPassword, onSubmit
             radius="md"
             color="primary"
             fullWidth
-            mt="sm"
+            mt="xs"
             loading={isPending}
             rightSection={<IconArrowRight size={18} />}
           >
             {ta('login.submit')}
           </Button>
-
-          <Divider label={ta('login.or')} labelPosition="center" my="xs" />
-
-          <Button
-            component={Link}
-            to={routes.landing}
-            variant="default"
-            size="md"
-            radius="md"
-            fullWidth
-            leftSection={<IconHome size={18} />}
-          >
-            {ta('login.backHome')}
-          </Button>
         </Stack>
       </form>
+
+      <Anchor
+        component={Link}
+        to={routes.landing}
+        size="sm"
+        c="dimmed"
+        ta="center"
+        style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
+      >
+        <IconArrowLeft size={16} />
+        {ta('login.backHome')}
+      </Anchor>
     </Stack>
   );
 };

@@ -26,6 +26,7 @@ import {
 import { ACCOUNT_PRESETS, findPresetCategory } from '../../domain/accountPresets';
 import { buildAccountPayload } from '../../domain/buildAccountPayload';
 import { AccountPreviewCard } from '../components';
+import { useTaxOptions } from '../hooks/useTaxOptions';
 import { AccountIdentitySection } from '../components/account-form/AccountIdentitySection';
 import { AccountHierarchySection } from '../components/account-form/AccountHierarchySection';
 import { AccountAccessSection } from '../components/account-form/AccountAccessSection';
@@ -40,6 +41,7 @@ export const AddAccountJournalPage: React.FC = () => {
   const { data: categoryAccounts, isLoading: isLoadingCategories } = useCategoryAccounts();
   const { data: usersData, isLoading: isLoadingUsers } = useUsers();
   const { data: rolesData, isLoading: isLoadingRoles } = useRoles();
+  const { options: taxOptions, isLoading: isLoadingTaxes } = useTaxOptions();
   const addAccountMutation = useAddAccount();
 
   // Form State
@@ -48,7 +50,7 @@ export const AddAccountJournalPage: React.FC = () => {
       name: '',
       accountNumber: '',
       category: '',
-      taxType: '',
+      defaultTax: '',
       isBankAndCash: false,
       isContra: false,
       desc: '',
@@ -227,6 +229,8 @@ export const AddAccountJournalPage: React.FC = () => {
                   hasSuggestedDiff={hasSuggestedDiff}
                   selectedCategoryObj={selectedCategoryObj}
                   isIncomeStatementCategory={isIncomeStatementCategory}
+                  taxOptions={taxOptions}
+                  isLoadingTaxes={isLoadingTaxes}
                   applyPreset={applyPreset}
                 />
 
@@ -273,7 +277,9 @@ export const AddAccountJournalPage: React.FC = () => {
                   accountType={selectedAccountType}
                   parentAccountLabel={parentAccountLabel}
                   childAccountLabel={childAccountLabel}
-                  taxType={form.values.taxType}
+                  taxName={
+                    taxOptions.find((option) => option.value === form.values.defaultTax)?.label
+                  }
                   desc={form.values.desc}
                   accessType={accessScope}
                   specialUsersCount={specialUsers.length}

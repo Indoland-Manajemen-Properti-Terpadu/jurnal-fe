@@ -1,26 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { ActionIcon, Box, Button, Group, Paper, Stack, Text, ThemeIcon } from '@mantine/core';
 import {
-  ActionIcon,
-  Box,
-  Button,
-  FileInput,
-  Flex,
-  Group,
-  Image,
-  Paper,
-  Stack,
-  Text,
-  ThemeIcon,
-} from '@mantine/core';
-import {
+  IconAlertCircle,
+  IconCloudUpload,
   IconChevronRight,
   IconDownload,
   IconFileSpreadsheet,
   IconTrash,
-  IconUpload,
 } from '@tabler/icons-react';
-import ImageImport from '@/assets/images/illustrations/settings-account-import.svg';
 import { useTranslation } from '@/i18n';
+import { IMPORT_ACCEPT, validateImportFile } from '@/module/chart-of-accounts/domain/importFile';
+import { SettingHero } from './SettingHero';
+import classes from './SettingModals.module.css';
 
 interface ImportUploadStepProps {
   selectedFile: File | null;
@@ -43,117 +34,141 @@ export const ImportUploadStep: React.FC<ImportUploadStepProps> = ({
   isUploading,
 }) => {
   const { t } = useTranslation('chartOfAccounts');
+  const [dragging, setDragging] = useState(false);
+  const [fileError, setFileError] = useState<string | null>(null);
+
+  const acceptFile = (file: File | undefined) => {
+    if (!file) return;
+    const problem = validateImportFile(file);
+    if (problem) {
+      setFileError(
+        t(problem === 'size' ? 'settings.import.fileTooLarge' : 'settings.import.fileTypeInvalid')
+      );
+      return;
+    }
+    setFileError(null);
+    onFileChange(file);
+  };
+
+  const removeFile = () => {
+    setFileError(null);
+    onFileChange(null);
+  };
 
   return (
     <Stack gap="md">
-      {/* Top Vector Illustration Frame */}
-      <Box
-        style={{
-          height: 124,
-          borderRadius: 12,
-          background:
-            'linear-gradient(145deg, var(--mantine-color-sky-0) 0%, var(--mantine-color-sky-1) 100%)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          border: '1px solid color-mix(in srgb, var(--mantine-color-sky-5) 15%, transparent)',
-        }}
-      >
-        <Image src={ImageImport} alt={t('settings.modal.importAlt')} h={88} fit="contain" />
-      </Box>
-
-      {/* Template Information Card */}
-      <Paper
-        withBorder
-        radius="md"
-        p="md"
-        bg="blue.0"
-        style={{ borderColor: 'var(--mantine-color-blue-2)' }}
-      >
-        <Flex
-          direction={{ base: 'column', sm: 'row' }}
-          justify="space-between"
-          align={{ base: 'flex-start', sm: 'center' }}
-          gap="sm"
-        >
-          <Box>
-            <Text fw={700} size="sm" c="blue.9">
+      <Paper withBorder radius="lg" p="md" bg="white">
+        <Group wrap="nowrap" gap="lg" align="center">
+          <Box w={168} visibleFrom="sm" style={{ flexShrink: 0 }}>
+            <SettingHero tone="import" height={104} />
+          </Box>
+          <Stack gap={6} style={{ flex: 1 }} align="flex-start">
+            <Text fw={700} fz="sm" c="dark.9">
               {t('settings.import.templateTitle')}
             </Text>
-            <Text size="xs" c="blue.8" mt={2}>
+            <Text fz="xs" c="dimmed" lh={1.5}>
               {t('settings.import.templateDesc')}
             </Text>
-          </Box>
-          <Button
-            variant="white"
-            color="blue"
-            size="xs"
-            radius="md"
-            leftSection={<IconDownload size={15} />}
-            onClick={onDownloadTemplate}
-            loading={isDownloadingTemplate}
-          >
-            {t('settings.import.templateButton')}
-          </Button>
-        </Flex>
+            <Button
+              variant="default"
+              size="xs"
+              radius="md"
+              leftSection={<IconDownload size={15} />}
+              onClick={onDownloadTemplate}
+              loading={isDownloadingTemplate}
+            >
+              {t('settings.import.templateButton')}
+            </Button>
+          </Stack>
+        </Group>
       </Paper>
 
-      {/* File Input Card */}
-      <Paper withBorder radius="md" p="lg" bg="gray.0">
-        <Stack gap="sm">
-          <FileInput
-            label={t('settings.import.fileLabel')}
-            description={t('settings.import.fileDesc')}
-            placeholder={t('settings.import.filePlaceholder')}
-            leftSection={<IconUpload size={16} color="var(--mantine-color-dimmed)" />}
-            accept=".xlsx,.xls,.csv"
-            value={selectedFile}
-            onChange={onFileChange}
-            clearable
-            size="sm"
-            required
-          />
+      <Stack gap={6}>
+        <Text fw={600} fz="sm" c="dark.9">
+          {t('settings.import.fileLabel')}
+        </Text>
 
-          {selectedFile && (
-            <Paper withBorder radius="md" p="xs" bg="white">
-              <Group justify="space-between" align="center">
-                <Group gap="xs">
-                  <ThemeIcon size={30} radius="sm" color="teal" variant="light">
-                    <IconFileSpreadsheet size={16} />
-                  </ThemeIcon>
-                  <Box>
-                    <Text size="xs" fw={700} c="dark.8" lineClamp={1}>
-                      {selectedFile.name}
-                    </Text>
-                    <Text size="10px" c="dimmed">
-                      {t('settings.import.fileReady', {
-                        size: (selectedFile.size / 1024).toFixed(1),
-                      })}
-                    </Text>
-                  </Box>
-                </Group>
-                <ActionIcon
-                  variant="subtle"
-                  color="red"
-                  size="sm"
-                  onClick={() => onFileChange(null)}
-                  aria-label={t('settings.import.removeFile')}
-                >
-                  <IconTrash size={14} />
-                </ActionIcon>
+        {selectedFile ? (
+          <Paper withBorder radius="lg" p="sm" bg="white">
+            <Group justify="space-between" wrap="nowrap">
+              <Group gap="sm" wrap="nowrap" style={{ minWidth: 0 }}>
+                <ThemeIcon size={40} radius="md" color="teal" variant="light">
+                  <IconFileSpreadsheet size={22} />
+                </ThemeIcon>
+                <Box style={{ minWidth: 0 }}>
+                  <Text fz="sm" fw={600} c="dark.9" lineClamp={1}>
+                    {selectedFile.name}
+                  </Text>
+                  <Text fz="xs" c="dimmed">
+                    {t('settings.import.fileReady', {
+                      size: (selectedFile.size / 1024).toFixed(1),
+                    })}
+                  </Text>
+                </Box>
               </Group>
-            </Paper>
-          )}
-        </Stack>
-      </Paper>
+              <ActionIcon
+                variant="subtle"
+                color="gray"
+                onClick={removeFile}
+                aria-label={t('settings.import.removeFile')}
+              >
+                <IconTrash size={18} />
+              </ActionIcon>
+            </Group>
+          </Paper>
+        ) : (
+          <label
+            className={classes.dropzone}
+            data-dragging={dragging}
+            data-error={Boolean(fileError)}
+            onDragOver={(event) => {
+              event.preventDefault();
+              setDragging(true);
+            }}
+            onDragLeave={() => setDragging(false)}
+            onDrop={(event) => {
+              event.preventDefault();
+              setDragging(false);
+              acceptFile(event.dataTransfer.files[0]);
+            }}
+          >
+            <input
+              className={classes.fileInput}
+              type="file"
+              accept={IMPORT_ACCEPT}
+              onChange={(event) => {
+                acceptFile(event.currentTarget.files?.[0]);
+                event.currentTarget.value = '';
+              }}
+            />
+            <ThemeIcon size={48} radius="xl" color="primary" variant="light">
+              <IconCloudUpload size={26} />
+            </ThemeIcon>
+            <Text fw={600} fz="sm" c="dark.9">
+              {dragging ? t('settings.import.dropActive') : t('settings.import.dropTitle')}
+            </Text>
+            <Text fz="xs" c="dimmed">
+              {t('settings.import.fileDesc')}
+            </Text>
+          </label>
+        )}
 
-      <Group justify="flex-end" gap="sm" mt="sm">
-        <Button variant="default" size="sm" radius="md" onClick={onCancel}>
+        {fileError && (
+          <Group gap={6} wrap="nowrap" role="alert">
+            <IconAlertCircle size={16} color="var(--mantine-color-red-7)" />
+            <Text fz="xs" c="red.7">
+              {fileError}
+            </Text>
+          </Group>
+        )}
+      </Stack>
+
+      <Group justify="flex-end" gap="sm" mt="xs">
+        <Button variant="default" radius="md" onClick={onCancel}>
           {t('settings.import.cancel')}
         </Button>
         <Button
           color="primary"
-          size="sm"
           radius="md"
           rightSection={<IconChevronRight size={16} />}
           disabled={!selectedFile}

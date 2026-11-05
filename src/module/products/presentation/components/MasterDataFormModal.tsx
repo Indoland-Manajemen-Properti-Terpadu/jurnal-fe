@@ -1,12 +1,14 @@
 import { Button, Group, Modal, Stack, Text, TextInput, Textarea } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { t, useTranslation } from '@/i18n';
-import type { MasterDataInput } from '@/module/products/domain/product';
+import type { MasterDataInput, MasterDataItem } from '@/module/products/domain/product';
 
 type MasterDataFormModalProps = {
   opened: boolean;
   onClose: () => void;
   entityLabel: string;
+  /** When set the modal edits this item instead of creating one; remount it (key) per item. */
+  item?: MasterDataItem | null;
   namePlaceholder: string;
   isSubmitting: boolean;
   onSubmit: (input: MasterDataInput) => Promise<unknown>;
@@ -16,6 +18,7 @@ export function MasterDataFormModal({
   opened,
   onClose,
   entityLabel,
+  item,
   namePlaceholder,
   isSubmitting,
   onSubmit,
@@ -23,7 +26,7 @@ export function MasterDataFormModal({
   const { t: tp } = useTranslation('products');
   const entity = entityLabel.toLowerCase();
   const form = useForm({
-    initialValues: { name: '', description: '' },
+    initialValues: { name: item?.name ?? '', description: item?.description ?? '' },
     validate: {
       name: (value) =>
         value.trim() ? null : t('masterData.formNameRequired', { entity }, 'products'),
@@ -49,7 +52,9 @@ export function MasterDataFormModal({
       onClose={close}
       title={
         <Text fw={700} c="primary.9">
-          {tp('masterData.add', { entity: entityLabel })}
+          {item
+            ? tp('masterData.edit', { entity: entityLabel })
+            : tp('masterData.add', { entity: entityLabel })}
         </Text>
       }
       centered

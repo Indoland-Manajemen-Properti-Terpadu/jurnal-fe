@@ -15,7 +15,7 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { useJournalAccounts } from '@/module/chart-of-accounts';
+import { useSimpleAccounts } from '@/module/chart-of-accounts';
 import { useTranslation } from '@/i18n';
 import { useTransactionStore } from '../store/useTransactionStore';
 import JournalLineRow from './JournalLineRow';
@@ -38,14 +38,12 @@ const JournalLinesEditor: React.FC = () => {
     addTransaction,
   } = useTransactionStore();
 
-  const { accounts } = useJournalAccounts();
-  const journalAccounts = Array.isArray(accounts) ? accounts : [];
-
-  const accountOptions = journalAccounts
+  const { accounts } = useSimpleAccounts();
+  const accountOptions = accounts
     .filter((account) => account.name && account.accountNumber)
     .map((account) => ({
       value: account.id,
-      label: `[${account.accountNumber}] ${account.name}${account.category ? ` • ${account.category.name}` : ''}`,
+      label: `[${account.accountNumber}] ${account.name}`,
     }));
 
   const sensors = useSensors(
