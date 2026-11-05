@@ -19,7 +19,7 @@ Sign-in: the login page (email and password, with a forgot-password view and a b
 
 - `domain/`: `loginTypes` (response shapes) and `credentialRules` (`validateEmail`, `validatePassword`, minimum 6 characters), tested.
 - `infrastructure/`: `authApi`.
-- `presentation/`: pages, components (`LoginForm`, `ForgotPasswordForm`, `AuthShowcase`, `AuthSlides`) and hooks (`useLogin`, `useOAuthExchange`).
+- `presentation/`: pages, components (`LoginForm`, `ForgotPasswordForm`, `AuthShowcase`) and hooks (`useLogin`, `useOAuthExchange`).
 
 ## Flow
 
@@ -31,7 +31,7 @@ Namespace `authentication` (`id` and `en`) with parity tests in `src/i18n/locale
 
 ## Known gaps (kept as is)
 
-- **Forgot password is switched off** (`FORGOT_PASSWORD_ENABLED = false` in `domain/authFeatures.ts`): there is no backend endpoint yet, and the form only pretended to send an email. The login link is hidden and `/forgot-password` shows the login view. When the endpoint exists, call it from `ForgotPasswordForm` (show the real error on failure) and flip the flag.
+- Google sign-in and password recovery are visual placeholders. The Google button has no action. The recovery screen can be opened from login, but its submit button is disabled until an endpoint exists. Neither path sends a request or claims an email was sent.
 - "Remember me" is collected but never used.
-- The showcase on the left of the login page (`AuthShowcase`) rotates three sample scenes drawn in `AuthSlides` from the SVG objects of `AuthScenes` (property operations synced into the books, financial reports, bank reconciliation). They are illustrations with example numbers, labelled "Contoh tampilan"; the old marketing claims (SSL, ratings, "100% balanced") and the PNG slides were removed. The slideshow pauses on hover or focus and does not auto-advance with reduced motion.
+- The login showcase uses three conceptual 3D artworks for accounting, reports, and reconciliation. It contains no simulated balances or product screenshots. Navigation has named topic buttons and a pause/play control. Manual topic selection stops rotation; hover, keyboard focus, reduced motion, and small screens also suspend rotation. Artwork provenance is in `src/assets/images/auth/README.md`.
 - No component tests for the pages; the credential rules and `useLogin` (success and denied) are covered.

@@ -1,25 +1,29 @@
 import { MemoryRouter } from 'react-router-dom';
-import { render, screen } from '@test-utils';
+import { render, screen, userEvent } from '@test-utils';
 import { LoginForm } from './LoginForm';
 
-const renderForm = (onForgotPassword?: () => void) =>
+const renderForm = (onForgotPassword = () => undefined) =>
   render(
     <MemoryRouter>
       <LoginForm onSubmit={() => undefined} isPending={false} onForgotPassword={onForgotPassword} />
     </MemoryRouter>
   );
 
-describe('LoginForm forgot password link', () => {
-  it('is not shown when password recovery is unavailable', () => {
+describe('LoginForm secondary sign-in options', () => {
+  it('shows Google sign-in without running an action', async () => {
     renderForm();
 
-    expect(screen.queryByText('Lupa kata sandi?')).toBeNull();
-    expect(screen.getByRole('button', { name: /masuk/i })).toBeTruthy();
+    const google = screen.getByRole('button', { name: 'Masuk dengan Google' });
+    expect(google).toBeEnabled();
+    await userEvent.click(google);
+    expect(screen.getByRole('heading', { name: 'Selamat datang kembali' })).toBeInTheDocument();
   });
 
-  it('is shown when a handler is provided', () => {
-    renderForm(() => undefined);
+  it('opens password recovery without submitting login', async () => {
+    const onForgotPassword = vi.fn();
+    renderForm(onForgotPassword);
 
-    expect(screen.getByText('Lupa kata sandi?')).toBeTruthy();
+    await userEvent.click(screen.getByRole('button', { name: 'Lupa kata sandi?' }));
+    expect(onForgotPassword).toHaveBeenCalledOnce();
   });
 });

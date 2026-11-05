@@ -4,6 +4,7 @@ import {
   Box,
   Button,
   Checkbox,
+  Divider,
   Group,
   PasswordInput,
   Stack,
@@ -13,6 +14,7 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { IconArrowLeft, IconArrowRight, IconLock, IconMail } from '@tabler/icons-react';
+import GoogleIcon from '@/assets/images/brand/google.svg';
 import { Link } from 'react-router-dom';
 import { routes } from '@/router/routes';
 import {
@@ -24,8 +26,7 @@ import {
 import { useTranslation } from '@/i18n';
 
 interface LoginFormProps {
-  /** Omitted when password recovery is not available; the link is then not shown. */
-  onForgotPassword?: (currentEmail?: string) => void;
+  onForgotPassword: (currentEmail?: string) => void;
   onSubmit: (values: { email: string; password: string }) => void;
   isPending: boolean;
 }
@@ -90,18 +91,16 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onForgotPassword, onSubmit
               size="sm"
               {...form.getInputProps('rememberMe', { type: 'checkbox' })}
             />
-            {onForgotPassword && (
-              <Anchor
-                component="button"
-                type="button"
-                size="sm"
-                fw={600}
-                c="primary.7"
-                onClick={() => onForgotPassword(form.values.email)}
-              >
-                {ta('login.forgot')}
-              </Anchor>
-            )}
+            <Anchor
+              component="button"
+              type="button"
+              size="sm"
+              fw={600}
+              c="primary.7"
+              onClick={() => onForgotPassword(form.values.email)}
+            >
+              {ta('login.forgot')}
+            </Anchor>
           </Group>
 
           <Button
@@ -118,6 +117,20 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onForgotPassword, onSubmit
           </Button>
         </Stack>
       </form>
+
+      <Stack gap="sm">
+        <Divider label={ta('login.or')} labelPosition="center" />
+        <Button
+          type="button"
+          size="md"
+          radius="md"
+          variant="default"
+          fullWidth
+          leftSection={<img src={GoogleIcon} width={20} height={20} alt="" />}
+        >
+          {ta('login.google')}
+        </Button>
+      </Stack>
 
       <Anchor
         component={Link}
