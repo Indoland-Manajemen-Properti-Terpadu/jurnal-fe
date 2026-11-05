@@ -1,7 +1,11 @@
 import type {
+  ReceivablesSummary,
   Sale,
   SaleAttachment,
+  SaleDisplayCode,
+  SaleDisplayStatus,
   SaleItem,
+  SaleStatusCounts,
   SalePaymentDetail,
   SalePaymentMethod,
   SaleStatus,
@@ -9,7 +13,9 @@ import type {
 } from '../domain/sale';
 import { roundToCents } from '../domain/saleMoney';
 import type {
+  ReceivablesSummaryDto,
   SaleAttachmentDto,
+  SaleStatusCountsDto,
   SaleDto,
   SaleItemDto,
   SalePaymentDetailDto,
@@ -26,6 +32,41 @@ const toMoney = (value: unknown): number => roundToCents(toNumber(value));
 const toOptionalMoney = (value: unknown): number | undefined =>
   value !== undefined && value !== null ? toMoney(value) : undefined;
 
+const DISPLAY_CODES: SaleDisplayCode[] = ['DRAFT', 'UNPAID', 'PAID', 'OVERDUE', 'VOID'];
+
+const DISPLAY_LABELS: Record<SaleDisplayCode, string> = {
+  DRAFT: 'Draft',
+  UNPAID: 'Belum Lunas',
+  PAID: 'Lunas',
+  OVERDUE: 'Jatuh Tempo',
+  VOID: 'Void',
+};
+
+/** The server's display status wins; without it (older responses) it is derived from the plain status. */
+const mapDisplayStatus = (dto: SaleDto): SaleDisplayStatus => {
+  const code = String(dto.displayStatus?.code || '').toUpperCase() as SaleDisplayCode;
+  if (DISPLAY_CODES.includes(code)) {
+    return { code, label: dto.displayStatus?.label || DISPLAY_LABELS[code] };
+  }
+  const status = String(dto.status || 'DRAFT').toUpperCase();
+  const fallback: SaleDisplayCode =
+    status === 'DRAFT'
+      ? 'DRAFT'
+      : status === 'PAID'
+        ? 'PAID'
+        : status === 'VOID'
+          ? 'VOID'
+          : status === 'OVERDUE'
+            ? 'OVERDUE'
+            : 'UNPAID';
+  return { code: fallback, label: DISPLAY_LABELS[fallback] };
+};
+
+const mapUnit = (unit: SaleItemDto['unit']): string | null => {
+  if (typeof unit === 'string') return unit || null;
+  return unit?.name || null;
+};
+
 const mapItem = (i: SaleItemDto): SaleItem => {
   const journalTransactionId =
     typeof i.journalTransaction === 'string' ? i.journalTransaction : i.journalTransaction?.id;
@@ -40,6 +81,7 @@ const mapItem = (i: SaleItemDto): SaleItem => {
         }
       : null,
     description: i.description,
+    unit: mapUnit(i.unit),
     quantity: toNumber(i.quantity),
     unitPrice: toMoney(i.unitPrice || i.unit_price),
     tax: i.tax
@@ -123,6 +165,10 @@ const emptySale = (): Sale => ({
   remainingAmount: 0,
   attachments: [],
   status: 'DRAFT',
+  displayStatus: { code: 'DRAFT', label: DISPLAY_LABELS.DRAFT },
+  canEdit: false,
+  canDelete: false,
+  createdByApi: false,
   deleted: false,
   createdAt: null,
   updatedAt: null,
@@ -191,6 +237,10 @@ export const mapSaleDto = (dto: SaleDto | null | undefined): Sale => {
     message: dto.message || null,
     memo: dto.memo || null,
     status: (dto.status || 'DRAFT') as SaleStatus,
+    displayStatus: mapDisplayStatus(dto),
+    canEdit: Boolean(dto.canEdit),
+    canDelete: Boolean(dto.canDelete),
+    createdByApi: Boolean(dto.createdByApi),
     invoiceLink: dto.invoiceLink || null,
     journalId:
       dto.journalId ||
@@ -229,4 +279,29 @@ export const mapSalePaymentMethod = (m: SalePaymentMethodDto): SalePaymentMethod
   isDefault: Boolean(m.isDefault),
   defaultAccount: m.defaultAccount,
   feeAccount: m.feeAccount,
+});
+
+const mapAmountCount = (raw?: { amount?: unknown; count?: unknown }) => ({
+  amount: toMoney(raw?.amount),
+  count: toNumber(raw?.count),
+});
+
+export const mapReceivablesSummary = (
+  raw: ReceivablesSummaryDto | undefined
+): ReceivablesSummary => ({
+  overdue: { ...mapAmountCount(raw?.overdue), oldestDueDate: raw?.overdue?.oldestDueDate ?? null },
+  notDue: mapAmountCount(raw?.notDue),
+  total: mapAmountCount(raw?.total),
+  billed: toMoney(raw?.billed),
+  received: toMoney(raw?.received),
+});
+
+export const mapStatusCounts = (raw: SaleStatusCountsDto | undefined): SaleStatusCounts => ({
+  DRAFT: toNumber(raw?.DRAFT),
+  UNPAID: toNumber(raw?.UNPAID),
+  PAID: toNumber(raw?.PAID),
+  OVERDUE: toNumber(raw?.OVERDUE),
+  VOID: toNumber(raw?.VOID),
+  sent: toNumber(raw?.sent),
+  all: toNumber(raw?.all),
 });

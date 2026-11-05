@@ -93,7 +93,10 @@ export const routes = {
 
   sales: {
     main: '/sales',
+    add: '/sales/new',
+    edit: '/sales/:id/edit',
     detail: '/sales/:id',
+    publicInvoice: '/invoice/:token',
   },
 
   purchases: {

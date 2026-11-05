@@ -11,6 +11,7 @@ export type SaleTaxDto = IdRefDto & { name?: string; rate?: unknown };
 export type SaleItemDto = IdRefDto & {
   product?: SaleProductDto | null;
   description?: string;
+  unit?: string | { name?: string } | null;
   quantity?: unknown;
   unitPrice?: unknown;
   unit_price?: unknown;
@@ -98,6 +99,10 @@ export type SaleDto = IdRefDto & {
   message?: string | null;
   memo?: string | null;
   status?: string;
+  displayStatus?: { code?: string; label?: string } | null;
+  canEdit?: boolean;
+  canDelete?: boolean;
+  createdByApi?: boolean;
   invoiceLink?: string | null;
   journalId?: string;
   journal_id?: string;
@@ -131,3 +136,15 @@ export type SalePaymentMethodDto = IdRefDto & {
   defaultAccount?: string | { id?: string; name?: string } | null;
   feeAccount?: string | { id?: string; name?: string } | null;
 };
+
+export type ReceivablesSummaryDto = {
+  overdue?: { amount?: unknown; count?: unknown; oldestDueDate?: string | null };
+  notDue?: { amount?: unknown; count?: unknown };
+  total?: { amount?: unknown; count?: unknown };
+  billed?: unknown;
+  received?: unknown;
+};
+
+export type SaleStatusCountsDto = Partial<
+  Record<'DRAFT' | 'UNPAID' | 'PAID' | 'OVERDUE' | 'VOID' | 'sent' | 'all', unknown>
+>;

@@ -1,0 +1,28 @@
+export const salesPublic = {
+  public: {
+    title: 'Faktur Penjualan',
+    billedTo: 'Ditagihkan kepada',
+    date: 'Tanggal',
+    due: 'Jatuh tempo',
+    colItem: 'Produk / Jasa',
+    colQuantity: 'Jumlah',
+    colUnitPrice: 'Harga Satuan',
+    colAmount: 'Jumlah',
+    subtotal: 'Subtotal',
+    discount: 'Diskon',
+    vat: 'PPN',
+    withholding: 'Pemotongan PPh',
+    total: 'Total Tagihan',
+    paid: 'Sudah dibayar',
+    remaining: 'Sisa tagihan',
+    message: 'Pesan',
+    print: 'Cetak Faktur',
+    loadingAria: 'Memuat faktur',
+    notFoundTitle: 'Faktur tidak ditemukan',
+    notFoundDescription:
+      'Tautan ini tidak berlaku atau sudah tidak tersedia. Hubungi penerbit faktur untuk meminta tautan yang baru.',
+    errorTitle: 'Faktur belum dapat dimuat',
+    errorDescription: 'Periksa koneksi Anda, lalu coba lagi.',
+    retry: 'Coba Lagi',
+  },
+};

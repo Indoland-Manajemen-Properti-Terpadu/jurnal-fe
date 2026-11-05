@@ -23,12 +23,17 @@ import {
   IconUser,
 } from '@tabler/icons-react';
 import type { Sale } from '@/module/sales/domain/sale';
+import { buildInvoiceLink } from '@/module/sales/domain/saleFormat';
 import type { SaleDisplay } from '../../hooks/useSaleDisplay';
 import { DetailField } from './DetailField';
 import classes from './SaleDetail.module.css';
 
 export function SaleSidebar({ sale, display }: Readonly<{ sale: Sale; display: SaleDisplay }>) {
   const { t, dateTime } = display;
+  // The backend stores only the link's token; the address is built from where the app runs.
+  const invoiceUrl = sale.invoiceLink
+    ? buildInvoiceLink(window.location.origin, sale.invoiceLink)
+    : '';
   return (
     <Stack gap="lg">
       <Paper withBorder radius="lg" p={{ base: 'md', sm: 'lg' }} bg="white">
@@ -61,18 +66,18 @@ export function SaleSidebar({ sale, display }: Readonly<{ sale: Sale; display: S
           </Title>
         </Group>
         <Stack gap="md">
-          {sale.invoiceLink ? (
+          {invoiceUrl ? (
             <Box className={classes.linkPanel}>
               <Text size="xs" fw={700}>
                 {t('invoiceLink')}
               </Text>
               <Text size="xs" c="dimmed" truncate mt={3}>
-                {sale.invoiceLink}
+                {invoiceUrl}
               </Text>
               <Group gap="xs" mt="sm">
                 <Button
                   component="a"
-                  href={sale.invoiceLink}
+                  href={invoiceUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   size="xs"
@@ -82,7 +87,7 @@ export function SaleSidebar({ sale, display }: Readonly<{ sale: Sale; display: S
                 >
                   {t('openLink')}
                 </Button>
-                <CopyButton value={sale.invoiceLink}>
+                <CopyButton value={invoiceUrl}>
                   {({ copied, copy }) => (
                     <Button
                       size="xs"

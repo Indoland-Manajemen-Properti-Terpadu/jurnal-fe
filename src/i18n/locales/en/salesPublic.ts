@@ -1,0 +1,28 @@
+export const salesPublic = {
+  public: {
+    title: 'Sales Invoice',
+    billedTo: 'Billed to',
+    date: 'Date',
+    due: 'Due',
+    colItem: 'Product / Service',
+    colQuantity: 'Quantity',
+    colUnitPrice: 'Unit Price',
+    colAmount: 'Amount',
+    subtotal: 'Subtotal',
+    discount: 'Discount',
+    vat: 'VAT',
+    withholding: 'Income Tax Withholding',
+    total: 'Invoice Total',
+    paid: 'Paid so far',
+    remaining: 'Outstanding',
+    message: 'Message',
+    print: 'Print Invoice',
+    loadingAria: 'Loading the invoice',
+    notFoundTitle: 'Invoice not found',
+    notFoundDescription:
+      'This link is not valid or is no longer available. Contact the issuer of the invoice to ask for a new link.',
+    errorTitle: 'The invoice could not be loaded',
+    errorDescription: 'Check your connection and try again.',
+    retry: 'Try Again',
+  },
+};
