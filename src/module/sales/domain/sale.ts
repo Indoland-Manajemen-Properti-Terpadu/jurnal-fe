@@ -9,6 +9,11 @@ export type SaleStatus =
   | 'VOID'
   | 'OVERDUE';
 
+export type SaleDisplayCode = 'DRAFT' | 'UNPAID' | 'PAID' | 'OVERDUE' | 'VOID';
+
+/** What the badge shows: the backend's own label for the payment state. */
+export type SaleDisplayStatus = { code: SaleDisplayCode; label: string };
+
 export type DiscountType = 'percentage' | 'nominal';
 export type WithholdingType = 'percentage' | 'nominal';
 
@@ -54,6 +59,7 @@ export type SaleItem = {
     productCode?: string;
   } | null;
   description?: string;
+  unit?: string | null;
   quantity: number;
   unitPrice: number;
   tax?: {
@@ -121,6 +127,12 @@ export type Sale = {
   message?: string | null;
   memo?: string | null;
   status: SaleStatus;
+  displayStatus: SaleDisplayStatus;
+  /** Server decisions: the screens never recompute who may edit or delete. */
+  canEdit: boolean;
+  canDelete: boolean;
+  /** True for an invoice that ProApps created through its own API. */
+  createdByApi: boolean;
   invoiceLink?: string | null;
   journalId?: string | null;
   transactionId?: string | null;
@@ -134,10 +146,28 @@ export type SaleListParams = {
   limit?: number;
   search?: string;
   status?: string;
+  /** One or several payment states; several are sent as a comma list. */
+  paymentStatus?: SaleDisplayCode | SaleDisplayCode[];
+  excludeDraft?: boolean;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
   startDate?: string;
   endDate?: string;
   customerId?: string;
 };
+
+export type ReceivablesSummary = {
+  overdue: { amount: number; count: number; oldestDueDate: string | null };
+  notDue: { amount: number; count: number };
+  total: { amount: number; count: number };
+  /** Final amount of every sent invoice, paid ones included. */
+  billed: number;
+  received: number;
+};
+
+export type SaleStatusCounts = Record<SaleDisplayCode | 'sent' | 'all', number>;
+
+export type SendSaleResult = { sale: Sale; emailSent: boolean; emailError: string };
 
 export type Pagination = {
   total: number;
@@ -155,6 +185,8 @@ export type Paginated<T> = {
 export type CreateSaleItemForm = {
   productId: string;
   description: string;
+  /** Unit of the chosen product; shown, never typed. */
+  unit: string;
   quantity: number;
   unitPrice: number;
   taxId?: string;
@@ -202,6 +234,7 @@ export type CreateSalePaymentPayload = {
   tags?: string[];
   memo?: string | null;
   amount: number | string;
+  attachments?: File[];
 };
 
 export type SalePaymentDetail = {

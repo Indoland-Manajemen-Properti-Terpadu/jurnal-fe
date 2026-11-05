@@ -1,0 +1,16 @@
+.bar {
+  display: flex;
+  gap: 2px;
+  width: 100%;
+  height: 8px;
+}
+
+.segment {
+  min-width: 4px;
+  border-radius: 999px;
+}
+
+.track {
+  flex: 1;
+  border-radius: 999px;
+}

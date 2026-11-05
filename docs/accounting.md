@@ -15,7 +15,7 @@ Money math uses integer minor units through `src/lib/money` (`toMinor`, `fromMin
 
 ## Tax, discount and depreciation
 
-- **VAT (PPN) base:** VAT is charged on the price after the discount (DPP). An invoice discount is shared over the lines in proportion to their subtotal before each line's tax is computed; withholding (PPh) uses subtotal minus discount. A discount never exceeds the amount it applies to.
+- **VAT (PPN) and withholding (PPh) base (sales invoices):** the server charges VAT on each line's full price, before any invoice discount, and withholds PPh as a share of the subtotal before the discount: `total = subtotal - discount + VAT`, `final = total - withholding`. With tax-inclusive prices the tax is split out of the price (`subtotal` is the amount without tax, `total = gross - discount`) and PPh is still a share of that subtotal. The form estimate (`calculateSaleTotals`) follows this rule; confirmed by the product owner on 2026-11-05 and verified against the live service. A discount never exceeds the amount it applies to.
 - **Receivables:** draft and void sales are not receivables (never overdue, not in receivable totals). A payment may not be zero, negative or above what is still owed.
 - **Revenue:** monthly sales are net sales before VAT and withholding, not the invoice total.
 - **Working capital:** current assets minus current liabilities only.

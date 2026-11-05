@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { mapSaleDto } from './saleMapper';
+import { mapReceivablesSummary, mapSaleDto, mapStatusCounts } from './saleMapper';
 
 const baseDto = {
   id: 's-1',
@@ -91,5 +91,77 @@ describe('mapSaleDto rounding at the input boundary', () => {
     expect(sale.discountValue).toBe(12.345);
     expect(sale.items[0].quantity).toBe(2.125);
     expect(sale.items[0].tax?.rate).toBe(11);
+  });
+});
+
+describe('mapSaleDto server flags and display status', () => {
+  it('takes the badge, edit and delete decisions from the server', () => {
+    const sale = mapSaleDto({
+      ...baseDto,
+      status: 'SENT',
+      displayStatus: { code: 'OVERDUE', label: 'Jatuh Tempo' },
+      canEdit: false,
+      canDelete: false,
+      createdByApi: true,
+    });
+
+    expect(sale.displayStatus).toEqual({ code: 'OVERDUE', label: 'Jatuh Tempo' });
+    expect(sale).toMatchObject({ canEdit: false, canDelete: false, createdByApi: true });
+  });
+
+  it('falls back to the plain status when the server sends no display status', () => {
+    expect(mapSaleDto({ ...baseDto, status: 'DRAFT' }).displayStatus.code).toBe('DRAFT');
+    expect(mapSaleDto({ ...baseDto, status: 'PAID' }).displayStatus.code).toBe('PAID');
+    expect(mapSaleDto({ ...baseDto, status: 'VOID' }).displayStatus.code).toBe('VOID');
+    expect(mapSaleDto({ ...baseDto, status: 'PARTIAL_PAID' }).displayStatus.code).toBe('UNPAID');
+  });
+
+  it('defaults the permissions to closed when the server sends none', () => {
+    expect(mapSaleDto(baseDto)).toMatchObject({ canEdit: false, canDelete: false });
+  });
+
+  it('reads the unit name of an item product', () => {
+    const sale = mapSaleDto({
+      ...baseDto,
+      items: [{ ...baseDto.items[0], unit: 'Jam' }],
+    });
+    expect(sale.items[0].unit).toBe('Jam');
+  });
+});
+
+describe('summary and counts mappers', () => {
+  it('maps the receivables summary and keeps a null oldest due date', () => {
+    expect(
+      mapReceivablesSummary({
+        overdue: { amount: 300.005, count: 3, oldestDueDate: null },
+        notDue: { amount: 100, count: 1 },
+        total: { amount: 400, count: 4 },
+        billed: 400,
+        received: 100,
+      })
+    ).toEqual({
+      overdue: { amount: 300.01, count: 3, oldestDueDate: null },
+      notDue: { amount: 100, count: 1 },
+      total: { amount: 400, count: 4 },
+      billed: 400,
+      received: 100,
+    });
+  });
+
+  it('turns a missing summary into zeros', () => {
+    expect(mapReceivablesSummary(undefined).billed).toBe(0);
+    expect(mapReceivablesSummary(undefined).overdue.oldestDueDate).toBeNull();
+  });
+
+  it('maps status counts with zero defaults', () => {
+    expect(mapStatusCounts({ DRAFT: 2, sent: 5, all: 7 })).toEqual({
+      DRAFT: 2,
+      UNPAID: 0,
+      PAID: 0,
+      OVERDUE: 0,
+      VOID: 0,
+      sent: 5,
+      all: 7,
+    });
   });
 });

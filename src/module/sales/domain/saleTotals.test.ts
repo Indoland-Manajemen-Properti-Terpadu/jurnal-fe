@@ -1,12 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { Sale } from './sale';
-import {
-  calculateSaleTotals,
-  filterSalesByTab,
-  isPastDue,
-  remainingAfterPayment,
-  summarizeSales,
-} from './saleTotals';
+import { calculateSaleTotals, lineAmount, remainingAfterPayment } from './saleTotals';
 
 /**
  * Characterization of the totals the create-sale modal computed inline before the extraction:
@@ -128,7 +121,7 @@ describe('calculateSaleTotals', () => {
     );
   });
 
-  it('charges VAT on the price after the discount (DPP) and withholds on the same base', () => {
+  it('charges VAT on the subtotal before the discount and withholds on the subtotal, as the server does', () => {
     const result = totals(
       [{ quantity: 2, unitPrice: 1000000, rate: 11 }],
       'percentage',
@@ -140,14 +133,14 @@ describe('calculateSaleTotals', () => {
     expect(result).toEqual({
       subtotal: 2000000,
       discountAmount: 200000,
-      taxTotal: 198000,
-      total: 1998000,
+      taxTotal: 220000,
+      total: 2020000,
       withholdingAmount: 50000,
-      finalAmount: 1948000,
+      finalAmount: 1970000,
     });
   });
 
-  it('shares an invoice discount over the lines so only taxed lines carry their part', () => {
+  it('lets a discount leave the tax alone: only taxed lines carry tax, on their full price', () => {
     const result = totals(
       [
         { quantity: 3, unitPrice: 250000, rate: 11 },
@@ -161,13 +154,13 @@ describe('calculateSaleTotals', () => {
 
     expect(result.subtotal).toBe(1950000);
     expect(result.discountAmount).toBe(100000);
-    expect(result.taxTotal).toBe(78269.23);
-    expect(result.total).toBe(1928269.23);
-    expect(result.withholdingAmount).toBe(37000);
-    expect(result.finalAmount).toBe(1891269.23);
+    expect(result.taxTotal).toBe(82500);
+    expect(result.total).toBe(1932500);
+    expect(result.withholdingAmount).toBe(39000);
+    expect(result.finalAmount).toBe(1893500);
   });
 
-  it('keeps the discount shares exact when they do not divide evenly', () => {
+  it('never lowers the tax with a discount, even one that does not divide over the lines', () => {
     const result = totals(
       [
         { quantity: 1, unitPrice: 100, rate: 10 },
@@ -179,9 +172,8 @@ describe('calculateSaleTotals', () => {
     );
 
     expect(result.discountAmount).toBe(100);
-    // 100 over 3 lines = 33.33 + 33.33 + 33.34, so the taxable parts are 66.67, 66.67 and 66.66
-    expect(result.taxTotal).toBe(20.01);
-    expect(result.total).toBe(220.01);
+    expect(result.taxTotal).toBe(30);
+    expect(result.total).toBe(230);
   });
 
   it('adds decimal amounts without float drift', () => {
@@ -213,7 +205,7 @@ describe('calculateSaleTotals', () => {
     expect(totals([{ quantity: 1, unitPrice: 1000.01, rate: 11 }]).taxTotal).toBe(110);
   });
 
-  it('applies a percentage discount, then VAT and withholding on what is left', () => {
+  it('applies a percentage discount while VAT and withholding stay on the subtotal', () => {
     const result = totals(
       [{ quantity: 1, unitPrice: 1000.5, rate: 11 }],
       'percentage',
@@ -223,10 +215,10 @@ describe('calculateSaleTotals', () => {
     );
 
     expect(result.discountAmount).toBe(125.06);
-    expect(result.taxTotal).toBe(96.3);
-    expect(result.withholdingAmount).toBe(17.51);
-    expect(result.total).toBe(971.74);
-    expect(result.finalAmount).toBe(954.23);
+    expect(result.taxTotal).toBe(110.06);
+    expect(result.withholdingAmount).toBe(20.01);
+    expect(result.total).toBe(985.5);
+    expect(result.finalAmount).toBe(965.49);
   });
 
   it('ignores zero or negative discount and withholding values', () => {
@@ -261,80 +253,7 @@ describe('remainingAfterPayment', () => {
   });
 });
 
-const sale = (overrides: Partial<Sale>): Sale => ({
-  id: 's',
-  transactionNumber: 'INV',
-  customer: null,
-  emails: [],
-  transactionDate: null,
-  dueDate: null,
-  tags: [],
-  paymentTerm: null,
-  isPriceIncludeTax: false,
-  items: [],
-  subtotal: 0,
-  total: 0,
-  finalAmount: 0,
-  paidAmount: 0,
-  remainingAmount: 0,
-  attachments: [],
-  status: 'DRAFT',
-  deleted: false,
-  createdAt: null,
-  updatedAt: null,
-  ...overrides,
-});
-
-const NOW = new Date('2026-06-15T00:00:00Z').getTime();
-
-describe('sale list rules', () => {
-  const overdue = sale({
-    id: 'a',
-    status: 'OPEN',
-    remainingAmount: 100.1,
-    finalAmount: 100.1,
-    dueDate: '2026-06-01',
-  });
-  const paid = sale({ id: 'b', status: 'PAID', finalAmount: 200.2, paidAmount: 200.2 });
-  const draft = sale({ id: 'c', status: 'DRAFT', finalAmount: 0.3 });
-  const partial = sale({
-    id: 'd',
-    status: 'PARTIAL',
-    finalAmount: 50,
-    paidAmount: 10,
-    remainingAmount: 40,
-    dueDate: '2026-12-01',
-  });
-  const all = [overdue, paid, draft, partial];
-
-  it('detects a past due sale only while money is outstanding', () => {
-    expect(isPastDue(overdue, NOW)).toBe(true);
-    expect(isPastDue(partial, NOW)).toBe(false);
-    expect(isPastDue(paid, NOW)).toBe(false);
-    expect(isPastDue(sale({ remainingAmount: 5, dueDate: null }), NOW)).toBe(false);
-  });
-
-  it('filters by tab', () => {
-    const ids = (tab: string) => filterSalesByTab(all, tab, NOW).map((s) => s.id);
-
-    expect(ids('all')).toEqual(['a', 'b', 'c', 'd']);
-    expect(ids('OVERDUE')).toEqual(['a']);
-    expect(ids('UNPAID')).toEqual(['a', 'd']);
-    expect(ids('PAID')).toEqual(['b']);
-    expect(ids('DRAFT')).toEqual(['c']);
-  });
-
-  it('sums the list in cents without drift, leaving the draft out', () => {
-    expect(summarizeSales(all, NOW)).toEqual({
-      totalAmount: 350.3,
-      paidAmount: 210.2,
-      remainingAmount: 140.1,
-      overdueCount: 1,
-    });
-  });
-});
-
-describe('discount cap and non-receivable statuses', () => {
+describe('discount cap', () => {
   const line = { quantity: 1, unitPrice: 100000, taxRate: 0 };
   const base = { lines: [line], withholdingType: 'nominal' as const, withholdingValue: 0 };
 
@@ -359,33 +278,71 @@ describe('discount cap and non-receivable statuses', () => {
     expect(result.discountAmount).toBe(10000);
     expect(result.total).toBe(90000);
   });
+});
 
-  const saleWith = (status: string, remaining: number): Sale =>
-    ({
-      id: status,
-      status,
-      finalAmount: remaining,
-      paidAmount: 0,
-      remainingAmount: remaining,
-      dueDate: '2020-01-01',
-    }) as unknown as Sale;
+describe('price includes tax', () => {
+  const line = { quantity: 1, unitPrice: 111000, taxRate: 11 };
+  const input = {
+    lines: [line],
+    discountType: 'nominal' as const,
+    discountValue: 11100,
+    withholdingType: 'nominal' as const,
+    withholdingValue: 0,
+  };
 
-  it('does not treat a draft or void sale as overdue', () => {
-    expect(isPastDue(saleWith('DRAFT', 500), Date.now())).toBe(false);
-    expect(isPastDue(saleWith('VOID', 500), Date.now())).toBe(false);
-    expect(isPastDue(saleWith('UNPAID', 500), Date.now())).toBe(true);
+  it('splits the tax out of the price, as the server does', () => {
+    const result = calculateSaleTotals({ ...input, isPriceIncludeTax: true });
+
+    expect(result.subtotal).toBe(100000);
+    expect(result.taxTotal).toBe(11000);
+    expect(result.discountAmount).toBe(11100);
+    expect(result.total).toBe(99900);
+    expect(result.finalAmount).toBe(99900);
   });
 
-  it('leaves draft and void sales out of the receivable summary', () => {
-    const summary = summarizeSales(
-      [saleWith('DRAFT', 500), saleWith('VOID', 700), saleWith('UNPAID', 300)],
-      Date.now()
-    );
+  it('adds the tax on top when the price excludes it', () => {
+    const result = calculateSaleTotals({ ...input, discountValue: 0, isPriceIncludeTax: false });
 
-    expect(summary).toMatchObject({
-      totalAmount: 300,
-      remainingAmount: 300,
-      overdueCount: 1,
-    });
+    expect(result.subtotal).toBe(111000);
+    expect(result.total).toBe(123210);
+  });
+
+  it('treats a line without tax the same either way', () => {
+    const plain = { ...input, lines: [{ ...line, taxRate: 0 }], discountValue: 0 };
+
+    expect(calculateSaleTotals({ ...plain, isPriceIncludeTax: true }).total).toBe(111000);
+  });
+});
+
+describe('lineAmount', () => {
+  it('multiplies quantity and price and rounds to the cent', () => {
+    expect(lineAmount(2, 50000)).toBe(100000);
+    expect(lineAmount(3, 1500.5)).toBe(4501.5);
+    expect(lineAmount(0, 100)).toBe(0);
+  });
+});
+
+describe('price includes tax: withholding', () => {
+  const base = {
+    lines: [{ quantity: 1, unitPrice: 111000, taxRate: 11 }],
+    discountType: 'nominal' as const,
+    withholdingType: 'percentage' as const,
+    withholdingValue: 2,
+    isPriceIncludeTax: true,
+  };
+
+  it('is a share of the amount without tax, as the server does', () => {
+    const result = calculateSaleTotals({ ...base, discountValue: 0 });
+
+    expect(result.withholdingAmount).toBe(2000);
+    expect(result.finalAmount).toBe(109000);
+  });
+
+  it('keeps that base when there is also a discount', () => {
+    const result = calculateSaleTotals({ ...base, discountValue: 11100 });
+
+    expect(result.total).toBe(99900);
+    expect(result.withholdingAmount).toBe(2000);
+    expect(result.finalAmount).toBe(97900);
   });
 });
