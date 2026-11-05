@@ -1,0 +1,82 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--mantine-spacing-sm);
+}
+
+@media (min-width: 36em) {
+  .grid {
+    gap: var(--mantine-spacing-md);
+  }
+}
+
+/* On a phone keep the number and its label; the picture and hint return from tablet width. */
+@media (max-width: 35.99em) {
+  .visual,
+  .hint {
+    display: none;
+  }
+}
+
+@media (min-width: 75em) {
+  .grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.card {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--mantine-spacing-sm);
+  width: 100%;
+  min-width: 0;
+  padding: var(--mantine-spacing-md);
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  background: var(--jurnal-color-surface);
+  border: 1px solid var(--jurnal-color-border-subtle);
+  border-radius: var(--mantine-radius-md);
+}
+
+button.card {
+  cursor: pointer;
+  transition: border-color var(--jurnal-duration-fast) var(--jurnal-ease-standard);
+}
+
+button.card:hover {
+  border-color: var(--mantine-color-primary-3);
+}
+
+button.card:focus-visible {
+  outline: 2px solid var(--mantine-color-primary-6);
+  outline-offset: 2px;
+}
+
+.text {
+  min-width: 0;
+}
+
+.value {
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+
+.visual {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  gap: 6px;
+  align-items: flex-end;
+  align-self: center;
+  justify-content: center;
+  min-width: 84px;
+}
+
+@media (min-width: 75em) {
+  .grid[data-columns='3'] {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

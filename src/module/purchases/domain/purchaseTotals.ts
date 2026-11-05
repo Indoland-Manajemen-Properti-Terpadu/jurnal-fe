@@ -1,111 +1,100 @@
 import { fromMinor, sumMinor, toMinor } from '@/lib/money/money';
-import { PurchaseBill, PurchaseStatus } from './purchase';
 
-export interface LineInput {
+/**
+ * Live estimate of an order or bill while it is typed. The server recomputes and owns the final
+ * figures (`purchase.calc` on the backend); this follows the same order of steps so the preview
+ * agrees for ordinary inputs: line amount, shared discount, tax on the discounted amount,
+ * withholding on subtotal minus discount.
+ */
+
+export interface TotalsLine {
   quantity: number;
   unitPrice: number;
+  /** Tax rate in percent, 0 when the line has no tax. */
   taxRate: number;
 }
 
-export interface LineAmounts {
-  subtotal: number;
-  tax: number;
-  total: number;
+export interface TotalsInput {
+  lines: TotalsLine[];
+  isPriceIncludeTax: boolean;
+  discountType: 'percentage' | 'nominal' | null;
+  discountValue: number;
+  withholdingType: 'percentage' | 'nominal' | null;
+  withholdingValue: number;
 }
 
-export interface BillTotals {
+export interface Totals {
   subtotal: number;
+  discountAmount: number;
   taxAmount: number;
-  totalAmount: number;
+  total: number;
+  withholdingAmount: number;
+  finalAmount: number;
 }
 
-export interface PaymentResult {
-  paidAmount: number;
-  remainingAmount: number;
-  status: Extract<PurchaseStatus, 'PAID' | 'PARTIAL'>;
-}
+const percentOf = (minor: number, percent: number) => Math.round((minor * percent) / 100);
 
-export interface PurchaseSummary {
-  totalAmount: number;
-  paidAmount: number;
-  remainingAmount: number;
-  overdueAmount: number;
-  overdueCount: number;
-  billCount: number;
-}
-
-// Form inputs can carry more than two decimals (a free-typed price). The amount is rounded to the
-// cent here, once, because `toMinor` rejects extra decimals instead of choosing a rounding rule.
-const toCents = (amount: number): number => toMinor(Number(amount.toFixed(2)));
-
-const toAmount = (minor: number): number => Number(fromMinor(minor));
-
-const lineMinor = ({ quantity, unitPrice, taxRate }: LineInput) => {
-  const subtotal = Math.round(quantity * toCents(unitPrice));
-  const tax = Math.round((subtotal * taxRate) / 100);
-  return { subtotal, tax };
+const lineBase = (line: TotalsLine, includesTax: boolean): number => {
+  const gross = Math.round(line.quantity * toMinor(line.unitPrice));
+  return includesTax && line.taxRate > 0 ? Math.round(gross / (1 + line.taxRate / 100)) : gross;
 };
 
-export const isPastDue = (bill: PurchaseBill, now: number): boolean =>
-  bill.remainingAmount > 0 && Boolean(bill.dueDate) && new Date(bill.dueDate).getTime() < now;
-
-export const calculateLine = (line: LineInput): LineAmounts => {
-  const { subtotal, tax } = lineMinor(line);
-  return { subtotal: toAmount(subtotal), tax: toAmount(tax), total: toAmount(subtotal + tax) };
+/** Spreads the discount over the lines in proportion to their amount; the remainder is never lost. */
+const shareDiscount = (bases: number[], discount: number): number[] => {
+  const subtotal = sumMinor(bases);
+  if (subtotal <= 0 || discount <= 0) return bases.map(() => 0);
+  const exact = bases.map((base) => (base * discount) / subtotal);
+  const shares = exact.map(Math.floor);
+  let rest = discount - sumMinor(shares);
+  const order = exact
+    .map((value, index) => ({ index, fraction: value - Math.floor(value) }))
+    .sort((a, b) => b.fraction - a.fraction);
+  for (const { index } of order) {
+    if (rest <= 0) break;
+    shares[index] += 1;
+    rest -= 1;
+  }
+  return shares;
 };
 
-export const calculateTotals = (lines: LineInput[]): BillTotals => {
-  const minor = lines.map(lineMinor);
-  const subtotal = sumMinor(minor.map((line) => line.subtotal));
-  const tax = sumMinor(minor.map((line) => line.tax));
+export function calculateTotals(input: TotalsInput): Totals {
+  const bases = input.lines.map((line) => lineBase(line, input.isPriceIncludeTax));
+  const subtotal = sumMinor(bases);
+
+  const requested =
+    input.discountType === 'percentage'
+      ? percentOf(subtotal, input.discountValue)
+      : input.discountType === 'nominal'
+        ? toMinor(input.discountValue)
+        : 0;
+  const discount = Math.min(Math.max(requested, 0), subtotal);
+  const shares = shareDiscount(bases, discount);
+
+  const taxAmount = sumMinor(
+    input.lines.map((line, index) => percentOf(bases[index] - shares[index], line.taxRate))
+  );
+  const total = subtotal - discount + taxAmount;
+
+  const taxable = subtotal - discount;
+  const withholdingRequested =
+    input.withholdingType === 'percentage'
+      ? percentOf(taxable, input.withholdingValue)
+      : input.withholdingType === 'nominal'
+        ? toMinor(input.withholdingValue)
+        : 0;
+  const withholding = Math.min(Math.max(withholdingRequested, 0), total);
+
+  const toAmount = (minor: number) => Number(fromMinor(minor));
   return {
     subtotal: toAmount(subtotal),
-    taxAmount: toAmount(tax),
-    totalAmount: toAmount(subtotal + tax),
+    discountAmount: toAmount(discount),
+    taxAmount: toAmount(taxAmount),
+    total: toAmount(total),
+    withholdingAmount: toAmount(withholding),
+    finalAmount: toAmount(total - withholding),
   };
-};
+}
 
-export const applyPayment = (
-  bill: Pick<PurchaseBill, 'totalAmount' | 'paidAmount'>,
-  amount: number
-): PaymentResult => {
-  if (!Number.isFinite(amount) || amount <= 0) {
-    throw new RangeError('Payment must be a positive amount');
-  }
-  const owed = toCents(bill.totalAmount) - toCents(bill.paidAmount);
-  if (toCents(amount) > owed) {
-    throw new RangeError('Payment exceeds the remaining amount');
-  }
-  const paid = sumMinor([toCents(bill.paidAmount), toCents(amount)]);
-  const remaining = toCents(bill.totalAmount) - paid;
-  return {
-    paidAmount: toAmount(paid),
-    remainingAmount: toAmount(remaining),
-    status: remaining === 0 ? 'PAID' : 'PARTIAL',
-  };
-};
-
-export const paidPercent = (paidAmount: number, totalAmount: number): number =>
-  totalAmount > 0 ? Math.min(100, Math.round((paidAmount / totalAmount) * 100)) : 0;
-
-export const summarizePurchases = (bills: PurchaseBill[], now: number): PurchaseSummary => {
-  const minor = (pick: (bill: PurchaseBill) => number) =>
-    sumMinor(bills.map((bill) => toCents(pick(bill) || 0)));
-  const overdue = bills.filter((bill) => isPastDue(bill, now));
-
-  return {
-    totalAmount: toAmount(minor((bill) => bill.totalAmount)),
-    paidAmount: toAmount(minor((bill) => bill.paidAmount)),
-    remainingAmount: toAmount(minor((bill) => bill.remainingAmount)),
-    overdueAmount: toAmount(sumMinor(overdue.map((bill) => toCents(bill.remainingAmount || 0)))),
-    overdueCount: overdue.length,
-    billCount: bills.length,
-  };
-};
-
-const SETTLED_STATUSES: PurchaseStatus[] = ['PAID', 'CANCELLED', 'DRAFT'];
-
-export const withDerivedStatus = (bill: PurchaseBill, now: number): PurchaseBill => {
-  if (SETTLED_STATUSES.includes(bill.status)) return bill;
-  return { ...bill, status: isPastDue(bill, now) ? 'OVERDUE' : bill.status };
-};
+/** Quantity still open to receive or bill, never negative. */
+export const remainingQty = (ordered: number, done: number): number =>
+  Math.max(0, Math.round((ordered - done) * 1e4) / 1e4);
