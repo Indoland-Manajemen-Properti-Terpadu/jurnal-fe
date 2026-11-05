@@ -22,7 +22,7 @@ describe('mapAccountDetailToFormState', () => {
         name: 'Kas',
         accountNumber: '1-1',
         category: 'c',
-        taxType: '',
+        defaultTax: '',
         isBankAndCash: false,
         isContra: false,
         desc: '',
@@ -30,6 +30,12 @@ describe('mapAccountDetailToFormState', () => {
       accountType: 'SingleAccount',
       accessScope: 'AllUsers',
     });
+  });
+
+  it('reads the default tax id from the populated tax or a plain id', () => {
+    expect(mapAccountDetailToFormState({ defaultTax: { id: 't1' } }).values.defaultTax).toBe('t1');
+    expect(mapAccountDetailToFormState({ defaultTax: 't2' }).values.defaultTax).toBe('t2');
+    expect(mapAccountDetailToFormState({ defaultTax: null }).values.defaultTax).toBe('');
   });
 
   it('detects Sub and Header accounts', () => {

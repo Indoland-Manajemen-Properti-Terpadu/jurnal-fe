@@ -214,7 +214,7 @@ const TableAccounts = ({
               {headerLabel(t('table.normalBalance'), 130)}
               {headerLabel(t('table.status'), 80)}
               {headerLabel(t('table.access'), 150)}
-              {headerLabel(t('table.tax'), 80)}
+              {headerLabel(t('table.tax'), 150)}
               {headerLabel(t('table.endingBalance'), 180, true)}
             </Table.Tr>
           </Table.Thead>

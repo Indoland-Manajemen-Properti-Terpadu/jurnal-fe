@@ -41,7 +41,7 @@ export const AccountTableRow = ({
   const isParent = children.length > 0;
   const allSelected = selection.selectable > 0 && selection.selected === selection.selectable;
   const partlySelected = selection.selected > 0 && !allSelected;
-  const hasTax = Boolean(account.tax) && account.tax !== '-';
+  const taxName = account.defaultTax?.name;
   const disabledReason = account.isLocked ? t('table.lockedNotSelectable') : t('table.contextRow');
   const ledgerPath = (
     account.isBankAndCash ? routes.accountLedger.cashBank : routes.accountLedger.nonCashBank
@@ -134,8 +134,8 @@ export const AccountTableRow = ({
       </Table.Td>
 
       <Table.Td className={classes.cell}>
-        <Text size="sm" c={hasTax ? undefined : 'dimmed'}>
-          {hasTax ? account.tax : '—'}
+        <Text size="sm" c={taxName ? undefined : 'dimmed'}>
+          {taxName || '—'}
         </Text>
       </Table.Td>
 

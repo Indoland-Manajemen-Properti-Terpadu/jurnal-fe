@@ -14,7 +14,8 @@ interface AccountPreviewCardProps {
   accountType: 'SingleAccount' | 'SubAccount' | 'HeaderAccount' | string;
   parentAccountLabel?: string;
   childAccountLabel?: string;
-  taxType?: string;
+  /** Name of the selected default tax. */
+  taxName?: string;
   desc?: string;
   accessType: string;
   specialUsersCount: number;
@@ -59,7 +60,7 @@ export const AccountPreviewCard: React.FC<AccountPreviewCardProps> = ({
   accountType,
   parentAccountLabel,
   childAccountLabel,
-  taxType,
+  taxName,
   desc,
   accessType,
   specialUsersCount,
@@ -160,9 +161,9 @@ export const AccountPreviewCard: React.FC<AccountPreviewCardProps> = ({
           <Value>{accessLabel}</Value>
         </PreviewRow>
 
-        {taxType && (
+        {taxName && (
           <PreviewRow label={t('form.previewTax')}>
-            <Value>{taxType}</Value>
+            <Value>{taxName}</Value>
           </PreviewRow>
         )}
 

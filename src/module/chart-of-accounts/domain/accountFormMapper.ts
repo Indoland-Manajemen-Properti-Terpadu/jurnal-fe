@@ -7,7 +7,8 @@ interface RawAccountDetail {
   accountNumber?: string;
   category?: { id?: string };
   categoryId?: string;
-  taxType?: string;
+  /** The detail endpoint sends the tax as `{ id, name, rate, taxCode }`. */
+  defaultTax?: { id?: string } | string | null;
   isBankAndCash?: boolean;
   isContra?: boolean;
   isLocked?: boolean;
@@ -42,6 +43,9 @@ export const unwrapAccountDetail = (detail: unknown): RawAccountDetail | undefin
   return inner || (detail as RawAccountDetail);
 };
 
+const defaultTaxId = (tax: RawAccountDetail['defaultTax']): string =>
+  (typeof tax === 'string' ? tax : tax?.id) || '';
+
 const memberId = (member: MemberRef): string | undefined =>
   typeof member === 'string' ? member : member.id || member._id;
 
@@ -52,7 +56,7 @@ export const mapAccountDetailToFormState = (data: RawAccountDetail): AccountForm
       name: data.name || '',
       accountNumber: data.accountNumber || '',
       category: data.category?.id || data.categoryId || '',
-      taxType: data.taxType || '',
+      defaultTax: defaultTaxId(data.defaultTax),
       isBankAndCash: Boolean(data.isBankAndCash),
       isContra: Boolean(data.isContra),
       desc: data.desc || '',
