@@ -1,93 +1,111 @@
-import React, { useEffect, useState } from 'react';
-import { Group, Image, Stack, Text, Title } from '@mantine/core';
+import { useEffect, useState } from 'react';
+import { IconPlayerPause, IconPlayerPlay } from '@tabler/icons-react';
+import { useMediaQuery, useReducedMotion } from '@mantine/hooks';
 import BrandIcon from '@/assets/images/brand/icon.svg';
+import ledgerArt from '@/assets/images/auth/ledger.webp';
+import reportsArt from '@/assets/images/auth/reports.webp';
+import reconciliationArt from '@/assets/images/auth/reconciliation.webp';
 import { useTranslation } from '@/i18n';
-import { ReconciliationSlide, ReportSlide, SyncSlide } from './AuthSlides';
 import classes from './Auth.module.css';
 
 const SLIDES = [
-  { id: 'slide1', Illustration: SyncSlide },
-  { id: 'slide2', Illustration: ReportSlide },
-  { id: 'slide3', Illustration: ReconciliationSlide },
+  { id: 'slide1', artwork: ledgerArt },
+  { id: 'slide2', artwork: reportsArt },
+  { id: 'slide3', artwork: reconciliationArt },
 ] as const;
 
-const INTERVAL_MS = 6500;
-
-/** Left panel of the login page: the brand and three sample previews of the product. */
-export const AuthShowcase: React.FC = () => {
+export function AuthShowcase() {
   const { t } = useTranslation('authentication');
   const [active, setActive] = useState(0);
-  const [paused, setPaused] = useState(false);
+  const [rotationEnabled, setRotationEnabled] = useState(true);
+  const [hovered, setHovered] = useState(false);
+  const [focused, setFocused] = useState(false);
+  const reducedMotion = useReducedMotion();
+  const desktop = useMediaQuery('(min-width: 75em)');
+  const current = SLIDES[active].id;
 
   useEffect(() => {
-    const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-    if (paused || reduceMotion) return undefined;
-    const timer = window.setInterval(
-      () => setActive((index) => (index + 1) % SLIDES.length),
-      INTERVAL_MS
-    );
+    if (!rotationEnabled || hovered || focused || reducedMotion || !desktop) return undefined;
+    const timer = window.setInterval(() => setActive((index) => (index + 1) % SLIDES.length), 8000);
     return () => window.clearInterval(timer);
-  }, [paused]);
+  }, [rotationEnabled, hovered, focused, reducedMotion, desktop]);
 
   return (
     <section
       className={classes.showcase}
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-      onFocus={() => setPaused(true)}
-      onBlur={() => setPaused(false)}
       aria-roledescription="carousel"
       aria-label={t('visual.showcaseLabel')}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onFocus={() => setFocused(true)}
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false);
+      }}
     >
-      <Group gap="sm" style={{ position: 'relative', zIndex: 1 }}>
-        <Image src={BrandIcon} w={36} h={36} radius="md" alt="" />
-        <Text fw={700} fz="md" c="white">
-          {t('visual.brand')}
-        </Text>
-      </Group>
+      <div className={classes.brand}>
+        <img src={BrandIcon} width={36} height={36} alt="" />
+        <span>{t('visual.brand')}</span>
+      </div>
 
-      <div className={classes.stage} style={{ position: 'relative', zIndex: 1 }}>
-        {SLIDES.map(({ id, Illustration }, index) => (
-          <div
+      <div
+        className={classes.heroCopy}
+        aria-live={rotationEnabled ? 'off' : 'polite'}
+        aria-atomic="true"
+      >
+        <p className={classes.eyebrow}>{t('visual.category')}</p>
+        <h2 className={classes.heroTitle}>
+          {t(`${current}.title`)}
+          <span>{t(`${current}.accent`)}</span>
+        </h2>
+        <p className={classes.heroDescription}>{t(`${current}.description`)}</p>
+      </div>
+
+      <div className={classes.artStage} aria-hidden="true">
+        {SLIDES.map(({ id, artwork }, index) => (
+          <img
             key={id}
-            className={classes.slide}
+            className={classes.artwork}
             data-active={index === active}
-            aria-hidden={index !== active}
-            role="group"
-            aria-roledescription="slide"
-          >
-            <div className={classes.scaled}>
-              <Illustration />
-            </div>
-          </div>
+            src={artwork}
+            alt=""
+            width={1536}
+            height={1024}
+            decoding="async"
+          />
         ))}
       </div>
 
-      <Stack gap="xs" style={{ position: 'relative', zIndex: 1 }} mih={150}>
-        <Text fz="xs" fw={600} c="blue.2" tt="uppercase" style={{ letterSpacing: '0.08em' }}>
-          {t('visual.example')}
-        </Text>
-        <Title order={2} fz={30} fw={700} c="white" lh={1.2} maw={460}>
-          {t(`${SLIDES[active].id}.title`)}
-        </Title>
-        <Text fz="md" c="blue.1" maw={460} lh={1.55}>
-          {t(`${SLIDES[active].id}.description`)}
-        </Text>
-      </Stack>
-
-      <Group gap={8} mt="md" style={{ position: 'relative', zIndex: 1 }}>
-        {SLIDES.map(({ id }, index) => (
+      <div className={classes.showcaseFooter}>
+        <div className={classes.slideNavigation}>
+          {SLIDES.map(({ id }, index) => (
+            <button
+              key={id}
+              type="button"
+              className={classes.slideButton}
+              data-active={index === active}
+              aria-label={t('visual.goToSlide', { title: t(`${id}.label`) })}
+              aria-current={index === active}
+              onClick={() => {
+                setActive(index);
+                setRotationEnabled(false);
+              }}
+            >
+              <span className={classes.slideNumber}>{String(index + 1).padStart(2, '0')}</span>
+              {t(`${id}.label`)}
+            </button>
+          ))}
+        </div>
+        {!reducedMotion && (
           <button
-            key={id}
             type="button"
-            className={classes.dot}
-            data-active={index === active}
-            aria-label={t('visual.goToSlide', { n: index + 1 })}
-            aria-current={index === active}
-            onClick={() => setActive(index)}
-          />
-        ))}
-      </Group>
+            className={classes.rotationButton}
+            aria-label={t(rotationEnabled ? 'visual.pause' : 'visual.play')}
+            onClick={() => setRotationEnabled((enabled) => !enabled)}
+          >
+            {rotationEnabled ? <IconPlayerPause size={16} /> : <IconPlayerPlay size={16} />}
+          </button>
+        )}
+      </div>
     </section>
   );
-};
+}
