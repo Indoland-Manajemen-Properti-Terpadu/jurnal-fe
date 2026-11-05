@@ -1,137 +1,62 @@
 import React from 'react';
-import {
-  Box,
-  Button,
-  Group,
-  Image,
-  Paper,
-  Stack,
-  Text,
-  ThemeIcon,
-  UnstyledButton,
-} from '@mantine/core';
+import { Button, Group, Paper, Stack, Text, ThemeIcon } from '@mantine/core';
 import { IconArrowRight } from '@tabler/icons-react';
 import type { Icon } from '@tabler/icons-react';
-
-export interface SettingActionCardTheme {
-  /** Mantine color of the icon badge and, with `buttonColor`, the action button. */
-  iconColor: string;
-  buttonColor: string;
-  selectedBorder: string;
-  selectedBg: string;
-  selectedShadow: string;
-  frameSelected: string;
-  frameIdle: string;
-  frameBorder: string;
-}
+import { SettingHero } from './SettingHero';
+import { SETTING_TONES, type SettingTone } from './settingActionThemes';
+import classes from './SettingModals.module.css';
 
 interface SettingActionCardProps {
-  theme: SettingActionCardTheme;
-  selected: boolean;
-  image: string;
-  imageAlt: string;
+  tone: Exclude<SettingTone, 'done'>;
   icon: Icon;
   title: string;
   description: string;
+  meta: string;
   buttonLabel: string;
-  onSelect: () => void;
   onStart: () => void;
 }
 
-/** One of the three option cards (import, export, reset) of the settings modal. */
+/** One option (import, export, reset) of the settings modal; its button starts the flow directly. */
 export const SettingActionCard: React.FC<SettingActionCardProps> = ({
-  theme,
-  selected,
-  image,
-  imageAlt,
+  tone,
   icon: CardIcon,
   title,
   description,
+  meta,
   buttonLabel,
-  onSelect,
   onStart,
-}) => (
-  <UnstyledButton
-    onClick={onSelect}
-    onDoubleClick={onStart}
-    style={{ width: '100%', height: '100%' }}
-  >
-    <Paper
-      withBorder
-      radius="lg"
-      p="md"
-      h="100%"
-      style={{
-        cursor: 'pointer',
-        transition: 'all 0.25s ease',
-        borderWidth: selected ? 2 : 1,
-        borderColor: selected ? theme.selectedBorder : 'var(--mantine-color-gray-3)',
-        backgroundColor: selected ? theme.selectedBg : 'white',
-        boxShadow: selected
-          ? theme.selectedShadow
-          : '0 2px 8px color-mix(in srgb, var(--mantine-color-black) 4%, transparent)',
-        transform: selected ? 'translateY(-2px)' : undefined,
-      }}
-    >
-      <Stack justify="space-between" h="100%" gap="md">
-        <Box>
-          {/* Top Vector Illustration Frame */}
-          <Box
-            style={{
-              height: 130,
-              width: '100%',
-              borderRadius: 12,
-              background: selected ? theme.frameSelected : theme.frameIdle,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              position: 'relative',
-              overflow: 'hidden',
-              marginBottom: 14,
-              border: theme.frameBorder,
-            }}
-          >
-            <Image
-              src={image}
-              alt={imageAlt}
-              h={90}
-              fit="contain"
-              style={{
-                transition: 'transform 0.3s ease',
-                transform: selected ? 'scale(1.06)' : 'scale(1)',
-              }}
-            />
-          </Box>
-
-          <Group gap={6} align="center" mb={4}>
-            <ThemeIcon size={24} radius="sm" color={theme.iconColor} variant="light">
-              <CardIcon size={14} />
-            </ThemeIcon>
-            <Text fw={700} size="sm" c="dark.9">
-              {title}
-            </Text>
-          </Group>
-
-          <Text size="xs" c="dimmed" lh={1.45}>
-            {description}
+}) => {
+  const { color } = SETTING_TONES[tone];
+  return (
+    <Paper withBorder radius="lg" p="md" bg="white" className={classes.card}>
+      <SettingHero tone={tone} height={128} />
+      <Stack gap="xs" mt="md" style={{ flex: 1 }}>
+        <Group gap="xs" wrap="nowrap">
+          <ThemeIcon size={28} radius="md" color={color} variant="light">
+            <CardIcon size={16} />
+          </ThemeIcon>
+          <Text fw={700} fz="sm" c="dark.9">
+            {title}
           </Text>
-        </Box>
-
-        <Button
-          variant={selected ? 'filled' : 'light'}
-          color={theme.buttonColor}
-          size="xs"
-          radius="md"
-          fullWidth
-          rightSection={<IconArrowRight size={14} />}
-          onClick={(e) => {
-            e.stopPropagation();
-            onStart();
-          }}
-        >
-          {buttonLabel}
-        </Button>
+        </Group>
+        <Text fz="sm" c="dimmed" lh={1.5}>
+          {description}
+        </Text>
+        <Text fz="xs" c="gray.7" fw={500} mt="auto">
+          {meta}
+        </Text>
       </Stack>
+      <Button
+        variant="light"
+        color={color}
+        radius="md"
+        fullWidth
+        mt="md"
+        rightSection={<IconArrowRight size={16} />}
+        onClick={onStart}
+      >
+        {buttonLabel}
+      </Button>
     </Paper>
-  </UnstyledButton>
-);
+  );
+};

@@ -29,9 +29,10 @@ describe('import wizard steps (i18n)', () => {
 
   it('renders the preview summary in Indonesian with the counts filled in', () => {
     render(<ImportPreviewStep {...previewProps} />);
-    expect(screen.getByText('Total: 3 Baris')).toBeInTheDocument();
-    expect(screen.getByText('2 Siap Diimpor')).toBeInTheDocument();
-    expect(screen.getByText('1 Perlu Koreksi')).toBeInTheDocument();
+    expect(screen.getByText('Total Baris')).toBeInTheDocument();
+    expect(screen.getByText('Siap Diimpor')).toBeInTheDocument();
+    expect(screen.getByText('Perlu Koreksi')).toBeInTheDocument();
+    expect(screen.getByText('Nomor akun duplikat')).toBeInTheDocument();
     expect(
       screen.getByText(/Terdapat 1 baris akun yang tidak memenuhi validasi/)
     ).toBeInTheDocument();
@@ -41,8 +42,8 @@ describe('import wizard steps (i18n)', () => {
   it('renders the same screen in English', () => {
     setLanguage('en');
     render(<ImportPreviewStep {...previewProps} />);
-    expect(screen.getByText('Total: 3 Rows')).toBeInTheDocument();
-    expect(screen.getByText('2 Ready to Import')).toBeInTheDocument();
+    expect(screen.getByText('Total Rows')).toBeInTheDocument();
+    expect(screen.getByText('Ready to Import')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Save & Import \(2 Accounts\)/ })).toBeEnabled();
   });
 

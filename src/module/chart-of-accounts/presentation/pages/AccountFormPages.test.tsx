@@ -15,6 +15,9 @@ vi.mock('@/module/user-management', () => ({
   useUsers: () => ({ data: { results: [] }, isLoading: false }),
   useRoles: () => ({ data: [], isLoading: false }),
 }));
+vi.mock('../hooks/useTaxOptions', () => ({
+  useTaxOptions: () => ({ options: [{ value: 't1', label: 'PPN 11%' }], isLoading: false }),
+}));
 vi.mock('../hooks/useCategoryAccounts', () => ({
   useCategoryAccounts: () => ({
     data: [
@@ -83,7 +86,7 @@ describe('AddAccountPage rules (characterization: I6)', () => {
       name: 'Bank Operasional',
       accountNumber: '1-10001',
       category: 'c-kb',
-      taxType: undefined,
+      defaultTax: null,
       isContra: false,
       desc: undefined,
       isAllUser: true,
@@ -136,7 +139,7 @@ describe('EditAccountPage rules (characterization: I6, I7)', () => {
       name: 'Kas Kecil',
       accountNumber: '1-10002',
       category: 'c-kb',
-      taxType: undefined,
+      defaultTax: null,
       isBankAndCash: true,
       isContra: false,
       desc: undefined,

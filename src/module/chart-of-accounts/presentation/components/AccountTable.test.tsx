@@ -30,7 +30,14 @@ const accounts = [
     id: 'hutang',
     name: 'Hutang Usaha',
     accountNumber: '2-10000',
-    subAccount: [account({ id: 'vendor', name: 'Hutang Vendor', accountNumber: '2-10001' })],
+    subAccount: [
+      account({
+        id: 'vendor',
+        name: 'Hutang Vendor',
+        accountNumber: '2-10001',
+        defaultTax: { id: 't1', name: 'PPN 11%', rate: 11 },
+      }),
+    ],
   }),
 ];
 
@@ -55,6 +62,13 @@ const selectedIds = () =>
     .getState()
     .selectedRecords.map((r) => r.id)
     .sort();
+
+describe('AccountTable default tax', () => {
+  it('shows the name of the default tax in the tax column', () => {
+    render(<Harness initial={{ ...allFilter, search: 'Vendor' }} />);
+    expect(screen.getByText('PPN 11%')).toBeInTheDocument();
+  });
+});
 
 describe('AccountTable selection', () => {
   beforeEach(() => useAccountStore.getState().setSelectedRecords([]));

@@ -21,8 +21,6 @@ import type { AccountFormValues } from '@/module/chart-of-accounts/domain/buildA
 import { SYMMETRIC_INPUT_STYLES } from './accountFormStyles';
 import { AccountPresetPicker } from './AccountPresetPicker';
 
-const TAX_CODES = ['PPN', 'PPH', 'PPNBM', 'PBB'];
-
 interface AccountIdentitySectionProps {
   form: UseFormReturnType<AccountFormValues>;
   categoryOptions: { group: string; items: { value: string; label: string }[] }[];
@@ -33,6 +31,9 @@ interface AccountIdentitySectionProps {
   hasSuggestedDiff: boolean;
   selectedCategoryObj?: CategoryAccountModel;
   isIncomeStatementCategory: boolean;
+  /** Taxes from the tax settings, as `{ value: id, label }`. */
+  taxOptions: { value: string; label: string }[];
+  isLoadingTaxes?: boolean;
   /** Quick templates, offered only when creating an account. */
   applyPreset?: (presetKey: string) => void;
 }
@@ -47,10 +48,11 @@ export const AccountIdentitySection: React.FC<AccountIdentitySectionProps> = ({
   hasSuggestedDiff,
   selectedCategoryObj,
   isIncomeStatementCategory,
+  taxOptions,
+  isLoadingTaxes = false,
   applyPreset,
 }) => {
   const { t } = useTranslation('chartOfAccounts');
-  const taxOptions = TAX_CODES.map((code) => ({ value: code, label: t(`form.tax${code}`) }));
 
   return (
     <Paper withBorder radius="md" p="lg" bg="white" shadow="none">
@@ -149,10 +151,13 @@ export const AccountIdentitySection: React.FC<AccountIdentitySectionProps> = ({
               placeholder={t('form.fieldTaxPlaceholder')}
               data={taxOptions}
               clearable
+              searchable
+              disabled={isLoadingTaxes}
+              nothingFoundMessage={t('form.fieldTaxEmpty')}
               leftSection={<IconReceiptTax size={16} />}
               rightSection={<IconChevronDown size={16} />}
               styles={SYMMETRIC_INPUT_STYLES}
-              {...form.getInputProps('taxType')}
+              {...form.getInputProps('defaultTax')}
             />
           </Grid.Col>
 
