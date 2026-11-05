@@ -3,7 +3,7 @@ import { Stack, Table, Text } from '@mantine/core';
 import { gradientColors, themeColors } from '@/theme';
 import { formatCurrency } from '@/utils/formatCurrency';
 import { useTrialBalanceReport } from '@/module/reports/presentation/hooks/useTrialBalanceReport';
-import { NotFound } from '@/components/ErrorPage/NotFound';
+import { ReportUnavailable } from '@/module/reports/presentation/components/shared/ReportUnavailable';
 import { Account, Reports } from '@/module/reports/domain/TrialBalanceReport.types';
 import { useTranslation } from '@/i18n';
 
@@ -14,10 +14,10 @@ interface TrialBalanceTableProps {
 
 const TrialBalanceTable: React.FC<TrialBalanceTableProps> = ({ fromDate, toDate }) => {
   const { t } = useTranslation('reports');
-  const { data: report, isError } = useTrialBalanceReport(fromDate, toDate);
+  const { data: report, isError, refetch } = useTrialBalanceReport(fromDate, toDate);
 
   if (isError) {
-    return <NotFound />;
+    return <ReportUnavailable embedded onRetry={() => refetch()} />;
   }
 
   if (!report?.data.length) {
