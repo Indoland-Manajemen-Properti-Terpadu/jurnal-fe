@@ -1,61 +1,47 @@
 import { useState } from 'react';
-import { Box, Button, Grid, Stack } from '@mantine/core';
-import { IconArrowLeft, IconReceipt2 } from '@tabler/icons-react';
+import { Alert, Box, Button, Grid, Stack } from '@mantine/core';
+import { IconArrowLeft, IconInfoCircle, IconReceipt2 } from '@tabler/icons-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { AppShellLayout } from '@/components/AppShellLayout';
 import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
+import { useTranslation } from '@/i18n';
 import { routes } from '@/router/routes';
 import type { CreateSalePaymentPayload } from '../../domain/sale';
-import { invoiceFilename } from '../../domain/saleFormat';
 import { PaySaleModal } from '../components/PaySaleModal';
+import { SaleActionBar } from '../components/detail/SaleActionBar';
 import { SaleDetailError, SaleDetailLoading } from '../components/detail/SaleDetailStates';
 import { SaleItemsCard } from '../components/detail/SaleItemsCard';
 import { SaleNotesCard } from '../components/detail/SaleNotesCard';
 import { SaleOverviewCard } from '../components/detail/SaleOverviewCard';
 import { SaleSidebar } from '../components/detail/SaleSidebar';
 import { useSaleDisplay } from '../hooks/useSaleDisplay';
-import {
-  useCreateSalePayment,
-  useDownloadInvoicePdf,
-  useGenerateInvoiceLink,
-  useSaleDetail,
-} from '../hooks/useSaleQueries';
+import { useCreateSalePayment } from '../hooks/useSaleMutations';
+import { useSaleDetail } from '../hooks/useSaleQueries';
 
 export function SaleDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const display = useSaleDisplay();
   const { t } = display;
-  const [payModalOpened, setPayModalOpened] = useState(false);
+  const { t: ts } = useTranslation('sales');
+  const [payOpened, setPayOpened] = useState(false);
   const { data: sale, isLoading, isError, refetch } = useSaleDetail(id);
-  const payMutation = useCreateSalePayment(id);
-  const generateLinkMutation = useGenerateInvoiceLink();
-  const downloadPdfMutation = useDownloadInvoicePdf();
+  const payMutation = useCreateSalePayment();
 
   const goBack = () => navigate(routes.sales.main);
 
   const handlePaySubmit = async (payload: CreateSalePaymentPayload) => {
     await payMutation.mutateAsync(payload);
-    setPayModalOpened(false);
-    refetch();
-  };
-  const handleGenerateLink = async () => {
-    if (!sale) return;
-    await generateLinkMutation.mutateAsync(sale.id);
-    refetch();
-  };
-  const handleDownloadPdf = async () => {
-    if (!sale) return;
-    await downloadPdfMutation.mutateAsync({
-      id: sale.id,
-      filename: invoiceFilename(sale.transactionNumber),
-    });
+    setPayOpened(false);
   };
 
   if (isLoading) return <SaleDetailLoading />;
   if (isError || !sale) {
     return <SaleDetailError display={display} onBack={goBack} onRetry={() => refetch()} />;
   }
+
+  const { code } = sale.displayStatus;
+  const note = code === 'DRAFT' ? 'view.draftNote' : code === 'VOID' ? 'view.voidNote' : null;
 
   return (
     <AppShellLayout>
@@ -75,14 +61,15 @@ export function SaleDetailPage() {
               </Button>
             }
           />
+          {note && (
+            <Alert color="gray" variant="light" radius="md" icon={<IconInfoCircle size={18} />}>
+              {ts(note)}
+            </Alert>
+          )}
           <SaleOverviewCard
             sale={sale}
             display={display}
-            isDownloading={downloadPdfMutation.isPending}
-            isGeneratingLink={generateLinkMutation.isPending}
-            onDownloadPdf={handleDownloadPdf}
-            onGenerateLink={handleGenerateLink}
-            onRecordPayment={() => setPayModalOpened(true)}
+            actions={<SaleActionBar sale={sale} onPay={() => setPayOpened(true)} />}
           />
           <Grid gutter="lg" align="flex-start">
             <Grid.Col span={{ base: 12, lg: 8 }}>
@@ -98,10 +85,10 @@ export function SaleDetailPage() {
         </Stack>
       </Box>
       <PaySaleModal
-        opened={payModalOpened}
+        opened={payOpened}
         sale={sale}
         isSubmitting={payMutation.isPending}
-        onClose={() => setPayModalOpened(false)}
+        onClose={() => setPayOpened(false)}
         onSubmit={handlePaySubmit}
       />
     </AppShellLayout>

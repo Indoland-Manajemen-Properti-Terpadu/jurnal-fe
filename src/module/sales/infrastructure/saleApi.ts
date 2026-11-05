@@ -1,7 +1,7 @@
 import axios from 'axios';
 import apiClient from '@/lib/http/apiClient';
-import { roundToCents } from '../domain/saleMoney';
 import { mapSaleDto, mapSalePaymentDetail, mapSalePaymentMethod } from './saleMapper';
+import { buildPaymentFormData, buildSaleFormData } from './salePayloads';
 import type { SaleDto, SalePaymentDetailDto, SalePaymentMethodDto } from './saleDto';
 import type {
   CreateSaleFormValues,
@@ -11,14 +11,20 @@ import type {
   SaleListParams,
   SalePaymentDetail,
   SalePaymentMethod,
+  SendSaleResult,
 } from '../domain/sale';
 
 export const SALE_ENDPOINTS = {
   sales: '/v1/sales',
   saleDetail: (id: string) => `/v1/sales/${id}`,
   saleByTxNumber: (txNumber: string) => `/v1/sales/transaction/${txNumber}`,
+  send: (id: string) => `/v1/sales/${id}/send`,
+  void: (id: string) => `/v1/sales/${id}/void`,
   generateInvoiceLink: (id: string) => `/v1/sales/${id}/invoice-link`,
   downloadInvoice: (id: string) => `/v1/sales/${id}/print`,
+  publicInvoice: (token: string) => `/v1/sales/public/${token}`,
+  receivablesSummary: '/v1/sales/receivables/summary',
+  statusCounts: '/v1/sales/status-counts',
   salePayments: '/v1/sale-payments',
   salePaymentDetail: (id: string) => `/v1/sale-payments/${id}`,
   paymentMethods: '/v1/payment-methods',
@@ -34,15 +40,18 @@ type PaginatedDto<T> = {
   data: T[];
   pagination: { total: number; page: number; limit: number; totalPages: number };
 };
+type SendDto = SaleDto & { emailSent?: boolean; emailError?: string };
 
-// Nominal amounts are money and are rounded to the cent; percentages are rates and stay as typed.
-const discountValuePayload = (values: CreateSaleFormValues): number =>
-  values.discountType === 'nominal' ? roundToCents(values.discountValue) : values.discountValue;
+const MULTIPART = { headers: { 'Content-Type': 'multipart/form-data' } };
 
-const withholdingValuePayload = (values: CreateSaleFormValues): number =>
-  values.withholdingType === 'nominal'
-    ? roundToCents(values.withholdingValue)
-    : values.withholdingValue;
+const paymentStatusParam = (value: SaleListParams['paymentStatus']): string | undefined =>
+  Array.isArray(value) ? value.join(',') : value || undefined;
+
+const mapSendResult = (dto: SendDto | undefined): SendSaleResult => ({
+  sale: mapSaleDto(dto),
+  emailSent: Boolean(dto?.emailSent),
+  emailError: dto?.emailError || '',
+});
 
 /* API Calls */
 export const fetchSales = async (params: SaleListParams = {}): Promise<Paginated<Sale>> => {
@@ -52,6 +61,10 @@ export const fetchSales = async (params: SaleListParams = {}): Promise<Paginated
       limit: params.limit || 10,
       search: params.search?.trim() || undefined,
       status: params.status && params.status !== 'all' ? params.status : undefined,
+      paymentStatus: paymentStatusParam(params.paymentStatus),
+      excludeDraft: params.excludeDraft || undefined,
+      sortBy: params.sortBy || undefined,
+      sortOrder: params.sortBy ? params.sortOrder : undefined,
       startDate: params.startDate || undefined,
       endDate: params.endDate || undefined,
       customerId: params.customerId || undefined,
@@ -83,61 +96,53 @@ export const fetchSaleByTxNumber = async (txNumber: string): Promise<Sale> => {
   return mapSaleDto(data.data);
 };
 
-export const createSale = async (values: CreateSaleFormValues): Promise<Sale> => {
-  const formData = new FormData();
-  formData.append('customer', values.customer);
+/** Creates an invoice: a draft, or a sent invoice (which also emails the customer). */
+export const createSale = async (
+  values: CreateSaleFormValues,
+  mode: 'draft' | 'send'
+): Promise<SendSaleResult> => {
+  const { data } = await apiClient.post<ApiEnvelope<SendDto>>(
+    SALE_ENDPOINTS.sales,
+    buildSaleFormData(values, mode),
+    MULTIPART
+  );
+  return mapSendResult(data.data);
+};
 
-  if (values.transactionDate) formData.append('transactionDate', values.transactionDate);
-  if (values.dueDate) formData.append('dueDate', values.dueDate);
-  if (values.billingAddress) formData.append('billingAddress', values.billingAddress);
-  if (values.transactionNumber) formData.append('transactionNumber', values.transactionNumber);
-  if (values.customerRefNumber) formData.append('customerRefNumber', values.customerRefNumber);
-  if (values.paymentTerm) formData.append('paymentTerm', values.paymentTerm);
-  formData.append('isPriceIncludeTax', String(values.isPriceIncludeTax));
-
-  values.emails.forEach((email) => {
-    if (email.trim()) formData.append('emails[]', email.trim());
-  });
-
-  values.tags.forEach((tag) => {
-    if (tag.trim()) formData.append('tags[]', tag.trim());
-  });
-
-  values.items.forEach((item, index) => {
-    formData.append(`items[${index}][product]`, item.productId);
-    if (item.description) formData.append(`items[${index}][description]`, item.description);
-    formData.append(`items[${index}][quantity]`, String(item.quantity));
-    formData.append(`items[${index}][unitPrice]`, String(roundToCents(item.unitPrice)));
-    if (item.taxId) formData.append(`items[${index}][tax]`, item.taxId);
-  });
-
-  if (values.discountType && values.discountValue > 0) {
-    formData.append('discountType', values.discountType);
-    formData.append('discountValue', String(discountValuePayload(values)));
-  }
-
-  if (values.withholdingAccount && values.withholdingValue > 0) {
-    formData.append('withholdingType', values.withholdingType);
-    formData.append('withholdingValue', String(withholdingValuePayload(values)));
-    formData.append('withholdingAccount', values.withholdingAccount);
-  }
-
-  if (values.message) formData.append('message', values.message);
-  if (values.memo) formData.append('memo', values.memo);
-
-  if (values.attachments && values.attachments.length > 0) {
-    values.attachments.forEach((file) => {
-      formData.append('attachments', file);
-    });
-  }
-
-  const { data } = await apiClient.post<ApiEnvelope<SaleDto>>(SALE_ENDPOINTS.sales, formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-  });
-
+/** Updates a draft; the status is never sent (the backend refuses a status change here). */
+export const updateSale = async (id: string, values: CreateSaleFormValues): Promise<Sale> => {
+  const { data } = await apiClient.put<ApiEnvelope<SaleDto>>(
+    SALE_ENDPOINTS.saleDetail(id),
+    buildSaleFormData(values, 'update'),
+    MULTIPART
+  );
   return mapSaleDto(data.data);
 };
 
+/** Issues a draft (journal + status) or, on an issued invoice, only resends the email. */
+export const sendSale = async (id: string, sendEmail: boolean): Promise<SendSaleResult> => {
+  const { data } = await apiClient.post<ApiEnvelope<SendDto>>(SALE_ENDPOINTS.send(id), {
+    sendEmail,
+  });
+  return mapSendResult(data.data);
+};
+
+export const voidSale = async (id: string, reason: string): Promise<Sale> => {
+  const { data } = await apiClient.put<ApiEnvelope<SaleDto>>(SALE_ENDPOINTS.void(id), { reason });
+  return mapSaleDto(data.data);
+};
+
+export const deleteSale = async (id: string): Promise<void> => {
+  await apiClient.delete(SALE_ENDPOINTS.saleDetail(id));
+};
+
+/** Public view of an invoice from its emailed link; needs no sign-in. */
+export const fetchPublicInvoice = async (token: string): Promise<Sale> => {
+  const { data } = await apiClient.get<ApiEnvelope<SaleDto>>(SALE_ENDPOINTS.publicInvoice(token));
+  return mapSaleDto(data.data);
+};
+
+/** The backend returns the link's token, not a URL; the caller builds the address. */
 export const generateInvoiceLink = async (id: string): Promise<string> => {
   const { data } = await apiClient.post<ApiEnvelope<{ invoiceLink?: string }>>(
     SALE_ENDPOINTS.generateInvoiceLink(id)
@@ -154,11 +159,11 @@ export const downloadInvoicePdf = async (id: string): Promise<Blob> => {
 
 /* Payment API */
 export const createSalePayment = async (payload: CreateSalePaymentPayload): Promise<unknown> => {
-  const body =
-    typeof payload.amount === 'number'
-      ? { ...payload, amount: roundToCents(payload.amount) }
-      : payload;
-  const { data } = await apiClient.post<ApiEnvelope<unknown>>(SALE_ENDPOINTS.salePayments, body);
+  const { data } = await apiClient.post<ApiEnvelope<unknown>>(
+    SALE_ENDPOINTS.salePayments,
+    buildPaymentFormData(payload),
+    MULTIPART
+  );
   return data.data;
 };
 
@@ -174,6 +179,16 @@ export const fetchPaymentMethods = async (): Promise<SalePaymentMethod[]> => {
     SALE_ENDPOINTS.paymentMethods
   );
   return (data.data?.data || []).map(mapSalePaymentMethod);
+};
+
+export type SaleTagOption = { id: string; name: string; color?: string };
+
+export const fetchSaleTags = async (): Promise<SaleTagOption[]> => {
+  const { data } = await apiClient.get<ApiEnvelope<{ data: SaleTagOption[] }>>(
+    SALE_ENDPOINTS.tags,
+    { params: { limit: 100 } }
+  );
+  return (data.data?.data || []).map(({ id, name, color }) => ({ id, name, color }));
 };
 
 export const getApiErrorMessage = (error: unknown, fallback: string): string => {

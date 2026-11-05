@@ -1,141 +1,109 @@
-import { useMemo, useState } from 'react';
-import {
-  ActionIcon,
-  Box,
-  Button,
-  Group,
-  LoadingOverlay,
-  Paper,
-  Stack,
-  Tabs,
-  TextInput,
-  Tooltip,
-} from '@mantine/core';
+import { useEffect, useReducer, useState } from 'react';
+import { ActionIcon, Box, Button, Group, Paper, Stack, Tabs, Text, Tooltip } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
-import {
-  IconAlertTriangle,
-  IconCheck,
-  IconClock,
-  IconFileText,
-  IconPlus,
-  IconReceipt2,
-  IconRefresh,
-  IconSearch,
-  IconX,
-} from '@tabler/icons-react';
+import { IconFileText, IconPlus, IconReceipt2, IconRefresh, IconSend } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { AppShellLayout } from '@/components/AppShellLayout';
 import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
 import { useTranslation } from '@/i18n';
-import { CreateSaleModal } from '../components/CreateSaleModal';
-import { PaySaleModal } from '../components/PaySaleModal';
-import { SaleStatsGrid } from '../components/SaleStatsGrid';
-import { SaleTable } from '../components/SaleTable';
+import { routes } from '@/router/routes';
+import type { CreateSalePaymentPayload, Sale, SaleDisplayCode } from '../../domain/sale';
+import { formatCount, invoiceFilename } from '../../domain/saleFormat';
 import {
-  useCreateSale,
+  dateFilter,
+  hasActiveFilters,
+  initialListState,
+  listParams,
+  saleListReducer,
+} from '../../domain/saleListState';
+import type { SaleTab } from '../../domain/saleStatus';
+import { PaySaleModal } from '../components/PaySaleModal';
+import { SaleFilters } from '../components/list/SaleFilters';
+import type { SaleRowHandlers } from '../components/list/SaleRowActions';
+import { ReceivablesPanel } from '../components/list/ReceivablesPanel';
+import { SaleTable } from '../components/SaleTable';
+import { ConfirmModal } from '../components/shared/ConfirmModal';
+import {
+  useCopyInvoiceLink,
   useCreateSalePayment,
+  useDeleteSale,
   useDownloadInvoicePdf,
-  useGenerateInvoiceLink,
-  useSales,
-} from '../hooks/useSaleQueries';
-import type { CreateSaleFormValues, CreateSalePaymentPayload, Sale } from '../../domain/sale';
-import { invoiceFilename } from '../../domain/saleFormat';
-import { filterSalesByTab, summarizeSales } from '../../domain/saleTotals';
+  useSendSale,
+} from '../hooks/useSaleMutations';
+import { useSaleReceivables, useSaleStatusCounts, useSales } from '../hooks/useSaleQueries';
+
+const detailPath = (id: string) => routes.sales.detail.replace(':id', id);
+const editPath = (id: string) => routes.sales.edit.replace(':id', id);
 
 export function SaleMainPage() {
   const navigate = useNavigate();
   const { t } = useTranslation('sales');
 
-  // State filters & pagination
+  const [state, dispatch] = useReducer(saleListReducer, initialListState);
   const [searchInput, setSearchInput] = useState('');
   const [debouncedSearch] = useDebouncedValue(searchInput, 400);
-  const [activeTab, setActiveTab] = useState<string>('all');
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
+  useEffect(() => {
+    dispatch({ type: 'search', value: debouncedSearch });
+  }, [debouncedSearch]);
 
-  // Modals state
-  const [createModalOpened, setCreateModalOpened] = useState(false);
-  const [payModalOpened, setPayModalOpened] = useState(false);
-  const [selectedSaleForPay, setSelectedSaleForPay] = useState<Sale | null>(null);
+  const [payTarget, setPayTarget] = useState<Sale | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Sale | null>(null);
+  const [sendTarget, setSendTarget] = useState<Sale | null>(null);
 
-  // Query: if tab is OVERDUE, do not pass OVERDUE as status to API (since API only accepts real status strings or none)
-  const apiStatusParam = useMemo(() => {
-    if (activeTab === 'all' || activeTab === 'OVERDUE') return undefined;
-    return activeTab;
-  }, [activeTab]);
+  const dates = dateFilter(state.range);
+  const salesQuery = useSales(listParams(state));
+  const summaryQuery = useSaleReceivables(dates);
+  const countsQuery = useSaleStatusCounts({ search: state.search.trim() || undefined, ...dates });
 
-  // Queries
-  const salesQuery = useSales({
-    page,
-    limit,
-    search: debouncedSearch.trim() || undefined,
-    status: apiStatusParam,
-  });
+  const payMutation = useCreateSalePayment();
+  const sendMutation = useSendSale();
+  const deleteMutation = useDeleteSale();
+  const copyLink = useCopyInvoiceLink();
+  const downloadPdf = useDownloadInvoicePdf();
 
-  // Mutations
-  const createMutation = useCreateSale();
-  const payMutation = useCreateSalePayment(selectedSaleForPay?.id);
-  const generateLinkMutation = useGenerateInvoiceLink();
-  const downloadPdfMutation = useDownloadInvoicePdf();
-
-  const rawSalesList = salesQuery.data?.items || [];
+  const sales = salesQuery.data?.items ?? [];
   const pagination = salesQuery.data?.pagination;
-  const total = pagination?.total || 0;
-  const totalPages = pagination?.totalPages || 1;
+  const counts = countsQuery.data;
+  const isFiltered = hasActiveFilters(state);
 
-  // Filter items in client-side to guarantee accuracy for calculated states like OVERDUE or case-insensitive DRAFT
-  const salesList = useMemo(
-    () => filterSalesByTab(rawSalesList, activeTab, Date.now()),
-    [rawSalesList, activeTab]
-  );
-
-  // Aggregate stats from current items
-  const stats = useMemo(
-    () => ({ totalCount: total, ...summarizeSales(rawSalesList, Date.now()) }),
-    [rawSalesList, total]
-  );
-
-  const handleTabChange = (val: string | null) => {
-    setActiveTab(val || 'all');
-    setPage(1);
+  const resetFilters = () => {
+    setSearchInput('');
+    dispatch({ type: 'reset' });
   };
 
-  const handleViewDetail = (sale: Sale) => {
-    navigate(`/sales/${sale.id}`);
+  const showStatus = (value: SaleDisplayCode) => {
+    dispatch({ type: 'tab', tab: 'sent' });
+    dispatch({ type: 'status', value });
   };
 
-  const handleOpenPay = (sale: Sale) => {
-    setSelectedSaleForPay(sale);
-    setPayModalOpened(true);
-  };
-
-  const handleCreateSubmit = async (values: CreateSaleFormValues) => {
-    await createMutation.mutateAsync(values);
-    setCreateModalOpened(false);
+  const handlers: SaleRowHandlers = {
+    onView: (sale) => navigate(detailPath(sale.id)),
+    onEdit: (sale) => navigate(editPath(sale.id)),
+    onDelete: setDeleteTarget,
+    onSend: setSendTarget,
+    onResend: (sale) => sendMutation.mutate({ id: sale.id, sendEmail: true, resend: true }),
+    onPay: setPayTarget,
+    onCopyLink: (sale) => copyLink.mutate(sale.id),
+    onDownloadPdf: (sale) =>
+      downloadPdf.mutate({ id: sale.id, filename: invoiceFilename(sale.transactionNumber) }),
   };
 
   const handlePaySubmit = async (payload: CreateSalePaymentPayload) => {
     await payMutation.mutateAsync(payload);
-    setPayModalOpened(false);
-    setSelectedSaleForPay(null);
+    setPayTarget(null);
   };
 
-  const handleGenerateLink = async (sale: Sale) => {
-    await generateLinkMutation.mutateAsync(sale.id);
-  };
-
-  const handleDownloadPdf = async (sale: Sale) => {
-    await downloadPdfMutation.mutateAsync({
-      id: sale.id,
-      filename: invoiceFilename(sale.transactionNumber),
-    });
-  };
+  const tabCount = (count?: number) =>
+    count === undefined ? null : (
+      <Text component="span" fz="xs" fw={600} style={{ opacity: 0.75 }}>
+        {formatCount(count)}
+      </Text>
+    );
 
   return (
     <AppShellLayout>
       <Box p={{ base: 'md', sm: 'xl' }}>
         <Stack gap="lg">
-          {/* Header */}
           <ModuleHeader
             icon={IconReceipt2}
             title={t('page.title')}
@@ -147,18 +115,21 @@ export function SaleMainPage() {
                     variant="default"
                     size="lg"
                     radius="md"
-                    onClick={() => salesQuery.refetch()}
+                    onClick={() => {
+                      salesQuery.refetch();
+                      summaryQuery.refetch();
+                      countsQuery.refetch();
+                    }}
                     loading={salesQuery.isFetching}
                     aria-label={t('page.refreshAria')}
                   >
                     <IconRefresh size={18} />
                   </ActionIcon>
                 </Tooltip>
-
                 <Button
                   color="primary"
                   leftSection={<IconPlus size={18} />}
-                  onClick={() => setCreateModalOpened(true)}
+                  onClick={() => navigate(routes.sales.add)}
                 >
                   {t('page.create')}
                 </Button>
@@ -166,118 +137,108 @@ export function SaleMainPage() {
             }
           />
 
-          {/* KPI Stats Grid */}
-          <SaleStatsGrid
-            totalCount={stats.totalCount}
-            totalAmount={stats.totalAmount}
-            paidAmount={stats.paidAmount}
-            remainingAmount={stats.remainingAmount}
-            overdueCount={stats.overdueCount}
+          <ReceivablesPanel
+            summary={summaryQuery.data}
+            isLoading={summaryQuery.isLoading}
+            range={state.range}
+            onShowStatus={showStatus}
           />
 
-          {/* Main Table Tabs */}
           <Paper withBorder radius="lg" p="md" bg="white">
             <Tabs
-              value={activeTab}
-              onChange={handleTabChange}
+              value={state.tab}
+              onChange={(value) => dispatch({ type: 'tab', tab: (value as SaleTab) || 'draft' })}
               color="primary"
               variant="pills"
               radius="md"
             >
               <Tabs.List mb="md">
-                <Tabs.Tab value="all" leftSection={<IconReceipt2 size={16} />}>
-                  {t('page.tabAll')}
+                <Tabs.Tab
+                  value="draft"
+                  leftSection={<IconFileText size={16} />}
+                  rightSection={tabCount(counts?.DRAFT)}
+                >
+                  {t('tabs.draft')}
                 </Tabs.Tab>
-                <Tabs.Tab value="UNPAID" leftSection={<IconClock size={16} />}>
-                  {t('page.tabUnpaid')}
-                </Tabs.Tab>
-                <Tabs.Tab value="PAID" leftSection={<IconCheck size={16} />}>
-                  {t('page.tabPaid')}
-                </Tabs.Tab>
-                <Tabs.Tab value="DRAFT" leftSection={<IconFileText size={16} />}>
-                  {t('page.tabDraft')}
-                </Tabs.Tab>
-                <Tabs.Tab value="OVERDUE" leftSection={<IconAlertTriangle size={16} />}>
-                  {t('page.tabOverdue')}
+                <Tabs.Tab
+                  value="sent"
+                  leftSection={<IconSend size={16} />}
+                  rightSection={tabCount(counts?.sent)}
+                >
+                  {t('tabs.sent')}
                 </Tabs.Tab>
               </Tabs.List>
 
               <Stack gap="md">
-                {/* Search & Filter Bar */}
-                <Group justify="space-between" wrap="wrap" gap="sm">
-                  <TextInput
-                    placeholder={t('page.searchPlaceholder')}
-                    leftSection={<IconSearch size={16} />}
-                    rightSection={
-                      searchInput ? (
-                        <ActionIcon
-                          size="xs"
-                          variant="subtle"
-                          color="gray"
-                          onClick={() => setSearchInput('')}
-                          aria-label={t('page.clearSearch')}
-                        >
-                          <IconX size={12} />
-                        </ActionIcon>
-                      ) : null
-                    }
-                    value={searchInput}
-                    onChange={(e) => {
-                      setSearchInput(e.currentTarget.value);
-                      setPage(1);
-                    }}
-                    w={{ base: '100%', sm: 380 }}
-                  />
-                </Group>
-
-                {/* Table with Loading Overlay */}
-                <Box pos="relative">
-                  <LoadingOverlay
-                    visible={salesQuery.isFetching && !salesQuery.isLoading}
-                    overlayProps={{ blur: 1 }}
-                  />
-                  <SaleTable
-                    sales={salesList}
-                    isLoading={salesQuery.isLoading}
-                    page={page}
-                    totalPages={totalPages}
-                    total={total}
-                    limit={limit}
-                    onPageChange={setPage}
-                    onLimitChange={(newLimit) => {
-                      setLimit(newLimit);
-                      setPage(1);
-                    }}
-                    onViewDetail={handleViewDetail}
-                    onPaySale={handleOpenPay}
-                    onGenerateLink={handleGenerateLink}
-                    onDownloadPdf={handleDownloadPdf}
-                    onCreateNew={() => setCreateModalOpened(true)}
-                  />
-                </Box>
+                <SaleFilters
+                  tab={state.tab}
+                  searchInput={searchInput}
+                  onSearchInput={setSearchInput}
+                  status={state.status}
+                  onStatus={(value) => dispatch({ type: 'status', value })}
+                  range={state.range}
+                  onRange={(value) => dispatch({ type: 'range', value })}
+                  isFiltered={isFiltered}
+                  onReset={resetFilters}
+                />
+                <SaleTable
+                  sales={sales}
+                  tab={state.tab}
+                  isLoading={salesQuery.isLoading}
+                  isError={salesQuery.isError}
+                  isFiltered={isFiltered}
+                  page={state.page}
+                  totalPages={pagination?.totalPages || 1}
+                  total={pagination?.total || 0}
+                  limit={state.limit}
+                  handlers={handlers}
+                  onPageChange={(value) => dispatch({ type: 'page', value })}
+                  onLimitChange={(value) => dispatch({ type: 'limit', value })}
+                  onRetry={() => salesQuery.refetch()}
+                  onCreateNew={() => navigate(routes.sales.add)}
+                />
               </Stack>
             </Tabs>
           </Paper>
         </Stack>
       </Box>
 
-      {/* Create Sale Modal */}
-      <CreateSaleModal
-        opened={createModalOpened}
-        isSubmitting={createMutation.isPending}
-        onClose={() => setCreateModalOpened(false)}
-        onSubmit={handleCreateSubmit}
+      <ConfirmModal
+        opened={deleteTarget !== null}
+        tone="danger"
+        loading={deleteMutation.isPending}
+        title={t('confirm.deleteTitle')}
+        message={t('confirm.deleteMessage', { number: deleteTarget?.transactionNumber ?? '' })}
+        confirmLabel={t('confirm.deleteConfirm')}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={async () => {
+          if (!deleteTarget) return;
+          await deleteMutation.mutateAsync(deleteTarget.id).catch(() => undefined);
+          setDeleteTarget(null);
+        }}
       />
 
-      {/* Pay Sale Modal */}
-      <PaySaleModal
-        opened={payModalOpened}
-        sale={selectedSaleForPay}
-        isSubmitting={payMutation.isPending}
-        onClose={() => {
-          setPayModalOpened(false);
-          setSelectedSaleForPay(null);
+      <ConfirmModal
+        opened={sendTarget !== null}
+        loading={sendMutation.isPending}
+        title={t('confirm.sendTitle', { number: sendTarget?.transactionNumber ?? '' })}
+        message={t('confirm.sendMessage')}
+        confirmLabel={t('confirm.sendConfirm')}
+        onClose={() => setSendTarget(null)}
+        onConfirm={async () => {
+          if (!sendTarget) return;
+          await sendMutation
+            .mutateAsync({ id: sendTarget.id, sendEmail: true })
+            .catch(() => undefined);
+          setSendTarget(null);
         }}
+      />
+
+      <PaySaleModal
+        opened={payTarget !== null}
+        sale={payTarget}
+        isSubmitting={payMutation.isPending}
+        onClose={() => setPayTarget(null)}
         onSubmit={handlePaySubmit}
       />
     </AppShellLayout>

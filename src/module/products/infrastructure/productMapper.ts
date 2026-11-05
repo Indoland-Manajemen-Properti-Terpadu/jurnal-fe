@@ -41,6 +41,7 @@ export const mapProduct = (dto: ProductDto): Product => {
     sku: dto.sku || dto.SKU || '',
     image: dto.image ?? null,
     externalCode: dto.external_code ?? dto.externalCode ?? null,
+    unit: typeof dto.unit === 'string' ? dto.unit || null : (dto.unit?.name ?? null),
     category: categoryRaw
       ? {
           id: categoryRaw.id || categoryRaw._id || '',

@@ -64,6 +64,8 @@ export type Product = {
   sku: string;
   image: string | null;
   externalCode: string | null;
+  /** Name of the product's unit (Jam, Bulan, ...), when it has one. */
+  unit: string | null;
   category: Pick<ProductCategory, 'id' | 'name'> | null;
   buyingInfo: BuyingInfo;
   sellingInfo: SellingInfo;

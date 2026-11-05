@@ -1,47 +1,33 @@
-import { ActionIcon, Badge, CopyButton, Group, Menu, Table, Text, Tooltip } from '@mantine/core';
-import {
-  IconCheck,
-  IconCopy,
-  IconDotsVertical,
-  IconDownload,
-  IconEye,
-  IconLink,
-  IconReceipt2,
-} from '@tabler/icons-react';
+import { ActionIcon, Button, CopyButton, Group, Table, Text, Tooltip } from '@mantine/core';
+import { IconCheck, IconCopy } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import type { Sale } from '../../domain/sale';
-import { formatDate, formatIDR, getSaleStatusConfig } from '../../domain/saleFormat';
-import { isPastDue } from '../../domain/saleTotals';
+import { formatDate, formatIDR } from '../../domain/saleFormat';
+import type { SaleTab } from '../../domain/saleStatus';
+import { SaleRowActions, type SaleRowHandlers } from './list/SaleRowActions';
+import { SaleStatusBadge } from './shared/SaleStatusBadge';
 
 type SaleTableRowProps = {
   sale: Sale;
-  onViewDetail: (sale: Sale) => void;
-  onPaySale: (sale: Sale) => void;
-  onGenerateLink?: (sale: Sale) => void;
-  onDownloadPdf?: (sale: Sale) => void;
+  tab: SaleTab;
+  handlers: SaleRowHandlers;
 };
 
-export function SaleTableRow({
-  sale,
-  onViewDetail,
-  onPaySale,
-  onGenerateLink,
-  onDownloadPdf,
-}: Readonly<SaleTableRowProps>) {
+export function SaleTableRow({ sale, tab, handlers }: Readonly<SaleTableRowProps>) {
   const { t } = useTranslation('sales');
-  const statusCfg = getSaleStatusConfig(sale.status);
-  const isOverdue = isPastDue(sale, Date.now());
+  const isOverdue = sale.displayStatus.code === 'OVERDUE';
+  const isDraft = tab === 'draft';
 
   return (
-    <Table.Tr style={{ cursor: 'pointer' }} onClick={() => onViewDetail(sale)}>
-      <Table.Td onClick={(e) => e.stopPropagation()}>
+    <Table.Tr style={{ cursor: 'pointer' }} onClick={() => handlers.onView(sale)}>
+      <Table.Td onClick={(event) => event.stopPropagation()}>
         <Group gap={6} wrap="nowrap">
           <Text
             size="sm"
             fw={700}
             c="primary.9"
             style={{ cursor: 'pointer' }}
-            onClick={() => onViewDetail(sale)}
+            onClick={() => handlers.onView(sale)}
           >
             {sale.transactionNumber}
           </Text>
@@ -80,90 +66,54 @@ export function SaleTableRow({
       </Table.Td>
 
       <Table.Td>
-        <Text size="sm" c="dark.7">
+        <Text size="sm" c="dark.7" style={{ whiteSpace: 'nowrap' }}>
           {formatDate(sale.transactionDate)}
         </Text>
       </Table.Td>
 
       <Table.Td>
-        <Text size="sm" fw={isOverdue ? 700 : 400} c={isOverdue ? 'red.7' : 'dark.7'}>
+        <Text
+          size="sm"
+          fw={isOverdue ? 700 : 400}
+          c={isOverdue ? 'red.7' : 'dark.7'}
+          style={{ whiteSpace: 'nowrap' }}
+        >
           {formatDate(sale.dueDate)}
         </Text>
-        {isOverdue && (
-          <Badge size="xs" color="red" variant="light">
-            {t('table.overdueBadge')}
-          </Badge>
-        )}
       </Table.Td>
 
       <Table.Td ta="right">
-        <Text size="sm" fw={700} c="dark.8">
+        <Text size="sm" fw={700} c="dark.8" style={{ fontVariantNumeric: 'tabular-nums' }}>
           {formatIDR(sale.finalAmount)}
         </Text>
-        {sale.discountAmount && sale.discountAmount > 0 ? (
-          <Text size="xs" c="dimmed">
-            {t('table.discount', { amount: formatIDR(sale.discountAmount) })}
-          </Text>
-        ) : null}
       </Table.Td>
 
-      <Table.Td ta="right">
-        <Text size="sm" fw={700} c={sale.remainingAmount > 0 ? 'orange.8' : 'teal.8'}>
-          {formatIDR(sale.remainingAmount)}
-        </Text>
-        {sale.paidAmount > 0 && (
-          <Text size="xs" c="teal.7">
-            {t('table.paidAmount', { amount: formatIDR(sale.paidAmount) })}
+      {!isDraft && (
+        <Table.Td ta="right">
+          <Text size="sm" fw={700} c="dark.8" style={{ fontVariantNumeric: 'tabular-nums' }}>
+            {formatIDR(sale.remainingAmount)}
           </Text>
-        )}
-      </Table.Td>
+          {sale.paidAmount > 0 && (
+            <Text size="xs" c="dimmed" style={{ fontVariantNumeric: 'tabular-nums' }}>
+              {t('table.paidAmount', { amount: formatIDR(sale.paidAmount) })}
+            </Text>
+          )}
+        </Table.Td>
+      )}
 
       <Table.Td ta="center">
-        <Badge size="sm" radius="sm" color={statusCfg.color} variant={statusCfg.variant || 'light'}>
-          {t(`status.${statusCfg.labelKey}`)}
-        </Badge>
+        <SaleStatusBadge status={sale.displayStatus} />
       </Table.Td>
 
-      <Table.Td ta="center" onClick={(e) => e.stopPropagation()}>
-        <Menu position="bottom-end" shadow="md" width={180}>
-          <Menu.Target>
-            <ActionIcon
-              variant="subtle"
-              color="gray"
-              radius="md"
-              aria-label={t('table.actionsAria')}
-            >
-              <IconDotsVertical size={16} />
-            </ActionIcon>
-          </Menu.Target>
-          <Menu.Dropdown>
-            <Menu.Item leftSection={<IconEye size={16} />} onClick={() => onViewDetail(sale)}>
-              {t('table.view')}
-            </Menu.Item>
-            {sale.remainingAmount > 0 && (
-              <Menu.Item
-                leftSection={<IconReceipt2 size={16} />}
-                color="primary"
-                onClick={() => onPaySale(sale)}
-              >
-                {t('table.pay')}
-              </Menu.Item>
-            )}
-            {onGenerateLink && (
-              <Menu.Item leftSection={<IconLink size={16} />} onClick={() => onGenerateLink(sale)}>
-                {t('table.link')}
-              </Menu.Item>
-            )}
-            {onDownloadPdf && (
-              <Menu.Item
-                leftSection={<IconDownload size={16} />}
-                onClick={() => onDownloadPdf(sale)}
-              >
-                {t('table.pdf')}
-              </Menu.Item>
-            )}
-          </Menu.Dropdown>
-        </Menu>
+      <Table.Td ta="center" onClick={(event) => event.stopPropagation()}>
+        <Group gap={4} justify="center" wrap="nowrap">
+          {isDraft && sale.canEdit && (
+            <Button size="compact-sm" variant="light" onClick={() => handlers.onSend(sale)}>
+              {t('actions.send')}
+            </Button>
+          )}
+          <SaleRowActions sale={sale} handlers={handlers} />
+        </Group>
       </Table.Td>
     </Table.Tr>
   );

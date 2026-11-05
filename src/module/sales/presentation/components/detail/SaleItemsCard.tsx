@@ -216,8 +216,12 @@ export function SaleItemsCard({ sale, display }: Readonly<{ sale: Sale; display:
         )}
         <Divider my="xs" />
         <AmountRow label={t('invoiceTotal')} amount={money(sale.finalAmount)} emphasis />
-        <AmountRow label={t('paid')} amount={money(sale.paidAmount)} />
-        <AmountRow label={t('remaining')} amount={money(sale.remainingAmount)} emphasis />
+        {sale.displayStatus.code !== 'DRAFT' && sale.displayStatus.code !== 'VOID' && (
+          <>
+            <AmountRow label={t('paid')} amount={money(sale.paidAmount)} />
+            <AmountRow label={t('remaining')} amount={money(sale.remainingAmount)} emphasis />
+          </>
+        )}
       </Box>
     </Paper>
   );
