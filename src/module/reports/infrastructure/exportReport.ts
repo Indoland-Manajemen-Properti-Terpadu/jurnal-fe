@@ -1,5 +1,6 @@
 import apiClient from '@/lib/http/apiClient';
 import { notifications } from '@mantine/notifications';
+import { isRequestCanceled } from './requestCancel';
 
 interface ExportReportParams {
   url: string; // The endpoint for the report
@@ -9,6 +10,7 @@ interface ExportReportParams {
   filenamePrefix: string; // Prefix for the default filename
   errorNoData?: string; // Custom error message for no data
   errorExportFailed?: string; // Custom error message for export failure
+  signal?: AbortSignal; // Aborts the download (leaving the page, a new export)
 }
 
 const getFilenameFromContentDisposition = (
@@ -27,11 +29,13 @@ export const exportReport = async ({
   filenamePrefix,
   errorNoData = 'No data received from the server.',
   errorExportFailed = 'Failed to export the report. Please try again.',
+  signal,
 }: ExportReportParams) => {
   try {
     const response = await apiClient.get<Blob>(url, {
       params: { fromDate, toDate, type },
       responseType: 'blob',
+      signal,
     });
     if (!response || !response.data) {
       throw new Error(errorNoData);
@@ -54,7 +58,9 @@ export const exportReport = async ({
 
     document.body.removeChild(link);
     window.URL.revokeObjectURL(urlObject);
-  } catch {
+  } catch (error) {
+    // An aborted download is the user's own action, not a failure.
+    if (isRequestCanceled(error)) return;
     notifications.show({ color: 'red', message: errorExportFailed });
   }
 };

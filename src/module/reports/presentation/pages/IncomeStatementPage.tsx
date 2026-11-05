@@ -8,6 +8,7 @@ import FilterDate from '@/module/reports/presentation/components/shared/FilterDa
 import ExportMenu from '@/module/reports/presentation/components/shared/ExportMenu';
 import { REPORT_EXPORT_ENDPOINTS } from '@/module/reports/infrastructure/reportEndpoints';
 import { exportReport } from '@/module/reports/infrastructure/exportReport';
+import { useAbortableRequest } from '@/module/reports/presentation/hooks/useAbortableRequest';
 
 import { useTranslation } from '@/i18n';
 import { notifications } from '@mantine/notifications';
@@ -19,6 +20,7 @@ const PAPER_PROPS = {
 };
 const IncomeStatementPage = () => {
   const { t } = useTranslation('reports');
+  const exportRequest = useAbortableRequest();
   const [fromDate, setFromDate] = useState<string | undefined>();
   const [toDate, setToDate] = useState<string | undefined>();
 
@@ -43,6 +45,7 @@ const IncomeStatementPage = () => {
         filenamePrefix: 'IncomeStatement',
         errorNoData: t('common.exportNoData'),
         errorExportFailed: t('common.exportBalanceSheetFailed'),
+        signal: exportRequest.start(),
       });
     } catch (error) {
       notifications.show({ color: 'red', message: t('common.exportRetry') });

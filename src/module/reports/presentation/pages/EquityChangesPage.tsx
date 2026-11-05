@@ -5,6 +5,7 @@ import { AppShellLayout } from '@/components/AppShellLayout';
 import EquityChangesTable from '@/module/reports/presentation/components/equity-changes/EquityChangesTable';
 import { useState } from 'react';
 import { exportReport } from '@/module/reports/infrastructure/exportReport';
+import { useAbortableRequest } from '@/module/reports/presentation/hooks/useAbortableRequest';
 import { REPORT_EXPORT_ENDPOINTS } from '@/module/reports/infrastructure/reportEndpoints';
 import ExportMenu from '@/module/reports/presentation/components/shared/ExportMenu';
 import FilterDate from '@/module/reports/presentation/components/shared/FilterDate';
@@ -19,6 +20,7 @@ const PAPER_PROPS = {
 };
 const EquityChangesPage = () => {
   const { t } = useTranslation('reports');
+  const exportRequest = useAbortableRequest();
   const [fromDate, setFromDate] = useState<string | undefined>();
   const [toDate, setToDate] = useState<string | undefined>();
 
@@ -43,6 +45,7 @@ const EquityChangesPage = () => {
         filenamePrefix: 'IncomeStatement',
         errorNoData: t('common.exportNoData'),
         errorExportFailed: t('common.exportBalanceSheetFailed'),
+        signal: exportRequest.start(),
       });
     } catch (error) {
       notifications.show({ color: 'red', message: t('common.exportRetry') });
