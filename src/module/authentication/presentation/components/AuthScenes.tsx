@@ -35,7 +35,13 @@ export const Pill: React.FC<PillProps> = ({ id, left, right }) => (
     <g clipPath={`url(#${id}-clip)`}>
       <rect width={320} height={400} fill={`url(#${id}-l)`} />
       <rect x={320} width={320} height={400} fill={`url(#${id}-r)`} />
-      <ellipse cx={320} cy={392} rx={300} ry={26} fill="rgba(0,0,0,0.08)" />
+      <ellipse
+        cx={320}
+        cy={392}
+        rx={300}
+        ry={26}
+        fill="color-mix(in srgb, var(--mantine-color-black) 8%, transparent)"
+      />
     </g>
   </svg>
 );
@@ -97,10 +103,20 @@ export const Binders: React.FC<{ width?: number }> = ({ width = 230 }) => {
             width={56}
             height={20}
             rx={5}
-            fill="rgba(255,255,255,0.85)"
+            fill="color-mix(in srgb, var(--mantine-color-white) 85%, transparent)"
           />
-          <circle cx={22} cy={row.y + 20} r={8} fill="rgba(0,0,0,0.25)" />
-          <circle cx={22} cy={row.y + 20} r={4} fill="rgba(255,255,255,0.7)" />
+          <circle
+            cx={22}
+            cy={row.y + 20}
+            r={8}
+            fill="color-mix(in srgb, var(--mantine-color-black) 25%, transparent)"
+          />
+          <circle
+            cx={22}
+            cy={row.y + 20}
+            r={4}
+            fill="color-mix(in srgb, var(--mantine-color-white) 70%, transparent)"
+          />
         </g>
       ))}
     </svg>
@@ -120,7 +136,7 @@ export const Bank: React.FC<{ width?: number }> = ({ width = 190 }) => (
         width={22}
         height={72}
         rx={5}
-        fill="rgba(255,255,255,0.92)"
+        fill="color-mix(in srgb, var(--mantine-color-white) 92%, transparent)"
       />
     ))}
     <rect x={8} y={136} width={174} height={12} rx={4} fill={c('primary', 6)} />
@@ -149,7 +165,7 @@ export const FlowLine: React.FC<{ width: number }> = ({ width }) => (
       y1={6}
       x2={width}
       y2={6}
-      stroke="rgba(255,255,255,0.9)"
+      stroke="color-mix(in srgb, var(--mantine-color-white) 90%, transparent)"
       strokeWidth={3}
       strokeLinecap="round"
       strokeDasharray="2 10"
