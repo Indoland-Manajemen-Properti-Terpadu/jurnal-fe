@@ -9,13 +9,16 @@ import {
   deleteProduct,
   deleteUnit,
   fetchAccountOptions,
+  fetchAllProducts,
   fetchCategories,
   fetchProduct,
   fetchProducts,
   fetchTaxes,
   fetchUnits,
   getApiErrorMessage,
+  updateCategory,
   updateProduct,
+  updateUnit,
 } from '@/module/products/infrastructure/productApi';
 import type {
   MasterDataInput,
@@ -27,6 +30,7 @@ import type {
 
 export const productKeys = {
   all: ['products'] as const,
+  everything: ['products', 'all'] as const,
   list: (params: ProductListParams) => ['products', 'list', params] as const,
   detail: (id: string) => ['products', 'detail', id] as const,
   categories: ['product-categories'] as const,
@@ -55,6 +59,9 @@ export const useProducts = (params: ProductListParams) =>
     queryFn: () => fetchProducts(params),
     placeholderData: keepPreviousData,
   });
+
+export const useAllProducts = () =>
+  useQuery({ queryKey: productKeys.everything, queryFn: fetchAllProducts });
 
 export const useProduct = (id: string | undefined) =>
   useQuery({
@@ -109,6 +116,7 @@ export const useDeleteProduct = () => {
 const useMasterDataMutations = <T>(
   key: readonly string[],
   create: (input: MasterDataInput) => Promise<T>,
+  update: (id: string, input: MasterDataInput) => Promise<T>,
   remove: (id: string) => Promise<void>,
   labelKey: 'notify.categoryLabel' | 'notify.unitLabel'
 ) => {
@@ -125,6 +133,15 @@ const useMasterDataMutations = <T>(
     },
     onError: (error) => notifyError(error, tp('notify.masterAddFailed', { label: tp(labelKey) })),
   });
+  const updateMutation = useMutation({
+    mutationFn: ({ id, input }: { id: string; input: MasterDataInput }) => update(id, input),
+    onSuccess: () => {
+      invalidate();
+      notifySuccess(tp('notify.masterUpdated', { label: tp(labelKey) }));
+    },
+    onError: (error) =>
+      notifyError(error, tp('notify.masterUpdateFailed', { label: tp(labelKey) })),
+  });
   const deleteMutation = useMutation({
     mutationFn: remove,
     onSuccess: () => {
@@ -134,13 +151,14 @@ const useMasterDataMutations = <T>(
     onError: (error) =>
       notifyError(error, tp('notify.masterDeleteFailed', { label: tp(labelKey) })),
   });
-  return { createMutation, deleteMutation };
+  return { createMutation, updateMutation, deleteMutation };
 };
 
 export const useCategoryMutations = () =>
   useMasterDataMutations<ProductCategory>(
     productKeys.categories,
     createCategory,
+    updateCategory,
     deleteCategory,
     'notify.categoryLabel'
   );
@@ -149,6 +167,7 @@ export const useUnitMutations = () =>
   useMasterDataMutations<ProductUnit>(
     productKeys.units,
     createUnit,
+    updateUnit,
     deleteUnit,
     'notify.unitLabel'
   );

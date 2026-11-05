@@ -22,7 +22,6 @@ export const reportsCommon = {
     show: 'Tampilkan',
     fromDate: 'Dari Tanggal',
     toDate: 'Sampai Tanggal',
-    quickPeriod: 'Periode Cepat:',
     thisMonthId: 'Bulan Ini',
     lastMonthId: 'Bulan Lalu',
     thisQuarterId: 'Kuartal Ini',
@@ -69,5 +68,13 @@ export const reportsCommon = {
     selectDateRange: 'Select start date and end date',
     startDatePeriod: 'Start Date Period',
     endDatePeriod: 'End Date Period',
+    periodLabel: 'Periode',
+    unavailableTitle: 'Laporan ini belum tersedia',
+    unavailableDescription:
+      'Data laporan ini belum dapat ditampilkan saat ini. Coba lagi nanti, atau buka laporan lain di Pusat Laporan.',
+    backToReportCenter: 'Kembali ke Pusat Laporan',
+    backToReports: 'Kembali',
+    cancelExport: 'Batalkan',
+    exportCanceled: 'Ekspor dibatalkan.',
   },
 };

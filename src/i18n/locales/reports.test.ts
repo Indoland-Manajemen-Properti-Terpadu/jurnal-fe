@@ -1,6 +1,7 @@
 import {
   reportCatalogData,
   reportCategories,
+  reportSections,
 } from '@/module/reports/presentation/components/catalog/reportCatalogData';
 import { reports as en } from './en/reports';
 import { reports as id } from './id/reports';
@@ -41,8 +42,8 @@ describe('reports i18n namespace', () => {
         item.titleKey,
         item.englishTitleKey,
         item.descriptionKey,
-        ...(item.badgeKey ? [item.badgeKey] : []),
       ]),
+      ...reportSections.flatMap((section) => [section.titleKey, section.hintKey]),
     ];
 
     expect(keys.filter((key) => !(key in idFlat))).toEqual([]);

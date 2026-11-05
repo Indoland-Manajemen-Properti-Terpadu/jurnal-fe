@@ -4,7 +4,7 @@ const values = {
   name: '  Kas Kecil ',
   accountNumber: ' 1-10001 ',
   category: 'c1',
-  taxType: '',
+  defaultTax: '',
   isBankAndCash: true,
   isContra: false,
   desc: '  ',
@@ -24,7 +24,7 @@ describe('buildAccountPayload', () => {
       name: 'Kas Kecil',
       accountNumber: '1-10001',
       category: 'c1',
-      taxType: undefined,
+      defaultTax: null,
       isBankAndCash: true,
       isContra: false,
       desc: undefined,
@@ -82,5 +82,10 @@ describe('buildAccountPayload', () => {
       subAccountId: 's1',
       isAllUser: true,
     });
+  });
+
+  it('sends the default tax id, or null to clear it', () => {
+    expect(buildAccountPayload({ ...values, defaultTax: 't1' }, single).defaultTax).toBe('t1');
+    expect(buildAccountPayload(values, single).defaultTax).toBeNull();
   });
 });

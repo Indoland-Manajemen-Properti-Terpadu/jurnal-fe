@@ -5,7 +5,7 @@ import { formatCurrency } from '@/utils/formatCurrency';
 import { useIncomeStatementReport } from '@/module/reports/presentation/hooks/useIncomeStatementReport';
 import EmptyState from '@/components/EmptyState/EmptyTable';
 import { IncomeStatementReport } from '@/module/reports/domain/IncomeStatement.types';
-import { NotFound } from '@/components/ErrorPage/NotFound';
+import { ReportUnavailable } from '@/module/reports/presentation/components/shared/ReportUnavailable';
 import ReportHeaderPeriod from '@/module/reports/presentation/components/shared/ReportHeaderPeriod';
 
 import { useTranslation } from '@/i18n';
@@ -34,9 +34,10 @@ const IncomeStatementTable: React.FC<IncomeStatementTableProps> = ({ fromDate, t
     data: reports,
     isError,
     isLoading,
+    refetch,
   } = useIncomeStatementReport({ fromDate: fromDate!, toDate: toDate! });
   if (isError) {
-    return <NotFound />;
+    return <ReportUnavailable embedded onRetry={() => refetch()} />;
   }
 
   if (isLoading) {

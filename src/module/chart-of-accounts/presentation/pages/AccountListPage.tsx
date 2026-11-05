@@ -235,7 +235,7 @@ const GeneralJournalPage: React.FC = () => {
       <SettingAccountModal
         opened={modals.settingAccount}
         onClose={() => closeModal('settingAccount')}
-        totalAccounts={journalAccounts.length}
+        totalAccounts={stats.total}
       />
       <BeginningBalanceModal
         opened={modals.beginningBalance}

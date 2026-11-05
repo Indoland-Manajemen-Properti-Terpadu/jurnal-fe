@@ -5,7 +5,8 @@ export interface AddAccountPayload {
   isBankAndCash?: boolean;
   isContra?: boolean;
   desc?: string;
-  taxType?: string;
+  /** Tax id; `null` clears it on update. */
+  defaultTax?: string | null;
   isAllUser: boolean;
   allowedUsers?: string[];
   allowedRoles?: string[];

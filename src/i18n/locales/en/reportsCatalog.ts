@@ -1,25 +1,18 @@
 export const reportsCatalog = {
   catalog: {
     categoryAll: 'All Reports',
-    categoryFinancial: 'Main Financial Statements',
-    categoryLedger: 'Books & Transaction Journals',
-    categoryManagement: 'Budget & Analysis',
-    tabLedger: 'Books & Journals',
     generalLedgerTitle: 'General Ledger',
     generalLedgerEnglish: 'General Ledger',
     generalLedgerDescription:
       'Trace debit and credit movements and the running balance of every account in full detail within one accounting period.',
-    badgeLive: 'Active & Real-time',
     balanceSheetTitle: 'Balance Sheet',
     balanceSheetEnglish: 'Balance Sheet',
     balanceSheetDescription:
       "Shows the company's financial position, covering total assets, liabilities and equity at a point in time.",
-    badgePsak: 'PSAK Standard',
     incomeStatementTitle: 'Income Statement',
     incomeStatementEnglish: 'Income Statement / Profit & Loss',
     incomeStatementDescription:
       'Summary of operating revenue less all operating expenses to calculate net profit or loss for the selected period.',
-    badgePopular: 'Popular',
     trialBalanceTitle: 'Trial Balance',
     trialBalanceEnglish: 'Trial Balance',
     trialBalanceDescription:
@@ -47,25 +40,21 @@ export const reportsCatalog = {
     pageTitle: 'Financial Reports Center',
     pageSubtitle:
       'Access every summary of financial performance, cash movement, general ledger and transaction journal in one transparent, integrated place.',
-    heroBadge: 'Integrated Financial Reporting System',
     heroTitle: 'Accurate, Real-Time Reports for Fast Business Decisions',
     heroDescription:
       'Designed to follow Indonesian Financial Accounting Standards (SAK). Get full visibility into the balance sheet, cash flow, income statement and the debit-credit audit trail in the General Ledger.',
-    openLedger: 'Open General Ledger',
-    viewFinancialReports: 'View Financial Reports',
-    statTotal: 'Total Reports',
-    statModule: 'Modules',
-    statSync: 'Sync Status',
-    statSyncValue: 'Live Sync',
-    statExport: 'Export Formats',
-    statExportValue: 'PDF & XLSX',
-    statStandard: 'Bookkeeping Standard',
-    statStandardValue: 'Double Entry',
     notFound: 'Report Not Found',
-    featured: 'FEATURED',
     openReport: 'Open Report',
     searchPlaceholder: 'Search financial reports...',
     noMatch:
       'No reports match the keyword "{{query}}". Try another search term or choose the All Reports category.',
+    sectionFinancial: 'Financial Statements',
+    sectionFinancialHint: 'The financial position and performance of the company',
+    sectionLedger: 'Ledgers & Journals',
+    sectionLedgerHint: 'Movement details and transaction records',
+    sectionManagement: 'Budget & Analysis',
+    sectionManagementHint: 'Comparisons and summaries for management',
+    statusSoon: 'Coming soon',
+    reportCount: '{{count}} reports',
   },
 };

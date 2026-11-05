@@ -1,27 +1,39 @@
 import React, { useState } from 'react';
 import {
   Alert,
-  Box,
   Button,
   Checkbox,
   Group,
-  Image,
   Modal,
   Paper,
   Stack,
   Text,
   ThemeIcon,
 } from '@mantine/core';
-import { IconAlertTriangle, IconRotateClockwise } from '@tabler/icons-react';
-import ImageRestore from '@/assets/images/illustrations/settings-account-restore.svg';
+import {
+  IconAlertTriangle,
+  IconListDetails,
+  IconRotateClockwise,
+  IconScale,
+  IconTrash,
+} from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import { useAccountSettings } from '../../hooks/useAccountSettings';
+import { SettingDoneView } from './SettingDoneView';
+import { SettingHero } from './SettingHero';
+import { SettingModalHeader } from './SettingModalHeader';
 
 interface RestoreAccountModalProps {
   opened: boolean;
   onClose: () => void;
   onSuccess?: () => void;
 }
+
+const IMPACTS = [
+  { key: 'impact1', icon: IconListDetails },
+  { key: 'impact2', icon: IconTrash },
+  { key: 'impact3', icon: IconScale },
+] as const;
 
 export const RestoreAccountModal: React.FC<RestoreAccountModalProps> = ({
   opened,
@@ -31,13 +43,14 @@ export const RestoreAccountModal: React.FC<RestoreAccountModalProps> = ({
   const { t } = useTranslation('chartOfAccounts');
   const { resetAccounts, isResetting } = useAccountSettings();
   const [confirmed, setConfirmed] = useState(false);
+  const [done, setDone] = useState(false);
 
   const handleReset = async () => {
     if (!confirmed) return;
     try {
       await resetAccounts();
       setConfirmed(false);
-      onClose();
+      setDone(true);
       onSuccess?.();
     } catch {
       // Error handled in hook notification
@@ -46,6 +59,7 @@ export const RestoreAccountModal: React.FC<RestoreAccountModalProps> = ({
 
   const handleClose = () => {
     setConfirmed(false);
+    setDone(false);
     onClose();
   };
 
@@ -54,98 +68,81 @@ export const RestoreAccountModal: React.FC<RestoreAccountModalProps> = ({
       opened={opened}
       onClose={handleClose}
       title={
-        <Group gap="sm" align="center">
-          <ThemeIcon size={34} radius="md" color="red" variant="light">
-            <IconRotateClockwise size={18} />
-          </ThemeIcon>
-          <Box>
-            <Text fw={700} size="sm" c="dark.9">
-              {t('settings.restore.title')}
-            </Text>
-            <Text size="xs" c="dimmed">
-              {t('settings.restore.subtitle')}
-            </Text>
-          </Box>
-        </Group>
+        <SettingModalHeader
+          tone="restore"
+          icon={IconRotateClockwise}
+          title={t('settings.restore.title')}
+          subtitle={t('settings.restore.subtitle')}
+        />
       }
       size="lg"
-      radius="md"
+      radius="lg"
+      padding="lg"
       centered
     >
-      <Stack gap="md" mt="xs">
-        <Box
-          style={{
-            height: 124,
-            borderRadius: 12,
-            background:
-              'linear-gradient(145deg, var(--mantine-color-rose-0) 0%, var(--mantine-color-rose-1) 100%)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            border: '1px solid color-mix(in srgb, var(--mantine-color-rose-6) 15%, transparent)',
-          }}
-        >
-          <Image src={ImageRestore} alt={t('settings.restore.alt')} h={88} fit="contain" />
-        </Box>
+      {done ? (
+        <SettingDoneView
+          title={t('settings.restore.doneTitle')}
+          description={t('settings.restore.doneBody')}
+          closeLabel={t('settings.restore.doneClose')}
+          onClose={handleClose}
+        />
+      ) : (
+        <Stack gap="md" mt="xs">
+          <SettingHero tone="restore" height={140} />
 
-        <Alert
-          icon={<IconAlertTriangle size={18} />}
-          color="red"
-          variant="light"
-          radius="md"
-          title={t('settings.restore.warnTitle')}
-        >
-          {t('settings.restore.warnBody')}
-        </Alert>
+          <Alert
+            icon={<IconAlertTriangle size={18} />}
+            color="red"
+            variant="light"
+            radius="md"
+            title={t('settings.restore.warnTitle')}
+          >
+            {t('settings.restore.warnBody')}
+          </Alert>
 
-        <Paper withBorder radius="md" p="md" bg="gray.0">
-          <Stack gap="xs">
-            <Text size="xs" fw={700} tt="uppercase" c="dimmed">
+          <Paper withBorder radius="lg" p="md" bg="white">
+            <Text fz="xs" fw={600} c="dimmed" tt="uppercase" mb="xs">
               {t('settings.restore.impactTitle')}
             </Text>
-            <Text size="xs" c="dark.7">
-              {t('settings.restore.impact1')}
-            </Text>
-            <Text size="xs" c="dark.7">
-              {t('settings.restore.impact2')}
-            </Text>
-            <Text size="xs" c="dark.7">
-              {t('settings.restore.impact3')}
-            </Text>
-          </Stack>
-        </Paper>
+            <Stack gap="xs">
+              {IMPACTS.map(({ key, icon: ImpactIcon }) => (
+                <Group key={key} gap="sm" wrap="nowrap" align="flex-start">
+                  <ThemeIcon size={26} radius="md" color="gray" variant="light">
+                    <ImpactIcon size={15} />
+                  </ThemeIcon>
+                  <Text fz="sm" c="dark.7" lh={1.5}>
+                    {t(`settings.restore.${key}`)}
+                  </Text>
+                </Group>
+              ))}
+            </Stack>
+          </Paper>
 
-        <Checkbox
-          checked={confirmed}
-          onChange={(e) => setConfirmed(e.currentTarget.checked)}
-          label={t('settings.restore.confirm')}
-          color="red"
-          size="sm"
-        />
-
-        <Group justify="flex-end" gap="sm" mt="sm">
-          <Button
-            variant="default"
-            size="sm"
-            radius="md"
-            onClick={handleClose}
-            disabled={isResetting}
-          >
-            {t('settings.restore.cancel')}
-          </Button>
-          <Button
+          <Checkbox
+            checked={confirmed}
+            onChange={(event) => setConfirmed(event.currentTarget.checked)}
+            label={t('settings.restore.confirm')}
             color="red"
-            size="sm"
-            radius="md"
-            leftSection={<IconRotateClockwise size={16} />}
-            onClick={handleReset}
-            disabled={!confirmed}
-            loading={isResetting}
-          >
-            {t('settings.restore.reset')}
-          </Button>
-        </Group>
-      </Stack>
+          />
+
+          <Group justify="flex-end" gap="sm">
+            <Button variant="default" radius="md" onClick={handleClose} disabled={isResetting}>
+              {t('settings.restore.cancel')}
+            </Button>
+            <Button
+              color="red"
+              radius="md"
+              leftSection={<IconRotateClockwise size={16} />}
+              onClick={handleReset}
+              disabled={!confirmed}
+              loading={isResetting}
+            >
+              {t('settings.restore.reset')}
+            </Button>
+          </Group>
+        </Stack>
+      )}
     </Modal>
   );
 };

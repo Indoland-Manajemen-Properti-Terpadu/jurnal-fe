@@ -1,7 +1,10 @@
 import React from 'react';
-import { Badge, Box, Group, ScrollArea, Table, Text } from '@mantine/core';
+import { Box, Collapse, Group, ScrollArea, Table, Text, UnstyledButton } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
+import { IconChevronDown } from '@tabler/icons-react';
 import type { BalanceSheetAccountItem } from '@/module/reports/domain/balanceSheet.types';
-import { formatMoney } from '@/module/reports/domain/reportFormat';
+import { formatMoney, percentOf } from '@/module/reports/domain/reportFormat';
+import classes from '@/module/reports/presentation/components/shared/ReportShared.module.css';
 
 import { useTranslation } from '@/i18n';
 
@@ -9,122 +12,128 @@ interface BalanceSheetAccountTableProps {
   title: string;
   accounts: BalanceSheetAccountItem[];
   subtotal: number;
-  subtotalLabel?: string;
-  subtotalColor?: string;
+  /** Total of the side this group belongs to; draws the group's share of it as a thin bar. */
+  sideTotal?: number;
   emptyText?: string;
 }
 
+/** Negative balances show in parentheses, as in a printed statement. */
+const signedMoney = (value: number) =>
+  value < 0 ? `(${formatMoney(Math.abs(value))})` : formatMoney(value);
+
+/** One group of a balance sheet side. The header carries the subtotal, so a collapsed group still reads. */
 export const BalanceSheetAccountTable: React.FC<BalanceSheetAccountTableProps> = ({
   title,
   accounts,
   subtotal,
-  subtotalLabel,
-  subtotalColor = 'dark.9',
+  sideTotal,
   emptyText,
 }) => {
   const { t } = useTranslation('reports');
-  const emptyMessage = emptyText ?? t('balanceSheet.noAccounts');
+  const [opened, { toggle }] = useDisclosure(true);
+
   return (
     <Box>
-      <Group justify="space-between" align="center" mb={6}>
-        <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-          {title} ({accounts.length})
-        </Text>
-      </Group>
+      <UnstyledButton
+        className={classes.groupHeader}
+        onClick={toggle}
+        aria-expanded={opened}
+        aria-label={title}
+      >
+        <Group justify="space-between" wrap="nowrap" gap="md">
+          <Group gap={6} wrap="nowrap">
+            <IconChevronDown
+              size={16}
+              className={classes.chevron}
+              data-open={opened}
+              color="var(--mantine-color-gray-6)"
+            />
+            <Text fz="sm" fw={600} c="dark.9">
+              {title}
+            </Text>
+            <Text fz="xs" c="dimmed">
+              {accounts.length}
+            </Text>
+          </Group>
+          <Text fz="sm" fw={700} c="dark.9" style={{ fontVariantNumeric: 'tabular-nums' }}>
+            {signedMoney(subtotal)}
+          </Text>
+        </Group>
+        {sideTotal !== undefined && (
+          <div className={classes.shareTrack} aria-hidden="true">
+            <div
+              className={classes.shareFill}
+              style={{ width: `${percentOf(subtotal, sideTotal)}%` }}
+            />
+          </div>
+        )}
+      </UnstyledButton>
 
-      <ScrollArea offsetScrollbars>
-        <Table
-          verticalSpacing={6}
-          horizontalSpacing="sm"
-          highlightOnHover
-          withTableBorder
-          style={{ borderRadius: 'var(--mantine-radius-md)', overflow: 'hidden' }}
-        >
-          <Table.Thead bg="gray.1">
-            <Table.Tr>
-              <Table.Th w={120}>{t('common.accountNumberShort')}</Table.Th>
-              <Table.Th>{t('common.accountName')}</Table.Th>
-              <Table.Th w={140}>{t('common.category')}</Table.Th>
-              <Table.Th ta="right" w={160}>
-                {t('common.balance')}
-              </Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-
-          <Table.Tbody>
-            {accounts.length === 0 ? (
+      <Collapse in={opened}>
+        <ScrollArea offsetScrollbars>
+          <Table verticalSpacing={8} horizontalSpacing="sm" highlightOnHover miw={420}>
+            <Table.Thead>
               <Table.Tr>
-                <Table.Td colSpan={4} ta="center" py="md">
-                  <Text size="xs" c="dimmed" fs="italic">
-                    {emptyMessage}
-                  </Text>
-                </Table.Td>
+                <Table.Th w={150} fz="xs" c="dimmed" fw={600}>
+                  {t('common.accountNumberShort')}
+                </Table.Th>
+                <Table.Th fz="xs" c="dimmed" fw={600}>
+                  {t('common.accountName')}
+                </Table.Th>
+                <Table.Th ta="right" w={150} fz="xs" c="dimmed" fw={600}>
+                  {t('common.balance')}
+                </Table.Th>
               </Table.Tr>
-            ) : (
-              accounts.map((item, idx) => (
-                <Table.Tr key={`${item.accountId || item.accountNumber || idx}`}>
-                  <Table.Td>
-                    <Text size="xs" fw={600} c="dark.7" style={{ fontFamily: 'monospace' }}>
-                      {item.accountNumber || '-'}
-                    </Text>
-                  </Table.Td>
+            </Table.Thead>
 
-                  <Table.Td>
-                    <Text size="xs" fw={500} c="dark.9">
-                      {item.accountName}
-                    </Text>
-                  </Table.Td>
-
-                  <Table.Td>
-                    {item.categoryName ? (
-                      <Badge size="xs" variant="light" color="gray">
-                        {item.categoryName}
-                      </Badge>
-                    ) : (
-                      <Text size="xs" c="dimmed">
-                        -
-                      </Text>
-                    )}
-                  </Table.Td>
-
-                  <Table.Td ta="right">
-                    <Text
-                      size="xs"
-                      fw={600}
-                      c={item.balance < 0 ? 'red.6' : 'dark.9'}
-                      style={{ fontVariantNumeric: 'tabular-nums' }}
-                    >
-                      {item.balance < 0
-                        ? `(${formatMoney(Math.abs(item.balance))})`
-                        : formatMoney(item.balance)}
+            <Table.Tbody>
+              {accounts.length === 0 ? (
+                <Table.Tr>
+                  <Table.Td colSpan={3} ta="center" py="md">
+                    <Text fz="sm" c="dimmed">
+                      {emptyText ?? t('balanceSheet.noAccounts')}
                     </Text>
                   </Table.Td>
                 </Table.Tr>
-              ))
-            )}
-          </Table.Tbody>
-
-          <Table.Tfoot bg="gray.0">
-            <Table.Tr>
-              <Table.Th colSpan={3}>
-                <Text size="xs" fw={700} c="dark.8">
-                  {subtotalLabel || `Total ${title}`}
-                </Text>
-              </Table.Th>
-              <Table.Th ta="right">
-                <Text
-                  size="xs"
-                  fw={800}
-                  c={subtotalColor}
-                  style={{ fontVariantNumeric: 'tabular-nums' }}
-                >
-                  {subtotal < 0 ? `(${formatMoney(Math.abs(subtotal))})` : formatMoney(subtotal)}
-                </Text>
-              </Table.Th>
-            </Table.Tr>
-          </Table.Tfoot>
-        </Table>
-      </ScrollArea>
+              ) : (
+                accounts.map((item, index) => (
+                  <Table.Tr key={`${item.accountId || item.accountNumber || index}`}>
+                    <Table.Td>
+                      <Text
+                        fz="sm"
+                        c="dimmed"
+                        style={{ fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}
+                      >
+                        {item.accountNumber || '-'}
+                      </Text>
+                    </Table.Td>
+                    <Table.Td>
+                      <Text fz="sm" c="dark.9">
+                        {item.accountName}
+                      </Text>
+                      {item.categoryName && (
+                        <Text fz="xs" c="dimmed">
+                          {item.categoryName}
+                        </Text>
+                      )}
+                    </Table.Td>
+                    <Table.Td ta="right">
+                      <Text
+                        fz="sm"
+                        fw={500}
+                        c={item.balance < 0 ? 'red.7' : 'dark.9'}
+                        style={{ fontVariantNumeric: 'tabular-nums' }}
+                      >
+                        {signedMoney(item.balance)}
+                      </Text>
+                    </Table.Td>
+                  </Table.Tr>
+                ))
+              )}
+            </Table.Tbody>
+          </Table>
+        </ScrollArea>
+      </Collapse>
     </Box>
   );
 };

@@ -10,7 +10,7 @@ import {
   TextInput,
   Tooltip,
 } from '@mantine/core';
-import { IconBuildingWarehouse, IconPlus, IconShoppingCart, IconTag } from '@tabler/icons-react';
+import { IconPlus, IconShoppingCart, IconTag } from '@tabler/icons-react';
 import type { ReactNode } from 'react';
 import { useTranslation } from '@/i18n';
 import type {
@@ -23,10 +23,52 @@ type SectionProps = {
   form: ProductFormApi;
 };
 
-type LookupProps = SectionProps & {
-  accountData: SelectOption[];
-  taxData: SelectOption[];
+type UnitProps = {
+  unitData: SelectOption[];
+  unitsLoading: boolean;
+  onCreateUnit: () => void;
 };
+
+type LookupProps = SectionProps &
+  UnitProps & {
+    accountData: SelectOption[];
+    taxData: SelectOption[];
+  };
+
+/** One unit per product, offered in both trade sections so it is set where the price is. */
+export function UnitField({
+  form,
+  unitData,
+  unitsLoading,
+  onCreateUnit,
+}: Readonly<SectionProps & UnitProps>) {
+  const { t } = useTranslation('products');
+  return (
+    <Group align="flex-end" gap={6} wrap="nowrap">
+      <Select
+        label={t('form.unit')}
+        withAsterisk
+        placeholder={unitsLoading ? t('form.unitLoading') : t('form.unitPlaceholder')}
+        data={unitData}
+        style={{ flex: 1 }}
+        {...selectProps(t('form.nothingFound'))}
+        clearable={false}
+        {...form.getInputProps('unit')}
+      />
+      <Tooltip label={t('form.newUnit')}>
+        <ActionIcon
+          size={36}
+          variant="light"
+          color="primary"
+          aria-label={t('form.newUnit')}
+          onClick={onCreateUnit}
+        >
+          <IconPlus size={16} />
+        </ActionIcon>
+      </Tooltip>
+    </Group>
+  );
+}
 
 const selectProps = (nothingFoundMessage: string) =>
   ({
@@ -51,11 +93,14 @@ export function GeneralSection({
   categoryData,
   categoriesLoading,
   onCreateCategory,
+  unit,
 }: Readonly<
   SectionProps & {
     categoryData: SelectOption[];
     categoriesLoading: boolean;
     onCreateCategory: () => void;
+    /** Offered here only while neither trade section is on, so the required unit stays reachable. */
+    unit?: UnitProps;
   }
 >) {
   const { t } = useTranslation('products');
@@ -111,13 +156,31 @@ export function GeneralSection({
               </Tooltip>
             </Group>
           </Grid.Col>
+          {unit && (
+            <Grid.Col span={12}>
+              <UnitField form={form} {...unit} />
+            </Grid.Col>
+          )}
         </Grid>
       </SectionBody>
     </FormSection>
   );
 }
 
-export function SalesSection({ form, accountData, taxData }: Readonly<LookupProps>) {
+export function SalesSection({
+  form,
+  taxData,
+  salesAccountData,
+  receivableAccountData,
+  ...unitProps
+}: Readonly<
+  SectionProps &
+    UnitProps & {
+      taxData: SelectOption[];
+      salesAccountData: SelectOption[];
+      receivableAccountData: SelectOption[];
+    }
+>) {
   const { t } = useTranslation('products');
   const common = selectProps(t('form.nothingFound'));
   return (
@@ -137,7 +200,7 @@ export function SalesSection({ form, accountData, taxData }: Readonly<LookupProp
       <Collapse in={form.values.sellingInfo.isSold}>
         <SectionBody>
           <Grid gutter="sm">
-            <Grid.Col span={{ base: 12, sm: 6 }}>
+            <Grid.Col span={{ base: 12, sm: 4 }}>
               <NumberInput
                 label={t('form.sellPrice')}
                 prefix="Rp "
@@ -154,7 +217,10 @@ export function SalesSection({ form, accountData, taxData }: Readonly<LookupProp
                 value={form.values.sellingInfo.unitPrice ?? ''}
               />
             </Grid.Col>
-            <Grid.Col span={{ base: 12, sm: 6 }}>
+            <Grid.Col span={{ base: 12, sm: 4 }}>
+              <UnitField form={form} {...unitProps} />
+            </Grid.Col>
+            <Grid.Col span={{ base: 12, sm: 4 }}>
               <Select
                 label={t('form.sellTax')}
                 placeholder={t('form.noTax')}
@@ -166,9 +232,10 @@ export function SalesSection({ form, accountData, taxData }: Readonly<LookupProp
             <Grid.Col span={{ base: 12, sm: 6 }}>
               <Select
                 label={t('form.salesAccount')}
+                description={t('form.salesAccountHint')}
                 placeholder={t('form.salesAccountPlaceholder')}
                 withAsterisk
-                data={accountData}
+                data={salesAccountData}
                 {...common}
                 {...form.getInputProps('sellingInfo.salesAccount')}
               />
@@ -176,9 +243,10 @@ export function SalesSection({ form, accountData, taxData }: Readonly<LookupProp
             <Grid.Col span={{ base: 12, sm: 6 }}>
               <Select
                 label={t('form.receivableAccount')}
+                description={t('form.receivableAccountHint')}
                 placeholder={t('form.receivableAccountPlaceholder')}
                 withAsterisk
-                data={accountData}
+                data={receivableAccountData}
                 {...common}
                 {...form.getInputProps('sellingInfo.accountReceivable')}
               />
@@ -190,7 +258,12 @@ export function SalesSection({ form, accountData, taxData }: Readonly<LookupProp
   );
 }
 
-export function PurchasingSection({ form, accountData, taxData }: Readonly<LookupProps>) {
+export function PurchasingSection({
+  form,
+  accountData,
+  taxData,
+  ...unitProps
+}: Readonly<LookupProps>) {
   const { t } = useTranslation('products');
   const common = selectProps(t('form.nothingFound'));
   return (
@@ -228,14 +301,7 @@ export function PurchasingSection({ form, accountData, taxData }: Readonly<Looku
               />
             </Grid.Col>
             <Grid.Col span={{ base: 12, sm: 4 }}>
-              <Select
-                label={t('form.purchaseAccount')}
-                placeholder={t('form.accountPlaceholder')}
-                withAsterisk
-                data={accountData}
-                {...common}
-                {...form.getInputProps('buyingInfo.purchaseAccount')}
-              />
+              <UnitField form={form} {...unitProps} />
             </Grid.Col>
             <Grid.Col span={{ base: 12, sm: 4 }}>
               <Select
@@ -246,54 +312,14 @@ export function PurchasingSection({ form, accountData, taxData }: Readonly<Looku
                 {...form.getInputProps('buyingInfo.purchaseTax')}
               />
             </Grid.Col>
-          </Grid>
-        </SectionBody>
-      </Collapse>
-    </FormSection>
-  );
-}
-
-export function InventorySection({
-  form,
-  accountData,
-}: Readonly<SectionProps & { accountData: SelectOption[] }>) {
-  const { t } = useTranslation('products');
-  const common = selectProps(t('form.nothingFound'));
-  return (
-    <FormSection
-      icon={IconBuildingWarehouse}
-      title={t('form.inventoryTitle')}
-      description={t('form.inventoryDescription')}
-      toggle={
-        <Switch
-          color="primary"
-          size="sm"
-          aria-label={t('form.inventorySwitch')}
-          {...form.getInputProps('inventoryInfo.isTracked', { type: 'checkbox' })}
-        />
-      }
-    >
-      <Collapse in={form.values.inventoryInfo.isTracked}>
-        <SectionBody>
-          <Grid gutter="sm">
-            <Grid.Col span={{ base: 12, sm: 8 }}>
+            <Grid.Col span={12}>
               <Select
-                label={t('form.inventoryAccount')}
+                label={t('form.purchaseAccount')}
                 placeholder={t('form.accountPlaceholder')}
                 withAsterisk
                 data={accountData}
                 {...common}
-                {...form.getInputProps('inventoryInfo.inventoryAccount')}
-              />
-            </Grid.Col>
-            <Grid.Col span={{ base: 12, sm: 4 }}>
-              <NumberInput
-                label={t('form.minStock')}
-                placeholder="0"
-                min={0}
-                allowDecimal={false}
-                size="sm"
-                {...form.getInputProps('inventoryInfo.minStock')}
+                {...form.getInputProps('buyingInfo.purchaseAccount')}
               />
             </Grid.Col>
           </Grid>

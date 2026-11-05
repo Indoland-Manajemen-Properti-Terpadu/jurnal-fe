@@ -57,10 +57,34 @@ describe('mapGeneralLedgerResponse', () => {
   it('returns an empty report for an empty payload', () => {
     expect(mapGeneralLedgerResponse(null)).toEqual({
       accounts: [],
+      pagination: { page: 1, limit: 0, totalAccounts: 0, totalPages: 1 },
       periodDebitTotal: 0,
       periodCreditTotal: 0,
       periodLockName: null,
       periodLockType: null,
     });
+  });
+
+  it('reads the account page, the parent flag and the memo', () => {
+    const result = mapGeneralLedgerResponse({
+      data: {
+        pagination: { page: 2, limit: 20, totalAccounts: 66, totalPages: 4 },
+        accounts: [
+          {
+            account: { id: 'a1', isHead: true, normalBalance: 'credit' },
+            transactions: [{ notes: 'Memo panjang' }],
+          },
+        ],
+      },
+    });
+
+    expect(result.pagination).toEqual({ page: 2, limit: 20, totalAccounts: 66, totalPages: 4 });
+    expect(result.accounts[0]).toMatchObject({ isHead: true, normalBalance: 'credit' });
+    expect(result.accounts[0].transactions[0].notes).toBe('Memo panjang');
+  });
+
+  it('treats a response without paging as a single page of all accounts', () => {
+    const result = mapGeneralLedgerResponse({ accounts: [{}, {}] });
+    expect(result.pagination).toEqual({ page: 1, limit: 2, totalAccounts: 2, totalPages: 1 });
   });
 });

@@ -54,3 +54,7 @@ export function getPresetDateRange(preset: PeriodPreset): { startDate: string; e
       };
   }
 }
+
+/** Share of `part` in `whole`, from 0 to 100; 0 when there is nothing to share. */
+export const percentOf = (part: number, whole: number): number =>
+  whole > 0 ? Math.min(100, Math.max(0, (part / whole) * 100)) : 0;
