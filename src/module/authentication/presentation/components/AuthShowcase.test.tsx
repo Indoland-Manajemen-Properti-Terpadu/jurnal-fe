@@ -2,19 +2,29 @@ import { render, screen, userEvent } from '@test-utils';
 import { AuthShowcase } from './AuthShowcase';
 
 describe('AuthShowcase', () => {
-  it('starts on the first preview and labels it as a sample view', () => {
+  it('presents accounting messaging without fabricated product data', () => {
     render(<AuthShowcase />);
-    expect(screen.getByText('Operasional dan pembukuan tersinkron')).toBeInTheDocument();
-    expect(screen.getByText('Contoh tampilan')).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: 'Pembukuan tertata. Keputusan terarah.' })
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/contoh tampilan|Rp |operasional properti/i)).not.toBeInTheDocument();
   });
 
-  it('switches the preview with the dots', async () => {
+  it('switches topics and stops automatic rotation after manual selection', async () => {
     render(<AuthShowcase />);
-    await userEvent.click(screen.getByRole('button', { name: 'Buka pratinjau 3' }));
-    expect(screen.getByText('Kas dan bank tetap terkontrol')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Buka pratinjau 3' })).toHaveAttribute(
-      'aria-current',
-      'true'
-    );
+    const control = screen.getByRole('button', { name: 'Lihat Rekonsiliasi' });
+    await userEvent.click(control);
+    expect(
+      screen.getByRole('heading', { name: 'Setiap transaksi. Dalam kendali.' })
+    ).toBeInTheDocument();
+    expect(control).toHaveAttribute('aria-current', 'true');
+    expect(screen.getByRole('button', { name: 'Putar slide otomatis' })).toBeInTheDocument();
+  });
+
+  it('lets the user pause and resume slide rotation', async () => {
+    render(<AuthShowcase />);
+    await userEvent.click(screen.getByRole('button', { name: 'Jeda pergantian slide' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Putar slide otomatis' }));
+    expect(screen.getByRole('button', { name: 'Jeda pergantian slide' })).toBeInTheDocument();
   });
 });
