@@ -7,11 +7,11 @@ import {
   Paper,
   ScrollArea,
   SegmentedControl,
+  SimpleGrid,
   Stack,
   Table,
   Text,
   TextInput,
-  Tooltip,
 } from '@mantine/core';
 import { IconAlertTriangle, IconCheck, IconChevronLeft, IconSearch } from '@tabler/icons-react';
 import { formatCurrency } from '@/utils/formatCurrency';
@@ -35,6 +35,17 @@ interface ImportPreviewStepProps {
   onCommit: () => void;
 }
 
+const StatTile = ({ label, value, color }: { label: string; value: number; color: string }) => (
+  <Paper withBorder radius="md" p="sm" bg={`${color}.0`}>
+    <Text fw={700} fz="xl" c={`${color}.9`} style={{ fontVariantNumeric: 'tabular-nums' }}>
+      {value}
+    </Text>
+    <Text fz="xs" c={`${color}.9`}>
+      {label}
+    </Text>
+  </Paper>
+);
+
 /** Step 2 of the import wizard: validation summary, filters and the preview table. */
 export const ImportPreviewStep: React.FC<ImportPreviewStepProps> = ({
   totalRows,
@@ -53,34 +64,27 @@ export const ImportPreviewStep: React.FC<ImportPreviewStepProps> = ({
 
   return (
     <Stack gap="md">
-      {/* Metrics Bar */}
-      <Group justify="space-between" align="center" wrap="wrap">
-        <Group gap="xs">
-          <Badge color="gray" variant="light" size="sm">
-            {t('settings.import.totalRows', { count: totalRows })}
-          </Badge>
-          <Badge color="teal" variant="filled" size="sm">
-            {t('settings.import.readyCount', { count: validCount })}
-          </Badge>
-          {invalidCount > 0 && (
-            <Badge color="red" variant="filled" size="sm">
-              {t('settings.import.wrongCount', { count: invalidCount })}
-            </Badge>
-          )}
-        </Group>
-
-        <SegmentedControl
-          size="xs"
-          radius="md"
-          value={filter}
-          onChange={(val) => onFilterChange(val as ImportFilter)}
-          data={[
-            { label: t('settings.import.filterAll'), value: 'all' },
-            { label: t('settings.import.filterValid', { count: validCount }), value: 'valid' },
-            { label: t('settings.import.filterError', { count: invalidCount }), value: 'invalid' },
-          ]}
+      <SimpleGrid cols={3} spacing="sm">
+        <StatTile label={t('settings.import.totalRows')} value={totalRows} color="gray" />
+        <StatTile label={t('settings.import.readyCount')} value={validCount} color="teal" />
+        <StatTile
+          label={t('settings.import.wrongCount')}
+          value={invalidCount}
+          color={invalidCount > 0 ? 'red' : 'gray'}
         />
-      </Group>
+      </SimpleGrid>
+
+      <SegmentedControl
+        fullWidth
+        radius="md"
+        value={filter}
+        onChange={(val) => onFilterChange(val as ImportFilter)}
+        data={[
+          { label: t('settings.import.filterAll'), value: 'all' },
+          { label: t('settings.import.filterValid', { count: validCount }), value: 'valid' },
+          { label: t('settings.import.filterError', { count: invalidCount }), value: 'invalid' },
+        ]}
+      />
 
       {/* Error Notification Alert */}
       {invalidCount > 0 && (
@@ -107,8 +111,8 @@ export const ImportPreviewStep: React.FC<ImportPreviewStepProps> = ({
       {/* Preview Table */}
       <Paper withBorder radius="md" style={{ overflow: 'hidden' }}>
         <ScrollArea.Autosize mah={320} type="always">
-          <Table striped highlightOnHover verticalSpacing="xs" fz="xs">
-            <Table.Thead bg="gray.1">
+          <Table highlightOnHover verticalSpacing="xs" fz="xs">
+            <Table.Thead bg="gray.0">
               <Table.Tr>
                 <Table.Th style={{ width: 130 }}>{t('settings.import.colNumber')}</Table.Th>
                 <Table.Th>{t('settings.import.colName')}</Table.Th>
@@ -141,8 +145,17 @@ export const ImportPreviewStep: React.FC<ImportPreviewStepProps> = ({
                     <Table.Td fw={700} c={row.isValid ? 'dark.8' : 'red.9'}>
                       {row.item.accountNumber || '-'}
                     </Table.Td>
-                    <Table.Td fw={600} c="dark.8">
-                      {row.item.name || '-'}
+                    <Table.Td>
+                      <Text fz="xs" fw={600} c="dark.8">
+                        {row.item.name || '-'}
+                      </Text>
+                      {!row.isValid && (
+                        <Text fz="xs" c="red.7">
+                          {row.errors && row.errors.length > 0
+                            ? row.errors.join(', ')
+                            : t('settings.import.invalidFormat')}
+                        </Text>
+                      )}
                     </Table.Td>
                     <Table.Td c="dimmed">
                       {row.item.categoryName || row.item.categoryID || '-'}
@@ -151,31 +164,9 @@ export const ImportPreviewStep: React.FC<ImportPreviewStepProps> = ({
                       {formatCurrency(Number(row.item.amount) || 0)}
                     </Table.Td>
                     <Table.Td style={{ textAlign: 'center' }}>
-                      {row.isValid ? (
-                        <Badge color="teal" size="xs" variant="light">
-                          {t('settings.import.valid')}
-                        </Badge>
-                      ) : (
-                        <Tooltip
-                          label={
-                            row.errors && row.errors.length > 0
-                              ? row.errors.join(', ')
-                              : t('settings.import.invalidFormat')
-                          }
-                          withArrow
-                          multiline
-                          w={220}
-                        >
-                          <Badge
-                            color="red"
-                            size="xs"
-                            variant="filled"
-                            style={{ cursor: 'pointer' }}
-                          >
-                            {t('settings.import.error')}
-                          </Badge>
-                        </Tooltip>
-                      )}
+                      <Badge color={row.isValid ? 'teal' : 'red'} size="sm" variant="light">
+                        {row.isValid ? t('settings.import.valid') : t('settings.import.error')}
+                      </Badge>
                     </Table.Td>
                   </Table.Tr>
                 ))
@@ -188,7 +179,6 @@ export const ImportPreviewStep: React.FC<ImportPreviewStepProps> = ({
       <Group justify="space-between" align="center" mt="sm">
         <Button
           variant="default"
-          size="sm"
           radius="md"
           leftSection={<IconChevronLeft size={16} />}
           onClick={onBack}
@@ -199,7 +189,6 @@ export const ImportPreviewStep: React.FC<ImportPreviewStepProps> = ({
 
         <Button
           color="primary"
-          size="sm"
           radius="md"
           rightSection={<IconCheck size={16} />}
           onClick={onCommit}
