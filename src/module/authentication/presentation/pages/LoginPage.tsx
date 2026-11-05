@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Image, Text } from '@mantine/core';
+import { Text } from '@mantine/core';
 import { useLocation } from 'react-router-dom';
-import BrandBadge from '@/assets/images/brand/badge.svg';
+import BrandIcon from '@/assets/images/brand/icon.svg';
 import { useLogin } from '@/module/authentication/presentation/hooks/useLogin';
 import { AuthShowcase } from '@/module/authentication/presentation/components/AuthShowcase';
 import { LoginForm } from '@/module/authentication/presentation/components/LoginForm';
@@ -9,7 +9,6 @@ import { ForgotPasswordForm } from '@/module/authentication/presentation/compone
 import classes from '@/module/authentication/presentation/components/Auth.module.css';
 
 import { useTranslation } from '@/i18n';
-import { FORGOT_PASSWORD_ENABLED } from '@/module/authentication/domain/authFeatures';
 
 interface LoginPageProps {
   initialMode?: 'login' | 'forgot';
@@ -20,7 +19,7 @@ export default function LoginPage({ initialMode = 'login' }: LoginPageProps) {
   const location = useLocation();
   const isForgotPath = location.pathname.includes('forgot-password');
   const [mode, setMode] = useState<'login' | 'forgot'>(
-    FORGOT_PASSWORD_ENABLED && (isForgotPath || initialMode === 'forgot') ? 'forgot' : 'login'
+    isForgotPath || initialMode === 'forgot' ? 'forgot' : 'login'
   );
   const [presetEmail, setPresetEmail] = useState('');
 
@@ -41,17 +40,13 @@ export default function LoginPage({ initialMode = 'login' }: LoginPageProps) {
 
       <main className={classes.formSide}>
         <div className={classes.formBody}>
-          <Image
-            src={BrandBadge}
-            h={40}
-            w="auto"
-            alt={ta('page.logoAlt')}
-            mb={48}
-            style={{ alignSelf: 'flex-start' }}
-          />
+          <div className={classes.mobileBrand}>
+            <img src={BrandIcon} width={36} height={36} alt="" />
+            <span>{ta('visual.brand')}</span>
+          </div>
           {mode === 'login' ? (
             <LoginForm
-              onForgotPassword={FORGOT_PASSWORD_ENABLED ? handleOpenForgotPassword : undefined}
+              onForgotPassword={handleOpenForgotPassword}
               onSubmit={handleLoginSubmit}
               isPending={isPending}
             />
