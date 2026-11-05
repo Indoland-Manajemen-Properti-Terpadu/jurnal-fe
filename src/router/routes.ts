@@ -98,6 +98,24 @@ export const routes = {
 
   purchases: {
     main: '/purchases',
+    payables: '/purchases/payables',
+    requestAdd: '/purchases/requests/new',
+    requestDetail: '/purchases/requests/:id',
+    requestEdit: '/purchases/requests/:id/edit',
+    orderAdd: '/purchases/orders/new',
+    orderDetail: '/purchases/orders/:id',
+    orderEdit: '/purchases/orders/:id/edit',
+    receiptAdd: '/purchases/receipts/new',
+    receiptDetail: '/purchases/receipts/:id',
+    billAdd: '/purchases/bills/new',
+    billDetail: '/purchases/bills/:id',
+    billEdit: '/purchases/bills/:id/edit',
+    paymentAdd: '/purchases/payments/new',
+    paymentDetail: '/purchases/payments/:id',
+    paymentEdit: '/purchases/payments/:id/edit',
+    returnAdd: '/purchases/returns/new',
+    returnDetail: '/purchases/returns/:id',
+    returnEdit: '/purchases/returns/:id/edit',
   },
 
   costs: {

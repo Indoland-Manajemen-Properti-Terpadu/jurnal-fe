@@ -1,0 +1,62 @@
+.card {
+  overflow: hidden;
+  background: var(--jurnal-color-surface);
+  border: 1px solid var(--jurnal-color-border-subtle);
+  border-radius: var(--mantine-radius-md);
+}
+
+.card[data-chosen='true'] {
+  border-color: var(--mantine-color-primary-6);
+  box-shadow: 0 0 0 1px var(--mantine-color-primary-6);
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mantine-spacing-md);
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: var(--mantine-spacing-md) var(--mantine-spacing-lg);
+}
+
+.vendor {
+  display: flex;
+  gap: var(--mantine-spacing-sm);
+  align-items: center;
+  min-width: 0;
+}
+
+.total {
+  text-align: right;
+}
+
+.amount {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.table {
+  border-top: 1px solid var(--jurnal-color-border-subtle);
+}
+
+.foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mantine-spacing-sm);
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--mantine-spacing-sm) var(--mantine-spacing-lg);
+  background: var(--jurnal-color-surface-hover);
+  border-top: 1px solid var(--jurnal-color-border-subtle);
+}
+
+.notes {
+  flex: 1;
+  min-width: 160px;
+}
+
+.actions {
+  display: flex;
+  gap: var(--mantine-spacing-xs);
+  align-items: center;
+}
