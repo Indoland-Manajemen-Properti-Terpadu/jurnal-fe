@@ -32,7 +32,7 @@ export type ProductDto = {
   image?: string | null;
   external_code?: string | null;
   externalCode?: string | null;
-  unit?: string | { name?: string } | null;
+  unit?: string | { id?: string; _id?: string; name?: string } | null;
   productCategory?: EmbeddedCategoryDto | null;
   category?: EmbeddedCategoryDto | null;
   buyingInfo?: Partial<Omit<BuyingInfo, 'purchaseAccount' | 'purchaseTax'>> & {

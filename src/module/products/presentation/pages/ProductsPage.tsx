@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   ActionIcon,
   Box,
@@ -6,7 +6,6 @@ import {
   Group,
   LoadingOverlay,
   Modal,
-  Pagination,
   Paper,
   Stack,
   Tabs,
@@ -20,6 +19,7 @@ import { useNavigate } from 'react-router-dom';
 import { ConfirmModal } from '@/components/ui/ConfirmModal/ConfirmModal';
 import { useTranslation } from '@/i18n';
 import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
+import { summarizeProducts } from '@/module/products/domain/productRules';
 import { ProductTable } from '@/module/products/presentation/components/ProductTable';
 import { ProductForm } from '@/module/products/presentation/components/ProductForm';
 import { MasterDataPanel } from '@/module/products/presentation/components/MasterDataPanel';
@@ -28,6 +28,7 @@ import { ProductStatsCards } from '@/module/products/presentation/components/Pro
 import {
   useCategories,
   useCategoryMutations,
+  useAllProducts,
   useDeleteProduct,
   useProducts,
   useSaveProduct,
@@ -35,6 +36,9 @@ import {
   useUnits,
 } from '@/module/products/presentation/hooks/useProductQueries';
 import type { Product, ProductFormValues } from '@/module/products/domain/product';
+
+const withCount = (label: string, count?: number) =>
+  count === undefined ? label : `${label} (${count.toLocaleString('id-ID')})`;
 
 export function ProductsPage() {
   const { t } = useTranslation('products');
@@ -59,14 +63,24 @@ export function ProductsPage() {
     search: debouncedSearch.trim() || undefined,
   });
 
+  // The summary cards cover the whole catalog; the table pages through its own query.
+  const summaryQuery = useAllProducts();
   const categoriesQuery = useCategories();
   const unitsQuery = useUnits();
 
   // Mutations
   const saveProductMutation = useSaveProduct(editingProduct?.id);
   const deleteProductMutation = useDeleteProduct();
-  const { createMutation: createCat, deleteMutation: deleteCat } = useCategoryMutations();
-  const { createMutation: createUnit, deleteMutation: deleteUnit } = useUnitMutations();
+  const {
+    createMutation: createCat,
+    updateMutation: updateCat,
+    deleteMutation: deleteCat,
+  } = useCategoryMutations();
+  const {
+    createMutation: createUnit,
+    updateMutation: updateUnit,
+    deleteMutation: deleteUnit,
+  } = useUnitMutations();
 
   const handleOpenCreate = () => {
     setEditingProduct(undefined);
@@ -93,6 +107,12 @@ export function ProductsPage() {
     await deleteProductMutation.mutateAsync(deleteProductTarget.id);
     setDeleteProductTarget(null);
   };
+
+  const summary = useMemo(
+    () =>
+      summarizeProducts(summaryQuery.data?.items ?? [], summaryQuery.data?.pagination.total ?? 0),
+    [summaryQuery.data]
+  );
 
   const paginationData = productsQuery.data?.pagination;
   const totalProducts = paginationData?.total ?? 0;
@@ -133,7 +153,7 @@ export function ProductsPage() {
           />
 
           <ProductStatsCards
-            products={totalProducts}
+            summary={summary}
             categories={categoriesQuery.data?.pagination.total ?? 0}
             units={unitsQuery.data?.pagination.total ?? 0}
           />
@@ -149,13 +169,13 @@ export function ProductsPage() {
             >
               <Tabs.List mb="md">
                 <Tabs.Tab value="products" leftSection={<IconPackage size={16} />}>
-                  {t('list.tabProducts')}
+                  {withCount(t('list.tabProducts'), summaryQuery.data && summary.total)}
                 </Tabs.Tab>
                 <Tabs.Tab value="categories" leftSection={<IconCategory size={16} />}>
-                  {t('list.tabCategories')}
+                  {withCount(t('list.tabCategories'), categoriesQuery.data?.pagination.total)}
                 </Tabs.Tab>
                 <Tabs.Tab value="units" leftSection={<IconRuler size={16} />}>
-                  {t('list.tabUnits')}
+                  {withCount(t('list.tabUnits'), unitsQuery.data?.pagination.total)}
                 </Tabs.Tab>
               </Tabs.List>
 
@@ -164,46 +184,31 @@ export function ProductsPage() {
                 <Stack gap="md">
                   <ProductListToolbar
                     search={searchInput}
-                    limit={limit}
                     onSearchChange={(value) => {
                       setSearchInput(value);
                       setPage(1);
                     }}
                     onSearchClear={() => setSearchInput('')}
+                  />
+
+                  <ProductTable
+                    products={productsQuery.data?.items ?? []}
+                    isLoading={productsQuery.isLoading}
+                    isFiltered={debouncedSearch.trim() !== ''}
+                    page={page}
+                    totalPages={totalPages}
+                    total={totalProducts}
+                    limit={limit}
+                    onPageChange={setPage}
                     onLimitChange={(value) => {
                       setLimit(value);
                       setPage(1);
                     }}
-                  />
-
-                  {/* Table Component */}
-                  <ProductTable
-                    products={productsQuery.data?.items ?? []}
-                    isLoading={productsQuery.isLoading}
                     onView={handleOpenDetail}
                     onEdit={handleOpenEdit}
                     onDelete={(prod) => setDeleteProductTarget(prod)}
+                    onCreate={handleOpenCreate}
                   />
-
-                  {/* Pagination Footer */}
-                  <Group justify="space-between" align="center" pt="xs" wrap="wrap" gap="sm">
-                    <Text size="xs" c="dimmed">
-                      {t('list.showing', {
-                        shown: productsQuery.data?.items.length ?? 0,
-                        total: totalProducts,
-                      })}
-                    </Text>
-                    {totalPages > 1 && (
-                      <Pagination
-                        total={totalPages}
-                        value={page}
-                        onChange={setPage}
-                        color="primary"
-                        radius="md"
-                        size="sm"
-                      />
-                    )}
-                  </Group>
                 </Stack>
               </Tabs.Panel>
 
@@ -217,8 +222,10 @@ export function ProductsPage() {
                   items={categoriesQuery.data?.items ?? []}
                   isLoading={categoriesQuery.isLoading}
                   isCreating={createCat.isPending}
+                  isUpdating={updateCat.isPending}
                   isDeleting={deleteCat.isPending}
                   onCreate={(input) => createCat.mutateAsync(input)}
+                  onUpdate={(id, input) => updateCat.mutateAsync({ id, input })}
                   onDelete={(id) => deleteCat.mutateAsync(id)}
                 />
               </Tabs.Panel>
@@ -233,8 +240,10 @@ export function ProductsPage() {
                   items={unitsQuery.data?.items ?? []}
                   isLoading={unitsQuery.isLoading}
                   isCreating={createUnit.isPending}
+                  isUpdating={updateUnit.isPending}
                   isDeleting={deleteUnit.isPending}
                   onCreate={(input) => createUnit.mutateAsync(input)}
+                  onUpdate={(id, input) => updateUnit.mutateAsync({ id, input })}
                   onDelete={(id) => deleteUnit.mutateAsync(id)}
                 />
               </Tabs.Panel>

@@ -67,7 +67,12 @@ export function ProductImagePanel({
           maxFiles={1}
           radius="md"
           p="md"
-          style={{ borderStyle: 'dashed' }}
+          style={{
+            borderStyle: 'dashed',
+            borderWidth: 1.5,
+            borderColor: 'var(--mantine-color-gray-4)',
+            background: 'var(--mantine-color-gray-0)',
+          }}
         >
           <Stack align="center" gap={4} py="sm" style={{ pointerEvents: 'none' }}>
             <Dropzone.Accept>

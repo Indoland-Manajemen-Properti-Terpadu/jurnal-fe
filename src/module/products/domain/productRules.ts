@@ -7,6 +7,7 @@ export const toInitialValues = (product?: Product): ProductFormValues => ({
   name: product?.name ?? '',
   sku: product?.sku ?? '',
   productCategory: product?.category?.id ?? null,
+  unit: product?.unitId ?? null,
   image: null,
   buyingInfo: product?.buyingInfo ?? {
     isPurchased: true,
@@ -72,3 +73,49 @@ export const resolveTaxLabel = (tax: unknown, taxLabels: Map<string, string>): s
   }
   return null;
 };
+
+/**
+ * Accounts that fit a role by normal balance: sales accounts are credit-side,
+ * receivable accounts are debit-side. Accounts of unknown side are kept out, but the
+ * account a product already uses stays selectable so editing never blanks the field.
+ */
+export const filterAccountsByNormalBalance = (
+  accounts: AccountOption[],
+  normalBalance: 'debit' | 'credit',
+  keepId?: string | null
+): AccountOption[] =>
+  accounts.filter(
+    (account) =>
+      account.id === keepId ||
+      (normalBalance === 'debit' ? account.isDebit === true : account.isDebit === false)
+  );
+
+export type ProductSummary = {
+  total: number;
+  sold: number;
+  bought: number;
+  tracked: number;
+  /** Product counts per category, largest first, for the overview chart. */
+  categoryCounts: number[];
+};
+
+const MAX_CATEGORY_BARS = 8;
+
+/** Counts of the products on hand by how they are traded and whether their stock is tracked. */
+export const summarizeProducts = (products: Product[], total = products.length): ProductSummary => {
+  const perCategory = new Map<string, number>();
+  products.forEach((p) => {
+    const key = p.category?.id ?? '';
+    perCategory.set(key, (perCategory.get(key) ?? 0) + 1);
+  });
+  return {
+    total,
+    sold: products.filter((p) => p.sellingInfo.isSold).length,
+    bought: products.filter((p) => p.buyingInfo.isPurchased).length,
+    tracked: products.filter((p) => p.inventoryInfo.isTracked).length,
+    categoryCounts: [...perCategory.values()].sort((x, y) => y - x).slice(0, MAX_CATEGORY_BARS),
+  };
+};
+
+export const percentOf = (part: number, whole: number): number =>
+  whole > 0 ? Math.round((part / whole) * 100) : 0;

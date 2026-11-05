@@ -54,6 +54,22 @@ export const fetchProducts = async (params: ProductListParams): Promise<Paginate
   return mapPaginated(data.data, mapProduct);
 };
 
+const ALL_PAGE_SIZE = 100;
+
+/** Every product, read page by page; used where a figure must cover the whole catalog. */
+export const fetchAllProducts = async (): Promise<Paginated<Product>> => {
+  const first = await fetchProducts({ page: 1, limit: ALL_PAGE_SIZE });
+  const rest = await Promise.all(
+    Array.from({ length: Math.max(first.pagination.totalPages - 1, 0) }, (_, i) =>
+      fetchProducts({ page: i + 2, limit: ALL_PAGE_SIZE })
+    )
+  );
+  return {
+    items: [first, ...rest].flatMap((page) => page.items),
+    pagination: first.pagination,
+  };
+};
+
 export const fetchProduct = async (id: string): Promise<Product> => {
   const { data } = await apiClient.get<ApiEnvelope<ProductDto>>(
     `${PRODUCT_ENDPOINTS.products}/${id}`
@@ -70,6 +86,7 @@ const toProductFormData = (values: ProductFormValues): FormData => {
   form.append('name', values.name.trim());
   appendIfPresent(form, 'productCategory', values.productCategory);
   appendIfPresent(form, 'sku', values.sku.trim());
+  appendIfPresent(form, 'unit', values.unit);
   if (values.image) form.append('image', values.image);
 
   const { buyingInfo: b, sellingInfo: s, inventoryInfo: i } = values;
@@ -137,6 +154,17 @@ export const createCategory = async (input: MasterDataInput): Promise<ProductCat
   return mapCategory(data.data);
 };
 
+export const updateCategory = async (
+  id: string,
+  input: MasterDataInput
+): Promise<ProductCategory> => {
+  const { data } = await apiClient.put<ApiEnvelope<ProductCategoryDto>>(
+    `${PRODUCT_ENDPOINTS.categories}/${id}`,
+    input
+  );
+  return mapCategory(data.data);
+};
+
 export const deleteCategory = async (id: string): Promise<void> => {
   await apiClient.delete(`${PRODUCT_ENDPOINTS.categories}/${id}`);
 };
@@ -153,6 +181,14 @@ export const fetchUnits = async (page = 1, limit = 100): Promise<Paginated<Produ
 
 export const createUnit = async (input: MasterDataInput): Promise<ProductUnit> => {
   const { data } = await apiClient.post<ApiEnvelope<UnitDto>>(PRODUCT_ENDPOINTS.units, input);
+  return mapUnit(data.data);
+};
+
+export const updateUnit = async (id: string, input: MasterDataInput): Promise<ProductUnit> => {
+  const { data } = await apiClient.put<ApiEnvelope<UnitDto>>(
+    `${PRODUCT_ENDPOINTS.units}/${id}`,
+    input
+  );
   return mapUnit(data.data);
 };
 
@@ -173,6 +209,7 @@ type AccountNodeDto = {
   id: string;
   name: string;
   accountNumber?: string;
+  category?: { isDebit?: boolean } | null;
   subAccount?: AccountNodeDto[];
 };
 
@@ -181,6 +218,7 @@ const flattenAccounts = (accounts: AccountNodeDto[]): AccountOption[] =>
     {
       id: account.id,
       label: account.accountNumber ? `${account.accountNumber} · ${account.name}` : account.name,
+      isDebit: typeof account.category?.isDebit === 'boolean' ? account.category.isDebit : null,
     },
     ...flattenAccounts(account.subAccount ?? []),
   ]);
