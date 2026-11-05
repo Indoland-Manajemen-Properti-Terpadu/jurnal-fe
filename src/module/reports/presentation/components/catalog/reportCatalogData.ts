@@ -20,35 +20,41 @@ export interface ReportItem {
   englishTitleKey: string;
   descriptionKey: string;
   route: string;
-  category: 'financial' | 'ledger' | 'management';
+  category: Exclude<ReportCategory, 'all'>;
   icon: Icon;
-  color: string;
-  badgeKey?: string;
-  badgeColor?: string;
-  featured?: boolean;
+  /**
+   * `soon` marks a report whose data is not available yet (the endpoint is missing or the page still
+   * shows sample numbers). Flip it to `ready` when the report reads real data.
+   */
+  status: 'ready' | 'soon';
 }
 
 export const reportCategories: Array<{ value: ReportCategory; labelKey: string }> = [
   { value: 'all', labelKey: 'catalog.categoryAll' },
-  { value: 'financial', labelKey: 'catalog.categoryFinancial' },
-  { value: 'ledger', labelKey: 'catalog.categoryLedger' },
-  { value: 'management', labelKey: 'catalog.categoryManagement' },
+  { value: 'financial', labelKey: 'catalog.sectionFinancial' },
+  { value: 'ledger', labelKey: 'catalog.sectionLedger' },
+  { value: 'management', labelKey: 'catalog.sectionManagement' },
+];
+
+export const reportSections: Array<{
+  category: Exclude<ReportCategory, 'all'>;
+  titleKey: string;
+  hintKey: string;
+}> = [
+  {
+    category: 'financial',
+    titleKey: 'catalog.sectionFinancial',
+    hintKey: 'catalog.sectionFinancialHint',
+  },
+  { category: 'ledger', titleKey: 'catalog.sectionLedger', hintKey: 'catalog.sectionLedgerHint' },
+  {
+    category: 'management',
+    titleKey: 'catalog.sectionManagement',
+    hintKey: 'catalog.sectionManagementHint',
+  },
 ];
 
 export const reportCatalogData: ReportItem[] = [
-  {
-    id: 'general-ledger',
-    titleKey: 'catalog.generalLedgerTitle',
-    englishTitleKey: 'catalog.generalLedgerEnglish',
-    descriptionKey: 'catalog.generalLedgerDescription',
-    route: routes.reports.generalLedger,
-    category: 'ledger',
-    icon: IconBook2,
-    color: 'violet',
-    badgeKey: 'catalog.badgeLive',
-    badgeColor: 'teal',
-    featured: true,
-  },
   {
     id: 'balance-sheet',
     titleKey: 'catalog.balanceSheetTitle',
@@ -57,10 +63,7 @@ export const reportCatalogData: ReportItem[] = [
     route: routes.reports.balanceSheet,
     category: 'financial',
     icon: IconScale,
-    color: 'blue',
-    badgeKey: 'catalog.badgePsak',
-    badgeColor: 'blue',
-    featured: true,
+    status: 'ready',
   },
   {
     id: 'income-statement',
@@ -70,10 +73,7 @@ export const reportCatalogData: ReportItem[] = [
     route: routes.reports.incomeStatement,
     category: 'financial',
     icon: IconChartBar,
-    color: 'teal',
-    badgeKey: 'catalog.badgePopular',
-    badgeColor: 'orange',
-    featured: true,
+    status: 'soon',
   },
   {
     id: 'trial-balance',
@@ -83,7 +83,7 @@ export const reportCatalogData: ReportItem[] = [
     route: routes.reports.trialBalance,
     category: 'financial',
     icon: IconFileAnalytics,
-    color: 'cyan',
+    status: 'soon',
   },
   {
     id: 'cash-flow',
@@ -93,17 +93,7 @@ export const reportCatalogData: ReportItem[] = [
     route: routes.reports.cashFlow,
     category: 'financial',
     icon: IconCashBanknote,
-    color: 'emerald',
-  },
-  {
-    id: 'journal-entry',
-    titleKey: 'catalog.journalTitle',
-    englishTitleKey: 'catalog.journalEnglish',
-    descriptionKey: 'catalog.journalDescription',
-    route: routes.reports.journalEntries,
-    category: 'ledger',
-    icon: IconTimeline,
-    color: 'indigo',
+    status: 'soon',
   },
   {
     id: 'equity-changes',
@@ -113,7 +103,27 @@ export const reportCatalogData: ReportItem[] = [
     route: routes.reports.equityChanges,
     category: 'financial',
     icon: IconArrowsExchange,
-    color: 'grape',
+    status: 'soon',
+  },
+  {
+    id: 'general-ledger',
+    titleKey: 'catalog.generalLedgerTitle',
+    englishTitleKey: 'catalog.generalLedgerEnglish',
+    descriptionKey: 'catalog.generalLedgerDescription',
+    route: routes.reports.generalLedger,
+    category: 'ledger',
+    icon: IconBook2,
+    status: 'ready',
+  },
+  {
+    id: 'journal-entry',
+    titleKey: 'catalog.journalTitle',
+    englishTitleKey: 'catalog.journalEnglish',
+    descriptionKey: 'catalog.journalDescription',
+    route: routes.reports.journalEntries,
+    category: 'ledger',
+    icon: IconTimeline,
+    status: 'soon',
   },
   {
     id: 'business-summary',
@@ -123,7 +133,7 @@ export const reportCatalogData: ReportItem[] = [
     route: routes.reports.businessSummary,
     category: 'management',
     icon: IconChartPie,
-    color: 'pink',
+    status: 'soon',
   },
   {
     id: 'income-statement-budget',
@@ -133,6 +143,6 @@ export const reportCatalogData: ReportItem[] = [
     route: routes.reports.incomeStatementBudget,
     category: 'management',
     icon: IconReportMoney,
-    color: 'yellow',
+    status: 'soon',
   },
 ];

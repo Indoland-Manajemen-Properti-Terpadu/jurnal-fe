@@ -1,14 +1,9 @@
 import { Text } from '@mantine/core';
 
-/** The number next to a tab label; it keeps the tab colour so it reads on the active pill too. */
+/** The count next to a tab label, in parentheses; it inherits the tab colour, so it is white on the active pill. */
 export const TabCount: React.FC<{ value: number }> = ({ value }) =>
   value > 0 ? (
-    <Text
-      span
-      fz="var(--jurnal-text-xs)"
-      fw={600}
-      style={{ opacity: 0.7, fontVariantNumeric: 'tabular-nums' }}
-    >
-      {value}
+    <Text span fz="var(--jurnal-text-xs)" fw={600} style={{ fontVariantNumeric: 'tabular-nums' }}>
+      ({value})
     </Text>
   ) : null;

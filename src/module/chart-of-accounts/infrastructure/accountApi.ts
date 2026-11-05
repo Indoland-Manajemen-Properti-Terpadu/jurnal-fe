@@ -2,6 +2,7 @@ import { API_ACCOUNT } from '@/lib/http/endpoints';
 import apiClient from '@/lib/http/apiClient';
 import { JournalAccounts } from '@/module/chart-of-accounts/domain/journalAccount';
 import type { AddAccountPayload } from '../domain/addAccountPayload';
+import type { SimpleAccount } from '../domain/simpleAccount';
 
 type JournalAccountsResponse = {
   results: JournalAccounts[];
@@ -43,4 +44,16 @@ export const updateAccount = async (
 export const deleteAccounts = async (ids: { accountIds: string[] }): Promise<unknown> => {
   const response = await apiClient.delete(API_ACCOUNT.DELETE_ACCOUNT, { data: ids });
   return response.data;
+};
+
+/** Every account a journal line can post to, without the balances and sub account trees of the list. */
+export const getSimpleAccounts = async (): Promise<SimpleAccount[]> => {
+  const response = await apiClient.get<{ data?: SimpleAccount[] }>(API_ACCOUNT.GET_SIMPLE_ACCOUNTS);
+  const accounts = response.data?.data;
+
+  if (!Array.isArray(accounts)) {
+    throw new Error('Invalid simple accounts response.');
+  }
+
+  return accounts;
 };

@@ -6,11 +6,10 @@ import { EmptyState } from '@/components/EmptyState';
 import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
 import { routes } from '@/router/routes';
 import { useGeneralLedger } from '@/module/reports/presentation/hooks/useGeneralLedger';
+import { ReportBackButton } from '@/module/reports/presentation/components/shared/ReportBackButton';
 import { GeneralLedgerFilterBar } from '@/module/reports/presentation/components/general-ledger/GeneralLedgerFilterBar';
 import { GeneralLedgerSummaryCards } from '@/module/reports/presentation/components/general-ledger/GeneralLedgerSummaryCards';
-import { GeneralLedgerAccountSidebar } from '@/module/reports/presentation/components/general-ledger/GeneralLedgerAccountSidebar';
-import { GeneralLedgerAccountDetail } from '@/module/reports/presentation/components/general-ledger/GeneralLedgerAccountDetail';
-import { GeneralLedgerConsolidatedTable } from '@/module/reports/presentation/components/general-ledger/GeneralLedgerConsolidatedTable';
+import { GeneralLedgerAccountsTable } from '@/module/reports/presentation/components/general-ledger/GeneralLedgerAccountsTable';
 
 import { useTranslation } from '@/i18n';
 
@@ -27,6 +26,7 @@ export default function GeneralLedgerPage() {
             icon={IconBook2}
             title={t('generalLedger.pageTitle')}
             description={t('generalLedger.pageDescription')}
+            actions={<ReportBackButton />}
             breadcrumbs={[
               { label: t('common.financialReports'), to: routes.reports.main },
               { label: t('catalog.generalLedgerTitle') },
@@ -43,8 +43,7 @@ export default function GeneralLedgerPage() {
             isFetching={ledger.query.isFetching}
             onExport={(type) => ledger.exportMutation.mutate(type)}
             isExporting={ledger.exportMutation.isPending}
-            viewMode={ledger.viewMode}
-            onViewModeChange={ledger.setViewMode}
+            onCancelExport={ledger.cancelExport}
             hasData={Boolean(ledger.query.data && ledger.accounts.length > 0)}
           />
 
@@ -93,7 +92,6 @@ export default function GeneralLedgerPage() {
               <GeneralLedgerSummaryCards
                 report={ledger.query.data}
                 period={ledger.period}
-                totalTransactions={ledger.totalTransactionsCount}
                 isBalanced={ledger.isBalanced}
               />
 
@@ -105,39 +103,15 @@ export default function GeneralLedgerPage() {
                     py={60}
                   />
                 </Paper>
-              ) : ledger.viewMode === 'master_detail' ? (
-                /* Master-Detail View Mode */
-                <Grid gutter="md" align="flex-start">
-                  <Grid.Col span={{ base: 12, md: 4, lg: 3.5 }}>
-                    <GeneralLedgerAccountSidebar
-                      accounts={ledger.filteredAccounts}
-                      selectedAccountId={ledger.selectedAccount?.id ?? null}
-                      onSelectAccount={ledger.setSelectedAccountId}
-                      search={ledger.accountSearch}
-                      onSearchChange={ledger.setAccountSearch}
-                      totalCount={ledger.accounts.length}
-                    />
-                  </Grid.Col>
-
-                  <Grid.Col span={{ base: 12, md: 8, lg: 8.5 }}>
-                    <GeneralLedgerAccountDetail
-                      account={ledger.selectedAccount}
-                      transactions={ledger.accountTransactions}
-                      transactionSearch={ledger.transactionSearch}
-                      onTransactionSearchChange={ledger.setTransactionSearch}
-                      transactionSort={ledger.transactionSort}
-                      onTransactionSortChange={ledger.setTransactionSort}
-                    />
-                  </Grid.Col>
-                </Grid>
               ) : (
-                /* Consolidated View Mode */
-                <GeneralLedgerConsolidatedTable
-                  accounts={ledger.accounts}
-                  onSelectAccount={(accId) => {
-                    ledger.setSelectedAccountId(accId);
-                    ledger.setViewMode('master_detail');
-                  }}
+                <GeneralLedgerAccountsTable
+                  accounts={ledger.filteredAccounts}
+                  period={ledger.period}
+                  search={ledger.accountSearch}
+                  onSearchChange={ledger.setAccountSearch}
+                  pagination={ledger.query.data.pagination}
+                  onPageChange={ledger.handlePageChange}
+                  isPageLoading={ledger.query.isFetching}
                 />
               )}
             </>

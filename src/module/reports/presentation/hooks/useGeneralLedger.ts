@@ -1,7 +1,12 @@
 import { useMemo, useState } from 'react';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
-import { generalLedgerApi } from '@/module/reports/infrastructure/generalLedgerApi';
+import {
+  GENERAL_LEDGER_PAGE_SIZE,
+  generalLedgerApi,
+} from '@/module/reports/infrastructure/generalLedgerApi';
+import { isRequestCanceled } from '@/module/reports/infrastructure/requestCancel';
+import { useAbortableRequest } from '@/module/reports/presentation/hooks/useAbortableRequest';
 import type {
   GeneralLedgerExportType,
   GeneralLedgerReport,
@@ -13,17 +18,15 @@ import { useTranslation } from '@/i18n';
 
 export function useGeneralLedger() {
   const { t } = useTranslation('reports');
+  const exportRequest = useAbortableRequest();
   const [preset, setPreset] = useState<PeriodPreset>('this_month');
   const [period, setPeriod] = useState<ReportPeriod>(() => getPresetDateRange('this_month'));
   const [draftPeriod, setDraftPeriod] = useState<ReportPeriod>(() =>
     getPresetDateRange('this_month')
   );
 
-  const [viewMode, setViewMode] = useState<'master_detail' | 'consolidated'>('master_detail');
-  const [selectedAccountId, setSelectedAccountId] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
   const [accountSearch, setAccountSearch] = useState('');
-  const [transactionSearch, setTransactionSearch] = useState('');
-  const [transactionSort, setTransactionSort] = useState<'asc' | 'desc'>('asc');
 
   // Change preset helper
   const handlePresetChange = (newPreset: PeriodPreset) => {
@@ -32,7 +35,8 @@ export function useGeneralLedger() {
       const range = getPresetDateRange(newPreset);
       setDraftPeriod(range);
       setPeriod(range);
-      setSelectedAccountId(null);
+      exportRequest.abort();
+      setPage(1);
     }
   };
 
@@ -48,14 +52,21 @@ export function useGeneralLedger() {
     }
     setPreset('custom');
     setPeriod(draftPeriod);
-    setSelectedAccountId(null);
+    exportRequest.abort();
+    setPage(1);
+  };
+
+  const handlePageChange = (nextPage: number) => {
+    setPage(nextPage);
   };
 
   // Query
   const query = useQuery<GeneralLedgerReport>({
-    queryKey: ['general-ledger', period.startDate, period.endDate],
-    queryFn: () => generalLedgerApi.getReport(period),
+    queryKey: ['general-ledger', period.startDate, period.endDate, page],
+    queryFn: ({ signal }) =>
+      generalLedgerApi.getReport(period, page, GENERAL_LEDGER_PAGE_SIZE, signal),
     staleTime: 60_000,
+    placeholderData: keepPreviousData,
   });
 
   const accounts = query.data?.accounts ?? [];
@@ -72,45 +83,6 @@ export function useGeneralLedger() {
     );
   }, [accounts, accountSearch]);
 
-  // Selected account
-  const selectedAccount = useMemo(() => {
-    if (selectedAccountId) {
-      const found = accounts.find((a) => a.id === selectedAccountId);
-      if (found) return found;
-    }
-    return filteredAccounts[0] || accounts[0] || null;
-  }, [accounts, filteredAccounts, selectedAccountId]);
-
-  // Transactions within selected account, filtered & sorted
-  const accountTransactions = useMemo(() => {
-    if (!selectedAccount) return [];
-    let list = [...selectedAccount.transactions];
-
-    const term = transactionSearch.trim().toLowerCase();
-    if (term) {
-      list = list.filter(
-        (tx) =>
-          tx.transactionNumber.toLowerCase().includes(term) ||
-          tx.description.toLowerCase().includes(term)
-      );
-    }
-
-    list.sort((a, b) => {
-      const dateA = a.transactionDate || '';
-      const dateB = b.transactionDate || '';
-      if (transactionSort === 'asc') return dateA.localeCompare(dateB);
-      return dateB.localeCompare(dateA);
-    });
-
-    return list;
-  }, [selectedAccount, transactionSearch, transactionSort]);
-
-  // Total transactions count
-  const totalTransactionsCount = useMemo(
-    () => accounts.reduce((acc, curr) => acc + curr.transactions.length, 0),
-    [accounts]
-  );
-
   // Check debit-credit balance
   const isBalanced = useMemo(() => {
     if (!query.data) return true;
@@ -120,7 +92,8 @@ export function useGeneralLedger() {
 
   // Export mutation
   const exportMutation = useMutation({
-    mutationFn: (type: GeneralLedgerExportType) => generalLedgerApi.exportReport(period, type),
+    mutationFn: (type: GeneralLedgerExportType) =>
+      generalLedgerApi.exportReport(period, type, exportRequest.start()),
     onSuccess: (blob, type) => {
       const url = URL.createObjectURL(blob);
       const anchor = document.createElement('a');
@@ -138,6 +111,7 @@ export function useGeneralLedger() {
       });
     },
     onError: (err) => {
+      if (isRequestCanceled(err)) return;
       notifications.show({
         color: 'red',
         title: t('common.exportFailed'),
@@ -145,6 +119,11 @@ export function useGeneralLedger() {
       });
     },
   });
+
+  const cancelExport = () => {
+    exportRequest.abort();
+    notifications.show({ color: 'gray', message: t('common.exportCanceled') });
+  };
 
   return {
     period,
@@ -154,28 +133,18 @@ export function useGeneralLedger() {
     handlePresetChange,
     handleApplyCustomPeriod,
 
-    viewMode,
-    setViewMode,
-
     query,
     accounts,
     filteredAccounts,
-    selectedAccount,
-    selectedAccountId,
-    setSelectedAccountId,
 
     accountSearch,
     setAccountSearch,
 
-    transactionSearch,
-    setTransactionSearch,
-    transactionSort,
-    setTransactionSort,
-    accountTransactions,
-
-    totalTransactionsCount,
+    page,
+    handlePageChange,
     isBalanced,
 
     exportMutation,
+    cancelExport,
   };
 }

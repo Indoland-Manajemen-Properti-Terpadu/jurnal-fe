@@ -6,6 +6,7 @@ import type {
   BalanceSheetQueryParams,
 } from '@/module/reports/domain/balanceSheet.types';
 import { mapBalanceSheetResponse } from './balanceSheetMapper';
+import { isRequestCanceled } from './requestCancel';
 
 function parseErrorMessage(error: unknown): string {
   if (axios.isAxiosError(error)) {
@@ -21,7 +22,10 @@ function parseErrorMessage(error: unknown): string {
 }
 
 export const balanceSheetApi = {
-  async getReport(params: BalanceSheetQueryParams): Promise<BalanceSheetData> {
+  async getReport(
+    params: BalanceSheetQueryParams,
+    signal?: AbortSignal
+  ): Promise<BalanceSheetData> {
     try {
       // In Postman collection: GET {{base_url}}/v1/reports/balance-sheet?date=2025-04-04&endDate=2026-04-10
       const response = await apiClient.get<unknown>('/v1/reports/balance-sheet', {
@@ -29,14 +33,20 @@ export const balanceSheetApi = {
           date: params.startDate,
           endDate: params.endDate,
         },
+        signal,
       });
       return mapBalanceSheetResponse(response.data, params);
     } catch (error) {
+      if (isRequestCanceled(error)) throw error;
       throw new Error(parseErrorMessage(error));
     }
   },
 
-  async exportReport(params: BalanceSheetQueryParams, type: BalanceSheetExportType): Promise<Blob> {
+  async exportReport(
+    params: BalanceSheetQueryParams,
+    type: BalanceSheetExportType,
+    signal?: AbortSignal
+  ): Promise<Blob> {
     try {
       // Try dedicated export endpoint
       const response = await apiClient.get<Blob>(`/v1/reports/balance-sheet/export/${type}`, {
@@ -45,9 +55,12 @@ export const balanceSheetApi = {
           endDate: params.endDate,
         },
         responseType: 'blob',
+        signal,
       });
       return response.data;
     } catch (error) {
+      // An aborted export must not start the legacy request.
+      if (isRequestCanceled(error)) throw error;
       // Fallback to legacy endpoint if available
       try {
         const fallback = await apiClient.get<Blob>('/v1/report/balance/download', {
@@ -57,9 +70,11 @@ export const balanceSheetApi = {
             type,
           },
           responseType: 'blob',
+          signal,
         });
         return fallback.data;
-      } catch {
+      } catch (fallbackError) {
+        if (isRequestCanceled(fallbackError)) throw fallbackError;
         throw new Error(parseErrorMessage(error));
       }
     }

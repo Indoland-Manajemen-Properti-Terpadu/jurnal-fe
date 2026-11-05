@@ -6,6 +6,9 @@ import type {
   ReportPeriod,
 } from '@/module/reports/domain/generalLedger.types';
 import { mapGeneralLedgerResponse } from './generalLedgerMapper';
+import { isRequestCanceled } from './requestCancel';
+
+export const GENERAL_LEDGER_PAGE_SIZE = 20;
 
 function parseErrorMessage(error: unknown): string {
   if (axios.isAxiosError(error)) {
@@ -23,21 +26,35 @@ function parseErrorMessage(error: unknown): string {
 }
 
 export const generalLedgerApi = {
-  async getReport(period: ReportPeriod): Promise<GeneralLedgerReport> {
+  /** The server pages the accounts (20 by default, 100 at most); the period totals cover all of them. */
+  async getReport(
+    period: ReportPeriod,
+    page = 1,
+    limit = GENERAL_LEDGER_PAGE_SIZE,
+    signal?: AbortSignal
+  ): Promise<GeneralLedgerReport> {
     try {
       const response = await apiClient.get<unknown>('/v1/general-ledger', {
         params: {
           startDate: period.startDate,
           endDate: period.endDate,
+          page,
+          limit,
         },
+        signal,
       });
       return mapGeneralLedgerResponse(response.data);
     } catch (error) {
+      if (isRequestCanceled(error)) throw error;
       throw new Error(parseErrorMessage(error));
     }
   },
 
-  async exportReport(period: ReportPeriod, type: GeneralLedgerExportType): Promise<Blob> {
+  async exportReport(
+    period: ReportPeriod,
+    type: GeneralLedgerExportType,
+    signal?: AbortSignal
+  ): Promise<Blob> {
     try {
       const response = await apiClient.get<Blob>(`/v1/general-ledger/export/${type}`, {
         params: {
@@ -45,9 +62,11 @@ export const generalLedgerApi = {
           endDate: period.endDate,
         },
         responseType: 'blob',
+        signal,
       });
       return response.data;
     } catch (error) {
+      if (isRequestCanceled(error)) throw error;
       throw new Error(parseErrorMessage(error));
     }
   },

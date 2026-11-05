@@ -2,6 +2,8 @@ import { useMemo, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 import { balanceSheetApi } from '@/module/reports/infrastructure/balanceSheetApi';
+import { isRequestCanceled } from '@/module/reports/infrastructure/requestCancel';
+import { useAbortableRequest } from '@/module/reports/presentation/hooks/useAbortableRequest';
 import type {
   BalanceSheetAccountItem,
   BalanceSheetData,
@@ -14,6 +16,7 @@ import { useTranslation } from '@/i18n';
 
 export function useBalanceSheet() {
   const { t } = useTranslation('reports');
+  const exportRequest = useAbortableRequest();
   const [preset, setPreset] = useState<PeriodPreset>('this_month');
   const [period, setPeriod] = useState<BalanceSheetQueryParams>(() =>
     getPresetDateRange('this_month')
@@ -22,7 +25,6 @@ export function useBalanceSheet() {
     getPresetDateRange('this_month')
   );
 
-  const [viewMode, setViewMode] = useState<'standard' | 'side_by_side'>('side_by_side');
   const [searchQuery, setSearchQuery] = useState('');
 
   // Handle preset change
@@ -32,6 +34,7 @@ export function useBalanceSheet() {
       const range = getPresetDateRange(newPreset);
       setDraftPeriod(range);
       setPeriod(range);
+      exportRequest.abort();
     }
   };
 
@@ -47,12 +50,13 @@ export function useBalanceSheet() {
     }
     setPreset('custom');
     setPeriod(draftPeriod);
+    exportRequest.abort();
   };
 
   // Query
   const query = useQuery<BalanceSheetData>({
     queryKey: ['balance-sheet-report', period.startDate, period.endDate],
-    queryFn: () => balanceSheetApi.getReport(period),
+    queryFn: ({ signal }) => balanceSheetApi.getReport(period, signal),
     staleTime: 60_000,
   });
 
@@ -106,7 +110,8 @@ export function useBalanceSheet() {
 
   // Export mutation
   const exportMutation = useMutation({
-    mutationFn: (type: BalanceSheetExportType) => balanceSheetApi.exportReport(period, type),
+    mutationFn: (type: BalanceSheetExportType) =>
+      balanceSheetApi.exportReport(period, type, exportRequest.start()),
     onSuccess: (blob, type) => {
       const url = URL.createObjectURL(blob);
       const anchor = document.createElement('a');
@@ -124,6 +129,7 @@ export function useBalanceSheet() {
       });
     },
     onError: (err) => {
+      if (isRequestCanceled(err)) return;
       notifications.show({
         color: 'red',
         title: t('common.exportFailed'),
@@ -132,6 +138,11 @@ export function useBalanceSheet() {
     },
   });
 
+  const cancelExport = () => {
+    exportRequest.abort();
+    notifications.show({ color: 'gray', message: t('common.exportCanceled') });
+  };
+
   return {
     period,
     draftPeriod,
@@ -139,9 +150,6 @@ export function useBalanceSheet() {
     preset,
     handlePresetChange,
     handleApplyCustomPeriod,
-
-    viewMode,
-    setViewMode,
 
     searchQuery,
     setSearchQuery,
@@ -158,5 +166,6 @@ export function useBalanceSheet() {
     filteredEquity,
 
     exportMutation,
+    cancelExport,
   };
 }

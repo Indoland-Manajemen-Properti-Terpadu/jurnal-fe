@@ -1,8 +1,9 @@
 import React from 'react';
-import { ActionIcon, Badge, Box, Group, Paper, Stack, Text, ThemeIcon } from '@mantine/core';
-import { IconArrowRight } from '@tabler/icons-react';
+import { Group, Paper, Text, ThemeIcon } from '@mantine/core';
+import { IconArrowRight, IconClock } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 import type { ReportItem } from '@/module/reports/presentation/components/catalog/reportCatalogData';
+import classes from '@/module/reports/presentation/components/shared/ReportShared.module.css';
 
 import { useTranslation } from '@/i18n';
 
@@ -13,6 +14,7 @@ interface ReportCardProps {
 export const ReportCard: React.FC<ReportCardProps> = ({ report }) => {
   const { t } = useTranslation('reports');
   const IconComponent = report.icon;
+  const soon = report.status === 'soon';
 
   return (
     <Paper
@@ -22,88 +24,46 @@ export const ReportCard: React.FC<ReportCardProps> = ({ report }) => {
       radius="lg"
       p="lg"
       bg="white"
-      style={{
-        textDecoration: 'none',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-        position: 'relative',
-        overflow: 'hidden',
-      }}
-      styles={{
-        root: {
-          '&:hover': {
-            transform: 'translateY(-3px)',
-            boxShadow:
-              '0 12px 24px -10px color-mix(in srgb, var(--mantine-color-black) 8%, transparent), 0 4px 6px -2px color-mix(in srgb, var(--mantine-color-black) 2%, transparent)',
-            borderColor: 'var(--mantine-color-primary-4)',
-          },
-        },
-      }}
+      className={classes.card}
+      data-soon={soon}
     >
-      <Stack gap="md" style={{ flex: 1 }}>
-        <Group justify="space-between" align="flex-start" wrap="nowrap">
-          <ThemeIcon
-            size={48}
-            radius="md"
-            variant="light"
-            color={report.color || 'primary'}
-            style={{ flexShrink: 0 }}
-          >
-            <IconComponent size={26} stroke={1.6} />
-          </ThemeIcon>
+      <Group justify="space-between" align="flex-start" wrap="nowrap">
+        <ThemeIcon
+          size={44}
+          radius="md"
+          variant="light"
+          color="primary"
+          className={classes.cardIcon}
+        >
+          <IconComponent size={24} stroke={1.6} />
+        </ThemeIcon>
+      </Group>
 
-          <Group gap="xs" wrap="wrap" justify="flex-end">
-            {report.badgeKey && (
-              <Badge
-                size="sm"
-                variant="light"
-                color={report.badgeColor || 'primary'}
-                radius="sm"
-                tt="none"
-                fw={600}
-              >
-                {t(report.badgeKey)}
-              </Badge>
-            )}
-            {report.featured && (
-              <Badge size="sm" variant="filled" color="primary" radius="sm">
-                {t('catalog.featured')}
-              </Badge>
-            )}
-          </Group>
+      <Text fw={700} fz="md" c="dark.9" mt="md" lh={1.3}>
+        {t(report.titleKey)}
+      </Text>
+      <Text fz="xs" c="dimmed" fw={500}>
+        {t(report.englishTitleKey)}
+      </Text>
+      <Text fz="sm" c="gray.7" mt="xs" lh={1.5} lineClamp={3} style={{ flex: 1 }}>
+        {t(report.descriptionKey)}
+      </Text>
+
+      {soon ? (
+        <Group gap={6} mt="md">
+          <IconClock size={16} color="var(--mantine-color-gray-6)" aria-hidden="true" />
+          <Text fz="sm" fw={500} c="dimmed">
+            {t('catalog.statusSoon')}
+          </Text>
         </Group>
-
-        <Box>
-          <Text fw={700} size="md" c="dark.8" lh={1.3}>
-            {t(report.titleKey)}
-          </Text>
-          <Text size="xs" c="dimmed" mt={2} fw={500}>
-            {t(report.englishTitleKey)}
-          </Text>
-          <Text size="sm" c="gray.6" mt="xs" lh={1.5} lineClamp={2}>
-            {t(report.descriptionKey)}
-          </Text>
-        </Box>
-      </Stack>
-
-      <Box pt="md" mt="auto">
-        <Group justify="space-between" align="center">
-          <Text size="xs" fw={600} c="primary.7">
+      ) : (
+        <Group gap={4} mt="md">
+          <Text fz="sm" fw={600} c="primary.7">
             {t('catalog.openReport')}
           </Text>
-          <ActionIcon
-            variant="subtle"
-            color="primary"
-            size="sm"
-            radius="xl"
-            aria-label={`${t('catalog.openReport')} ${t(report.titleKey)}`}
-          >
-            <IconArrowRight size={16} />
-          </ActionIcon>
+          <IconArrowRight size={16} color="var(--mantine-color-primary-7)" aria-hidden="true" />
         </Group>
-      </Box>
+      )}
     </Paper>
   );
 };

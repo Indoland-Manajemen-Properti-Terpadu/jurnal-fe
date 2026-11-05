@@ -4,7 +4,8 @@ export interface AccountFormValues {
   name: string;
   accountNumber: string;
   category: string;
-  taxType: string;
+  /** Id of the default tax (`/v1/taxes`); empty when none. */
+  defaultTax: string;
   isBankAndCash: boolean;
   isContra: boolean;
   desc: string;
@@ -31,7 +32,7 @@ export const buildAccountPayload = (
     name: values.name.trim(),
     accountNumber: values.accountNumber.trim(),
     category: values.category,
-    taxType: values.taxType || undefined,
+    defaultTax: values.defaultTax || null,
     ...(options.includeBankCash === false ? {} : { isBankAndCash: values.isBankAndCash }),
     isContra: values.isContra,
     desc: values.desc.trim() || undefined,

@@ -9,6 +9,8 @@ export interface GeneralLedgerTransaction {
   transactionDate: string;
   transactionNumber: string;
   description: string;
+  /** Longer memo of the journal, when it has one. */
+  notes: string;
   debit: number;
   credit: number;
   balance: number;
@@ -21,6 +23,10 @@ export interface GeneralLedgerAccount {
   name: string;
   category: string;
   isContra: boolean;
+  /** A parent account: its movement rolls up the movement of its sub accounts. */
+  isHead: boolean;
+  /** `debit` or `credit`; empty when the server does not say. */
+  normalBalance: string;
   openingBalance: number;
   transactions: GeneralLedgerTransaction[];
   periodDebit: number;
@@ -28,8 +34,17 @@ export interface GeneralLedgerAccount {
   closingBalance: number;
 }
 
+export interface GeneralLedgerPagination {
+  page: number;
+  limit: number;
+  totalAccounts: number;
+  totalPages: number;
+}
+
 export interface GeneralLedgerReport {
+  /** One page of accounts; the totals below cover every account of the period. */
   accounts: GeneralLedgerAccount[];
+  pagination: GeneralLedgerPagination;
   periodDebitTotal: number;
   periodCreditTotal: number;
   periodLockName: string | null;

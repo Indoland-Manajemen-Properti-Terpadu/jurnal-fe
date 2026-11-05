@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { AspectRatio, Box, Center, Grid, Group, Image, Paper, Text } from '@mantine/core';
-import { IconShieldCheck } from '@tabler/icons-react';
+import { Image, Text } from '@mantine/core';
 import { useLocation } from 'react-router-dom';
-import LogoProapps from '@/assets/images/brand/logo.svg';
+import BrandBadge from '@/assets/images/brand/badge.svg';
 import { useLogin } from '@/module/authentication/presentation/hooks/useLogin';
-import { AuthVisualSide } from '@/module/authentication/presentation/components/AuthVisualSide';
+import { AuthShowcase } from '@/module/authentication/presentation/components/AuthShowcase';
 import { LoginForm } from '@/module/authentication/presentation/components/LoginForm';
 import { ForgotPasswordForm } from '@/module/authentication/presentation/components/ForgotPasswordForm';
+import classes from '@/module/authentication/presentation/components/Auth.module.css';
 
 import { useTranslation } from '@/i18n';
 import { FORGOT_PASSWORD_ENABLED } from '@/module/authentication/domain/authFeatures';
@@ -36,91 +36,34 @@ export default function LoginPage({ initialMode = 'login' }: LoginPageProps) {
   };
 
   return (
-    <Grid
-      gutter={0}
-      style={{
-        minHeight: '100vh',
-        height: '100vh',
-        margin: 0,
-        overflow: 'hidden',
-        backgroundColor: 'var(--mantine-color-white)',
-      }}
-    >
-      {/* Left Column: Visual Branding & Product Showcase (Side-by-side) */}
-      <Grid.Col
-        span={{ base: 0, lg: 6.5, xl: 7 }}
-        style={{
-          display: 'block',
-          height: '100vh',
-        }}
-        visibleFrom="lg"
-      >
-        <AuthVisualSide />
-      </Grid.Col>
+    <div className={classes.page}>
+      <AuthShowcase />
 
-      {/* Right Column: Authentication Card Form */}
-      <Grid.Col
-        span={{ base: 12, lg: 5.5, xl: 5 }}
-        style={{
-          height: '100vh',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-          overflowY: 'auto',
-          backgroundColor: 'var(--mantine-color-slate-0)',
-          padding: '24px',
-        }}
-      >
-        <Box my="auto" py={{ base: 'md', sm: 'xl' }}>
-          <Paper
-            withBorder
-            radius="xl"
-            p={{ base: 'xl', sm: 36 }}
-            bg="white"
-            shadow="xs"
-            mx="auto"
-            style={{
-              maxWidth: 460,
-              width: '100%',
-              borderColor: 'var(--mantine-color-gray-2)',
-            }}
-          >
-            {/* Logo */}
-            <Center mb="xl">
-              <AspectRatio ratio={230 / 64} style={{ width: 140 }}>
-                <Image src={LogoProapps} fit="contain" alt={ta('page.logoAlt')} />
-              </AspectRatio>
-            </Center>
+      <main className={classes.formSide}>
+        <div className={classes.formBody}>
+          <Image
+            src={BrandBadge}
+            h={40}
+            w="auto"
+            alt={ta('page.logoAlt')}
+            mb={48}
+            style={{ alignSelf: 'flex-start' }}
+          />
+          {mode === 'login' ? (
+            <LoginForm
+              onForgotPassword={FORGOT_PASSWORD_ENABLED ? handleOpenForgotPassword : undefined}
+              onSubmit={handleLoginSubmit}
+              isPending={isPending}
+            />
+          ) : (
+            <ForgotPasswordForm onBackToLogin={() => setMode('login')} defaultEmail={presetEmail} />
+          )}
+        </div>
 
-            {/* Dynamic View: Login vs Forgot Password */}
-            {mode === 'login' ? (
-              <LoginForm
-                onForgotPassword={FORGOT_PASSWORD_ENABLED ? handleOpenForgotPassword : undefined}
-                onSubmit={handleLoginSubmit}
-                isPending={isPending}
-              />
-            ) : (
-              <ForgotPasswordForm
-                onBackToLogin={() => setMode('login')}
-                defaultEmail={presetEmail}
-              />
-            )}
-          </Paper>
-        </Box>
-
-        {/* Security & Copyright Footer */}
-        <Box ta="center" pt="md">
-          <Group justify="center" gap={6} align="center" mb={4}>
-            <IconShieldCheck size={16} color="var(--mantine-color-emerald-5)" />
-            <Text size="xs" c="dimmed" fw={500}>
-              {ta('page.secure')}
-            </Text>
-          </Group>
-          <Text size="11px" c="gray.5">
-            {ta('page.copyright')}
-          </Text>
-        </Box>
-      </Grid.Col>
-    </Grid>
+        <Text fz="xs" c="dimmed" ta="center">
+          {ta('page.copyright')}
+        </Text>
+      </main>
+    </div>
   );
 }
