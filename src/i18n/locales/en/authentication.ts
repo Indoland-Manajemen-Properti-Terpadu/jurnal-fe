@@ -19,6 +19,7 @@ export const authentication = {
     submit: 'Sign In',
     or: 'or',
     google: 'Continue with Google',
+    proapps: 'Continue with a ProApps account',
     backHome: 'Back to home',
   },
   oauth: {
