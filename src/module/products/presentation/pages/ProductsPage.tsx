@@ -8,13 +8,12 @@ import {
   Modal,
   Paper,
   Stack,
-  Tabs,
   Text,
   ThemeIcon,
   Tooltip,
 } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
-import { IconCategory, IconPackage, IconPlus, IconRefresh, IconRuler } from '@tabler/icons-react';
+import { IconPackage, IconPlus, IconRefresh } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { ConfirmModal } from '@/components/ui/ConfirmModal/ConfirmModal';
 import { useTranslation } from '@/i18n';
@@ -22,28 +21,21 @@ import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
 import { summarizeProducts } from '@/module/products/domain/productRules';
 import { ProductTable } from '@/module/products/presentation/components/ProductTable';
 import { ProductForm } from '@/module/products/presentation/components/ProductForm';
-import { MasterDataPanel } from '@/module/products/presentation/components/MasterDataPanel';
 import { ProductListToolbar } from '@/module/products/presentation/components/ProductListToolbar';
 import { ProductStatsCards } from '@/module/products/presentation/components/ProductStatsCards';
 import {
   useCategories,
-  useCategoryMutations,
   useAllProducts,
   useDeleteProduct,
   useProducts,
   useSaveProduct,
-  useUnitMutations,
   useUnits,
 } from '@/module/products/presentation/hooks/useProductQueries';
 import type { Product, ProductFormValues } from '@/module/products/domain/product';
 
-const withCount = (label: string, count?: number) =>
-  count === undefined ? label : `${label} (${count.toLocaleString('id-ID')})`;
-
 export function ProductsPage() {
   const { t } = useTranslation('products');
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<string | null>('products');
 
   // Search & Pagination state
   const [searchInput, setSearchInput] = useState('');
@@ -71,16 +63,6 @@ export function ProductsPage() {
   // Mutations
   const saveProductMutation = useSaveProduct(editingProduct?.id);
   const deleteProductMutation = useDeleteProduct();
-  const {
-    createMutation: createCat,
-    updateMutation: updateCat,
-    deleteMutation: deleteCat,
-  } = useCategoryMutations();
-  const {
-    createMutation: createUnit,
-    updateMutation: updateUnit,
-    deleteMutation: deleteUnit,
-  } = useUnitMutations();
 
   const handleOpenCreate = () => {
     setEditingProduct(undefined);
@@ -132,8 +114,8 @@ export function ProductsPage() {
                 <Tooltip label={t('list.refresh')}>
                   <ActionIcon
                     size="lg"
-                    variant="light"
-                    color="gray"
+                    variant="default"
+                    radius="md"
                     onClick={() => productsQuery.refetch()}
                     loading={productsQuery.isFetching}
                     aria-label={t('list.refresh')}
@@ -158,96 +140,36 @@ export function ProductsPage() {
             units={unitsQuery.data?.pagination.total ?? 0}
           />
 
-          {/* Main Content Tabs */}
-          <Paper withBorder radius="lg" p="md">
-            <Tabs
-              value={activeTab}
-              onChange={setActiveTab}
-              color="primary"
-              variant="pills"
-              radius="md"
-            >
-              <Tabs.List mb="md">
-                <Tabs.Tab value="products" leftSection={<IconPackage size={16} />}>
-                  {withCount(t('list.tabProducts'), summaryQuery.data && summary.total)}
-                </Tabs.Tab>
-                <Tabs.Tab value="categories" leftSection={<IconCategory size={16} />}>
-                  {withCount(t('list.tabCategories'), categoriesQuery.data?.pagination.total)}
-                </Tabs.Tab>
-                <Tabs.Tab value="units" leftSection={<IconRuler size={16} />}>
-                  {withCount(t('list.tabUnits'), unitsQuery.data?.pagination.total)}
-                </Tabs.Tab>
-              </Tabs.List>
+          <Paper withBorder radius="lg" p="md" bg="white">
+            <Stack gap="md">
+              <ProductListToolbar
+                search={searchInput}
+                onSearchChange={(value) => {
+                  setSearchInput(value);
+                  setPage(1);
+                }}
+                onSearchClear={() => setSearchInput('')}
+              />
 
-              {/* Tab 1: Products */}
-              <Tabs.Panel value="products">
-                <Stack gap="md">
-                  <ProductListToolbar
-                    search={searchInput}
-                    onSearchChange={(value) => {
-                      setSearchInput(value);
-                      setPage(1);
-                    }}
-                    onSearchClear={() => setSearchInput('')}
-                  />
-
-                  <ProductTable
-                    products={productsQuery.data?.items ?? []}
-                    isLoading={productsQuery.isLoading}
-                    isFiltered={debouncedSearch.trim() !== ''}
-                    page={page}
-                    totalPages={totalPages}
-                    total={totalProducts}
-                    limit={limit}
-                    onPageChange={setPage}
-                    onLimitChange={(value) => {
-                      setLimit(value);
-                      setPage(1);
-                    }}
-                    onView={handleOpenDetail}
-                    onEdit={handleOpenEdit}
-                    onDelete={(prod) => setDeleteProductTarget(prod)}
-                    onCreate={handleOpenCreate}
-                  />
-                </Stack>
-              </Tabs.Panel>
-
-              {/* Tab 2: Categories */}
-              <Tabs.Panel value="categories">
-                <MasterDataPanel
-                  icon={IconCategory}
-                  entityLabel={t('masterData.category')}
-                  helperText={t('masterData.categoryHelper')}
-                  namePlaceholder={t('masterData.categoryPlaceholder')}
-                  items={categoriesQuery.data?.items ?? []}
-                  isLoading={categoriesQuery.isLoading}
-                  isCreating={createCat.isPending}
-                  isUpdating={updateCat.isPending}
-                  isDeleting={deleteCat.isPending}
-                  onCreate={(input) => createCat.mutateAsync(input)}
-                  onUpdate={(id, input) => updateCat.mutateAsync({ id, input })}
-                  onDelete={(id) => deleteCat.mutateAsync(id)}
-                />
-              </Tabs.Panel>
-
-              {/* Tab 3: Units */}
-              <Tabs.Panel value="units">
-                <MasterDataPanel
-                  icon={IconRuler}
-                  entityLabel={t('masterData.unit')}
-                  helperText={t('masterData.unitHelper')}
-                  namePlaceholder={t('masterData.unitPlaceholder')}
-                  items={unitsQuery.data?.items ?? []}
-                  isLoading={unitsQuery.isLoading}
-                  isCreating={createUnit.isPending}
-                  isUpdating={updateUnit.isPending}
-                  isDeleting={deleteUnit.isPending}
-                  onCreate={(input) => createUnit.mutateAsync(input)}
-                  onUpdate={(id, input) => updateUnit.mutateAsync({ id, input })}
-                  onDelete={(id) => deleteUnit.mutateAsync(id)}
-                />
-              </Tabs.Panel>
-            </Tabs>
+              <ProductTable
+                products={productsQuery.data?.items ?? []}
+                isLoading={productsQuery.isLoading}
+                isFiltered={debouncedSearch.trim() !== ''}
+                page={page}
+                totalPages={totalPages}
+                total={totalProducts}
+                limit={limit}
+                onPageChange={setPage}
+                onLimitChange={(value) => {
+                  setLimit(value);
+                  setPage(1);
+                }}
+                onView={handleOpenDetail}
+                onEdit={handleOpenEdit}
+                onDelete={(prod) => setDeleteProductTarget(prod)}
+                onCreate={handleOpenCreate}
+              />
+            </Stack>
           </Paper>
         </Stack>
       </Box>
