@@ -135,7 +135,7 @@ export const AddJournalEntryPage: React.FC = () => {
               <Button
                 variant="default"
                 leftSection={<IconArrowLeft size={16} />}
-                onClick={() => navigate(routes.chartOfAccounts.main)}
+                onClick={() => navigate(routes.journalEntries.main)}
               >
                 {t('form.back')}
               </Button>
