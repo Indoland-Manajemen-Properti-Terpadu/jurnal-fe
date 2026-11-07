@@ -5,18 +5,22 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import classes from '@/components/Navbar/Links/NavLinksGroup.module.css';
 import { isNavigationChildActive, isNavigationLinkActive } from '../activeNavigation';
 
+export type LinksGroupChild = {
+  label: string;
+  link: string;
+  icon?: React.ElementType;
+  badge?: React.ReactNode;
+};
+
 interface LinksGroupProps {
   icon?: React.ElementType;
   label: string;
   initiallyOpened?: boolean;
-  link?: string;
+  link: string;
+  /** Address prefix that keeps the entry active when its pages are deeper than `link`. */
+  match?: string;
   badge?: React.ReactNode;
-  links?: {
-    label: string;
-    link: string;
-    icon?: React.ElementType;
-    badge?: React.ReactNode;
-  }[];
+  links?: LinksGroupChild[];
   closeSidebar: () => void;
   collapsed?: boolean;
   siblingLinks?: string[];
@@ -30,6 +34,7 @@ export function LinksGroup(props: LinksGroupProps) {
     label,
     initiallyOpened,
     link,
+    match,
     badge,
     links,
     closeSidebar,
@@ -41,15 +46,18 @@ export function LinksGroup(props: LinksGroupProps) {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const hasLinks = Array.isArray(links);
-  const isParentActive =
-    link &&
-    isNavigationLinkActive(location.pathname, link, siblingLinks.length ? siblingLinks : [link]);
+  const hasLinks = Array.isArray(links) && links.length > 0;
+  const activeLink = match ?? link;
+  const isParentActive = isNavigationLinkActive(
+    location.pathname,
+    activeLink,
+    siblingLinks.length ? siblingLinks : [activeLink]
+  );
   const childLinks = (hasLinks ? links : []).map((item) => item.link);
   const isChildActive =
     hasLinks &&
     links.some((item) => isNavigationChildActive(location.pathname, item.link, childLinks));
-  const isActive = Boolean(isParentActive || isChildActive);
+  const isActive = isParentActive || isChildActive;
   // Start open when this section is active so the sidebar height is stable on first paint.
   const [opened, setOpened] = useState(initiallyOpened || (isActive && !collapsed));
 
@@ -63,11 +71,11 @@ export function LinksGroup(props: LinksGroupProps) {
 
   const handleNavigation = () => {
     // expandOnly groups only navigate (to their first page) when the sidebar is collapsed.
-    if (link && (!expandOnly || collapsed)) {
+    if (!expandOnly || collapsed) {
       navigate(link);
       closeSidebar();
     }
-    if (!collapsed) {
+    if (!collapsed && hasLinks) {
       setOpened((o) => !o);
     }
   };
@@ -78,7 +86,7 @@ export function LinksGroup(props: LinksGroupProps) {
 
     return (
       <UnstyledButton
-        key={item.label}
+        key={item.link}
         className={classes.subLink}
         data-active={isCurrentChild || undefined}
         aria-current={isCurrentChild ? 'page' : undefined}
@@ -90,9 +98,9 @@ export function LinksGroup(props: LinksGroupProps) {
         <Group gap={10} wrap="nowrap" style={{ flex: 1, minWidth: 0 }}>
           {SubIcon ? (
             <SubIcon
-              size={16}
+              size={18}
               className={classes.subIcon}
-              weight={isCurrentChild ? 'fill' : 'regular'}
+              weight={isCurrentChild ? 'fill' : 'duotone'}
             />
           ) : (
             <span className={classes.bullet} data-active={isCurrentChild || undefined} />

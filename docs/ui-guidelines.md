@@ -6,13 +6,15 @@ Product vision, UX rules and page layouts for every screen. Tokens, typography, 
 
 The primary mission of Jurnal Proapps is to **demystify accounting and create an extraordinarily approachable, intuitive, and anxiety-free accounting system**.
 
-Traditional accounting software and legacy desktop ledgers are notorious for being rigid, confusing, jargon-heavy, and intimidating to business owners, operators, and staff who are skeptical of complex financial systems. 
+Traditional accounting software and legacy desktop ledgers are notorious for being rigid, confusing, jargon-heavy, and intimidating to business owners, operators, and staff who are skeptical of complex financial systems.
 
 **Strict Rule: Brand Neutrality & Zero Competitor Mentions**:
+
 - NEVER mention or refer to any competitor product or company by name anywhere in the codebase, UI, landing pages, marketing copy, comparison matrices, educational resources, tooltips, or agent communications.
 - ALWAYS use neutral, professional, generic terms such as "Software Akuntansi Konvensional" / "Conventional Accounting Software", "Software Akuntansi Umum" / "Generalist Systems", or "Sistem Pembukuan Standar".
 
 **Our Core Value Proposition**:
+
 1. **Accounting Without Fear**: Every screen must provide clarity, psychological safety, and clear direction. Users should never feel lost, confused, or worried that a single click might break their company's books.
 2. **Instant Cognitive Clarity**: Demystify complex concepts (such as double-entry, contra accounts, depreciation, normal balances) through real-world examples, contextual tooltips, and interactive guidance cards.
 3. **Prevention Over Punishment (Poka-Yoke)**: Make invalid states difficult or impossible to enter. Show live balance meters, difference indicators, and real-time verification checklists rather than punishing users with cryptic error dialogs after submission.
@@ -33,10 +35,10 @@ Any agent working on this codebase MUST treat UI/UX not as an afterthought, but 
 - Empty State Consistency: Tables and list views MUST NOT unmount the table shell or replace the data frame with disparate raw boxes when filtered or empty. Render the standard `<EmptyState>` component inside `<Table.Tbody><Table.Tr><Table.Td colSpan={...}>` (or the unified table container) so that headers, borders, and pagination structures remain stable. The empty state must feature an informative soft-themed icon orb, concise bold title, descriptive instruction text, and an actionable CTA button where relevant (e.g. "Buat Data Baru").
 - **Canonical Feature Page Layout Standard**:
   Use the following layouts as defaults, not decorative checklists. Choose the smallest composition that supports the page's actual decisions and tasks. A page may omit KPI strips, sidebars, guide cards, or tabs when they do not add decision value; visual consistency comes from shared tokens, components, spacing, and interaction behavior rather than repeating every region.
-  
+
   **Standard A: Listing & Master Data Pages (Kontak, Produk, Daftar Akun, Persetujuan Perubahan)**:
   1. **Page Wrapper**: `<AppShellLayout><Box p={{ base: 'md', sm: 'xl' }}><Stack gap="lg">`. Never wrap pages in inconsistent full-width banner wrappers or divergent background boxes.
-  2. **Top Bar HeaderNav Mapping**: Register the path prefix in `src/components/HeaderNav/HeaderNav.tsx`'s `SECTION_TITLES` so the breadcrumb displays the proper group (e.g. `TRANSAKSI`, `OPERASIONAL`, `MASTER DATA`) and section title, preventing fallback to generic "PROAPPS / Jurnal".
+  2. **Navigation Registration**: Add the page to `src/components/Navbar/navigationRegistry.ts` (a sidebar entry, or `extraTitles` for a form or detail page) so the sidebar, the active state and the top bar breadcrumb show the proper group and title, preventing fallback to generic "PROAPPS / Jurnal". Navigation rules: one place per task (do not repeat a sidebar destination in a page menu); a sub-menu item is a page of its own, never a tab of the parent page (tabs are only filters of one list); sub-menu items use an icon, not a dot; the sidebar shows no status badges. A module that is not built yet still gets a page: render the shared `PlannedModulePage` (`src/components/PlannedModule`, copy in the `plannedModules` namespace) so every menu opens a real route with the shared header; a screen that shows sample figures opens with `PrototypeNotice`.
   3. **Module Header**: Prefer the canonical `<ModuleHeader>` (`src/components/ModuleHeader/ModuleHeader.tsx`) with a bold title, concise description, and right-aligned actions. Use at most one visually primary CTA in the header. Gradient icons and multiple equal-weight buttons are optional and must not compete with the page's main task.
   4. **Decision Metrics**: Add a KPI grid only when each metric changes a user decision. Prefer one cohesive balance/summary surface when values form a single equation or accountability model. Do not repeat the same value across cards, progress bars, badges, and tables.
   5. **Main Content Container**: Wrap tabs, search filter, and data table inside a single unified `<Paper withBorder radius="lg" p="md" bg="white">`.
