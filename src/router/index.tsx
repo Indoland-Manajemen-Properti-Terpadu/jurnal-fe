@@ -18,6 +18,7 @@ import { salesRoutes } from './modules/sales';
 import { purchasesRoutes } from './modules/purchases';
 import { costsRoutes } from './modules/costs';
 import { productsRoutes } from './modules/products';
+import { inventoryRoutes } from './modules/inventory';
 import { productionRoutes } from './modules/production';
 import { fulfillmentRoutes } from './modules/fulfillment';
 import { assetsRoutes } from './modules/assets';
@@ -43,6 +44,7 @@ const router = createBrowserRouter([
   ...purchasesRoutes,
   ...costsRoutes,
   ...productsRoutes,
+  ...inventoryRoutes,
   ...productionRoutes,
   ...fulfillmentRoutes,
   ...assetsRoutes,

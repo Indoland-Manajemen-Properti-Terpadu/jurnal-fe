@@ -22,13 +22,13 @@ describe('<BudgetPlanningPage />', () => {
   it('shows the Indonesian title by default', () => {
     renderPage();
 
-    expect(screen.getAllByText('Perencanaan Anggaran').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Anggaran').length).toBeGreaterThan(0);
   });
 
   it('shows the English title after switching language', () => {
     act(() => useI18nStore.getState().setLanguage('en'));
     renderPage();
 
-    expect(screen.getAllByText('Budget Planning').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Budgeting').length).toBeGreaterThan(0);
   });
 });

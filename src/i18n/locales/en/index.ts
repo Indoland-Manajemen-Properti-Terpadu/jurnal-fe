@@ -10,10 +10,7 @@ import { contacts } from './contacts';
 import { saleDetail } from './saleDetail';
 import { sales } from './sales';
 import { dashboard } from './dashboard';
-import { costs } from './costs';
-import { production } from './production';
-import { fulfillment } from './fulfillment';
-import { budgeting } from './budgeting';
+import { plannedModules } from './plannedModules';
 import { landing } from './landing';
 import { profile } from './profile';
 import { purchases } from './purchases';
@@ -43,10 +40,7 @@ export const en = {
   saleDetail,
   sales,
   dashboard,
-  costs,
-  production,
-  fulfillment,
-  budgeting,
+  plannedModules,
   landing,
   profile,
   purchases,
