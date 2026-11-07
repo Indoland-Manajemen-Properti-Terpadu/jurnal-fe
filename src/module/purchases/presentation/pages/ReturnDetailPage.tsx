@@ -21,7 +21,7 @@ import { usePurchaseJourney } from '@/module/purchases/presentation/hooks/usePur
 import { useBill, useReturn } from '@/module/purchases/presentation/hooks/usePurchaseQueries';
 import { routes } from '@/router/routes';
 
-const BACK = `${routes.purchases.main}?tab=returns`;
+const BACK = routes.purchases.returns;
 
 export default function ReturnDetailPage() {
   const { id } = useParams();

@@ -300,7 +300,7 @@ export default function OrderFormPage() {
         kind="blocked"
         title={t('orders.form.noRequestTitle')}
         description={t('orders.form.noRequestDescription')}
-        backTo={`${routes.purchases.main}?tab=requests`}
+        backTo={routes.purchases.requests}
       />
     );
   }

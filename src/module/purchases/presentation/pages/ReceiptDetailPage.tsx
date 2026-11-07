@@ -19,7 +19,7 @@ import { useVoidReceipt } from '@/module/purchases/presentation/hooks/usePurchas
 import { useOrder, useReceipt } from '@/module/purchases/presentation/hooks/usePurchaseQueries';
 import { routes } from '@/router/routes';
 
-const BACK = `${routes.purchases.main}?tab=receipts`;
+const BACK = routes.purchases.receipts;
 
 export default function ReceiptDetailPage() {
   const { id } = useParams();

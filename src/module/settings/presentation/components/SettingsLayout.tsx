@@ -1,12 +1,13 @@
 import { ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Box, Stack } from '@mantine/core';
+import { Box, Grid, Stack } from '@mantine/core';
 import { IconSettings } from '@tabler/icons-react';
 import { AppShellLayout } from '@/components/AppShellLayout';
 import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
 import type { Crumb } from '@/components/ModuleHeader/ModuleHeader';
 import { useTranslation } from '@/i18n';
 import { findSettingsEntry } from '@/components/Navbar/settingsMenu';
+import SettingsNav from './SettingsNav';
 
 type SettingsLayoutProps = {
   children: ReactNode;
@@ -15,7 +16,7 @@ type SettingsLayoutProps = {
   action?: ReactNode;
 };
 
-/** Page frame for every settings screen. Navigation lives in the app sidebar sub-menus. */
+/** Page frame for every settings screen: the header, the settings side menu and the page content. */
 export default function SettingsLayout({
   children,
   title,
@@ -27,7 +28,7 @@ export default function SettingsLayout({
 
   const entry = findSettingsEntry(pathname);
   const breadcrumbs: Crumb[] = [{ label: t('breadcrumbRoot') }];
-  if (entry && entry.group.items.length > 1) {
+  if (entry) {
     breadcrumbs.push({ label: t(`group.${entry.group.key}`) });
   }
 
@@ -41,7 +42,14 @@ export default function SettingsLayout({
             description={description}
             actions={action}
           />
-          <Box w="100%">{children}</Box>
+          <Grid gutter="lg" align="flex-start">
+            <Grid.Col span={{ base: 12, md: 3 }}>
+              <SettingsNav />
+            </Grid.Col>
+            <Grid.Col span={{ base: 12, md: 9 }}>
+              <Box w="100%">{children}</Box>
+            </Grid.Col>
+          </Grid>
         </Stack>
       </Box>
     </AppShellLayout>

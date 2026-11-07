@@ -44,6 +44,7 @@ export const API_ACCOUNT = {
   DELETE_ACCOUNT: `${BASE_URL}/v1/accounts`,
   GET_DETAIL_ACCOUNT: `${BASE_URL}/v1/accounts`,
   POST_TRANSACTION_ACCOUNT: `/v1/journal`,
+  GET_JOURNALS: `/v1/journal`,
   GET_TRANSACTION_BY_ACCOUNT: `${BASE_URL}/v1/journal/account`,
   GET_TRANSACTION_DETAIL: `${BASE_URL}/v1/journal/detail`,
   DEL_TRANSACTION_ACCOUNT: `${BASE_URL}/v1/journal`,

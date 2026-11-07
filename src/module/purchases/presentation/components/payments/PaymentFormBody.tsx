@@ -34,7 +34,7 @@ import {
 import { routes } from '@/router/routes';
 
 const detailPath = (id: string) => routes.purchases.paymentDetail.replace(':id', id);
-const BACK = `${routes.purchases.main}?tab=payments`;
+const BACK = routes.purchases.payments;
 
 interface PaymentFormBodyProps {
   initial: PaymentFormValues;

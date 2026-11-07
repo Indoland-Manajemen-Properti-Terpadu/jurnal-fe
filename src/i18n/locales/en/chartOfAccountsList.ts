@@ -6,12 +6,8 @@ export const chartOfAccountsList = {
     refreshTooltip: 'Reload accounts',
     refreshAria: 'Refresh account data',
     moreActions: 'More Actions',
-    menuTransactions: 'Transactions & Import',
-    addJournalTransaction: 'Add Journal Transaction',
     menuLedgerConfig: 'General Ledger Configuration',
     standardAccounts: 'Set Standard Accounts',
-    beginningBalance: 'Beginning Balance',
-    periodLock: 'Period Lock & Closing Books',
     addAccount: 'Add Account',
     stats: {
       totalTitle: 'Total COA Accounts',

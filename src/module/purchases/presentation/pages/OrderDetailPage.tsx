@@ -23,7 +23,7 @@ import {
 import { useOrder } from '@/module/purchases/presentation/hooks/usePurchaseQueries';
 import { routes } from '@/router/routes';
 
-const BACK = `${routes.purchases.main}?tab=orders`;
+const BACK = routes.purchases.orders;
 
 export default function OrderDetailPage() {
   const { id } = useParams();

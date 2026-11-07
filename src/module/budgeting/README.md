@@ -1,6 +1,6 @@
 # budgeting
 
-Placeholder module for budget planning. It renders `BaseModulePage` with a title and the active route; there is no domain logic, endpoint or state yet.
+Placeholder module for budget planning. It renders the shared `PlannedModulePage` (header and planned scope, copy in the `plannedModules` namespace); there is no domain logic, endpoint or state yet.
 
 - **Route:** `routes.budgeting.planning` (`/budget-planning`)
 - **Page:** `presentation/pages/BudgetPlanningPage.tsx`, exported from `index.ts`

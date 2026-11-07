@@ -1,20 +1,8 @@
-import { AppShellLayout } from '@/components/AppShellLayout';
-import { BaseModulePage } from '@/components/BaseModulePage';
-import { useTranslation } from '@/i18n';
-import { routes } from '@/router/routes';
+import { IconReceipt2 } from '@tabler/icons-react';
+import { PlannedModulePage } from '@/components/PlannedModule';
 
 function CostPage() {
-  const { t } = useTranslation('costs');
-
-  return (
-    <AppShellLayout>
-      <BaseModulePage
-        title={t('title')}
-        description={t('description')}
-        routePath={routes.costs.main}
-      />
-    </AppShellLayout>
-  );
+  return <PlannedModulePage moduleKey="expenses" icon={IconReceipt2} />;
 }
 
 export default CostPage;

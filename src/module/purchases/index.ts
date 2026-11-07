@@ -1,4 +1,5 @@
 export { default as PurchasesPage } from './presentation/pages/PurchasesPage';
+export { default as PurchaseListPage } from './presentation/pages/PurchaseListPage';
 export { default as PayablesReportPage } from './presentation/pages/PayablesReportPage';
 export { default as RequestFormPage } from './presentation/pages/RequestFormPage';
 export { default as RequestDetailPage } from './presentation/pages/RequestDetailPage';

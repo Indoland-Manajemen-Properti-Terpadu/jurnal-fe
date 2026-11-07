@@ -6,5 +6,8 @@ export const journalEntryKeys = {
     ['transaction_by_account', idAccount, { sortBy: 'transactionNumber' }] as const,
   detail: (idEntry: string) => ['detail_transaction', idEntry] as const,
   allDetails: ['detail_transaction'] as const,
+  /** Prefix of every page of the journal history. */
+  allHistory: ['journal_history'] as const,
+  history: (filters: unknown) => ['journal_history', filters] as const,
   tags: ['tags'] as const,
 };

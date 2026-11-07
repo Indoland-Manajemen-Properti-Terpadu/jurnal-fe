@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { fireEvent, screen, waitFor } from '@testing-library/react';
+import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 import { render } from '@test-utils';
 import type { AccessRole } from '@/module/user-management/domain/accessRole';
@@ -9,7 +9,9 @@ import * as roleApi from '@/module/user-management/infrastructure/roleApi';
 import * as userApi from '@/module/user-management/infrastructure/userApi';
 import RoleFormPage from './pages/RoleFormPage';
 import UserFormPage from './pages/UserFormPage';
-import UserManagementPage from './pages/UserManagementPage';
+import RolesPage from './pages/RolesPage';
+import UsersPage from './pages/UsersPage';
+import AccessHistoryPage from './pages/AccessHistoryPage';
 
 vi.mock('@/components/AppShellLayout', () => ({
   AppShellLayout: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
@@ -95,32 +97,51 @@ beforeEach(() => {
   ]);
 });
 
-describe('UserManagementPage', () => {
-  it('lists users with their role names and an add action', async () => {
-    mountAt('/um', <UserManagementPage />);
+describe('UsersPage', () => {
+  it('lists users with their role names, access level and an add action', async () => {
+    mountAt('/um', <UsersPage />);
 
-    expect(await screen.findByText('Sari')).toBeInTheDocument();
-    expect(await screen.findByText('Kasir')).toBeInTheDocument();
+    expect((await screen.findAllByText('Sari')).length).toBeGreaterThan(0);
+    expect((await screen.findAllByText('Kasir')).length).toBeGreaterThan(0);
+    expect(screen.getByText('Tanpa akses')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Tambah Pengguna' })).toBeInTheDocument();
   });
 
-  it('separates built-in roles from the roles the person made', async () => {
-    mountAt('/um', <UserManagementPage />);
+  it('shows the roles in use with their members and a way to manage them', async () => {
+    mountAt('/um', <UsersPage />);
 
-    fireEvent.click(await screen.findByRole('tab', { name: /Peran/ }));
-
-    expect(await screen.findByText('Peran bawaan')).toBeInTheDocument();
-    expect(screen.getByText('Peran buatan Anda')).toBeInTheDocument();
-    expect(screen.getByText('Super Admin')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Buat Peran' })).toBeInTheDocument();
+    expect(await screen.findByText('Peran yang dipakai')).toBeInTheDocument();
+    expect(screen.getByText('1 pengguna')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Kelola' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Lihat semua peran' })).toBeInTheDocument();
   });
 
-  it('shows the empty history state', async () => {
-    mountAt('/um', <UserManagementPage />);
+  it('has a tab with the count of every role that has members', async () => {
+    mountAt('/um', <UsersPage />);
 
-    fireEvent.click(await screen.findByRole('tab', { name: /Riwayat/ }));
+    expect(await screen.findByRole('tab', { name: 'Semua (1)' })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: 'Kasir (1)' })).toBeInTheDocument();
+    expect(screen.queryByRole('tab', { name: /Super Admin/ })).toBeNull();
+  });
 
-    expect(await screen.findByText('Belum ada riwayat perubahan')).toBeInTheDocument();
+  it('narrows the table by search and offers a reset when nothing matches', async () => {
+    mountAt('/um', <UsersPage />);
+
+    await screen.findAllByText('Sari');
+    fireEvent.change(screen.getByLabelText('Cari nama atau email'), { target: { value: 'zzz' } });
+
+    expect(await screen.findByText('Tidak ada pengguna yang cocok')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Atur ulang' }));
+    expect(within(screen.getByRole('table')).getByText('Sari')).toBeInTheDocument();
+  });
+
+  it('keeps the table to the people of the chosen role', async () => {
+    mountAt('/um', <UsersPage />);
+
+    fireEvent.click(await screen.findByRole('tab', { name: 'Kasir (1)' }));
+    const table = screen.getByRole('table');
+
+    expect(within(table).getByText('Sari')).toBeInTheDocument();
   });
 
   it('tells a person without access that they have none, with no retry', async () => {
@@ -129,10 +150,36 @@ describe('UserManagementPage', () => {
       isAxiosError: true,
       response: { status: 403, data: {} },
     });
-    mountAt('/um', <UserManagementPage />);
+    mountAt('/um', <UsersPage />);
 
     expect(await screen.findByText('Anda belum memiliki akses ke bagian ini.')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Coba lagi' })).toBeNull();
+  });
+});
+
+describe('RolesPage', () => {
+  it('separates built-in roles from the roles the person made', async () => {
+    mountAt('/roles', <RolesPage />);
+
+    expect(await screen.findByText('Peran bawaan')).toBeInTheDocument();
+    expect(screen.getByText('Peran buatan Anda')).toBeInTheDocument();
+    expect(screen.getByText('Super Admin')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Buat Peran' })).toBeInTheDocument();
+  });
+
+  it('tells how many people hold each role', async () => {
+    mountAt('/roles', <RolesPage />);
+
+    expect(await screen.findByText('Belum ada akses menu · 1 pengguna')).toBeInTheDocument();
+    expect(screen.getByText('Belum ada akses menu · 0 pengguna')).toBeInTheDocument();
+  });
+});
+
+describe('AccessHistoryPage', () => {
+  it('shows the empty history state', async () => {
+    mountAt('/history', <AccessHistoryPage />);
+
+    expect(await screen.findByText('Belum ada riwayat perubahan')).toBeInTheDocument();
   });
 });
 

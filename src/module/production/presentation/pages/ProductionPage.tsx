@@ -1,20 +1,8 @@
-import { AppShellLayout } from '@/components/AppShellLayout';
-import { BaseModulePage } from '@/components/BaseModulePage';
-import { useTranslation } from '@/i18n';
-import { routes } from '@/router/routes';
+import { IconBuildingFactory2 } from '@tabler/icons-react';
+import { PlannedModulePage } from '@/components/PlannedModule';
 
 function ProductionPage() {
-  const { t } = useTranslation('production');
-
-  return (
-    <AppShellLayout>
-      <BaseModulePage
-        title={t('title')}
-        description={t('description')}
-        routePath={routes.production.main}
-      />
-    </AppShellLayout>
-  );
+  return <PlannedModulePage moduleKey="production" icon={IconBuildingFactory2} />;
 }
 
 export default ProductionPage;

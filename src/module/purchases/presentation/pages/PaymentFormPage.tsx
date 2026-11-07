@@ -14,7 +14,7 @@ import { usePurchaseAccess } from '@/module/purchases/presentation/hooks/usePurc
 import { useBill, usePayment } from '@/module/purchases/presentation/hooks/usePurchaseQueries';
 import { routes } from '@/router/routes';
 
-const BACK = `${routes.purchases.main}?tab=payments`;
+const BACK = routes.purchases.payments;
 
 /** Creates a voucher (paying one bill from its page, or an advance) or changes a draft one. */
 export default function PaymentFormPage() {

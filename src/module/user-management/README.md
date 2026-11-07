@@ -1,6 +1,6 @@
 # user-management
 
-Users and access roles under the settings layout: a user list, a role list (built-in and custom), a change history, a user form (add and edit) and a role form (add, view and edit). Formerly `SettingMenu/UserManagement`. Everything saves to the API; there is no dummy UI left.
+Users and access roles under the settings layout, one page per settings menu item: Users (role cards and a people table), Roles & Permissions (built-in and custom roles), Access History, plus a user form (add and edit) and a role form (add, view and edit). Formerly `SettingMenu/UserManagement`. Everything saves to the API; there is no dummy UI left.
 
 Contract source: the Postman collection **Jurnal Proapps** (folders Menu, Access Roles, Users). The site comes from the signed-in user's token; no header or parameter selects it.
 
@@ -8,14 +8,16 @@ Contract source: the Postman collection **Jurnal Proapps** (folders Menu, Access
 
 | Constant                    | Path                                          | Page                                       |
 | --------------------------- | --------------------------------------------- | ------------------------------------------ |
-| `userManagement.main`       | `/settings/user-management`                   | `UserManagementPage` (3 tabs)              |
+| `userManagement.main`       | `/settings/user-management`                   | `UsersPage` (role cards, people table)     |
+| `userManagement.roles`      | `/settings/user-management/roles`             | `RolesPage`                                |
+| `userManagement.history`    | `/settings/user-management/history`           | `AccessHistoryPage`                        |
 | `userManagement.addUser`    | `/settings/user-management/add-user-form`     | `UserFormPage mode="add"`                  |
 | `userManagement.editUser`   | `/settings/user-management/edit-user/:userId` | `UserFormPage mode="edit"` (id, not email) |
 | `userManagement.addRole`    | `/settings/user-management/add-role-form`     | `RoleFormPage mode="add"`                  |
 | `userManagement.roleDetail` | `/settings/user-management/roles/:id`         | `RoleFormPage mode="view"`                 |
 | `userManagement.editRole`   | `/settings/user-management/roles/:id/edit`    | `RoleFormPage mode="edit"`                 |
 
-`index.ts` exports the three pages plus `useUsers` and `useRoles`; the chart-of-accounts add and edit pages read `results[].{id,name,email}` and `[{id,name}]` from them, so keep those shapes.
+`index.ts` exports the page components plus `useUsers` and `useRoles`; `access.ts` exports `useMyGrants` alone, for the app shell (the sidebar and the settings side menu hide what a person cannot read), because the index pulls in the pages, which render the shell, and would close an import cycle; the chart-of-accounts add and edit pages read `results[].{id,name,email}` and `[{id,name}]` from them, so keep those shapes.
 
 ## Endpoints (`src/lib/http/endpoints.ts`)
 
@@ -46,6 +48,12 @@ The default client rejects on an HTTP error. `infrastructure/apiError.ts` turns 
 - There is no delete-user call: **deactivate** is the only way. A person cannot deactivate themselves, and the last active Super Admin cannot be deactivated or lose the role (the screen blocks it; the API stays the judge).
 - Passwords: at least 8 characters with a letter and a number. The administrator sets the first password (no invitation e-mail exists); resetting it signs the user out of every device.
 - A user's effective rights on the user form are the union of the picked roles. The contract does not say this explicitly, so the screen labels it an estimate.
+
+## Users page
+
+- The user list loads up to 100 people once (`SITE_USERS_LIMIT`; the API pages by 100 at most) and filters client-side: tabs per role that has members with the count (`roleCounts`), a name or e-mail search (`filterUsers`), 10 per page (`pageOf`). Above 100 users a note says the search and the counts cover only those shown; a server-side `accessRole` filter and `q` search would remove this limit.
+- "Access level" (`accessLevelOf`, pure) is one word per person: full (Super Admin role or a legacy superadmin), view only (every granted right is a read), limited (anything else) or none. The exact rights stay in the roles.
+- The role cards above the table show the three roles with the most members and up to three members each; the Manage button needs the Role Management read right.
 
 ## State
 

@@ -73,3 +73,17 @@
   text-align: center;
   padding-left: 0;
 }
+
+.userLink {
+  display: flex;
+  align-items: center;
+  gap: rem(10px);
+  flex: 1;
+  min-width: 0;
+  border-radius: rem(10px);
+}
+
+.userLink:focus-visible {
+  outline: 2px solid var(--jurnal-color-primary);
+  outline-offset: 2px;
+}

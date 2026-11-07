@@ -1,3 +1,4 @@
+import { PrototypeNotice } from '@/components/PlannedModule';
 import React, { useMemo, useState } from 'react';
 import { Box, Grid, Stack } from '@mantine/core';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -49,6 +50,7 @@ export const AssetDetailPage: React.FC = () => {
     <>
       <Box p={{ base: 'md', sm: 'xl' }}>
         <Stack gap="lg">
+          <PrototypeNotice />
           <AssetDetailActionBar
             status={asset.status}
             onBack={goToList}
