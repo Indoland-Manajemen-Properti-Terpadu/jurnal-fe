@@ -8,6 +8,9 @@ export const settings = {
   english: 'English (US)',
   savePreference: 'Simpan Preferensi',
   savedSuccessfully: 'Preferensi bahasa berhasil diperbarui.',
+  nav: {
+    title: 'Menu pengaturan',
+  },
   breadcrumbRoot: 'Pengaturan',
   group: {
     general: 'Umum',
@@ -24,7 +27,12 @@ export const settings = {
     paymentMethods: 'Metode Pembayaran',
     numberFormats: 'Penomoran Dokumen',
     tags: 'Tag Transaksi',
-    users: 'Pengguna & Peran',
+    users: 'Pengguna',
+    roles: 'Peran & Hak Akses',
+    accessHistory: 'Riwayat Akses',
+    approvalFlow: 'Alur Persetujuan',
+    accountingPeriods: 'Periode Akuntansi',
+    sites: 'Kelola Site',
   },
   description: {
     company: 'Identitas dan data legal perusahaan.',
@@ -35,7 +43,12 @@ export const settings = {
     paymentMethods: 'Cara bayar dan akun pencatatan.',
     numberFormats: 'Nomor otomatis untuk dokumen.',
     tags: 'Label untuk mengelompokkan transaksi.',
-    users: 'Akses pengguna dan peran.',
+    users: 'Siapa yang bisa masuk dan peran yang dipegangnya.',
+    roles: 'Peran dan menu yang boleh dibuka tiap peran.',
+    accessHistory: 'Catatan perubahan pengguna dan peran.',
+    approvalFlow: 'Siapa yang menyetujui tiap tahap persetujuan.',
+    accountingPeriods: 'Buka dan kunci periode pembukuan.',
+    sites: 'Kelola perusahaan atau lokasi yang memakai aplikasi ini.',
   },
   generalTitle: 'Presisi Angka',
   generalDescription:

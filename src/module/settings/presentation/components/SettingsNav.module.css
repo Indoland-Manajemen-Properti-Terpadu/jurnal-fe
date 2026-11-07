@@ -1,0 +1,57 @@
+.panel {
+  position: sticky;
+  top: calc(var(--app-shell-header-height, 72px) + rem(16px));
+}
+
+.groupLabel {
+  padding: rem(6px) var(--mantine-spacing-xs);
+  font-size: var(--jurnal-text-xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--jurnal-color-text-secondary);
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: rem(10px);
+  width: 100%;
+  min-height: rem(40px);
+  padding: var(--mantine-spacing-xs);
+  border-radius: var(--mantine-radius-md);
+  color: var(--jurnal-color-text-secondary);
+  font-size: var(--jurnal-text-sm);
+  font-weight: 500;
+  text-align: left;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+}
+
+.item:hover {
+  background: var(--jurnal-color-surface-hover);
+  color: var(--jurnal-color-text-primary);
+}
+
+.item[data-active] {
+  background: var(--jurnal-color-primary-subtle);
+  color: var(--jurnal-color-primary);
+  font-weight: 600;
+}
+
+.item:focus-visible {
+  outline: 2px solid var(--jurnal-color-primary);
+  outline-offset: 2px;
+}
+
+.label {
+  flex: 1;
+  min-width: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .item {
+    transition: none;
+  }
+}
