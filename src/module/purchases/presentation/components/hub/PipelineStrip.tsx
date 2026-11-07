@@ -9,7 +9,7 @@ import {
   type Icon,
 } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
-import type { CanFn, HubTab } from '@/module/purchases/presentation/components/hub/hubTabs';
+import type { CanFn, ListTab } from '@/module/purchases/presentation/components/hub/hubTabs';
 import classes from '@/module/purchases/presentation/components/hub/PipelineStrip.module.css';
 import {
   usePipelineCounts,
@@ -27,7 +27,7 @@ const STAGE_ICON: Record<PipelineStage, Icon> = {
 
 interface PipelineStripProps {
   can: CanFn;
-  onOpen: (tab: HubTab) => void;
+  onOpen: (tab: ListTab) => void;
 }
 
 /** The buying chain as five connected steps; each opens its list. */

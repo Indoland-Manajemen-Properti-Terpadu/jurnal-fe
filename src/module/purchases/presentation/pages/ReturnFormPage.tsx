@@ -13,7 +13,7 @@ import { usePurchaseAccess } from '@/module/purchases/presentation/hooks/usePurc
 import { useBill, useReturn } from '@/module/purchases/presentation/hooks/usePurchaseQueries';
 import { routes } from '@/router/routes';
 
-const BACK = `${routes.purchases.main}?tab=returns`;
+const BACK = routes.purchases.returns;
 
 /** Creates a return from a bill (`?bill=`) or changes a draft return. */
 export default function ReturnFormPage() {
@@ -50,7 +50,7 @@ export default function ReturnFormPage() {
         kind="blocked"
         title={t('returns.form.noBillTitle')}
         description={t('returns.form.noBillDescription')}
-        backTo={`${routes.purchases.main}?tab=bills`}
+        backTo={routes.purchases.bills}
       />
     );
   }

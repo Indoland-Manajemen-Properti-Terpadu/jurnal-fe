@@ -307,7 +307,7 @@ export default function BillFormPage() {
   const order = useOrder(orderId);
   // The form waits for the term list so the default due date can use it.
   const terms = usePaymentTermOptions();
-  const back = `${routes.purchases.main}?tab=bills`;
+  const back = routes.purchases.bills;
 
   if (accessLoading || terms.isLoading || (id && bill.isLoading) || (orderId && order.isLoading)) {
     return <StateFrame kind="loading" />;
@@ -321,7 +321,7 @@ export default function BillFormPage() {
         kind="blocked"
         title={t('bills.form.noOrderTitle')}
         description={t('bills.form.noOrderDescription')}
-        backTo={`${routes.purchases.main}?tab=orders`}
+        backTo={routes.purchases.orders}
       />
     );
   }
