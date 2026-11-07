@@ -5,6 +5,7 @@ import type { Product, ProductFormValues } from '@/module/products/domain/produc
 import {
   filterAccountsByNormalBalance,
   formatTaxLabel,
+  priceError,
   requiredWhen,
   toInitialValues,
 } from '@/module/products/domain/productRules';
@@ -26,13 +27,23 @@ export const useProductForm = (product?: Product) => {
       unit: (value) => (value ? null : tp('form.unitRequired')),
       buyingInfo: {
         unitPrice: (value, values) =>
-          requiredWhen(values.buyingInfo.isPurchased, value, tp('form.buyPriceRequired')),
+          priceError(
+            values.buyingInfo.isPurchased,
+            value,
+            tp('form.buyPriceRequired'),
+            tp('form.buyPriceMin')
+          ),
         purchaseAccount: (value, values) =>
           requiredWhen(values.buyingInfo.isPurchased, value, tp('form.purchaseAccountRequired')),
       },
       sellingInfo: {
         unitPrice: (value, values) =>
-          requiredWhen(values.sellingInfo.isSold, value, tp('form.sellPriceRequired')),
+          priceError(
+            values.sellingInfo.isSold,
+            value,
+            tp('form.sellPriceRequired'),
+            tp('form.sellPriceMin')
+          ),
         salesAccount: (value, values) =>
           requiredWhen(values.sellingInfo.isSold, value, tp('form.salesAccountRequired')),
         accountReceivable: (value, values) =>

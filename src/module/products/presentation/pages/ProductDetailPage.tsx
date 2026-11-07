@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Box, Grid, Group, LoadingOverlay, Modal, Stack, Text, ThemeIcon } from '@mantine/core';
 import { IconEdit } from '@tabler/icons-react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ConfirmModal } from '@/components/ui/ConfirmModal/ConfirmModal';
 import { useTranslation } from '@/i18n';
 import { routes } from '@/router/routes';
@@ -27,6 +27,7 @@ export function ProductDetailPage() {
   const { t } = useTranslation('products');
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [editModalOpened, setEditModalOpened] = useState(false);
   const [deleteConfirmOpened, setDeleteConfirmOpened] = useState(false);
@@ -37,7 +38,9 @@ export function ProductDetailPage() {
   const saveProductMutation = useSaveProduct(id);
   const deleteProductMutation = useDeleteProduct();
 
-  const goToList = () => navigate(routes.products.main);
+  // The list passes its own query string so search and page are restored on the way back.
+  const listSearch = (location.state as { listSearch?: string } | null)?.listSearch ?? '';
+  const goToList = () => navigate(`${routes.products.main}${listSearch}`);
 
   const handleEditSubmit = async (values: ProductFormValues) => {
     await saveProductMutation.mutateAsync(values);
