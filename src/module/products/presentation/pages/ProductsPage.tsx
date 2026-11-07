@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   ActionIcon,
   Box,
@@ -14,11 +14,12 @@ import {
 } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
 import { IconPackage, IconPlus, IconRefresh } from '@tabler/icons-react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { ConfirmModal } from '@/components/ui/ConfirmModal/ConfirmModal';
 import { useTranslation } from '@/i18n';
 import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
 import { summarizeProducts } from '@/module/products/domain/productRules';
+import { useProductListParams } from '@/module/products/presentation/hooks/useProductListParams';
 import { ProductTable } from '@/module/products/presentation/components/ProductTable';
 import { ProductForm } from '@/module/products/presentation/components/ProductForm';
 import { ProductListToolbar } from '@/module/products/presentation/components/ProductListToolbar';
@@ -36,12 +37,12 @@ import type { Product, ProductFormValues } from '@/module/products/domain/produc
 export function ProductsPage() {
   const { t } = useTranslation('products');
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Search & Pagination state
-  const [searchInput, setSearchInput] = useState('');
+  // Kept in the URL so the list is restored when coming back from a product's detail.
+  const { searchInput, setSearchInput, page, setPage, limit, setLimit } = useProductListParams();
   const [debouncedSearch] = useDebouncedValue(searchInput, 400);
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState<number>(10);
 
   // Modal states
   const [formModalOpened, setFormModalOpened] = useState(false);
@@ -81,7 +82,7 @@ export function ProductsPage() {
   };
 
   const handleOpenDetail = (product: Product) => {
-    navigate(`/products/${product.id}`);
+    navigate(`/products/${product.id}`, { state: { listSearch: location.search } });
   };
 
   const handleDeleteProductConfirm = async () => {
@@ -97,8 +98,19 @@ export function ProductsPage() {
   );
 
   const paginationData = productsQuery.data?.pagination;
-  const totalProducts = paginationData?.total ?? 0;
-  const totalPages = paginationData?.totalPages ?? 1;
+  // Without a search the whole catalog is already read for the cards, and its count is exact
+  // (the service's own total still includes deleted products).
+  const unfilteredTotal = summaryQuery.data?.pagination.total;
+  const totalProducts =
+    debouncedSearch.trim() === '' && unfilteredTotal !== undefined
+      ? unfilteredTotal
+      : (paginationData?.total ?? 0);
+  const totalPages = Math.max(1, Math.ceil(totalProducts / limit));
+
+  // Deleting the last row of the last page leaves that page empty: step back to the new last one.
+  useEffect(() => {
+    if (!productsQuery.isFetching && page > totalPages) setPage(totalPages);
+  }, [productsQuery.isFetching, page, totalPages, setPage]);
 
   return (
     <>
@@ -144,10 +156,7 @@ export function ProductsPage() {
             <Stack gap="md">
               <ProductListToolbar
                 search={searchInput}
-                onSearchChange={(value) => {
-                  setSearchInput(value);
-                  setPage(1);
-                }}
+                onSearchChange={setSearchInput}
                 onSearchClear={() => setSearchInput('')}
               />
 
@@ -160,10 +169,7 @@ export function ProductsPage() {
                 total={totalProducts}
                 limit={limit}
                 onPageChange={setPage}
-                onLimitChange={(value) => {
-                  setLimit(value);
-                  setPage(1);
-                }}
+                onLimitChange={setLimit}
                 onView={handleOpenDetail}
                 onEdit={handleOpenEdit}
                 onDelete={(prod) => setDeleteProductTarget(prod)}

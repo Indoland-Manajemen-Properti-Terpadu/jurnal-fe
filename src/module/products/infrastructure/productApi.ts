@@ -46,12 +46,29 @@ export const getApiErrorMessage = (error: unknown, fallback: string): string => 
 
 /* ---------- Products ---------- */
 
+/**
+ * The service counts deleted products in `pagination.total` (a deleted product leaves the
+ * rows but not the count). A page that is not full is the last one, so its real total is
+ * known exactly; every other page keeps the service's figure.
+ */
+const withLiveTotal = (
+  result: Paginated<Product>,
+  { page, limit }: ProductListParams
+): Paginated<Product> => {
+  if (result.items.length >= limit) return result;
+  const total = (page - 1) * limit + result.items.length;
+  return {
+    items: result.items,
+    pagination: { ...result.pagination, total, totalPages: Math.max(1, Math.ceil(total / limit)) },
+  };
+};
+
 export const fetchProducts = async (params: ProductListParams): Promise<Paginated<Product>> => {
   const { data } = await apiClient.get<ApiEnvelope<PaginatedDto<ProductDto>>>(
     PRODUCT_ENDPOINTS.products,
     { params: { ...params, search: params.search || undefined } }
   );
-  return mapPaginated(data.data, mapProduct);
+  return withLiveTotal(mapPaginated(data.data, mapProduct), params);
 };
 
 const ALL_PAGE_SIZE = 100;
@@ -64,9 +81,15 @@ export const fetchAllProducts = async (): Promise<Paginated<Product>> => {
       fetchProducts({ page: i + 2, limit: ALL_PAGE_SIZE })
     )
   );
+  const items = [first, ...rest].flatMap((page) => page.items);
+  // Every page was read, so the row count is the true total.
   return {
-    items: [first, ...rest].flatMap((page) => page.items),
-    pagination: first.pagination,
+    items,
+    pagination: {
+      ...first.pagination,
+      total: items.length,
+      totalPages: Math.max(1, Math.ceil(items.length / ALL_PAGE_SIZE)),
+    },
   };
 };
 
@@ -205,29 +228,33 @@ export const fetchTaxes = async (): Promise<Tax[]> => {
   return (data.data?.data ?? []).map(mapTax);
 };
 
-type AccountNodeDto = {
+type SimpleAccountDto = {
   id: string;
   name: string;
   accountNumber?: string;
-  category?: { isDebit?: boolean } | null;
-  subAccount?: AccountNodeDto[];
+  normalBalance?: string;
+  isPostable?: boolean;
 };
 
-const flattenAccounts = (accounts: AccountNodeDto[]): AccountOption[] =>
-  accounts.flatMap((account) => [
-    {
+/** Postable accounts from the simple list; `normalBalance` already accounts for contra accounts. */
+export const fetchAccountOptions = async (): Promise<AccountOption[]> => {
+  const response = await apiClient.get<{ data?: SimpleAccountDto[] }>(
+    API_ACCOUNT.GET_SIMPLE_ACCOUNTS
+  );
+  const accounts = response.data?.data;
+  if (!Array.isArray(accounts)) {
+    throw new Error('Invalid simple accounts response.');
+  }
+  return accounts
+    .filter((account) => account.isPostable !== false)
+    .map((account) => ({
       id: account.id,
       label: account.accountNumber ? `${account.accountNumber} · ${account.name}` : account.name,
-      isDebit: typeof account.category?.isDebit === 'boolean' ? account.category.isDebit : null,
-    },
-    ...flattenAccounts(account.subAccount ?? []),
-  ]);
-
-export const fetchAccountOptions = async (): Promise<AccountOption[]> => {
-  const response = await apiClient.get<{ results?: AccountNodeDto[] }>(API_ACCOUNT.GET_ALL_ACCOUNT);
-  const accounts = response.data?.results;
-  if (!Array.isArray(accounts)) {
-    throw new Error('Invalid journal accounts response.');
-  }
-  return flattenAccounts(accounts);
+      isDebit:
+        account.normalBalance === 'debit'
+          ? true
+          : account.normalBalance === 'credit'
+            ? false
+            : null,
+    }));
 };

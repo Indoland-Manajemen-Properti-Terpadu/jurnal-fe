@@ -126,6 +126,15 @@
   background: var(--mantine-color-primary-2);
 }
 
+/* Sits inside the ring: smaller than .percent so "100%" clears the stroke (inner width 64px). */
+.ringPercent {
+  font-size: var(--jurnal-text-xs);
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--mantine-color-primary-8);
+}
+
 .percent {
   font-size: var(--mantine-font-size-sm);
   font-weight: 700;

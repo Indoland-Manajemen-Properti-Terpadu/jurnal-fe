@@ -75,13 +75,13 @@ export function ProductStatsCards({
         hint={t('stats.soldHint')}
         visual={
           <RingProgress
-            size={64}
-            thickness={7}
+            size={80}
+            thickness={8}
             roundCaps
             sections={[{ value: soldPercent, color: 'primary.6' }]}
             rootColor="var(--mantine-color-primary-1)"
             label={
-              <Text ta="center" className={classes.percent}>
+              <Text ta="center" className={classes.ringPercent}>
                 {soldPercent}%
               </Text>
             }
