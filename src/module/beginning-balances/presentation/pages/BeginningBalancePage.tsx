@@ -145,14 +145,6 @@ const BeginningBalancePage: React.FC = () => {
       ? t('status.draft')
       : t('status.new');
 
-  const saveDraftHint = canSaveDraft ? null : (dateError ?? t('action.saveDraftNothing'));
-  const publishHint = canPublish
-    ? null
-    : (dateError ??
-      (balanceState === 'empty'
-        ? t('action.publishEmpty')
-        : t('action.publishUnbalanced', { amount: formatCurrency(difference) })));
-
   const buildPayload = () =>
     buildBalancePayload(
       rows,
@@ -227,12 +219,9 @@ const BeginningBalancePage: React.FC = () => {
               hasUnsavedChanges={isDirty}
               selectedDate={selectedDate}
               canSaveDraft={canSaveDraft}
-              saveDraftHint={saveDraftHint}
               canPublish={canPublish}
-              publishHint={publishHint}
               isSavingDraft={isSavingDraft}
               isPublishing={isPublishing}
-              onBack={() => navigate(routes.chartOfAccounts.main)}
               onOpenLogs={() => setIsLogsModalOpen(true)}
               onSaveDraft={handleSaveDraft}
               onPublish={() => setIsPublishModalOpen(true)}

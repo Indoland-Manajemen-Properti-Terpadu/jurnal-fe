@@ -198,7 +198,8 @@ const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
       paginationText={({ from, to, totalRecords }) =>
         t('table.paginationText', { from, to, total: totalRecords })
       }
-      noRecordsText={t('table.noRecords')}
+      noRecordsText=""
+      minHeight={records.length === 0 ? 340 : 180}
       emptyState={
         <EmptyState
           title={t('table.emptyTitle')}

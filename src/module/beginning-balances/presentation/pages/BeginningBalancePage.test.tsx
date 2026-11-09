@@ -88,17 +88,17 @@ describe('opening balance page', () => {
     expect(screen.getByText('dari 3 akun')).toBeInTheDocument();
   });
 
-  it('cannot save a draft or publish before anything is entered', () => {
+  it('hides save draft and publish before anything is entered', () => {
     renderPage();
-    expect(screen.getByRole('button', { name: 'Simpan Draf' })).toBeDisabled();
-    expect(screen.getByRole('button', { name: 'Publikasikan' })).toBeDisabled();
+    expect(screen.queryByRole('button', { name: 'Simpan Draf' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Publikasikan' })).not.toBeInTheDocument();
   });
 
-  it('can save an unbalanced draft, but cannot publish it', () => {
+  it('can save an unbalanced draft, but hides publish', () => {
     renderPage();
     type('Debit (Rp) 1-10000', '1000');
     expect(screen.getByRole('button', { name: 'Simpan Draf' })).toBeEnabled();
-    expect(screen.getByRole('button', { name: 'Publikasikan' })).toBeDisabled();
+    expect(screen.queryByRole('button', { name: 'Publikasikan' })).not.toBeInTheDocument();
     expect(screen.getByText(/Selisih/)).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Simpan Draf' }));
     expect(saveDraft.mock.calls[0][0].balances).toEqual([{ account: 'kas', debit: 1000 }]);
@@ -154,7 +154,9 @@ describe('opening balance page', () => {
     expect(screen.getByLabelText('Debit (Rp) 1-10000')).toHaveValue('700');
     expect(screen.queryByRole('button', { name: 'Simpan Draf' })).not.toBeInTheDocument();
     // nothing changed yet, so there is nothing to publish again
-    expect(screen.getByRole('button', { name: 'Perbarui & Publikasikan' })).toBeDisabled();
+    expect(
+      screen.queryByRole('button', { name: 'Perbarui & Publikasikan' })
+    ).not.toBeInTheDocument();
   });
 
   it('shows the amounts of the last publish when the server has emptied the published draft', () => {
@@ -181,20 +183,22 @@ describe('opening balance page', () => {
     expect(screen.getByLabelText('Kredit (Rp) 3-10000')).toHaveValue('900');
     expect(screen.getByText(/Tanggal konversi 30\/06\/2026/)).toBeInTheDocument();
     // nothing changed yet, so there is nothing to publish again
-    expect(screen.getByRole('button', { name: 'Perbarui & Publikasikan' })).toBeDisabled();
+    expect(
+      screen.queryByRole('button', { name: 'Perbarui & Publikasikan' })
+    ).not.toBeInTheDocument();
     type('Debit (Rp) 1-10000', '1.000');
     type('Kredit (Rp) 3-10000', '1.000');
     expect(screen.getByRole('button', { name: 'Perbarui & Publikasikan' })).toBeEnabled();
   });
 
-  it('blocks save and publish and explains why when the date is in a locked period', () => {
+  it('hides save and publish and explains why when the date is in a locked period', () => {
     state.locked = true;
     renderPage();
     type('Debit (Rp) 1-10000', '1.000');
     type('Kredit (Rp) 3-10000', '1.000');
     expect(screen.getByText(/periode akuntansi yang terkunci/)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Simpan Draf' })).toBeDisabled();
-    expect(screen.getByRole('button', { name: 'Publikasikan' })).toBeDisabled();
+    expect(screen.queryByRole('button', { name: 'Simpan Draf' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Publikasikan' })).not.toBeInTheDocument();
   });
 
   it('blocks a date after the first transaction when the server sends it', () => {

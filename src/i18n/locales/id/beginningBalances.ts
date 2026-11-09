@@ -8,7 +8,6 @@ export const beginningBalances = {
     loading: 'Memuat daftar akun dan draf saldo awal...',
     loadFailed: 'Daftar akun belum dapat dimuat.',
     retry: 'Coba Lagi',
-    back: 'Kembali',
     changeHistory: 'Riwayat',
     resetBalance: 'Kosongkan Nilai',
     saveDraft: 'Simpan Draf',
@@ -39,11 +38,6 @@ export const beginningBalances = {
     debitLowerHint: 'Debit masih kurang dari kredit',
     filledAccounts: 'Akun Terisi',
     filledHint: 'dari {total} akun',
-  },
-  action: {
-    saveDraftNothing: 'Tidak ada perubahan untuk disimpan',
-    publishEmpty: 'Isi saldo awal terlebih dahulu',
-    publishUnbalanced: 'Debit dan kredit harus seimbang untuk dipublikasikan (selisih {amount})',
   },
   date: {
     locked: 'Tanggal ini berada di periode akuntansi yang terkunci. Pilih tanggal lain.',
@@ -81,7 +75,6 @@ export const beginningBalances = {
     contra: 'akun kontra',
     offSide: 'Di luar sisi normal',
     clearRow: 'Kosongkan baris ini',
-    noRecords: 'Tidak ada akun yang sesuai dengan filter atau kata kunci pencarian.',
     emptyTitle: 'Tidak ada akun yang sesuai',
     emptyImageAlt: 'Daftar akun kosong',
   },

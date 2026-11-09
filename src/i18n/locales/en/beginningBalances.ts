@@ -8,7 +8,6 @@ export const beginningBalances = {
     loading: 'Loading the accounts and the opening balance draft...',
     loadFailed: 'The accounts could not be loaded yet.',
     retry: 'Try Again',
-    back: 'Back',
     changeHistory: 'History',
     resetBalance: 'Clear Values',
     saveDraft: 'Save Draft',
@@ -39,11 +38,6 @@ export const beginningBalances = {
     debitLowerHint: 'Debit is still lower than credit',
     filledAccounts: 'Accounts Filled',
     filledHint: 'of {total} accounts',
-  },
-  action: {
-    saveDraftNothing: 'There is nothing to save',
-    publishEmpty: 'Fill in the opening balances first',
-    publishUnbalanced: 'Debit and credit must balance to publish (difference {amount})',
   },
   date: {
     locked: 'This date is in a locked accounting period. Choose another date.',
@@ -81,7 +75,6 @@ export const beginningBalances = {
     contra: 'contra account',
     offSide: 'Outside the normal side',
     clearRow: 'Clear this row',
-    noRecords: 'No accounts match the filter or the search.',
     emptyTitle: 'No matching accounts',
     emptyImageAlt: 'Empty account list',
   },
