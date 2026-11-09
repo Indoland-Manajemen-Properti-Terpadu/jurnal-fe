@@ -23,7 +23,7 @@ import { usePurchaseJourney } from '@/module/purchases/presentation/hooks/usePur
 import { useRequest } from '@/module/purchases/presentation/hooks/usePurchaseQueries';
 import { routes } from '@/router/routes';
 
-const BACK = `${routes.purchases.main}?tab=requests`;
+const BACK = routes.purchases.requests;
 
 export default function RequestDetailPage() {
   const { id } = useParams();

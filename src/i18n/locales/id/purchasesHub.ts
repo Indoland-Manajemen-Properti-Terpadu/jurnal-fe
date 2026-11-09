@@ -5,7 +5,6 @@ export const purchasesHub = {
   refresh: 'Segarkan data',
   createRequest: 'Buat Permintaan Pembelian',
   createAdvance: 'Buat Uang Muka',
-  payablesReport: 'Laporan Hutang',
   noAccessTitle: 'Anda belum memiliki akses ke Pembelian',
   noAccessDescription: 'Hubungi administrator untuk mendapatkan hak akses pada menu pembelian.',
   tabs: {
@@ -16,6 +15,33 @@ export const purchasesHub = {
     bills: 'Tagihan',
     payments: 'Pembayaran',
     returns: 'Retur',
+  },
+  pages: {
+    requests: {
+      title: 'Permintaan Pembelian',
+      description:
+        'Ajukan kebutuhan barang atau jasa. Setelah disetujui, permintaan dijadikan pesanan ke vendor.',
+    },
+    orders: {
+      title: 'Pesanan Pembelian',
+      description: 'Pesanan ke vendor yang dibuat dari permintaan yang sudah disetujui.',
+    },
+    receipts: {
+      title: 'Penerimaan Barang',
+      description: 'Catat barang atau jasa dari vendor yang sudah sampai.',
+    },
+    bills: {
+      title: 'Tagihan Vendor',
+      description: 'Tagihan dari vendor. Verifikasi dulu sebelum dibayar.',
+    },
+    payments: {
+      title: 'Pembayaran Pembelian',
+      description: 'Voucher pembayaran tagihan dan uang muka ke vendor.',
+    },
+    returns: {
+      title: 'Retur Pembelian',
+      description: 'Pengembalian barang ke vendor atas tagihan yang sudah diverifikasi.',
+    },
   },
   overview: {
     outstanding: 'Hutang usaha berjalan',

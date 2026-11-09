@@ -58,3 +58,7 @@ Namespace `sales`, assembled from `salesCommon`, `salesList`, `salesForm`, `sale
 - `APP_BASE_URL` must be set per environment on the backend, or emails carry no link.
 - The public page has no PDF download (the print endpoint needs sign-in); it offers the browser print dialog.
 - The detail page cards (`SaleItemsCard`, `SaleSidebar`) still use the older `saleDetail` copy and layout.
+
+## Planned pages
+
+`presentation/pages/planned/` holds the pages of sales documents that are not built yet: quotations (`/sales/quotations`), sales orders (`/sales/orders`), payments received (`/sales/payments`), sales returns (`/sales/returns`) and receivables (`/sales/receivables`). Each renders the shared `PlannedModulePage` (header and planned scope, copy in the `plannedModules` namespace) and has no endpoint or state. The sidebar lists them next to the invoice list so the whole sales cycle is visible.

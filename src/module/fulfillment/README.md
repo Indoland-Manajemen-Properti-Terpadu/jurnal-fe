@@ -1,6 +1,6 @@
 # fulfillment
 
-Placeholder module for fulfillment. It renders `BaseModulePage` with a title and the active route; there is no domain logic, endpoint or state yet.
+Placeholder module for fulfillment. It renders the shared `PlannedModulePage` (header and planned scope, copy in the `plannedModules` namespace); there is no domain logic, endpoint or state yet.
 
 - **Route:** `routes.fulfillment.main` (see `src/router/routes.ts`)
 - **Page:** `presentation/pages/FulfillmentPage.tsx`, exported from `index.ts`

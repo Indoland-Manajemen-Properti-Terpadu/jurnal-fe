@@ -1,20 +1,20 @@
 # settings
 
-Company and accounting settings, exposed as categorized sub-menus in the app sidebar (no settings hub page): decimal precision, default account mapping, taxes, payment terms, payment methods, document number formats, transaction tags and the company profile page. Formerly `SettingMenu` (user management is a separate module, `SettingMenu/UserManagement` until it migrates).
+Company and accounting settings, reached from one "Settings" entry in the app sidebar and a side menu next to every settings page (`SettingsLayout`, `SettingsNav`; no settings hub page): decimal precision, default account mapping, taxes, payment terms, payment methods, document number formats, transaction tags and the company profile page. Formerly `SettingMenu` (user management is a separate module, `SettingMenu/UserManagement` until it migrates).
 
 ## Routes (`src/router/routes.ts`)
 
-| Constant | Path | Page |
-| --- | --- | --- |
-| `settings.main` | `/settings` | redirects to the first settings page |
-| `settings.general` | `/settings/general` | `GeneralSettingPage` (decimal precision, read only) |
-| `settings.accountMapping` | `/settings/account-mapping` | `AccountMappingPage` |
-| `settings.taxes` | `/settings/taxes` | `TaxSettingPage` |
-| `settings.paymentTerms` | `/settings/payment-terms` | `PaymentTermPage` |
-| `settings.paymentMethods` | `/settings/payment-methods` | `PaymentMethodPage` |
-| `settings.numberFormats` | `/settings/number-formats` | `NumberFormatPage` |
-| `settings.tags` | `/settings/tags` | `TagSettingPage` |
-| `settings.company` | `/settings/company-setting` | `CompanySettingPage` |
+| Constant                  | Path                        | Page                                                |
+| ------------------------- | --------------------------- | --------------------------------------------------- |
+| `settings.main`           | `/settings`                 | redirects to the first settings page                |
+| `settings.general`        | `/settings/general`         | `GeneralSettingPage` (decimal precision, read only) |
+| `settings.accountMapping` | `/settings/account-mapping` | `AccountMappingPage`                                |
+| `settings.taxes`          | `/settings/taxes`           | `TaxSettingPage`                                    |
+| `settings.paymentTerms`   | `/settings/payment-terms`   | `PaymentTermPage`                                   |
+| `settings.paymentMethods` | `/settings/payment-methods` | `PaymentMethodPage`                                 |
+| `settings.numberFormats`  | `/settings/number-formats`  | `NumberFormatPage`                                  |
+| `settings.tags`           | `/settings/tags`            | `TagSettingPage`                                    |
+| `settings.company`        | `/settings/company-setting` | `CompanySettingPage`                                |
 
 `/settings/approval-setting` redirects to pending changes (the old approval stub page was removed). `index.ts` exports the eight pages and `SettingsLayout`, which `UserManagement` renders inside.
 
@@ -26,7 +26,7 @@ Company and accounting settings, exposed as categorized sub-menus in the app sid
 
 - `domain/`: `settingTypes` (API shapes), `settingRules` (validators that return an i18n key, `previewNumber`, `buildTaxPayload`, `DEFAULT_TAX_RATE`), `accountOptions` (select options of accounts). All have tests.
 - `infrastructure/`: `settingApi` (the HTTP calls).
-- `presentation/`: pages, components (`SettingsLayout`, `DeleteConfirmModal`, `PaymentMethodFormModal`, `NumberFormatFormModal`), hooks (one file per resource, `settingKeys`, `useAccountOptions`). The sidebar categories (General, Accounting, Transactions & Documents, Users & Access) are defined in `src/components/Navbar/settingsMenu.ts`, the single source for the sidebar and the page breadcrumbs.
+- `presentation/`: pages, components (`SettingsLayout`, `DeleteConfirmModal`, `PaymentMethodFormModal`, `NumberFormatFormModal`), hooks (one file per resource, `settingKeys`, `useAccountOptions`). The categories (General, Accounting, Transactions & Documents, Users & Access) are defined in `src/components/Navbar/settingsMenu.ts`, the single source for the side menu and the breadcrumbs. An item with `status: 'soon'` is shown with a badge (without a `path` it cannot be opened); items are hidden when the person cannot read their server menu (`menus`).
 
 ## Domain rules
 
@@ -49,3 +49,7 @@ Namespace `settings` is the existing hub and layout keys plus `settingsPages` (f
 - The account loading in the forms swallows errors and leaves the selectors empty instead of showing a message.
 - The payment method account selector falls back to the hard-coded Indonesian category label `Kas & Bank` for bank and cash accounts without a type.
 - No component tests for the pages; the hooks, rules and option builder are covered.
+
+## Planned pages
+
+`SitesPage`, `AccountingPeriodsPage` and `ApprovalFlowPage` (`presentation/pages/PlannedSettingsPages.tsx`) render the shared planned-module content inside `SettingsLayout`, so their menu items open a real page with the side menu. The company profile page is a notice that the company data is not connected yet.

@@ -1,36 +1,29 @@
-import { ActionIcon, Button, Paper, Skeleton, Stack, Tooltip } from '@mantine/core';
-import {
-  IconChartBar,
-  IconLock,
-  IconPlus,
-  IconRefresh,
-  IconShoppingCart,
-} from '@tabler/icons-react';
+import { ActionIcon, Button, Skeleton, Stack, Tooltip } from '@mantine/core';
+import { IconLock, IconPlus, IconRefresh, IconShoppingCart } from '@tabler/icons-react';
 import { useIsFetching, useQueryClient } from '@tanstack/react-query';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { EmptyState } from '@/components/EmptyState';
 import { useTranslation } from '@/i18n';
 import { PURCHASE_MENU } from '@/module/purchases/domain/purchaseAccess';
 import {
-  resolveTab,
+  LIST_TABS,
+  listPath,
   visibleTabs,
-  type HubTab,
 } from '@/module/purchases/presentation/components/hub/hubTabs';
 import { OverviewMetrics } from '@/module/purchases/presentation/components/hub/OverviewMetrics';
+import { OverviewTab } from '@/module/purchases/presentation/components/hub/OverviewTab';
 import { useOverviewData } from '@/module/purchases/presentation/components/hub/useOverviewData';
-import { PurchasesTabs } from '@/module/purchases/presentation/components/hub/PurchasesTabs';
 import { PageFrame } from '@/module/purchases/presentation/components/shared/PageFrame';
 import { purchaseKeys } from '@/module/purchases/presentation/hooks/purchaseKeys';
 import { usePurchaseAccess } from '@/module/purchases/presentation/hooks/usePurchaseAccess';
 import { usePurchaseScope } from '@/module/purchases/presentation/hooks/usePurchaseScope';
 import { routes } from '@/router/routes';
 
-const TAB_PARAM = 'tab';
-
+/** Landing page of the purchasing area: what needs attention, where documents stand, payables aging. */
 export default function PurchasesPage() {
   const { t } = useTranslation('purchases');
   const navigate = useNavigate();
-  const [params, setParams] = useSearchParams();
+  const [params] = useSearchParams();
   const access = usePurchaseAccess();
   const client = useQueryClient();
   const scope = usePurchaseScope();
@@ -40,16 +33,16 @@ export default function PurchasesPage() {
   const canReport = access.can(PURCHASE_MENU.reports, 'read');
   const openReport = () => navigate(routes.purchases.payables);
   const visible = visibleTabs(access.can);
-  const active = resolveTab(params.get(TAB_PARAM), access.can);
 
-  const changeTab = (tab: HubTab) => setParams({ [TAB_PARAM]: tab }, { replace: true });
-  const refresh = () => client.invalidateQueries({ queryKey: purchaseKeys.all(scope) });
+  // Old links opened a tab of this page (`?tab=bills`); each tab is a page of its own now.
+  const legacyTab = LIST_TABS.find((tab) => tab === params.get('tab'));
+  if (legacyTab) return <Navigate to={listPath(legacyTab)} replace />;
 
   const body = () => {
     if (access.isLoading) {
       return (
         <Stack gap="md">
-          <Skeleton height={36} radius="md" />
+          <Skeleton height={104} radius="md" />
           <Skeleton height={220} radius="md" />
         </Stack>
       );
@@ -64,14 +57,19 @@ export default function PurchasesPage() {
       );
     }
     return (
-      <PurchasesTabs
-        active={active}
-        visible={visible}
-        can={access.can}
-        overview={overview}
-        onChange={changeTab}
-        onOpenReport={canReport ? openReport : undefined}
-      />
+      <>
+        <OverviewMetrics
+          data={overview}
+          onOpenReport={canReport ? openReport : undefined}
+          onOpenTab={() => navigate(routes.purchases.payments)}
+        />
+        <OverviewTab
+          can={access.can}
+          data={overview}
+          onOpen={(tab) => navigate(listPath(tab))}
+          onOpenReport={canReport ? openReport : undefined}
+        />
+      </>
     );
   };
 
@@ -88,22 +86,12 @@ export default function PurchasesPage() {
               size="lg"
               radius="md"
               aria-label={t('hub.refresh')}
-              onClick={refresh}
+              onClick={() => client.invalidateQueries({ queryKey: purchaseKeys.all(scope) })}
               loading={fetching}
             >
               <IconRefresh size={18} />
             </ActionIcon>
           </Tooltip>
-          {canReport && (
-            <Button
-              variant="default"
-              radius="md"
-              leftSection={<IconChartBar size={16} />}
-              onClick={openReport}
-            >
-              {t('hub.payablesReport')}
-            </Button>
-          )}
           {access.can(PURCHASE_MENU.documents, 'create') && (
             <Button
               radius="md"
@@ -116,16 +104,7 @@ export default function PurchasesPage() {
         </>
       }
     >
-      {visible.length > 0 && (
-        <OverviewMetrics
-          data={overview}
-          onOpenReport={canReport ? openReport : undefined}
-          onOpenTab={changeTab}
-        />
-      )}
-      <Paper withBorder radius="lg" p="md" bg="white">
-        {body()}
-      </Paper>
+      {body()}
     </PageFrame>
   );
 }

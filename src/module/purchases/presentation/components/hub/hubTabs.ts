@@ -1,9 +1,11 @@
+import { routes } from '@/router/routes';
 import {
   PURCHASE_MENU,
   type MenuAction,
   type PurchaseMenu,
 } from '@/module/purchases/domain/purchaseAccess';
 
+/** The pages of the purchasing area. `overview` is the landing page; the rest are document lists. */
 export type HubTab =
   | 'overview'
   | 'requests'
@@ -13,8 +15,9 @@ export type HubTab =
   | 'payments'
   | 'returns';
 
-export const HUB_TABS: HubTab[] = [
-  'overview',
+export type ListTab = Exclude<HubTab, 'overview'>;
+
+export const LIST_TABS: ListTab[] = [
   'requests',
   'orders',
   'receipts',
@@ -23,7 +26,10 @@ export const HUB_TABS: HubTab[] = [
   'returns',
 ];
 
-export const DEFAULT_TAB: HubTab = 'overview';
+export const HUB_TABS: HubTab[] = ['overview', ...LIST_TABS];
+
+/** Address of a list page. */
+export const listPath = (tab: ListTab): string => routes.purchases[tab];
 
 export type CanFn = (menu: PurchaseMenu, action: MenuAction) => boolean;
 
@@ -47,11 +53,3 @@ export const canReadTab = (tab: HubTab, can: CanFn): boolean => {
 };
 
 export const visibleTabs = (can: CanFn): HubTab[] => HUB_TABS.filter((tab) => canReadTab(tab, can));
-
-/** The tab named in the address, or the first one the user may open. */
-export const resolveTab = (value: string | null, can: CanFn): HubTab => {
-  const visible = visibleTabs(can);
-  const requested = HUB_TABS.find((tab) => tab === value);
-  if (requested && visible.includes(requested)) return requested;
-  return visible[0] ?? DEFAULT_TAB;
-};

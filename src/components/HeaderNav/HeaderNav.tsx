@@ -31,6 +31,7 @@ import { useAuthStore } from '@/store/useAuthentications';
 import { usePendingChangesCount } from '@/module/pending-changes';
 import { useTranslation } from '@/i18n';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
+import { resolveSectionTitle } from '@/components/Navbar/navigationRegistry';
 import classes from '@/components/HeaderNav/HeaderNav.module.css';
 
 type HeaderNavProps = {
@@ -39,62 +40,6 @@ type HeaderNavProps = {
   desktopOpened?: boolean;
   toggleDesktop?: () => void;
 };
-
-/** Maps the first URL segment to i18n keys for section title and group. */
-const SECTION_DEFS: Array<{ prefix: string; titleKey: string; groupKey: string }> = [
-  { prefix: '/dashboard', titleKey: 'dashboard', groupKey: 'groupMain' },
-  { prefix: '/result-reports', titleKey: 'financialReports', groupKey: 'groupMain' },
-  { prefix: '/budget-planning', titleKey: 'budgetPlanning', groupKey: 'groupMain' },
-  { prefix: '/bank-cash/petty-cash', titleKey: 'pettyCash', groupKey: 'groupTransactions' },
-  { prefix: '/bank-cash', titleKey: 'cashBank', groupKey: 'groupTransactions' },
-  { prefix: '/sales', titleKey: 'sales', groupKey: 'groupTransactions' },
-  { prefix: '/setting-budget', titleKey: 'sales', groupKey: 'groupTransactions' },
-  { prefix: routes.purchases.main, titleKey: 'purchases', groupKey: 'groupTransactions' },
-  { prefix: '/finance/cost', titleKey: 'expenses', groupKey: 'groupTransactions' },
-  { prefix: '/pending-changes', titleKey: 'pendingChanges', groupKey: 'groupTransactions' },
-  { prefix: '/products', titleKey: 'products', groupKey: 'groupOperations' },
-  { prefix: '/production', titleKey: 'production', groupKey: 'groupOperations' },
-  { prefix: '/fulfillment', titleKey: 'fulfillment', groupKey: 'groupOperations' },
-  {
-    prefix: '/general-journal/detail-transaction-journal',
-    titleKey: 'detailJournalTransaction',
-    groupKey: 'groupGeneralJournal',
-  },
-  {
-    prefix: '/general-journal/add-transaction-journal',
-    titleKey: 'addJournalTransaction',
-    groupKey: 'groupGeneralJournal',
-  },
-  {
-    prefix: '/general-journal/detail-account-cb',
-    titleKey: 'accountDetailCB',
-    groupKey: 'groupGeneralJournal',
-  },
-  {
-    prefix: '/general-journal/bank-statement',
-    titleKey: 'importBankStatement',
-    groupKey: 'groupGeneralJournal',
-  },
-  {
-    prefix: '/general-journal/detail-account',
-    titleKey: 'accountDetailNonCB',
-    groupKey: 'groupGeneralJournal',
-  },
-  {
-    prefix: '/general-journal/beginning-balance',
-    titleKey: 'beginningBalance',
-    groupKey: 'groupGeneralJournal',
-  },
-  { prefix: '/general-journal/add-account', titleKey: 'addAccount', groupKey: 'groupMasterData' },
-  { prefix: '/general-journal/edit-account', titleKey: 'editAccount', groupKey: 'groupMasterData' },
-  { prefix: '/general-journal', titleKey: 'chartOfAccounts', groupKey: 'groupMasterData' },
-  { prefix: '/asset', titleKey: 'assets', groupKey: 'groupMasterData' },
-  { prefix: '/contact', titleKey: 'contacts', groupKey: 'groupMasterData' },
-  { prefix: '/settings/company-setting', titleKey: 'companySettings', groupKey: 'groupSettings' },
-  { prefix: '/settings', titleKey: 'settings', groupKey: 'groupSettings' },
-  { prefix: '/user-management', titleKey: 'userManagement', groupKey: 'groupSettings' },
-  { prefix: '/profile', titleKey: 'profile', groupKey: 'groupAccount' },
-];
 
 const HeaderNav = ({ toggleMobile, mobileOpened }: HeaderNavProps) => {
   const { userName, clearTokens } = useAuthStore();
@@ -105,7 +50,7 @@ const HeaderNav = ({ toggleMobile, mobileOpened }: HeaderNavProps) => {
   const { currentLanguage, t } = useTranslation('navigation');
 
   const section = useMemo(() => {
-    const matched = SECTION_DEFS.find((s) => pathname.startsWith(s.prefix));
+    const matched = resolveSectionTitle(pathname);
     if (matched) {
       return {
         title: t(matched.titleKey),
@@ -242,7 +187,7 @@ const HeaderNav = ({ toggleMobile, mobileOpened }: HeaderNavProps) => {
             {pending > 0 ? (
               <Menu.Item
                 leftSection={<GearSix size={18} weight="duotone" />}
-                onClick={() => navigate('/settings/approval-setting')}
+                onClick={() => navigate(routes.pendingChanges.main)}
               >
                 <Text size="sm" fw={600}>
                   {pending}{' '}
@@ -289,12 +234,6 @@ const HeaderNav = ({ toggleMobile, mobileOpened }: HeaderNavProps) => {
               onClick={() => navigate(routes.profile)}
             >
               {t('profile')}
-            </Menu.Item>
-            <Menu.Item
-              leftSection={<GearSix size={16} weight="duotone" />}
-              onClick={() => navigate('/settings/company-setting')}
-            >
-              {t('settings')}
             </Menu.Item>
             <Menu.Divider />
             <Menu.Item

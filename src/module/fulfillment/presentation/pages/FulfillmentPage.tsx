@@ -1,20 +1,8 @@
-import { AppShellLayout } from '@/components/AppShellLayout';
-import { BaseModulePage } from '@/components/BaseModulePage';
-import { useTranslation } from '@/i18n';
-import { routes } from '@/router/routes';
+import { IconTruckDelivery } from '@tabler/icons-react';
+import { PlannedModulePage } from '@/components/PlannedModule';
 
 function FulfillmentPage() {
-  const { t } = useTranslation('fulfillment');
-
-  return (
-    <AppShellLayout>
-      <BaseModulePage
-        title={t('title')}
-        description={t('description')}
-        routePath={routes.fulfillment.main}
-      />
-    </AppShellLayout>
-  );
+  return <PlannedModulePage moduleKey="fulfillment" icon={IconTruckDelivery} />;
 }
 
 export default FulfillmentPage;

@@ -1,0 +1,90 @@
+/* The data table draws a line under the expanded content; the row's own separator is enough. */
+.table tr:not(:last-of-type) :global(.mantine-datatable-row-expansion-cell-content),
+.table :global(.mantine-datatable-row-expansion-cell-content) {
+  border-bottom: 0;
+}
+
+/* The data table already pads an expanded row evenly; the card needs no frame of its own. */
+.wrap {
+  padding: 0;
+}
+
+.card {
+  overflow: hidden;
+  background: var(--mantine-color-white);
+  border: 1px solid var(--mantine-color-gray-3);
+  border-radius: var(--mantine-radius-md);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr) 160px 160px;
+  gap: var(--mantine-spacing-md);
+  align-items: center;
+  padding: 10px var(--mantine-spacing-md);
+  border-bottom: 1px solid var(--mantine-color-gray-2);
+}
+
+.row:last-child {
+  border-bottom: 0;
+}
+
+.head,
+.foot {
+  background: var(--mantine-color-gray-0);
+}
+
+.head {
+  border-bottom: 1px solid var(--mantine-color-gray-3);
+}
+
+.foot {
+  border-top: 1px solid var(--mantine-color-gray-3);
+}
+
+.headCell {
+  font-size: var(--jurnal-text-xs);
+  font-weight: 700;
+  color: var(--mantine-color-dimmed);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.account {
+  min-width: 0;
+}
+
+.accountName {
+  overflow: hidden;
+  font-size: var(--jurnal-text-sm);
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.accountNumber {
+  font-size: var(--jurnal-text-xs);
+  color: var(--mantine-color-dimmed);
+}
+
+.description {
+  min-width: 0;
+  font-size: var(--jurnal-text-sm);
+  color: var(--mantine-color-gray-7);
+  overflow-wrap: anywhere;
+}
+
+.amount {
+  font-size: var(--jurnal-text-sm);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.empty {
+  color: var(--mantine-color-gray-5);
+}
+
+.total {
+  font-weight: 700;
+}

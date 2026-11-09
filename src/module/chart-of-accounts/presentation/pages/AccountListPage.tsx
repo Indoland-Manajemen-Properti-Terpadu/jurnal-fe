@@ -19,13 +19,9 @@ import {
   IconSearch,
   IconTrash,
 } from '@tabler/icons-react';
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
 import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
 import { ConfirmModal } from '@/components';
-import { routes } from '@/router/routes';
-import { useDraftAccount, BeginningBalanceModal } from '@/module/beginning-balances';
-import { PeriodAndClosingBooksModal } from '@/module/period-closing';
 import deleteModalImage from '@/assets/images/illustrations/delete-confirm.svg';
 import useAccountStore from '../hooks/useAccountStore';
 import { useDeleteAccount } from '../hooks/useDeleteAccount';
@@ -39,7 +35,6 @@ import { AccountStatsCards } from '../components/AccountStatsCards';
 import { AccountListHeaderActions } from '../components/AccountListHeaderActions';
 
 const GeneralJournalPage: React.FC = () => {
-  const navigate = useNavigate();
   const { t } = useTranslation('chartOfAccounts');
   const [showArchived, setShowArchived] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<string>('all');
@@ -53,13 +48,10 @@ const GeneralJournalPage: React.FC = () => {
 
   const { selectedRecords, setSelectedRecords } = useAccountStore();
   const { mutate: deleteAccount, isPending: isDeleting } = useDeleteAccount();
-  const { draftAccounts } = useDraftAccount();
 
   // Modals state
   const [modals, setModals] = useState({
-    beginningBalance: false,
     settingAccount: false,
-    periodAndClosingBooks: false,
     deleteConfirmation: false,
   });
 
@@ -98,14 +90,6 @@ const GeneralJournalPage: React.FC = () => {
     });
   };
 
-  const handleButtonInitialBalance = async () => {
-    if (draftAccounts?.status === false) {
-      openModal('beginningBalance');
-      return;
-    }
-    navigate(routes.beginningBalances.main);
-  };
-
   return (
     <GeneralJournalLayout>
       <Box p={{ base: 'md', sm: 'xl' }}>
@@ -120,8 +104,6 @@ const GeneralJournalPage: React.FC = () => {
                 isLoading={isLoading}
                 onRefresh={() => refetch()}
                 onOpenSettings={() => openModal('settingAccount')}
-                onOpenBeginningBalance={handleButtonInitialBalance}
-                onOpenPeriodLock={() => openModal('periodAndClosingBooks')}
               />
             }
           />
@@ -236,14 +218,6 @@ const GeneralJournalPage: React.FC = () => {
         opened={modals.settingAccount}
         onClose={() => closeModal('settingAccount')}
         totalAccounts={stats.total}
-      />
-      <BeginningBalanceModal
-        opened={modals.beginningBalance}
-        onClose={() => closeModal('beginningBalance')}
-      />
-      <PeriodAndClosingBooksModal
-        opened={modals.periodAndClosingBooks}
-        onClose={() => closeModal('periodAndClosingBooks')}
       />
       <ConfirmModal
         opened={modals.deleteConfirmation}

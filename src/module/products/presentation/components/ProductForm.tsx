@@ -1,5 +1,6 @@
 import { memo, useState } from 'react';
-import { Button, Grid, Paper, Stack } from '@mantine/core';
+import { Alert, Button, Grid, Paper, Stack } from '@mantine/core';
+import { IconInfoCircle } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import type { Product, ProductFormValues } from '@/module/products/domain/product';
 import { resolveProductImageUrl } from '@/module/products/infrastructure/productApi';
@@ -97,20 +98,28 @@ function ProductFormComponent({
 
         <Grid.Col span={{ base: 12, md: 4 }}>
           <Stack gap="md" pos="sticky" top={0}>
-            <ProductImagePanel
-              preview={preview}
-              nothingEnabled={nothingEnabled}
-              onPick={handleImage}
-              onClear={handleClearImage}
-            />
+            <ProductImagePanel preview={preview} onPick={handleImage} onClear={handleClearImage} />
 
             <Paper withBorder radius="md" p="md" bg="white">
               <Stack gap="xs">
+                {nothingEnabled && (
+                  <Alert
+                    color="yellow"
+                    radius="md"
+                    icon={<IconInfoCircle size={16} />}
+                    p="xs"
+                    role="alert"
+                    styles={{ message: { fontSize: 'var(--jurnal-text-xs)' } }}
+                  >
+                    {t('form.nothingEnabled')}
+                  </Alert>
+                )}
                 <Button
                   type="submit"
                   color="primary"
                   size="sm"
                   loading={isSubmitting}
+                  disabled={nothingEnabled}
                   fullWidth
                   radius="md"
                 >

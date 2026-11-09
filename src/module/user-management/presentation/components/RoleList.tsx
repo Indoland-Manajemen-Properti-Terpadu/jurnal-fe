@@ -26,16 +26,19 @@ import { grantedMenus } from '@/module/user-management/domain/rolePermissions';
 import { useMyGrants } from '@/module/user-management/presentation/hooks/useMyGrants';
 import { useDeleteRole } from '@/module/user-management/presentation/hooks/useRoleMutations';
 import { useRoles } from '@/module/user-management/presentation/hooks/useRoles';
+import { useUsers } from '@/module/user-management/presentation/hooks/useUsers';
 import { isForbidden } from '@/module/user-management/infrastructure/apiError';
+import { SITE_USERS_LIMIT } from './directory';
 import { DeleteRoleModal } from './DeleteRoleModal';
 import { InfoCard } from './InfoCard';
 
 const roleRoute = (path: string, id: string) => path.replace(':id', id);
 
-export default function RolesTab() {
+export default function RoleList() {
   const { t } = useTranslation('userManagement');
   const navigate = useNavigate();
   const roles = useRoles();
+  const users = useUsers({ page: 1, limit: SITE_USERS_LIMIT });
   const { canRoles } = useMyGrants();
   const [pending, setPending] = useState<AccessRole | null>(null);
   const remove = useDeleteRole(() => setPending(null));
@@ -46,11 +49,18 @@ export default function RolesTab() {
 
   const renderCard = (role: AccessRole) => {
     const count = grantedMenus(role.permissions).length;
+    const members = (users.data?.results ?? []).filter((user) =>
+      user.accessRoleIds.includes(role.id)
+    ).length;
     return (
       <InfoCard
         key={role.id}
         interactive
-        label={count > 0 ? t('roles.access', { count }) : t('roles.accessNone')}
+        label={
+          count > 0
+            ? t('roles.summary', { menus: count, members })
+            : t('roles.summaryNone', { members })
+        }
         value={role.name}
         hint={role.description.split('\n')[0] || t('roles.noDescription')}
         visual={

@@ -4,7 +4,6 @@ export const purchasesHub = {
   refresh: 'Refresh data',
   createRequest: 'New Purchase Request',
   createAdvance: 'New Advance Payment',
-  payablesReport: 'Payables Report',
   noAccessTitle: 'You do not have access to Purchases yet',
   noAccessDescription: 'Contact your administrator to get access to the purchasing menus.',
   tabs: {
@@ -15,6 +14,33 @@ export const purchasesHub = {
     bills: 'Bills',
     payments: 'Payments',
     returns: 'Returns',
+  },
+  pages: {
+    requests: {
+      title: 'Purchase Requests',
+      description:
+        'Ask for goods or services. Once approved, a request becomes an order to the vendor.',
+    },
+    orders: {
+      title: 'Purchase Orders',
+      description: 'Orders to vendors, created from approved purchase requests.',
+    },
+    receipts: {
+      title: 'Goods Receipts',
+      description: 'Record the goods or services that have arrived from a vendor.',
+    },
+    bills: {
+      title: 'Vendor Bills',
+      description: 'Bills from vendors. Verify each one before it is paid.',
+    },
+    payments: {
+      title: 'Purchase Payments',
+      description: 'Payment vouchers for vendor bills and advances to vendors.',
+    },
+    returns: {
+      title: 'Purchase Returns',
+      description: 'Goods sent back to the vendor against a verified bill.',
+    },
   },
   overview: {
     outstanding: 'Accounts payable outstanding',

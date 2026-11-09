@@ -3,6 +3,7 @@ import {
   buildAccountLabelMap,
   buildTaxLabelMap,
   filterAccountsByNormalBalance,
+  priceError,
   requiredWhen,
   resolveAccountLabel,
   resolveTaxLabel,
@@ -47,6 +48,16 @@ describe('toInitialValues', () => {
     });
     expect(values.buyingInfo.unitPrice).toBe(12.5);
     expect(values.inventoryInfo.minStock).toBe(3);
+  });
+});
+
+describe('priceError', () => {
+  it('requires a value above zero only while the section is on', () => {
+    expect(priceError(true, null, 'req', 'min')).toBe('req');
+    expect(priceError(true, 0, 'req', 'min')).toBe('min');
+    expect(priceError(true, -5, 'req', 'min')).toBe('min');
+    expect(priceError(true, 0.01, 'req', 'min')).toBeNull();
+    expect(priceError(false, 0, 'req', 'min')).toBeNull();
   });
 });
 

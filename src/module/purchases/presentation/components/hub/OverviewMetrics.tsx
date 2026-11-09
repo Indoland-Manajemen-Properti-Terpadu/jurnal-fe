@@ -24,10 +24,10 @@ const DECISION_REASONS: { reason: WorkItem['reason']; tab: string }[] = [
 interface OverviewMetricsProps {
   data: OverviewData;
   onOpenReport?: () => void;
-  onOpenTab: (tab: 'overview' | 'payments') => void;
+  onOpenTab: (tab: 'payments') => void;
 }
 
-/** The four figures that change what the user does next, shown above every tab. */
+/** The figures that change what the user does next, shown at the top of the overview. */
 export const OverviewMetrics = ({
   data,
   onOpenReport,
@@ -94,7 +94,6 @@ export const OverviewMetrics = ({
         label={t('hub.overview.decisions')}
         value={String(data.decisions)}
         hint={t('hub.overview.decisionsHint')}
-        onClick={() => onOpenTab('overview')}
         visual={
           <MiniBars
             values={counts.map((item) => item.count)}
