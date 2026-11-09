@@ -1,213 +1,80 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { AssetItem } from '@/module/assets/domain/asset';
+import { describe, expect, it } from 'vitest';
 import {
-  calculateAssetDepreciation,
-  generateDepreciationSchedule,
+  depreciationEndMonth,
+  depreciationPercent,
+  estimateDepreciation,
+  isNonDepreciable,
+  remainingLifeMonths,
+  toSafeNumber,
 } from '@/module/assets/domain/depreciation';
 
-const makeAsset = (overrides: Partial<AssetItem> = {}): AssetItem => ({
-  id: 'a-1',
-  code: 'AST-1',
-  name: 'Test asset',
-  category: 'machinery',
-  acquisitionDate: '2024-01-15',
-  acquisitionCost: 120000000,
-  residualValue: 20000000,
-  usefulLifeYears: 5,
-  depreciationMethod: 'straight_line',
-  accumulatedDepreciation: 0,
-  netBookValue: 120000000,
-  status: 'active',
-  ...overrides,
+describe('estimateDepreciation', () => {
+  it('spreads cost minus residual over the useful life for straight line', () => {
+    expect(estimateDepreciation(13000000, 2000000, 4, 'straight_line')).toEqual({
+      annual: 2750000,
+      monthly: 229167,
+    });
+  });
+
+  it('takes twice the straight-line rate of the cost for double declining', () => {
+    expect(estimateDepreciation(12500000, 1000000, 5, 'double_declining')).toEqual({
+      annual: 5000000,
+      monthly: 416667,
+    });
+  });
+
+  it('is zero without a method or a useful life', () => {
+    expect(estimateDepreciation(1000, 0, 5, 'none')).toEqual({ annual: 0, monthly: 0 });
+    expect(estimateDepreciation(1000, 0, 0, 'straight_line')).toEqual({ annual: 0, monthly: 0 });
+  });
 });
 
-describe('depreciation rules', () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date('2026-01-15T00:00:00'));
-    localStorage.clear();
+describe('small helpers', () => {
+  it('treats unusable values as zero', () => {
+    expect(toSafeNumber(undefined)).toBe(0);
+    expect(toSafeNumber('12')).toBe(12);
+    expect(toSafeNumber(Number.NaN)).toBe(0);
   });
 
-  afterEach(() => {
-    vi.useRealTimers();
-    localStorage.clear();
+  it('knows an asset without depreciation', () => {
+    expect(isNonDepreciable({ depreciationMethod: 'none', usefulLifeYears: 5 })).toBe(true);
+    expect(isNonDepreciable({ depreciationMethod: 'straight_line', usefulLifeYears: 0 })).toBe(
+      true
+    );
+    expect(isNonDepreciable({ depreciationMethod: 'straight_line', usefulLifeYears: 4 })).toBe(
+      false
+    );
   });
 
-  describe('calculateAssetDepreciation', () => {
-    it('straight line: 24 months of a 5 year life', () => {
-      expect(
-        calculateAssetDepreciation(120000000, 20000000, 5, 'straight_line', '2024-01-15')
-      ).toEqual({ accumulatedDepreciation: 40000000, netBookValue: 80000000 });
-    });
+  it('caps the depreciated share at 100 percent', () => {
+    expect(depreciationPercent(1000, 250)).toBe(25);
+    expect(depreciationPercent(1000, 5000)).toBe(100);
+    expect(depreciationPercent(0, 10)).toBe(0);
+  });
+});
 
-    it('straight line rounds the accumulated amount to whole rupiah', () => {
-      // 100,000,000 / 36 months = 2,777,777.78 per month, 5 months elapsed
-      expect(
-        calculateAssetDepreciation(110000000, 10000000, 3, 'straight_line', '2025-08-15')
-      ).toEqual({ accumulatedDepreciation: 13888889, netBookValue: 96111111 });
-    });
+describe('useful life left', () => {
+  const genset = {
+    depreciationMethod: 'straight_line' as const,
+    usefulLifeYears: 8,
+    depreciationStartDate: '2026-09-12',
+    acquisitionDate: '2026-09-12',
+  };
 
-    it('straight line with a decimal useful life (2.5 years = 30 months)', () => {
-      expect(calculateAssetDepreciation(60000000, 0, 2.5, 'straight_line', '2025-01-15')).toEqual({
-        accumulatedDepreciation: 24000000,
-        netBookValue: 36000000,
-      });
-    });
-
-    it('straight line is capped at the residual value after the useful life', () => {
-      expect(
-        calculateAssetDepreciation(120000000, 20000000, 2, 'straight_line', '2020-01-15')
-      ).toEqual({ accumulatedDepreciation: 100000000, netBookValue: 20000000 });
-    });
-
-    it('a future acquisition date depreciates nothing', () => {
-      expect(
-        calculateAssetDepreciation(120000000, 20000000, 5, 'straight_line', '2027-01-15')
-      ).toEqual({ accumulatedDepreciation: 0, netBookValue: 120000000 });
-    });
-
-    it('double declining: two full years at 40% a year', () => {
-      expect(
-        calculateAssetDepreciation(100000000, 10000000, 5, 'double_declining', '2024-01-15')
-      ).toEqual({ accumulatedDepreciation: 64000000, netBookValue: 36000000 });
-    });
-
-    it('double declining with a partial year', () => {
-      // 18 months: one full year (60M left) then half a year at 40%: 60M * 0.4 * 0.5 = 12M
-      expect(
-        calculateAssetDepreciation(100000000, 10000000, 5, 'double_declining', '2024-07-15')
-      ).toEqual({ accumulatedDepreciation: 52000000, netBookValue: 48000000 });
-    });
-
-    it('double declining reaches the residual value at the end of the useful life, like the schedule', () => {
-      const asset = {
-        acquisitionCost: 100000000,
-        residualValue: 0,
-        usefulLifeYears: 5,
-        depreciationMethod: 'double_declining' as const,
-        acquisitionDate: '2020-01-01',
-      };
-      const afterLife = calculateAssetDepreciation(
-        100000000,
-        0,
-        5,
-        'double_declining',
-        '2020-01-01',
-        new Date('2026-01-01')
-      );
-      const lastRow = generateDepreciationSchedule(makeAsset(asset)).at(-1);
-
-      expect(afterLife).toEqual({ accumulatedDepreciation: 100000000, netBookValue: 0 });
-      expect(lastRow?.endingBookValue).toBe(afterLife.netBookValue);
-      expect(lastRow?.accumulatedDepreciation).toBe(afterLife.accumulatedDepreciation);
-    });
-
-    it('double declining agrees with the schedule at every year end', () => {
-      const asset = makeAsset({
-        acquisitionCost: 100000000,
-        residualValue: 10000000,
-        usefulLifeYears: 5,
-        depreciationMethod: 'double_declining',
-        acquisitionDate: '2020-01-01',
-      });
-      const schedule = generateDepreciationSchedule(asset);
-
-      schedule.forEach((row, index) => {
-        const result = calculateAssetDepreciation(
-          100000000,
-          10000000,
-          5,
-          'double_declining',
-          '2020-01-01',
-          new Date(2020 + index + 1, 0, 1)
-        );
-        expect(result.netBookValue).toBe(row.endingBookValue);
-      });
-    });
-
-    it('method none or zero life keeps the cost', () => {
-      expect(calculateAssetDepreciation(500000, 500000, 0, 'none', '2020-01-01')).toEqual({
-        accumulatedDepreciation: 0,
-        netBookValue: 500000,
-      });
-      expect(calculateAssetDepreciation(500000, 0, 0, 'straight_line', '2020-01-01')).toEqual({
-        accumulatedDepreciation: 0,
-        netBookValue: 500000,
-      });
-    });
+  it('ends the useful life the given number of years after the start month', () => {
+    expect(depreciationEndMonth(genset)).toBe('2034-09-01');
+    expect(depreciationEndMonth({ ...genset, depreciationStartDate: undefined })).toBe(
+      '2034-09-01'
+    );
   });
 
-  describe('generateDepreciationSchedule', () => {
-    it('straight line: five equal years ending on the residual value', () => {
-      const schedule = generateDepreciationSchedule(makeAsset());
-      expect(schedule).toHaveLength(5);
-      expect(schedule[0]).toEqual({
-        yearNumber: 1,
-        yearDate: '2024',
-        beginningBookValue: 120000000,
-        depreciationExpense: 20000000,
-        accumulatedDepreciation: 20000000,
-        endingBookValue: 100000000,
-      });
-      expect(schedule[4]).toEqual({
-        yearNumber: 5,
-        yearDate: '2028',
-        beginningBookValue: 40000000,
-        depreciationExpense: 20000000,
-        accumulatedDepreciation: 100000000,
-        endingBookValue: 20000000,
-      });
-    });
+  it('counts the months left from today and stops at zero', () => {
+    expect(remainingLifeMonths(genset, '2026-11-09')).toBe(94);
+    expect(remainingLifeMonths(genset, '2040-01-01')).toBe(0);
+  });
 
-    it('straight line: the last year absorbs the rounding remainder', () => {
-      const schedule = generateDepreciationSchedule(
-        makeAsset({ acquisitionCost: 100000000, residualValue: 0, usefulLifeYears: 3 })
-      );
-      expect(schedule.map((row) => row.depreciationExpense)).toEqual([
-        33333333, 33333333, 33333334,
-      ]);
-      expect(schedule[2].endingBookValue).toBe(0);
-    });
-
-    it('straight line with a decimal useful life only produces whole years', () => {
-      const schedule = generateDepreciationSchedule(
-        makeAsset({ acquisitionCost: 60000000, residualValue: 0, usefulLifeYears: 2.5 })
-      );
-      expect(schedule).toHaveLength(2);
-      expect(schedule.map((row) => row.depreciationExpense)).toEqual([24000000, 24000000]);
-      expect(schedule[1].endingBookValue).toBe(12000000);
-    });
-
-    it('double declining: 40% a year, last year closes to the residual value', () => {
-      const schedule = generateDepreciationSchedule(
-        makeAsset({
-          acquisitionCost: 100000000,
-          residualValue: 10000000,
-          usefulLifeYears: 5,
-          depreciationMethod: 'double_declining',
-        })
-      );
-      expect(schedule.map((row) => row.depreciationExpense)).toEqual([
-        40000000, 24000000, 14400000, 8640000, 2960000,
-      ]);
-      expect(schedule[4].endingBookValue).toBe(10000000);
-      expect(schedule[4].accumulatedDepreciation).toBe(90000000);
-    });
-
-    it('a non-depreciable asset yields one row with the cost', () => {
-      const schedule = generateDepreciationSchedule(
-        makeAsset({ depreciationMethod: 'none', usefulLifeYears: 0, acquisitionCost: 750000 })
-      );
-      expect(schedule).toEqual([
-        {
-          yearNumber: 1,
-          yearDate: '2024',
-          beginningBookValue: 750000,
-          depreciationExpense: 0,
-          accumulatedDepreciation: 0,
-          endingBookValue: 750000,
-        },
-      ]);
-    });
+  it('has no end without a useful life', () => {
+    expect(depreciationEndMonth({ ...genset, depreciationMethod: 'none' })).toBeUndefined();
+    expect(remainingLifeMonths({ ...genset, usefulLifeYears: 0 }, '2026-11-09')).toBe(0);
   });
 });

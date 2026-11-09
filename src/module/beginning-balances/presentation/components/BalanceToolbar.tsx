@@ -111,16 +111,17 @@ const BalanceToolbar: React.FC<Props> = ({
             maxDate={maxDate}
             style={{ width: 170 }}
           />
-          <Button
-            variant="subtle"
-            color="gray"
-            size="sm"
-            leftSection={<IconRotate size={16} />}
-            onClick={onReset}
-            disabled={!canReset}
-          >
-            {t('page.resetBalance')}
-          </Button>
+          {canReset && (
+            <Button
+              variant="subtle"
+              color="gray"
+              size="sm"
+              leftSection={<IconRotate size={16} />}
+              onClick={onReset}
+            >
+              {t('page.resetBalance')}
+            </Button>
+          )}
         </Group>
       </Group>
 
@@ -129,19 +130,6 @@ const BalanceToolbar: React.FC<Props> = ({
           <Text fz="var(--jurnal-text-sm)" c="dimmed">
             {t('toolbar.showing', { shown: shownCount, total: accountCount })}
           </Text>
-          <Button
-            variant="subtle"
-            color="gray"
-            size="compact-sm"
-            leftSection={<IconX size={14} />}
-            onClick={() => {
-              onSearchChange('');
-              onAccountClassChange(null);
-              onOnlyFilledChange(false);
-            }}
-          >
-            {t('toolbar.resetFilter')}
-          </Button>
         </Group>
       )}
     </Stack>

@@ -1,133 +1,91 @@
-import { ActionIcon, Badge, Group, Select, Tabs, TextInput, Tooltip } from '@mantine/core';
-import { IconRefresh, IconSearch, IconX } from '@tabler/icons-react';
-import { useTranslation } from '@/i18n';
+import { Group, Select, Tabs, TextInput } from '@mantine/core';
 import {
-  ASSET_SORT_KEYS,
-  AssetCategoryCounts,
-  DEFAULT_ASSET_SORT,
-} from '@/module/assets/domain/assetFilters';
-import { getCategoryMeta } from '@/module/assets/presentation/components/assetCategoryMeta';
+  IconCircleCheck,
+  IconClockHour4,
+  IconListTree,
+  IconScale,
+  IconSearch,
+  IconTrendingDown,
+} from '@tabler/icons-react';
+import { useTranslation } from '@/i18n';
+import type { AssetStatus, AssetSummary } from '@/module/assets/domain/asset';
+import { ASSET_STATUS_LABEL_KEY } from '@/module/assets/presentation/components/assetStatusMeta';
+import { ASSET_SORT_OPTIONS } from '@/module/assets/presentation/hooks/assetSortOptions';
 
-export type AssetTableFiltersProps = {
-  categoryFilter: string;
-  onCategoryChange: (category: string) => void;
-  counts: AssetCategoryCounts;
-  searchQuery: string;
-  onSearchChange: (query: string) => void;
-  onClearSearch: () => void;
-  sortBy: string;
-  onSortChange: (sortBy: string) => void;
-  onRefresh?: () => void;
-  loading?: boolean;
-};
+export const ALL_TAB = 'all';
 
-const CATEGORY_TABS = [
-  { value: 'vehicle', labelKey: 'categoryVehicle' },
-  { value: 'building', labelKey: 'categoryBuilding' },
-  { value: 'machinery', labelKey: 'categoryMachinery' },
-  { value: 'electronic', labelKey: 'categoryElectronic' },
-  { value: 'land', labelKey: 'categoryLand' },
-] as const;
+const STATUS_TABS = [
+  { value: 'pending', icon: IconClockHour4 },
+  { value: 'active', icon: IconCircleCheck },
+  { value: 'fully_depreciated', icon: IconTrendingDown },
+  { value: 'disposed', icon: IconScale },
+] as const satisfies ReadonlyArray<{ value: AssetStatus; icon: unknown }>;
 
-export function AssetTableFilters({
-  categoryFilter,
-  onCategoryChange,
-  counts,
-  searchQuery,
-  onSearchChange,
-  onClearSearch,
-  sortBy,
-  onSortChange,
-  onRefresh,
-  loading,
-}: Readonly<AssetTableFiltersProps>) {
+/** Pill tabs, one per status, with the number of assets in brackets once it is known. */
+export function AssetStatusTabsList({ counts }: Readonly<{ counts?: AssetSummary['counts'] }>) {
   const { t } = useTranslation('assets');
+  const withCount = (label: string, count: number | undefined) =>
+    count === undefined ? label : `${label} (${count})`;
+  const total = counts
+    ? counts.pending + counts.active + counts.fully_depreciated + counts.disposed
+    : undefined;
 
   return (
-    <Group justify="space-between" align="center" wrap="wrap" gap="md">
-      <Tabs
-        value={categoryFilter}
-        onChange={(val) => onCategoryChange(val || 'all')}
-        variant="pills"
-        radius="md"
-        color="primary"
-      >
-        <Tabs.List>
-          <Tabs.Tab
-            value="all"
-            rightSection={
-              <Badge size="xs" variant="light" color="primary" circle={false}>
-                {counts.all}
-              </Badge>
-            }
-          >
-            {t('allCategories')}
-          </Tabs.Tab>
-          {CATEGORY_TABS.map((tab) => {
-            const { icon: Icon, listColor } = getCategoryMeta(tab.value);
-            return (
-              <Tabs.Tab
-                key={tab.value}
-                value={tab.value}
-                leftSection={<Icon size={15} />}
-                rightSection={
-                  <Badge size="xs" variant="light" color={listColor} circle={false}>
-                    {counts[tab.value]}
-                  </Badge>
-                }
-              >
-                {t(tab.labelKey)}
-              </Tabs.Tab>
-            );
-          })}
-        </Tabs.List>
-      </Tabs>
-
-      <Group gap="xs" style={{ flex: 1, minWidth: 280, justifyContent: 'flex-end' }}>
-        <TextInput
-          placeholder={t('searchPlaceholder')}
-          value={searchQuery}
-          onChange={(e) => onSearchChange(e.currentTarget.value)}
-          leftSection={<IconSearch size={16} />}
-          rightSection={
-            searchQuery ? (
-              <ActionIcon size="xs" variant="subtle" color="gray" onClick={onClearSearch}>
-                <IconX size={12} />
-              </ActionIcon>
-            ) : null
-          }
-          radius="md"
-          size="sm"
-          style={{ flex: 1, maxWidth: 360 }}
-        />
-
-        <Select
-          value={sortBy}
-          onChange={(val) => onSortChange(val || DEFAULT_ASSET_SORT)}
-          data={ASSET_SORT_KEYS.map((key) => ({ value: key, label: t(`sort_${key}`) }))}
-          radius="md"
-          size="sm"
-          w={200}
-          comboboxProps={{ position: 'bottom-end', shadow: 'md' }}
-        />
-
-        {onRefresh && (
-          <Tooltip label={t('refreshData')} withArrow>
-            <ActionIcon
-              variant="light"
-              color="primary"
-              size="input-sm"
-              radius="md"
-              onClick={onRefresh}
-              loading={loading}
-            >
-              <IconRefresh size={16} />
-            </ActionIcon>
-          </Tooltip>
-        )}
-      </Group>
-    </Group>
+    <Tabs.List mb="md">
+      <Tabs.Tab value={ALL_TAB} leftSection={<IconListTree size={16} />}>
+        {withCount(t('allCategories'), total)}
+      </Tabs.Tab>
+      {STATUS_TABS.map(({ value, icon: TabIcon }) => (
+        <Tabs.Tab key={value} value={value} leftSection={<TabIcon size={16} />}>
+          {withCount(t(ASSET_STATUS_LABEL_KEY[value]), counts?.[value])}
+        </Tabs.Tab>
+      ))}
+    </Tabs.List>
   );
 }
 
-export default AssetTableFilters;
+export type AssetListToolbarProps = {
+  searchInput: string;
+  onSearchChange: (query: string) => void;
+  sort: string;
+  onSortChange: (sort: string) => void;
+};
+
+/** Search and sort on one line, as on the other list pages. */
+export function AssetListToolbar({
+  searchInput,
+  onSearchChange,
+  sort,
+  onSortChange,
+}: Readonly<AssetListToolbarProps>) {
+  const { t } = useTranslation('assets');
+
+  return (
+    <Group gap="sm" wrap="wrap">
+      <TextInput
+        placeholder={t('searchPlaceholder')}
+        aria-label={t('searchPlaceholder')}
+        leftSection={<IconSearch size={16} />}
+        value={searchInput}
+        onChange={(event) => onSearchChange(event.currentTarget.value)}
+        w={{ base: '100%', sm: 280 }}
+        radius="md"
+        size="sm"
+      />
+      <Select
+        aria-label={t('sortLabel')}
+        data={ASSET_SORT_OPTIONS.map((option) => ({
+          value: option.value,
+          label: t(`sort_${option.value}`),
+        }))}
+        value={sort}
+        onChange={(value) => value && onSortChange(value)}
+        allowDeselect={false}
+        w={{ base: '100%', sm: 220 }}
+        radius="md"
+        size="sm"
+        comboboxProps={{ width: 280, position: 'bottom-start' }}
+      />
+    </Group>
+  );
+}
