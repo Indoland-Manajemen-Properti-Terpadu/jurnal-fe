@@ -1,114 +1,133 @@
-import { Box, Group, Paper, SimpleGrid, Skeleton, Text, ThemeIcon } from '@mantine/core';
-import { IconCoins, IconScale, IconTool, IconTrendingDown } from '@tabler/icons-react';
-import { formatCurrency } from '@/utils/formatCurrency';
-import { AssetItem } from '@/module/assets/domain/asset';
-import { summarizeAssets } from '@/module/assets/domain/depreciation';
+import { Progress, RingProgress, Skeleton, Text } from '@mantine/core';
 import { useTranslation } from '@/i18n';
+import type { AssetSummary } from '@/module/assets/domain/asset';
+import { percentOf } from '@/module/assets/domain/depreciation';
+import {
+  AssetStatCard,
+  statCardClasses,
+  statCardGridClass,
+} from '@/module/assets/presentation/components/AssetStatCard';
+import { ASSET_STATUS_ORDER } from '@/module/assets/presentation/components/assetStatusMeta';
+import {
+  formatAssetMoney,
+  formatAssetMoneyShort,
+} from '@/module/assets/presentation/components/formatAssetMoney';
 
 export type AssetStatsGridProps = {
-  assets: AssetItem[];
+  summary?: AssetSummary;
   loading?: boolean;
 };
 
-export function AssetStatsGrid({ assets = [], loading }: AssetStatsGridProps) {
+export function AssetStatsGrid({ summary, loading }: Readonly<AssetStatsGridProps>) {
   const { t } = useTranslation('assets');
 
-  const totals = summarizeAssets(assets);
-
-  const stats = [
-    {
-      title: t('totalAcquisitionCost'),
-      value: formatCurrency(totals.totalAcquisitionCost),
-      subtitle: t('totalAcquisitionCostSub'),
-      icon: IconCoins,
-      color: 'primary',
-    },
-    {
-      title: t('totalDepreciation'),
-      value: formatCurrency(totals.totalAccumulatedDepreciation),
-      subtitle: t('totalDepreciationSub'),
-      icon: IconTrendingDown,
-      color: 'orange',
-    },
-    {
-      title: t('netBookValue'),
-      value: formatCurrency(totals.totalNetBookValue),
-      subtitle: t('netBookValueSub'),
-      icon: IconScale,
-      color: 'teal',
-    },
-    {
-      title: t('activeAssetsCount'),
-      value: t('activeUnits', { count: totals.activeCount }),
-      subtitle: t('activeAssetsCountSub'),
-      icon: IconTool,
-      color: 'indigo',
-    },
-  ];
-
-  if (loading) {
+  if (loading || !summary) {
     return (
-      <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }} spacing="md">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <Paper key={`skeleton-${i}`} withBorder radius="md" p="md" bg="white">
-            <Skeleton height={12} width="60%" radius="sm" mb="sm" />
-            <Skeleton height={28} width="85%" radius="sm" mb="xs" />
-            <Skeleton height={10} width="70%" radius="sm" />
-          </Paper>
+      <div className={statCardGridClass}>
+        {Array.from({ length: 4 }, (_, index) => (
+          <Skeleton key={index} height={104} radius="md" />
         ))}
-      </SimpleGrid>
+      </div>
     );
   }
 
-  return (
-    <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }} spacing="md">
-      {stats.map((stat) => {
-        const IconComponent = stat.icon;
-        return (
-          <Paper
-            key={stat.title}
-            withBorder
-            radius="md"
-            p="md"
-            bg="white"
-            style={{
-              transition: 'transform 150ms ease, box-shadow 150ms ease',
-            }}
-          >
-            <Group justify="space-between" align="flex-start" wrap="nowrap">
-              <Box style={{ flex: 1 }}>
-                <Text size="xs" c="dimmed" fw={600} tt="uppercase" lts={0.5}>
-                  {stat.title}
-                </Text>
-                <Text
-                  fz={{ base: 20, sm: 22 }}
-                  fw={800}
-                  c="dark.8"
-                  mt={4}
-                  lh={1.2}
-                  style={{ fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.3px' }}
-                >
-                  {stat.value}
-                </Text>
-                <Text size="xs" c="dimmed" mt={4} lineClamp={1}>
-                  {stat.subtitle}
-                </Text>
-              </Box>
+  const { counts } = summary;
+  const total = ASSET_STATUS_ORDER.reduce((sum, status) => sum + counts[status], 0);
+  const peak = Math.max(...ASSET_STATUS_ORDER.map((status) => counts[status]), 0);
+  const depreciatedPercent = percentOf(
+    summary.totalAccumulatedDepreciation,
+    summary.totalAcquisitionCost
+  );
+  const bookPercent = percentOf(summary.totalNetBookValue, summary.totalAcquisitionCost);
+  const activePercent = percentOf(counts.active, total);
+  const statusCounts = ASSET_STATUS_ORDER.map((status) => counts[status]);
 
-              <ThemeIcon
-                size={42}
-                radius="md"
-                variant="light"
-                color={stat.color}
-                style={{ flexShrink: 0 }}
-              >
-                <IconComponent size={22} stroke={1.8} />
-              </ThemeIcon>
-            </Group>
-          </Paper>
-        );
-      })}
-    </SimpleGrid>
+  return (
+    <div className={statCardGridClass}>
+      <AssetStatCard
+        label={t('totalAcquisitionCost')}
+        value={formatAssetMoneyShort(summary.totalAcquisitionCost)}
+        valueTitle={formatAssetMoney(summary.totalAcquisitionCost)}
+        hint={t('statsTotalHint', { count: total })}
+        visual={
+          <div
+            className={statCardClasses.bars}
+            role="img"
+            aria-label={t('statsStatusChart', { counts: statusCounts.join(', ') })}
+          >
+            {statusCounts.map((count, index) => (
+              <span
+                key={ASSET_STATUS_ORDER[index]}
+                className={statCardClasses.bar}
+                data-peak={peak > 0 && count === peak}
+                style={{ height: `${peak > 0 ? Math.max((count / peak) * 100, 7) : 7}%` }}
+              />
+            ))}
+          </div>
+        }
+      />
+
+      <AssetStatCard
+        label={t('totalDepreciation')}
+        value={formatAssetMoneyShort(summary.totalAccumulatedDepreciation)}
+        valueTitle={formatAssetMoney(summary.totalAccumulatedDepreciation)}
+        hint={t('totalDepreciationSub')}
+        visual={
+          <RingProgress
+            size={56}
+            thickness={6}
+            roundCaps
+            sections={[{ value: depreciatedPercent, color: 'primary.6' }]}
+            rootColor="var(--mantine-color-primary-1)"
+            label={
+              <Text ta="center" className={statCardClasses.percent}>
+                {depreciatedPercent}%
+              </Text>
+            }
+            aria-label={`${t('totalDepreciation')} ${depreciatedPercent}%`}
+          />
+        }
+      />
+
+      <AssetStatCard
+        label={t('netBookValue')}
+        value={formatAssetMoneyShort(summary.totalNetBookValue)}
+        valueTitle={formatAssetMoney(summary.totalNetBookValue)}
+        hint={t('netBookValueSub')}
+        visual={
+          <>
+            <Text className={statCardClasses.percent}>{bookPercent}%</Text>
+            <Progress
+              value={bookPercent}
+              size="sm"
+              radius="xl"
+              color="primary.6"
+              w="100%"
+              aria-label={`${t('netBookValue')} ${bookPercent}%`}
+            />
+          </>
+        }
+      />
+
+      <AssetStatCard
+        label={t('activeAssetsCount')}
+        value={t('activeUnits', { count: counts.active })}
+        hint={t('pendingAssetsSub', { count: counts.pending })}
+        visual={
+          <>
+            <Text className={statCardClasses.percent}>{activePercent}%</Text>
+            <Progress
+              value={activePercent}
+              size="sm"
+              radius="xl"
+              color="primary.6"
+              w="100%"
+              aria-label={`${t('activeAssetsCount')} ${activePercent}%`}
+            />
+          </>
+        }
+      />
+    </div>
   );
 }
 

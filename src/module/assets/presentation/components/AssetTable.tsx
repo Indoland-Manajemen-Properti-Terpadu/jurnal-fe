@@ -1,81 +1,85 @@
-import React, { useMemo, useState } from 'react';
-import { Box, Stack, Table, Text } from '@mantine/core';
+import React from 'react';
+import { Paper, Skeleton, Stack, Table, Tabs, Text } from '@mantine/core';
 import { IconCoins, IconPlus, IconSearch } from '@tabler/icons-react';
 import { EmptyState } from '@/components/EmptyState/EmptyState';
 import { useTranslation } from '@/i18n';
-import { AssetItem } from '@/module/assets/domain/asset';
+import type {
+  AssetItem,
+  AssetPagination,
+  AssetStatus,
+  AssetSummary,
+} from '@/module/assets/domain/asset';
 import {
-  DEFAULT_ASSET_SORT,
-  countAssetsByCategory,
-  filterAssets,
-  sortAssets,
-} from '@/module/assets/domain/assetFilters';
+  ALL_TAB,
+  AssetListToolbar,
+  AssetStatusTabsList,
+} from '@/module/assets/presentation/components/AssetTableFilters';
 import { AssetTableFooter } from '@/module/assets/presentation/components/AssetTableFooter';
-import { AssetTableSkeletonRows } from '@/module/assets/presentation/components/AssetTableSkeletonRows';
-import { AssetTableFilters } from '@/module/assets/presentation/components/AssetTableFilters';
 import { AssetTableRow } from '@/module/assets/presentation/components/AssetTableRow';
+import type { useAssetListParams } from '@/module/assets/presentation/hooks/useAssetListParams';
 
 export type AssetTableProps = {
   assets: AssetItem[];
+  pagination?: AssetPagination;
+  counts?: AssetSummary['counts'];
+  filters: ReturnType<typeof useAssetListParams>;
   loading?: boolean;
-  onRefresh?: () => void;
   onAddNew: () => void;
-  onEdit: (asset: AssetItem) => void;
-  onViewSchedule: (asset: AssetItem) => void;
-  onViewDetail?: (asset: AssetItem) => void;
-  onDispose: (asset: AssetItem) => void;
-  onDelete: (asset: AssetItem) => void;
+  onViewDetail: (asset: AssetItem) => void;
 };
 
-const PAGE_SIZE = 10;
+const COLUMN_COUNT = 7;
+const SKELETON_ROWS = 5;
 
-const HEADER_TEXT_PROPS = { size: 'xs', fw: 700, c: 'dimmed', tt: 'uppercase', lts: 0.5 } as const;
-
+/** Status tabs, search, sort and the asset table in one card, as on the account list. */
 export const AssetTable: React.FC<AssetTableProps> = ({
-  assets = [],
+  assets,
+  pagination,
+  counts,
+  filters,
   loading = false,
-  onRefresh,
   onAddNew,
-  onEdit,
-  onViewSchedule,
   onViewDetail,
-  onDispose,
-  onDelete,
 }) => {
   const { t } = useTranslation('assets');
 
-  const [categoryFilter, setCategoryFilter] = useState<string>('all');
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  const [sortBy, setSortBy] = useState<string>(DEFAULT_ASSET_SORT);
-  const [page, setPage] = useState<number>(1);
-
-  const categoryCounts = useMemo(() => countAssetsByCategory(assets), [assets]);
-
-  const filteredAssets = useMemo(
-    () => sortAssets(filterAssets(assets, categoryFilter, searchQuery), sortBy),
-    [assets, categoryFilter, searchQuery, sortBy]
+  const headerLabel = (label: string, minWidth: number, right?: boolean, center?: boolean) => (
+    <Table.Th
+      ta={right ? 'right' : center ? 'center' : undefined}
+      miw={minWidth}
+      style={{ whiteSpace: 'nowrap' }}
+    >
+      <Text size="xs" fw={700} c="dimmed" tt="uppercase">
+        {label}
+      </Text>
+    </Table.Th>
   );
 
-  const paginatedAssets = useMemo(() => {
-    const start = (page - 1) * PAGE_SIZE;
-    return filteredAssets.slice(start, start + PAGE_SIZE);
-  }, [filteredAssets, page]);
-
-  const handleResetFilters = () => {
-    setCategoryFilter('all');
-    setSearchQuery('');
-    setSortBy(DEFAULT_ASSET_SORT);
-    setPage(1);
-  };
-
   const renderBody = () => {
-    if (loading) return <AssetTableSkeletonRows />;
+    if (loading) {
+      return Array.from({ length: SKELETON_ROWS }, (_, index) => (
+        <Table.Tr key={`skeleton-${index}`}>
+          <Table.Td colSpan={COLUMN_COUNT}>
+            <Skeleton height={16} radius="sm" />
+          </Table.Td>
+        </Table.Tr>
+      ));
+    }
 
-    if (paginatedAssets.length === 0) {
+    if (assets.length === 0) {
       return (
         <Table.Tr>
-          <Table.Td colSpan={6} p={0}>
-            {assets.length === 0 ? (
+          <Table.Td colSpan={COLUMN_COUNT} p={0}>
+            {filters.hasFilters ? (
+              <EmptyState
+                title={t('noAssetsFound')}
+                description={t('noAssetsFoundDesc')}
+                icon={<IconSearch size={36} stroke={1.5} />}
+                actionLabel={t('resetFilter')}
+                onAction={filters.reset}
+                py={48}
+              />
+            ) : (
               <EmptyState
                 title={t('noAssetsYet')}
                 description={t('noAssetsYetDesc')}
@@ -85,108 +89,66 @@ export const AssetTable: React.FC<AssetTableProps> = ({
                 onAction={onAddNew}
                 py={48}
               />
-            ) : (
-              <EmptyState
-                title={t('noAssetsFound')}
-                description={t('noAssetsFoundDesc')}
-                icon={<IconSearch size={36} stroke={1.5} />}
-                actionLabel={t('resetFilter')}
-                onAction={handleResetFilters}
-                py={48}
-              />
             )}
           </Table.Td>
         </Table.Tr>
       );
     }
 
-    return paginatedAssets.map((asset) => (
-      <AssetTableRow
-        key={asset.id}
-        asset={asset}
-        onViewSchedule={onViewSchedule}
-        onViewDetail={onViewDetail}
-        onEdit={onEdit}
-        onDispose={onDispose}
-        onDelete={onDelete}
-      />
+    return assets.map((asset) => (
+      <AssetTableRow key={asset.id} asset={asset} onViewDetail={onViewDetail} />
     ));
   };
 
   return (
-    <Stack gap="md">
-      <AssetTableFilters
-        categoryFilter={categoryFilter}
-        onCategoryChange={(category) => {
-          setCategoryFilter(category);
-          setPage(1);
-        }}
-        counts={categoryCounts}
-        searchQuery={searchQuery}
-        onSearchChange={(query) => {
-          setSearchQuery(query);
-          setPage(1);
-        }}
-        onClearSearch={() => setSearchQuery('')}
-        sortBy={sortBy}
-        onSortChange={setSortBy}
-        onRefresh={onRefresh}
-        loading={loading}
-      />
+    <Tabs
+      value={filters.status ?? ALL_TAB}
+      onChange={(value) =>
+        filters.setStatus(value && value !== ALL_TAB ? (value as AssetStatus) : undefined)
+      }
+      color="primary"
+      variant="pills"
+      radius="md"
+    >
+      <AssetStatusTabsList counts={counts} />
 
-      <Box
-        style={{
-          border: '1px solid var(--mantine-color-gray-2)',
-          borderRadius: 'var(--mantine-radius-md)',
-          overflow: 'hidden',
-          backgroundColor: 'white',
-        }}
-      >
-        <Table
-          highlightOnHover
-          verticalSpacing="sm"
-          horizontalSpacing="md"
-          striped={false}
-          style={{ minWidth: 800 }}
-        >
-          <Table.Thead bg="gray.0">
-            <Table.Tr>
-              <Table.Th style={{ width: '32%' }}>
-                <Text {...HEADER_TEXT_PROPS}>
-                  {t('name')} & {t('code')}
-                </Text>
-              </Table.Th>
-              <Table.Th style={{ width: '15%' }}>
-                <Text {...HEADER_TEXT_PROPS}>{t('category')}</Text>
-              </Table.Th>
-              <Table.Th style={{ width: '18%', textAlign: 'right' }}>
-                <Text {...HEADER_TEXT_PROPS}>{t('acquisitionCost')}</Text>
-              </Table.Th>
-              <Table.Th style={{ width: '15%', textAlign: 'right' }}>
-                <Text {...HEADER_TEXT_PROPS}>{t('currentNBV')}</Text>
-              </Table.Th>
-              <Table.Th style={{ width: '12%', textAlign: 'center' }}>
-                <Text {...HEADER_TEXT_PROPS}>{t('status')}</Text>
-              </Table.Th>
-              <Table.Th style={{ width: '8%', textAlign: 'center' }}>
-                <Text {...HEADER_TEXT_PROPS}>{t('actions')}</Text>
-              </Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-
-          <Table.Tbody>{renderBody()}</Table.Tbody>
-        </Table>
-      </Box>
-
-      {filteredAssets.length > 0 && (
-        <AssetTableFooter
-          page={page}
-          pageSize={PAGE_SIZE}
-          totalItems={filteredAssets.length}
-          onPageChange={setPage}
+      <Stack gap="md">
+        <AssetListToolbar
+          searchInput={filters.searchInput}
+          onSearchChange={filters.setSearchInput}
+          sort={filters.sort}
+          onSortChange={filters.setSort}
         />
-      )}
-    </Stack>
+
+        <Paper withBorder radius="md" bg="white" p={0} style={{ overflow: 'hidden' }}>
+          <Table.ScrollContainer minWidth={820}>
+            <Table verticalSpacing="sm" horizontalSpacing="xs" highlightOnHover>
+              <Table.Thead bg="gray.0">
+                <Table.Tr>
+                  {headerLabel(t('code'), 100)}
+                  {headerLabel(t('name'), 160)}
+                  {headerLabel(t('category'), 90)}
+                  {headerLabel(t('acquisitionCost'), 110, true)}
+                  {headerLabel(t('currentNBV'), 110, true)}
+                  {headerLabel(t('status'), 120)}
+                  {headerLabel(t('actions'), 56, false, true)}
+                </Table.Tr>
+              </Table.Thead>
+              <Table.Tbody>{renderBody()}</Table.Tbody>
+            </Table>
+          </Table.ScrollContainer>
+        </Paper>
+
+        {pagination && pagination.total > 0 && !loading && (
+          <AssetTableFooter
+            page={pagination.page}
+            pageSize={pagination.limit}
+            totalItems={pagination.total}
+            onPageChange={filters.setPage}
+          />
+        )}
+      </Stack>
+    </Tabs>
   );
 };
 

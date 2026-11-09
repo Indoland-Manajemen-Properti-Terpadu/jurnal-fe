@@ -1,32 +1,50 @@
 # assets
 
-Fixed asset register: list, filter and sort assets, add or edit an asset with a live depreciation preview, view the yearly depreciation schedule, dispose of (sell) an asset and delete it. The data is a browser-only prototype stored in `localStorage`; there is no backend yet.
+Fixed asset register backed by the API. An asset is `pending` (no accounts or depreciation, not in the books), `active`, `fully_depreciated` or `disposed`. Assets arrive from ProApps as `pending`, or are added here; activating one chooses its ledger accounts and depreciation and posts the acquisition journal.
 
-- **Routes:** `routes.assets.main` (`/assets`), `routes.legacyPaths.assets` (`/asset`) and `routes.assets.detail` (`/assets/:id`), unchanged. The router wraps `AssetPage` and `AssetDetailPage` in `AppShellLayout` (the pages do not render it), so `AppShellLayout -> Navbar -> ... -> page` cannot become an import cycle.
+- **Routes:** `routes.assets.main` (`/assets`), `routes.legacyPaths.assets` (`/asset`) and `routes.assets.detail` (`/assets/:id`). The router wraps both pages in `AppShellLayout`.
 - **Public API (`index.ts`):** `AssetPage`, `AssetDetailPage`.
-- **Endpoints:** none.
-- **Storage:** key `jurnal_fixed_assets_data` (unchanged), value is a JSON array of `AssetItem` (unchanged shape). `infrastructure/localStorageAssetRepository.ts` implements the `AssetRepository` port (`domain/assetRepository.ts`); the seed lives in `infrastructure/assetSeed.ts`. On load, depreciation, net book value and status of every non-disposed asset are recalculated for today.
-- **State:** `presentation/hooks/useAssets.ts` holds the list in React state and writes each change through the repository; `useAssetForm.ts` owns the form state, validation and preview.
+- **Access:** the API needs create/update rights on the Asset menu (`JP-ASSET`); without them it answers `403`.
+- **Layers:** `domain/` (types, rules, port), `infrastructure/` (DTO, mapper, `assetApi.ts` implements the port), `presentation/` (pages, components, query hooks).
 
-## Domain rules (`domain/`)
+## Screens
 
-- `depreciation.ts`: accumulated depreciation and net book value to date (straight line by month, double declining by year with a partial year), the yearly schedule, the form's yearly and monthly estimate, disposal gain or loss (`price - net book value`), percentages, totals for the stat cards (disposed assets are excluded) and status resolution (`fully_depreciated` when net book value reaches the residual value, `disposed` is kept).
-- `assetMutations.ts`: build, update and dispose an `AssetItem` from form values.
-- `assetFilters.ts`: category counts, category and text filter (name, code, notes) and sort.
-- Rounding policy: depreciation amounts are rounded to whole rupiah with `Math.round`, exactly as displayed before. Sums (stat cards) and the disposal gain or loss run in integer minor units through `@/lib/money`; a value with sub-cent precision is first rounded half up to the cent per line, so a disposal of `0.3` against a book value of `0.1` is `0.20` and not `0.19999999999999998`. Whole-rupiah data gives the same results as before.
+- **List:** status tabs with counts, search, sort and pagination (all server side, kept in the URL), totals from `/summary`. Row menu: detail, edit, activate (pending), dispose (active).
+- **Detail:** status, book value, a notice for a pending asset (with the activate action), the yearly depreciation schedule, the posted journals (opened on demand), financial summary, ledger accounts, tags and notes. Actions by status: edit, change depreciation, dispose.
+- **Dialogs** (`AssetDialogs`, one open at a time): add or edit, activate or change accounts and depreciation, dispose. The activation form shows the acquisition journal it will post and an estimate of the monthly depreciation; an account cannot be picked twice.
+
+## Endpoints (`infrastructure/assetApi.ts`)
+
+Verified against the sandbox and the "Assets" folder of the Postman collection "All Features".
+
+| Action                           | Request                                                                                                                                                                                          |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| List                             | `GET /v1/assets`: `page`, `limit` (max 100), `status`, `search`, `category`, `sortBy` (`code,name,acquisitionDate,acquisitionCost,netBookValue,createdAt`), `sortOrder`; other keys answer `400` |
+| Detail, totals, journals         | `GET /v1/assets/:id` (with `schedule`), `/summary`, `/:id/journals`                                                                                                                              |
+| Add                              | `POST /v1/assets`: `code`, `name`, `acquisitionDate`, `acquisitionCost`; optional `categoryName`, `notes`, `tags` (ids) and an `activation` block that books the asset at once                   |
+| Activate                         | `POST /v1/assets/:id/activate` with the activation block                                                                                                                                         |
+| Edit data                        | `PATCH /v1/assets/:id`                                                                                                                                                                           |
+| Change accounts and depreciation | `PATCH /v1/assets/:id` with `{ activation }`                                                                                                                                                     |
+| Dispose                          | `POST /v1/assets/:id/dispose`: `disposalDate` (not in the future), `disposalPrice`, `proceedsAccount`, `gainLossAccount`                                                                         |
+| Reference data                   | `GET /v1/tags`, `GET /v1/accounts` (nested chart of accounts)                                                                                                                                    |
+
+The activation block is `assetAccount`, `creditAccount`, `accumDeprAccount`, `deprExpenseAccount` (all different), `depreciationMethod` (`straight_line`, `double_declining`, `none`), `usefulLifeYears`, `residualValue`, `accumulatedDepreciation` (depreciation before the asset was recorded) and `depreciationStartDate` (`null` = acquisition date). Without depreciation (`none`, life 0) only the asset and counter account are needed. There is no delete endpoint.
+
+## Rules
+
+- **Who can edit what** (`domain/assetRules.ts`, mirrored by the API): an asset pushed from ProApps keeps its master data there, so only its tags can change; an asset made in Jurnal can change name, category and notes at any time and code, date and cost only while pending; a disposed asset is closed. The edit request sends only the fields the asset allows, because the API rejects the rest.
+- **Activation journal:** debit the asset account for the cost; credit the accumulated depreciation account for the depreciation before recording, and the counter account for the book value.
+- **Disposal:** depreciation not yet posted up to the month before the disposal date is posted first. The gain or loss in the dialog is an estimate (`price - net book value`); the API posts the final figure. Only an active asset can be disposed.
+- **Revising an active asset:** if the accounts or the opening depreciation change, the old acquisition journal is voided with a reversing journal and a new one is posted; the API refuses once depreciation has been posted.
+- **Numbers come from the API:** accumulated depreciation, book value, monthly estimate and the schedule (`year`, `months`, `beginning`, `expense`, `accumulated`, `ending`). `domain/depreciation.ts` only holds the live monthly estimate of the form (straight line and double declining match the API's `monthlyEstimate`) and display helpers. Money sums in rules use `@/lib/money`.
+- The totals exclude pending assets (the API's definition), so a register that only has pending assets shows `Rp 0` there.
+- Category is free text (`categoryName`).
+- A `proappsSyncError` on an asset (the hand-over to ProApps did not go through) is shown as a calm notice; the asset is saved in Jurnal. In the sandbox this appears on every new asset because ProApps cannot be reached.
+
+## Not built
+
+Tag management (tags are only picked from `/v1/tags`), account-and-depreciation edit of a pending asset outside the activation dialog, and asset deletion (no endpoint).
 
 ## i18n
 
-Namespace `assets` (`id` primary, `en`), reused and completed. `src/i18n/locales/assets.test.ts` checks identical keys, placeholders and no empty values.
-
-## Known gaps
-
-- A fractional useful life (for example 2.5 years) produces a schedule of whole years only (2 rows) that never reaches the residual value; the accumulated figure to date uses 30 months. Kept as is (characterized in `depreciation.test.ts`).
-- Category `other` had no label key before; it now reads "Lainnya" / "Other".
-- Dates use the fixed `id-ID` format regardless of the selected language.
-- A failed `localStorage` write is silent (the in-memory list still changes); the former `console.error` calls were removed.
-- Moving to a backend means a new `AssetRepository` adapter and TanStack Query hooks.
-
-## Double declining balance (2026-10-31)
-
-The asset list and the yearly schedule use one rule (`decliningYearExpense`): each year takes twice the straight-line rate of the remaining balance, never goes below the residual value, and the last year closes to the residual value. Before, the list kept a continuous partial-year formula that never reached the residual value, so an asset past its useful life still showed a book value above it while the schedule showed it fully depreciated. A partial year is that year's schedule expense times the elapsed share of the year.
+Namespace `assets` (`id` primary, `en`). `src/i18n/locales/assets.test.ts` checks identical keys, placeholders and no empty values.
