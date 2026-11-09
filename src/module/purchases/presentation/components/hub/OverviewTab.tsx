@@ -17,7 +17,7 @@ import { useTranslation } from '@/i18n';
 import type { WorkItem } from '@/module/purchases/domain/purchaseOverview';
 import { AgingCard } from '@/module/purchases/presentation/components/hub/AgingCard';
 import { detailPath } from '@/module/purchases/presentation/components/hub/documentPaths';
-import type { CanFn, HubTab } from '@/module/purchases/presentation/components/hub/hubTabs';
+import type { CanFn, ListTab } from '@/module/purchases/presentation/components/hub/hubTabs';
 import classes from '@/module/purchases/presentation/components/hub/OverviewTab.module.css';
 import { PipelineStrip } from '@/module/purchases/presentation/components/hub/PipelineStrip';
 import type { OverviewData } from '@/module/purchases/presentation/components/hub/useOverviewData';
@@ -68,7 +68,7 @@ const WorkRow = ({ item, language }: Readonly<{ item: WorkItem; language: string
 interface OverviewTabProps {
   can: CanFn;
   data: OverviewData;
-  onOpen: (tab: HubTab) => void;
+  onOpen: (tab: ListTab) => void;
   onOpenReport?: () => void;
 }
 

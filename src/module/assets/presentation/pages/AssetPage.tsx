@@ -3,6 +3,7 @@ import { ActionIcon, Box, Button, Group, Paper, Stack, Tooltip } from '@mantine/
 import { IconBuildingWarehouse, IconPlus, IconRefresh } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
+import { PrototypeNotice } from '@/components/PlannedModule';
 import { ConfirmModal } from '@/components/ui/ConfirmModal/ConfirmModal';
 import { routes } from '@/router/routes';
 import { AssetStatsGrid } from '@/module/assets/presentation/components/AssetStatsGrid';
@@ -102,6 +103,7 @@ export function AssetPage() {
               </Group>
             }
           />
+          <PrototypeNotice />
 
           {/* KPI Stats Grid */}
           <AssetStatsGrid assets={assets} loading={isLoading} />

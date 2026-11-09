@@ -49,6 +49,7 @@ export const routes = {
   },
 
   journalEntries: {
+    main: '/journal-entries',
     add: '/general-journal/add-transaction-journal',
     detail: '/general-journal/detail-transaction-journal/:idTransaction',
   },
@@ -94,6 +95,11 @@ export const routes = {
   sales: {
     main: '/sales',
     add: '/sales/new',
+    quotations: '/sales/quotations',
+    orders: '/sales/orders',
+    payments: '/sales/payments',
+    returns: '/sales/returns',
+    receivables: '/sales/receivables',
     edit: '/sales/:id/edit',
     detail: '/sales/:id',
     publicInvoice: '/invoice/:token',
@@ -101,6 +107,12 @@ export const routes = {
 
   purchases: {
     main: '/purchases',
+    requests: '/purchases/requests',
+    orders: '/purchases/orders',
+    receipts: '/purchases/receipts',
+    bills: '/purchases/bills',
+    payments: '/purchases/payments',
+    returns: '/purchases/returns',
     payables: '/purchases/payables',
     requestAdd: '/purchases/requests/new',
     requestDetail: '/purchases/requests/:id',
@@ -127,7 +139,15 @@ export const routes = {
 
   products: {
     main: '/products',
+    categories: '/products/categories',
+    units: '/products/units',
     detail: '/products/:id',
+  },
+
+  inventory: {
+    warehouses: '/inventory/warehouses',
+    stockMovements: '/inventory/stock-movements',
+    stockTake: '/inventory/stock-take',
   },
 
   production: {
@@ -151,6 +171,9 @@ export const routes = {
     main: '/settings',
     general: '/settings/general',
     company: '/settings/company-setting',
+    sites: '/settings/sites',
+    accountingPeriods: '/settings/accounting-periods',
+    approvalFlow: '/settings/approval-flow',
     accountMapping: '/settings/account-mapping',
     taxes: '/settings/taxes',
     paymentTerms: '/settings/payment-terms',
@@ -161,6 +184,8 @@ export const routes = {
 
   userManagement: {
     main: '/settings/user-management',
+    roles: '/settings/user-management/roles',
+    history: '/settings/user-management/history',
     addUser: '/settings/user-management/add-user-form',
     editUser: '/settings/user-management/edit-user/:userId',
     addRole: '/settings/user-management/add-role-form',

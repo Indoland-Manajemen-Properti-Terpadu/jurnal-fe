@@ -10,15 +10,13 @@ export const userManagement = {
     inactive: 'Inactive',
     unnamed: 'Unnamed',
   },
-  tab: {
-    users: 'Users',
-    roles: 'Roles',
-    history: 'Change History',
-  },
-  overview: {
-    users: 'Total users',
-    roles: 'Total roles',
-    customRoles: 'Custom roles',
+  strip: {
+    title: 'Roles in use',
+    subtitle: 'Who holds which role. Roles with the most members come first.',
+    members: '{{count}} users',
+    moreMembers: '+{{count}} more',
+    manage: 'Manage',
+    viewAll: 'View all roles',
   },
   perm: {
     read: 'View',
@@ -31,6 +29,7 @@ export const userManagement = {
     column: {
       name: 'User',
       roles: 'Roles',
+      access: 'Access level',
       status: 'Status',
       created: 'Created',
       actions: 'Actions',
@@ -43,6 +42,21 @@ export const userManagement = {
       description: 'Add your colleagues and decide what each of them is allowed to do.',
     },
     pagination: 'Showing {{from}}–{{to}} of {{total}} users',
+    tabAll: 'All ({{count}})',
+    search: 'Search name or email',
+    truncated:
+      'Showing {{shown}} of {{total}} users. Search and the count per role cover only those shown.',
+    noMatch: {
+      title: 'No users match',
+      description: 'Change the search words or pick another role.',
+      reset: 'Reset',
+    },
+    access: {
+      full: 'Full access',
+      limited: 'Limited',
+      readOnly: 'View only',
+      none: 'No access',
+    },
     menu: { edit: 'Edit user', deactivate: 'Deactivate', activate: 'Reactivate' },
     deactivate: {
       title: 'Deactivate {{name}}?',
@@ -61,8 +75,8 @@ export const userManagement = {
     sectionCustom: 'Your roles',
     column: { name: 'Role', description: 'Description', access: 'Access', actions: 'Actions' },
     actionsLabel: 'Actions for the {{name}} role',
-    access: 'Access to {{count}} menus',
-    accessNone: 'No access yet',
+    summary: '{{menus}} menus · {{members}} users',
+    summaryNone: 'No menu access yet · {{members}} users',
     noDescription: 'No description',
     customEmpty: {
       title: 'You have not created a role yet',

@@ -1,22 +1,16 @@
-import { ActionIcon, Alert, Box, Group, Image, Paper, Stack, Text, ThemeIcon } from '@mantine/core';
+import { ActionIcon, Box, Group, Image, Paper, Stack, Text, ThemeIcon } from '@mantine/core';
 import { Dropzone, IMAGE_MIME_TYPE } from '@mantine/dropzone';
-import { IconInfoCircle, IconPhoto, IconUpload, IconX } from '@tabler/icons-react';
+import { IconPhoto, IconUpload, IconX } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import { MAX_IMAGE_BYTES } from '@/module/products/domain/productRules';
 
 type ProductImagePanelProps = {
   preview: string | null;
-  nothingEnabled: boolean;
   onPick: (file: File | null) => void;
   onClear: () => void;
 };
 
-export function ProductImagePanel({
-  preview,
-  nothingEnabled,
-  onPick,
-  onClear,
-}: Readonly<ProductImagePanelProps>) {
+export function ProductImagePanel({ preview, onPick, onClear }: Readonly<ProductImagePanelProps>) {
   const { t } = useTranslation('products');
   return (
     <Paper withBorder radius="md" p="md" bg="white">
@@ -92,19 +86,6 @@ export function ProductImagePanel({
             </Text>
           </Stack>
         </Dropzone>
-      )}
-
-      {nothingEnabled && (
-        <Alert
-          color="yellow"
-          radius="md"
-          icon={<IconInfoCircle size={16} />}
-          p="xs"
-          mt="md"
-          styles={{ message: { fontSize: 'var(--jurnal-text-xs)' } }}
-        >
-          {t('form.nothingEnabled')}
-        </Alert>
       )}
     </Paper>
   );

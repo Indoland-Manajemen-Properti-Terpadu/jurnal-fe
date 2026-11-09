@@ -24,6 +24,7 @@ export const useVoidJournalEntry = () => {
       });
       queryClient.invalidateQueries({ queryKey: journalEntryKeys.allByAccount });
       queryClient.invalidateQueries({ queryKey: journalEntryKeys.allDetails });
+      queryClient.invalidateQueries({ queryKey: journalEntryKeys.allHistory });
       queryClient.invalidateQueries({ queryKey: ['accounts'] });
       queryClient.invalidateQueries({ queryKey: ['detail_account'] });
     },

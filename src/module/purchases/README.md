@@ -6,18 +6,19 @@ The backend rules are in the backend's `PURCHASE_MODULE.md`; this file records w
 
 ## Routes (`routes.purchases`)
 
-| Key                                            | Path                                                                            | Page                                        |
-| ---------------------------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------- |
-| `main`                                         | `/purchases?tab=overview\|requests\|orders\|receipts\|bills\|payments\|returns` | `PurchasesPage` (hub, one tab per document) |
-| `payables`                                     | `/purchases/payables`                                                           | `PayablesReportPage`                        |
-| `requestAdd` / `requestDetail` / `requestEdit` | `/purchases/requests/new`, `/:id`, `/:id/edit`                                  | `RequestFormPage`, `RequestDetailPage`      |
-| `orderAdd` / `orderDetail` / `orderEdit`       | `/purchases/orders/new?request=<id>`, `/:id`, `/:id/edit`                       | `OrderFormPage`, `OrderDetailPage`          |
-| `receiptAdd` / `receiptDetail`                 | `/purchases/receipts/new?order=<id>`, `/:id`                                    | `ReceiptFormPage`, `ReceiptDetailPage`      |
-| `billAdd` / `billDetail` / `billEdit`          | `/purchases/bills/new?order=<id>`, `/:id`, `/:id/edit`                          | `BillFormPage`, `BillDetailPage`            |
-| `paymentAdd` / `paymentDetail` / `paymentEdit` | `/purchases/payments/new?bill=<id>` or `?type=advance`, `/:id`, `/:id/edit`     | `PaymentFormPage`, `PaymentDetailPage`      |
-| `returnAdd` / `returnDetail` / `returnEdit`    | `/purchases/returns/new?bill=<id>`, `/:id`, `/:id/edit`                         | `ReturnFormPage`, `ReturnDetailPage`        |
+| Key                                                                   | Path                                                                             | Page                                                             |
+| --------------------------------------------------------------------- | -------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| `main`                                                                | `/purchases`                                                                     | `PurchasesPage` (overview: attention list, pipeline, aging)      |
+| `requests` / `orders` / `receipts` / `bills` / `payments` / `returns` | `/purchases/requests`, `/orders`, `/receipts`, `/bills`, `/payments`, `/returns` | `PurchaseListPage tab=...` (one page per document list, no tabs) |
+| `payables`                                                            | `/purchases/payables`                                                            | `PayablesReportPage`                                             |
+| `requestAdd` / `requestDetail` / `requestEdit`                        | `/purchases/requests/new`, `/:id`, `/:id/edit`                                   | `RequestFormPage`, `RequestDetailPage`                           |
+| `orderAdd` / `orderDetail` / `orderEdit`                              | `/purchases/orders/new?request=<id>`, `/:id`, `/:id/edit`                        | `OrderFormPage`, `OrderDetailPage`                               |
+| `receiptAdd` / `receiptDetail`                                        | `/purchases/receipts/new?order=<id>`, `/:id`                                     | `ReceiptFormPage`, `ReceiptDetailPage`                           |
+| `billAdd` / `billDetail` / `billEdit`                                 | `/purchases/bills/new?order=<id>`, `/:id`, `/:id/edit`                           | `BillFormPage`, `BillDetailPage`                                 |
+| `paymentAdd` / `paymentDetail` / `paymentEdit`                        | `/purchases/payments/new?bill=<id>` or `?type=advance`, `/:id`, `/:id/edit`      | `PaymentFormPage`, `PaymentDetailPage`                           |
+| `returnAdd` / `returnDetail` / `returnEdit`                           | `/purchases/returns/new?bill=<id>`, `/:id`, `/:id/edit`                          | `ReturnFormPage`, `ReturnDetailPage`                             |
 
-The old `/pembelian` (`routes.legacyPaths.purchases`) still redirects to the hub. Orders, receipts and bills are always created from the previous document, never from an empty form.
+The old `/pembelian` (`routes.legacyPaths.purchases`) still redirects to the overview, and the old `/purchases?tab=bills` style links redirect to the matching list page. Each sidebar sub-menu item is its own page; the hub has no tabs. Orders, receipts and bills are always created from the previous document, never from an empty form.
 
 ## Layers
 

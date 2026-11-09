@@ -75,7 +75,7 @@ const RequestFormBody = ({ existing }: Readonly<FormBodyProps>) => {
           : t('requests.form.titleCreate')
       }
       description={existing ? t('requests.form.subtitleEdit') : t('requests.form.subtitleCreate')}
-      backTo={existing ? detailOf(existing.id) : `${routes.purchases.main}?tab=requests`}
+      backTo={existing ? detailOf(existing.id) : routes.purchases.requests}
       backLabel={t('common.back')}
     >
       <Grid gutter="lg" align="flex-start">
@@ -198,7 +198,9 @@ const RequestFormBody = ({ existing }: Readonly<FormBodyProps>) => {
               loading={pending}
               submitLabel={existing ? t('common.save') : t('common.saveDraft')}
               onSubmit={submit}
-              onCancel={() => navigate(existing ? detailOf(existing.id) : routes.purchases.main)}
+              onCancel={() =>
+                navigate(existing ? detailOf(existing.id) : routes.purchases.requests)
+              }
             />
           </SectionCard>
         </Grid.Col>

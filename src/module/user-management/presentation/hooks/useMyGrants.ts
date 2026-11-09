@@ -28,6 +28,11 @@ export const useMyGrants = () => {
   return {
     grants,
     isLoading: query.isLoading,
+    /** True once the rights are known; callers that only hide things should not hide before that. */
+    isReady: query.isSuccess,
+    canRead: (menuId: string) => mayDo(grants, menuId, 'read'),
+    /** Any right on any menu, e.g. `can('JP-GL', 'delete')`. */
+    can: (menuId: string, type: PermissionType) => mayDo(grants, menuId, type),
     canUsers: (type: PermissionType) => mayDo(grants, USER_MENU_ID, type),
     canRoles: (type: PermissionType) => mayDo(grants, ROLE_MENU_ID, type),
   };

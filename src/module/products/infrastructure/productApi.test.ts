@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { API_ACCOUNT } from '@/lib/http/endpoints';
 import type { ProductFormValues } from '@/module/products/domain/product';
 import {
   createProduct,
@@ -158,24 +159,62 @@ describe('fetchProducts', () => {
   });
 });
 
-describe('fetchAllProducts', () => {
-  it('reads every page and joins the items', async () => {
-    const page = (n: number) => ({
+describe('fetchProducts total', () => {
+  const respond = (count: number, page: number, total: number) =>
+    http.get.mockResolvedValue({
       data: {
         data: {
-          data: [{ id: `p${n}` }],
-          pagination: { total: 3, page: n, limit: 100, totalPages: 3 },
+          data: Array.from({ length: count }, (_, k) => ({ id: `p${k}` })),
+          pagination: { total, page, limit: 10, totalPages: Math.ceil(total / 10) },
         },
       },
     });
+
+  it('ignores deleted products the service still counts on a last page that is not full', async () => {
+    respond(6, 2, 19); // service says 19, but page 2 holds 6, so the real total is 16
+
+    const { pagination } = await fetchProducts({ page: 2, limit: 10 });
+
+    expect(pagination.total).toBe(16);
+    expect(pagination.totalPages).toBe(2);
+  });
+
+  it('keeps the service total on a full page', async () => {
+    respond(10, 1, 19);
+
+    expect((await fetchProducts({ page: 1, limit: 10 })).pagination.total).toBe(19);
+  });
+
+  it('reports zero for an empty result', async () => {
+    respond(0, 1, 3);
+
+    const { pagination } = await fetchProducts({ page: 1, limit: 10 });
+    expect(pagination.total).toBe(0);
+    expect(pagination.totalPages).toBe(1);
+  });
+});
+
+describe('fetchAllProducts', () => {
+  const page = (n: number, count: number) => ({
+    data: {
+      data: {
+        data: Array.from({ length: count }, (_, k) => ({ id: `p${n}-${k}` })),
+        // the service total includes 2 deleted products
+        pagination: { total: 252, page: n, limit: 100, totalPages: 3 },
+      },
+    },
+  });
+
+  it('reads every page, joins the items and reports the true total', async () => {
     http.get
-      .mockResolvedValueOnce(page(1))
-      .mockResolvedValueOnce(page(2))
-      .mockResolvedValueOnce(page(3));
+      .mockResolvedValueOnce(page(1, 100))
+      .mockResolvedValueOnce(page(2, 100))
+      .mockResolvedValueOnce(page(3, 50));
 
     const result = await fetchAllProducts();
 
-    expect(result.items.map((p) => p.id)).toEqual(['p1', 'p2', 'p3']);
+    expect(result.items).toHaveLength(250);
+    expect(result.pagination.total).toBe(250);
     expect(http.get).toHaveBeenCalledTimes(3);
   });
 });
@@ -220,31 +259,36 @@ describe('lookups', () => {
     expect(http.get).toHaveBeenCalledWith('/v1/taxes', { params: { page: 1, limit: 100 } });
   });
 
-  it('flattens account trees into labelled options', async () => {
+  it('maps simple accounts into labelled options and skips non-postable ones', async () => {
     http.get.mockResolvedValue({
       data: {
-        results: [
+        data: [
           {
             id: 'a1',
             name: 'Kas',
             accountNumber: '1-100',
-            category: { isDebit: true },
-            subAccount: [{ id: 'a2', name: 'Kas Kecil' }],
+            normalBalance: 'debit',
+            isPostable: true,
           },
+          { id: 'a2', name: 'Pendapatan', normalBalance: 'credit' },
+          { id: 'a3', name: 'Induk', normalBalance: 'debit', isPostable: false },
+          { id: 'a4', name: 'Tanpa sisi' },
         ],
       },
     });
 
     expect(await fetchAccountOptions()).toEqual([
       { id: 'a1', label: '1-100 · Kas', isDebit: true },
-      { id: 'a2', label: 'Kas Kecil', isDebit: null },
+      { id: 'a2', label: 'Pendapatan', isDebit: false },
+      { id: 'a4', label: 'Tanpa sisi', isDebit: null },
     ]);
+    expect(http.get).toHaveBeenCalledWith(API_ACCOUNT.GET_SIMPLE_ACCOUNTS);
   });
 
-  it('rejects an account response without a results array', async () => {
+  it('rejects an account response without a data array', async () => {
     http.get.mockResolvedValue({ data: {} });
 
-    await expect(fetchAccountOptions()).rejects.toThrow('Invalid journal accounts response.');
+    await expect(fetchAccountOptions()).rejects.toThrow('Invalid simple accounts response.');
   });
 });
 

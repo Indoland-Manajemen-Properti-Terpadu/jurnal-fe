@@ -1,6 +1,11 @@
 import type { RouteObject } from 'react-router-dom';
 import { AppShellLayout } from '@/components/AppShellLayout';
-import { ProductDetailPage, ProductsPage } from '@/module/products';
+import {
+  ProductCategoriesPage,
+  ProductDetailPage,
+  ProductsPage,
+  ProductUnitsPage,
+} from '@/module/products';
 import { routes } from '../routes';
 
 export const productsRoutes: RouteObject[] = [
@@ -9,6 +14,22 @@ export const productsRoutes: RouteObject[] = [
     element: (
       <AppShellLayout>
         <ProductsPage />
+      </AppShellLayout>
+    ),
+  },
+  {
+    path: routes.products.categories,
+    element: (
+      <AppShellLayout>
+        <ProductCategoriesPage />
+      </AppShellLayout>
+    ),
+  },
+  {
+    path: routes.products.units,
+    element: (
+      <AppShellLayout>
+        <ProductUnitsPage />
       </AppShellLayout>
     ),
   },

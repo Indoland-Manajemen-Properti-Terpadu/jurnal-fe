@@ -1,6 +1,9 @@
 import { PURCHASE_MENU } from '@/module/purchases/domain/purchaseAccess';
+import { routes } from '@/router/routes';
 import {
-  resolveTab,
+  LIST_TABS,
+  canReadTab,
+  listPath,
   visibleTabs,
   type CanFn,
 } from '@/module/purchases/presentation/components/hub/hubTabs';
@@ -21,9 +24,15 @@ describe('hubTabs', () => {
     expect(visibleTabs(can)).toEqual(['payments']);
   });
 
-  it('falls back to a tab the user may open', () => {
+  it('keeps a page closed to someone who cannot read it', () => {
     const can = only(`${PURCHASE_MENU.approvePayment}:read`);
-    expect(resolveTab('orders', can)).toBe('payments');
-    expect(resolveTab(null, only(`${PURCHASE_MENU.documents}:read`))).toBe('overview');
+    expect(canReadTab('orders', can)).toBe(false);
+    expect(canReadTab('payments', can)).toBe(true);
+  });
+
+  it('gives every list its own address under the purchasing area', () => {
+    const paths = LIST_TABS.map(listPath);
+    expect(new Set(paths).size).toBe(LIST_TABS.length);
+    for (const path of paths) expect(path.startsWith(`${routes.purchases.main}/`)).toBe(true);
   });
 });

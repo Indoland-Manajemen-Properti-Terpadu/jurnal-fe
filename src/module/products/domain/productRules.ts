@@ -33,6 +33,18 @@ export const toInitialValues = (product?: Product): ProductFormValues => ({
 export const requiredWhen = (enabled: boolean, value: unknown, message: string) =>
   enabled && (value === null || value === '') ? message : null;
 
+/** A price must be filled in and above zero while its section is on. */
+export const priceError = (
+  enabled: boolean,
+  value: number | null,
+  requiredMessage: string,
+  positiveMessage: string
+): string | null => {
+  const missing = requiredWhen(enabled, value, requiredMessage);
+  if (missing) return missing;
+  return enabled && value !== null && !(value > 0) ? positiveMessage : null;
+};
+
 export const formatTaxLabel = (tax: Pick<Tax, 'name' | 'rate'>): string =>
   `${tax.name} (${tax.rate}%)`;
 

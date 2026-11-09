@@ -10,15 +10,13 @@ export const userManagement = {
     inactive: 'Nonaktif',
     unnamed: 'Tanpa nama',
   },
-  tab: {
-    users: 'Pengguna',
-    roles: 'Peran',
-    history: 'Riwayat Perubahan',
-  },
-  overview: {
-    users: 'Total pengguna',
-    roles: 'Total peran',
-    customRoles: 'Peran kustom',
+  strip: {
+    title: 'Peran yang dipakai',
+    subtitle: 'Siapa memegang peran apa. Peran dengan anggota terbanyak tampil lebih dulu.',
+    members: '{{count}} pengguna',
+    moreMembers: '+{{count}} lainnya',
+    manage: 'Kelola',
+    viewAll: 'Lihat semua peran',
   },
   perm: {
     read: 'Lihat',
@@ -31,6 +29,7 @@ export const userManagement = {
     column: {
       name: 'Pengguna',
       roles: 'Peran',
+      access: 'Tingkat akses',
       status: 'Status',
       created: 'Dibuat',
       actions: 'Aksi',
@@ -43,6 +42,21 @@ export const userManagement = {
       description: 'Tambahkan rekan kerja Anda dan tentukan apa saja yang boleh mereka lakukan.',
     },
     pagination: 'Menampilkan {{from}}–{{to}} dari {{total}} pengguna',
+    tabAll: 'Semua ({{count}})',
+    search: 'Cari nama atau email',
+    truncated:
+      'Menampilkan {{shown}} dari {{total}} pengguna. Pencarian dan jumlah per peran hanya mencakup yang ditampilkan.',
+    noMatch: {
+      title: 'Tidak ada pengguna yang cocok',
+      description: 'Ubah kata kunci atau pilih peran lain.',
+      reset: 'Atur ulang',
+    },
+    access: {
+      full: 'Akses penuh',
+      limited: 'Terbatas',
+      readOnly: 'Hanya lihat',
+      none: 'Tanpa akses',
+    },
     menu: { edit: 'Ubah pengguna', deactivate: 'Nonaktifkan', activate: 'Aktifkan kembali' },
     deactivate: {
       title: 'Nonaktifkan {{name}}?',
@@ -62,8 +76,8 @@ export const userManagement = {
     sectionCustom: 'Peran buatan Anda',
     column: { name: 'Peran', description: 'Keterangan', access: 'Akses', actions: 'Aksi' },
     actionsLabel: 'Aksi untuk peran {{name}}',
-    access: 'Akses ke {{count}} menu',
-    accessNone: 'Belum ada akses',
+    summary: '{{menus}} menu · {{members}} pengguna',
+    summaryNone: 'Belum ada akses menu · {{members}} pengguna',
     noDescription: 'Tanpa keterangan',
     customEmpty: {
       title: 'Belum ada peran buatan Anda',

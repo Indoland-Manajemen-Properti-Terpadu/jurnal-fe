@@ -8,6 +8,9 @@ export const settings = {
   english: 'English (US)',
   savePreference: 'Save Preferences',
   savedSuccessfully: 'Language preference updated successfully.',
+  nav: {
+    title: 'Settings menu',
+  },
   breadcrumbRoot: 'Settings',
   group: {
     general: 'General',
@@ -24,7 +27,12 @@ export const settings = {
     paymentMethods: 'Payment Methods',
     numberFormats: 'Document Numbering',
     tags: 'Transaction Tags',
-    users: 'Users & Roles',
+    users: 'Users',
+    roles: 'Roles & Permissions',
+    accessHistory: 'Access History',
+    approvalFlow: 'Approval Flow',
+    accountingPeriods: 'Accounting Periods',
+    sites: 'Manage Sites',
   },
   description: {
     company: 'Company identity and legal details.',
@@ -35,7 +43,12 @@ export const settings = {
     paymentMethods: 'Payment channels and ledger accounts.',
     numberFormats: 'Automatic document numbering.',
     tags: 'Labels for grouping transactions.',
-    users: 'User access and roles.',
+    users: 'Who can sign in and the roles they hold.',
+    roles: 'Roles and the menus each role may open.',
+    accessHistory: 'Record of changes to users and roles.',
+    approvalFlow: 'Who approves each approval step.',
+    accountingPeriods: 'Open and lock accounting periods.',
+    sites: 'Manage the companies or locations that use this app.',
   },
   generalTitle: 'Number Precision',
   generalDescription:

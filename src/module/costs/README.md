@@ -1,6 +1,6 @@
 # costs
 
-Placeholder module for costs. It renders `BaseModulePage` with a title and the active route; there is no domain logic, endpoint or state yet.
+Placeholder module for costs. It renders the shared `PlannedModulePage` (header and planned scope, copy in the `plannedModules` namespace); there is no domain logic, endpoint or state yet.
 
 - **Route:** `routes.costs.main` (see `src/router/routes.ts`)
 - **Page:** `presentation/pages/CostPage.tsx`, exported from `index.ts`

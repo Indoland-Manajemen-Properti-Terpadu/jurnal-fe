@@ -33,7 +33,7 @@ import { TableBody } from './TableBody';
 const COLUMNS = 5;
 const ALL = 'all';
 
-export default function HistoryTab() {
+export default function HistoryList() {
   const { t } = useTranslation('userManagement');
   const [page, setPage] = useState(1);
   const [filters, setFilters] = useState<AuditFilters>({});

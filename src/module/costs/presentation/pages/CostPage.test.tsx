@@ -29,6 +29,6 @@ describe('<CostPage />', () => {
     act(() => useI18nStore.getState().setLanguage('en'));
     renderPage();
 
-    expect(screen.getAllByText('Costs').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Expenses').length).toBeGreaterThan(0);
   });
 });

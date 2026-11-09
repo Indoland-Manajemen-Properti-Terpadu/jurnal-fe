@@ -183,7 +183,7 @@ export default function ReceiptFormPage() {
   const { t } = useTranslation('purchases');
   const { can, isLoading: accessLoading } = usePurchaseAccess();
   const order = useOrder(orderId);
-  const back = `${routes.purchases.main}?tab=orders`;
+  const back = routes.purchases.orders;
 
   if (accessLoading || (orderId && order.isLoading)) {
     return <StateFrame kind="loading" />;

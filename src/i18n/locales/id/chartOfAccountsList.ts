@@ -6,12 +6,8 @@ export const chartOfAccountsList = {
     refreshTooltip: 'Muat ulang akun',
     refreshAria: 'Segarkan data akun',
     moreActions: 'Aksi Lainnya',
-    menuTransactions: 'Transaksi & Impor',
-    addJournalTransaction: 'Tambah Transaksi Jurnal',
     menuLedgerConfig: 'Konfigurasi Buku Besar',
     standardAccounts: 'Atur Akun Standar',
-    beginningBalance: 'Saldo Awal',
-    periodLock: 'Kunci Periode & Tutup Buku',
     addAccount: 'Tambah Akun',
     stats: {
       totalTitle: 'Total Akun COA',

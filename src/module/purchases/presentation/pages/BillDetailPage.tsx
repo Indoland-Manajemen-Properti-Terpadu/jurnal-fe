@@ -23,7 +23,7 @@ import { usePurchaseJourney } from '@/module/purchases/presentation/hooks/usePur
 import { useBill, useOrder } from '@/module/purchases/presentation/hooks/usePurchaseQueries';
 import { routes } from '@/router/routes';
 
-const BACK = `${routes.purchases.main}?tab=bills`;
+const BACK = routes.purchases.bills;
 
 export default function BillDetailPage() {
   const { id } = useParams();

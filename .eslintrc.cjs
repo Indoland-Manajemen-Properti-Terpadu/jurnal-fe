@@ -140,9 +140,14 @@ module.exports = {
       },
     },
     {
-      // The app shell (sidebar and header) shows the pending-changes badge, so it reads that
-      // module's public hook. Every other shared component stays free of feature modules.
-      files: ['src/components/Navbar/Navbar.tsx', 'src/components/HeaderNav/HeaderNav.tsx'],
+      // The app shell (sidebar and header) shows the pending-changes badge and hides the menus a person
+      // cannot read, so it reads those modules' hooks (`useNavigationAccess` is the one place that reads
+      // the rights). Every other shared component stays free of feature modules.
+      files: [
+        'src/components/Navbar/Navbar.tsx',
+        'src/components/Navbar/useNavigationAccess.ts',
+        'src/components/HeaderNav/HeaderNav.tsx',
+      ],
       rules: {
         'import/no-restricted-paths': [
           'error',

@@ -1,12 +1,15 @@
 import axios from 'axios';
 import apiClient from '@/lib/http/apiClient';
 import { API_ACCOUNT, API_TAGS } from '@/lib/http/endpoints';
+import type { JournalHistoryFilters, JournalHistoryPage } from '../domain/journalHistory';
+import { toHistoryQuery } from '../domain/journalHistory';
 import type {
   JournalEntryByAccount,
   JournalEntryDetail,
   JournalEntryPayload,
   TagsResponse,
 } from '../domain/journalEntry';
+import { toJournalHistoryPage } from './journalHistoryMapper';
 import {
   toCreateFormData,
   toEntriesByAccount,
@@ -23,6 +26,18 @@ export const errorMessage = (error: unknown, fallback: string): string =>
 export const fetchJournalEntryDetail = async (idEntry: string): Promise<JournalEntryDetail> => {
   const { data } = await apiClient.get<unknown>(`${API_ACCOUNT.GET_TRANSACTION_DETAIL}/${idEntry}`);
   return toEntryDetail(data);
+};
+
+/** One page of the journal across every account, filtered and sorted by the server. */
+export const fetchJournalHistory = async (
+  filters: JournalHistoryFilters,
+  signal?: AbortSignal
+): Promise<JournalHistoryPage> => {
+  const { data } = await apiClient.get<unknown>(
+    `${API_ACCOUNT.GET_JOURNALS}?${toHistoryQuery(filters).toString()}`,
+    { signal }
+  );
+  return toJournalHistoryPage(data);
 };
 
 const ENTRIES_PAGE_SIZE = 100;
