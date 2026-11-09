@@ -261,6 +261,11 @@ const BeginningBalancePage: React.FC = () => {
                     setRows((prev) => applyAmountEntry(prev, id, field, raw))
                   }
                   onClear={(id) => setRows((prev) => clearAccountRow(prev, id))}
+                  onResetFilters={() => {
+                    setSearchQuery('');
+                    setAccountClass(null);
+                    setOnlyFilled(false);
+                  }}
                 />
               </Stack>
             </Paper>

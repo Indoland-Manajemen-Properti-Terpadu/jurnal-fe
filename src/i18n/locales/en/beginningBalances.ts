@@ -50,7 +50,6 @@ export const beginningBalances = {
     allClasses: 'All classes',
     onlyFilled: 'Filled only',
     conversionDate: 'Conversion date',
-    resetFilter: 'Reset Filter',
     showing: '{shown} of {total} accounts',
   },
   accountClass: {
@@ -76,7 +75,8 @@ export const beginningBalances = {
     offSide: 'Outside the normal side',
     clearRow: 'Clear this row',
     emptyTitle: 'No matching accounts',
-    emptyImageAlt: 'Empty account list',
+    emptyDescription: 'Change the search, class, or filter to see other accounts.',
+    emptyAction: 'Reset Filter',
   },
   confirmPublish: {
     title: 'Publish Beginning Balance',

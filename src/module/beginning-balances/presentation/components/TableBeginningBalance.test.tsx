@@ -35,9 +35,24 @@ describe('TableBeginningBalance', () => {
   const setup = (records: OpeningRow[]) => {
     const onEnter = vi.fn();
     const onClear = vi.fn();
-    render(<TableBeginningBalance records={records} onEnter={onEnter} onClear={onClear} />);
-    return { onEnter, onClear };
+    const onResetFilters = vi.fn();
+    render(
+      <TableBeginningBalance
+        records={records}
+        onEnter={onEnter}
+        onClear={onClear}
+        onResetFilters={onResetFilters}
+      />
+    );
+    return { onEnter, onClear, onResetFilters };
   };
+
+  it('offers a reset of the filters from the empty state', () => {
+    const { onResetFilters } = setup([]);
+    expect(screen.getByText('No matching accounts')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Reset Filter' }));
+    expect(onResetFilters).toHaveBeenCalledTimes(1);
+  });
 
   it('hands the typed text to the page, which parses it', () => {
     const { onEnter } = setup([row()]);

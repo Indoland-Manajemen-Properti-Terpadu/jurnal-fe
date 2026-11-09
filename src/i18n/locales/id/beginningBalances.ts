@@ -50,7 +50,6 @@ export const beginningBalances = {
     allClasses: 'Semua kelas',
     onlyFilled: 'Hanya yang terisi',
     conversionDate: 'Tanggal konversi',
-    resetFilter: 'Reset Filter',
     showing: '{shown} dari {total} akun',
   },
   accountClass: {
@@ -76,7 +75,8 @@ export const beginningBalances = {
     offSide: 'Di luar sisi normal',
     clearRow: 'Kosongkan baris ini',
     emptyTitle: 'Tidak ada akun yang sesuai',
-    emptyImageAlt: 'Daftar akun kosong',
+    emptyDescription: 'Ubah kata kunci, kelas akun, atau filter untuk melihat akun lainnya.',
+    emptyAction: 'Reset Filter',
   },
   confirmPublish: {
     title: 'Publikasikan Saldo Awal',
