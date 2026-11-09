@@ -1,103 +1,76 @@
-import { PrototypeNotice } from '@/components/PlannedModule';
-import React, { useMemo, useState } from 'react';
+import React from 'react';
 import { Box, Grid, Stack } from '@mantine/core';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ConfirmModal } from '@/components/ui/ConfirmModal/ConfirmModal';
-import { useTranslation } from '@/i18n';
 import { routes } from '@/router/routes';
-import { AssetItem } from '@/module/assets/domain/asset';
-import { generateDepreciationSchedule } from '@/module/assets/domain/depreciation';
-import { AssetDetailActionBar } from '@/module/assets/presentation/components/AssetDetailActionBar';
-import { AssetDetailHero } from '@/module/assets/presentation/components/AssetDetailHero';
+import { AssetDetailHeader } from '@/module/assets/presentation/components/AssetDetailHeader';
+import { AssetDetailInfo } from '@/module/assets/presentation/components/AssetDetailInfo';
+import { AssetDetailJournals } from '@/module/assets/presentation/components/AssetDetailJournals';
+import { AssetPendingNotice } from '@/module/assets/presentation/components/AssetDetailNotices';
 import { AssetDetailScheduleCard } from '@/module/assets/presentation/components/AssetDetailScheduleCard';
 import {
   AssetDetailSkeleton,
   AssetNotFound,
 } from '@/module/assets/presentation/components/AssetDetailStates';
-import { AssetDetailSummary } from '@/module/assets/presentation/components/AssetDetailSummary';
-import { AssetDisposalModal } from '@/module/assets/presentation/components/AssetDisposalModal';
-import { AssetDisposalNotice } from '@/module/assets/presentation/components/AssetDisposalNotice';
-import { AssetFormModal } from '@/module/assets/presentation/components/AssetFormModal';
-import { useAssets } from '@/module/assets/presentation/hooks/useAssets';
+import { AssetDialogs } from '@/module/assets/presentation/components/AssetDialogs';
+import { AssetValueSummary } from '@/module/assets/presentation/components/AssetValueSummary';
+import { useAssetDialogs } from '@/module/assets/presentation/hooks/useAssetDialogs';
+import { useAsset, useAssetJournals } from '@/module/assets/presentation/hooks/useAssetQueries';
 
-/** Route `/assets/:id`. The router wraps it in `AppShellLayout`. */
+/**
+ * Route `/assets/:id`. Top to bottom: who the asset is and what can be done, its value, then its
+ * schedule and journals beside the reference card that describes it. The router wraps it in
+ * `AppShellLayout`.
+ */
 export const AssetDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { t } = useTranslation('assets');
-  const { assets, isLoading, deleteAsset, saveAsset, disposeAsset } = useAssets();
-
-  const [editModalOpen, setEditModalOpen] = useState(false);
-  const [disposalModalOpen, setDisposalModalOpen] = useState(false);
-  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
-
-  const asset: AssetItem | undefined = useMemo(() => assets.find((a) => a.id === id), [assets, id]);
-
-  const schedule = useMemo(() => (asset ? generateDepreciationSchedule(asset) : []), [asset]);
+  const { data: asset, isLoading } = useAsset(id);
+  const dialogs = useAssetDialogs();
+  const journals = useAssetJournals(id, Boolean(asset) && asset?.status !== 'pending');
 
   const goToList = () => navigate(routes.assets.main);
 
   if (isLoading) return <AssetDetailSkeleton />;
   if (!asset) return <AssetNotFound onBack={goToList} />;
 
-  const handleDelete = () => {
-    deleteAsset(asset.id, asset.name);
-    setDeleteConfirmOpen(false);
-    goToList();
-  };
-
   return (
     <>
       <Box p={{ base: 'md', sm: 'xl' }}>
         <Stack gap="lg">
-          <PrototypeNotice />
-          <AssetDetailActionBar
-            status={asset.status}
+          <AssetDetailHeader
+            asset={asset}
             onBack={goToList}
-            onEdit={() => setEditModalOpen(true)}
-            onDispose={() => setDisposalModalOpen(true)}
-            onDelete={() => setDeleteConfirmOpen(true)}
+            onEdit={() => dialogs.open({ kind: 'form', asset })}
+            onRevise={() => dialogs.open({ kind: 'revise', asset })}
+            onDispose={() => dialogs.open({ kind: 'dispose', asset })}
           />
 
-          <AssetDetailHero asset={asset} />
+          {asset.status === 'pending' && (
+            <AssetPendingNotice onActivate={() => dialogs.open({ kind: 'activate', asset })} />
+          )}
 
-          {asset.status === 'disposed' && <AssetDisposalNotice asset={asset} />}
+          <AssetValueSummary asset={asset} />
 
-          <Grid gutter="lg">
-            <Grid.Col span={{ base: 12, md: 8 }}>
-              <AssetDetailScheduleCard asset={asset} schedule={schedule} />
+          <Grid gutter="lg" align="flex-start">
+            <Grid.Col span={{ base: 12, lg: 8 }}>
+              <Stack gap="lg">
+                <AssetDetailScheduleCard asset={asset} />
+                {asset.status !== 'pending' && (
+                  <AssetDetailJournals
+                    journals={journals.data ?? []}
+                    loading={journals.isLoading}
+                  />
+                )}
+              </Stack>
             </Grid.Col>
-            <Grid.Col span={{ base: 12, md: 4 }}>
-              <AssetDetailSummary asset={asset} />
+            <Grid.Col span={{ base: 12, lg: 4 }}>
+              <AssetDetailInfo asset={asset} />
             </Grid.Col>
           </Grid>
         </Stack>
       </Box>
 
-      <AssetFormModal
-        opened={editModalOpen}
-        onClose={() => setEditModalOpen(false)}
-        onSave={saveAsset}
-        assetToEdit={asset}
-      />
-
-      <AssetDisposalModal
-        opened={disposalModalOpen}
-        onClose={() => setDisposalModalOpen(false)}
-        asset={asset}
-        onConfirmDisposal={disposeAsset}
-      />
-
-      <ConfirmModal
-        opened={deleteConfirmOpen}
-        onClose={() => setDeleteConfirmOpen(false)}
-        onConfirm={handleDelete}
-        title={t('detailDeleteTitle')}
-        message={t('detailDeleteMessage', { name: asset.name })}
-        helperText={t('detailDeleteHelper')}
-        confirmLabel={t('deleteAsset')}
-        cancelLabel={t('cancel')}
-      />
+      <AssetDialogs dialog={dialogs.dialog} onClose={dialogs.close} />
     </>
   );
 };

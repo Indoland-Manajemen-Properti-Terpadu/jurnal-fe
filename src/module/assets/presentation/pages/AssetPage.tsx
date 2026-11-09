@@ -1,77 +1,45 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { ActionIcon, Box, Button, Group, Paper, Stack, Tooltip } from '@mantine/core';
 import { IconBuildingWarehouse, IconPlus, IconRefresh } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
-import { PrototypeNotice } from '@/components/PlannedModule';
-import { ConfirmModal } from '@/components/ui/ConfirmModal/ConfirmModal';
 import { routes } from '@/router/routes';
+import { useTranslation } from '@/i18n';
+import { AssetListParams } from '@/module/assets/domain/asset';
+import { AssetDialogs } from '@/module/assets/presentation/components/AssetDialogs';
 import { AssetStatsGrid } from '@/module/assets/presentation/components/AssetStatsGrid';
 import { AssetTable } from '@/module/assets/presentation/components/AssetTable';
-import { AssetFormModal } from '@/module/assets/presentation/components/AssetFormModal';
-import { AssetScheduleModal } from '@/module/assets/presentation/components/AssetScheduleModal';
-import { AssetDisposalModal } from '@/module/assets/presentation/components/AssetDisposalModal';
-import { useAssets } from '@/module/assets/presentation/hooks/useAssets';
-import { AssetItem } from '@/module/assets/domain/asset';
-import { useTranslation } from '@/i18n';
+import { useAssetDialogs } from '@/module/assets/presentation/hooks/useAssetDialogs';
+import { useAssetListParams } from '@/module/assets/presentation/hooks/useAssetListParams';
+import { useAssetSummary, useAssets } from '@/module/assets/presentation/hooks/useAssetQueries';
 
 export function AssetPage() {
   const navigate = useNavigate();
   const { t } = useTranslation('assets');
-  const { assets, isLoading, refetch, saveAsset, deleteAsset, disposeAsset } = useAssets();
+  const filters = useAssetListParams();
 
-  // Modal states
-  const [formModalOpen, setFormModalOpen] = useState(false);
-  const [assetToEdit, setAssetToEdit] = useState<AssetItem | null>(null);
-
-  const [scheduleModalOpen, setScheduleModalOpen] = useState(false);
-  const [assetForSchedule, setAssetForSchedule] = useState<AssetItem | null>(null);
-
-  const [disposalModalOpen, setDisposalModalOpen] = useState(false);
-  const [assetForDisposal, setAssetForDisposal] = useState<AssetItem | null>(null);
-
-  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
-  const [assetToDelete, setAssetToDelete] = useState<AssetItem | null>(null);
-
-  // Handlers
-  const handleAddNew = () => {
-    setAssetToEdit(null);
-    setFormModalOpen(true);
+  const listParams: AssetListParams = {
+    page: filters.page,
+    limit: filters.limit,
+    status: filters.status,
+    search: filters.search,
+    sortBy: filters.sortBy,
+    sortOrder: filters.sortOrder,
   };
+  const list = useAssets(listParams);
+  const summary = useAssetSummary();
 
-  const handleEdit = (asset: AssetItem) => {
-    setAssetToEdit(asset);
-    setFormModalOpen(true);
-  };
+  const dialogs = useAssetDialogs();
 
-  const handleViewSchedule = (asset: AssetItem) => {
-    setAssetForSchedule(asset);
-    setScheduleModalOpen(true);
-  };
-
-  const handleOpenDisposal = (asset: AssetItem) => {
-    setAssetForDisposal(asset);
-    setDisposalModalOpen(true);
-  };
-
-  const handleDeleteRequest = (asset: AssetItem) => {
-    setAssetToDelete(asset);
-    setDeleteConfirmOpen(true);
-  };
-
-  const handleConfirmDelete = () => {
-    if (assetToDelete) {
-      deleteAsset(assetToDelete.id, assetToDelete.name);
-      setDeleteConfirmOpen(false);
-      setAssetToDelete(null);
-    }
+  const refetch = () => {
+    list.refetch();
+    summary.refetch();
   };
 
   return (
     <>
       <Box p={{ base: 'md', sm: 'xl' }}>
         <Stack gap="lg">
-          {/* Canonical Module Header */}
           <ModuleHeader
             icon={IconBuildingWarehouse}
             title={t('moduleTitle')}
@@ -83,85 +51,44 @@ export function AssetPage() {
                     variant="default"
                     size="lg"
                     radius="md"
+                    aria-label={t('refreshData')}
                     onClick={refetch}
-                    loading={isLoading}
+                    loading={list.isFetching || summary.isFetching}
                   >
                     <IconRefresh size={18} />
                   </ActionIcon>
                 </Tooltip>
 
                 <Button
-                  variant="gradient"
-                  gradient={{ from: 'primary.6', to: 'secondary.6', deg: 135 }}
-                  size="sm"
+                  color="primary"
+                  size="md"
                   radius="md"
-                  leftSection={<IconPlus size={16} />}
-                  onClick={handleAddNew}
+                  leftSection={<IconPlus size={18} />}
+                  onClick={() => dialogs.open({ kind: 'form', asset: null })}
                 >
                   {t('addAsset')}
                 </Button>
               </Group>
             }
           />
-          <PrototypeNotice />
 
-          {/* KPI Stats Grid */}
-          <AssetStatsGrid assets={assets} loading={isLoading} />
+          <AssetStatsGrid summary={summary.data} loading={summary.isLoading} />
 
-          {/* Main Content Container with Table */}
           <Paper withBorder radius="lg" p="md" bg="white">
             <AssetTable
-              assets={assets}
-              loading={isLoading}
-              onRefresh={refetch}
-              onAddNew={handleAddNew}
-              onEdit={handleEdit}
-              onViewSchedule={handleViewSchedule}
+              assets={list.data?.items ?? []}
+              pagination={list.data?.pagination}
+              counts={summary.data?.counts}
+              filters={filters}
+              loading={list.isLoading}
+              onAddNew={() => dialogs.open({ kind: 'form', asset: null })}
               onViewDetail={(asset) => navigate(routes.assets.detail.replace(':id', asset.id))}
-              onDispose={handleOpenDisposal}
-              onDelete={handleDeleteRequest}
             />
           </Paper>
         </Stack>
       </Box>
 
-      {/* Add / Edit Asset Modal */}
-      <AssetFormModal
-        opened={formModalOpen}
-        onClose={() => setFormModalOpen(false)}
-        onSave={saveAsset}
-        assetToEdit={assetToEdit}
-      />
-
-      {/* Depreciation Schedule Modal */}
-      <AssetScheduleModal
-        opened={scheduleModalOpen}
-        onClose={() => setScheduleModalOpen(false)}
-        asset={assetForSchedule}
-      />
-
-      {/* Disposal Modal */}
-      <AssetDisposalModal
-        opened={disposalModalOpen}
-        onClose={() => setDisposalModalOpen(false)}
-        asset={assetForDisposal}
-        onConfirmDisposal={disposeAsset}
-      />
-
-      {/* Delete Confirmation Modal */}
-      <ConfirmModal
-        opened={deleteConfirmOpen}
-        onClose={() => {
-          setDeleteConfirmOpen(false);
-          setAssetToDelete(null);
-        }}
-        onConfirm={handleConfirmDelete}
-        title={t('confirmDeleteTitle')}
-        message={assetToDelete ? t('confirmDeleteMessage', { name: assetToDelete.name }) : ''}
-        helperText={t('confirmDeleteHelper')}
-        confirmLabel={t('deleteAsset')}
-        cancelLabel={t('cancel')}
-      />
+      <AssetDialogs dialog={dialogs.dialog} onClose={dialogs.close} />
     </>
   );
 }
