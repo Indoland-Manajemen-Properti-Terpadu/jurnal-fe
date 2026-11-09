@@ -1,92 +1,124 @@
-import React from 'react';
-import { Box, Button, Group, Modal, Stack, Text, ThemeIcon } from '@mantine/core';
-import { IconBuildingWarehouse, IconPlus } from '@tabler/icons-react';
+import { useState } from 'react';
+import { Alert, Button, Group, Modal, Stack, Switch, Text } from '@mantine/core';
+import { IconBuildingWarehouse, IconInfoCircle } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
-import { AssetFormValues, AssetItem } from '@/module/assets/domain/asset';
-import { AssetFormAccountingSection } from '@/module/assets/presentation/components/AssetFormAccountingSection';
+import type { AssetFormValues, AssetItem } from '@/module/assets/domain/asset';
+import { getAssetEditRights } from '@/module/assets/domain/assetRules';
+import { AssetActivationFields } from '@/module/assets/presentation/components/AssetActivationFields';
 import { AssetFormIdentitySection } from '@/module/assets/presentation/components/AssetFormIdentitySection';
-import { AssetFormPreview } from '@/module/assets/presentation/components/AssetFormPreview';
+import { AssetModalTitle } from '@/module/assets/presentation/components/AssetModalTitle';
+import { useActivationForm } from '@/module/assets/presentation/hooks/useActivationForm';
 import { useAssetForm } from '@/module/assets/presentation/hooks/useAssetForm';
+import {
+  useAssetAccounts,
+  useAssetTags,
+  useCreateAsset,
+  useUpdateAsset,
+} from '@/module/assets/presentation/hooks/useAssetQueries';
 
 export type AssetFormModalProps = {
-  opened: boolean;
+  /** The asset to edit; leave out to add a new one. */
+  asset?: AssetItem | null;
   onClose: () => void;
-  onSave: (values: AssetFormValues) => void;
-  assetToEdit?: AssetItem | null;
 };
 
-export const AssetFormModal: React.FC<AssetFormModalProps> = ({
-  opened,
-  onClose,
-  onSave,
-  assetToEdit,
-}) => {
-  const { t } = useTranslation('assets');
-  const { form, liveCost, liveMethod, estimate, preview } = useAssetForm(opened, assetToEdit);
+const ALL_RIGHTS = { details: true, terms: true, tags: true } as const;
 
-  const handleSubmit = (values: AssetFormValues) => {
-    onSave(values);
-    onClose();
+export function AssetFormModal({ asset, onClose }: Readonly<AssetFormModalProps>) {
+  const { t } = useTranslation('assets');
+  const editing = Boolean(asset);
+  const rights = asset ? getAssetEditRights(asset) : ALL_RIGHTS;
+  const fromProapps = asset?.source === 'proapps';
+
+  const [activateNow, setActivateNow] = useState(false);
+  const tags = useAssetTags();
+  const accounts = useAssetAccounts(activateNow);
+  const create = useCreateAsset();
+  const update = useUpdateAsset(asset?.id ?? '', rights);
+  const pending = create.isPending || update.isPending;
+
+  const form = useAssetForm(asset);
+  const activationForm = useActivationForm(null, () => Number(form.values.acquisitionCost) || 0);
+
+  const handleSubmit = async (values: AssetFormValues) => {
+    try {
+      if (editing) {
+        await update.mutateAsync(values);
+      } else {
+        if (activateNow && activationForm.validate().hasErrors) return;
+        await create.mutateAsync({
+          values,
+          activation: activateNow ? activationForm.values : undefined,
+        });
+      }
+      onClose();
+    } catch {
+      // The mutation already shows the failure; the form stays open with the entered values.
+    }
   };
 
   return (
     <Modal
-      opened={opened}
+      opened
       onClose={onClose}
       title={
-        <Group gap="sm" align="center">
-          <ThemeIcon
-            size={36}
-            radius="md"
-            variant="gradient"
-            gradient={{ from: 'primary.6', to: 'secondary.6', deg: 135 }}
-          >
-            <IconBuildingWarehouse size={20} stroke={1.8} />
-          </ThemeIcon>
-          <Box>
-            <Text fw={700} size="md" c="dark.9" lh={1.2}>
-              {assetToEdit ? t('formTitleEdit') : t('formTitleCreate')}
-            </Text>
-            <Text size="xs" c="dimmed" mt={2}>
-              {t('formSubtitle')}
-            </Text>
-          </Box>
-        </Group>
+        <AssetModalTitle
+          icon={IconBuildingWarehouse}
+          title={editing ? t('formTitleEdit') : t('formTitleCreate')}
+          subtitle={t('formSubtitle')}
+        />
       }
-      size="lg"
+      size={activateNow ? 'xl' : 'lg'}
       radius="lg"
       centered
       padding="lg"
     >
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <Stack gap="lg">
-          <AssetFormIdentitySection form={form} />
-          <AssetFormAccountingSection form={form} />
-          <AssetFormPreview
-            method={liveMethod}
-            cost={liveCost}
-            estimate={estimate}
-            preview={preview}
-          />
+          {fromProapps && (
+            <Alert variant="light" color="primary" radius="md" icon={<IconInfoCircle size={18} />}>
+              {t('proappsDataNotice')}
+            </Alert>
+          )}
 
-          <Group justify="flex-end" gap="sm">
-            <Button variant="default" onClick={onClose} radius="md">
-              {t('cancel')}
-            </Button>
-            <Button
-              type="submit"
-              variant="gradient"
-              gradient={{ from: 'primary.6', to: 'secondary.6', deg: 135 }}
-              radius="md"
-              leftSection={assetToEdit ? undefined : <IconPlus size={16} />}
-            >
-              {assetToEdit ? t('updateAsset') : t('saveAsset')}
-            </Button>
+          <AssetFormIdentitySection form={form} rights={rights} tags={tags.data ?? []} />
+
+          {!editing && (
+            <Stack gap="md">
+              <Switch
+                checked={activateNow}
+                onChange={(event) => setActivateNow(event.currentTarget.checked)}
+                label={t('activateNowLabel')}
+                description={t('activateNowHint')}
+              />
+              {activateNow && (
+                <AssetActivationFields
+                  form={activationForm}
+                  accounts={accounts.data ?? []}
+                  loadingAccounts={accounts.isLoading}
+                  acquisitionCost={Number(form.values.acquisitionCost) || 0}
+                />
+              )}
+            </Stack>
+          )}
+
+          <Group justify="space-between" align="center" gap="sm">
+            <Text size="xs" c="dimmed">
+              {editing || activateNow ? '' : t('pendingHint')}
+            </Text>
+            <Group gap="sm">
+              <Button variant="default" onClick={onClose} radius="md" disabled={pending}>
+                {t('cancel')}
+              </Button>
+              <Button type="submit" radius="md" loading={pending}>
+                {editing ? t('updateAsset') : activateNow ? t('saveAndActivate') : t('saveAsset')}
+              </Button>
+            </Group>
           </Group>
         </Stack>
       </form>
     </Modal>
   );
-};
+}
 
 export default AssetFormModal;

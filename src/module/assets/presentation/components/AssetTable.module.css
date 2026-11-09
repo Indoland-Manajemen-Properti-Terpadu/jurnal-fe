@@ -1,0 +1,32 @@
+.row {
+  vertical-align: middle;
+  cursor: pointer;
+}
+
+.cell {
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.code {
+  font-variant-numeric: tabular-nums;
+}
+
+.nameLink {
+  display: inline-block;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: bottom;
+  color: var(--mantine-color-primary-7);
+  text-decoration: none;
+}
+
+.nameLink:hover {
+  text-decoration: underline;
+}
+
+.amount {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}

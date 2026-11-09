@@ -1,150 +1,190 @@
 import { describe, expect, it } from 'vitest';
-import { AssetItem } from '@/module/assets/domain/asset';
+import type { ActivationValues, DisposalValues } from '@/module/assets/domain/asset';
 import {
-  countAssetsByCategory,
-  filterAssets,
-  sortAssets,
-} from '@/module/assets/domain/assetFilters';
-import {
-  calculateDisposalGainLoss,
-  depreciationPercent,
-  estimateDepreciation,
-  isNonDepreciable,
-  remainingPercentOfCost,
-  resolveAssetStatus,
-  summarizeAssets,
-} from '@/module/assets/domain/depreciation';
+  canActivateAsset,
+  canDisposeAsset,
+  canEditAsset,
+  canReviseAsset,
+  estimateDisposalGainLoss,
+  getAssetEditRights,
+  previewAcquisitionJournal,
+  sumJournalLines,
+  validateActivation,
+  validateDisposal,
+} from '@/module/assets/domain/assetRules';
 
-const asset = (overrides: Partial<AssetItem>): AssetItem => ({
-  id: 'a',
-  code: 'AST-1',
-  name: 'Asset',
-  category: 'vehicle',
-  acquisitionDate: '2024-01-01',
-  acquisitionCost: 1000,
-  residualValue: 0,
-  usefulLifeYears: 5,
+const activation = (overrides: Partial<ActivationValues> = {}): ActivationValues => ({
+  assetAccount: 'a',
+  creditAccount: 'b',
+  accumDeprAccount: 'c',
+  deprExpenseAccount: 'd',
   depreciationMethod: 'straight_line',
+  usefulLifeYears: 4,
+  residualValue: 0,
   accumulatedDepreciation: 0,
-  netBookValue: 1000,
-  status: 'active',
+  depreciationStartDate: '',
   ...overrides,
 });
 
-describe('calculateDisposalGainLoss', () => {
-  it('is positive above book value and negative below it', () => {
-    expect(calculateDisposalGainLoss(90000000, 80000000)).toBe(10000000);
-    expect(calculateDisposalGainLoss(50000000, 80000000)).toBe(-30000000);
-    expect(calculateDisposalGainLoss(80000000, 80000000)).toBe(0);
+describe('getAssetEditRights', () => {
+  it('lets a ProApps asset change tags only', () => {
+    expect(getAssetEditRights({ source: 'proapps', status: 'pending' })).toEqual({
+      details: false,
+      terms: false,
+      tags: true,
+    });
   });
 
-  it('keeps cents exact where float subtraction drifts', () => {
-    // 0.3 - 0.1 is 0.19999999999999998 as a float
-    expect(calculateDisposalGainLoss(0.3, 0.1)).toBe(0.2);
-    expect(calculateDisposalGainLoss(1500.5, 1000.25)).toBe(500.25);
+  it('lets a Jurnal asset change code, date and cost only while pending', () => {
+    expect(getAssetEditRights({ source: 'jurnal', status: 'pending' })).toEqual({
+      details: true,
+      terms: true,
+      tags: true,
+    });
+    expect(getAssetEditRights({ source: 'jurnal', status: 'active' })).toEqual({
+      details: true,
+      terms: false,
+      tags: true,
+    });
   });
 
-  it('rounds sub-cent input half up to the cent', () => {
-    expect(calculateDisposalGainLoss(10.005, 0)).toBe(10.01);
+  it('closes a disposed asset', () => {
+    expect(canEditAsset({ source: 'jurnal', status: 'disposed' })).toBe(false);
   });
 });
 
-describe('summarizeAssets', () => {
-  it('sums active and fully depreciated assets and skips disposed ones', () => {
-    const totals = summarizeAssets([
-      asset({ acquisitionCost: 1500.5, accumulatedDepreciation: 0.1, netBookValue: 1500.4 }),
-      asset({
-        status: 'fully_depreciated',
-        acquisitionCost: 2000.25,
-        accumulatedDepreciation: 0.2,
-        netBookValue: 2000.05,
-      }),
-      asset({ status: 'disposed', acquisitionCost: 999999 }),
-    ]);
-    expect(totals).toEqual({
-      totalAcquisitionCost: 3500.75,
-      totalAccumulatedDepreciation: 0.3,
-      totalNetBookValue: 3500.45,
-      activeCount: 1,
-    });
-  });
-
-  it('treats missing numbers as zero', () => {
-    const broken = asset({ acquisitionCost: Number.NaN });
-    expect(summarizeAssets([broken]).totalAcquisitionCost).toBe(0);
+describe('asset actions by status', () => {
+  it('activates pending, disposes active, revises active and fully depreciated', () => {
+    expect(canActivateAsset({ status: 'pending' })).toBe(true);
+    expect(canActivateAsset({ status: 'active' })).toBe(false);
+    expect(canDisposeAsset({ status: 'active' })).toBe(true);
+    expect(canDisposeAsset({ status: 'pending' })).toBe(false);
+    expect(canReviseAsset({ status: 'fully_depreciated' })).toBe(true);
+    expect(canReviseAsset({ status: 'disposed' })).toBe(false);
   });
 });
 
-describe('small helpers', () => {
-  it('estimates yearly and monthly expense', () => {
-    expect(estimateDepreciation(100000000, 10000000, 5, 'straight_line')).toEqual({
-      annual: 18000000,
-      monthly: 1500000,
-    });
-    expect(estimateDepreciation(100000000, 10000000, 5, 'double_declining')).toEqual({
-      annual: 40000000,
-      monthly: 3333333,
-    });
-    expect(estimateDepreciation(100000000, 10000000, 0, 'straight_line')).toEqual({
-      annual: 0,
-      monthly: 0,
-    });
+describe('validateActivation', () => {
+  it('accepts complete, distinct accounts and sane terms', () => {
+    expect(validateActivation(activation(), 12000000)).toEqual({});
   });
 
-  it('computes depreciation percentages', () => {
-    expect(depreciationPercent(200, 50)).toBe(25);
-    expect(depreciationPercent(0, 50)).toBe(0);
-    expect(depreciationPercent(100, 250)).toBe(100);
-    expect(remainingPercentOfCost(200, 50)).toBe(25);
-  });
-
-  it('detects non-depreciable assets and resolves status', () => {
-    expect(isNonDepreciable({ depreciationMethod: 'none', usefulLifeYears: 5 })).toBe(true);
-    expect(isNonDepreciable({ depreciationMethod: 'straight_line', usefulLifeYears: 0 })).toBe(
-      true
+  it('asks for every account when the asset is depreciated', () => {
+    const errors = validateActivation(
+      activation({ assetAccount: '', accumDeprAccount: '', deprExpenseAccount: '' }),
+      1000
     );
-    expect(resolveAssetStatus('disposed', 'straight_line', 500, 100)).toBe('disposed');
-    expect(resolveAssetStatus('active', 'straight_line', 100, 100)).toBe('fully_depreciated');
-    expect(resolveAssetStatus('active', 'none', 100, 100)).toBe('active');
+    expect(Object.keys(errors).sort()).toEqual([
+      'accumDeprAccount',
+      'assetAccount',
+      'deprExpenseAccount',
+    ]);
   });
-});
 
-describe('asset filters', () => {
-  const list = [
-    asset({ id: '1', name: 'Truck', code: 'AST-10', category: 'vehicle', netBookValue: 5 }),
-    asset({ id: '2', name: 'Office', code: 'AST-2', category: 'building', netBookValue: 50 }),
-    asset({
-      id: '3',
-      name: 'Laptop',
-      code: 'AST-1',
-      category: 'electronic',
-      notes: 'Dev team',
-      netBookValue: 20,
-    }),
-  ];
+  it('needs only the asset and counter account without depreciation', () => {
+    expect(
+      validateActivation(
+        activation({
+          depreciationMethod: 'none',
+          usefulLifeYears: 0,
+          accumDeprAccount: '',
+          deprExpenseAccount: '',
+        }),
+        1000
+      )
+    ).toEqual({});
+  });
 
-  it('counts per category', () => {
-    expect(countAssetsByCategory(list)).toEqual({
-      all: 3,
-      vehicle: 1,
-      building: 1,
-      machinery: 0,
-      electronic: 1,
-      land: 0,
+  it('flags an account used twice', () => {
+    expect(validateActivation(activation({ creditAccount: 'a' }), 1000)).toEqual({
+      creditAccount: 'errAccountsDistinct',
     });
   });
 
-  it('filters by category and by name, code or notes', () => {
-    expect(filterAssets(list, 'vehicle', '').map((a) => a.id)).toEqual(['1']);
-    expect(filterAssets(list, 'all', 'dev').map((a) => a.id)).toEqual(['3']);
-    expect(filterAssets(list, 'all', ' ast-2 ').map((a) => a.id)).toEqual(['2']);
+  it('checks useful life, residual value and the opening accumulation', () => {
+    expect(validateActivation(activation({ usefulLifeYears: 0 }), 1000).usefulLifeYears).toBe(
+      'errUsefulLifeMin'
+    );
+    expect(validateActivation(activation({ residualValue: 1000 }), 1000).residualValue).toBe(
+      'errResidualTooHigh'
+    );
+    expect(
+      validateActivation(activation({ residualValue: 200, accumulatedDepreciation: 900 }), 1000)
+        .accumulatedDepreciation
+    ).toBe('errOpeningTooHigh');
+  });
+});
+
+describe('previewAcquisitionJournal', () => {
+  it('credits the counter account for the book value', () => {
+    expect(previewAcquisitionJournal({ accumulatedDepreciation: 2500000 }, 10000000)).toEqual({
+      asset: 10000000,
+      accumulated: 2500000,
+      counter: 7500000,
+    });
   });
 
-  it('sorts by every key, codes numerically', () => {
-    const ids = (key: string) => sortAssets([...list], key).map((a) => a.id);
-    expect(ids('highestNBV')).toEqual(['2', '3', '1']);
-    expect(ids('lowestNBV')).toEqual(['1', '3', '2']);
-    expect(ids('nameAsc')).toEqual(['3', '2', '1']);
-    expect(ids('codeAsc')).toEqual(['3', '2', '1']);
+  it('never credits more than the cost', () => {
+    expect(previewAcquisitionJournal({ accumulatedDepreciation: 99 }, 50)).toEqual({
+      asset: 50,
+      accumulated: 50,
+      counter: 0,
+    });
+  });
+});
+
+describe('disposal', () => {
+  const disposal = (overrides: Partial<DisposalValues> = {}): DisposalValues => ({
+    disposalDate: '2026-11-01',
+    disposalPrice: 0,
+    proceedsAccount: '',
+    gainLossAccount: '',
+    ...overrides,
+  });
+
+  it('needs a date that is not in the future', () => {
+    expect(validateDisposal(disposal({ disposalDate: '' }), '2026-11-09').disposalDate).toBe(
+      'errDisposalDate'
+    );
+    expect(
+      validateDisposal(disposal({ disposalDate: '2026-11-10' }), '2026-11-09').disposalDate
+    ).toBe('errDisposalFuture');
+    expect(validateDisposal(disposal(), '2026-11-09')).toEqual({});
+  });
+
+  it('asks a sold asset for its price and proceeds account, and a scrapped one for neither', () => {
+    expect(validateDisposal(disposal(), '2026-11-09', 'sold')).toEqual({
+      disposalPrice: 'errDisposalPrice',
+      proceedsAccount: 'errProceedsAccount',
+    });
+    expect(validateDisposal(disposal({ proceedsAccount: '' }), '2026-11-09', 'scrapped')).toEqual(
+      {}
+    );
+  });
+
+  it('needs a proceeds account only when the asset is sold for money', () => {
+    expect(validateDisposal(disposal({ disposalPrice: 5 }), '2026-11-09').proceedsAccount).toBe(
+      'errProceedsAccount'
+    );
+    expect(
+      validateDisposal(disposal({ disposalPrice: 5, proceedsAccount: 'x' }), '2026-11-09')
+    ).toEqual({});
+  });
+
+  it('estimates the gain or loss without floating point drift', () => {
+    expect(estimateDisposalGainLoss(0.3, 0.1)).toBe(0.2);
+    expect(estimateDisposalGainLoss(3000000, 1562500)).toBe(1437500);
+    expect(estimateDisposalGainLoss(0, 500)).toBe(-500);
+  });
+});
+
+describe('sumJournalLines', () => {
+  it('sums debit and credit exactly', () => {
+    expect(
+      sumJournalLines([
+        { account: 'a', debit: 0.1, credit: 0 },
+        { account: 'b', debit: 0.2, credit: 0.3 },
+      ])
+    ).toEqual({ debit: 0.3, credit: 0.3 });
   });
 });
