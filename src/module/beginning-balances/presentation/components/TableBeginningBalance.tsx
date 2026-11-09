@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { DataTable } from 'mantine-datatable';
 import { ActionIcon, Stack, Text, TextInput, Tooltip } from '@mantine/core';
-import { IconX } from '@tabler/icons-react';
+import { IconListTree, IconX } from '@tabler/icons-react';
 import { numberFormat } from '@/utils/formatCurrency';
-import EmptyState from '@/components/EmptyState/EmptyTable';
-import defaultEmptyImage from '@/assets/images/illustrations/empty-table.svg';
+import { EmptyState } from '@/components/EmptyState';
 import { useTranslation } from '@/i18n';
 import type { OpeningRow } from '../../domain/beginningBalance';
 import { formatAmountInput } from '../../domain/openingBalanceRules';
@@ -16,6 +15,8 @@ type TableBeginningBalanceProps = {
   records: OpeningRow[];
   onEnter: (accountId: string, field: Side, raw: string) => void;
   onClear: (accountId: string) => void;
+  /** Clears the search and filters; offered from the empty state. */
+  onResetFilters: () => void;
   /** Changes when the filter changes, so the table goes back to the first page. */
   resetKey?: string;
 };
@@ -28,6 +29,7 @@ const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
   records,
   onEnter,
   onClear,
+  onResetFilters,
   resetKey = '',
 }) => {
   const { t } = useTranslation('beginningBalances');
@@ -198,13 +200,22 @@ const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
       paginationText={({ from, to, totalRecords }) =>
         t('table.paginationText', { from, to, total: totalRecords })
       }
-      noRecordsText={t('table.noRecords')}
+      noRecordsText=""
+      minHeight={records.length === 0 ? 340 : 180}
       emptyState={
-        <EmptyState
-          title={t('table.emptyTitle')}
-          imageSrc={defaultEmptyImage}
-          imageAlt={t('table.emptyImageAlt')}
-        />
+        records.length === 0 ? (
+          // mantine-datatable turns pointer events off for its empty state, so the button needs
+          // them back. It is only mounted while the table is empty, so it never covers filled rows.
+          <div style={{ pointerEvents: 'auto' }}>
+            <EmptyState
+              icon={<IconListTree size={32} stroke={1.6} />}
+              title={t('table.emptyTitle')}
+              description={t('table.emptyDescription')}
+              actionLabel={t('table.emptyAction')}
+              onAction={onResetFilters}
+            />
+          </div>
+        ) : undefined
       }
     />
   );
