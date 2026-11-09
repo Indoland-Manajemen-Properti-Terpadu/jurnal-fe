@@ -7,8 +7,17 @@ type MockColumn = { accessor: string; render?: (item: OpeningRow) => React.React
 
 // jsdom does not lay out mantine-datatable rows; render each column cell directly instead.
 vi.mock('mantine-datatable', () => ({
-  DataTable: ({ records, columns }: { records: OpeningRow[]; columns: MockColumn[] }) => (
+  DataTable: ({
+    records,
+    columns,
+    emptyState,
+  }: {
+    records: OpeningRow[];
+    columns: MockColumn[];
+    emptyState?: React.ReactNode;
+  }) => (
     <div>
+      {records.length === 0 && emptyState}
       {records.map((record) => (
         <div key={record.id}>
           {columns.map((col) => (
@@ -49,7 +58,7 @@ describe('TableBeginningBalance', () => {
 
   it('offers a reset of the filters from the empty state', () => {
     const { onResetFilters } = setup([]);
-    expect(screen.getByText('No matching accounts')).toBeInTheDocument();
+    expect(screen.getByText('Tidak ada akun yang sesuai')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Reset Filter' }));
     expect(onResetFilters).toHaveBeenCalledTimes(1);
   });
