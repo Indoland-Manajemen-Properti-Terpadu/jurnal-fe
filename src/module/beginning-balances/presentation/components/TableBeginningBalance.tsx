@@ -203,13 +203,19 @@ const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
       noRecordsText=""
       minHeight={records.length === 0 ? 340 : 180}
       emptyState={
-        <EmptyState
-          icon={<IconListTree size={32} stroke={1.6} />}
-          title={t('table.emptyTitle')}
-          description={t('table.emptyDescription')}
-          actionLabel={t('table.emptyAction')}
-          onAction={onResetFilters}
-        />
+        records.length === 0 ? (
+          // mantine-datatable turns pointer events off for its empty state, so the button needs
+          // them back. It is only mounted while the table is empty, so it never covers filled rows.
+          <div style={{ pointerEvents: 'auto' }}>
+            <EmptyState
+              icon={<IconListTree size={32} stroke={1.6} />}
+              title={t('table.emptyTitle')}
+              description={t('table.emptyDescription')}
+              actionLabel={t('table.emptyAction')}
+              onAction={onResetFilters}
+            />
+          </div>
+        ) : undefined
       }
     />
   );
