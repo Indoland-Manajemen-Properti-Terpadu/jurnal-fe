@@ -1,6 +1,5 @@
 import { MemoryRouter } from 'react-router-dom';
 import { render, screen, userEvent } from '@test-utils';
-import { TRIAL_BALANCE_ACCESS_BYPASS } from '@/module/reports/domain/trialBalance';
 import ReportCatalogPage from './ReportCatalogPage';
 
 const grants = vi.hoisted(() => ({ isReady: true, allowed: true }));
@@ -36,19 +35,16 @@ describe('ReportCatalogPage', () => {
     expect(screen.getByText('Laba Rugi')).toBeInTheDocument();
   });
 
-  it.skipIf(TRIAL_BALANCE_ACCESS_BYPASS)(
-    'hides the trial balance card from a role without its right, but not before the rights load',
-    () => {
-      grants.allowed = false;
-      const { unmount } = renderPage();
-      expect(screen.queryByText('Neraca Saldo')).not.toBeInTheDocument();
-      unmount();
+  it('hides the trial balance card from a role without its right, but not before the rights load', () => {
+    grants.allowed = false;
+    const { unmount } = renderPage();
+    expect(screen.queryByText('Neraca Saldo')).not.toBeInTheDocument();
+    unmount();
 
-      grants.isReady = false;
-      renderPage();
-      expect(screen.getByText('Neraca Saldo')).toBeInTheDocument();
-    }
-  );
+    grants.isReady = false;
+    renderPage();
+    expect(screen.getByText('Neraca Saldo')).toBeInTheDocument();
+  });
 
   it('groups the reports into sections and marks the ones that are not available yet', () => {
     renderPage();
