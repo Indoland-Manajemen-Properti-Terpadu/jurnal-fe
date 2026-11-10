@@ -203,13 +203,6 @@ export const journalEntries = {
     filter: {
       search: 'Cari nomor, catatan, atau akun',
       dateRange: 'Periode tanggal',
-      accounts: 'Akun',
-      accountsEmpty: 'Akun tidak ditemukan',
-    },
-    statusOption: {
-      ACTIVE: 'Aktif',
-      VOID: 'Dibatalkan',
-      REVERSAL: 'Jurnal Pembalik',
     },
     sourceOption: {
       manual: 'Manual',
@@ -217,13 +210,10 @@ export const journalEntries = {
     column: {
       date: 'Tanggal',
       number: 'No Jurnal',
-      accounts: 'Akun',
       total: 'Total',
-      status: 'Status',
-      source: 'Sumber',
+      type: 'Tipe',
       action: 'Aksi',
     },
-    accountsMore: '+{count} lainnya',
     expand: 'Lihat baris debit dan kredit',
     collapse: 'Sembunyikan baris debit dan kredit',
     lineAccount: 'Akun',

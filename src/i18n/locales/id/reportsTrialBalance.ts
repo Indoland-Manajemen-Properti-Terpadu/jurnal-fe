@@ -19,8 +19,7 @@ export const reportsTrialBalance = {
     compareClosing: 'Saldo Akhir',
     compareProfitLoss: 'Laba Rugi (beban dan pendapatan)',
     tableTitle: 'Rincian Neraca Saldo',
-    tableHint:
-      'Akun induk sudah memuat saldo akun di bawahnya, jadi total diambil dari laporan, bukan dijumlah ulang.',
+    tableHint: 'Akun induk tidak ditampilkan. Total diambil dari laporan, bukan dijumlah ulang.',
     unitNote: 'Semua angka dalam Rupiah (Rp)',
     colAccount: 'Akun',
     groupOpening: 'Saldo Awal',

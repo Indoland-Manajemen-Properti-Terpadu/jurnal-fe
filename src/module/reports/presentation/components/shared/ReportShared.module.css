@@ -39,39 +39,6 @@
   border-top: 1px solid var(--mantine-color-gray-2);
 }
 
-.groupHeader {
-  width: 100%;
-  padding: var(--jurnal-space-2) var(--jurnal-space-2);
-  border-radius: var(--mantine-radius-md);
-  transition: background-color var(--jurnal-duration-fast) var(--jurnal-ease-standard);
-}
-
-.groupHeader:hover {
-  background: var(--mantine-color-gray-0);
-}
-
-.shareTrack {
-  height: 4px;
-  margin-top: var(--jurnal-space-2);
-  overflow: hidden;
-  background: var(--mantine-color-gray-1);
-  border-radius: 999px;
-}
-
-.shareFill {
-  height: 100%;
-  background: var(--mantine-color-primary-4);
-  border-radius: 999px;
-}
-
-.chevron {
-  transition: transform var(--jurnal-duration-fast) var(--jurnal-ease-standard);
-}
-
-.chevron[data-open='false'] {
-  transform: rotate(-90deg);
-}
-
 .card {
   display: flex;
   flex-direction: column;
@@ -96,9 +63,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .card,
-  .groupHeader,
-  .chevron {
+  .card {
     transition: none;
   }
 

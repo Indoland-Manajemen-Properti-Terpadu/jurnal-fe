@@ -15,7 +15,7 @@ import { useTranslation } from '@/i18n';
 export default function TrialBalancePage() {
   const { t } = useTranslation('reports');
   const trialBalance = useTrialBalance();
-  const { query, report, accounts } = trialBalance;
+  const { query, report, accounts, sections } = trialBalance;
   const forbidden = query.error instanceof ReportRequestError && query.error.status === 403;
 
   return (
@@ -95,7 +95,8 @@ export default function TrialBalancePage() {
               <TrialBalanceSummary report={report} />
               <TrialBalanceTable
                 report={report}
-                accounts={accounts}
+                sections={sections}
+                accountCount={accounts.length}
                 search={trialBalance.search}
                 onResetSearch={() => trialBalance.setSearch('')}
               />

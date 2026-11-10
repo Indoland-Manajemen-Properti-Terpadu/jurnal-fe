@@ -204,13 +204,6 @@ export const journalEntries = {
     filter: {
       search: 'Search number, notes or account',
       dateRange: 'Date range',
-      accounts: 'Account',
-      accountsEmpty: 'No account found',
-    },
-    statusOption: {
-      ACTIVE: 'Active',
-      VOID: 'Voided',
-      REVERSAL: 'Reversal',
     },
     sourceOption: {
       manual: 'Manual',
@@ -218,13 +211,10 @@ export const journalEntries = {
     column: {
       date: 'Date',
       number: 'Journal No',
-      accounts: 'Accounts',
       total: 'Total',
-      status: 'Status',
-      source: 'Source',
+      type: 'Type',
       action: 'Action',
     },
-    accountsMore: '+{count} more',
     expand: 'Show debit and credit lines',
     collapse: 'Hide debit and credit lines',
     lineAccount: 'Account',

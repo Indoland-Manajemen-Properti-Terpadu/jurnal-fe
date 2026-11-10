@@ -20,7 +20,7 @@ export const reportsTrialBalance = {
     compareProfitLoss: 'Profit and Loss (expenses and revenue)',
     tableTitle: 'Trial Balance Details',
     tableHint:
-      'A parent account already holds the balance of its sub accounts, so totals come from the report and are not added up again.',
+      'Parent accounts are not listed. Totals come from the report and are not added up again.',
     unitNote: 'All figures in Rupiah (Rp)',
     colAccount: 'Account',
     groupOpening: 'Opening Balance',

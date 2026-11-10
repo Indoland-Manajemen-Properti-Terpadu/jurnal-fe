@@ -1,18 +1,17 @@
 import React from 'react';
-import { Alert, Box, Button, Grid, Group, Skeleton, Stack, Text } from '@mantine/core';
+import { Alert, Box, Button, Group, Skeleton, Stack, Text } from '@mantine/core';
 import { IconAlertTriangle, IconRefresh, IconScale } from '@tabler/icons-react';
 import { AppShellLayout } from '@/components/AppShellLayout';
-import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
-import { routes } from '@/router/routes';
 import { useBalanceSheet } from '@/module/reports/presentation/hooks/useBalanceSheet';
-import { ReportBackButton } from '@/module/reports/presentation/components/shared/ReportBackButton';
+import { ReportPageHeader } from '@/module/reports/presentation/components/shared/ReportPageHeader';
 import { BalanceSheetFilterBar } from '@/module/reports/presentation/components/balance-sheet/BalanceSheetFilterBar';
-import { BalanceSheetSummaryCards } from '@/module/reports/presentation/components/balance-sheet/BalanceSheetSummaryCards';
-import { BalanceSheetInsights } from '@/module/reports/presentation/components/balance-sheet/BalanceSheetInsights';
-import { BalanceSheetLayoutViews } from '@/module/reports/presentation/components/balance-sheet/BalanceSheetLayoutViews';
+import { BalanceSheetSummary } from '@/module/reports/presentation/components/balance-sheet/BalanceSheetSummary';
+import { BalanceSheetReading } from '@/module/reports/presentation/components/balance-sheet/BalanceSheetReading';
+import { BalanceSheetStatement } from '@/module/reports/presentation/components/balance-sheet/BalanceSheetStatement';
 
 import { useTranslation } from '@/i18n';
 
+/** Route `/result-reports/business-overview/balance-sheet`: the balance sheet. */
 export default function BalanceSheetPage() {
   const { t } = useTranslation('reports');
   const balanceSheet = useBalanceSheet();
@@ -21,19 +20,12 @@ export default function BalanceSheetPage() {
     <AppShellLayout>
       <Box p={{ base: 'md', sm: 'xl' }}>
         <Stack gap="lg">
-          {/* Module Header */}
-          <ModuleHeader
+          <ReportPageHeader
             icon={IconScale}
             title={t('balanceSheet.pageTitle')}
             description={t('balanceSheet.pageDescription')}
-            actions={<ReportBackButton />}
-            breadcrumbs={[
-              { label: t('common.financialReports'), to: routes.reports.main },
-              { label: t('catalog.balanceSheetTitle') },
-            ]}
           />
 
-          {/* Filter Bar with Presets, Date Pickers, Search & Layout Switcher */}
           <BalanceSheetFilterBar
             preset={balanceSheet.preset}
             onPresetChange={balanceSheet.handlePresetChange}
@@ -51,22 +43,14 @@ export default function BalanceSheetPage() {
             hasData={Boolean(balanceSheet.data)}
           />
 
-          {/* Loading Skeleton */}
           {balanceSheet.query.isPending && (
             <Stack gap="md">
+              <Skeleton height={230} radius="lg" />
               <Skeleton height={110} radius="lg" />
-              <Grid gutter="lg">
-                <Grid.Col span={{ base: 12, md: 6 }}>
-                  <Skeleton height={420} radius="lg" />
-                </Grid.Col>
-                <Grid.Col span={{ base: 12, md: 6 }}>
-                  <Skeleton height={420} radius="lg" />
-                </Grid.Col>
-              </Grid>
+              <Skeleton height={420} radius="lg" />
             </Stack>
           )}
 
-          {/* Error State */}
           {balanceSheet.query.isError && (
             <Alert
               color="red"
@@ -89,25 +73,20 @@ export default function BalanceSheetPage() {
             </Alert>
           )}
 
-          {/* Success Content */}
           {balanceSheet.data && (
             <>
-              {/* Summary KPI Cards & Balance Equation Status */}
-              <BalanceSheetSummaryCards data={balanceSheet.data} />
-
-              {/* How the assets are financed and what they are made of */}
-              <BalanceSheetInsights data={balanceSheet.data} />
-
-              {/* Main Dual Layout Views (Side-by-side or Vertical) */}
-              <BalanceSheetLayoutViews
+              <BalanceSheetSummary data={balanceSheet.data} />
+              <BalanceSheetReading data={balanceSheet.data} />
+              <BalanceSheetStatement
                 data={balanceSheet.data}
-                filteredCurrentAssets={balanceSheet.filteredCurrentAssets}
-                filteredNonCurrentAssets={balanceSheet.filteredNonCurrentAssets}
-                filteredDepreciation={balanceSheet.filteredDepreciation}
-                filteredCurrentLiabilities={balanceSheet.filteredCurrentLiabilities}
-                filteredNonCurrentLiabilities={balanceSheet.filteredNonCurrentLiabilities}
-                filteredAllLiabilities={balanceSheet.filteredAllLiabilities}
-                filteredEquity={balanceSheet.filteredEquity}
+                searching={balanceSheet.searchQuery.trim() !== ''}
+                currentAssets={balanceSheet.filteredCurrentAssets}
+                nonCurrentAssets={balanceSheet.filteredNonCurrentAssets}
+                depreciation={balanceSheet.filteredDepreciation}
+                currentLiabilities={balanceSheet.filteredCurrentLiabilities}
+                nonCurrentLiabilities={balanceSheet.filteredNonCurrentLiabilities}
+                allLiabilities={balanceSheet.filteredAllLiabilities}
+                equity={balanceSheet.filteredEquity}
               />
             </>
           )}

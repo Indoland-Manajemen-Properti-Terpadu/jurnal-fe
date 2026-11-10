@@ -3,6 +3,10 @@ import type {
   TrialBalanceAccount,
   TrialBalanceReport,
 } from '@/module/reports/domain/trialBalance.types';
+import {
+  detailTrialBalanceAccounts,
+  groupTrialBalanceAccounts,
+} from '@/module/reports/domain/trialBalance';
 import { TrialBalanceTable } from './TrialBalanceTable';
 
 const account = (overrides: Partial<TrialBalanceAccount>): TrialBalanceAccount => ({
@@ -41,7 +45,8 @@ const renderTable = (accounts: TrialBalanceAccount[], search = '') =>
   render(
     <TrialBalanceTable
       report={report}
-      accounts={accounts}
+      sections={groupTrialBalanceAccounts(detailTrialBalanceAccounts(accounts))}
+      accountCount={accounts.length}
       search={search}
       onResetSearch={vi.fn()}
     />
@@ -57,25 +62,21 @@ describe('TrialBalanceTable', () => {
     expect(screen.getAllByRole('columnheader', { name: 'Kredit' })).toHaveLength(5);
   });
 
-  it('leaves a null side blank and shows a real zero', () => {
+  it('shows 0 where the server sends no figure, so every account has both sides in every group', () => {
     renderTable([account({})]);
     const cells = within(screen.getByText('Kas Kecil').closest('tr')!).getAllByRole('cell');
     // account, then opening debit/credit, movement debit/credit, ...
     expect(cells[1]).toHaveTextContent('5.000');
-    expect(cells[2]).toHaveTextContent('');
+    expect(cells[2]).toHaveTextContent('0');
     expect(cells[3]).toHaveTextContent('0');
-    expect(cells[4]).toHaveTextContent('');
-    // the profit and loss group of the account is null: both cells blank
-    expect(cells[7]).toHaveTextContent('');
-    expect(cells[8]).toHaveTextContent('');
+    expect(cells[4]).toHaveTextContent('0');
+    // the profit and loss group of the account is null: both cells show 0
+    expect(cells[7]).toHaveTextContent('0');
+    expect(cells[8]).toHaveTextContent('0');
   });
 
-  it('marks a parent account and shows the total and balancing rows from the report', () => {
-    renderTable([account({ id: 'h', name: 'Kas dan Setara Kas', isHead: true })]);
-    expect(screen.getByText('Kas dan Setara Kas').closest('tr')).toHaveAttribute(
-      'data-head',
-      'true'
-    );
+  it('shows the total and balancing rows from the report', () => {
+    renderTable([account({})]);
     const total = screen.getByText('Total').closest('tr')!;
     expect(within(total).getAllByRole('cell')[7]).toHaveTextContent('100');
     const balancing = screen.getByText('Selisih Penyeimbang').closest('tr')!;
@@ -83,6 +84,35 @@ describe('TrialBalanceTable', () => {
     expect(cells[1]).toHaveTextContent('');
     expect(cells[7]).toHaveTextContent('100');
     expect(cells[10]).toHaveTextContent('100');
+  });
+
+  it('groups the accounts under the name of their class, in chart order', () => {
+    renderTable([
+      account({ id: 'e', accountNumber: '6-10001', name: 'Beban Gaji' }),
+      account({ id: 'a', accountNumber: '1-10001', name: 'Kas Kecil' }),
+      account({ id: 'l', accountNumber: '2-10001', name: 'Hutang Usaha' }),
+    ]);
+    const bodyRows = within(screen.getAllByRole('rowgroup')[1]).getAllByRole('row');
+    const labels = bodyRows.map((row) => within(row).getAllByRole('cell')[0].textContent);
+    expect(labels).toEqual([
+      'Aset',
+      '1-10001Kas Kecil',
+      'Kewajiban',
+      '2-10001Hutang Usaha',
+      'Beban',
+      '6-10001Beban Gaji',
+    ]);
+  });
+
+  it('does not show a parent account, only the accounts under it and the ones standing alone', () => {
+    renderTable([
+      account({ id: 'p', accountNumber: '1-10100', name: 'Piutang', isHead: true }),
+      account({ id: 's', accountNumber: '1-10101', name: 'Piutang Air' }),
+      account({ id: 'x', accountNumber: '1-10200', name: 'Piutang Belum Ditagih' }),
+    ]);
+    expect(screen.queryByText('Piutang')).not.toBeInTheDocument();
+    expect(screen.getByText('Piutang Air')).toBeInTheDocument();
+    expect(screen.getByText('Piutang Belum Ditagih')).toBeInTheDocument();
   });
 
   it('tells an empty report from a search with no match', () => {

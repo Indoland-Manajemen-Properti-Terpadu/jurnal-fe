@@ -3,7 +3,11 @@ import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 import { useTranslation } from '@/i18n';
 import { useMyGrants } from '@/module/user-management';
-import { filterTrialBalanceAccounts } from '@/module/reports/domain/trialBalance';
+import {
+  detailTrialBalanceAccounts,
+  filterTrialBalanceAccounts,
+  groupTrialBalanceAccounts,
+} from '@/module/reports/domain/trialBalance';
 import type {
   TrialBalanceExportType,
   TrialBalanceReport,
@@ -45,10 +49,14 @@ export function useTrialBalance() {
     placeholderData: keepPreviousData,
   });
 
-  const accounts = useMemo(
-    () => filterTrialBalanceAccounts(query.data?.accounts ?? [], search),
-    [query.data, search]
-  );
+  // The table lists the accounts that carry a balance (no parent accounts), grouped by class.
+  const { accounts, sections } = useMemo(() => {
+    const shown = filterTrialBalanceAccounts(
+      detailTrialBalanceAccounts(query.data?.accounts ?? []),
+      search
+    );
+    return { accounts: shown, sections: groupTrialBalanceAccounts(shown) };
+  }, [query.data, search]);
 
   const exportMutation = useMutation({
     mutationFn: (type: TrialBalanceExportType) =>
@@ -89,6 +97,7 @@ export function useTrialBalance() {
     query,
     report: query.data,
     accounts,
+    sections,
     search,
     setSearch,
     exportMutation,

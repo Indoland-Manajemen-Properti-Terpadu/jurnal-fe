@@ -62,7 +62,6 @@ export interface JournalHistoryFilters {
   status: JournalStatus[];
   type: JournalType | '';
   source: JournalSource | '';
-  accounts: string[];
   tags: string[];
   search: string;
 }
@@ -77,7 +76,6 @@ export const emptyHistoryFilters = (): JournalHistoryFilters => ({
   status: [],
   type: '',
   source: '',
-  accounts: [],
   tags: [],
   search: '',
 });
@@ -113,7 +111,6 @@ export const filtersFromParams = (params: URLSearchParams): JournalHistoryFilter
       .filter((s): s is JournalStatus => JOURNAL_STATUSES.some((item) => item === s)),
     type: oneOf(params.get('type'), JOURNAL_TYPES),
     source: oneOf(params.get('source'), JOURNAL_SOURCES),
-    accounts: params.getAll('account').filter(Boolean),
     tags: params.getAll('tag').filter(Boolean),
     search: params.get('q')?.trim() ?? '',
   };
@@ -133,7 +130,6 @@ export const filtersToParams = (filters: JournalHistoryFilters): URLSearchParams
   filters.status.forEach((value) => params.append('status', value));
   if (filters.type) params.set('type', filters.type);
   if (filters.source) params.set('source', filters.source);
-  filters.accounts.forEach((value) => params.append('account', value));
   filters.tags.forEach((value) => params.append('tag', value));
   if (filters.search) params.set('q', filters.search);
   return params;
@@ -151,7 +147,6 @@ export const toHistoryQuery = (filters: JournalHistoryFilters): URLSearchParams 
   filters.status.forEach((value) => params.append('status', value));
   if (filters.type) params.set('transactionType', filters.type);
   if (filters.source) params.set('source', filters.source);
-  filters.accounts.forEach((value) => params.append('account', value));
   filters.tags.forEach((value) => params.append('tags', value));
   if (filters.search) params.set('search', filters.search);
   return params;
@@ -176,15 +171,6 @@ export const hasActiveFilters = (filters: JournalHistoryFilters): boolean =>
     filters.status.length ||
     filters.type ||
     filters.source ||
-    filters.accounts.length ||
     filters.tags.length ||
     filters.search
   );
-
-/** Short account summary of an entry: the first two accounts and how many more there are. */
-export const summarizeAccounts = (
-  lines: JournalHistoryLine[]
-): { names: string[]; more: number } => {
-  const names = [...new Set(lines.map((line) => line.accountName).filter(Boolean))];
-  return { names: names.slice(0, 2), more: Math.max(0, names.length - 2) };
-};

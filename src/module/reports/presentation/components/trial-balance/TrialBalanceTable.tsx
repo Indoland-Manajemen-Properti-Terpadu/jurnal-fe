@@ -2,9 +2,9 @@ import React from 'react';
 import { Box, Group, Paper, Stack, Text } from '@mantine/core';
 import { EmptyState } from '@/components/EmptyState';
 import { formatAmount, formatCount } from '@/module/reports/domain/reportFormat';
+import type { TrialBalanceSection } from '@/module/reports/domain/trialBalance';
 import {
   TRIAL_BALANCE_GROUPS,
-  type TrialBalanceAccount,
   type TrialBalanceCells,
   type TrialBalanceGroup,
   type TrialBalanceReport,
@@ -22,8 +22,10 @@ const GROUP_KEY: Record<TrialBalanceGroup, string> = {
 
 interface TrialBalanceTableProps {
   report: TrialBalanceReport;
-  /** The accounts to show (after the search). */
-  accounts: TrialBalanceAccount[];
+  /** The accounts to show (after the search), grouped by account class. */
+  sections: TrialBalanceSection[];
+  /** How many accounts the sections hold, for the count under the table. */
+  accountCount: number;
   search: string;
   onResetSearch: () => void;
 }
@@ -33,15 +35,13 @@ interface FigureProps {
   side: 'debit' | 'credit';
   /** The first column of its group: a firm line is drawn before it. */
   start?: boolean;
-  band?: boolean;
 }
 
-/** A figure; an empty side (`null`) is left blank, a real 0 is shown but muted. */
-const Figure: React.FC<FigureProps> = ({ value, side, start, band }) => (
+/** A figure; zero is muted, and `null` (no figure at all) is left blank. */
+const Figure: React.FC<FigureProps> = ({ value, side, start }) => (
   <td
     data-side={side}
     data-start={start ? '' : undefined}
-    data-band={band ? '' : undefined}
     className={value === 0 ? classes.zero : (value ?? 0) < 0 ? classes.negative : undefined}
   >
     {value === null ? '' : formatAmount(value)}
@@ -53,14 +53,13 @@ const EMPTY_CELLS: TrialBalanceCells = { debit: null, credit: null };
 /** The trial balance as one table: five column groups of debit and credit, then Total and Selisih. */
 export const TrialBalanceTable: React.FC<TrialBalanceTableProps> = ({
   report,
-  accounts,
+  sections,
+  accountCount,
   search,
   onResetSearch,
 }) => {
   const { t } = useTranslation('reports');
   const columnCount = 1 + TRIAL_BALANCE_GROUPS.length * 2;
-
-  const groupProps = (index: number) => ({ band: index % 2 === 1 });
 
   return (
     <Paper withBorder radius="lg" p="lg" bg="white">
@@ -93,34 +92,19 @@ export const TrialBalanceTable: React.FC<TrialBalanceTableProps> = ({
                 <th scope="col" rowSpan={2} className={classes.account}>
                   {t('trialBalance.colAccount')}
                 </th>
-                {TRIAL_BALANCE_GROUPS.map((group, index) => (
-                  <th
-                    key={group}
-                    scope="colgroup"
-                    colSpan={2}
-                    data-start=""
-                    data-band={groupProps(index).band ? '' : undefined}
-                  >
+                {TRIAL_BALANCE_GROUPS.map((group) => (
+                  <th key={group} scope="colgroup" colSpan={2} data-start="">
                     {t(`trialBalance.${GROUP_KEY[group]}`)}
                   </th>
                 ))}
               </tr>
               <tr>
-                {TRIAL_BALANCE_GROUPS.map((group, index) => (
+                {TRIAL_BALANCE_GROUPS.map((group) => (
                   <React.Fragment key={group}>
-                    <th
-                      scope="col"
-                      data-side="debit"
-                      data-start=""
-                      data-band={groupProps(index).band ? '' : undefined}
-                    >
+                    <th scope="col" data-side="debit" data-start="">
                       {t('trialBalance.colDebit')}
                     </th>
-                    <th
-                      scope="col"
-                      data-side="credit"
-                      data-band={groupProps(index).band ? '' : undefined}
-                    >
+                    <th scope="col" data-side="credit">
                       {t('trialBalance.colCredit')}
                     </th>
                   </React.Fragment>
@@ -128,7 +112,7 @@ export const TrialBalanceTable: React.FC<TrialBalanceTableProps> = ({
               </tr>
             </thead>
             <tbody>
-              {accounts.length === 0 ? (
+              {sections.length === 0 ? (
                 <tr className={classes.empty}>
                   <td colSpan={columnCount}>
                     <EmptyState
@@ -145,69 +129,61 @@ export const TrialBalanceTable: React.FC<TrialBalanceTableProps> = ({
                   </td>
                 </tr>
               ) : (
-                accounts.map((account) => (
-                  <tr key={account.id || account.accountNumber} data-head={account.isHead}>
-                    <td className={classes.account}>
-                      <span className={classes.accountRow}>
-                        <span className={classes.number}>{account.accountNumber}</span>
-                        <span className={classes.name}>{account.name}</span>
-                        {account.isContra && (
-                          <span className={classes.contra}>{t('trialBalance.contraAccount')}</span>
-                        )}
-                      </span>
-                    </td>
-                    {TRIAL_BALANCE_GROUPS.map((group, index) => {
-                      const cells = account[group] ?? EMPTY_CELLS;
-                      return (
-                        <React.Fragment key={group}>
-                          <Figure value={cells.debit} side="debit" start {...groupProps(index)} />
-                          <Figure value={cells.credit} side="credit" {...groupProps(index)} />
-                        </React.Fragment>
-                      );
-                    })}
-                  </tr>
+                sections.map((section) => (
+                  <React.Fragment key={section.key}>
+                    <tr className={classes.groupRow}>
+                      <td className={classes.account}>{t(`common.accountClass${section.key}`)}</td>
+                      <td colSpan={columnCount - 1} />
+                    </tr>
+                    {section.accounts.map((account) => (
+                      <tr key={account.id || account.accountNumber}>
+                        <td className={classes.account}>
+                          <span className={classes.accountRow}>
+                            <span className={classes.number}>{account.accountNumber}</span>
+                            <span className={classes.name}>{account.name}</span>
+                            {account.isContra && (
+                              <span className={classes.contra}>
+                                {t('trialBalance.contraAccount')}
+                              </span>
+                            )}
+                          </span>
+                        </td>
+                        {TRIAL_BALANCE_GROUPS.map((group) => {
+                          const cells = account[group] ?? EMPTY_CELLS;
+                          return (
+                            <React.Fragment key={group}>
+                              <Figure value={cells.debit ?? 0} side="debit" start />
+                              <Figure value={cells.credit ?? 0} side="credit" />
+                            </React.Fragment>
+                          );
+                        })}
+                      </tr>
+                    ))}
+                  </React.Fragment>
                 ))
               )}
             </tbody>
             <tfoot>
               <tr data-total="total">
                 <td className={classes.account}>{t('trialBalance.rowTotal')}</td>
-                {TRIAL_BALANCE_GROUPS.map((group, index) => (
+                {TRIAL_BALANCE_GROUPS.map((group) => (
                   <React.Fragment key={group}>
-                    <Figure
-                      value={report.totals[group].debit}
-                      side="debit"
-                      start
-                      {...groupProps(index)}
-                    />
-                    <Figure
-                      value={report.totals[group].credit}
-                      side="credit"
-                      {...groupProps(index)}
-                    />
+                    <Figure value={report.totals[group].debit} side="debit" start />
+                    <Figure value={report.totals[group].credit} side="credit" />
                   </React.Fragment>
                 ))}
               </tr>
               <tr data-total="balancing">
                 <td className={classes.account}>{t('trialBalance.rowBalancing')}</td>
-                {TRIAL_BALANCE_GROUPS.map((group, index) => {
+                {TRIAL_BALANCE_GROUPS.map((group) => {
                   const sums =
                     group === 'profitLoss' || group === 'balanceSheet'
                       ? report.balancing[group]
                       : null;
                   return (
                     <React.Fragment key={group}>
-                      <Figure
-                        value={sums ? sums.debit : null}
-                        side="debit"
-                        start
-                        {...groupProps(index)}
-                      />
-                      <Figure
-                        value={sums ? sums.credit : null}
-                        side="credit"
-                        {...groupProps(index)}
-                      />
+                      <Figure value={sums ? sums.debit : null} side="debit" start />
+                      <Figure value={sums ? sums.credit : null} side="credit" />
                     </React.Fragment>
                   );
                 })}
@@ -217,7 +193,7 @@ export const TrialBalanceTable: React.FC<TrialBalanceTableProps> = ({
         </div>
 
         <Text fz="xs" c="dimmed">
-          {t('trialBalance.pagerSummary', { count: formatCount(accounts.length) })}
+          {t('trialBalance.pagerSummary', { count: formatCount(accountCount) })}
         </Text>
       </Stack>
     </Paper>

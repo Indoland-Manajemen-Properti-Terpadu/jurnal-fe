@@ -8,9 +8,8 @@
   --tb-head-2: 34px;
   --tb-account: 300px;
   --tb-figure: 136px;
+  /* One line, everywhere: rows, column groups, Debit/Kredit, heads and totals. */
   --tb-line: var(--mantine-color-gray-3);
-  --tb-line-soft: var(--mantine-color-gray-2);
-  --tb-band: color-mix(in srgb, var(--mantine-color-primary-0) 40%, white);
 
   position: relative;
   overflow-x: auto;
@@ -36,7 +35,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   background: var(--mantine-color-white);
-  border-bottom: 1px solid var(--mantine-color-gray-1);
+  border-bottom: 1px solid var(--tb-line);
 }
 
 .colAccount {
@@ -49,6 +48,7 @@
 
 /* Heading rows */
 .table thead th {
+  text-align: center;
   color: var(--mantine-color-gray-7);
   font-size: var(--mantine-font-size-xs);
   font-weight: 700;
@@ -60,7 +60,7 @@
 .table thead tr:first-child th {
   height: var(--tb-head-1);
   text-align: center;
-  border-bottom: 1px solid var(--tb-line-soft);
+  border-bottom: 1px solid var(--tb-line);
 }
 
 .table thead tr:last-child th {
@@ -76,12 +76,7 @@
 }
 
 .table [data-side='credit'] {
-  border-left: 1px solid var(--tb-line-soft);
-}
-
-.table td[data-band],
-.table thead th[data-band] {
-  background: var(--tb-band);
+  border-left: 1px solid var(--tb-line);
 }
 
 /* Account column */
@@ -95,6 +90,7 @@
 }
 
 .table thead .account {
+  text-align: center !important;
   z-index: 4;
   height: calc(var(--tb-head-1) + var(--tb-head-2));
   vertical-align: middle;
@@ -151,20 +147,21 @@
   color: var(--mantine-color-red-7);
 }
 
-/* A parent account is bold and its figures are never added up again. */
-.table tbody tr[data-head='true'] td {
+/* The head of an account class (assets, liabilities, ...): a band with the class name. */
+.table tbody tr.groupRow td {
+  height: 34px;
   color: var(--mantine-color-dark-9);
+  font-size: var(--mantine-font-size-xs);
   font-weight: 700;
-  background: var(--mantine-color-gray-0);
-  border-bottom: 1px solid var(--tb-line-soft);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: var(--mantine-color-gray-1);
+  border-top: 1px solid var(--tb-line);
+  border-bottom: 1px solid var(--tb-line);
 }
 
-.table tbody tr[data-head='true'] .zero {
-  color: var(--mantine-color-gray-6);
-}
-
-.table tbody tr[data-head='true']:hover td {
-  background: var(--mantine-color-primary-0);
+.table tbody tr.groupRow:hover td {
+  background: var(--mantine-color-gray-1);
 }
 
 .table tfoot td {
@@ -175,14 +172,14 @@
 }
 
 .table tfoot tr:first-child td {
-  border-top: 2px solid var(--tb-line);
+  border-top: 1px solid var(--tb-line);
 }
 
 .table tfoot tr:last-child td {
   color: var(--mantine-color-gray-7);
   font-style: italic;
   font-weight: 600;
-  border-top: 1px solid var(--tb-line-soft);
+  border-top: 1px solid var(--tb-line);
 }
 
 .table tfoot .account {
