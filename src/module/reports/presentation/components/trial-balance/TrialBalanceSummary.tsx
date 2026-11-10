@@ -1,22 +1,21 @@
 import React from 'react';
-import { Box, Group, Stack, Text } from '@mantine/core';
+import { Box, Divider, Group, Stack, Text } from '@mantine/core';
 import { displayDate, formatMoney, percentOf } from '@/module/reports/domain/reportFormat';
-import { profitMargin } from '@/module/reports/domain/trialBalance';
-import type { TrialBalanceReport } from '@/module/reports/domain/trialBalance.types';
+import type {
+  TrialBalanceReport,
+  TrialBalanceSums,
+} from '@/module/reports/domain/trialBalance.types';
 import { ReportKpiStrip } from '@/module/reports/presentation/components/shared/ReportKpiStrip';
 import { useTranslation } from '@/i18n';
 
-const percentFormat = new Intl.NumberFormat('id-ID', { maximumFractionDigits: 1 });
-
-/** Differences below a cent are rounding, not a real gap. */
+/** A difference under a cent is rounding, not a real gap. */
 const TOLERANCE = 0.005;
 
-interface TrialBalanceSummaryProps {
-  report: TrialBalanceReport;
-}
+const DEBIT_TONE = 'var(--mantine-color-primary-6)';
+const CREDIT_TONE = 'var(--mantine-color-primary-3)';
 
-/** One side of the closing balance: its label and figure, and a bar on the shared scale. */
-const ClosingSide: React.FC<{ label: string; value: number; peak: number; tone: string }> = ({
+/** One side of a card: its label, its figure and a bar on the scale shared by the card. */
+const Side: React.FC<{ label: string; value: number; peak: number; tone: string }> = ({
   label,
   value,
   peak,
@@ -27,7 +26,7 @@ const ClosingSide: React.FC<{ label: string; value: number; peak: number; tone: 
       <Text fz="xs" c="dimmed">
         {label}
       </Text>
-      <Text fz="sm" fw={700} c="dark.9" style={{ fontVariantNumeric: 'tabular-nums' }}>
+      <Text fz="sm" fw={600} c="dark.9" style={{ fontVariantNumeric: 'tabular-nums' }}>
         {formatMoney(value)}
       </Text>
     </Group>
@@ -52,21 +51,83 @@ const ClosingSide: React.FC<{ label: string; value: number; peak: number; tone: 
   </Box>
 );
 
+interface SummaryCardProps {
+  title: string;
+  caption: string;
+  sums: TrialBalanceSums;
+  /** The closing line: what it is called and its figure; `alert` draws it red. */
+  result: { label: string; value: number; alert: boolean };
+}
+
 /**
- * Four cards in reading order: the movement of the period, the closing balance (debit and credit
- * in one card, each with a bar on the same scale), the revenue with its expenses (the profit and
- * loss columns) and the profit they leave, with its margin.
+ * The anatomy shared by every card: the column group's name and what it is, its debit and credit
+ * with a bar each, and one closing line under a rule.
+ */
+const SummaryCard: React.FC<SummaryCardProps> = ({ title, caption, sums, result }) => {
+  const { t } = useTranslation('reports');
+  const peak = Math.max(sums.debit, sums.credit);
+  const aria = t('trialBalance.cardAria', {
+    group: title,
+    debit: formatMoney(sums.debit),
+    credit: formatMoney(sums.credit),
+  });
+
+  return (
+    <Stack gap="sm" role="group" aria-label={aria}>
+      <Box>
+        <Text fz="sm" fw={600} c="dark.9">
+          {title}
+        </Text>
+        <Text fz="xs" c="dimmed">
+          {caption}
+        </Text>
+      </Box>
+      <Side label={t('trialBalance.colDebit')} value={sums.debit} peak={peak} tone={DEBIT_TONE} />
+      <Side
+        label={t('trialBalance.colCredit')}
+        value={sums.credit}
+        peak={peak}
+        tone={CREDIT_TONE}
+      />
+      <Divider />
+      <Group justify="space-between" gap="xs" wrap="nowrap">
+        <Text fz="xs" c="dimmed">
+          {result.label}
+        </Text>
+        <Text
+          fz="sm"
+          fw={700}
+          c={result.alert ? 'red.7' : 'dark.9'}
+          style={{ fontVariantNumeric: 'tabular-nums' }}
+        >
+          {formatMoney(result.value)}
+        </Text>
+      </Group>
+    </Stack>
+  );
+};
+
+interface TrialBalanceSummaryProps {
+  report: TrialBalanceReport;
+}
+
+/**
+ * Four cards that mirror the first four column groups of the table, in the same order and with
+ * the same names: opening balance, movement, closing balance and profit and loss. The first three
+ * end with the difference between debit and credit (red only when there is one); profit and
+ * loss ends with the profit, which is revenue (credit) less expenses (debit).
  */
 export const TrialBalanceSummary: React.FC<TrialBalanceSummaryProps> = ({ report }) => {
   const { t } = useTranslation('reports');
-  const margin = profitMargin(report);
-  const { movement, closing, profitLoss } = report.totals;
-  const movementGap = Math.abs(movement.debit - movement.credit);
-  const peak = Math.max(closing.debit, closing.credit);
-  const closingLabel = t('trialBalance.visualClosing', {
-    debit: formatMoney(closing.debit),
-    credit: formatMoney(closing.credit),
-  });
+  const { opening, movement, closing, profitLoss } = report.totals;
+  const difference = (sums: TrialBalanceSums) => {
+    const gap = Math.abs(sums.debit - sums.credit);
+    return {
+      label: t('trialBalance.cardDifference'),
+      value: gap < TOLERANCE ? 0 : gap,
+      alert: gap >= TOLERANCE,
+    };
+  };
 
   return (
     <ReportKpiStrip
@@ -74,53 +135,56 @@ export const TrialBalanceSummary: React.FC<TrialBalanceSummaryProps> = ({ report
       period={`${displayDate(report.startDate)} — ${displayDate(report.endDate)}`}
       items={[
         {
-          key: 'movement',
-          label: t('trialBalance.cardMovement'),
-          value: formatMoney(Math.max(movement.debit, movement.credit)),
-          hint:
-            movementGap < TOLERANCE
-              ? t('trialBalance.cardMovementHint')
-              : t('trialBalance.cardMovementDiff', { diff: formatMoney(movementGap) }),
-        },
-        {
-          key: 'closing',
-          label: t('trialBalance.cardClosing'),
+          key: 'opening',
+          label: t('trialBalance.groupOpening'),
           content: (
-            <Box role="img" aria-label={closingLabel} title={closingLabel}>
-              <Text fz="sm" c="dimmed" mb="sm">
-                {t('trialBalance.cardClosing')}
-              </Text>
-              <Stack gap="sm">
-                <ClosingSide
-                  label={t('trialBalance.colDebit')}
-                  value={closing.debit}
-                  peak={peak}
-                  tone="var(--mantine-color-primary-6)"
-                />
-                <ClosingSide
-                  label={t('trialBalance.colCredit')}
-                  value={closing.credit}
-                  peak={peak}
-                  tone="var(--mantine-color-primary-3)"
-                />
-              </Stack>
-            </Box>
+            <SummaryCard
+              title={t('trialBalance.groupOpening')}
+              caption={t('trialBalance.captionOpening')}
+              sums={opening}
+              result={difference(opening)}
+            />
           ),
         },
         {
-          key: 'revenue',
-          label: t('trialBalance.cardRevenue'),
-          value: formatMoney(profitLoss.credit),
-          hint: t('trialBalance.cardRevenueHint', { expense: formatMoney(profitLoss.debit) }),
+          key: 'movement',
+          label: t('trialBalance.groupMovement'),
+          content: (
+            <SummaryCard
+              title={t('trialBalance.groupMovement')}
+              caption={t('trialBalance.captionMovement')}
+              sums={movement}
+              result={difference(movement)}
+            />
+          ),
         },
         {
-          key: 'profit',
-          label: t('trialBalance.cardProfit'),
-          value: formatMoney(report.profit),
-          hint:
-            margin === null
-              ? t('trialBalance.cardProfitHint')
-              : t('trialBalance.cardProfitHintMargin', { percent: percentFormat.format(margin) }),
+          key: 'closing',
+          label: t('trialBalance.groupClosing'),
+          content: (
+            <SummaryCard
+              title={t('trialBalance.groupClosing')}
+              caption={t('trialBalance.captionClosing')}
+              sums={closing}
+              result={difference(closing)}
+            />
+          ),
+        },
+        {
+          key: 'profitLoss',
+          label: t('trialBalance.groupProfitLoss'),
+          content: (
+            <SummaryCard
+              title={t('trialBalance.groupProfitLoss')}
+              caption={t('trialBalance.captionProfitLoss')}
+              sums={profitLoss}
+              result={{
+                label: t('trialBalance.cardProfit'),
+                value: report.profit,
+                alert: report.profit < 0,
+              }}
+            />
+          ),
         },
       ]}
     />
