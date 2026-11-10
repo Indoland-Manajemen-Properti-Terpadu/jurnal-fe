@@ -193,7 +193,6 @@ export const journalEntries = {
       'The book of every posted transaction in date order, with the debit and credit lines of each account. Search, filter, open the details, or void an entry when needed.',
     add: 'Add Journal',
     backToReports: 'Back',
-    refresh: 'Refresh',
     loadErrorTitle: 'General journal could not be loaded',
     loadErrorMessage: 'Check your connection and try again.',
     retry: 'Try again',

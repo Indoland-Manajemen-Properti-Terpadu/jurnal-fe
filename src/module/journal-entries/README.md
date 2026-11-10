@@ -65,3 +65,11 @@ There is no edit: the backend has no update endpoint, so a wrong entry is correc
 ## Add screen layout
 
 Standard B page: header with the back button, then a form column (transaction info, journal lines, memo and attachments, all flat cards with one icon colour) and a sticky right column with the verification checklist and, under it, the save button (one primary action; the header already has the way back, so there is no second cancel button). The four metric cards above the form were removed: they repeated the totals. The totals sit in the footer of the lines table, under their columns, with a dot and a word for the state (balanced / difference / empty); debit and credit share one neutral colour, red is kept for the difference and its hint only. The double-entry guide is a closed accordion. Column widths (account 6, description 6, debit 5, credit 5 of 24) are the same in the header row, the rows and the totals so amounts do not get cut.
+
+## Report layout
+
+`JournalHistoryPage` follows the report page standard (`docs/ui-guidelines.md`, Standard C): `ReportPageHeader`, `ReportToolbar` and `ReportSearchInput` from `@/module/reports`. A list with no dates in the address shows this month (`withDefaultPeriod`), because the export needs a period. `useJournalPeriod` turns the `from` and `to` dates in the address into the toolbar's quick period (dates that match no quick period are "Kustom") and applies a quick period at once, or edited dates on Apply. Search and account sit in the toolbar's `extra` slot (`JournalHistoryFilterBar`).
+
+## Export
+
+`useExportJournals` downloads the list as xlsx, pdf or csv from `GET /v1/journal/export/:type` (`exportJournalHistory`). The query is the list's own filters without `page` and `limit` (`toExportQuery`), so the file matches what is on screen. The server requires both dates (one year at most, else 400) and answers 400 when the result is over 20,000 journals; its message is shown as it is. The file is a blob, so a failed download carries its JSON message inside the blob, which is read back. The file name comes from `Content-Disposition` (`journal-YYYYMMDD-YYYYMMDD.ext`). The PDF can answer 500 ("Gagal generate PDF") for a long period with many journals; a short period or a filter works.
