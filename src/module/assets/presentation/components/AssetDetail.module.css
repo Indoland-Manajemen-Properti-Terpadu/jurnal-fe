@@ -31,6 +31,17 @@
   overflow-wrap: anywhere;
 }
 
+.rowStacked {
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 2px;
+}
+
+.rowStacked .rowValue {
+  text-align: left;
+}
+
 .rowValue[data-muted='true'] {
   font-weight: 400;
   color: var(--mantine-color-dimmed);
