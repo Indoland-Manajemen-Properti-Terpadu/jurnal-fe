@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { ActionIcon, Badge, Box, Group, Menu, Text, Tooltip } from '@mantine/core';
+import { ActionIcon, Box, Menu, Text, Tooltip } from '@mantine/core';
 import {
   IconBan,
   IconChevronDown,
@@ -15,7 +15,6 @@ import { dateFormatV1 } from '@/utils/formatDate';
 import { formatCurrency } from '@/utils/formatCurrency';
 import {
   HISTORY_PAGE_SIZES,
-  summarizeAccounts,
   type HistorySortField,
   type JournalHistoryEntry,
   type JournalHistoryFilters,
@@ -23,7 +22,6 @@ import {
 } from '../../domain/journalHistory';
 import { voidGate } from '../../domain/journalVoid';
 import classes from './JournalEntryLinesPreview.module.css';
-import { JournalStatusBadge } from './JournalStatusBadge';
 
 interface Props {
   data: JournalHistoryPage | undefined;
@@ -178,25 +176,6 @@ export function JournalHistoryTable({
         ),
       },
       {
-        accessor: 'accounts',
-        title: head(t('history.column.accounts')),
-        render: (row: JournalHistoryEntry) => {
-          const { names, more } = summarizeAccounts(row.lines);
-          return (
-            <Group gap={6} wrap="nowrap">
-              <Text fz="var(--jurnal-text-sm)" maw={240} truncate="end">
-                {names.join(', ') || '—'}
-              </Text>
-              {more > 0 && (
-                <Badge variant="light" color="gray" size="sm" radius="sm" style={{ flexShrink: 0 }}>
-                  {t('history.accountsMore', { count: more })}
-                </Badge>
-              )}
-            </Group>
-          );
-        },
-      },
-      {
         accessor: 'totalDebit',
         width: 150,
         textAlign: 'right' as const,
@@ -208,15 +187,9 @@ export function JournalHistoryTable({
         ),
       },
       {
-        accessor: 'status',
-        width: 140,
-        title: head(t('history.column.status')),
-        render: (row: JournalHistoryEntry) => <JournalStatusBadge status={row.status} />,
-      },
-      {
         accessor: 'sourceType',
         width: 130,
-        title: head(t('history.column.source')),
+        title: head(t('history.column.type')),
         render: (row: JournalHistoryEntry) => (
           <Text fz="var(--jurnal-text-sm)" c="dimmed">
             {row.sourceType ? humanize(row.sourceType) : t('history.sourceOption.manual')}
@@ -280,7 +253,9 @@ export function JournalHistoryTable({
       styles={{ header: { backgroundColor: 'var(--mantine-color-gray-0)' } }}
       highlightOnHover
       verticalAlign="center"
-      minHeight={data && data.entries.length === 0 ? 340 : 180}
+      // A floor only while there is nothing to size the table by (first load, an empty result);
+      // with rows the table is as tall as they are, so a search with one hit leaves no blank space.
+      minHeight={data === undefined ? 180 : data.entries.length === 0 ? 340 : undefined}
       idAccessor="id"
       columns={columns}
       records={data?.entries ?? []}

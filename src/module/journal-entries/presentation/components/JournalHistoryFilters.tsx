@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Group, Select } from '@mantine/core';
-import { useSimpleAccounts } from '@/module/chart-of-accounts';
+import { Group } from '@mantine/core';
 import { ReportSearchInput } from '@/module/reports';
 import { useTranslation } from '@/i18n';
 import type { JournalHistoryFilters } from '../../domain/journalHistory';
@@ -13,10 +12,9 @@ interface Props {
 
 const SEARCH_DELAY = 400;
 
-/** Search and account, shown inside the report toolbar beside the period; it owns the dates. */
+/** The search of the journal list, shown inside the report toolbar beside the period. */
 export function JournalHistoryFilterBar({ filters, onChange }: Readonly<Props>) {
   const { t } = useTranslation('journalEntries');
-  const { accounts } = useSimpleAccounts();
 
   // The box keeps what is typed; the address (and the request) follow after a pause.
   const [searchInput, setSearchInput] = useState(filters.search);
@@ -35,30 +33,12 @@ export function JournalHistoryFilterBar({ filters, onChange }: Readonly<Props>) 
     }, SEARCH_DELAY);
   };
 
-  const accountOptions = accounts
-    .filter((account) => !account.isHead)
-    .map((account) => ({ value: account.id, label: `${account.accountNumber} · ${account.name}` }));
-
   return (
     <Group gap="sm" wrap="wrap">
       <ReportSearchInput
         value={searchInput}
         onChange={handleSearch}
         placeholder={t('history.filter.search')}
-      />
-      <Select
-        placeholder={t('history.filter.accounts')}
-        aria-label={t('history.filter.accounts')}
-        nothingFoundMessage={t('history.filter.accountsEmpty')}
-        data={accountOptions}
-        value={filters.accounts[0] ?? null}
-        onChange={(value) => onChange({ accounts: value ? [value] : [] })}
-        searchable
-        clearable={filters.accounts.length > 0}
-        w={{ base: '100%', xs: 280 }}
-        radius="md"
-        size="sm"
-        comboboxProps={{ width: 320, position: 'bottom-start' }}
       />
     </Group>
   );
