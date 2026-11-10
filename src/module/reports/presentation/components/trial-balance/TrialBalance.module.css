@@ -1,0 +1,112 @@
+/* The frame is the scroller, so the account column can stay in view while the figures scroll. */
+.frame {
+  overflow-x: auto;
+  border: 1px solid var(--mantine-color-gray-3);
+  border-radius: var(--mantine-radius-md);
+}
+
+.table {
+  width: 100%;
+  min-width: 1180px;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: var(--mantine-font-size-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.table th,
+.table td {
+  padding: 9px var(--jurnal-space-3);
+  text-align: right;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--mantine-color-gray-1);
+}
+
+.table thead th {
+  color: var(--mantine-color-dimmed);
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  background: var(--mantine-color-gray-0);
+  border-bottom: 1px solid var(--mantine-color-gray-3);
+}
+
+.table thead th[data-group] {
+  text-align: center;
+  border-left: 1px solid var(--mantine-color-gray-3);
+}
+
+.table thead th[data-first] {
+  border-left: 1px solid var(--mantine-color-gray-3);
+}
+
+.table td[data-first] {
+  border-left: 1px solid var(--mantine-color-gray-1);
+}
+
+.account {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  min-width: 260px;
+  max-width: 320px;
+  overflow: hidden;
+  text-align: left !important;
+  text-overflow: ellipsis;
+  background: var(--mantine-color-white);
+  border-right: 1px solid var(--mantine-color-gray-3);
+}
+
+.table thead .account {
+  z-index: 2;
+  background: var(--mantine-color-gray-0);
+}
+
+.number {
+  margin-right: var(--jurnal-space-2);
+  color: var(--mantine-color-dimmed);
+  font-size: var(--mantine-font-size-xs);
+}
+
+.contra {
+  margin-left: var(--jurnal-space-2);
+  color: var(--mantine-color-dimmed);
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 400;
+}
+
+.negative {
+  color: var(--mantine-color-red-7);
+}
+
+/* A parent account is bold and its figures are never added up again. */
+.table tr[data-head='true'] td {
+  color: var(--mantine-color-dark-9);
+  font-weight: 700;
+  background: var(--mantine-color-gray-0);
+}
+
+.table tbody tr:not([data-total]):hover td {
+  background: var(--mantine-color-gray-0);
+}
+
+.table tr[data-total] td {
+  font-weight: 700;
+  background: var(--mantine-color-gray-0);
+  border-top: 1px solid var(--mantine-color-gray-3);
+}
+
+.table tr[data-total='balancing'] td {
+  color: var(--mantine-color-dimmed);
+  font-style: italic;
+  font-weight: 600;
+}
+
+.table tr:last-child td {
+  border-bottom: 0;
+}
+
+.footer {
+  padding-top: var(--jurnal-space-2);
+}

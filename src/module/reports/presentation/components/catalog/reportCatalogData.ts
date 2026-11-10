@@ -86,7 +86,8 @@ export const reportCatalogData: ReportItem[] = [
     route: routes.reports.trialBalance,
     category: 'financial',
     icon: IconFileAnalytics,
-    status: 'soon',
+    status: 'ready',
+    menuId: 'JP-GL-TB',
   },
   {
     id: 'cash-flow',

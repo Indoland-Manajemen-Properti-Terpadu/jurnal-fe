@@ -23,7 +23,9 @@ const opts = { lang: 'id' as const, fallbackMessage: 'gagal' };
 const axiosError = (status: number, data: unknown) =>
   Object.assign(new Error('x'), { isAxiosError: true, response: { status, data } });
 
-beforeEach(() => get.mockReset());
+beforeEach(() => {
+  get.mockReset();
+});
 
 describe('trialBalanceApi.getReport', () => {
   it('reads every page, joins the accounts and keeps the totals of the first page', async () => {

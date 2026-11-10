@@ -1,268 +1,163 @@
 import React from 'react';
-import { Stack, Table, Text } from '@mantine/core';
-import { gradientColors, themeColors } from '@/theme';
-import { formatCurrency } from '@/utils/formatCurrency';
-import { useTrialBalanceReport } from '@/module/reports/presentation/hooks/useTrialBalanceReport';
-import { ReportUnavailable } from '@/module/reports/presentation/components/shared/ReportUnavailable';
-import { Account, Reports } from '@/module/reports/domain/TrialBalanceReport.types';
+import { Box, Paper, Stack, Text } from '@mantine/core';
+import { EmptyState } from '@/components/EmptyState';
+import { formatCount, formatMoney } from '@/module/reports/domain/reportFormat';
+import {
+  TRIAL_BALANCE_GROUPS,
+  type TrialBalanceAccount,
+  type TrialBalanceCells,
+  type TrialBalanceGroup,
+  type TrialBalanceReport,
+} from '@/module/reports/domain/trialBalance.types';
 import { useTranslation } from '@/i18n';
+import classes from './TrialBalance.module.css';
 
-interface TrialBalanceTableProps {
-  fromDate: string;
-  toDate: string;
-}
-
-const TrialBalanceTable: React.FC<TrialBalanceTableProps> = ({ fromDate, toDate }) => {
-  const { t } = useTranslation('reports');
-  const { data: report, isError, refetch } = useTrialBalanceReport(fromDate, toDate);
-
-  if (isError) {
-    return <ReportUnavailable embedded onRetry={() => refetch()} />;
-  }
-
-  if (!report?.data.length) {
-    return <Text>{t('common.noDataForRange')}</Text>;
-  }
-
-  return (
-    <Stack>
-      <Table withTableBorder highlightOnHover>
-        <Table.Thead>
-          <Table.Tr
-            style={{
-              backgroundColor: themeColors.primary[0],
-            }}
-          >
-            <Table.Th
-              colSpan={2}
-              rowSpan={2}
-              ta="center"
-              style={{ border: `1px solid ${themeColors.gray[2]}` }}
-            >
-              {t('common.accountNameEn')}
-            </Table.Th>
-            <Table.Th
-              colSpan={2}
-              rowSpan={1}
-              ta="center"
-              style={{ border: `1px solid ${themeColors.gray[2]}` }}
-            >
-              {t('common.beginningBalanceEn')}
-            </Table.Th>
-            <Table.Th
-              colSpan={2}
-              rowSpan={1}
-              ta="center"
-              style={{ border: `1px solid ${themeColors.gray[2]}` }}
-            >
-              {t('common.changes')}
-            </Table.Th>
-            <Table.Th
-              colSpan={2}
-              rowSpan={1}
-              ta="center"
-              style={{ border: `1px solid ${themeColors.gray[2]}` }}
-            >
-              {t('common.closingBalance')}
-            </Table.Th>
-          </Table.Tr>
-          <Table.Tr
-            style={{
-              backgroundColor: themeColors.primary[0],
-            }}
-          >
-            <Table.Th ta="center" style={{ border: `1px solid ${themeColors.gray[2]}` }}>
-              {t('common.debit')}
-            </Table.Th>
-            <Table.Th ta="center" style={{ border: `1px solid ${themeColors.gray[2]}` }}>
-              {t('common.credit')}
-            </Table.Th>
-            <Table.Th ta="center" style={{ border: `1px solid ${themeColors.gray[2]}` }}>
-              {t('common.debit')}
-            </Table.Th>
-            <Table.Th ta="center" style={{ border: `1px solid ${themeColors.gray[2]}` }}>
-              {t('common.credit')}
-            </Table.Th>
-            <Table.Th ta="center" style={{ border: `1px solid ${themeColors.gray[2]}` }}>
-              {t('common.debit')}
-            </Table.Th>
-            <Table.Th ta="center" style={{ border: `1px solid ${themeColors.gray[2]}` }}>
-              {t('common.credit')}
-            </Table.Th>
-          </Table.Tr>
-        </Table.Thead>
-
-        <Table.Tbody>
-          {/* Category Name */}
-
-          {report.data?.map((item: Reports) => (
-            <React.Fragment key={item.category}>
-              {/* Category Header Section*/}
-              <Table.Tr>
-                <Table.Td colSpan={12} style={{ backgroundColor: themeColors.gray[1] }}>
-                  <Text fz="sm" w={600} variant="gradient" gradient={gradientColors.mainGR}>
-                    {item.category}
-                  </Text>
-                </Table.Td>
-              </Table.Tr>
-
-              {/* AcountName Items within the category */}
-              {item.account?.map((accounts: Account) => (
-                <Table.Tr key={accounts.id}>
-                  <Table.Td
-                    colSpan={2}
-                    fz="sm"
-                    style={{ border: `1px solid ${themeColors.gray[2]}` }}
-                  >
-                    {accounts.name} ({accounts.accountNumber})
-                  </Table.Td>
-                  {/* Beginning Balance */}
-                  <Table.Td
-                    fz="sm"
-                    ta="center"
-                    style={{ border: `1px solid ${themeColors.gray[2]}` }}
-                  >
-                    {formatCurrency(accounts.beginningBalance.debit!)}
-                  </Table.Td>
-                  <Table.Td
-                    fz="sm"
-                    ta="center"
-                    style={{ border: `1px solid ${themeColors.gray[2]}` }}
-                  >
-                    {formatCurrency(accounts.beginningBalance.credit!)}
-                  </Table.Td>
-
-                  {/* Changes */}
-                  <Table.Td
-                    fz="sm"
-                    ta="center"
-                    style={{ border: `1px solid ${themeColors.gray[2]}` }}
-                  >
-                    {formatCurrency(accounts.changes.debit!)}
-                  </Table.Td>
-                  <Table.Td
-                    fz="sm"
-                    ta="center"
-                    style={{ border: `1px solid ${themeColors.gray[2]}` }}
-                  >
-                    {formatCurrency(accounts.changes.credit!)}
-                  </Table.Td>
-
-                  {/* Ending Balance */}
-                  <Table.Td
-                    fz="sm"
-                    ta="center"
-                    style={{ border: `1px solid ${themeColors.gray[2]}` }}
-                  >
-                    {formatCurrency(accounts.endingBalance.debit!)}
-                  </Table.Td>
-                  <Table.Td
-                    fz="sm"
-                    ta="center"
-                    style={{ border: `1px solid ${themeColors.gray[2]}` }}
-                  >
-                    {formatCurrency(accounts.endingBalance.credit!)}
-                  </Table.Td>
-                </Table.Tr>
-              ))}
-            </React.Fragment>
-          ))}
-        </Table.Tbody>
-        {/* End of Table Column Total // SKIP FOR NOW */}
-        <Table.Tr>
-          <Table.Td
-            fz="sm"
-            colSpan={2}
-            style={{
-              fontWeight: 600,
-              border: `1px solid ${themeColors.gray[2]}`,
-              backgroundColor: themeColors.gray[1],
-            }}
-          >
-            {t('common.total')}
-          </Table.Td>
-          <Table.Td
-            fz="sm"
-            style={{
-              textAlign: 'center',
-              fontWeight: 600,
-              border: `1px solid ${themeColors.gray[2]}`,
-              backgroundColor: themeColors.gray[1],
-            }}
-          >
-            {report.total.totalDebitBeginningBalance >= 0
-              ? formatCurrency(report.total.totalDebitBeginningBalance)
-              : `(${formatCurrency(Math.abs(report.total.totalDebitBeginningBalance))})`}
-          </Table.Td>
-          <Table.Td
-            fz="sm"
-            style={{
-              textAlign: 'center',
-              fontWeight: 600,
-              border: `1px solid ${themeColors.gray[2]}`,
-              backgroundColor: themeColors.gray[1],
-            }}
-          >
-            {report.total.totalCreditBeginningBalance >= 0
-              ? formatCurrency(report.total.totalCreditBeginningBalance)
-              : `(${formatCurrency(Math.abs(report.total.totalCreditBeginningBalance))})`}
-          </Table.Td>
-          <Table.Td
-            fz="sm"
-            style={{
-              textAlign: 'center',
-              fontWeight: 600,
-              border: `1px solid ${themeColors.gray[2]}`,
-              backgroundColor: themeColors.gray[1],
-            }}
-          >
-            {report.total.totalDebitChanges >= 0
-              ? formatCurrency(report.total.totalDebitChanges)
-              : `(${formatCurrency(Math.abs(report.total.totalDebitChanges))})`}
-          </Table.Td>
-          <Table.Td
-            fz="sm"
-            style={{
-              textAlign: 'center',
-              fontWeight: 600,
-              border: `1px solid ${themeColors.gray[2]}`,
-              backgroundColor: themeColors.gray[1],
-            }}
-          >
-            {report.total.totalCreditChanges >= 0
-              ? formatCurrency(report.total.totalCreditChanges)
-              : `(${formatCurrency(Math.abs(report.total.totalCreditChanges))})`}
-          </Table.Td>
-          <Table.Td
-            fz="sm"
-            style={{
-              textAlign: 'center',
-              fontWeight: 600,
-              border: `1px solid ${themeColors.gray[2]}`,
-              backgroundColor: themeColors.gray[1],
-            }}
-          >
-            {report.total.totalDebitBeginningBalance >= 0
-              ? formatCurrency(report.total.totalDebitBeginningBalance)
-              : `(${formatCurrency(Math.abs(report.total.totalDebitBeginningBalance))})`}
-          </Table.Td>
-          <Table.Td
-            fz="sm"
-            style={{
-              textAlign: 'center',
-              fontWeight: 600,
-              border: `1px solid ${themeColors.gray[2]}`,
-              backgroundColor: themeColors.gray[1],
-            }}
-          >
-            {report.total.totalCreditEndingBalance >= 0
-              ? formatCurrency(report.total.totalCreditEndingBalance)
-              : `(${formatCurrency(Math.abs(report.total.totalCreditEndingBalance))})`}
-          </Table.Td>
-        </Table.Tr>
-      </Table>
-    </Stack>
-  );
+const GROUP_KEY: Record<TrialBalanceGroup, string> = {
+  opening: 'groupOpening',
+  movement: 'groupMovement',
+  closing: 'groupClosing',
+  profitLoss: 'groupProfitLoss',
+  balanceSheet: 'groupBalanceSheet',
 };
 
-export default TrialBalanceTable;
+interface TrialBalanceTableProps {
+  report: TrialBalanceReport;
+  /** The accounts to show (after the search). */
+  accounts: TrialBalanceAccount[];
+  search: string;
+  onResetSearch: () => void;
+}
+
+/** A figure; an empty side (`null`) is left blank, a real 0 is shown. */
+const Figure: React.FC<{ value: number | null; first?: boolean }> = ({ value, first }) => (
+  <td
+    data-first={first ? '' : undefined}
+    className={(value ?? 0) < 0 ? classes.negative : undefined}
+  >
+    {value === null ? '' : formatMoney(value)}
+  </td>
+);
+
+const EMPTY_CELLS: TrialBalanceCells = { debit: null, credit: null };
+
+/** The trial balance as one table: five column groups of debit and credit, then Total and Selisih. */
+export const TrialBalanceTable: React.FC<TrialBalanceTableProps> = ({
+  report,
+  accounts,
+  search,
+  onResetSearch,
+}) => {
+  const { t } = useTranslation('reports');
+  const columnCount = 1 + TRIAL_BALANCE_GROUPS.length * 2;
+
+  return (
+    <Paper withBorder radius="lg" p="lg" bg="white">
+      <Stack gap="md">
+        <Box>
+          <Text fw={600} fz="md" c="dark.9">
+            {t('trialBalance.tableTitle')}
+          </Text>
+          <Text fz="xs" c="dimmed">
+            {t('trialBalance.tableHint')}
+          </Text>
+        </Box>
+
+        <div className={classes.frame}>
+          <table className={classes.table}>
+            <thead>
+              <tr>
+                <th scope="col" rowSpan={2} className={classes.account}>
+                  {t('trialBalance.colAccount')}
+                </th>
+                {TRIAL_BALANCE_GROUPS.map((group) => (
+                  <th key={group} scope="colgroup" colSpan={2} data-group="">
+                    {t(`trialBalance.${GROUP_KEY[group]}`)}
+                  </th>
+                ))}
+              </tr>
+              <tr>
+                {TRIAL_BALANCE_GROUPS.map((group) => (
+                  <React.Fragment key={group}>
+                    <th scope="col" data-first="">
+                      {t('trialBalance.colDebit')}
+                    </th>
+                    <th scope="col">{t('trialBalance.colCredit')}</th>
+                  </React.Fragment>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {accounts.length === 0 ? (
+                <tr>
+                  <td colSpan={columnCount} style={{ textAlign: 'center' }}>
+                    <EmptyState
+                      title={search ? t('trialBalance.noMatchTitle') : t('trialBalance.emptyTitle')}
+                      description={
+                        search
+                          ? t('trialBalance.noMatchDescription', { query: search })
+                          : t('trialBalance.emptyDescription')
+                      }
+                      actionLabel={search ? t('common.resetSearch') : undefined}
+                      onAction={search ? onResetSearch : undefined}
+                      py={40}
+                    />
+                  </td>
+                </tr>
+              ) : (
+                accounts.map((account) => (
+                  <tr key={account.id || account.accountNumber} data-head={account.isHead}>
+                    <td className={classes.account} title={account.name}>
+                      <span className={classes.number}>{account.accountNumber}</span>
+                      {account.name}
+                      {account.isContra && (
+                        <span className={classes.contra}>{t('trialBalance.contraAccount')}</span>
+                      )}
+                    </td>
+                    {TRIAL_BALANCE_GROUPS.map((group) => {
+                      const cells = account[group] ?? EMPTY_CELLS;
+                      return (
+                        <React.Fragment key={group}>
+                          <Figure value={cells.debit} first />
+                          <Figure value={cells.credit} />
+                        </React.Fragment>
+                      );
+                    })}
+                  </tr>
+                ))
+              )}
+
+              <tr data-total="total">
+                <td className={classes.account}>{t('trialBalance.rowTotal')}</td>
+                {TRIAL_BALANCE_GROUPS.map((group) => (
+                  <React.Fragment key={group}>
+                    <Figure value={report.totals[group].debit} first />
+                    <Figure value={report.totals[group].credit} />
+                  </React.Fragment>
+                ))}
+              </tr>
+              <tr data-total="balancing">
+                <td className={classes.account}>{t('trialBalance.rowBalancing')}</td>
+                {TRIAL_BALANCE_GROUPS.map((group) => {
+                  const sums =
+                    group === 'profitLoss' || group === 'balanceSheet'
+                      ? report.balancing[group]
+                      : null;
+                  return (
+                    <React.Fragment key={group}>
+                      <Figure value={sums ? sums.debit : null} first />
+                      <Figure value={sums ? sums.credit : null} />
+                    </React.Fragment>
+                  );
+                })}
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <Text fz="xs" c="dimmed" className={classes.footer}>
+          {t('trialBalance.pagerSummary', { count: formatCount(accounts.length) })}
+        </Text>
+      </Stack>
+    </Paper>
+  );
+};
