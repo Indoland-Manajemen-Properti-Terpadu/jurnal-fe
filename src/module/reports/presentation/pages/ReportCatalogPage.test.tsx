@@ -35,12 +35,23 @@ describe('ReportCatalogPage', () => {
     expect(screen.getByText('Laba Rugi')).toBeInTheDocument();
   });
 
+  it('hides the trial balance card from a role without its right, but not before the rights load', () => {
+    grants.allowed = false;
+    const { unmount } = renderPage();
+    expect(screen.queryByText('Neraca Saldo')).not.toBeInTheDocument();
+    unmount();
+
+    grants.isReady = false;
+    renderPage();
+    expect(screen.getByText('Neraca Saldo')).toBeInTheDocument();
+  });
+
   it('groups the reports into sections and marks the ones that are not available yet', () => {
     renderPage();
     expect(screen.getByRole('heading', { name: 'Pusat Laporan Keuangan' })).toBeInTheDocument();
     expect(screen.getAllByText('Laporan Keuangan').length).toBeGreaterThan(0);
     expect(screen.getByText('Neraca')).toBeInTheDocument();
-    expect(screen.getAllByText('Segera hadir').length).toBe(5);
+    expect(screen.getAllByText('Segera hadir').length).toBe(4);
   });
 
   it('lists the reports with real data first in their section', () => {

@@ -9,7 +9,7 @@ import { useGeneralLedger } from '@/module/reports/presentation/hooks/useGeneral
 import { ReportBackButton } from '@/module/reports/presentation/components/shared/ReportBackButton';
 import { GeneralLedgerFilterBar } from '@/module/reports/presentation/components/general-ledger/GeneralLedgerFilterBar';
 import { GeneralLedgerSummaryCards } from '@/module/reports/presentation/components/general-ledger/GeneralLedgerSummaryCards';
-import { GeneralLedgerAccountsTable } from '@/module/reports/presentation/components/general-ledger/GeneralLedgerAccountsTable';
+import { GeneralLedgerTable } from '@/module/reports/presentation/components/general-ledger/GeneralLedgerTable';
 
 import { useTranslation } from '@/i18n';
 
@@ -108,14 +108,10 @@ export default function GeneralLedgerPage() {
                   />
                 </Paper>
               ) : (
-                <GeneralLedgerAccountsTable
+                <GeneralLedgerTable
                   accounts={ledger.filteredAccounts}
-                  period={ledger.period}
                   search={ledger.accountSearch}
                   onSearchChange={ledger.setAccountSearch}
-                  pagination={ledger.query.data.pagination}
-                  onPageChange={ledger.handlePageChange}
-                  isPageLoading={ledger.query.isFetching}
                 />
               )}
             </>

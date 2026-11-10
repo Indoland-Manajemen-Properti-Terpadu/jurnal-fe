@@ -4,7 +4,6 @@ import {
   filtersFromParams,
   filtersToParams,
   hasActiveFilters,
-  summarizeAccounts,
   toHistoryQuery,
 } from './journalHistory';
 
@@ -25,7 +24,6 @@ describe('journal history filters', () => {
       status: ['ACTIVE' as const, 'VOID' as const],
       type: 'EXPENSE' as const,
       source: 'system' as const,
-      accounts: ['a1', 'a2'],
       tags: ['t1'],
       search: 'sewa',
     };
@@ -49,12 +47,10 @@ describe('journal history filters', () => {
     const query = toHistoryQuery({
       ...emptyHistoryFilters(),
       status: ['ACTIVE', 'VOID'],
-      accounts: ['a1', 'a2'],
       type: 'DEFAULT',
       search: 'kas',
     });
     expect(query.getAll('status')).toEqual(['ACTIVE', 'VOID']);
-    expect(query.getAll('account')).toEqual(['a1', 'a2']);
     expect(query.get('transactionType')).toBe('DEFAULT');
     expect(query.get('sortBy')).toBe('transactionDate:desc');
     expect(query.get('search')).toBe('kas');
@@ -63,21 +59,5 @@ describe('journal history filters', () => {
   it('tells filters from paging', () => {
     expect(hasActiveFilters({ ...emptyHistoryFilters(), page: 4, limit: 100 })).toBe(false);
     expect(hasActiveFilters({ ...emptyHistoryFilters(), search: 'x' })).toBe(true);
-  });
-
-  it('summarizes the accounts of an entry', () => {
-    const line = (accountName: string) => ({
-      id: accountName,
-      accountId: accountName,
-      accountNumber: '1',
-      accountName,
-      description: '',
-      debit: 0,
-      credit: 0,
-    });
-    expect(summarizeAccounts([line('Kas'), line('Kas'), line('Sewa'), line('Listrik')])).toEqual({
-      names: ['Kas', 'Sewa'],
-      more: 1,
-    });
   });
 });

@@ -1,4 +1,3 @@
-import axios from 'axios';
 import apiClient from '@/lib/http/apiClient';
 import type { ReportPeriod } from '@/module/reports/domain/generalLedger.types';
 import type { SupportedLanguage } from '@/i18n';
@@ -8,32 +7,17 @@ import type {
 } from '@/module/reports/domain/profitLoss.types';
 import { mapProfitLossPage } from './profitLossMapper';
 import { isRequestCanceled } from './requestCancel';
+import {
+  ReportRequestError,
+  blobErrorMessage,
+  filenameFromHeader,
+  reportErrorMessage,
+  statusOf,
+} from './reportRequest';
 
 const ENDPOINT = '/v1/reports/profit-loss';
 /** The most rows the server gives per request. */
 export const PROFIT_LOSS_PAGE_SIZE = 500;
-
-const FILENAME_PATTERN = /filename\*?=(?:UTF-8'')?"?([^";]+)"?/i;
-
-/** A failed request with the status the server answered (400 a refusal, 403 no right). */
-export class ProfitLossRequestError extends Error {
-  constructor(
-    message: string,
-    readonly status?: number
-  ) {
-    super(message);
-    this.name = 'ProfitLossRequestError';
-  }
-}
-
-const statusOf = (error: unknown): number | undefined =>
-  axios.isAxiosError(error) ? error.response?.status : undefined;
-
-/** The server's own message of a failed request, or the fallback. */
-export const profitLossErrorMessage = (error: unknown, fallback: string): string =>
-  axios.isAxiosError<{ message?: string }>(error)
-    ? (error.response?.data?.message ?? fallback)
-    : fallback;
 
 export const profitLossApi = {
   /**
@@ -70,8 +54,8 @@ export const profitLossApi = {
       return { ...first.report, rows };
     } catch (error) {
       if (isRequestCanceled(error)) throw error;
-      throw new ProfitLossRequestError(
-        profitLossErrorMessage(error, options.fallbackMessage),
+      throw new ReportRequestError(
+        reportErrorMessage(error, options.fallbackMessage),
         statusOf(error)
       );
     }
@@ -89,36 +73,17 @@ export const profitLossApi = {
         responseType: 'blob',
         signal,
       });
-      const header = String(response.headers['content-disposition'] ?? '');
-      const filename =
-        FILENAME_PATTERN.exec(header)?.[1] ??
-        `profit-loss-${period.startDate.replaceAll('-', '')}-${period.endDate.replaceAll('-', '')}.${type}`;
+      const filename = filenameFromHeader(
+        response.headers['content-disposition'],
+        `profit-loss-${period.startDate.replaceAll('-', '')}-${period.endDate.replaceAll('-', '')}.${type}`
+      );
       return { blob: response.data, filename };
     } catch (error) {
       if (isRequestCanceled(error)) throw error;
-      throw new ProfitLossRequestError(
+      throw new ReportRequestError(
         await blobErrorMessage(error, options.fallbackMessage),
         statusOf(error)
       );
     }
   },
-};
-
-/** A failed download carries its JSON message inside the blob, so the text is read back. */
-const blobErrorMessage = async (error: unknown, fallback: string): Promise<string> => {
-  if (axios.isAxiosError(error) && error.response?.data instanceof Blob) {
-    const text = await new Promise<string>((resolve) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(String(reader.result));
-      reader.onerror = () => resolve('');
-      reader.readAsText(error.response?.data as Blob);
-    });
-    try {
-      const { message } = JSON.parse(text) as { message?: string };
-      if (message) return message;
-    } catch {
-      // Not JSON: use the fallback.
-    }
-  }
-  return profitLossErrorMessage(error, fallback);
 };

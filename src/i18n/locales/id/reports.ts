@@ -4,6 +4,7 @@ import { reportsBalanceSheet } from './reportsBalanceSheet';
 import { reportsLedger } from './reportsLedger';
 import { reportsStatements } from './reportsStatements';
 import { reportsProfitLoss } from './reportsProfitLoss';
+import { reportsTrialBalance } from './reportsTrialBalance';
 
 export const reports = {
   ...reportsCommon,
@@ -12,4 +13,5 @@ export const reports = {
   ...reportsLedger,
   ...reportsStatements,
   ...reportsProfitLoss,
+  ...reportsTrialBalance,
 };

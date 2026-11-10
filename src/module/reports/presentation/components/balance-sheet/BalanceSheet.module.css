@@ -1,0 +1,211 @@
+.frame {
+  overflow-x: auto;
+  border: 1px solid var(--mantine-color-gray-3);
+  border-radius: var(--mantine-radius-md);
+}
+
+.table {
+  width: 100%;
+  min-width: 420px;
+  border-collapse: collapse;
+  font-size: var(--mantine-font-size-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.table th,
+.table td {
+  padding: 9px var(--mantine-spacing-md);
+  text-align: left;
+  border-bottom: 1px solid var(--mantine-color-gray-1);
+}
+
+.table thead th {
+  color: var(--mantine-color-dimmed);
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  background: var(--mantine-color-gray-0);
+  border-bottom: 1px solid var(--mantine-color-gray-3);
+}
+
+.table [data-num] {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.colNumber {
+  width: 132px;
+}
+
+.colAmount {
+  width: 170px;
+}
+
+/* A group of accounts: its band carries the name and the subtotal, so a closed group still reads. */
+.band td {
+  padding: 0;
+  background: var(--mantine-color-gray-0);
+  border-bottom: 1px solid var(--mantine-color-gray-2);
+}
+
+.bandButton {
+  display: flex;
+  gap: var(--mantine-spacing-xs);
+  align-items: center;
+  width: 100%;
+  padding: 9px var(--mantine-spacing-md);
+  color: var(--mantine-color-dark-9);
+  font: inherit;
+  font-weight: 700;
+  text-align: left;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.bandButton:focus-visible {
+  outline: 2px solid var(--mantine-color-primary-5);
+  outline-offset: -2px;
+}
+
+.chevron {
+  flex: none;
+  color: var(--mantine-color-gray-6);
+  transition: transform var(--jurnal-duration-fast) var(--jurnal-ease-standard);
+}
+
+.chevron[data-open='false'] {
+  transform: rotate(-90deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chevron {
+    transition: none;
+  }
+}
+
+.count {
+  color: var(--mantine-color-dimmed);
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 400;
+}
+
+.band td.bandAmount {
+  padding: 9px var(--mantine-spacing-md);
+  font-weight: 700;
+  text-align: right;
+}
+
+.number {
+  color: var(--mantine-color-dimmed);
+  font-size: var(--mantine-font-size-xs);
+  white-space: nowrap;
+}
+
+.category {
+  color: var(--mantine-color-dimmed);
+  font-size: var(--mantine-font-size-xs);
+}
+
+.negative {
+  color: var(--mantine-color-red-7);
+}
+
+.table tbody tr:not(.band):hover td {
+  background: var(--mantine-color-gray-0);
+}
+
+.sectionHead td {
+  padding-top: var(--mantine-spacing-md);
+  padding-bottom: var(--mantine-spacing-sm);
+  color: var(--mantine-color-dark-9);
+  font-size: var(--mantine-font-size-md);
+  font-weight: 700;
+  background: var(--mantine-color-white);
+  border-top: 2px solid var(--mantine-color-gray-3);
+  border-bottom: 1px solid var(--mantine-color-gray-2);
+}
+
+tbody:first-of-type .sectionHead td {
+  border-top: 0;
+}
+
+/* The closing row of a section: its total. */
+.closingRow td {
+  padding-top: var(--mantine-spacing-md);
+  padding-bottom: var(--mantine-spacing-md);
+  color: var(--mantine-color-dark-9);
+  font-size: var(--mantine-font-size-md);
+  font-weight: 700;
+  background: var(--mantine-color-gray-0);
+  border-top: 2px solid var(--mantine-color-gray-3);
+  border-bottom: 0;
+}
+
+.muted {
+  padding: var(--mantine-spacing-md);
+  color: var(--mantine-color-dimmed);
+  text-align: center;
+}
+
+/* The quick reading: three plain statements side by side. */
+.reading {
+  display: grid;
+  gap: var(--mantine-spacing-lg);
+}
+
+@media (min-width: 48em) {
+  .reading {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .reading > * + * {
+    padding-left: var(--mantine-spacing-lg);
+    border-left: 1px solid var(--mantine-color-gray-2);
+  }
+}
+
+/* On a phone the balance is the figure that matters, so the table fits instead of scrolling. */
+@media (max-width: 36em) {
+  .table {
+    min-width: 0;
+    font-size: var(--mantine-font-size-xs);
+  }
+
+  .table th,
+  .table td {
+    padding: 8px var(--mantine-spacing-xs);
+  }
+
+  .colNumber {
+    width: 112px;
+  }
+
+  .colAmount {
+    width: 124px;
+  }
+
+  .bandButton,
+  .band td.bandAmount {
+    padding: 8px var(--mantine-spacing-xs);
+  }
+}
+
+/* The last row: liabilities plus equity, to read against the total assets. */
+.grandRow td {
+  padding-top: var(--mantine-spacing-md);
+  padding-bottom: var(--mantine-spacing-md);
+  color: var(--mantine-color-dark-9);
+  font-size: var(--mantine-font-size-md);
+  font-weight: 700;
+  text-align: left;
+  background: var(--mantine-color-primary-0);
+  border-top: 2px solid var(--mantine-color-primary-2);
+}
+
+.grandRow td[data-num] {
+  text-align: right;
+  white-space: nowrap;
+}

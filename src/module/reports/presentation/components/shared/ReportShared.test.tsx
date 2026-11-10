@@ -1,10 +1,6 @@
 import { MemoryRouter } from 'react-router-dom';
 import { render, screen, userEvent } from '@test-utils';
-import { BalanceSheetAccountTable } from '../balance-sheet/BalanceSheetAccountTable';
-import { ReportDotMatrix } from './ReportDotMatrix';
 import { ReportKpiStrip } from './ReportKpiStrip';
-import { ReportMiniBars } from './ReportMiniBars';
-import { ReportRing } from './ReportRing';
 import { ReportStatus } from './ReportStatus';
 import { ReportToolbar } from './ReportToolbar';
 import { ReportUnavailable } from './ReportUnavailable';
@@ -54,52 +50,10 @@ describe('ReportUnavailable', () => {
   });
 });
 
-describe('BalanceSheetAccountTable', () => {
-  const accounts = [
-    {
-      accountId: '1',
-      accountNumber: '1-10000',
-      accountName: 'Kas',
-      categoryId: null,
-      categoryName: 'Kas & Bank',
-      balance: 600000,
-    },
-    {
-      accountId: '2',
-      accountNumber: '1-10003',
-      accountName: 'Bank',
-      categoryId: null,
-      categoryName: null,
-      balance: -13762000,
-    },
-  ];
-
-  it('shows the subtotal in the header and negative balances in parentheses', () => {
-    render(<BalanceSheetAccountTable title="Aset Lancar" accounts={accounts} subtotal={-100} />);
-    expect(screen.getByText('Kas')).toBeInTheDocument();
-    expect(screen.getByText(/\(Rp\s?13\.762\.000\)/)).toBeInTheDocument();
-    expect(screen.getByText(/\(Rp\s?100\)/)).toBeInTheDocument();
-  });
-
-  it('collapses the accounts but keeps the subtotal visible', async () => {
-    render(<BalanceSheetAccountTable title="Aset Lancar" accounts={accounts} subtotal={500} />);
-    const header = screen.getByRole('button', { name: 'Aset Lancar' });
-    expect(header).toHaveAttribute('aria-expanded', 'true');
-    await userEvent.click(header);
-    expect(header).toHaveAttribute('aria-expanded', 'false');
-    expect(screen.getByText(/Rp\s?500/)).toBeInTheDocument();
-  });
-});
-
-describe('ReportStatus and ReportRing', () => {
+describe('ReportStatus and ReportKpiStrip', () => {
   it('shows a status as plain text', () => {
     render(<ReportStatus tone="ok" label="Seimbang" />);
     expect(screen.getByText('Seimbang')).toBeInTheDocument();
-  });
-
-  it('shows the figure in the middle of the ring', () => {
-    render(<ReportRing value={100} label="100%" />);
-    expect(screen.getByText('100%')).toBeInTheDocument();
   });
 
   it('shows the cards of the strip with an optional visual and a footer card', () => {
@@ -181,26 +135,5 @@ describe('ReportToolbar period', () => {
     expect(screen.getByRole('button', { name: 'Ekspor' })).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Segarkan' }));
     expect(onRefresh).toHaveBeenCalledOnce();
-  });
-});
-
-describe('card visuals', () => {
-  it('draws one dot per item and names how many are filled', () => {
-    render(<ReportDotMatrix active={3} total={8} label="3 dari 8 akun" />);
-    const matrix = screen.getByRole('img', { name: '3 dari 8 akun' });
-    expect(matrix.children).toHaveLength(8);
-  });
-
-  it('draws one bar per value, at most 24', () => {
-    render(<ReportMiniBars values={[1, 2, 3]} label="Debit per hari" />);
-    expect(screen.getByRole('img', { name: 'Debit per hari' }).children).toHaveLength(3);
-
-    render(<ReportMiniBars values={Array.from({ length: 40 }, (_, i) => i)} label="Banyak" />);
-    expect(screen.getByRole('img', { name: 'Banyak' }).children).toHaveLength(24);
-  });
-
-  it('copes with a period without movement', () => {
-    render(<ReportMiniBars values={[0, 0]} label="Kosong" />);
-    expect(screen.getByRole('img', { name: 'Kosong' }).children).toHaveLength(2);
   });
 });
