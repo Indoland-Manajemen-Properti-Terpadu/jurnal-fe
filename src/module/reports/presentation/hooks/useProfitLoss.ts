@@ -8,10 +8,8 @@ import type {
   ProfitLossReport,
 } from '@/module/reports/domain/profitLoss.types';
 import { assignRoles, visibleLines } from '@/module/reports/domain/profitLossRows';
-import {
-  ProfitLossRequestError,
-  profitLossApi,
-} from '@/module/reports/infrastructure/profitLossApi';
+import { profitLossApi } from '@/module/reports/infrastructure/profitLossApi';
+import { ReportRequestError } from '@/module/reports/infrastructure/reportRequest';
 import { isRequestCanceled } from '@/module/reports/infrastructure/requestCancel';
 import { saveBlob } from '@/module/reports/infrastructure/saveBlob';
 import { useAbortableRequest } from './useAbortableRequest';
@@ -65,7 +63,7 @@ export function useProfitLoss() {
     onError: (error) => {
       if (isRequestCanceled(error)) return;
       // A 400 is the server refusing this request (too large a period), not a fault: say it calmly.
-      const refused = error instanceof ProfitLossRequestError && error.status === 400;
+      const refused = error instanceof ReportRequestError && error.status === 400;
       notifications.show({
         color: refused ? 'orange' : 'red',
         title: refused ? t('common.exportNotPossible') : t('common.exportFailed'),

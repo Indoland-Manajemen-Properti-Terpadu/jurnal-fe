@@ -1,6 +1,7 @@
 import { vi } from 'vitest';
 import apiClient from '@/lib/http/apiClient';
-import { ProfitLossRequestError, profitLossApi } from './profitLossApi';
+import { profitLossApi } from './profitLossApi';
+import { ReportRequestError } from './reportRequest';
 
 vi.mock('@/lib/http/apiClient', () => ({ default: { get: vi.fn() } }));
 
@@ -68,8 +69,8 @@ describe('profitLossApi errors', () => {
       })
     );
     const error = await profitLossApi.getReport(period, opts).catch((e: unknown) => e);
-    expect(error).toBeInstanceOf(ProfitLossRequestError);
-    expect((error as ProfitLossRequestError).status).toBe(403);
+    expect(error).toBeInstanceOf(ReportRequestError);
+    expect((error as ReportRequestError).status).toBe(403);
   });
 
   it('sends the language with an export too', async () => {
