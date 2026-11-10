@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { Group, Select, TextInput } from '@mantine/core';
-import { DatePickerInput } from '@mantine/dates';
-import { IconCalendar, IconSearch } from '@tabler/icons-react';
+import { Group, Select } from '@mantine/core';
 import { useSimpleAccounts } from '@/module/chart-of-accounts';
+import { ReportSearchInput } from '@/module/reports';
 import { useTranslation } from '@/i18n';
 import type { JournalHistoryFilters } from '../../domain/journalHistory';
 
@@ -14,7 +13,7 @@ interface Props {
 
 const SEARCH_DELAY = 400;
 
-/** Search, account and date range: the same one-row toolbar as the account list. */
+/** Search and account, shown inside the report toolbar beside the period; it owns the dates. */
 export function JournalHistoryFilterBar({ filters, onChange }: Readonly<Props>) {
   const { t } = useTranslation('journalEntries');
   const { accounts } = useSimpleAccounts();
@@ -42,15 +41,10 @@ export function JournalHistoryFilterBar({ filters, onChange }: Readonly<Props>) 
 
   return (
     <Group gap="sm" wrap="wrap">
-      <TextInput
-        placeholder={t('history.filter.search')}
-        aria-label={t('history.filter.search')}
-        leftSection={<IconSearch size={16} />}
+      <ReportSearchInput
         value={searchInput}
-        onChange={(event) => handleSearch(event.currentTarget.value)}
-        w={{ base: '100%', sm: 280 }}
-        radius="md"
-        size="sm"
+        onChange={handleSearch}
+        placeholder={t('history.filter.search')}
       />
       <Select
         placeholder={t('history.filter.accounts')}
@@ -61,28 +55,10 @@ export function JournalHistoryFilterBar({ filters, onChange }: Readonly<Props>) 
         onChange={(value) => onChange({ accounts: value ? [value] : [] })}
         searchable
         clearable={filters.accounts.length > 0}
-        w={{ base: '100%', sm: 280 }}
+        w={{ base: '100%', xs: 280 }}
         radius="md"
         size="sm"
         comboboxProps={{ width: 320, position: 'bottom-start' }}
-      />
-      <DatePickerInput
-        type="range"
-        placeholder={t('history.filter.dateRange')}
-        aria-label={t('history.filter.dateRange')}
-        valueFormat="DD MMM YYYY"
-        leftSection={<IconCalendar size={16} />}
-        clearable
-        value={[filters.startDate || null, filters.endDate || null]}
-        onChange={([from, to]) =>
-          onChange({
-            startDate: from ? String(from).slice(0, 10) : '',
-            endDate: to ? String(to).slice(0, 10) : '',
-          })
-        }
-        w={{ base: '100%', sm: 260 }}
-        radius="md"
-        size="sm"
       />
     </Group>
   );

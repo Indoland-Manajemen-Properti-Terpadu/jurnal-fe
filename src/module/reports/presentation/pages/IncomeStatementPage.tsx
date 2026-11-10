@@ -1,83 +1,115 @@
-import { Container, Paper, Stack, Flex, Notification } from '@mantine/core';
-import { IconChartBar } from '@tabler/icons-react';
-import { ReportPageHeader } from '@/module/reports/presentation/components/shared/ReportPageHeader';
+import React from 'react';
+import { Alert, Box, Button, Group, Grid, Skeleton, Stack, Text } from '@mantine/core';
+import { IconAlertTriangle, IconChartBar, IconRefresh } from '@tabler/icons-react';
 import { AppShellLayout } from '@/components/AppShellLayout';
-import IncomeStatementTable from '@/module/reports/presentation/components/income-statement/IncomeStatementTable';
-import { useState } from 'react';
-import FilterDate from '@/module/reports/presentation/components/shared/FilterDate';
-import ExportMenu from '@/module/reports/presentation/components/shared/ExportMenu';
-import { REPORT_EXPORT_ENDPOINTS } from '@/module/reports/infrastructure/reportEndpoints';
-import { exportReport } from '@/module/reports/infrastructure/exportReport';
-import { useAbortableRequest } from '@/module/reports/presentation/hooks/useAbortableRequest';
+import { ErrorAlert } from '@/components/ErrorAlert';
+import { ProfitLossRequestError } from '@/module/reports/infrastructure/profitLossApi';
+import { ProfitLossFilterBar } from '@/module/reports/presentation/components/profit-loss/ProfitLossFilterBar';
+import { ProfitLossSummary } from '@/module/reports/presentation/components/profit-loss/ProfitLossSummary';
+import { ProfitLossTable } from '@/module/reports/presentation/components/profit-loss/ProfitLossTable';
+import { ReportPageHeader } from '@/module/reports/presentation/components/shared/ReportPageHeader';
+import { useProfitLoss } from '@/module/reports/presentation/hooks/useProfitLoss';
 
 import { useTranslation } from '@/i18n';
-import { notifications } from '@mantine/notifications';
 
-const PAPER_PROPS = {
-  p: 'md',
-  shadow: 'md',
-  radius: 'md',
-};
-const IncomeStatementPage = () => {
+/** Route `/result-reports/business-overview/income-statement`: the profit and loss statement. */
+export default function IncomeStatementPage() {
   const { t } = useTranslation('reports');
-  const exportRequest = useAbortableRequest();
-  const [fromDate, setFromDate] = useState<string | undefined>();
-  const [toDate, setToDate] = useState<string | undefined>();
-
-  const handleFilterChange = (start: string | undefined, end: string | undefined) => {
-    setFromDate(start);
-    setToDate(end);
-  };
-
-  const handleExport = async (type: 'pdf' | 'csv' | 'xlsx') => {
-    if (!fromDate || !toDate) {
-      <Notification color="red" title={t('common.periodRequiredTitle')}>
-        {t('common.periodRequiredMessage')}
-      </Notification>;
-      return;
-    }
-    try {
-      await exportReport({
-        url: `${REPORT_EXPORT_ENDPOINTS.INCOME_STATEMENT}`,
-        fromDate,
-        toDate,
-        type,
-        filenamePrefix: 'IncomeStatement',
-        errorNoData: t('common.exportNoData'),
-        errorExportFailed: t('common.exportBalanceSheetFailed'),
-        signal: exportRequest.start(),
-      });
-    } catch (error) {
-      notifications.show({ color: 'red', message: t('common.exportRetry') });
-    }
-  };
+  const profitLoss = useProfitLoss();
+  const { query, report, shown } = profitLoss;
 
   return (
     <AppShellLayout>
-      <Container fluid>
+      <Box p={{ base: 'md', sm: 'xl' }}>
         <Stack gap="lg">
           <ReportPageHeader
             icon={IconChartBar}
             title={t('catalog.incomeStatementTitle')}
-            description={t('incomeStatement.description')}
+            description={t('profitLoss.description')}
           />
-          <Paper {...PAPER_PROPS}>
-            <Stack>
-              <Flex gap="xs" justify="space-between" align="center" direction="row">
-                <FilterDate onFilterChange={handleFilterChange} />
-                <ExportMenu
-                  onExportPDF={() => handleExport('pdf')}
-                  onExportCSV={() => handleExport('csv')}
-                  onExportXLSX={() => handleExport('xlsx')}
-                />
-              </Flex>
-              <IncomeStatementTable fromDate={fromDate} toDate={toDate} />
+
+          {!profitLoss.allowed && (
+            <ErrorAlert
+              title={t('profitLoss.noAccessTitle')}
+              message={t('profitLoss.noAccessMessage')}
+            />
+          )}
+
+          {profitLoss.allowed && (
+            <ProfitLossFilterBar
+              preset={profitLoss.preset}
+              onPresetChange={profitLoss.selectPreset}
+              draftPeriod={profitLoss.draftPeriod}
+              onDraftPeriodChange={profitLoss.setDraftPeriod}
+              appliedPeriod={profitLoss.period}
+              onApplyPeriod={profitLoss.applyDraft}
+              isFetching={query.isFetching}
+              onRefresh={() => query.refetch()}
+              onExport={(type) => profitLoss.exportMutation.mutate(type)}
+              isExporting={profitLoss.exportMutation.isPending}
+              onCancelExport={profitLoss.cancelExport}
+              searchQuery={profitLoss.search}
+              onSearchQueryChange={profitLoss.setSearch}
+              hasData={Boolean(report)}
+            />
+          )}
+
+          {query.isPending && (
+            <Stack gap="md">
+              <Skeleton height={110} radius="lg" />
+              <Grid gutter="md">
+                <Grid.Col span={12}>
+                  <Skeleton height={480} radius="lg" />
+                </Grid.Col>
+              </Grid>
             </Stack>
-          </Paper>
+          )}
+
+          {query.isError &&
+            query.error instanceof ProfitLossRequestError &&
+            query.error.status === 403 && (
+              <ErrorAlert
+                title={t('profitLoss.noAccessTitle')}
+                message={t('profitLoss.noAccessMessage')}
+              />
+            )}
+
+          {query.isError &&
+            !(query.error instanceof ProfitLossRequestError && query.error.status === 403) && (
+              <Alert
+                color="red"
+                title={t('profitLoss.loadFailed')}
+                icon={<IconAlertTriangle size={20} />}
+                radius="lg"
+              >
+                <Group justify="space-between" align="center" gap="sm">
+                  <Text size="sm">{query.error.message}</Text>
+                  <Button
+                    size="xs"
+                    variant="light"
+                    color="red"
+                    leftSection={<IconRefresh size={14} />}
+                    onClick={() => query.refetch()}
+                  >
+                    {t('common.retry')}
+                  </Button>
+                </Group>
+              </Alert>
+            )}
+
+          {report && (
+            <>
+              <ProfitLossSummary report={report} />
+              <ProfitLossTable
+                lines={shown.lines}
+                accountCount={shown.accountCount}
+                search={profitLoss.search}
+                onResetSearch={() => profitLoss.setSearch('')}
+              />
+            </>
+          )}
         </Stack>
-      </Container>
+      </Box>
     </AppShellLayout>
   );
-};
-
-export default IncomeStatementPage;
+}

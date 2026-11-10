@@ -44,7 +44,7 @@ export const reportsLedger = {
     cardTotalCreditHint: 'Accumulated credit of all accounts',
     searchTransactions: 'Search reference no. or memo...',
     noTransactionMatch: 'No transactions match the keyword "{{query}}".',
-    searchAccounts: 'Search account number or name on this page...',
+    searchAccounts: 'Search account number or name...',
     noAccountMatch: 'No accounts match the search "{{query}}".',
     fileDownloaded: 'General Ledger file ({{type}}) has been downloaded.',
     pagerSummary: 'Showing {{from}}–{{to}} of {{total}}',

@@ -4,10 +4,10 @@ import {
   IconCashBanknote,
   IconChartBar,
   IconChartPie,
+  IconNotebook,
   IconFileAnalytics,
   IconReportMoney,
   IconScale,
-  IconTimeline,
   type Icon,
 } from '@tabler/icons-react';
 import { routes } from '@/router/routes';
@@ -27,6 +27,8 @@ export interface ReportItem {
    * shows sample numbers). Flip it to `ready` when the report reads real data.
    */
   status: 'ready' | 'soon';
+  /** Server menu id whose read right is needed; the card is hidden without it. */
+  menuId?: string;
 }
 
 export const reportCategories: Array<{ value: ReportCategory; labelKey: string }> = [
@@ -73,7 +75,8 @@ export const reportCatalogData: ReportItem[] = [
     route: routes.reports.incomeStatement,
     category: 'financial',
     icon: IconChartBar,
-    status: 'soon',
+    status: 'ready',
+    menuId: 'JP-GL-PL',
   },
   {
     id: 'trial-balance',
@@ -120,10 +123,10 @@ export const reportCatalogData: ReportItem[] = [
     titleKey: 'catalog.journalTitle',
     englishTitleKey: 'catalog.journalEnglish',
     descriptionKey: 'catalog.journalDescription',
-    route: routes.reports.journalEntries,
+    route: routes.journalEntries.main,
     category: 'ledger',
-    icon: IconTimeline,
-    status: 'soon',
+    icon: IconNotebook,
+    status: 'ready',
   },
   {
     id: 'business-summary',

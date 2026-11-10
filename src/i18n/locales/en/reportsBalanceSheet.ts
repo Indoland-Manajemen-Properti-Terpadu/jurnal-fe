@@ -5,7 +5,6 @@ export const reportsBalanceSheet = {
       "Monitor the company's assets and liabilities as of the report date, with details of current assets, fixed assets, liabilities and equity.",
     loadFailed: 'Failed to Load Balance Sheet',
     exportFailedMessage: 'Failed to export the balance sheet.',
-    asOfDate: 'As of Date (Until)',
     print: 'Print Balance Sheet',
     noAccounts: 'No accounts recorded',
     assets: 'Assets',

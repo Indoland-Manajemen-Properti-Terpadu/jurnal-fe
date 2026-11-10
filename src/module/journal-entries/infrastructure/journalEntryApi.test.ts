@@ -1,8 +1,11 @@
 import { vi } from 'vitest';
 import apiClient from '@/lib/http/apiClient';
 import type { JournalEntryPayload } from '../domain/journalEntry';
+import { emptyHistoryFilters } from '../domain/journalHistory';
 import {
   createJournalEntry,
+  JournalExportError,
+  exportJournalHistory,
   fetchJournalEntriesByAccount,
   voidJournalEntries,
 } from './journalEntryApi';
@@ -95,5 +98,70 @@ describe('fetchJournalEntriesByAccount', () => {
       .mockResolvedValueOnce({ data: { data: [{ id: 'a' }] } });
     expect(await fetchJournalEntriesByAccount('acc')).toHaveLength(1);
     expect(apiClient.get).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('exportJournalHistory', () => {
+  const filters = {
+    ...emptyHistoryFilters(),
+    page: 3,
+    limit: 50,
+    startDate: '2026-11-01',
+    endDate: '2026-11-10',
+    status: ['VOID' as const],
+    search: 'denda',
+  };
+
+  it('sends the active filters without paging and names the file from the server', async () => {
+    vi.mocked(apiClient.get).mockResolvedValue({
+      data: new Blob(['x']),
+      headers: { 'content-disposition': 'attachment; filename="journal-20261101-20261110.csv"' },
+    });
+    const result = await exportJournalHistory(filters, 'csv', 'gagal');
+
+    const url = String(vi.mocked(apiClient.get).mock.calls.at(-1)?.[0]);
+    expect(url.startsWith('/v1/journal/export/csv?')).toBe(true);
+    expect(url).toContain('startDate=2026-11-01');
+    expect(url).toContain('endDate=2026-11-10');
+    expect(url).toContain('status=VOID');
+    expect(url).toContain('search=denda');
+    expect(url).not.toContain('page=');
+    expect(url).not.toContain('limit=');
+    expect(result.filename).toBe('journal-20261101-20261110.csv');
+  });
+
+  it('falls back to a name built from the dates', async () => {
+    vi.mocked(apiClient.get).mockResolvedValue({ data: new Blob(['x']), headers: {} });
+    const result = await exportJournalHistory(filters, 'xlsx', 'gagal');
+    expect(result.filename).toBe('journal-20261101-20261110.xlsx');
+  });
+
+  it('shows the message the server put in the blob of a failed download', async () => {
+    const body = new Blob([JSON.stringify({ message: 'Rentang waktu maksimal adalah 1 tahun' })]);
+    vi.mocked(apiClient.get).mockRejectedValue(
+      Object.assign(new Error('Request failed'), {
+        isAxiosError: true,
+        response: { status: 400, data: body },
+      })
+    );
+    await expect(exportJournalHistory(filters, 'pdf', 'gagal')).rejects.toThrow(
+      'Rentang waktu maksimal adalah 1 tahun'
+    );
+  });
+
+  it('carries the status, so a 400 refusal can be told from a fault', async () => {
+    vi.mocked(apiClient.get).mockRejectedValue(
+      Object.assign(new Error('Request failed'), {
+        isAxiosError: true,
+        response: {
+          status: 400,
+          data: new Blob([JSON.stringify({ message: 'Jumlah jurnal (4433) melebihi batas 2000' })]),
+        },
+      })
+    );
+    const error = await exportJournalHistory(filters, 'pdf', 'gagal').catch((e: unknown) => e);
+    expect(error).toBeInstanceOf(JournalExportError);
+    expect((error as JournalExportError).status).toBe(400);
+    expect((error as JournalExportError).message).toBe('Jumlah jurnal (4433) melebihi batas 2000');
   });
 });

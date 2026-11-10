@@ -38,9 +38,11 @@ export default function BalanceSheetPage() {
             preset={balanceSheet.preset}
             onPresetChange={balanceSheet.handlePresetChange}
             draftPeriod={balanceSheet.draftPeriod}
+            appliedPeriod={balanceSheet.period}
             onDraftPeriodChange={balanceSheet.setDraftPeriod}
             onApplyPeriod={balanceSheet.handleApplyCustomPeriod}
             isFetching={balanceSheet.query.isFetching}
+            onRefresh={() => balanceSheet.query.refetch()}
             onExport={(type) => balanceSheet.exportMutation.mutate(type)}
             isExporting={balanceSheet.exportMutation.isPending}
             onCancelExport={balanceSheet.cancelExport}

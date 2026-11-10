@@ -43,7 +43,7 @@ export const reportsLedger = {
     cardTotalCreditHint: 'Akumulasi kredit semua akun',
     searchTransactions: 'Cari no referensi atau memo...',
     noTransactionMatch: 'Tidak ada transaksi yang cocok dengan kata kunci "{{query}}".',
-    searchAccounts: 'Cari nomor atau nama akun di halaman ini...',
+    searchAccounts: 'Cari nomor atau nama akun...',
     noAccountMatch: 'Tidak ada akun yang sesuai dengan pencarian "{{query}}".',
     fileDownloaded: 'File Buku Besar ({{type}}) telah diunduh.',
     pagerSummary: 'Menampilkan {{from}}–{{to}} dari {{total}}',

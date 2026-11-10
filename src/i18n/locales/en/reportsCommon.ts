@@ -27,6 +27,9 @@ export const reportsCommon = {
     thisQuarterId: 'This Quarter',
     thisYearId: 'This Year',
     customId: 'Custom',
+    allPeriodId: 'All Time',
+    dateRange: 'Date Range',
+    refresh: 'Refresh',
     export: 'Export',
     exportEn: 'Export',
     chooseExportFormat: 'Choose Export Format',
@@ -76,5 +79,7 @@ export const reportsCommon = {
     backToReports: 'Back',
     cancelExport: 'Cancel',
     exportCanceled: 'Export cancelled.',
+    exportNotPossible: 'The export cannot be done yet',
+    fileDownloaded: '{type} file downloaded.',
   },
 };

@@ -1,8 +1,12 @@
 import axios from 'axios';
 import apiClient from '@/lib/http/apiClient';
 import { API_ACCOUNT, API_TAGS } from '@/lib/http/endpoints';
-import type { JournalHistoryFilters, JournalHistoryPage } from '../domain/journalHistory';
-import { toHistoryQuery } from '../domain/journalHistory';
+import type {
+  JournalExportType,
+  JournalHistoryFilters,
+  JournalHistoryPage,
+} from '../domain/journalHistory';
+import { toExportQuery, toHistoryQuery } from '../domain/journalHistory';
 import type {
   JournalEntryByAccount,
   JournalEntryDetail,
@@ -16,6 +20,20 @@ import {
   toEntryDetail,
   toTotalPages,
 } from './journalEntryMapper';
+
+/** A failed export with the status the server answered (400 is a refusal, e.g. too many journals). */
+export class JournalExportError extends Error {
+  constructor(
+    message: string,
+    readonly status?: number
+  ) {
+    super(message);
+    this.name = 'JournalExportError';
+  }
+}
+
+/** Whether the person cancelled the request (an aborted download is not a failure). */
+export const isRequestCanceled = (error: unknown): boolean => axios.isCancel(error);
 
 /** The server's own message of a failed request, or the fallback. */
 export const errorMessage = (error: unknown, fallback: string): string =>
@@ -38,6 +56,58 @@ export const fetchJournalHistory = async (
     { signal }
   );
   return toJournalHistoryPage(data);
+};
+
+const FILENAME_PATTERN = /filename\*?=(?:UTF-8'')?"?([^";]+)"?/i;
+
+const readText = (blob: Blob): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = () => reject(reader.error);
+    reader.readAsText(blob);
+  });
+
+/** The message a failed download carries; its body is a blob, so the JSON text is read from it. */
+const exportErrorMessage = async (error: unknown, fallback: string): Promise<string> => {
+  if (axios.isAxiosError(error) && error.response?.data instanceof Blob) {
+    try {
+      const body = JSON.parse(await readText(error.response.data)) as { message?: string };
+      if (body.message) return body.message;
+    } catch {
+      // Not JSON: fall through to the fallback.
+    }
+  }
+  return errorMessage(error, fallback);
+};
+
+/**
+ * The journal list as a file, filtered and sorted like the list. The server needs both dates
+ * (one year at most) and answers 400 with a message when the result is too large.
+ */
+export const exportJournalHistory = async (
+  filters: JournalHistoryFilters,
+  type: JournalExportType,
+  fallbackMessage: string,
+  signal?: AbortSignal
+): Promise<{ blob: Blob; filename: string }> => {
+  try {
+    const response = await apiClient.get<Blob>(
+      `${API_ACCOUNT.GET_JOURNALS}/export/${type}?${toExportQuery(filters).toString()}`,
+      { responseType: 'blob', signal }
+    );
+    const header = String(response.headers['content-disposition'] ?? '');
+    const filename =
+      FILENAME_PATTERN.exec(header)?.[1] ??
+      `journal-${filters.startDate.replaceAll('-', '')}-${filters.endDate.replaceAll('-', '')}.${type}`;
+    return { blob: response.data, filename };
+  } catch (error) {
+    if (isRequestCanceled(error)) throw error;
+    throw new JournalExportError(
+      await exportErrorMessage(error, fallbackMessage),
+      axios.isAxiosError(error) ? error.response?.status : undefined
+    );
+  }
 };
 
 const ENTRIES_PAGE_SIZE = 100;
