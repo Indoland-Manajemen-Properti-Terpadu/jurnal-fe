@@ -4,7 +4,6 @@ export { default as TrialBalancePage } from './presentation/pages/TrialBalancePa
 export { default as IncomeStatementPage } from './presentation/pages/IncomeStatementPage';
 export { default as IncomeStatementBudgetPage } from './presentation/pages/IncomeStatementBudgetPage';
 export { default as CashFlowPage } from './presentation/pages/CashFlowPage';
-export { default as JournalEntryReportPage } from './presentation/pages/JournalEntryReportPage';
 export { default as BusinessSummaryPage } from './presentation/pages/BusinessSummaryPage';
 export { default as EquityChangesPage } from './presentation/pages/EquityChangesPage';
 export { default as BudgetManagementPage } from './presentation/pages/BudgetManagementPage';

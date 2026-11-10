@@ -69,7 +69,6 @@ describe('navigation registry', () => {
       'fulfillment',
       'assets',
       'closingBooks',
-      'journalEntries',
       'warehouses',
       'stockMovements',
       'stockTake',

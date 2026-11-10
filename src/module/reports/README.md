@@ -1,6 +1,6 @@
 # reports
 
-Financial reports: a catalog page and ten report pages (balance sheet, general ledger, trial balance, income statement, income statement vs budget, cash flow, journal entry log, equity changes, business summary, budget management). Formerly `ResultReport`.
+Financial reports: a catalog page and nine report pages (balance sheet, general ledger, trial balance, income statement, income statement vs budget, cash flow, equity changes, business summary, budget management). Formerly `ResultReport`.
 
 ## Routes (`src/router/routes.ts`)
 
@@ -13,7 +13,7 @@ Financial reports: a catalog page and ten report pages (balance sheet, general l
 | `reports.incomeStatement`                                | `.../income-statement`                                       | `IncomeStatementPage`                            |
 | `reports.incomeStatementBudget`                          | `.../income-statement-budget`                                | `IncomeStatementBudgetPage`                      |
 | `reports.cashFlow`                                       | `.../cash-flow`                                              | `CashFlowPage`                                   |
-| `reports.journalEntries`                                 | `.../journal-entry`                                          | `JournalEntryReportPage`                         |
+| `journalEntries.main` (module `journal-entries`)         | `.../journal-entry`                                          | `JournalHistoryPage`, the real general journal; the catalog card links here |
 | `reports.businessSummary`                                | `.../business-summary`                                       | `BusinessSummaryPage`                            |
 | `reports.equityChanges`                                  | `.../equity-changes`                                         | `EquityChangesPage`                              |
 | `reports.budgetManagement`, `budgeting.budgetManagement` | `.../budget-management`, `/setting-budget/budget-management` | `BudgetManagementPage` (same page on both paths) |
@@ -22,7 +22,7 @@ Financial reports: a catalog page and ten report pages (balance sheet, general l
 
 ## Endpoints
 
-- `REPORT_ENDPOINTS` in `infrastructure/reportEndpoints.ts`: `/v1/report/{journal-entry,balance,income-statement,trial-balance,equity-changes}` (absolute with `BASE_URL`), plus `/download` variants for income statement and equity changes (`REPORT_EXPORT_ENDPOINTS`).
+- `REPORT_ENDPOINTS` in `infrastructure/reportEndpoints.ts`: `/v1/report/{balance,income-statement,trial-balance,equity-changes}` (absolute with `BASE_URL`), plus `/download` variants for income statement and equity changes (`REPORT_EXPORT_ENDPOINTS`).
 - `balanceSheetApi`: `/v1/reports/balance-sheet`, `/v1/reports/balance-sheet/export/:type`, falling back to `/v1/report/balance/download` when the export fails.
 - `generalLedgerApi`: `/v1/general-ledger`, `/v1/general-ledger/export/:type`. The ledger endpoint pages the accounts (`page`, `limit`: 20 by default, 100 at most; `pagination.totalAccounts` and `totalPages` come back) and accepts nothing else (no search or filter). `periodDebitTotal` and `periodCreditTotal` cover the whole ledger, while the per-account `periodDebit` and `periodCredit` of a parent account (`isHead`) already include its sub accounts, so never add the accounts up. Heavy periods can answer 504; keep the page size small.
 
@@ -51,7 +51,7 @@ Accounts load one server page at a time (`useGeneralLedger` keeps `page`, with `
 
 ## State
 
-TanStack Query. Keys: `balance-sheet-report`, `general-ledger`, `balance_sheet_report`, `income_statement_report`, `trial_balance_report`, `equity_change_report`, `journal_entry_report`. Filters are local component state; nothing is persisted.
+TanStack Query. Keys: `balance-sheet-report`, `general-ledger`, `balance_sheet_report`, `income_statement_report`, `trial_balance_report`, `equity_change_report`, . Filters are local component state; nothing is persisted.
 
 ## i18n
 
@@ -59,7 +59,7 @@ Namespace `reports` (`id` and `en`), composed from `reportsCommon`, `reportsCata
 
 ## Known gaps
 
-- The live API has no `/v1/report/{journal-entry,income-statement,trial-balance,equity-changes}` (they answer 404; only `/v1/reports/balance-sheet` and `/v1/general-ledger` exist in the Postman collection), so those four pages always show `ReportUnavailable`. Their tables and exports are untouched and need the endpoints before they can be checked against real data.
+- The live API has no `/v1/report/{income-statement,trial-balance,equity-changes}` (they answer 404; only `/v1/reports/balance-sheet` and `/v1/general-ledger` exist in the Postman collection), so those three pages always show `ReportUnavailable`. Their tables and exports are untouched and need the endpoints before they can be checked against real data.
 - Cash flow, business summary, income statement budget and budget management are placeholder pages: their tables show fixed sample numbers and sample dates (`19 Sept 2021`, `Budget Testing 1`), and `BusinessSummaryTable` and `CashFlowTable` call `useJournalAccounts()` without using the result (kept to preserve the request). The "Business Sumary Report" title keeps its typo because it is visible text.
 - English-only legacy text (cash flow and summary rows, journal, equity and budget tables) has the same English value in `id` and `en`; real Indonesian copy is a product decision.
 - Export failures on the income statement and equity changes pages still use `alert` (3 `no-alert` and 1 `new-cap` for `jsPDF` remain in the lint baseline).

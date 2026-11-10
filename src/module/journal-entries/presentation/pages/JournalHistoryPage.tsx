@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 import { ActionIcon, Box, Button, Paper, Stack, Tooltip } from '@mantine/core';
-import { IconNotebook, IconPlus, IconRefresh } from '@tabler/icons-react';
+import { IconArrowLeft, IconNotebook, IconPlus, IconRefresh } from '@tabler/icons-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AppShellLayout } from '@/components/AppShellLayout';
 import { ErrorAlert } from '@/components/ErrorAlert';
@@ -76,6 +76,14 @@ export default function JournalHistoryPage() {
             description={t('history.description')}
             actions={
               <>
+                <Button
+                  variant="default"
+                  radius="md"
+                  leftSection={<IconArrowLeft size={16} />}
+                  onClick={() => navigate(routes.reports.main)}
+                >
+                  {t('history.backToReports')}
+                </Button>
                 <Tooltip label={t('history.refresh')}>
                   <ActionIcon
                     size="lg"

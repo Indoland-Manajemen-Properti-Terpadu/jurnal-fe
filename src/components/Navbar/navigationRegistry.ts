@@ -17,7 +17,6 @@ import {
   ListBullets,
   Lock,
   Money,
-  Notebook,
   Package,
   Receipt,
   ReceiptX,
@@ -204,13 +203,6 @@ export const navigationSections: NavSection[] = [
         menus: [...NAV_MENU.ledger],
       },
       {
-        id: 'journalEntries',
-        labelKey: 'journalEntries',
-        icon: Notebook,
-        link: routes.journalEntries.main,
-        menus: [...NAV_MENU.ledger],
-      },
-      {
         id: 'beginningBalances',
         labelKey: 'beginningBalance',
         icon: Scales,
@@ -264,6 +256,8 @@ type TitleEntry = SectionTitle & { prefix: string };
  * Matching is by longest prefix, so a detail page wins over the list it belongs to.
  */
 const extraTitles: TitleEntry[] = [
+  // The general journal opens from the report center, so it keeps its own title there.
+  { prefix: routes.journalEntries.main, titleKey: 'journalEntries', groupKey: 'groupAccounting' },
   {
     prefix: '/general-journal/detail-transaction-journal',
     titleKey: 'detailJournalTransaction',

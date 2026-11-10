@@ -4,10 +4,10 @@ import {
   IconCashBanknote,
   IconChartBar,
   IconChartPie,
+  IconNotebook,
   IconFileAnalytics,
   IconReportMoney,
   IconScale,
-  IconTimeline,
   type Icon,
 } from '@tabler/icons-react';
 import { routes } from '@/router/routes';
@@ -120,10 +120,10 @@ export const reportCatalogData: ReportItem[] = [
     titleKey: 'catalog.journalTitle',
     englishTitleKey: 'catalog.journalEnglish',
     descriptionKey: 'catalog.journalDescription',
-    route: routes.reports.journalEntries,
+    route: routes.journalEntries.main,
     category: 'ledger',
-    icon: IconTimeline,
-    status: 'soon',
+    icon: IconNotebook,
+    status: 'ready',
   },
   {
     id: 'business-summary',

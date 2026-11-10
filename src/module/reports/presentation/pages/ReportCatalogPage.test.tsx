@@ -19,7 +19,7 @@ describe('ReportCatalogPage', () => {
     expect(screen.getByRole('heading', { name: 'Pusat Laporan Keuangan' })).toBeInTheDocument();
     expect(screen.getAllByText('Laporan Keuangan').length).toBeGreaterThan(0);
     expect(screen.getByText('Neraca')).toBeInTheDocument();
-    expect(screen.getAllByText('Segera hadir').length).toBe(7);
+    expect(screen.getAllByText('Segera hadir').length).toBe(6);
   });
 
   it('lists the reports with real data first in their section', () => {
