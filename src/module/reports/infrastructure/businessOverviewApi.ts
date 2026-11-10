@@ -3,7 +3,6 @@ import type { BalanceSheetReport } from '@/module/reports/domain/balanceSheetRep
 import type { EquityChangeReport } from '@/module/reports/domain/EquityChange.types';
 import type { IncomeStatementReport } from '@/module/reports/domain/IncomeStatement.types';
 import type { ReportJournalEntryModel } from '@/module/reports/domain/JournalEntry.types';
-import type { TrialBalanceReport } from '@/module/reports/domain/TrialBalanceReport.types';
 import { REPORT_ENDPOINTS } from './reportEndpoints';
 
 // These calls use the default client, so an HTTP error rejects and the query reports `isError`.
@@ -23,12 +22,6 @@ export const fetchBalanceSheetSummaryReport = (
   toDate: string
 ): Promise<BalanceSheetReport> =>
   getData<BalanceSheetReport>(`${REPORT_ENDPOINTS.BALANCE_SHEET}?${dateQuery(fromDate, toDate)}`);
-
-export const fetchTrialBalanceReport = (
-  fromDate: string,
-  toDate: string
-): Promise<TrialBalanceReport> =>
-  getData<TrialBalanceReport>(`${REPORT_ENDPOINTS.TRIAL_BALANCE}?${dateQuery(fromDate, toDate)}`);
 
 export const fetchJournalEntryReport = (
   fromDate?: string,

@@ -3,7 +3,7 @@ import { Alert, Box, Button, Group, Grid, Skeleton, Stack, Text } from '@mantine
 import { IconAlertTriangle, IconChartBar, IconRefresh } from '@tabler/icons-react';
 import { AppShellLayout } from '@/components/AppShellLayout';
 import { ErrorAlert } from '@/components/ErrorAlert';
-import { ProfitLossRequestError } from '@/module/reports/infrastructure/profitLossApi';
+import { ReportRequestError } from '@/module/reports/infrastructure/reportRequest';
 import { ProfitLossFilterBar } from '@/module/reports/presentation/components/profit-loss/ProfitLossFilterBar';
 import { ProfitLossSummary } from '@/module/reports/presentation/components/profit-loss/ProfitLossSummary';
 import { ProfitLossTable } from '@/module/reports/presentation/components/profit-loss/ProfitLossTable';
@@ -66,7 +66,7 @@ export default function IncomeStatementPage() {
           )}
 
           {query.isError &&
-            query.error instanceof ProfitLossRequestError &&
+            query.error instanceof ReportRequestError &&
             query.error.status === 403 && (
               <ErrorAlert
                 title={t('profitLoss.noAccessTitle')}
@@ -75,7 +75,7 @@ export default function IncomeStatementPage() {
             )}
 
           {query.isError &&
-            !(query.error instanceof ProfitLossRequestError && query.error.status === 403) && (
+            !(query.error instanceof ReportRequestError && query.error.status === 403) && (
               <Alert
                 color="red"
                 title={t('profitLoss.loadFailed')}

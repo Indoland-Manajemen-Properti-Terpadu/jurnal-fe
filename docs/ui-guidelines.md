@@ -65,6 +65,7 @@ Any agent working on this codebase MUST treat UI/UX not as an afterthought, but 
   5. **Controls share one size** (`sm`) so inputs, buttons and icon buttons line up. Cetak and Ekspor are disabled while there is no data. A report whose API has no export leaves `onExport` out and the menu does not show.
   6. **Expandable rows**: the chevron comes first, as in the general journal. What opens stays inside the same bordered table, as a tinted band under its row; it is never a separate card below the table.
   7. **States**: loading uses skeletons, a failure uses the alert with a retry, and an empty result keeps the frame and shows `EmptyState`.
+  8. **Wide figure tables** (the trial balance): the bordered frame itself scrolls sideways (`overflow-x: auto`, not a nested scroll area, so a sticky column works), the account column stays in view (the page scrolls down, the table has no fixed height), column groups get a title row above Debit and Kredit with a firm vertical line between groups and a soft one between Debit and Kredit, an empty cell stays blank (never `0`), account names wrap in full (never an ellipsis), and Total and Selisih are plain rows that close the table (not frozen).
 
 - **Calm Financial Interface Rules**:
   1. **One Primary Action per Region**: A header, panel, or modal must not present multiple filled or gradient actions with equal visual weight. Secondary operations belong in default/light buttons, a menu, or the relevant task tab.

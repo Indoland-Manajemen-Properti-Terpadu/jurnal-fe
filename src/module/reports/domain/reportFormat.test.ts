@@ -48,3 +48,12 @@ describe('formatMoney', () => {
     expect(formatMoney(undefined as unknown as number)).toMatch(/0$/);
   });
 });
+
+describe('formatAmount', () => {
+  it('formats like money but without the currency sign', async () => {
+    const { formatAmount } = await import('./reportFormat');
+    expect(formatAmount(1234567.5)).toBe('1.234.567,5');
+    expect(formatAmount(0)).toBe('0');
+    expect(formatAmount(-2500)).toBe('-2.500');
+  });
+});

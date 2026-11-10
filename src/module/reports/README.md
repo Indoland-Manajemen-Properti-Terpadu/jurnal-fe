@@ -22,14 +22,15 @@ Financial reports: a catalog page and nine report pages (balance sheet, general 
 
 ## Endpoints
 
-- `REPORT_ENDPOINTS` in `infrastructure/reportEndpoints.ts`: `/v1/report/{balance,income-statement,trial-balance,equity-changes}` (absolute with `BASE_URL`), plus `/download` variants for income statement and equity changes (`REPORT_EXPORT_ENDPOINTS`).
+- `REPORT_ENDPOINTS` in `infrastructure/reportEndpoints.ts`: `/v1/report/{balance,income-statement,equity-changes}` (absolute with `BASE_URL`), plus `/download` variants for income statement and equity changes (`REPORT_EXPORT_ENDPOINTS`).
 - `balanceSheetApi`: `/v1/reports/balance-sheet`, `/v1/reports/balance-sheet/export/:type`, falling back to `/v1/report/balance/download` when the export fails.
 - `profitLossApi` (the income statement page): `GET /v1/reports/profit-loss` and `/export/:type` (pdf, xlsx, csv). Needs `startDate` and `endDate` (one year at most); `lang` (`id` or `en`) is sent with it and with every export; `limit` is 500 at most, so the statement is one request (`getReport` still reads further pages if there are any). Each line has a `type` (`title`, `head`, `account`, `subtotal`, `total`, `profit`, `blank`), a signed `amount` (null on a head, a title and a blank; a contra account such as a discount can be negative) and markers: `key` on a total, profit or title line, `groupId` on a subtotal (the head it adds up) and `parentId` on an account. `summary` has `grossRevenue`, `totalContra` and `netRevenue` (equal to `totalRevenue`). A failed request throws `ProfitLossRequestError` with the status: 400 is a refusal and shows as a calm warning, 403 means the role lacks the menu. The old `/v1/report/income-statement` (`businessOverviewApi`, `IncomeStatementTable`, `useIncomeStatementReport`) now serves only `IncomeStatementBudgetPage`.
+- `trialBalanceApi` (the trial balance page): `GET /v1/reports/trial-balance` and `/export/:type` (pdf, xlsx, csv; `/print` answers an inline PDF and is not used, the toolbar prints the page). Needs `startDate` and `endDate` (one year at most, end not before start); it must not send `lang`, the server answers 400 `"lang" is not allowed` on the list and every export; `limit` is 100 at most, so `getReport` reads every page and joins the accounts, and takes `totals`, `balancing` and `profit` from the first page. Each account has five groups (`opening`, `movement`, `closing`, `profitLoss`, `balanceSheet`) of `{ debit, credit }`; an empty side is `null` and a whole group can be `null`. Errors are `ReportRequestError` (`infrastructure/reportRequest.ts`, shared with profit and loss): 400 a refusal, 403 no right.
 - `generalLedgerApi`: `/v1/general-ledger`, `/v1/general-ledger/export/:type`. The ledger endpoint pages the accounts (`page`, `limit`: 20 by default, 100 at most; `pagination.totalAccounts` and `totalPages` come back) and accepts nothing else (no search or filter). `periodDebitTotal` and `periodCreditTotal` cover the whole ledger, while the per-account `periodDebit` and `periodCredit` of a parent account (`isHead`) already include its sub accounts, so never add the accounts up. Heavy periods can answer 504; keep the page size small.
 
 ## Layers
 
-- `domain/`: report types (`balanceSheet`, `balanceSheetReport`, `generalLedger`, `TrialBalanceReport`, `JournalEntry`, `IncomeStatement`, `EquityChange`), `reportFormat` (money and date display, period presets) and `journalEntryTotals`, with tests.
+- `domain/`: report types (`balanceSheet`, `balanceSheetReport`, `generalLedger`, `JournalEntry`, `IncomeStatement`, `EquityChange`), `reportFormat` (money and date display, period presets) and `journalEntryTotals`, with tests.
 - `infrastructure/`: `balanceSheetApi` + `balanceSheetMapper`, `generalLedgerApi` + `generalLedgerMapper`, `businessOverviewApi` (the five report fetches), `exportReport` (download and save a file), `reportEndpoints`, `reportValue` (`safeNumber`, `safeString`, `asRecord`, `asArray`).
 - `presentation/`: pages, components grouped per report (`shared`, `balance-sheet`, `general-ledger`, `catalog`, ...), hooks (`useBalanceSheet`, `useGeneralLedger`, one `use*Report` per business-overview report, `usePeriodOptions`). The catalog data (`catalog/reportCatalogData.ts`) lives here because it holds icon components.
 
@@ -39,6 +40,10 @@ Financial reports: a catalog page and nine report pages (balance sheet, general 
 - Balance sheet: a section total from the server that is `0` or missing is replaced by the sum of its items; the grand totals (`totalAssets`, `totalLiabilities`, `totalEquity`) use the server value only when the payload is wrapped in `data` and the field is not null (so a server `0` stays `0`). A flat liabilities list is split by category name: names containing "panjang" are long-term, the rest current. The sheet is balanced when assets and liabilities plus equity differ by less than 0.01.
 - Journal entry totals (`calcJournalEntryTotals`, also used for the PDF export) round each line half up to the cent and add whole cents with `@/lib/money`.
 - Period presets (`getPresetDateRange`): this month, last month, this quarter, this year, custom (defaults to this month).
+
+## Trial balance screen
+
+The page (`TrialBalancePage`, `useTrialBalance`) shows four cards that mirror the first four column groups of the table, in its order and with its names (Saldo Awal, Mutasi, Saldo Akhir, Laba Rugi). Every card has the same parts: the name and a one-line caption, a Debit and a Kredit line with a bar each on the card's own scale (equal bars mean a balanced stage), a rule, and one closing line: Selisih on the first three (red only when debit and credit differ by a cent or more), Laba Berjalan on Laba Rugi (the server's `profit`: revenue, the credit side, less expenses, the debit side). `ReportKpiStrip` items take `content` for that layout. There is no balanced badge, no margin and no chart type that only some cards have. Under them and one table: Akun, then Saldo Awal, Mutasi, Saldo Akhir, Laba Rugi and Neraca, each with Debit and Kredit, then Total and Selisih Penyeimbang (`balancing`, only under Laba Rugi and Neraca) as plain rows at the end (not frozen; only the account column is, and the table has no fixed height: the page scrolls down). There is no balanced badge. Rules: a `null` side renders blank, never 0; a parent account (`isHead`) is bold and its figures already include its sub accounts, so nothing is added up on the client (totals are the server's); the search filters the loaded accounts by number or name on the client, because the server only filters by database ids (`accountIds`). The page needs read on menu `JP-GL-TB` (`TRIAL_BALANCE_MENU_ID`); the catalog hides the card without it, but never before the rights are known, and a 403 shows the "ask an admin" message. Checked against live data (Demo Site, 192 accounts, 16 parents, two pages of 100): `totals`, `balancing` and `profit` are identical on every page and equal the sum of the non-parent accounts (adding the parents too roughly doubles them), so the page takes them from the first page. In that data `profitLoss` is `null` on 92 accounts and `balanceSheet` on 100; `opening`, `movement` and `closing` were never `null`.
 
 ## Report screens
 
@@ -52,7 +57,7 @@ Accounts load one server page at a time (`useGeneralLedger` keeps `page`, with `
 
 ## State
 
-TanStack Query. Keys: `balance-sheet-report`, `general-ledger`, `balance_sheet_report`, `income_statement_report`, `trial_balance_report`, `equity_change_report`, . Filters are local component state; nothing is persisted.
+TanStack Query. Keys: `balance-sheet-report`, `general-ledger`, `balance_sheet_report`, `income_statement_report`, `trial-balance`, `equity_change_report`, . Filters are local component state; nothing is persisted.
 
 ## i18n
 
@@ -60,7 +65,7 @@ Namespace `reports` (`id` and `en`), composed from `reportsCommon`, `reportsCata
 
 ## Known gaps
 
-- The live API has no `/v1/report/{income-statement,trial-balance,equity-changes}` (they answer 404; only `/v1/reports/balance-sheet` and `/v1/general-ledger` exist in the Postman collection), so those three pages always show `ReportUnavailable`. Their tables and exports are untouched and need the endpoints before they can be checked against real data.
+- The live API has no `/v1/report/{income-statement,equity-changes}` (they answer 404), so those two pages always show `ReportUnavailable`. Their tables and exports are untouched and need the endpoints before they can be checked against real data.
 - Cash flow, business summary, income statement budget and budget management are placeholder pages: their tables show fixed sample numbers and sample dates (`19 Sept 2021`, `Budget Testing 1`), and `BusinessSummaryTable` and `CashFlowTable` call `useJournalAccounts()` without using the result (kept to preserve the request). The "Business Sumary Report" title keeps its typo because it is visible text.
 - English-only legacy text (cash flow and summary rows, journal, equity and budget tables) has the same English value in `id` and `en`; real Indonesian copy is a product decision.
 - Export failures on the income statement and equity changes pages still use `alert` (3 `no-alert` and 1 `new-cap` for `jsPDF` remain in the lint baseline).

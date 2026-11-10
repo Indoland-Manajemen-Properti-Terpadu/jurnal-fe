@@ -1,7 +1,4 @@
 export const reportsStatements = {
-  trialBalance: {
-    description: 'Periksa saldo debit dan kredit akun sebelum menyusun laporan keuangan.',
-  },
   incomeStatement: {
     description: 'Tinjau pendapatan dan beban untuk memahami hasil usaha selama periode.',
   },
