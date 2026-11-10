@@ -102,20 +102,6 @@ export const TrialBalanceSummary: React.FC<TrialBalanceSummaryProps> = ({ report
             margin === null
               ? t('trialBalance.cardProfitHint')
               : t('trialBalance.cardProfitHintMargin', { percent: marginText }),
-          visual:
-            margin === null ? undefined : (
-              <Box
-                role="img"
-                aria-label={t('trialBalance.visualProfit', { percent: marginText })}
-                title={t('trialBalance.visualProfit', { percent: marginText })}
-              >
-                <ReportRing
-                  value={margin}
-                  label={`${Math.round(margin)}%`}
-                  tone={margin < 0 ? 'var(--mantine-color-red-6)' : 'var(--mantine-color-teal-6)'}
-                />
-              </Box>
-            ),
         },
       ]}
       footer={{

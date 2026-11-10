@@ -20,7 +20,6 @@ export const reportsTrialBalance = {
     visualAccounts: '{active} dari {detail} akun detail punya saldo akhir',
     visualDebit: 'Debit di tiap kelompok kolom',
     visualCredit: 'Kredit di tiap kelompok kolom',
-    visualProfit: 'Margin laba {percent}%',
     compareTitle: 'Perbandingan debit dan kredit',
     compareClosing: 'Saldo Akhir',
     compareProfitLoss: 'Laba Rugi (beban dan pendapatan)',

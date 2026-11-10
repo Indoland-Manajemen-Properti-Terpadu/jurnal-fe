@@ -20,7 +20,6 @@ export const reportsTrialBalance = {
     visualAccounts: '{active} of {detail} detail accounts have a closing balance',
     visualDebit: 'Debit in each column group',
     visualCredit: 'Credit in each column group',
-    visualProfit: 'Profit margin {percent}%',
     compareTitle: 'Debit and credit compared',
     compareClosing: 'Closing Balance',
     compareProfitLoss: 'Profit and Loss (expenses and revenue)',
