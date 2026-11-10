@@ -1,10 +1,10 @@
 import React from 'react';
-import { Box, Divider, Group, Stack, Text } from '@mantine/core';
 import { displayDate, formatMoney, percentOf } from '@/module/reports/domain/reportFormat';
 import type {
   TrialBalanceReport,
   TrialBalanceSums,
 } from '@/module/reports/domain/trialBalance.types';
+import { ReportSummaryCard } from '@/module/reports/presentation/components/shared/ReportSummaryCard';
 import { ReportKpiStrip } from '@/module/reports/presentation/components/shared/ReportKpiStrip';
 import { useTranslation } from '@/i18n';
 
@@ -14,43 +14,6 @@ const TOLERANCE = 0.005;
 const DEBIT_TONE = 'var(--mantine-color-primary-6)';
 const CREDIT_TONE = 'var(--mantine-color-primary-3)';
 
-/** One side of a card: its label, its figure and a bar on the scale shared by the card. */
-const Side: React.FC<{ label: string; value: number; peak: number; tone: string }> = ({
-  label,
-  value,
-  peak,
-  tone,
-}) => (
-  <Box>
-    <Group justify="space-between" gap="xs" wrap="nowrap">
-      <Text fz="xs" c="dimmed">
-        {label}
-      </Text>
-      <Text fz="sm" fw={600} c="dark.9" style={{ fontVariantNumeric: 'tabular-nums' }}>
-        {formatMoney(value)}
-      </Text>
-    </Group>
-    <Box
-      mt={4}
-      style={{
-        height: 6,
-        overflow: 'hidden',
-        background: 'var(--mantine-color-gray-1)',
-        borderRadius: 999,
-      }}
-    >
-      <Box
-        style={{
-          width: `${percentOf(value, peak)}%`,
-          height: '100%',
-          background: tone,
-          borderRadius: 999,
-        }}
-      />
-    </Box>
-  </Box>
-);
-
 interface SummaryCardProps {
   title: string;
   caption: string;
@@ -59,51 +22,38 @@ interface SummaryCardProps {
   result: { label: string; value: number; alert: boolean };
 }
 
-/**
- * The anatomy shared by every card: the column group's name and what it is, its debit and credit
- * with a bar each, and one closing line under a rule.
- */
+/** A card of the shared anatomy: debit and credit on one scale, then one closing line. */
 const SummaryCard: React.FC<SummaryCardProps> = ({ title, caption, sums, result }) => {
   const { t } = useTranslation('reports');
   const peak = Math.max(sums.debit, sums.credit);
-  const aria = t('trialBalance.cardAria', {
-    group: title,
-    debit: formatMoney(sums.debit),
-    credit: formatMoney(sums.credit),
-  });
 
   return (
-    <Stack gap="sm" role="group" aria-label={aria}>
-      <Box>
-        <Text fz="sm" fw={600} c="dark.9">
-          {title}
-        </Text>
-        <Text fz="xs" c="dimmed">
-          {caption}
-        </Text>
-      </Box>
-      <Side label={t('trialBalance.colDebit')} value={sums.debit} peak={peak} tone={DEBIT_TONE} />
-      <Side
-        label={t('trialBalance.colCredit')}
-        value={sums.credit}
-        peak={peak}
-        tone={CREDIT_TONE}
-      />
-      <Divider />
-      <Group justify="space-between" gap="xs" wrap="nowrap">
-        <Text fz="xs" c="dimmed">
-          {result.label}
-        </Text>
-        <Text
-          fz="sm"
-          fw={700}
-          c={result.alert ? 'red.7' : 'dark.9'}
-          style={{ fontVariantNumeric: 'tabular-nums' }}
-        >
-          {formatMoney(result.value)}
-        </Text>
-      </Group>
-    </Stack>
+    <ReportSummaryCard
+      title={title}
+      caption={caption}
+      ariaLabel={t('trialBalance.cardAria', {
+        group: title,
+        debit: formatMoney(sums.debit),
+        credit: formatMoney(sums.credit),
+      })}
+      lines={[
+        {
+          key: 'debit',
+          label: t('trialBalance.colDebit'),
+          value: sums.debit,
+          share: percentOf(sums.debit, peak),
+          tone: DEBIT_TONE,
+        },
+        {
+          key: 'credit',
+          label: t('trialBalance.colCredit'),
+          value: sums.credit,
+          share: percentOf(sums.credit, peak),
+          tone: CREDIT_TONE,
+        },
+      ]}
+      closing={result}
+    />
   );
 };
 
