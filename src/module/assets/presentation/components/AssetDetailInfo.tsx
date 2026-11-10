@@ -1,4 +1,4 @@
-import { Box, Stack, Text } from '@mantine/core';
+import { Stack, Text } from '@mantine/core';
 import {
   IconAdjustmentsHorizontal,
   IconIdBadge2,
@@ -23,18 +23,23 @@ const METHOD_KEY = {
 
 function AccountRow({ label, account }: Readonly<{ label: string; account: AccountRef | null }>) {
   return (
-    <AssetInfoRow label={label} muted={!account}>
+    <AssetInfoRow label={label} muted={!account} stacked>
       {account ? (
-        <Box>
-          <Text size="sm" fw={600} c="dark.8" lh={1.3}>
+        <Text size="sm" fw={600} c="dark.8" lh={1.3}>
+          {account.accountNumber && account.name && (
+            <>
+              <Text span size="sm" fw={400} c="dimmed">
+                {account.accountNumber}
+              </Text>
+              <Text span size="sm" fw={400} c="dimmed" aria-hidden>
+                {' · '}
+              </Text>
+            </>
+          )}
+          <Text span inherit>
             {account.name || account.accountNumber}
           </Text>
-          {account.name && account.accountNumber && (
-            <Text size="xs" c="dimmed" fw={400}>
-              {account.accountNumber}
-            </Text>
-          )}
-        </Box>
+        </Text>
       ) : (
         '—'
       )}
