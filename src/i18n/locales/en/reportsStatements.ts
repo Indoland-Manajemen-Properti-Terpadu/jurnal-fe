@@ -1,8 +1,4 @@
 export const reportsStatements = {
-  trialBalance: {
-    description:
-      'Check account debit and credit balances before preparing the financial statements.',
-  },
   incomeStatement: {
     description: 'Review revenue and expenses to understand business results over the period.',
   },

@@ -1,177 +1,146 @@
-.chartFrame {
-  position: relative;
-  height: 148px;
-}
-
-.chartSvg {
-  display: block;
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-}
-
-.endDot {
-  position: absolute;
-  width: 10px;
-  height: 10px;
-  margin: -5px 0 0 -5px;
-  background: var(--mantine-color-white);
-  border: 2px solid var(--mantine-color-primary-6);
-  border-radius: 50%;
-}
-
-.bars {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-around;
-  gap: 3px;
-  height: 148px;
-  padding-bottom: 1px;
-  border-bottom: 1px solid var(--mantine-color-gray-3);
-}
-
-.barGroup {
-  display: flex;
-  flex: 1 1 0;
-  gap: 1px;
-  align-items: flex-end;
-  justify-content: center;
-  min-width: 3px;
-  max-width: 28px;
-  height: 100%;
-  border-radius: var(--mantine-radius-sm);
-}
-
-.barGroup:hover {
-  background: var(--mantine-color-gray-0);
-}
-
-.bar {
-  flex: 1 1 0;
-  min-height: 2px;
-  border-radius: 2px 2px 0 0;
-}
-
-.barDebit {
-  background: var(--mantine-color-primary-6);
-}
-
-.barCredit {
-  background: var(--mantine-color-primary-2);
-}
-
-.track {
-  height: 8px;
-  overflow: hidden;
-  background: var(--mantine-color-gray-1);
-  border-radius: 999px;
-}
-
-.fill {
-  height: 100%;
-  border-radius: 999px;
-}
-
-.split {
-  display: flex;
-  height: 4px;
-  overflow: hidden;
-  background: var(--mantine-color-gray-2);
-  border-radius: 999px;
-}
-
-.accountList {
-  max-height: 620px;
-  margin-right: calc(var(--jurnal-space-1) * -1);
-  padding-right: var(--jurnal-space-1);
-  overflow-y: auto;
-}
-
-.accountItem {
-  width: 100%;
-  padding: var(--jurnal-space-2) var(--jurnal-space-3);
-  border-left: 3px solid transparent;
-  border-radius: var(--mantine-radius-md);
-  transition: background-color var(--jurnal-duration-fast) var(--jurnal-ease-standard);
-}
-
-.accountItem:hover {
-  background: var(--mantine-color-gray-0);
-}
-
-.accountItem[data-selected='true'] {
-  background: var(--mantine-color-primary-0);
-  border-left-color: var(--mantine-color-primary-6);
-}
-
-.stickyHead th {
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  background: var(--mantine-color-gray-0);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .accountItem {
-    transition: none;
-  }
-}
-
-.ledgerTable {
-  min-width: 980px;
-  overflow: hidden;
+.frame {
+  overflow-x: auto;
   border: 1px solid var(--mantine-color-gray-3);
   border-radius: var(--mantine-radius-md);
 }
 
-.accountRow {
-  display: grid;
-  grid-template-columns: minmax(240px, 1fr) 110px repeat(4, 140px);
-  gap: var(--jurnal-space-4);
-  align-items: center;
+.table {
   width: 100%;
+  min-width: 900px;
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-size: var(--mantine-font-size-sm);
+  font-variant-numeric: tabular-nums;
 }
 
-/* The head sits over the rows: it skips the chevron column of the accordion controls. */
-.headRow {
-  padding: var(--jurnal-space-3) var(--jurnal-space-4) var(--jurnal-space-3)
-    calc(var(--jurnal-space-4) * 2 + 16px);
-  background: var(--mantine-color-gray-0);
+.colDate {
+  width: 116px;
+}
+
+.colRef {
+  width: 120px;
+}
+
+.colAmount {
+  width: 150px;
+}
+
+.colBalance {
+  width: 170px;
+}
+
+.table th,
+.table td {
+  padding: 9px var(--mantine-spacing-md);
+  text-align: left;
+  vertical-align: top;
   border-bottom: 1px solid var(--mantine-color-gray-3);
 }
 
-.ledgerItem {
-  border-bottom: 1px solid var(--mantine-color-gray-2);
-}
-
-.ledgerItem:last-child {
-  border-bottom: 0;
-}
-
-.ledgerControl {
-  padding-inline: var(--jurnal-space-4);
-}
-
-.ledgerChevron {
-  width: 16px;
-  margin-inline-end: var(--jurnal-space-4);
-  color: var(--mantine-color-gray-6);
-}
-
-.ledgerChevron[data-rotate] {
-  transform: rotate(90deg);
-}
-
-/* What opens stays inside the same table: a tinted band under its row. */
-.ledgerPanel {
+.table thead th {
+  color: var(--mantine-color-dimmed);
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-align: center;
+  text-transform: uppercase;
+  white-space: nowrap;
   background: var(--mantine-color-gray-0);
-  border-top: 1px solid var(--mantine-color-gray-2);
 }
 
-.ledgerPanel > div {
-  padding: var(--jurnal-space-4);
+.table [data-num] {
+  text-align: right;
+  white-space: nowrap;
 }
 
-.amount {
-  font-variant-numeric: tabular-nums;
+.table td[data-zero] {
+  color: var(--mantine-color-gray-5);
+}
+
+.table td[data-balance='strong'] {
+  font-weight: 700;
+}
+
+.table td[data-negative] {
+  color: var(--mantine-color-red-7);
+}
+
+/* The class of the accounts under it (assets, liabilities, ...). */
+.classRow td {
+  padding-top: var(--mantine-spacing-xs);
+  padding-bottom: var(--mantine-spacing-xs);
+  color: var(--mantine-color-dark-9);
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: var(--mantine-color-gray-1);
+}
+
+/* The name of an account, over its section. */
+.accountRow td {
+  color: var(--mantine-color-dark-9);
+  font-weight: 700;
+  background: var(--mantine-color-gray-0);
+  border-top: 2px solid var(--mantine-color-gray-3);
+}
+
+.accountNumber {
+  color: var(--mantine-color-dimmed);
+  font-weight: 600;
+}
+
+.contra {
+  margin-left: var(--mantine-spacing-xs);
+  color: var(--mantine-color-dimmed);
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 400;
+}
+
+.openingRow td {
+  color: var(--mantine-color-dark-9);
+  font-weight: 600;
+}
+
+.table tbody tr:not(.classRow):not(.accountRow):not(.closingRow):not(.pagerRow):hover td {
+  background: var(--mantine-color-gray-0);
+}
+
+.ref {
+  color: var(--mantine-color-primary-7);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.ref:hover {
+  text-decoration: underline;
+}
+
+.description {
+  overflow-wrap: anywhere;
+  color: var(--mantine-color-dark-9);
+}
+
+.notes {
+  margin-top: 2px;
+  overflow: hidden;
+  color: var(--mantine-color-dimmed);
+  font-size: var(--mantine-font-size-xs);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pagerRow td {
+  background: var(--mantine-color-white);
+}
+
+/* The closing line of an account: the period's debit and credit and the closing balance. */
+.closingRow td {
+  color: var(--mantine-color-dark-9);
+  font-weight: 700;
+  background: var(--mantine-color-gray-0);
+}
+
+.closingRow td:first-child {
+  text-align: right;
 }

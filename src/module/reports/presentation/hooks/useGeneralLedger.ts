@@ -1,10 +1,7 @@
 import { useMemo, useState } from 'react';
 import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
-import {
-  GENERAL_LEDGER_PAGE_SIZE,
-  generalLedgerApi,
-} from '@/module/reports/infrastructure/generalLedgerApi';
+import { generalLedgerApi } from '@/module/reports/infrastructure/generalLedgerApi';
 import { isRequestCanceled } from '@/module/reports/infrastructure/requestCancel';
 import { useAbortableRequest } from '@/module/reports/presentation/hooks/useAbortableRequest';
 import type {
@@ -25,7 +22,6 @@ export function useGeneralLedger() {
     getPresetDateRange('this_month')
   );
 
-  const [page, setPage] = useState(1);
   const [accountSearch, setAccountSearch] = useState('');
 
   // Change preset helper
@@ -36,7 +32,6 @@ export function useGeneralLedger() {
       setDraftPeriod(range);
       setPeriod(range);
       exportRequest.abort();
-      setPage(1);
     }
   };
 
@@ -53,18 +48,12 @@ export function useGeneralLedger() {
     setPreset('custom');
     setPeriod(draftPeriod);
     exportRequest.abort();
-    setPage(1);
-  };
-
-  const handlePageChange = (nextPage: number) => {
-    setPage(nextPage);
   };
 
   // Query
   const query = useQuery<GeneralLedgerReport>({
-    queryKey: ['general-ledger', period.startDate, period.endDate, page],
-    queryFn: ({ signal }) =>
-      generalLedgerApi.getReport(period, page, GENERAL_LEDGER_PAGE_SIZE, signal),
+    queryKey: ['general-ledger', period.startDate, period.endDate],
+    queryFn: ({ signal }) => generalLedgerApi.getReport(period, signal),
     staleTime: 60_000,
     placeholderData: keepPreviousData,
   });
@@ -140,8 +129,6 @@ export function useGeneralLedger() {
     accountSearch,
     setAccountSearch,
 
-    page,
-    handlePageChange,
     isBalanced,
 
     exportMutation,

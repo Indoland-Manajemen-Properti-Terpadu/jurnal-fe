@@ -1,42 +1,5 @@
-import type { BalanceSheetAccountItem, BalanceSheetData } from './balanceSheet.types';
+import type { BalanceSheetData } from './balanceSheet.types';
 import { percentOf } from './reportFormat';
-
-export interface CompositionSlice {
-  key: string;
-  /** Category name; empty for the "others" slice. */
-  name: string;
-  value: number;
-  /** Share of the positive total, 0 to 100. */
-  share: number;
-}
-
-/** Sum of the positive balances, grouped by category; the smallest categories beyond `top` become one "others" slice. */
-export const composeByCategory = (
-  items: BalanceSheetAccountItem[],
-  top = 5
-): CompositionSlice[] => {
-  const sums = new Map<string, number>();
-  items.forEach((item) => {
-    if (item.balance <= 0) return;
-    const name = item.categoryName || '';
-    sums.set(name, (sums.get(name) ?? 0) + item.balance);
-  });
-  const total = [...sums.values()].reduce((sum, value) => sum + value, 0);
-  const sorted = [...sums.entries()].sort((a, b) => b[1] - a[1]);
-  const head = sorted.slice(0, top);
-  const rest = sorted.slice(top).reduce((sum, [, value]) => sum + value, 0);
-
-  const slices = head.map(([name, value]) => ({
-    key: name || 'uncategorized',
-    name,
-    value,
-    share: percentOf(value, total),
-  }));
-  if (rest > 0) {
-    slices.push({ key: 'others', name: '', value: rest, share: percentOf(rest, total) });
-  }
-  return slices;
-};
 
 export interface FundingStructure {
   liabilitiesShare: number;
@@ -51,14 +14,15 @@ export const fundingStructure = (data: BalanceSheetData): FundingStructure => {
   return { liabilitiesShare: percentOf(liabilities, total), equityShare: percentOf(equity, total) };
 };
 
-/** All accounts of the asset side, for the composition by category. */
-export const assetAccounts = (data: BalanceSheetData): BalanceSheetAccountItem[] => [
-  ...data.assets.currentAssets,
-  ...data.assets.nonCurrentAssets,
-];
+/**
+ * Current assets over current liabilities: how many times the short-term obligations are covered.
+ * `null` when there are no current liabilities to compare with.
+ */
+export const currentRatio = (data: BalanceSheetData): number | null =>
+  data.liabilities.totalCurrentLiabilities > 0
+    ? data.assets.totalCurrentAssets / data.liabilities.totalCurrentLiabilities
+    : null;
 
-/** How well assets and liabilities plus equity match, 0 to 100 (100 when equal). */
-export const matchRate = (assets: number, liabilitiesAndEquity: number): number =>
-  assets === liabilitiesAndEquity
-    ? 100
-    : percentOf(Math.min(assets, liabilitiesAndEquity), Math.max(assets, liabilitiesAndEquity));
+/** The share of current assets in the total assets, 0 to 100, or `null` without assets. */
+export const currentAssetsShare = (data: BalanceSheetData): number | null =>
+  data.totalAssets > 0 ? percentOf(data.assets.totalCurrentAssets, data.totalAssets) : null;

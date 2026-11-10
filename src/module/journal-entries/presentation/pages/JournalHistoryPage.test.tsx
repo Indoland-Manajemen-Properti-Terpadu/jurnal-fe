@@ -28,7 +28,6 @@ vi.mock('../hooks/useExportJournals', () => ({
 vi.mock('../hooks/useVoidJournalEntry', () => ({
   useVoidJournalEntry: () => ({ mutateAsync: voidMutateAsync, isPending: false }),
 }));
-vi.mock('@/module/chart-of-accounts', () => ({ useSimpleAccounts: () => ({ accounts: [] }) }));
 vi.mock('@/module/user-management', () => ({
   useMyGrants: () => ({
     isReady: true,
@@ -152,6 +151,34 @@ describe('general journal list', () => {
     expect(await screen.findByText('#31294')).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: /lihat baris debit dan kredit/i }));
     expect(screen.getByText('1-100')).toBeInTheDocument();
+  });
+
+  it('names the source column Tipe, and has no accounts or status column', async () => {
+    renderPage();
+    await screen.findByText('#31294');
+    const headers = screen.getAllByRole('columnheader').map((header) => header.textContent);
+    expect(headers).toEqual(expect.arrayContaining(['Tanggal', 'Tipe', 'Total']));
+    for (const gone of ['Akun', 'Status', 'Sumber']) {
+      expect(headers).not.toContain(gone);
+    }
+  });
+
+  it('keeps the value of that column: Manual for a typed entry, the module name otherwise', async () => {
+    state.data = page([
+      entry({ id: 'j1', sourceType: null }),
+      entry({ id: 'j2', transactionNumber: '2', sourceType: 'SALES_INVOICE' }),
+    ]);
+    renderPage();
+    await screen.findByText('#31294');
+    expect(screen.getByText('Manual')).toBeInTheDocument();
+    expect(screen.getByText('Sales invoice')).toBeInTheDocument();
+  });
+
+  it('has no account picker in the toolbar, only the search', async () => {
+    renderPage();
+    await screen.findByText('#31294');
+    expect(screen.queryByPlaceholderText('Akun')).not.toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: /cari/i })).toBeInTheDocument();
   });
 
   it('has the same report toolbar as the other reports, with an export menu', async () => {
