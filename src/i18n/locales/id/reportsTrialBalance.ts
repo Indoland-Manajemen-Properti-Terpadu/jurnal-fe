@@ -8,10 +8,6 @@ export const reportsTrialBalance = {
     noAccessMessage:
       'Hak akses neraca saldo belum diberikan untuk peran Anda. Hubungi admin untuk mengaturnya di Pengaturan > Peran.',
     cardPeriod: 'Neraca saldo periode',
-    statusBalanced: 'Seimbang',
-    statusUnbalanced: 'Belum seimbang',
-    statusBalancedHint: 'Total debit dan kredit saldo akhir sama.',
-    statusUnbalancedHint: 'Total debit dan kredit saldo akhir berbeda.',
     cardClosingDebit: 'Total Debit Saldo Akhir',
     cardClosingCredit: 'Total Kredit Saldo Akhir',
     cardProfit: 'Laba Berjalan',
@@ -21,6 +17,7 @@ export const reportsTrialBalance = {
     tableTitle: 'Rincian Neraca Saldo',
     tableHint:
       'Akun induk sudah memuat saldo akun di bawahnya, jadi total diambil dari laporan, bukan dijumlah ulang.',
+    unitNote: 'Semua angka dalam Rupiah (Rp)',
     colAccount: 'Akun',
     groupOpening: 'Saldo Awal',
     groupMovement: 'Mutasi',

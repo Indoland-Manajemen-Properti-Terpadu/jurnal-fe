@@ -8,10 +8,6 @@ export const reportsTrialBalance = {
     noAccessMessage:
       'Your role has not been given access to the trial balance. Ask an admin to set it in Settings > Roles.',
     cardPeriod: 'Trial balance for',
-    statusBalanced: 'Balanced',
-    statusUnbalanced: 'Not balanced',
-    statusBalancedHint: 'Closing debit and credit totals are equal.',
-    statusUnbalancedHint: 'Closing debit and credit totals differ.',
     cardClosingDebit: 'Closing Debit Total',
     cardClosingCredit: 'Closing Credit Total',
     cardProfit: 'Current Profit',
@@ -21,6 +17,7 @@ export const reportsTrialBalance = {
     tableTitle: 'Trial Balance Details',
     tableHint:
       'A parent account already holds the balance of its sub accounts, so totals come from the report and are not added up again.',
+    unitNote: 'All figures in Rupiah (Rp)',
     colAccount: 'Account',
     groupOpening: 'Opening Balance',
     groupMovement: 'Movement',
