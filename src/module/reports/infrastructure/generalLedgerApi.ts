@@ -8,7 +8,12 @@ import type {
 import { mapGeneralLedgerResponse } from './generalLedgerMapper';
 import { isRequestCanceled } from './requestCancel';
 
-export const GENERAL_LEDGER_PAGE_SIZE = 20;
+/**
+ * Accounts asked per request. The ledger lists only accounts with movement or a balance, so a site
+ * has few of them and one request is the norm; the weight is in each account's transactions, so
+ * the request stays small instead of asking for the most the server allows (100).
+ */
+export const GENERAL_LEDGER_CHUNK_SIZE = 50;
 
 function parseErrorMessage(error: unknown): string {
   if (axios.isAxiosError(error)) {
@@ -26,24 +31,38 @@ function parseErrorMessage(error: unknown): string {
 }
 
 export const generalLedgerApi = {
-  /** The server pages the accounts (20 by default, 100 at most); the period totals cover all of them. */
-  async getReport(
-    period: ReportPeriod,
-    page = 1,
-    limit = GENERAL_LEDGER_PAGE_SIZE,
-    signal?: AbortSignal
-  ): Promise<GeneralLedgerReport> {
+  /**
+   * The whole ledger. The server pages its accounts; every page is read, one after the other, and
+   * the accounts are joined in order. The period totals are the server's (they cover every
+   * account) and are taken from the first page.
+   */
+  async getReport(period: ReportPeriod, signal?: AbortSignal): Promise<GeneralLedgerReport> {
     try {
-      const response = await apiClient.get<unknown>('/v1/general-ledger', {
-        params: {
-          startDate: period.startDate,
-          endDate: period.endDate,
-          page,
-          limit,
-        },
-        signal,
-      });
-      return mapGeneralLedgerResponse(response.data);
+      const read = async (page: number) =>
+        mapGeneralLedgerResponse(
+          (
+            await apiClient.get<unknown>('/v1/general-ledger', {
+              params: {
+                startDate: period.startDate,
+                endDate: period.endDate,
+                page,
+                limit: GENERAL_LEDGER_CHUNK_SIZE,
+              },
+              signal,
+            })
+          ).data
+        );
+
+      const first = await read(1);
+      const accounts = [...first.accounts];
+      for (let page = 2; page <= first.pagination.totalPages; page += 1) {
+        accounts.push(...(await read(page)).accounts);
+      }
+      return {
+        ...first,
+        accounts,
+        pagination: { ...first.pagination, page: 1, limit: accounts.length, totalPages: 1 },
+      };
     } catch (error) {
       if (isRequestCanceled(error)) throw error;
       throw new Error(parseErrorMessage(error));

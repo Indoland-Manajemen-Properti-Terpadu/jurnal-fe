@@ -43,7 +43,7 @@ describe('aborting a report request', () => {
 
   it('does not wrap an aborted ledger request in an error message', async () => {
     get.mockRejectedValueOnce(new CanceledError());
-    await expect(generalLedgerApi.getReport(period, 1, 20)).rejects.toBeInstanceOf(CanceledError);
+    await expect(generalLedgerApi.getReport(period)).rejects.toBeInstanceOf(CanceledError);
     get.mockRejectedValueOnce(new CanceledError());
     await expect(generalLedgerApi.exportReport(period, 'pdf')).rejects.toBeInstanceOf(
       CanceledError
