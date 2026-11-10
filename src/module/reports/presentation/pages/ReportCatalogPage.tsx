@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { TRIAL_BALANCE_ACCESS_BYPASS } from '@/module/reports/domain/trialBalance';
 import {
   ActionIcon,
   Box,
@@ -40,7 +41,13 @@ export default function ReportCatalogPage() {
         reports: reportCatalogData
           .filter((report) => report.category === section.category)
           // Nothing is hidden before the rights are known.
-          .filter((report) => !report.menuId || !isReady || can(report.menuId, 'read'))
+          .filter(
+            (report) =>
+              !report.menuId ||
+              !isReady ||
+              (TRIAL_BALANCE_ACCESS_BYPASS && report.id === 'trial-balance') ||
+              can(report.menuId, 'read')
+          )
           .filter(
             (report) =>
               !query ||

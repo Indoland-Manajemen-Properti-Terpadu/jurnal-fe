@@ -3,7 +3,10 @@ import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 import { useTranslation } from '@/i18n';
 import { useMyGrants } from '@/module/user-management';
-import { filterTrialBalanceAccounts } from '@/module/reports/domain/trialBalance';
+import {
+  TRIAL_BALANCE_ACCESS_BYPASS,
+  filterTrialBalanceAccounts,
+} from '@/module/reports/domain/trialBalance';
 import type {
   TrialBalanceExportType,
   TrialBalanceReport,
@@ -27,7 +30,7 @@ export function useTrialBalance() {
   const { t, currentLanguage } = useTranslation('reports');
   const { can, isReady } = useMyGrants();
   // Until the rights are known nothing is hidden; a server 403 is still handled by the page.
-  const allowed = !isReady || can(TRIAL_BALANCE_MENU_ID, 'read');
+  const allowed = TRIAL_BALANCE_ACCESS_BYPASS || !isReady || can(TRIAL_BALANCE_MENU_ID, 'read');
   const exportRequest = useAbortableRequest();
   const period = useReportPeriod('this_month', exportRequest.abort);
   const [search, setSearch] = useState('');
