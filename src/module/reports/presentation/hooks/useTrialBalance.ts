@@ -24,7 +24,7 @@ export const TRIAL_BALANCE_MENU_ID = 'JP-GL-TB';
  * (`accountIds` takes database ids only).
  */
 export function useTrialBalance() {
-  const { t, currentLanguage } = useTranslation('reports');
+  const { t } = useTranslation('reports');
   const { can, isReady } = useMyGrants();
   // Until the rights are known nothing is hidden; a server 403 is still handled by the page.
   const allowed = !isReady || can(TRIAL_BALANCE_MENU_ID, 'read');
@@ -33,11 +33,11 @@ export function useTrialBalance() {
   const [search, setSearch] = useState('');
 
   const query = useQuery<TrialBalanceReport>({
-    queryKey: ['trial-balance', period.period.startDate, period.period.endDate, currentLanguage],
+    queryKey: ['trial-balance', period.period.startDate, period.period.endDate],
     queryFn: ({ signal }) =>
       trialBalanceApi.getReport(
         period.period,
-        { lang: currentLanguage, fallbackMessage: t('trialBalance.loadFailedMessage') },
+        { fallbackMessage: t('trialBalance.loadFailedMessage') },
         signal
       ),
     enabled: allowed,
@@ -55,7 +55,7 @@ export function useTrialBalance() {
       trialBalanceApi.exportReport(
         period.period,
         type,
-        { lang: currentLanguage, fallbackMessage: t('common.exportRetry') },
+        { fallbackMessage: t('common.exportRetry') },
         exportRequest.start()
       ),
     onSuccess: ({ blob, filename }, type) => {

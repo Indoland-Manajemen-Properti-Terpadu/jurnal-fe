@@ -1,5 +1,4 @@
 import apiClient from '@/lib/http/apiClient';
-import type { SupportedLanguage } from '@/i18n';
 import type { ReportPeriod } from '@/module/reports/domain/generalLedger.types';
 import type {
   TrialBalanceExportType,
@@ -19,8 +18,8 @@ const ENDPOINT = '/v1/reports/trial-balance';
 /** The most accounts the server gives per request. */
 export const TRIAL_BALANCE_PAGE_SIZE = 100;
 
+/** The server rejects `lang` on this report (400), so none is sent; the page labels are the client's. */
 interface RequestOptions {
-  lang: SupportedLanguage;
   fallbackMessage: string;
 }
 
@@ -43,7 +42,6 @@ export const trialBalanceApi = {
               params: {
                 startDate: period.startDate,
                 endDate: period.endDate,
-                lang: options.lang,
                 page,
                 limit: TRIAL_BALANCE_PAGE_SIZE,
               },
@@ -75,7 +73,7 @@ export const trialBalanceApi = {
   ): Promise<{ blob: Blob; filename: string }> {
     try {
       const response = await apiClient.get<Blob>(`${ENDPOINT}/export/${type}`, {
-        params: { startDate: period.startDate, endDate: period.endDate, lang: options.lang },
+        params: { startDate: period.startDate, endDate: period.endDate },
         responseType: 'blob',
         signal,
       });

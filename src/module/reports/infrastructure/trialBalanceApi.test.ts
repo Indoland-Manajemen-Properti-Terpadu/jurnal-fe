@@ -19,7 +19,7 @@ const page = (accounts: unknown[], pageNumber: number, totalPages: number, debit
   },
 });
 const period = { startDate: '2026-11-01', endDate: '2026-11-10' };
-const opts = { lang: 'id' as const, fallbackMessage: 'gagal' };
+const opts = { fallbackMessage: 'gagal' };
 const axiosError = (status: number, data: unknown) =>
   Object.assign(new Error('x'), { isAxiosError: true, response: { status, data } });
 
@@ -39,13 +39,14 @@ describe('trialBalanceApi.getReport', () => {
     expect(get).toHaveBeenCalledTimes(2);
   });
 
-  it('sends the dates, language, page and the 100 limit', async () => {
+  it('sends the dates, page and the 100 limit, and no lang (the server answers 400 to it)', async () => {
     get.mockResolvedValue(page([row('1')], 1, 1));
-    await trialBalanceApi.getReport(period, { ...opts, lang: 'en' });
+    await trialBalanceApi.getReport(period, opts);
     expect(get.mock.calls[0][0]).toBe('/v1/reports/trial-balance');
     expect(get.mock.calls[0][1]).toMatchObject({
-      params: { startDate: '2026-11-01', endDate: '2026-11-10', lang: 'en', page: 1, limit: 100 },
+      params: { startDate: '2026-11-01', endDate: '2026-11-10', page: 1, limit: 100 },
     });
+    expect(get.mock.calls[0][1]?.params).not.toHaveProperty('lang');
   });
 
   it('carries the status of a refusal and the server message, or the fallback', async () => {
@@ -73,6 +74,10 @@ describe('trialBalanceApi.exportReport', () => {
     expect(result.filename).toBe('trial-balance-20261101-20261110.pdf');
     expect(get.mock.calls[0][0]).toBe('/v1/reports/trial-balance/export/pdf');
     expect(get.mock.calls[0][1]).toMatchObject({ responseType: 'blob' });
+    expect(get.mock.calls[0][1]?.params).toEqual({
+      startDate: '2026-11-01',
+      endDate: '2026-11-10',
+    });
   });
 
   it('falls back to a name built from the dates', async () => {
