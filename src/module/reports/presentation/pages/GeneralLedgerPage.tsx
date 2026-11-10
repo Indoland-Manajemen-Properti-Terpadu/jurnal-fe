@@ -38,12 +38,16 @@ export default function GeneralLedgerPage() {
             preset={ledger.preset}
             onPresetChange={ledger.handlePresetChange}
             draftPeriod={ledger.draftPeriod}
+            appliedPeriod={ledger.period}
             onDraftPeriodChange={ledger.setDraftPeriod}
             onApplyPeriod={ledger.handleApplyCustomPeriod}
             isFetching={ledger.query.isFetching}
+            onRefresh={() => ledger.query.refetch()}
             onExport={(type) => ledger.exportMutation.mutate(type)}
             isExporting={ledger.exportMutation.isPending}
             onCancelExport={ledger.cancelExport}
+            searchQuery={ledger.accountSearch}
+            onSearchQueryChange={ledger.setAccountSearch}
             hasData={Boolean(ledger.query.data && ledger.accounts.length > 0)}
           />
 

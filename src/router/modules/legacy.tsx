@@ -8,6 +8,10 @@ export const legacyRoutes: RouteObject[] = [
   { path: routes.legacyPaths.purchases, element: <Navigate to={routes.purchases.main} replace /> },
   { path: routes.legacyPaths.assets, element: <Navigate to={routes.assets.main} replace /> },
   {
+    path: routes.legacyPaths.journalEntries,
+    element: <Navigate to={routes.journalEntries.main} replace />,
+  },
+  {
     path: routes.legacyPaths.approvalSetting,
     element: <Navigate to={routes.pendingChanges.main} replace />,
   },

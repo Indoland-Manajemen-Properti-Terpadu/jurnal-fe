@@ -49,7 +49,8 @@ export const routes = {
   },
 
   journalEntries: {
-    main: '/journal-entries',
+    // The general journal is a report of the financial reports section.
+    main: '/result-reports/business-overview/journal-entry',
     add: '/general-journal/add-transaction-journal',
     detail: '/general-journal/detail-transaction-journal/:idTransaction',
   },
@@ -80,7 +81,6 @@ export const routes = {
     incomeStatement: '/result-reports/business-overview/income-statement',
     incomeStatementBudget: '/result-reports/business-overview/income-statement-budget',
     cashFlow: '/result-reports/business-overview/cash-flow',
-    journalEntries: '/result-reports/business-overview/journal-entry',
     businessSummary: '/result-reports/business-overview/business-summary',
     generalLedger: '/result-reports/business-overview/general-ledger',
     equityChanges: '/result-reports/business-overview/equity-changes',
@@ -198,6 +198,7 @@ export const routes = {
     contacts: '/kontak',
     purchases: '/pembelian',
     assets: '/asset',
+    journalEntries: '/journal-entries',
     approvalSetting: '/settings/approval-setting',
     reportsBusinessSumary: '/result-reports/business-overview/business-sumary',
   },

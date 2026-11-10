@@ -191,7 +191,7 @@ export const journalEntries = {
     description:
       'Buku catatan semua transaksi yang sudah dibukukan, berurutan menurut tanggal, lengkap dengan baris debit dan kredit tiap akun. Cari, saring, buka rinciannya, atau batalkan bila perlu.',
     add: 'Tambah Jurnal',
-    refresh: 'Muat ulang',
+    backToReports: 'Kembali',
     loadErrorTitle: 'Jurnal umum belum dapat dimuat',
     loadErrorMessage: 'Periksa koneksi lalu coba lagi.',
     retry: 'Coba lagi',

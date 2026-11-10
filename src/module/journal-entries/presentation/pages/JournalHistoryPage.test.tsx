@@ -22,6 +22,9 @@ vi.mock('../hooks/useJournalHistory', () => ({
     refetch: vi.fn(),
   }),
 }));
+vi.mock('../hooks/useExportJournals', () => ({
+  useExportJournals: () => ({ exportJournals: vi.fn(), isExporting: false, cancel: vi.fn() }),
+}));
 vi.mock('../hooks/useVoidJournalEntry', () => ({
   useVoidJournalEntry: () => ({ mutateAsync: voidMutateAsync, isPending: false }),
 }));
@@ -149,6 +152,15 @@ describe('general journal list', () => {
     expect(await screen.findByText('#31294')).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: /lihat baris debit dan kredit/i }));
     expect(screen.getByText('1-100')).toBeInTheDocument();
+  });
+
+  it('has the same report toolbar as the other reports, with an export menu', async () => {
+    renderPage();
+    expect(await screen.findByText('Bulan Ini')).toBeInTheDocument();
+    expect(screen.queryByText('Semua Periode')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Segarkan' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Cetak Laporan' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Ekspor' })).toBeInTheDocument();
   });
 
   it('offers the void only when the server allows it, and asks to confirm first', async () => {

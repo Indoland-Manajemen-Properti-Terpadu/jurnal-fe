@@ -1,12 +1,12 @@
 import { useCallback, useMemo, useState } from 'react';
-import { ActionIcon, Box, Button, Paper, Stack, Tooltip } from '@mantine/core';
-import { IconNotebook, IconPlus, IconRefresh } from '@tabler/icons-react';
+import { Box, Button, Paper, Stack } from '@mantine/core';
+import { IconNotebook, IconPlus } from '@tabler/icons-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AppShellLayout } from '@/components/AppShellLayout';
 import { ErrorAlert } from '@/components/ErrorAlert';
-import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
 import { ConfirmModal } from '@/components/ui/ConfirmModal/ConfirmModal';
 import { useTranslation } from '@/i18n';
+import { ReportPageHeader, ReportToolbar } from '@/module/reports';
 import { useMyGrants } from '@/module/user-management';
 import { routes } from '@/router/routes';
 import {
@@ -21,6 +21,8 @@ import {
 import { JournalHistoryFilterBar } from '../components/JournalHistoryFilters';
 import { JournalHistoryTable } from '../components/JournalHistoryTable';
 import { useJournalHistory } from '../hooks/useJournalHistory';
+import { useExportJournals } from '../hooks/useExportJournals';
+import { useJournalPeriod, withDefaultPeriod } from '../hooks/useJournalPeriod';
 import { useVoidJournalEntry } from '../hooks/useVoidJournalEntry';
 
 /**
@@ -33,7 +35,8 @@ export default function JournalHistoryPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const { can, isReady } = useMyGrants();
 
-  const filters = useMemo(() => filtersFromParams(searchParams), [searchParams]);
+  const rawFilters = useMemo(() => filtersFromParams(searchParams), [searchParams]);
+  const filters = useMemo(() => withDefaultPeriod(rawFilters), [rawFilters]);
   const query = useJournalHistory(filters);
   const voidMutation = useVoidJournalEntry();
   const [voidTarget, setVoidTarget] = useState<JournalHistoryEntry | null>(null);
@@ -49,6 +52,9 @@ export default function JournalHistoryPage() {
     },
     [filters, setSearchParams]
   );
+
+  const period = useJournalPeriod(filters, update);
+  const journalExport = useExportJournals(filters);
 
   const openEntry = useCallback(
     (entry: JournalHistoryEntry) =>
@@ -70,39 +76,39 @@ export default function JournalHistoryPage() {
     <AppShellLayout>
       <Box p={{ base: 'md', sm: 'xl' }}>
         <Stack gap="lg">
-          <ModuleHeader
+          <ReportPageHeader
             icon={IconNotebook}
             title={t('history.title')}
             description={t('history.description')}
             actions={
-              <>
-                <Tooltip label={t('history.refresh')}>
-                  <ActionIcon
-                    size="lg"
-                    variant="default"
-                    radius="md"
-                    aria-label={t('history.refresh')}
-                    loading={query.isFetching}
-                    onClick={() => query.refetch()}
-                  >
-                    <IconRefresh size={18} />
-                  </ActionIcon>
-                </Tooltip>
-                <Button
-                  color="primary"
-                  leftSection={<IconPlus size={18} />}
-                  onClick={() => navigate(routes.journalEntries.add)}
-                >
-                  {t('history.add')}
-                </Button>
-              </>
+              <Button
+                color="primary"
+                leftSection={<IconPlus size={18} />}
+                onClick={() => navigate(routes.journalEntries.add)}
+              >
+                {t('history.add')}
+              </Button>
             }
           />
 
           {canRead ? (
-            <Paper withBorder radius="lg" p="md" bg="white">
-              <Stack gap="md">
-                <JournalHistoryFilterBar filters={filters} onChange={update} />
+            <>
+              <ReportToolbar
+                preset={period.preset}
+                onPresetChange={period.selectPreset}
+                draftPeriod={period.draft}
+                onDraftPeriodChange={period.setDraft}
+                appliedPeriod={period.applied}
+                onApplyPeriod={period.apply}
+                isFetching={query.isFetching}
+                onRefresh={() => query.refetch()}
+                onExport={journalExport.exportJournals}
+                isExporting={journalExport.isExporting}
+                onCancelExport={journalExport.cancel}
+                hasData={Boolean(query.data?.entries.length)}
+                extra={<JournalHistoryFilterBar filters={filters} onChange={update} />}
+              />
+              <Paper withBorder radius="lg" p="md" bg="white">
                 {query.isError && !query.data ? (
                   <ErrorAlert
                     title={t('history.loadErrorTitle')}
@@ -118,7 +124,7 @@ export default function JournalHistoryPage() {
                     filters={filters}
                     isLoading={query.isLoading}
                     isFetching={query.isFetching}
-                    isFiltered={hasActiveFilters(filters)}
+                    isFiltered={hasActiveFilters(rawFilters)}
                     canVoid={canVoid}
                     onPageChange={(page) => update({ page })}
                     onLimitChange={(limit) => update({ limit })}
@@ -128,8 +134,8 @@ export default function JournalHistoryPage() {
                     onResetFilters={() => setSearchParams(filtersToParams(emptyHistoryFilters()))}
                   />
                 )}
-              </Stack>
-            </Paper>
+              </Paper>
+            </>
           ) : (
             <ErrorAlert title={t('history.loadErrorTitle')} message={t('history.voidNoAccess')} />
           )}

@@ -23,11 +23,13 @@ import {
 } from '@/module/reports/presentation/components/catalog/reportCatalogData';
 
 import { useTranslation } from '@/i18n';
+import { useMyGrants } from '@/module/user-management';
 
 export default function ReportCatalogPage() {
   const { t, currentLanguage } = useTranslation('reports');
   const [activeCategory, setActiveCategory] = useState<ReportCategory>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const { can, isReady } = useMyGrants();
 
   const sections = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
@@ -37,6 +39,8 @@ export default function ReportCatalogPage() {
         ...section,
         reports: reportCatalogData
           .filter((report) => report.category === section.category)
+          // Nothing is hidden before the rights are known.
+          .filter((report) => !report.menuId || !isReady || can(report.menuId, 'read'))
           .filter(
             (report) =>
               !query ||
@@ -48,7 +52,7 @@ export default function ReportCatalogPage() {
           .sort((a, b) => Number(b.status === 'ready') - Number(a.status === 'ready')),
       }))
       .filter((section) => section.reports.length > 0);
-  }, [activeCategory, searchQuery, currentLanguage]);
+  }, [activeCategory, searchQuery, currentLanguage, isReady, can]);
 
   return (
     <AppShellLayout>
