@@ -1,16 +1,6 @@
 import React, { useState } from 'react';
-import {
-  Accordion,
-  ActionIcon,
-  Box,
-  Group,
-  Paper,
-  ScrollArea,
-  Stack,
-  Text,
-  TextInput,
-} from '@mantine/core';
-import { IconSearch, IconX } from '@tabler/icons-react';
+import { Accordion, Box, Paper, ScrollArea, Stack, Text } from '@mantine/core';
+import { IconChevronRight } from '@tabler/icons-react';
 import { EmptyState } from '@/components/EmptyState';
 import type {
   GeneralLedgerAccount,
@@ -52,51 +42,27 @@ export const GeneralLedgerAccountsTable: React.FC<GeneralLedgerAccountsTableProp
   return (
     <Paper withBorder radius="lg" p="lg" bg="white">
       <Stack gap="md">
-        <Group justify="space-between" align="center" wrap="wrap" gap="sm">
-          <Box>
-            <Text fw={600} fz="md" c="dark.9">
-              {t('generalLedger.tableTitle')}
-            </Text>
-            <Text fz="xs" c="dimmed">
-              {t('generalLedger.tableHint')}
-            </Text>
-          </Box>
-          <TextInput
-            placeholder={t('generalLedger.searchAccounts')}
-            aria-label={t('generalLedger.searchAccounts')}
-            radius="md"
-            leftSection={<IconSearch size={14} />}
-            rightSection={
-              search ? (
-                <ActionIcon
-                  size="sm"
-                  variant="subtle"
-                  color="gray"
-                  aria-label={t('common.resetSearch')}
-                  onClick={() => onSearchChange('')}
-                >
-                  <IconX size={13} />
-                </ActionIcon>
-              ) : null
-            }
-            value={search}
-            onChange={(event) => onSearchChange(event.currentTarget.value)}
-            w={{ base: '100%', sm: 320 }}
-          />
-        </Group>
+        <Box>
+          <Text fw={600} fz="md" c="dark.9">
+            {t('generalLedger.tableTitle')}
+          </Text>
+          <Text fz="xs" c="dimmed">
+            {t('generalLedger.tableHint')}
+          </Text>
+        </Box>
 
         <ScrollArea offsetScrollbars>
           <div className={classes.ledgerTable}>
             <div className={`${classes.accountRow} ${classes.headRow}`}>
-              <Text fz="xs" fw={600} c="dimmed">
+              <Text fz="xs" fw={700} c="dimmed" tt="uppercase">
                 {t('common.accountName')}
               </Text>
-              <Text fz="xs" fw={600} c="dimmed">
+              <Text fz="xs" fw={700} c="dimmed" tt="uppercase">
                 {t('generalLedger.compositionLabel')}
               </Text>
               {(['openingBalance', 'totalDebit', 'totalCredit', 'closingBalance'] as const).map(
                 (key) => (
-                  <Text key={key} fz="xs" fw={600} c="dimmed" ta="right">
+                  <Text key={key} fz="xs" fw={700} c="dimmed" tt="uppercase" ta="right">
                     {t(`generalLedger.${key}`)}
                   </Text>
                 )
@@ -112,7 +78,20 @@ export const GeneralLedgerAccountsTable: React.FC<GeneralLedgerAccountsTableProp
                 py={40}
               />
             ) : (
-              <Accordion multiple variant="default" value={opened} onChange={setOpened}>
+              <Accordion
+                multiple
+                variant="default"
+                chevronPosition="left"
+                chevron={<IconChevronRight size={16} />}
+                classNames={{
+                  item: classes.ledgerItem,
+                  control: classes.ledgerControl,
+                  chevron: classes.ledgerChevron,
+                  content: classes.ledgerPanel,
+                }}
+                value={opened}
+                onChange={setOpened}
+              >
                 {accounts.map((account) => {
                   const total = account.periodDebit + account.periodCredit;
                   return (

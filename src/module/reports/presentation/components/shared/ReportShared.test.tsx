@@ -123,6 +123,7 @@ describe('ReportToolbar export', () => {
     onPresetChange: vi.fn(),
     draftPeriod: { startDate: '2026-11-01', endDate: '2026-11-05' },
     onDraftPeriodChange: vi.fn(),
+    appliedPeriod: { startDate: '2026-11-01', endDate: '2026-11-05' },
     onApplyPeriod: vi.fn(),
     isFetching: false,
     onExport: vi.fn(),
@@ -139,6 +140,47 @@ describe('ReportToolbar export', () => {
     rerender(<ReportToolbar {...props} isExporting onCancelExport={onCancelExport} />);
     await userEvent.click(screen.getByRole('button', { name: 'Batalkan' }));
     expect(onCancelExport).toHaveBeenCalledOnce();
+  });
+});
+
+describe('ReportToolbar period', () => {
+  const props = {
+    preset: 'custom' as const,
+    onPresetChange: vi.fn(),
+    draftPeriod: { startDate: '2026-11-01', endDate: '2026-11-05' },
+    onDraftPeriodChange: vi.fn(),
+    appliedPeriod: { startDate: '2026-11-01', endDate: '2026-11-05' },
+    onApplyPeriod: vi.fn(),
+    isFetching: false,
+    hasData: true,
+  };
+
+  it('shows the Apply button only while the dates differ from the shown report', async () => {
+    const onApplyPeriod = vi.fn();
+    const { rerender } = render(<ReportToolbar {...props} onApplyPeriod={onApplyPeriod} />);
+    expect(screen.queryByRole('button', { name: 'Terapkan' })).not.toBeInTheDocument();
+
+    rerender(
+      <ReportToolbar
+        {...props}
+        onApplyPeriod={onApplyPeriod}
+        draftPeriod={{ startDate: '2026-11-01', endDate: '2026-11-09' }}
+      />
+    );
+    await userEvent.click(screen.getByRole('button', { name: 'Terapkan' }));
+    expect(onApplyPeriod).toHaveBeenCalledOnce();
+  });
+
+  it('hides the export menu for a report with no export, and shows refresh when given', async () => {
+    const onRefresh = vi.fn();
+    const { rerender } = render(<ReportToolbar {...props} />);
+    expect(screen.queryByRole('button', { name: 'Ekspor' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Segarkan' })).not.toBeInTheDocument();
+
+    rerender(<ReportToolbar {...props} onExport={vi.fn()} onRefresh={onRefresh} />);
+    expect(screen.getByRole('button', { name: 'Ekspor' })).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Segarkan' }));
+    expect(onRefresh).toHaveBeenCalledOnce();
   });
 });
 

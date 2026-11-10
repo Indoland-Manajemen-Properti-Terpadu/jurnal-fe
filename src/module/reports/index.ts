@@ -8,3 +8,10 @@ export { default as BusinessSummaryPage } from './presentation/pages/BusinessSum
 export { default as EquityChangesPage } from './presentation/pages/EquityChangesPage';
 export { default as BudgetManagementPage } from './presentation/pages/BudgetManagementPage';
 export { default as GeneralLedgerPage } from './presentation/pages/GeneralLedgerPage';
+
+// Shared report building blocks, for pages of other features that are reports too.
+export { ReportPageHeader } from './presentation/components/shared/ReportPageHeader';
+export { ReportSearchInput } from './presentation/components/shared/ReportSearchInput';
+export { ReportToolbar } from './presentation/components/shared/ReportToolbar';
+export { dateOnly, getPresetDateRange } from './domain/reportFormat';
+export type { PeriodPreset } from './domain/reportFormat';
