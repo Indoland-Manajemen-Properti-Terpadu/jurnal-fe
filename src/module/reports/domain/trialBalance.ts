@@ -17,33 +17,6 @@ export const filterTrialBalanceAccounts = (
   );
 };
 
-export interface AccountCounts {
-  /** Sub accounts (everything that is not a parent). */
-  detail: number;
-  /** Parent accounts. */
-  parents: number;
-  /** Sub accounts whose closing balance is not zero. */
-  withBalance: number;
-}
-
-/** Counts accounts for the summary; parents are counted apart because they only add up their children. */
-export const countTrialBalanceAccounts = (accounts: TrialBalanceAccount[]): AccountCounts =>
-  accounts.reduce<AccountCounts>(
-    (counts, account) => {
-      if (account.isHead) return { ...counts, parents: counts.parents + 1 };
-      const { closing } = account;
-      const hasBalance = Boolean(
-        closing && ((closing.debit ?? 0) !== 0 || (closing.credit ?? 0) !== 0)
-      );
-      return {
-        ...counts,
-        detail: counts.detail + 1,
-        withBalance: counts.withBalance + (hasBalance ? 1 : 0),
-      };
-    },
-    { detail: 0, parents: 0, withBalance: 0 }
-  );
-
 /**
  * Profit as a share of the revenue side of the profit and loss columns (their credit total),
  * or `null` when there is no revenue to compare with.

@@ -4,10 +4,12 @@ import { Box, Group, Paper, SimpleGrid, Text } from '@mantine/core';
 export interface ReportKpiItem {
   key: string;
   label: string;
-  value: string;
+  value?: string;
   hint?: string;
   /** Small picture on the right of the card (a ring or a bar). */
   visual?: React.ReactNode;
+  /** Replaces the label, figure and hint with a layout of its own. */
+  content?: React.ReactNode;
 }
 
 interface ReportKpiStripProps {
@@ -46,28 +48,30 @@ export const ReportKpiStrip: React.FC<ReportKpiStripProps> = ({
     <SimpleGrid cols={{ base: 1, sm: 2, lg: items.length }} spacing="md">
       {items.map((item) => (
         <Paper key={item.key} withBorder radius="lg" p="lg" bg="white">
-          <Group justify="space-between" align="center" wrap="nowrap" gap="sm">
-            <Box style={{ minWidth: 0 }}>
-              <Text fz="sm" c="dimmed">
-                {item.label}
-              </Text>
-              <Text
-                fz="xl"
-                fw={700}
-                c="dark.9"
-                mt={4}
-                style={{ fontVariantNumeric: 'tabular-nums' }}
-              >
-                {item.value}
-              </Text>
-              {item.hint && (
-                <Text fz="xs" c="dimmed" mt={4}>
-                  {item.hint}
+          {item.content ?? (
+            <Group justify="space-between" align="center" wrap="nowrap" gap="sm">
+              <Box style={{ minWidth: 0 }}>
+                <Text fz="sm" c="dimmed">
+                  {item.label}
                 </Text>
-              )}
-            </Box>
-            {item.visual}
-          </Group>
+                <Text
+                  fz="xl"
+                  fw={700}
+                  c="dark.9"
+                  mt={4}
+                  style={{ fontVariantNumeric: 'tabular-nums' }}
+                >
+                  {item.value}
+                </Text>
+                {item.hint && (
+                  <Text fz="xs" c="dimmed" mt={4}>
+                    {item.hint}
+                  </Text>
+                )}
+              </Box>
+              {item.visual}
+            </Group>
+          )}
         </Paper>
       ))}
     </SimpleGrid>

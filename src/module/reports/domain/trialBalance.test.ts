@@ -1,9 +1,5 @@
 import type { TrialBalanceAccount, TrialBalanceReport } from './trialBalance.types';
-import {
-  countTrialBalanceAccounts,
-  filterTrialBalanceAccounts,
-  profitMargin,
-} from './trialBalance';
+import { filterTrialBalanceAccounts, profitMargin } from './trialBalance';
 
 const account = (accountNumber: string, name: string) =>
   ({ accountNumber, name }) as TrialBalanceAccount;
@@ -18,22 +14,6 @@ describe('filterTrialBalanceAccounts', () => {
 
   it('returns every account for a blank search', () => {
     expect(filterTrialBalanceAccounts(accounts, '  ')).toBe(accounts);
-  });
-});
-
-describe('countTrialBalanceAccounts', () => {
-  const closing = (debit: number | null, credit: number | null) =>
-    ({ closing: { debit, credit } }) as TrialBalanceAccount;
-
-  it('counts parents apart and the sub accounts that have a closing balance', () => {
-    const counts = countTrialBalanceAccounts([
-      { ...closing(10, null), isHead: true } as TrialBalanceAccount,
-      { ...closing(10, null), isHead: false } as TrialBalanceAccount,
-      { ...closing(0, null), isHead: false } as TrialBalanceAccount,
-      { ...closing(null, 5), isHead: false } as TrialBalanceAccount,
-      { closing: null, isHead: false } as unknown as TrialBalanceAccount,
-    ]);
-    expect(counts).toEqual({ detail: 4, parents: 1, withBalance: 2 });
   });
 });
 
