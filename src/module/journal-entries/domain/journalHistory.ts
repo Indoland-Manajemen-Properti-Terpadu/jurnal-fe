@@ -157,6 +157,17 @@ export const toHistoryQuery = (filters: JournalHistoryFilters): URLSearchParams 
   return params;
 };
 
+export const EXPORT_TYPES = ['xlsx', 'pdf', 'csv'] as const;
+export type JournalExportType = (typeof EXPORT_TYPES)[number];
+
+/** The query of `GET /v1/journal/export/:type`: the list's filters as they are, without paging. */
+export const toExportQuery = (filters: JournalHistoryFilters): URLSearchParams => {
+  const params = toHistoryQuery(filters);
+  params.delete('page');
+  params.delete('limit');
+  return params;
+};
+
 /** Whether any filter narrows the list (paging and sorting do not count). */
 export const hasActiveFilters = (filters: JournalHistoryFilters): boolean =>
   Boolean(

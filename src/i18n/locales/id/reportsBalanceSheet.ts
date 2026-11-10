@@ -5,7 +5,6 @@ export const reportsBalanceSheet = {
       'Pantau posisi aktiva dan pasiva perusahaan per tanggal laporan. Menyajikan rincian aset lancar, aset tetap, kewajiban, dan ekuitas modal.',
     loadFailed: 'Gagal Memuat Laporan Neraca',
     exportFailedMessage: 'Gagal mengekspor laporan neraca.',
-    asOfDate: 'Per Tanggal (Sampai)',
     print: 'Cetak Neraca',
     noAccounts: 'Tidak ada akun tercatat',
     assets: 'Aset (Aktiva)',

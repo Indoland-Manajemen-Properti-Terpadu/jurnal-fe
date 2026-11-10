@@ -45,14 +45,18 @@ export function AssetSectionCard({
   );
 }
 
-/** One label and value of a definition list; rows are separated by a hairline. */
+/**
+ * One label and value of a definition list; rows are separated by a hairline. `stacked` puts the
+ * value under the label so a long value keeps the full row width.
+ */
 export function AssetInfoRow({
   label,
   children,
   muted,
-}: Readonly<{ label: string; children: ReactNode; muted?: boolean }>) {
+  stacked,
+}: Readonly<{ label: string; children: ReactNode; muted?: boolean; stacked?: boolean }>) {
   return (
-    <div className={classes.row}>
+    <div className={stacked ? `${classes.row} ${classes.rowStacked}` : classes.row}>
       <span className={classes.rowLabel}>{label}</span>
       <span className={classes.rowValue} data-muted={muted}>
         {children}

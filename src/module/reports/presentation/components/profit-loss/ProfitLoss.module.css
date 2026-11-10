@@ -1,0 +1,110 @@
+.frame {
+  overflow: hidden;
+  border: 1px solid var(--mantine-color-gray-3);
+  border-radius: var(--mantine-radius-md);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--mantine-font-size-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.table th {
+  padding: var(--jurnal-space-3) var(--jurnal-space-4);
+  color: var(--mantine-color-dimmed);
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-align: left;
+  text-transform: uppercase;
+  background: var(--mantine-color-gray-0);
+  border-bottom: 1px solid var(--mantine-color-gray-3);
+}
+
+.table th:last-child,
+.table td:last-child {
+  text-align: right;
+}
+
+.table td[colspan] {
+  text-align: left;
+}
+
+.table td {
+  padding: 9px var(--jurnal-space-4);
+  border-bottom: 1px solid var(--mantine-color-gray-1);
+}
+
+.table tr:last-child td {
+  border-bottom: 0;
+}
+
+.number {
+  margin-right: var(--jurnal-space-2);
+  color: var(--mantine-color-dimmed);
+  font-size: var(--mantine-font-size-xs);
+}
+
+.negative {
+  color: var(--mantine-color-red-7);
+}
+
+.contra {
+  margin-left: var(--jurnal-space-2);
+  color: var(--mantine-color-dimmed);
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 400;
+}
+
+/* A group of accounts: its head is a band, its accounts are indented under it; an account with
+   no parent stands alone and is not indented. */
+.table tr[data-type='head'] td {
+  color: var(--mantine-color-dark-9);
+  font-weight: 700;
+  background: var(--mantine-color-gray-0);
+}
+
+.table tr[data-type='account']:not([data-standalone='true']) td:first-child {
+  padding-left: calc(var(--jurnal-space-4) + var(--jurnal-space-6));
+}
+
+.table tr[data-type='account']:hover td {
+  background: var(--mantine-color-gray-0);
+}
+
+.table tr[data-type='subtotal'] td {
+  color: var(--mantine-color-dimmed);
+  font-style: italic;
+  border-top: 1px solid var(--mantine-color-gray-3);
+}
+
+.table tr[data-type='title'] td {
+  color: var(--mantine-color-dark-9);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  background: var(--mantine-color-gray-0);
+}
+
+.table tr[data-type='total'] td {
+  font-weight: 700;
+  border-top: 1px solid var(--mantine-color-gray-3);
+  background: var(--mantine-color-gray-0);
+}
+
+.table tr[data-type='profit'] td {
+  font-size: var(--mantine-font-size-md);
+  font-weight: 700;
+  background: var(--mantine-color-primary-0);
+  border-top: 1px solid var(--mantine-color-primary-2);
+  border-bottom: 1px solid var(--mantine-color-primary-2);
+}
+
+.table tr[data-type='blank'] td {
+  height: var(--jurnal-space-3);
+  padding: 0;
+  background: var(--mantine-color-white);
+  border-bottom: 0;
+}

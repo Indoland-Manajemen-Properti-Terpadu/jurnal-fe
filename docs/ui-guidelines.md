@@ -57,6 +57,15 @@ Any agent working on this codebase MUST treat UI/UX not as an afterthought, but 
          - **Accounting Standards & Tips Card**: Use progressive disclosure for practical rules; do not keep a permanent guide open beside a familiar workflow.
          - **Sticky Actions Card**: Use only when the form is long enough that the submit action would otherwise become difficult to reach.
 
+  **Standard C: Report Pages (Neraca, Buku Besar, Jurnal Umum and every report of the report center)**:
+  1. **Skeleton**: `ReportPageHeader` (title, description, back to the report center, optional page actions such as "Tambah Jurnal"), then one `ReportToolbar` card, then the summary, then the content card. A report page never builds its own filter row, and no page offers a different set of controls.
+  2. **One toolbar, always the same controls**: `ReportToolbar` (`@/module/reports`). Row one: the quick periods (Bulan Ini, Bulan Lalu, Kuartal Ini, Tahun Ini, Kustom) on the left; Segarkan, Cetak and Ekspor on the right. Row two: one date-range picker on the left, the page's search (`ReportSearchInput`) and any extra filter (an account select) on the right. There is no "all periods" choice, so a list that used to start without dates starts on this month.
+  3. **Dates**: always the one range picker, never the browser's native date input. A position report such as the balance sheet reads the end of the range as its "as of" date.
+  4. **Apply**: a quick period applies at once. Editing the dates selects "Kustom" and shows one solid primary **Terapkan** button, which hides again once the report shows those dates. It is the only filled button in the toolbar; every other toolbar control is `default`.
+  5. **Controls share one size** (`sm`) so inputs, buttons and icon buttons line up. Cetak and Ekspor are disabled while there is no data. A report whose API has no export leaves `onExport` out and the menu does not show.
+  6. **Expandable rows**: the chevron comes first, as in the general journal. What opens stays inside the same bordered table, as a tinted band under its row; it is never a separate card below the table.
+  7. **States**: loading uses skeletons, a failure uses the alert with a retry, and an empty result keeps the frame and shows `EmptyState`.
+
 - **Calm Financial Interface Rules**:
   1. **One Primary Action per Region**: A header, panel, or modal must not present multiple filled or gradient actions with equal visual weight. Secondary operations belong in default/light buttons, a menu, or the relevant task tab.
   2. **Color Budget**: Brand blue and neutral surfaces dominate. Green, amber, and red communicate real success, warning, and failure states only. A normal expense is not an error and must not be rendered red by default.

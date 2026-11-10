@@ -119,6 +119,9 @@
 
 .ledgerTable {
   min-width: 980px;
+  overflow: hidden;
+  border: 1px solid var(--mantine-color-gray-3);
+  border-radius: var(--mantine-radius-md);
 }
 
 .accountRow {
@@ -129,9 +132,44 @@
   width: 100%;
 }
 
+/* The head sits over the rows: it skips the chevron column of the accordion controls. */
 .headRow {
-  padding: 0 calc(var(--jurnal-space-4) + 28px) var(--jurnal-space-2) var(--jurnal-space-3);
+  padding: var(--jurnal-space-3) var(--jurnal-space-4) var(--jurnal-space-3)
+    calc(var(--jurnal-space-4) * 2 + 16px);
+  background: var(--mantine-color-gray-0);
+  border-bottom: 1px solid var(--mantine-color-gray-3);
+}
+
+.ledgerItem {
   border-bottom: 1px solid var(--mantine-color-gray-2);
+}
+
+.ledgerItem:last-child {
+  border-bottom: 0;
+}
+
+.ledgerControl {
+  padding-inline: var(--jurnal-space-4);
+}
+
+.ledgerChevron {
+  width: 16px;
+  margin-inline-end: var(--jurnal-space-4);
+  color: var(--mantine-color-gray-6);
+}
+
+.ledgerChevron[data-rotate] {
+  transform: rotate(90deg);
+}
+
+/* What opens stays inside the same table: a tinted band under its row. */
+.ledgerPanel {
+  background: var(--mantine-color-gray-0);
+  border-top: 1px solid var(--mantine-color-gray-2);
+}
+
+.ledgerPanel > div {
+  padding: var(--jurnal-space-4);
 }
 
 .amount {

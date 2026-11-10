@@ -1,5 +1,6 @@
 import {
   Box,
+  Divider,
   Grid,
   Group,
   NumberInput,
@@ -116,9 +117,27 @@ function JournalPreview({
         ))}
       </Stack>
       {values.depreciationMethod !== 'none' && estimate.monthly > 0 && (
-        <Text size="xs" c="dimmed" mt="sm">
-          {t('previewMonthly', { amount: formatCurrency(estimate.monthly) })}
-        </Text>
+        <>
+          <Divider my="sm" />
+          <Text size="xs" fw={700} c="dimmed" tt="uppercase" lts={0.5} mb={6}>
+            {t('previewDepreciationTitle')}
+          </Text>
+          <Stack gap={4}>
+            {[
+              { key: 'previewYearly', amount: estimate.annual },
+              { key: 'previewMonthly', amount: estimate.monthly },
+            ].map((row) => (
+              <Group key={row.key} justify="space-between" wrap="nowrap" gap="md">
+                <Text size="sm" c="dimmed">
+                  {t(row.key)}
+                </Text>
+                <Text size="sm" fw={600} ta="right" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                  {formatCurrency(row.amount)}
+                </Text>
+              </Group>
+            ))}
+          </Stack>
+        </>
       )}
     </Paper>
   );

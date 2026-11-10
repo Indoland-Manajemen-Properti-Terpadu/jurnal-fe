@@ -8,7 +8,6 @@ import {
   GeneralLedgerPage,
   IncomeStatementBudgetPage,
   IncomeStatementPage,
-  JournalEntryReportPage,
   ReportCatalogPage,
   TrialBalancePage,
 } from '@/module/reports';
@@ -21,7 +20,6 @@ export const reportsRoutes: RouteObject[] = [
   { path: routes.reports.incomeStatement, element: <IncomeStatementPage /> },
   { path: routes.reports.incomeStatementBudget, element: <IncomeStatementBudgetPage /> },
   { path: routes.reports.cashFlow, element: <CashFlowPage /> },
-  { path: routes.reports.journalEntries, element: <JournalEntryReportPage /> },
   { path: routes.reports.businessSummary, element: <BusinessSummaryPage /> },
   { path: routes.reports.generalLedger, element: <GeneralLedgerPage /> },
   { path: routes.reports.equityChanges, element: <EquityChangesPage /> },
