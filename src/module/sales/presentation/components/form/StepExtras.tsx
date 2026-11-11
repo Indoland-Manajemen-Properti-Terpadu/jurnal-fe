@@ -56,6 +56,14 @@ export function StepExtras({ api }: Readonly<{ api: SaleFormApi }>) {
               <NumberInput
                 label={t('form.extras.discountValue')}
                 min={0}
+                max={discountType === 'percentage' ? 100 : api.totals.subtotal}
+                clampBehavior="strict"
+                description={
+                  discountType === 'percentage'
+                    ? t('form.extras.discountPercentHint')
+                    : t('form.extras.discountNominalHint')
+                }
+                inputWrapperOrder={['label', 'input', 'description', 'error']}
                 decimalScale={2}
                 thousandSeparator="."
                 decimalSeparator=","
@@ -86,6 +94,14 @@ export function StepExtras({ api }: Readonly<{ api: SaleFormApi }>) {
               <NumberInput
                 label={t('form.extras.withholdingValue')}
                 min={0}
+                max={withholdingType === 'percentage' ? 100 : undefined}
+                clampBehavior="strict"
+                description={
+                  withholdingType === 'percentage'
+                    ? t('form.extras.withholdingPercentHint')
+                    : undefined
+                }
+                inputWrapperOrder={['label', 'input', 'description', 'error']}
                 decimalScale={2}
                 thousandSeparator="."
                 decimalSeparator=","
@@ -96,6 +112,8 @@ export function StepExtras({ api }: Readonly<{ api: SaleFormApi }>) {
               <Select
                 label={t('form.extras.withholdingAccount')}
                 placeholder={t('form.extras.withholdingAccountPlaceholder')}
+                description={t('form.extras.withholdingAccountHint')}
+                inputWrapperOrder={['label', 'input', 'description', 'error']}
                 data={api.accountOptions}
                 searchable
                 clearable

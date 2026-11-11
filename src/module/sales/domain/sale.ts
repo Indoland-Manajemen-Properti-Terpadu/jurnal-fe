@@ -73,6 +73,10 @@ export type SaleItem = {
   paidAmount?: number;
   /** What is still owed on this line; the payment form never lets an allocation pass it. */
   outstandingAmount?: number;
+  /** The part of the invoice discount that falls on this line; 0 on older invoices. */
+  discountAmount?: number;
+  /** The part of the invoice withholding that falls on this line; 0 on older invoices. */
+  withholdingAmount?: number;
   journalTransaction?: string | null;
   journalId?: string | null;
   transactionId?: string | null;
