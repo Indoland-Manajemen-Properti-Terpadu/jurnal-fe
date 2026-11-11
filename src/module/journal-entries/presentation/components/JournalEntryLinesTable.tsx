@@ -9,6 +9,10 @@ import { useTranslation } from '@/i18n';
 import type { JournalEntryLine } from '../../domain/journalEntry';
 import { absoluteDifference, isDetailBalanced, sumAmounts } from '../../domain/journalRules';
 
+/** An account as people read it: its code, then its name. */
+const accountLabel = (code?: string | null, name?: string | null): string =>
+  [code, name].filter(Boolean).join(' · ');
+
 interface Props {
   transactionDetails?: JournalEntryLine[];
   isLoading?: boolean;
@@ -100,7 +104,7 @@ const JournalEntryLinesTable: React.FC<Props> = ({
 
   return (
     <Paper withBorder={withBorder} radius="md" bg="white" p={0} style={{ overflow: 'hidden' }}>
-      <Table.ScrollContainer minWidth={640}>
+      <Table.ScrollContainer minWidth={640} type="native">
         <Table verticalSpacing="sm" horizontalSpacing="md" highlightOnHover>
           <Table.Thead bg="gray.0">
             <Table.Tr>
@@ -142,17 +146,16 @@ const JournalEntryLinesTable: React.FC<Props> = ({
                         ta="left"
                         onClick={() => openAccount(account)}
                       >
-                        {account.name || t('linesTable.unknownAccount')}
+                        {accountLabel(account.accountNumber, account.name) ||
+                          t('linesTable.unknownAccount')}
                       </Anchor>
                     ) : (
                       <Text size="sm" fw={600} c="dark.8">
-                        {account?.name || '—'}
+                        {accountLabel(account?.accountNumber, account?.name) || '—'}
                       </Text>
                     )}
                     <Text size="xs" c="dimmed" mt={2}>
-                      {[account?.accountNumber, account?.category?.name]
-                        .filter(Boolean)
-                        .join(' · ') || '—'}
+                      {account?.category?.name || '—'}
                     </Text>
                   </Table.Td>
 

@@ -8,6 +8,8 @@ interface FormActionBarProps {
   isEdit: boolean;
   canSaveDraft: boolean;
   canSend: boolean;
+  /** Whether there is an address to email; without one the invoice is only issued. */
+  canEmail: boolean;
   /** Which save is running; both buttons wait while one is. */
   pending: 'draft' | 'send' | null;
   onBack: () => void;
@@ -23,6 +25,7 @@ export function FormActionBar({
   isEdit,
   canSaveDraft,
   canSend,
+  canEmail,
   pending,
   onBack,
   onNext,
@@ -78,7 +81,7 @@ export function FormActionBar({
                   loading={pending === 'send'}
                   disabled={!canSend || (busy && pending !== 'send')}
                 >
-                  {t('form.actions.saveSend')}
+                  {canEmail ? t('form.actions.saveSend') : t('form.actions.saveIssue')}
                 </Button>
               </span>
             </Tooltip>

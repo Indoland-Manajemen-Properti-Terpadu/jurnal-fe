@@ -79,6 +79,8 @@ export const salesList = {
     edit: 'Edit',
     remove: 'Delete',
     removeDisabled: 'Created from ProApps, it cannot be deleted here',
+    resendDisabled: 'The customer has no email address',
+    voidDisabled: 'Created from ProApps, it cannot be voided from here',
     send: 'Send',
     resend: 'Resend Email',
     pay: 'Record Payment',
@@ -95,6 +97,9 @@ export const salesList = {
     sendMessage:
       'The invoice is issued and recorded as accounts receivable, then emailed to the customer. Once issued it can no longer be edited.',
     sendConfirm: 'Issue & Send',
+    sendMessageNoEmail:
+      'The invoice is issued and recorded as a receivable. No email is sent because the customer has no email address. Once issued, it cannot be edited.',
+    sendConfirmNoEmail: 'Issue',
     voidTitle: 'Void invoice {number}?',
     voidMessage:
       'Voiding cancels the invoice and its journal. A voided invoice cannot be paid or deleted.',

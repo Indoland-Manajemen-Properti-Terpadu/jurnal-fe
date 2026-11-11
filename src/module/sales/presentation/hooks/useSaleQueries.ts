@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
-import { fetchPaymentTerms, fetchContacts } from '@/module/contacts';
+import { fetchContact, fetchPaymentTerms, fetchContacts } from '@/module/contacts';
 import { fetchProducts, fetchTaxes } from '@/module/products';
 import { getJournalAccounts } from '@/module/chart-of-accounts';
 import type { SaleListParams } from '../../domain/sale';
+import type { CustomerSummary } from '../../domain/saleCustomer';
 import type { SalePaymentListParams } from '../../domain/salePaymentList';
 import { depositAccountOptions } from '../../domain/saleDeposit';
 import {
@@ -30,12 +31,13 @@ export const saleKeys = {
   paymentMethods: () => ['sales', 'payment-methods'] as const,
   paymentList: (params: SalePaymentListParams) => ['sales', 'payment-list', params] as const,
   paymentDetail: (id: string) => ['sales', 'payment-detail', id] as const,
-  customers: () => ['sales', 'customers'] as const,
   products: () => ['sales', 'products'] as const,
   taxes: () => ['sales', 'taxes'] as const,
   paymentTerms: () => ['sales', 'payment-terms'] as const,
   depositAccounts: () => ['sales', 'deposit-accounts'] as const,
   tags: () => ['sales', 'tags'] as const,
+  customerSearch: (search: string) => ['sales', 'customer-search', search] as const,
+  customer: (id: string) => ['sales', 'customer', id] as const,
   overpaymentAccount: () => ['sales', 'overpayment-account'] as const,
   receivables: (range: ReceivablesRange) => [...saleKeys.all, 'receivables', range] as const,
   counts: (filters: StatusCountFilters) => [...saleKeys.all, 'counts', filters] as const,
@@ -65,20 +67,17 @@ export const usePaymentMethods = () =>
     staleTime: 5 * 60_000,
   });
 
-export const useSaleCustomerOptions = () =>
-  useQuery({
-    queryKey: saleKeys.customers(),
-    queryFn: async () => {
-      const res = await fetchContacts({ page: 1, limit: 100 });
-      return res.items.map((c) => ({
-        value: c.id,
-        label: c.displayName,
-        emails: c.emails,
-        billingAddress: c.addresses?.billing?.general || '',
-      }));
-    },
-    staleTime: 5 * 60_000,
-  });
+const toCustomerSummary = (c: {
+  id: string;
+  displayName: string;
+  emails?: string[];
+  addresses?: { billing?: { general?: string | null } } | null;
+}): CustomerSummary => ({
+  id: c.id,
+  name: c.displayName,
+  emails: (c.emails ?? []).filter(Boolean),
+  billingAddress: c.addresses?.billing?.general || '',
+});
 
 export const useSaleProductOptions = () =>
   useQuery({
@@ -161,5 +160,42 @@ export const useSalePayments = (params: SalePaymentListParams) =>
   useQuery({
     queryKey: saleKeys.paymentList(params),
     queryFn: () => fetchSalePayments(params),
+    staleTime: 30_000,
+  });
+
+/** Customers matching what was typed, 20 at a time; with nothing typed, the first 20. */
+export const useCustomerSearch = (search: string) =>
+  useQuery({
+    queryKey: saleKeys.customerSearch(search),
+    queryFn: async () => {
+      const res = await fetchContacts({ page: 1, limit: 20, search });
+      return res.items.map(toCustomerSummary);
+    },
+    staleTime: 60_000,
+    placeholderData: (previous) => previous,
+  });
+
+/** One customer by id, for a selection whose name is not in the search results. */
+export const useCustomerById = (id: string | null, enabled: boolean) =>
+  useQuery({
+    queryKey: saleKeys.customer(id ?? ''),
+    queryFn: async () => toCustomerSummary(await fetchContact(id as string)),
+    enabled: enabled && Boolean(id),
+    staleTime: 5 * 60_000,
+  });
+
+/** The payments of one invoice, newest first. */
+export const useSalePaymentsOfSale = (saleId?: string) =>
+  useQuery({
+    queryKey: saleKeys.paymentList({ page: 1, limit: 100, sale: saleId }),
+    queryFn: () =>
+      fetchSalePayments({
+        page: 1,
+        limit: 100,
+        sale: saleId,
+        sortBy: 'paymentDate',
+        sortOrder: 'desc',
+      }),
+    enabled: Boolean(saleId),
     staleTime: 30_000,
   });

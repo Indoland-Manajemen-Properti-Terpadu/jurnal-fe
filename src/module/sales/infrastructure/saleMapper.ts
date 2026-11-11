@@ -309,6 +309,13 @@ export const mapSalePaymentRow = (raw: SalePaymentRowDto): SalePaymentRow => ({
         customerName: raw.sale.customer?.displayName || raw.sale.customer?.name || '—',
       }
     : null,
+  items: (Array.isArray(raw.items) ? raw.items : []).map((item) => ({
+    saleItem:
+      typeof item.saleItem === 'string'
+        ? item.saleItem
+        : item.saleItem?.id || item.saleItem?._id || null,
+    amount: toMoney(item.amount),
+  })),
   paymentMethodName: raw.paymentMethod?.name || null,
   depositAccountName: raw.depositAccount?.name || null,
 });

@@ -1,7 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { saleStatusTone, saleTimeline, tabParams } from './saleStatus';
+import { SENT_STATUS_FILTERS, saleStatusTone, saleTimeline, tabParams } from './saleStatus';
 
 describe('tabParams', () => {
+  it('offers void as a filter but leaves it out of the default sent list', () => {
+    expect(SENT_STATUS_FILTERS).toContain('VOID');
+    expect(tabParams('sent', 'VOID')).toEqual({ paymentStatus: 'VOID' });
+    expect(tabParams('sent', 'all').paymentStatus).not.toContain('VOID');
+  });
+
   it('asks only for drafts on the draft tab', () => {
     expect(tabParams('draft', 'all')).toEqual({ paymentStatus: 'DRAFT' });
   });

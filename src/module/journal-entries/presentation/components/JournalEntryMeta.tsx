@@ -7,7 +7,6 @@ import type { JournalEntryDetail } from '../../domain/journalEntry';
 
 interface JournalEntryMetaProps {
   entry: JournalEntryDetail;
-  isBalanced: boolean;
 }
 
 const Separator = () => (
@@ -16,10 +15,14 @@ const Separator = () => (
   </Text>
 );
 
-/** The line under the page title: date, entity, type, whether the entry balances, and its tags. */
-const JournalEntryMeta: React.FC<JournalEntryMetaProps> = ({ entry, isBalanced }) => {
+/**
+ * The line under the page title: the date, a void or reversal marker when it applies, and the tags.
+ * Entity, type and balance are on the cards below, so they are not repeated here.
+ */
+const JournalEntryMeta: React.FC<JournalEntryMetaProps> = ({ entry }) => {
   const { t } = useTranslation('journalEntries');
   const tags = tagNames(entry.tags);
+  const marked = entry.status === 'VOID' || entry.status === 'REVERSAL';
 
   return (
     <Stack gap={6}>
@@ -27,11 +30,7 @@ const JournalEntryMeta: React.FC<JournalEntryMetaProps> = ({ entry, isBalanced }
         <Text fz="var(--jurnal-text-sm)" fw={600} c="dark.8">
           {entry.transactionDate ? dateFormatV1(entry.transactionDate.toString()) : '—'}
         </Text>
-        <Separator />
-        <Text fz="var(--jurnal-text-sm)" c="dimmed">
-          {entry.site?.name || t('detail.defaultSite')}
-        </Text>
-        {(entry.status === 'VOID' || entry.status === 'REVERSAL') && (
+        {marked && (
           <>
             <Separator />
             <Text fz="var(--jurnal-text-sm)" fw={600} c="red.7">
@@ -39,29 +38,6 @@ const JournalEntryMeta: React.FC<JournalEntryMetaProps> = ({ entry, isBalanced }
             </Text>
           </>
         )}
-        {entry.transactionType && (
-          <>
-            <Separator />
-            <Text fz="var(--jurnal-text-sm)" c="dimmed">
-              {entry.transactionType}
-            </Text>
-          </>
-        )}
-        <Separator />
-        <Group gap={6} wrap="nowrap">
-          <span
-            aria-hidden
-            style={{
-              width: 8,
-              height: 8,
-              borderRadius: '50%',
-              background: isBalanced ? 'var(--mantine-color-teal-6)' : 'var(--mantine-color-red-6)',
-            }}
-          />
-          <Text fz="var(--jurnal-text-sm)" fw={600} c={isBalanced ? 'teal.8' : 'red.7'}>
-            {isBalanced ? t('detail.balanced') : t('detail.unbalanced')}
-          </Text>
-        </Group>
       </Group>
 
       {tags.length > 0 && (

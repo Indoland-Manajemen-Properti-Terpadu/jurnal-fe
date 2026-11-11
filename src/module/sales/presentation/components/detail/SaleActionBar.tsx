@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Button, Group, Menu, Tooltip } from '@mantine/core';
 import {
   IconChevronDown,
@@ -15,7 +15,12 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
 import { routes } from '@/router/routes';
 import type { Sale } from '@/module/sales/domain/sale';
-import { headerActions, saleActions, type HeaderMenuItem } from '@/module/sales/domain/saleActions';
+import {
+  billingEmail,
+  headerActions,
+  saleActions,
+  type HeaderMenuItem,
+} from '@/module/sales/domain/saleActions';
 import { invoiceFilename } from '@/module/sales/domain/saleFormat';
 import {
   useCopyInvoiceLink,
@@ -40,6 +45,8 @@ export function SaleActionBar({ sale, onPay }: Readonly<SaleActionBarProps>) {
   const { t } = useTranslation('sales');
   const navigate = useNavigate();
   const actions = saleActions(sale);
+  // Without an address the invoice is still issued, but nothing is emailed.
+  const hasEmail = Boolean(billingEmail(sale));
   const [confirm, setConfirm] = useState<'send' | 'delete' | 'void' | null>(null);
 
   const sendMutation = useSendSale();
@@ -107,6 +114,32 @@ export function SaleActionBar({ sale, onPay }: Readonly<SaleActionBarProps>) {
       </Button>
     );
 
+  /** A menu item that can be shown but switched off, with the reason as a tooltip. */
+  const guarded = (
+    key: HeaderMenuItem,
+    state: 'disabled' | 'enabled' | 'hidden',
+    reason: string,
+    item: { label: string; icon: ReactNode; color?: string; onClick: () => void }
+  ) => {
+    const base = (
+      <Menu.Item
+        key={key}
+        color={item.color}
+        leftSection={item.icon}
+        disabled={state === 'disabled'}
+        onClick={item.onClick}
+      >
+        {item.label}
+      </Menu.Item>
+    );
+    if (state !== 'disabled') return base;
+    return (
+      <Tooltip key={key} label={reason} withArrow position="left" multiline w={220}>
+        <div>{base}</div>
+      </Tooltip>
+    );
+  };
+
   const menuItem = (kind: HeaderMenuItem) => {
     switch (kind) {
       case 'link':
@@ -120,54 +153,26 @@ export function SaleActionBar({ sale, onPay }: Readonly<SaleActionBarProps>) {
           </Menu.Item>
         );
       case 'resend':
-        return (
-          <Menu.Item
-            key="resend"
-            leftSection={<IconMailForward size={16} />}
-            onClick={() =>
-              run(() => sendMutation.mutateAsync({ id: sale.id, sendEmail: true, resend: true }))
-            }
-          >
-            {t('actions.resend')}
-          </Menu.Item>
-        );
+        return guarded('resend', actions.resend, t('actions.resendDisabled'), {
+          label: t('actions.resend'),
+          icon: <IconMailForward size={16} />,
+          onClick: () =>
+            run(() => sendMutation.mutateAsync({ id: sale.id, sendEmail: true, resend: true })),
+        });
       case 'void':
-        return (
-          <Menu.Item
-            key="void"
-            color="red"
-            leftSection={<IconBan size={16} />}
-            onClick={() => setConfirm('void')}
-          >
-            {t('actions.void')}
-          </Menu.Item>
-        );
+        return guarded('void', actions.void, t('actions.voidDisabled'), {
+          label: t('actions.void'),
+          icon: <IconBan size={16} />,
+          color: 'red',
+          onClick: () => setConfirm('void'),
+        });
       default:
-        return actions.remove === 'disabled' ? (
-          <Tooltip
-            key="remove"
-            label={t('actions.removeDisabled')}
-            withArrow
-            position="left"
-            multiline
-            w={220}
-          >
-            <div>
-              <Menu.Item color="red" leftSection={<IconTrash size={16} />} disabled>
-                {t('actions.remove')}
-              </Menu.Item>
-            </div>
-          </Tooltip>
-        ) : (
-          <Menu.Item
-            key="remove"
-            color="red"
-            leftSection={<IconTrash size={16} />}
-            onClick={() => setConfirm('delete')}
-          >
-            {t('actions.remove')}
-          </Menu.Item>
-        );
+        return guarded('remove', actions.remove, t('actions.removeDisabled'), {
+          label: t('actions.remove'),
+          icon: <IconTrash size={16} />,
+          color: 'red',
+          onClick: () => setConfirm('delete'),
+        });
     }
   };
 
@@ -204,10 +209,10 @@ export function SaleActionBar({ sale, onPay }: Readonly<SaleActionBarProps>) {
         opened={confirm === 'send'}
         loading={sendMutation.isPending}
         title={t('confirm.sendTitle', { number: sale.transactionNumber })}
-        message={t('confirm.sendMessage')}
-        confirmLabel={t('confirm.sendConfirm')}
+        message={t(hasEmail ? 'confirm.sendMessage' : 'confirm.sendMessageNoEmail')}
+        confirmLabel={t(hasEmail ? 'confirm.sendConfirm' : 'confirm.sendConfirmNoEmail')}
         onClose={close}
-        onConfirm={() => run(() => sendMutation.mutateAsync({ id: sale.id, sendEmail: true }))}
+        onConfirm={() => run(() => sendMutation.mutateAsync({ id: sale.id, sendEmail: hasEmail }))}
       />
       <ConfirmModal
         opened={confirm === 'delete'}
