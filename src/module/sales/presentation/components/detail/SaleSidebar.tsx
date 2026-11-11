@@ -9,22 +9,23 @@ import {
   Paper,
   Stack,
   Text,
-  ThemeIcon,
-  Title,
   Tooltip,
 } from '@mantine/core';
 import {
   IconCheck,
   IconCopy,
   IconExternalLink,
-  IconFileText,
+  IconLink,
   IconPaperclip,
   IconTag,
   IconUser,
 } from '@tabler/icons-react';
 import type { Sale } from '@/module/sales/domain/sale';
+import { saleActions } from '@/module/sales/domain/saleActions';
 import { buildInvoiceLink } from '@/module/sales/domain/saleFormat';
 import type { SaleDisplay } from '../../hooks/useSaleDisplay';
+import { useCopyInvoiceLink } from '../../hooks/useSaleMutations';
+import { DetailCardHeader } from './DetailCardHeader';
 import { DetailField } from './DetailField';
 import classes from './SaleDetail.module.css';
 
@@ -34,17 +35,16 @@ export function SaleSidebar({ sale, display }: Readonly<{ sale: Sale; display: S
   const invoiceUrl = sale.invoiceLink
     ? buildInvoiceLink(window.location.origin, sale.invoiceLink)
     : '';
+  const canCreateLink = saleActions(sale).link;
+  const createLink = useCopyInvoiceLink();
   return (
     <Stack gap="lg">
       <Paper withBorder radius="lg" p={{ base: 'md', sm: 'lg' }} bg="white">
-        <Group gap="sm" mb="md">
-          <ThemeIcon size={36} radius="md" color="primary" variant="light">
-            <IconUser size={19} />
-          </ThemeIcon>
-          <Title order={3} size="md">
-            {t('customerTitle')}
-          </Title>
-        </Group>
+        <DetailCardHeader
+          icon={<IconUser size={19} />}
+          title={t('customerTitle')}
+          subtitle={t('customerSubtitle')}
+        />
         <Stack gap="sm">
           <DetailField label={t('customer')}>{sale.customer?.displayName}</DetailField>
           <DetailField label={t('billingEmail')}>
@@ -57,14 +57,11 @@ export function SaleSidebar({ sale, display }: Readonly<{ sale: Sale; display: S
         </Stack>
       </Paper>
       <Paper withBorder radius="lg" p={{ base: 'md', sm: 'lg' }} bg="white">
-        <Group gap="sm" mb="md">
-          <ThemeIcon size={36} radius="md" color="primary" variant="light">
-            <IconFileText size={19} />
-          </ThemeIcon>
-          <Title order={3} size="md">
-            {t('documentsTitle')}
-          </Title>
-        </Group>
+        <DetailCardHeader
+          icon={<IconLink size={19} />}
+          title={t('documentsTitle')}
+          subtitle={t('documentsSubtitle')}
+        />
         <Stack gap="md">
           {invoiceUrl ? (
             <Box className={classes.linkPanel}>
@@ -103,9 +100,23 @@ export function SaleSidebar({ sale, display }: Readonly<{ sale: Sale; display: S
               </Group>
             </Box>
           ) : (
-            <Text size="sm" c="dimmed">
-              {t('noInvoiceLink')}
-            </Text>
+            <Group justify="space-between" align="center" gap="sm">
+              <Text size="sm" c="dimmed">
+                {t('noInvoiceLink')}
+              </Text>
+              {canCreateLink && (
+                <Button
+                  size="xs"
+                  variant="light"
+                  color="primary"
+                  leftSection={<IconLink size={15} />}
+                  loading={createLink.isPending}
+                  onClick={() => createLink.mutate(sale.id)}
+                >
+                  {t('createLink')}
+                </Button>
+              )}
+            </Group>
           )}
           {sale.attachments?.length > 0 && (
             <>
@@ -155,14 +166,11 @@ export function SaleSidebar({ sale, display }: Readonly<{ sale: Sale; display: S
       </Paper>
       {(sale.tags?.length > 0 || sale.customerRefNumber || sale.createdAt || sale.updatedAt) && (
         <Paper withBorder radius="lg" p={{ base: 'md', sm: 'lg' }} bg="white">
-          <Group gap="sm" mb="md">
-            <ThemeIcon size={36} radius="md" color="primary" variant="light">
-              <IconTag size={19} />
-            </ThemeIcon>
-            <Title order={3} size="md">
-              {t('additionalTitle')}
-            </Title>
-          </Group>
+          <DetailCardHeader
+            icon={<IconTag size={19} />}
+            title={t('additionalTitle')}
+            subtitle={t('additionalSubtitle')}
+          />
           <Stack gap="md">
             {sale.customerRefNumber && (
               <DetailField label={t('customerReference')}>{sale.customerRefNumber}</DetailField>

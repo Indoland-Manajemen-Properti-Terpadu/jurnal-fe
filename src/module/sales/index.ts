@@ -1,12 +1,12 @@
 export { default as SaleMainPage } from './presentation/pages/SaleMainPage';
 export { default as SaleDetailPage } from './presentation/pages/SaleDetailPage';
 export { default as SaleFormPage } from './presentation/pages/SaleFormPage';
+export { default as SalePaymentsPage } from './presentation/pages/SalePaymentsPage';
 export { default as PublicInvoicePage } from './presentation/pages/PublicInvoicePage';
 export type { Sale } from './domain/sale';
 export { mapSaleDto } from './infrastructure/saleMapper';
 export { formatIDR, getSaleStatusConfig } from './domain/saleFormat';
 export { default as SalesQuotationsPage } from './presentation/pages/planned/SalesQuotationsPage';
 export { default as SalesOrdersPage } from './presentation/pages/planned/SalesOrdersPage';
-export { default as SalesPaymentsPage } from './presentation/pages/planned/SalesPaymentsPage';
 export { default as SalesReturnsPage } from './presentation/pages/planned/SalesReturnsPage';
 export { default as ReceivablesPage } from './presentation/pages/planned/ReceivablesPage';

@@ -1,5 +1,5 @@
 import { useEffect, useReducer, useState } from 'react';
-import { ActionIcon, Box, Button, Group, Paper, Stack, Tabs, Text, Tooltip } from '@mantine/core';
+import { ActionIcon, Box, Button, Group, Paper, Stack, Tabs, Tooltip } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
 import { IconFileText, IconPlus, IconReceipt2, IconRefresh, IconSend } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
@@ -88,17 +88,10 @@ export function SaleMainPage() {
       downloadPdf.mutate({ id: sale.id, filename: invoiceFilename(sale.transactionNumber) }),
   };
 
-  const handlePaySubmit = async (payload: CreateSalePaymentPayload) => {
-    await payMutation.mutateAsync(payload);
-    setPayTarget(null);
-  };
+  const handlePaySubmit = (payload: CreateSalePaymentPayload) => payMutation.mutateAsync(payload);
 
-  const tabCount = (count?: number) =>
-    count === undefined ? null : (
-      <Text component="span" fz="xs" fw={600} style={{ opacity: 0.75 }}>
-        {formatCount(count)}
-      </Text>
-    );
+  const tabLabel = (key: 'draft' | 'sent', count?: number) =>
+    count === undefined ? t(`tabs.${key}`) : t(`tabs.${key}Count`, { count: formatCount(count) });
 
   return (
     <AppShellLayout>
@@ -153,19 +146,11 @@ export function SaleMainPage() {
               radius="md"
             >
               <Tabs.List mb="md">
-                <Tabs.Tab
-                  value="draft"
-                  leftSection={<IconFileText size={16} />}
-                  rightSection={tabCount(counts?.DRAFT)}
-                >
-                  {t('tabs.draft')}
+                <Tabs.Tab value="draft" leftSection={<IconFileText size={16} />}>
+                  {tabLabel('draft', counts?.DRAFT)}
                 </Tabs.Tab>
-                <Tabs.Tab
-                  value="sent"
-                  leftSection={<IconSend size={16} />}
-                  rightSection={tabCount(counts?.sent)}
-                >
-                  {t('tabs.sent')}
+                <Tabs.Tab value="sent" leftSection={<IconSend size={16} />}>
+                  {tabLabel('sent', counts?.sent)}
                 </Tabs.Tab>
               </Tabs.List>
 

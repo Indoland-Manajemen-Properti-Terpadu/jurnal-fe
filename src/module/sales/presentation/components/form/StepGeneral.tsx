@@ -1,15 +1,7 @@
-import {
-  Grid,
-  MultiSelect,
-  Paper,
-  Select,
-  Stack,
-  TagsInput,
-  TextInput,
-  Textarea,
-} from '@mantine/core';
+import { Grid, Paper, Select, Stack, TagsInput, TextInput, Textarea } from '@mantine/core';
 import { IconCalendar } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
+import { SaleTagField } from '../shared/SaleTagField';
 import type { SaleFormApi } from '../../hooks/useSaleForm';
 import { StepHeading } from './StepHeading';
 
@@ -102,13 +94,11 @@ export function StepGeneral({ api }: Readonly<{ api: SaleFormApi }>) {
           inputWrapperOrder={['label', 'input', 'description', 'error']}
           {...form.getInputProps('emails')}
         />
-        <MultiSelect
+        <SaleTagField
           label={t('form.general.tags')}
           placeholder={t('form.general.tagsPlaceholder')}
-          data={api.tagOptions}
-          searchable
-          clearable
-          {...form.getInputProps('tags')}
+          value={form.values.tags}
+          onChange={(value) => form.setFieldValue('tags', value)}
         />
       </Stack>
     </Paper>
