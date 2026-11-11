@@ -10,6 +10,8 @@ export const salesList = {
     clearSearch: 'Hapus pencarian',
   },
   tabs: {
+    draftCount: 'Draf ({count})',
+    sentCount: 'Terkirim ({count})',
     draft: 'Draf',
     sent: 'Terkirim',
   },

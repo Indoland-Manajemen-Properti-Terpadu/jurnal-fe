@@ -1,12 +1,12 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   Alert,
+  Anchor,
   Button,
   FileInput,
   Grid,
   Group,
   Modal,
-  MultiSelect,
   NumberInput,
   Paper,
   Select,
@@ -26,25 +26,37 @@ import {
   IconPaperclip,
   IconReceipt2,
 } from '@tabler/icons-react';
+import { Link } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
-import type { CreateSalePaymentPayload, Sale } from '@/module/sales/domain/sale';
+import { routes } from '@/router/routes';
+import type { CreateSalePaymentPayload, Sale, SalePaymentResult } from '@/module/sales/domain/sale';
 import { formatIDR } from '@/module/sales/domain/saleFormat';
 import {
   emptyPaymentForm,
+  overpaymentOf,
+  paymentKind,
   toPaymentPayload,
   validatePayment,
   type PaymentFormValues,
+  type PaymentTarget,
 } from '@/module/sales/domain/salePayment';
-import { toCents } from '@/module/sales/domain/saleMoney';
 import { remainingAfterPayment } from '@/module/sales/domain/saleTotals';
-import { useDepositAccounts, usePaymentMethods, useSaleTagOptions } from '../hooks/useSaleQueries';
+import {
+  useDepositAccounts,
+  useOverpaymentAccount,
+  usePaymentMethods,
+  useSaleDetail,
+} from '../hooks/useSaleQueries';
+import { SaleTagField } from './shared/SaleTagField';
+import { PaymentAllocation, type AllocationLine } from './pay/PaymentAllocation';
+import { PaymentResultView } from './pay/PaymentResultView';
 
 type PaySaleModalProps = {
   opened: boolean;
   sale?: Sale | null;
   isSubmitting?: boolean;
   onClose: () => void;
-  onSubmit: (payload: CreateSalePaymentPayload) => Promise<void>;
+  onSubmit: (payload: CreateSalePaymentPayload) => Promise<SalePaymentResult>;
 };
 
 const localToday = (): string => new Date().toLocaleDateString('en-CA');
@@ -59,9 +71,13 @@ export function PaySaleModal({
   const { t } = useTranslation('sales');
   const accountsQuery = useDepositAccounts();
   const methodsQuery = usePaymentMethods();
-  const tagsQuery = useSaleTagOptions();
 
-  const remaining = sale?.remainingAmount ?? 0;
+  // The invoice's own lines (id, open balance, open late fee) come from the detail call.
+  const detailQuery = useSaleDetail(opened ? sale?.id : undefined);
+  const invoice = detailQuery.data ?? sale;
+  const [result, setResult] = useState<SalePaymentResult | null>(null);
+
+  const remaining = invoice?.remainingAmount ?? 0;
   const form = useForm<PaymentFormValues>({ initialValues: emptyPaymentForm(localToday(), 0) });
 
   useEffect(() => {
@@ -69,9 +85,33 @@ export function PaySaleModal({
       form.setValues(emptyPaymentForm(localToday(), sale.remainingAmount));
       form.resetDirty();
       form.clearErrors();
+      setResult(null);
     }
     // The form is re-seeded only when a different invoice opens the modal.
   }, [sale?.id, opened]);
+
+  const lines: AllocationLine[] = useMemo(
+    () =>
+      (invoice?.items ?? [])
+        .filter((item) => item.id)
+        .map((item) => ({
+          id: item.id as string,
+          name: item.product?.name || item.description || '—',
+          outstandingAmount: item.outstandingAmount ?? 0,
+        })),
+    [invoice]
+  );
+  const target: PaymentTarget = {
+    remaining,
+    outstandingLateFee: invoice?.outstandingLateFee ?? 0,
+    items: lines.map(({ id, outstandingAmount }) => ({ id, outstandingAmount })),
+  };
+
+  const kind = paymentKind(form.values.amount, remaining);
+  const overpayment = overpaymentOf(form.values.amount, remaining);
+  const overpaymentAccount = useOverpaymentAccount(opened && kind === 'overpaid');
+  const mappingMissing =
+    kind === 'overpaid' && overpaymentAccount.isSuccess && !overpaymentAccount.data;
 
   const accountOptions = accountsQuery.data ?? [];
   const methodOptions = (methodsQuery.data ?? []).map((method) => ({
@@ -94,14 +134,18 @@ export function PaySaleModal({
   };
 
   const submit = async () => {
-    if (!sale) return;
-    const errors = validatePayment(form.values, sale.remainingAmount);
+    if (!sale || !invoice) return;
+    const errors = validatePayment(form.values, remaining, target);
     form.setErrors(Object.fromEntries(Object.entries(errors).map(([k, v]) => [k, t(v)])));
     if (Object.keys(errors).length > 0) return;
-    await onSubmit(toPaymentPayload(sale.id, form.values));
+    const payload = toPaymentPayload(sale.id, form.values, remaining);
+    const saved = await onSubmit(payload);
+    if (payload.autoAllocate && saved.items.length > 0) setResult(saved);
+    else onClose();
   };
 
-  const isFull = sale ? toCents(form.values.amount || 0) >= toCents(remaining) : false;
+  const lineNames = Object.fromEntries(lines.map((line) => [line.id, line.name]));
+  const isFull = kind !== 'partial';
 
   return (
     <Modal
@@ -118,7 +162,10 @@ export function PaySaleModal({
       size="lg"
       radius="lg"
     >
-      {sale && (
+      {sale && result && (
+        <PaymentResultView result={result} lineNames={lineNames} onClose={onClose} />
+      )}
+      {sale && !result && (
         <form
           onSubmit={(event) => {
             event.preventDefault();
@@ -157,7 +204,7 @@ export function PaySaleModal({
                     {t('pay.remaining')}
                   </Text>
                   <Text size="sm" fw={800}>
-                    {formatIDR(sale.remainingAmount)}
+                    {formatIDR(remaining)}
                   </Text>
                 </Grid.Col>
               </Grid>
@@ -212,13 +259,28 @@ export function PaySaleModal({
               {...form.getInputProps('amount')}
             />
 
-            <MultiSelect
+            {kind === 'partial' && (
+              <PaymentAllocation
+                values={form.values}
+                lines={lines}
+                outstandingLateFee={target.outstandingLateFee}
+                errors={form.errors}
+                onMode={(mode) => form.setFieldValue('allocation', mode)}
+                onItemAmount={(itemId, amount) =>
+                  form.setFieldValue('itemAmounts', {
+                    ...form.values.itemAmounts,
+                    [itemId]: amount,
+                  })
+                }
+                onLateFee={(amount) => form.setFieldValue('lateFee', amount)}
+              />
+            )}
+
+            <SaleTagField
               label={t('pay.tags')}
               placeholder={t('pay.tagsPlaceholder')}
-              data={(tagsQuery.data ?? []).map((tag) => ({ value: tag.id, label: tag.name }))}
-              searchable
-              clearable
-              {...form.getInputProps('tags')}
+              value={form.values.tags}
+              onChange={(value) => form.setFieldValue('tags', value)}
             />
 
             <Textarea
@@ -242,6 +304,31 @@ export function PaySaleModal({
               error={form.errors.attachments}
             />
 
+            {kind === 'overpaid' && (
+              <Alert
+                icon={<IconAlertCircle size={16} />}
+                color={mappingMissing ? 'orange' : 'primary'}
+                variant="light"
+                radius="md"
+              >
+                {mappingMissing ? (
+                  <>
+                    {t('pay.overpaymentNoMapping')}{' '}
+                    <Anchor component={Link} to={routes.settings.accountMapping} size="sm">
+                      {t('pay.overpaymentMappingLink')}
+                    </Anchor>
+                  </>
+                ) : (
+                  t('pay.overpaymentNotice', {
+                    amount: formatIDR(overpayment),
+                    account: overpaymentAccount.data
+                      ? `${overpaymentAccount.data.accountNumber ?? ''} ${overpaymentAccount.data.name}`.trim()
+                      : '…',
+                  })
+                )}
+              </Alert>
+            )}
+
             <Alert
               icon={isFull ? <IconCheck size={16} /> : <IconAlertCircle size={16} />}
               color={isFull ? 'gray' : 'primary'}
@@ -249,7 +336,7 @@ export function PaySaleModal({
               radius="md"
             >
               {isFull
-                ? t('pay.fullNotice')
+                ? t(kind === 'overpaid' ? 'pay.overpaidNotice' : 'pay.fullNotice')
                 : t('pay.partialNotice', {
                     remaining: formatIDR(remainingAfterPayment(remaining, form.values.amount || 0)),
                   })}
@@ -259,7 +346,12 @@ export function PaySaleModal({
               <Button variant="default" onClick={onClose} disabled={isSubmitting}>
                 {t('pay.cancel')}
               </Button>
-              <Button type="submit" color="primary" loading={isSubmitting}>
+              <Button
+                type="submit"
+                color="primary"
+                loading={isSubmitting}
+                disabled={mappingMissing || (kind === 'partial' && !invoice)}
+              >
                 {t('pay.save')}
               </Button>
             </Group>

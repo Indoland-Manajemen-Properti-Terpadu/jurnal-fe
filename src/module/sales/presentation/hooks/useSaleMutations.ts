@@ -9,6 +9,7 @@ import { sendNotices } from '../../domain/saleNotices';
 import {
   createSale,
   createSalePayment,
+  createSaleTag,
   deleteSale,
   downloadInvoicePdf,
   generateInvoiceLink,
@@ -106,9 +107,24 @@ export const useCreateSalePayment = () => {
   const refresh = useRefreshSales();
   return useMutation({
     mutationFn: (payload: CreateSalePaymentPayload) => createSalePayment(payload),
-    onSuccess: () => notify.success('paid'),
+    onSuccess: (result) =>
+      notify.success(result.overpaymentAmount > 0 ? 'paidWithOverpayment' : 'paid'),
     onError: notify.failure,
     onSettled: refresh,
+  });
+};
+
+/** Adds a tag from a tag field; the new id is returned so the field can select it. */
+export const useCreateSaleTag = () => {
+  const notify = useSaleNotifier();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (name: string) => createSaleTag(name),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: saleKeys.tags() });
+      notify.success('tagCreated');
+    },
+    onError: notify.failure,
   });
 };
 

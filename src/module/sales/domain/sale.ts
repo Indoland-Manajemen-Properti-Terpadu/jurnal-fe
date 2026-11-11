@@ -71,6 +71,8 @@ export type SaleItem = {
   amount: number;
   adjustedAmount?: number;
   paidAmount?: number;
+  /** What is still owed on this line; the payment form never lets an allocation pass it. */
+  outstandingAmount?: number;
   journalTransaction?: string | null;
   journalId?: string | null;
   transactionId?: string | null;
@@ -116,6 +118,8 @@ export type Sale = {
   adjustedAmount?: number;
   lateFeeAmount?: number;
   lateFeePaidAmount?: number;
+  /** Late fee still owed; a payment may allocate at most this much to the fee. */
+  outstandingLateFee: number;
   withholdingType?: WithholdingType | null;
   withholdingValue?: number;
   withholdingAmount?: number;
@@ -226,6 +230,8 @@ export type SalePaymentMethod = {
   feeAccount?: SaleAccountRef;
 };
 
+export type SalePaymentAllocationItem = { saleItem: string; amount: number };
+
 export type CreateSalePaymentPayload = {
   sale: string;
   depositAccount: string;
@@ -235,7 +241,22 @@ export type CreateSalePaymentPayload = {
   memo?: string | null;
   amount: number | string;
   attachments?: File[];
+  /** Partial payment, manual: one entry per invoice line, `saleItem` being the line's id. */
+  items?: SalePaymentAllocationItem[];
+  lateFeeAmount?: number;
+  /** Partial payment, automatic: the server spreads the amount in its own priority order. */
+  autoAllocate?: boolean;
 };
+
+/** What the server booked for a payment just recorded. */
+export type SalePaymentResult = {
+  /** Part of the amount above the invoice; 0 when it matched or fell short. */
+  overpaymentAmount: number;
+  items: Array<{ saleItem: string | null; productName: string | null; amount: number }>;
+  lateFeeAmount: number;
+};
+
+export type OverpaymentAccount = { name: string; accountNumber?: string } | null;
 
 export type SalePaymentDetail = {
   id: string;

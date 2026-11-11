@@ -87,4 +87,39 @@ describe('buildPaymentFormData', () => {
     });
     expect(form.has('memo')).toBe(false);
   });
+
+  const base = {
+    sale: 's-1',
+    depositAccount: 'a-1',
+    paymentMethod: 'm-1',
+    paymentDate: '2026-11-05',
+    amount: 500,
+  };
+
+  it('sends manual allocation as items[n][saleItem|amount] plus lateFeeAmount', () => {
+    const form = buildPaymentFormData({
+      ...base,
+      items: [
+        { saleItem: 'i-1', amount: 400 },
+        { saleItem: 'i-2', amount: 50.005 },
+      ],
+      lateFeeAmount: 50,
+    });
+    expect(form.get('items[0][saleItem]')).toBe('i-1');
+    expect(form.get('items[0][amount]')).toBe('400');
+    expect(form.get('items[1][saleItem]')).toBe('i-2');
+    expect(form.get('items[1][amount]')).toBe('50.01');
+    expect(form.get('lateFeeAmount')).toBe('50');
+    expect(form.has('autoAllocate')).toBe(false);
+  });
+
+  it('sends autoAllocate alone, and nothing extra for a plain payment', () => {
+    const auto = buildPaymentFormData({ ...base, autoAllocate: true });
+    expect(auto.get('autoAllocate')).toBe('true');
+    expect(auto.has('items[0][saleItem]')).toBe(false);
+    expect(auto.has('lateFeeAmount')).toBe(false);
+    const plain = buildPaymentFormData(base);
+    expect(plain.has('autoAllocate')).toBe(false);
+    expect(plain.has('lateFeeAmount')).toBe(false);
+  });
 });

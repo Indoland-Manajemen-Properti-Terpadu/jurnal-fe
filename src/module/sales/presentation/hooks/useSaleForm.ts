@@ -15,7 +15,6 @@ import {
   useSaleCustomerOptions,
   useSalePaymentTerms,
   useSaleProductOptions,
-  useSaleTagOptions,
   useSaleTaxes,
 } from './useSaleQueries';
 
@@ -29,7 +28,6 @@ export function useSaleForm(initial?: CreateSaleFormValues) {
   const taxesQuery = useSaleTaxes();
   const termsQuery = useSalePaymentTerms();
   const accountsQuery = useDepositAccounts();
-  const tagsQuery = useSaleTagOptions();
 
   const form = useForm<CreateSaleFormValues>({
     initialValues: initial ?? emptySaleForm(localToday()),
@@ -146,7 +144,6 @@ export function useSaleForm(initial?: CreateSaleFormValues) {
       value: acc.value,
       label: acc.label,
     })),
-    tagOptions: (tagsQuery.data || []).map((tag) => ({ value: tag.id, label: tag.name })),
   };
 }
 

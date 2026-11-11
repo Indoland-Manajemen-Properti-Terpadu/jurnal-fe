@@ -1,5 +1,162 @@
+.noPrint {
+  /* shown on screen only */
+}
+
+.document {
+  position: relative;
+  overflow: hidden;
+  background: var(--mantine-color-white);
+  border: 1px solid var(--mantine-color-gray-2);
+  border-radius: var(--mantine-radius-md);
+  box-shadow: var(--mantine-shadow-sm);
+}
+
+/* The one blue accent of the document: a band across the top. */
+.accent {
+  height: 6px;
+  background: var(--mantine-color-primary-6);
+}
+
+.body {
+  padding: var(--mantine-spacing-xl);
+}
+
+.kicker {
+  color: var(--mantine-color-primary-6);
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.number {
+  margin-top: 4px;
+  color: var(--mantine-color-primary-9);
+  font-size: clamp(1.5rem, 3.2vw, 2rem);
+  font-weight: 800;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+/* Who, when and how much, in one tinted strip. */
+.facts {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) repeat(2, minmax(0, 1fr));
+  gap: var(--mantine-spacing-lg);
+  padding: var(--mantine-spacing-md) var(--mantine-spacing-lg);
+  background: var(--mantine-color-primary-0);
+  border: 1px solid var(--mantine-color-primary-1);
+  border-radius: var(--mantine-radius-md);
+}
+
+.label {
+  color: var(--mantine-color-gray-6);
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.value {
+  margin-top: 4px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.head th {
+  color: var(--mantine-color-primary-9);
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  background: var(--mantine-color-primary-0);
+  border-bottom: 2px solid var(--mantine-color-primary-6);
+}
+
+.row td {
+  vertical-align: top;
+  border-bottom: 1px solid var(--mantine-color-gray-2);
+}
+
+.row:last-child td {
+  border-bottom: none;
+}
+
+.figure {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.lower {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 380px);
+  gap: var(--mantine-spacing-xl);
+  align-items: start;
+}
+
+.note {
+  padding: var(--mantine-spacing-md);
+  background: var(--mantine-color-gray-0);
+  border-left: 3px solid var(--mantine-color-primary-6);
+  border-radius: var(--mantine-radius-sm);
+}
+
+/* What is still owed: the number the customer came for. */
+.balance {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--mantine-spacing-md);
+  padding: var(--mantine-spacing-md);
+  color: var(--mantine-color-primary-9);
+  background: var(--mantine-color-primary-0);
+  border: 1px solid var(--mantine-color-primary-1);
+  border-radius: var(--mantine-radius-md);
+}
+
+.balanceAmount {
+  font-size: 1.375rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+@media (max-width: 48em) {
+  .body {
+    padding: var(--mantine-spacing-md);
+  }
+
+  .facts {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .facts > :first-child {
+    grid-column: 1 / -1;
+  }
+
+  .lower {
+    grid-template-columns: 1fr;
+  }
+
+  .colNo {
+    display: none;
+  }
+}
+
 @media print {
   .noPrint {
     display: none;
+  }
+
+  .document {
+    border: none;
+    box-shadow: none;
+  }
+
+  .document,
+  .document * {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
   }
 }

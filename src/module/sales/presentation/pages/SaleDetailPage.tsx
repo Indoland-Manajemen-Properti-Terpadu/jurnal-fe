@@ -30,10 +30,7 @@ export function SaleDetailPage() {
 
   const goBack = () => navigate(routes.sales.main);
 
-  const handlePaySubmit = async (payload: CreateSalePaymentPayload) => {
-    await payMutation.mutateAsync(payload);
-    setPayOpened(false);
-  };
+  const handlePaySubmit = (payload: CreateSalePaymentPayload) => payMutation.mutateAsync(payload);
 
   if (isLoading) return <SaleDetailLoading />;
   if (isError || !sale) {

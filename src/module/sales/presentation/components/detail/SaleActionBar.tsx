@@ -15,7 +15,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
 import { routes } from '@/router/routes';
 import type { Sale } from '@/module/sales/domain/sale';
-import { saleActions } from '@/module/sales/domain/saleActions';
+import { headerActions, saleActions, type HeaderMenuItem } from '@/module/sales/domain/saleActions';
 import { invoiceFilename } from '@/module/sales/domain/saleFormat';
 import {
   useCopyInvoiceLink,
@@ -32,7 +32,10 @@ interface SaleActionBarProps {
   onPay: () => void;
 }
 
-/** One filled button for the next step of this invoice; everything else is quiet or in a menu. */
+/**
+ * Left to right by how often it is used: the one filled button for the next step, then the quiet
+ * buttons, then the menu. Rarely used and destructive actions live in the menu.
+ */
 export function SaleActionBar({ sale, onPay }: Readonly<SaleActionBarProps>) {
   const { t } = useTranslation('sales');
   const navigate = useNavigate();
@@ -56,41 +59,128 @@ export function SaleActionBar({ sale, onPay }: Readonly<SaleActionBarProps>) {
     close();
   };
 
-  return (
-    <>
-      <Group gap="xs" wrap="wrap">
-        {actions.pdf && (
-          <Button
-            variant="default"
-            leftSection={<IconDownload size={17} />}
-            loading={downloadPdf.isPending}
-            onClick={() =>
-              downloadPdf.mutate({ id: sale.id, filename: invoiceFilename(sale.transactionNumber) })
-            }
-          >
-            {t('actions.pdf')}
-          </Button>
-        )}
-        {actions.link && (
-          <Button
-            variant="default"
-            leftSection={<IconCopy size={17} />}
-            loading={copyLink.isPending}
+  const layout = headerActions(actions);
+
+  const primaryButton = () => {
+    if (layout.primary === 'send') {
+      return (
+        <Button
+          color="primary"
+          leftSection={<IconSend size={17} />}
+          onClick={() => setConfirm('send')}
+        >
+          {t('actions.send')}
+        </Button>
+      );
+    }
+    if (layout.primary === 'pay') {
+      return (
+        <Button color="primary" leftSection={<IconReceipt2 size={17} />} onClick={onPay}>
+          {t('actions.pay')}
+        </Button>
+      );
+    }
+    return null;
+  };
+
+  const secondaryButton = (kind: 'edit' | 'pdf') =>
+    kind === 'edit' ? (
+      <Button
+        key="edit"
+        variant="default"
+        leftSection={<IconPencil size={17} />}
+        onClick={() => navigate(routes.sales.edit.replace(':id', sale.id))}
+      >
+        {t('actions.edit')}
+      </Button>
+    ) : (
+      <Button
+        key="pdf"
+        variant="default"
+        leftSection={<IconDownload size={17} />}
+        loading={downloadPdf.isPending}
+        onClick={() =>
+          downloadPdf.mutate({ id: sale.id, filename: invoiceFilename(sale.transactionNumber) })
+        }
+      >
+        {t('actions.pdf')}
+      </Button>
+    );
+
+  const menuItem = (kind: HeaderMenuItem) => {
+    switch (kind) {
+      case 'link':
+        return (
+          <Menu.Item
+            key="link"
+            leftSection={<IconCopy size={16} />}
             onClick={() => copyLink.mutate(sale.id)}
           >
             {t('actions.link')}
-          </Button>
-        )}
-        {actions.edit && (
-          <Button
-            variant="default"
-            leftSection={<IconPencil size={17} />}
-            onClick={() => navigate(routes.sales.edit.replace(':id', sale.id))}
+          </Menu.Item>
+        );
+      case 'resend':
+        return (
+          <Menu.Item
+            key="resend"
+            leftSection={<IconMailForward size={16} />}
+            onClick={() =>
+              run(() => sendMutation.mutateAsync({ id: sale.id, sendEmail: true, resend: true }))
+            }
           >
-            {t('actions.edit')}
-          </Button>
-        )}
-        {(actions.resend || actions.void || actions.remove !== 'hidden') && (
+            {t('actions.resend')}
+          </Menu.Item>
+        );
+      case 'void':
+        return (
+          <Menu.Item
+            key="void"
+            color="red"
+            leftSection={<IconBan size={16} />}
+            onClick={() => setConfirm('void')}
+          >
+            {t('actions.void')}
+          </Menu.Item>
+        );
+      default:
+        return actions.remove === 'disabled' ? (
+          <Tooltip
+            key="remove"
+            label={t('actions.removeDisabled')}
+            withArrow
+            position="left"
+            multiline
+            w={220}
+          >
+            <div>
+              <Menu.Item color="red" leftSection={<IconTrash size={16} />} disabled>
+                {t('actions.remove')}
+              </Menu.Item>
+            </div>
+          </Tooltip>
+        ) : (
+          <Menu.Item
+            key="remove"
+            color="red"
+            leftSection={<IconTrash size={16} />}
+            onClick={() => setConfirm('delete')}
+          >
+            {t('actions.remove')}
+          </Menu.Item>
+        );
+    }
+  };
+
+  // Destructive items sit below a divider, after the everyday ones.
+  const everyday = layout.menu.filter((kind) => kind === 'link' || kind === 'resend');
+  const destructive = layout.menu.filter((kind) => kind === 'void' || kind === 'remove');
+
+  return (
+    <>
+      <Group gap="xs" wrap="wrap">
+        {primaryButton()}
+        {layout.secondary.map(secondaryButton)}
+        {layout.menu.length > 0 && (
           <Menu position="bottom-end" shadow="md" width={230}>
             <Menu.Target>
               <Button
@@ -102,67 +192,11 @@ export function SaleActionBar({ sale, onPay }: Readonly<SaleActionBarProps>) {
               </Button>
             </Menu.Target>
             <Menu.Dropdown>
-              {actions.resend && (
-                <Menu.Item
-                  leftSection={<IconMailForward size={16} />}
-                  onClick={() =>
-                    run(() =>
-                      sendMutation.mutateAsync({ id: sale.id, sendEmail: true, resend: true })
-                    )
-                  }
-                >
-                  {t('actions.resend')}
-                </Menu.Item>
-              )}
-              {actions.void && (
-                <Menu.Item
-                  color="red"
-                  leftSection={<IconBan size={16} />}
-                  onClick={() => setConfirm('void')}
-                >
-                  {t('actions.void')}
-                </Menu.Item>
-              )}
-              {actions.remove === 'enabled' && (
-                <Menu.Item
-                  color="red"
-                  leftSection={<IconTrash size={16} />}
-                  onClick={() => setConfirm('delete')}
-                >
-                  {t('actions.remove')}
-                </Menu.Item>
-              )}
-              {actions.remove === 'disabled' && (
-                <Tooltip
-                  label={t('actions.removeDisabled')}
-                  withArrow
-                  position="left"
-                  multiline
-                  w={220}
-                >
-                  <div>
-                    <Menu.Item color="red" leftSection={<IconTrash size={16} />} disabled>
-                      {t('actions.remove')}
-                    </Menu.Item>
-                  </div>
-                </Tooltip>
-              )}
+              {everyday.map(menuItem)}
+              {everyday.length > 0 && destructive.length > 0 && <Menu.Divider />}
+              {destructive.map(menuItem)}
             </Menu.Dropdown>
           </Menu>
-        )}
-        {actions.send && (
-          <Button
-            color="primary"
-            leftSection={<IconSend size={17} />}
-            onClick={() => setConfirm('send')}
-          >
-            {t('actions.send')}
-          </Button>
-        )}
-        {actions.pay && (
-          <Button color="primary" leftSection={<IconReceipt2 size={17} />} onClick={onPay}>
-            {t('actions.pay')}
-          </Button>
         )}
       </Group>
 

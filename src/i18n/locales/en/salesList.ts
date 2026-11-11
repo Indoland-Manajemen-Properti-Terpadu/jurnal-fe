@@ -10,6 +10,8 @@ export const salesList = {
     clearSearch: 'Clear search',
   },
   tabs: {
+    draftCount: 'Draft ({count})',
+    sentCount: 'Sent ({count})',
     draft: 'Draft',
     sent: 'Sent',
   },

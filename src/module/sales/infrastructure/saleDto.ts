@@ -20,6 +20,7 @@ export type SaleItemDto = IdRefDto & {
   amount?: unknown;
   adjustedAmount?: unknown;
   paidAmount?: unknown;
+  outstandingAmount?: unknown;
   journalTransaction?: string | IdRefDto | null;
   journalId?: string;
   journal_id?: string;
@@ -88,6 +89,7 @@ export type SaleDto = IdRefDto & {
   adjustedAmount?: unknown;
   lateFeeAmount?: unknown;
   lateFeePaidAmount?: unknown;
+  outstandingLateFee?: unknown;
   withholdingType?: 'percentage' | 'nominal' | null;
   withholdingValue?: unknown;
   withholdingAmount?: unknown;
@@ -126,6 +128,30 @@ export type SalePaymentDetailDto = IdRefDto & {
   transactionNumber?: string;
   memo?: string | null;
   createdAt?: string | null;
+};
+
+export type SalePaymentResultDto = {
+  overpaymentAmount?: unknown;
+  lateFeeAmount?: unknown;
+  items?: Array<
+    IdRefDto & {
+      saleItem?: string | IdRefDto | null;
+      product?: SaleProductDto | null;
+      amount?: unknown;
+    }
+  >;
+};
+
+export type SalePaymentRowDto = IdRefDto & {
+  transactionNumber?: string;
+  paymentDate?: string | null;
+  amount?: unknown;
+  overpaymentAmount?: unknown;
+  lateFeeAmount?: unknown;
+  memo?: string | null;
+  sale?: (IdRefDto & { transactionNumber?: string; customer?: SaleCustomerDto | null }) | null;
+  paymentMethod?: { name?: string } | null;
+  depositAccount?: { name?: string } | null;
 };
 
 export type SalePaymentMethodDto = IdRefDto & {

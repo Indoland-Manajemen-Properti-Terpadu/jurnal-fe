@@ -10,6 +10,7 @@ Sales invoices (accounts receivable): a draft and send workflow, a three step in
 | `add`           | `/sales/new`      | `SaleFormPage` (stepper)                                            |
 | `edit`          | `/sales/:id/edit` | `SaleFormPage` (drafts only; any other invoice redirects to detail) |
 | `detail`        | `/sales/:id`      | `SaleDetailPage`                                                    |
+| `payments`      | `/sales/payments` | `SalePaymentsPage` (list of received payments)                      |
 | `publicInvoice` | `/invoice/:token` | `PublicInvoicePage` (no sign-in, no app shell)                      |
 
 `index.ts` exports the four pages, the `Sale` type, `mapSaleDto`, `formatIDR` and `getSaleStatusConfig`. The last three are used by the `contacts` module for a customer's sales.
@@ -30,11 +31,19 @@ Other modules used: `contacts` (customers, payment terms), `products` (`fetchPro
 
 - **Status** comes from the server's `displayStatus` (`DRAFT`, `UNPAID`, `PAID`, `OVERDUE`, `VOID`). Nothing is derived on the client. The Draf tab asks `paymentStatus=DRAFT`; the Terkirim tab asks `paymentStatus=UNPAID,PAID,OVERDUE` (void has no tab) or the one status chosen in the filter.
 - **Actions** follow `saleActions`. Edit and delete come from the server flags `canEdit` and `canDelete`; an invoice with `createdByApi` shows delete disabled with a reason. A draft offers Edit, Delete and Send only (no Void). Only a draft is editable. A draft can never be paid. Void needs a reason of at least 3 characters and a voided invoice cannot be deleted.
+- **Detail page**: every card opens with `DetailCardHeader` (icon, title, short line; an optional button on the right, never an icon alone). The header lays actions out with `headerActions`, left to right by use: one filled primary (Kirim for a draft, Catat Pembayaran for an open invoice), then quiet buttons (Edit, Unduh PDF), then "Aksi lainnya" with the rest (Salin Tautan, Kirim Ulang Email, then Void and Hapus after a divider). A paid or void invoice has no filled button. The link card is "Tautan dan lampiran" and offers "Buat dan salin tautan" when there is no link yet.
 - **Receivables summary** (`ReceivablesPanel`) is one surface for one equation: total sales = received + not yet due + overdue. The outstanding receivable (not yet due + overdue) is the headline; one segmented bar splits total sales into the three parts, and three columns under it act as the legend with each part's amount, share of sales, invoice count, the oldest overdue age (calendar days) and a link that filters the list. Every amount appears once. Figures come from `receivables/summary` (not the visible page) and follow the date filter. Colours (validated as a set): blue for received, the brand's light blue for not yet due, red only for overdue. Shares are floored, so nothing reads 100% unless it is the whole, and a sliver reads "<1%".
+- **Invoice form layout**: the content card follows the step (general and lines use the full width, the last step is eight columns beside the totals and readiness panel), but the action bar (`FormActionBar`) is always one full-width bar below all content. Unit price and quantity inputs are empty while 0 and refuse leading zeros. Tags use the shared `TagSelect` (`@/components/TagSelect`) through `SaleTagField`, so a new tag is added from the dropdown's footer (`POST /v1/tags`) and selected at once; the payment form uses the same field.
+- **List tabs** show the count inside the label ("Draf (3)"), the same pill tabs as Daftar Akun.
+- **Public invoice** (`PublicInvoiceView`): a read-only document with a blue top band, a tinted strip for customer, date and due date, a table with a numbered first column (hidden on phones), notes on the left and totals on the right with the outstanding amount in its own box. Print removes the border and shadow and keeps the colours. It shows no company name or logo, because the public endpoint does not return the issuer.
 - **Saving**: Simpan sebagai Draf posts `status: DRAFT`; Simpan & Kirim posts `status: SENT, sendEmail: true`. Editing a draft sends no status; its Save & Send updates and then calls `send`. A failed email (`emailSent: false`) is a warning, never an error, and its technical text is never shown.
 - **Errors**: Indonesian business messages from the server are shown as written to Indonesian readers; English readers get a generic sentence. Validation text and status codes never show.
 - **Money** is integer cents through `@/lib/money`; amounts from the API are rounded half up to the cent in the mapper. The form total is labelled an estimate.
-- **Payments** offer only active Cash & Bank accounts (a header account is replaced by its sub-accounts), tags (`tags[]`) and up to 5 files of 5 MB (`attachments`). A payment may not be zero or above what is owed.
+- **Payments** offer only active Cash & Bank accounts (a header account is replaced by its sub-accounts), tags (`tags[]`) and up to 5 files of 5 MB (`attachments`). A payment may not be zero. The amount is compared with `remainingAmount` (`paymentKind`):
+  - **Equal**: sent without `items`; the server spreads it.
+  - **Above**: also sent without `items`. The excess is booked by the server to the `sales_overpayment` mapping (read from `GET /v1/settings/account-mappings` by `fetchOverpaymentAccount`). The form shows where it goes; with no mapping set it shows a link to Account Mapping and disables Save (the server would answer 400).
+  - **Below**: needs an allocation. Manual sends `items[n][saleItem]` (the line's id), `items[n][amount]` and `lateFeeAmount`; the form blocks Save until the "not yet allocated" amount is 0 and checks each line against `items[].outstandingAmount` and the fee against `outstandingLateFee`. Automatic sends `autoAllocate=true` only and afterwards lists where the server put the money. `autoAllocate` is ignored by the server for equal or larger payments, so it is never sent for them.
+  - The form reads the lines from `GET /v1/sales/:id` (not the list row) when it opens.
 - Colour: brand blue and neutrals; red only for overdue and delete, green only for paid.
 
 ## Contract facts (verified on the live service, 2026-11-05)
@@ -59,6 +68,10 @@ Namespace `sales`, assembled from `salesCommon`, `salesList`, `salesForm`, `sale
 - The public page has no PDF download (the print endpoint needs sign-in); it offers the browser print dialog.
 - The detail page cards (`SaleItemsCard`, `SaleSidebar`) still use the older `saleDetail` copy and layout.
 
+## Payments list (`/sales/payments`)
+
+`GET /v1/sale-payments` (page, limit, `search`, `startDate`/`endDate` once both are set, `hasOverpayment` true or false; the server sorts by payment date). One table: date, payment number, invoice, customer, method and account, amount received, excess. A row opens its invoice. Filters: search, overpayment (all, with, without) and date range. The other query options of the endpoint (`customer`, `paymentMethod`, `depositAccount`, `sortBy`) are not used by the screen yet.
+
 ## Planned pages
 
-`presentation/pages/planned/` holds the pages of sales documents that are not built yet: quotations (`/sales/quotations`), sales orders (`/sales/orders`), payments received (`/sales/payments`), sales returns (`/sales/returns`) and receivables (`/sales/receivables`). Each renders the shared `PlannedModulePage` (header and planned scope, copy in the `plannedModules` namespace) and has no endpoint or state. The sidebar lists them next to the invoice list so the whole sales cycle is visible.
+`presentation/pages/planned/` holds the pages of sales documents that are not built yet: quotations (`/sales/quotations`), sales orders (`/sales/orders`), sales returns (`/sales/returns`) and receivables (`/sales/receivables`). Each renders the shared `PlannedModulePage` (header and planned scope, copy in the `plannedModules` namespace) and has no endpoint or state. The sidebar lists them next to the invoice list so the whole sales cycle is visible.
