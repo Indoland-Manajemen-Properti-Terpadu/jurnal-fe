@@ -5,7 +5,16 @@ import { formatIDR } from '@/module/sales/domain/saleFormat';
 import { lineAmount } from '@/module/sales/domain/saleTotals';
 import type { SaleFormApi } from '../../hooks/useSaleForm';
 
-const money = { thousandSeparator: '.', decimalSeparator: ',', hideControls: true } as const;
+const money = {
+  thousandSeparator: '.',
+  decimalSeparator: ',',
+  hideControls: true,
+  allowLeadingZeros: false,
+  allowNegative: false,
+} as const;
+
+/** A cleared field counts as 0 but stays empty on screen, so typing never lands after a "0". */
+const toAmount = (value: number | string): number => (typeof value === 'number' ? value : 0);
 
 export function SaleLinesTable({ api }: Readonly<{ api: SaleFormApi }>) {
   const { t } = useTranslation('sales');
@@ -68,7 +77,12 @@ export function SaleLinesTable({ api }: Readonly<{ api: SaleFormApi }>) {
                   min={0}
                   decimalScale={4}
                   {...money}
-                  {...form.getInputProps(`items.${index}.quantity`)}
+                  placeholder="0"
+                  value={item.quantity || ''}
+                  onChange={(value) =>
+                    form.setFieldValue(`items.${index}.quantity`, toAmount(value))
+                  }
+                  error={form.errors[`items.${index}.quantity`]}
                 />
               </Table.Td>
               <Table.Td w={150}>
@@ -77,7 +91,12 @@ export function SaleLinesTable({ api }: Readonly<{ api: SaleFormApi }>) {
                   min={0}
                   decimalScale={2}
                   {...money}
-                  {...form.getInputProps(`items.${index}.unitPrice`)}
+                  placeholder="0"
+                  value={item.unitPrice || ''}
+                  onChange={(value) =>
+                    form.setFieldValue(`items.${index}.unitPrice`, toAmount(value))
+                  }
+                  error={form.errors[`items.${index}.unitPrice`]}
                 />
               </Table.Td>
               <Table.Td w={170}>

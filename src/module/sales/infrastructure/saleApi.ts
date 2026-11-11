@@ -1,18 +1,33 @@
 import axios from 'axios';
 import apiClient from '@/lib/http/apiClient';
-import { mapSaleDto, mapSalePaymentDetail, mapSalePaymentMethod } from './saleMapper';
+import {
+  mapSaleDto,
+  mapSalePaymentDetail,
+  mapSalePaymentMethod,
+  mapSalePaymentRow,
+  mapSalePaymentResult,
+} from './saleMapper';
 import { buildPaymentFormData, buildSaleFormData } from './salePayloads';
-import type { SaleDto, SalePaymentDetailDto, SalePaymentMethodDto } from './saleDto';
+import type {
+  SaleDto,
+  SalePaymentDetailDto,
+  SalePaymentMethodDto,
+  SalePaymentResultDto,
+  SalePaymentRowDto,
+} from './saleDto';
 import type {
   CreateSaleFormValues,
   CreateSalePaymentPayload,
+  OverpaymentAccount,
   Paginated,
   Sale,
   SaleListParams,
   SalePaymentDetail,
   SalePaymentMethod,
+  SalePaymentResult,
   SendSaleResult,
 } from '../domain/sale';
+import type { SalePaymentListParams, SalePaymentRow } from '../domain/salePaymentList';
 
 export const SALE_ENDPOINTS = {
   sales: '/v1/sales',
@@ -28,6 +43,7 @@ export const SALE_ENDPOINTS = {
   salePayments: '/v1/sale-payments',
   salePaymentDetail: (id: string) => `/v1/sale-payments/${id}`,
   paymentMethods: '/v1/payment-methods',
+  accountMappings: '/v1/settings/account-mappings',
   paymentTerms: '/v1/payment-terms',
   taxes: '/v1/taxes',
   tags: '/v1/tags',
@@ -39,6 +55,10 @@ type ApiEnvelope<T> = { code: number; message: string; data: T };
 type PaginatedDto<T> = {
   data: T[];
   pagination: { total: number; page: number; limit: number; totalPages: number };
+};
+type MappingDto = {
+  key: string;
+  account?: { name?: string; accountNumber?: string } | null;
 };
 type SendDto = SaleDto & { emailSent?: boolean; emailError?: string };
 
@@ -158,13 +178,40 @@ export const downloadInvoicePdf = async (id: string): Promise<Blob> => {
 };
 
 /* Payment API */
-export const createSalePayment = async (payload: CreateSalePaymentPayload): Promise<unknown> => {
-  const { data } = await apiClient.post<ApiEnvelope<unknown>>(
+export const createSalePayment = async (
+  payload: CreateSalePaymentPayload
+): Promise<SalePaymentResult> => {
+  const { data } = await apiClient.post<ApiEnvelope<SalePaymentResultDto>>(
     SALE_ENDPOINTS.salePayments,
     buildPaymentFormData(payload),
     MULTIPART
   );
-  return data.data;
+  return mapSalePaymentResult(data.data);
+};
+
+/** The account an overpayment is booked to, or null while the mapping is not set. */
+export const fetchOverpaymentAccount = async (): Promise<OverpaymentAccount> => {
+  const { data } = await apiClient.get<ApiEnvelope<Record<string, MappingDto[] | undefined>>>(
+    SALE_ENDPOINTS.accountMappings
+  );
+  const mapping = Object.values(data.data || {})
+    .flatMap((group) => group ?? [])
+    .find((item) => item.key === 'sales_overpayment');
+  const account = mapping?.account;
+  return account?.name ? { name: account.name, accountNumber: account.accountNumber } : null;
+};
+
+export const fetchSalePayments = async (
+  params: SalePaymentListParams
+): Promise<Paginated<SalePaymentRow>> => {
+  const { data } = await apiClient.get<ApiEnvelope<PaginatedDto<SalePaymentRowDto>>>(
+    SALE_ENDPOINTS.salePayments,
+    { params }
+  );
+  return {
+    items: (data.data?.data || []).map(mapSalePaymentRow),
+    pagination: data.data?.pagination ?? { total: 0, page: 1, limit: params.limit, totalPages: 1 },
+  };
 };
 
 export const fetchSalePaymentDetail = async (id: string): Promise<SalePaymentDetail> => {
@@ -189,6 +236,14 @@ export const fetchSaleTags = async (): Promise<SaleTagOption[]> => {
     { params: { limit: 100 } }
   );
   return (data.data?.data || []).map(({ id, name, color }) => ({ id, name, color }));
+};
+
+/** Adds a tag and returns its id. */
+export const createSaleTag = async (name: string): Promise<string | null> => {
+  const { data } = await apiClient.post<ApiEnvelope<{ id?: string }>>(SALE_ENDPOINTS.tags, {
+    name,
+  });
+  return data.data?.id ?? null;
 };
 
 export const getApiErrorMessage = (error: unknown, fallback: string): string => {

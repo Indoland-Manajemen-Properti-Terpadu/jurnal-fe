@@ -118,18 +118,6 @@ export function SaleFormBody({ saleId, initial }: Readonly<SaleFormBodyProps>) {
               </Group>
             )}
             {step === 'extras' && <StepExtras api={api} />}
-            <FormActionBar
-              step={step}
-              isEdit={Boolean(saleId)}
-              canSaveDraft={canSaveDraft(form.values)}
-              canSend={canSend(form.values)}
-              pending={pending}
-              onBack={goBack}
-              onNext={goNext}
-              onCancel={() => navigate(saleId ? detailPath(saleId) : routes.sales.main)}
-              onSaveDraft={() => submit('draft')}
-              onSaveSend={() => submit('send')}
-            />
           </Stack>
         </Grid.Col>
         {step === 'extras' && (
@@ -144,6 +132,20 @@ export function SaleFormBody({ saleId, initial }: Readonly<SaleFormBodyProps>) {
           </Grid.Col>
         )}
       </Grid>
+
+      {/* One footer for every step: always the full width of the form, below all its content. */}
+      <FormActionBar
+        step={step}
+        isEdit={Boolean(saleId)}
+        canSaveDraft={canSaveDraft(form.values)}
+        canSend={canSend(form.values)}
+        pending={pending}
+        onBack={goBack}
+        onNext={goNext}
+        onCancel={() => navigate(saleId ? detailPath(saleId) : routes.sales.main)}
+        onSaveDraft={() => submit('draft')}
+        onSaveSend={() => submit('send')}
+      />
     </Stack>
   );
 }

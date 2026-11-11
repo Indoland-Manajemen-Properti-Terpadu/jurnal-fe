@@ -71,6 +71,14 @@ export const buildPaymentFormData = (payload: CreateSalePaymentPayload): FormDat
   const amount = typeof payload.amount === 'number' ? roundToCents(payload.amount) : payload.amount;
   formData.append('amount', String(amount));
   if (payload.memo) formData.append('memo', payload.memo);
+  (payload.items ?? []).forEach((item, index) => {
+    formData.append(`items[${index}][saleItem]`, item.saleItem);
+    formData.append(`items[${index}][amount]`, String(roundToCents(item.amount)));
+  });
+  if (payload.items && payload.lateFeeAmount !== undefined) {
+    formData.append('lateFeeAmount', String(roundToCents(payload.lateFeeAmount)));
+  }
+  if (payload.autoAllocate) formData.append('autoAllocate', 'true');
   (payload.tags ?? []).forEach((tag) => formData.append('tags[]', tag));
   (payload.attachments ?? []).forEach((file) => formData.append('attachments', file));
   return formData;

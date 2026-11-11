@@ -26,7 +26,13 @@ export const salesCommon = {
     network: 'Koneksi terputus. Periksa jaringan Anda, lalu coba lagi.',
     generic: 'Terjadi kendala. Silakan coba beberapa saat lagi.',
   },
+  tags: {
+    empty: 'Tidak ada tag yang cocok',
+    addPlaceholder: 'Tambah tag baru',
+    add: 'Tambah tag',
+  },
   notify: {
+    tagCreated: 'Tag baru ditambahkan.',
     failedTitle: 'Tindakan belum berhasil',
     draftSaved: 'Draf faktur {number} tersimpan.',
     sent: 'Faktur {number} diterbitkan dan dicatat sebagai piutang usaha.',
@@ -37,6 +43,8 @@ export const salesCommon = {
     deleted: 'Draf faktur dihapus.',
     voided: 'Faktur {number} di-void.',
     paid: 'Pembayaran faktur dicatat dan masuk ke kas atau bank.',
+    paidWithOverpayment:
+      'Pembayaran faktur dicatat. Kelebihan bayar dicatat ke akun kelebihan pembayaran pelanggan.',
     linkCopied: 'Tautan faktur disalin.',
     linkFailed: 'Tautan faktur belum dapat dibuat.',
     downloadFailed: 'Berkas PDF belum dapat diunduh.',

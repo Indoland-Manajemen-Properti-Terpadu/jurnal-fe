@@ -1,21 +1,11 @@
-import {
-  Anchor,
-  Box,
-  Divider,
-  Group,
-  Paper,
-  Stack,
-  Table,
-  Text,
-  ThemeIcon,
-  Title,
-} from '@mantine/core';
+import { Anchor, Box, Divider, Group, Paper, Stack, Table, Text } from '@mantine/core';
 import { IconArrowUpRight, IconNotebook, IconReceipt2 } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 import { routes } from '@/router/routes';
 import type { Sale, SaleItem } from '@/module/sales/domain/sale';
 import type { SaleDisplay } from '../../hooks/useSaleDisplay';
 import { AmountRow } from './AmountRow';
+import { DetailCardHeader } from './DetailCardHeader';
 import { formatSignedAmount } from './formatSignedAmount';
 import classes from './SaleDetail.module.css';
 
@@ -79,19 +69,11 @@ export function SaleItemsCard({ sale, display }: Readonly<{ sale: Sale; display:
 
   return (
     <Paper withBorder radius="lg" p={{ base: 'md', sm: 'lg' }} bg="white">
-      <Group justify="space-between" mb="lg" align="center">
-        <Box>
-          <Title order={3} size="md">
-            {t('itemsTitle')}
-          </Title>
-          <Text size="xs" c="dimmed" mt={3}>
-            {t('itemsCount', { count: sale.items.length })}
-          </Text>
-        </Box>
-        <ThemeIcon size={36} radius="md" color="primary" variant="light">
-          <IconReceipt2 size={19} />
-        </ThemeIcon>
-      </Group>
+      <DetailCardHeader
+        icon={<IconReceipt2 size={19} />}
+        title={t('itemsTitle')}
+        subtitle={t('itemsCount', { count: sale.items.length })}
+      />
       <div className={classes.desktopItems}>
         <Table.ScrollContainer minWidth={620}>
           <Table verticalSpacing="md" horizontalSpacing="sm">
