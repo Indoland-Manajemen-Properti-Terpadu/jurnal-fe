@@ -3,11 +3,11 @@ import type { SaleDisplayCode, SaleListParams } from './sale';
 export const SALE_TABS = ['draft', 'sent'] as const;
 export type SaleTab = (typeof SALE_TABS)[number];
 
-/** Payment states a sent invoice can show; void has no tab. */
+/** What the Terkirim tab lists by default; void shows only when it is chosen in the filter. */
 export const SENT_STATUSES: SaleDisplayCode[] = ['UNPAID', 'PAID', 'OVERDUE'];
 
 /** Status choices inside a tab: the draft tab has none, the sent tab filters further. */
-export const SENT_STATUS_FILTERS: SaleDisplayCode[] = ['UNPAID', 'OVERDUE', 'PAID'];
+export const SENT_STATUS_FILTERS: SaleDisplayCode[] = ['UNPAID', 'OVERDUE', 'PAID', 'VOID'];
 
 /** List query for a tab and an optional status filter ("all" = no extra filter). */
 export const tabParams = (

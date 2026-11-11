@@ -79,6 +79,8 @@ export const salesList = {
     edit: 'Edit',
     remove: 'Hapus',
     removeDisabled: 'Dibuat dari ProApps, tidak bisa dihapus dari sini',
+    resendDisabled: 'Pelanggan belum punya alamat email',
+    voidDisabled: 'Dibuat dari ProApps, tidak bisa di-void dari sini',
     send: 'Kirim',
     resend: 'Kirim Ulang Email',
     pay: 'Catat Pembayaran',
@@ -95,6 +97,9 @@ export const salesList = {
     sendMessage:
       'Faktur diterbitkan dan dicatat sebagai piutang usaha, lalu dikirim ke email pelanggan. Setelah terbit, faktur tidak dapat diedit.',
     sendConfirm: 'Terbitkan & Kirim',
+    sendMessageNoEmail:
+      'Faktur diterbitkan dan dicatat sebagai piutang usaha. Email tidak dikirim karena pelanggan belum punya alamat email. Setelah terbit, faktur tidak dapat diedit.',
+    sendConfirmNoEmail: 'Terbitkan',
     voidTitle: 'Void faktur {number}?',
     voidMessage:
       'Void membatalkan faktur beserta jurnalnya. Faktur yang di-void tidak dapat dibayar atau dihapus.',

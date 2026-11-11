@@ -1,4 +1,9 @@
 export const salesForm = {
+  customerPicker: {
+    placeholder: 'Ketik nama atau kode unit untuk mencari...',
+    searching: 'Mencari pelanggan...',
+    empty: 'Pelanggan tidak ditemukan',
+  },
   form: {
     titleNew: 'Buat Faktur Penjualan',
     titleEdit: 'Edit Draf Faktur',
@@ -16,7 +21,7 @@ export const salesForm = {
     },
     general: {
       customer: 'Pelanggan',
-      customerPlaceholder: 'Pilih pelanggan...',
+      customerPlaceholder: 'Cari dan pilih pelanggan...',
       invoiceNumber: 'Nomor Faktur',
       invoiceNumberPlaceholder: 'Kosongkan untuk nomor otomatis',
       transactionDate: 'Tanggal Transaksi',
@@ -97,8 +102,10 @@ export const salesForm = {
       saveDraft: 'Simpan sebagai Draf',
       saveChanges: 'Simpan Draf',
       saveSend: 'Simpan & Kirim',
+      saveIssue: 'Simpan & Terbitkan',
       saveDraftHint: 'Lengkapi pelanggan dan satu baris produk untuk menyimpan draf.',
       saveSendHint: 'Lengkapi semua langkah untuk menerbitkan faktur.',
+      saveIssueHint: 'Pelanggan belum punya email, jadi faktur hanya diterbitkan tanpa dikirim.',
     },
     loading: 'Memuat draf faktur...',
   },
@@ -120,8 +127,8 @@ export const salesForm = {
     paymentDateRequired: 'Tanggal pembayaran wajib diisi',
     amountPositive: 'Jumlah pembayaran harus lebih dari 0',
     allocationNegative: 'Alokasi tidak boleh minus',
-    allocationExceedsItem: 'Alokasi melebihi sisa tagihan produk ini',
-    allocationExceedsLateFee: 'Alokasi denda melebihi sisa denda',
+    allocationExceedsItem: 'Melebihi sisa tagihan produk',
+    allocationExceedsLateFee: 'Melebihi sisa denda',
     allocationMismatch: 'Total alokasi harus sama dengan jumlah pembayaran',
     filesTooMany: 'Maksimal 5 berkas',
     fileTooLarge: 'Ukuran berkas maksimal 5 MB',

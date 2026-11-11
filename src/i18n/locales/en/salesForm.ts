@@ -1,4 +1,9 @@
 export const salesForm = {
+  customerPicker: {
+    placeholder: 'Type a name or unit code to search...',
+    searching: 'Searching customers...',
+    empty: 'No customer found',
+  },
   form: {
     titleNew: 'Create Sales Invoice',
     titleEdit: 'Edit Draft Invoice',
@@ -16,7 +21,7 @@ export const salesForm = {
     },
     general: {
       customer: 'Customer',
-      customerPlaceholder: 'Select a customer...',
+      customerPlaceholder: 'Search and select a customer...',
       invoiceNumber: 'Invoice Number',
       invoiceNumberPlaceholder: 'Leave empty for an automatic number',
       transactionDate: 'Transaction Date',
@@ -97,8 +102,10 @@ export const salesForm = {
       saveDraft: 'Save as Draft',
       saveChanges: 'Save Draft',
       saveSend: 'Save & Send',
+      saveIssue: 'Save & Issue',
       saveDraftHint: 'Choose a customer and one product line to save a draft.',
       saveSendHint: 'Complete every step to issue the invoice.',
+      saveIssueHint: 'The customer has no email, so the invoice is issued without being sent.',
     },
     loading: 'Loading the draft invoice...',
   },
@@ -120,8 +127,8 @@ export const salesForm = {
     paymentDateRequired: 'Enter the payment date',
     amountPositive: 'The payment amount must be more than 0',
     allocationNegative: 'An allocation cannot be negative',
-    allocationExceedsItem: 'This allocation is more than the product still owes',
-    allocationExceedsLateFee: 'The late fee allocation is more than the fee still owed',
+    allocationExceedsItem: 'More than this product owes',
+    allocationExceedsLateFee: 'More than the late fee owed',
     allocationMismatch: 'The allocations must add up to the payment amount',
     filesTooMany: 'Up to 5 files',
     fileTooLarge: 'Each file can be up to 5 MB',

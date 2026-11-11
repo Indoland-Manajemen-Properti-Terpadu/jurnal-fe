@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   emptyPaymentForm,
+  allocationGap,
   fillRestAmount,
   overpaymentOf,
   paymentKind,
@@ -173,5 +174,19 @@ describe('toPaymentPayload allocation', () => {
       expect(payload.autoAllocate).toBeUndefined();
       expect(payload.lateFeeAmount).toBeUndefined();
     }
+  });
+});
+
+describe('allocationGap', () => {
+  it('is what is still to place, negative when too much is placed, 0 when exact', () => {
+    expect(allocationGap(partial({ itemAmounts: { 'i-1': 200 }, lateFee: 50 }))).toBe(250);
+    expect(allocationGap(partial({ itemAmounts: { 'i-1': 400 }, lateFee: 100 }))).toBe(0);
+    expect(allocationGap(partial({ itemAmounts: { 'i-1': 600, 'i-2': 100 } }))).toBe(-200);
+  });
+
+  it('works in cents so a float tail does not show a phantom gap', () => {
+    expect(allocationGap(partial({ amount: 0.3, itemAmounts: { 'i-1': 0.1, 'i-2': 0.2 } }))).toBe(
+      0
+    );
   });
 });
