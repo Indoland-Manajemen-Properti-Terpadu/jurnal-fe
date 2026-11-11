@@ -1,5 +1,6 @@
 import type { AccountOption, Product } from './product';
 import {
+  accountChoices,
   buildAccountLabelMap,
   buildTaxLabelMap,
   filterAccountsByNormalBalance,
@@ -125,6 +126,27 @@ describe('filterAccountsByNormalBalance', () => {
       'rev',
       'ar',
     ]);
+  });
+});
+
+describe('accountChoices', () => {
+  const typed: AccountOption[] = [
+    { id: 'rev', label: 'Pendapatan', isDebit: false },
+    { id: 'disc', label: 'Diskon Penjualan', isDebit: true },
+  ];
+  const all: AccountOption[] = [...typed, { id: 'old', label: 'Akun lama', isDebit: false }];
+
+  it('offers the typed accounts of the wanted side', () => {
+    expect(accountChoices(typed, all, 'credit').map((a) => a.id)).toEqual(['rev']);
+  });
+
+  it('keeps an account the product uses even when the typed list lacks it', () => {
+    expect(accountChoices(typed, all, 'credit', 'old').map((a) => a.id)).toEqual(['rev', 'old']);
+    expect(accountChoices(typed, all, 'credit', 'disc').map((a) => a.id)).toEqual(['rev', 'disc']);
+  });
+
+  it('ignores a kept id that no list knows', () => {
+    expect(accountChoices(typed, all, 'credit', 'gone').map((a) => a.id)).toEqual(['rev']);
   });
 });
 

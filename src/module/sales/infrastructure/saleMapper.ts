@@ -100,6 +100,8 @@ const mapItem = (i: SaleItemDto): SaleItem => {
     adjustedAmount: toOptionalMoney(i.adjustedAmount),
     paidAmount: toMoney(i.paidAmount),
     outstandingAmount: toOptionalMoney(i.outstandingAmount),
+    discountAmount: toMoney(i.discountAmount),
+    withholdingAmount: toMoney(i.withholdingAmount),
     journalTransaction:
       typeof i.journalTransaction === 'string'
         ? i.journalTransaction
