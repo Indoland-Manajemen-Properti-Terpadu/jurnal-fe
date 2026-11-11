@@ -121,6 +121,8 @@ export function ContactMappingTab({ form }: Readonly<Props>) {
               description={t('form.mapping.termDays.description')}
               min={0}
               max={365}
+              allowDecimal={false}
+              allowNegative={false}
               {...form.getInputProps('mappingAccount.defaultPaymentTerm')}
             />
           </Grid.Col>

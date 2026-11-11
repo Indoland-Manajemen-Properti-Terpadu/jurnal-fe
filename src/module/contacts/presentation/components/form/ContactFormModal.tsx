@@ -22,6 +22,7 @@ import {
 import { useTranslation } from '@/i18n';
 import type { Contact, ContactFormValues } from '@/module/contacts/domain/contact';
 import { resolveContactGroupIds } from '@/module/contacts/domain/contactAccountOptions';
+import { firstTabWithError } from '@/module/contacts/domain/contactInput';
 import { useContactForm } from '@/module/contacts/presentation/hooks/useContactForm';
 import { useContactGroups } from '@/module/contacts/presentation/hooks/useContactQueries';
 import { ContactAddressTab } from './ContactAddressTab';
@@ -94,7 +95,11 @@ export function ContactFormModal({
         blur: 3,
       }}
     >
-      <form onSubmit={form.onSubmit(handleSubmit)}>
+      <form
+        onSubmit={form.onSubmit(handleSubmit, (errors) =>
+          setActiveTab(firstTabWithError(Object.keys(errors)) ?? 'general')
+        )}
+      >
         <Stack gap="lg">
           <Tabs
             value={activeTab}
