@@ -15,7 +15,9 @@ import {
   IconAlertCircle,
   IconArrowLeft,
   IconInfoCircle,
+  IconListDetails,
   IconNotebook,
+  IconNotes,
   IconPrinter,
   IconBan,
 } from '@tabler/icons-react';
@@ -23,6 +25,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useDisclosure } from '@mantine/hooks';
 import { ConfirmModal } from '@/components';
 import { AppShellLayout } from '@/components/AppShellLayout';
+import { DetailCardHeader } from '@/components/DetailCardHeader/DetailCardHeader';
 import { EmptyState } from '@/components/EmptyState';
 import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
 import deleteModalImage from '@/assets/images/illustrations/delete-confirm.svg';
@@ -146,7 +149,7 @@ export const JournalEntryDetailPage: React.FC = () => {
           <ModuleHeader
             icon={IconNotebook}
             title={t('detail.heading', { number: numberText })}
-            description={<JournalEntryMeta entry={journalEntry} isBalanced={isBalanced} />}
+            description={<JournalEntryMeta entry={journalEntry} />}
             actions={
               <Group gap="xs" wrap="wrap">
                 <Button
@@ -210,12 +213,11 @@ export const JournalEntryDetailPage: React.FC = () => {
             <Grid.Col span={{ base: 12, lg: 8 }}>
               <Stack gap="md">
                 <Paper withBorder radius="md" p="md" bg="white" shadow="none">
-                  <Text fw={700} fz="var(--jurnal-text-sm)" c="dark.8">
-                    {t('detail.linesCard')}
-                  </Text>
-                  <Text fz="var(--jurnal-text-xs)" c="dimmed" mb="sm">
-                    {t('detail.linesSubtitle')}
-                  </Text>
+                  <DetailCardHeader
+                    icon={<IconListDetails size={19} />}
+                    title={t('detail.linesCard')}
+                    subtitle={t('detail.linesSubtitle')}
+                  />
                   <JournalEntryLinesTable
                     transactionDetails={journalEntry.transactionDetail}
                     isLoading={isLoading}
@@ -223,9 +225,11 @@ export const JournalEntryDetailPage: React.FC = () => {
                 </Paper>
 
                 <Paper withBorder radius="md" p="md" bg="white" shadow="none">
-                  <Text fw={700} fz="var(--jurnal-text-sm)" c="dark.8" mb="xs">
-                    {t('detail.memoCard')}
-                  </Text>
+                  <DetailCardHeader
+                    icon={<IconNotes size={19} />}
+                    title={t('detail.memoCard')}
+                    subtitle={t('detail.memoSubtitle')}
+                  />
                   <Text
                     fz="var(--jurnal-text-sm)"
                     c={hasMemo ? 'dark.8' : 'dimmed'}
