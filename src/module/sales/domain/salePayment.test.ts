@@ -1,5 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { emptyPaymentForm, toPaymentPayload, validatePayment } from './salePayment';
+import {
+  emptyPaymentForm,
+  fillRestAmount,
+  overpaymentOf,
+  paymentKind,
+  toPaymentPayload,
+  unallocatedAmount,
+  validatePayment,
+  type PaymentTarget,
+} from './salePayment';
 
 const valid = () => ({
   ...emptyPaymentForm('2026-11-05', 1000),
@@ -12,15 +21,16 @@ describe('validatePayment', () => {
     expect(validatePayment(valid(), 1000)).toEqual({});
   });
 
-  it('refuses zero, negative and above-remaining amounts', () => {
+  it('accepts a payment above what is owed; the excess is booked server side', () => {
+    expect(validatePayment({ ...valid(), amount: 1500 }, 1000)).toEqual({});
+  });
+
+  it('refuses zero and negative amounts', () => {
     expect(validatePayment({ ...valid(), amount: 0 }, 1000).amount).toBe(
       'validation.amountPositive'
     );
     expect(validatePayment({ ...valid(), amount: -5 }, 1000).amount).toBe(
       'validation.amountPositive'
-    );
-    expect(validatePayment({ ...valid(), amount: 1000.01 }, 1000).amount).toBe(
-      'validation.amountExceedsRemaining'
     );
   });
 
@@ -55,12 +65,16 @@ describe('validatePayment', () => {
 describe('toPaymentPayload', () => {
   it('carries tags and files and drops an empty memo', () => {
     const file = new File(['x'], 'a.txt');
-    const payload = toPaymentPayload('sale-1', {
-      ...valid(),
-      tags: ['t-1'],
-      attachments: [file],
-      memo: '  ',
-    });
+    const payload = toPaymentPayload(
+      'sale-1',
+      {
+        ...valid(),
+        tags: ['t-1'],
+        attachments: [file],
+        memo: '  ',
+      },
+      1000
+    );
     expect(payload).toMatchObject({
       sale: 'sale-1',
       depositAccount: 'acc-1',
@@ -70,5 +84,94 @@ describe('toPaymentPayload', () => {
       attachments: [file],
       memo: null,
     });
+  });
+});
+
+const target: PaymentTarget = {
+  remaining: 1000,
+  outstandingLateFee: 100,
+  items: [
+    { id: 'i-1', outstandingAmount: 600 },
+    { id: 'i-2', outstandingAmount: 300 },
+  ],
+};
+const partial = (extra = {}) => ({ ...valid(), amount: 500, ...extra });
+
+describe('paymentKind and overpaymentOf', () => {
+  it('sorts a payment against the outstanding amount in cents', () => {
+    expect(paymentKind(999.99, 1000)).toBe('partial');
+    expect(paymentKind(1000, 1000)).toBe('full');
+    expect(paymentKind(1000.01, 1000)).toBe('overpaid');
+    expect(paymentKind(0.3, 0.1 + 0.2)).toBe('full');
+  });
+
+  it('reports the excess, never negative', () => {
+    expect(overpaymentOf(1250.5, 1000)).toBe(250.5);
+    expect(overpaymentOf(400, 1000)).toBe(0);
+  });
+});
+
+describe('manual allocation of a partial payment', () => {
+  it('needs the lines and the fee to add up to the amount', () => {
+    const values = partial({ itemAmounts: { 'i-1': 300 }, lateFee: 100 });
+    expect(validatePayment(values, 1000, target).allocation).toBe('validation.allocationMismatch');
+    expect(
+      validatePayment(partial({ itemAmounts: { 'i-1': 400 }, lateFee: 100 }), 1000, target)
+    ).toEqual({});
+  });
+
+  it('refuses a line above its open balance and a fee above the open fee', () => {
+    const errors = validatePayment(
+      partial({ itemAmounts: { 'i-2': 400 }, lateFee: 150 }),
+      1000,
+      target
+    );
+    expect(errors['item:i-2']).toBe('validation.allocationExceedsItem');
+    expect(errors.lateFee).toBe('validation.allocationExceedsLateFee');
+  });
+
+  it('skips the allocation checks for automatic mode and for full or larger payments', () => {
+    expect(validatePayment(partial({ allocation: 'auto' }), 1000, target)).toEqual({});
+    expect(validatePayment({ ...valid(), amount: 1200 }, 1000, target)).toEqual({});
+  });
+
+  it('shows what is not yet allocated and fills a line with the smaller of balance and rest', () => {
+    const values = partial({ itemAmounts: { 'i-1': 200 }, lateFee: 50 });
+    expect(unallocatedAmount(values)).toBe(250);
+    expect(fillRestAmount(values, 0, 300)).toBe(250);
+    expect(fillRestAmount(values, 0, 100)).toBe(100);
+    expect(fillRestAmount(values, 200, 600)).toBe(450);
+  });
+});
+
+describe('toPaymentPayload allocation', () => {
+  it('sends lines and fee for a manual part payment, without empty lines', () => {
+    const payload = toPaymentPayload(
+      'sale-1',
+      partial({ itemAmounts: { 'i-1': 400, 'i-2': 0 }, lateFee: 100 }),
+      1000
+    );
+    expect(payload.items).toEqual([{ saleItem: 'i-1', amount: 400 }]);
+    expect(payload.lateFeeAmount).toBe(100);
+    expect(payload.autoAllocate).toBeUndefined();
+  });
+
+  it('sends only autoAllocate for an automatic part payment', () => {
+    const payload = toPaymentPayload('sale-1', partial({ allocation: 'auto' }), 1000);
+    expect(payload.autoAllocate).toBe(true);
+    expect(payload.items).toBeUndefined();
+  });
+
+  it('sends no allocation when the payment settles or exceeds the invoice', () => {
+    for (const amount of [1000, 1500]) {
+      const payload = toPaymentPayload(
+        'sale-1',
+        { ...valid(), amount, allocation: 'auto', itemAmounts: { 'i-1': 5 } },
+        1000
+      );
+      expect(payload.items).toBeUndefined();
+      expect(payload.autoAllocate).toBeUndefined();
+      expect(payload.lateFeeAmount).toBeUndefined();
+    }
   });
 });

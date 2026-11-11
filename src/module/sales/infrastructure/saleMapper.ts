@@ -8,10 +8,12 @@ import type {
   SaleStatusCounts,
   SalePaymentDetail,
   SalePaymentMethod,
+  SalePaymentResult,
   SaleStatus,
   SaleTag,
 } from '../domain/sale';
 import { roundToCents } from '../domain/saleMoney';
+import type { SalePaymentRow } from '../domain/salePaymentList';
 import type {
   ReceivablesSummaryDto,
   SaleAttachmentDto,
@@ -20,6 +22,8 @@ import type {
   SaleItemDto,
   SalePaymentDetailDto,
   SalePaymentMethodDto,
+  SalePaymentResultDto,
+  SalePaymentRowDto,
   SaleTagDto,
 } from './saleDto';
 
@@ -95,6 +99,7 @@ const mapItem = (i: SaleItemDto): SaleItem => {
     amount: toMoney(i.amount),
     adjustedAmount: toOptionalMoney(i.adjustedAmount),
     paidAmount: toMoney(i.paidAmount),
+    outstandingAmount: toOptionalMoney(i.outstandingAmount),
     journalTransaction:
       typeof i.journalTransaction === 'string'
         ? i.journalTransaction
@@ -161,6 +166,7 @@ const emptySale = (): Sale => ({
   subtotal: 0,
   total: 0,
   finalAmount: 0,
+  outstandingLateFee: 0,
   paidAmount: 0,
   remainingAmount: 0,
   attachments: [],
@@ -220,6 +226,7 @@ export const mapSaleDto = (dto: SaleDto | null | undefined): Sale => {
     adjustedAmount: toOptionalMoney(dto.adjustedAmount),
     lateFeeAmount: toMoney(dto.lateFeeAmount),
     lateFeePaidAmount: toMoney(dto.lateFeePaidAmount),
+    outstandingLateFee: toMoney(dto.outstandingLateFee),
     withholdingType: dto.withholdingType,
     withholdingValue: toNumber(dto.withholdingValue),
     withholdingAmount: toMoney(dto.withholdingAmount),
@@ -269,6 +276,41 @@ export const mapSalePaymentDetail = (raw: SalePaymentDetailDto): SalePaymentDeta
   transactionNumber: raw.transactionNumber || '—',
   memo: raw.memo,
   createdAt: raw.createdAt ?? null,
+});
+
+/** The response of `POST /sale-payments`; tolerant, since only some paths return the allocation. */
+export const mapSalePaymentResult = (
+  raw: SalePaymentResultDto | null | undefined
+): SalePaymentResult => ({
+  overpaymentAmount: toMoney(raw?.overpaymentAmount),
+  lateFeeAmount: toMoney(raw?.lateFeeAmount),
+  items: (Array.isArray(raw?.items) ? raw.items : []).map((item) => ({
+    saleItem:
+      typeof item.saleItem === 'string'
+        ? item.saleItem
+        : item.saleItem?.id || item.saleItem?._id || null,
+    productName: item.product?.name || null,
+    amount: toMoney(item.amount),
+  })),
+});
+
+export const mapSalePaymentRow = (raw: SalePaymentRowDto): SalePaymentRow => ({
+  id: (raw.id || raw._id) as string,
+  transactionNumber: raw.transactionNumber || '—',
+  paymentDate: raw.paymentDate ?? null,
+  amount: toMoney(raw.amount),
+  overpaymentAmount: toMoney(raw.overpaymentAmount),
+  lateFeeAmount: toMoney(raw.lateFeeAmount),
+  memo: raw.memo || null,
+  sale: raw.sale
+    ? {
+        id: (raw.sale.id || raw.sale._id) as string,
+        transactionNumber: raw.sale.transactionNumber || '—',
+        customerName: raw.sale.customer?.displayName || raw.sale.customer?.name || '—',
+      }
+    : null,
+  paymentMethodName: raw.paymentMethod?.name || null,
+  depositAccountName: raw.depositAccount?.name || null,
 });
 
 export const mapSalePaymentMethod = (m: SalePaymentMethodDto): SalePaymentMethod => ({

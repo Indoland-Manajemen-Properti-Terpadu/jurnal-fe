@@ -4,6 +4,7 @@ export const salesPublic = {
     billedTo: 'Billed to',
     date: 'Date',
     due: 'Due',
+    colNumber: 'No.',
     colItem: 'Product / Service',
     colQuantity: 'Quantity',
     colUnitPrice: 'Unit Price',

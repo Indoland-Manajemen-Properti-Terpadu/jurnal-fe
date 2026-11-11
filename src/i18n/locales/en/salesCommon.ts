@@ -26,7 +26,13 @@ export const salesCommon = {
     network: 'The connection was lost. Check your network and try again.',
     generic: 'Something went wrong. Please try again shortly.',
   },
+  tags: {
+    empty: 'No tag matches',
+    addPlaceholder: 'Add new tag',
+    add: 'Add tag',
+  },
   notify: {
+    tagCreated: 'New tag added.',
     failedTitle: 'That did not go through',
     draftSaved: 'Draft invoice {number} saved.',
     sent: 'Invoice {number} issued and recorded as accounts receivable.',
@@ -37,6 +43,8 @@ export const salesCommon = {
     deleted: 'Draft invoice deleted.',
     voided: 'Invoice {number} voided.',
     paid: 'Payment recorded and deposited to cash or bank.',
+    paidWithOverpayment:
+      'Payment recorded. The excess was booked to the customer overpayment account.',
     linkCopied: 'Invoice link copied.',
     linkFailed: 'The invoice link could not be created.',
     downloadFailed: 'The PDF could not be downloaded.',

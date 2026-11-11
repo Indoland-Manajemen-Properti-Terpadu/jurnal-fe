@@ -3,12 +3,15 @@ import { fetchPaymentTerms, fetchContacts } from '@/module/contacts';
 import { fetchProducts, fetchTaxes } from '@/module/products';
 import { getJournalAccounts } from '@/module/chart-of-accounts';
 import type { SaleListParams } from '../../domain/sale';
+import type { SalePaymentListParams } from '../../domain/salePaymentList';
 import { depositAccountOptions } from '../../domain/saleDeposit';
 import {
+  fetchOverpaymentAccount,
   fetchPaymentMethods,
   fetchPublicInvoice,
   fetchSaleDetail,
   fetchSaleTags,
+  fetchSalePayments,
   fetchSales,
 } from '../../infrastructure/saleApi';
 import {
@@ -25,6 +28,7 @@ export const saleKeys = {
   details: () => [...saleKeys.all, 'detail'] as const,
   detail: (id: string) => [...saleKeys.details(), id] as const,
   paymentMethods: () => ['sales', 'payment-methods'] as const,
+  paymentList: (params: SalePaymentListParams) => ['sales', 'payment-list', params] as const,
   paymentDetail: (id: string) => ['sales', 'payment-detail', id] as const,
   customers: () => ['sales', 'customers'] as const,
   products: () => ['sales', 'products'] as const,
@@ -32,6 +36,7 @@ export const saleKeys = {
   paymentTerms: () => ['sales', 'payment-terms'] as const,
   depositAccounts: () => ['sales', 'deposit-accounts'] as const,
   tags: () => ['sales', 'tags'] as const,
+  overpaymentAccount: () => ['sales', 'overpayment-account'] as const,
   receivables: (range: ReceivablesRange) => [...saleKeys.all, 'receivables', range] as const,
   counts: (filters: StatusCountFilters) => [...saleKeys.all, 'counts', filters] as const,
   publicInvoice: (token: string) => ['sales', 'public', token] as const,
@@ -141,4 +146,20 @@ export const usePublicInvoice = (token?: string) =>
     queryFn: () => fetchPublicInvoice(token || ''),
     enabled: Boolean(token),
     retry: false,
+  });
+
+/** The account an overpayment is booked to; only asked for while the payment form needs it. */
+export const useOverpaymentAccount = (enabled: boolean) =>
+  useQuery({
+    queryKey: saleKeys.overpaymentAccount(),
+    queryFn: fetchOverpaymentAccount,
+    enabled,
+    staleTime: 60_000,
+  });
+
+export const useSalePayments = (params: SalePaymentListParams) =>
+  useQuery({
+    queryKey: saleKeys.paymentList(params),
+    queryFn: () => fetchSalePayments(params),
+    staleTime: 30_000,
   });

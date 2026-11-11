@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { SaleDisplayCode } from './sale';
-import { saleActions } from './saleActions';
+import { headerActions, saleActions } from './saleActions';
 
 const sale = (
   code: SaleDisplayCode,
@@ -63,5 +63,41 @@ describe('saleActions', () => {
 
   it('hides delete when the server forbids it and the invoice is not from ProApps', () => {
     expect(saleActions(sale('UNPAID', { canDelete: false })).remove).toBe('hidden');
+  });
+});
+
+describe('headerActions', () => {
+  const layout = (code: SaleDisplayCode, flags = {}) =>
+    headerActions(saleActions(sale(code, flags)));
+
+  it('a draft: send first, edit beside it, delete in the menu', () => {
+    expect(layout('DRAFT', { canEdit: true, canDelete: true })).toEqual({
+      primary: 'send',
+      secondary: ['edit'],
+      menu: ['remove'],
+    });
+  });
+
+  it('an open invoice: pay first, the PDF beside it, the rest in the menu with void last', () => {
+    expect(layout('UNPAID')).toEqual({
+      primary: 'pay',
+      secondary: ['pdf'],
+      menu: ['link', 'resend', 'void'],
+    });
+    expect(layout('OVERDUE', { canDelete: true }).menu).toEqual([
+      'link',
+      'resend',
+      'void',
+      'remove',
+    ]);
+  });
+
+  it('a paid invoice has no filled button; a void one has no menu', () => {
+    expect(layout('PAID')).toEqual({ primary: null, secondary: ['pdf'], menu: ['link', 'resend'] });
+    expect(layout('VOID')).toEqual({ primary: null, secondary: ['pdf'], menu: [] });
+  });
+
+  it('keeps an undeletable ProApps invoice in the menu so it can say why', () => {
+    expect(layout('DRAFT', { canEdit: true, createdByApi: true }).menu).toEqual(['remove']);
   });
 });
