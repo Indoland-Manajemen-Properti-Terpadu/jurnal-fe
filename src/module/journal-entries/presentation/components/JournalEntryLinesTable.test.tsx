@@ -36,3 +36,24 @@ describe('I3 journal detail table view tolerance (characterization)', () => {
     expect(screen.getByText(/Selisih:/)).toBeInTheDocument();
   });
 });
+
+describe('account cell', () => {
+  it('reads code then name, with the category on its own line', () => {
+    renderTable([
+      {
+        id: '1',
+        account: {
+          id: 'a',
+          name: 'Piutang Lainnya',
+          accountNumber: '1-10108',
+          category: { name: 'Akun Piutang' },
+        },
+        debit: 100,
+      },
+      { id: '2', account: { id: 'b', name: 'Modal', accountNumber: '3-1000' }, credit: 100 },
+    ] as JournalEntryLine[]);
+    expect(screen.getByText('1-10108 · Piutang Lainnya')).toBeInTheDocument();
+    expect(screen.getByText('Akun Piutang')).toBeInTheDocument();
+    expect(screen.getByText('3-1000 · Modal')).toBeInTheDocument();
+  });
+});

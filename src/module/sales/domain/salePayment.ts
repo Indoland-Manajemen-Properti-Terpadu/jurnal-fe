@@ -73,6 +73,13 @@ const allocatedCents = (values: PaymentFormValues): number =>
 export const unallocatedAmount = (values: PaymentFormValues): number =>
   fromCents(Math.max(0, toCents(values.amount || 0) - allocatedCents(values)));
 
+/**
+ * Payment amount minus what is placed on lines and the fee, in currency units: above 0 is still
+ * to be placed, below 0 is placed in excess, 0 is exactly allocated.
+ */
+export const allocationGap = (values: PaymentFormValues): number =>
+  fromCents(toCents(values.amount || 0) - allocatedCents(values));
+
 /** What "fill the rest" puts on a line: the open balance of the line or whatever is left. */
 export const fillRestAmount = (
   values: PaymentFormValues,

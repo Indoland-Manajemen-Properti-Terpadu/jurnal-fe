@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Grid, Select, TextInput } from '@mantine/core';
+import { Grid, Select } from '@mantine/core';
 import type { UseFormReturnType } from '@mantine/form';
 import { useTranslation } from '@/i18n';
 import type { ContactFormValues } from '@/module/contacts/domain/contact';
@@ -9,6 +9,8 @@ import {
   resolveCityChange,
   resolveProvinceChange,
 } from '@/module/contacts/domain/contactRegion';
+import { ZIP_CODE_LENGTH } from '@/module/contacts/domain/contactInput';
+import { SanitizedInput } from './SanitizedInput';
 
 type Props = {
   form: UseFormReturnType<ContactFormValues>;
@@ -68,18 +70,14 @@ export function AddressRegionFields({ form, kind }: Readonly<Props>) {
         />
       </Grid.Col>
       <Grid.Col span={{ base: 12, sm: 4 }}>
-        <TextInput
+        <SanitizedInput
           label={t('form.address.zip.label')}
           placeholder={t('form.address.zip.placeholder')}
-          type="text"
-          inputMode="numeric"
-          pattern="[0-9]*"
-          maxLength={5}
-          {...form.getInputProps(`${path}.zipCode`)}
-          onChange={(event) => {
-            const zipCode = event.currentTarget.value.replace(/\D/g, '').slice(0, 5);
-            form.setFieldValue(zipCodePath, zipCode);
-          }}
+          maxLength={ZIP_CODE_LENGTH}
+          error={form.errors[zipCodePath]}
+          value={form.values.addresses[kind].detail.zipCode}
+          onValueChange={(value) => form.setFieldValue(zipCodePath, value)}
+          onBlur={() => form.validateField(zipCodePath)}
         />
       </Grid.Col>
     </Grid>

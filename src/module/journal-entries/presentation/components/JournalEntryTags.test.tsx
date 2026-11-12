@@ -29,7 +29,7 @@ const tagObject = {
 const renderMeta = (tags: unknown) =>
   render(
     <MemoryRouter>
-      <JournalEntryMeta entry={entry(tags)} isBalanced />
+      <JournalEntryMeta entry={entry(tags)} />
     </MemoryRouter>
   );
 

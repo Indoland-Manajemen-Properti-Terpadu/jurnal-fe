@@ -76,9 +76,10 @@ const validateExtras = (values: CreateSaleFormValues): StepErrors => {
   if (values.discountType === 'percentage' && values.discountValue > 100) {
     errors.discountValue = 'validation.discountPercent';
   }
-  if (values.withholdingValue > 0 && !values.withholdingAccount) {
-    errors.withholdingAccount = 'validation.withholdingAccountRequired';
+  if (values.withholdingType === 'percentage' && values.withholdingValue > 100) {
+    errors.withholdingValue = 'validation.withholdingPercent';
   }
+  // The account is optional: without one the server uses its default withholding mapping.
   return errors;
 };
 

@@ -236,11 +236,16 @@ type SimpleAccountDto = {
   isPostable?: boolean;
 };
 
+/** `sales` lists the revenue accounts and `purchase` the cost accounts; none lists them all. */
+export type AccountListType = 'sales' | 'purchase';
+
 /** Postable accounts from the simple list; `normalBalance` already accounts for contra accounts. */
-export const fetchAccountOptions = async (): Promise<AccountOption[]> => {
-  const response = await apiClient.get<{ data?: SimpleAccountDto[] }>(
-    API_ACCOUNT.GET_SIMPLE_ACCOUNTS
-  );
+export const fetchAccountOptions = async (type?: AccountListType): Promise<AccountOption[]> => {
+  const response = type
+    ? await apiClient.get<{ data?: SimpleAccountDto[] }>(API_ACCOUNT.GET_SIMPLE_ACCOUNTS, {
+        params: { type },
+      })
+    : await apiClient.get<{ data?: SimpleAccountDto[] }>(API_ACCOUNT.GET_SIMPLE_ACCOUNTS);
   const accounts = response.data?.data;
   if (!Array.isArray(accounts)) {
     throw new Error('Invalid simple accounts response.');

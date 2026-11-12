@@ -72,7 +72,7 @@ export function SaleFormBody({ saleId, initial }: Readonly<SaleFormBodyProps>) {
         savedId = created.sale.id;
       }
       if (mode === 'send' && savedId) {
-        await sendMutation.mutateAsync({ id: savedId, sendEmail: true });
+        await sendMutation.mutateAsync({ id: savedId, sendEmail: api.canEmail });
       }
       if (savedId) navigate(detailPath(savedId));
     } catch {
@@ -87,8 +87,7 @@ export function SaleFormBody({ saleId, initial }: Readonly<SaleFormBodyProps>) {
   const missing = SALE_STEPS.filter(
     (id) => Object.keys(validateStep(id, form.values)).length > 0
   ).map((id) => t(`form.steps.${id}`));
-  const customerName =
-    api.customerOptions.find((option) => option.value === form.values.customer)?.label ?? '';
+  const customerName = api.customer?.name ?? '';
   const review: SaleReview = {
     missing,
     customerName,
@@ -139,6 +138,7 @@ export function SaleFormBody({ saleId, initial }: Readonly<SaleFormBodyProps>) {
         isEdit={Boolean(saleId)}
         canSaveDraft={canSaveDraft(form.values)}
         canSend={canSend(form.values)}
+        canEmail={api.canEmail}
         pending={pending}
         onBack={goBack}
         onNext={goNext}

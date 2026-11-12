@@ -4,6 +4,8 @@ import { IconCalendar, IconFilterOff, IconSearch, IconX } from '@tabler/icons-re
 import { useTranslation } from '@/i18n';
 import type { DateRange } from '@/module/sales/domain/saleListState';
 import type { OverpaymentFilter } from '@/module/sales/domain/salePaymentList';
+import { CustomerPicker } from '../shared/CustomerPicker';
+import { useDepositAccounts, usePaymentMethods } from '../../hooks/useSaleQueries';
 
 type SalePaymentFiltersProps = {
   searchInput: string;
@@ -12,6 +14,12 @@ type SalePaymentFiltersProps = {
   onRange: (value: DateRange) => void;
   overpayment: OverpaymentFilter;
   onOverpayment: (value: OverpaymentFilter) => void;
+  customer: string | null;
+  onCustomer: (value: string | null) => void;
+  paymentMethod: string | null;
+  onPaymentMethod: (value: string | null) => void;
+  depositAccount: string | null;
+  onDepositAccount: (value: string | null) => void;
   isFiltered: boolean;
   onReset: () => void;
 };
@@ -25,10 +33,18 @@ export function SalePaymentFilters({
   onRange,
   overpayment,
   onOverpayment,
+  customer,
+  onCustomer,
+  paymentMethod,
+  onPaymentMethod,
+  depositAccount,
+  onDepositAccount,
   isFiltered,
   onReset,
 }: Readonly<SalePaymentFiltersProps>) {
   const { t } = useTranslation('sales');
+  const methodsQuery = usePaymentMethods();
+  const accountsQuery = useDepositAccounts();
   return (
     <Group gap="sm" wrap="wrap" align="flex-end">
       <TextInput
@@ -51,6 +67,32 @@ export function SalePaymentFilters({
         value={searchInput}
         onChange={(event) => onSearchInput(event.currentTarget.value)}
         w={{ base: '100%', sm: 320 }}
+      />
+      <CustomerPicker
+        value={customer}
+        onChange={(id) => onCustomer(id)}
+        placeholder={t('payments.allCustomers')}
+        width={{ base: '100%', sm: 220 }}
+      />
+      <Select
+        aria-label={t('payments.filterMethod')}
+        placeholder={t('payments.allMethods')}
+        data={(methodsQuery.data ?? []).map((method) => ({ value: method.id, label: method.name }))}
+        value={paymentMethod}
+        onChange={onPaymentMethod}
+        searchable
+        clearable
+        w={{ base: '100%', sm: 200 }}
+      />
+      <Select
+        aria-label={t('payments.filterAccount')}
+        placeholder={t('payments.allAccounts')}
+        data={accountsQuery.data ?? []}
+        value={depositAccount}
+        onChange={onDepositAccount}
+        searchable
+        clearable
+        w={{ base: '100%', sm: 220 }}
       />
       <Select
         aria-label={t('payments.filterOverpayment')}

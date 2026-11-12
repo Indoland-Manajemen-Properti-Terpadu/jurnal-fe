@@ -8,6 +8,7 @@ import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
 import { useTranslation } from '@/i18n';
 import { routes } from '@/router/routes';
 import type { CreateSalePaymentPayload, Sale, SaleDisplayCode } from '../../domain/sale';
+import { billingEmail } from '../../domain/saleActions';
 import { formatCount, invoiceFilename } from '../../domain/saleFormat';
 import {
   dateFilter,
@@ -23,6 +24,7 @@ import type { SaleRowHandlers } from '../components/list/SaleRowActions';
 import { ReceivablesPanel } from '../components/list/ReceivablesPanel';
 import { SaleTable } from '../components/SaleTable';
 import { ConfirmModal } from '../components/shared/ConfirmModal';
+import { TAB_DIVIDER } from '../components/shared/tabDivider';
 import {
   useCopyInvoiceLink,
   useCreateSalePayment,
@@ -75,6 +77,9 @@ export function SaleMainPage() {
     dispatch({ type: 'tab', tab: 'sent' });
     dispatch({ type: 'status', value });
   };
+
+  // Without an address the invoice is still issued, but nothing is emailed.
+  const sendHasEmail = sendTarget ? Boolean(billingEmail(sendTarget)) : true;
 
   const handlers: SaleRowHandlers = {
     onView: (sale) => navigate(detailPath(sale.id)),
@@ -145,7 +150,7 @@ export function SaleMainPage() {
               variant="pills"
               radius="md"
             >
-              <Tabs.List mb="md">
+              <Tabs.List mb="md" style={TAB_DIVIDER}>
                 <Tabs.Tab value="draft" leftSection={<IconFileText size={16} />}>
                   {tabLabel('draft', counts?.DRAFT)}
                 </Tabs.Tab>
@@ -207,13 +212,13 @@ export function SaleMainPage() {
         opened={sendTarget !== null}
         loading={sendMutation.isPending}
         title={t('confirm.sendTitle', { number: sendTarget?.transactionNumber ?? '' })}
-        message={t('confirm.sendMessage')}
-        confirmLabel={t('confirm.sendConfirm')}
+        message={t(sendHasEmail ? 'confirm.sendMessage' : 'confirm.sendMessageNoEmail')}
+        confirmLabel={t(sendHasEmail ? 'confirm.sendConfirm' : 'confirm.sendConfirmNoEmail')}
         onClose={() => setSendTarget(null)}
         onConfirm={async () => {
           if (!sendTarget) return;
           await sendMutation
-            .mutateAsync({ id: sendTarget.id, sendEmail: true })
+            .mutateAsync({ id: sendTarget.id, sendEmail: sendHasEmail })
             .catch(() => undefined);
           setSendTarget(null);
         }}
