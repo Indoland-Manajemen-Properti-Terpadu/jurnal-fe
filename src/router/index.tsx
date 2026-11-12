@@ -4,6 +4,7 @@ import { NotFound } from '@/components/ErrorPage/NotFound';
 import { routes } from './routes';
 import { appRoutes } from './modules/app';
 import { bankCashRoutes } from './modules/bankCash';
+import { bankConnectionRoutes } from './modules/bankConnection';
 import { pettyCashRoutes } from './modules/pettyCash';
 import { contactsRoutes } from './modules/contacts';
 import { chartOfAccountsRoutes } from './modules/chartOfAccounts';
@@ -30,6 +31,7 @@ import { legacyRoutes } from './modules/legacy';
 const router = createBrowserRouter([
   ...appRoutes,
   ...bankCashRoutes,
+  ...bankConnectionRoutes,
   ...pettyCashRoutes,
   ...contactsRoutes,
   ...chartOfAccountsRoutes,

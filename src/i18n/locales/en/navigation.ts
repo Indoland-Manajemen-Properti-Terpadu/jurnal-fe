@@ -53,6 +53,7 @@ export const navigation = {
   appJurnalDesc: 'Integrated accounting',
   appProappsName: 'ProApps',
   appProappsDesc: 'Property and building management',
+  bankConnection: 'Bank Connection',
   pettyCash: 'Petty Cash',
   sales: 'Sales',
   purchases: 'Purchases',
