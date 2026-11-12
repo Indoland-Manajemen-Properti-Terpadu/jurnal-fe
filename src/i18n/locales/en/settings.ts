@@ -31,7 +31,6 @@ export const settings = {
     roles: 'Roles & Permissions',
     accessHistory: 'Access History',
     approvalFlow: 'Approval Flow',
-    accountingPeriods: 'Accounting Periods',
     sites: 'Manage Sites',
   },
   description: {
@@ -47,7 +46,6 @@ export const settings = {
     roles: 'Roles and the menus each role may open.',
     accessHistory: 'Record of changes to users and roles.',
     approvalFlow: 'Who approves each approval step.',
-    accountingPeriods: 'Open and lock accounting periods.',
     sites: 'Manage the companies or locations that use this app.',
   },
   generalTitle: 'Number Precision',

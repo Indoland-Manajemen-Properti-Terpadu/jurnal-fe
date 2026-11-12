@@ -34,6 +34,7 @@ const mapAccount = (raw: unknown): TrialBalanceAccount => {
     accountNumber: safeString(account.accountNumber),
     name: safeString(account.name),
     categoryName: safeString(asRecord(account.category).name),
+    categoryCode: safeString(asRecord(account.category).categoryID),
     isHead: account.isHead === true,
     isContra: account.isContra === true,
     opening: mapCells(row.opening),

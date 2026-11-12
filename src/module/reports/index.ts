@@ -15,3 +15,7 @@ export { ReportSearchInput } from './presentation/components/shared/ReportSearch
 export { ReportToolbar } from './presentation/components/shared/ReportToolbar';
 export { dateOnly, getPresetDateRange } from './domain/reportFormat';
 export type { PeriodPreset } from './domain/reportFormat';
+
+// The whole trial balance for a range, read by the period close checklist and preview.
+export { trialBalanceApi } from './infrastructure/trialBalanceApi';
+export type { TrialBalanceAccount, TrialBalanceReport } from './domain/trialBalance.types';

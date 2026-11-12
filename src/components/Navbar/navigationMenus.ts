@@ -1,6 +1,8 @@
 /** Menu ids of the server catalog that the sidebar depends on. */
 export const NAV_MENU = {
   ledger: ['JP-GL'],
+  /** Period locks and closing the books ("Tutup Buku & Lock Period"). */
+  periodClosing: ['JP-GL-PC'],
   sales: ['JP-SALES'],
   products: ['JP-PRDCT'],
   contacts: ['JP-CNTCT'],

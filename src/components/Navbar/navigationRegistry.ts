@@ -220,7 +220,8 @@ export const navigationSections: NavSection[] = [
         id: 'closingBooks',
         labelKey: 'closingBooksMenu',
         icon: Lock,
-        link: routes.periodClosing.closingBooks,
+        link: routes.periodClosing.main,
+        menus: [...NAV_MENU.periodClosing],
       },
       {
         id: 'reports',

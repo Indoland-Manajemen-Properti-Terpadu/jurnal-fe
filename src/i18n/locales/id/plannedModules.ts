@@ -141,16 +141,6 @@ export const plannedModules = {
         four: 'Pengaturan khusus untuk tiap site',
       },
     },
-    accountingPeriods: {
-      title: 'Periode Akuntansi',
-      description: 'Buka dan kunci periode pembukuan agar angka yang sudah ditutup tidak berubah.',
-      features: {
-        one: 'Daftar periode dan statusnya',
-        two: 'Kunci periode yang sudah selesai',
-        three: 'Buka kembali periode dengan alasan',
-        four: 'Riwayat pembukaan dan penguncian',
-      },
-    },
     approvalFlow: {
       title: 'Alur Persetujuan',
       description: 'Tentukan siapa yang menyetujui setiap tahap persetujuan.',
