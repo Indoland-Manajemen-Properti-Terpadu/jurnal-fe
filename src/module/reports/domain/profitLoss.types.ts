@@ -53,6 +53,8 @@ export interface ProfitLossSummary {
 export interface ProfitLossReport {
   startDate: string;
   endDate: string;
+  /** Decimal places the server rounded the amounts to; absent on an older server. */
+  precision?: number;
   sections: ProfitLossSection[];
   summary: ProfitLossSummary;
   rows: ProfitLossRow[];

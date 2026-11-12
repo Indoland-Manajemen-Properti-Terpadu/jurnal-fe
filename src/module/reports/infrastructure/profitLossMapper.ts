@@ -6,7 +6,7 @@ import type {
   ProfitLossSection,
   ProfitLossSummary,
 } from '@/module/reports/domain/profitLoss.types';
-import { asArray, asRecord, safeNumber, safeString } from './reportValue';
+import { asArray, asRecord, optionalPrecision, safeNumber, safeString } from './reportValue';
 
 const ROW_TYPES: ProfitLossRowType[] = [
   'title',
@@ -76,6 +76,7 @@ export const mapProfitLossPage = (
     report: {
       startDate: safeString(data.startDate),
       endDate: safeString(data.endDate),
+      precision: optionalPrecision(data.precision),
       sections: asArray(data.sections).map(mapSection),
       summary: mapSummary(data.summary),
       rows: asArray(data.rows).map(mapRow),
