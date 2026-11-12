@@ -102,6 +102,22 @@ export const filterAccountsByNormalBalance = (
       (normalBalance === 'debit' ? account.isDebit === true : account.isDebit === false)
   );
 
+/**
+ * The accounts a field offers: those of the wanted side from `typed`, plus the account the product
+ * already uses even when the typed list does not contain it (it is then taken from `all`).
+ */
+export const accountChoices = (
+  typed: AccountOption[],
+  all: AccountOption[],
+  normalBalance: 'debit' | 'credit',
+  keepId?: string | null
+): AccountOption[] => {
+  const choices = filterAccountsByNormalBalance(typed, normalBalance, keepId);
+  if (!keepId || choices.some((account) => account.id === keepId)) return choices;
+  const kept = all.find((account) => account.id === keepId);
+  return kept ? [...choices, kept] : choices;
+};
+
 export type ProductSummary = {
   total: number;
   sold: number;

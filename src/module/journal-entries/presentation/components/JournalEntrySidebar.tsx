@@ -1,16 +1,7 @@
 import React from 'react';
-import {
-  ActionIcon,
-  Badge,
-  CopyButton,
-  Divider,
-  Group,
-  Paper,
-  Stack,
-  Text,
-  Tooltip,
-} from '@mantine/core';
-import { IconCheck, IconCopy } from '@tabler/icons-react';
+import { ActionIcon, Badge, CopyButton, Group, Paper, Stack, Text, Tooltip } from '@mantine/core';
+import { IconCheck, IconCopy, IconHistory, IconPaperclip } from '@tabler/icons-react';
+import { DetailCardHeader } from '@/components/DetailCardHeader/DetailCardHeader';
 import { useTranslation } from '@/i18n';
 import { dateFormatV1 } from '@/utils/formatDate';
 import { tagNames } from '../../domain/journalTags';
@@ -53,10 +44,11 @@ const JournalEntrySidebar: React.FC<JournalEntrySidebarProps> = ({ entry }) => {
   return (
     <Stack gap="md">
       <Paper withBorder radius="md" p="md" bg="white" shadow="none">
-        <Text fw={700} fz="var(--jurnal-text-sm)" c="dark.8">
-          {t('detail.auditTitle')}
-        </Text>
-        <Divider my="sm" />
+        <DetailCardHeader
+          icon={<IconHistory size={19} />}
+          title={t('detail.auditTitle')}
+          subtitle={t('detail.auditSubtitle')}
+        />
         <Stack gap="xs">
           <Row label={t('detail.transactionDate')}>
             <Value>
@@ -120,15 +112,16 @@ const JournalEntrySidebar: React.FC<JournalEntrySidebarProps> = ({ entry }) => {
       </Paper>
 
       <Paper withBorder radius="md" p="md" bg="white" shadow="none">
-        <Group justify="space-between" align="center">
-          <Text fw={700} fz="var(--jurnal-text-sm)" c="dark.8">
-            {t('detail.docsTitle')}
-          </Text>
-          <Text fz="var(--jurnal-text-xs)" fw={600} c="dimmed">
-            {t('detail.docsBadge', { count: attachmentCount })}
-          </Text>
-        </Group>
-        <Divider my="sm" />
+        <DetailCardHeader
+          icon={<IconPaperclip size={19} />}
+          title={t('detail.docsTitle')}
+          subtitle={t('detail.docsSubtitle')}
+          action={
+            <Text fz="var(--jurnal-text-xs)" fw={600} c="dimmed" style={{ whiteSpace: 'nowrap' }}>
+              {t('detail.docsBadge', { count: attachmentCount })}
+            </Text>
+          }
+        />
         <JournalAttachments attachments={entry.attachments} />
       </Paper>
     </Stack>

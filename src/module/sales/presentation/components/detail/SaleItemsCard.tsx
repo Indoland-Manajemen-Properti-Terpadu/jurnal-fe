@@ -1,3 +1,4 @@
+import { DetailCardHeader } from '@/components/DetailCardHeader/DetailCardHeader';
 import { Anchor, Box, Divider, Group, Paper, Stack, Table, Text } from '@mantine/core';
 import { IconArrowUpRight, IconNotebook, IconReceipt2 } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
@@ -5,7 +6,6 @@ import { routes } from '@/router/routes';
 import type { Sale, SaleItem } from '@/module/sales/domain/sale';
 import type { SaleDisplay } from '../../hooks/useSaleDisplay';
 import { AmountRow } from './AmountRow';
-import { DetailCardHeader } from './DetailCardHeader';
 import { formatSignedAmount } from './formatSignedAmount';
 import classes from './SaleDetail.module.css';
 

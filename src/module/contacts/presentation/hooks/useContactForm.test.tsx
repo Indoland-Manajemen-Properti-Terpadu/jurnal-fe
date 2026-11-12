@@ -32,3 +32,54 @@ describe('useContactForm email validation', () => {
     expect(hasValidEmailError).toBe(false);
   });
 });
+
+describe('useContactForm numeric validation', () => {
+  it('flags bad identity, NPWP, phones, postal code and bank rows on submit', () => {
+    const { result } = renderHook(() => useContactForm(true));
+
+    act(() => {
+      result.current.setValues({
+        displayName: 'PT Maju',
+        emails: ['a@b.co'],
+        identity: { type: 'KTP', number: '123' },
+        npwp: '12',
+        phones: { mobile: '08', telephone: '02', fax: '' },
+        addresses: {
+          billing: {
+            general: '',
+            detail: { ...result.current.values.addresses.billing.detail, zipCode: '12' },
+          },
+          shipping: result.current.values.addresses.shipping,
+        },
+        bankAccounts: [{ bankName: '', branch: '', accountHolder: '', accountNumber: '123' }],
+      });
+    });
+    let errors: Record<string, unknown> = {};
+    act(() => {
+      errors = result.current.validate().errors;
+    });
+
+    expect(Object.keys(errors).sort()).toEqual(
+      [
+        'addresses.billing.detail.zipCode',
+        'bankAccounts.0.accountNumber',
+        'bankAccounts.0.bankName',
+        'identity.number',
+        'npwp',
+        'phones.mobile',
+        'phones.telephone',
+      ].sort()
+    );
+  });
+
+  it('passes with all optional fields empty', () => {
+    const { result } = renderHook(() => useContactForm(true));
+    act(() => result.current.setFieldValue('displayName', 'PT Maju'));
+    act(() => result.current.setFieldValue('emails', ['a@b.co']));
+    let hasErrors = true;
+    act(() => {
+      hasErrors = result.current.validate().hasErrors;
+    });
+    expect(hasErrors).toBe(false);
+  });
+});

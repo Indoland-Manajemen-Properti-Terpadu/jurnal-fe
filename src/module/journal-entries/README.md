@@ -23,6 +23,10 @@ Creates, lists and shows manual general journal entries (double entry). It is th
 - `POST /v1/journal/:id/void` void: the original becomes status `VOID` and a `REVERSAL` entry is written. The detail response carries `canVoid` and `voidBlockedReason`.
 - `GET /v1/tags?page=` and `POST /v1/tags` tags used by the form.
 
+## Detail page
+
+The header line under the title shows only the date, a Dibatalkan or Jurnal Pembalik marker when it applies, and the tags; entity, type and balance live on the cards below. Every card (lines, memo, entity and audit, supporting documents) opens with the shared `DetailCardHeader` (`@/components/DetailCardHeader`): an icon, the title and one short line, as on the sales detail. The lines table names an account as "code · name" (`1-10108 · Piutang Lainnya`) with its category on the line below, and uses a native scroll container so no empty band sits under the Total row.
+
 ## Domain rules (`domain/journalRules.ts`, tested)
 
 - I1: a new journal saves only if every row has an account and an amount and total debit equals total credit exactly (`isJournalBlocked`, through `@/lib/accounting`). The two-row minimum is enforced by the remove button of the form, not by the gate (as before).

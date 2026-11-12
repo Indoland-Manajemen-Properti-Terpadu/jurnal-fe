@@ -1,5 +1,6 @@
 import type { Contact, ContactFormValues } from './contact';
 import { extractAccountId } from './contactAccount';
+import { digitsOnly, sanitizeIdentityNumber } from './contactInput';
 
 const emptyAddressDetail = () => ({
   no: '',
@@ -67,7 +68,7 @@ const addressDetailValues = (
   no: detail?.no ?? '',
   rt: detail?.rt ?? '',
   rw: detail?.rw ?? '',
-  zipCode: detail?.zipCode ?? '',
+  zipCode: digitsOnly(detail?.zipCode ?? ''),
   kelurahan: detail?.kelurahan ?? '',
   kecamatan: detail?.kecamatan ?? '',
   city: detail?.city ?? '',
@@ -87,16 +88,16 @@ export const contactToFormValues = (contact: Contact): ContactFormValues => ({
   },
   identity: {
     type: contact.identity?.type ?? 'KTP',
-    number: contact.identity?.number ?? '',
+    number: sanitizeIdentityNumber(contact.identity?.number ?? '', contact.identity?.type ?? 'KTP'),
   },
   emails: contact.emails.length > 0 ? contact.emails : [''],
   companyName: contact.companyName ?? '',
   phones: {
-    mobile: contact.phones?.mobile ?? '',
-    telephone: contact.phones?.telephone ?? '',
-    fax: contact.phones?.fax ?? '',
+    mobile: digitsOnly(contact.phones?.mobile ?? ''),
+    telephone: digitsOnly(contact.phones?.telephone ?? ''),
+    fax: digitsOnly(contact.phones?.fax ?? ''),
   },
-  npwp: contact.npwp ?? '',
+  npwp: digitsOnly(contact.npwp ?? ''),
   addresses: {
     billing: {
       general: contact.addresses?.billing?.general ?? '',
@@ -113,7 +114,7 @@ export const contactToFormValues = (contact: Contact): ContactFormValues => ({
     bankName: bank.bankName ?? '',
     branch: bank.branch ?? '',
     accountHolder: bank.accountHolder ?? '',
-    accountNumber: bank.accountNumber ?? '',
+    accountNumber: digitsOnly(bank.accountNumber ?? ''),
   })),
   mappingAccount: {
     arAccount: extractAccountId(contact.mappingAccount?.arAccount),

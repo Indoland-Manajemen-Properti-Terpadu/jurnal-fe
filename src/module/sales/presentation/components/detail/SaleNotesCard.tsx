@@ -1,8 +1,8 @@
 import { Paper, SimpleGrid } from '@mantine/core';
 import { IconNotes } from '@tabler/icons-react';
+import { DetailCardHeader } from '@/components/DetailCardHeader/DetailCardHeader';
 import type { Sale } from '@/module/sales/domain/sale';
 import type { SaleDisplay } from '../../hooks/useSaleDisplay';
-import { DetailCardHeader } from './DetailCardHeader';
 import { DetailField } from './DetailField';
 
 export function SaleNotesCard({ sale, display }: Readonly<{ sale: Sale; display: SaleDisplay }>) {

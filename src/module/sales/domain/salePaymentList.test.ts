@@ -13,6 +13,11 @@ describe('paymentListParams', () => {
       limit: 10,
       search: undefined,
       hasOverpayment: undefined,
+      customer: undefined,
+      paymentMethod: undefined,
+      depositAccount: undefined,
+      sortBy: 'paymentDate',
+      sortOrder: 'desc',
     });
   });
 
@@ -46,5 +51,38 @@ describe('paymentListReducer', () => {
     expect(next.limit).toBe(50);
     expect(hasActivePaymentFilters(next)).toBe(false);
     expect(hasActivePaymentFilters(state)).toBe(true);
+  });
+});
+
+describe('sorting and the extra filters', () => {
+  it('flips the direction on the sorted column and starts a new column largest or newest first', () => {
+    const flipped = paymentListReducer(initialPaymentListState, {
+      type: 'sort',
+      by: 'paymentDate',
+    });
+    expect(flipped.sortOrder).toBe('asc');
+    const amount = paymentListReducer(flipped, { type: 'sort', by: 'amount' });
+    expect([amount.sortBy, amount.sortOrder]).toEqual(['amount', 'desc']);
+    const number = paymentListReducer(amount, { type: 'sort', by: 'transactionNumber' });
+    expect([number.sortBy, number.sortOrder]).toEqual(['transactionNumber', 'asc']);
+  });
+
+  it('sends the customer, method and account and counts them as active filters', () => {
+    let state = paymentListReducer(initialPaymentListState, { type: 'customer', value: 'c1' });
+    state = paymentListReducer(state, { type: 'paymentMethod', value: 'm1' });
+    state = paymentListReducer(state, { type: 'depositAccount', value: 'a1' });
+    expect(paymentListParams(state)).toMatchObject({
+      customer: 'c1',
+      paymentMethod: 'm1',
+      depositAccount: 'a1',
+    });
+    expect(hasActivePaymentFilters(state)).toBe(true);
+    expect(hasActivePaymentFilters(paymentListReducer(state, { type: 'reset' }))).toBe(false);
+  });
+
+  it('keeps the chosen sort when the filters are reset', () => {
+    const sorted = paymentListReducer(initialPaymentListState, { type: 'sort', by: 'amount' });
+    const reset = paymentListReducer(sorted, { type: 'reset' });
+    expect([reset.sortBy, reset.sortOrder]).toEqual(['amount', 'desc']);
   });
 });

@@ -1,6 +1,7 @@
 import { Grid, Paper, Select, Stack, TagsInput, TextInput, Textarea } from '@mantine/core';
 import { IconCalendar } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
+import { CustomerPicker } from '../shared/CustomerPicker';
 import { SaleTagField } from '../shared/SaleTagField';
 import type { SaleFormApi } from '../../hooks/useSaleForm';
 import { StepHeading } from './StepHeading';
@@ -19,15 +20,13 @@ export function StepGeneral({ api }: Readonly<{ api: SaleFormApi }>) {
         />
         <Grid gutter="md">
           <Grid.Col span={{ base: 12, sm: 6 }}>
-            <Select
+            <CustomerPicker
               label={t('form.general.customer')}
               placeholder={t('form.general.customerPlaceholder')}
-              data={api.customerOptions}
-              searchable
-              clearable
               withAsterisk
-              value={form.values.customer}
+              value={form.values.customer || null}
               onChange={api.changeCustomer}
+              onResolved={api.setCustomer}
               error={form.errors.customer}
             />
           </Grid.Col>

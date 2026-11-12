@@ -9,14 +9,14 @@ import {
   Text,
   Tooltip,
 } from '@mantine/core';
-import { IconArrowBarToDown } from '@tabler/icons-react';
+import { IconAlertTriangle, IconArrowBarToDown, IconCircleCheck } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import { formatIDR } from '@/module/sales/domain/saleFormat';
 import {
   AUTO_ALLOCATION_ORDER,
   fillRestAmount,
   itemErrorKey,
-  unallocatedAmount,
+  allocationGap,
   type AllocationMode,
   type PaymentFormValues,
 } from '@/module/sales/domain/salePayment';
@@ -41,6 +41,48 @@ const numberProps = {
   hideControls: true,
 } as const;
 
+/** Live balance of the allocation: done, still to place, or placed in excess. */
+function AllocationStatus({ gap }: Readonly<{ gap: number }>) {
+  const { t } = useTranslation('sales');
+  if (gap === 0) {
+    return (
+      <Group gap={6} role="status" aria-live="polite">
+        <IconCircleCheck size={16} color="var(--mantine-color-teal-7)" />
+        <Text size="sm" fw={600} c="teal.8">
+          {t('pay.allocatedAll')}
+        </Text>
+      </Group>
+    );
+  }
+  const over = gap < 0;
+  return (
+    <Group
+      justify="space-between"
+      role="status"
+      aria-live="polite"
+      px="sm"
+      py={8}
+      style={{
+        borderRadius: 'var(--mantine-radius-md)',
+        background: over ? 'var(--mantine-color-red-0)' : 'var(--mantine-color-yellow-0)',
+      }}
+    >
+      <Group gap={6}>
+        <IconAlertTriangle
+          size={16}
+          color={over ? 'var(--mantine-color-red-7)' : 'var(--mantine-color-yellow-8)'}
+        />
+        <Text size="sm" fw={600} c={over ? 'red.8' : 'yellow.9'}>
+          {over ? t('pay.overAllocated') : t('pay.unallocated')}
+        </Text>
+      </Group>
+      <Text size="sm" fw={800} c={over ? 'red.8' : 'yellow.9'}>
+        {formatIDR(Math.abs(gap))}
+      </Text>
+    </Group>
+  );
+}
+
 /** Where a part payment goes: typed per invoice line, or left to the server's own order. */
 export function PaymentAllocation({
   values,
@@ -52,7 +94,7 @@ export function PaymentAllocation({
   onLateFee,
 }: Readonly<PaymentAllocationProps>) {
   const { t } = useTranslation('sales');
-  const left = unallocatedAmount(values);
+  const gap = allocationGap(values);
 
   const fillButton = (disabled: boolean, onClick: () => void) => (
     <Tooltip label={t('pay.fillRest')}>
@@ -105,7 +147,7 @@ export function PaymentAllocation({
                   <Table.Tr>
                     <Table.Th>{t('pay.colProduct')}</Table.Th>
                     <Table.Th ta="right">{t('pay.colOutstanding')}</Table.Th>
-                    <Table.Th w={190}>{t('pay.colPay')}</Table.Th>
+                    <Table.Th w={210}>{t('pay.colPay')}</Table.Th>
                   </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>
@@ -160,19 +202,7 @@ export function PaymentAllocation({
               </Table>
             </Table.ScrollContainer>
 
-            <Group justify="space-between">
-              <Text size="sm" c="dimmed">
-                {t('pay.unallocated')}
-              </Text>
-              <Text size="sm" fw={800} c={left > 0 ? 'red.7' : undefined} aria-live="polite">
-                {formatIDR(left)}
-              </Text>
-            </Group>
-            {errors.allocation && (
-              <Text size="xs" c="red.7" role="alert">
-                {errors.allocation}
-              </Text>
-            )}
+            <AllocationStatus gap={gap} />
           </>
         )}
       </Stack>

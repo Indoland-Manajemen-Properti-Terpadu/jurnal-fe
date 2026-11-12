@@ -17,6 +17,8 @@ import { IconBuildingBank, IconPlus, IconTrash } from '@tabler/icons-react';
 import { INDONESIA_BANKS } from '@/constants/banks';
 import { useTranslation } from '@/i18n';
 import type { ContactFormValues } from '@/module/contacts/domain/contact';
+import { BANK_ACCOUNT_LENGTH } from '@/module/contacts/domain/contactInput';
+import { SanitizedInput } from './SanitizedInput';
 
 type Props = { form: UseFormReturnType<ContactFormValues> };
 
@@ -113,13 +115,25 @@ export function ContactBankTab({ form }: Readonly<Props>) {
                     limit={8}
                     maxDropdownHeight={240}
                     {...form.getInputProps(`bankAccounts.${index}.bankName`)}
+                    onChange={(value) => {
+                      form.setFieldValue(`bankAccounts.${index}.bankName`, value);
+                      form.clearFieldError(`bankAccounts.${index}.bankName`);
+                      form.clearFieldError(`bankAccounts.${index}.accountNumber`);
+                    }}
                   />
                 </Grid.Col>
                 <Grid.Col span={{ base: 12, sm: 6 }}>
-                  <TextInput
+                  <SanitizedInput
                     label={t('form.banks.accountNumber.label')}
                     placeholder={t('form.banks.accountNumber.placeholder')}
-                    {...form.getInputProps(`bankAccounts.${index}.accountNumber`)}
+                    maxLength={BANK_ACCOUNT_LENGTH.max}
+                    error={form.errors[`bankAccounts.${index}.accountNumber`]}
+                    value={form.values.bankAccounts[index].accountNumber}
+                    onValueChange={(value) => {
+                      form.setFieldValue(`bankAccounts.${index}.accountNumber`, value);
+                      form.clearFieldError(`bankAccounts.${index}.bankName`);
+                    }}
+                    onBlur={() => form.validateField(`bankAccounts.${index}.accountNumber`)}
                   />
                 </Grid.Col>
                 <Grid.Col span={{ base: 12, sm: 6 }}>

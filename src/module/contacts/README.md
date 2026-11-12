@@ -27,6 +27,7 @@ Contact master data (customers, vendors, employees and other parties): list with
 
 - Credit limits (`maxReceivable`, `maxPayable`) are money: a non-number or non-finite amount becomes 0, otherwise it is rounded half up to the cent (`roundToCents`).
 - Payload: text fields are trimmed and empty strings become `null`; blank emails are dropped; bank accounts need both a bank name and an account number; when shipping is "same as billing" it copies billing; `external_id` is sent on create only; the payment term falls back to 0.
+- Input rules (`contactInput`): identity number (KTP 16 digits, SIM 12-14 digits, passport 6-9 letters and digits), NPWP (15 or 16 digits), mobile (9-15), office phone (6-15), postal code (5) and bank account number (5-20) accept digits only; typing or pasting drops other characters, and all are optional but validated when filled. A bank row needs both bank name and number. Saved values load with non-digits stripped. A failed submit jumps to the first tab holding an error.
 - Mapper fallbacks accept both camelCase and snake_case from the server; a missing display name becomes the translated "unnamed".
 - Pagination falls back to `pages`, then to `ceil(total / limit)` with a minimum of 1.
 - Transaction view: status tabs and overdue/paid derivation live in `useContactTransactionView` (covered by tests).

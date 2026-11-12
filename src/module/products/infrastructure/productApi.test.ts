@@ -285,6 +285,22 @@ describe('lookups', () => {
     expect(http.get).toHaveBeenCalledWith(API_ACCOUNT.GET_SIMPLE_ACCOUNTS);
   });
 
+  it('asks for the sales or purchase accounts with the type parameter', async () => {
+    http.get.mockResolvedValue({
+      data: { data: [{ id: 'a1', name: 'Pendapatan', normalBalance: 'credit', isPostable: true }] },
+    });
+
+    await fetchAccountOptions('sales');
+    await fetchAccountOptions('purchase');
+
+    expect(http.get).toHaveBeenNthCalledWith(1, API_ACCOUNT.GET_SIMPLE_ACCOUNTS, {
+      params: { type: 'sales' },
+    });
+    expect(http.get).toHaveBeenNthCalledWith(2, API_ACCOUNT.GET_SIMPLE_ACCOUNTS, {
+      params: { type: 'purchase' },
+    });
+  });
+
   it('rejects an account response without a data array', async () => {
     http.get.mockResolvedValue({ data: {} });
 

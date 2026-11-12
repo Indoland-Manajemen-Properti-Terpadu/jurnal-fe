@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Alert, Box, Button, Grid, Stack } from '@mantine/core';
+import { Alert, Box, Button, Stack } from '@mantine/core';
 import { IconArrowLeft, IconInfoCircle, IconReceipt2 } from '@tabler/icons-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { AppShellLayout } from '@/components/AppShellLayout';
@@ -10,13 +10,11 @@ import type { CreateSalePaymentPayload } from '../../domain/sale';
 import { PaySaleModal } from '../components/PaySaleModal';
 import { SaleActionBar } from '../components/detail/SaleActionBar';
 import { SaleDetailError, SaleDetailLoading } from '../components/detail/SaleDetailStates';
-import { SaleItemsCard } from '../components/detail/SaleItemsCard';
-import { SaleNotesCard } from '../components/detail/SaleNotesCard';
+import { SaleDetailTabs } from '../components/detail/SaleDetailTabs';
 import { SaleOverviewCard } from '../components/detail/SaleOverviewCard';
-import { SaleSidebar } from '../components/detail/SaleSidebar';
 import { useSaleDisplay } from '../hooks/useSaleDisplay';
 import { useCreateSalePayment } from '../hooks/useSaleMutations';
-import { useSaleDetail } from '../hooks/useSaleQueries';
+import { useSaleDetail, useSalePaymentsOfSale } from '../hooks/useSaleQueries';
 
 export function SaleDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -27,6 +25,8 @@ export function SaleDetailPage() {
   const [payOpened, setPayOpened] = useState(false);
   const { data: sale, isLoading, isError, refetch } = useSaleDetail(id);
   const payMutation = useCreateSalePayment();
+  // The same query as the history tab, so the tab can show its count before it is opened.
+  const paymentsQuery = useSalePaymentsOfSale(id);
 
   const goBack = () => navigate(routes.sales.main);
 
@@ -68,17 +68,11 @@ export function SaleDetailPage() {
             display={display}
             actions={<SaleActionBar sale={sale} onPay={() => setPayOpened(true)} />}
           />
-          <Grid gutter="lg" align="flex-start">
-            <Grid.Col span={{ base: 12, lg: 8 }}>
-              <Stack gap="lg">
-                <SaleItemsCard sale={sale} display={display} />
-                {(sale.message || sale.memo) && <SaleNotesCard sale={sale} display={display} />}
-              </Stack>
-            </Grid.Col>
-            <Grid.Col span={{ base: 12, lg: 4 }}>
-              <SaleSidebar sale={sale} display={display} />
-            </Grid.Col>
-          </Grid>
+          <SaleDetailTabs
+            sale={sale}
+            display={display}
+            paymentCount={paymentsQuery.data?.pagination.total}
+          />
         </Stack>
       </Box>
       <PaySaleModal

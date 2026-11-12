@@ -48,10 +48,11 @@ export const buildSaleFormData = (values: CreateSaleFormValues, mode: SaleSaveMo
     formData.append('discountValue', String(discountValuePayload(values)));
   }
 
-  if (values.withholdingAccount && values.withholdingValue > 0) {
+  if (values.withholdingValue > 0) {
     formData.append('withholdingType', values.withholdingType);
     formData.append('withholdingValue', String(withholdingValuePayload(values)));
-    formData.append('withholdingAccount', values.withholdingAccount);
+    // Optional: without an account the server uses its default withholding mapping.
+    if (values.withholdingAccount) formData.append('withholdingAccount', values.withholdingAccount);
   }
 
   if (values.message) formData.append('message', values.message);
