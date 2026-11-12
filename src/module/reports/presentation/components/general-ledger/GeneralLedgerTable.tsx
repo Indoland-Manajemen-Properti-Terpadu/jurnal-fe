@@ -6,6 +6,7 @@ import { groupByAccountClass } from '@/module/reports/domain/accountClass';
 import type { GeneralLedgerAccount } from '@/module/reports/domain/generalLedger.types';
 import { displayDate, formatAmount, formatCount } from '@/module/reports/domain/reportFormat';
 import { useTranslation } from '@/i18n';
+import { useReportPrecision } from '@/module/reports/presentation/hooks/useReportPrecision';
 import classes from './GeneralLedger.module.css';
 
 /** Transactions shown at once for one account; a busy account has thousands in a period. */
@@ -18,22 +19,32 @@ interface GeneralLedgerTableProps {
 }
 
 /** Negative balances show in parentheses and red, as in a printed ledger. */
-const signed = (value: number) =>
-  value < 0 ? `(${formatAmount(Math.abs(value))})` : formatAmount(value);
+const signed = (value: number, precision: number) =>
+  value < 0 ? `(${formatAmount(Math.abs(value), precision)})` : formatAmount(value, precision);
 
 /** A debit or credit figure: zero is shown but muted. */
-const Figure: React.FC<{ value: number }> = ({ value }) => (
-  <td data-num="" data-zero={value === 0 ? '' : undefined}>
-    {formatAmount(value)}
-  </td>
-);
+const Figure: React.FC<{ value: number }> = ({ value }) => {
+  const precision = useReportPrecision();
+  return (
+    <td data-num="" data-zero={value === 0 ? '' : undefined}>
+      {formatAmount(value, precision)}
+    </td>
+  );
+};
 
 /** A balance, negative ones in parentheses and red. */
-const Balance: React.FC<{ value: number; strong?: boolean }> = ({ value, strong }) => (
-  <td data-num="" data-balance={strong ? 'strong' : ''} data-negative={value < 0 ? '' : undefined}>
-    {signed(value)}
-  </td>
-);
+const Balance: React.FC<{ value: number; strong?: boolean }> = ({ value, strong }) => {
+  const precision = useReportPrecision();
+  return (
+    <td
+      data-num=""
+      data-balance={strong ? 'strong' : ''}
+      data-negative={value < 0 ? '' : undefined}
+    >
+      {signed(value, precision)}
+    </td>
+  );
+};
 
 /**
  * The general ledger as one table, the way a printed ledger reads: under the name of its class,

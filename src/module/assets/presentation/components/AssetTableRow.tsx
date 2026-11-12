@@ -11,6 +11,7 @@ import {
 import { formatAssetDate } from '@/module/assets/presentation/components/formatAssetDate';
 import classes from '@/module/assets/presentation/components/AssetTable.module.css';
 import { formatAssetMoney } from '@/module/assets/presentation/components/formatAssetMoney';
+import { useDecimalPrecision } from '@/module/settings';
 
 export type AssetTableRowProps = {
   asset: AssetItem;
@@ -18,6 +19,7 @@ export type AssetTableRowProps = {
 };
 
 export function AssetTableRow({ asset, onViewDetail }: Readonly<AssetTableRowProps>) {
+  const precision = useDecimalPrecision();
   const { t } = useTranslation('assets');
 
   return (
@@ -64,12 +66,12 @@ export function AssetTableRow({ asset, onViewDetail }: Readonly<AssetTableRowPro
       </Table.Td>
 
       <Table.Td className={`${classes.cell} ${classes.amount}`}>
-        <Text size="sm">{formatAssetMoney(asset.acquisitionCost)}</Text>
+        <Text size="sm">{formatAssetMoney(asset.acquisitionCost, precision)}</Text>
       </Table.Td>
 
       <Table.Td className={`${classes.cell} ${classes.amount}`}>
         <Text size="sm" fw={600}>
-          {formatAssetMoney(asset.netBookValue)}
+          {formatAssetMoney(asset.netBookValue, precision)}
         </Text>
       </Table.Td>
 

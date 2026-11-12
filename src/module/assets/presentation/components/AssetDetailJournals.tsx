@@ -8,6 +8,7 @@ import { AssetSectionCard } from '@/module/assets/presentation/components/AssetS
 import { formatAssetDate } from '@/module/assets/presentation/components/formatAssetDate';
 import { formatAssetMoney } from '@/module/assets/presentation/components/formatAssetMoney';
 import classes from '@/module/assets/presentation/components/AssetDetail.module.css';
+import { useDecimalPrecision } from '@/module/settings';
 
 export type AssetDetailJournalsProps = {
   journals: AssetJournal[];
@@ -15,10 +16,12 @@ export type AssetDetailJournalsProps = {
 };
 
 const HEADER_PROPS = { size: 'xs', fw: 700, c: 'dimmed', tt: 'uppercase' } as const;
-const amount = (value: number) => (value > 0 ? formatAssetMoney(value) : '—');
+const amount = (value: number, precision: number) =>
+  value > 0 ? formatAssetMoney(value, precision) : '—';
 
 /** Journals posted for the asset, each opened on demand to show its debit and credit lines. */
 export function AssetDetailJournals({ journals, loading }: Readonly<AssetDetailJournalsProps>) {
+  const precision = useDecimalPrecision();
   const { t } = useTranslation('assets');
 
   return (
@@ -94,8 +97,12 @@ export function AssetDetailJournals({ journals, loading }: Readonly<AssetDetailJ
                         {journal.lines.map((line, index) => (
                           <Table.Tr key={`${line.account}-${index}`}>
                             <Table.Td pl={line.credit > 0 ? 'xl' : 'sm'}>{line.account}</Table.Td>
-                            <Table.Td className={classes.number}>{amount(line.debit)}</Table.Td>
-                            <Table.Td className={classes.number}>{amount(line.credit)}</Table.Td>
+                            <Table.Td className={classes.number}>
+                              {amount(line.debit, precision)}
+                            </Table.Td>
+                            <Table.Td className={classes.number}>
+                              {amount(line.credit, precision)}
+                            </Table.Td>
                           </Table.Tr>
                         ))}
                       </Table.Tbody>
@@ -103,10 +110,10 @@ export function AssetDetailJournals({ journals, loading }: Readonly<AssetDetailJ
                         <Table.Tr bg="gray.0">
                           <Table.Td fw={700}>{t('journalTotal')}</Table.Td>
                           <Table.Td className={classes.number} fw={700}>
-                            {formatAssetMoney(totals.debit)}
+                            {formatAssetMoney(totals.debit, precision)}
                           </Table.Td>
                           <Table.Td className={classes.number} fw={700}>
-                            {formatAssetMoney(totals.credit)}
+                            {formatAssetMoney(totals.credit, precision)}
                           </Table.Td>
                         </Table.Tr>
                       </Table.Tfoot>

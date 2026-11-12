@@ -1,22 +1,11 @@
+import { formatAmountAt, formatMoneyAt } from '@/utils/formatMoney';
 import { endOfMonth, format, startOfMonth, startOfQuarter, startOfYear, subMonths } from 'date-fns';
-
-const moneyFormatter = new Intl.NumberFormat('id-ID', {
-  style: 'currency',
-  currency: 'IDR',
-  minimumFractionDigits: 0,
-  maximumFractionDigits: 2,
-});
-
-/** A figure without the currency sign, for tables whose header already says the unit. */
-const amountFormatter = new Intl.NumberFormat('id-ID', {
-  minimumFractionDigits: 0,
-  maximumFractionDigits: 2,
-});
 
 const countFormatter = new Intl.NumberFormat('id-ID');
 
-export const formatMoney = (value: number) => moneyFormatter.format(value ?? 0);
-export const formatAmount = (value: number) => amountFormatter.format(value ?? 0);
+/** Fixed digits of the report's `precision` (`Rp 1.500,00`); the figure itself comes from the API. */
+export const formatMoney = (value: number, precision: number) => formatMoneyAt(value, precision);
+export const formatAmount = (value: number, precision: number) => formatAmountAt(value, precision);
 export const formatCount = (value: number) => countFormatter.format(value ?? 0);
 export const dateOnly = (value: Date) => format(value, 'yyyy-MM-dd');
 

@@ -1,4 +1,6 @@
 export interface EquityChangeReport {
+  /** Decimal places the server rounded the amounts to; absent on an older server. */
+  precision?: number;
   categoryId: string;
   name: string;
   accounts: Account[];

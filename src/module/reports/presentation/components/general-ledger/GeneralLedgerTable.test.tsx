@@ -91,7 +91,7 @@ describe('GeneralLedgerTable', () => {
         closingBalance: -500,
       }),
     ]);
-    expect(screen.getAllByText('(500)').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('(500,00)').length).toBeGreaterThan(0);
     const row = screen.getByText('Transaksi A1').closest('tr')!;
     const cells = within(row).getAllByRole('cell');
     expect(cells[3]).toHaveTextContent('0');

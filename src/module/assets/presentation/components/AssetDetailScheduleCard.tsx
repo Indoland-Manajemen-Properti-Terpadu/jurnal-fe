@@ -8,6 +8,7 @@ import { isNonDepreciable } from '@/module/assets/domain/depreciation';
 import { AssetSectionCard } from '@/module/assets/presentation/components/AssetSectionCard';
 import { formatAssetMoney } from '@/module/assets/presentation/components/formatAssetMoney';
 import classes from '@/module/assets/presentation/components/AssetDetail.module.css';
+import { useDecimalPrecision } from '@/module/settings';
 
 const METHOD_KEY = {
   straight_line: 'methodShortStraightLine',
@@ -19,6 +20,7 @@ const HEADER_PROPS = { size: 'xs', fw: 700, c: 'dimmed', tt: 'uppercase' } as co
 
 /** Yearly schedule exactly as the API calculated it; the first and last year can be partial. */
 export function AssetDetailScheduleCard({ asset }: Readonly<{ asset: AssetItem }>) {
+  const precision = useDecimalPrecision();
   const { t } = useTranslation('assets');
   const pending = asset.status === 'pending';
   const noSchedule = pending || isNonDepreciable(asset) || asset.schedule.length === 0;
@@ -83,13 +85,13 @@ export function AssetDetailScheduleCard({ asset }: Readonly<{ asset: AssetItem }
                     </Text>
                   </Table.Td>
                   <Table.Td className={classes.number} fw={600}>
-                    {formatAssetMoney(row.expense)}
+                    {formatAssetMoney(row.expense, precision)}
                   </Table.Td>
                   <Table.Td className={classes.number}>
-                    {formatAssetMoney(row.accumulated)}
+                    {formatAssetMoney(row.accumulated, precision)}
                   </Table.Td>
                   <Table.Td className={classes.number} fw={700} c="teal.8">
-                    {formatAssetMoney(row.ending)}
+                    {formatAssetMoney(row.ending, precision)}
                   </Table.Td>
                 </Table.Tr>
               ))}
@@ -102,7 +104,7 @@ export function AssetDetailScheduleCard({ asset }: Readonly<{ asset: AssetItem }
                   </Text>
                 </Table.Td>
                 <Table.Td className={classes.number} fw={700}>
-                  {formatAssetMoney(totalExpense)}
+                  {formatAssetMoney(totalExpense, precision)}
                 </Table.Td>
                 <Table.Td />
                 <Table.Td />

@@ -12,6 +12,7 @@ import {
 } from '@mantine/core';
 import { IconInfoCircle, IconLock } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
+import { formatMoneyAt } from '@/utils/formatMoney';
 import SettingsLayout from '@/module/settings/presentation/components/SettingsLayout';
 import { useGeneralSettings } from '@/module/settings/presentation/hooks/useGeneralSettings';
 
@@ -22,12 +23,6 @@ export default function GeneralSettingPage() {
   const general = useGeneralSettings();
   const [previewPrecision, setPreviewPrecision] = useState('2');
   const [amount, setAmount] = useState<number>(previewAmount);
-  const locale = currentLanguage === 'id' ? 'id-ID' : 'en-US';
-  const format = (value: number, digits: number) =>
-    new Intl.NumberFormat(locale, {
-      minimumFractionDigits: digits,
-      maximumFractionDigits: digits,
-    }).format(value);
 
   return (
     <SettingsLayout title={t('generalTitle')} description={t('generalDescription')}>
@@ -98,7 +93,7 @@ export default function GeneralSettingPage() {
                 c="primary.8"
                 style={{ overflowWrap: 'anywhere' }}
               >
-                {format(amount, Number(previewPrecision))}
+                {formatMoneyAt(amount, Number(previewPrecision))}
               </Text>
               <Text fz="xs" c="dimmed" mt="xs">
                 {t('previewOnly')}
