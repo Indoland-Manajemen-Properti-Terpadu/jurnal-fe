@@ -11,3 +11,4 @@ export { useDetailAccount } from './presentation/hooks/useDetailAccount';
 export { canArchiveAccount, canDeleteAccount, canEditAccount } from './domain/accountRules';
 export type { SimpleAccount } from './domain/simpleAccount';
 export { useSimpleAccounts } from './presentation/hooks/useSimpleAccounts';
+export { unwrapAccountDetail } from './domain/accountFormMapper';
