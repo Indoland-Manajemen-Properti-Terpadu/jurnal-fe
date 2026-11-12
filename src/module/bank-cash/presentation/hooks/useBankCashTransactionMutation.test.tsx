@@ -65,6 +65,25 @@ describe('useBankCashTransactionMutation', () => {
     );
   });
 
+  it('goes back to the list only once the balances have been refreshed, so it never shows old ones', async () => {
+    post.mockResolvedValue({ status: 201, data: {} } as never);
+    const { hook, invalidate } = setup();
+    const pending: Array<() => void> = [];
+    invalidate.mockImplementation(
+      () =>
+        new Promise<void>((resolve) => {
+          pending.push(resolve);
+        })
+    );
+
+    act(() => hook.result.current.mutate(payload));
+    await waitFor(() => expect(invalidate).toHaveBeenCalled());
+    expect(navigate).not.toHaveBeenCalled();
+
+    pending.forEach((resolve) => resolve());
+    await waitFor(() => expect(navigate).toHaveBeenCalledWith('/bank-cash'));
+  });
+
   it('shows the error and stays on the form when the post fails', async () => {
     post.mockRejectedValue(httpError(400, { message: 'Periode terkunci' }));
     const { hook, invalidate } = setup();
