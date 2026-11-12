@@ -15,6 +15,7 @@ import {
   type ReportSummaryLine,
 } from '@/module/reports/presentation/components/shared/ReportSummaryCard';
 import { useTranslation } from '@/i18n';
+import { useReportPrecision } from '@/module/reports/presentation/hooks/useReportPrecision';
 
 const STRONG = 'var(--mantine-color-primary-6)';
 const MEDIUM = 'var(--mantine-color-primary-3)';
@@ -32,6 +33,7 @@ interface BalanceSheetSummaryProps {
  * parts against its own total; the last compares the two sides and ends with the difference.
  */
 export const BalanceSheetSummary: React.FC<BalanceSheetSummaryProps> = ({ data }) => {
+  const precision = useReportPrecision();
   const { t } = useTranslation('reports');
   const { assets, liabilities } = data;
 
@@ -143,7 +145,7 @@ export const BalanceSheetSummary: React.FC<BalanceSheetSummaryProps> = ({ data }
             <ReportSummaryCard
               title={t('balanceSheet.assets')}
               caption={t('balanceSheet.captionAssets')}
-              ariaLabel={`${t('balanceSheet.assets')}: ${formatMoney(data.totalAssets)}`}
+              ariaLabel={`${t('balanceSheet.assets')}: ${formatMoney(data.totalAssets, precision)}`}
               lines={assetLines}
               closing={{ label: t('balanceSheet.closeAssets'), value: data.totalAssets }}
             />
@@ -156,7 +158,7 @@ export const BalanceSheetSummary: React.FC<BalanceSheetSummaryProps> = ({ data }
             <ReportSummaryCard
               title={t('balanceSheet.liabilities')}
               caption={t('balanceSheet.captionLiabilities')}
-              ariaLabel={`${t('balanceSheet.liabilities')}: ${formatMoney(data.totalLiabilities)}`}
+              ariaLabel={`${t('balanceSheet.liabilities')}: ${formatMoney(data.totalLiabilities, precision)}`}
               lines={liabilityLines}
               closing={{ label: t('balanceSheet.closeLiabilities'), value: data.totalLiabilities }}
             />
@@ -169,7 +171,7 @@ export const BalanceSheetSummary: React.FC<BalanceSheetSummaryProps> = ({ data }
             <ReportSummaryCard
               title={t('balanceSheet.equity')}
               caption={t('balanceSheet.captionEquity')}
-              ariaLabel={`${t('balanceSheet.equity')}: ${formatMoney(data.totalEquity)}`}
+              ariaLabel={`${t('balanceSheet.equity')}: ${formatMoney(data.totalEquity, precision)}`}
               lines={equityLines}
               closing={{ label: t('balanceSheet.closeEquity'), value: data.totalEquity }}
             />
@@ -182,7 +184,7 @@ export const BalanceSheetSummary: React.FC<BalanceSheetSummaryProps> = ({ data }
             <ReportSummaryCard
               title={t('balanceSheet.equationTitle')}
               caption={t('balanceSheet.captionEquation')}
-              ariaLabel={`${t('balanceSheet.equationTitle')}: ${formatMoney(data.totalAssets)} / ${formatMoney(data.totalLiabilitiesAndEquity)}`}
+              ariaLabel={`${t('balanceSheet.equationTitle')}: ${formatMoney(data.totalAssets, precision)} / ${formatMoney(data.totalLiabilitiesAndEquity, precision)}`}
               lines={[
                 part('assets', t('balanceSheet.lineAssets'), data.totalAssets, peak, STRONG),
                 part(

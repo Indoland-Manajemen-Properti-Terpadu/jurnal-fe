@@ -8,7 +8,7 @@ export { default as NumberFormatPage } from './presentation/pages/NumberFormatPa
 export { default as TagSettingPage } from './presentation/pages/TagSettingPage';
 export { ApprovalFlowPage, SitesPage } from './presentation/pages/PlannedSettingsPages';
 export { default as SettingsLayout } from './presentation/components/SettingsLayout';
-
 // Account mappings, read by the period close checklist (retained earnings).
 export { useAccountMappings } from './presentation/hooks/useAccountMappings';
 export type { AccountMappingItem, AccountMappingsByGroup } from './domain/settingTypes';
+export { useDecimalPrecision } from './presentation/hooks/useDecimalPrecision';

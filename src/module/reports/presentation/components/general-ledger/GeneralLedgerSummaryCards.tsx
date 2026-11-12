@@ -8,6 +8,7 @@ import { displayDate, formatCount, formatMoney } from '@/module/reports/domain/r
 import { ReportKpiStrip } from '@/module/reports/presentation/components/shared/ReportKpiStrip';
 import { ReportStatus } from '@/module/reports/presentation/components/shared/ReportStatus';
 import { useTranslation } from '@/i18n';
+import { useReportPrecision } from '@/module/reports/presentation/hooks/useReportPrecision';
 
 interface GeneralLedgerSummaryCardsProps {
   report: GeneralLedgerReport;
@@ -24,6 +25,7 @@ export const GeneralLedgerSummaryCards: React.FC<GeneralLedgerSummaryCardsProps>
   period,
   isBalanced,
 }) => {
+  const precision = useReportPrecision();
   const { t } = useTranslation('reports');
   const { periodDebitTotal: debit, periodCreditTotal: credit } = report;
 
@@ -59,19 +61,19 @@ export const GeneralLedgerSummaryCards: React.FC<GeneralLedgerSummaryCardsProps>
         {
           key: 'debit',
           label: t('generalLedger.cardTotalDebit'),
-          value: formatMoney(debit),
+          value: formatMoney(debit, precision),
           hint: t('generalLedger.cardTotalDebitHint'),
         },
         {
           key: 'credit',
           label: t('generalLedger.cardTotalCredit'),
-          value: formatMoney(credit),
+          value: formatMoney(credit, precision),
           hint: t('generalLedger.cardTotalCreditHint'),
         },
         {
           key: 'difference',
           label: t('generalLedger.cardDifference'),
-          value: formatMoney(Math.abs(debit - credit)),
+          value: formatMoney(Math.abs(debit - credit), precision),
           hint: t('generalLedger.cardDifferenceHint'),
         },
       ]}

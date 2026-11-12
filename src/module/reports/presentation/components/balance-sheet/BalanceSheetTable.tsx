@@ -3,6 +3,7 @@ import { IconChevronDown } from '@tabler/icons-react';
 import type { BalanceSheetAccountItem } from '@/module/reports/domain/balanceSheet.types';
 import { formatMoney } from '@/module/reports/domain/reportFormat';
 import { useTranslation } from '@/i18n';
+import { useReportPrecision } from '@/module/reports/presentation/hooks/useReportPrecision';
 import classes from './BalanceSheet.module.css';
 
 export interface BalanceSheetGroup {
@@ -32,8 +33,8 @@ interface BalanceSheetTableProps {
 }
 
 /** Negative balances show in parentheses and red, as in a printed statement. */
-const signedMoney = (value: number) =>
-  value < 0 ? `(${formatMoney(Math.abs(value))})` : formatMoney(value);
+const signedMoney = (value: number, precision: number) =>
+  value < 0 ? `(${formatMoney(Math.abs(value), precision)})` : formatMoney(value, precision);
 
 /**
  * The whole balance sheet as one table. A section head (assets, liabilities, equity) carries the
@@ -45,6 +46,7 @@ export const BalanceSheetTable: React.FC<BalanceSheetTableProps> = ({
   grandTotal,
   searching,
 }) => {
+  const precision = useReportPrecision();
   const { t } = useTranslation('reports');
   const [closed, setClosed] = useState<string[]>([]);
 
@@ -116,7 +118,7 @@ export const BalanceSheetTable: React.FC<BalanceSheetTableProps> = ({
                           data-num=""
                           className={`${classes.bandAmount} ${group.subtotal < 0 ? classes.negative : ''}`}
                         >
-                          {signedMoney(group.subtotal)}
+                          {signedMoney(group.subtotal, precision)}
                         </td>
                       </tr>
                     )}
@@ -138,7 +140,7 @@ export const BalanceSheetTable: React.FC<BalanceSheetTableProps> = ({
                             data-num=""
                             className={item.balance < 0 ? classes.negative : undefined}
                           >
-                            {signedMoney(item.balance)}
+                            {signedMoney(item.balance, precision)}
                           </td>
                         </tr>
                       ))}
@@ -155,7 +157,7 @@ export const BalanceSheetTable: React.FC<BalanceSheetTableProps> = ({
 
               <tr className={classes.closingRow}>
                 <td colSpan={2}>{section.closing.label}</td>
-                <td data-num="">{formatMoney(section.closing.value)}</td>
+                <td data-num="">{formatMoney(section.closing.value, precision)}</td>
               </tr>
             </tbody>
           );
@@ -165,7 +167,7 @@ export const BalanceSheetTable: React.FC<BalanceSheetTableProps> = ({
           <tfoot>
             <tr className={classes.grandRow}>
               <td colSpan={2}>{grandTotal.label}</td>
-              <td data-num="">{formatMoney(grandTotal.value)}</td>
+              <td data-num="">{formatMoney(grandTotal.value, precision)}</td>
             </tr>
           </tfoot>
         )}

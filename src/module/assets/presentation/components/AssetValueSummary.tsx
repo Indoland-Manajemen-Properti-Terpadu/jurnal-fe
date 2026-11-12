@@ -11,6 +11,7 @@ import {
 import { formatAssetDate } from '@/module/assets/presentation/components/formatAssetDate';
 import { formatAssetMoney } from '@/module/assets/presentation/components/formatAssetMoney';
 import classes from '@/module/assets/presentation/components/AssetDetail.module.css';
+import { useDecimalPrecision } from '@/module/settings';
 
 const monthYear = (iso: string) =>
   new Intl.DateTimeFormat('id-ID', { month: 'short', year: 'numeric' }).format(new Date(iso));
@@ -33,6 +34,7 @@ function Figure({ label, value, tone }: Readonly<{ label: string; value: string;
  * bar shows how far the asset is through its depreciable amount.
  */
 export function AssetValueSummary({ asset }: Readonly<{ asset: AssetItem }>) {
+  const precision = useDecimalPrecision();
   const { t } = useTranslation('assets');
   const pending = asset.status === 'pending';
   const disposed = asset.status === 'disposed';
@@ -69,7 +71,7 @@ export function AssetValueSummary({ asset }: Readonly<{ asset: AssetItem }>) {
             {t('netBookValue')}
           </Text>
           <Text fz={32} fw={700} c="dark.9" lh={1.15} mt={4} className={classes.figure}>
-            {formatAssetMoney(asset.netBookValue)}
+            {formatAssetMoney(asset.netBookValue, precision)}
           </Text>
 
           {depreciating ? (
@@ -103,20 +105,23 @@ export function AssetValueSummary({ asset }: Readonly<{ asset: AssetItem }>) {
 
         <Grid.Col span={{ base: 12, md: 7 }}>
           <SimpleGrid cols={2} spacing="lg" verticalSpacing="lg" className={classes.figures}>
-            <Figure label={t('acquisitionCost')} value={formatAssetMoney(asset.acquisitionCost)} />
+            <Figure
+              label={t('acquisitionCost')}
+              value={formatAssetMoney(asset.acquisitionCost, precision)}
+            />
             <Figure
               label={t('accumulatedDepreciationFull')}
-              value={pending ? '—' : formatAssetMoney(asset.accumulatedDepreciation)}
+              value={pending ? '—' : formatAssetMoney(asset.accumulatedDepreciation, precision)}
             />
             {disposed ? (
               <>
                 <Figure
                   label={t('disposalPriceLabel')}
-                  value={formatAssetMoney(asset.disposalPrice ?? 0)}
+                  value={formatAssetMoney(asset.disposalPrice ?? 0, precision)}
                 />
                 <Figure
                   label={gainLoss >= 0 ? t('disposalGain') : t('disposalLoss')}
-                  value={formatAssetMoney(Math.abs(gainLoss))}
+                  value={formatAssetMoney(Math.abs(gainLoss), precision)}
                   tone={gainLoss >= 0 ? 'teal.8' : 'orange.8'}
                 />
               </>
@@ -124,7 +129,7 @@ export function AssetValueSummary({ asset }: Readonly<{ asset: AssetItem }>) {
               <>
                 <Figure
                   label={t('monthlyEstimateLabel')}
-                  value={depreciating ? formatAssetMoney(asset.monthlyEstimate) : '—'}
+                  value={depreciating ? formatAssetMoney(asset.monthlyEstimate, precision) : '—'}
                 />
                 <Figure label={t('remainingLifeLabel')} value={depreciating ? remaining : '—'} />
               </>

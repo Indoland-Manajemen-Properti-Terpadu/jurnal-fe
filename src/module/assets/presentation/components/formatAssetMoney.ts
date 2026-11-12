@@ -1,8 +1,8 @@
-import { formatCurrency } from '@/utils/formatCurrency';
+import { formatMoneyAt } from '@/utils/formatMoney';
 
-/** Whole rupiah without ",00"; amounts with cents keep both decimals so nothing is rounded away. */
-export const formatAssetMoney = (amount: number): string =>
-  formatCurrency(amount, !Number.isInteger(amount));
+/** Every digit of the site precision (`Rp 35.000.000,00`); the amount is the API's, never recomputed. */
+export const formatAssetMoney = (amount: number, precision: number): string =>
+  formatMoneyAt(amount, precision);
 
 const compact = new Intl.NumberFormat('id-ID', {
   style: 'currency',
@@ -16,5 +16,5 @@ const compact = new Intl.NumberFormat('id-ID', {
  * Short form for the cards (`Rp 13 jt`) so a large amount fits beside a small chart; below one
  * million it stays exact. Cards give the exact amount in a tooltip and the tables show it in full.
  */
-export const formatAssetMoneyShort = (amount: number): string =>
-  Math.abs(amount) < 1_000_000 ? formatAssetMoney(amount) : compact.format(amount);
+export const formatAssetMoneyShort = (amount: number, precision: number): string =>
+  Math.abs(amount) < 1_000_000 ? formatAssetMoney(amount, precision) : compact.format(amount);

@@ -6,7 +6,7 @@ import type {
   TrialBalanceSums,
 } from '@/module/reports/domain/trialBalance.types';
 import { TRIAL_BALANCE_GROUPS } from '@/module/reports/domain/trialBalance.types';
-import { asArray, asRecord, safeNumber, safeString } from './reportValue';
+import { asArray, asRecord, optionalPrecision, safeNumber, safeString } from './reportValue';
 
 /** A side stays `null` when the server leaves it empty; only a number or numeric text is a figure. */
 const cell = (value: unknown): number | null => {
@@ -56,6 +56,7 @@ export const mapTrialBalancePage = (body: unknown): TrialBalanceReport => {
   return {
     startDate: safeString(data.startDate),
     endDate: safeString(data.endDate),
+    precision: optionalPrecision(data.precision),
     accounts,
     totals: Object.fromEntries(
       TRIAL_BALANCE_GROUPS.map((group) => [group, mapSums(totals[group])])
