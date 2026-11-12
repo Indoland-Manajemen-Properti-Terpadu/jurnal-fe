@@ -47,8 +47,15 @@ export const deleteAccounts = async (ids: { accountIds: string[] }): Promise<unk
 };
 
 /** Every account a journal line can post to, without the balances and sub account trees of the list. */
-export const getSimpleAccounts = async (): Promise<SimpleAccount[]> => {
-  const response = await apiClient.get<{ data?: SimpleAccount[] }>(API_ACCOUNT.GET_SIMPLE_ACCOUNTS);
+export const getSimpleAccounts = async (params?: {
+  isBankAndCash?: boolean;
+}): Promise<SimpleAccount[]> => {
+  const response = await apiClient.get<{ data?: SimpleAccount[] }>(
+    API_ACCOUNT.GET_SIMPLE_ACCOUNTS,
+    {
+      params,
+    }
+  );
   const accounts = response.data?.data;
 
   if (!Array.isArray(accounts)) {
