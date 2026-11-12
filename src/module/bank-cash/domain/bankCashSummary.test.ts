@@ -1,51 +1,35 @@
 import { describe, expect, it } from 'vitest';
 import type { JournalAccounts } from '@/module/chart-of-accounts';
 import { summarizeBankCashAccounts } from '@/module/bank-cash/domain/bankCashSummary';
+import { demoTree } from '@/module/bank-cash/domain/cashBankAccounts.fixture';
 
-const account = (
-  id: string,
-  name: string,
-  amount: number,
-  categoryName: string,
-  isBankAndCash = true
-) =>
-  ({
-    id,
-    name,
-    amount,
-    isBankAndCash,
-    category: { name: categoryName },
-  }) as JournalAccounts;
+const cash = (id: string, amount: number, extra: Partial<JournalAccounts> = {}) =>
+  ({ id, name: id, amount, isBankAndCash: true, isPostable: true, ...extra }) as JournalAccounts;
 
 describe('summarizeBankCashAccounts', () => {
-  it('summarizes only bank and cash accounts into decision-ready totals', () => {
-    const summary = summarizeBankCashAccounts([
-      account('bank', 'Bank BCA', 7_000_000, 'Bank'),
-      account('cash', 'Kas Operasional', 3_000_000, 'Kas'),
-      account('sales', 'Pendapatan', 99_000_000, 'Pendapatan', false),
-    ]);
+  it('totals the real accounts of the tree without counting the header rollup twice', () => {
+    expect(summarizeBankCashAccounts(demoTree())).toEqual({
+      total: -274_596_069,
+      accountCount: 6,
+    });
+  });
 
-    expect(summary).toEqual({
-      totalLiquidity: 10_000_000,
-      totalBankBalance: 7_000_000,
-      totalCashBalance: 3_000_000,
-      bankAccountCount: 1,
-      cashAccountCount: 1,
+  it('leaves archived accounts out of the total and the count', () => {
+    const summary = summarizeBankCashAccounts([
+      cash('a', 1_000),
+      cash('b', 5_000, { isArchived: true }),
+    ]);
+    expect(summary).toEqual({ total: 1_000, accountCount: 1 });
+  });
+
+  it('adds balances without float drift', () => {
+    expect(summarizeBankCashAccounts([cash('a', 0.1), cash('b', 0.2)])).toEqual({
+      total: 0.3,
       accountCount: 2,
     });
   });
-});
 
-describe('summarizeBankCashAccounts with decimals', () => {
-  it('adds balances without float drift', () => {
-    const accounts = [
-      { id: 'a', name: 'Bank BCA', amount: 0.1, isBankAndCash: true, category: { name: 'Bank' } },
-      { id: 'b', name: 'Bank BRI', amount: 0.2, isBankAndCash: true, category: { name: 'Bank' } },
-    ] as JournalAccounts[];
-
-    expect(summarizeBankCashAccounts(accounts)).toMatchObject({
-      totalBankBalance: 0.3,
-      totalLiquidity: 0.3,
-    });
+  it('is zero for no accounts', () => {
+    expect(summarizeBankCashAccounts([])).toEqual({ total: 0, accountCount: 0 });
   });
 });

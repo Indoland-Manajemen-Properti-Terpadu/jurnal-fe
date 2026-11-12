@@ -74,4 +74,28 @@ describe('submitBankCashTransaction', () => {
       'Gagal membukukan transaksi kas & bank ke sistem akuntansi.'
     );
   });
+
+  it('sends JSON when there is no attachment, so the proven path does not change', async () => {
+    post.mockResolvedValue({ status: 201, data: {} } as never);
+    await submitBankCashTransaction({ ...payload, attachments: [] });
+    expect(post.mock.calls[0][1]).not.toBeInstanceOf(FormData);
+  });
+
+  it('sends multipart with each file in the attachments field when files are attached', async () => {
+    post.mockResolvedValue({ status: 201, data: {} } as never);
+    const nota = new File(['a'], 'nota.pdf', { type: 'application/pdf' });
+    const bukti = new File(['b'], 'bukti.png', { type: 'image/png' });
+
+    await submitBankCashTransaction({ ...payload, attachments: [nota, bukti] });
+
+    const body = post.mock.calls[0][1] as FormData;
+    expect(body).toBeInstanceOf(FormData);
+    expect(body.get('transactionDate')).toBe('2026-01-31');
+    expect(body.get('notes')).toBe('Setoran');
+    expect(JSON.parse(body.get('transactionDetail') as string)).toEqual([
+      { account: 'cash', description: 'Masuk', debit: 100 },
+      { account: 'rev', description: 'Sumber', credit: 100 },
+    ]);
+    expect(body.getAll('attachments')).toEqual([nota, bukti]);
+  });
 });

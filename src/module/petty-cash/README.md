@@ -67,6 +67,10 @@ Reports and history (`pettyCashReportApi.ts`): `GET /reports/{pending-vouchers,e
 - A voucher list item carries `lines[].expenseAccount` as an id only; the list resolves account names through `lookups`. The detail carries the full account.
 - The backend keeps `rejectedReason` and `voidReason` after a voucher leaves those states, so the drawer shows them only while the status matches.
 
+## Ledger account
+
+The fund's account is also a Cash & Bank account. In the Cash & bank list it carries a "Kas kecil" badge and plain receive, send and transfer are not offered for it (see `bank-cash`). `FundLedgerLink` (in `FundOverview`) links back to the account's ledger and, when the account's ledger balance (`GET /v1/accounts/:id`, `{ data: { amount } }`, read with `unwrapAccountDetail`) differs from `balance.cashBalance`, shows both figures as received, without recomputing. On the Demo Site fund `KK-QA` the ledger shows 500.000 and the fund cash 390.000; the difference is the server's. Public exports added for `bank-cash`: `usePettyCashFunds` and the `PettyCashFund` type.
+
 ## Pockets (balance pockets)
 
 A fund's cash is split into pockets: `TUNAI` (cash box), `BANK` (a petty cash bank account) and `EWALLET`. They share one ledger account, so pocket balances add up to `cashBalance` and only itemize the cash book; a transfer between pockets posts no journal (`POCKET_TRANSFER` in and out). See [ADR 0006](../../../docs/adr/0006-petty-cash-pockets.md).
