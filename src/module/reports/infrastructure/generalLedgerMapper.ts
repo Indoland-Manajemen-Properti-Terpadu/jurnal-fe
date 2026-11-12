@@ -3,7 +3,14 @@ import type {
   GeneralLedgerReport,
   GeneralLedgerTransaction,
 } from '@/module/reports/domain/generalLedger.types';
-import { asArray, asRecord, safeNumber, safeString, type RawRecord } from './reportValue';
+import {
+  asArray,
+  asRecord,
+  optionalPrecision,
+  safeNumber,
+  safeString,
+  type RawRecord,
+} from './reportValue';
 
 function mapTransaction(rawSource: unknown): GeneralLedgerTransaction {
   const source: RawRecord = asRecord(rawSource);
@@ -68,6 +75,7 @@ export function mapGeneralLedgerResponse(raw: unknown): GeneralLedgerReport {
 
   return {
     accounts,
+    precision: optionalPrecision(data.precision),
     pagination: {
       page: safeNumber(paging.page) || 1,
       limit: safeNumber(paging.limit) || accounts.length,

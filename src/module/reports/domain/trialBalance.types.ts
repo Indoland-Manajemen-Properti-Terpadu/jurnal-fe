@@ -47,6 +47,8 @@ export interface TrialBalancePagination {
 export interface TrialBalanceReport {
   startDate: string;
   endDate: string;
+  /** Decimal places the server rounded the amounts to; absent on an older server. */
+  precision?: number;
   accounts: TrialBalanceAccount[];
   /** From the server; the page never adds the accounts up (a parent already holds its children). */
   totals: Record<TrialBalanceGroup, TrialBalanceSums>;

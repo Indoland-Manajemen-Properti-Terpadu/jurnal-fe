@@ -14,6 +14,7 @@ import {
 } from '@/module/assets/presentation/components/AssetSectionCard';
 import { formatAssetDate } from '@/module/assets/presentation/components/formatAssetDate';
 import { formatAssetMoney } from '@/module/assets/presentation/components/formatAssetMoney';
+import { useDecimalPrecision } from '@/module/settings';
 
 const METHOD_KEY = {
   straight_line: 'methodStraightLine',
@@ -49,6 +50,7 @@ function AccountRow({ label, account }: Readonly<{ label: string; account: Accou
 
 /** What the asset is, one card per topic: identity, depreciation terms, accounts, tags and notes. */
 export function AssetDetailInfo({ asset }: Readonly<{ asset: AssetItem }>) {
+  const precision = useDecimalPrecision();
   const { t } = useTranslation('assets');
   const pending = asset.status === 'pending';
   const notDepreciated = !pending && isNonDepreciable(asset);
@@ -94,7 +96,7 @@ export function AssetDetailInfo({ asset }: Readonly<{ asset: AssetItem }>) {
               : t('yearsValue', { years: asset.usefulLifeYears })}
         </AssetInfoRow>
         <AssetInfoRow label={t('residualPlain')}>
-          {formatAssetMoney(asset.residualValue)}
+          {formatAssetMoney(asset.residualValue, precision)}
         </AssetInfoRow>
         {asset.depreciationStartDate && (
           <AssetInfoRow label={t('startDateLabel')}>
@@ -103,7 +105,7 @@ export function AssetDetailInfo({ asset }: Readonly<{ asset: AssetItem }>) {
         )}
         {asset.openingAccumulatedDepreciation > 0 && (
           <AssetInfoRow label={t('openingAccumLabel')}>
-            {formatAssetMoney(asset.openingAccumulatedDepreciation)}
+            {formatAssetMoney(asset.openingAccumulatedDepreciation, precision)}
           </AssetInfoRow>
         )}
       </AssetSectionCard>

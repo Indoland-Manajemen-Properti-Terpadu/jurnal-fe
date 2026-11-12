@@ -42,6 +42,8 @@ export interface GeneralLedgerPagination {
 }
 
 export interface GeneralLedgerReport {
+  /** Decimal places the server rounded the amounts to; absent on an older server. */
+  precision?: number;
   /** One page of accounts; the totals below cover every account of the period. */
   accounts: GeneralLedgerAccount[];
   pagination: GeneralLedgerPagination;

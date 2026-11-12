@@ -28,6 +28,8 @@ export interface BalanceSheetLiabilities {
 
 export interface BalanceSheetData {
   endDate: string;
+  /** Decimal places the server rounded the amounts to; absent on an older server. */
+  precision?: number;
   startDate?: string;
   assets: BalanceSheetAssets;
   liabilities: BalanceSheetLiabilities;

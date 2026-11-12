@@ -44,8 +44,8 @@ describe('BalanceSheetTable', () => {
   it('shows the subtotal in the group band and negative balances in parentheses', () => {
     render(<BalanceSheetTable sections={[section()]} searching={false} />);
     expect(screen.getByText('Kas')).toBeInTheDocument();
-    expect(screen.getByText(/\(Rp\s?13\.762\.000\)/)).toBeInTheDocument();
-    expect(screen.getByText(/\(Rp\s?100\)/)).toBeInTheDocument();
+    expect(screen.getByText(/\(Rp\s?13\.762\.000,00\)/)).toBeInTheDocument();
+    expect(screen.getByText(/\(Rp\s?100,00\)/)).toBeInTheDocument();
   });
 
   it('is one table: every section is a head inside it, in order, each with its own total row', () => {

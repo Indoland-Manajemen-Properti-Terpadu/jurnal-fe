@@ -50,7 +50,7 @@ describe('TrialBalanceSummary', () => {
 
   it('draws a difference red only when debit and credit really differ', () => {
     const { unmount } = render(<TrialBalanceSummary report={report()} />);
-    const balanced = within(card(/^Saldo Akhir/)).getByText(/Rp\s*0$/);
+    const balanced = within(card(/^Saldo Akhir/)).getByText(/Rp\s*0,00$/);
     expect(balanced.className).not.toMatch(/red/);
     unmount();
 

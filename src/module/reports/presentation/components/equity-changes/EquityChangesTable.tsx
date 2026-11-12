@@ -1,7 +1,8 @@
 import React from 'react';
 import { Stack, Table, Text } from '@mantine/core';
 import { gradientColors, themeColors } from '@/theme';
-import { formatCurrency } from '@/utils/formatCurrency';
+import { formatMoneyAt } from '@/utils/formatMoney';
+import { useDecimalPrecision } from '@/module/settings';
 import EmptyState from '@/components/EmptyState/EmptyTable';
 import { useEquityChangeReport } from '@/module/reports/presentation/hooks/useEquityChangeReport';
 import { ReportUnavailable } from '@/module/reports/presentation/components/shared/ReportUnavailable';
@@ -32,6 +33,8 @@ const EquityChangesTable: React.FC<EquityChangeTableProps> = ({ fromDate, toDate
     isLoading,
     refetch,
   } = useEquityChangeReport({ fromDate: fromDate!, toDate: toDate! });
+  const settingsPrecision = useDecimalPrecision();
+  const precision = reports?.precision ?? settingsPrecision;
 
   if (isError) {
     return <ReportUnavailable embedded onRetry={() => refetch()} />;
@@ -119,28 +122,28 @@ const EquityChangesTable: React.FC<EquityChangeTableProps> = ({ fromDate, toDate
                 colSpan={2}
                 style={{ textAlign: 'left', fontWeight: account.isBold ? 600 : 400 }}
               >
-                {formatCurrency(account.beginningBalance || 0)}
+                {formatMoneyAt(account.beginningBalance || 0, precision)}
               </Table.Td>
               <Table.Td
                 fz="var(--jurnal-text-sm)"
                 colSpan={2}
                 style={{ textAlign: 'left', fontWeight: account.isBold ? 600 : 400 }}
               >
-                {formatCurrency(account.changesDebit || 0)}
+                {formatMoneyAt(account.changesDebit || 0, precision)}
               </Table.Td>
               <Table.Td
                 fz="var(--jurnal-text-sm)"
                 colSpan={2}
                 style={{ textAlign: 'left', fontWeight: account.isBold ? 600 : 400 }}
               >
-                {formatCurrency(account.changesCredit || 0)}
+                {formatMoneyAt(account.changesCredit || 0, precision)}
               </Table.Td>
               <Table.Td
                 fz="var(--jurnal-text-sm)"
                 colSpan={2}
                 style={{ textAlign: 'left', fontWeight: account.isBold ? 600 : 400 }}
               >
-                {formatCurrency(account.endingBalance || 0)}
+                {formatMoneyAt(account.endingBalance || 0, precision)}
               </Table.Td>
             </Table.Tr>
           ))}

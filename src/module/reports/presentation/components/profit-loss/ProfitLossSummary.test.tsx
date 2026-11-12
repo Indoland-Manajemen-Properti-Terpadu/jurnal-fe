@@ -40,7 +40,7 @@ describe('ProfitLossSummary', () => {
       />
     );
     expect(
-      screen.getByText(/Bruto Rp\s?1\.200 dikurangi diskon dan retur -Rp\s?200/)
+      screen.getByText(/Bruto Rp\s?1\.200,00 dikurangi diskon dan retur -Rp\s?200,00/)
     ).toBeInTheDocument();
   });
 });
