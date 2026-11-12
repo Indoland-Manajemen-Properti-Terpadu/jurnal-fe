@@ -1,5 +1,6 @@
 export const navigation = {
   openMenu: 'Open navigation',
+  userSiteId: 'ID {{code}}',
   userMenu: 'User menu',
   // Groups
   groupMain: 'Main',
@@ -42,6 +43,16 @@ export const navigation = {
   stockTake: 'Stock Count',
   journalEntries: 'General Journal',
   cashBankAccounts: 'Cash & Bank Accounts',
+  apps: 'Apps',
+  appsTitle: 'ProApps apps',
+  appsGreeting: 'Hello {{name}}',
+  appsInUse: 'In use',
+  appsOthers: 'Other apps',
+  appsOpenNewTab: '{{name}}, opens in a new tab',
+  appJurnalName: 'Jurnal ProApps',
+  appJurnalDesc: 'Integrated accounting',
+  appProappsName: 'ProApps',
+  appProappsDesc: 'Property and building management',
   pettyCash: 'Petty Cash',
   sales: 'Sales',
   purchases: 'Purchases',

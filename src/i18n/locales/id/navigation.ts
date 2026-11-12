@@ -1,5 +1,6 @@
 export const navigation = {
   openMenu: 'Buka navigasi',
+  userSiteId: 'ID {{code}}',
   userMenu: 'Menu pengguna',
   // Groups
   groupMain: 'Utama',
@@ -42,6 +43,16 @@ export const navigation = {
   stockTake: 'Stok Opname',
   journalEntries: 'Jurnal Umum',
   cashBankAccounts: 'Akun Kas & Bank',
+  apps: 'Aplikasi',
+  appsTitle: 'Aplikasi ProApps',
+  appsGreeting: 'Halo {{name}}',
+  appsInUse: 'Sedang dipakai',
+  appsOthers: 'Aplikasi lainnya',
+  appsOpenNewTab: '{{name}}, buka di tab baru',
+  appJurnalName: 'Jurnal ProApps',
+  appJurnalDesc: 'Akuntansi terintegrasi',
+  appProappsName: 'ProApps',
+  appProappsDesc: 'Manajemen properti dan gedung',
   pettyCash: 'Kas Kecil',
   sales: 'Penjualan',
   purchases: 'Pembelian',

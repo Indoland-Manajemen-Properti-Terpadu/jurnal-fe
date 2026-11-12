@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 import {
   ActionIcon,
-  Avatar,
   Badge,
   Box,
   Burger,
@@ -10,26 +9,22 @@ import {
   Menu,
   Text,
   Tooltip,
-  UnstyledButton,
 } from '@mantine/core';
 import {
   Bell,
   CalendarBlank,
-  CaretDown,
   GearSix,
   Plus,
-  SignOut,
-  UserCircle,
   Notebook,
   Bank,
   AddressBook,
 } from '@phosphor-icons/react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { capitalize } from 'lodash';
 import { routes } from '@/router/routes';
-import { useAuthStore } from '@/store/useAuthentications';
 import { usePendingChangesCount } from '@/module/pending-changes';
 import { useTranslation } from '@/i18n';
+import { UserMenu } from '@/components/UserMenu/UserMenu';
+import { AppSwitcher } from '@/components/AppSwitcher/AppSwitcher';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { resolveSectionTitle } from '@/components/Navbar/navigationRegistry';
 import classes from '@/components/HeaderNav/HeaderNav.module.css';
@@ -42,7 +37,6 @@ type HeaderNavProps = {
 };
 
 const HeaderNav = ({ toggleMobile, mobileOpened }: HeaderNavProps) => {
-  const { userName, clearTokens } = useAuthStore();
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const pendingQ = usePendingChangesCount();
@@ -60,7 +54,6 @@ const HeaderNav = ({ toggleMobile, mobileOpened }: HeaderNavProps) => {
     return { title: 'Jurnal', group: 'ProApps' };
   }, [pathname, t]);
 
-  const displayName = capitalize(userName || 'Finance');
   const today = useMemo(
     () =>
       new Intl.DateTimeFormat(currentLanguage === 'id' ? 'id-ID' : 'en-US', {
@@ -71,11 +64,6 @@ const HeaderNav = ({ toggleMobile, mobileOpened }: HeaderNavProps) => {
       }).format(new Date()),
     [currentLanguage]
   );
-
-  const handleLogout = () => {
-    clearTokens();
-    navigate(routes.login);
-  };
 
   return (
     <Group justify="space-between" w="100%" h="100%" wrap="nowrap" gap="md">
@@ -211,40 +199,9 @@ const HeaderNav = ({ toggleMobile, mobileOpened }: HeaderNavProps) => {
           </Menu.Dropdown>
         </Menu>
 
-        <Menu shadow="md" width={220} radius="lg" position="bottom-end">
-          <Menu.Target>
-            <UnstyledButton className={classes.user} aria-label={t('userMenu')}>
-              <Group gap={8} wrap="nowrap">
-                <Avatar size={32} radius="md" variant="light" color="primary">
-                  {displayName.slice(0, 1)}
-                </Avatar>
-                <Box visibleFrom="sm" style={{ minWidth: 0 }}>
-                  <Text fz="var(--jurnal-text-sm)" fw={700} c="dark.8" lh={1.1} truncate maw={120}>
-                    {displayName}
-                  </Text>
-                </Box>
-                <CaretDown size={14} weight="bold" color="var(--mantine-color-gray-5)" />
-              </Group>
-            </UnstyledButton>
-          </Menu.Target>
-          <Menu.Dropdown>
-            <Menu.Label>{displayName}</Menu.Label>
-            <Menu.Item
-              leftSection={<UserCircle size={16} weight="duotone" />}
-              onClick={() => navigate(routes.profile)}
-            >
-              {t('profile')}
-            </Menu.Item>
-            <Menu.Divider />
-            <Menu.Item
-              color="red"
-              leftSection={<SignOut size={16} weight="duotone" />}
-              onClick={handleLogout}
-            >
-              {t('logout')}
-            </Menu.Item>
-          </Menu.Dropdown>
-        </Menu>
+        <AppSwitcher />
+
+        <UserMenu />
       </Group>
     </Group>
   );
