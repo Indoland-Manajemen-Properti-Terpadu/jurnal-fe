@@ -1,7 +1,6 @@
 import {
   IconBuildingSkyscraper,
   IconBuildingStore,
-  IconCalendarStats,
   IconClock,
   IconCreditCard,
   IconHash,
@@ -68,12 +67,6 @@ export const settingsGroups: SettingsGroup[] = [
         menus: NAV_MENU.settings,
       },
       { key: 'taxes', path: routes.settings.taxes, icon: IconPercentage, menus: NAV_MENU.settings },
-      {
-        key: 'accountingPeriods',
-        path: routes.settings.accountingPeriods,
-        icon: IconCalendarStats,
-        menus: NAV_MENU.ledger,
-      },
     ],
   },
   {

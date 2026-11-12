@@ -14,6 +14,7 @@ const account = (overrides: Partial<TrialBalanceAccount>): TrialBalanceAccount =
   accountNumber: '1-10001',
   name: 'Kas Kecil',
   categoryName: 'Kas & Bank',
+  categoryCode: 'KB',
   isHead: false,
   isContra: false,
   opening: { debit: 5000, credit: null },
