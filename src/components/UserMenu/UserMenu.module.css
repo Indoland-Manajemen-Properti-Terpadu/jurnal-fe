@@ -1,0 +1,41 @@
+.trigger {
+  padding: var(--mantine-spacing-xs) var(--mantine-spacing-sm);
+  border-radius: var(--mantine-radius-md);
+  transition: background-color 150ms ease;
+}
+
+.trigger:hover,
+.trigger[data-expanded] {
+  background: var(--jurnal-color-surface-hover);
+}
+
+.trigger:focus-visible {
+  outline: 2px solid var(--jurnal-color-primary);
+  outline-offset: 2px;
+}
+
+.identity {
+  border-bottom: 1px solid var(--mantine-color-gray-2);
+  background: linear-gradient(
+    180deg,
+    var(--mantine-color-primary-0) 0%,
+    var(--mantine-color-white) 100%
+  );
+}
+
+.avatarRing {
+  padding: 3px;
+  border: 2px solid var(--mantine-color-primary-2);
+  border-radius: 50%;
+  background: var(--mantine-color-white);
+}
+
+.company {
+  border: 1px solid var(--mantine-color-gray-2);
+  border-radius: var(--mantine-radius-md);
+  background: var(--mantine-color-white);
+}
+
+.code {
+  font-variant-numeric: tabular-nums;
+}
