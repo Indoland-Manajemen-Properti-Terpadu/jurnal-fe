@@ -30,6 +30,7 @@ import {
   useAssetAccounts,
   useDisposeAsset,
 } from '@/module/assets/presentation/hooks/useAssetQueries';
+import { useDecimalPrecision } from '@/module/settings';
 
 export type AssetDisposalModalProps = {
   asset: AssetItem;
@@ -54,6 +55,7 @@ function ResultRow({ label, value }: Readonly<{ label: string; value: string }>)
 }
 
 export function AssetDisposalModal({ asset, onClose }: Readonly<AssetDisposalModalProps>) {
+  const precision = useDecimalPrecision();
   const { t } = useTranslation('assets');
   const accounts = useAssetAccounts(true);
   const dispose = useDisposeAsset(asset.id);
@@ -194,11 +196,11 @@ export function AssetDisposalModal({ asset, onClose }: Readonly<AssetDisposalMod
                 <Stack gap="sm">
                   <ResultRow
                     label={t('bookValueNow')}
-                    value={formatAssetMoney(asset.netBookValue)}
+                    value={formatAssetMoney(asset.netBookValue, precision)}
                   />
                   <ResultRow
                     label={t('disposalPriceLabel')}
-                    value={sold ? formatAssetMoney(price) : t('scrappedValue')}
+                    value={sold ? formatAssetMoney(price, precision) : t('scrappedValue')}
                   />
                   <Divider />
                   <Box>
@@ -212,7 +214,7 @@ export function AssetDisposalModal({ asset, onClose }: Readonly<AssetDisposalMod
                       lh={1.2}
                       style={{ fontVariantNumeric: 'tabular-nums' }}
                     >
-                      {formatAssetMoney(Math.abs(gainLoss))}
+                      {formatAssetMoney(Math.abs(gainLoss), precision)}
                     </Text>
                   </Box>
                   <Text size="xs" c="dimmed" lh={1.5}>

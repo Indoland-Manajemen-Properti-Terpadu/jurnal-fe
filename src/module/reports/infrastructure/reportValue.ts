@@ -7,6 +7,11 @@ export function safeNumber(value: unknown): number {
   return 0;
 }
 
+/** The `precision` an API response carries, or `undefined` when it has none. */
+export function optionalPrecision(value: unknown): number | undefined {
+  return typeof value === 'number' && Number.isInteger(value) && value >= 0 ? value : undefined;
+}
+
 export function safeString(value: unknown, fallback = ''): string {
   if (typeof value === 'string') return value;
   if (value != null) return String(value);

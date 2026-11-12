@@ -3,7 +3,7 @@ import type {
   BalanceSheetData,
   BalanceSheetQueryParams,
 } from '@/module/reports/domain/balanceSheet.types';
-import { asArray, asRecord, safeNumber, safeString } from './reportValue';
+import { asArray, asRecord, optionalPrecision, safeNumber, safeString } from './reportValue';
 
 function mapAccountItem(rawSource: unknown): BalanceSheetAccountItem {
   if (!rawSource || typeof rawSource !== 'object') {
@@ -138,6 +138,7 @@ export function mapBalanceSheetResponse(
   return {
     endDate: safeString(data.endDate, queryParams.endDate),
     startDate: queryParams.startDate,
+    precision: optionalPrecision(data.precision),
     assets: {
       currentAssets,
       nonCurrentAssets,

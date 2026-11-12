@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, Divider, Group, Stack, Text } from '@mantine/core';
 import { formatMoney } from '@/module/reports/domain/reportFormat';
+import { useReportPrecision } from '@/module/reports/presentation/hooks/useReportPrecision';
 
 export interface ReportSummaryLine {
   key: string;
@@ -33,67 +34,70 @@ export const ReportSummaryCard: React.FC<ReportSummaryCardProps> = ({
   ariaLabel,
   lines,
   closing,
-}) => (
-  <Stack gap="sm" role="group" aria-label={ariaLabel} title={ariaLabel}>
-    <Box>
-      <Text fz="sm" fw={600} c="dark.9">
-        {title}
-      </Text>
-      <Text fz="xs" c="dimmed">
-        {caption}
-      </Text>
-    </Box>
-
-    {lines.map((line) =>
-      line.value === null ? (
-        <Text key={line.key} fz="xs" c="dimmed">
-          {line.label}
+}) => {
+  const precision = useReportPrecision();
+  return (
+    <Stack gap="sm" role="group" aria-label={ariaLabel} title={ariaLabel}>
+      <Box>
+        <Text fz="sm" fw={600} c="dark.9">
+          {title}
         </Text>
-      ) : (
-        <Box key={line.key}>
-          <Group justify="space-between" gap="xs" wrap="nowrap">
-            <Text fz="xs" c="dimmed">
-              {line.label}
-            </Text>
-            <Text fz="sm" fw={600} c="dark.9" style={{ fontVariantNumeric: 'tabular-nums' }}>
-              {formatMoney(line.value)}
-            </Text>
-          </Group>
-          <Box
-            mt={4}
-            style={{
-              height: 6,
-              overflow: 'hidden',
-              background: 'var(--mantine-color-gray-1)',
-              borderRadius: 999,
-            }}
-          >
+        <Text fz="xs" c="dimmed">
+          {caption}
+        </Text>
+      </Box>
+
+      {lines.map((line) =>
+        line.value === null ? (
+          <Text key={line.key} fz="xs" c="dimmed">
+            {line.label}
+          </Text>
+        ) : (
+          <Box key={line.key}>
+            <Group justify="space-between" gap="xs" wrap="nowrap">
+              <Text fz="xs" c="dimmed">
+                {line.label}
+              </Text>
+              <Text fz="sm" fw={600} c="dark.9" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                {formatMoney(line.value, precision)}
+              </Text>
+            </Group>
             <Box
+              mt={4}
               style={{
-                width: `${Math.min(100, Math.max(0, line.share))}%`,
-                height: '100%',
-                background: line.tone,
+                height: 6,
+                overflow: 'hidden',
+                background: 'var(--mantine-color-gray-1)',
                 borderRadius: 999,
               }}
-            />
+            >
+              <Box
+                style={{
+                  width: `${Math.min(100, Math.max(0, line.share))}%`,
+                  height: '100%',
+                  background: line.tone,
+                  borderRadius: 999,
+                }}
+              />
+            </Box>
           </Box>
-        </Box>
-      )
-    )}
+        )
+      )}
 
-    <Divider />
-    <Group justify="space-between" gap="xs" wrap="nowrap">
-      <Text fz="xs" c="dimmed">
-        {closing.label}
-      </Text>
-      <Text
-        fz="sm"
-        fw={700}
-        c={closing.alert ? 'red.7' : 'dark.9'}
-        style={{ fontVariantNumeric: 'tabular-nums' }}
-      >
-        {formatMoney(closing.value)}
-      </Text>
-    </Group>
-  </Stack>
-);
+      <Divider />
+      <Group justify="space-between" gap="xs" wrap="nowrap">
+        <Text fz="xs" c="dimmed">
+          {closing.label}
+        </Text>
+        <Text
+          fz="sm"
+          fw={700}
+          c={closing.alert ? 'red.7' : 'dark.9'}
+          style={{ fontVariantNumeric: 'tabular-nums' }}
+        >
+          {formatMoney(closing.value, precision)}
+        </Text>
+      </Group>
+    </Stack>
+  );
+};

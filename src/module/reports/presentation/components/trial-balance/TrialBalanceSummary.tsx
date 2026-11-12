@@ -7,6 +7,7 @@ import type {
 import { ReportSummaryCard } from '@/module/reports/presentation/components/shared/ReportSummaryCard';
 import { ReportKpiStrip } from '@/module/reports/presentation/components/shared/ReportKpiStrip';
 import { useTranslation } from '@/i18n';
+import { useReportPrecision } from '@/module/reports/presentation/hooks/useReportPrecision';
 
 /** A difference under a cent is rounding, not a real gap. */
 const TOLERANCE = 0.005;
@@ -24,6 +25,7 @@ interface SummaryCardProps {
 
 /** A card of the shared anatomy: debit and credit on one scale, then one closing line. */
 const SummaryCard: React.FC<SummaryCardProps> = ({ title, caption, sums, result }) => {
+  const precision = useReportPrecision();
   const { t } = useTranslation('reports');
   const peak = Math.max(sums.debit, sums.credit);
 
@@ -33,8 +35,8 @@ const SummaryCard: React.FC<SummaryCardProps> = ({ title, caption, sums, result 
       caption={caption}
       ariaLabel={t('trialBalance.cardAria', {
         group: title,
-        debit: formatMoney(sums.debit),
-        credit: formatMoney(sums.credit),
+        debit: formatMoney(sums.debit, precision),
+        credit: formatMoney(sums.credit, precision),
       })}
       lines={[
         {

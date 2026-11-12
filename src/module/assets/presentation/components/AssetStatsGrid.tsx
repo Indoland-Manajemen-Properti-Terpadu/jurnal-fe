@@ -12,6 +12,7 @@ import {
   formatAssetMoney,
   formatAssetMoneyShort,
 } from '@/module/assets/presentation/components/formatAssetMoney';
+import { useDecimalPrecision } from '@/module/settings';
 
 export type AssetStatsGridProps = {
   summary?: AssetSummary;
@@ -19,6 +20,7 @@ export type AssetStatsGridProps = {
 };
 
 export function AssetStatsGrid({ summary, loading }: Readonly<AssetStatsGridProps>) {
+  const precision = useDecimalPrecision();
   const { t } = useTranslation('assets');
 
   if (loading || !summary) {
@@ -46,8 +48,8 @@ export function AssetStatsGrid({ summary, loading }: Readonly<AssetStatsGridProp
     <div className={statCardGridClass}>
       <AssetStatCard
         label={t('totalAcquisitionCost')}
-        value={formatAssetMoneyShort(summary.totalAcquisitionCost)}
-        valueTitle={formatAssetMoney(summary.totalAcquisitionCost)}
+        value={formatAssetMoneyShort(summary.totalAcquisitionCost, precision)}
+        valueTitle={formatAssetMoney(summary.totalAcquisitionCost, precision)}
         hint={t('statsTotalHint', { count: total })}
         visual={
           <div
@@ -69,8 +71,8 @@ export function AssetStatsGrid({ summary, loading }: Readonly<AssetStatsGridProp
 
       <AssetStatCard
         label={t('totalDepreciation')}
-        value={formatAssetMoneyShort(summary.totalAccumulatedDepreciation)}
-        valueTitle={formatAssetMoney(summary.totalAccumulatedDepreciation)}
+        value={formatAssetMoneyShort(summary.totalAccumulatedDepreciation, precision)}
+        valueTitle={formatAssetMoney(summary.totalAccumulatedDepreciation, precision)}
         hint={t('totalDepreciationSub')}
         visual={
           <RingProgress
@@ -91,8 +93,8 @@ export function AssetStatsGrid({ summary, loading }: Readonly<AssetStatsGridProp
 
       <AssetStatCard
         label={t('netBookValue')}
-        value={formatAssetMoneyShort(summary.totalNetBookValue)}
-        valueTitle={formatAssetMoney(summary.totalNetBookValue)}
+        value={formatAssetMoneyShort(summary.totalNetBookValue, precision)}
+        valueTitle={formatAssetMoney(summary.totalNetBookValue, precision)}
         hint={t('netBookValueSub')}
         visual={
           <>

@@ -10,6 +10,7 @@ import {
   type TrialBalanceReport,
 } from '@/module/reports/domain/trialBalance.types';
 import { useTranslation } from '@/i18n';
+import { useReportPrecision } from '@/module/reports/presentation/hooks/useReportPrecision';
 import classes from './TrialBalance.module.css';
 
 const GROUP_KEY: Record<TrialBalanceGroup, string> = {
@@ -38,15 +39,18 @@ interface FigureProps {
 }
 
 /** A figure; zero is muted, and `null` (no figure at all) is left blank. */
-const Figure: React.FC<FigureProps> = ({ value, side, start }) => (
-  <td
-    data-side={side}
-    data-start={start ? '' : undefined}
-    className={value === 0 ? classes.zero : (value ?? 0) < 0 ? classes.negative : undefined}
-  >
-    {value === null ? '' : formatAmount(value)}
-  </td>
-);
+const Figure: React.FC<FigureProps> = ({ value, side, start }) => {
+  const precision = useReportPrecision();
+  return (
+    <td
+      data-side={side}
+      data-start={start ? '' : undefined}
+      className={value === 0 ? classes.zero : (value ?? 0) < 0 ? classes.negative : undefined}
+    >
+      {value === null ? '' : formatAmount(value, precision)}
+    </td>
+  );
+};
 
 const EMPTY_CELLS: TrialBalanceCells = { debit: null, credit: null };
 

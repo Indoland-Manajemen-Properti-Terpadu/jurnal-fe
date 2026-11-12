@@ -12,3 +12,4 @@ export {
   SitesPage,
 } from './presentation/pages/PlannedSettingsPages';
 export { default as SettingsLayout } from './presentation/components/SettingsLayout';
+export { useDecimalPrecision } from './presentation/hooks/useDecimalPrecision';
