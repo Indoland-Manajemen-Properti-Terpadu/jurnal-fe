@@ -1,32 +1,56 @@
 # period-closing
 
-**UI prototype, no backend.** Period lock and closing the books: a start modal, a trial balance working paper, a financial statement preview (trial balance, income statement, balance sheet, cash flow) and a list page. No request is made to save, lock or close anything. Do not present it as a working feature.
+Period locks and closing the books, on `/v1/accounting-periods` (backend `main-backend` commit `7e48227`). One list holds both kinds; closing the books is a four-step wizard.
 
-- **Routes** (`src/router/routes.ts`, unchanged): `routes.periodClosing.closingBooks` (`/settings/general-journal/closing-books`), `routes.periodClosing.financialStatement` (`/settings/general-journal/period-lock/financial-statement`), `routes.periodClosing.list` (`/settings/general-journal/closing-books/list/period-lock`).
-- **Public API (`index.ts`):** `ClosingBooksPage`, `FinancialStatementPage`, `PeriodClosingListPage` (router) and `PeriodAndClosingBooksModal` (nothing opens it now: the account list no longer repeats Period Closing, which has its own sidebar entry marked as a prototype and opens straight on the page).
-- **Endpoints:** none. The only data call is the account list through `useJournalAccounts` from `@/module/chart-of-accounts`; the report tables group and display it.
-- **Layers:** `domain/` (`reportTotals.ts` sums and grouping, `prototypeData.ts` fixed placeholder figures), `presentation/pages`, `presentation/components`, `presentation/store/usePeriodModals.ts` (Zustand flags of the modal flow, moved from `src/store/useModals.ts`).
+- **Lock (`LOCK`)**: freezes transaction dates. No journal; its name, notes, dates and on/off state can change, and it can be deleted.
+- **Closing (`CLOSE`)**: freezes the dates and has the server post a closing journal that moves every revenue and expense balance to retained earnings (`transactionType: CLOSING`). Afterwards only its name and notes change. It is never deleted: the latest active closing is undone with **Buka kembali** (`POST /:id/reopen`), which voids the closing journal and lifts the lock in one request. The period stays in the list as inactive ("Dibuka kembali") with `closedBy`, `reopenedBy` and `reopenedAt`, so the trail of who closed and reopened it is kept; the row shows the reopen date.
+
+## Routes
+
+| Constant                          | Path                                            | Page             |
+| --------------------------------- | ----------------------------------------------- | ---------------- |
+| `routes.periodClosing.main`       | `/settings/general-journal/closing-books`       | `PeriodListPage` |
+| `routes.periodClosing.closeBooks` | `/settings/general-journal/closing-books/close` | `CloseBooksPage` |
+
+Old addresses redirect to the list: the prototype pages (`.../closing-books/list/period-lock`, `.../period-lock/financial-statement`) and the planned settings page `/settings/accounting-periods`, which this module replaces (one place per task).
+
+## Access
+
+Menu `JP-GL-PC` "Tutup Buku & Lock Period" (`usePeriodAccess`, from `useMyGrants`): `read` opens the pages, `create` locks and closes, `update` edits and turns a lock on or off, `delete` deletes a lock and reopens a closing. The sidebar entry uses `NAV_MENU.periodClosing`. Without `read` (or on a 403) the page shows the no-access state instead of an empty list. Nothing is hidden before the rights have loaded.
+
+## Endpoints
+
+`infrastructure/periodApi.ts`: `GET /` (list), `GET /:id`, `GET /check`, `POST /`, `PATCH /:id` (a closing sends only `name` and `notes`), `DELETE /:id` (locks only), `POST /:id/reopen`. Dates go out and come back as calendar days (`YYYY-MM-DD`); the server's UTC midnight timestamps are cut to the day, never shifted to a time zone.
+
+Data borrowed for the wizard, through public module APIs:
+
+- Trial balance of the closing range: `trialBalanceApi` from `@/module/reports` (same query key as the report, so the cache is shared). Its totals give the "balanced" check, its profit and loss column the closing journal preview, its `KB` (cash and bank) accounts the reconciliation links.
+- Retained earnings account: `useAccountMappings` from `@/module/settings`, key `retained_earnings`.
 
 ## Domain rules
 
-- Only two displayed numbers are computed: the per-category total of the balance sheet and the per-category totals of the income statement (sales revenue, operating expenses, other revenue). They use `sumAmounts`: each account amount is rounded half up to the cent, added as integer cents with `@/lib/money`, a missing amount counts as zero. This removes float drift (0.1 + 0.2 shows 0,30); for whole-rupiah and two-decimal data the result is identical to the old code.
-- Everything else is a fixed placeholder shown for layout: the "Total" rows of the trial balance and working paper (0), the income statement header total and the cost of revenue, non-operating expenses and profit rows, the cash flow figures, the balance sheet header total, the dates (`31/07/2024`, `19 Sept 2021`, lock date `01/08/2024`) and the company name. They live in `domain/prototypeData.ts`.
-- Trial balance and working paper repeat the same debit and credit of an account in all three column groups.
-- The tables compare category names in English (`sales revenue`, `operating expenses`, `other revenue`) against the account data, so the income statement only fills for accounts with those exact categories.
+- `periodRules.ts`: overlap only between active periods of the same type (the server answers 409 on the same rule; the form says so before saving). Only the active closing with the latest end date can be reopened. The next closing is suggested from the day after the latest closing (or 1 January last year when there is none) to the end of that year, cut back to the end of last month while the year is still running. A gap between the latest closing and a new start date is shown as a warning, not blocked (the server does not require closings to follow each other). Lock quick picks: last month, last quarter, last year, this month. Names are suggested from what the range covers ("Tutup Buku 2025", "Kunci Oktober 2026") until the user types one.
+- `closingReadiness.ts`: closing is blocked without a retained earnings account (the server refuses it); an unbalanced trial balance is a warning; three steps only the user can confirm (bank accounts reconciled, adjusting entries recorded, every transaction recorded) must be ticked to go on. Changing the range clears the confirmations.
+- `closingPreview.ts`: one line per revenue or expense account with a balance in the trial balance's profit and loss column, on the opposite side, plus retained earnings for the net. Money is added in minor units. It is a preview: the server computes the journal (from the start of the data to the end date) and the page says the final figures may differ.
+- The closing journal of the latest closing opens from its row and from the success screen (`routes.journalEntries.detail`).
+
+## Server behaviour worked around (checked 2026-11-12)
+
+- `isActive=true` and `isActive=false` both return no rows. `fetchPeriods` does not send `isActive`: with a status filter it reads up to 100 periods of the type and filters and pages them itself. Send `isActive` again once the server filter works.
+- `totalResults` once counted a deleted period (`results: []` with `totalResults: 1`); it matched on a later check. Reopening used to delete the period; since the backend change of 2026-11-12 it stays as inactive.
+- `reopenedBy` (and `closedBy`) come as a bare user id on the list, unlike `createdBy` (an object), so the row shows the reopen date and adds the name only when the server sends one. A page that is not full is the last one, so its rows give the total either way.
+- The 409 on `POST` is English and technical ("There is already an active locked period..."), while the 409 on `PATCH` is Indonesian. The screen shows its own text for 403, 404 and 409; 400 messages (Indonesian) are shown as they are.
 
 ## State
 
-Modal flow flags in `usePeriodModals` (Zustand). Nothing is persisted.
+Server data in TanStack Query (`presentation/hooks/usePeriodQueries.ts`, keys under `accounting-periods`). A write refreshes the periods and the date checks; a closing or reopening also refreshes the reports and journal lists it changes. The list filters and the wizard state are local React state.
 
 ## i18n
 
-Namespace `periodClosing` (`id` primary, `en`), in `src/i18n/locales/{id,en}/periodClosing.ts`, with a key and placeholder parity test (`src/i18n/locales/periodClosing.test.ts`). The original text was English only (no Indonesian existed), so the `id` texts are new translations.
+Namespace `periodClosing` (`id` primary, `en`), in `src/i18n/locales/{id,en}/periodClosing.ts`, with the key and placeholder parity test (`src/i18n/locales/periodClosing.test.ts`) and a hard-coded text guard (`presentation/hardcodedText.test.ts`).
 
 ## Known gaps
 
-- The two toasts that were copy pasted from the delete flows ("Selected account has been deleted", "Successfully Delete Transaction") now say "Prototype: no data was changed." The red colour of the draft toast is unchanged.
-- The ending cash position block of the cash flow still uses the heading "Cash Flow From Financing Activities" (copied header, unchanged).
-- The report tables render total rows as direct children of `<table>` (invalid DOM nesting warning in tests, unchanged).
-- The account selects on the closing form hold placeholder options (`React`, `Angular`, ...), not accounts.
-- Whether to build the backend or hide these pages is a product decision.
-- The pages use `AppShellLayout` with a footer through `PeriodClosingLayout`; `AppShellLayout` does not import this module, so there is no import cycle.
+- There is no endpoint for the last reconciled date of a bank account (the reconciliation endpoint answered 502 when checked), so reconciliation is a confirmation with links to each cash and bank account.
+- Transaction forms of other modules do not ask `GET /check` yet; the server still refuses a transaction dated in a locked period.
+- Checked against the live service on 2026-11-12 (Demo Site): lock create, overlap 409, turn off, edit; closing create with and without a closing journal (the journal's six lines and totals equal the wizard preview), 400 on changing dates or status of a closing, 400 on deleting one, 400 on reopening an older closing or a lock (messages in Indonesian), date check inside a closed range. Reopening the latest closing (200; the period stays inactive with `reopenedBy` and `reopenedAt`, the date check afterwards is open, an older closing answers 400) was checked on 2026-11-12. The 403 for a role without `delete` is covered by page tests only, and a transaction posted inside a locked range was not tried.

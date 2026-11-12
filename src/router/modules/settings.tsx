@@ -2,7 +2,6 @@ import { Navigate } from 'react-router-dom';
 import type { RouteObject } from 'react-router-dom';
 import {
   AccountMappingPage,
-  AccountingPeriodsPage,
   ApprovalFlowPage,
   CompanySettingPage,
   GeneralSettingPage,
@@ -22,7 +21,6 @@ export const settingsRoutes: RouteObject[] = [
   { path: routes.settings.general, element: <GeneralSettingPage /> },
   { path: routes.settings.company, element: <CompanySettingPage /> },
   { path: routes.settings.sites, element: <SitesPage /> },
-  { path: routes.settings.accountingPeriods, element: <AccountingPeriodsPage /> },
   { path: routes.settings.approvalFlow, element: <ApprovalFlowPage /> },
   { path: routes.settings.accountMapping, element: <AccountMappingPage /> },
   { path: routes.settings.taxes, element: <TaxSettingPage /> },
