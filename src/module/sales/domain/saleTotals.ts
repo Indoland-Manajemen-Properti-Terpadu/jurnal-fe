@@ -29,9 +29,12 @@ export interface SaleTotals {
 }
 
 // Unit price and nominal values are rounded to the cent once, then everything is integer cents.
-// Line subtotal is rounded half up per line. The server charges VAT (PPN) on each line's full price,
-// so an invoice discount never lowers the tax, and withholding (PPh) is a share of the subtotal
-// before the discount. Both were verified against the live service (see the module README).
+// The server's rule (changed 2026-11-11, verified live): the discount is spread over the lines in
+// proportion to their amount, each line's VAT is taken on its amount after its share of the
+// discount, and withholding (PPh) is a share of the subtotal after the discount.
+//   total = subtotal - discount + VAT      final = total - withholding
+// With tax-inclusive prices each line is first reduced to its price without tax and then follows
+// the same rule.
 const lineSubtotalCents = ({ quantity, unitPrice }: SaleLineInput) =>
   roundMinor((quantity || 0) * toCents(unitPrice || 0));
 
@@ -46,46 +49,55 @@ const adjustmentCents = (type: 'percentage' | 'nominal', value: number, base: nu
   return type === 'percentage' ? roundMinor((base * value) / 100) : toCents(value);
 };
 
-const inclusiveTotals = (input: SaleTotalsInput): SaleTotals => {
-  const gross = input.lines.map(lineSubtotalCents);
-  const nets = gross.map((amount, index) =>
-    roundMinor(amount / (1 + (input.lines[index].taxRate || 0) / 100))
-  );
-  const subtotal = sumMinor(nets);
-  const grossTotal = sumMinor(gross);
-  const tax = grossTotal - subtotal;
-  // The server takes the discount off the tax-included amount, so the tax stays inside the total.
-  const discount = Math.min(
-    adjustmentCents(input.discountType, input.discountValue, grossTotal),
-    grossTotal
-  );
-  const total = grossTotal - discount;
-  // Withholding (PPh) is taken on the amount without tax, as the server does.
-  const withholding = adjustmentCents(input.withholdingType, input.withholdingValue, subtotal);
-
-  return {
-    subtotal: fromCents(subtotal),
-    discountAmount: fromCents(discount),
-    taxTotal: fromCents(tax),
-    total: fromCents(total),
-    withholdingAmount: fromCents(withholding),
-    finalAmount: fromCents(Math.max(0, total - withholding)),
-  };
+/**
+ * Splits a discount over the lines in proportion to their amounts, to the cent. The cents left
+ * after rounding down go to the lines with the largest fractions, the first line on a tie, so the
+ * shares always add up to the discount (the same split the server makes).
+ */
+const spreadDiscount = (amounts: number[], discount: number): number[] => {
+  const total = amounts.reduce((sum, amount) => sum + amount, 0);
+  if (discount <= 0 || total <= 0) return amounts.map(() => 0);
+  const big = amounts.map((amount) => BigInt(amount) * BigInt(discount));
+  const divisor = BigInt(total);
+  const shares = big.map((product) => Number(product / divisor));
+  const remainders = big.map((product) => product % divisor);
+  let left = discount - shares.reduce((sum, share) => sum + share, 0);
+  const order = remainders
+    .map((remainder, index) => ({ remainder, index }))
+    .sort((a, b) =>
+      a.remainder === b.remainder ? a.index - b.index : a.remainder > b.remainder ? -1 : 1
+    );
+  for (let k = 0; left > 0 && k < order.length; k += 1, left -= 1) {
+    shares[order[k].index] += 1;
+  }
+  return shares;
 };
 
 export const calculateSaleTotals = (input: SaleTotalsInput): SaleTotals => {
-  if (input.isPriceIncludeTax) return inclusiveTotals(input);
-  const subtotals = input.lines.map(lineSubtotalCents);
-  const subtotal = sumMinor(subtotals);
+  const gross = input.lines.map(lineSubtotalCents);
+  // Prices that include tax are brought down to the price without tax first.
+  const amounts = input.isPriceIncludeTax
+    ? gross.map((amount, index) =>
+        roundMinor(amount / (1 + (input.lines[index].taxRate || 0) / 100))
+      )
+    : gross;
+  const subtotal = sumMinor(amounts);
   // A discount can never exceed the amount it applies to.
   const discount = Math.min(
     adjustmentCents(input.discountType, input.discountValue, subtotal),
     subtotal
   );
+  const shares = spreadDiscount(amounts, discount);
   const tax = sumMinor(
-    input.lines.map((line, index) => roundMinor((subtotals[index] * (line.taxRate || 0)) / 100))
+    amounts.map((amount, index) =>
+      roundMinor(((amount - shares[index]) * (input.lines[index].taxRate || 0)) / 100)
+    )
   );
-  const withholding = adjustmentCents(input.withholdingType, input.withholdingValue, subtotal);
+  const withholding = adjustmentCents(
+    input.withholdingType,
+    input.withholdingValue,
+    subtotal - discount
+  );
   const total = subtotal - discount + tax;
 
   return {
@@ -94,7 +106,7 @@ export const calculateSaleTotals = (input: SaleTotalsInput): SaleTotals => {
     taxTotal: fromCents(tax),
     total: fromCents(total),
     withholdingAmount: fromCents(withholding),
-    finalAmount: fromCents(Math.max(0, total - withholding)),
+    finalAmount: fromCents(total - withholding),
   };
 };
 

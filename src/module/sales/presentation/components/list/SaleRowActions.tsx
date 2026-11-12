@@ -72,13 +72,22 @@ export const SaleRowActions = ({
             {t('actions.link')}
           </Menu.Item>
         )}
-        {actions.resend && (
+        {actions.resend === 'enabled' && (
           <Menu.Item
             leftSection={<IconMailForward size={16} />}
             onClick={() => handlers.onResend(sale)}
           >
             {t('actions.resend')}
           </Menu.Item>
+        )}
+        {actions.resend === 'disabled' && (
+          <Tooltip label={t('actions.resendDisabled')} withArrow position="left" multiline w={220}>
+            <div>
+              <Menu.Item leftSection={<IconMailForward size={16} />} disabled>
+                {t('actions.resend')}
+              </Menu.Item>
+            </div>
+          </Tooltip>
         )}
         {actions.remove !== 'hidden' && <Menu.Divider />}
         {actions.remove === 'enabled' && (

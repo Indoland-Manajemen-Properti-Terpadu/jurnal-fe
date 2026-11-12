@@ -20,13 +20,23 @@ import {
   resolveContactGroupIds,
 } from '@/module/contacts/domain/contactAccountOptions';
 import { IDENTITY_TYPE_KEYS, PREFIX_KEYS } from '@/module/contacts/domain/contactForm';
+import {
+  identityMaxLength,
+  isPassport,
+  MOBILE_LENGTH,
+  NPWP_MAX_LENGTH,
+  sanitizeIdentityNumber,
+  TELEPHONE_LENGTH,
+} from '@/module/contacts/domain/contactInput';
 import { useContactGroups } from '@/module/contacts/presentation/hooks/useContactQueries';
+import { SanitizedInput } from './SanitizedInput';
 
 type Props = { form: UseFormReturnType<ContactFormValues> };
 
 export function ContactGeneralTab({ form }: Readonly<Props>) {
   const { t } = useTranslation('contacts');
   const groupsQuery = useContactGroups();
+  const identityType = form.values.identity.type;
 
   const groupOptions = useMemo(() => buildGroupOptions(groupsQuery.data ?? []), [groupsQuery.data]);
   useEffect(() => {
@@ -151,21 +161,44 @@ export function ContactGeneralTab({ form }: Readonly<Props>) {
           <Select
             label={t('form.general.identityType')}
             data={identityOptions}
+            allowDeselect={false}
             {...form.getInputProps('identity.type')}
+            onChange={(value) => {
+              const type = value ?? 'KTP';
+              form.setFieldValue('identity.type', type);
+              form.setFieldValue(
+                'identity.number',
+                sanitizeIdentityNumber(form.values.identity.number, type).slice(
+                  0,
+                  identityMaxLength(type)
+                )
+              );
+              form.clearFieldError('identity.number');
+            }}
           />
         </Grid.Col>
         <Grid.Col span={{ base: 12, sm: 4 }}>
-          <TextInput
+          <SanitizedInput
             label={t('form.general.identityNumber.label')}
-            placeholder={t('form.general.identityNumber.placeholder')}
-            {...form.getInputProps('identity.number')}
+            placeholder={t(`form.general.identityNumber.placeholder.${identityType}`)}
+            numeric={!isPassport(identityType)}
+            sanitize={(value) => sanitizeIdentityNumber(value, identityType)}
+            maxLength={identityMaxLength(identityType)}
+            error={form.errors['identity.number']}
+            value={form.values.identity.number}
+            onValueChange={(value) => form.setFieldValue('identity.number', value)}
+            onBlur={() => form.validateField('identity.number')}
           />
         </Grid.Col>
         <Grid.Col span={{ base: 12, sm: 4 }}>
-          <TextInput
+          <SanitizedInput
             label={t('form.general.npwp.label')}
             placeholder={t('form.general.npwp.placeholder')}
-            {...form.getInputProps('npwp')}
+            maxLength={NPWP_MAX_LENGTH}
+            error={form.errors.npwp}
+            value={form.values.npwp}
+            onValueChange={(value) => form.setFieldValue('npwp', value)}
+            onBlur={() => form.validateField('npwp')}
           />
         </Grid.Col>
       </Grid>
@@ -188,17 +221,25 @@ export function ContactGeneralTab({ form }: Readonly<Props>) {
           />
         </Grid.Col>
         <Grid.Col span={{ base: 12, sm: 4 }}>
-          <TextInput
+          <SanitizedInput
             label={t('form.general.mobile.label')}
             placeholder={t('form.general.mobile.placeholder')}
-            {...form.getInputProps('phones.mobile')}
+            maxLength={MOBILE_LENGTH.max}
+            error={form.errors['phones.mobile']}
+            value={form.values.phones.mobile}
+            onValueChange={(value) => form.setFieldValue('phones.mobile', value)}
+            onBlur={() => form.validateField('phones.mobile')}
           />
         </Grid.Col>
         <Grid.Col span={{ base: 12, sm: 4 }}>
-          <TextInput
+          <SanitizedInput
             label={t('form.general.telephone.label')}
             placeholder={t('form.general.telephone.placeholder')}
-            {...form.getInputProps('phones.telephone')}
+            maxLength={TELEPHONE_LENGTH.max}
+            error={form.errors['phones.telephone']}
+            value={form.values.phones.telephone}
+            onValueChange={(value) => form.setFieldValue('phones.telephone', value)}
+            onBlur={() => form.validateField('phones.telephone')}
           />
         </Grid.Col>
       </Grid>

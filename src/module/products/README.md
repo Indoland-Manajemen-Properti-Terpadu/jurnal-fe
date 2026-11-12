@@ -9,7 +9,7 @@ Catalog of goods and services, plus the two master lists that feed it (product c
   - `GET|POST /v1/product-categories`, `PUT|DELETE /v1/product-categories/:id`
   - `GET|POST /v1/units`, `PUT|DELETE /v1/units/:id`
   - `GET /v1/taxes`
-  - Chart of accounts for the account selects: `API_ACCOUNT.GET_SIMPLE_ACCOUNTS` (`GET /v1/accounts/simple`) from `src/lib/http/endpoints.ts`. Only postable accounts are offered; the debit/credit side comes from the API's `normalBalance`, which already flips contra accounts.
+  - Chart of accounts for the account selects: `API_ACCOUNT.GET_SIMPLE_ACCOUNTS` (`GET /v1/accounts/simple`) from `src/lib/http/endpoints.ts`. Only postable accounts are offered; the debit/credit side comes from the API's `normalBalance`, which already flips contra accounts. The add and edit form asks for `?type=sales` for the Akun Penjualan select and `?type=purchase` for the Akun Pembelian select (revenue and cost accounts only, each still filtered to its debit or credit side), and for the full list without a type for the receivable and inventory selects and for the labels. An account a product already uses stays selectable even when the typed list does not contain it (`accountChoices`).
 - **Layers:** `domain/` (entity types, `productFormat`, `productRules`), `infrastructure/` (API calls, DTOs with legacy field aliases, mapper), `presentation/hooks` (TanStack Query hooks, form hook, reference label hook), `presentation/components` (table, form and its sections, image panel, master data panel and modal, detail header / settings cards / audit panel, stats, toolbar), `presentation/pages`.
 
 ## Domain rules

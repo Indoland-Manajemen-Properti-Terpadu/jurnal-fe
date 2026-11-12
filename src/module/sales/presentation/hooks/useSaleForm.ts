@@ -1,7 +1,8 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useForm } from '@mantine/form';
 import { useTranslation } from '@/i18n';
 import type { CreateSaleFormValues } from '@/module/sales/domain/sale';
+import type { CustomerSummary } from '@/module/sales/domain/saleCustomer';
 import {
   dueDateFromTerm,
   emptyLine,
@@ -12,7 +13,6 @@ import {
 import { calculateSaleTotals } from '@/module/sales/domain/saleTotals';
 import {
   useDepositAccounts,
-  useSaleCustomerOptions,
   useSalePaymentTerms,
   useSaleProductOptions,
   useSaleTaxes,
@@ -23,7 +23,6 @@ const localToday = (): string => new Date().toLocaleDateString('en-CA');
 /** Form state, lookups, derived fields (due date, unit, price) and the live estimate of one invoice. */
 export function useSaleForm(initial?: CreateSaleFormValues) {
   const { t } = useTranslation('sales');
-  const customersQuery = useSaleCustomerOptions();
   const productsQuery = useSaleProductOptions();
   const taxesQuery = useSaleTaxes();
   const termsQuery = useSalePaymentTerms();
@@ -36,14 +35,20 @@ export function useSaleForm(initial?: CreateSaleFormValues) {
   const termDays = (termId: string): number | null =>
     (termsQuery.data || []).find((term) => term.id === termId)?.days ?? null;
 
-  /** Fills the billing address and email from the chosen customer. */
-  const changeCustomer = (customerId: string | null) => {
+  /** The customer being billed, as far as the form needs it (emails decide what "send" can do). */
+  const [customer, setCustomer] = useState<CustomerSummary | null>(null);
+
+  /** Fills the billing address and email from the customer the user picked. */
+  const changeCustomer = (customerId: string | null, picked: CustomerSummary | null) => {
     form.setFieldValue('customer', customerId || '');
-    const selected = (customersQuery.data || []).find((c) => c.value === customerId);
-    if (!selected) return;
-    if (selected.billingAddress) form.setFieldValue('billingAddress', selected.billingAddress);
-    if (selected.emails?.length) form.setFieldValue('emails', selected.emails);
+    if (!picked) return;
+    if (picked.billingAddress) form.setFieldValue('billingAddress', picked.billingAddress);
+    if (picked.emails.length) form.setFieldValue('emails', picked.emails);
   };
+
+  /** Whether an email can go out: the invoice's own addresses, else the customer's. */
+  const canEmail =
+    form.values.emails.some((email) => email.trim()) || Boolean(customer?.emails.length);
 
   const applyTerm = (termId: string, transactionDate: string) => {
     const days = termDays(termId);
@@ -124,13 +129,15 @@ export function useSaleForm(initial?: CreateSaleFormValues) {
     totals,
     checkStep,
     changeCustomer,
+    customer,
+    setCustomer,
+    canEmail,
     changeTerm,
     changeTransactionDate,
     changeProduct,
     addLine,
     removeLine,
-    isLoadingLookups: customersQuery.isLoading || productsQuery.isLoading,
-    customerOptions: (customersQuery.data || []).map((c) => ({ value: c.value, label: c.label })),
+    isLoadingLookups: productsQuery.isLoading,
     productOptions: (productsQuery.data || []).map((p) => ({
       value: p.value,
       label: `${p.name} (${p.code || t('form.lines.noCode')})`,

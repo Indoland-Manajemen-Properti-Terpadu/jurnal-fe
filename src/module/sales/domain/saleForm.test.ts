@@ -66,19 +66,33 @@ describe('validateStep', () => {
     });
   });
 
-  it('refuses a percentage discount above 100 and a withholding without an account', () => {
+  it('refuses a percentage discount or withholding above 100', () => {
     const errors = validateStep(
       'extras',
       valid({
         discountType: 'percentage',
         discountValue: 120,
-        withholdingValue: 2,
-        withholdingAccount: '',
+        withholdingType: 'percentage',
+        withholdingValue: 101,
       })
     );
     expect(errors).toHaveProperty('discountValue');
-    expect(errors).toHaveProperty('withholdingAccount');
+    expect(errors.withholdingValue).toBe('validation.withholdingPercent');
     expect(validateStep('extras', valid())).toEqual({});
+  });
+
+  it('does not ask for a withholding account: the server has a default one', () => {
+    const errors = validateStep(
+      'extras',
+      valid({ withholdingType: 'percentage', withholdingValue: 2, withholdingAccount: '' })
+    );
+    expect(errors).toEqual({});
+  });
+
+  it('allows a nominal withholding larger than 100', () => {
+    expect(
+      validateStep('extras', valid({ withholdingType: 'nominal', withholdingValue: 50000 }))
+    ).toEqual({});
   });
 });
 

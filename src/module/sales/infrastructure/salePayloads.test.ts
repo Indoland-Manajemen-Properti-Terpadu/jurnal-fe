@@ -25,6 +25,27 @@ const values = (patch: Partial<CreateSaleFormValues> = {}): CreateSaleFormValues
 });
 
 describe('buildSaleFormData', () => {
+  it('sends a withholding without an account and leaves the account out', () => {
+    const form = buildSaleFormData(
+      values({ withholdingType: 'percentage', withholdingValue: 2, withholdingAccount: '' }),
+      'draft'
+    );
+    expect(form.get('withholdingType')).toBe('percentage');
+    expect(form.get('withholdingValue')).toBe('2');
+    expect(form.has('withholdingAccount')).toBe(false);
+  });
+
+  it('sends the account when one is chosen, and nothing when there is no withholding', () => {
+    const withAccount = buildSaleFormData(
+      values({ withholdingValue: 2, withholdingAccount: 'acc-1' }),
+      'draft'
+    );
+    expect(withAccount.get('withholdingAccount')).toBe('acc-1');
+    const none = buildSaleFormData(values({ withholdingAccount: 'acc-1' }), 'draft');
+    expect(none.has('withholdingType')).toBe(false);
+    expect(none.has('withholdingAccount')).toBe(false);
+  });
+
   it('saves a draft without asking for an email', () => {
     const form = buildSaleFormData(values(), 'draft');
     expect(form.get('status')).toBe('DRAFT');

@@ -64,6 +64,12 @@ export function SalePaymentsPage() {
                 onRange={(value) => dispatch({ type: 'range', value })}
                 overpayment={state.overpayment}
                 onOverpayment={(value) => dispatch({ type: 'overpayment', value })}
+                customer={state.customer}
+                onCustomer={(value) => dispatch({ type: 'customer', value })}
+                paymentMethod={state.paymentMethod}
+                onPaymentMethod={(value) => dispatch({ type: 'paymentMethod', value })}
+                depositAccount={state.depositAccount}
+                onDepositAccount={(value) => dispatch({ type: 'depositAccount', value })}
                 isFiltered={isFiltered}
                 onReset={() => {
                   setSearchInput('');
@@ -79,7 +85,14 @@ export function SalePaymentsPage() {
                 totalPages={pagination?.totalPages || 1}
                 total={pagination?.total || 0}
                 limit={state.limit}
-                onOpenInvoice={(id) => navigate(routes.sales.detail.replace(':id', id))}
+                sortBy={state.sortBy}
+                sortOrder={state.sortOrder}
+                onSort={(by) => dispatch({ type: 'sort', by })}
+                onOpenPayment={(saleId, paymentId) =>
+                  navigate(
+                    `${routes.sales.detail.replace(':id', saleId)}?tab=payments&payment=${paymentId}`
+                  )
+                }
                 onPageChange={(value) => dispatch({ type: 'page', value })}
                 onLimitChange={(value) => dispatch({ type: 'limit', value })}
                 onRetry={() => query.refetch()}

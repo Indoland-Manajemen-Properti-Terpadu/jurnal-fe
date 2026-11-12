@@ -1,9 +1,28 @@
-import { Group, Pagination, Select, Skeleton, Stack, Table, Text } from '@mantine/core';
-import { IconAlertCircle, IconCashBanknoteOff } from '@tabler/icons-react';
+import {
+  Group,
+  Pagination,
+  Select,
+  Skeleton,
+  Stack,
+  Table,
+  Text,
+  UnstyledButton,
+} from '@mantine/core';
+import {
+  IconAlertCircle,
+  IconArrowDown,
+  IconArrowsSort,
+  IconArrowUp,
+  IconCashBanknoteOff,
+} from '@tabler/icons-react';
 import { EmptyState } from '@/components/EmptyState';
 import { useTranslation } from '@/i18n';
 import { formatDate, formatIDR } from '@/module/sales/domain/saleFormat';
-import type { SalePaymentRow } from '@/module/sales/domain/salePaymentList';
+import type {
+  PaymentSortBy,
+  SalePaymentRow,
+  SortOrder,
+} from '@/module/sales/domain/salePaymentList';
 
 type SalePaymentTableProps = {
   rows: SalePaymentRow[];
@@ -14,7 +33,11 @@ type SalePaymentTableProps = {
   totalPages: number;
   total: number;
   limit: number;
-  onOpenInvoice: (saleId: string) => void;
+  sortBy: PaymentSortBy;
+  sortOrder: SortOrder;
+  onSort: (by: PaymentSortBy) => void;
+  /** Opens the invoice on its payment history, marking this payment. */
+  onOpenPayment: (saleId: string, paymentId: string) => void;
   onPageChange: (page: number) => void;
   onLimitChange: (limit: number) => void;
   onRetry: () => void;
@@ -22,14 +45,16 @@ type SalePaymentTableProps = {
 
 const PAGE_SIZES = ['10', '25', '50'];
 
-const COLUMNS: Array<{ key: string; align?: 'right' }> = [
-  { key: 'colDate' },
-  { key: 'colNumber' },
+type Column = { key: string; align?: 'right'; sort?: PaymentSortBy };
+
+const COLUMNS: Column[] = [
+  { key: 'colDate', sort: 'paymentDate' },
+  { key: 'colNumber', sort: 'transactionNumber' },
   { key: 'colInvoice' },
   { key: 'colCustomer' },
   { key: 'colMethod' },
-  { key: 'colAmount', align: 'right' },
-  { key: 'colOverpayment', align: 'right' },
+  { key: 'colAmount', align: 'right', sort: 'amount' },
+  { key: 'colOverpayment', align: 'right', sort: 'overpaymentAmount' },
 ];
 
 export function SalePaymentTable({
@@ -41,7 +66,10 @@ export function SalePaymentTable({
   totalPages,
   total,
   limit,
-  onOpenInvoice,
+  sortBy,
+  sortOrder,
+  onSort,
+  onOpenPayment,
   onPageChange,
   onLimitChange,
   onRetry,
@@ -55,13 +83,51 @@ export function SalePaymentTable({
         <Table verticalSpacing="sm" horizontalSpacing="md" highlightOnHover>
           <Table.Thead bg="gray.0">
             <Table.Tr>
-              {COLUMNS.map((column) => (
-                <Table.Th key={column.key} ta={column.align}>
-                  <Text size="xs" fw={700} c="dimmed" style={{ whiteSpace: 'nowrap' }}>
-                    {t(`payments.${column.key}`)}
-                  </Text>
-                </Table.Th>
-              ))}
+              {COLUMNS.map((column) => {
+                const active = column.sort === sortBy;
+                const SortIcon = active
+                  ? sortOrder === 'asc'
+                    ? IconArrowUp
+                    : IconArrowDown
+                  : IconArrowsSort;
+                let ariaSort: 'ascending' | 'descending' | 'none' | undefined;
+                if (column.sort) {
+                  ariaSort = active ? (sortOrder === 'asc' ? 'ascending' : 'descending') : 'none';
+                }
+                return (
+                  <Table.Th key={column.key} ta={column.align} aria-sort={ariaSort}>
+                    {column.sort ? (
+                      <UnstyledButton
+                        onClick={() => onSort(column.sort as PaymentSortBy)}
+                        aria-label={t('payments.sortBy', { column: t(`payments.${column.key}`) })}
+                      >
+                        <Group
+                          gap={4}
+                          wrap="nowrap"
+                          justify={column.align ? 'flex-end' : undefined}
+                        >
+                          <Text
+                            size="xs"
+                            fw={700}
+                            c={active ? 'primary.9' : 'dimmed'}
+                            style={{ whiteSpace: 'nowrap' }}
+                          >
+                            {t(`payments.${column.key}`)}
+                          </Text>
+                          <SortIcon
+                            size={14}
+                            color={active ? undefined : 'var(--mantine-color-gray-5)'}
+                          />
+                        </Group>
+                      </UnstyledButton>
+                    ) : (
+                      <Text size="xs" fw={700} c="dimmed" style={{ whiteSpace: 'nowrap' }}>
+                        {t(`payments.${column.key}`)}
+                      </Text>
+                    )}
+                  </Table.Th>
+                );
+              })}
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
@@ -113,7 +179,7 @@ export function SalePaymentTable({
                 <Table.Tr
                   key={row.id}
                   style={{ cursor: row.sale ? 'pointer' : undefined }}
-                  onClick={() => row.sale && onOpenInvoice(row.sale.id)}
+                  onClick={() => row.sale && onOpenPayment(row.sale.id, row.id)}
                 >
                   <Table.Td>
                     <Text size="sm">{formatDate(row.paymentDate)}</Text>

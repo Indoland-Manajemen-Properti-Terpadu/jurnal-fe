@@ -20,12 +20,12 @@ import {
   IconTag,
   IconUser,
 } from '@tabler/icons-react';
+import { DetailCardHeader } from '@/components/DetailCardHeader/DetailCardHeader';
 import type { Sale } from '@/module/sales/domain/sale';
 import { saleActions } from '@/module/sales/domain/saleActions';
 import { buildInvoiceLink } from '@/module/sales/domain/saleFormat';
 import type { SaleDisplay } from '../../hooks/useSaleDisplay';
 import { useCopyInvoiceLink } from '../../hooks/useSaleMutations';
-import { DetailCardHeader } from './DetailCardHeader';
 import { DetailField } from './DetailField';
 import classes from './SaleDetail.module.css';
 

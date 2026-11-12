@@ -9,6 +9,7 @@ import {
   deleteProduct,
   deleteUnit,
   fetchAccountOptions,
+  type AccountListType,
   fetchAllProducts,
   fetchCategories,
   fetchProduct,
@@ -79,8 +80,13 @@ export const useUnits = () =>
 export const useTaxes = () =>
   useQuery({ queryKey: productKeys.taxes, queryFn: fetchTaxes, staleTime: 5 * 60_000 });
 
-export const useAccountOptions = () =>
-  useQuery({ queryKey: productKeys.accounts, queryFn: fetchAccountOptions, staleTime: 5 * 60_000 });
+/** All postable accounts, or only the sales or purchase ones when a type is given. */
+export const useAccountOptions = (type?: AccountListType) =>
+  useQuery({
+    queryKey: [...productKeys.accounts, type ?? 'all'],
+    queryFn: () => fetchAccountOptions(type),
+    staleTime: 5 * 60_000,
+  });
 
 /* ---------- Mutations ---------- */
 

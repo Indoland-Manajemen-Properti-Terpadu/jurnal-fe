@@ -17,17 +17,17 @@ export function DetailCardHeader({
   action,
 }: Readonly<DetailCardHeaderProps>) {
   return (
-    <Group justify="space-between" align="center" wrap="nowrap" mb="md" gap="sm">
+    <Group justify="space-between" align="flex-start" wrap="nowrap" mb="md" gap="sm">
       <Group gap="sm" wrap="nowrap" style={{ minWidth: 0 }}>
         <ThemeIcon size={36} radius="md" color="primary" variant="light" style={{ flexShrink: 0 }}>
           {icon}
         </ThemeIcon>
         <div style={{ minWidth: 0 }}>
-          <Title order={3} size="md">
+          <Title order={3} size="md" lh={1.3}>
             {title}
           </Title>
           {subtitle && (
-            <Text size="xs" c="dimmed">
+            <Text size="xs" c="dimmed" mt={2}>
               {subtitle}
             </Text>
           )}

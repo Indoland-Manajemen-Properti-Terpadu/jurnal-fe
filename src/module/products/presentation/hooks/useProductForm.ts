@@ -3,6 +3,7 @@ import { useForm } from '@mantine/form';
 import { t } from '@/i18n';
 import type { Product, ProductFormValues } from '@/module/products/domain/product';
 import {
+  accountChoices,
   filterAccountsByNormalBalance,
   formatTaxLabel,
   priceError,
@@ -16,7 +17,11 @@ const tp = (key: string) => t(key, undefined, 'products');
 export const useProductForm = (product?: Product) => {
   const categories = useCategories();
   const taxes = useTaxes();
+  // Sales and purchase accounts come from their own typed lists; the full list serves the
+  // receivable and inventory accounts and any account a product already uses.
   const accounts = useAccountOptions();
+  const salesAccounts = useAccountOptions('sales');
+  const purchaseAccounts = useAccountOptions('purchase');
   const units = useUnits();
 
   const form = useForm<ProductFormValues>({
@@ -60,12 +65,13 @@ export const useProductForm = (product?: Product) => {
   // product already uses stays selectable.
   const purchaseAccountData = useMemo(
     () =>
-      filterAccountsByNormalBalance(
+      accountChoices(
+        purchaseAccounts.data ?? [],
         accounts.data ?? [],
         'debit',
         product?.buyingInfo.purchaseAccount
       ).map((a) => ({ value: a.id, label: a.label })),
-    [accounts.data, product?.buyingInfo.purchaseAccount]
+    [purchaseAccounts.data, accounts.data, product?.buyingInfo.purchaseAccount]
   );
 
   const inventoryAccountData = useMemo(
@@ -82,12 +88,13 @@ export const useProductForm = (product?: Product) => {
   // accounts that fit; the account already saved on the product always stays available.
   const salesAccountData = useMemo(
     () =>
-      filterAccountsByNormalBalance(
+      accountChoices(
+        salesAccounts.data ?? [],
         accounts.data ?? [],
         'credit',
         product?.sellingInfo.salesAccount
       ).map((a) => ({ value: a.id, label: a.label })),
-    [accounts.data, product?.sellingInfo.salesAccount]
+    [salesAccounts.data, accounts.data, product?.sellingInfo.salesAccount]
   );
 
   const receivableAccountData = useMemo(

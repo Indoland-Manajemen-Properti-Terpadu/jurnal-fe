@@ -15,6 +15,7 @@ import {
   TextInput,
   Textarea,
   ThemeIcon,
+  Tooltip,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import {
@@ -108,6 +109,18 @@ export function PaySaleModal({
   };
 
   const kind = paymentKind(form.values.amount, remaining);
+
+  // The allocation is checked as it is typed, so the user sees a problem before pressing save.
+  const allocationErrors = useMemo(() => {
+    const found = validatePayment(form.values, remaining, target);
+    return Object.fromEntries(
+      Object.entries(found)
+        .filter(([key]) => key.startsWith('item:') || key === 'lateFee' || key === 'allocation')
+        .map(([key, value]) => [key, t(value)])
+    );
+    // `target` is rebuilt from `lines` and the invoice, which are in the dependencies.
+  }, [form.values, remaining, lines, invoice]);
+  const allocationBlocked = kind === 'partial' && Object.keys(allocationErrors).length > 0;
   const overpayment = overpaymentOf(form.values.amount, remaining);
   const overpaymentAccount = useOverpaymentAccount(opened && kind === 'overpaid');
   const mappingMissing =
@@ -264,7 +277,7 @@ export function PaySaleModal({
                 values={form.values}
                 lines={lines}
                 outstandingLateFee={target.outstandingLateFee}
-                errors={form.errors}
+                errors={allocationErrors}
                 onMode={(mode) => form.setFieldValue('allocation', mode)}
                 onItemAmount={(itemId, amount) =>
                   form.setFieldValue('itemAmounts', {
@@ -346,14 +359,20 @@ export function PaySaleModal({
               <Button variant="default" onClick={onClose} disabled={isSubmitting}>
                 {t('pay.cancel')}
               </Button>
-              <Button
-                type="submit"
-                color="primary"
-                loading={isSubmitting}
-                disabled={mappingMissing || (kind === 'partial' && !invoice)}
-              >
-                {t('pay.save')}
-              </Button>
+              <Tooltip label={t('pay.saveBlocked')} disabled={!allocationBlocked} withArrow>
+                <span>
+                  <Button
+                    type="submit"
+                    color="primary"
+                    loading={isSubmitting}
+                    disabled={
+                      mappingMissing || (kind === 'partial' && !invoice) || allocationBlocked
+                    }
+                  >
+                    {t('pay.save')}
+                  </Button>
+                </span>
+              </Tooltip>
             </Group>
           </Stack>
         </form>
