@@ -1,0 +1,15 @@
+.fact {
+  padding: var(--jurnal-space-2) var(--jurnal-space-4);
+}
+
+/* A divider between facts: vertical side by side, horizontal when they stack on a phone. */
+.grid > .fact + .fact {
+  border-top: 1px solid var(--jurnal-color-border-subtle);
+}
+
+@media (min-width: $mantine-breakpoint-sm) {
+  .grid > .fact + .fact {
+    border-top: 0;
+    border-left: 1px solid var(--jurnal-color-border-subtle);
+  }
+}

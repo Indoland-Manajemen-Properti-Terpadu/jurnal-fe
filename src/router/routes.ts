@@ -69,9 +69,8 @@ export const routes = {
   },
 
   periodClosing: {
-    closingBooks: '/settings/general-journal/closing-books',
-    list: '/settings/general-journal/closing-books/list/period-lock',
-    financialStatement: '/settings/general-journal/period-lock/financial-statement',
+    main: '/settings/general-journal/closing-books',
+    closeBooks: '/settings/general-journal/closing-books/close',
   },
 
   reports: {
@@ -172,7 +171,6 @@ export const routes = {
     general: '/settings/general',
     company: '/settings/company-setting',
     sites: '/settings/sites',
-    accountingPeriods: '/settings/accounting-periods',
     approvalFlow: '/settings/approval-flow',
     accountMapping: '/settings/account-mapping',
     taxes: '/settings/taxes',
@@ -201,6 +199,10 @@ export const routes = {
     journalEntries: '/journal-entries',
     approvalSetting: '/settings/approval-setting',
     reportsBusinessSumary: '/result-reports/business-overview/business-sumary',
+    // The period closing prototype and the planned settings page now open the period list.
+    periodClosingList: '/settings/general-journal/closing-books/list/period-lock',
+    periodClosingStatement: '/settings/general-journal/period-lock/financial-statement',
+    settingsAccountingPeriods: '/settings/accounting-periods',
   },
 } as const;
 
