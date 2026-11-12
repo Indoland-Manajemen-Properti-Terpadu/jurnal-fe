@@ -24,6 +24,7 @@ import { reconciliation } from './reconciliation';
 import { accountLedger } from './accountLedger';
 import { reports } from './reports';
 import { bankCash } from './bankCash';
+import { bankConnection } from './bankConnection';
 import { pettyCash } from './pettyCash';
 import { userManagement } from './userManagement';
 import { authentication } from './authentication';
@@ -54,6 +55,7 @@ export const id = {
   accountLedger,
   reports,
   bankCash,
+  bankConnection,
   pettyCash,
   userManagement,
   authentication,

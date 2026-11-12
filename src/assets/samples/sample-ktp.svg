@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 214" role="img" aria-label="KTP">
+  <rect x="2" y="2" width="336" height="210" rx="14" fill="#dbe8f5" stroke="#8fb0d0" stroke-width="2"/>
+  <rect x="2" y="2" width="336" height="36" rx="14" fill="#b9d2ea"/>
+  <rect x="2" y="24" width="336" height="14" fill="#b9d2ea"/>
+  <text x="170" y="26" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="700" fill="#1f3b57">KARTU TANDA PENDUDUK</text>
+  <g font-family="sans-serif" font-size="10" fill="#33516b">
+    <text x="18" y="64">NIK</text>
+    <text x="18" y="92">Nama</text>
+    <text x="18" y="120">Tempat/Tgl Lahir</text>
+    <text x="18" y="148">Alamat</text>
+  </g>
+  <g fill="#8aa5bd">
+    <rect x="92" y="54" width="130" height="12" rx="3"/>
+    <rect x="92" y="82" width="110" height="12" rx="3"/>
+    <rect x="92" y="110" width="100" height="12" rx="3"/>
+    <rect x="92" y="138" width="140" height="12" rx="3"/>
+    <rect x="92" y="156" width="90" height="12" rx="3"/>
+  </g>
+  <rect x="244" y="52" width="76" height="98" rx="6" fill="#c3d6e8" stroke="#8fb0d0"/>
+  <circle cx="282" cy="86" r="16" fill="#9fb8cf"/>
+  <path d="M254 142c2-22 14-30 28-30s26 8 28 30z" fill="#9fb8cf"/>
+  <text x="18" y="196" font-family="sans-serif" font-size="9" fill="#5b7790">Data ditutup. Gambar ini hanya contoh tata letak.</text>
+  <text x="170" y="128" text-anchor="middle" font-family="sans-serif" font-size="46" font-weight="800" fill="#1f3b57" fill-opacity="0.14" transform="rotate(-18 170 120)">CONTOH</text>
+</svg>

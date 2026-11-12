@@ -53,6 +53,7 @@ export const navigation = {
   appJurnalDesc: 'Akuntansi terintegrasi',
   appProappsName: 'ProApps',
   appProappsDesc: 'Manajemen properti dan gedung',
+  bankConnection: 'Koneksi Bank',
   pettyCash: 'Kas Kecil',
   sales: 'Penjualan',
   purchases: 'Pembelian',
