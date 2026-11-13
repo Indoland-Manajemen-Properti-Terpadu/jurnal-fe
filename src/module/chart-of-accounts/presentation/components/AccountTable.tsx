@@ -16,11 +16,13 @@ import {
   isFilterActive,
   selectableInSubtree,
   selectableInTree,
+  withClassGroups,
   type AccountFilter,
   type AccountNode,
 } from '../../domain/accountTree';
 import useAccountStore from '../hooks/useAccountStore';
 import { AccountTableRow } from './AccountTableRow';
+import classes from './AccountTable.module.css';
 
 type TableAccountsProps = {
   accounts: JournalAccounts[];
@@ -64,6 +66,7 @@ const TableAccounts = ({
     [parentIds, byId, filterActive]
   );
   const rows = useMemo(() => flattenVisibleRows(tree, expandedIds), [tree, expandedIds]);
+  const listEntries = useMemo(() => withClassGroups(rows), [rows]);
 
   // Selection never outlives what the table lists, so a hidden account cannot be deleted.
   useEffect(() => {
@@ -157,17 +160,29 @@ const TableAccounts = ({
       );
     }
 
-    return rows.map(({ node, depth }) => (
-      <AccountTableRow
-        key={node.account.id}
-        node={node}
-        depth={depth}
-        expanded={expandedIds.has(node.account.id)}
-        selection={rowSelection(node)}
-        onToggleExpand={toggleExpand}
-        onToggleSelect={toggleSelectNode}
-      />
-    ));
+    return listEntries.map((entry) =>
+      entry.kind === 'group' ? (
+        <Table.Tr key={`group-${entry.accountClass ?? 'other'}`} className={classes.group}>
+          <Table.Th colSpan={COLUMN_COUNT} scope="rowgroup">
+            <Text component="span" fw={700} fz="var(--jurnal-text-sm)" c="primary.9">
+              {entry.accountClass
+                ? t(`table.classNames.${entry.accountClass}`)
+                : t('table.otherClass')}
+            </Text>
+          </Table.Th>
+        </Table.Tr>
+      ) : (
+        <AccountTableRow
+          key={entry.node.account.id}
+          node={entry.node}
+          depth={entry.depth}
+          expanded={expandedIds.has(entry.node.account.id)}
+          selection={rowSelection(entry.node)}
+          onToggleExpand={toggleExpand}
+          onToggleSelect={toggleSelectNode}
+        />
+      )
+    );
   };
 
   return (

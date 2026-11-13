@@ -63,6 +63,37 @@ export const flattenVisibleRows = (
       : []),
   ]);
 
+/** A heading above the accounts of one class, or one account row. */
+export type AccountListEntry =
+  | { kind: 'group'; accountClass: number | null }
+  | ({ kind: 'row' } & VisibleAccountRow);
+
+/** The class of an account is the first digit of its code (1 assets ... 8 other expense). */
+const classOfCode = (accountNumber: string | undefined): number | null => {
+  const digit = Number((accountNumber ?? '').trim().charAt(0));
+  return digit >= 1 && digit <= 8 ? digit : null;
+};
+
+/**
+ * Puts a heading before each run of top level accounts of the same class. A sub account follows
+ * its parent, so it never starts a group of its own.
+ */
+export const withClassGroups = (rows: VisibleAccountRow[]): AccountListEntry[] => {
+  const entries: AccountListEntry[] = [];
+  let current: number | null | undefined;
+  for (const row of rows) {
+    if (row.depth === 0) {
+      const accountClass = classOfCode(row.node.account.accountNumber);
+      if (accountClass !== current) {
+        entries.push({ kind: 'group', accountClass });
+        current = accountClass;
+      }
+    }
+    entries.push({ kind: 'row', ...row });
+  }
+  return entries;
+};
+
 export const collectParentIds = (nodes: AccountNode[]): string[] =>
   nodes.flatMap((node) =>
     node.children.length > 0 ? [node.account.id, ...collectParentIds(node.children)] : []

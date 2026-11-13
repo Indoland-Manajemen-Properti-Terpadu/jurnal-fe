@@ -5,6 +5,7 @@ import {
   flattenVisibleRows,
   isFilterActive,
   selectableInTree,
+  withClassGroups,
   type AccountFilter,
 } from './accountTree';
 import type { JournalAccounts } from './journalAccount';
@@ -156,5 +157,38 @@ describe('isFilterActive', () => {
     expect(isFilterActive({ ...all, tab: 'locked' })).toBe(true);
     expect(isFilterActive({ ...all, category: 'Kas & Bank' })).toBe(true);
     expect(isFilterActive({ ...all, search: 'a' })).toBe(true);
+  });
+});
+
+describe('withClassGroups', () => {
+  const node = (id: string, accountNumber: string) => ({
+    account: account({ id, accountNumber }),
+    children: [],
+    matched: true,
+  });
+
+  it('puts one heading before each run of top level accounts of a class', () => {
+    const entries = withClassGroups([
+      { node: node('kas', '1-10000'), depth: 0 },
+      { node: node('piutang', '1-10100'), depth: 0 },
+      { node: node('hutang', '2-20000'), depth: 0 },
+    ]);
+    expect(
+      entries.map((entry) => (entry.kind === 'group' ? `G${entry.accountClass}` : 'row'))
+    ).toEqual(['G1', 'row', 'row', 'G2', 'row']);
+  });
+
+  it('keeps a sub account under its parent, without a heading of its own', () => {
+    const entries = withClassGroups([
+      { node: node('kas', '1-10000'), depth: 0 },
+      { node: node('kecil', '1-10001'), depth: 1 },
+    ]);
+    expect(entries.filter((entry) => entry.kind === 'group')).toHaveLength(1);
+  });
+
+  it('gives an unknown code its own heading and nothing for no rows', () => {
+    const entries = withClassGroups([{ node: node('x', 'ZZ-1'), depth: 0 }]);
+    expect(entries[0]).toEqual({ kind: 'group', accountClass: null });
+    expect(withClassGroups([])).toEqual([]);
   });
 });
