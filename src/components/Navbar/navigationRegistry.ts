@@ -257,6 +257,7 @@ type TitleEntry = SectionTitle & { prefix: string };
  * Matching is by longest prefix, so a detail page wins over the list it belongs to.
  */
 const extraTitles: TitleEntry[] = [
+  { prefix: routes.bankConnection.main, titleKey: 'bankConnection', groupKey: 'groupTransactions' },
   // The general journal opens from the report center, so it keeps its own title there.
   { prefix: routes.journalEntries.main, titleKey: 'journalEntries', groupKey: 'groupAccounting' },
   {

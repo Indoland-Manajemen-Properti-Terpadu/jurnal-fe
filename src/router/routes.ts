@@ -25,6 +25,13 @@ export const routes = {
     addSent: '/bank-cash/add-sent-money',
   },
 
+  bankConnection: {
+    main: '/bank-cash/connection',
+    add: '/bank-cash/connection/new',
+    detail: '/bank-cash/connection/:connectionId',
+    edit: '/bank-cash/connection/:connectionId/edit',
+  },
+
   pettyCash: {
     main: '/bank-cash/petty-cash',
     detail: '/bank-cash/petty-cash/:fundId',
