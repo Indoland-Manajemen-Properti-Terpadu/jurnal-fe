@@ -10,22 +10,13 @@ import {
   Text,
   Tooltip,
 } from '@mantine/core';
-import {
-  Bell,
-  CalendarBlank,
-  GearSix,
-  Plus,
-  Notebook,
-  Bank,
-  AddressBook,
-} from '@phosphor-icons/react';
+import { Bell, GearSix, Plus, Notebook, Bank, AddressBook } from '@phosphor-icons/react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { routes } from '@/router/routes';
 import { usePendingChangesCount } from '@/module/pending-changes';
 import { useTranslation } from '@/i18n';
 import { UserMenu } from '@/components/UserMenu/UserMenu';
 import { AppSwitcher } from '@/components/AppSwitcher/AppSwitcher';
-import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { resolveSectionTitle } from '@/components/Navbar/navigationRegistry';
 import classes from '@/components/HeaderNav/HeaderNav.module.css';
 
@@ -54,17 +45,6 @@ const HeaderNav = ({ toggleMobile, mobileOpened }: HeaderNavProps) => {
     return { title: 'Jurnal', group: 'ProApps' };
   }, [pathname, t]);
 
-  const today = useMemo(
-    () =>
-      new Intl.DateTimeFormat(currentLanguage === 'id' ? 'id-ID' : 'en-US', {
-        weekday: 'short',
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric',
-      }).format(new Date()),
-    [currentLanguage]
-  );
-
   return (
     <Group justify="space-between" w="100%" h="100%" wrap="nowrap" gap="md">
       {/* Left: burger + section title */}
@@ -88,15 +68,6 @@ const HeaderNav = ({ toggleMobile, mobileOpened }: HeaderNavProps) => {
 
       {/* Right: actions */}
       <Group gap={8} wrap="nowrap">
-        <LanguageSwitcher variant="compact" />
-
-        <Group gap={6} className={classes.chip} visibleFrom="lg">
-          <CalendarBlank size={16} weight="duotone" />
-          <Text size="xs" fw={600} c="dark.6">
-            {today}
-          </Text>
-        </Group>
-
         <Menu shadow="md" width={220} radius="lg" position="bottom-end">
           <Menu.Target>
             <Tooltip label={t('quickCreate')} withArrow>

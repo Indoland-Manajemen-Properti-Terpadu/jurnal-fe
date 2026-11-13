@@ -20,14 +20,16 @@ describe('AppSwitcher', () => {
 
   it('opens from one button in the header', async () => {
     render(<AppSwitcher />);
-    expect(screen.queryByText('Aplikasi ProApps')).toBeNull();
+    expect(screen.queryByText('Semua aplikasi Anda ada di sini.')).toBeNull();
     await userEvent.click(screen.getByRole('button', { name: 'Aplikasi' }));
-    expect(await screen.findByText('Aplikasi ProApps', {}, { timeout: 4000 })).toBeTruthy();
+    expect(
+      await screen.findByText('Semua aplikasi Anda ada di sini.', {}, { timeout: 4000 })
+    ).toBeTruthy();
   });
 
   it('greets the user by name', async () => {
     await open();
-    expect(await screen.findByText('Halo Budi')).toBeTruthy();
+    expect(await screen.findByText('Halo, Budi')).toBeTruthy();
   });
 
   it('shows the app in use as a card that is not a link, marked as in use', async () => {
@@ -53,9 +55,9 @@ describe('AppSwitcher', () => {
 
   it('closes with Escape', async () => {
     await open();
-    await screen.findByText('Aplikasi ProApps', {}, { timeout: 4000 });
+    await screen.findByText('Semua aplikasi Anda ada di sini.', {}, { timeout: 4000 });
     await userEvent.keyboard('{Escape}');
-    await waitFor(() => expect(screen.queryByText('Aplikasi ProApps')).toBeNull());
+    await waitFor(() => expect(screen.queryByText('Semua aplikasi Anda ada di sini.')).toBeNull());
   });
 
   it('puts the logo and the name of an app on one row', async () => {

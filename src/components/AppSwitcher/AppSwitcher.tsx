@@ -35,10 +35,10 @@ export function AppSwitcher() {
         <Stack gap="md">
           <Box>
             <Text fw={700} fz="md" c="dark.9">
-              {t('appsTitle')}
+              {t('appsGreeting', { name: capitalize(userName || '') })}
             </Text>
             <Text fz="sm" c="dimmed">
-              {t('appsGreeting', { name: capitalize(userName || '') })}
+              {t('appsSubtitle')}
             </Text>
           </Box>
 
