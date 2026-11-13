@@ -71,7 +71,7 @@ export const navigation = {
   journalTransactions: 'Journal Entries',
   addJournalTransaction: 'New Journal Entry',
   detailJournalTransaction: 'Journal Entry Details',
-  beginningBalance: 'Beginning Balance',
+  beginningBalance: 'Opening Balance',
   accountDetailCB: 'Cash & Bank Details',
   importBankStatement: 'Import Bank Statement',
   accountDetailNonCB: 'General Ledger Details',
