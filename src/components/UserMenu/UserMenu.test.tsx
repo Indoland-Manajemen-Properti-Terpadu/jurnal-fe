@@ -19,6 +19,7 @@ const renderMenu = () =>
     <MemoryRouter initialEntries={['/x']}>
       <Routes>
         <Route path="/x" element={<UserMenu />} />
+        <Route path="/settings" element={<div>halaman pengaturan</div>} />
         <Route path="/profile" element={<div>halaman profil</div>} />
         <Route path="/login" element={<div>halaman masuk</div>} />
       </Routes>
@@ -52,11 +53,9 @@ describe('UserMenu', () => {
     expect(button.textContent).toContain('Demo Site');
   });
 
-  it('opens a card with the name, the email, the role and the company with its id', async () => {
+  it('opens a card with the name and the email', async () => {
     await open();
     expect(await screen.findByText('budi@example.com')).toBeTruthy();
-    expect(screen.getByText('Superadmin')).toBeTruthy();
-    expect(screen.getByText('ID 991276')).toBeTruthy();
   });
 
   it('falls back to the name of the session while the profile loads', () => {
@@ -65,15 +64,6 @@ describe('UserMenu', () => {
     expect(screen.getByRole('button', { name: 'Menu pengguna' }).textContent).toContain(
       'Superadmin'
     );
-  });
-
-  it('leaves out the company card for a user without a site', async () => {
-    m.profile = {
-      data: { name: 'Budi', email: 'b@x.id', role: 'User', initials: 'B', site: undefined },
-    };
-    await open();
-    await screen.findByText('b@x.id');
-    expect(screen.queryByText(/^ID /)).toBeNull();
   });
 
   it('goes to the profile page', async () => {
@@ -87,5 +77,30 @@ describe('UserMenu', () => {
     await userEvent.click(await screen.findByRole('menuitem', { name: /Keluar/, hidden: true }));
     expect(m.clearTokens).toHaveBeenCalled();
     expect(await screen.findByText('halaman masuk')).toBeTruthy();
+  });
+
+  it('opens the settings', async () => {
+    await open();
+    await userEvent.click(
+      await screen.findByRole('menuitem', { name: /Pengaturan/, hidden: true })
+    );
+    expect(await screen.findByText('halaman pengaturan')).toBeTruthy();
+  });
+
+  it('links to the help in a new tab, safely', async () => {
+    await open();
+    const link = (await screen.findByRole('menuitem', {
+      name: /Bantuan/,
+      hidden: true,
+    })) as HTMLAnchorElement;
+    expect(link.getAttribute('href')).toBe('https://proapps.id');
+    expect(link.getAttribute('target')).toBe('_blank');
+    expect(link.getAttribute('rel')).toContain('noopener');
+  });
+
+  it('switches the language from the menu', async () => {
+    await open();
+    await userEvent.click(await screen.findByText('EN', {}, { timeout: 4000 }));
+    expect(useI18nStore.getState().language).toBe('en');
   });
 });

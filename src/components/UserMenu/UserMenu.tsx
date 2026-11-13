@@ -1,12 +1,23 @@
-import { Avatar, Badge, Box, Group, Menu, Stack, Text, UnstyledButton } from '@mantine/core';
-import { Buildings, CaretDown, SignOut, UserCircle } from '@phosphor-icons/react';
+import { Avatar, Box, Group, Menu, SegmentedControl, Text, UnstyledButton } from '@mantine/core';
+import {
+  ArrowUpRight,
+  CaretDown,
+  Gear,
+  Question,
+  SignOut,
+  Translate,
+  UserCircle,
+} from '@phosphor-icons/react';
 import { capitalize } from 'lodash';
 import { useNavigate } from 'react-router-dom';
 import { routes } from '@/router/routes';
-import { useTranslation } from '@/i18n';
+import { AVAILABLE_LANGUAGES, useTranslation, type SupportedLanguage } from '@/i18n';
 import { useAuthStore } from '@/store/useAuthentications';
 import { useSessionProfile } from '@/components/UserMenu/useSessionProfile';
 import classes from '@/components/UserMenu/UserMenu.module.css';
+
+/** Where the help lives: the ProApps site, opened in a new tab. */
+const HELP_URL = 'https://proapps.id';
 
 /**
  * The menu of the signed-in person. The button names them and their company; the card opens with who
@@ -14,7 +25,7 @@ import classes from '@/components/UserMenu/UserMenu.module.css';
  * open the profile, or sign out.
  */
 export function UserMenu() {
-  const { t } = useTranslation('navigation');
+  const { t, i18n, currentLanguage } = useTranslation('navigation');
   const navigate = useNavigate();
   const userName = useAuthStore((state) => state.userName);
   const clearTokens = useAuthStore((state) => state.clearTokens);
@@ -32,7 +43,7 @@ export function UserMenu() {
   return (
     <Menu
       shadow="lg"
-      width={320}
+      width={304}
       radius="lg"
       position="bottom-end"
       transitionProps={{ duration: 0 }}
@@ -58,67 +69,72 @@ export function UserMenu() {
         </UnstyledButton>
       </Menu.Target>
 
-      <Menu.Dropdown p={0} style={{ overflow: 'hidden' }}>
-        <Group className={classes.identity} gap="md" p="md" wrap="nowrap" align="center">
-          <Box className={classes.avatarRing}>
-            <Avatar size={52} radius="xl" color="primary" variant="filled">
-              {initials}
-            </Avatar>
-          </Box>
-          <Stack gap={4} style={{ minWidth: 0 }}>
-            <Text fw={700} fz="md" c="dark.9" lh={1.2} truncate>
+      <Menu.Dropdown p={0} className={classes.dropdown}>
+        <Group className={classes.identity} gap="md" wrap="nowrap" align="center">
+          <Avatar className={classes.avatar} size={48} radius="xl" color="primary" variant="filled">
+            {initials}
+          </Avatar>
+          <Box className={classes.who}>
+            <Text className={classes.name} truncate>
               {name}
             </Text>
             {profile?.email && (
-              <Text fz="sm" c="dimmed" truncate>
+              <Text className={classes.email} truncate>
                 {profile.email}
               </Text>
             )}
-            {profile?.role && (
-              <Badge variant="light" size="sm" radius="sm" w="fit-content" tt="none">
-                {profile.role}
-              </Badge>
-            )}
-          </Stack>
+          </Box>
         </Group>
 
-        {site && (
-          <Box p="md" pb={0}>
-            <Group className={classes.company} gap="sm" p="sm" wrap="nowrap">
-              <Box
-                aria-hidden="true"
-                w={36}
-                h={36}
-                bg="primary.0"
-                style={{ borderRadius: 10, display: 'grid', placeItems: 'center', flex: 'none' }}
-              >
-                <Buildings size={20} weight="duotone" color="var(--mantine-color-primary-8)" />
-              </Box>
-              <Box style={{ minWidth: 0 }}>
-                <Text fz="sm" fw={600} c="dark.9" truncate>
-                  {site.name}
-                </Text>
-                {site.code && (
-                  <Text className={classes.code} fz={12} c="dimmed">
-                    {t('userSiteId', { code: site.code })}
-                  </Text>
-                )}
-              </Box>
-            </Group>
-          </Box>
-        )}
-
-        <Box p="xs" mt="xs">
+        <Box className={classes.actions}>
           <Menu.Item
-            leftSection={<UserCircle size={18} weight="duotone" />}
+            className={classes.action}
+            leftSection={<UserCircle size={20} />}
             onClick={() => navigate(routes.profile)}
           >
             {t('profile')}
           </Menu.Item>
-          <Menu.Divider />
           <Menu.Item
-            color="red"
-            leftSection={<SignOut size={18} weight="duotone" />}
+            className={classes.action}
+            leftSection={<Gear size={20} />}
+            onClick={() => navigate(routes.settings.main)}
+          >
+            {t('settings')}
+          </Menu.Item>
+
+          <Box className={classes.languageRow}>
+            <Translate size={20} aria-hidden="true" />
+            <Text className={classes.languageLabel}>{t('userLanguage')}</Text>
+            <SegmentedControl
+              size="xs"
+              radius="md"
+              aria-label={t('userLanguage')}
+              value={currentLanguage}
+              onChange={(code) => i18n.changeLanguage(code as SupportedLanguage)}
+              data={AVAILABLE_LANGUAGES.map((item) => ({
+                value: item.code,
+                label: item.code.toUpperCase(),
+              }))}
+            />
+          </Box>
+
+          <Menu.Item
+            className={classes.action}
+            component="a"
+            href={HELP_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            leftSection={<Question size={20} />}
+            rightSection={<ArrowUpRight size={14} />}
+          >
+            {t('userHelp')}
+          </Menu.Item>
+
+          <Menu.Divider className={classes.divider} />
+
+          <Menu.Item
+            className={classes.action}
+            leftSection={<SignOut size={20} />}
             onClick={signOut}
           >
             {t('logout')}
