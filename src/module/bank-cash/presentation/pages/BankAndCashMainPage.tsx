@@ -10,13 +10,14 @@ import {
   IconFileSpreadsheet,
   IconPlus,
 } from '@tabler/icons-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { routes } from '@/router/routes';
 import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
 import { AppShellLayout } from '@/components/AppShellLayout';
 import StatsBankCashGrid from '@/module/bank-cash/presentation/components/stats/StatsBankCashGrid';
 import { TableBankCash } from '@/module/bank-cash/presentation/components/accounts-table/TableBankCash';
 import { useJournalAccounts } from '@/module/chart-of-accounts';
+import { usePettyCashAccountIndex } from '@/module/bank-cash/presentation/hooks/usePettyCashAccountIndex';
 import { useTranslation } from '@/i18n';
 import classes from '@/module/bank-cash/presentation/pages/BankAndCashMainPage.module.css';
 
@@ -24,7 +25,17 @@ export function BankAndCashMainPage() {
   const { t: tb } = useTranslation('bankCash');
   const navigate = useNavigate();
   const { t } = useTranslation('journal');
-  const { accounts, isLoading, isError, refetch } = useJournalAccounts();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const showArchived = searchParams.get('archived') === '1';
+  const { accounts, isLoading, isError, refetch } = useJournalAccounts(showArchived);
+  const { index: pettyCashIndex } = usePettyCashAccountIndex();
+
+  const handleShowArchivedChange = (value: boolean) => {
+    const next = new URLSearchParams(searchParams);
+    if (value) next.set('archived', '1');
+    else next.delete('archived');
+    setSearchParams(next, { replace: true });
+  };
 
   return (
     <AppShellLayout withFooter>
@@ -98,7 +109,14 @@ export function BankAndCashMainPage() {
           <StatsBankCashGrid accounts={accounts} loading={isLoading} />
 
           <Paper className={classes.accounts} withBorder radius="lg" p={{ base: 'md', sm: 'lg' }}>
-            <TableBankCash accounts={accounts} loading={isLoading} onRefresh={() => refetch()} />
+            <TableBankCash
+              accounts={accounts}
+              pettyCashIndex={pettyCashIndex}
+              showArchived={showArchived}
+              onShowArchivedChange={handleShowArchivedChange}
+              loading={isLoading}
+              onRefresh={() => refetch()}
+            />
           </Paper>
         </Stack>
       </Box>
