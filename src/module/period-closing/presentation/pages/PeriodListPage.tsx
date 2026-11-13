@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ActionIcon, Box, Button, Group, Paper, Stack, Tooltip } from '@mantine/core';
+import { ActionIcon, Box, Button, Group, Paper, Stack, Text, Tooltip } from '@mantine/core';
 import { IconBook2, IconCalendarStats, IconLock, IconRefresh } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
@@ -10,6 +10,7 @@ import type { AccountingPeriod } from '@/module/period-closing/domain/accounting
 import { latestActiveClosing } from '@/module/period-closing/domain/periodRules';
 import { PeriodFormModal } from '@/module/period-closing/presentation/components/PeriodFormModal';
 import { PeriodGuide } from '@/module/period-closing/presentation/components/PeriodGuide';
+import { PeriodHero } from '@/module/period-closing/presentation/components/PeriodHero';
 import type { PeriodAction } from '@/module/period-closing/presentation/components/PeriodRowActions';
 import {
   PeriodLoadError,
@@ -142,6 +143,8 @@ export function PeriodListPage() {
             <PeriodNoAccess />
           ) : (
             <>
+              <PeriodHero />
+
               <PeriodStatusSummary
                 latestClosing={latestClosing}
                 activeLocks={locks.data?.items ?? []}
@@ -153,16 +156,26 @@ export function PeriodListPage() {
               {list.isError ? (
                 <PeriodLoadError onRetry={refetch} />
               ) : (
-                <Paper withBorder radius="lg" p="md" bg="white">
-                  <PeriodTable
-                    periods={list.data?.items ?? []}
-                    pagination={list.data?.pagination}
-                    loading={list.isLoading}
-                    filters={filters}
-                    access={access}
-                    latestClosingId={latestClosing?.id}
-                    onAction={onAction}
-                  />
+                <Paper withBorder radius="md" p="xl" bg="white">
+                  <Stack gap="lg">
+                    <Stack gap={2}>
+                      <Text component="h2" fz={18} fw={700} c="dark.9" m={0}>
+                        {t('table.title')}
+                      </Text>
+                      <Text fz="sm" c="dimmed">
+                        {t('table.subtitle')}
+                      </Text>
+                    </Stack>
+                    <PeriodTable
+                      periods={list.data?.items ?? []}
+                      pagination={list.data?.pagination}
+                      loading={list.isLoading}
+                      filters={filters}
+                      access={access}
+                      latestClosingId={latestClosing?.id}
+                      onAction={onAction}
+                    />
+                  </Stack>
                 </Paper>
               )}
             </>

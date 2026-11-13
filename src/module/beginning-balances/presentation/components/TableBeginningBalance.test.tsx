@@ -3,32 +3,6 @@ import { fireEvent, render, screen } from '@test-utils';
 import type { OpeningRow } from '../../domain/beginningBalance';
 import TableBeginningBalance from './TableBeginningBalance';
 
-type MockColumn = { accessor: string; render?: (item: OpeningRow) => React.ReactNode };
-
-// jsdom does not lay out mantine-datatable rows; render each column cell directly instead.
-vi.mock('mantine-datatable', () => ({
-  DataTable: ({
-    records,
-    columns,
-    emptyState,
-  }: {
-    records: OpeningRow[];
-    columns: MockColumn[];
-    emptyState?: React.ReactNode;
-  }) => (
-    <div>
-      {records.length === 0 && emptyState}
-      {records.map((record) => (
-        <div key={record.id}>
-          {columns.map((col) => (
-            <div key={col.accessor}>{col.render ? col.render(record) : null}</div>
-          ))}
-        </div>
-      ))}
-    </div>
-  ),
-}));
-
 const row = (over: Partial<OpeningRow> = {}): OpeningRow => ({
   id: 'acc-1',
   name: 'Kas',
@@ -89,14 +63,20 @@ describe('TableBeginningBalance', () => {
     expect(screen.getByLabelText('Debit (Rp) 1-1000')).toHaveValue('1.500.000');
   });
 
-  it('names the normal side and the contra flag of the account', () => {
+  it('marks a contra account by name and no longer spells out the normal side', () => {
     setup([row({ normalSide: 'credit', isContra: true })]);
-    expect(screen.getByText(/Saldo normal kredit · akun kontra/)).toBeInTheDocument();
+    expect(screen.getByText('Akun kontra')).toBeInTheDocument();
+    expect(screen.queryByText(/Saldo normal/)).not.toBeInTheDocument();
   });
 
-  it('notes an amount on the side the account does not normally grow on', () => {
+  it('tells the user at once when an amount goes to the side the account does not grow on', () => {
     setup([row({ credit: 10 })]);
-    expect(screen.getByText('Di luar sisi normal')).toBeInTheDocument();
+    expect(screen.getByText('Biasanya diisi di debit')).toBeInTheDocument();
+  });
+
+  it('says nothing when the amount is on the normal side', () => {
+    setup([row({ debit: 10 })]);
+    expect(screen.queryByText(/Biasanya diisi/)).not.toBeInTheDocument();
   });
 
   it('offers to clear a row only when it has an amount', () => {
@@ -109,11 +89,24 @@ describe('TableBeginningBalance', () => {
     expect(onClear).toHaveBeenCalledWith('a');
   });
 
-  it('shows one page of the rows, so the whole chart is reached by paging, not by an inner scroll', () => {
-    const many = Array.from({ length: 30 }, (_, i) =>
+  it('shows every account on one page, with no paging', () => {
+    const many = Array.from({ length: 60 }, (_, i) =>
       row({ id: `r${i}`, accountNumber: `1-${10000 + i}` })
     );
     setup(many);
-    expect(screen.getAllByLabelText(/^Debit \(Rp\)/)).toHaveLength(25);
+    expect(screen.getAllByLabelText(/^Debit \(Rp\)/)).toHaveLength(60);
+    expect(screen.queryByRole('button', { name: /Next page|Berikutnya/ })).not.toBeInTheDocument();
+  });
+
+  it('puts a header with just the category name over each group of accounts', () => {
+    setup([
+      row({ id: 'kas', accountNumber: '1-10001', debit: 1500 }),
+      row({ id: 'bank', accountNumber: '1-10003', debit: 500 }),
+      row({ id: 'modal', accountNumber: '3-10000', normalSide: 'credit', credit: 2000 }),
+    ]);
+    const asset = screen.getByRole('rowheader', { name: 'Aset' });
+    expect(asset.closest('tr')).toHaveTextContent(/^Aset$/);
+    expect(screen.getByRole('rowheader', { name: 'Ekuitas' })).toBeInTheDocument();
+    expect(screen.queryByRole('rowheader', { name: 'Kewajiban' })).not.toBeInTheDocument();
   });
 });

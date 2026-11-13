@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import { fromMinor, sumMinor, toMinor } from '@/lib/money/money';
 import { canPublishOpeningBalance } from '@/lib/accounting/journalBalance';
 import { isDebitNormal } from '@/lib/accounting/normalBalance';
 import type {
@@ -38,30 +39,80 @@ export const getBalanceState = (
 
 /**
  * What the buttons may do. A draft is work in progress, so it can be saved unbalanced (or empty,
- * which clears it) as long as something changed; publishing needs a balanced total above zero.
+ * which clears it) as long as something changed. Publishing needs a balanced total above zero, or
+ * a gap that can be recorded to the opening equity account when publishing (`canBalanceToEquity`).
  */
-export const openingActions = (state: BalanceState, isDirty: boolean, isPublished = false) => ({
+export const openingActions = (
+  state: BalanceState,
+  isDirty: boolean,
+  isPublished = false,
+  canBalanceToEquity = false
+) => ({
   canSaveDraft: isDirty,
   // A published balance is only published again when something changed.
-  canPublish: state === 'balanced' && (!isPublished || isDirty),
+  canPublish:
+    (state === 'balanced' || (state === 'unbalanced' && canBalanceToEquity)) &&
+    (!isPublished || isDirty),
 });
 
 /**
  * A conversion date is refused when it falls in a locked accounting period (`isLocked` of
- * `GET /v1/accounting-periods/check`) or after the first regular journal (`firstTransactionDate`
- * of the draft, when the server sends it). Both are also checked by the server at publish.
+ * `GET /v1/accounting-periods/check`), when it is not after the end of the latest closing (the
+ * server answers "tidak boleh sebelum akhir periode Tutup Buku", even for days outside any lock),
+ * or when it is after the first regular journal. The server checks all of them again on save.
  */
 export const conversionDateIssue = (
   date: string | null,
   firstTransactionDate: string | Date | null | undefined,
-  isLocked: boolean
+  isLocked: boolean,
+  lastClosingEnd?: string | null
 ): DateIssue => {
   if (!date) return null;
   if (isLocked) return 'locked';
+  if (lastClosingEnd && dayjs(date).isBefore(dayjs(lastClosingEnd).add(1, 'day'), 'day')) {
+    return 'beforeClosing';
+  }
   if (firstTransactionDate && dayjs(date).isAfter(dayjs(firstTransactionDate), 'day')) {
     return 'afterFirstTransaction';
   }
   return null;
+};
+
+/**
+ * The days a conversion date may take: after the latest closing, and not after the first journal.
+ * When the closing ends after the first journal no day fits (`conflict`): the books were closed
+ * over transactions that exist, so the closing has to be reopened first.
+ */
+export interface ConversionWindow {
+  /** First allowed day, or null when no closing limits it. */
+  earliest: string | null;
+  /** Last allowed day, or null when there is no journal yet. */
+  latest: string | null;
+  conflict: boolean;
+  /** A good default day, or null on a conflict. */
+  suggested: string | null;
+}
+
+const DAY = 'YYYY-MM-DD';
+
+export const buildConversionWindow = (input: {
+  lastClosingEnd: string | null | undefined;
+  firstTransactionDate: string | Date | null | undefined;
+  today: string;
+}): ConversionWindow => {
+  const earliest = input.lastClosingEnd
+    ? dayjs(input.lastClosingEnd).add(1, 'day').format(DAY)
+    : null;
+  const latest = input.firstTransactionDate ? dayjs(input.firstTransactionDate).format(DAY) : null;
+  if (earliest && latest && earliest > latest) {
+    return { earliest, latest, conflict: true, suggested: null };
+  }
+  // The balance is as of the end of the day before the first journal, so that day's own
+  // movements stay in the books and reports that start on it open with this balance.
+  let suggested = latest ? dayjs(latest).subtract(1, 'day').format(DAY) : input.today;
+  if (suggested > input.today) suggested = input.today;
+  if (earliest && suggested < earliest) suggested = earliest;
+  return { earliest, latest, conflict: false, suggested };
 };
 
 const hasAmount = (entry: DraftBalanceEntry): boolean =>
@@ -115,9 +166,12 @@ const toRow = (account: SimpleAccount): OpeningRow => ({
   id: account.id,
   name: account.name,
   accountNumber: account.accountNumber,
-  normalSide: isDebitNormal({ isDebit: account.type === 'debit', isContra: account.isContra })
-    ? 'debit'
-    : 'credit',
+  // `normalBalance` is final, contra accounts included. Only an older answer without it needs the flip.
+  normalSide:
+    account.normalBalance ??
+    (isDebitNormal({ isDebit: account.type === 'debit', isContra: account.isContra })
+      ? 'debit'
+      : 'credit'),
   isContra: account.isContra,
   debit: 0,
   credit: 0,
@@ -243,6 +297,39 @@ export const clearAccountRow = (rows: OpeningRow[], accountId: string): OpeningR
 
 export const clearAllRows = (rows: OpeningRow[]): OpeningRow[] =>
   rows.map((row) => ({ ...row, debit: 0, credit: 0 }));
+
+/**
+ * The account an untraced difference is recorded to: "Ekuitas Saldo Awal", the opening balance
+ * equity account of the default chart (code `3-10000`). The code wins over the name.
+ */
+export const findOpeningEquityRow = (rows: OpeningRow[]): OpeningRow | undefined =>
+  rows.find((row) => row.accountNumber.trim() === '3-10000') ??
+  rows.find((row) => /ekuitas\s+saldo\s+awal/i.test(row.name) && !row.isContra);
+
+/**
+ * Balances the totals by setting the opening equity account to what is missing, in cents. The
+ * account's own amount is replaced, not added to, so pressing it twice gives the same result. A
+ * missing credit goes to its credit side, a missing debit to its debit side.
+ */
+export const balanceToEquity = (rows: OpeningRow[], equityId: string): OpeningRow[] => {
+  const others = rows.filter((row) => row.id !== equityId);
+  const debit = sumMinor(others.map((row) => toMinor(row.debit)));
+  const credit = sumMinor(others.map((row) => toMinor(row.credit)));
+  const gap = debit - credit;
+  const amount = Number(fromMinor(Math.abs(gap)));
+  return rows.map((row) =>
+    row.id === equityId
+      ? { ...row, debit: gap < 0 ? amount : 0, credit: gap > 0 ? amount : 0 }
+      : row
+  );
+};
+
+/** Revenue and expense accounts (classes 4 to 8) with an amount: only valid for a mid-year start. */
+export const countProfitLossFilled = (rows: OpeningRow[]): number =>
+  rows.filter((row) => {
+    const accountClass = accountClassOf(row.accountNumber);
+    return accountClass !== null && accountClass >= 4 && (row.debit > 0 || row.credit > 0);
+  }).length;
 
 export interface BalanceLine {
   account: string;

@@ -14,6 +14,10 @@ Period locks and closing the books, on `/v1/accounting-periods` (backend `main-b
 
 Old addresses redirect to the list: the prototype pages (`.../closing-books/list/period-lock`, `.../period-lock/financial-statement`) and the planned settings page `/settings/accounting-periods`, which this module replaces (one place per task).
 
+## List page layout
+
+`PeriodListPage` reads top to bottom: header, `PeriodHero` (what closing does), `PeriodStatusSummary` (the `BooksTimeline` strip of closed, locked and open dates, then three facts), `PeriodGuide` (fold: lock vs close, `PeriodSteps`), and the period table. Drawings are in `PeriodIllustration` (line style shared with the bank connection screens; the module keeps its own copy because that component is private to `bank-connection`). The strip's parts come from `domain/booksTimeline.ts`: widths are fixed weights, not to scale, and the dates under each part say where it ends.
+
 ## Access
 
 Menu `JP-GL-PC` "Tutup Buku & Lock Period" (`usePeriodAccess`, from `useMyGrants`): `read` opens the pages, `create` locks and closes, `update` edits and turns a lock on or off, `delete` deletes a lock and reopens a closing. The sidebar entry uses `NAV_MENU.periodClosing`. Without `read` (or on a 403) the page shows the no-access state instead of an empty list. Nothing is hidden before the rights have loaded.

@@ -9,13 +9,7 @@ import {
   Tabs,
   Text,
 } from '@mantine/core';
-import {
-  IconBook2,
-  IconCalendarOff,
-  IconLock,
-  IconListDetails,
-  IconSearch,
-} from '@tabler/icons-react';
+import { IconBook2, IconLock, IconListDetails, IconSearch } from '@tabler/icons-react';
 import { EmptyState } from '@/components/EmptyState/EmptyState';
 import { useTranslation } from '@/i18n';
 import type {
@@ -26,6 +20,7 @@ import type {
 } from '@/module/period-closing/domain/accountingPeriod';
 import type { PeriodAccess } from '@/module/period-closing/presentation/hooks/usePeriodAccess';
 import type { PeriodAction } from './PeriodRowActions';
+import { PeriodEmptyList } from './PeriodStates';
 import { PeriodTableRow } from './PeriodTableRow';
 
 const ALL = 'ALL';
@@ -96,12 +91,7 @@ export function PeriodTable({
                 py={40}
               />
             ) : (
-              <EmptyState
-                title={t('empty.title')}
-                description={t('empty.description')}
-                icon={<IconCalendarOff size={32} stroke={1.5} />}
-                py={40}
-              />
+              <PeriodEmptyList />
             )}
           </Table.Td>
         </Table.Tr>
