@@ -18,3 +18,10 @@ export const toSimpleAccounts = (raw: unknown): SimpleAccount[] => {
   const list = (raw as { data?: unknown } | null)?.data;
   return Array.isArray(list) ? (list as SimpleAccount[]) : [];
 };
+
+/** `GET /v1/journal?limit=1&sortBy=transactionDate:asc` answers `{ data: { results: [journal] } }`. */
+export const toFirstJournalDay = (raw: unknown): string | null => {
+  const first = (raw as { data?: { results?: Array<{ transactionDate?: unknown }> } } | null)?.data
+    ?.results?.[0]?.transactionDate;
+  return typeof first === 'string' && /^\d{4}-\d{2}-\d{2}/.test(first) ? first.slice(0, 10) : null;
+};
