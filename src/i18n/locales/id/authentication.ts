@@ -19,6 +19,7 @@ export const authentication = {
     submit: 'Masuk',
     or: 'atau',
     google: 'Masuk dengan Google',
+    proapps: 'Masuk dengan akun ProApps',
     backHome: 'Kembali ke beranda',
   },
   oauth: {

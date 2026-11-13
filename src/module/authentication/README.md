@@ -31,7 +31,7 @@ Namespace `authentication` (`id` and `en`) with parity tests in `src/i18n/locale
 
 ## Known gaps (kept as is)
 
-- Google sign-in and password recovery are visual placeholders. The Google button has no action. The recovery screen can be opened from login, but its submit button is disabled until an endpoint exists. Neither path sends a request or claims an email was sent.
+- Google and ProApps sign-in and password recovery are visual placeholders. The sign-in buttons have no action. The recovery screen can be opened from login, but its submit button is disabled until an endpoint exists. None of these paths sends a request or claims an email was sent.
 - "Remember me" is collected but never used.
 - The login showcase uses three conceptual 3D artworks for accounting, reports, and reconciliation. It contains no simulated balances or product screenshots. Navigation has named topic buttons and a pause/play control. Manual topic selection stops rotation; hover, keyboard focus, reduced motion, and small screens also suspend rotation. Artwork provenance is in `src/assets/images/auth/README.md`.
 - No component tests for the pages; the credential rules and `useLogin` (success and denied) are covered.
