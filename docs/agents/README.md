@@ -27,6 +27,7 @@ Read the workflow when its task applies. Workflows describe steps only; they nev
 | Task | Workflow |
 |---|---|
 | Fix a bug or issue | [issue-fix](workflows/issue-fix.md) |
+| Work a Jira QA ticket, reply to QA, give feedback | [jira-ticket](workflows/jira-ticket.md) |
 | New feature | [feature-scaffold](workflows/feature-scaffold.md) |
 | Restructure or migrate a feature | [feature-refactor](workflows/feature-refactor.md) |
 | Review a change | [code-review](workflows/code-review.md) |
