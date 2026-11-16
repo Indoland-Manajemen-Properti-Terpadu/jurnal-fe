@@ -62,6 +62,10 @@ const validateGeneral = (values: CreateSaleFormValues): StepErrors => {
 const validateLines = (values: CreateSaleFormValues): StepErrors => {
   const errors: StepErrors = {};
   if (values.items.length === 0) errors.lines = 'validation.linesRequired';
+  else if (values.items.every((item) => !(item.quantity * item.unitPrice > 0))) {
+    // An invoice that bills nothing cannot be issued; a draft of it can still be saved.
+    errors.lines = 'validation.totalZero';
+  }
   values.items.forEach((item, index) => {
     if (!item.productId) errors[`items.${index}.productId`] = 'validation.productRequired';
     if (!(item.quantity > 0)) errors[`items.${index}.quantity`] = 'validation.quantityMin';

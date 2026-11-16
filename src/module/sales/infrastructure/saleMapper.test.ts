@@ -94,6 +94,16 @@ describe('mapSaleDto rounding at the input boundary', () => {
   });
 });
 
+describe('mapSaleDto void invoice (PRO-75)', () => {
+  it('owes nothing once void, by display status or by plain status', () => {
+    expect(
+      mapSaleDto({ ...baseDto, displayStatus: { code: 'VOID', label: 'Void' } }).remainingAmount
+    ).toBe(0);
+    expect(mapSaleDto({ ...baseDto, status: 'VOID' }).remainingAmount).toBe(0);
+    expect(mapSaleDto({ ...baseDto, status: 'UNPAID' }).remainingAmount).toBe(1565.56);
+  });
+});
+
 describe('mapSaleDto server flags and display status', () => {
   it('takes the badge, edit and delete decisions from the server', () => {
     const sale = mapSaleDto({

@@ -157,3 +157,25 @@ describe('saleToFormValues', () => {
     });
   });
 });
+
+describe('an invoice that bills nothing (PRO-75)', () => {
+  const free = valid({
+    items: [{ productId: 'p-1', description: '', unit: 'Jam', quantity: 1, unitPrice: 0 }],
+  });
+
+  it('cannot be sent, but a draft of it can be saved', () => {
+    expect(validateStep('lines', free)).toEqual({ lines: 'validation.totalZero' });
+    expect(canSend(free)).toBe(false);
+    expect(canSaveDraft(free)).toBe(true);
+  });
+
+  it('goes through once one line has a price', () => {
+    const mixed = valid({
+      items: [
+        { productId: 'p-1', description: '', unit: 'Jam', quantity: 1, unitPrice: 0 },
+        { productId: 'p-2', description: '', unit: 'Jam', quantity: 2, unitPrice: 500 },
+      ],
+    });
+    expect(validateStep('lines', mixed)).toEqual({});
+  });
+});

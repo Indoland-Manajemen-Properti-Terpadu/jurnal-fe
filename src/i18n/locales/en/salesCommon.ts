@@ -39,6 +39,8 @@ export const salesCommon = {
     resent: 'The email for invoice {number} was sent again.',
     emailNotSent:
       'The invoice is saved, but the email was not delivered. Make sure the customer has an email address, then resend.',
+    emailNotSentReason:
+      'The invoice is saved, but the email was not delivered: {reason}. Fix it, then resend.',
     updated: 'Changes to invoice {number} saved.',
     deleted: 'Draft invoice deleted.',
     voided: 'Invoice {number} voided.',

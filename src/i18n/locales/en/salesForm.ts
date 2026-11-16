@@ -120,6 +120,7 @@ export const salesForm = {
     dueBeforeDate: 'The due date cannot be before the transaction date',
     emailInvalid: 'One of the email addresses is not valid',
     linesRequired: 'Add at least one product or service line',
+    totalZero: 'The invoice total is still Rp 0. Enter a price on at least one line.',
     productRequired: 'Select a product',
     quantityMin: 'Quantity must be more than 0',
     priceNegative: 'Price cannot be negative',
