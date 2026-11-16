@@ -29,7 +29,7 @@ Replace the current `"required_status_checks": null`. Promotion order (develop-f
 
 ## What `test-and-build` is
 
-`test-and-build` is the last job of `.github/workflows/pr-check.yml`. It runs after the parallel jobs (`static`, three `unit` shards, `build`) and fails when any of them failed or was cancelled. A job skipped on purpose (a PR that changes only Markdown) counts as passed. Branch protection requires only this one name, so the parallel jobs can be split, merged or renamed without touching the protection, but this job cannot be renamed or removed without changing `required_status_checks` in all three payloads.
+`test-and-build` is the last job of `.github/workflows/pr-check.yml`. It runs after the parallel jobs (`typecheck`, `lint`, three `unit` shards, `build`) and fails when any of them failed or was cancelled. A job skipped on purpose (a PR that changes only Markdown) counts as passed. Branch protection requires only this one name, so the parallel jobs can be split, merged or renamed without touching the protection, but this job cannot be renamed or removed without changing `required_status_checks` in all three payloads.
 
 `"strict": true` makes GitHub ask for a branch that is up to date with its base before it merges, which reruns the gate after every merge into the base. Dropping it (or using a merge queue) would save that rerun but is a policy decision, not applied here.
 

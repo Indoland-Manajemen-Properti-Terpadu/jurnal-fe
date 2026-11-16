@@ -42,8 +42,23 @@ jobs:
             echo "Only Markdown changed: the gate is skipped."
           fi
 
-  static:
-    name: Typecheck, lint and format
+  typecheck:
+    name: Typecheck
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - uses: ./.github/actions/setup-node-yarn
+
+      - name: Run Typecheck
+        run: yarn typecheck
+
+  lint:
+    name: Lint and format
     needs: changes
     if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
@@ -56,9 +71,6 @@ jobs:
           fetch-depth: 0
 
       - uses: ./.github/actions/setup-node-yarn
-
-      - name: Run Typecheck
-        run: yarn typecheck
 
       - name: Run Linting (ESLint ratchet & Stylelint)
         run: npm run lint
@@ -108,7 +120,7 @@ jobs:
 
   test-and-build:
     name: test-and-build
-    needs: [changes, static, unit, build]
+    needs: [changes, typecheck, lint, unit, build]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5
