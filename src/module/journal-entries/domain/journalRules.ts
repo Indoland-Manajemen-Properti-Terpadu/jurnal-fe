@@ -6,6 +6,8 @@
  *   form (the remove button), not here, exactly as before.
  * - I2 (`holdsBothSides`): a row holds one side only. The form disables the opposite input; the
  *   validation card flags a row that still has both.
+ * - I8 (`hasSameAccountOnBothSides`): the same account cannot sit on a debit row and on a credit row
+ *   of one journal; the validation card says so and the save stays blocked.
  * - I3 (`isDetailBalanced`): the detail view shows "balanced" when debit and credit are equal
  *   after rounding half up to the cent. Create is exact, the view is tolerant: kept as is.
  */
@@ -49,6 +51,24 @@ const positive = (value: unknown): boolean => parseFloat(`${value}`) > 0;
 export const holdsBothSides = (line: Pick<DraftLine, 'debit' | 'credit'>): boolean =>
   positive(line.debit) && positive(line.credit);
 
+/** I8: an account that carries a debit on one row and a credit on another cancels itself out. A single row holding both sides is I2. */
+export const hasSameAccountOnBothSides = (
+  lines: Pick<DraftLine, 'account' | 'debit' | 'credit'>[]
+): boolean =>
+  lines.some(
+    (credited, index) =>
+      credited.account &&
+      positive(credited.credit) &&
+      lines.some(
+        (debited, other) =>
+          other !== index && debited.account === credited.account && positive(debited.debit)
+      )
+  );
+
+/** The backend takes a custom transaction number only as a whole number; empty means automatic. */
+export const isValidTransactionNumber = (value: string): boolean =>
+  value.trim() === '' || (/^\d+$/.test(value.trim()) && Number.isSafeInteger(Number(value.trim())));
+
 /** I1: true when the journal must not be saved. */
 export const isJournalBlocked = (lines: DraftLine[]): boolean => {
   const missingAccount = lines.some((line) => line.account === '');
@@ -61,7 +81,7 @@ export const isJournalBlocked = (lines: DraftLine[]): boolean => {
       credit: parseFloat(`${line.credit}`),
     }))
   );
-  return missingAccount || missingAmount || unbalanced;
+  return missingAccount || missingAmount || unbalanced || hasSameAccountOnBothSides(lines);
 };
 
 export interface JournalTotals {
@@ -92,6 +112,8 @@ export interface ValidationChecks {
   allAccountsSelected: boolean;
   allRowsHaveAmount: boolean;
   isBalanced: boolean;
+  /** No account is debited on one row and credited on another (I8). */
+  noSameAccount: boolean;
 }
 
 /** The checklist of the validation card. `allRowsHaveAmount` also fails a row with both sides (I2). */
@@ -103,4 +125,5 @@ export const validateDraft = (lines: DraftLine[], transactionDate: string): Vali
     lines.length > 0 &&
     lines.every((line) => (positive(line.debit) || positive(line.credit)) && !holdsBothSides(line)),
   isBalanced: summarizeLines(lines).isBalanced,
+  noSameAccount: !hasSameAccountOnBothSides(lines),
 });

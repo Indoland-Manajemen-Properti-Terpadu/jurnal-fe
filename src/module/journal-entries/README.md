@@ -31,6 +31,8 @@ The header line under the title shows only the date, a Dibatalkan or Jurnal Pemb
 
 - I1: a new journal saves only if every row has an account and an amount and total debit equals total credit exactly (`isJournalBlocked`, through `@/lib/accounting`). The two-row minimum is enforced by the remove button of the form, not by the gate (as before).
 - I2: a row holds one side only. The opposite input is disabled while one side has an amount; the validation card flags a row with both (`holdsBothSides`, `validateDraft`).
+- I8: the same account cannot be debited on one row and credited on another (`hasSameAccountOnBothSides`): the validation card shows "Akun debit dan kredit tidak boleh sama" and the save stays blocked (`isJournalBlocked`). A single row holding both sides stays I2. The backend does not check this yet.
+- A custom transaction number must be digits only (`isValidTransactionNumber`): the backend answers 400 for text, and the form used to drop it silently (`parseInt` gave NaN).
 - I3: the detail view shows "balanced" when debit and credit are equal after rounding to the cent (`isDetailBalanced`). Create is exact, the view is tolerant: kept, documented.
 - I7: opening-balance rows (`transactionNumber === 0`) cannot be selected for deletion in the list.
 - Amounts typed in the form are rounded half up to the cent (`parseAmountInput`, was `Number(value) || 0`) and summed on integer minor units, so totals have no float drift.
