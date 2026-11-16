@@ -29,6 +29,8 @@ export const filterSalesByStatus = (
   sales.filter((sale) => {
     const normalized = String(sale.status || 'DRAFT').toUpperCase();
     const remaining = sale.remainingAmount ?? 0;
+    // A cancelled invoice is not owed, not paid and not late: only the full list shows it.
+    if (normalized === 'VOID' || sale.displayStatus?.code === 'VOID') return status === 'all';
     if (status === 'OVERDUE') return isSaleOverdue(sale, now);
     if (status === 'UNPAID') {
       return (

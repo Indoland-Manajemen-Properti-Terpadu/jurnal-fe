@@ -105,6 +105,8 @@ export const contactDetail = {
       PAID: 'Paid',
       PARTIAL: 'Partially paid',
       PARTIALLY_PAID: 'Partially paid',
+      SENT: 'Sent',
+      PARTIAL_PAID: 'Partially paid',
       OPEN: 'Unpaid',
       UNPAID: 'Unpaid',
       OVERDUE: 'Overdue',

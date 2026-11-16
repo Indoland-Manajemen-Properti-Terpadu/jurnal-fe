@@ -186,6 +186,11 @@ export const contactsForm = {
     deleteTooltip: 'Hapus grup',
     editAria: 'Ubah grup {name}',
     deleteAria: 'Hapus grup {name}',
+    deleteTitle: 'Hapus Grup',
+    deleteMessage: 'Apakah Anda yakin ingin menghapus grup {name}?',
+    deleteHelper: 'Grup yang dihapus tidak dapat dipulihkan.',
+    deleteConfirm: 'Hapus Grup',
+    cancelDelete: 'Batal',
     close: 'Tutup',
   },
   import: {
@@ -199,5 +204,10 @@ export const contactsForm = {
     filePlaceholder: 'Klik untuk memilih file .xlsx atau .xls',
     cancel: 'Batal',
     start: 'Mulai Impor',
+    failedSummary: 'Impor dibatalkan. Perbaiki baris berikut lalu impor ulang.',
+    colRow: 'Baris',
+    colField: 'Kolom',
+    colReason: 'Alasan',
+    wholeRow: 'Seluruh baris',
   },
 };

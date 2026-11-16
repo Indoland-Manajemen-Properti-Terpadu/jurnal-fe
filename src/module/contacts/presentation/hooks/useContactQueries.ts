@@ -7,6 +7,7 @@ import {
 } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 import { t } from '@/i18n';
+import { ContactImportError } from '@/module/contacts/domain/contactImport';
 import {
   archiveContact,
   createContact,
@@ -260,6 +261,9 @@ export const useImportContacts = () => {
       notifySuccess(tr('notify.imported', { count: res.imported ?? 0 }));
       queryClient.invalidateQueries({ queryKey: contactKeys.all });
     },
-    onError: (error) => notifyError(error, 'notify.importFailed'),
+    // The modal lists the rows at fault; only an answer without row details needs a toast.
+    onError: (error) => {
+      if (!(error instanceof ContactImportError)) notifyError(error, 'notify.importFailed');
+    },
   });
 };
