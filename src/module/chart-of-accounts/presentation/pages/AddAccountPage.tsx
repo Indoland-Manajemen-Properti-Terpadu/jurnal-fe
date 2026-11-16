@@ -21,6 +21,9 @@ import {
   MIN_CREATE_NAME_LENGTH,
   validateAccountCategory,
   validateAccountCode,
+  validateAccountCodePrefix,
+  codeMatchesCategory,
+  getCategoryPrefix,
   validateCreateName,
 } from '../../domain/accountRules';
 import { ACCOUNT_PRESETS, findPresetCategory } from '../../domain/accountPresets';
@@ -35,7 +38,8 @@ import { AccountReadinessCard } from '../components/account-form/AccountReadines
 export const AddAccountJournalPage: React.FC = () => {
   const navigate = useNavigate();
   const { t } = useTranslation('chartOfAccounts');
-  const validationMessage = (key: string | null) => (key ? t(key) : null);
+  const validationMessage = (key: string | null, params?: Record<string, string>) =>
+    key ? t(key, params) : null;
 
   // Queries
   const { data: categoryAccounts, isLoading: isLoadingCategories } = useCategoryAccounts();
@@ -57,7 +61,16 @@ export const AddAccountJournalPage: React.FC = () => {
     },
     validate: {
       name: (value: string) => validationMessage(validateCreateName(value)),
-      accountNumber: (value: string) => validationMessage(validateAccountCode(value)),
+      accountNumber: (value: string, values) => {
+        const category = categoryAccounts?.find((item) => item.id === values.category);
+        return (
+          validationMessage(validateAccountCode(value)) ??
+          validationMessage(validateAccountCodePrefix(value, category), {
+            prefix: getCategoryPrefix(category),
+            category: category?.name ?? '',
+          })
+        );
+      },
       category: (value: string) => validationMessage(validateAccountCategory(value)),
     },
   });
@@ -109,7 +122,9 @@ export const AddAccountJournalPage: React.FC = () => {
 
   // Readiness Checks
   const hasCategory = Boolean(form.values.category);
-  const hasCode = hasAccountCode(form.values.accountNumber);
+  const hasCode =
+    hasAccountCode(form.values.accountNumber) &&
+    codeMatchesCategory(form.values.accountNumber, selectedCategoryObj);
   const hasName = hasValidName(form.values.name, MIN_CREATE_NAME_LENGTH);
   const isHierarchyAndAccessOk = useMemo(
     () =>

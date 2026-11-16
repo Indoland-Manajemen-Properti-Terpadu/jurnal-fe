@@ -3,6 +3,8 @@ export const chartOfAccountsGuide = {
     nameMin: 'Nama akun minimal 3 karakter',
     nameRequired: 'Nama akun wajib diisi',
     codeRequired: 'Kode akun wajib diisi',
+    codePrefix:
+      'Kode akun kategori {{category}} harus diawali angka {{prefix}}, misalnya {{prefix}}-10000.',
     categoryRequired: 'Kategori akun wajib dipilih',
   },
   presetNames: {

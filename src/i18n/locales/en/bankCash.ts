@@ -15,6 +15,7 @@ export const bankCash = {
     addLine: 'Add row',
     removeLine: 'Remove row',
     notes: 'Notes (optional)',
+    futureDate: 'The transaction date is in the future. Check that the date is right.',
     overdraft: 'This account will have a negative balance after the transaction.',
     journalToggle: 'See the journal that will be posted',
     journalAccount: 'Account',
@@ -39,6 +40,7 @@ export const bankCash = {
       date: 'Enter the transaction date',
       lines: 'Complete the account and amount of every row',
       amount: 'Enter an amount above zero',
+      amountTooLarge: 'Amount is too large, the maximum is Rp 999,999,999,999',
     },
   },
   mutation: {

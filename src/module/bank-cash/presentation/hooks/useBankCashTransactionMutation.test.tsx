@@ -25,6 +25,7 @@ vi.mock('react-router-dom', async (importOriginal) => ({
 
 const payload = {
   transactionDate: '2026-01-31',
+  transactionType: 'SEND_MONEY' as const,
   transactionDetail: [{ account: 'cash', description: 'x', debit: 1 }],
 };
 

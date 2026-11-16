@@ -119,3 +119,22 @@ describe('balanceAfter', () => {
     expect(balanceAfter(100, 150)).toBe(-50);
   });
 });
+
+describe('transactionType', () => {
+  it('names the journal type of each form for the backend', () => {
+    const base = { transactionDate: '2026-01-31', notes: '' };
+    const lines = [{ accountId: 'x', description: '', amount: 10 }];
+    expect(
+      buildReceivePayload({ ...base, depositToAccountId: 'cash', payerName: '', items: lines })
+        .transactionType
+    ).toBe('RECEIVE_MONEY');
+    expect(
+      buildSentPayload({ ...base, payFromAccountId: 'cash', recipientName: '', items: lines })
+        .transactionType
+    ).toBe('SEND_MONEY');
+    expect(
+      buildTransferPayload({ ...base, fromAccountId: 'a', toAccountId: 'b', amount: 10 })
+        .transactionType
+    ).toBe('TRANSFER_MONEY');
+  });
+});

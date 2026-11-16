@@ -117,7 +117,7 @@ export const chartOfAccountsList = {
       step3Desc: 'Accounts saved',
       templateTitle: 'Start from the official template',
       templateDesc:
-        'Fill in Account Number, Account Name, Category, and Beginning Balance following the template layout so your data is read correctly.',
+        'Fill in Account Number, Account Name, and Category ID (the category code, for example KB or BOP) as in the template. Opening balances are not entered here, use the Opening Balance menu.',
       templateButton: 'Download Template',
       fileLabel: 'Account file',
       fileDesc: '.xlsx, .xls, or .csv format, 5 MB maximum',

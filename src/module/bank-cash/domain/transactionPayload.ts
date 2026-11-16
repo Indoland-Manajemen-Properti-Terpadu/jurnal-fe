@@ -49,6 +49,7 @@ export const buildReceivePayload = (input: ReceiveInput): BankCashTransactionPay
 
   return {
     transactionDate: input.transactionDate,
+    transactionType: 'RECEIVE_MONEY',
     notes: notes || `Penerimaan kas masuk ke ${input.depositAccountName || 'Kas/Bank'}${from}`,
     transactionDetail: [
       {
@@ -81,6 +82,7 @@ export const buildSentPayload = (input: SentInput): BankCashTransactionPayload =
 
   return {
     transactionDate: input.transactionDate,
+    transactionType: 'SEND_MONEY',
     notes:
       notes ||
       `Pengeluaran kas dari ${input.payFromAccountName || 'Kas/Bank'}${suffix(recipientName, (name) => ` untuk ${name}`)}`,
@@ -120,6 +122,7 @@ export const buildTransferPayload = (input: TransferInput): BankCashTransactionP
 
   return {
     transactionDate: input.transactionDate,
+    transactionType: 'TRANSFER_MONEY',
     notes:
       notes ||
       `Transfer dana dari ${input.fromAccountName || 'Kas'} ke ${input.toAccountName || 'Bank'}`,

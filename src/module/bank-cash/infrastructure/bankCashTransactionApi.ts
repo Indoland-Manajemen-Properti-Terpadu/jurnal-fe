@@ -30,6 +30,7 @@ const toFormData = (payload: Record<string, unknown>, attachments: File[]): Form
 export const submitBankCashTransaction = async (data: BankCashTransactionPayload) => {
   const payload: Record<string, unknown> = {
     transactionDate: data.transactionDate,
+    transactionType: data.transactionType,
     transactionDetail: data.transactionDetail.map((detail) => ({
       account: detail.account,
       description: detail.description,

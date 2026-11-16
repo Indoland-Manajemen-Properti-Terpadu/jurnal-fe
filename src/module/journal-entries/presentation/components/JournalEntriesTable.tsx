@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Text, Anchor, Group, ActionIcon, Tooltip } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
@@ -12,6 +12,7 @@ import { IconEye } from '@tabler/icons-react';
 import useFilterTransaction from '../store/useFilterTransactionStore';
 import type { JournalEntryByAccount } from '../../domain/journalEntry';
 import { filterEntries } from '../../domain/entryFilter';
+import { withRunningBalance } from '../../domain/runningBalance';
 import { voidGate } from '../../domain/journalVoid';
 import { DEFAULT_PAGE_SIZE, PAGE_SIZE_OPTIONS, paginate } from '../../domain/paginate';
 
@@ -20,6 +21,8 @@ interface JournalEntriesTableProps {
   setSelectedRecords: React.Dispatch<React.SetStateAction<JournalEntryByAccount[]>>;
   noRecordsContent?: React.ReactNode;
   data: JournalEntryByAccount[] | undefined;
+  /** Work the balance column out from debit minus credit (cash and bank) instead of the server's value. */
+  netRunningBalance?: boolean;
 }
 
 const headTableStyle = {
@@ -32,11 +35,18 @@ function JournalEntriesTable({
   selectedRecords,
   setSelectedRecords,
   noRecordsContent,
-  data: transaction,
+  data: rawTransaction,
+  netRunningBalance = false,
 }: JournalEntriesTableProps) {
   const { t } = useTranslation('journalEntries');
   const navigate = useNavigate();
   const { searchQuery, selectedDate } = useFilterTransaction();
+  // The balance runs over the whole list, so it is worked out before the filter hides rows.
+  const transaction = useMemo(
+    () =>
+      rawTransaction && netRunningBalance ? withRunningBalance(rawTransaction) : rawTransaction,
+    [rawTransaction, netRunningBalance]
+  );
 
   const searchAndFilterTransaction = transaction
     ? filterEntries(transaction, searchQuery, selectedDate)
