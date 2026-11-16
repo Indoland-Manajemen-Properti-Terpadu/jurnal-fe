@@ -197,6 +197,7 @@ export const LedgerTransactionsPanel: React.FC<LedgerTransactionsPanelProps> = (
         selectedRecords={selectedRecords}
         setSelectedRecords={setSelectedRecords}
         data={entries.data}
+        netRunningBalance={variant === 'cashBank'}
         noRecordsContent={<JournalEmptyState onButtonClick={goToCreate} />}
       />
 
