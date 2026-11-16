@@ -117,7 +117,7 @@ export const chartOfAccountsList = {
       step3Desc: 'Akun tersimpan',
       templateTitle: 'Mulai dari template resmi',
       templateDesc:
-        'Isi kolom Nomor Akun, Nama Akun, Kategori, dan Saldo Awal sesuai susunan template agar data terbaca dengan benar.',
+        'Isi kolom Account Number, Account Name, dan Category ID (kode kategori, misalnya KB atau BOP) sesuai template. Saldo awal tidak diisi di sini, gunakan menu Saldo Awal.',
       templateButton: 'Unduh Template',
       fileLabel: 'Berkas akun',
       fileDesc: 'Format .xlsx, .xls, atau .csv, ukuran maksimal 5 MB',

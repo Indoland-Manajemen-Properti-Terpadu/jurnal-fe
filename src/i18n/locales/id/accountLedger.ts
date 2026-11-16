@@ -8,6 +8,10 @@ export const accountLedger = {
     archiveAction: 'Arsipkan Akun',
     restoreAction: 'Pulihkan Akun',
     deleteAction: 'Hapus Akun',
+    deleteBlockedSubAccounts:
+      'Akun yang punya sub-akun tidak bisa dihapus. Arsipkan akun ini agar tidak dipakai lagi.',
+    deleteBlockedBalance:
+      'Akun yang masih punya saldo tidak bisa dihapus. Arsipkan akun ini agar tidak dipakai lagi.',
     cancel: 'Batal',
     archivedBadge: 'Diarsipkan',
     archiveOkTitle: 'Berhasil',
