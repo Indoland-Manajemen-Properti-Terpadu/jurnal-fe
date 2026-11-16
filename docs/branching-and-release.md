@@ -21,7 +21,7 @@ hotfix/*           cut from main-frontend
 
 ## How the CI gate is built
 
-A PR into any of the three protected branches runs `.github/workflows/pr-check.yml`: a `changes` job, then `typecheck`, `lint` (ESLint ratchet, Stylelint, format of changed files), three `unit` shards of Vitest, and `build` (`npx vite build`, the command of the Dockerfile) in parallel, then the `test-and-build` job that the protection requires. A newer push to the same PR cancels the older run. A PR that changes only `.md` files skips the heavy jobs. A push to `staging` or `main-frontend` runs `deploy.yml`, which builds the image with a Docker layer cache and never runs two deploys of one environment at once.
+A PR into any of the three protected branches runs `.github/workflows/pr-check.yml`: a `changes` job, then `typecheck`, `lint` (ESLint ratchet, Stylelint, format of changed files), three `unit` shards of Vitest, and `build` (`npx vite build`, the command of the Dockerfile) in parallel, then the `test-and-build` job that the protection requires. A newer push to the same PR cancels the older run. A PR that changes only `.md` files skips the heavy jobs. A push to `staging` or `main-frontend` runs `deploy.yml`, which builds the image and never runs two deploys of one environment at once. A Docker layer cache in the GitHub cache was tried and made the build slower (1m40s against 55s: exporting the layers cost more than the install layer saved, and a branch cannot read the cache of another), so the image is built without one.
 
 ## Release gate (PR into `main-frontend`)
 
