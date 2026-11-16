@@ -19,6 +19,10 @@ hotfix/*           cut from main-frontend
 - Promotion is `develop-frontend` to `staging` to `main-frontend`, each by PR. The `guard` job in `.github/workflows/deploy.yml` (logic in `scripts/lib/deployGuard.mjs`, with tests) refuses to deploy a commit that is not a merged PR from an allowed source: `staging` or `hotfix/*` into `main-frontend`; `develop-frontend`, `main-frontend` (hotfix back-merge) or `hotfix/*` into `staging`. It retries briefly because GitHub can lag in linking a commit to its PR.
 - Releases are tagged `vMAJOR.MINOR.PATCH` on `main-frontend`.
 
+## How the CI gate is built
+
+A PR into any of the three protected branches runs `.github/workflows/pr-check.yml`: a `changes` job, then `typecheck`, `lint` (ESLint ratchet, Stylelint, format of changed files), three `unit` shards of Vitest, and `build` (`npx vite build`, the command of the Dockerfile) in parallel, then the `test-and-build` job that the protection requires. A newer push to the same PR cancels the older run. A PR that changes only `.md` files skips the heavy jobs. A push to `staging` or `main-frontend` runs `deploy.yml`, which builds the image with a Docker layer cache and never runs two deploys of one environment at once.
+
 ## Release gate (PR into `main-frontend`)
 
 1. Typecheck, lint ratchet, tests and build are green.
