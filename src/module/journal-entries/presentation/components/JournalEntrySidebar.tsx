@@ -59,7 +59,13 @@ const JournalEntrySidebar: React.FC<JournalEntrySidebarProps> = ({ entry }) => {
             <Value>{entry.site?.name || t('detail.defaultSite')}</Value>
           </Row>
           <Row label={t('detail.transactionType')}>
-            <Value muted={!entry.transactionType}>{entry.transactionType || '—'}</Value>
+            <Value muted={!entry.transactionType}>
+              {entry.transactionType
+                ? t(`detail.types.${entry.transactionType}`, {
+                    defaultValue: entry.transactionType,
+                  })
+                : '—'}
+            </Value>
           </Row>
           <Row label={t('detail.transactionTag')}>
             {tags.length > 0 ? (
