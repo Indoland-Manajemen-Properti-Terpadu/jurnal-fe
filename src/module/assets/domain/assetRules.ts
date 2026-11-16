@@ -1,9 +1,10 @@
 import { fromMinor, toMinor } from '@/lib/money/money';
-import type {
-  ActivationValues,
-  AssetItem,
-  AssetJournalLine,
-  DisposalValues,
+import {
+  MAX_ASSET_PHOTOS,
+  type ActivationValues,
+  type AssetItem,
+  type AssetJournalLine,
+  type DisposalValues,
 } from '@/module/assets/domain/asset';
 
 const toNumber = (minor: number): number => Number(fromMinor(minor));
@@ -113,8 +114,7 @@ export type DisposalErrorKey =
   | 'errDisposalDate'
   | 'errDisposalFuture'
   | 'errDisposalPrice'
-  | 'errProceedsAccount'
-  | 'errGainLossAccount';
+  | 'errProceedsAccount';
 export type DisposalErrors = Partial<Record<keyof DisposalValues, DisposalErrorKey>>;
 
 /** `sold` asks for a sale price and the account that receives it; a scrapped asset needs neither. */
@@ -132,16 +132,48 @@ export const validateDisposal = (
     if (!(values.disposalPrice > 0)) errors.disposalPrice = 'errDisposalPrice';
     if (!values.proceedsAccount) errors.proceedsAccount = 'errProceedsAccount';
   }
-  // The server refuses a disposal without it, for a sold and for a scrapped asset alike.
-  if (!values.gainLossAccount) errors.gainLossAccount = 'errGainLossAccount';
+  // The gain/loss account is optional: without it the API uses the mapped disposal account.
   return errors;
 };
 
-/** Gain (positive) or loss (negative) of selling an asset for `price` at `bookValue`. */
-export const estimateDisposalGainLoss = (price: number, bookValue: number): number =>
-  toNumber(toMinor(price) - toMinor(bookValue));
+export type PhotoErrorKey = 'errPhotoUrl' | 'errPhotoLimit';
+
+/** The API takes http(s) links or a path on the same site, without spaces. */
+const PHOTO_PATTERN = /^(https?:\/\/|\/(?!\/))\S+$/;
+
+export const isValidPhotoUrl = (value: string): boolean => PHOTO_PATTERN.test(value);
+
+export const validatePhotos = (photos: string[]): PhotoErrorKey | null => {
+  if (photos.length > MAX_ASSET_PHOTOS) return 'errPhotoLimit';
+  return photos.every(isValidPhotoUrl) ? null : 'errPhotoUrl';
+};
 
 export const sumJournalLines = (lines: AssetJournalLine[]) => ({
   debit: toNumber(lines.reduce((sum, line) => sum + toMinor(line.debit), 0)),
   credit: toNumber(lines.reduce((sum, line) => sum + toMinor(line.credit), 0)),
 });
+
+/** Whether the warranty still covers the asset on `today`, and roughly how long it has left. */
+export type WarrantyStatus =
+  | { state: 'active'; monthsLeft: number }
+  | { state: 'endingSoon' }
+  | { state: 'expired' };
+
+const monthIndex = (isoDate: string): number => {
+  const [year, month] = isoDate.split('-').map(Number);
+  return year * 12 + (month - 1);
+};
+
+/**
+ * `null` without a warranty date. A warranty that ends this month or next counts as ending soon,
+ * so it gets attention before it lapses. Dates are `YYYY-MM-DD`.
+ */
+export const getWarrantyStatus = (
+  warrantyUntil: string | undefined,
+  today: string
+): WarrantyStatus | null => {
+  if (!warrantyUntil) return null;
+  if (warrantyUntil < today) return { state: 'expired' };
+  const monthsLeft = monthIndex(warrantyUntil) - monthIndex(today);
+  return monthsLeft <= 1 ? { state: 'endingSoon' } : { state: 'active', monthsLeft };
+};

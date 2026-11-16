@@ -1,11 +1,30 @@
 import React from 'react';
-import { ActionIcon, Badge, CopyButton, Group, Paper, Stack, Text, Tooltip } from '@mantine/core';
-import { IconCheck, IconCopy, IconHistory, IconPaperclip } from '@tabler/icons-react';
+import {
+  ActionIcon,
+  Anchor,
+  Badge,
+  CopyButton,
+  Group,
+  Image,
+  Paper,
+  Stack,
+  Text,
+  Tooltip,
+} from '@mantine/core';
+import {
+  IconBuildingWarehouse,
+  IconCheck,
+  IconCopy,
+  IconHistory,
+  IconPaperclip,
+} from '@tabler/icons-react';
+import { Link, generatePath } from 'react-router-dom';
 import { DetailCardHeader } from '@/components/DetailCardHeader/DetailCardHeader';
 import { useTranslation } from '@/i18n';
+import { routes } from '@/router/routes';
 import { dateFormatV1 } from '@/utils/formatDate';
 import { tagNames } from '../../domain/journalTags';
-import type { JournalEntryDetail } from '../../domain/journalEntry';
+import type { JournalAsset, JournalEntryDetail } from '../../domain/journalEntry';
 import JournalAttachments from './JournalAttachments';
 
 interface JournalEntrySidebarProps {
@@ -34,6 +53,67 @@ const Value: React.FC<{ children: React.ReactNode; muted?: boolean }> = ({ child
     {children}
   </Text>
 );
+
+const orDash = (value?: string | null) => value || '—';
+
+/** The asset this entry was posted for: what it is, where it is, who supplied it. */
+const JournalAssetCard: React.FC<{ asset: JournalAsset }> = ({ asset }) => {
+  const { t } = useTranslation('journalEntries');
+  const { t: tAsset } = useTranslation('assets');
+  const photos = asset.photos ?? [];
+
+  return (
+    <Paper withBorder radius="md" p="md" bg="white" shadow="none">
+      <DetailCardHeader
+        icon={<IconBuildingWarehouse size={19} />}
+        title={t('detail.assetTitle')}
+        subtitle={t('detail.assetSubtitle')}
+      />
+      <Stack gap="xs">
+        <Row label={tAsset('code')}>
+          <Anchor
+            component={Link}
+            to={generatePath(routes.assets.detail, { id: asset.id })}
+            fz="var(--jurnal-text-sm)"
+            fw={600}
+          >
+            {asset.code} · {asset.name}
+          </Anchor>
+        </Row>
+        <Row label={tAsset('brandLabel')}>
+          <Value muted={!asset.brand}>
+            {[asset.brand, asset.modelType].filter(Boolean).join(' ') || '—'}
+          </Value>
+        </Row>
+        <Row label={tAsset('serialNumberLabel')}>
+          <Value muted={!asset.serialNumber}>{orDash(asset.serialNumber)}</Value>
+        </Row>
+        <Row label={tAsset('locationLabel')}>
+          <Value muted={!asset.location}>{orDash(asset.location)}</Value>
+        </Row>
+        <Row label={tAsset('vendorLabel')}>
+          <Value muted={!asset.vendor?.name}>{orDash(asset.vendor?.name)}</Value>
+        </Row>
+        {photos.length > 0 && (
+          <Group gap="xs" pt={4}>
+            {photos.map((url, index) => (
+              <Anchor key={url} href={url} target="_blank" rel="noopener noreferrer">
+                <Image
+                  src={url}
+                  alt={tAsset('photoAlt', { name: `${asset.name} ${index + 1}` })}
+                  w={56}
+                  h={56}
+                  radius="sm"
+                  fit="cover"
+                />
+              </Anchor>
+            ))}
+          </Group>
+        )}
+      </Stack>
+    </Paper>
+  );
+};
 
 /** Right column: the facts of the entry, then its attachments. */
 const JournalEntrySidebar: React.FC<JournalEntrySidebarProps> = ({ entry }) => {
@@ -116,6 +196,8 @@ const JournalEntrySidebar: React.FC<JournalEntrySidebarProps> = ({ entry }) => {
           )}
         </Stack>
       </Paper>
+
+      {entry.asset && <JournalAssetCard asset={entry.asset} />}
 
       <Paper withBorder radius="md" p="md" bg="white" shadow="none">
         <DetailCardHeader

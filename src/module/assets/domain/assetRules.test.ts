@@ -5,12 +5,14 @@ import {
   canDisposeAsset,
   canEditAsset,
   canReviseAsset,
-  estimateDisposalGainLoss,
+  isValidPhotoUrl,
   getAssetEditRights,
+  getWarrantyStatus,
   previewAcquisitionJournal,
   sumJournalLines,
   validateActivation,
   validateDisposal,
+  validatePhotos,
 } from '@/module/assets/domain/assetRules';
 
 const activation = (overrides: Partial<ActivationValues> = {}): ActivationValues => ({
@@ -171,23 +173,35 @@ describe('disposal', () => {
     ).toEqual({});
   });
 
-  it('needs the gain/loss account for a sold and a scrapped asset (PRO-85)', () => {
-    expect(validateDisposal(disposal({ gainLossAccount: '' }), '2026-11-09', 'scrapped')).toEqual({
-      gainLossAccount: 'errGainLossAccount',
-    });
+  it('leaves the gain/loss account optional, sold or scrapped', () => {
+    expect(validateDisposal(disposal({ gainLossAccount: '' }), '2026-11-09', 'scrapped')).toEqual(
+      {}
+    );
     expect(
       validateDisposal(
         disposal({ disposalPrice: 5, proceedsAccount: 'x', gainLossAccount: '' }),
         '2026-11-09',
         'sold'
-      ).gainLossAccount
-    ).toBe('errGainLossAccount');
+      )
+    ).toEqual({});
+  });
+});
+
+describe('validatePhotos', () => {
+  it('accepts http(s) links and site paths, at most five', () => {
+    expect(validatePhotos([])).toBeNull();
+    expect(
+      validatePhotos(['https://x.test/a.jpg', 'http://x.test/b.png', '/uploads/c.jpg'])
+    ).toBeNull();
+    expect(validatePhotos(Array(5).fill('https://x.test/a.jpg'))).toBeNull();
   });
 
-  it('estimates the gain or loss without floating point drift', () => {
-    expect(estimateDisposalGainLoss(0.3, 0.1)).toBe(0.2);
-    expect(estimateDisposalGainLoss(3000000, 1562500)).toBe(1437500);
-    expect(estimateDisposalGainLoss(0, 500)).toBe(-500);
+  it('refuses a sixth photo and anything that is not a link', () => {
+    expect(validatePhotos(Array(6).fill('https://x.test/a.jpg'))).toBe('errPhotoLimit');
+    expect(validatePhotos(['foto.jpg'])).toBe('errPhotoUrl');
+    expect(validatePhotos(['//x.test/a.jpg'])).toBe('errPhotoUrl');
+    expect(validatePhotos(['https://x.test/a b.jpg'])).toBe('errPhotoUrl');
+    expect(isValidPhotoUrl('ftp://x.test/a.jpg')).toBe(false);
   });
 });
 
@@ -195,9 +209,29 @@ describe('sumJournalLines', () => {
   it('sums debit and credit exactly', () => {
     expect(
       sumJournalLines([
-        { account: 'a', debit: 0.1, credit: 0 },
-        { account: 'b', debit: 0.2, credit: 0.3 },
+        { accountNumber: '1', accountName: 'a', debit: 0.1, credit: 0 },
+        { accountNumber: '2', accountName: 'b', debit: 0.2, credit: 0.3 },
       ])
     ).toEqual({ debit: 0.3, credit: 0.3 });
+  });
+});
+
+describe('getWarrantyStatus', () => {
+  it('has no status without a warranty date', () => {
+    expect(getWarrantyStatus(undefined, '2026-11-16')).toBeNull();
+  });
+
+  it('counts the months left on a running warranty', () => {
+    expect(getWarrantyStatus('2027-11-01', '2026-11-16')).toEqual({
+      state: 'active',
+      monthsLeft: 12,
+    });
+  });
+
+  it('flags a warranty that ends this month or next, and one that already ended', () => {
+    expect(getWarrantyStatus('2026-11-30', '2026-11-16')).toEqual({ state: 'endingSoon' });
+    expect(getWarrantyStatus('2026-12-31', '2026-11-16')).toEqual({ state: 'endingSoon' });
+    expect(getWarrantyStatus('2026-11-16', '2026-11-16')).toEqual({ state: 'endingSoon' });
+    expect(getWarrantyStatus('2026-11-15', '2026-11-16')).toEqual({ state: 'expired' });
   });
 });

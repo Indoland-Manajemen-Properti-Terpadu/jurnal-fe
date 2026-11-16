@@ -38,3 +38,15 @@ export const splitMenus = (access: MyAccess): { granted: MenuRight[]; none: Menu
 export const canEditOwnDetails = (access: MyAccess | undefined): boolean =>
   access !== undefined &&
   (access.isSuperAdmin || access.menus.some((menu) => menu.menuId === USER_MENU_ID && menu.update));
+
+/** Menu id of the contacts (customers, vendors) menu. */
+export const CONTACTS_MENU_ID = 'JP-CNTCT';
+
+/** Whether the person holds `right` on a menu; a legacy superadmin holds every right. */
+export const hasMenuRight = (
+  access: MyAccess | undefined,
+  menuId: string,
+  right: RightType
+): boolean =>
+  access !== undefined &&
+  (access.isSuperAdmin || access.menus.some((menu) => menu.menuId === menuId && menu[right]));

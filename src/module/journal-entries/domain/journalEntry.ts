@@ -65,6 +65,22 @@ export interface JournalEntryLine {
   notes?: string;
 }
 
+/** The asset an asset journal books, as `GET /v1/journal/detail/:id` embeds it. */
+export interface JournalAsset {
+  id: string;
+  code: string;
+  name: string;
+  categoryName?: string | null;
+  notes?: string | null;
+  brand?: string | null;
+  modelType?: string | null;
+  serialNumber?: string | null;
+  condition?: string | null;
+  location?: string | null;
+  vendor?: { name?: string | null; phone?: string | null } | null;
+  photos?: string[] | null;
+}
+
 /** `GET /v1/journal/detail/:id`. Several fields hold the string "-" when empty. */
 export interface JournalEntryDetail {
   id?: string;
@@ -85,6 +101,8 @@ export interface JournalEntryDetail {
   /** Id of the entry this one reverses, for a reversal entry. */
   reverses?: string | null;
   sourceType?: string | null;
+  /** Present when the entry was posted for a fixed asset. */
+  asset?: JournalAsset | null;
   site?: JournalSite;
   deleted?: boolean;
   createdAt?: Date | string;

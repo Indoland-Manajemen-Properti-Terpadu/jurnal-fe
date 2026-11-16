@@ -99,6 +99,9 @@ export const journalEntries = {
     rule4: 'Lampirkan bukti dukung kuitansi/invoice jika tersedia.',
   },
   detail: {
+    assetTitle: 'Aset Terkait',
+    assetSubtitle: 'Data aset yang dibukukan oleh jurnal ini',
+    assetOpen: 'Lihat aset',
     notFoundTitle: 'Transaksi Jurnal Tidak Ditemukan',
     notFoundBody:
       'Data transaksi jurnal ini mungkin telah dihapus atau ID transaksi tidak valid di sistem.',

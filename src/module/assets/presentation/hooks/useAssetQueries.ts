@@ -1,8 +1,10 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useDebouncedValue } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { t } from '@/i18n';
 import type {
   ActivationValues,
+  AssetAccountKind,
   AssetFormValues,
   AssetListParams,
   DisposalValues,
@@ -14,6 +16,8 @@ import {
   disposeAsset,
   fetchAsset,
   fetchAssetAccounts,
+  fetchAssetAccountsOfKind,
+  fetchDisposalPreview,
   fetchAssetJournals,
   fetchAssetSummary,
   fetchAssetTags,
@@ -31,6 +35,10 @@ export const assetKeys = {
   summary: ['assets', 'summary'] as const,
   tags: ['asset-tags'] as const,
   accounts: ['asset-accounts'] as const,
+  accountsOfKind: (kind: AssetAccountKind) => ['asset-accounts', kind] as const,
+  disposalPreview: (id: string, date: string, price: number) =>
+    ['assets', 'disposal-preview', id, date, price] as const,
+  vendors: (search: string) => ['asset-vendors', search] as const,
 };
 
 const REFERENCE_STALE_MS = 5 * 60 * 1000;
@@ -82,6 +90,36 @@ export const useAssetAccounts = (enabled: boolean) =>
     staleTime: REFERENCE_STALE_MS,
     enabled,
   });
+
+/** Accounts of one group, loaded when a form that needs them opens. */
+export const useAssetAccountsOfKind = (kind: AssetAccountKind, enabled: boolean) =>
+  useQuery({
+    queryKey: assetKeys.accountsOfKind(kind),
+    queryFn: () => fetchAssetAccountsOfKind(kind),
+    staleTime: REFERENCE_STALE_MS,
+    enabled,
+  });
+
+const PREVIEW_DEBOUNCE_MS = 400;
+
+/**
+ * What disposing the asset would book, asked of the API once the date and price stop changing.
+ * The previous figure stays on screen while the next one loads.
+ */
+export const useDisposalPreview = (id: string, disposalDate: string, disposalPrice: number) => {
+  const [debounced] = useDebouncedValue({ disposalDate, disposalPrice }, PREVIEW_DEBOUNCE_MS);
+  const ready = Boolean(debounced.disposalDate) && debounced.disposalPrice >= 0;
+  const query = useQuery({
+    queryKey: assetKeys.disposalPreview(id, debounced.disposalDate, debounced.disposalPrice),
+    queryFn: () => fetchDisposalPreview(id, debounced.disposalDate, debounced.disposalPrice),
+    enabled: ready,
+    placeholderData: keepPreviousData,
+    retry: false,
+  });
+  const waiting =
+    debounced.disposalDate !== disposalDate || debounced.disposalPrice !== disposalPrice;
+  return { ...query, waiting };
+};
 
 /** A write changes the list, the totals, the detail and the journals alike. */
 const useInvalidateAssets = () => {

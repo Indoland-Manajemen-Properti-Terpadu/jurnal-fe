@@ -62,6 +62,7 @@ export const mapContact = (dto: ContactDto): Contact => ({
   createdAt: dto.createdAt || dto.created_at || '',
   updatedAt: dto.updatedAt || dto.updated_at || '',
   external_id: dto.external_id ?? dto.externalId ?? null,
+  needsReview: dto.needsReview === true,
 });
 
 export const mapPagination = (

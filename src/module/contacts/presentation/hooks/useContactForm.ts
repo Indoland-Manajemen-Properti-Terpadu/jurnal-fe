@@ -17,14 +17,18 @@ import {
 } from '@/module/contacts/domain/contactInput';
 
 /** Mantine form for the contact modal: loads the contact when the modal opens, resets for a new one. */
-export function useContactForm(opened: boolean, contact?: Contact) {
+export function useContactForm(
+  opened: boolean,
+  contact?: Contact,
+  initialContactType?: ContactFormValues['contactType']
+) {
   const { t } = useTranslation('contacts');
 
   const issue = (key: string | null) => (key ? t(`form.validation.${key}`) : null);
   const bankIndex = (path: string) => Number(path.split('.')[1]);
 
   const form = useForm<ContactFormValues>({
-    initialValues: emptyContactForm(),
+    initialValues: emptyContactForm(initialContactType),
     validate: {
       displayName: (value) => (!value.trim() ? t('form.validation.displayName') : null),
       contactType: (value) => (value.length === 0 ? t('form.validation.contactType') : null),

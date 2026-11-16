@@ -3,6 +3,8 @@ import apiClient from '@/lib/http/apiClient';
 import type {
   AccountOption,
   ActivationValues,
+  AssetAccountKind,
+  DisposalPreview,
   AssetFormValues,
   AssetItem,
   AssetJournal,
@@ -20,14 +22,18 @@ import type {
   AssetDto,
   AssetJournalDto,
   AssetSummaryDto,
+  DisposalPreviewDto,
   PaginatedDto,
+  SimpleAccountDto,
   TagDto,
 } from './assetDto';
 import {
   flattenAccountOptions,
   mapAsset,
+  mapDisposalPreview,
   mapJournal,
   mapPaginated,
+  mapSimpleAccounts,
   mapSummary,
   mapTag,
 } from './assetMapper';
@@ -41,6 +47,8 @@ export const ASSET_ENDPOINTS = {
   journals: (id: string) => `/v1/assets/${id}/journals`,
   tags: '/v1/tags',
   accounts: '/v1/accounts',
+  simpleAccounts: '/v1/accounts/simple',
+  disposePreview: (id: string) => `/v1/assets/${id}/dispose-preview`,
 } as const;
 
 const ACCOUNT_PAGE_SIZE = 500;
@@ -107,6 +115,41 @@ export const fetchAssetAccounts = async (): Promise<AccountOption[]> => {
   return flattenAccountOptions(data.results ?? []);
 };
 
+/** Accounts of one group (fixed assets, accumulated depreciation, depreciation expense). */
+export const fetchAssetAccountsOfKind = async (
+  kind: AssetAccountKind
+): Promise<AccountOption[]> => {
+  const { data } = await apiClient.get<ApiEnvelope<SimpleAccountDto[]>>(
+    ASSET_ENDPOINTS.simpleAccounts,
+    { params: { type: kind } }
+  );
+  return mapSimpleAccounts(data.data ?? []);
+};
+
+export const fetchDisposalPreview = async (
+  id: string,
+  disposalDate: string,
+  disposalPrice: number
+): Promise<DisposalPreview> => {
+  const { data } = await apiClient.get<ApiEnvelope<DisposalPreviewDto>>(
+    ASSET_ENDPOINTS.disposePreview(id),
+    { params: { disposalDate, disposalPrice } }
+  );
+  return mapDisposalPreview(data.data);
+};
+
+/** Optional details of the form; the API reads an empty value as "nothing set". */
+const toDetailFields = (values: AssetFormValues) => ({
+  brand: values.brand.trim() || undefined,
+  modelType: values.modelType.trim() || undefined,
+  serialNumber: values.serialNumber.trim() || undefined,
+  warrantyUntil: values.warrantyUntil || undefined,
+  condition: values.condition || undefined,
+  location: values.location.trim() || undefined,
+  vendorContactId: values.vendorContactId || undefined,
+  photos: values.photos.length > 0 ? values.photos : undefined,
+});
+
 export const createAsset = async (
   values: AssetFormValues,
   activation?: ActivationValues
@@ -118,6 +161,7 @@ export const createAsset = async (
     acquisitionDate: values.acquisitionDate,
     acquisitionCost: values.acquisitionCost,
     notes: values.notes.trim() || undefined,
+    ...toDetailFields(values),
     tags: values.tagIds,
     activation: activation ? toActivationBody(activation) : undefined,
   });
@@ -135,6 +179,15 @@ export const updateAsset = async (
     body.name = values.name.trim();
     body.categoryName = values.categoryName.trim();
     body.notes = values.notes.trim() || null;
+    // An edit clears a field by sending `null`, so each one goes out even when empty.
+    body.brand = values.brand.trim() || null;
+    body.modelType = values.modelType.trim() || null;
+    body.serialNumber = values.serialNumber.trim() || null;
+    body.warrantyUntil = values.warrantyUntil || null;
+    body.condition = values.condition || null;
+    body.location = values.location.trim() || null;
+    body.vendorContactId = values.vendorContactId || null;
+    body.photos = values.photos;
   }
   if (rights.terms) {
     body.code = values.code.trim();
@@ -181,9 +234,11 @@ export const httpAssetRepository: AssetRepository = {
   journals: fetchAssetJournals,
   tags: fetchAssetTags,
   accounts: fetchAssetAccounts,
+  accountsOfKind: fetchAssetAccountsOfKind,
   create: createAsset,
   update: updateAsset,
   activate: activateAsset,
   reviseActivation: reviseAssetActivation,
+  disposePreview: fetchDisposalPreview,
   dispose: disposeAsset,
 };
