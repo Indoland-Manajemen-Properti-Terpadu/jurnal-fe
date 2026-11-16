@@ -10,6 +10,7 @@ import { formatCurrency } from '@/utils/formatCurrency';
 import { balanceAfter, buildTransferPayload } from '@/module/bank-cash/domain/transactionPayload';
 import {
   balanceAfterReceive,
+  MAX_AMOUNT,
   todayWib,
   transferMissing,
   transferPreview,
@@ -54,7 +55,8 @@ export const AddTransferMoneyPage = () => {
   const destination = cashAccounts.find((account) => account.id === toId);
   const missing = transferMissing({ date, fromId: from.value, toId, amount });
 
-  const sourceAfter = source ? balanceAfter(source.amount || 0, amount) : null;
+  const sameAccount = !!source && source.id === destination?.id;
+  const sourceAfter = source ? balanceAfter(source.amount || 0, sameAccount ? 0 : amount) : null;
   const overdraft = amount > 0 && sourceAfter !== null && sourceAfter < 0;
 
   const handleSubmit = (event: FormEvent) => {
@@ -142,6 +144,9 @@ export const AddTransferMoneyPage = () => {
               decimalSeparator=","
               prefix="Rp "
               min={0}
+              max={MAX_AMOUNT}
+              clampBehavior="strict"
+              allowNegative={false}
               value={amount}
               onChange={(value) => setAmount(Number(value) || 0)}
             />
@@ -170,7 +175,12 @@ export const AddTransferMoneyPage = () => {
               role: t('transfer.toRole'),
               name: destination?.name ?? null,
               balance: destination?.amount ?? 0,
-              after: destination ? balanceAfterReceive(destination.amount || 0, amount) : null,
+              after: destination
+                ? balanceAfterReceive(
+                    destination.amount || 0,
+                    destination.id === source?.id ? 0 : amount
+                  )
+                : null,
             },
           ]}
           total={{ label: t('transfer.total'), amount }}
