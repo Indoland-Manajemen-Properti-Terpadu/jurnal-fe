@@ -120,6 +120,11 @@ export const journalEntries = {
     balancedHint: 'Debit dan kredit sama',
     unbalancedHint: 'Debit dan kredit tidak sama',
     transactionType: 'Tipe Transaksi',
+    types: {
+      TRANSFER_MONEY: 'Transfer Uang',
+      RECEIVE_MONEY: 'Terima Uang',
+      SEND_MONEY: 'Kirim Uang',
+    },
     copyId: 'Salin ID Sistem',
     memoSubtitle: 'Catatan yang ditulis saat jurnal dibuat',
     auditSubtitle: 'Tanggal, entitas, dan riwayat pencatatan jurnal ini',

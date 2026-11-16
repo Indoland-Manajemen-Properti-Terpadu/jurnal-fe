@@ -5,8 +5,12 @@ export interface BankCashDetailItem {
   credit?: number;
 }
 
+/** The journal type the backend records for each posting form (`POST /v1/journal`). */
+export type BankCashTransactionType = 'TRANSFER_MONEY' | 'RECEIVE_MONEY' | 'SEND_MONEY';
+
 export interface BankCashTransactionPayload {
   transactionDate: string;
+  transactionType: BankCashTransactionType;
   transactionNumber?: number;
   notes?: string;
   tags?: string[];

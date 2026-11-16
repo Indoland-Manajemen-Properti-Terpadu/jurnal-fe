@@ -118,6 +118,11 @@ export const journalEntries = {
     balancedHint: 'Debit and credit are equal',
     unbalancedHint: 'Debit and credit are not equal',
     transactionType: 'Transaction Type',
+    types: {
+      TRANSFER_MONEY: 'Transfer Money',
+      RECEIVE_MONEY: 'Receive Money',
+      SEND_MONEY: 'Send Money',
+    },
     copyId: 'Copy System ID',
     memoSubtitle: 'Notes written when the journal was created',
     auditSubtitle: 'Date, entity and recording history of this journal',
