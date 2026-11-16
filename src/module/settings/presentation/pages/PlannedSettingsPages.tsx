@@ -22,10 +22,6 @@ function PlannedSettingsPage({ itemKey, moduleKey }: Readonly<PlannedSettingsPag
 
 export const SitesPage = () => <PlannedSettingsPage itemKey="sites" moduleKey="sites" />;
 
-export const AccountingPeriodsPage = () => (
-  <PlannedSettingsPage itemKey="accountingPeriods" moduleKey="accountingPeriods" />
-);
-
 export const ApprovalFlowPage = () => (
   <PlannedSettingsPage itemKey="approvalFlow" moduleKey="approvalFlow" />
 );

@@ -8,6 +8,7 @@ import type { PettyCashFund } from '@/module/petty-cash/domain/pettyCashEntities
 import { imprestEquation } from '@/module/petty-cash/domain/pettyCashView';
 import { AmountRows } from '@/module/petty-cash/presentation/components/DetailKit';
 import { PettyCashStatusBadge } from '@/module/petty-cash/presentation/components/PettyCashStatusBadge';
+import { FundLedgerLink } from '@/module/petty-cash/presentation/components/FundLedgerLink';
 import { PocketBalances } from '@/module/petty-cash/presentation/components/PocketBalances';
 
 const money = (amount: number) => formatCurrency(amount, false);
@@ -68,6 +69,7 @@ export function FundOverview({
           </Meta>
           <PettyCashStatusBadge kind="fund" status={fund.status} />
         </Group>
+        <FundLedgerLink fund={fund} />
       </Group>
 
       <Grid gutter={{ base: 'lg', md: 48 }} p={{ base: 'md', sm: 'lg' }}>

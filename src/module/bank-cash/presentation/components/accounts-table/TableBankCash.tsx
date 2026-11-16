@@ -7,8 +7,8 @@ import {
   Select,
   Skeleton,
   Stack,
+  Switch,
   Table,
-  Tabs,
   Text,
   TextInput,
   Tooltip,
@@ -16,102 +16,122 @@ import {
 import { IconCoins, IconPlus, IconRefresh, IconSearch, IconX } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { routes } from '@/router/routes';
-import { JournalAccounts } from '@/module/chart-of-accounts';
-import { isBankAccount } from '@/module/bank-cash/domain/bankCashSummary';
+import type { JournalAccounts } from '@/module/chart-of-accounts';
+import {
+  flattenCashBankAccounts,
+  transactionBlock,
+  type CashBankAccount,
+  type PettyCashAccountIndex,
+} from '@/module/bank-cash/domain/cashBankAccounts';
 import { useTranslation } from '@/i18n';
 import { BankCashAccountRow } from '@/module/bank-cash/presentation/components/accounts-table/BankCashAccountRow';
 import { EmptyState } from '@/components/EmptyState/EmptyState';
 import classes from '@/module/bank-cash/presentation/components/accounts-table/TableBankCash.module.css';
 
 export type TableBankCashProps = {
+  /** The account tree as `GET /v1/accounts` returns it. */
   accounts: JournalAccounts[];
+  pettyCashIndex: PettyCashAccountIndex;
+  showArchived: boolean;
+  onShowArchivedChange: (value: boolean) => void;
   loading?: boolean;
   onRefresh?: () => void;
 };
 
 const PAGE_SIZE = 10;
+const BASE_COLUMNS = 4;
+
+type SortKey = 'highestBalance' | 'lowestBalance' | 'codeAsc' | 'nameAsc';
+
+const compareBy = (sortBy: SortKey) => (a: CashBankAccount, b: CashBankAccount) => {
+  if (sortBy === 'highestBalance') return (Number(b.amount) || 0) - (Number(a.amount) || 0);
+  if (sortBy === 'lowestBalance') return (Number(a.amount) || 0) - (Number(b.amount) || 0);
+  if (sortBy === 'nameAsc') return (a.name || '').localeCompare(b.name || '');
+  return (a.accountNumber || '').localeCompare(b.accountNumber || '', undefined, { numeric: true });
+};
 
 export const TableBankCash: React.FC<TableBankCashProps> = ({
   accounts = [],
+  pettyCashIndex,
+  showArchived,
+  onShowArchivedChange,
   loading = false,
   onRefresh,
 }) => {
   const { t: tb } = useTranslation('bankCash');
   const navigate = useNavigate();
   const { t } = useTranslation('journal');
+  const { t: tc } = useTranslation('bankConnection');
 
-  const [categoryFilter, setCategoryFilter] = useState<string>('all');
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  const [sortBy, setSortBy] = useState<string>('highestBalance');
-  const [page, setPage] = useState<number>(1);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState<SortKey>('codeAsc');
+  const [page, setPage] = useState(1);
 
-  // Filter accounts where isBankAndCash is true
-  const cashAndBankAccounts = useMemo(
-    () => (accounts || []).filter((account) => account.isBankAndCash),
-    [accounts]
+  const flattened = useMemo(() => flattenCashBankAccounts(accounts), [accounts]);
+  const allAccounts = useMemo(
+    () => flattened.filter((account) => showArchived || !account.isArchived),
+    [flattened, showArchived]
   );
 
-  // Compute category counts
-  const categoryCounts = useMemo(() => {
-    const all = cashAndBankAccounts.length;
-    const bank = cashAndBankAccounts.filter(isBankAccount).length;
-    const cash = all - bank;
-    return { all, bank, cash };
-  }, [cashAndBankAccounts]);
+  // The bank columns appear only once the backend reports a connection on some account.
+  const showConnection = useMemo(
+    () => allAccounts.some((account) => Boolean(account.bankConnection)),
+    [allAccounts]
+  );
+  const columns = BASE_COLUMNS + (showConnection ? 2 : 0);
 
-  // Filtered and sorted list
   const filteredAccounts = useMemo(() => {
-    let result = [...cashAndBankAccounts];
+    const q = searchQuery.toLowerCase().trim();
+    const groups = [...new Set(allAccounts.map((account) => account.groupName))];
+    const matches = allAccounts.filter(
+      (account) =>
+        !q ||
+        (account.name || '').toLowerCase().includes(q) ||
+        (account.accountNumber || '').toLowerCase().includes(q)
+    );
+    const byGroup = (account: CashBankAccount) => groups.indexOf(account.groupName);
+    return matches.sort((a, b) => byGroup(a) - byGroup(b) || compareBy(sortBy)(a, b));
+  }, [allAccounts, searchQuery, sortBy]);
 
-    // Filter by tab category
-    if (categoryFilter === 'bank') {
-      result = result.filter(isBankAccount);
-    } else if (categoryFilter === 'cash') {
-      result = result.filter((acc) => !isBankAccount(acc));
-    }
-
-    // Filter by search query
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase().trim();
-      result = result.filter((acc) => {
-        const name = (acc.name || '').toLowerCase();
-        const num = (acc.accountNumber || '').toLowerCase();
-        const cat = (acc.category?.name || '').toLowerCase();
-        return name.includes(q) || num.includes(q) || cat.includes(q);
-      });
-    }
-
-    // Sorting
-    result.sort((a, b) => {
-      const amountA = Number(a.amount) || 0;
-      const amountB = Number(b.amount) || 0;
-      const numA = a.accountNumber || '';
-      const numB = b.accountNumber || '';
-      const nameA = a.name || '';
-      const nameB = b.name || '';
-
-      if (sortBy === 'highestBalance') return amountB - amountA;
-      if (sortBy === 'lowestBalance') return amountA - amountB;
-      if (sortBy === 'codeAsc') return numA.localeCompare(numB, undefined, { numeric: true });
-      if (sortBy === 'nameAsc') return nameA.localeCompare(nameB);
-      return 0;
-    });
-
-    return result;
-  }, [cashAndBankAccounts, categoryFilter, searchQuery, sortBy]);
-
-  // Pagination calculation
   const totalPages = Math.ceil(filteredAccounts.length / PAGE_SIZE) || 1;
-  const paginatedAccounts = useMemo(() => {
-    const start = (page - 1) * PAGE_SIZE;
-    return filteredAccounts.slice(start, start + PAGE_SIZE);
-  }, [filteredAccounts, page]);
+  const pageAccounts = useMemo(
+    () => filteredAccounts.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
+    [filteredAccounts, page]
+  );
 
   const handleResetFilters = () => {
-    setCategoryFilter('all');
     setSearchQuery('');
-    setSortBy('highestBalance');
+    setSortBy('codeAsc');
     setPage(1);
+  };
+
+  const renderRows = () => {
+    let lastGroup: string | null | undefined;
+    return pageAccounts.flatMap((account) => {
+      const rows: React.ReactNode[] = [];
+      if (account.groupName && account.groupName !== lastGroup) {
+        rows.push(
+          <Table.Tr key={`group-${account.groupName}`} className={classes.groupRow}>
+            <Table.Td colSpan={columns}>
+              <Text size="sm" fw={700} c="dark.8">
+                {account.groupName}
+              </Text>
+            </Table.Td>
+          </Table.Tr>
+        );
+      }
+      lastGroup = account.groupName;
+      rows.push(
+        <BankCashAccountRow
+          key={account.id}
+          account={account}
+          block={transactionBlock(account, pettyCashIndex)}
+          fundId={pettyCashIndex.get(account.id)?.fundId}
+          showConnection={showConnection}
+        />
+      );
+      return rows;
+    });
   };
 
   return (
@@ -127,14 +147,14 @@ export const TableBankCash: React.FC<TableBankCashProps> = ({
         </Box>
 
         {onRefresh && (
-          <Tooltip label={t('refresh')} withArrow>
+          <Tooltip label={tb('list.refresh')} withArrow>
             <ActionIcon
               variant="default"
               size="lg"
               radius="md"
               onClick={onRefresh}
               loading={loading}
-              aria-label={t('refresh')}
+              aria-label={tb('list.refresh')}
             >
               <IconRefresh size={16} />
             </ActionIcon>
@@ -142,34 +162,15 @@ export const TableBankCash: React.FC<TableBankCashProps> = ({
         )}
       </Group>
 
-      <Group
-        className={classes.toolbar}
-        justify="space-between"
-        align="flex-end"
-        wrap="wrap"
-        gap="md"
-      >
-        <Tabs
-          value={categoryFilter}
-          onChange={(val) => {
-            setCategoryFilter(val || 'all');
+      <Group className={classes.toolbar} justify="space-between" align="flex-end" wrap="wrap">
+        <Switch
+          checked={showArchived}
+          onChange={(event) => {
+            onShowArchivedChange(event.currentTarget.checked);
             setPage(1);
           }}
-          variant="default"
-          color="primary"
-        >
-          <Tabs.List className={classes.categories}>
-            <Tabs.Tab value="all">
-              {t('allAccounts')} · {categoryCounts.all}
-            </Tabs.Tab>
-            <Tabs.Tab value="bank">
-              {t('bankAccounts')} · {categoryCounts.bank}
-            </Tabs.Tab>
-            <Tabs.Tab value="cash">
-              {t('cashAccounts')} · {categoryCounts.cash}
-            </Tabs.Tab>
-          </Tabs.List>
-        </Tabs>
+          label={tb('list.showArchived')}
+        />
 
         <Group gap="xs" style={{ flex: 1, minWidth: 280, justifyContent: 'flex-end' }}>
           <TextInput
@@ -186,6 +187,7 @@ export const TableBankCash: React.FC<TableBankCashProps> = ({
                   size="xs"
                   variant="subtle"
                   color="gray"
+                  aria-label={tb('list.clearSearch')}
                   onClick={() => setSearchQuery('')}
                 >
                   <IconX size={12} />
@@ -199,13 +201,14 @@ export const TableBankCash: React.FC<TableBankCashProps> = ({
 
           <Select
             value={sortBy}
-            onChange={(val) => setSortBy(val || 'highestBalance')}
+            onChange={(val) => setSortBy((val as SortKey) || 'codeAsc')}
             data={[
-              { value: 'highestBalance', label: t('sortHighestBalance') },
-              { value: 'lowestBalance', label: t('sortLowestBalance') },
               { value: 'codeAsc', label: t('sortCodeAsc') },
               { value: 'nameAsc', label: t('sortNameAsc') },
+              { value: 'highestBalance', label: t('sortHighestBalance') },
+              { value: 'lowestBalance', label: t('sortLowestBalance') },
             ]}
+            allowDeselect={false}
             radius="md"
             size="sm"
             w={180}
@@ -214,38 +217,45 @@ export const TableBankCash: React.FC<TableBankCashProps> = ({
         </Group>
       </Group>
 
-      {/* Main Table */}
       <Box className={classes.tableFrame}>
         <Table
           highlightOnHover
           verticalSpacing="sm"
           horizontalSpacing="md"
-          striped={false}
-          style={{ minWidth: 700 }}
+          style={{ minWidth: 640 }}
         >
           <Table.Thead bg="gray.0">
             <Table.Tr>
-              <Table.Th style={{ width: '35%' }}>
+              <Table.Th style={{ width: '16%' }}>
                 <Text size="xs" fw={700} c="dimmed" tt="uppercase" lts={0.5}>
-                  {t('columnAccount')}
+                  {tb('list.columnCode')}
                 </Text>
               </Table.Th>
-              <Table.Th style={{ width: '18%' }}>
+              <Table.Th style={{ width: '44%' }}>
                 <Text size="xs" fw={700} c="dimmed" tt="uppercase" lts={0.5}>
-                  {t('columnAccountType')}
+                  {tb('list.columnName')}
                 </Text>
               </Table.Th>
-              <Table.Th style={{ width: '22%', textAlign: 'right' }}>
+              <Table.Th style={{ width: '28%', textAlign: 'right' }}>
                 <Text size="xs" fw={700} c="dimmed" tt="uppercase" lts={0.5}>
-                  {t('columnLedgerBalance')}
+                  {tb('list.columnBalance')}
                 </Text>
               </Table.Th>
-              <Table.Th style={{ width: '15%', textAlign: 'center' }}>
-                <Text size="xs" fw={700} c="dimmed" tt="uppercase" lts={0.5}>
-                  {t('columnReconciliationStatus')}
-                </Text>
-              </Table.Th>
-              <Table.Th style={{ width: '10%', textAlign: 'center' }}>
+              {showConnection && (
+                <>
+                  <Table.Th style={{ textAlign: 'right' }}>
+                    <Text size="xs" fw={700} c="dimmed" tt="uppercase" lts={0.5}>
+                      {tc('list.statementBalance')}
+                    </Text>
+                  </Table.Th>
+                  <Table.Th>
+                    <Text size="xs" fw={700} c="dimmed" tt="uppercase" lts={0.5}>
+                      {tc('list.connection')}
+                    </Text>
+                  </Table.Th>
+                </>
+              )}
+              <Table.Th style={{ width: '12%', textAlign: 'center' }}>
                 <Text size="xs" fw={700} c="dimmed" tt="uppercase" lts={0.5}>
                   {t('columnAction')}
                 </Text>
@@ -255,37 +265,26 @@ export const TableBankCash: React.FC<TableBankCashProps> = ({
 
           <Table.Tbody>
             {loading ? (
-              // Loading Skeleton Rows
               Array.from({ length: 5 }).map((_, idx) => (
                 <Table.Tr key={`skel-row-${idx}`}>
                   <Table.Td>
-                    <Group gap="sm" wrap="nowrap">
-                      <Skeleton circle height={38} width={38} />
-                      <Box style={{ flex: 1 }}>
-                        <Skeleton height={14} width="70%" radius="sm" mb={6} />
-                        <Skeleton height={10} width="40%" radius="sm" />
-                      </Box>
-                    </Group>
+                    <Skeleton height={14} width="60%" radius="sm" />
                   </Table.Td>
                   <Table.Td>
-                    <Skeleton height={22} width={100} radius="sm" />
+                    <Skeleton height={14} width="70%" radius="sm" />
                   </Table.Td>
                   <Table.Td>
                     <Skeleton height={16} width="80%" radius="sm" ml="auto" />
-                  </Table.Td>
-                  <Table.Td>
-                    <Skeleton height={22} width={90} radius="sm" mx="auto" />
                   </Table.Td>
                   <Table.Td>
                     <Skeleton circle height={28} width={28} mx="auto" />
                   </Table.Td>
                 </Table.Tr>
               ))
-            ) : paginatedAccounts.length === 0 ? (
-              // In-Table Empty State
+            ) : pageAccounts.length === 0 ? (
               <Table.Tr>
-                <Table.Td colSpan={5} p={0}>
-                  {cashAndBankAccounts.length === 0 ? (
+                <Table.Td colSpan={columns} p={0}>
+                  {flattened.length === 0 ? (
                     <EmptyState
                       title={t('noAccountsYet')}
                       description={t('noAccountsYetDesc')}
@@ -297,8 +296,8 @@ export const TableBankCash: React.FC<TableBankCashProps> = ({
                     />
                   ) : (
                     <EmptyState
-                      title={t('noAccountsFound')}
-                      description={t('noAccountsFoundDesc')}
+                      title={tb('list.noMatch')}
+                      description={tb('list.noMatchDesc')}
                       icon={<IconSearch size={36} stroke={1.5} />}
                       actionLabel={t('resetFilter')}
                       onAction={handleResetFilters}
@@ -308,16 +307,12 @@ export const TableBankCash: React.FC<TableBankCashProps> = ({
                 </Table.Td>
               </Table.Tr>
             ) : (
-              // Data Rows
-              paginatedAccounts.map((account) => (
-                <BankCashAccountRow key={account.id} account={account} />
-              ))
+              renderRows()
             )}
           </Table.Tbody>
         </Table>
       </Box>
 
-      {/* Pagination & Summary Footer */}
       {filteredAccounts.length > 0 && (
         <Group justify="space-between" align="center" wrap="wrap" mt="xs">
           <Text size="xs" c="dimmed">

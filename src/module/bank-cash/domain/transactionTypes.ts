@@ -11,4 +11,6 @@ export interface BankCashTransactionPayload {
   notes?: string;
   tags?: string[];
   transactionDetail: BankCashDetailItem[];
+  /** Optional proof documents; present files make the request multipart. */
+  attachments?: File[];
 }

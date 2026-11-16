@@ -1,320 +1,192 @@
-import React, { useMemo, useState } from 'react';
-import {
-  Alert,
-  Box,
-  Button,
-  Grid,
-  Group,
-  NumberInput,
-  Paper,
-  Select,
-  Stack,
-  Text,
-  Textarea,
-  TextInput,
-  ThemeIcon,
-} from '@mantine/core';
-import {
-  IconAlertCircle,
-  IconArrowLeft,
-  IconArrowsExchange,
-  IconBuildingBank,
-  IconCalendar,
-  IconCash,
-} from '@tabler/icons-react';
+import { useMemo, useState, type FormEvent } from 'react';
+import { Grid, NumberInput, Select, Textarea } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
+import { IconArrowsExchange, IconCalendar, IconCoins, IconBuildingBank } from '@tabler/icons-react';
 import dayjs from 'dayjs';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { AppShellLayout } from '@/components/AppShellLayout';
-import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
+import { useNavigate } from 'react-router-dom';
 import { routes } from '@/router/routes';
-import { formatCurrency } from '@/utils/formatCurrency';
-import { useJournalAccounts } from '@/module/chart-of-accounts';
-import { useBankCashTransactionMutation } from '@/module/bank-cash/presentation/hooks/useBankCashTransactionMutation';
 import { useTranslation } from '@/i18n';
-import { TransferMoneySummaryPanel } from '@/module/bank-cash/presentation/components/transaction-form/TransferMoneySummaryPanel';
-import { buildTransferPayload } from '@/module/bank-cash/domain/transactionPayload';
+import { formatCurrency } from '@/utils/formatCurrency';
+import { balanceAfter, buildTransferPayload } from '@/module/bank-cash/domain/transactionPayload';
+import {
+  balanceAfterReceive,
+  todayWib,
+  transferMissing,
+  transferPreview,
+} from '@/module/bank-cash/domain/transactionForm';
+import { useCashBankChoices } from '@/module/bank-cash/presentation/hooks/useCashBankChoices';
+import { usePrefilledAccount } from '@/module/bank-cash/presentation/hooks/usePrefilledAccount';
+import { useBankCashTransactionMutation } from '@/module/bank-cash/presentation/hooks/useBankCashTransactionMutation';
+import { AttachmentsField } from '@/module/bank-cash/presentation/components/transaction-form/AttachmentsField';
+import { ChoicesLoadError } from '@/module/bank-cash/presentation/components/transaction-form/ChoicesLoadError';
+import { FormSection } from '@/module/bank-cash/presentation/components/transaction-form/FormSection';
+import { PrefillBlockedNotice } from '@/module/bank-cash/presentation/components/transaction-form/PrefillBlockedNotice';
+import { TransactionFormLayout } from '@/module/bank-cash/presentation/components/transaction-form/TransactionFormLayout';
+import { TransactionSummaryCard } from '@/module/bank-cash/presentation/components/transaction-form/TransactionSummaryCard';
 
 export const AddTransferMoneyPage = () => {
-  const { t: tb, currentLanguage } = useTranslation('bankCash');
+  const { t, currentLanguage } = useTranslation('bankCash');
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const { accounts } = useJournalAccounts();
 
-  // Query param prefill (if redirected from row action)
-  const initialFromId = searchParams.get('fromAccountId') || '';
+  const { cashAccounts, ready, isError } = useCashBankChoices();
+  const from = usePrefilledAccount('fromAccountId', cashAccounts, ready);
+  const [toId, setToId] = useState<string | null>(null);
+  const [date, setDate] = useState(todayWib);
+  const [amount, setAmount] = useState(0);
+  const [notes, setNotes] = useState('');
+  const [files, setFiles] = useState<File[]>([]);
+  const { mutate, isPending } = useBankCashTransactionMutation(t('transfer.success'));
 
-  // Form State
-  const [transactionDate, setTransactionDate] = useState<string>(
-    new Date().toISOString().split('T')[0]
-  );
-  const [referenceNumber, setReferenceNumber] = useState<string>('');
-  const [accountFromId, setAccountFromId] = useState<string | null>(initialFromId || null);
-  const [accountToId, setAccountToId] = useState<string | null>(null);
-  const [amount, setAmount] = useState<number>(0);
-  const [notes, setNotes] = useState<string>('');
-
-  const { mutate: submitTransfer, isPending } = useBankCashTransactionMutation(
-    tb('transfer.success')
-  );
-
-  // Available Cash & Bank accounts
-  const bankAndCashAccounts = useMemo(
-    () => (accounts || []).filter((acc) => acc.isBankAndCash),
-    [accounts]
-  );
-
-  const accountSelectOptions = useMemo(
+  const options = useMemo(
     () =>
-      bankAndCashAccounts.map((acc) => ({
-        value: acc.id,
-        label: tb('common.accountOption', {
-          name: acc.name,
-          number: acc.accountNumber || '—',
-          balance: formatCurrency(acc.amount || 0),
+      cashAccounts.map((account) => ({
+        value: account.id,
+        label: t('common.accountOption', {
+          name: account.name,
+          number: account.accountNumber || '—',
+          balance: formatCurrency(account.amount || 0),
         }),
       })),
-    [bankAndCashAccounts, currentLanguage]
+    [cashAccounts, currentLanguage]
   );
 
-  const selectedFromAccount = useMemo(
-    () => bankAndCashAccounts.find((a) => a.id === accountFromId),
-    [bankAndCashAccounts, accountFromId]
-  );
+  const source = cashAccounts.find((account) => account.id === from.value);
+  const destination = cashAccounts.find((account) => account.id === toId);
+  const missing = transferMissing({ date, fromId: from.value, toId, amount });
 
-  const selectedToAccount = useMemo(
-    () => bankAndCashAccounts.find((a) => a.id === accountToId),
-    [bankAndCashAccounts, accountToId]
-  );
+  const sourceAfter = source ? balanceAfter(source.amount || 0, amount) : null;
+  const overdraft = amount > 0 && sourceAfter !== null && sourceAfter < 0;
 
-  // Validation
-  const isSameAccount = Boolean(accountFromId && accountToId && accountFromId === accountToId);
-  const isAmountValid = amount > 0;
-  const isFormValid = Boolean(
-    accountFromId && accountToId && !isSameAccount && isAmountValid && transactionDate
-  );
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!isFormValid || !accountFromId || !accountToId) return;
-
-    submitTransfer(
-      buildTransferPayload({
-        transactionDate,
-        fromAccountId: accountFromId,
-        fromAccountName: selectedFromAccount?.name,
-        fromAccountNumber: selectedFromAccount?.accountNumber,
-        toAccountId: accountToId,
-        toAccountName: selectedToAccount?.name,
-        toAccountNumber: selectedToAccount?.accountNumber,
-        amount,
-        notes,
-      })
-    );
+  const handleSubmit = (event: FormEvent) => {
+    event.preventDefault();
+    if (missing.length > 0 || !from.value || !toId) return;
+    const payload = buildTransferPayload({
+      transactionDate: date,
+      fromAccountId: from.value,
+      fromAccountName: source?.name,
+      fromAccountNumber: source?.accountNumber,
+      toAccountId: toId,
+      toAccountName: destination?.name,
+      toAccountNumber: destination?.accountNumber,
+      amount,
+      notes,
+    });
+    mutate({ ...payload, attachments: files });
   };
 
   return (
-    <AppShellLayout withFooter>
-      <Box p={{ base: 'md', sm: 'xl' }}>
-        <Stack gap="lg">
-          {/* Header */}
-          <ModuleHeader
-            icon={IconArrowsExchange}
-            title={tb('transfer.title')}
-            description={tb('transfer.description')}
-            actions={
-              <Button
-                variant="default"
-                radius="md"
-                leftSection={<IconArrowLeft size={16} />}
-                onClick={() => navigate(routes.bankCash.main)}
-              >
-                {tb('common.backToCashBank')}
-              </Button>
-            }
-          />
-
-          <form onSubmit={handleSubmit}>
-            <Grid gutter="lg" align="flex-start">
-              {/* Left Column (8 cols): Input Fields */}
-              <Grid.Col span={{ base: 12, lg: 8 }}>
-                <Stack gap="md">
-                  {/* Card 1: Tanggal & Referensi Transaksi */}
-                  <Paper withBorder radius="md" p="lg" bg="white" shadow="xs">
-                    <Stack gap="sm">
-                      <Group gap="sm" mb={4}>
-                        <ThemeIcon size={34} radius="md" variant="light" color="primary">
-                          <IconCalendar size={18} />
-                        </ThemeIcon>
-                        <Box>
-                          <Text fw={700} size="sm" c="dark.9">
-                            {tb('transfer.dateCardTitle')}
-                          </Text>
-                          <Text size="xs" c="dimmed">
-                            {tb('transfer.dateCardHint')}
-                          </Text>
-                        </Box>
-                      </Group>
-
-                      <Grid gutter="md">
-                        <Grid.Col span={{ base: 12, sm: 6 }}>
-                          <DateInput
-                            label={tb('transfer.dateLabel')}
-                            placeholder={tb('transfer.datePlaceholder')}
-                            valueFormat="DD/MM/YYYY"
-                            required
-                            size="sm"
-                            value={transactionDate ? new Date(transactionDate) : null}
-                            onChange={(val) =>
-                              setTransactionDate(val ? dayjs(val).format('YYYY-MM-DD') : '')
-                            }
-                            rightSection={
-                              <IconCalendar size={16} color="var(--mantine-color-dimmed)" />
-                            }
-                          />
-                        </Grid.Col>
-                        <Grid.Col span={{ base: 12, sm: 6 }}>
-                          <TextInput
-                            label={tb('transfer.referenceLabel')}
-                            placeholder={tb('transfer.referencePlaceholder')}
-                            size="sm"
-                            value={referenceNumber}
-                            onChange={(e) => setReferenceNumber(e.currentTarget.value)}
-                          />
-                        </Grid.Col>
-                      </Grid>
-                    </Stack>
-                  </Paper>
-
-                  {/* Card 2: Pemilihan Rekening Kas/Bank */}
-                  <Paper withBorder radius="md" p="lg" bg="white" shadow="xs">
-                    <Stack gap="sm">
-                      <Group gap="sm" mb={4}>
-                        <ThemeIcon size={34} radius="md" variant="light" color="blue">
-                          <IconBuildingBank size={18} />
-                        </ThemeIcon>
-                        <Box>
-                          <Text fw={700} size="sm" c="dark.9">
-                            {tb('transfer.accountsCardTitle')}
-                          </Text>
-                          <Text size="xs" c="dimmed">
-                            {tb('transfer.accountsCardHint')}
-                          </Text>
-                        </Box>
-                      </Group>
-
-                      <Grid gutter="md">
-                        <Grid.Col span={{ base: 12, sm: 6 }}>
-                          <Select
-                            label={tb('transfer.fromLabel')}
-                            description={tb('transfer.fromDescription')}
-                            placeholder={tb('transfer.fromPlaceholder')}
-                            data={accountSelectOptions}
-                            value={accountFromId}
-                            onChange={setAccountFromId}
-                            required
-                            searchable
-                            size="sm"
-                            nothingFoundMessage={tb('transfer.noAccount')}
-                            comboboxProps={{ shadow: 'md' }}
-                          />
-                        </Grid.Col>
-
-                        <Grid.Col span={{ base: 12, sm: 6 }}>
-                          <Select
-                            label={tb('transfer.toLabel')}
-                            description={tb('transfer.toDescription')}
-                            placeholder={tb('transfer.toPlaceholder')}
-                            data={accountSelectOptions}
-                            value={accountToId}
-                            onChange={setAccountToId}
-                            required
-                            searchable
-                            size="sm"
-                            nothingFoundMessage={tb('transfer.noAccount')}
-                            comboboxProps={{ shadow: 'md' }}
-                          />
-                        </Grid.Col>
-                      </Grid>
-
-                      {isSameAccount && (
-                        <Alert
-                          icon={<IconAlertCircle size={16} />}
-                          color="red"
-                          variant="light"
-                          radius="md"
-                        >
-                          {tb('transfer.sameAccount')}
-                        </Alert>
-                      )}
-                    </Stack>
-                  </Paper>
-
-                  {/* Card 3: Nominal & Keterangan Memo */}
-                  <Paper withBorder radius="md" p="lg" bg="white" shadow="xs">
-                    <Stack gap="sm">
-                      <Group gap="sm" mb={4}>
-                        <ThemeIcon size={34} radius="md" variant="light" color="teal">
-                          <IconCash size={18} />
-                        </ThemeIcon>
-                        <Box>
-                          <Text fw={700} size="sm" c="dark.9">
-                            {tb('transfer.amountCardTitle')}
-                          </Text>
-                          <Text size="xs" c="dimmed">
-                            {tb('transfer.amountCardHint')}
-                          </Text>
-                        </Box>
-                      </Group>
-
-                      <NumberInput
-                        label={tb('transfer.amountLabel')}
-                        placeholder="0"
-                        thousandSeparator="."
-                        decimalSeparator=","
-                        prefix="Rp "
-                        min={0}
-                        required
-                        size="sm"
-                        value={amount}
-                        onChange={(val) => setAmount(Number(val) || 0)}
-                        styles={{
-                          input: {
-                            fontWeight: 700,
-                            fontSize: 'var(--jurnal-text-md)',
-                            color: 'var(--mantine-color-primary-9)',
-                          },
-                        }}
-                      />
-
-                      <Textarea
-                        label={tb('transfer.memoLabel')}
-                        placeholder={tb('transfer.memoPlaceholder')}
-                        rows={3}
-                        size="sm"
-                        value={notes}
-                        onChange={(e) => setNotes(e.currentTarget.value)}
-                      />
-                    </Stack>
-                  </Paper>
-                </Stack>
+    <TransactionFormLayout
+      icon={IconArrowsExchange}
+      title={t('transfer.title')}
+      description={t('transfer.description')}
+      notices={
+        <>
+          {isError && <ChoicesLoadError />}
+          {from.blocked && <PrefillBlockedNotice />}
+        </>
+      }
+      onSubmit={handleSubmit}
+      main={
+        <>
+          <FormSection
+            icon={<IconBuildingBank size={18} />}
+            title={t('transfer.detailsTitle')}
+            hint={t('transfer.detailsHint')}
+          >
+            <Grid gutter="md">
+              <Grid.Col span={{ base: 12, sm: 6 }}>
+                <Select
+                  label={t('transfer.fromLabel')}
+                  placeholder={t('transfer.fromPlaceholder')}
+                  data={options}
+                  value={from.value}
+                  onChange={from.setValue}
+                  searchable
+                  nothingFoundMessage={t('common.noCashBankAccount')}
+                  comboboxProps={{ shadow: 'md' }}
+                />
               </Grid.Col>
-
-              {/* Right Column (4 cols): Sticky Preview & Summary */}
-              <Grid.Col span={{ base: 12, lg: 4 }}>
-                <TransferMoneySummaryPanel
-                  isFormValid={isFormValid}
-                  selectedFromAccount={selectedFromAccount}
-                  selectedToAccount={selectedToAccount}
-                  amount={amount}
-                  isPending={isPending}
+              <Grid.Col span={{ base: 12, sm: 6 }}>
+                <Select
+                  label={t('transfer.toLabel')}
+                  placeholder={t('transfer.toPlaceholder')}
+                  data={options}
+                  value={toId}
+                  onChange={setToId}
+                  searchable
+                  nothingFoundMessage={t('common.noCashBankAccount')}
+                  comboboxProps={{ shadow: 'md' }}
+                />
+              </Grid.Col>
+              <Grid.Col span={{ base: 12, sm: 6 }}>
+                <DateInput
+                  label={t('transfer.dateLabel')}
+                  valueFormat="DD/MM/YYYY"
+                  value={date ? new Date(`${date}T00:00:00`) : null}
+                  onChange={(value) => setDate(value ? dayjs(value).format('YYYY-MM-DD') : '')}
+                  rightSection={<IconCalendar size={16} color="var(--mantine-color-dimmed)" />}
                 />
               </Grid.Col>
             </Grid>
-          </form>
-        </Stack>
-      </Box>
-    </AppShellLayout>
+          </FormSection>
+
+          <FormSection
+            icon={<IconCoins size={18} />}
+            title={t('transfer.amountTitle')}
+            hint={t('transfer.amountHint')}
+          >
+            <NumberInput
+              label={t('transfer.amountLabel')}
+              placeholder="0"
+              thousandSeparator="."
+              decimalSeparator=","
+              prefix="Rp "
+              min={0}
+              value={amount}
+              onChange={(value) => setAmount(Number(value) || 0)}
+            />
+            <Textarea
+              label={t('form.notes')}
+              placeholder={t('transfer.notesPlaceholder')}
+              rows={3}
+              value={notes}
+              onChange={(event) => setNotes(event.currentTarget.value)}
+            />
+          </FormSection>
+
+          <AttachmentsField files={files} onChange={setFiles} />
+        </>
+      }
+      summary={
+        <TransactionSummaryCard
+          accounts={[
+            {
+              role: t('transfer.fromRole'),
+              name: source?.name ?? null,
+              balance: source?.amount ?? 0,
+              after: sourceAfter,
+            },
+            {
+              role: t('transfer.toRole'),
+              name: destination?.name ?? null,
+              balance: destination?.amount ?? 0,
+              after: destination ? balanceAfterReceive(destination.amount || 0, amount) : null,
+            },
+          ]}
+          total={{ label: t('transfer.total'), amount }}
+          warning={overdraft ? t('form.overdraft') : null}
+          missing={missing.map((reason) => t(`form.missing.${reason}`))}
+          journal={transferPreview(
+            source?.name ?? t('form.notSelected'),
+            destination?.name ?? t('form.notSelected'),
+            amount
+          )}
+          submitLabel={t('transfer.submit')}
+          isPending={isPending}
+          onCancel={() => navigate(routes.bankCash.main)}
+        />
+      }
+    />
   );
 };
 

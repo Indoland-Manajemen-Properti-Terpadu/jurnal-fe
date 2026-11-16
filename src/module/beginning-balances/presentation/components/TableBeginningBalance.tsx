@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { DataTable } from 'mantine-datatable';
-import { ActionIcon, Stack, Text, TextInput, Tooltip } from '@mantine/core';
+import React, { useState } from 'react';
+import { ActionIcon, Badge, Group, Stack, Table, Text, TextInput, Tooltip } from '@mantine/core';
 import { IconListTree, IconX } from '@tabler/icons-react';
 import { numberFormat } from '@/utils/formatCurrency';
 import { EmptyState } from '@/components/EmptyState';
 import { useTranslation } from '@/i18n';
 import type { OpeningRow } from '../../domain/beginningBalance';
 import { formatAmountInput } from '../../domain/openingBalanceRules';
+import { groupOpeningRows } from '../../domain/openingGroups';
+import classes from './TableBeginningBalance.module.css';
 
 type Side = 'debit' | 'credit';
 
@@ -17,31 +18,17 @@ type TableBeginningBalanceProps = {
   onClear: (accountId: string) => void;
   /** Clears the search and filters; offered from the empty state. */
   onResetFilters: () => void;
-  /** Changes when the filter changes, so the table goes back to the first page. */
-  resetKey?: string;
 };
-
-const PAGE_SIZES = [25, 50, 100];
-
-const headStyle = { fontSize: 'var(--jurnal-text-sm)', fontWeight: 600 } as const;
 
 const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
   records,
   onEnter,
   onClear,
   onResetFilters,
-  resetKey = '',
 }) => {
   const { t } = useTranslation('beginningBalances');
   // The text being typed in one field, so a trailing comma or decimal digits survive re-formatting.
   const [typing, setTyping] = useState<{ key: string; text: string } | null>(null);
-
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(PAGE_SIZES[0]);
-  useEffect(() => setPage(1), [resetKey, pageSize]);
-  const pageCount = Math.max(1, Math.ceil(records.length / pageSize));
-  const current = Math.min(page, pageCount);
-  const pageRecords = records.slice((current - 1) * pageSize, current * pageSize);
 
   // Format while typing and keep the caret after the same digit: the text gets dots, so the
   // caret index of the raw text is mapped to the same count of digits and comma in the new one.
@@ -70,7 +57,8 @@ const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
     const key = `${row.id}:${field}`;
     const amount = row[field];
     const filled = amount > 0;
-    const offSide = filled && row.normalSide !== field;
+    const isNormal = row.normalSide === field;
+    const offSide = filled && !isNormal;
 
     return (
       <Stack gap={2} align="flex-end">
@@ -102,122 +90,127 @@ const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
               textAlign: 'right',
               fontVariantNumeric: 'tabular-nums',
               fontWeight: filled ? 600 : 400,
-              borderColor: filled ? 'var(--mantine-color-primary-3)' : undefined,
+              // The side the account normally grows on is tinted, so it reads at a glance.
+              backgroundColor: isNormal ? 'var(--mantine-color-primary-0)' : undefined,
+              borderColor: offSide
+                ? 'var(--mantine-color-orange-5)'
+                : filled
+                  ? 'var(--mantine-color-primary-3)'
+                  : isNormal
+                    ? 'var(--mantine-color-primary-1)'
+                    : undefined,
             },
           }}
         />
         {offSide && (
-          <Text fz="var(--jurnal-text-xs)" c="dimmed">
-            {t('table.offSide')}
+          <Text fz="var(--jurnal-text-xs)" c="orange.9">
+            {t(field === 'debit' ? 'table.offSideDebit' : 'table.offSideCredit')}
           </Text>
         )}
       </Stack>
     );
   };
 
-  const columns = [
-    {
-      accessor: 'accountNumber',
-      title: <Text style={headStyle}>{t('table.code')}</Text>,
-      width: 120,
-      render: (row: OpeningRow) => (
-        <Text fz="var(--jurnal-text-sm)" fw={600} c="primary.8" style={{ whiteSpace: 'nowrap' }}>
-          {row.accountNumber}
-        </Text>
-      ),
-    },
-    {
-      accessor: 'name',
-      title: <Text style={headStyle}>{t('table.name')}</Text>,
-      render: (row: OpeningRow) => (
-        <div>
-          <Text fz="var(--jurnal-text-sm)" fw={500} c="dark.8">
-            {row.name}
-          </Text>
-          <Text fz="var(--jurnal-text-xs)" c="dimmed">
-            {row.normalSide === 'debit' ? t('table.normalDebit') : t('table.normalCredit')}
-            {row.isContra ? ` · ${t('table.contra')}` : ''}
-          </Text>
-        </div>
-      ),
-    },
-    {
-      accessor: 'debit',
-      title: <Text style={headStyle}>{t('table.debit')}</Text>,
-      width: 210,
-      textAlignment: 'right' as const,
-      render: (row: OpeningRow) => amountCell(row, 'debit'),
-    },
-    {
-      accessor: 'credit',
-      title: <Text style={headStyle}>{t('table.credit')}</Text>,
-      width: 210,
-      textAlignment: 'right' as const,
-      render: (row: OpeningRow) => amountCell(row, 'credit'),
-    },
-    {
-      accessor: 'actions',
-      title: '',
-      width: 48,
-      textAlignment: 'center' as const,
-      render: (row: OpeningRow) =>
-        row.debit > 0 || row.credit > 0 ? (
-          <Tooltip label={t('table.clearRow')}>
-            <ActionIcon
-              variant="subtle"
-              color="gray"
-              size="sm"
-              radius="md"
-              aria-label={`${t('table.clearRow')} ${row.accountNumber}`}
-              onClick={() => {
-                setTyping(null);
-                onClear(row.id);
-              }}
-            >
-              <IconX size={14} />
-            </ActionIcon>
-          </Tooltip>
-        ) : null,
-    },
-  ];
+  const groups = groupOpeningRows(records);
+
+  if (records.length === 0) {
+    return (
+      <EmptyState
+        icon={<IconListTree size={32} stroke={1.6} />}
+        title={t('table.emptyTitle')}
+        description={t('table.emptyDescription')}
+        actionLabel={t('table.emptyAction')}
+        onAction={onResetFilters}
+      />
+    );
+  }
 
   return (
-    <DataTable
-      withTableBorder
-      borderRadius="md"
-      highlightOnHover
-      records={pageRecords}
-      columns={columns}
-      verticalSpacing="xs"
-      idAccessor="id"
-      totalRecords={records.length}
-      page={current}
-      onPageChange={setPage}
-      recordsPerPage={pageSize}
-      recordsPerPageOptions={PAGE_SIZES}
-      onRecordsPerPageChange={setPageSize}
-      recordsPerPageLabel={t('table.perPage')}
-      paginationText={({ from, to, totalRecords }) =>
-        t('table.paginationText', { from, to, total: totalRecords })
-      }
-      noRecordsText=""
-      minHeight={records.length === 0 ? 340 : 180}
-      emptyState={
-        records.length === 0 ? (
-          // mantine-datatable turns pointer events off for its empty state, so the button needs
-          // them back. It is only mounted while the table is empty, so it never covers filled rows.
-          <div style={{ pointerEvents: 'auto' }}>
-            <EmptyState
-              icon={<IconListTree size={32} stroke={1.6} />}
-              title={t('table.emptyTitle')}
-              description={t('table.emptyDescription')}
-              actionLabel={t('table.emptyAction')}
-              onAction={onResetFilters}
-            />
-          </div>
-        ) : undefined
-      }
-    />
+    <Stack gap="xs">
+      <Group gap={6} aria-hidden="true">
+        <span className={classes.swatch} />
+        <Text fz="var(--jurnal-text-xs)" c="dimmed">
+          {t('table.normalLegend')}
+        </Text>
+      </Group>
+      <div className={classes.wrap}>
+        <Table stickyHeader highlightOnHover verticalSpacing="xs" className={classes.table}>
+          <Table.Thead className={classes.head}>
+            <Table.Tr>
+              <Table.Th w={120}>{t('table.code')}</Table.Th>
+              <Table.Th>{t('table.name')}</Table.Th>
+              <Table.Th w={210} ta="right">
+                {t('table.debit')}
+              </Table.Th>
+              <Table.Th w={210} ta="right">
+                {t('table.credit')}
+              </Table.Th>
+              <Table.Th w={48} aria-label={t('table.clearRow')} />
+            </Table.Tr>
+          </Table.Thead>
+          {groups.map((group) => (
+            <Table.Tbody key={group.accountClass ?? 'other'}>
+              <Table.Tr className={classes.group}>
+                <Table.Th colSpan={5} scope="rowgroup">
+                  <Text component="span" fw={700} fz="var(--jurnal-text-sm)" c="primary.9">
+                    {group.accountClass
+                      ? t(`table.classNames.${group.accountClass}`)
+                      : t('table.otherClass')}
+                  </Text>
+                </Table.Th>
+              </Table.Tr>
+              {group.rows.map((row) => (
+                <Table.Tr key={row.id}>
+                  <Table.Td>
+                    <Text
+                      fz="var(--jurnal-text-sm)"
+                      fw={600}
+                      c="primary.8"
+                      style={{ whiteSpace: 'nowrap' }}
+                    >
+                      {row.accountNumber}
+                    </Text>
+                  </Table.Td>
+                  <Table.Td>
+                    <Group gap="xs" wrap="nowrap">
+                      <Text fz="var(--jurnal-text-sm)" fw={500} c="dark.8">
+                        {row.name}
+                      </Text>
+                      {row.isContra && (
+                        <Badge size="xs" variant="light" color="gray" c="gray.8" tt="none">
+                          {t('table.contra')}
+                        </Badge>
+                      )}
+                    </Group>
+                  </Table.Td>
+                  <Table.Td>{amountCell(row, 'debit')}</Table.Td>
+                  <Table.Td>{amountCell(row, 'credit')}</Table.Td>
+                  <Table.Td ta="center">
+                    {(row.debit > 0 || row.credit > 0) && (
+                      <Tooltip label={t('table.clearRow')}>
+                        <ActionIcon
+                          variant="subtle"
+                          color="gray"
+                          size="sm"
+                          radius="md"
+                          aria-label={`${t('table.clearRow')} ${row.accountNumber}`}
+                          onClick={() => {
+                            setTyping(null);
+                            onClear(row.id);
+                          }}
+                        >
+                          <IconX size={14} />
+                        </ActionIcon>
+                      </Tooltip>
+                    )}
+                  </Table.Td>
+                </Table.Tr>
+              ))}
+            </Table.Tbody>
+          ))}
+        </Table>
+      </div>
+    </Stack>
   );
 };
 

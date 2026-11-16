@@ -1,26 +1,4 @@
-.chip {
-  color: var(--jurnal-color-text-secondary);
-  padding-right: var(--mantine-spacing-sm);
-  margin-right: var(--mantine-spacing-xs);
-  border-right: 1px solid var(--jurnal-color-border-subtle);
-}
-
 .iconBtn {
   border-color: var(--jurnal-color-border-subtle);
   background: var(--jurnal-color-surface);
-}
-
-.user {
-  padding: rem(4px) rem(8px);
-  border-radius: var(--mantine-radius-md);
-  transition: background-color 150ms ease;
-}
-
-.user:hover {
-  background: var(--jurnal-color-surface-hover);
-}
-
-.user:focus-visible {
-  outline: 2px solid var(--jurnal-color-primary);
-  outline-offset: 2px;
 }

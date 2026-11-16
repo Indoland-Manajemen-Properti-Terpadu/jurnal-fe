@@ -1,0 +1,91 @@
+/*
+ * Same look as the trial balance report: the frame scrolls sideways, the account column stays in
+ * view, column groups get a title row with a firm line between groups and a soft one inside.
+ */
+.frame {
+  --ws-account: 280px;
+  --ws-figure: 132px;
+  --ws-line: var(--mantine-color-gray-3);
+
+  overflow-x: auto;
+  border: 1px solid var(--ws-line);
+  border-radius: var(--mantine-radius-md);
+}
+
+.table {
+  width: calc(var(--ws-account) + 6 * var(--ws-figure));
+  min-width: 100%;
+  table-layout: fixed;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: var(--mantine-font-size-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.table th,
+.table td {
+  background: var(--mantine-color-white);
+  border-bottom: 1px solid var(--ws-line);
+}
+
+.table thead th {
+  background: var(--mantine-color-gray-0);
+  color: var(--mantine-color-gray-7);
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.sticky {
+  position: sticky;
+  left: 0;
+  z-index: var(--jurnal-z-raised);
+  width: var(--ws-account);
+  text-align: left;
+  white-space: normal;
+  box-shadow: 1px 0 0 var(--ws-line);
+}
+
+.groupTitle {
+  width: calc(2 * var(--ws-figure));
+}
+
+.groupStart {
+  border-left: 1px solid var(--ws-line);
+}
+
+.figureHead {
+  width: var(--ws-figure);
+}
+
+.table thead th.figureHead {
+  font-weight: 600;
+  color: var(--mantine-color-dimmed);
+}
+
+.table thead th.sticky {
+  text-align: left;
+}
+
+.figure {
+  text-align: right;
+  white-space: nowrap;
+  border-left: 1px solid var(--mantine-color-gray-2);
+}
+
+.figure.groupStart {
+  border-left-color: var(--ws-line);
+}
+
+.totalRow td {
+  font-weight: 700;
+  background: var(--mantine-color-gray-0);
+}
+
+.profitRow td {
+  font-weight: 600;
+  color: var(--mantine-color-primary-6);
+  border-bottom: 0;
+}

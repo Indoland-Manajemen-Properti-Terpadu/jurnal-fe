@@ -3,8 +3,19 @@
   border-bottom: 1px solid var(--mantine-color-gray-2);
 }
 
-.categories {
-  gap: rem(18px);
+.row {
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+
+.groupRow {
+  background: var(--mantine-color-gray-0);
+}
+
+.accountName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .tableFrame {
@@ -23,25 +34,8 @@
   color: var(--mantine-color-primary-8);
 }
 
-.statusDot {
-  flex: 0 0 auto;
-  width: rem(7px);
-  height: rem(7px);
-  border-radius: 50%;
-  background: var(--mantine-color-gray-5);
-}
-
-.statusDot[data-tone='ready'] {
-  background: var(--mantine-color-primary-6);
-}
-
 @media (max-width: 48em) {
   .toolbar {
     align-items: stretch;
-  }
-
-  .categories {
-    flex-wrap: nowrap;
-    overflow-x: auto;
   }
 }

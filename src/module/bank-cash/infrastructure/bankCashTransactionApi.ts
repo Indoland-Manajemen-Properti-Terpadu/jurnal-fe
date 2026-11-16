@@ -17,6 +17,16 @@ const failureMessage = (error: unknown): string => {
   return DEFAULT_FAILURE;
 };
 
+/** The manual journal's multipart shape: JSON fields as text and each file in `attachments`. */
+const toFormData = (payload: Record<string, unknown>, attachments: File[]): FormData => {
+  const body = new FormData();
+  Object.entries(payload).forEach(([key, value]) => {
+    body.append(key, typeof value === 'object' ? JSON.stringify(value) : String(value));
+  });
+  attachments.forEach((file) => body.append('attachments', file));
+  return body;
+};
+
 export const submitBankCashTransaction = async (data: BankCashTransactionPayload) => {
   const payload: Record<string, unknown> = {
     transactionDate: data.transactionDate,
@@ -38,8 +48,13 @@ export const submitBankCashTransaction = async (data: BankCashTransactionPayload
     payload.tags = data.tags;
   }
 
+  const attachments = data.attachments ?? [];
+
   try {
-    const response = await apiClient.post(API_ACCOUNT.POST_TRANSACTION_ACCOUNT, payload);
+    const response = await apiClient.post(
+      API_ACCOUNT.POST_TRANSACTION_ACCOUNT,
+      attachments.length > 0 ? toFormData(payload, attachments) : payload
+    );
     return response.data;
   } catch (error) {
     throw new Error(failureMessage(error));

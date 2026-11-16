@@ -23,6 +23,8 @@ export const pettyCash = {
     fund: 'Kas kecil',
     custodian: 'Pemegang kas',
     account: 'Akun kas',
+    openLedger: 'Buka di Kas & Bank',
+    ledgerDiffers: 'Saldo buku {{book}}, saldo kas dana {{fund}}',
     lastCount: 'Opname kas terakhir',
     neverCounted: 'Belum pernah',
     voucherApproval: 'Persetujuan voucher mulai',

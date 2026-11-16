@@ -19,4 +19,9 @@ export const legacyRoutes: RouteObject[] = [
     path: routes.legacyPaths.reportsBusinessSumary,
     element: <Navigate to={routes.reports.businessSummary} replace />,
   },
+  ...[
+    routes.legacyPaths.periodClosingList,
+    routes.legacyPaths.periodClosingStatement,
+    routes.legacyPaths.settingsAccountingPeriods,
+  ].map((path) => ({ path, element: <Navigate to={routes.periodClosing.main} replace /> })),
 ];

@@ -26,6 +26,8 @@ export interface TrialBalanceAccount {
   accountNumber: string;
   name: string;
   categoryName: string;
+  /** Category code of the chart of accounts (`KB` is cash and bank); empty when not sent. */
+  categoryCode: string;
   /** A parent account: its figures already include its sub accounts, so it is never added up. */
   isHead: boolean;
   isContra: boolean;

@@ -1,7 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { API_ACCOUNT } from '@/lib/http/endpoints';
 import { archiveAccount, getDetailAccount } from './accountDetailApi';
-import { createAccount, deleteAccounts, getJournalAccounts, updateAccount } from './accountApi';
+import {
+  createAccount,
+  deleteAccounts,
+  getJournalAccounts,
+  getSimpleAccounts,
+  updateAccount,
+} from './accountApi';
 
 const http = vi.hoisted(() => ({
   get: vi.fn(),
@@ -111,5 +117,25 @@ describe('getDetailAccount', () => {
     http.get.mockRejectedValue(new Error('500'));
 
     await expect(getDetailAccount('a1')).rejects.toThrow('500');
+  });
+});
+
+describe('getSimpleAccounts', () => {
+  beforeEach(() => {
+    http.get.mockReset();
+  });
+
+  it('asks for every postable account when no filter is given', async () => {
+    http.get.mockResolvedValue({ data: { data: [{ id: 'a1' }] } });
+    await expect(getSimpleAccounts()).resolves.toEqual([{ id: 'a1' }]);
+    expect(http.get).toHaveBeenCalledWith(API_ACCOUNT.GET_SIMPLE_ACCOUNTS, { params: undefined });
+  });
+
+  it('sends isBankAndCash when only cash and bank accounts are wanted', async () => {
+    http.get.mockResolvedValue({ data: { data: [] } });
+    await getSimpleAccounts({ isBankAndCash: true });
+    expect(http.get).toHaveBeenCalledWith(API_ACCOUNT.GET_SIMPLE_ACCOUNTS, {
+      params: { isBankAndCash: true },
+    });
   });
 });

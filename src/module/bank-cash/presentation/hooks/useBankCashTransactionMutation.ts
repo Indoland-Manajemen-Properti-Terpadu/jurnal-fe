@@ -14,10 +14,13 @@ export const useBankCashTransactionMutation = (successMessage?: string) => {
 
   return useMutation<unknown, Error, BankCashTransactionPayload>({
     mutationFn: submitBankCashTransaction,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['accounts'] });
-      queryClient.invalidateQueries({ queryKey: ['journal_transactions'] });
-      queryClient.invalidateQueries({ queryKey: ['detail_account'] });
+    onSuccess: async () => {
+      // Wait for the fresh balances, so the list never flashes the old ones after saving.
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['accounts'] }),
+        queryClient.invalidateQueries({ queryKey: ['journal_transactions'] }),
+        queryClient.invalidateQueries({ queryKey: ['detail_account'] }),
+      ]);
 
       notifications.show({
         color: 'teal',

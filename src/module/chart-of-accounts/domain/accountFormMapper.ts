@@ -12,6 +12,8 @@ interface RawAccountDetail {
   isBankAndCash?: boolean;
   isContra?: boolean;
   isLocked?: boolean;
+  /** Ledger balance; the detail endpoint sends it next to the account fields. */
+  amount?: number;
   desc?: string;
   /** `master` for a top level account, `sub` for a child. */
   level?: string;

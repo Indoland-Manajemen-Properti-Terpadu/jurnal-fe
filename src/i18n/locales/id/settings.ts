@@ -31,7 +31,6 @@ export const settings = {
     roles: 'Peran & Hak Akses',
     accessHistory: 'Riwayat Akses',
     approvalFlow: 'Alur Persetujuan',
-    accountingPeriods: 'Periode Akuntansi',
     sites: 'Kelola Site',
   },
   description: {
@@ -47,7 +46,6 @@ export const settings = {
     roles: 'Peran dan menu yang boleh dibuka tiap peran.',
     accessHistory: 'Catatan perubahan pengguna dan peran.',
     approvalFlow: 'Siapa yang menyetujui tiap tahap persetujuan.',
-    accountingPeriods: 'Buka dan kunci periode pembukuan.',
     sites: 'Kelola perusahaan atau lokasi yang memakai aplikasi ini.',
   },
   generalTitle: 'Presisi Angka',

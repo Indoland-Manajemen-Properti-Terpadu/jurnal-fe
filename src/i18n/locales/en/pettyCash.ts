@@ -24,6 +24,8 @@ export const pettyCash = {
     fund: 'Petty cash fund',
     custodian: 'Custodian',
     account: 'Cash account',
+    openLedger: 'Open in Cash & Bank',
+    ledgerDiffers: 'Book balance {{book}}, fund cash {{fund}}',
     lastCount: 'Last cash count',
     neverCounted: 'Never',
     voucherApproval: 'Voucher approval from',

@@ -141,16 +141,6 @@ export const plannedModules = {
         four: 'Settings specific to each site',
       },
     },
-    accountingPeriods: {
-      title: 'Accounting Periods',
-      description: 'Open and lock accounting periods so closed figures do not change.',
-      features: {
-        one: 'List of periods and their status',
-        two: 'Lock a finished period',
-        three: 'Reopen a period with a reason',
-        four: 'History of opening and locking',
-      },
-    },
     approvalFlow: {
       title: 'Approval Flow',
       description: 'Decide who approves each approval step.',

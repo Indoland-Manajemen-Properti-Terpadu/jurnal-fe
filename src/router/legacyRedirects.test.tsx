@@ -56,6 +56,15 @@ describe('legacy route redirects', () => {
     ['/kontak', '/contact'],
     ['/asset', '/assets'],
     ['/settings/approval-setting', '/pending-changes'],
+    ['/settings/accounting-periods', '/settings/general-journal/closing-books'],
+    [
+      '/settings/general-journal/closing-books/list/period-lock',
+      '/settings/general-journal/closing-books',
+    ],
+    [
+      '/settings/general-journal/period-lock/financial-statement',
+      '/settings/general-journal/closing-books',
+    ],
   ])('redirects %s to %s with replace', (legacy, current) => {
     const element = elementOf(matchRoutes(router.routes, legacy));
 

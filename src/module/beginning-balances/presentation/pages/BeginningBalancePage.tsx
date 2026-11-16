@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 import { AppShellLayout } from '@/components/AppShellLayout';
 import { ConfirmModal } from '@/components';
+import { useLatestClosingEnd } from '@/module/period-closing';
 import deleteModalImage from '@/assets/images/illustrations/delete-confirm.svg';
 import publishModalImage from '@/assets/images/illustrations/publish-balance.svg';
 import { routes } from '@/router/routes';
@@ -15,20 +16,26 @@ import { dateFormatV1 } from '@/utils/formatDate';
 import type { OpeningRow } from '../../domain/beginningBalance';
 import {
   applyAmountEntry,
+  balanceToEquity,
+  buildConversionWindow,
   balanceSignature,
   buildBalancePayload,
   buildOpeningRows,
   clearAccountRow,
   clearAllRows,
   conversionDateIssue,
+  countProfitLossFilled,
+  findOpeningEquityRow,
   filterOpeningRows,
   getBalanceState,
   openingActions,
   resolveSavedBalance,
   summarizeOpeningBalance,
 } from '../../domain/openingBalanceRules';
+import { BalanceNotices } from '../components/BalanceNotices';
 import BalanceSummary from '../components/BalanceSummary';
 import BalanceToolbar from '../components/BalanceToolbar';
+import { OpeningIntro } from '../components/OpeningIntro';
 import BeginningBalanceHeader from '../components/BeginningBalanceHeader';
 import { BeginningBalanceLogsModal } from '../components/BeginningBalanceLogsModal';
 import TableBeginningBalance from '../components/TableBeginningBalance';
@@ -36,6 +43,7 @@ import {
   useDateLocked,
   useDraftAccount,
   useDraftBalanceLogs,
+  useFirstJournalDay,
   usePublishDraftBalance,
   useSetDraftBalance,
   useSimpleAccounts,
@@ -69,6 +77,9 @@ const BeginningBalancePage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [accountClass, setAccountClass] = useState<number | null>(null);
   const [onlyFilled, setOnlyFilled] = useState(false);
+
+  const [started, setStarted] = useState(false);
+  const pickedDate = useRef(false);
 
   const [isPublishModalOpen, setIsPublishModalOpen] = useState(false);
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
@@ -106,6 +117,7 @@ const BeginningBalancePage: React.FC = () => {
   }, [savedRows, simpleAccounts, isLoadingDraft, isLoadingLogs]);
 
   const handleDateChange = (date: string | null) => {
+    pickedDate.current = true;
     setSelectedDate(date);
     if (date) setConversionDate(new Date(date));
   };
@@ -116,17 +128,37 @@ const BeginningBalancePage: React.FC = () => {
   );
   const balanceState = getBalanceState(totalDebit, totalCredit, isBalanced);
   const { data: isDateLocked } = useDateLocked(selectedDate);
+
+  // The latest day allowed comes from the draft once one exists; before that, from the earliest journal.
+  const closing = useLatestClosingEnd();
+  const draftFirstDay = draftAccounts?.firstTransactionDate ?? null;
+  const journalFirstDay = useFirstJournalDay(!isLoadingDraft && !draftFirstDay && !isPublished);
+  const firstDay = draftFirstDay ?? journalFirstDay.data ?? null;
+  const conversionWindow = useMemo(
+    () =>
+      buildConversionWindow({
+        lastClosingEnd: closing.endDate,
+        firstTransactionDate: firstDay,
+        today: dayjs().format('YYYY-MM-DD'),
+      }),
+    [closing.endDate, firstDay]
+  );
+  const windowLoading = closing.isLoading || journalFirstDay.isLoading;
+
   const dateIssue = conversionDateIssue(
     selectedDate,
-    draftAccounts?.firstTransactionDate,
-    Boolean(isDateLocked)
+    firstDay,
+    Boolean(isDateLocked),
+    closing.endDate
   );
-  const dateError = dateIssue
-    ? dateIssue === 'locked'
-      ? t('date.locked')
-      : t('date.afterFirst', { date: dateFormatV1(draftAccounts?.firstTransactionDate ?? '') })
-    : null;
-  const actions = openingActions(balanceState, isDirty, isPublished);
+  const dateIssueMessages = {
+    locked: t('date.locked'),
+    beforeClosing: t('date.beforeClosing', { date: dateFormatV1(closing.endDate ?? '') }),
+    afterFirstTransaction: t('date.afterFirst', { date: dateFormatV1(firstDay ?? '') }),
+  };
+  const dateError = dateIssue ? dateIssueMessages[dateIssue] : null;
+  const equityRow = useMemo(() => findOpeningEquityRow(rows), [rows]);
+  const actions = openingActions(balanceState, isDirty, isPublished, Boolean(equityRow));
   const canSaveDraft = actions.canSaveDraft && !dateIssue;
   const canPublish = actions.canPublish && !dateIssue;
   const filledCount = useMemo(
@@ -145,9 +177,11 @@ const BeginningBalancePage: React.FC = () => {
       ? t('status.draft')
       : t('status.new');
 
-  const buildPayload = () =>
+  // A gap that is not traced yet is recorded to Ekuitas Saldo Awal when publishing.
+  const recordsGap = balanceState === 'unbalanced' && Boolean(equityRow);
+  const buildPayload = (source: OpeningRow[] = rows) =>
     buildBalancePayload(
-      rows,
+      source,
       dayjs(selectedDate || conversionDate || new Date()).format('YYYY-MM-DD')
     );
 
@@ -158,7 +192,8 @@ const BeginningBalancePage: React.FC = () => {
 
   const handleConfirmPublish = () => {
     if (!canPublish) return;
-    publishDraftBalance(buildPayload(), {
+    const finalRows = recordsGap && equityRow ? balanceToEquity(rows, equityRow.id) : rows;
+    publishDraftBalance(buildPayload(finalRows), {
       onSuccess: () => {
         setIsPublishModalOpen(false);
         navigate(routes.chartOfAccounts.main);
@@ -166,6 +201,7 @@ const BeginningBalancePage: React.FC = () => {
     });
   };
 
+  const profitLossFilled = useMemo(() => countProfitLossFilled(rows), [rows]);
   const handleConfirmReset = () => {
     setRows(clearAllRows(rows));
     setIsResetModalOpen(false);
@@ -176,7 +212,15 @@ const BeginningBalancePage: React.FC = () => {
     });
   };
 
-  if (isLoadingAccounts || isLoadingDraft || isLoadingLogs) {
+  // Nothing saved yet: explain first, and start from a date that the server will accept.
+  const hasSavedAmounts = savedRows.some((row) => row.debit > 0 || row.credit > 0);
+  const showIntro = !isPublished && !hasSavedAmounts && !started;
+  useEffect(() => {
+    if (!showIntro || pickedDate.current || windowLoading) return;
+    if (conversionWindow.suggested) setSelectedDate(conversionWindow.suggested);
+  }, [showIntro, windowLoading, conversionWindow.suggested]);
+
+  if (isLoadingAccounts || isLoadingDraft || isLoadingLogs || windowLoading) {
     return (
       <AppShellLayout>
         <Center h={450}>
@@ -208,6 +252,22 @@ const BeginningBalancePage: React.FC = () => {
     );
   }
 
+  if (showIntro) {
+    return (
+      <OpeningIntro
+        window={conversionWindow}
+        lastClosingEnd={closing.endDate}
+        selectedDate={selectedDate}
+        dateError={dateError}
+        onDateChange={handleDateChange}
+        onStart={() => {
+          if (selectedDate) setConversionDate(new Date(selectedDate));
+          setStarted(true);
+        }}
+      />
+    );
+  }
+
   return (
     <>
       <AppShellLayout>
@@ -234,7 +294,10 @@ const BeginningBalancePage: React.FC = () => {
               balanceState={balanceState}
               filledCount={filledCount}
               accountCount={rows.length}
+              autoBalance={Boolean(equityRow)}
             />
+
+            <BalanceNotices profitLossFilled={profitLossFilled} />
 
             <Paper withBorder radius="lg" p="md" bg="white" shadow="none">
               <Stack gap="md">
@@ -248,7 +311,8 @@ const BeginningBalancePage: React.FC = () => {
                   selectedDate={selectedDate}
                   onDateChange={handleDateChange}
                   dateError={dateError}
-                  maxDate={draftAccounts?.firstTransactionDate ?? undefined}
+                  minDate={conversionWindow.earliest ?? undefined}
+                  maxDate={conversionWindow.latest ?? undefined}
                   shownCount={visibleRows.length}
                   accountCount={rows.length}
                   canReset={filledCount > 0}
@@ -256,7 +320,6 @@ const BeginningBalancePage: React.FC = () => {
                 />
                 <TableBeginningBalance
                   records={visibleRows}
-                  resetKey={`${searchQuery}|${accountClass}|${onlyFilled}`}
                   onEnter={(id, field, raw) =>
                     setRows((prev) => applyAmountEntry(prev, id, field, raw))
                   }
@@ -279,12 +342,24 @@ const BeginningBalancePage: React.FC = () => {
         onConfirm={handleConfirmPublish}
         title={t('confirmPublish.title')}
         message={
-          <>
-            {t('confirmPublish.before')} <strong>{dateFormatV1(selectedDate || new Date())}</strong>{' '}
-            {t('confirmPublish.middle')} <strong>{formatCurrency(totalDebit)}</strong>?
-          </>
+          recordsGap ? (
+            <>
+              {t('confirmPublish.before')}{' '}
+              <strong>{dateFormatV1(selectedDate || new Date())}</strong>?
+            </>
+          ) : (
+            <>
+              {t('confirmPublish.before')}{' '}
+              <strong>{dateFormatV1(selectedDate || new Date())}</strong>{' '}
+              {t('confirmPublish.middle')} <strong>{formatCurrency(totalDebit)}</strong>?
+            </>
+          )
         }
-        helperText={t('confirmPublish.helper')}
+        helperText={
+          recordsGap
+            ? t('confirmPublish.gap', { amount: formatCurrency(difference) })
+            : t('confirmPublish.helper')
+        }
         imageSrc={publishModalImage}
         confirmButtonProps={{ color: 'primary', leftSection: <IconCheck size={18} /> }}
         confirmLabel={t('confirmPublish.confirm')}
