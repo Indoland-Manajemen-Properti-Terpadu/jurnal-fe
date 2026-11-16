@@ -26,4 +26,13 @@ describe('I2 validation card', () => {
     render(<JournalValidationCard transactionDate="2026-05-01" />);
     expect(screen.getByText('Belum Lengkap')).toBeInTheDocument();
   });
+
+  it('stays incomplete and says why when one account is on both sides', () => {
+    useTransactionStore.setState({
+      transactions: [row('A', 100, 0, 'a'), row('A', 0, 100, 'b')],
+    });
+    render(<JournalValidationCard transactionDate="2026-05-01" />);
+    expect(screen.getByText('Belum Lengkap')).toBeInTheDocument();
+    expect(screen.getByText('Akun debit dan kredit tidak boleh sama')).toBeInTheDocument();
+  });
 });
