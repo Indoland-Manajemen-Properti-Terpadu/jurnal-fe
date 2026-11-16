@@ -1,0 +1,20 @@
+name: Set up Node and Yarn
+description: Node 20, Corepack (Yarn 4), the Yarn download cache and a frozen install. Run it after actions/checkout.
+
+runs:
+  using: composite
+  steps:
+    # Corepack has to be on before setup-node, which asks Yarn where its cache lives.
+    - name: Enable Corepack (for Yarn 4)
+      shell: bash
+      run: corepack enable
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: yarn
+
+    - name: Install Dependencies
+      shell: bash
+      run: yarn install --immutable
