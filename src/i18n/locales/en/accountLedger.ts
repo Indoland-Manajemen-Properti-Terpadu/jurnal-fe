@@ -19,8 +19,7 @@ export const accountLedger = {
     archiveFailFallback: 'Failed to change the archive status of the account',
     deleteConfirmBefore: 'Are you sure you want to delete the account ',
     deleteConfirmAfter: ' ({number})?',
-    deleteHelper:
-      'The account and its related history will be deleted. Deleted data cannot be recovered.',
+    deleteHelper: 'Deleted account data cannot be recovered.',
     restoreConfirmBefore: 'Are you sure you want to restore the account ',
     restoreConfirmAfter: ' to the active list?',
     archiveConfirmBefore: 'Are you sure you want to archive the account ',
