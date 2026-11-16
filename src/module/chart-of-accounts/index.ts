@@ -15,5 +15,6 @@ export {
   deleteBlockReason,
 } from './domain/accountRules';
 export type { SimpleAccount } from './domain/simpleAccount';
+export type { SimpleAccountsParams } from './infrastructure/accountApi';
 export { useSimpleAccounts } from './presentation/hooks/useSimpleAccounts';
 export { unwrapAccountDetail } from './domain/accountFormMapper';
