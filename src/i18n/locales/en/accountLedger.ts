@@ -8,6 +8,10 @@ export const accountLedger = {
     archiveAction: 'Archive Account',
     restoreAction: 'Restore Account',
     deleteAction: 'Delete Account',
+    deleteBlockedSubAccounts:
+      'An account with sub accounts cannot be deleted. Archive it to stop using it.',
+    deleteBlockedBalance:
+      'An account with a balance cannot be deleted. Archive it to stop using it.',
     cancel: 'Cancel',
     archivedBadge: 'Archived',
     archiveOkTitle: 'Success',

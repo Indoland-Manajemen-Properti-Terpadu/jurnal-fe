@@ -177,6 +177,15 @@ describe('cash/bank ledger page (characterization)', () => {
     expect(screen.queryByText('Akun Terkunci')).not.toBeInTheDocument();
   });
 
+  it('keeps delete disabled for an account with a balance and points to archive', async () => {
+    renderCashBank();
+    const user = userEvent.setup();
+    await user.click(screen.getByRole('button', { name: 'Menu Aksi', hidden: true }));
+    const item = await screen.findByRole('menuitem', { name: 'Hapus Akun', hidden: true });
+    expect(item).toBeDisabled();
+    expect(screen.getByText(/masih punya saldo tidak bisa dihapus/)).toBeInTheDocument();
+  });
+
   it('offers edit and the manage menu for an open account', async () => {
     renderCashBank();
     expect(screen.getByRole('button', { name: 'Ubah Akun' })).toBeInTheDocument();
@@ -200,7 +209,8 @@ describe('cash/bank ledger page (characterization)', () => {
     );
   });
 
-  it('deletes the account with the cash/bank wording', async () => {
+  it('deletes an empty account with the cash/bank wording', async () => {
+    ledgerState.detail = { ...baseDetail, amount: 0 };
     renderCashBank();
     const user = userEvent.setup();
     await pickMenuItem(user, 'Hapus Akun');

@@ -2,6 +2,8 @@ import {
   canArchiveAccount,
   canEditAccount,
   canDeleteAccount,
+  deleteBlockReason,
+  validateAccountCodePrefix,
   getCategoryPrefix,
   hasValidName,
   isAccountSelectable,
@@ -171,5 +173,24 @@ describe('I7 locked account predicates', () => {
     expect(canArchiveAccount({ isLocked: false })).toBe(true);
     expect(canEditAccount({ isLocked: false })).toBe(true);
     expect(canEditAccount({})).toBe(true);
+  });
+});
+
+describe('code prefix and delete block', () => {
+  const beban = { categoryID: 'BOP', name: 'Beban' };
+
+  it('rejects a code whose first digit is not the class of the category', () => {
+    expect(validateAccountCodePrefix('1-99901', beban)).toBe('validation.codePrefix');
+    expect(validateAccountCodePrefix('6-10099', beban)).toBeNull();
+    expect(validateAccountCodePrefix('', beban)).toBeNull();
+    expect(validateAccountCodePrefix('1-99901', undefined)).toBeNull();
+  });
+
+  it('keeps an account with sub accounts or a balance, and a locked one', () => {
+    expect(deleteBlockReason({ isLocked: true })).toBe('locked');
+    expect(deleteBlockReason({ subAccount: [{}], amount: 0 })).toBe('hasSubAccounts');
+    expect(deleteBlockReason({ subAccount: [], amount: 4167666 })).toBe('hasBalance');
+    expect(deleteBlockReason({ subAccount: [], amount: 0 })).toBeNull();
+    expect(canDeleteAccount({})).toBe(true);
   });
 });

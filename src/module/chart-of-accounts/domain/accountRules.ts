@@ -15,6 +15,7 @@ export type ValidationKey =
   | 'validation.nameMin'
   | 'validation.nameRequired'
   | 'validation.codeRequired'
+  | 'validation.codePrefix'
   | 'validation.categoryRequired';
 
 export const validateCreateName = (value: string): ValidationKey | null =>
@@ -25,6 +26,17 @@ export const validateEditName = (value: string): ValidationKey | null =>
 
 export const validateAccountCode = (value: string): ValidationKey | null =>
   value.trim().length === 0 ? 'validation.codeRequired' : null;
+
+/** The first digit of an account code is the class of its category (1 assets to 8 other expenses). */
+export const codeMatchesCategory = (
+  code: string,
+  category?: Pick<CategoryAccountModel, 'categoryID' | 'name'>
+): boolean => !category || !code.trim() || code.trim().startsWith(getCategoryPrefix(category));
+
+export const validateAccountCodePrefix = (
+  code: string,
+  category?: Pick<CategoryAccountModel, 'categoryID' | 'name'>
+): ValidationKey | null => (codeMatchesCategory(code, category) ? null : 'validation.codePrefix');
 
 export const validateAccountCategory = (value: string): ValidationKey | null =>
   !value ? 'validation.categoryRequired' : null;
@@ -77,9 +89,26 @@ export const isHierarchyAndAccessValid = ({
 export const isAccountSelectable = (account: { isLocked?: boolean | string }): boolean =>
   !account.isLocked;
 
-/** I7: locked accounts cannot be deleted. */
-export const canDeleteAccount = (account: { isLocked?: boolean | string }): boolean =>
-  !account.isLocked;
+export type DeleteBlockReason = 'locked' | 'hasSubAccounts' | 'hasBalance';
+
+/**
+ * I7: why an account cannot be deleted, or null when it can. A locked account, an account with
+ * sub accounts and an account carrying a balance are kept (archive them instead): the backend
+ * deletes them without a word, together with their sub accounts.
+ */
+export const deleteBlockReason = (account: {
+  isLocked?: boolean | string;
+  subAccount?: unknown[];
+  amount?: number;
+}): DeleteBlockReason | null => {
+  if (account.isLocked) return 'locked';
+  if ((account.subAccount?.length ?? 0) > 0) return 'hasSubAccounts';
+  if (Math.abs(Number(account.amount) || 0) >= 0.005) return 'hasBalance';
+  return null;
+};
+
+export const canDeleteAccount = (account: Parameters<typeof deleteBlockReason>[0]): boolean =>
+  deleteBlockReason(account) === null;
 
 /** I7: locked accounts cannot be archived. */
 export const canArchiveAccount = (account: { isLocked?: boolean | string }): boolean =>
