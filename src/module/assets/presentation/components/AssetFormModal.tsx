@@ -5,6 +5,7 @@ import { useTranslation } from '@/i18n';
 import type { AssetFormValues, AssetItem } from '@/module/assets/domain/asset';
 import { getAssetEditRights } from '@/module/assets/domain/assetRules';
 import { AssetActivationFields } from '@/module/assets/presentation/components/AssetActivationFields';
+import { AssetFormDetailsSection } from '@/module/assets/presentation/components/AssetFormDetailsSection';
 import { AssetFormIdentitySection } from '@/module/assets/presentation/components/AssetFormIdentitySection';
 import { AssetModalTitle } from '@/module/assets/presentation/components/AssetModalTitle';
 import { useActivationForm } from '@/module/assets/presentation/hooks/useActivationForm';
@@ -82,6 +83,8 @@ export function AssetFormModal({ asset, onClose }: Readonly<AssetFormModalProps>
           )}
 
           <AssetFormIdentitySection form={form} rights={rights} tags={tags.data ?? []} />
+
+          <AssetFormDetailsSection form={form} editable={rights.details} asset={asset} />
 
           {!editing && (
             <Stack gap="md">

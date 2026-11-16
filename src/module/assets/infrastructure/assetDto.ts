@@ -1,4 +1,5 @@
 import type {
+  AssetCondition,
   AssetPagination,
   AssetStatus,
   DepreciationMethod,
@@ -10,6 +11,13 @@ export type PaginatedDto<T> = { data: T[]; pagination: AssetPagination };
 /** The API embeds accounts and tags as objects, but an activation response can carry an id. */
 export type AccountRefDto = string | { id: string; accountNumber?: string; name?: string } | null;
 export type TagRefDto = { id: string; name?: string } | string;
+
+export type AssetVendorDto = {
+  name?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  address?: string | null;
+};
 
 export type AssetScheduleRowDto = {
   year: number;
@@ -40,6 +48,16 @@ export type AssetDto = {
   status: AssetStatus;
   source?: string | null;
   notes?: string | null;
+  brand?: string | null;
+  modelType?: string | null;
+  serialNumber?: string | null;
+  warrantyUntil?: string | null;
+  condition?: AssetCondition | null;
+  location?: string | null;
+  vendor?: AssetVendorDto | null;
+  /** Id of the linked Supplier contact (an object when the API populates it). */
+  vendorContact?: string | { id: string } | null;
+  photos?: string[] | null;
   tags?: TagRefDto[] | null;
   assetAccount?: AccountRefDto;
   creditAccount?: AccountRefDto;
@@ -87,4 +105,19 @@ export type AccountTreeDto = {
   isArchived?: boolean;
   deleted?: boolean;
   subAccount?: AccountTreeDto[];
+};
+
+/** `GET /v1/accounts/simple`: a flat list; its `type` is the normal balance, not the account type. */
+export type SimpleAccountDto = {
+  id: string;
+  name: string;
+  accountNumber?: string;
+  isPostable?: boolean;
+};
+
+export type DisposalPreviewDto = {
+  catchUpDepreciation?: number | null;
+  accumulatedDepreciation?: number | null;
+  bookValue?: number | null;
+  gainLoss?: number | null;
 };

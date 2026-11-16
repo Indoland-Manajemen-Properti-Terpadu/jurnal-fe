@@ -37,9 +37,11 @@ export const PREFIX_KEYS = [
 
 export const IDENTITY_TYPE_KEYS = ['KTP', 'SIM', 'Passport'] as const;
 
-export const emptyContactForm = (): ContactFormValues => ({
+export const emptyContactForm = (
+  contactType: ContactFormValues['contactType'] = ['Pelanggan']
+): ContactFormValues => ({
   displayName: '',
-  contactType: ['Pelanggan'],
+  contactType,
   contactGroups: [],
   fullName: { prefix: '', firstName: '', middleName: '', lastName: '' },
   identity: { type: 'KTP', number: '' },
