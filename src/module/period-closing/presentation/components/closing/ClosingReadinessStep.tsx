@@ -22,6 +22,7 @@ import {
   type ManualCheck,
 } from '@/module/period-closing/domain/closingReadiness';
 import type { CloseBooksWizard } from '@/module/period-closing/presentation/hooks/useCloseBooksWizard';
+import { readPeriodError } from '@/module/period-closing/infrastructure/periodApi';
 import { formatDay, formatMoney } from '@/module/period-closing/presentation/periodFormat';
 import { StepCard } from './StepCard';
 
@@ -83,7 +84,13 @@ export function ClosingReadinessStep({ wizard }: Readonly<{ wizard: CloseBooksWi
   const done = confirmedCount(readiness.confirmations);
 
   const balanceBody = () => {
-    if (trialBalance.isError || !totals) return t('wizard.readiness.balanceError');
+    if (trialBalance.isError) {
+      const reason = readPeriodError(trialBalance.error).message;
+      return reason
+        ? t('wizard.readiness.balanceErrorReason', { reason })
+        : t('wizard.readiness.balanceError');
+    }
+    if (!totals) return t('wizard.readiness.balanceError');
     return readiness.trialBalance === 'pass'
       ? t('wizard.readiness.balancePass', { amount: formatMoney(totals.debit) })
       : t('wizard.readiness.balanceWarn', {

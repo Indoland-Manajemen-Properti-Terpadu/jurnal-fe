@@ -34,7 +34,10 @@ export const retainedEarningsStatus = (
   return account?.id ? 'pass' : 'fail';
 };
 
-/** An unbalanced trial balance points to a recording error worth fixing first, but does not block. */
+/**
+ * An unbalanced trial balance points to a recording error worth fixing first, but does not block.
+ * A trial balance that could not be loaded is a `fail` (see the closing wizard) and does block.
+ */
 export const trialBalanceStatus = (
   loading: boolean,
   totals: { debit: number; credit: number } | undefined
@@ -57,4 +60,5 @@ export const confirmedCount = (confirmations: ManualConfirmations): number =>
 export const isReadyToReview = (state: ReadinessState): boolean =>
   state.retainedEarnings === 'pass' &&
   state.trialBalance !== 'loading' &&
+  state.trialBalance !== 'fail' &&
   confirmedCount(state.confirmations) === MANUAL_CHECKS.length;

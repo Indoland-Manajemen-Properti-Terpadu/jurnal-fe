@@ -66,6 +66,7 @@ export const useSendSale = () => {
         sendNotices({
           emailRequested: sendEmail,
           emailSent: result.emailSent,
+          emailError: result.emailError,
           resend: Boolean(resend),
         }),
         result.sale.transactionNumber

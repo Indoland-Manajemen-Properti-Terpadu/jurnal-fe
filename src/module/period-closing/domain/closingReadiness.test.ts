@@ -32,3 +32,17 @@ describe('closing readiness', () => {
     expect(confirmedCount({ ...NO_CONFIRMATIONS, bankReconciled: true })).toBe(1);
   });
 });
+
+describe('a trial balance that could not be loaded (PRO-81)', () => {
+  const ready = {
+    retainedEarnings: 'pass' as const,
+    trialBalance: 'pass' as const,
+    confirmations: allConfirmed,
+  };
+
+  it('blocks the step, while an unbalanced one only warns', () => {
+    expect(isReadyToReview({ ...ready, trialBalance: 'fail' })).toBe(false);
+    expect(isReadyToReview({ ...ready, trialBalance: 'warn' })).toBe(true);
+    expect(isReadyToReview(ready)).toBe(true);
+  });
+});

@@ -241,7 +241,8 @@ export const mapSaleDto = (dto: SaleDto | null | undefined): Sale => {
       : null,
     finalAmount: toMoney(dto.finalAmount ?? dto.total),
     paidAmount: toMoney(dto.paidAmount),
-    remainingAmount: toMoney(dto.remainingAmount),
+    // A void invoice owes nothing, whatever the server still reports as its remainder.
+    remainingAmount: mapDisplayStatus(dto).code === 'VOID' ? 0 : toMoney(dto.remainingAmount),
     attachments: Array.isArray(dto.attachments) ? dto.attachments.map(mapAttachment) : [],
     message: dto.message || null,
     memo: dto.memo || null,

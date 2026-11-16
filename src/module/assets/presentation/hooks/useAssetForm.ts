@@ -1,4 +1,5 @@
 import { useForm } from '@mantine/form';
+import dayjs from 'dayjs';
 import { useTranslation } from '@/i18n';
 import type { AssetFormValues, AssetItem } from '@/module/assets/domain/asset';
 
@@ -26,7 +27,11 @@ export function useAssetForm(assetToEdit?: AssetItem | null) {
     validate: {
       code: (val) => (!val?.trim() ? t('errCodeRequired') : null),
       name: (val) => (!val?.trim() ? t('errNameRequired') : null),
-      acquisitionDate: (val) => (!val ? t('errDateRequired') : null),
+      acquisitionDate: (val) => {
+        if (!val) return t('errDateRequired');
+        // The acquisition journal is posted on this day, so a day that has not come cannot be booked.
+        return val > dayjs().format('YYYY-MM-DD') ? t('errDateFuture') : null;
+      },
       acquisitionCost: (val) => (Number(val) > 0 ? null : t('errCostPositive')),
     },
   });

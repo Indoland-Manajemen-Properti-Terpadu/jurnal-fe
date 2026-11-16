@@ -14,6 +14,7 @@ import type {
 } from '@/module/contacts/domain/contact';
 import type { Sale } from '@/module/sales';
 import { mapSaleDto } from '@/module/sales/infrastructure/saleMapper';
+import { parseImportFailure } from '../domain/contactImport';
 import type { ApiEnvelope, ContactDto, ContactPayloadDto, PaginatedDto } from './contactDto';
 import { buildContactPayload, mapContact, mapPagination } from './contactMapper';
 
@@ -258,14 +259,20 @@ export const importContacts = async (file: File): Promise<{ imported: number }> 
   const formData = new FormData();
   formData.append('file', file);
 
-  const { data } = await apiClient.post<ApiEnvelope<{ imported: number }>>(
-    CONTACT_ENDPOINTS.contactImport,
-    formData,
-    {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    }
-  );
-  return data.data;
+  try {
+    const { data } = await apiClient.post<ApiEnvelope<{ imported: number }>>(
+      CONTACT_ENDPOINTS.contactImport,
+      formData,
+      {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      }
+    );
+    return data.data;
+  } catch (error) {
+    // A refused file names every row and column at fault: hand those over instead of a bare 400.
+    const failure = axios.isAxiosError(error) ? parseImportFailure(error.response?.data) : null;
+    throw failure ?? error;
+  }
 };
 
 /* ---------- Filtered AP / AR Accounts ---------- */

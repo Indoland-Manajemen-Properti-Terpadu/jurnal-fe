@@ -184,6 +184,11 @@ export const contactsForm = {
     deleteTooltip: 'Delete group',
     editAria: 'Edit group {name}',
     deleteAria: 'Delete group {name}',
+    deleteTitle: 'Delete Group',
+    deleteMessage: 'Are you sure you want to delete the group {name}?',
+    deleteHelper: 'A deleted group cannot be recovered.',
+    deleteConfirm: 'Delete Group',
+    cancelDelete: 'Cancel',
     close: 'Close',
   },
   import: {
@@ -197,5 +202,10 @@ export const contactsForm = {
     filePlaceholder: 'Click to choose an .xlsx or .xls file',
     cancel: 'Cancel',
     start: 'Start Import',
+    failedSummary: 'The import was cancelled. Fix the rows below and import again.',
+    colRow: 'Row',
+    colField: 'Column',
+    colReason: 'Reason',
+    wholeRow: 'Whole row',
   },
 };

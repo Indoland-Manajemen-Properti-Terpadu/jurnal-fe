@@ -39,6 +39,8 @@ export const salesCommon = {
     resent: 'Email faktur {number} dikirim ulang.',
     emailNotSent:
       'Faktur tersimpan, tetapi email belum terkirim. Pastikan pelanggan punya alamat email, lalu kirim ulang.',
+    emailNotSentReason:
+      'Faktur tersimpan, tetapi email belum terkirim: {reason}. Perbaiki lalu kirim ulang.',
     updated: 'Perubahan faktur {number} tersimpan.',
     deleted: 'Draf faktur dihapus.',
     voided: 'Faktur {number} di-void.',
