@@ -28,6 +28,7 @@ export type ContactMappingAccountDto = Omit<
 };
 
 export type ContactDto = {
+  needsReview?: boolean | null;
   id?: string;
   _id?: string;
   contactNumber?: string;

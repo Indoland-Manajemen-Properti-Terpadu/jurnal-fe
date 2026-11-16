@@ -2,6 +2,7 @@ import { useForm } from '@mantine/form';
 import dayjs from 'dayjs';
 import { useTranslation } from '@/i18n';
 import type { AssetFormValues, AssetItem } from '@/module/assets/domain/asset';
+import { validatePhotos } from '@/module/assets/domain/assetRules';
 
 const today = () => new Date().toISOString().split('T')[0];
 
@@ -13,6 +14,14 @@ const initialValues = (asset?: AssetItem | null): AssetFormValues => ({
   acquisitionCost: asset?.acquisitionCost ?? 0,
   notes: asset?.notes ?? '',
   tagIds: asset?.tags.map((tag) => tag.id) ?? [],
+  brand: asset?.brand ?? '',
+  modelType: asset?.modelType ?? '',
+  serialNumber: asset?.serialNumber ?? '',
+  warrantyUntil: asset?.warrantyUntil ?? '',
+  condition: asset?.condition ?? '',
+  location: asset?.location ?? '',
+  vendorContactId: asset?.vendorContactId ?? '',
+  photos: asset?.photos ?? [],
 });
 
 /**
@@ -33,6 +42,10 @@ export function useAssetForm(assetToEdit?: AssetItem | null) {
         return val > dayjs().format('YYYY-MM-DD') ? t('errDateFuture') : null;
       },
       acquisitionCost: (val) => (Number(val) > 0 ? null : t('errCostPositive')),
+      photos: (val) => {
+        const key = validatePhotos(val);
+        return key ? t(key) : null;
+      },
     },
   });
 }

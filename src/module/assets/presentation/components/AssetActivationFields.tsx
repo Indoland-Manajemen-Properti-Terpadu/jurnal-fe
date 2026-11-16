@@ -20,6 +20,7 @@ import { previewAcquisitionJournal } from '@/module/assets/domain/assetRules';
 import { estimateDepreciation } from '@/module/assets/domain/depreciation';
 import { AccountSelect } from '@/module/assets/presentation/components/AccountSelect';
 import { MoneyInput } from '@/module/assets/presentation/components/MoneyInput';
+import { useAssetAccountsOfKind } from '@/module/assets/presentation/hooks/useAssetQueries';
 import { formatCurrency } from '@/utils/formatCurrency';
 
 export type AssetActivationFieldsProps = {
@@ -29,9 +30,6 @@ export type AssetActivationFieldsProps = {
   acquisitionCost: number;
 };
 
-const ASSET_TYPES = ['Aktiva Tetap'];
-const ACCUMULATION_TYPES = ['Depresiasi & Amortisasi'];
-const EXPENSE_TYPES = ['Beban', 'Depresiasi & Amortisasi'];
 const COUNTER_TYPES = ['Kas & Bank', 'Akun Hutang', 'Ekuitas'];
 
 function SectionTitle({
@@ -159,13 +157,18 @@ export function AssetActivationFields({
       .map((field) => values[field])
       .filter(Boolean);
 
+  // The asset, accumulation and expense fields list only the accounts of their own group.
+  const assetAccounts = useAssetAccountsOfKind('fixed_asset', true);
+  const accumAccounts = useAssetAccountsOfKind('accumulated_depreciation', depreciated);
+  const expenseAccounts = useAssetAccountsOfKind('depreciation_expense', depreciated);
+
   const account = (
     field: 'assetAccount' | 'creditAccount' | 'accumDeprAccount' | 'deprExpenseAccount',
     label: string,
     description: string,
-    preferred: string[],
-    required: boolean,
-    onlyPreferred = false
+    options: AccountOption[],
+    loading: boolean,
+    preferred: string[] = []
   ) => (
     <Grid.Col span={{ base: 12, sm: 6 }}>
       <AccountSelect
@@ -174,13 +177,12 @@ export function AssetActivationFields({
         placeholder={t('accountPlaceholder')}
         value={values[field]}
         onChange={(id) => form.setFieldValue(field, id)}
-        options={accounts}
+        options={options}
         preferredTypes={preferred}
-        onlyPreferred={onlyPreferred}
         takenIds={taken(field)}
         error={form.errors[field] as string | undefined}
-        required={required}
-        loading={loadingAccounts}
+        required
+        loading={loading}
       />
     </Grid.Col>
   );
@@ -198,32 +200,32 @@ export function AssetActivationFields({
             'assetAccount',
             t('assetAccountLabel'),
             t('assetAccountHint'),
-            ASSET_TYPES,
-            true,
-            true
+            assetAccounts.data ?? [],
+            assetAccounts.isLoading
           )}
           {account(
             'creditAccount',
             t('creditAccountLabel'),
             t('creditAccountHint'),
-            COUNTER_TYPES,
-            true
+            accounts,
+            Boolean(loadingAccounts),
+            COUNTER_TYPES
           )}
           {depreciated &&
             account(
               'accumDeprAccount',
               t('accumAccountLabel'),
               t('accumAccountHint'),
-              ACCUMULATION_TYPES,
-              true
+              accumAccounts.data ?? [],
+              accumAccounts.isLoading
             )}
           {depreciated &&
             account(
               'deprExpenseAccount',
               t('expenseAccountLabel'),
               t('expenseAccountHint'),
-              EXPENSE_TYPES,
-              true
+              expenseAccounts.data ?? [],
+              expenseAccounts.isLoading
             )}
         </Grid>
       </Stack>

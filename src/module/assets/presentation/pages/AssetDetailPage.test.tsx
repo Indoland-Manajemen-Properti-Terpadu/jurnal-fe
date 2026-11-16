@@ -53,12 +53,12 @@ const mockApi = (asset: Record<string, unknown>, journals: unknown[] = []) => {
   });
 };
 
-const renderPage = () =>
+const renderPage = (path = '/assets/a1') =>
   render(
     <QueryClientProvider
       client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
     >
-      <MemoryRouter initialEntries={['/assets/a1']}>
+      <MemoryRouter initialEntries={[path]}>
         <Routes>
           <Route path="/assets/:id" element={<AssetDetailPage />} />
         </Routes>
@@ -76,6 +76,12 @@ describe('<AssetDetailPage />', () => {
     const user = userEvent.setup();
     renderPage();
     expect(await screen.findByText('Aset belum diaktifkan')).toBeInTheDocument();
+    // The details open first; the depreciation tab says the asset waits for activation.
+    expect(screen.getByRole('tab', { name: 'Detail Aset' })).toHaveAttribute(
+      'aria-selected',
+      'true'
+    );
+    await user.click(screen.getByRole('tab', { name: 'Penyusutan' }));
     expect(screen.getByText('Menunggu aktivasi')).toBeInTheDocument();
     // Back stays a button of its own; the other actions are in the menu.
     expect(screen.getByRole('button', { name: 'Kembali' })).toBeInTheDocument();
@@ -117,9 +123,12 @@ describe('<AssetDetailPage />', () => {
     ]);
     const user = userEvent.setup();
     renderPage();
-    expect(await screen.findByText('Mesin')).toBeInTheDocument();
-    expect(screen.getByText('1-20003')).toBeInTheDocument();
-    expect(screen.getByText('2026')).toBeInTheDocument();
+    // The details open first, with the ledger accounts in the side column.
+    expect(await screen.findByText('1-20003 · Mesin')).toBeInTheDocument();
+    // The depreciation tab holds the schedule, the journals tab the posted journals.
+    await user.click(screen.getByRole('tab', { name: 'Penyusutan' }));
+    expect(await screen.findByText('2026')).toBeInTheDocument();
+    await user.click(screen.getByRole('tab', { name: /Jurnal/ }));
     expect(await screen.findByText('Perolehan Aset GST/001')).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Aksi Lainnya' }));
     const menu = within(await screen.findByRole('menu', { hidden: true }));
@@ -128,5 +137,15 @@ describe('<AssetDetailPage />', () => {
       menu.getByRole('menuitem', { name: 'Ubah Penyusutan', hidden: true })
     ).toBeInTheDocument();
     expect(screen.queryByText('Aset belum diaktifkan')).not.toBeInTheDocument();
+  });
+
+  it('opens the tab named in the address', async () => {
+    mockApi(active);
+    renderPage('/assets/a1?tab=depreciation');
+    expect(await screen.findByRole('tab', { name: 'Penyusutan' })).toHaveAttribute(
+      'aria-selected',
+      'true'
+    );
+    expect(await screen.findByText('Apa itu penyusutan?')).toBeInTheDocument();
   });
 });

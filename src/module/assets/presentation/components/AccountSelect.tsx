@@ -10,8 +10,6 @@ export type AccountSelectProps = {
   options: AccountOption[];
   /** Account types listed first, in this order; every other account stays selectable below. */
   preferredTypes?: string[];
-  /** Offer only the preferred types: an account of another type would be a wrong choice here. */
-  onlyPreferred?: boolean;
   /** Ids already used by another field of the same form; they cannot be picked twice. */
   takenIds?: string[];
   error?: string;
@@ -35,7 +33,6 @@ export function AccountSelect({
   onChange,
   options,
   preferredTypes = [],
-  onlyPreferred = false,
   takenIds = [],
   error,
   required,
@@ -44,17 +41,21 @@ export function AccountSelect({
 }: Readonly<AccountSelectProps>) {
   const types = [
     ...preferredTypes.filter((type) => options.some((option) => option.type === type)),
-    ...(onlyPreferred
-      ? []
-      : [...new Set(options.map((option) => option.type))]
-          .filter((type) => !preferredTypes.includes(type))
-          .sort((a, b) => a.localeCompare(b))),
+    ...[...new Set(options.map((option) => option.type))]
+      .filter((type) => !preferredTypes.includes(type))
+      .sort((a, b) => a.localeCompare(b)),
   ];
 
-  const data = types.map((type) => ({
-    group: type || '—',
-    items: options.filter((option) => option.type === type).map((o) => toItem(o, takenIds, value)),
-  }));
+  // A list the API already narrowed to one kind names no type, so it needs no group heading.
+  const untyped = options.length > 0 && options.every((option) => !option.type);
+  const data = untyped
+    ? options.map((option) => toItem(option, takenIds, value))
+    : types.map((type) => ({
+        group: type || '—',
+        items: options
+          .filter((option) => option.type === type)
+          .map((o) => toItem(o, takenIds, value)),
+      }));
 
   return (
     <Select

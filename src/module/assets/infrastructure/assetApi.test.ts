@@ -6,6 +6,8 @@ import {
   disposeAsset,
   fetchAsset,
   fetchAssetAccounts,
+  fetchAssetAccountsOfKind,
+  fetchDisposalPreview,
   fetchAssetJournals,
   fetchAssetSummary,
   fetchAssetTags,
@@ -33,6 +35,14 @@ const values = (overrides: Partial<AssetFormValues> = {}): AssetFormValues => ({
   acquisitionCost: 12000000,
   notes: ' baru ',
   tagIds: ['t1'],
+  brand: '',
+  modelType: '',
+  serialNumber: '',
+  warrantyUntil: '',
+  condition: '',
+  location: '',
+  vendorContactId: '',
+  photos: [],
   ...overrides,
 });
 const activation = (overrides: Partial<ActivationValues> = {}): ActivationValues => ({
@@ -98,7 +108,7 @@ describe('assetApi reads', () => {
     expect(http.get).toHaveBeenLastCalledWith('/v1/assets/a1/journals');
     expect(journals[0]).toMatchObject({
       date: '2026-10-15',
-      lines: [{ account: '1-20003 · Mesin' }],
+      lines: [{ accountNumber: '1-20003', accountName: 'Mesin', debit: 100, credit: 0 }],
     });
   });
 
@@ -152,8 +162,39 @@ describe('assetApi writes', () => {
       acquisitionDate: '2026-11-01',
       acquisitionCost: 12000000,
       notes: undefined,
+      brand: undefined,
+      modelType: undefined,
+      serialNumber: undefined,
+      warrantyUntil: undefined,
+      condition: undefined,
+      location: undefined,
+      vendorContactId: undefined,
+      photos: undefined,
       tags: ['t1'],
       activation: undefined,
+    });
+  });
+
+  it('sends the optional details and the vendor contact when they are filled', async () => {
+    await createAsset(
+      values({
+        brand: ' Ricoh ',
+        serialNumber: 'SN1',
+        warrantyUntil: '2027-01-01',
+        condition: 'new',
+        location: ' Gudang ',
+        vendorContactId: 'c1',
+        photos: ['https://x.test/a.jpg'],
+      })
+    );
+    expect(http.post.mock.calls[0][1]).toMatchObject({
+      brand: 'Ricoh',
+      serialNumber: 'SN1',
+      warrantyUntil: '2027-01-01',
+      condition: 'new',
+      location: 'Gudang',
+      vendorContactId: 'c1',
+      photos: ['https://x.test/a.jpg'],
     });
   });
 
@@ -223,6 +264,14 @@ describe('assetApi writes', () => {
       code: 'ZZ/1',
       acquisitionDate: '2026-11-01',
       acquisitionCost: 12000000,
+      brand: null,
+      modelType: null,
+      serialNumber: null,
+      warrantyUntil: null,
+      condition: null,
+      location: null,
+      vendorContactId: null,
+      photos: [],
       tags: ['t1'],
     });
   });
@@ -230,6 +279,45 @@ describe('assetApi writes', () => {
   it('sends only the tags for an asset pushed from ProApps', async () => {
     await updateAsset('a1', values(), { details: false, terms: false, tags: true });
     expect(http.patch).toHaveBeenCalledWith('/v1/assets/a1', { tags: ['t1'] });
+  });
+
+  it('reads the accounts of one group from the simple list', async () => {
+    http.get.mockResolvedValue({
+      data: {
+        data: [
+          { id: 'x1', name: 'Mesin', accountNumber: '1-20003', isPostable: true },
+          { id: 'x2', name: 'Induk', accountNumber: '1-20000', isPostable: false },
+        ],
+      },
+    });
+    expect(await fetchAssetAccountsOfKind('fixed_asset')).toEqual([
+      { id: 'x1', name: 'Mesin', accountNumber: '1-20003', type: '' },
+    ]);
+    expect(http.get).toHaveBeenCalledWith('/v1/accounts/simple', {
+      params: { type: 'fixed_asset' },
+    });
+  });
+
+  it('asks the API what a disposal would book', async () => {
+    http.get.mockResolvedValue({
+      data: {
+        data: {
+          catchUpDepreciation: 10,
+          accumulatedDepreciation: 20,
+          bookValue: 30,
+          gainLoss: -30,
+        },
+      },
+    });
+    expect(await fetchDisposalPreview('a1', '2026-11-16', 0)).toEqual({
+      catchUpDepreciation: 10,
+      accumulatedDepreciation: 20,
+      bookValue: 30,
+      gainLoss: -30,
+    });
+    expect(http.get).toHaveBeenCalledWith('/v1/assets/a1/dispose-preview', {
+      params: { disposalDate: '2026-11-16', disposalPrice: 0 },
+    });
   });
 
   it('uses the API message for an error and the fallback otherwise', () => {

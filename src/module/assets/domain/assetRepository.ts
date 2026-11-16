@@ -1,5 +1,7 @@
 import type {
   AccountOption,
+  AssetAccountKind,
+  DisposalPreview,
   ActivationValues,
   AssetFormValues,
   AssetItem,
@@ -20,6 +22,8 @@ export interface AssetRepository {
   journals: (id: string) => Promise<AssetJournal[]>;
   tags: () => Promise<AssetTag[]>;
   accounts: () => Promise<AccountOption[]>;
+  /** Accounts of one group, for the fields that only make sense for that group. */
+  accountsOfKind: (kind: AssetAccountKind) => Promise<AccountOption[]>;
   /** Without `activation` the asset waits as pending; with it the asset is booked at once. */
   create: (values: AssetFormValues, activation?: ActivationValues) => Promise<AssetItem>;
   /** Sends only the fields `rights` allows for this asset. */
@@ -27,5 +31,11 @@ export interface AssetRepository {
   activate: (id: string, values: ActivationValues) => Promise<AssetItem>;
   /** Changes the accounts and depreciation of an active asset. */
   reviseActivation: (id: string, values: ActivationValues) => Promise<AssetItem>;
+  /** What a disposal would book; the API refuses an asset that is not active. */
+  disposePreview: (
+    id: string,
+    disposalDate: string,
+    disposalPrice: number
+  ) => Promise<DisposalPreview>;
   dispose: (id: string, values: DisposalValues) => Promise<AssetItem>;
 }

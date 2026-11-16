@@ -11,7 +11,7 @@ Contact master data (customers, vendors, employees and other parties): list with
 | `routes.contacts.detail`       | `/contact/:idAccount`                    | `DetailContactPage` (view and edit)                                               |
 | `routes.contacts.transactions` | `/contact/:idAccount/transaction-detail` | `TransactionDetailByContactPage`                                                  |
 
-`/kontak` (`routes.legacyPaths.contacts`) redirects to `/contact`. `index.ts` exports the four pages plus `fetchContacts` and `fetchPaymentTerms` (used by sales).
+`/kontak` (`routes.legacyPaths.contacts`) redirects to `/contact`. `index.ts` exports the four pages plus `fetchContacts` and `fetchPaymentTerms` (used by sales) and `ContactQuickCreateModal` (the full contact form for another feature, e.g. a new vendor from an asset; `initialContactType` preselects the type). A contact carries `needsReview` when the API created it automatically.
 
 ## Endpoints (`CONTACT_ENDPOINTS` in `infrastructure/contactApi.ts`)
 

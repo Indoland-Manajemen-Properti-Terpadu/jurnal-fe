@@ -11,6 +11,40 @@ const dto = (overrides: Partial<AssetDto> = {}): AssetDto => ({
   ...overrides,
 });
 
+describe('mapAsset details', () => {
+  it('maps the vendor, the linked contact and the optional facts', () => {
+    const asset = mapAsset(
+      dto({
+        brand: 'Ricoh',
+        warrantyUntil: '2027-03-01T00:00:00.000Z',
+        condition: 'second',
+        vendor: { name: 'CV Maju', phone: '0812', email: null, address: 'Jl. A' },
+        vendorContact: 'c1',
+        photos: ['https://x.test/a.jpg'],
+      })
+    );
+    expect(asset).toMatchObject({
+      brand: 'Ricoh',
+      warrantyUntil: '2027-03-01',
+      condition: 'second',
+      vendor: { name: 'CV Maju', phone: '0812', email: undefined, address: 'Jl. A' },
+      vendorContactId: 'c1',
+      photos: ['https://x.test/a.jpg'],
+    });
+  });
+
+  it('treats a missing or nameless vendor as none and accepts a populated contact', () => {
+    const none = mapAsset(dto({ vendor: { name: ' ' }, vendorContact: null, photos: null }));
+    expect(none).toMatchObject({
+      vendor: null,
+      vendorContactId: null,
+      photos: [],
+      condition: null,
+    });
+    expect(mapAsset(dto({ vendorContact: { id: 'c2' } })).vendorContactId).toBe('c2');
+  });
+});
+
 describe('mapAsset', () => {
   it('keeps the calendar date of an ISO timestamp', () => {
     expect(mapAsset(dto()).acquisitionDate).toBe('2026-09-12');

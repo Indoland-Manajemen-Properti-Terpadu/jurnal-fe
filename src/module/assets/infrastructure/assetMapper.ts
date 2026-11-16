@@ -3,6 +3,8 @@ import type {
   AccountRef,
   AssetItem,
   AssetJournal,
+  AssetVendor,
+  DisposalPreview,
   AssetSummary,
   AssetTag,
   Paginated,
@@ -13,7 +15,10 @@ import type {
   AssetDto,
   AssetJournalDto,
   AssetSummaryDto,
+  AssetVendorDto,
+  DisposalPreviewDto,
   PaginatedDto,
+  SimpleAccountDto,
   TagDto,
   TagRefDto,
 } from './assetDto';
@@ -30,6 +35,17 @@ const mapAccountRef = (dto: AccountRefDto | undefined): AccountRef | null => {
 
 const mapTagRef = (dto: TagRefDto): AssetTag =>
   typeof dto === 'string' ? { id: dto, name: '' } : { id: dto.id, name: dto.name ?? '' };
+
+const mapVendor = (dto: AssetVendorDto | null | undefined): AssetVendor | null => {
+  const name = dto?.name?.trim();
+  if (!dto || !name) return null;
+  return {
+    name,
+    phone: dto.phone || undefined,
+    email: dto.email || undefined,
+    address: dto.address || undefined,
+  };
+};
 
 export const mapAsset = (dto: AssetDto): AssetItem => ({
   id: dto.id,
@@ -51,6 +67,16 @@ export const mapAsset = (dto: AssetDto): AssetItem => ({
   status: dto.status,
   source: dto.source ?? '',
   notes: dto.notes || undefined,
+  brand: dto.brand || undefined,
+  modelType: dto.modelType || undefined,
+  serialNumber: dto.serialNumber || undefined,
+  warrantyUntil: toDateOnly(dto.warrantyUntil),
+  condition: dto.condition ?? null,
+  location: dto.location || undefined,
+  vendor: mapVendor(dto.vendor),
+  vendorContactId:
+    (typeof dto.vendorContact === 'string' ? dto.vendorContact : dto.vendorContact?.id) ?? null,
+  photos: dto.photos ?? [],
   tags: (dto.tags ?? []).map(mapTagRef),
   assetAccount: mapAccountRef(dto.assetAccount),
   creditAccount: mapAccountRef(dto.creditAccount),
@@ -90,7 +116,8 @@ export const mapJournal = (dto: AssetJournalDto): AssetJournal => ({
   notes: dto.notes ?? '',
   sourceType: dto.sourceType ?? '',
   lines: (dto.transactionDetail ?? []).map((line) => ({
-    account: [line.account?.accountNumber, line.account?.name].filter(Boolean).join(' · '),
+    accountNumber: line.account?.accountNumber ?? '',
+    accountName: line.account?.name ?? '',
     debit: line.debit ?? 0,
     credit: line.credit ?? 0,
   })),
@@ -113,3 +140,21 @@ export const flattenAccountOptions = (tree: AccountTreeDto[]): AccountOption[] =
       : []),
     ...flattenAccountOptions(account.subAccount ?? []),
   ]);
+
+/** The simple list holds postable accounts only and names no account type. */
+export const mapSimpleAccounts = (rows: SimpleAccountDto[]): AccountOption[] =>
+  rows
+    .filter((row) => row.isPostable !== false)
+    .map((row) => ({
+      id: row.id,
+      accountNumber: row.accountNumber ?? '',
+      name: row.name,
+      type: '',
+    }));
+
+export const mapDisposalPreview = (dto: DisposalPreviewDto): DisposalPreview => ({
+  catchUpDepreciation: dto.catchUpDepreciation ?? 0,
+  accumulatedDepreciation: dto.accumulatedDepreciation ?? 0,
+  bookValue: dto.bookValue ?? 0,
+  gainLoss: dto.gainLoss ?? 0,
+});
