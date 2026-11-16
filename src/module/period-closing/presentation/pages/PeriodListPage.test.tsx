@@ -163,4 +163,70 @@ describe('<PeriodListPage />', () => {
     expect(await screen.findByText('Anda belum memiliki akses')).toBeInTheDocument();
     expect(screen.queryByRole('table')).not.toBeInTheDocument();
   });
+
+  describe('deleted lock and its history (PRO-83)', () => {
+    const qa = { id: 'u9', name: 'QA Tester', email: 'qa@contoh.id', accessRole: 'r' };
+    const deleted = period({
+      id: 'del',
+      name: 'QA Kunci Uji',
+      startDate: '2025-01-01T00:00:00.000Z',
+      endDate: '2025-02-28T00:00:00.000Z',
+      isActive: true,
+      status: 'DELETED',
+      deleted: true,
+      deletedAt: '2026-11-16T12:00:00.000Z',
+      deletedBy: qa,
+      activities: [
+        { action: 'CREATE', performedBy: qa, performedAt: '2026-11-16T10:00:00.000Z', changes: [] },
+        {
+          action: 'UPDATE',
+          performedBy: qa,
+          performedAt: '2026-11-16T10:30:00.000Z',
+          changes: [{ field: 'endDate', from: '2025-01-31T00:00:00.000Z', to: '2025-02-28' }],
+        },
+        { action: 'DELETE', performedBy: qa, performedAt: '2026-11-16T12:00:00.000Z', changes: [] },
+      ],
+    });
+
+    const open = async () => {
+      http.get.mockImplementation((url: string, config?: { params?: Record<string, unknown> }) => {
+        if (url === '/v1/users/me/permissions') {
+          return Promise.resolve({ data: { role: 'user', permissions: [ALL_RIGHTS] } });
+        }
+        return Promise.resolve(
+          config?.params?.includeDeleted ? page([deleted, lockJan]) : page([lockJan])
+        );
+      });
+      renderPage();
+      return rowOf('QA Kunci Uji');
+    };
+
+    it('asks for deleted periods, labels the row from status, and offers no action', async () => {
+      const row = await open();
+
+      expect(within(row).getByText('Dihapus')).toBeInTheDocument();
+      expect(within(row).getByText(/Dihapus .* oleh QA Tester/)).toBeInTheDocument();
+      expect(within(row).queryByRole('button', { name: /Aksi untuk/ })).not.toBeInTheDocument();
+      expect(
+        http.get.mock.calls.some(([, config]) => config?.params?.includeDeleted === true)
+      ).toBe(true);
+      // The summary reads active locks only, so it never asks for deleted ones.
+      expect(screen.getByText('1 periode')).toBeInTheDocument();
+    });
+
+    it('opens the change log of the row, oldest first, with the old and new date', async () => {
+      const user = userEvent.setup();
+      const row = await open();
+      await user.click(within(row).getByRole('button', { name: 'Riwayat QA Kunci Uji' }));
+
+      const dialog = await screen.findByRole('dialog');
+      const lines = within(dialog)
+        .getAllByText(/Dibuat|Diubah|Dihapus/)
+        .map((n) => n.textContent);
+      expect(lines).toEqual(['Dibuat', 'Diubah', 'Dihapus']);
+      expect(
+        within(dialog).getByText('Tanggal akhir: 31 Jan 2025 → 28 Feb 2025')
+      ).toBeInTheDocument();
+    });
+  });
 });

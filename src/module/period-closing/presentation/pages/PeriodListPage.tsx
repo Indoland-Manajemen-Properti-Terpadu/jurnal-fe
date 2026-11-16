@@ -10,6 +10,7 @@ import type { AccountingPeriod } from '@/module/period-closing/domain/accounting
 import { latestActiveClosing } from '@/module/period-closing/domain/periodRules';
 import { PeriodFormModal } from '@/module/period-closing/presentation/components/PeriodFormModal';
 import { PeriodGuide } from '@/module/period-closing/presentation/components/PeriodGuide';
+import { PeriodHistoryModal } from '@/module/period-closing/presentation/components/PeriodHistoryModal';
 import { PeriodHero } from '@/module/period-closing/presentation/components/PeriodHero';
 import type { PeriodAction } from '@/module/period-closing/presentation/components/PeriodRowActions';
 import {
@@ -34,6 +35,7 @@ type Dialog =
   | { kind: 'form'; period: AccountingPeriod | null }
   | { kind: 'delete'; period: AccountingPeriod }
   | { kind: 'reopen'; period: AccountingPeriod }
+  | { kind: 'history'; period: AccountingPeriod }
   | null;
 
 /** Every period lock and closing of the site, with the state of the books on top. */
@@ -80,6 +82,9 @@ export function PeriodListPage() {
         break;
       case 'reopen':
         setDialog({ kind: 'reopen', period });
+        break;
+      case 'history':
+        setDialog({ kind: 'history', period });
         break;
       case 'journal':
         if (period.closingJournalId) {
@@ -194,6 +199,10 @@ export function PeriodListPage() {
 
       {dialog?.kind === 'reopen' && (
         <ReopenPeriodModal period={dialog.period} onClose={() => setDialog(null)} />
+      )}
+
+      {dialog?.kind === 'history' && (
+        <PeriodHistoryModal period={dialog.period} onClose={() => setDialog(null)} />
       )}
 
       <ConfirmModal

@@ -95,3 +95,19 @@ export const timestampDay = (timestamp: string): string => {
   const moment = new Date(timestamp);
   return Number.isNaN(moment.getTime()) ? '' : localDay(moment);
 };
+
+/** Date and time of a timestamp in the user's own time zone (for a log line). */
+export const formatTimestamp = (
+  timestamp: string,
+  language: SupportedLanguage | string
+): string => {
+  const moment = new Date(timestamp);
+  if (Number.isNaN(moment.getTime())) return '—';
+  return new Intl.DateTimeFormat(localeOf(language), {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(moment);
+};

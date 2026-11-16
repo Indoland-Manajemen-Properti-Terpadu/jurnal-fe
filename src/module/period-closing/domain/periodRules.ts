@@ -1,4 +1,9 @@
-import type { AccountingPeriod, PeriodCreateValues, PeriodType } from './accountingPeriod';
+import type {
+  AccountingPeriod,
+  PeriodCreateValues,
+  PeriodStatusFilter,
+  PeriodType,
+} from './accountingPeriod';
 
 /**
  * Pure date and permission rules of accounting periods. Dates are calendar days (`YYYY-MM-DD`)
@@ -49,7 +54,7 @@ export const findOverlap = (
 ): AccountingPeriod | undefined =>
   periods.find(
     (period) =>
-      period.isActive &&
+      period.status === 'ACTIVE' &&
       period.type === type &&
       period.id !== excludeId &&
       rangesOverlap(range, period)
@@ -60,12 +65,33 @@ export const latestActiveClosing = (
   periods: readonly AccountingPeriod[]
 ): AccountingPeriod | undefined =>
   periods
-    .filter((period) => period.type === 'CLOSE' && period.isActive)
+    .filter((period) => period.type === 'CLOSE' && period.status === 'ACTIVE')
     .reduce<
       AccountingPeriod | undefined
     >((latest, period) => (!latest || period.endDate > latest.endDate ? period : latest), undefined);
 
-export const canDeletePeriod = (period: AccountingPeriod): boolean => period.type === 'LOCK';
+/** Whether a period belongs under a status filter. A reopened closing counts as inactive. */
+export const matchesStatusFilter = (
+  period: Pick<AccountingPeriod, 'status'>,
+  filter: PeriodStatusFilter
+): boolean => {
+  switch (filter) {
+    case 'active':
+      return period.status === 'ACTIVE';
+    case 'deleted':
+      return period.status === 'DELETED';
+    case 'inactive':
+    default:
+      return period.status === 'INACTIVE' || period.status === 'REOPENED';
+  }
+};
+
+/** A deleted period is a record only: nothing can be done to it. */
+export const isDeletedPeriod = (period: Pick<AccountingPeriod, 'status'>): boolean =>
+  period.status === 'DELETED';
+
+export const canDeletePeriod = (period: AccountingPeriod): boolean =>
+  period.type === 'LOCK' && !isDeletedPeriod(period);
 
 /** A closing changes only its name and notes; a lock changes everything except its type. */
 export const canEditDates = (period: AccountingPeriod): boolean => period.type === 'LOCK';
@@ -73,7 +99,8 @@ export const canEditDates = (period: AccountingPeriod): boolean => period.type =
 export const canReopenPeriod = (
   period: AccountingPeriod,
   latestClosing: AccountingPeriod | undefined
-): boolean => period.type === 'CLOSE' && period.isActive && latestClosing?.id === period.id;
+): boolean =>
+  period.type === 'CLOSE' && period.status === 'ACTIVE' && latestClosing?.id === period.id;
 
 /** Whether a calendar day falls inside a range. */
 export const isWithin = (day: string, range: DateRange): boolean =>

@@ -148,6 +148,7 @@ export function PeriodTable({
               { value: ALL, label: t('filters.statusAll') },
               { value: 'active', label: t('filters.statusActive') },
               { value: 'inactive', label: t('filters.statusInactive') },
+              { value: 'deleted', label: t('filters.statusDeleted') },
             ]}
           />
         </Group>
@@ -162,7 +163,7 @@ export function PeriodTable({
                   {header(t('table.range'), 200)}
                   {header(t('table.status'), 120)}
                   {header(t('table.createdBy'), 140)}
-                  {header(t('table.actions'), 64, true)}
+                  {header(t('table.actions'), 96, true)}
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>{renderBody()}</Table.Tbody>

@@ -6,8 +6,10 @@ import type {
   PeriodCreateValues,
   PeriodListParams,
   PeriodPage,
+  PeriodStatusFilter,
   PeriodUpdateValues,
 } from '@/module/period-closing/domain/accountingPeriod';
+import { matchesStatusFilter } from '@/module/period-closing/domain/periodRules';
 import type { ApiEnvelope, DateCheckDto, PeriodDto, PeriodListDto } from './periodDto';
 import { mapDateCheck, mapPeriod, mapPeriodPage } from './periodMapper';
 
@@ -34,6 +36,7 @@ const requestPeriods = async (
         sortBy: params.sortBy ?? 'startDate:desc',
         page: params.page,
         limit: params.limit,
+        includeDeleted: params.includeDeleted ? true : undefined,
       },
     })
   ).data.data;
@@ -49,7 +52,7 @@ export const fetchPeriods = async (params: PeriodListParams): Promise<PeriodPage
   const all = mapPeriodPage(
     await requestPeriods({ ...params, page: 1, limit: STATUS_FILTER_LIMIT }),
     STATUS_FILTER_LIMIT
-  ).items.filter((period) => period.isActive === (params.status === 'active'));
+  ).items.filter((period) => matchesStatusFilter(period, params.status as PeriodStatusFilter));
   const start = (params.page - 1) * params.limit;
   return {
     items: all.slice(start, start + params.limit),

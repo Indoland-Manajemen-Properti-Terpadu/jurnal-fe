@@ -47,9 +47,19 @@ Data borrowed for the wizard, through public module APIs:
 ## Server behaviour worked around (checked 2026-11-12)
 
 - `isActive=true` and `isActive=false` both return no rows. `fetchPeriods` does not send `isActive`: with a status filter it reads up to 100 periods of the type and filters and pages them itself. Send `isActive` again once the server filter works.
-- `totalResults` once counted a deleted period (`results: []` with `totalResults: 1`); it matched on a later check. Reopening used to delete the period; since the backend change of 2026-11-12 it stays as inactive.
+- `totalResults` once counted a deleted period (`results: []` with `totalResults: 1`); it matched on a later check. With `includeDeleted=true` the count includes the deleted rows it now returns. Reopening used to delete the period; since the backend change of 2026-11-12 it stays as inactive.
 - `reopenedBy` (and `closedBy`) come as a bare user id on the list, unlike `createdBy` (an object), so the row shows the reopen date and adds the name only when the server sends one. A page that is not full is the last one, so its rows give the total either way.
 - The 409 on `POST` is English and technical ("There is already an active locked period..."), while the 409 on `PATCH` is Indonesian. The screen shows its own text for 403, 404 and 409; 400 messages (Indonesian) are shown as they are.
+
+## Status, deleted locks and change log (PRO-83)
+
+- The list asks `includeDeleted=true` (the table only; the summary and overlap checks read active periods and never ask for deleted ones). Without it the response is unchanged.
+- The label is read from `status` alone: `ACTIVE`, `INACTIVE`, `DELETED`, `REOPENED` (`PeriodStatus`). `isActive` is not used for display: a deleted row can keep `isActive: true`. A row without `status` (older response) gets one from its flags in `periodMapper`.
+- Under the badge: "Dihapus {date} oleh {name}" (`deletedAt`, `deletedBy`), "Dinonaktifkan {date} oleh {name}" (`deactivatedAt`, `deactivatedBy`), or the reopen date. The name is left out when the server sends none.
+- A `DELETED` row has no action menu. The status filter has a "Dihapus" option; `fetchPeriods` filters by `status` (`matchesStatusFilter`), and "Tidak aktif" covers `INACTIVE` and `REOPENED`.
+- `activities` (oldest first) open from the history icon of a row (`PeriodHistoryModal`). An `UPDATE` change shows `from` (the stored ISO date) and `to` (the sent `YYYY-MM-DD`) as calendar days. An unknown action shows as "Perubahan".
+- Locks deleted or turned off before this backend change have `deletedBy`/`deactivatedBy` null and no `activities`; they do not appear with `includeDeleted=true`, and no history icon is shown for a row without a log.
+- Checked on the live service 2026-11-16 (Demo Site, lock "Uji Riwayat FE 2099", create, change end date, off, on, off, delete): `status`, `includeDeleted` and `activities` work. Differences from the ticket's example: `deletedBy` comes `null` while `deletedAt` is set (the name is then read from the last `DELETE` log line), and an `UPDATE` change's `to` is also an ISO timestamp. Rows deleted before the deploy (for example "QA Kunci Uji") have an empty log and no names, so they show only the date.
 
 ## State
 

@@ -4,7 +4,8 @@ import { fetchPeriods, STATUS_FILTER_LIMIT } from './periodApi';
 const http = vi.hoisted(() => ({ get: vi.fn() }));
 vi.mock('@/lib/http/apiClient', () => ({ default: http }));
 
-const row = (id: string, isActive: boolean) => ({
+const row = (id: string, isActive: boolean, status?: string) => ({
+  status: status ?? (isActive ? 'ACTIVE' : 'INACTIVE'),
   id,
   name: id,
   type: 'LOCK',
@@ -45,5 +46,34 @@ describe('fetchPeriods', () => {
     });
     expect(page.items.map((item) => item.id)).toEqual(['d']);
     expect(page.pagination).toEqual({ page: 2, limit: 2, totalPages: 2, total: 3 });
+  });
+
+  it('asks for deleted periods only when the history table does', async () => {
+    http.get.mockResolvedValue(answer([row('a', true, 'DELETED')]));
+    const page = await fetchPeriods({ type: 'LOCK', page: 1, limit: 10, includeDeleted: true });
+
+    expect(http.get.mock.calls[0][1].params.includeDeleted).toBe(true);
+    expect(page.items[0].status).toBe('DELETED');
+
+    await fetchPeriods({ type: 'LOCK', page: 1, limit: 10 });
+    expect(http.get.mock.calls[1][1].params.includeDeleted).toBeUndefined();
+  });
+
+  it('does not count a deleted row (isActive still true) as active', async () => {
+    http.get.mockResolvedValue(answer([row('a', true), row('b', true, 'DELETED')]));
+    const active = await fetchPeriods({
+      status: 'active',
+      page: 1,
+      limit: 10,
+      includeDeleted: true,
+    });
+    expect(active.items.map((item) => item.id)).toEqual(['a']);
+    const deleted = await fetchPeriods({
+      status: 'deleted',
+      page: 1,
+      limit: 10,
+      includeDeleted: true,
+    });
+    expect(deleted.items.map((item) => item.id)).toEqual(['b']);
   });
 });
