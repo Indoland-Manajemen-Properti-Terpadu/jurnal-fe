@@ -60,6 +60,7 @@ export function AssetFormIdentitySection({ form, rights, tags }: Readonly<AssetF
             valueFormat="DD/MM/YYYY"
             withAsterisk
             size="sm"
+            maxDate={new Date()}
             disabled={!rights.terms}
             leftSection={<IconCalendar size={15} color="var(--mantine-color-dimmed)" />}
             value={form.values.acquisitionDate ? new Date(form.values.acquisitionDate) : null}

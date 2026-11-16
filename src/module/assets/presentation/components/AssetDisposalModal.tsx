@@ -183,6 +183,8 @@ export function AssetDisposalModal({ asset, onClose }: Readonly<AssetDisposalMod
                   onChange={(id) => form.setFieldValue('gainLossAccount', id)}
                   options={accounts.data ?? []}
                   preferredTypes={GAIN_LOSS_TYPES}
+                  error={form.errors.gainLossAccount as string | undefined}
+                  required
                   loading={accounts.isLoading}
                 />
               </Stack>

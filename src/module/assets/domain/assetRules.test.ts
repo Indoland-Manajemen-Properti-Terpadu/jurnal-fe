@@ -138,7 +138,7 @@ describe('disposal', () => {
     disposalDate: '2026-11-01',
     disposalPrice: 0,
     proceedsAccount: '',
-    gainLossAccount: '',
+    gainLossAccount: 'g',
     ...overrides,
   });
 
@@ -169,6 +169,19 @@ describe('disposal', () => {
     expect(
       validateDisposal(disposal({ disposalPrice: 5, proceedsAccount: 'x' }), '2026-11-09')
     ).toEqual({});
+  });
+
+  it('needs the gain/loss account for a sold and a scrapped asset (PRO-85)', () => {
+    expect(validateDisposal(disposal({ gainLossAccount: '' }), '2026-11-09', 'scrapped')).toEqual({
+      gainLossAccount: 'errGainLossAccount',
+    });
+    expect(
+      validateDisposal(
+        disposal({ disposalPrice: 5, proceedsAccount: 'x', gainLossAccount: '' }),
+        '2026-11-09',
+        'sold'
+      ).gainLossAccount
+    ).toBe('errGainLossAccount');
   });
 
   it('estimates the gain or loss without floating point drift', () => {

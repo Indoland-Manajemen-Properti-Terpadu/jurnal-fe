@@ -41,6 +41,13 @@ The activation block is `assetAccount`, `creditAccount`, `accumDeprAccount`, `de
 - Category is free text (`categoryName`).
 - A `proappsSyncError` on an asset (the hand-over to ProApps did not go through) is shown as a calm notice; the asset is saved in Jurnal. In the sandbox this appears on every new asset because ProApps cannot be reached.
 
+## Form guards (PRO-85)
+
+- The acquisition date cannot be later than today (date picker `maxDate` and the form rule `errDateFuture`): the acquisition journal is posted on that day. The server accepts a future date, so only this form guards it.
+- The asset account of the activation form lists only accounts of the type Aktiva Tetap (`AccountSelect` `onlyPreferred`); the other account fields still list every account, preferred types first.
+- The disposal gain/loss account is required for a sold and a scrapped asset (`validateDisposal`, `errGainLossAccount`): the server answers "Akun laba/rugi pelepasan wajib diisi" without it, so the field is no longer labelled optional.
+- Still needing the backend: the "Total Nilai Perolehan" card sums only active assets while its hint counts every registered one, and an asset cannot be deleted (no endpoint).
+
 ## Not built
 
 Tag management (tags are only picked from `/v1/tags`), account-and-depreciation edit of a pending asset outside the activation dialog, and asset deletion (no endpoint).
