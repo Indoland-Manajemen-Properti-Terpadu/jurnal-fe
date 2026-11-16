@@ -164,6 +164,8 @@ export const periodClosing = {
     impact:
       'Transactions dated {start} to {end} ({days} days) cannot be added, changed or deleted.',
     impactInactive: 'This lock is off, so transactions in this range can still change.',
+    endNotPassed:
+      'The end date has not passed yet. Transactions up to {end}, including ones still to come, cannot be recorded while the lock is active.',
     closeLocked:
       'The dates of a closing cannot change. To correct them, reopen this closing and close again.',
     overlap: 'This range overlaps "{name}" ({range}). Pick other dates or change that period.',
@@ -224,6 +226,8 @@ export const periodClosing = {
       gap: 'There are {days} days ({range}) between the latest closing and this period. Transactions in that range stay open.',
       future:
         'The end date has not passed yet. Transactions still to come up to {end} cannot be recorded after closing.',
+      endFuture: 'The end date has not passed yet. A closing can run up to today ({end}).',
+      tooLong: 'The period is too long. The end date can be at most one year after the start date.',
       overlap: 'This range overlaps the closing "{name}" ({range}).',
       notesPlaceholder: 'Optional, for example the closing minutes number',
     },
@@ -243,6 +247,8 @@ export const periodClosing = {
       balanceWarn:
         'Total debit {debit} and credit {credit} differ. Check for a wrongly recorded journal before closing.',
       balanceError: 'The trial balance could not be loaded.',
+      balanceErrorReason:
+        'The trial balance could not be loaded: {reason}. Change the period in step 1 or try again.',
       checking: 'Checking…',
       bankTitle: 'Bank accounts are reconciled up to {end}',
       bankBody: 'Match the bank statement lines with your cash and bank records.',

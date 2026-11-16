@@ -38,6 +38,12 @@ Data borrowed for the wizard, through public module APIs:
 - `closingPreview.ts`: one line per revenue or expense account with a balance in the trial balance's profit and loss column, on the opposite side, plus retained earnings for the net. Money is added in minor units. It is a preview: the server computes the journal (from the start of the data to the end date) and the page says the final figures may differ.
 - The closing journal of the latest closing opens from its row and from the success screen (`routes.journalEntries.detail`).
 
+## Closing wizard guards and lock warning (PRO-81, PRO-83)
+
+- Step 1 of the closing wizard refuses a range whose end has not come yet (`closingRangeIssue` = `endFuture`; today itself is allowed with the old warning) and one longer than a year (`tooLong`): the trial balance of step 2 answers 400 "Rentang waktu maksimal adalah 1 tahun" when the end is later than the same day a year after the start (checked 2026-11-16: 2025-01-01 to 2026-01-01 passes, to 2026-01-02 fails). The Lanjutkan button stays disabled and the message is shown live.
+- Step 2 stays blocked while the trial balance could not be loaded (`fail`, `isReadyToReview`); an unbalanced one still only warns. The reason the server gave (a 400 message, `readPeriodError`) is shown next to the check.
+- The lock dialog warns when the end date of an active lock has not passed (the "Bulan ini" quick pick); it does not forbid it.
+
 ## Server behaviour worked around (checked 2026-11-12)
 
 - `isActive=true` and `isActive=false` both return no rows. `fetchPeriods` does not send `isActive`: with a status filter it reads up to 100 periods of the type and filters and pages them itself. Send `isActive` again once the server filter works.
