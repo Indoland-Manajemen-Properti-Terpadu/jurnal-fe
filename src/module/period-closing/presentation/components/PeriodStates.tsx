@@ -1,7 +1,8 @@
-import { Alert, Button, Paper } from '@mantine/core';
+import { Alert, Button, Paper, Stack, Text } from '@mantine/core';
 import { IconAlertCircle, IconLockAccess, IconRefresh } from '@tabler/icons-react';
 import { EmptyState } from '@/components/EmptyState/EmptyState';
 import { useTranslation } from '@/i18n';
+import { PeriodIllustration } from './PeriodIllustration';
 
 /** Shown instead of the page to someone without the period menu. */
 export function PeriodNoAccess() {
@@ -41,5 +42,21 @@ export function PeriodLoadError({ onRetry }: Readonly<{ onRetry: () => void }>) 
         {t('loadError.retry')}
       </Button>
     </Alert>
+  );
+}
+
+/** The table before anything was locked or closed: a picture and what to do first. */
+export function PeriodEmptyList() {
+  const { t } = useTranslation('periodClosing');
+  return (
+    <Stack align="center" gap="xs" py={40} px="md">
+      <PeriodIllustration name="empty" maxWidth={120} />
+      <Text fw={600} ta="center">
+        {t('empty.title')}
+      </Text>
+      <Text size="sm" c="dimmed" ta="center" maw={420} lh={1.55}>
+        {t('empty.description')}
+      </Text>
+    </Stack>
   );
 }

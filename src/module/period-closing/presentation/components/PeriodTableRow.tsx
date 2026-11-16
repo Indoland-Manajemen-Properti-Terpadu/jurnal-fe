@@ -1,4 +1,4 @@
-import { Badge, Group, Stack, Table, Text } from '@mantine/core';
+import { Badge, Group, Stack, Table, Text, ThemeIcon, Tooltip } from '@mantine/core';
 import { IconBook2, IconLock } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import type { AccountingPeriod } from '@/module/period-closing/domain/accountingPeriod';
@@ -18,19 +18,24 @@ interface PeriodTableRowProps {
   onAction: (action: PeriodAction, period: AccountingPeriod) => void;
 }
 
+/** The type as an icon alone (closed lock or closed book); the name is its tooltip and screen reader label. */
 export function PeriodTypeBadge({ type }: Readonly<{ type: AccountingPeriod['type'] }>) {
   const { t } = useTranslation('periodClosing');
   const isLock = type === 'LOCK';
+  const label = t(`types.${type}`);
   return (
-    <Badge
-      variant="light"
-      color={isLock ? 'orange' : 'primary'}
-      radius="sm"
-      tt="none"
-      leftSection={isLock ? <IconLock size={12} /> : <IconBook2 size={12} />}
-    >
-      {t(`types.${type}`)}
-    </Badge>
+    <Tooltip label={label} withArrow>
+      <ThemeIcon
+        size={32}
+        radius="md"
+        variant="light"
+        color={isLock ? 'orange' : 'primary'}
+        role="img"
+        aria-label={label}
+      >
+        {isLock ? <IconLock size={18} /> : <IconBook2 size={18} />}
+      </ThemeIcon>
+    </Tooltip>
   );
 }
 
@@ -38,14 +43,20 @@ function StatusBadge({ period }: Readonly<{ period: AccountingPeriod }>) {
   const { t } = useTranslation('periodClosing');
   if (period.isActive) {
     return (
-      <Badge variant="dot" color="teal" radius="sm" tt="none">
+      <Badge variant="light" color="teal" c="teal.9" radius="sm" tt="none">
         {t('table.active')}
       </Badge>
     );
   }
   const reopened = period.type === 'CLOSE';
   return (
-    <Badge variant="dot" color={reopened ? 'orange' : 'gray'} radius="sm" tt="none">
+    <Badge
+      variant="light"
+      color={reopened ? 'orange' : 'gray'}
+      c={reopened ? 'orange.9' : 'gray.8'}
+      radius="sm"
+      tt="none"
+    >
       {reopened ? t('table.reopened') : t('table.inactive')}
     </Badge>
   );
@@ -68,7 +79,7 @@ export function PeriodTableRow({
               {period.name}
             </Text>
             {isLatestClosing && (
-              <Badge size="xs" variant="outline" color="primary" radius="sm" tt="none">
+              <Badge size="xs" variant="filled" color="primary" radius="sm" tt="none">
                 {t('table.latestClosing')}
               </Badge>
             )}

@@ -2,7 +2,7 @@ export const beginningBalances = {
   page: {
     title: 'Opening Balance',
     subtitle:
-      'The starting position of every account on the conversion date. Total debit and credit must balance before you publish.',
+      'The starting position of every account on the conversion date. An untraced difference is recorded to Opening Balance Equity when published.',
     generalLedger: 'General Ledger',
     chartOfAccounts: 'Chart of Accounts (COA)',
     loading: 'Loading the accounts and the opening balance draft...',
@@ -36,12 +36,78 @@ export const beginningBalances = {
     emptyHint: 'Fill in the opening balances in the table below',
     creditLowerHint: 'Credit is still lower than debit',
     debitLowerHint: 'Debit is still lower than credit',
+    autoBalanceHint: 'On publishing, the gap is recorded to Opening Balance Equity',
     filledAccounts: 'Accounts Filled',
     filledHint: 'of {total} accounts',
   },
   date: {
     locked: 'This date is in a locked accounting period. Choose another date.',
+    beforeClosing: 'The conversion date must be after the latest closing ({date}).',
     afterFirst: 'The conversion date cannot be after the first transaction ({date}).',
+  },
+  notices: {
+    profitLoss: {
+      title: 'Revenue and expense accounts are filled',
+      body: 'Fill these accounts only when you convert mid-year, with the balance since the start of the year. At the start of a fiscal year, assets, liabilities and equity are enough.',
+    },
+  },
+  intro: {
+    headerDescription:
+      'The starting position of every account on the day you begin recording in Jurnal.',
+    hero: {
+      title: 'Start your books from the right position',
+      body: 'Opening balances are the position of every account on the day you begin recording in Jurnal. With the right balances, the balance sheet, ledger and financial reports match your business from day one.',
+      points: {
+        balanced: 'Balance is checked for you',
+        draft: 'Save as a draft, publish when ready',
+        history: 'Every change is kept in the history',
+      },
+    },
+    date: {
+      title: 'Choose the conversion date',
+      body: 'This is the last day before you start recording transactions in Jurnal. Every account is filled with its position at the end of that day.',
+      label: 'Conversion date',
+      afterClosing: 'Must be after the latest closing ({date}).',
+      beforeFirst: 'Must not be after the first transaction ({date}).',
+      suggestionFirst: 'Suggested {date}, the day before the first transaction.',
+      suggestionNone:
+        'There are no transactions yet. Pick the last day of your old books, for example a month end.',
+      useSuggested: 'Use the suggested date ({date})',
+      start: 'Start entering balances',
+    },
+    conflict: {
+      title: 'Opening balances cannot be set yet',
+      body: 'The books are closed through {closing}, while the first transaction is dated {first}. Opening balances must come after the closing and not after the first transaction, so no date fits.',
+      hint: 'Reopen the closing that covers the first transaction, set the opening balances, then close the books again.',
+      action: 'Open Closing Books',
+    },
+    prepare: {
+      title: 'Prepare this first',
+      subtitle: 'Figures from the original documents make the balances match quickly.',
+      bank: {
+        title: 'Cash and bank balances',
+        body: 'Take them from the bank statement and the cash count on the conversion date.',
+      },
+      invoices: {
+        title: 'Receivables and payables',
+        body: 'Add up every unpaid invoice on the conversion date.',
+      },
+      stock: {
+        title: 'Inventory and fixed assets',
+        body: 'Prepare the stock value, the cost of each asset and its accumulated depreciation.',
+      },
+      equity: {
+        title: 'Capital and equity',
+        body: 'Fill in paid-in capital and retained earnings. Revenue and expenses only apply if you start mid-year.',
+      },
+    },
+    processTitle: 'Opening balances in four steps',
+    process: {
+      date: { title: 'Pick the date', body: 'Set the conversion day' },
+      fill: { title: 'Fill the accounts', body: 'Enter the debit or credit of each account' },
+      check: { title: 'Check the balance', body: 'Total debit and credit must match' },
+      publish: { title: 'Publish', body: 'The balances reach the ledger' },
+    },
   },
   toolbar: {
     clearSearch: 'Clear search',
@@ -63,16 +129,25 @@ export const beginningBalances = {
     8: '8 · Other Expenses',
   },
   table: {
-    perPage: 'Rows per page',
-    paginationText: '{from}–{to} of {total} accounts',
+    classNames: {
+      1: 'Assets',
+      2: 'Liabilities',
+      3: 'Equity',
+      4: 'Revenue',
+      5: 'Cost of Sales',
+      6: 'Expenses',
+      7: 'Other Income',
+      8: 'Other Expenses',
+    },
+    otherClass: 'Other',
     code: 'Code',
     name: 'Account Name',
     debit: 'Debit (Rp)',
     credit: 'Credit (Rp)',
-    normalDebit: 'Normal balance: debit',
-    normalCredit: 'Normal balance: credit',
-    contra: 'contra account',
-    offSide: 'Outside the normal side',
+    contra: 'Contra account',
+    normalLegend: 'The blue column is the normal side of the account.',
+    offSideDebit: 'Usually entered as credit',
+    offSideCredit: 'Usually entered as debit',
     clearRow: 'Clear this row',
     emptyTitle: 'No matching accounts',
     emptyDescription: 'Change the search, class, or filter to see other accounts.',
@@ -84,6 +159,7 @@ export const beginningBalances = {
     middle: 'with a balanced total of',
     helper:
       'Once published, the opening balance is recorded as the opening entry of the general ledger and account balances are updated automatically.',
+    gap: 'Total debit and credit differ by {amount}. The difference will be recorded to the Opening Balance Equity account so the balances match.',
     confirm: 'Publish',
     cancel: 'Cancel',
   },

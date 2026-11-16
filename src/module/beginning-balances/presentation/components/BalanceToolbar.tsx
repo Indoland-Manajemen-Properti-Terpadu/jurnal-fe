@@ -16,6 +16,7 @@ type Props = {
   selectedDate: string | null;
   onDateChange: (value: string | null) => void;
   dateError?: string | null;
+  minDate?: string | Date;
   maxDate?: string | Date;
   shownCount: number;
   accountCount: number;
@@ -33,6 +34,7 @@ const BalanceToolbar: React.FC<Props> = ({
   selectedDate,
   onDateChange,
   dateError,
+  minDate,
   maxDate,
   shownCount,
   accountCount,
@@ -108,6 +110,7 @@ const BalanceToolbar: React.FC<Props> = ({
             value={selectedDate}
             onChange={onDateChange}
             error={dateError}
+            minDate={minDate}
             maxDate={maxDate}
             style={{ width: 170 }}
           />

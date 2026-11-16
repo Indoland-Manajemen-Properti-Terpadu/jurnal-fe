@@ -1,7 +1,8 @@
-import type { ReactNode } from 'react';
-import { Accordion, Badge, Group, Paper, SimpleGrid, Stack, Text, ThemeIcon } from '@mantine/core';
-import { IconBook2, IconBulb, IconLock } from '@tabler/icons-react';
+import { Accordion, Badge, Flex, Paper, SimpleGrid, Stack, Text } from '@mantine/core';
+import { IconBulb, IconCircleCheck } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
+import { PeriodIllustration, type PeriodIllustrationName } from './PeriodIllustration';
+import { PeriodSteps } from './PeriodSteps';
 
 interface PeriodGuideProps {
   /** Open on a first visit, when nothing has been locked yet. */
@@ -9,31 +10,44 @@ interface PeriodGuideProps {
 }
 
 const GUIDE_ITEM = 'guide';
-const STEPS = ['step1', 'step2', 'step3', 'step4'] as const;
 
 interface ChoiceProps {
-  icon: ReactNode;
+  art: PeriodIllustrationName;
   color: string;
   title: string;
   body: string;
   when: string;
+  tag: string;
 }
 
-function Choice({ icon, color, title, body, when }: Readonly<ChoiceProps>) {
+function Choice({ art, color, title, body, when, tag }: Readonly<ChoiceProps>) {
   return (
-    <Paper withBorder radius="md" p="md" bg="white">
-      <Stack gap="xs">
-        <Group gap="sm" wrap="nowrap">
-          <ThemeIcon size={32} radius="md" variant="light" color={color}>
-            {icon}
-          </ThemeIcon>
+    <Paper withBorder radius="md" p="lg" bg="white">
+      <Flex
+        gap="lg"
+        direction={{ base: 'column', sm: 'row' }}
+        align={{ base: 'flex-start', sm: 'center' }}
+      >
+        <div style={{ flex: 'none', width: 120 }}>
+          <PeriodIllustration name={art} maxWidth={120} />
+        </div>
+        <Stack gap="xs" align="flex-start" miw={0}>
           <Text fw={700}>{title}</Text>
-        </Group>
-        <Text size="sm">{body}</Text>
-        <Text size="xs" c="dimmed">
-          {when}
-        </Text>
-      </Stack>
+          <Text size="sm">{body}</Text>
+          <Text size="xs" c="dimmed">
+            {when}
+          </Text>
+          <Badge
+            variant="light"
+            color={color}
+            radius="sm"
+            tt="none"
+            leftSection={<IconCircleCheck size={12} />}
+          >
+            {tag}
+          </Badge>
+        </Stack>
+      </Flex>
     </Paper>
   );
 }
@@ -45,7 +59,7 @@ export function PeriodGuide({ defaultOpen }: Readonly<PeriodGuideProps>) {
   return (
     <Accordion
       variant="contained"
-      radius="lg"
+      radius="md"
       defaultValue={defaultOpen ? GUIDE_ITEM : null}
       chevronPosition="right"
       styles={{ item: { backgroundColor: 'var(--mantine-color-white)' } }}
@@ -58,37 +72,30 @@ export function PeriodGuide({ defaultOpen }: Readonly<PeriodGuideProps>) {
           </Text>
         </Accordion.Control>
         <Accordion.Panel>
-          <Stack gap="md">
-            <SimpleGrid cols={{ base: 1, md: 2 }} spacing="md">
+          <Stack gap="xl" pt="xs">
+            <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="md">
               <Choice
-                icon={<IconLock size={18} />}
+                art="lockPeriod"
                 color="orange"
                 title={t('guide.lockTitle')}
                 body={t('guide.lockBody')}
                 when={t('guide.lockWhen')}
+                tag={t('guide.lockTag')}
               />
               <Choice
-                icon={<IconBook2 size={18} />}
+                art="closeBooks"
                 color="primary"
                 title={t('guide.closeTitle')}
                 body={t('guide.closeBody')}
                 when={t('guide.closeWhen')}
+                tag={t('guide.closeTag')}
               />
             </SimpleGrid>
-            <Stack gap="xs">
-              <Text size="sm" fw={600}>
+            <Stack gap="lg">
+              <Text fw={600} ta="center">
                 {t('guide.stepsTitle')}
               </Text>
-              <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }} spacing="xs">
-                {STEPS.map((step, index) => (
-                  <Group key={step} gap="xs" wrap="nowrap" align="flex-start">
-                    <Badge circle size="lg" variant="light" color="primary">
-                      {index + 1}
-                    </Badge>
-                    <Text size="sm">{t(`guide.${step}`)}</Text>
-                  </Group>
-                ))}
-              </SimpleGrid>
+              <PeriodSteps />
             </Stack>
           </Stack>
         </Accordion.Panel>

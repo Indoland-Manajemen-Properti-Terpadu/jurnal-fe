@@ -1,7 +1,3 @@
-.row[data-parent='true'] {
-  background: var(--jurnal-color-surface-muted);
-}
-
 .row[data-selected='true'] {
   background: color-mix(in srgb, var(--mantine-color-primary-6) 7%, transparent);
 }
@@ -43,4 +39,11 @@
   font-variant-numeric: tabular-nums;
   text-align: right;
   white-space: nowrap;
+}
+
+/* A heading over the accounts of one class: Aset, Kewajiban, Ekuitas... */
+.group th {
+  background: var(--mantine-color-primary-0);
+  border-top: 1px solid var(--mantine-color-primary-1);
+  border-bottom: 1px solid var(--mantine-color-primary-1);
 }
