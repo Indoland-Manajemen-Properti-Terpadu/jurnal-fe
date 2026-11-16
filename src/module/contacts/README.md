@@ -40,6 +40,12 @@ TanStack Query. Keys are in `contactKeys` (`useContactQueries.ts`); all contact 
 
 Namespaces `contacts` (spread from `contactsForm.ts` in each locale) and `contactDetail`, both `id` and `en`, with key-parity tests under `src/i18n/locales`.
 
+## Import errors, void invoices and group delete
+
+- A refused import answers 400 with `message` (the summary) and `data: [{ row, field, message }]` (one entry per problem, several per row possible, `field` is the template column or null). `importContacts` turns that into a `ContactImportError` (`domain/contactImport.ts`, `parseImportFailure`); `ContactImportModal` shows the summary and a Baris / Kolom / Alasan table and the mutation shows no toast for it. An answer without row details stays a plain error and a toast.
+- The invoice tab of a contact labels an invoice by the server's `displayStatus` (the plain status also comes as `SENT` or `PARTIAL_PAID`). A void invoice appears only in the full list, not under Belum lunas, Lunas, Jatuh tempo or Draf (`filterSalesByStatus`).
+- Deleting a contact group asks first (`ConfirmModal` in `ContactGroupsModal`).
+
 ## Deep-import exceptions (sales)
 
 Four imports reach into `@/module/sales` internals and trip `import/no-restricted-paths`:

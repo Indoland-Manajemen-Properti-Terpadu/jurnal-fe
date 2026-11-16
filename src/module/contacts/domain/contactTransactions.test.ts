@@ -37,6 +37,24 @@ describe('filterSalesByStatus', () => {
   });
 });
 
+describe('a void invoice in the filters (PRO-71)', () => {
+  const voided = sale({ id: 'v', status: 'VOID', remainingAmount: 252500, dueDate: '2025-01-01' });
+  const open = sale({ id: 'o', status: 'SENT', remainingAmount: 9, dueDate: '2025-12-01' });
+
+  it('is not unpaid, paid, late or a draft, but still in the full list', () => {
+    for (const status of ['UNPAID', 'PAID', 'OVERDUE', 'DRAFT'] as const) {
+      expect(filterSalesByStatus([voided, open], status, now).map((s) => s.id)).not.toContain('v');
+    }
+    expect(filterSalesByStatus([voided, open], 'all', now).map((s) => s.id)).toEqual(['v', 'o']);
+  });
+
+  it('is recognised by the display status too', () => {
+    const byCode = sale({ id: 'c', status: 'SENT', remainingAmount: 5 });
+    byCode.displayStatus = { code: 'VOID', label: 'Void' };
+    expect(filterSalesByStatus([byCode], 'UNPAID', now)).toEqual([]);
+  });
+});
+
 describe('summarizeSales', () => {
   it('sums whole rupiah as before', () => {
     expect(

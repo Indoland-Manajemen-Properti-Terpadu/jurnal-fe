@@ -15,6 +15,7 @@ import {
   Tooltip,
 } from '@mantine/core';
 import { IconCategory, IconCheck, IconEdit, IconPlus, IconTrash, IconX } from '@tabler/icons-react';
+import { ConfirmModal } from '@/components/ui/ConfirmModal/ConfirmModal';
 import { useTranslation } from '@/i18n';
 import {
   useContactGroups,
@@ -33,6 +34,7 @@ export function ContactGroupsModal({ opened, onClose }: Readonly<ContactGroupsMo
   const [newGroupName, setNewGroupName] = useState('');
   const [editingGroupId, setEditingGroupId] = useState<string | null>(null);
   const [editingGroupName, setEditingGroupName] = useState('');
+  const [pendingDelete, setPendingDelete] = useState<{ id: string; name: string } | null>(null);
 
   const groupsQuery = useContactGroups();
   const createMutation = useCreateContactGroup();
@@ -70,12 +72,14 @@ export function ContactGroupsModal({ opened, onClose }: Readonly<ContactGroupsMo
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async () => {
+    if (!pendingDelete) return;
     try {
-      await deleteMutation.mutateAsync(id);
+      await deleteMutation.mutateAsync(pendingDelete.id);
     } catch {
       // Handled by mutation error
     }
+    setPendingDelete(null);
   };
 
   return (
@@ -228,7 +232,7 @@ export function ContactGroupsModal({ opened, onClose }: Readonly<ContactGroupsMo
                             size="sm"
                             variant="subtle"
                             color="red"
-                            onClick={() => handleDelete(group.id)}
+                            onClick={() => setPendingDelete({ id: group.id, name: group.name })}
                             loading={
                               deleteMutation.isPending && deleteMutation.variables === group.id
                             }
@@ -252,6 +256,18 @@ export function ContactGroupsModal({ opened, onClose }: Readonly<ContactGroupsMo
           </Button>
         </Group>
       </Stack>
+
+      <ConfirmModal
+        opened={pendingDelete !== null}
+        onClose={() => setPendingDelete(null)}
+        onConfirm={handleDelete}
+        title={t('groups.deleteTitle')}
+        message={t('groups.deleteMessage', { name: pendingDelete?.name ?? '' })}
+        helperText={t('groups.deleteHelper')}
+        confirmLabel={t('groups.deleteConfirm')}
+        cancelLabel={t('groups.cancelDelete')}
+        confirmLoading={deleteMutation.isPending}
+      />
     </Modal>
   );
 }

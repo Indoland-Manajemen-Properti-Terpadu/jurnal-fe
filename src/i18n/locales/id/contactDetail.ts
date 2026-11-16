@@ -105,6 +105,8 @@ export const contactDetail = {
       PAID: 'Lunas',
       PARTIAL: 'Sebagian',
       PARTIALLY_PAID: 'Sebagian',
+      SENT: 'Terkirim',
+      PARTIAL_PAID: 'Sebagian',
       OPEN: 'Belum dibayar',
       UNPAID: 'Belum dibayar',
       OVERDUE: 'Lewat jatuh tempo',
