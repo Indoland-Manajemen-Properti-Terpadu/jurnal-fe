@@ -12,7 +12,14 @@ export type MissingReason =
   | 'sameAccount'
   | 'date'
   | 'lines'
-  | 'amount';
+  | 'amount'
+  | 'amountTooLarge';
+
+/**
+ * Largest amount of one line or transfer (Rp 999.999.999.999). It keeps the cent arithmetic of
+ * a whole form far inside the safe integer range of `@/lib/money`.
+ */
+export const MAX_AMOUNT = 999_999_999_999;
 
 export interface FormLine {
   accountId: string;
@@ -30,11 +37,21 @@ const linesComplete = (lines: FormLine[]): boolean =>
   lines.every((line) => line.accountId && Number(line.amount) > 0) &&
   sumLineAmounts(lines) > 0;
 
+const linesTooLarge = (lines: FormLine[]): boolean =>
+  lines.some((line) => Number(line.amount) > MAX_AMOUNT);
+
 /** Receive and send share one shape: a cash account, a date and lines of account and amount. */
 const linesMissing = ({ date, accountId, lines }: LinesFormState): MissingReason[] => [
   ...(accountId ? [] : (['account'] as const)),
+  ...(accountId && lines.some((line) => line.accountId === accountId)
+    ? (['sameAccount'] as const)
+    : []),
   ...(date ? [] : (['date'] as const)),
-  ...(linesComplete(lines) ? [] : (['lines'] as const)),
+  ...(linesTooLarge(lines)
+    ? (['amountTooLarge'] as const)
+    : linesComplete(lines)
+      ? []
+      : (['lines'] as const)),
 ];
 
 export const receiveMissing = linesMissing;
@@ -57,6 +74,7 @@ export const transferMissing = ({
   ...(toId ? [] : (['toAccount'] as const)),
   ...(fromId && toId && fromId === toId ? (['sameAccount'] as const) : []),
   ...(date ? [] : (['date'] as const)),
+  ...(amount > MAX_AMOUNT ? (['amountTooLarge'] as const) : []),
   ...(amount > 0 ? [] : (['amount'] as const)),
 ];
 

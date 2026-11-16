@@ -1,6 +1,7 @@
 import { ActionIcon, Button, Grid, NumberInput, Select, Stack, TextInput } from '@mantine/core';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
+import { MAX_AMOUNT } from '@/module/bank-cash/domain/transactionForm';
 
 export interface LineRow {
   id: string;
@@ -83,6 +84,9 @@ export function AmountLinesEditor({
                 decimalSeparator=","
                 prefix="Rp "
                 min={0}
+                max={MAX_AMOUNT}
+                clampBehavior="strict"
+                allowNegative={false}
                 value={row.amount}
                 onChange={(value) => update(row.id, { amount: Number(value) || 0 })}
               />
