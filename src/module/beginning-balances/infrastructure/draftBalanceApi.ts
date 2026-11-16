@@ -3,7 +3,12 @@ import apiClient from '@/lib/http/apiClient';
 import { API_ACCOUNT } from '@/lib/http/endpoints';
 import type { BalanceLine } from '../domain/openingBalanceRules';
 import type { BalanceLog, DraftBalance, SimpleAccount } from '../domain/beginningBalance';
-import { toDateLocked, toDraftBalance, toSimpleAccounts } from './draftBalanceMapper';
+import {
+  toDateLocked,
+  toDraftBalance,
+  toFirstJournalDay,
+  toSimpleAccounts,
+} from './draftBalanceMapper';
 
 export type BalancePayload = {
   period: string;
@@ -16,6 +21,17 @@ export const fetchDateLocked = async (date: string): Promise<boolean> => {
     params: { date },
   });
   return toDateLocked(data);
+};
+
+/**
+ * The day of the earliest journal. The draft only carries `firstTransactionDate` once a draft
+ * exists, so a site that has not started yet reads it here to know the latest day it may pick.
+ */
+export const fetchFirstJournalDay = async (): Promise<string | null> => {
+  const { data } = await apiClient.get<unknown>(API_ACCOUNT.GET_JOURNALS, {
+    params: { limit: 1, sortBy: 'transactionDate:asc' },
+  });
+  return toFirstJournalDay(data);
 };
 
 /** Every account of the chart (id, name, code, side, contra flag), not one page of the list. */

@@ -1,0 +1,51 @@
+/* The whole chart is one list that the page scrolls; the column titles stay under the fixed app bar. */
+.wrap {
+  border: 1px solid var(--jurnal-color-border-subtle);
+  border-radius: var(--mantine-radius-md);
+
+  /* `clip` rounds the corners without making a scroll area, so the sticky titles still stick. */
+  overflow: clip;
+}
+
+/* The theme's table hides overflow, which would stop the titles from sticking. */
+.wrap .table {
+  overflow: visible;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.head {
+  top: var(--app-shell-header-height, 72px);
+  z-index: 2;
+  background: var(--mantine-color-gray-0);
+}
+
+.head th {
+  font-size: var(--jurnal-text-sm);
+  font-weight: 600;
+}
+
+.group th {
+  background: var(--mantine-color-primary-0);
+  border-top: 1px solid var(--mantine-color-primary-1);
+  border-bottom: 1px solid var(--mantine-color-primary-1);
+}
+
+/* On a phone the table scrolls sideways, which gives up the sticky titles. */
+@media (max-width: 48em) {
+  .wrap {
+    overflow-x: auto;
+  }
+
+  .table {
+    min-width: 720px;
+  }
+}
+
+.swatch {
+  width: 14px;
+  height: 14px;
+  border: 1px solid var(--mantine-color-primary-1);
+  border-radius: 4px;
+  background: var(--mantine-color-primary-0);
+}

@@ -105,6 +105,13 @@ describe('opening balance states and what the buttons may do', () => {
     expect(openingActions('empty', true).canPublish).toBe(false);
     expect(openingActions('unbalanced', true).canPublish).toBe(false);
   });
+
+  it('a gap can be published when it can be recorded to the opening equity account', () => {
+    expect(openingActions('unbalanced', true, false, true).canPublish).toBe(true);
+    expect(openingActions('unbalanced', true, true, true).canPublish).toBe(true);
+    expect(openingActions('unbalanced', false, true, true).canPublish).toBe(false);
+    expect(openingActions('empty', true, false, true).canPublish).toBe(false);
+  });
 });
 
 describe('buildOpeningRows', () => {

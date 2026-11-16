@@ -71,7 +71,7 @@ export const navigation = {
   journalTransactions: 'Jurnal Transaksi',
   addJournalTransaction: 'Tambah Transaksi Jurnal',
   detailJournalTransaction: 'Detail Transaksi Jurnal',
-  beginningBalance: 'Saldo Awal Akun',
+  beginningBalance: 'Saldo Awal',
   accountDetailCB: 'Detail Akun Kas & Bank',
   importBankStatement: 'Impor Rekening Koran',
   accountDetailNonCB: 'Detail Buku Besar',

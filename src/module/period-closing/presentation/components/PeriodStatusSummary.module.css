@@ -1,5 +1,18 @@
+.grid {
+  border-top: 1px solid var(--jurnal-color-border-subtle);
+  padding-top: var(--jurnal-space-4);
+}
+
 .fact {
+  display: flex;
+  align-items: center;
+  gap: var(--jurnal-space-3);
   padding: var(--jurnal-space-2) var(--jurnal-space-4);
+}
+
+.art {
+  flex: none;
+  width: 84px;
 }
 
 /* A divider between facts: vertical side by side, horizontal when they stack on a phone. */

@@ -2,6 +2,7 @@ import { vi } from 'vitest';
 import { fireEvent, render, screen, userEvent, waitFor, within } from '@test-utils';
 import { MemoryRouter } from 'react-router-dom';
 import type { DraftBalance, SimpleAccount } from '../../domain/beginningBalance';
+import { useInitialBalanceStore } from '../store/useInitialBalanceStore';
 import BeginningBalancePage from './BeginningBalancePage';
 
 const state = {
@@ -9,6 +10,8 @@ const state = {
   draft: { status: false } as DraftBalance,
   logs: [] as unknown[],
   locked: false,
+  closingEnd: undefined as string | undefined,
+  firstDay: null as string | null,
 };
 const saveDraft = vi.fn();
 const publish = vi.fn();
@@ -35,7 +38,11 @@ vi.mock('mantine-datatable', () => ({
     </div>
   ),
 }));
+vi.mock('@/module/period-closing', () => ({
+  useLatestClosingEnd: () => ({ endDate: state.closingEnd, isLoading: false }),
+}));
 vi.mock('../hooks/useDraftBalance', () => ({
+  useFirstJournalDay: () => ({ data: state.firstDay, isLoading: false }),
   useSimpleAccounts: () => ({
     data: state.accounts,
     isLoading: false,
@@ -57,12 +64,20 @@ const acc = (id: string, accountNumber: string, name: string, type: 'debit' | 'c
   isContra: false,
 });
 
-const renderPage = () =>
+const renderIntro = () =>
   render(
     <MemoryRouter>
       <BeginningBalancePage />
     </MemoryRouter>
   );
+
+/** The table, past the first-visit introduction when there is one. */
+const renderPage = () => {
+  const view = renderIntro();
+  const start = screen.queryByRole('button', { name: 'Mulai isi saldo awal' });
+  if (start) fireEvent.click(start);
+  return view;
+};
 
 const type = (label: string, value: string) =>
   fireEvent.change(screen.getByLabelText(label), { target: { value } });
@@ -78,6 +93,45 @@ beforeEach(() => {
   state.draft = { status: false };
   state.logs = [];
   state.locked = false;
+  state.closingEnd = undefined;
+  state.firstDay = null;
+  useInitialBalanceStore.setState({ conversionDate: null });
+});
+
+describe('opening balance introduction', () => {
+  it('explains the opening balance before any draft, and opens the table on start', () => {
+    renderIntro();
+    expect(screen.getByText('Mulai pembukuan dari posisi yang benar')).toBeInTheDocument();
+    expect(screen.queryByLabelText('Debit (Rp) 1-10000')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Mulai isi saldo awal' }));
+    expect(screen.getByLabelText('Debit (Rp) 1-10000')).toBeInTheDocument();
+  });
+
+  it('suggests the day before the first journal', () => {
+    state.firstDay = '2024-04-15';
+    renderIntro();
+    expect(screen.getByText(/Disarankan 14\/04\/2024/)).toBeInTheDocument();
+  });
+
+  it('blocks the start when the closing covers the first journal', () => {
+    state.closingEnd = '2025-12-31';
+    state.firstDay = '2024-04-15';
+    renderIntro();
+    expect(screen.getByText('Saldo awal belum bisa diatur')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Mulai isi saldo awal' })).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Buka halaman Tutup Buku/ })).toBeInTheDocument();
+  });
+
+  it('skips the introduction once a draft with amounts exists', () => {
+    state.draft = {
+      id: 'd1',
+      period: '2024-01-01',
+      isPublished: false,
+      accounts: [{ _id: 'kas', debit: 1000, credit: 0 }],
+    };
+    renderIntro();
+    expect(screen.getByLabelText('Debit (Rp) 1-10000')).toBeInTheDocument();
+  });
 });
 
 describe('opening balance page', () => {
@@ -94,14 +148,51 @@ describe('opening balance page', () => {
     expect(screen.queryByRole('button', { name: 'Publikasikan' })).not.toBeInTheDocument();
   });
 
-  it('can save an unbalanced draft, but hides publish', () => {
+  it('can save an unbalanced draft', () => {
     renderPage();
     type('Debit (Rp) 1-10000', '1000');
     expect(screen.getByRole('button', { name: 'Simpan Draf' })).toBeEnabled();
-    expect(screen.queryByRole('button', { name: 'Publikasikan' })).not.toBeInTheDocument();
-    expect(screen.getByText(/Selisih/)).toBeInTheDocument();
+    expect(screen.getAllByText(/Selisih/).length).toBeGreaterThan(0);
     fireEvent.click(screen.getByRole('button', { name: 'Simpan Draf' }));
     expect(saveDraft.mock.calls[0][0].balances).toEqual([{ account: 'kas', debit: 1000 }]);
+  });
+
+  it('records an untraced difference to Ekuitas Saldo Awal when publishing, after saying so', async () => {
+    state.accounts = [
+      acc('kas', '1-10000', 'Kas', 'debit'),
+      acc('eq', '3-10000', 'Ekuitas Saldo Awal', 'credit'),
+    ];
+    renderPage();
+    type('Debit (Rp) 1-10000', '1.000');
+    expect(screen.queryByText(/Seimbangkan ke Ekuitas/)).not.toBeInTheDocument();
+    const user = userEvent.setup();
+    await user.click(screen.getByRole('button', { name: 'Publikasikan' }));
+    const dialog = await screen.findByRole('dialog');
+    expect(within(dialog).getByText(/dicatat ke akun Ekuitas Saldo Awal/)).toBeInTheDocument();
+    await user.click(within(dialog).getByRole('button', { name: /Publikasikan/ }));
+    await waitFor(() => expect(publish).toHaveBeenCalledTimes(1));
+    expect(publish.mock.calls[0][0].balances).toEqual([
+      { account: 'kas', debit: 1000 },
+      { account: 'eq', credit: 1000 },
+    ]);
+  });
+
+  it('cannot publish a gap when the chart has no opening equity account', () => {
+    state.accounts = [
+      acc('kas', '1-10000', 'Kas', 'debit'),
+      acc('x', '3-10001', 'Modal', 'credit'),
+    ];
+    renderPage();
+    type('Debit (Rp) 1-10000', '1.000');
+    expect(screen.queryByRole('button', { name: 'Publikasikan' })).not.toBeInTheDocument();
+  });
+
+  it('warns when revenue or expense accounts hold an amount', () => {
+    state.accounts = [acc('jual', '4-10000', 'Penjualan', 'credit')];
+    renderPage();
+    expect(screen.queryByText('Akun pendapatan dan beban terisi')).not.toBeInTheDocument();
+    type('Kredit (Rp) 4-10000', '500');
+    expect(screen.getByText('Akun pendapatan dan beban terisi')).toBeInTheDocument();
   });
 
   it('saves only the accounts with an amount, each with one side, without a duplicate list', () => {
@@ -191,11 +282,25 @@ describe('opening balance page', () => {
     expect(screen.getByRole('button', { name: 'Perbarui & Publikasikan' })).toBeEnabled();
   });
 
-  it('hides save and publish and explains why when the date is in a locked period', () => {
+  it('does not let the user start on a date in a locked period', () => {
     state.locked = true;
+    renderIntro();
+    expect(screen.getByText(/periode akuntansi yang terkunci/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Mulai isi saldo awal' })).toBeDisabled();
+  });
+
+  it('hides save and publish and explains why when a saved draft sits in a locked period', () => {
+    state.locked = true;
+    state.draft = {
+      id: 'd1',
+      status: true,
+      period: '2026-04-07',
+      accounts: [
+        { _id: 'kas', debit: 1000 },
+        { _id: 'modal', credit: 1000 },
+      ],
+    };
     renderPage();
-    type('Debit (Rp) 1-10000', '1.000');
-    type('Kredit (Rp) 3-10000', '1.000');
     expect(screen.getByText(/periode akuntansi yang terkunci/)).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Simpan Draf' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Publikasikan' })).not.toBeInTheDocument();
@@ -207,12 +312,27 @@ describe('opening balance page', () => {
       status: true,
       period: '2026-11-01',
       firstTransactionDate: '2026-07-01T00:00:00.000Z',
-      accounts: [],
+      accounts: [{ _id: 'kas', debit: 1000 }],
     };
     renderPage();
     expect(
       screen.getByText(/tidak boleh setelah transaksi pertama \(01\/07\/2026\)/)
     ).toBeInTheDocument();
+  });
+
+  it('blocks a date before the end of the latest closing, even outside any lock', () => {
+    state.closingEnd = '2025-12-31';
+    state.draft = {
+      id: 'd1',
+      status: true,
+      period: '2024-01-01',
+      accounts: [{ _id: 'kas', debit: 1000 }],
+    };
+    renderPage();
+    expect(
+      screen.getByText(/harus setelah tutup buku terakhir \(31\/12\/2025\)/)
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Simpan Draf' })).not.toBeInTheDocument();
   });
 
   it('filters by search and by the filled rows only', () => {
