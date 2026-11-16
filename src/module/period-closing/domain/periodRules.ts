@@ -171,6 +171,26 @@ export const describeRange = ({ startDate, endDate }: DateRange): RangeShape => 
   return { kind: 'custom' };
 };
 
+/** The same calendar day one year later (29 Feb moves to 1 Mar, as the server counts it). */
+export const addYear = (day: string): string => {
+  const [year, month, date] = day.split('-').map(Number);
+  return fromUtc(Date.UTC(year + 1, month - 1, date));
+};
+
+export type ClosingRangeIssue = 'endFuture' | 'tooLong';
+
+/**
+ * Why a range cannot be closed: its end has not come yet (a closing locks transactions that are still
+ * to happen), or it is longer than a year, which the trial balance of step 2 refuses (checked on the
+ * live service: the end may be at most the same day a year after the start). Null when it is fine.
+ */
+export const closingRangeIssue = (range: DateRange, today: string): ClosingRangeIssue | null => {
+  if (!isCalendarDay(range.startDate) || !isCalendarDay(range.endDate)) return null;
+  if (range.endDate > today) return 'endFuture';
+  if (range.endDate > addYear(range.startDate)) return 'tooLong';
+  return null;
+};
+
 export type PeriodFormError = 'nameRequired' | 'startRequired' | 'endRequired' | 'endBeforeStart';
 
 export type PeriodFormErrors = Partial<Record<'name' | 'startDate' | 'endDate', PeriodFormError>>;

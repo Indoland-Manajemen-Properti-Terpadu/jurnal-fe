@@ -164,6 +164,8 @@ export const periodClosing = {
     impact:
       'Transaksi bertanggal {start} sampai {end} ({days} hari) tidak bisa ditambah, diubah, atau dihapus.',
     impactInactive: 'Kunci ini tidak aktif, jadi transaksi pada rentang ini masih bisa diubah.',
+    endNotPassed:
+      'Tanggal akhir belum lewat. Transaksi sampai {end}, termasuk yang belum terjadi, tidak bisa dicatat selama kunci aktif.',
     closeLocked:
       'Tanggal tutup buku tidak bisa diubah. Untuk memperbaikinya, buka kembali tutup buku ini lalu tutup ulang.',
     overlap:
@@ -226,6 +228,9 @@ export const periodClosing = {
       gap: 'Ada {days} hari ({range}) di antara tutup buku terakhir dan periode ini. Transaksi di rentang itu tetap terbuka.',
       future:
         'Tanggal akhir belum lewat. Transaksi yang masih akan terjadi sampai {end} tidak bisa dicatat setelah tutup buku.',
+      endFuture: 'Tanggal akhir belum lewat. Tutup buku paling jauh sampai hari ini ({end}).',
+      tooLong:
+        'Rentang periode terlalu panjang. Tanggal akhir paling jauh satu tahun setelah tanggal awal.',
       overlap: 'Rentang ini bertabrakan dengan tutup buku "{name}" ({range}).',
       notesPlaceholder: 'Opsional, misalnya nomor berita acara tutup buku',
     },
@@ -245,6 +250,8 @@ export const periodClosing = {
       balanceWarn:
         'Total debit {debit} dan kredit {credit} belum sama. Sebaiknya periksa jurnal yang salah catat sebelum menutup.',
       balanceError: 'Neraca saldo belum bisa dimuat.',
+      balanceErrorReason:
+        'Neraca saldo belum bisa dimuat: {reason}. Ubah periode di langkah 1 atau coba lagi.',
       checking: 'Memeriksa…',
       bankTitle: 'Rekening bank sudah direkonsiliasi sampai {end}',
       bankBody: 'Cocokkan mutasi rekening koran dengan catatan kas dan bank.',
