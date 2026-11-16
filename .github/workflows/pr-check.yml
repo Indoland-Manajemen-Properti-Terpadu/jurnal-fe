@@ -4,26 +4,58 @@ on:
   pull_request:
     branches: ['develop-frontend', 'staging', 'main-frontend']
 
-jobs:
-  test-and-build:
-    runs-on: ubuntu-latest
+# A new push to the same PR makes the run of the older commit pointless.
+concurrency:
+  group: pr-check-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 
+permissions:
+  contents: read
+
+# The branch protection requires one check, `test-and-build`. That name is the last job below, which
+# only reports the result of the parallel jobs; do not rename it without changing the protection
+# (see .github/branch-protection/README.md).
+jobs:
+  # A PR that changes only Markdown cannot break the code, so the heavy jobs are skipped for it.
+  changes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      code: ${{ steps.diff.outputs.code }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Does the PR change anything besides Markdown?
+        id: diff
+        env:
+          BASE: ${{ github.base_ref }}
+        run: |
+          files=$(git diff --name-only "origin/${BASE}...HEAD")
+          if [ -z "$files" ] || echo "$files" | grep -qvE '\.md$'; then
+            echo "code=true" >> "$GITHUB_OUTPUT"
+            echo "Code changed: the full gate runs."
+          else
+            echo "code=false" >> "$GITHUB_OUTPUT"
+            echo "Only Markdown changed: the gate is skipped."
+          fi
+
+  static:
+    name: Typecheck, lint and format
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      # Full history: the format check diffs against the base branch.
+      - name: Checkout Code
+        uses: actions/checkout@v4
         with:
-          node-version: '20'
+          fetch-depth: 0
 
-      - name: Enable Corepack (for Yarn 4)
-        run: corepack enable
-
-      - name: Install Dependencies
-        run: yarn install --immutable
+      - uses: ./.github/actions/setup-node-yarn
 
       - name: Run Typecheck
         run: yarn typecheck
@@ -38,8 +70,54 @@ jobs:
         if: ${{ github.head_ref != 'develop-frontend' && github.head_ref != 'staging' }}
         run: node scripts/prettierChanged.mjs "origin/${{ github.base_ref }}"
 
-      - name: Run Unit Tests (Vitest)
-        run: yarn vitest --run
+  unit:
+    name: Unit tests (shard ${{ matrix.shard }}/3)
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3]
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
+      - uses: ./.github/actions/setup-node-yarn
+
+      - name: Run Unit Tests (Vitest)
+        run: yarn vitest --run --shard=${{ matrix.shard }}/3
+
+  build:
+    name: Production build
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - uses: ./.github/actions/setup-node-yarn
+
+      # The same command as the Dockerfile. `yarn build` would run `tsc` again, which the typecheck
+      # job already covers.
       - name: Build Production Preview
-        run: yarn build
+        run: npx vite build
+
+  test-and-build:
+    name: test-and-build
+    needs: [changes, static, unit, build]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Every job passed or was skipped on purpose
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "Results: $RESULTS"
+          case "$RESULTS" in
+            *failure*|*cancelled*) echo "A job of the gate did not pass."; exit 1 ;;
+          esac
