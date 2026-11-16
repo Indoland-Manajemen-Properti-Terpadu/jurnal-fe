@@ -6,14 +6,18 @@ export function AssetDetailSkeleton() {
   return (
     <Box p={{ base: 'md', sm: 'xl' }}>
       <Stack gap="lg">
+        <Skeleton height={80} radius="lg" />
+        <Skeleton height={124} radius="lg" />
         <Skeleton height={56} radius="lg" />
-        <Skeleton height={140} radius="lg" />
         <Grid gutter="lg">
           <Grid.Col span={{ base: 12, md: 8 }}>
-            <Skeleton height={420} radius="lg" />
+            <Stack gap="lg">
+              <Skeleton height={200} radius="lg" />
+              <Skeleton height={160} radius="lg" />
+            </Stack>
           </Grid.Col>
           <Grid.Col span={{ base: 12, md: 4 }}>
-            <Skeleton height={420} radius="lg" />
+            <Skeleton height={300} radius="lg" />
           </Grid.Col>
         </Grid>
       </Stack>

@@ -24,6 +24,21 @@ export interface AssetScheduleRow {
   ending: number;
 }
 
+/** Condition of the asset when it was acquired. */
+export const ASSET_CONDITIONS = ['new', 'second', 'refurbished'] as const;
+export type AssetCondition = (typeof ASSET_CONDITIONS)[number];
+
+/** Most photo links one asset can hold. */
+export const MAX_ASSET_PHOTOS = 5;
+
+/** Vendor details as the API copies them from the linked contact. */
+export interface AssetVendor {
+  name: string;
+  phone?: string;
+  email?: string;
+  address?: string;
+}
+
 export interface AssetItem {
   id: string;
   code: string;
@@ -47,6 +62,17 @@ export interface AssetItem {
   /** Where the asset was created: `proapps` (pushed from ProApps) or `jurnal`. */
   source: string;
   notes?: string;
+  brand?: string;
+  modelType?: string;
+  serialNumber?: string;
+  /** `YYYY-MM-DD` */
+  warrantyUntil?: string;
+  condition: AssetCondition | null;
+  location?: string;
+  vendor: AssetVendor | null;
+  /** Id of the Supplier contact the vendor comes from. */
+  vendorContactId: string | null;
+  photos: string[];
   tags: AssetTag[];
   assetAccount: AccountRef | null;
   creditAccount: AccountRef | null;
@@ -73,7 +99,8 @@ export interface AccountOption {
 
 /** Posted entry of an asset journal. */
 export interface AssetJournalLine {
-  account: string;
+  accountNumber: string;
+  accountName: string;
   debit: number;
   credit: number;
 }
@@ -97,6 +124,16 @@ export interface AssetFormValues {
   acquisitionCost: number;
   notes: string;
   tagIds: string[];
+  brand: string;
+  modelType: string;
+  serialNumber: string;
+  /** `YYYY-MM-DD`, empty when there is no warranty. */
+  warrantyUntil: string;
+  condition: AssetCondition | '';
+  location: string;
+  /** Id of a Supplier contact; empty means no vendor. */
+  vendorContactId: string;
+  photos: string[];
 }
 
 /** Accounts and depreciation terms that put an asset in the books. */
@@ -117,8 +154,22 @@ export interface DisposalValues {
   disposalDate: string;
   disposalPrice: number;
   proceedsAccount: string;
+  /** Optional: empty lets the API use the account mapped to asset disposal gain or loss. */
   gainLossAccount: string;
 }
+
+/** What disposing the asset on a date for a price would book, as the API calculates it. */
+export interface DisposalPreview {
+  /** Depreciation not yet posted that the disposal books first. */
+  catchUpDepreciation: number;
+  accumulatedDepreciation: number;
+  bookValue: number;
+  /** Positive is a gain, negative a loss. */
+  gainLoss: number;
+}
+
+/** Account groups the API can filter the account list by. */
+export type AssetAccountKind = 'fixed_asset' | 'accumulated_depreciation' | 'depreciation_expense';
 
 export const ASSET_SORT_KEYS = [
   'name',

@@ -1,4 +1,11 @@
-import { canEditOwnDetails, rightsOf, splitMenus, type MenuRight, type MyAccess } from './access';
+import {
+  canEditOwnDetails,
+  hasMenuRight,
+  rightsOf,
+  splitMenus,
+  type MenuRight,
+  type MyAccess,
+} from './access';
 
 const menu = (
   menuId: string,
@@ -46,5 +53,32 @@ describe('canEditOwnDetails', () => {
     expect(canEditOwnDetails(access([menu('JP-SETT-UM', { read: true })]))).toBe(false);
     expect(canEditOwnDetails(access([menu('JP-SETT-UM', { update: true })]))).toBe(true);
     expect(canEditOwnDetails(access([], true))).toBe(true);
+  });
+});
+
+describe('hasMenuRight', () => {
+  const limited: MyAccess = {
+    isSuperAdmin: false,
+    menus: [
+      {
+        menuId: 'JP-CNTCT',
+        name: 'Contacts',
+        read: true,
+        create: false,
+        update: false,
+        delete: false,
+      },
+    ],
+  };
+
+  it('answers from the menu list', () => {
+    expect(hasMenuRight(limited, 'JP-CNTCT', 'read')).toBe(true);
+    expect(hasMenuRight(limited, 'JP-CNTCT', 'create')).toBe(false);
+    expect(hasMenuRight(limited, 'JP-OTHER', 'read')).toBe(false);
+  });
+
+  it('gives a superadmin every right and nobody a right before access loads', () => {
+    expect(hasMenuRight({ isSuperAdmin: true, menus: [] }, 'JP-CNTCT', 'create')).toBe(true);
+    expect(hasMenuRight(undefined, 'JP-CNTCT', 'read')).toBe(false);
   });
 });

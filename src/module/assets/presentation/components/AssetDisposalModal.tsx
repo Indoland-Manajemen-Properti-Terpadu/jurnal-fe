@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import {
+  Alert,
   Box,
   Button,
   Divider,
@@ -17,17 +18,15 @@ import { IconAlertTriangle, IconCalendar, IconScale } from '@tabler/icons-react'
 import dayjs from 'dayjs';
 import { useTranslation } from '@/i18n';
 import type { AssetItem, DisposalValues } from '@/module/assets/domain/asset';
-import {
-  estimateDisposalGainLoss,
-  validateDisposal,
-  type DisposalKind,
-} from '@/module/assets/domain/assetRules';
+import { validateDisposal, type DisposalKind } from '@/module/assets/domain/assetRules';
 import { AccountSelect } from '@/module/assets/presentation/components/AccountSelect';
 import { AssetModalTitle } from '@/module/assets/presentation/components/AssetModalTitle';
 import { formatAssetMoney } from '@/module/assets/presentation/components/formatAssetMoney';
 import { MoneyInput } from '@/module/assets/presentation/components/MoneyInput';
+import { getApiErrorMessage } from '@/module/assets/infrastructure/assetApi';
 import {
   useAssetAccounts,
+  useDisposalPreview,
   useDisposeAsset,
 } from '@/module/assets/presentation/hooks/useAssetQueries';
 import { useDecimalPrecision } from '@/module/settings';
@@ -95,10 +94,17 @@ export function AssetDisposalModal({ asset, onClose }: Readonly<AssetDisposalMod
 
   const sold = kind === 'sold';
   const price = sold ? form.values.disposalPrice : 0;
-  const gainLoss = estimateDisposalGainLoss(price, asset.netBookValue);
+  const dateReady = Boolean(form.values.disposalDate) && form.values.disposalDate <= today;
+  const preview = useDisposalPreview(asset.id, dateReady ? form.values.disposalDate : '', price);
+  const result = preview.data;
+  const gainLoss = result?.gainLoss ?? 0;
   const resultLabel =
     gainLoss > 0 ? t('estimatedGain') : gainLoss < 0 ? t('estimatedLoss') : t('estimatedBreakEven');
   const resultColor = gainLoss > 0 ? 'teal.8' : gainLoss < 0 ? 'orange.8' : 'dark.8';
+  const previewError = preview.isError
+    ? getApiErrorMessage(preview.error, t('disposalPreviewFailed'))
+    : null;
+  const refreshing = preview.waiting || preview.isFetching;
 
   return (
     <Modal
@@ -184,7 +190,6 @@ export function AssetDisposalModal({ asset, onClose }: Readonly<AssetDisposalMod
                   options={accounts.data ?? []}
                   preferredTypes={GAIN_LOSS_TYPES}
                   error={form.errors.gainLossAccount as string | undefined}
-                  required
                   loading={accounts.isLoading}
                 />
               </Stack>
@@ -200,25 +205,37 @@ export function AssetDisposalModal({ asset, onClose }: Readonly<AssetDisposalMod
                     label={t('bookValueNow')}
                     value={formatAssetMoney(asset.netBookValue, precision)}
                   />
+                  {result && result.catchUpDepreciation > 0 && (
+                    <ResultRow
+                      label={t('catchUpDepreciation')}
+                      value={formatAssetMoney(result.catchUpDepreciation, precision)}
+                    />
+                  )}
                   <ResultRow
                     label={t('disposalPriceLabel')}
                     value={sold ? formatAssetMoney(price, precision) : t('scrappedValue')}
                   />
                   <Divider />
-                  <Box>
-                    <Text size="sm" fw={600}>
-                      {resultLabel}
-                    </Text>
-                    <Text
-                      fz={26}
-                      fw={700}
-                      c={resultColor}
-                      lh={1.2}
-                      style={{ fontVariantNumeric: 'tabular-nums' }}
-                    >
-                      {formatAssetMoney(Math.abs(gainLoss), precision)}
-                    </Text>
-                  </Box>
+                  {previewError ? (
+                    <Alert color="orange" variant="light" radius="md" p="xs">
+                      <Text size="xs">{previewError}</Text>
+                    </Alert>
+                  ) : (
+                    <Box aria-busy={refreshing} opacity={refreshing ? 0.6 : 1}>
+                      <Text size="sm" fw={600}>
+                        {result ? resultLabel : t('disposalResultLabel')}
+                      </Text>
+                      <Text
+                        fz={26}
+                        fw={700}
+                        c={result ? resultColor : 'dimmed'}
+                        lh={1.2}
+                        style={{ fontVariantNumeric: 'tabular-nums' }}
+                      >
+                        {result ? formatAssetMoney(Math.abs(gainLoss), precision) : '—'}
+                      </Text>
+                    </Box>
+                  )}
                   <Text size="xs" c="dimmed" lh={1.5}>
                     {t('disposalPreviewHint')}
                   </Text>

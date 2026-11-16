@@ -1,52 +1,3 @@
-.row {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--mantine-spacing-md);
-  padding: 9px 0;
-  border-top: 1px solid var(--jurnal-color-border-subtle);
-}
-
-.row:first-child {
-  padding-top: 0;
-  border-top: 0;
-}
-
-.row:last-child {
-  padding-bottom: 0;
-}
-
-.rowLabel {
-  flex-shrink: 0;
-  color: var(--mantine-color-dimmed);
-  font-size: var(--mantine-font-size-sm);
-}
-
-.rowValue {
-  min-width: 0;
-  text-align: right;
-  font-size: var(--mantine-font-size-sm);
-  font-weight: 600;
-  color: var(--mantine-color-dark-8);
-  overflow-wrap: anywhere;
-}
-
-.rowStacked {
-  flex-direction: column;
-  align-items: stretch;
-  justify-content: flex-start;
-  gap: 2px;
-}
-
-.rowStacked .rowValue {
-  text-align: left;
-}
-
-.rowValue[data-muted='true'] {
-  font-weight: 400;
-  color: var(--mantine-color-dimmed);
-}
-
 .number {
   text-align: right;
   white-space: nowrap;
@@ -67,4 +18,112 @@
     padding-left: var(--mantine-spacing-xl);
     border-left: 1px solid var(--jurnal-color-border-subtle);
   }
+}
+
+/* A quiet inset that invites the missing data, instead of an empty card. */
+.prompt {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--jurnal-space-3);
+  padding: var(--jurnal-space-3) var(--jurnal-space-4);
+  border: 1px dashed var(--jurnal-color-border-subtle);
+  border-radius: var(--mantine-radius-md);
+  background: var(--jurnal-color-bg-subtle);
+}
+
+.photoMain {
+  display: block;
+  overflow: hidden;
+  border: 1px solid var(--jurnal-color-border-subtle);
+  border-radius: var(--mantine-radius-md);
+  background: var(--jurnal-color-bg-subtle);
+}
+
+.thumb {
+  overflow: hidden;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: var(--mantine-radius-md);
+  background: var(--jurnal-color-bg-subtle);
+  cursor: pointer;
+  transition: border-color var(--jurnal-duration-fast) var(--jurnal-ease-standard);
+}
+
+.thumb:hover {
+  border-color: var(--jurnal-color-border-strong);
+}
+
+.thumb[data-active='true'] {
+  border-color: var(--mantine-color-primary-6);
+}
+
+.thumb:focus-visible {
+  outline: 2px solid var(--mantine-color-primary-6);
+  outline-offset: 2px;
+}
+
+/* The details tab: main cards on the left, the accounting side on the right (as on contacts). */
+.detailGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(280px, 1fr);
+  gap: var(--mantine-spacing-lg);
+  align-items: start;
+}
+
+.detailGrid > * {
+  min-width: 0;
+}
+
+@media (max-width: $mantine-breakpoint-md) {
+  .detailGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* One ledger account: an arrow tile, then its role and the account. */
+.mappingRow {
+  display: flex;
+  align-items: center;
+  gap: var(--mantine-spacing-sm);
+  padding: var(--mantine-spacing-sm);
+  border: 1px solid var(--jurnal-color-border-subtle);
+  border-radius: var(--mantine-radius-md);
+  background: var(--jurnal-color-bg-subtle);
+}
+
+.mappingArrow {
+  display: grid;
+  place-items: center;
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--mantine-radius-md);
+  background: var(--jurnal-color-primary-subtle);
+  color: var(--jurnal-color-primary);
+}
+
+.mappingRow[data-empty] .mappingArrow {
+  background: var(--mantine-color-gray-1);
+  color: var(--jurnal-color-text-secondary);
+}
+
+.tabList {
+  flex-wrap: wrap;
+}
+
+/* A journal row: a white card that turns faintly blue when opened, so the open one stands out. */
+.journalItem {
+  border: 1px solid var(--jurnal-color-border-subtle);
+  background: var(--jurnal-color-surface);
+}
+
+.journalItem[data-active] {
+  border-color: color-mix(in srgb, var(--mantine-color-primary-6) 30%, transparent);
+  background: var(--jurnal-color-primary-subtle);
+}
+
+.journalContent {
+  padding-top: 0;
 }

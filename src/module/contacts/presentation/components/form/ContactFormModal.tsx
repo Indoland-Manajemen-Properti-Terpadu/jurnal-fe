@@ -20,7 +20,7 @@ import {
   IconUserPlus,
 } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
-import type { Contact, ContactFormValues } from '@/module/contacts/domain/contact';
+import type { Contact, ContactFormValues, ContactType } from '@/module/contacts/domain/contact';
 import { resolveContactGroupIds } from '@/module/contacts/domain/contactAccountOptions';
 import { firstTabWithError } from '@/module/contacts/domain/contactInput';
 import { useContactForm } from '@/module/contacts/presentation/hooks/useContactForm';
@@ -33,6 +33,8 @@ import { ContactMappingTab } from './ContactMappingTab';
 type ContactFormModalProps = {
   opened: boolean;
   contact?: Contact;
+  /** Type preselected for a new contact; the default is a customer. */
+  initialContactType?: ContactType[];
   isSubmitting: boolean;
   onClose: () => void;
   onSubmit: (values: ContactFormValues) => void;
@@ -41,13 +43,14 @@ type ContactFormModalProps = {
 export function ContactFormModal({
   opened,
   contact,
+  initialContactType,
   isSubmitting,
   onClose,
   onSubmit,
 }: Readonly<ContactFormModalProps>) {
   const { t } = useTranslation('contacts');
   const [activeTab, setActiveTab] = useState<string | null>('general');
-  const form = useContactForm(opened, contact);
+  const form = useContactForm(opened, contact, initialContactType);
   const groupsQuery = useContactGroups();
 
   useEffect(() => {

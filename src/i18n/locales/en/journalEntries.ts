@@ -98,6 +98,9 @@ export const journalEntries = {
     rule4: 'Attach the supporting receipt or invoice when available.',
   },
   detail: {
+    assetTitle: 'Related Asset',
+    assetSubtitle: 'The asset this entry books',
+    assetOpen: 'View asset',
     notFoundTitle: 'Journal Entry Not Found',
     notFoundBody: 'This journal entry may have been deleted, or the entry ID is not valid.',
     backToJournal: 'Back to General Journal',
