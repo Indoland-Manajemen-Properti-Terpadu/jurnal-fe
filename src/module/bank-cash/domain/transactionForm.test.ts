@@ -114,3 +114,28 @@ describe('todayWib', () => {
     expect(todayWib(new Date('2026-11-12T16:59:00Z'))).toBe('2026-11-12');
   });
 });
+
+describe('amount limit and same account', () => {
+  it('blocks an amount above the maximum instead of letting it reach the payload', () => {
+    expect(transferMissing({ date: '2026-11-16', fromId: 'a', toId: 'b', amount: 1e20 })).toContain(
+      'amountTooLarge'
+    );
+    expect(
+      sentMissing({
+        date: '2026-11-16',
+        accountId: 'a',
+        lines: [{ accountId: 'x', amount: 1e20 }],
+      })
+    ).toContain('amountTooLarge');
+  });
+
+  it('blocks a receive or send line on the cash account itself', () => {
+    const state = {
+      date: '2026-11-16',
+      accountId: 'cash',
+      lines: [{ accountId: 'cash', amount: 1000 }],
+    };
+    expect(receiveMissing(state)).toContain('sameAccount');
+    expect(sentMissing(state)).toContain('sameAccount');
+  });
+});

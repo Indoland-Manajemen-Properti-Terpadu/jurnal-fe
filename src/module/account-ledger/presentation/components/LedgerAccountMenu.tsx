@@ -1,10 +1,10 @@
-import { ActionIcon, Menu } from '@mantine/core';
+import { ActionIcon, Menu, Text } from '@mantine/core';
 import { IconArchive, IconDotsVertical, IconTrash } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
-import { canArchiveAccount, canDeleteAccount } from '@/module/chart-of-accounts';
+import { canArchiveAccount, deleteBlockReason } from '@/module/chart-of-accounts';
 
 interface LedgerAccountMenuProps {
-  account: { isLocked?: boolean; isArchived?: boolean };
+  account: { isLocked?: boolean; isArchived?: boolean; subAccount?: unknown[]; amount?: number };
   isArchiving: boolean;
   onArchive: () => void;
   onDelete: () => void;
@@ -19,13 +19,16 @@ export const LedgerAccountMenu: React.FC<LedgerAccountMenuProps> = ({
 }) => {
   const { t } = useTranslation('accountLedger');
   const showArchive = canArchiveAccount(account);
-  const showDelete = canDeleteAccount(account);
+  const blockReason = deleteBlockReason(account);
+  // A locked account offers no delete; a kept one shows it disabled with the way out (archive).
+  const showDelete = blockReason !== 'locked';
+  const deleteBlocked = blockReason !== null;
 
   // A locked account offers neither action; an empty menu would only show its title.
   if (!showArchive && !showDelete) return null;
 
   return (
-    <Menu position="bottom-end" shadow="md" width={200} withArrow>
+    <Menu position="bottom-end" shadow="md" width={260} withArrow>
       <Menu.Target>
         <ActionIcon variant="default" size={42} radius="md" aria-label={t('common.actionMenu')}>
           <IconDotsVertical size={18} />
@@ -44,9 +47,24 @@ export const LedgerAccountMenu: React.FC<LedgerAccountMenuProps> = ({
         )}
         {showArchive && showDelete && <Menu.Divider />}
         {showDelete && (
-          <Menu.Item color="red" leftSection={<IconTrash size={16} />} onClick={onDelete}>
+          <Menu.Item
+            color="red"
+            leftSection={<IconTrash size={16} />}
+            onClick={onDelete}
+            disabled={deleteBlocked}
+          >
             {t('common.deleteAction')}
           </Menu.Item>
+        )}
+        {blockReason === 'hasSubAccounts' && (
+          <Text fz="xs" c="dimmed" px="sm" py={6}>
+            {t('common.deleteBlockedSubAccounts')}
+          </Text>
+        )}
+        {blockReason === 'hasBalance' && (
+          <Text fz="xs" c="dimmed" px="sm" py={6}>
+            {t('common.deleteBlockedBalance')}
+          </Text>
         )}
       </Menu.Dropdown>
     </Menu>

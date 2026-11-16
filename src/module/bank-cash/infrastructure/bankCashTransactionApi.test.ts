@@ -16,6 +16,7 @@ const serverError = (status: number, data: unknown, statusText = '') =>
 
 const payload = {
   transactionDate: '2026-01-31',
+  transactionType: 'RECEIVE_MONEY' as const,
   notes: '  Setoran  ',
   transactionDetail: [
     { account: 'cash', description: 'Masuk', debit: 100 },
@@ -36,6 +37,7 @@ describe('submitBankCashTransaction', () => {
     expect(result).toEqual({ id: 'j1' });
     expect(post.mock.calls[0][1]).toEqual({
       transactionDate: '2026-01-31',
+      transactionType: 'RECEIVE_MONEY',
       notes: 'Setoran',
       transactionDetail: [
         { account: 'cash', description: 'Masuk', debit: 100 },

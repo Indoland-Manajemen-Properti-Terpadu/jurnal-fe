@@ -3,6 +3,8 @@ export const chartOfAccountsGuide = {
     nameMin: 'Account name must be at least 3 characters',
     nameRequired: 'Account name is required',
     codeRequired: 'Account code is required',
+    codePrefix:
+      'Account codes of the {{category}} category must start with {{prefix}}, for example {{prefix}}-10000.',
     categoryRequired: 'Account category is required',
   },
   presetNames: {

@@ -8,6 +8,10 @@ export const accountLedger = {
     archiveAction: 'Archive Account',
     restoreAction: 'Restore Account',
     deleteAction: 'Delete Account',
+    deleteBlockedSubAccounts:
+      'An account with sub accounts cannot be deleted. Archive it to stop using it.',
+    deleteBlockedBalance:
+      'An account with a balance cannot be deleted. Archive it to stop using it.',
     cancel: 'Cancel',
     archivedBadge: 'Archived',
     archiveOkTitle: 'Success',
@@ -15,8 +19,7 @@ export const accountLedger = {
     archiveFailFallback: 'Failed to change the archive status of the account',
     deleteConfirmBefore: 'Are you sure you want to delete the account ',
     deleteConfirmAfter: ' ({number})?',
-    deleteHelper:
-      'The account and its related history will be deleted. Deleted data cannot be recovered.',
+    deleteHelper: 'Deleted account data cannot be recovered.',
     restoreConfirmBefore: 'Are you sure you want to restore the account ',
     restoreConfirmAfter: ' to the active list?',
     archiveConfirmBefore: 'Are you sure you want to archive the account ',

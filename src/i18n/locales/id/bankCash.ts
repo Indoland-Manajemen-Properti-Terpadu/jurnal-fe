@@ -15,6 +15,7 @@ export const bankCash = {
     addLine: 'Tambah baris',
     removeLine: 'Hapus baris',
     notes: 'Catatan (opsional)',
+    futureDate: 'Tanggal transaksi di masa depan. Pastikan tanggalnya sudah benar.',
     overdraft: 'Saldo akun ini akan menjadi minus setelah transaksi.',
     journalToggle: 'Lihat jurnal yang akan dibukukan',
     journalAccount: 'Akun',
@@ -39,6 +40,7 @@ export const bankCash = {
       date: 'Isi tanggal transaksi',
       lines: 'Lengkapi akun dan nominal di setiap baris',
       amount: 'Isi nominal lebih dari nol',
+      amountTooLarge: 'Nominal terlalu besar, maksimal Rp 999.999.999.999',
     },
   },
   mutation: {

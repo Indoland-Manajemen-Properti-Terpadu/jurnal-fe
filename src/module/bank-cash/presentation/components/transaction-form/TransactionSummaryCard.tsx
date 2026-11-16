@@ -155,28 +155,30 @@ export function TransactionSummaryCard({
                 </Text>
               ) : (
                 <Stack gap="xs">
-                  <Table verticalSpacing={4} horizontalSpacing={4} fz={12}>
-                    <Table.Thead>
-                      <Table.Tr>
-                        <Table.Th>{t('form.journalAccount')}</Table.Th>
-                        <Table.Th ta="right">{t('form.journalDebit')}</Table.Th>
-                        <Table.Th ta="right">{t('form.journalCredit')}</Table.Th>
-                      </Table.Tr>
-                    </Table.Thead>
-                    <Table.Tbody>
-                      {journal.lines.map((line, index) => (
-                        <Table.Tr key={`${line.account}-${index}`}>
-                          <Table.Td>{line.account}</Table.Td>
-                          <Table.Td ta="right">
-                            {line.debit !== undefined ? formatCurrency(line.debit) : ''}
-                          </Table.Td>
-                          <Table.Td ta="right">
-                            {line.credit !== undefined ? formatCurrency(line.credit) : ''}
-                          </Table.Td>
+                  <Table.ScrollContainer minWidth={260}>
+                    <Table verticalSpacing={4} horizontalSpacing={4} fz={12}>
+                      <Table.Thead>
+                        <Table.Tr>
+                          <Table.Th>{t('form.journalAccount')}</Table.Th>
+                          <Table.Th ta="right">{t('form.journalDebit')}</Table.Th>
+                          <Table.Th ta="right">{t('form.journalCredit')}</Table.Th>
                         </Table.Tr>
-                      ))}
-                    </Table.Tbody>
-                  </Table>
+                      </Table.Thead>
+                      <Table.Tbody>
+                        {journal.lines.map((line, index) => (
+                          <Table.Tr key={`${line.account}-${index}`}>
+                            <Table.Td>{line.account}</Table.Td>
+                            <Table.Td ta="right" style={{ whiteSpace: 'nowrap' }}>
+                              {line.debit !== undefined ? formatCurrency(line.debit) : ''}
+                            </Table.Td>
+                            <Table.Td ta="right" style={{ whiteSpace: 'nowrap' }}>
+                              {line.credit !== undefined ? formatCurrency(line.credit) : ''}
+                            </Table.Td>
+                          </Table.Tr>
+                        ))}
+                      </Table.Tbody>
+                    </Table>
+                  </Table.ScrollContainer>
                   {journal.balanced && (
                     <Text fz={12} c="dimmed">
                       {t('form.journalBalanced')}

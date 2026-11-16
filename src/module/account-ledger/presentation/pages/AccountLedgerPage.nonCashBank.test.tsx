@@ -217,6 +217,7 @@ describe('non cash/bank ledger page (characterization)', () => {
   });
 
   it('deletes the account and goes back to the account list on success', async () => {
+    ledgerState.detail = { ...baseDetail, amount: 0 };
     renderNonCash();
     const user = userEvent.setup();
     await pickMenuItem(user, 'Hapus Akun');

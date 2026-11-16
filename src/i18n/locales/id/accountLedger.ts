@@ -8,6 +8,10 @@ export const accountLedger = {
     archiveAction: 'Arsipkan Akun',
     restoreAction: 'Pulihkan Akun',
     deleteAction: 'Hapus Akun',
+    deleteBlockedSubAccounts:
+      'Akun yang punya sub-akun tidak bisa dihapus. Arsipkan akun ini agar tidak dipakai lagi.',
+    deleteBlockedBalance:
+      'Akun yang masih punya saldo tidak bisa dihapus. Arsipkan akun ini agar tidak dipakai lagi.',
     cancel: 'Batal',
     archivedBadge: 'Diarsipkan',
     archiveOkTitle: 'Berhasil',
@@ -15,8 +19,7 @@ export const accountLedger = {
     archiveFailFallback: 'Gagal mengubah status arsip akun',
     deleteConfirmBefore: 'Apakah Anda yakin ingin menghapus akun ',
     deleteConfirmAfter: ' ({number})?',
-    deleteHelper:
-      'Data akun beserta riwayat yang terkait akan dihapus. Data yang telah dihapus tidak dapat dipulihkan.',
+    deleteHelper: 'Data akun yang dihapus tidak dapat dipulihkan kembali.',
     restoreConfirmBefore: 'Apakah Anda yakin ingin memulihkan akun ',
     restoreConfirmAfter: ' ke daftar aktif?',
     archiveConfirmBefore: 'Apakah Anda yakin ingin mengarsipkan akun ',
