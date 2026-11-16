@@ -120,6 +120,7 @@ export const salesForm = {
     dueBeforeDate: 'Jatuh tempo tidak boleh sebelum tanggal transaksi',
     emailInvalid: 'Ada alamat email yang belum benar',
     linesRequired: 'Tambahkan minimal satu baris produk atau jasa',
+    totalZero: 'Total faktur masih Rp 0. Isi harga pada minimal satu baris.',
     productRequired: 'Pilih produk',
     quantityMin: 'Jumlah harus lebih dari 0',
     priceNegative: 'Harga tidak boleh negatif',

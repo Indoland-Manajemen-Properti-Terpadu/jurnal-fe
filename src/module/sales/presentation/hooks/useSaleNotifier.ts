@@ -22,7 +22,7 @@ export const useSaleNotifier = () => {
           : notifications.show({
               color: 'yellow',
               autoClose: 8000,
-              message: t(`notify.${notice.key}`),
+              message: t(`notify.${notice.key}`, { reason: notice.reason ?? '' }),
             })
       ),
     failure: (error: unknown) =>
