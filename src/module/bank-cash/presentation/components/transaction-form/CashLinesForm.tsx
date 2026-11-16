@@ -84,6 +84,8 @@ export function CashLinesForm({ kind }: Readonly<{ kind: CashLinesKind }>) {
 
   const selected = cashAccounts.find((account) => account.id === prefill.value);
   const total = sumLineAmounts(rows);
+  // A line on the cash account itself nets to zero in the journal, so it moves no balance.
+  const netTotal = sumLineAmounts(rows.filter((row) => row.accountId !== prefill.value));
   const missing = (incoming ? receiveMissing : sentMissing)({
     date,
     accountId: prefill.value,
@@ -98,10 +100,12 @@ export function CashLinesForm({ kind }: Readonly<{ kind: CashLinesKind }>) {
   const balance = selected?.amount ?? 0;
   const after = selected
     ? incoming
-      ? balanceAfterReceive(balance, total)
-      : balanceAfter(balance, total)
+      ? balanceAfterReceive(balance, netTotal)
+      : balanceAfter(balance, netTotal)
     : null;
-  const overdraft = !incoming && total > 0 && after !== null && after < 0;
+  const overdraft = !incoming && netTotal > 0 && after !== null && after < 0;
+  const futureDate = !!date && date > todayWib();
+  const warning = overdraft ? t('form.overdraft') : futureDate ? t('form.futureDate') : null;
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
@@ -192,7 +196,7 @@ export function CashLinesForm({ kind }: Readonly<{ kind: CashLinesKind }>) {
             <AmountLinesEditor
               rows={rows}
               onChange={setRows}
-              options={sourceOptions}
+              options={sourceOptions.filter((option) => option.value !== prefill.value)}
               labels={{
                 account: t(`${kind}.lineAccount`),
                 accountPlaceholder: t(`${kind}.lineAccountPlaceholder`),
@@ -219,7 +223,7 @@ export function CashLinesForm({ kind }: Readonly<{ kind: CashLinesKind }>) {
             { role: t(`${kind}.accountRole`), name: selected?.name ?? null, balance, after },
           ]}
           total={{ label: t(`${kind}.total`), amount: total }}
-          warning={overdraft ? t('form.overdraft') : null}
+          warning={warning}
           missing={missing.map((reason) => t(`form.missing.${reason}`))}
           journal={journal}
           submitLabel={t(`${kind}.submit`)}
