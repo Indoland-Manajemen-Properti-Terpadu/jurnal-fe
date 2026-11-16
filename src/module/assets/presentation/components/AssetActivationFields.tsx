@@ -164,7 +164,8 @@ export function AssetActivationFields({
     label: string,
     description: string,
     preferred: string[],
-    required: boolean
+    required: boolean,
+    onlyPreferred = false
   ) => (
     <Grid.Col span={{ base: 12, sm: 6 }}>
       <AccountSelect
@@ -175,6 +176,7 @@ export function AssetActivationFields({
         onChange={(id) => form.setFieldValue(field, id)}
         options={accounts}
         preferredTypes={preferred}
+        onlyPreferred={onlyPreferred}
         takenIds={taken(field)}
         error={form.errors[field] as string | undefined}
         required={required}
@@ -197,6 +199,7 @@ export function AssetActivationFields({
             t('assetAccountLabel'),
             t('assetAccountHint'),
             ASSET_TYPES,
+            true,
             true
           )}
           {account(
