@@ -1,0 +1,84 @@
+.ln {
+  fill: none;
+  stroke: var(--mantine-color-primary-9);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.fl {
+  fill: var(--mantine-color-primary-0);
+  stroke: var(--mantine-color-primary-9);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+.fm {
+  fill: var(--mantine-color-primary-2);
+}
+
+.ac {
+  fill: var(--mantine-color-secondary-6);
+}
+
+.acl {
+  fill: none;
+  stroke: var(--mantine-color-secondary-6);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.wh {
+  fill: var(--mantine-color-white);
+  stroke: var(--mantine-color-primary-9);
+  stroke-width: 2;
+}
+
+/* Lock: the same line drawing, accented in orange. */
+.fo {
+  fill: var(--mantine-color-orange-1);
+}
+
+.ao {
+  fill: var(--mantine-color-orange-6);
+}
+
+/* Open dates: accented in teal. */
+.at {
+  fill: var(--mantine-color-teal-6);
+}
+
+.tx {
+  fill: var(--mantine-color-primary-9);
+  font-size: var(--jurnal-text-xs);
+  font-weight: 700;
+}
+
+.mark {
+  fill: none;
+  stroke: var(--mantine-color-white);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .flow {
+    stroke-dasharray: 4 6;
+    animation: flow 1.6s linear infinite;
+  }
+}
+
+@keyframes flow {
+  to {
+    stroke-dashoffset: -20;
+  }
+}
+
+.orl {
+  fill: none;
+  stroke: var(--mantine-color-orange-6);
+  stroke-width: 3;
+  stroke-linecap: round;
+}

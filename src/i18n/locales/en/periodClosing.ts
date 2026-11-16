@@ -1,8 +1,7 @@
 export const periodClosing = {
   page: {
     title: 'Closing Books & Period Lock',
-    description:
-      'Protect transactions you have reviewed, then close the books at period end so the profit or loss moves to retained earnings.',
+    description: 'Lock reviewed periods, then close the books at year end.',
     back: 'Back',
     refresh: 'Reload',
   },
@@ -23,6 +22,27 @@ export const periodClosing = {
     cancel: 'Cancel',
     save: 'Save',
     reopenOnlyLatest: 'Only the latest closing can be reopened.',
+  },
+  hero: {
+    title: 'Close the books with confidence',
+    body: 'Protect the transactions you have reviewed, then close the books at period end. Profit or loss moves to retained earnings and the next period starts from zero.',
+    points: {
+      protect: 'Past transactions stay protected',
+      journal: 'Closing journal posted for you',
+      reopen: 'The latest closing can be reopened',
+    },
+  },
+  timeline: {
+    title: 'Where your books stand',
+    subtitle: 'From the earliest date to today',
+    closed: 'Closed',
+    closedUntil: 'through {date}',
+    locked: 'Locked',
+    lockedUntil: 'through {date}',
+    open: 'Open',
+    openFrom: '{date} to today',
+    openLater: 'from {date}',
+    openAll: 'Every date up to today',
   },
   summary: {
     closedLabel: 'Books closed through',
@@ -46,15 +66,21 @@ export const periodClosing = {
     lockBody:
       'Freezes transactions in a date range. No journal is posted, and the lock can be changed or deleted at any time.',
     lockWhen: 'Use it after a monthly or quarterly report has been reviewed.',
+    lockTag: 'Can change any time',
     closeTitle: 'Closing Books',
     closeBody:
       'Freezes transactions and moves revenue and expense balances to retained earnings with a closing journal, so the next period starts from zero.',
     closeWhen: 'Done at the end of the fiscal year, after every adjustment is recorded.',
+    closeTag: 'Posts a closing journal',
     stepsTitle: 'Suggested order',
     step1: 'Record every transaction and adjusting entry',
     step2: 'Reconcile the bank accounts',
     step3: 'Check the trial balance and financial statements',
     step4: 'Lock the period or close the books',
+    step1Body: 'Make sure no transaction of this period is missing.',
+    step2Body: 'Match your book balance with the bank statement.',
+    step3Body: 'Check that the trial balance is balanced and the figures look right.',
+    step4Body: 'Freeze transactions so the reported figures stay put.',
   },
   filters: {
     all: 'All',
@@ -64,6 +90,8 @@ export const periodClosing = {
     statusInactive: 'Inactive',
   },
   table: {
+    title: 'Period history',
+    subtitle: 'Every period lock and closing of this site',
     name: 'Name',
     type: 'Type',
     range: 'Date range',

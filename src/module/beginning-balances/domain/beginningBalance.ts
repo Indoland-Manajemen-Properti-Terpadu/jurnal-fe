@@ -4,6 +4,8 @@ export interface SimpleAccount {
   name: string;
   accountNumber: string;
   type: 'debit' | 'credit';
+  /** The side the account really grows on, contra flip included (checked 2026-11-13: equals `type`). */
+  normalBalance?: 'debit' | 'credit';
   isContra: boolean;
 }
 
@@ -60,7 +62,7 @@ export interface OpeningRow {
 }
 
 /** Why a conversion date cannot be used, or null when it can. */
-export type DateIssue = 'locked' | 'afterFirstTransaction' | null;
+export type DateIssue = 'locked' | 'beforeClosing' | 'afterFirstTransaction' | null;
 
 export type BalanceState = 'balanced' | 'empty' | 'unbalanced';
 

@@ -11,6 +11,8 @@ type Props = {
   balanceState: BalanceState;
   filledCount: number;
   accountCount: number;
+  /** The gap is recorded to the opening equity account when publishing. */
+  autoBalance?: boolean;
 };
 
 /** One surface for the equation the user is solving: debit, credit, what is left, and progress. */
@@ -21,6 +23,7 @@ const BalanceSummary: React.FC<Props> = ({
   balanceState,
   filledCount,
   accountCount,
+  autoBalance = false,
 }) => {
   const { t } = useTranslation('beginningBalances');
 
@@ -37,7 +40,11 @@ const BalanceSummary: React.FC<Props> = ({
     },
     unbalanced: {
       value: t('summary.difference', { amount: formatCurrency(difference) }),
-      hint: totalDebit > totalCredit ? t('summary.creditLowerHint') : t('summary.debitLowerHint'),
+      hint: autoBalance
+        ? t('summary.autoBalanceHint')
+        : totalDebit > totalCredit
+          ? t('summary.creditLowerHint')
+          : t('summary.debitLowerHint'),
       tone: 'warning' as const,
     },
   }[balanceState];

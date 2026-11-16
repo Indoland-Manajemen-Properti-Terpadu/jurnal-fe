@@ -2,7 +2,7 @@ export const beginningBalances = {
   page: {
     title: 'Saldo Awal',
     subtitle:
-      'Posisi awal setiap akun pada tanggal konversi. Total debit dan kredit harus seimbang sebelum dipublikasikan.',
+      'Posisi awal setiap akun pada tanggal konversi. Selisih yang belum terlacak dicatat ke Ekuitas Saldo Awal saat dipublikasikan.',
     generalLedger: 'Buku Besar',
     chartOfAccounts: 'Bagan Akun (COA)',
     loading: 'Memuat daftar akun dan draf saldo awal...',
@@ -36,12 +36,77 @@ export const beginningBalances = {
     emptyHint: 'Isi saldo awal pada tabel di bawah',
     creditLowerHint: 'Kredit masih kurang dari debit',
     debitLowerHint: 'Debit masih kurang dari kredit',
+    autoBalanceHint: 'Saat dipublikasikan, selisih dicatat ke Ekuitas Saldo Awal',
     filledAccounts: 'Akun Terisi',
     filledHint: 'dari {total} akun',
   },
   date: {
     locked: 'Tanggal ini berada di periode akuntansi yang terkunci. Pilih tanggal lain.',
     afterFirst: 'Tanggal konversi tidak boleh setelah transaksi pertama ({date}).',
+    beforeClosing: 'Tanggal konversi harus setelah tutup buku terakhir ({date}).',
+  },
+  notices: {
+    profitLoss: {
+      title: 'Akun pendapatan dan beban terisi',
+      body: 'Isi akun ini hanya bila konversi dilakukan di tengah tahun buku, dengan saldo sejak awal tahun. Untuk awal tahun buku, cukup isi aset, kewajiban, dan ekuitas.',
+    },
+  },
+  intro: {
+    headerDescription: 'Posisi awal setiap akun pada hari Anda mulai mencatat di Jurnal.',
+    hero: {
+      title: 'Mulai pembukuan dari posisi yang benar',
+      body: 'Saldo awal adalah posisi setiap akun pada hari Anda mulai mencatat di Jurnal. Dengan saldo awal yang tepat, neraca, buku besar, dan laporan keuangan langsung sesuai kondisi usaha Anda.',
+      points: {
+        balanced: 'Keseimbangan dicek otomatis',
+        draft: 'Simpan sebagai draf, publikasikan saat siap',
+        history: 'Setiap perubahan tercatat di riwayat',
+      },
+    },
+    date: {
+      title: 'Pilih tanggal konversi',
+      body: 'Ini hari terakhir sebelum Anda mulai mencatat transaksi di Jurnal. Saldo semua akun diisi sesuai posisi pada akhir hari itu.',
+      label: 'Tanggal konversi',
+      afterClosing: 'Harus setelah tutup buku terakhir ({date}).',
+      beforeFirst: 'Tidak boleh setelah transaksi pertama ({date}).',
+      suggestionFirst: 'Disarankan {date}, sehari sebelum transaksi pertama.',
+      suggestionNone:
+        'Belum ada transaksi. Pilih hari terakhir pembukuan lama Anda, misalnya akhir bulan.',
+      useSuggested: 'Pakai tanggal saran ({date})',
+      start: 'Mulai isi saldo awal',
+    },
+    conflict: {
+      title: 'Saldo awal belum bisa diatur',
+      body: 'Buku sudah ditutup sampai {closing}, sedangkan transaksi pertama bertanggal {first}. Saldo awal harus setelah tutup buku dan tidak boleh setelah transaksi pertama, jadi belum ada tanggal yang cocok.',
+      hint: 'Buka kembali tutup buku yang menutupi transaksi pertama, atur saldo awal, lalu tutup buku lagi.',
+      action: 'Buka halaman Tutup Buku',
+    },
+    prepare: {
+      title: 'Siapkan data ini dulu',
+      subtitle: 'Angka dari dokumen asli membuat saldo awal cepat seimbang.',
+      bank: {
+        title: 'Saldo kas dan bank',
+        body: 'Ambil dari rekening koran dan hitungan kas pada tanggal konversi.',
+      },
+      invoices: {
+        title: 'Piutang dan utang',
+        body: 'Jumlahkan semua faktur yang belum lunas pada tanggal konversi.',
+      },
+      stock: {
+        title: 'Persediaan dan aset tetap',
+        body: 'Siapkan nilai stok, nilai perolehan aset, dan akumulasi penyusutannya.',
+      },
+      equity: {
+        title: 'Modal dan ekuitas',
+        body: 'Isi modal disetor dan laba ditahan. Pendapatan dan beban hanya diisi bila Anda mulai di tengah tahun buku.',
+      },
+    },
+    processTitle: 'Alur singkat saldo awal',
+    process: {
+      date: { title: 'Pilih tanggal', body: 'Tentukan hari konversi' },
+      fill: { title: 'Isi saldo akun', body: 'Masukkan debit atau kredit tiap akun' },
+      check: { title: 'Cek keseimbangan', body: 'Total debit dan kredit harus sama' },
+      publish: { title: 'Publikasikan', body: 'Saldo tercatat di buku besar' },
+    },
   },
   toolbar: {
     clearSearch: 'Hapus pencarian',
@@ -63,16 +128,25 @@ export const beginningBalances = {
     8: '8 · Beban Lain-lain',
   },
   table: {
-    perPage: 'Baris per halaman',
-    paginationText: '{from}–{to} dari {total} akun',
+    classNames: {
+      1: 'Aset',
+      2: 'Kewajiban',
+      3: 'Ekuitas',
+      4: 'Pendapatan',
+      5: 'Harga Pokok Penjualan',
+      6: 'Beban',
+      7: 'Pendapatan Lain-lain',
+      8: 'Beban Lain-lain',
+    },
+    otherClass: 'Lainnya',
     code: 'Kode',
     name: 'Nama Akun',
     debit: 'Debit (Rp)',
     credit: 'Kredit (Rp)',
-    normalDebit: 'Saldo normal debit',
-    normalCredit: 'Saldo normal kredit',
-    contra: 'akun kontra',
-    offSide: 'Di luar sisi normal',
+    contra: 'Akun kontra',
+    normalLegend: 'Kolom berlatar biru adalah sisi normal akun.',
+    offSideDebit: 'Biasanya diisi di kredit',
+    offSideCredit: 'Biasanya diisi di debit',
     clearRow: 'Kosongkan baris ini',
     emptyTitle: 'Tidak ada akun yang sesuai',
     emptyDescription: 'Ubah kata kunci, kelas akun, atau filter untuk melihat akun lainnya.',
@@ -84,6 +158,7 @@ export const beginningBalances = {
     middle: 'dengan total nilai seimbang',
     helper:
       'Setelah dipublikasikan, saldo awal akan dicatat sebagai entri pembuka buku besar dan saldo akun akan otomatis diperbarui.',
+    gap: 'Total debit dan kredit selisih {amount}. Selisih ini akan dicatat ke akun Ekuitas Saldo Awal agar saldo seimbang.',
     confirm: 'Publikasikan',
     cancel: 'Batal',
   },

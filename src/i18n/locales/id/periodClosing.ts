@@ -1,8 +1,7 @@
 export const periodClosing = {
   page: {
     title: 'Tutup Buku & Kunci Periode',
-    description:
-      'Amankan transaksi yang sudah diperiksa, lalu tutup buku di akhir periode agar laba atau rugi pindah ke Laba Ditahan.',
+    description: 'Kunci periode yang sudah diperiksa, lalu tutup buku di akhir tahun.',
     back: 'Kembali',
     refresh: 'Muat ulang',
   },
@@ -23,6 +22,27 @@ export const periodClosing = {
     cancel: 'Batal',
     save: 'Simpan',
     reopenOnlyLatest: 'Hanya tutup buku terakhir yang bisa dibuka kembali.',
+  },
+  hero: {
+    title: 'Tutup buku tanpa rasa cemas',
+    body: 'Amankan transaksi yang sudah diperiksa, lalu tutup buku di akhir periode. Laba atau rugi pindah ke Laba Ditahan dan periode berikutnya mulai dari nol.',
+    points: {
+      protect: 'Transaksi lama terlindungi',
+      journal: 'Jurnal penutup dibuat otomatis',
+      reopen: 'Tutup buku terakhir bisa dibuka kembali',
+    },
+  },
+  timeline: {
+    title: 'Posisi buku Anda',
+    subtitle: 'Dari tanggal terlama sampai hari ini',
+    closed: 'Ditutup',
+    closedUntil: 'sampai {date}',
+    locked: 'Dikunci',
+    lockedUntil: 'sampai {date}',
+    open: 'Terbuka',
+    openFrom: '{date} sampai hari ini',
+    openLater: 'mulai {date}',
+    openAll: 'Semua tanggal sampai hari ini',
   },
   summary: {
     closedLabel: 'Buku ditutup sampai',
@@ -46,15 +66,21 @@ export const periodClosing = {
     lockBody:
       'Membekukan transaksi pada rentang tanggal tertentu. Tidak ada jurnal yang dibuat, dan kunci bisa diubah atau dihapus kapan saja.',
     lockWhen: 'Cocok setelah laporan bulanan atau kuartalan selesai ditinjau.',
+    lockTag: 'Bisa diubah kapan saja',
     closeTitle: 'Tutup Buku',
     closeBody:
       'Membekukan transaksi sekaligus memindahkan saldo pendapatan dan beban ke Laba Ditahan melalui jurnal penutup, sehingga periode berikutnya mulai dari nol.',
     closeWhen: 'Dilakukan di akhir tahun buku, setelah semua penyesuaian dicatat.',
+    closeTag: 'Membuat jurnal penutup',
     stepsTitle: 'Urutan yang disarankan',
     step1: 'Catat semua transaksi dan jurnal penyesuaian',
     step2: 'Rekonsiliasi rekening bank',
     step3: 'Periksa neraca saldo dan laporan keuangan',
     step4: 'Kunci periode atau tutup buku',
+    step1Body: 'Pastikan tidak ada transaksi periode ini yang terlewat.',
+    step2Body: 'Cocokkan saldo buku dengan mutasi bank.',
+    step3Body: 'Pastikan neraca saldo seimbang dan angka laporan wajar.',
+    step4Body: 'Bekukan transaksi supaya angka laporan tidak berubah.',
   },
   filters: {
     all: 'Semua',
@@ -64,6 +90,8 @@ export const periodClosing = {
     statusInactive: 'Tidak aktif',
   },
   table: {
+    title: 'Riwayat periode',
+    subtitle: 'Semua kunci periode dan tutup buku di situs ini',
     name: 'Nama',
     type: 'Jenis',
     range: 'Rentang tanggal',

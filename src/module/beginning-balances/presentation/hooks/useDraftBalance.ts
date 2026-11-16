@@ -6,6 +6,7 @@ import {
   errorMessage,
   fetchDateLocked,
   fetchDraftBalanceLogs,
+  fetchFirstJournalDay,
   fetchSimpleAccounts,
   publishBalance,
   saveDraftBalance,
@@ -20,6 +21,14 @@ export const useDateLocked = (date: string | null) =>
     queryKey: ['accounting-period-check', date],
     queryFn: () => fetchDateLocked(date as string),
     enabled: Boolean(date),
+  });
+
+/** The day of the earliest journal, read only while the draft does not say it. */
+export const useFirstJournalDay = (enabled: boolean) =>
+  useQuery({
+    queryKey: ['journals', 'first-day'],
+    queryFn: fetchFirstJournalDay,
+    enabled,
   });
 
 /** Every account for the table. Under `['accounts']`, so a new or changed account refreshes it. */
