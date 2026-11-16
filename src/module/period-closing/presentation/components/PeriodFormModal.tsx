@@ -204,6 +204,21 @@ export function PeriodFormModal({ opened, period, onClose }: Readonly<PeriodForm
             )
           )}
 
+          {!isClosing &&
+            !overlap &&
+            rangeComplete &&
+            state.isActive &&
+            state.range.endDate >= todayDay() && (
+              <Alert
+                variant="light"
+                color="orange"
+                radius="md"
+                icon={<IconAlertTriangle size={18} />}
+              >
+                {t('form.endNotPassed', { end: formatDay(state.range.endDate, currentLanguage) })}
+              </Alert>
+            )}
+
           <TextInput
             label={t('form.name')}
             placeholder={t('form.namePlaceholder')}

@@ -26,4 +26,21 @@ describe('sendNotices', () => {
       { level: 'success', key: 'resent' },
     ]);
   });
+
+  it('gives the reason the server named when the email failed', () => {
+    expect(
+      sendNotices({
+        emailRequested: true,
+        emailSent: false,
+        emailError: ' Kotak surat penuh ',
+        resend: false,
+      })
+    ).toEqual([
+      { level: 'success', key: 'sent' },
+      { level: 'warning', key: 'emailNotSentReason', reason: 'Kotak surat penuh' },
+    ]);
+    expect(
+      sendNotices({ emailRequested: true, emailSent: false, emailError: 'Ditolak', resend: true })
+    ).toEqual([{ level: 'warning', key: 'emailNotSentReason', reason: 'Ditolak' }]);
+  });
 });

@@ -10,6 +10,8 @@ export type AccountSelectProps = {
   options: AccountOption[];
   /** Account types listed first, in this order; every other account stays selectable below. */
   preferredTypes?: string[];
+  /** Offer only the preferred types: an account of another type would be a wrong choice here. */
+  onlyPreferred?: boolean;
   /** Ids already used by another field of the same form; they cannot be picked twice. */
   takenIds?: string[];
   error?: string;
@@ -33,6 +35,7 @@ export function AccountSelect({
   onChange,
   options,
   preferredTypes = [],
+  onlyPreferred = false,
   takenIds = [],
   error,
   required,
@@ -41,9 +44,11 @@ export function AccountSelect({
 }: Readonly<AccountSelectProps>) {
   const types = [
     ...preferredTypes.filter((type) => options.some((option) => option.type === type)),
-    ...[...new Set(options.map((option) => option.type))]
-      .filter((type) => !preferredTypes.includes(type))
-      .sort((a, b) => a.localeCompare(b)),
+    ...(onlyPreferred
+      ? []
+      : [...new Set(options.map((option) => option.type))]
+          .filter((type) => !preferredTypes.includes(type))
+          .sort((a, b) => a.localeCompare(b))),
   ];
 
   const data = types.map((type) => ({

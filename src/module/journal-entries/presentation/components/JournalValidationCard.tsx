@@ -26,6 +26,7 @@ export const JournalValidationCard: React.FC<JournalValidationCardProps> = ({
     { id: 'allAccounts', label: t('validation.allAccounts'), pass: result.allAccountsSelected },
     { id: 'allAmounts', label: t('validation.allAmounts'), pass: result.allRowsHaveAmount },
     { id: 'balanced', label: t('validation.balanced'), pass: result.isBalanced },
+    { id: 'noSameAccount', label: t('validation.noSameAccount'), pass: result.noSameAccount },
   ];
   const passed = checks.filter((check) => check.pass).length;
 

@@ -1,8 +1,10 @@
 import type { DraftLine } from './journalEntry';
 import {
   absoluteDifference,
+  hasSameAccountOnBothSides,
   holdsBothSides,
   isJournalBlocked,
+  isValidTransactionNumber,
   parseAmountInput,
   roundToMinor,
   sumAmounts,
@@ -104,5 +106,36 @@ describe('I2 one side per row', () => {
     expect(validateDraft([line('A', 10, 0), line('B', 0, 10)], '').hasDate).toBe(false);
     expect(validateDraft([line('A', 10, 0)], 'x').hasMinRows).toBe(false);
     expect(validateDraft([line('', 10, 0), line('B', 0, 10)], 'x').allAccountsSelected).toBe(false);
+  });
+});
+
+describe('I8 same account on both sides', () => {
+  it('flags an account debited on one row and credited on another (journal #15401)', () => {
+    const lines = [line('6-60007', 100000, 0), line('6-60007', 0, 100000)];
+    expect(hasSameAccountOnBothSides(lines)).toBe(true);
+    expect(isJournalBlocked(lines)).toBe(true);
+    expect(validateDraft(lines, '2026-05-01').noSameAccount).toBe(false);
+  });
+
+  it('lets different accounts and several rows of one side through', () => {
+    const lines = [line('A', 60, 0), line('A', 40, 0), line('B', 0, 100)];
+    expect(hasSameAccountOnBothSides(lines)).toBe(false);
+    expect(isJournalBlocked(lines)).toBe(false);
+    expect(validateDraft(lines, '2026-05-01').noSameAccount).toBe(true);
+  });
+
+  it('ignores rows that have no account yet', () => {
+    expect(hasSameAccountOnBothSides([line('', 100, 0), line('', 0, 100)])).toBe(false);
+  });
+});
+
+describe('isValidTransactionNumber', () => {
+  it('accepts empty (automatic) and whole numbers only', () => {
+    expect(isValidTransactionNumber('')).toBe(true);
+    expect(isValidTransactionNumber(' 20260501 ')).toBe(true);
+    expect(isValidTransactionNumber('QA-JRNL-001')).toBe(false);
+    expect(isValidTransactionNumber('12.5')).toBe(false);
+    expect(isValidTransactionNumber('-5')).toBe(false);
+    expect(isValidTransactionNumber('99999999999999999999')).toBe(false);
   });
 });

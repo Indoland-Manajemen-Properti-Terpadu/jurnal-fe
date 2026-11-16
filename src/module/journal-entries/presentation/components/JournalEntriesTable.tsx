@@ -136,13 +136,13 @@ function JournalEntriesTable({
       titleStyle: { textAlign: 'right' as const },
       render: (row: JournalEntryByAccount) => (
         <Text
-          c={row.debit && row.debit > 0 ? 'dark.8' : 'dimmed'}
-          fw={row.debit && row.debit > 0 ? 600 : 400}
+          c={row.debit ? 'dark.8' : 'dimmed'}
+          fw={row.debit ? 600 : 400}
           fz="var(--jurnal-text-sm)"
           ta="right"
           style={{ fontVariantNumeric: 'tabular-nums' }}
         >
-          {row.debit && row.debit > 0 ? formatCurrency(row.debit) : '—'}
+          {row.debit ? formatCurrency(row.debit) : '—'}
         </Text>
       ),
     },
@@ -154,13 +154,13 @@ function JournalEntriesTable({
       titleStyle: { textAlign: 'right' as const },
       render: (row: JournalEntryByAccount) => (
         <Text
-          c={row.credit && row.credit > 0 ? 'dark.8' : 'dimmed'}
-          fw={row.credit && row.credit > 0 ? 600 : 400}
+          c={row.credit ? 'dark.8' : 'dimmed'}
+          fw={row.credit ? 600 : 400}
           fz="var(--jurnal-text-sm)"
           ta="right"
           style={{ fontVariantNumeric: 'tabular-nums' }}
         >
-          {row.credit && row.credit > 0 ? formatCurrency(row.credit) : '—'}
+          {row.credit ? formatCurrency(row.credit) : '—'}
         </Text>
       ),
     },

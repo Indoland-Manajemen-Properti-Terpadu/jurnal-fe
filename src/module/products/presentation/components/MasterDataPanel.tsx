@@ -53,6 +53,9 @@ export function MasterDataPanel({
   const [search, setSearch] = useState('');
   const [modalOpened, setModalOpened] = useState(false);
   const [editing, setEditing] = useState<MasterDataItem | null>(null);
+  // The form keeps the values it was mounted with, so every opening mounts a fresh one: an item
+  // reopened after a save must show what was saved, not what it held the first time.
+  const [formSession, setFormSession] = useState(0);
   const [pendingDelete, setPendingDelete] = useState<MasterDataItem | null>(null);
 
   const entity = entityLabel.toLowerCase();
@@ -63,11 +66,13 @@ export function MasterDataPanel({
 
   const openCreate = () => {
     setEditing(null);
+    setFormSession((session) => session + 1);
     setModalOpened(true);
   };
 
   const openEdit = (item: MasterDataItem) => {
     setEditing(item);
+    setFormSession((session) => session + 1);
     setModalOpened(true);
   };
 
@@ -196,7 +201,7 @@ export function MasterDataPanel({
       </Paper>
 
       <MasterDataFormModal
-        key={editing?.id ?? 'new'}
+        key={formSession}
         opened={modalOpened}
         onClose={() => setModalOpened(false)}
         entityLabel={entityLabel}

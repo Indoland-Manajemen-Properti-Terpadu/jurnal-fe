@@ -86,7 +86,13 @@ export function ClosingPeriodStep({ wizard }: Readonly<{ wizard: CloseBooksWizar
             </Alert>
           )}
 
-          {rangeValid && range.endDate >= wizard.today && (
+          {wizard.rangeIssue && (
+            <Alert variant="light" color="red" radius="md" icon={<IconAlertTriangle size={18} />}>
+              {t(`wizard.period.${wizard.rangeIssue}`, { end: day(wizard.today) })}
+            </Alert>
+          )}
+
+          {rangeValid && !wizard.rangeIssue && range.endDate >= wizard.today && (
             <Alert variant="light" color="orange" radius="md" icon={<IconCalendarDue size={18} />}>
               {t('wizard.period.future', { end: day(range.endDate) })}
             </Alert>

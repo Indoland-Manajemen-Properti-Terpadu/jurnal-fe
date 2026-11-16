@@ -42,8 +42,10 @@ export function TransactionTableRow({
   const navigate = useNavigate();
   const { t } = useTranslation('contactDetail');
 
-  const statusCfg = getSaleStatusConfig(tx.status);
-  const normalizedStatus = String(tx.status || 'DRAFT').toUpperCase();
+  // The server's display status (DRAFT, UNPAID, PAID, OVERDUE, VOID) is what the invoice is called;
+  // the plain status also comes as SENT or PARTIAL_PAID, which have no label of their own.
+  const normalizedStatus = tx.displayStatus?.code || String(tx.status || 'DRAFT').toUpperCase();
+  const statusCfg = getSaleStatusConfig(normalizedStatus);
   const statusKey = `table.saleStatus.${normalizedStatus}`;
   const translatedStatus = t(statusKey);
   const statusLabel = translatedStatus === statusKey ? t('table.unknownStatus') : translatedStatus;

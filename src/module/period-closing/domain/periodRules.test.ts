@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import type { AccountingPeriod } from './accountingPeriod';
 import {
   addDays,
+  addYear,
+  closingRangeIssue,
   canDeletePeriod,
   canEditDates,
   canReopenPeriod,
@@ -213,5 +215,35 @@ describe('validatePeriodValues', () => {
     expect(
       validatePeriodValues({ name: 'Kunci', startDate: '2026-01-31', endDate: '2026-01-31' })
     ).toEqual({});
+  });
+});
+
+describe('closingRangeIssue (PRO-81)', () => {
+  const today = '2026-11-16';
+
+  it('refuses an end date that has not come yet, but not today itself', () => {
+    expect(closingRangeIssue({ startDate: '2025-01-01', endDate: '2026-12-31' }, today)).toBe(
+      'endFuture'
+    );
+    expect(closingRangeIssue({ startDate: '2026-01-01', endDate: '2026-11-17' }, today)).toBe(
+      'endFuture'
+    );
+    expect(closingRangeIssue({ startDate: '2026-01-01', endDate: today }, today)).toBeNull();
+  });
+
+  it('refuses a range longer than a year, as the trial balance of step 2 does', () => {
+    expect(closingRangeIssue({ startDate: '2024-01-01', endDate: '2025-06-30' }, today)).toBe(
+      'tooLong'
+    );
+    expect(closingRangeIssue({ startDate: '2025-01-01', endDate: '2026-01-02' }, today)).toBe(
+      'tooLong'
+    );
+    expect(closingRangeIssue({ startDate: '2025-01-01', endDate: '2026-01-01' }, today)).toBeNull();
+    expect(closingRangeIssue({ startDate: '2025-01-01', endDate: '2025-12-31' }, today)).toBeNull();
+  });
+
+  it('says nothing about a range that is not filled in yet', () => {
+    expect(closingRangeIssue({ startDate: '', endDate: '2030-01-01' }, today)).toBeNull();
+    expect(addYear('2024-02-29')).toBe('2025-03-01');
   });
 });

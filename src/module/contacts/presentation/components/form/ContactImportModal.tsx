@@ -7,7 +7,9 @@ import {
   Group,
   Modal,
   Paper,
+  ScrollArea,
   Stack,
+  Table,
   Text,
   ThemeIcon,
 } from '@mantine/core';
@@ -18,6 +20,7 @@ import {
   IconUpload,
 } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
+import { ContactImportError } from '@/module/contacts/domain/contactImport';
 import {
   useDownloadContactTemplate,
   useImportContacts,
@@ -31,22 +34,31 @@ type ContactImportModalProps = {
 export function ContactImportModal({ opened, onClose }: Readonly<ContactImportModalProps>) {
   const { t } = useTranslation('contacts');
   const [file, setFile] = useState<File | null>(null);
+  const [failure, setFailure] = useState<ContactImportError | null>(null);
 
   const downloadTemplateMutation = useDownloadContactTemplate();
   const importMutation = useImportContacts();
 
   const handleClose = () => {
     setFile(null);
+    setFailure(null);
     onClose();
+  };
+
+  const handleFileChange = (next: File | null) => {
+    setFile(next);
+    setFailure(null);
   };
 
   const handleImport = async () => {
     if (!file) return;
+    setFailure(null);
     try {
       await importMutation.mutateAsync(file);
       handleClose();
-    } catch {
-      // Error handled by mutation notification
+    } catch (error) {
+      // A refused file lists its rows below; any other failure is a toast of the mutation.
+      if (error instanceof ContactImportError) setFailure(error);
     }
   };
 
@@ -64,7 +76,7 @@ export function ContactImportModal({ opened, onClose }: Readonly<ContactImportMo
           </Text>
         </Group>
       }
-      size="md"
+      size={failure ? 'lg' : 'md'}
       radius="md"
       centered
     >
@@ -102,10 +114,40 @@ export function ContactImportModal({ opened, onClose }: Readonly<ContactImportMo
           leftSection={<IconFileSpreadsheet size={16} />}
           accept=".xlsx,.xls,.csv"
           value={file}
-          onChange={setFile}
+          onChange={handleFileChange}
           clearable
           required
         />
+
+        {failure && (
+          <Alert color="red" icon={<IconAlertCircle size={16} />}>
+            <Stack gap="xs">
+              <Text size="sm" fw={600}>
+                {failure.message || t('import.failedSummary')}
+              </Text>
+              <ScrollArea.Autosize mah={260}>
+                <Table withTableBorder withColumnBorders verticalSpacing={6} fz="xs" bg="white">
+                  <Table.Thead>
+                    <Table.Tr>
+                      <Table.Th w={70}>{t('import.colRow')}</Table.Th>
+                      <Table.Th>{t('import.colField')}</Table.Th>
+                      <Table.Th>{t('import.colReason')}</Table.Th>
+                    </Table.Tr>
+                  </Table.Thead>
+                  <Table.Tbody>
+                    {failure.issues.map((issue, index) => (
+                      <Table.Tr key={`${issue.row}-${issue.field ?? ''}-${index}`}>
+                        <Table.Td>{issue.row}</Table.Td>
+                        <Table.Td>{issue.field ?? t('import.wholeRow')}</Table.Td>
+                        <Table.Td>{issue.reason}</Table.Td>
+                      </Table.Tr>
+                    ))}
+                  </Table.Tbody>
+                </Table>
+              </ScrollArea.Autosize>
+            </Stack>
+          </Alert>
+        )}
 
         <Group justify="flex-end" gap="sm" mt="md">
           <Button variant="default" onClick={handleClose} disabled={importMutation.isPending}>

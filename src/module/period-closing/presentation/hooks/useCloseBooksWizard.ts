@@ -11,6 +11,7 @@ import {
   type ManualConfirmations,
 } from '@/module/period-closing/domain/closingReadiness';
 import {
+  closingRangeIssue,
   findOverlap,
   gapAfterLatestClosing,
   isCalendarDay,
@@ -76,6 +77,7 @@ export const useCloseBooksWizard = () => {
     range.endDate >= range.startDate;
   const overlap = rangeValid ? findOverlap(range, 'CLOSE', closings.data?.items ?? []) : undefined;
   const gapDays = rangeValid ? gapAfterLatestClosing(range.startDate, latestClosing) : 0;
+  const rangeIssue = rangeValid ? closingRangeIssue(range, today) : null;
 
   const pastFirstStep = step !== 'period';
   const trialBalance = useClosingTrialBalance(pastFirstStep && rangeValid ? range : null);
@@ -92,7 +94,7 @@ export const useCloseBooksWizard = () => {
   const readiness = {
     retainedEarnings: retainedEarningsStatus(mappings.isLoading, retainedEarnings),
     trialBalance: trialBalance.isError
-      ? ('warn' as const)
+      ? ('fail' as const)
       : trialBalanceStatus(trialBalance.isLoading, trialBalance.data?.totals.closing),
     confirmations,
   };
@@ -111,7 +113,7 @@ export const useCloseBooksWizard = () => {
   };
 
   const canLeave: Record<ClosingStep, boolean> = {
-    period: !closings.isLoading,
+    period: !closings.isLoading && !rangeIssue,
     readiness: isReadyToReview(readiness),
     worksheet: trialBalance.isSuccess,
     review: acknowledged && readiness.retainedEarnings === 'pass',
@@ -160,6 +162,7 @@ export const useCloseBooksWizard = () => {
     errors,
     overlap,
     gapDays,
+    rangeIssue,
     rangeValid,
     trialBalance,
     cashBankAccounts: cashBankAccounts(trialBalance.data),

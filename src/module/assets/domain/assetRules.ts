@@ -113,7 +113,8 @@ export type DisposalErrorKey =
   | 'errDisposalDate'
   | 'errDisposalFuture'
   | 'errDisposalPrice'
-  | 'errProceedsAccount';
+  | 'errProceedsAccount'
+  | 'errGainLossAccount';
 export type DisposalErrors = Partial<Record<keyof DisposalValues, DisposalErrorKey>>;
 
 /** `sold` asks for a sale price and the account that receives it; a scrapped asset needs neither. */
@@ -131,6 +132,8 @@ export const validateDisposal = (
     if (!(values.disposalPrice > 0)) errors.disposalPrice = 'errDisposalPrice';
     if (!values.proceedsAccount) errors.proceedsAccount = 'errProceedsAccount';
   }
+  // The server refuses a disposal without it, for a sold and for a scrapped asset alike.
+  if (!values.gainLossAccount) errors.gainLossAccount = 'errGainLossAccount';
   return errors;
 };
 

@@ -7,7 +7,7 @@ type MasterDataFormModalProps = {
   opened: boolean;
   onClose: () => void;
   entityLabel: string;
-  /** When set the modal edits this item instead of creating one; remount it (key) per item. */
+  /** When set the modal edits this item instead of creating one; remount it (key) on every opening. */
   item?: MasterDataItem | null;
   namePlaceholder: string;
   isSubmitting: boolean;

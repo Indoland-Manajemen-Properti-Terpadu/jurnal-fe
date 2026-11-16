@@ -38,6 +38,7 @@ import JournalLinesEditor from '../components/JournalLinesEditor';
 import { TagInput } from '../components/TagInput';
 import { useCreateJournalEntry } from '../hooks/useCreateJournalEntry';
 import type { JournalEntryPayload } from '../../domain/journalEntry';
+import { isValidTransactionNumber } from '../../domain/journalRules';
 import { JournalDoubleEntryGuide } from '../components/JournalDoubleEntryGuide';
 import { JournalValidationCard } from '../components/JournalValidationCard';
 
@@ -80,6 +81,15 @@ export const AddJournalEntryPage: React.FC = () => {
         color: 'red',
         title: t('toast.dateRequiredTitle'),
         message: t('toast.dateRequiredMessage'),
+      });
+      return;
+    }
+
+    if (!isValidTransactionNumber(transactionNumber)) {
+      notifications.show({
+        color: 'red',
+        title: t('toast.invalidTitle'),
+        message: t('form.numberInvalid'),
       });
       return;
     }
@@ -185,6 +195,12 @@ export const AddJournalEntryPage: React.FC = () => {
                         placeholder={t('form.numberPlaceholder')}
                         value={transactionNumber}
                         onChange={(e) => setTransactionNumber(e.target.value)}
+                        inputMode="numeric"
+                        error={
+                          isValidTransactionNumber(transactionNumber)
+                            ? undefined
+                            : t('form.numberInvalid')
+                        }
                         styles={{ input: { height: 38 } }}
                       />
                       <Text fz="var(--jurnal-text-xs)" c="dimmed" mt={4}>

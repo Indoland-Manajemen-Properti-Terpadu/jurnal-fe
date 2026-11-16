@@ -20,6 +20,7 @@ vi.mock('@/module/bank-cash/presentation/hooks/useCashBankChoices', () => ({
       { id: 'bank', name: 'Bank BCA', accountNumber: '1-10004', amount: 5_000 },
     ],
     sourceOptions: [
+      { value: 'cash', label: '1-10001 - Kas Besar' },
       { value: 'rev', label: '4-10001 - Pendapatan Bunga' },
       { value: 'exp', label: '6-10001 - Beban Listrik' },
     ],
@@ -51,7 +52,7 @@ describe('CashLinesForm', () => {
 
   it('posts a receipt: cash debited, source credited, once everything is filled', async () => {
     renderForm('receive');
-    await choose(/Masuk ke akun/, /Kas Besar/);
+    await choose(/Masuk ke akun/, /Kas Besar \(/);
     await choose(/Akun sumber/, /Pendapatan Bunga/);
     await userEvent.type(screen.getAllByRole('textbox', { name: 'Nominal' })[0], '25000');
 
@@ -86,7 +87,7 @@ describe('CashLinesForm', () => {
 
   it('sends the attached files with the receipt, and none when nothing is attached', async () => {
     const { container } = renderForm('receive');
-    await choose(/Masuk ke akun/, /Kas Besar/);
+    await choose(/Masuk ke akun/, /Kas Besar \(/);
     await choose(/Akun sumber/, /Pendapatan Bunga/);
     await userEvent.type(screen.getAllByRole('textbox', { name: 'Nominal' })[0], '25000');
 
@@ -96,5 +97,28 @@ describe('CashLinesForm', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'Simpan penerimaan' }));
     expect(mocks.mutate.mock.calls[0][0].attachments).toEqual([nota]);
+  });
+
+  it('refuses a source that is the cash account when the source was chosen first (PRO-67)', async () => {
+    renderForm('receive');
+    await choose(/Masuk ke akun/, /Bank BCA/);
+    await choose(/Akun sumber/, /^1-10001 - Kas Besar$/);
+    await userEvent.type(screen.getAllByRole('textbox', { name: 'Nominal' })[0], '1000');
+    await choose(/Masuk ke akun/, /Kas Besar \(/);
+
+    expect(screen.queryByText('Siap dibukukan')).toBeNull();
+    expect(screen.getByText('Pilih dua akun yang berbeda')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Simpan penerimaan' }).hasAttribute('disabled')).toBe(
+      true
+    );
+  });
+
+  it('does not offer the cash account as a source once it is chosen', async () => {
+    renderForm('receive');
+    await choose(/Masuk ke akun/, /Kas Besar \(/);
+    await userEvent.click(screen.getByRole('textbox', { name: /Akun sumber/ }));
+    expect(
+      screen.queryByRole('option', { name: /^1-10001 - Kas Besar$/, hidden: true })
+    ).toBeNull();
   });
 });
