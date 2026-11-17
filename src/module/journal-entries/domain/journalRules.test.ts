@@ -4,7 +4,9 @@ import {
   hasSameAccountOnBothSides,
   holdsBothSides,
   isJournalBlocked,
-  isValidTransactionNumber,
+  MAX_JOURNAL_AMOUNT,
+  MAX_REFERENCE_LENGTH,
+  normalizeReferenceNumber,
   parseAmountInput,
   roundToMinor,
   sumAmounts,
@@ -129,13 +131,17 @@ describe('I8 same account on both sides', () => {
   });
 });
 
-describe('isValidTransactionNumber', () => {
-  it('accepts empty (automatic) and whole numbers only', () => {
-    expect(isValidTransactionNumber('')).toBe(true);
-    expect(isValidTransactionNumber(' 20260501 ')).toBe(true);
-    expect(isValidTransactionNumber('QA-JRNL-001')).toBe(false);
-    expect(isValidTransactionNumber('12.5')).toBe(false);
-    expect(isValidTransactionNumber('-5')).toBe(false);
-    expect(isValidTransactionNumber('99999999999999999999')).toBe(false);
+describe('reference number and amount limit', () => {
+  it('sends a trimmed reference only when there is one', () => {
+    expect(normalizeReferenceNumber('')).toBeUndefined();
+    expect(normalizeReferenceNumber('   ')).toBeUndefined();
+    expect(normalizeReferenceNumber(' QA-JRNL-001 ')).toBe('QA-JRNL-001');
+    expect(normalizeReferenceNumber('x'.repeat(80))).toHaveLength(MAX_REFERENCE_LENGTH);
+  });
+
+  it('keeps an amount at the largest value instead of losing its cents', () => {
+    expect(parseAmountInput('99999999999999999999')).toBe(MAX_JOURNAL_AMOUNT);
+    expect(parseAmountInput(MAX_JOURNAL_AMOUNT)).toBe(MAX_JOURNAL_AMOUNT);
+    expect(parseAmountInput('1500000.5')).toBe(1500000.5);
   });
 });

@@ -39,6 +39,7 @@ const toEntry = (value: unknown): JournalHistoryEntry => {
   return {
     id: text(entry.id),
     transactionNumber: text(entry.transactionNumber),
+    referenceNumber: text(entry.referenceNumber),
     transactionDate: text(entry.transactionDate),
     transactionType: text(entry.transactionType),
     status: text(entry.status),

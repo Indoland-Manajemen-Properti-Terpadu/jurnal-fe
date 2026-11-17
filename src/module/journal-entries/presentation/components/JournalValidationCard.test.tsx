@@ -35,4 +35,13 @@ describe('I2 validation card', () => {
     expect(screen.getByText('Belum Lengkap')).toBeInTheDocument();
     expect(screen.getByText('Akun debit dan kredit tidak boleh sama')).toBeInTheDocument();
   });
+
+  it('stays incomplete and says why when the date is in a locked period (PRO-83)', () => {
+    useTransactionStore.setState({
+      transactions: [row('A', 100, 0, 'a'), row('B', 0, 100, 'b')],
+    });
+    render(<JournalValidationCard transactionDate="2025-01-15" dateLocked />);
+    expect(screen.getByText('Belum Lengkap')).toBeInTheDocument();
+    expect(screen.getByText('Tanggal tidak berada di periode terkunci')).toBeInTheDocument();
+  });
 });

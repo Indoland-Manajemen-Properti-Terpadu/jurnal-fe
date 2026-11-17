@@ -162,17 +162,24 @@ export function JournalHistoryTable({
       {
         accessor: 'transactionNumber',
         sortable: true,
-        width: 130,
+        width: 160,
         title: head(t('history.column.number')),
         render: (row: JournalHistoryEntry) => (
-          <Text
-            fz="var(--jurnal-text-sm)"
-            fw={600}
-            c="primary.6"
-            style={{ textDecoration: row.status === 'VOID' ? 'line-through' : undefined }}
-          >
-            #{row.transactionNumber}
-          </Text>
+          <>
+            <Text
+              fz="var(--jurnal-text-sm)"
+              fw={600}
+              c="primary.6"
+              style={{ textDecoration: row.status === 'VOID' ? 'line-through' : undefined }}
+            >
+              #{row.transactionNumber}
+            </Text>
+            {row.referenceNumber && (
+              <Text fz="var(--jurnal-text-xs)" c="dimmed" lineClamp={1} title={row.referenceNumber}>
+                {row.referenceNumber}
+              </Text>
+            )}
+          </>
         ),
       },
       {

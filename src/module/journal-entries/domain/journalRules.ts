@@ -17,6 +17,12 @@ import type { DraftLine } from './journalEntry';
 
 type AmountLike = number | string | null | undefined;
 
+/**
+ * Largest amount of one journal line (almost 10 trillion rupiah). Beyond about 2^53 cents a number
+ * loses its cents, so the sum of the lines would no longer be exact; the field refuses more digits.
+ */
+export const MAX_JOURNAL_AMOUNT = 9_999_999_999_999;
+
 /** Rounds half up to the cent and returns integer minor units. Invalid input counts as zero. */
 export const roundToMinor = (value: AmountLike): number => {
   const numeric = typeof value === 'string' ? Number(value) : value;
@@ -31,7 +37,8 @@ export const roundToMinor = (value: AmountLike): number => {
  * Parses an amount typed into a form field: rounded half up to the cent, never NaN.
  * Replaces the old `Number(value) || 0`, which kept every decimal the user typed.
  */
-export const parseAmountInput = (value: AmountLike): number => roundToMinor(value) / 100;
+export const parseAmountInput = (value: AmountLike): number =>
+  Math.min(roundToMinor(value), MAX_JOURNAL_AMOUNT * 100) / 100;
 
 /** Sums amounts in minor units (each rounded half up to the cent) and returns the plain number. */
 export const sumAmounts = (values: AmountLike[]): number =>
@@ -65,9 +72,14 @@ export const hasSameAccountOnBothSides = (
       )
   );
 
-/** The backend takes a custom transaction number only as a whole number; empty means automatic. */
-export const isValidTransactionNumber = (value: string): boolean =>
-  value.trim() === '' || (/^\d+$/.test(value.trim()) && Number.isSafeInteger(Number(value.trim())));
+/** Longest reference number (the user's own proof number, text) the form accepts. */
+export const MAX_REFERENCE_LENGTH = 50;
+
+/** A reference number as it is sent: trimmed, and absent when empty. */
+export const normalizeReferenceNumber = (value: string): string | undefined => {
+  const trimmed = value.trim();
+  return trimmed ? trimmed.slice(0, MAX_REFERENCE_LENGTH) : undefined;
+};
 
 /** I1: true when the journal must not be saved. */
 export const isJournalBlocked = (lines: DraftLine[]): boolean => {
