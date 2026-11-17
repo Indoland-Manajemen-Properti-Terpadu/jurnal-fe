@@ -8,4 +8,8 @@ export type SimpleAccount = {
   isContra?: boolean;
   isHead?: boolean;
   isPostable?: boolean;
+  /** Only with `type=tax_sales` or `tax_purchase`: the account sits in a recommended category. */
+  isSuggested?: boolean;
+  categoryID?: string;
+  categoryName?: string;
 };

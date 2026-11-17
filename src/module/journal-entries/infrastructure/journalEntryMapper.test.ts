@@ -27,15 +27,20 @@ describe('toCreateBody', () => {
   it('adds number, trimmed-nonblank notes, tags and files when present', () => {
     const file = new File(['x'], 'a.pdf');
     const body = toCreateBody(
-      payload({ transactionNumber: 7, notes: 'memo', tags: ['t1'], attachments: [file] })
+      payload({
+        referenceNumber: ' QA-JRNL-001 ',
+        notes: 'memo',
+        tags: ['t1'],
+        attachments: [file],
+      })
     );
-    expect(body).toMatchObject({ transactionNumber: 7, notes: 'memo', tags: ['t1'] });
+    expect(body).toMatchObject({ referenceNumber: 'QA-JRNL-001', notes: 'memo', tags: ['t1'] });
     expect(body.attachments).toEqual([file]);
   });
 
   it('skips a NaN number and blank notes', () => {
-    const body = toCreateBody(payload({ transactionNumber: NaN, notes: '   ' }));
-    expect(body).not.toHaveProperty('transactionNumber');
+    const body = toCreateBody(payload({ referenceNumber: '  ', notes: '   ' }));
+    expect(body).not.toHaveProperty('referenceNumber');
     expect(body).not.toHaveProperty('notes');
   });
 });

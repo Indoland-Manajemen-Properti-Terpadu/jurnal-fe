@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   ActionIcon,
   Badge,
@@ -48,7 +48,9 @@ import {
 } from '@/module/settings/domain/settingRules';
 import { useTranslation } from '@/i18n';
 
+import { useSimpleAccounts } from '@/module/chart-of-accounts';
 import { useAccountOptions } from '@/module/settings/presentation/hooks/useAccountOptions';
+import { buildAccountOptions } from '@/module/settings/domain/accountOptions';
 import { DeleteConfirmModal } from '@/module/settings/presentation/components/DeleteConfirmModal';
 
 export default function TaxSettingPage() {
@@ -69,6 +71,14 @@ export default function TaxSettingPage() {
     useDisclosure(false);
   const [deletingTax, setDeletingTax] = useState<Tax | null>(null);
 
+  const { accounts: salesAccountList } = useSimpleAccounts({ type: 'tax_sales' });
+  const { accounts: purchaseAccountList } = useSimpleAccounts({ type: 'tax_purchase' });
+  const salesAccounts = useMemo(() => buildAccountOptions(salesAccountList), [salesAccountList]);
+  const purchaseAccounts = useMemo(
+    () => buildAccountOptions(purchaseAccountList),
+    [purchaseAccountList]
+  );
+  /** Every account, only to turn a saved id into a name: a tax can point at an account outside the filtered lists. */
   const { accounts } = useAccountOptions();
 
   const msg = (key: SettingValidationKey | null) => (key ? st(key) : null);
@@ -321,7 +331,7 @@ export default function TaxSettingPage() {
               label={st('tax.salesAccountLabel')}
               placeholder={st('tax.salesAccountPlaceholder')}
               description={st('tax.salesAccountHint')}
-              data={accounts}
+              data={salesAccounts}
               searchable
               clearable
               {...form.getInputProps('salesAccount')}
@@ -331,7 +341,7 @@ export default function TaxSettingPage() {
               label={st('tax.purchaseAccountLabel')}
               placeholder={st('tax.purchaseAccountPlaceholder')}
               description={st('tax.purchaseAccountHint')}
-              data={accounts}
+              data={purchaseAccounts}
               searchable
               clearable
               {...form.getInputProps('purchaseAccount')}

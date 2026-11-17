@@ -10,10 +10,10 @@ import {
 } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import type { AccountingPeriod } from '@/module/period-closing/domain/accountingPeriod';
-import { canDeletePeriod } from '@/module/period-closing/domain/periodRules';
+import { canDeletePeriod, isDeletedPeriod } from '@/module/period-closing/domain/periodRules';
 import type { PeriodAccess } from '@/module/period-closing/presentation/hooks/usePeriodAccess';
 
-export type PeriodAction = 'edit' | 'toggle' | 'delete' | 'reopen' | 'journal';
+export type PeriodAction = 'edit' | 'toggle' | 'delete' | 'reopen' | 'journal' | 'history';
 
 interface PeriodRowActionsProps {
   period: AccountingPeriod;
@@ -32,9 +32,13 @@ export function PeriodRowActions({
 }: Readonly<PeriodRowActionsProps>) {
   const { t } = useTranslation('periodClosing');
   const isLock = period.type === 'LOCK';
-  const isActiveClosing = !isLock && period.isActive;
+  const isActive = period.status === 'ACTIVE';
+  const isActiveClosing = !isLock && isActive;
 
-  const canEdit = access.canUpdate && (isLock || period.isActive);
+  // A deleted period is a record only: no action is offered.
+  if (isDeletedPeriod(period)) return null;
+
+  const canEdit = access.canUpdate && (isLock || isActive);
   const canToggle = access.canUpdate && isLock;
   const canDelete = access.canDelete && canDeletePeriod(period);
   const showReopen = access.canDelete && isActiveClosing;
@@ -64,10 +68,10 @@ export function PeriodRowActions({
         )}
         {canToggle && (
           <Menu.Item
-            leftSection={period.isActive ? <IconLockOpen size={16} /> : <IconLock size={16} />}
+            leftSection={isActive ? <IconLockOpen size={16} /> : <IconLock size={16} />}
             onClick={() => onAction('toggle', period)}
           >
-            {period.isActive ? t('actions.lockOff') : t('actions.lockOn')}
+            {isActive ? t('actions.lockOff') : t('actions.lockOn')}
           </Menu.Item>
         )}
         {showJournal && (

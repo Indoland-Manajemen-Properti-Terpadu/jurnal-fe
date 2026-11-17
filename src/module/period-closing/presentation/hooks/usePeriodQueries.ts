@@ -159,13 +159,13 @@ export const useToggleLock = () => {
       updatePeriod(period.id, {
         name: period.name,
         notes: period.notes,
-        isActive: !period.isActive,
+        isActive: period.status !== 'ACTIVE',
       }),
     onSuccess: (period) => {
       invalidate(false);
       notifySuccess(
         tr('notify.savedTitle'),
-        tr(period.isActive ? 'notify.lockOn' : 'notify.lockOff', { name: period.name })
+        tr(period.status === 'ACTIVE' ? 'notify.lockOn' : 'notify.lockOff', { name: period.name })
       );
     },
     onError: (error) => {

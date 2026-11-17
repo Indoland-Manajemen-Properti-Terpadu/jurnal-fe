@@ -20,7 +20,7 @@ Company and accounting settings, reached from one "Settings" entry in the app si
 
 ## Endpoints (`API_SETTINGS`, `infrastructure/settingApi.ts`)
 
-`/v1/settings/general-settings` (read, update), `/v1/settings/account-mappings` (read, `/seed`, `/:id`, `/batch`), `/v1/settings/number-formats` (list, create, update, delete), `/v1/payment-terms`, `/v1/payment-methods`, `/v1/taxes`, `/v1/tags` (each list, create, update, delete). Account choices come from `@/module/chart-of-accounts` (`getJournalAccounts`).
+`/v1/settings/general-settings` (read, update), `/v1/settings/account-mappings` (read, `/seed`, `/:id`, `/batch`), `/v1/settings/number-formats` (list, create, update, delete), `/v1/payment-terms`, `/v1/payment-methods`, `/v1/taxes`, `/v1/tags` (each list, create, update, delete). Account choices come from `@/module/chart-of-accounts` (`getJournalAccounts`); the tax form uses `useSimpleAccounts({ type: 'tax_sales' })` and `{ type: 'tax_purchase' }` for its sales and purchase account dropdowns.
 
 ## Layers
 

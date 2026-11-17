@@ -1,10 +1,10 @@
-/** One account of `GET /v1/accounts/simple`: `type` is the side of its category, not yet flipped by `isContra`. */
+/** One account of `GET /v1/accounts/simple`: `type` and `normalBalance` are the final side, a contra account already flipped by the server. */
 export interface SimpleAccount {
   id: string;
   name: string;
   accountNumber: string;
   type: 'debit' | 'credit';
-  /** The side the account really grows on, contra flip included (checked 2026-11-13: equals `type`). */
+  /** The side the account really grows on, contra flip included (equals `type`, checked 2026-11-16). */
   normalBalance?: 'debit' | 'credit';
   isContra: boolean;
 }

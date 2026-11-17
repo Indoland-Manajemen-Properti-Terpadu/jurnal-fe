@@ -32,7 +32,7 @@ import {
 import { FormCard } from '@/module/user-management/presentation/components/FormCard';
 import { PermissionMatrix } from '@/module/user-management/presentation/components/PermissionMatrix';
 import { RoleSummaryCard } from '@/module/user-management/presentation/components/RoleSummaryCard';
-import { UnsavedChangesGuard } from '@/module/user-management/presentation/components/UnsavedChangesGuard';
+import { UnsavedChangesGuard } from '@/components/UnsavedChangesGuard';
 import { useMyGrants } from '@/module/user-management/presentation/hooks/useMyGrants';
 import { useRoleMenus } from '@/module/user-management/presentation/hooks/useRoleMenus';
 import {

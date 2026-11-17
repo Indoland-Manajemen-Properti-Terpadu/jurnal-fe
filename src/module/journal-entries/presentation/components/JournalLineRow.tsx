@@ -7,6 +7,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { useTranslation } from '@/i18n';
 import { themeColors } from '@/theme';
 import type { DraftLine } from '../../domain/journalEntry';
+import { MAX_JOURNAL_AMOUNT } from '../../domain/journalRules';
 import type { DraftField } from '../store/useTransactionStore';
 
 export interface AccountOption {
@@ -68,6 +69,9 @@ const JournalLineRow = ({
         thousandSeparator="."
         decimalSeparator=","
         min={0}
+        max={MAX_JOURNAL_AMOUNT}
+        clampBehavior="strict"
+        allowNegative={false}
         value={item[side] === 0 ? '' : item[side]}
         onChange={(value) => updateTransaction(index, side, value)}
         disabled={otherFilled}

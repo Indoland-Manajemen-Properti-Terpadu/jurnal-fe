@@ -29,6 +29,8 @@ export interface JournalHistoryLine {
 export interface JournalHistoryEntry {
   id: string;
   transactionNumber: string;
+  /** The user's own proof number, empty when none was typed. */
+  referenceNumber: string;
   transactionDate: string;
   transactionType: string;
   status: string;

@@ -90,6 +90,7 @@ vi.mock('mantine-datatable', () => ({
 const entry = (overrides: Partial<JournalHistoryEntry> = {}): JournalHistoryEntry => ({
   id: 'j1',
   transactionNumber: '31294',
+  referenceNumber: '',
   transactionDate: '2026-11-04T00:00:00.000Z',
   transactionType: 'DEFAULT',
   status: 'ACTIVE',

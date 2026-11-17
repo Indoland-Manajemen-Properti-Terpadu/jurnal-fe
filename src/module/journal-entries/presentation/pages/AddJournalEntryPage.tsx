@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
+  Alert,
   Box,
   Button,
   Grid,
@@ -14,12 +15,14 @@ import {
 } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
 import { useNavigate } from 'react-router-dom';
+import { useDateLock } from '@/module/period-closing';
 import {
   IconArrowLeft,
   IconCalendar,
   IconCheck,
   IconFileInvoice,
   IconListNumbers,
+  IconLock,
   IconPaperclip,
   IconReceipt,
 } from '@tabler/icons-react';
@@ -38,7 +41,7 @@ import JournalLinesEditor from '../components/JournalLinesEditor';
 import { TagInput } from '../components/TagInput';
 import { useCreateJournalEntry } from '../hooks/useCreateJournalEntry';
 import type { JournalEntryPayload } from '../../domain/journalEntry';
-import { isValidTransactionNumber } from '../../domain/journalRules';
+import { MAX_REFERENCE_LENGTH, normalizeReferenceNumber } from '../../domain/journalRules';
 import { JournalDoubleEntryGuide } from '../components/JournalDoubleEntryGuide';
 import { JournalValidationCard } from '../components/JournalValidationCard';
 
@@ -48,11 +51,12 @@ export const AddJournalEntryPage: React.FC = () => {
   const { notes, setNotes, transactions, disableTransaction, resetTransactions } =
     useTransactionStore();
 
-  const [transactionNumber, setTransactionNumber] = useState<string>('');
+  const [referenceNumber, setReferenceNumber] = useState<string>('');
   const [transactionDate, setTransactionDate] = useState<string>(dayjs().format('YYYY-MM-DD'));
   const [tags, setTags] = useState<string[]>([]);
 
   const { mutate, isPending } = useCreateJournalEntry();
+  const dateLock = useDateLock(transactionDate || null);
 
   const [files, setFiles, clearFiles, removeFile] = useFileStore((state) => [
     state.files,
@@ -85,11 +89,11 @@ export const AddJournalEntryPage: React.FC = () => {
       return;
     }
 
-    if (!isValidTransactionNumber(transactionNumber)) {
+    if (dateLock.isLocked) {
       notifications.show({
         color: 'red',
         title: t('toast.invalidTitle'),
-        message: t('form.numberInvalid'),
+        message: t('form.dateLocked', { name: dateLock.periodName || '—' }),
       });
       return;
     }
@@ -105,7 +109,7 @@ export const AddJournalEntryPage: React.FC = () => {
 
     const formattedDate = dayjs(transactionDate).format('YYYY-MM-DD');
     const payload: JournalEntryPayload = {
-      transactionNumber: transactionNumber.trim() ? parseInt(transactionNumber, 10) : undefined,
+      referenceNumber: normalizeReferenceNumber(referenceNumber),
       transactionDate: formattedDate,
       transactionDetail: transactions.map((detail) => ({
         account: detail.account,
@@ -130,7 +134,7 @@ export const AddJournalEntryPage: React.FC = () => {
     []
   );
 
-  const isSaveDisabled = disableTransaction() || !transactionDate || isPending;
+  const isSaveDisabled = disableTransaction() || !transactionDate || isPending || dateLock.isLocked;
 
   return (
     <AppShellLayout>
@@ -185,6 +189,7 @@ export const AddJournalEntryPage: React.FC = () => {
                         maxDate={new Date()}
                         placeholder={t('form.datePlaceholder')}
                         rightSection={<IconCalendar size={18} color={themeColors.gray[5]} />}
+                        error={dateLock.isLocked ? ' ' : undefined}
                         styles={{ input: { height: 38 } }}
                       />
                     </Grid.Col>
@@ -193,14 +198,9 @@ export const AddJournalEntryPage: React.FC = () => {
                       <TextInput
                         label={t('form.numberLabel')}
                         placeholder={t('form.numberPlaceholder')}
-                        value={transactionNumber}
-                        onChange={(e) => setTransactionNumber(e.target.value)}
-                        inputMode="numeric"
-                        error={
-                          isValidTransactionNumber(transactionNumber)
-                            ? undefined
-                            : t('form.numberInvalid')
-                        }
+                        value={referenceNumber}
+                        onChange={(e) => setReferenceNumber(e.target.value)}
+                        maxLength={MAX_REFERENCE_LENGTH}
                         styles={{ input: { height: 38 } }}
                       />
                       <Text fz="var(--jurnal-text-xs)" c="dimmed" mt={4}>
@@ -214,6 +214,21 @@ export const AddJournalEntryPage: React.FC = () => {
                       </Input.Wrapper>
                     </Grid.Col>
                   </Grid>
+
+                  {dateLock.isLocked && (
+                    <Alert
+                      color="orange"
+                      variant="light"
+                      radius="md"
+                      mt="md"
+                      icon={<IconLock size={18} />}
+                      role="alert"
+                    >
+                      {dateLock.periodName
+                        ? t('form.dateLocked', { name: dateLock.periodName })
+                        : t('form.dateLockedNoName')}
+                    </Alert>
+                  )}
                 </Paper>
 
                 {/* Card 2: Baris Ayat Jurnal (Table) */}
@@ -297,6 +312,7 @@ export const AddJournalEntryPage: React.FC = () => {
               <Stack gap="md" pos="sticky" top={20}>
                 <JournalValidationCard
                   transactionDate={transactionDate}
+                  dateLocked={dateLock.isLocked}
                   action={
                     <Button
                       size="md"

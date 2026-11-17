@@ -15,6 +15,7 @@ export const filterEntries = (
       !q ||
       (item.transactionNumber !== undefined &&
         String(item.transactionNumber).toLowerCase().includes(q)) ||
+      (item.referenceNumber && item.referenceNumber.toLowerCase().includes(q)) ||
       (item.notes && item.notes.toLowerCase().includes(q)) ||
       item.transactionDetail?.some(
         (td) =>

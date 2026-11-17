@@ -7,21 +7,25 @@ import { useTransactionStore } from '../store/useTransactionStore';
 
 interface JournalValidationCardProps {
   transactionDate: string;
+  /** The date lies in a locked period or a closed book (the server would refuse the entry). */
+  dateLocked?: boolean;
   /** The save button; it sits under the checklist it depends on. */
   action?: React.ReactNode;
 }
 
 export const JournalValidationCard: React.FC<JournalValidationCardProps> = ({
   transactionDate,
+  dateLocked = false,
   action,
 }) => {
   const { t } = useTranslation('journalEntries');
   const transactions = useTransactionStore((state) => state.transactions);
   const result = validateDraft(transactions, transactionDate);
-  const allPassed = Object.values(result).every(Boolean);
+  const allPassed = Object.values(result).every(Boolean) && !dateLocked;
 
   const checks = [
     { id: 'hasDate', label: t('validation.hasDate'), pass: result.hasDate },
+    { id: 'dateOpen', label: t('validation.dateOpen'), pass: !dateLocked },
     { id: 'hasMinRows', label: t('validation.hasMinRows'), pass: result.hasMinRows },
     { id: 'allAccounts', label: t('validation.allAccounts'), pass: result.allAccountsSelected },
     { id: 'allAmounts', label: t('validation.allAmounts'), pass: result.allRowsHaveAmount },
