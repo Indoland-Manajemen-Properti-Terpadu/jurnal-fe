@@ -6,6 +6,7 @@ import {
   isJournalBlocked,
   MAX_JOURNAL_AMOUNT,
   MAX_REFERENCE_LENGTH,
+  isReferenceTakenError,
   normalizeReferenceNumber,
   parseAmountInput,
   roundToMinor,
@@ -143,5 +144,12 @@ describe('reference number and amount limit', () => {
     expect(parseAmountInput('99999999999999999999')).toBe(MAX_JOURNAL_AMOUNT);
     expect(parseAmountInput(MAX_JOURNAL_AMOUNT)).toBe(MAX_JOURNAL_AMOUNT);
     expect(parseAmountInput('1500000.5')).toBe(1500000.5);
+  });
+});
+
+describe('isReferenceTakenError (PRO-80)', () => {
+  it('recognises the server refusal of a reference number another journal uses', () => {
+    expect(isReferenceTakenError('Nomor transaksi sudah digunakan: QA-JRNL-001')).toBe(true);
+    expect(isReferenceTakenError('Request failed with status code 500')).toBe(false);
   });
 });
