@@ -5,6 +5,7 @@ import { t } from '@/i18n';
 import { routes } from '@/router/routes';
 import type { JournalEntryPayload } from '../../domain/journalEntry';
 import { createJournalEntry } from '../../infrastructure/journalEntryApi';
+import { isReferenceTakenError } from '../../domain/journalRules';
 import { journalEntryKeys } from './journalEntryKeys';
 
 const tr = (key: string) => t(key, undefined, 'journalEntries');
@@ -31,7 +32,7 @@ export const useCreateJournalEntry = () => {
         color: 'red',
         autoClose: 5000,
         title: tr('toast.createFailedTitle'),
-        message: `${error.message}`,
+        message: isReferenceTakenError(error.message) ? tr('toast.referenceTaken') : error.message,
       });
     },
   });

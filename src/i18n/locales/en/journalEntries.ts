@@ -5,6 +5,8 @@ export const journalEntries = {
     createdTitle: 'Journal Entry Saved',
     createdMessage: 'The general journal entry has been posted to the system.',
     createFailedTitle: 'Failed to Save Journal Entry',
+    referenceTaken:
+      'This reference number is already used by another journal. Use a different one.',
     tagCreated: 'The tag has been created.',
     tagFailed: 'Failed to create tag: {reason}',
     rejectedTitle: 'Unsupported File Format',

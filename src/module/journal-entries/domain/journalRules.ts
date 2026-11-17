@@ -81,6 +81,10 @@ export const normalizeReferenceNumber = (value: string): string | undefined => {
   return trimmed ? trimmed.slice(0, MAX_REFERENCE_LENGTH) : undefined;
 };
 
+/** The server refuses a reference number that another journal already uses (PRO-80). */
+export const isReferenceTakenError = (message: string): boolean =>
+  /sudah digunakan|already (used|in use|exists)/i.test(message);
+
 /** I1: true when the journal must not be saved. */
 export const isJournalBlocked = (lines: DraftLine[]): boolean => {
   const missingAccount = lines.some((line) => line.account === '');
