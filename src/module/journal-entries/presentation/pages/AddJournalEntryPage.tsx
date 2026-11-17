@@ -41,7 +41,11 @@ import JournalLinesEditor from '../components/JournalLinesEditor';
 import { TagInput } from '../components/TagInput';
 import { useCreateJournalEntry } from '../hooks/useCreateJournalEntry';
 import type { JournalEntryPayload } from '../../domain/journalEntry';
-import { MAX_REFERENCE_LENGTH, normalizeReferenceNumber } from '../../domain/journalRules';
+import {
+  isReferenceTakenError,
+  MAX_REFERENCE_LENGTH,
+  normalizeReferenceNumber,
+} from '../../domain/journalRules';
 import { JournalDoubleEntryGuide } from '../components/JournalDoubleEntryGuide';
 import { JournalValidationCard } from '../components/JournalValidationCard';
 
@@ -55,7 +59,8 @@ export const AddJournalEntryPage: React.FC = () => {
   const [transactionDate, setTransactionDate] = useState<string>(dayjs().format('YYYY-MM-DD'));
   const [tags, setTags] = useState<string[]>([]);
 
-  const { mutate, isPending } = useCreateJournalEntry();
+  const { mutate, isPending, error: saveError, reset: resetSave } = useCreateJournalEntry();
+  const referenceTaken = saveError ? isReferenceTakenError(saveError.message) : false;
   const dateLock = useDateLock(transactionDate || null);
 
   const [files, setFiles, clearFiles, removeFile] = useFileStore((state) => [
@@ -199,7 +204,11 @@ export const AddJournalEntryPage: React.FC = () => {
                         label={t('form.numberLabel')}
                         placeholder={t('form.numberPlaceholder')}
                         value={referenceNumber}
-                        onChange={(e) => setReferenceNumber(e.target.value)}
+                        onChange={(e) => {
+                          setReferenceNumber(e.target.value);
+                          if (referenceTaken) resetSave();
+                        }}
+                        error={referenceTaken ? t('toast.referenceTaken') : undefined}
                         maxLength={MAX_REFERENCE_LENGTH}
                         styles={{ input: { height: 38 } }}
                       />
