@@ -17,15 +17,17 @@ import { useDecimalPrecision } from '@/module/settings';
 export type AssetStatsGridProps = {
   summary?: AssetSummary;
   loading?: boolean;
+  /** Two columns at most, for a narrow column beside another panel. */
+  compact?: boolean;
 };
 
-export function AssetStatsGrid({ summary, loading }: Readonly<AssetStatsGridProps>) {
+export function AssetStatsGrid({ summary, loading, compact }: Readonly<AssetStatsGridProps>) {
   const precision = useDecimalPrecision();
   const { t } = useTranslation('assets');
 
   if (loading || !summary) {
     return (
-      <div className={statCardGridClass}>
+      <div className={statCardGridClass} data-compact={compact || undefined}>
         {Array.from({ length: 4 }, (_, index) => (
           <Skeleton key={index} height={104} radius="md" />
         ))}
@@ -46,7 +48,7 @@ export function AssetStatsGrid({ summary, loading }: Readonly<AssetStatsGridProp
   const statusCounts = ASSET_STATUS_ORDER.map((status) => counts[status]);
 
   return (
-    <div className={statCardGridClass}>
+    <div className={statCardGridClass} data-compact={compact || undefined}>
       <AssetStatCard
         label={t('totalAcquisitionCost')}
         value={formatAssetMoneyShort(summary.totalAcquisitionCost, precision)}

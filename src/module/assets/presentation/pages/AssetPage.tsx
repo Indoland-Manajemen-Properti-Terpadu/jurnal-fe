@@ -1,5 +1,5 @@
 import React from 'react';
-import { ActionIcon, Box, Button, Group, Paper, Stack, Tooltip } from '@mantine/core';
+import { ActionIcon, Box, Button, Grid, Group, Paper, Stack, Tooltip } from '@mantine/core';
 import { IconBuildingWarehouse, IconPlus, IconRefresh } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
@@ -9,6 +9,7 @@ import { AssetListParams } from '@/module/assets/domain/asset';
 import { AssetDialogs } from '@/module/assets/presentation/components/AssetDialogs';
 import { AssetStatsGrid } from '@/module/assets/presentation/components/AssetStatsGrid';
 import { AssetTable } from '@/module/assets/presentation/components/AssetTable';
+import { NeedsYouCard } from '@/module/assets/presentation/components/NeedsYouCard';
 import { useAssetDialogs } from '@/module/assets/presentation/hooks/useAssetDialogs';
 import { useAssetListParams } from '@/module/assets/presentation/hooks/useAssetListParams';
 import { useAssetSummary, useAssets } from '@/module/assets/presentation/hooks/useAssetQueries';
@@ -72,7 +73,14 @@ export function AssetPage() {
             }
           />
 
-          <AssetStatsGrid summary={summary.data} loading={summary.isLoading} />
+          <Grid gutter="md" align="stretch">
+            <Grid.Col span={{ base: 12, lg: 7 }}>
+              <NeedsYouCard />
+            </Grid.Col>
+            <Grid.Col span={{ base: 12, lg: 5 }}>
+              <AssetStatsGrid summary={summary.data} loading={summary.isLoading} compact />
+            </Grid.Col>
+          </Grid>
 
           <Paper withBorder radius="lg" p="md" bg="white">
             <AssetTable

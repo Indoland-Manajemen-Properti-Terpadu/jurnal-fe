@@ -44,9 +44,20 @@ const page = (rows: unknown[]) => ({
   },
 });
 
-type Setup = { pendingReports?: unknown[]; pendingAssets?: unknown[]; activeAssets?: unknown[] };
+type Setup = {
+  pendingReports?: unknown[];
+  pendingAssets?: unknown[];
+  activeAssets?: unknown[];
+  /** What `/summary` says, when it differs from the one page the list shows. */
+  pendingTotal?: number;
+};
 
-const mockApi = ({ pendingReports = [], pendingAssets = [], activeAssets = [] }: Setup) => {
+const mockApi = ({
+  pendingReports = [],
+  pendingAssets = [],
+  activeAssets = [],
+  pendingTotal,
+}: Setup) => {
   http.get.mockImplementation((url: string, config?: { params?: Record<string, unknown> }) => {
     const params = config?.params ?? {};
     if (url === '/v1/users/me') return Promise.resolve({ data: { id: 'u1', name: 'Edi' } });
@@ -61,7 +72,7 @@ const mockApi = ({ pendingReports = [], pendingAssets = [], activeAssets = [] }:
         data: {
           data: {
             ownedCount: 5,
-            pending: { count: pendingAssets.length, totalAcquisitionCost: 1000 },
+            pending: { count: pendingTotal ?? pendingAssets.length, totalAcquisitionCost: 1000 },
           },
         },
       });
@@ -109,24 +120,22 @@ describe('NeedsYouPage', { timeout: 20_000 }, () => {
       ],
     });
     renderPage();
-    const tiles = within(await screen.findByRole('list', { name: 'Ringkasan' }));
-    await waitFor(() =>
-      expect(tiles.getByText('Berita acara perlu keputusan').previousSibling).toHaveTextContent('2')
-    );
-    expect(tiles.getByText('Aset baru perlu diaktifkan').previousSibling).toHaveTextContent('1');
-    expect(tiles.getByText('2 aset · Rp 23.156.250,00')).toBeInTheDocument();
+    const decisions = await screen.findByText('Berita acara perlu keputusan');
+    await waitFor(() => expect(decisions.previousSibling).toHaveTextContent('2'));
+    expect(screen.getByText('Aset baru perlu diaktifkan').previousSibling).toHaveTextContent('1');
+    expect(screen.getByText('2 aset · Rp 23.156.250,00')).toBeInTheDocument();
+    // Each card has one button to its group.
+    expect(screen.getAllByRole('button', { name: 'Lihat' })).toHaveLength(3);
   });
 
   it('only shows groups that have something in them', async () => {
     mockApi({ pendingAssets: [asset('p1', { status: 'pending' })] });
     renderPage();
-    expect(
-      await screen.findByRole('heading', { name: 'Aset baru yang perlu diaktifkan' })
-    ).toBeInTheDocument();
-    expect(screen.queryByRole('heading', { name: 'Perlu keputusan Anda' })).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole('heading', { name: 'Penyusutan belum dibukukan' })
-    ).not.toBeInTheDocument();
+    expect(await screen.findByText('Aset baru yang perlu diaktifkan')).toBeInTheDocument();
+    expect(screen.queryByText('Perlu keputusan Anda')).not.toBeInTheDocument();
+    // The tile carries that wording too; with nothing behind there is no group card under it.
+    expect(screen.getAllByText('Penyusutan belum dibukukan')).toHaveLength(1);
+    expect(screen.queryByRole('button', { name: /Bukukan sampai/ })).not.toBeInTheDocument();
   });
 
   it('says all is done when nothing waits', async () => {
@@ -143,11 +152,9 @@ describe('NeedsYouPage', { timeout: 20_000 }, () => {
       ],
     });
     renderPage();
-    const own = (await screen.findByRole('heading', { name: 'Diajukan oleh Anda' })).closest(
-      'section'
-    ) as HTMLElement;
-    expect(within(own).getByText('BA/ASET/2026/11/0001')).toBeInTheDocument();
-    expect(within(own).queryByText('BA/ASET/2026/11/0002')).not.toBeInTheDocument();
+    expect(await screen.findByText('Diajukan oleh Anda')).toBeInTheDocument();
+    expect(screen.getByText(/BA\/ASET\/2026\/11\/0001/)).toBeInTheDocument();
+    expect(screen.queryByText(/BA\/ASET\/2026\/11\/0002/)).not.toBeInTheDocument();
   });
 
   it('books depreciation up to last month and lists what failed', async () => {
@@ -214,5 +221,12 @@ describe('NeedsYouPage', { timeout: 20_000 }, () => {
     expect(
       await screen.findByText('Rp 656.250,00 untuk 1 aset sudah masuk jurnal.')
     ).toBeInTheDocument();
+  });
+
+  it('counts the pending assets from the summary, not from the one page the list shows', async () => {
+    mockApi({ pendingAssets: [asset('p1', { status: 'pending' })], pendingTotal: 120 });
+    renderPage();
+    const title = await screen.findByText('Aset baru perlu diaktifkan');
+    await waitFor(() => expect(title.previousSibling).toHaveTextContent('120'));
   });
 });

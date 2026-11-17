@@ -4,5 +4,5 @@ The number of asset write-off reports waiting for the signed-in user's decision,
 
 - **Public API (`index.ts`):** `useAssetDecisionCount`.
 - **Endpoint:** `GET /v1/asset-reports?page=1&limit=100&status=PENDING_APPROVAL`; the count is the rows with `canDecide: true`.
-- **State:** TanStack Query, key `['asset-write-offs', 'decision-count']`, refetched every 30 seconds. `assets` invalidates the `asset-write-offs` prefix after filing, approving or rejecting a report, which refreshes the badge too.
+- **State:** TanStack Query, key `['asset-write-offs', 'decision-count']`, refetched every 30 seconds, and no longer once the server refuses (a user without access to assets is refused every time; `retry` is off). `assets` invalidates the `asset-write-offs` prefix after filing, approving or rejecting a report, which refreshes the badge too.
 - No UI copy, so no i18n namespace. The screens are in [`assets`](../assets/README.md).

@@ -6,7 +6,7 @@ import type {
   WriteOffPage,
   WriteOffReport,
 } from '@/module/assets/domain/writeOff';
-import { receivedAmount } from '@/module/assets/domain/writeOffRules';
+import { proceedsAllowed, receivedAmount } from '@/module/assets/domain/writeOffRules';
 import type { ApiEnvelope, PaginatedDto } from './assetDto';
 import type { DepreciationRunDto, WriteOffDto } from './writeOffDto';
 import { mapDepreciationRun, mapWriteOff } from './writeOffMapper';
@@ -60,7 +60,10 @@ export const createWriteOff = async (
   form.append('description', draft.description.trim());
   form.append('proceedsAmount', String(amount));
   if (amount > 0 && draft.proceedsAccount) form.append('proceedsAccount', draft.proceedsAccount);
-  if (draft.gainLossAccount) form.append('gainLossAccount', draft.gainLossAccount);
+  // The account field sits with the money received, which a fully depreciated asset has none of.
+  if (draft.gainLossAccount && proceedsAllowed(draft.type)) {
+    form.append('gainLossAccount', draft.gainLossAccount);
+  }
   if (draft.signature) form.append('signature', draft.signature, SIGNATURE_FILE);
   draft.evidence.forEach((file) => form.append('attachments', file, file.name));
   const { data } = await apiClient.post<ApiEnvelope<WriteOffDto>>(WRITE_OFF_ENDPOINTS.list, form);

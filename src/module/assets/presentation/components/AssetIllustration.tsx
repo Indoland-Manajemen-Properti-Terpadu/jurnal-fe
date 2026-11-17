@@ -11,7 +11,11 @@ export type AssetIllustrationName =
   | 'approved'
   | 'rejected'
   | 'allDone'
-  | 'submitted';
+  | 'submitted'
+  | 'needsYou'
+  | 'pendingAsset'
+  | 'depreciation'
+  | 'decision';
 
 const c = classes;
 
@@ -53,6 +57,77 @@ const DRAWINGS: Record<AssetIllustrationName, { box: string; art: ReactNode }> =
         <path className={c.atl} d="M334 104l8 8 16-17" />
         <circle className={c.ac} cx="370" cy="34" r="5" />
         <circle className={c.fm} cx="392" cy="58" r="4" />
+      </>
+    ),
+  },
+  needsYou: {
+    box: '0 0 420 150',
+    art: (
+      <>
+        <rect className={c.fm} x="46" y="20" width="76" height="62" rx="6" />
+        <rect className={c.fl} x="30" y="36" width="76" height="76" rx="6" />
+        <path className={c.ln} d="M44 58h36M44 72h48M44 86h26" />
+        <circle className={c.ac} cx="108" cy="36" r="9" />
+        <path className={`${c.acl} ${c.flow}`} d="M122 84C170 84 214 58 262 68" />
+        <circle className={c.wh} cx="176" cy="76" r="14" />
+        <text className={c.tx} x="167" y="80">
+          Rp
+        </text>
+        <circle className={c.wh} cx="232" cy="66" r="14" />
+        <text className={c.tx} x="223" y="70">
+          Rp
+        </text>
+        <rect className={c.fl} x="288" y="24" width="106" height="104" rx="8" />
+        <path className={c.ln} d="M304 50h50M304 64h68" />
+        <path className={c.acl} d="M304 100c8-12 14 8 22-4s12 6 20-2" />
+        <circle className={c.ft} cx="378" cy="112" r="20" />
+        <circle className={c.atl} cx="378" cy="112" r="20" />
+        <path className={c.atl} d="M369 112l6 6 12-13" />
+      </>
+    ),
+  },
+  pendingAsset: {
+    box: '0 0 120 92',
+    art: (
+      <>
+        <rect className={c.dash} x="18" y="22" width="68" height="56" rx="6" />
+        <rect className={c.fl} x="28" y="34" width="48" height="36" rx="5" />
+        <path className={c.ln} d="M28 46h48M44 34v12M58 34v12" />
+        <circle className={c.wh} cx="88" cy="26" r="15" />
+        <path className={c.acl} d="M88 18v9l6 4" />
+      </>
+    ),
+  },
+  depreciation: {
+    box: '0 0 120 92',
+    art: (
+      <>
+        <rect className={c.fl} x="14" y="14" width="76" height="64" rx="8" />
+        <path className={c.ln} d="M14 34h76M36 8v12M68 8v12" />
+        <rect className={c.fm} x="26" y="44" width="10" height="24" rx="3" />
+        <rect className={c.fm} x="44" y="52" width="10" height="16" rx="3" />
+        <rect className={c.fm} x="62" y="58" width="10" height="10" rx="3" />
+        <path className={c.acl} d="M26 44l22 8 24 8" />
+        <circle className={c.wh} cx="92" cy="66" r="16" />
+        <text className={c.tx} x="83" y="70">
+          Rp
+        </text>
+      </>
+    ),
+  },
+  decision: {
+    box: '0 0 120 92',
+    art: (
+      <>
+        <rect className={c.fl} x="16" y="10" width="62" height="72" rx="6" />
+        <path className={c.ln} d="M28 30h30M28 42h38" />
+        <path className={c.acl} d="M28 64c6-10 10 6 16-2s8 4 14-1" />
+        <circle className={c.ft} cx="94" cy="32" r="14" />
+        <circle className={c.atl} cx="94" cy="32" r="14" strokeWidth="2.5" />
+        <path className={c.atl} d="M88 32l4 4 8-9" strokeWidth="2.5" />
+        <circle className={c.fr} cx="94" cy="64" r="14" />
+        <circle className={c.arl} cx="94" cy="64" r="14" strokeWidth="2.5" />
+        <path className={c.arl} d="M89 59l10 10M99 59L89 69" strokeWidth="2.5" />
       </>
     ),
   },

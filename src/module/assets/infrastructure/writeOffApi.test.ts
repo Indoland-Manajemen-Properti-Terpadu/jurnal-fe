@@ -77,6 +77,11 @@ describe('writeOffApi', () => {
     expect(form.get('gainLossAccount')).toBe('gl');
   });
 
+  it('does not send a gain/loss account the form no longer shows', async () => {
+    await createWriteOff('a1', draft({ type: 'fully_depreciated', gainLossAccount: 'gl' }));
+    expect(sentForm().has('gainLossAccount')).toBe(false);
+  });
+
   it('ignores an amount the user typed and then switched off', async () => {
     await createWriteOff(
       'a1',

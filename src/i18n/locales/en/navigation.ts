@@ -77,7 +77,6 @@ export const navigation = {
   accountDetailNonCB: 'General Ledger Details',
   closingBooks: 'Period Lock & Book Closing',
   assets: 'Fixed Assets',
-  assetList: 'Asset List',
   assetNeedsYou: 'Waiting on you',
   assetWriteOffs: 'Asset Report',
   contacts: 'Contacts',

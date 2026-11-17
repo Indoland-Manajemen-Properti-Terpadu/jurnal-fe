@@ -22,3 +22,21 @@ export const formatAssetMonth = (month: string, language = 'id'): string => {
     year: 'numeric',
   }).format(new Date(year, index - 1, 1));
 };
+
+/** How long ago, as an i18n key and its count: `agoMinutes` 8, `agoHours` 1, `agoDays` 2. */
+export const timeAgo = (
+  iso: string,
+  now: number = Date.now()
+): { key: 'agoNow' | 'agoMinutes' | 'agoHours' | 'agoDays'; count: number } => {
+  const minutes = Math.floor((now - new Date(iso).getTime()) / 60_000);
+  if (!Number.isFinite(minutes) || minutes < 1) {
+    return { key: 'agoNow', count: 0 };
+  }
+  if (minutes < 60) {
+    return { key: 'agoMinutes', count: minutes };
+  }
+  if (minutes < 60 * 24) {
+    return { key: 'agoHours', count: Math.floor(minutes / 60) };
+  }
+  return { key: 'agoDays', count: Math.floor(minutes / (60 * 24)) };
+};

@@ -77,7 +77,6 @@ export const navigation = {
   accountDetailNonCB: 'Detail Buku Besar',
   closingBooks: 'Tutup Buku & Kunci Periode',
   assets: 'Aset Tetap',
-  assetList: 'Daftar Aset',
   assetNeedsYou: 'Menunggu Anda',
   assetWriteOffs: 'Berita Acara Aset',
   contacts: 'Kontak',

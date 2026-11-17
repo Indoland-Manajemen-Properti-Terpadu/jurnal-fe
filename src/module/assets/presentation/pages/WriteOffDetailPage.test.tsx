@@ -122,8 +122,8 @@ const renderPage = (state?: Record<string, unknown>) => {
   );
 };
 
-const apiError = (message: string) =>
-  Object.assign(new Error('x'), { isAxiosError: true, response: { data: { message } } });
+const apiError = (message: string, status = 400) =>
+  Object.assign(new Error('x'), { isAxiosError: true, response: { status, data: { message } } });
 
 beforeEach(() => {
   http.get.mockReset();
@@ -138,13 +138,13 @@ describe('WriteOffDetailPage', { timeout: 20_000 }, () => {
       await screen.findByRole('button', { name: 'Setujui & tandatangani' })
     ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Tolak' })).toBeInTheDocument();
-    expect(screen.getByText('Berita Acara Pemusnahan Aset')).toBeInTheDocument();
+    expect(screen.getByText(/Berita Acara Pemusnahan Aset/)).toBeInTheDocument();
   });
 
   it('hides the decision when the user cannot decide', async () => {
     current = { ...pending, canDecide: false };
     renderPage();
-    expect(await screen.findByText('Berita Acara Pemusnahan Aset')).toBeInTheDocument();
+    expect(await screen.findByText(/Berita Acara Pemusnahan Aset/)).toBeInTheDocument();
     expect(
       screen.queryByRole('button', { name: 'Setujui & tandatangani' })
     ).not.toBeInTheDocument();
@@ -201,11 +201,11 @@ describe('WriteOffDetailPage', { timeout: 20_000 }, () => {
   it('shows the booked result and the way to the journal once approved', async () => {
     current = approved;
     renderPage();
-    expect(await screen.findByText('Disetujui dan dibukukan')).toBeInTheDocument();
-    expect(
-      screen.queryByText('Perkiraan, angka final dihitung saat disetujui')
-    ).not.toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Lihat jurnal pelepasan' })).toHaveAttribute(
+    expect(await screen.findByText('Disetujui oleh Raga')).toBeInTheDocument();
+    expect(screen.getByText('Angka yang dibukukan saat disetujui.')).toBeInTheDocument();
+    expect(screen.queryByText('Perkiraan')).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Aksi lainnya' }));
+    expect(await screen.findByRole('menuitem', { name: /Lihat jurnal pelepasan/ })).toHaveAttribute(
       'href',
       '/assets/a1?tab=journals'
     );
@@ -213,7 +213,7 @@ describe('WriteOffDetailPage', { timeout: 20_000 }, () => {
   });
 
   it('says so when the report does not exist', async () => {
-    http.get.mockRejectedValue(apiError('Berita acara tidak ditemukan'));
+    http.get.mockRejectedValue(apiError('Berita acara tidak ditemukan', 404));
     const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
     const router = createMemoryRouter(
       [{ path: '/assets/write-offs/:id', element: <WriteOffDetailPage /> }],
@@ -227,18 +227,74 @@ describe('WriteOffDetailPage', { timeout: 20_000 }, () => {
     expect(await screen.findByText('Berita acara tidak ditemukan')).toBeInTheDocument();
   });
 
-  it('welcomes a fresh submission only while it is still waiting', async () => {
-    renderPage({ justSubmitted: true });
-    expect(await screen.findByText('Berita acara sudah diajukan')).toBeInTheDocument();
+  it('marks the figures as an estimate only while the report waits', async () => {
+    renderPage();
+    expect(await screen.findByText('Perkiraan')).toBeInTheDocument();
+    expect(screen.getByText('Perkiraan, angka final dihitung saat disetujui')).toBeInTheDocument();
   });
 
-  it('drops the welcome and the estimate note once the report is rejected', async () => {
+  it('drops the estimate note and shows the reason once the report is rejected', async () => {
     current = rejected('Akun salah');
-    renderPage({ justSubmitted: true });
+    renderPage();
     expect(await screen.findByText('Akun salah')).toBeInTheDocument();
-    expect(screen.queryByText('Berita acara sudah diajukan')).not.toBeInTheDocument();
+    expect(screen.queryByText('Perkiraan')).not.toBeInTheDocument();
     expect(
       screen.queryByText('Perkiraan, angka final dihitung saat disetujui')
     ).not.toBeInTheDocument();
+  });
+
+  it('says the data could not be loaded, with a retry, when the failure is not a missing report', async () => {
+    http.get.mockRejectedValue(apiError('boom', 500));
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    const router = createMemoryRouter(
+      [{ path: '/assets/write-offs/:id', element: <WriteOffDetailPage /> }],
+      { initialEntries: ['/assets/write-offs/r1'] }
+    );
+    render(
+      <QueryClientProvider client={client}>
+        <RouterProvider router={router} />
+      </QueryClientProvider>
+    );
+    expect(
+      await screen.findByText('Data belum bisa dimuat. Coba lagi sebentar.')
+    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Coba lagi' })).toBeInTheDocument();
+    expect(screen.queryByText('Berita acara tidak ditemukan')).not.toBeInTheDocument();
+  });
+
+  it('keeps the approval dialog open while the request is still running', async () => {
+    http.post.mockReturnValue(new Promise(() => {}));
+    const user = userEvent.setup();
+    renderPage();
+    await user.click(await screen.findByRole('button', { name: 'Setujui & tandatangani' }));
+    const dialog = await screen.findByRole('dialog');
+    await user.upload(
+      within(dialog).getByLabelText('Unggah gambar'),
+      new File(['s'], 'ttd.png', { type: 'image/png' })
+    );
+    await user.click(within(dialog).getByRole('button', { name: 'Setujui & bukukan' }));
+    await waitFor(() => expect(http.post).toHaveBeenCalled());
+    await user.keyboard('{Escape}');
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+  });
+
+  it('does not say nothing was posted when the answer never came', async () => {
+    http.post.mockRejectedValue(new Error('Network Error'));
+    const user = userEvent.setup();
+    renderPage();
+    await user.click(await screen.findByRole('button', { name: 'Setujui & tandatangani' }));
+    const dialog = await screen.findByRole('dialog');
+    await user.upload(
+      within(dialog).getByLabelText('Unggah gambar'),
+      new File(['s'], 'ttd.png', { type: 'image/png' })
+    );
+    await user.click(within(dialog).getByRole('button', { name: 'Setujui & bukukan' }));
+    expect(await within(dialog).findByText('Persetujuan belum berhasil')).toBeInTheDocument();
+    expect(
+      within(dialog).queryByText(
+        'Berita acara masih menunggu persetujuan. Tidak ada yang dibukukan.'
+      )
+    ).not.toBeInTheDocument();
+    expect(within(dialog).getByText(/Periksa status berita acara/)).toBeInTheDocument();
   });
 });

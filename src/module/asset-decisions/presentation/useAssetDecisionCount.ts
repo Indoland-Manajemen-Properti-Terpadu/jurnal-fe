@@ -6,9 +6,14 @@ export const assetDecisionCountKey = ['asset-write-offs', 'decision-count'] as c
 
 const REFRESH_MS = 30_000;
 
+/** Polls every 30 s, but stops once the server refused: a user without access would be refused forever. */
+export const decisionRefreshInterval = (status: string): number | false =>
+  status === 'error' ? false : REFRESH_MS;
+
 export const useAssetDecisionCount = () =>
   useQuery({
     queryKey: assetDecisionCountKey,
     queryFn: fetchAssetDecisionCount,
-    refetchInterval: REFRESH_MS,
+    retry: false,
+    refetchInterval: (query) => decisionRefreshInterval(query.state.status),
   });

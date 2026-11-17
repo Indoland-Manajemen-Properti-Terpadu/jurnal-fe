@@ -1,0 +1,90 @@
+.strip {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  overflow: hidden;
+  background: var(--jurnal-color-surface);
+  border: 1px solid var(--jurnal-color-border-subtle);
+  border-radius: var(--mantine-radius-lg);
+}
+
+.strip[data-cols='3'] {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: $mantine-breakpoint-md) {
+  .strip {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .strip[data-cols='3'] {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.tile {
+  display: flex;
+  gap: var(--mantine-spacing-sm);
+  align-items: center;
+  min-width: 0;
+  padding: var(--mantine-spacing-md) var(--mantine-spacing-lg);
+  color: inherit;
+  text-align: left;
+  border-right: 1px solid var(--jurnal-color-border-subtle);
+  border-bottom: 1px solid var(--jurnal-color-border-subtle);
+}
+
+button.tile:hover {
+  background: var(--jurnal-color-surface-hover);
+}
+
+button.tile:focus-visible {
+  outline: 2px solid var(--mantine-color-primary-6);
+  outline-offset: -2px;
+}
+
+/* One hairline between tiles whatever the column count. */
+.strip:not([data-cols='3']) .tile:nth-child(2n) {
+  border-right: 0;
+}
+
+.strip[data-cols='3'] .tile {
+  border-right: 0;
+}
+
+.strip[data-cols='3'] .tile:last-child,
+.strip:not([data-cols='3']) .tile:nth-last-child(-n + 2) {
+  border-bottom: 0;
+}
+
+@media (min-width: $mantine-breakpoint-md) {
+  .tile,
+  .strip[data-cols='3'] .tile {
+    border-bottom: 0;
+    border-right: 1px solid var(--jurnal-color-border-subtle);
+  }
+
+  .strip:not([data-cols='3']) .tile:nth-child(2n) {
+    border-right: 1px solid var(--jurnal-color-border-subtle);
+  }
+
+  .strip .tile:last-child,
+  .strip[data-cols='3'] .tile:last-child {
+    border-right: 0;
+  }
+}
+
+.value {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Two columns on a phone leave no room for the icon beside an amount. */
+@media (max-width: 36em) {
+  .tile {
+    padding: var(--mantine-spacing-sm) var(--mantine-spacing-md);
+  }
+
+  .tileIcon {
+    display: none;
+  }
+}

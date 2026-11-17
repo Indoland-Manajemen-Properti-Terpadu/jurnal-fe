@@ -97,6 +97,37 @@ const useInvalidateWriteOffs = () => {
     ]);
 };
 
+/**
+ * Journals and ledger reports show a posting only once they are asked again. Their keys belong to
+ * other modules, which this one may not import, so the prefixes are named here.
+ */
+const LEDGER_QUERY_KEYS = [
+  ['accounts'],
+  ['detail_account'],
+  ['transaction_by_account'],
+  ['detail_transaction'],
+  ['journal_history'],
+  ['trial-balance'],
+  ['profit-loss'],
+  ['general-ledger'],
+  ['balance-sheet-report'],
+  ['income_statement_report'],
+  ['equity_change_report'],
+] as const;
+
+/** What an approval or a depreciation run changes: the write-offs, the assets and the ledger. */
+const useInvalidatePosting = () => {
+  const queryClient = useQueryClient();
+  const invalidate = useInvalidateWriteOffs();
+  return () =>
+    Promise.all([
+      invalidate(),
+      ...LEDGER_QUERY_KEYS.map((queryKey) =>
+        queryClient.invalidateQueries({ queryKey: [...queryKey] })
+      ),
+    ]);
+};
+
 export const useCreateWriteOff = (assetId: string) => {
   const invalidate = useInvalidateWriteOffs();
   return useMutation({
@@ -113,7 +144,7 @@ export const useCreateWriteOff = (assetId: string) => {
 };
 
 export const useApproveWriteOff = (id: string) => {
-  const invalidate = useInvalidateWriteOffs();
+  const invalidate = useInvalidatePosting();
   return useMutation({
     mutationFn: ({ signature, note }: { signature: Blob; note: string }) =>
       approveWriteOff(id, signature, note),
@@ -174,7 +205,7 @@ export const useDownloadWriteOffPdf = () =>
   });
 
 export const useRunDepreciation = () => {
-  const invalidate = useInvalidateWriteOffs();
+  const invalidate = useInvalidatePosting();
   return useMutation({
     mutationFn: (input: { assetId?: string; upTo: string }) => runDepreciation(input),
     onSuccess: () => invalidate(),

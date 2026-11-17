@@ -1,8 +1,11 @@
 import type { WriteOffStatus } from '@/module/assets/domain/writeOff';
 
-/** Badge colors of a report's status: waiting is a warning, approved a success, rejected a failure. */
+/**
+ * Colour only carries real state, as in purchasing: waiting, approved or refused. Everything else
+ * on these screens stays brand or neutral.
+ */
 export const WRITE_OFF_STATUS_COLOR: Record<WriteOffStatus, string> = {
-  PENDING_APPROVAL: 'orange',
-  APPROVED: 'teal',
+  PENDING_APPROVAL: 'yellow',
+  APPROVED: 'green',
   REJECTED: 'red',
 };

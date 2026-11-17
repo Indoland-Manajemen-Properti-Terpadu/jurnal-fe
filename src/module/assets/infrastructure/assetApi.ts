@@ -55,6 +55,19 @@ const TAG_PAGE_SIZE = 100;
 /** Schema validation text names a raw field in quotes (`"reason" is required`); it is never shown. */
 const RAW_VALIDATION = /^"+[\w.[\]]+"+\s/;
 
+/** The server answered and said no (a 4xx): nothing was written. A timeout or 5xx proves nothing. */
+export const isRefusedByServer = (error: unknown): boolean => {
+  if (!axios.isAxiosError(error)) {
+    return false;
+  }
+  const status = error.response?.status;
+  return status !== undefined && status >= 400 && status < 500;
+};
+
+/** The server answered 404: the thing is not there, as opposed to a failure to ask. */
+export const isNotFoundError = (error: unknown): boolean =>
+  axios.isAxiosError(error) && error.response?.status === 404;
+
 export const getApiErrorMessage = (error: unknown, fallback: string): string => {
   if (axios.isAxiosError(error)) {
     const message = (error.response?.data as { message?: unknown } | undefined)?.message;

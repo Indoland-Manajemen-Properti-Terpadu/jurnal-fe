@@ -4,6 +4,7 @@ import { IconAlertCircle, IconCheck, IconX } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import type { WriteOffReport } from '@/module/assets/domain/writeOff';
 import { WRITE_OFF_LIMITS } from '@/module/assets/domain/writeOffRules';
+import { isRefusedByServer } from '@/module/assets/infrastructure/assetApi';
 import { AssetModalTitle } from '@/module/assets/presentation/components/AssetModalTitle';
 import { SignaturePad } from '@/module/assets/presentation/components/SignaturePad';
 import {
@@ -21,7 +22,7 @@ export function WriteOffApproveModal({ report, onClose }: Readonly<ModalProps>) 
   const [signature, setSignature] = useState<Blob | null>(null);
   const [note, setNote] = useState('');
   const [signatureError, setSignatureError] = useState<string | undefined>();
-  const [failure, setFailure] = useState<string | null>(null);
+  const [failure, setFailure] = useState<{ message: string; refused: boolean } | null>(null);
 
   const submit = async () => {
     if (!signature) {
@@ -33,7 +34,7 @@ export function WriteOffApproveModal({ report, onClose }: Readonly<ModalProps>) 
       await approve.mutateAsync({ signature, note });
       onClose();
     } catch (error) {
-      setFailure(writeOffErrorMessage(error));
+      setFailure({ message: writeOffErrorMessage(error), refused: isRefusedByServer(error) });
     }
   };
 
@@ -41,6 +42,10 @@ export function WriteOffApproveModal({ report, onClose }: Readonly<ModalProps>) 
     <Modal
       opened
       onClose={onClose}
+      // While the request runs the dialog stays, so its answer is never lost.
+      closeOnEscape={!approve.isPending}
+      closeOnClickOutside={!approve.isPending}
+      withCloseButton={!approve.isPending}
       centered
       radius="lg"
       size="lg"
@@ -61,9 +66,9 @@ export function WriteOffApproveModal({ report, onClose }: Readonly<ModalProps>) 
             icon={<IconAlertCircle size={18} />}
             title={t('approveFailedTitle')}
           >
-            <Text size="sm">{failure}</Text>
+            <Text size="sm">{failure.message}</Text>
             <Text size="xs" c="dimmed" mt={4}>
-              {t('approveFailedHint')}
+              {failure.refused ? t('approveFailedHint') : t('approveUnknownHint')}
             </Text>
           </Alert>
         )}
@@ -87,7 +92,7 @@ export function WriteOffApproveModal({ report, onClose }: Readonly<ModalProps>) 
           <Button variant="default" radius="md" onClick={onClose} disabled={approve.isPending}>
             {t('cancel')}
           </Button>
-          <Button radius="md" color="teal" loading={approve.isPending} onClick={submit}>
+          <Button radius="md" loading={approve.isPending} onClick={submit}>
             {t('approveSubmit')}
           </Button>
         </Group>
@@ -122,6 +127,9 @@ export function WriteOffRejectModal({ report, onClose }: Readonly<ModalProps>) {
     <Modal
       opened
       onClose={onClose}
+      closeOnEscape={!reject.isPending}
+      closeOnClickOutside={!reject.isPending}
+      withCloseButton={!reject.isPending}
       centered
       radius="lg"
       padding="lg"

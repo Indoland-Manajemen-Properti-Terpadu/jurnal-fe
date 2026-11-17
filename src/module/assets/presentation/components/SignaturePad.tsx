@@ -106,6 +106,10 @@ export function SignaturePad({ value, onChange, label, error }: Readonly<Signatu
       setFileError(t('errSignatureFile'));
       return;
     }
+    if (file.size > WRITE_OFF_LIMITS.maxFileBytes) {
+      setFileError(t('errFileSize', { name: file.name }));
+      return;
+    }
     setFileError(null);
     setUploaded(URL.createObjectURL(file));
     onChange(file);

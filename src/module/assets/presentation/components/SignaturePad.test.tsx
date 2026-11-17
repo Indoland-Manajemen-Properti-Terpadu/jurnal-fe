@@ -74,4 +74,14 @@ describe('SignaturePad', () => {
     expect(canvas.width).toBe(600 * (window.devicePixelRatio || 1));
     HTMLCanvasElement.prototype.getContext = vi.fn(() => null) as never;
   });
+
+  it('refuses an image above 10 MB', async () => {
+    const onChange = vi.fn();
+    render(<SignaturePad value={null} onChange={onChange} label="Tanda tangan" />);
+    const big = new File(['x'], 'besar.png', { type: 'image/png' });
+    Object.defineProperty(big, 'size', { value: 11 * 1024 * 1024 });
+    await userEvent.upload(screen.getByLabelText('Unggah gambar'), big);
+    expect(onChange).not.toHaveBeenCalled();
+    expect(screen.getByText('besar.png lebih dari 10 MB.')).toBeInTheDocument();
+  });
 });

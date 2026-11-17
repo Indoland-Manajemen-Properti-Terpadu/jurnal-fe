@@ -28,7 +28,6 @@ import {
   Storefront,
   Tag,
   Toolbox,
-  Tray,
   Truck,
   Wallet,
   Warehouse,
@@ -220,10 +219,7 @@ export const navigationSections: NavSection[] = [
         icon: Toolbox,
         link: routes.assets.main,
         match: routes.assets.main,
-        children: [
-          child('assetList', Toolbox, routes.assets.main),
-          { ...child('assetNeedsYou', Tray, routes.assets.needsYou), badge: 'assetDecisions' },
-        ],
+        badge: 'assetDecisions',
       },
       {
         id: 'budgetPlanning',
@@ -273,6 +269,7 @@ type TitleEntry = SectionTitle & { prefix: string };
  */
 const extraTitles: TitleEntry[] = [
   { prefix: '/assets/write-offs', titleKey: 'assetWriteOffs', groupKey: 'groupAccounting' },
+  { prefix: '/assets/needs-you', titleKey: 'assetNeedsYou', groupKey: 'groupAccounting' },
   { prefix: routes.bankConnection.main, titleKey: 'bankConnection', groupKey: 'groupTransactions' },
   // The general journal opens from the report center, so it keeps its own title there.
   { prefix: routes.journalEntries.main, titleKey: 'journalEntries', groupKey: 'groupAccounting' },

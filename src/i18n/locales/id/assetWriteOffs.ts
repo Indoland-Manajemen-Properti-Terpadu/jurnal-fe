@@ -138,7 +138,6 @@ export const assetWriteOffs = {
   journeyApproved: 'Disetujui dan dibukukan',
   journeyRejected: 'Ditolak',
   decisionTitle: 'Keputusan Anda',
-  decisionBody: 'Periksa kronologi, bukti, dan nilai di dokumen sebelum memutuskan.',
   approve: 'Setujui & tandatangani',
   reject: 'Tolak',
   addEvidence: 'Tambah bukti',
@@ -155,12 +154,34 @@ export const assetWriteOffs = {
   retry: 'Coba lagi',
   openFile: 'Buka {name}',
 
+  // Detail cards
+  approvalTitle: 'Persetujuan',
+  approvalWaiting: 'Menunggu tanda tangan penyetuju',
+  stepApproved: 'Disetujui oleh {name}',
+  stepRejected: 'Ditolak oleh {name}',
+  stepPosted: 'jurnal pelepasan dibukukan',
+  stepSignature: 'Tanda tangan diperlukan untuk membukukan pelepasan',
+  notYourDecision: 'Keputusan ada di {roles}.',
+  estimateShort: 'Perkiraan',
+  moreActions: 'Aksi lainnya',
+  cardAsset: 'Aset',
+  cardAssetSub: 'Data aset saat berita acara diajukan.',
+  docFiguresBooked: 'Angka yang dibukukan saat disetujui.',
+  docFiguresNotBooked: 'Perkiraan saat diajukan. Tidak ada yang dibukukan.',
+  accumulated: 'Akumulasi penyusutan',
+  cardSignatures: 'Tanda tangan',
+  cardSignaturesSub: 'Seperti yang tercetak di berita acara.',
+  signatureRejected: 'Tidak ditandatangani',
+  needsYouCardSub: 'Hal di Aset yang perlu tindakan Anda.',
+
   // Approve and reject
   approveTitle: 'Setujui berita acara',
   approveConsequence: 'Jurnal pelepasan akan dibukukan dan aset berstatus Dilepas.',
   approveNoteLabel: 'Catatan (tidak wajib)',
   approveSubmit: 'Setujui & bukukan',
   approveFailedTitle: 'Persetujuan belum berhasil',
+  approveUnknownHint:
+    'Periksa status berita acara sebelum mencoba lagi, karena hasilnya belum pasti.',
   approveFailedHint: 'Berita acara masih menunggu persetujuan. Tidak ada yang dibukukan.',
   rejectTitle: 'Tolak berita acara',
   rejectBody: 'Pengaju akan melihat alasan ini dan bisa mengajukan berita acara baru.',
@@ -174,6 +195,8 @@ export const assetWriteOffs = {
   needsYouSubtitle: 'Semua hal di Aset yang perlu tindakan Anda, di satu tempat.',
   summaryLabel: 'Ringkasan',
   tileDecisions: 'Berita acara perlu keputusan',
+  tileDecisionsSub: 'Menunggu tanda tangan Anda',
+  tileNothing: 'Tidak ada yang menunggu',
   tilePending: 'Aset baru perlu diaktifkan',
   tilePendingSub: 'Nilai perolehan {amount}',
   tileDepreciation: 'Penyusutan belum dibukukan',
@@ -215,6 +238,49 @@ export const assetWriteOffs = {
   submittedOn: 'Diajukan {date}',
   allDoneTitle: 'Semua beres',
   allDoneBody: 'Tidak ada yang menunggu Anda di Aset saat ini.',
+
+  // Panel on the asset list
+  agoNow: 'baru saja',
+  agoMinutes: '{count} mnt',
+  agoHours: '{count} j',
+  agoDays: '{count} hr',
+  submittedBy: 'diajukan {name}',
+  openAll: 'Buka semua',
+  review: 'Tinjau',
+  itemDecisionLabel: '{type} menunggu keputusan Anda',
+  itemDecisionTitle: '{type}: {asset} perlu keputusan Anda',
+  itemDecisionSub: '{number} · diajukan {name}',
+  itemPendingTitle: '{count} aset baru perlu diaktifkan',
+  itemDepreciationTitle: 'Penyusutan {count} aset belum dibukukan',
+  itemDepreciationSub: '{amount} · bisa dibukukan sampai {month}',
+  itemOwnTitle: '{number} menunggu {roles}',
+  itemOwnSub: '{type} · {asset}',
+  moreWaiting: '+{count} lainnya menunggu di halaman Menunggu Anda',
+  cardAllDone:
+    'Tidak ada yang menunggu Anda di Aset. Berita acara baru dan aset dari ProApps akan muncul di sini.',
+  backToList: 'Daftar Aset',
+
+  // Intro cards, steps and banners
+  heroBodyDone:
+    'Tidak ada yang menunggu Anda di Aset saat ini. Berita acara baru dan aset dari ProApps akan muncul di sini.',
+  viewGroup: 'Lihat',
+  formIntroTitle: 'Catat pelepasan aset dengan rapi',
+  formIntroBody:
+    'Ceritakan apa yang terjadi, lampirkan bukti, lalu tanda tangani. Setelah disetujui, jurnalnya dibukukan otomatis.',
+  formPoint1: 'Penyusutan yang tertinggal dibukukan lebih dulu',
+  formPoint2: 'Jurnal pelepasan dibukukan setelah disetujui',
+  formPoint3: 'Aset tetap aktif sampai berita acara disetujui',
+  bannerDecideTitle: 'Berita acara ini menunggu keputusan Anda',
+  bannerDecideBody:
+    'Periksa kronologi, bukti, dan nilainya, lalu setujui dengan tanda tangan atau tolak dengan alasan.',
+  bannerWaitTitle: 'Menunggu persetujuan {roles}',
+  bannerWaitBody: 'Aset tetap aktif dan tercatat seperti biasa sampai berita acara ini disetujui.',
+  bannerApprovedTitle: 'Pelepasan sudah disetujui',
+  bannerApprovedBody: 'Jurnal pelepasan sudah dibukukan dan aset berstatus Dilepas.',
+  bannerRejectedTitle: 'Berita acara ditolak',
+  bannerRejectedBody:
+    'Tidak ada yang dibukukan. Pengaju bisa mengajukan berita acara baru untuk aset ini.',
+  panelHeadline: 'Ada {count} hal yang perlu tindakan Anda',
 
   // Notifications
   notifySubmittedTitle: 'Berita acara diajukan',

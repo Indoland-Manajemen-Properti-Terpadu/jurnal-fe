@@ -1,35 +1,30 @@
-import { useState } from 'react';
-import { Box, Button, Skeleton, Stack } from '@mantine/core';
+import { useEffect } from 'react';
+import { Badge, Box, Button, SimpleGrid, Skeleton, Stack } from '@mantine/core';
 import {
+  IconArrowLeft,
+  IconChecklist,
   IconFileCertificate,
   IconHistory,
-  IconInbox,
   IconPackageImport,
   IconSend,
 } from '@tabler/icons-react';
-import dayjs from 'dayjs';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { EmptyState } from '@/components/EmptyState/EmptyState';
 import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
 import { useTranslation } from '@/i18n';
-import { lastClosedMonth } from '@/module/assets/domain/writeOffRules';
 import { AssetDialogs } from '@/module/assets/presentation/components/AssetDialogs';
+import { AssetFeatureCard } from '@/module/assets/presentation/components/AssetFeatureCard';
+import { AssetCard } from '@/module/assets/presentation/components/AssetSection';
 import { formatAssetMoney } from '@/module/assets/presentation/components/formatAssetMoney';
 import { NeedsYouDepreciation } from '@/module/assets/presentation/components/NeedsYouDepreciation';
 import { NeedsYouPendingAssets } from '@/module/assets/presentation/components/NeedsYouPendingAssets';
 import { NeedsYouReportList } from '@/module/assets/presentation/components/NeedsYouReportList';
-import { NeedsYouSection } from '@/module/assets/presentation/components/NeedsYouSection';
-import { NeedsYouTiles } from '@/module/assets/presentation/components/NeedsYouTiles';
 import { WriteOffHistoryTable } from '@/module/assets/presentation/components/WriteOffHistoryTable';
-import { WriteOffStateCard } from '@/module/assets/presentation/components/WriteOffStateCard';
 import { useAssetDialogs } from '@/module/assets/presentation/hooks/useAssetDialogs';
-import { useAssetSummary, useAssets } from '@/module/assets/presentation/hooks/useAssetQueries';
-import {
-  useCurrentUserId,
-  useWriteOffDecisions,
-} from '@/module/assets/presentation/hooks/useWriteOffQueries';
+import { useAssetSummary } from '@/module/assets/presentation/hooks/useAssetQueries';
+import { useNeedsYou } from '@/module/assets/presentation/hooks/useNeedsYou';
 import { useDecimalPrecision } from '@/module/settings';
-
-/** Largest page the asset list serves; the hub shows every pending asset and every one behind. */
-const LIST_LIMIT = 100;
+import { routes } from '@/router/routes';
 
 const SECTION = {
   decisions: 'needs-you-decisions',
@@ -37,159 +32,172 @@ const SECTION = {
   depreciation: 'needs-you-depreciation',
 } as const;
 
+const count = (value: number) => (
+  <Badge variant="light" color="gray" radius="sm">
+    {value}
+  </Badge>
+);
+
 /**
- * "Menunggu Anda": everything in Assets that waits on someone — reports to decide, new assets to
- * activate, depreciation behind — then the user's own reports and the report history. The router
- * wraps it in `AppShellLayout`.
+ * "Menunggu Anda": three cards for what is waiting, the detail of each, the user's own reports
+ * and the report history. It has no sidebar
+ * entry of its own: the panel on the asset list opens it, and `#<section>` scrolls to the group a
+ * row of that panel points at. The router wraps it in `AppShellLayout`.
  */
 export function NeedsYouPage() {
   const { t } = useTranslation('assetWriteOffs');
   const precision = useDecimalPrecision();
-  const [today] = useState(() => dayjs().format('YYYY-MM-DD'));
-  const decisions = useWriteOffDecisions();
-  const me = useCurrentUserId();
+  const navigate = useNavigate();
+  const { hash } = useLocation();
+  const needs = useNeedsYou();
   const summary = useAssetSummary();
-  const pendingAssets = useAssets({ page: 1, limit: LIST_LIMIT, status: 'pending' });
-  const activeAssets = useAssets({ page: 1, limit: LIST_LIMIT, status: 'active' });
   const dialogs = useAssetDialogs();
+  const { decisions, own, pending, behind, behindTotal, loading, failed } = needs;
+  // The summary counts every pending asset; the list is one page of at most 100.
+  const pendingCount = summary.data?.pending.count ?? pending.length;
 
-  const pending = pendingAssets.data?.items ?? [];
-  const behind = (activeAssets.data?.items ?? []).filter(
-    (asset) => asset.depreciationDue.months > 0
-  );
-  const behindTotal = behind.reduce((sum, asset) => sum + asset.depreciationDue.amount, 0);
-  const own = me.data ? decisions.pending.filter((report) => report.createdBy.id === me.data) : [];
-  const loading = decisions.isLoading || pendingAssets.isLoading || activeAssets.isLoading;
-  const failed = decisions.query.isError || pendingAssets.isError || activeAssets.isError;
-  const retry = () => {
-    decisions.query.refetch();
-    pendingAssets.refetch();
-    activeAssets.refetch();
-  };
-  // Zero counts from a failed request must never read as "nothing waits".
-  const nothingWaits =
-    !loading &&
-    !failed &&
-    decisions.count === 0 &&
-    pending.length === 0 &&
-    behind.length === 0 &&
-    own.length === 0;
+  const jump = (id: string) =>
+    document.getElementById(id)?.scrollIntoView?.({ behavior: 'smooth', block: 'start' });
+
+  // Scroll to the group the panel pointed at once its rows are on screen.
+  useEffect(() => {
+    if (!hash || loading) {
+      return;
+    }
+    document
+      .getElementById(hash.slice(1))
+      ?.scrollIntoView?.({ behavior: 'smooth', block: 'start' });
+  }, [hash, loading]);
 
   return (
     <>
       <Box p={{ base: 'md', sm: 'xl' }}>
         <Stack gap="lg">
           <ModuleHeader
-            icon={IconInbox}
+            icon={IconChecklist}
             title={t('needsYouTitle')}
             description={t('needsYouSubtitle')}
+            actions={
+              <Button
+                variant="default"
+                radius="md"
+                leftSection={<IconArrowLeft size={16} />}
+                onClick={() => navigate(routes.assets.main)}
+              >
+                {t('backToList')}
+              </Button>
+            }
           />
 
-          <NeedsYouTiles
-            tiles={[
-              { key: 'decisions', value: String(decisions.count), target: SECTION.decisions },
-              {
-                key: 'pending',
-                value: String(pending.length),
-                sub: t('tilePendingSub', {
-                  amount: formatAssetMoney(
-                    summary.data?.pending.totalAcquisitionCost ?? 0,
-                    precision
-                  ),
-                }),
-                target: SECTION.pending,
-              },
-              {
-                key: 'depreciation',
-                value: String(behind.length),
-                sub: t('tileDepreciationSub', {
-                  count: behind.length,
-                  amount: formatAssetMoney(behindTotal, precision),
-                }),
-                target: SECTION.depreciation,
-              },
-            ]}
-          />
+          <SimpleGrid cols={{ base: 1, sm: 3 }}>
+            <AssetFeatureCard
+              illustration="decision"
+              value={String(decisions.length)}
+              title={t('tileDecisions')}
+              body={decisions.length > 0 ? t('tileDecisionsSub') : t('tileNothing')}
+              actionLabel={t('viewGroup')}
+              disabled={decisions.length === 0}
+              onAction={() => jump(SECTION.decisions)}
+            />
+            <AssetFeatureCard
+              illustration="pendingAsset"
+              value={String(pendingCount)}
+              title={t('tilePending')}
+              body={t('tilePendingSub', {
+                amount: formatAssetMoney(
+                  summary.data?.pending.totalAcquisitionCost ?? 0,
+                  precision
+                ),
+              })}
+              actionLabel={t('viewGroup')}
+              disabled={pendingCount === 0}
+              onAction={() => jump(SECTION.pending)}
+            />
+            <AssetFeatureCard
+              illustration="depreciation"
+              value={String(behind.length)}
+              title={t('tileDepreciation')}
+              body={t('tileDepreciationSub', {
+                count: behind.length,
+                amount: formatAssetMoney(behindTotal, precision),
+              })}
+              actionLabel={t('viewGroup')}
+              disabled={behind.length === 0}
+              onAction={() => jump(SECTION.depreciation)}
+            />
+          </SimpleGrid>
 
-          {loading && <Skeleton h={160} radius="lg" />}
+          {loading && <Skeleton h={160} radius="md" />}
 
           {failed && (
-            <WriteOffStateCard
-              illustration="lost"
-              title={t('loadFailed')}
-              body={t('loadFailedBody')}
-              action={
-                <Button variant="default" radius="md" onClick={retry}>
-                  {t('retry')}
-                </Button>
-              }
-            />
+            <AssetCard icon={IconChecklist} title={t('needsYouTitle')}>
+              <EmptyState
+                color="red"
+                title={t('loadFailed')}
+                description={t('loadFailedBody')}
+                actionLabel={t('retry')}
+                onAction={needs.retry}
+                py={24}
+              />
+            </AssetCard>
           )}
 
-          {nothingWaits && (
-            <WriteOffStateCard
-              illustration="allDone"
-              title={t('allDoneTitle')}
-              body={t('allDoneBody')}
-            />
+          {needs.allDone && (
+            <AssetCard icon={IconChecklist} title={t('needsYouTitle')}>
+              <EmptyState
+                icon={<IconChecklist size={32} stroke={1.6} />}
+                title={t('allDoneTitle')}
+                description={t('heroBodyDone')}
+                py={24}
+              />
+            </AssetCard>
           )}
 
-          {decisions.count > 0 && (
-            <NeedsYouSection
-              id={SECTION.decisions}
-              icon={IconFileCertificate}
-              title={t('groupDecisions')}
-              subtitle={t('groupDecisionsSub')}
-              count={decisions.count}
-            >
-              <NeedsYouReportList reports={decisions.reports} />
-            </NeedsYouSection>
+          {decisions.length > 0 && (
+            <Box id={SECTION.decisions}>
+              <AssetCard
+                icon={IconFileCertificate}
+                title={t('groupDecisions')}
+                subtitle={t('groupDecisionsSub')}
+                right={count(decisions.length)}
+              >
+                <NeedsYouReportList reports={decisions} />
+              </AssetCard>
+            </Box>
           )}
 
           {pending.length > 0 && (
-            <NeedsYouSection
-              id={SECTION.pending}
-              icon={IconPackageImport}
-              color="yellow"
-              title={t('groupPending')}
-              subtitle={t('groupPendingSub')}
-              count={pending.length}
-            >
-              <NeedsYouPendingAssets
-                assets={pending}
-                onActivate={(asset) => dialogs.open({ kind: 'activate', asset })}
-              />
-            </NeedsYouSection>
+            <Box id={SECTION.pending}>
+              <AssetCard
+                icon={IconPackageImport}
+                title={t('groupPending')}
+                subtitle={t('groupPendingSub')}
+                right={count(pending.length)}
+              >
+                <NeedsYouPendingAssets
+                  assets={pending}
+                  onActivate={(asset) => dialogs.open({ kind: 'activate', asset })}
+                />
+              </AssetCard>
+            </Box>
           )}
 
-          <NeedsYouDepreciation
-            id={SECTION.depreciation}
-            assets={behind}
-            upTo={lastClosedMonth(today)}
-          />
+          <NeedsYouDepreciation id={SECTION.depreciation} assets={behind} upTo={needs.upTo} />
 
           {own.length > 0 && (
-            <NeedsYouSection
-              id="needs-you-own"
+            <AssetCard
               icon={IconSend}
-              color="gray"
               title={t('groupOwn')}
               subtitle={t('groupOwnSub')}
-              count={own.length}
+              right={count(own.length)}
             >
-              <NeedsYouReportList reports={own} showStatus />
-            </NeedsYouSection>
+              <NeedsYouReportList reports={own} own />
+            </AssetCard>
           )}
 
-          <NeedsYouSection
-            id="needs-you-history"
-            icon={IconHistory}
-            color="gray"
-            title={t('groupHistory')}
-            subtitle={t('groupHistorySub')}
-          >
+          <AssetCard icon={IconHistory} title={t('groupHistory')} subtitle={t('groupHistorySub')}>
             <WriteOffHistoryTable />
-          </NeedsYouSection>
+          </AssetCard>
         </Stack>
       </Box>
 

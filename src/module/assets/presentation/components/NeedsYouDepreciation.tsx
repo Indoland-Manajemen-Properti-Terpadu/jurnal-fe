@@ -1,14 +1,14 @@
 import { useState } from 'react';
-import { Alert, Box, Button, Group, List, Modal, Stack, Text } from '@mantine/core';
+import { Alert, Badge, Box, Button, Group, List, Modal, Stack, Text } from '@mantine/core';
 import { IconAlertTriangle, IconCalendarDue, IconCircleCheck } from '@tabler/icons-react';
-import { Link } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
 import type { AssetItem } from '@/module/assets/domain/asset';
 import type { DepreciationRunResult } from '@/module/assets/domain/writeOff';
 import { formatAssetMonth } from '@/module/assets/presentation/components/formatAssetDate';
 import { formatAssetMoney } from '@/module/assets/presentation/components/formatAssetMoney';
-import classes from '@/module/assets/presentation/components/NeedsYou.module.css';
-import { NeedsYouSection } from '@/module/assets/presentation/components/NeedsYouSection';
+import { AssetCard } from '@/module/assets/presentation/components/AssetSection';
+import classes from '@/module/assets/presentation/components/WorkList.module.css';
+import { WorkRow } from '@/module/assets/presentation/components/WorkRow';
 import { useRunDepreciation } from '@/module/assets/presentation/hooks/useWriteOffQueries';
 import { useDecimalPrecision } from '@/module/settings';
 import { routes } from '@/router/routes';
@@ -35,7 +35,7 @@ function RunResult({ result }: Readonly<{ result: DepreciationRunResult }>) {
     <Stack gap="xs" mb="md">
       {booked.length > 0 && (
         <Alert
-          color="teal"
+          color="green"
           variant="light"
           radius="md"
           icon={<IconCircleCheck size={18} />}
@@ -49,7 +49,7 @@ function RunResult({ result }: Readonly<{ result: DepreciationRunResult }>) {
       )}
       {problems.length > 0 && (
         <Alert
-          color="orange"
+          color="yellow"
           variant="light"
           radius="md"
           icon={<IconAlertTriangle size={18} />}
@@ -97,45 +97,43 @@ export function NeedsYouDepreciation({ id, assets, upTo }: Readonly<NeedsYouDepr
   if (assets.length === 0 && !result) return null;
 
   return (
-    <NeedsYouSection
-      id={id}
-      icon={IconCalendarDue}
-      color="secondary"
-      title={t('groupDepreciation')}
-      subtitle={t('groupDepreciationSub')}
-      count={assets.length}
-      action={
-        assets.length > 0 && (
-          <Button radius="md" onClick={() => setConfirming(true)}>
-            {t('bookUpTo', { month })}
-          </Button>
-        )
-      }
-    >
-      {result && <RunResult result={result} />}
-      <Stack gap="xs">
-        {assets.map((asset) => (
-          <Box key={asset.id} className={classes.row}>
-            <Box className={classes.rowMain}>
-              <Text
-                component={Link}
-                to={routes.assets.detail.replace(':id', asset.id)}
-                fw={700}
-                size="sm"
-                c="primary.8"
-              >
-                {asset.name}
-              </Text>
-              <Text size="xs" c="dimmed">
-                {asset.code} · {t('monthsDue', { months: asset.depreciationDue.months })}
-              </Text>
-            </Box>
-            <Text size="sm" fw={600} className={classes.num}>
-              {formatAssetMoney(asset.depreciationDue.amount, precision)}
-            </Text>
-          </Box>
-        ))}
-      </Stack>
+    <Box id={id}>
+      <AssetCard
+        icon={IconCalendarDue}
+        title={t('groupDepreciation')}
+        subtitle={t('groupDepreciationSub')}
+        right={
+          <Group gap="sm" wrap="nowrap">
+            <Badge variant="light" color="gray" radius="sm">
+              {assets.length}
+            </Badge>
+            {assets.length > 0 && (
+              <Button radius="md" onClick={() => setConfirming(true)}>
+                {t('bookUpTo', { month })}
+              </Button>
+            )}
+          </Group>
+        }
+      >
+        {result && <RunResult result={result} />}
+        <div className={classes.list}>
+          {assets.map((asset) => (
+            <WorkRow
+              key={asset.id}
+              icon={IconCalendarDue}
+              title={asset.code}
+              titleSuffix={asset.name}
+              subtitle={t('monthsDue', { months: asset.depreciationDue.months })}
+              side={
+                <Text size="sm" fw={500} className={classes.amount}>
+                  {formatAssetMoney(asset.depreciationDue.amount, precision)}
+                </Text>
+              }
+              to={routes.assets.detail.replace(':id', asset.id)}
+            />
+          ))}
+        </div>
+      </AssetCard>
 
       <Modal
         opened={confirming}
@@ -167,7 +165,7 @@ export function NeedsYouDepreciation({ id, assets, upTo }: Readonly<NeedsYouDepr
           </Group>
         </Stack>
       </Modal>
-    </NeedsYouSection>
+    </Box>
   );
 }
 
