@@ -174,4 +174,45 @@ describe('NeedsYouPage', { timeout: 20_000 }, () => {
     );
     expect(await screen.findByText('Periode Oktober 2026 dikunci')).toBeInTheDocument();
   });
+
+  it('says the data could not be loaded instead of "all done" when a request fails', async () => {
+    http.get.mockImplementation((url: string) =>
+      url === '/v1/users/me'
+        ? Promise.resolve({ data: { id: 'u1' } })
+        : Promise.reject(new Error('network'))
+    );
+    renderPage();
+    expect(
+      await screen.findByText('Data belum bisa dimuat. Coba lagi sebentar.')
+    ).toBeInTheDocument();
+    expect(screen.queryByText('Semua beres')).not.toBeInTheDocument();
+  });
+
+  it('counts only what was booked in the success message', async () => {
+    mockApi({ activeAssets: [asset('ac1', due(7, 656250)), asset('gst2', due(2, 22500000))] });
+    http.post.mockResolvedValue({
+      data: {
+        data: {
+          upTo: '2026-10',
+          months: 9,
+          amount: 23156250,
+          plan: [
+            { code: 'AC1', months: 7, from: '2026-04', to: '2026-10', amount: 656250 },
+            { code: 'GST2', months: 2, from: '2026-09', to: '2026-10', amount: 22500000 },
+          ],
+          skipped: [],
+          failed: [{ code: 'GST2', reason: 'Periode Oktober 2026 dikunci' }],
+        },
+      },
+    });
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    renderPage();
+    await user.click(await screen.findByRole('button', { name: 'Bukukan sampai Oktober 2026' }));
+    await user.click(
+      within(await screen.findByRole('dialog')).getByRole('button', { name: 'Bukukan sekarang' })
+    );
+    expect(
+      await screen.findByText('Rp 656.250,00 untuk 1 aset sudah masuk jurnal.')
+    ).toBeInTheDocument();
+  });
 });

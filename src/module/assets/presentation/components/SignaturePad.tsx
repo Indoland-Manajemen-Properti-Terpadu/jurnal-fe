@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type PointerEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, type PointerEvent } from 'react';
 import { Box, Button, Group, Image, Text } from '@mantine/core';
 import { IconEraser, IconSignature, IconUpload } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
@@ -25,18 +25,21 @@ const inkColor = (canvas: HTMLCanvasElement) => getComputedStyle(canvas).color;
  */
 export function SignaturePad({ value, onChange, label, error }: Readonly<SignaturePadProps>) {
   const { t } = useTranslation('assetWriteOffs');
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const last = useRef<Point | null>(null);
   const [drawn, setDrawn] = useState(false);
   const [uploaded, setUploaded] = useState<string | null>(null);
   const [fileError, setFileError] = useState<string | null>(null);
 
-  // Size the canvas to its box once, at the screen's pixel density.
-  useEffect(() => {
-    const canvas = canvasRef.current;
+  // Size every canvas that mounts (also the new one after an uploaded image is cleared) to its
+  // box at the screen's pixel density, so ink lands where the pointer is.
+  const attachCanvas = useCallback((canvas: HTMLCanvasElement | null) => {
+    canvasRef.current = canvas;
     const context = canvas?.getContext('2d');
-    if (!canvas || !context) return;
+    if (!canvas || !context) {
+      return;
+    }
     const ratio = window.devicePixelRatio || 1;
     canvas.width = canvas.clientWidth * ratio;
     canvas.height = canvas.clientHeight * ratio;
@@ -131,7 +134,7 @@ export function SignaturePad({ value, onChange, label, error }: Readonly<Signatu
         ) : (
           <>
             <canvas
-              ref={canvasRef}
+              ref={attachCanvas}
               className={classes.canvas}
               aria-label={t('signatureCanvas')}
               onPointerDown={start}

@@ -23,13 +23,17 @@ export type NeedsYouDepreciationProps = {
 function RunResult({ result }: Readonly<{ result: DepreciationRunResult }>) {
   const { t } = useTranslation('assetWriteOffs');
   const precision = useDecimalPrecision();
+  // A failed or skipped asset is not in the journal, whatever the plan listed for it.
+  const notBooked = new Set([...result.failed, ...result.skipped].map((line) => line.code));
+  const booked = result.plan.filter((row) => !notBooked.has(row.code));
+  const bookedAmount = booked.reduce((sum, row) => sum + row.amount, 0);
   const problems = [
     ...result.failed.map((line) => ({ ...line, kind: t('runFailed') })),
     ...result.skipped.map((line) => ({ ...line, kind: t('runSkipped') })),
   ];
   return (
     <Stack gap="xs" mb="md">
-      {result.amount > 0 && (
+      {booked.length > 0 && (
         <Alert
           color="teal"
           variant="light"
@@ -38,8 +42,8 @@ function RunResult({ result }: Readonly<{ result: DepreciationRunResult }>) {
           title={t('runDoneTitle')}
         >
           {t('runDone', {
-            amount: formatAssetMoney(result.amount, precision),
-            count: result.plan.length,
+            amount: formatAssetMoney(bookedAmount, precision),
+            count: booked.length,
           })}
         </Alert>
       )}

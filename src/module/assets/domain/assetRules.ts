@@ -37,8 +37,9 @@ export const canEditAsset = (asset: Pick<AssetItem, 'source' | 'status'>): boole
 export const canActivateAsset = (asset: Pick<AssetItem, 'status'>): boolean =>
   asset.status === 'pending';
 
+/** Active and fully depreciated assets can leave the books through a write-off report. */
 export const canDisposeAsset = (asset: Pick<AssetItem, 'status'>): boolean =>
-  asset.status === 'active';
+  asset.status === 'active' || asset.status === 'fully_depreciated';
 
 /** Active and fully depreciated assets can have their accounts and depreciation revised. */
 export const canReviseAsset = (asset: Pick<AssetItem, 'status'>): boolean =>

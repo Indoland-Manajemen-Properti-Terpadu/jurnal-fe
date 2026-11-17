@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import userEvent from '@testing-library/user-event';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@test-utils';
@@ -48,5 +49,29 @@ describe('SignaturePad', () => {
         name: 'Area tanda tangan. Gambar dengan mouse, pena, atau jari.',
       })
     ).toBeInTheDocument();
+  });
+
+  it('sizes a fresh drawing area after an uploaded image is cleared', async () => {
+    const context = { scale: vi.fn(), clearRect: vi.fn() };
+    const getContext = vi.fn(() => context);
+    HTMLCanvasElement.prototype.getContext = getContext as never;
+    Object.defineProperty(HTMLCanvasElement.prototype, 'clientWidth', {
+      configurable: true,
+      get: () => 600,
+    });
+    Object.defineProperty(HTMLCanvasElement.prototype, 'clientHeight', {
+      configurable: true,
+      get: () => 150,
+    });
+    function Controlled() {
+      const [value, setValue] = useState<Blob | null>(null);
+      return <SignaturePad value={value} onChange={setValue} label="Tanda tangan" />;
+    }
+    render(<Controlled />);
+    await userEvent.upload(screen.getByLabelText('Unggah gambar'), png());
+    await userEvent.click(screen.getByRole('button', { name: 'Hapus' }));
+    const canvas = document.querySelector('canvas') as HTMLCanvasElement;
+    expect(canvas.width).toBe(600 * (window.devicePixelRatio || 1));
+    HTMLCanvasElement.prototype.getContext = vi.fn(() => null) as never;
   });
 });

@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Alert,
   Box,
@@ -68,6 +68,16 @@ export function WriteOffFormContent({ asset }: Readonly<{ asset: AssetItem }>) {
   const create = useCreateWriteOff(asset.id);
   const [advanced, setAdvanced] = useState(false);
   const [failure, setFailure] = useState<string | null>(null);
+  const failureRef = useRef<HTMLDivElement>(null);
+
+  // The alert sits far above the submit button on a long form; bring it into view.
+  useEffect(() => {
+    if (!failure) {
+      return;
+    }
+    failureRef.current?.scrollIntoView?.({ block: 'center' });
+    failureRef.current?.focus();
+  }, [failure]);
   const submitted = useRef(false);
 
   const { draft, set, errors } = form;
@@ -106,6 +116,8 @@ export function WriteOffFormContent({ asset }: Readonly<{ asset: AssetItem }>) {
           <Stack gap="lg">
             {failure && (
               <Alert
+                ref={failureRef}
+                tabIndex={-1}
                 color="red"
                 variant="light"
                 radius="md"

@@ -3,6 +3,7 @@ import { IconArrowLeft, IconFileCertificate } from '@tabler/icons-react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
 import { useTranslation } from '@/i18n';
+import { canDisposeAsset } from '@/module/assets/domain/assetRules';
 import { WriteOffFormContent } from '@/module/assets/presentation/components/WriteOffFormContent';
 import { WriteOffStateCard } from '@/module/assets/presentation/components/WriteOffStateCard';
 import { useAsset } from '@/module/assets/presentation/hooks/useAssetQueries';
@@ -20,7 +21,7 @@ export function WriteOffFormPage() {
   const [searchParams] = useSearchParams();
   const assetId = searchParams.get('asset') ?? undefined;
   const asset = useAsset(assetId);
-  const active = asset.data?.status === 'active';
+  const active = asset.data ? canDisposeAsset(asset.data) : false;
   const pending = usePendingWriteOffForAsset(assetId, active);
 
   const assetDetail = assetId ? routes.assets.detail.replace(':id', assetId) : routes.assets.main;

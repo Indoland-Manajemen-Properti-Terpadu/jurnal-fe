@@ -150,6 +150,8 @@ export const assetWriteOffs = {
   reportNotFoundTitle: 'Report not found',
   reportNotFoundBody: 'The link may be wrong, or you do not have access to this document.',
   loadFailed: 'The data could not be loaded. Try again in a moment.',
+  loadFailedBody:
+    'The figures on this page are incomplete, so what is waiting on you cannot be shown yet.',
   retry: 'Try again',
   openFile: 'Open {name}',
 
@@ -226,6 +228,8 @@ export const assetWriteOffs = {
 
   // Errors
   errType: 'Choose what happened to the asset',
+  errFullyDepreciatedBlocked:
+    'The book value on that date is still above the residual value. Pick another type or change the date.',
   errDateRange: 'Pick a date between the acquisition date and today',
   errDescriptionShort: 'Describe what happened in at least 10 characters',
   errDescriptionLong: 'The chronology can be at most 5,000 characters',

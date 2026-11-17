@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Box, Skeleton, Stack } from '@mantine/core';
+import { Box, Button, Skeleton, Stack } from '@mantine/core';
 import {
   IconFileCertificate,
   IconHistory,
@@ -60,8 +60,16 @@ export function NeedsYouPage() {
   const behindTotal = behind.reduce((sum, asset) => sum + asset.depreciationDue.amount, 0);
   const own = me.data ? decisions.pending.filter((report) => report.createdBy.id === me.data) : [];
   const loading = decisions.isLoading || pendingAssets.isLoading || activeAssets.isLoading;
+  const failed = decisions.query.isError || pendingAssets.isError || activeAssets.isError;
+  const retry = () => {
+    decisions.query.refetch();
+    pendingAssets.refetch();
+    activeAssets.refetch();
+  };
+  // Zero counts from a failed request must never read as "nothing waits".
   const nothingWaits =
     !loading &&
+    !failed &&
     decisions.count === 0 &&
     pending.length === 0 &&
     behind.length === 0 &&
@@ -104,6 +112,19 @@ export function NeedsYouPage() {
           />
 
           {loading && <Skeleton h={160} radius="lg" />}
+
+          {failed && (
+            <WriteOffStateCard
+              illustration="lost"
+              title={t('loadFailed')}
+              body={t('loadFailedBody')}
+              action={
+                <Button variant="default" radius="md" onClick={retry}>
+                  {t('retry')}
+                </Button>
+              }
+            />
+          )}
 
           {nothingWaits && (
             <WriteOffStateCard

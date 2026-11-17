@@ -60,6 +60,9 @@ describe('asset actions by status', () => {
     expect(canActivateAsset({ status: 'active' })).toBe(false);
     expect(canDisposeAsset({ status: 'active' })).toBe(true);
     expect(canDisposeAsset({ status: 'pending' })).toBe(false);
+    // A fully depreciated asset is the natural case for a write-off report.
+    expect(canDisposeAsset({ status: 'fully_depreciated' })).toBe(true);
+    expect(canDisposeAsset({ status: 'disposed' })).toBe(false);
     expect(canReviseAsset({ status: 'fully_depreciated' })).toBe(true);
     expect(canReviseAsset({ status: 'disposed' })).toBe(false);
   });

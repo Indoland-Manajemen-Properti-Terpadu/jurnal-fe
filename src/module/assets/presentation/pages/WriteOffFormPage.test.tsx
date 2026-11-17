@@ -176,6 +176,8 @@ describe('WriteOffFormPage', { timeout: 20_000 }, () => {
     expect(
       await screen.findByText('Aset ini sudah punya berita acara yang menunggu persetujuan')
     ).toBeInTheDocument();
+    // The alert sits far above the button on a long form, so it takes the focus.
+    expect(screen.getByRole('alert')).toHaveFocus();
     expect(screen.getByRole('textbox', { name: /Kronologi/ })).toHaveValue(
       'Mesin tidak layak pakai, sudah diperiksa teknisi.'
     );

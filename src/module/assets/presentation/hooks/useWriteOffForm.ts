@@ -49,19 +49,21 @@ export const useWriteOffForm = (asset: AssetItem, submitterName: string) => {
     setTouched((current) => new Set(current).add(key as WriteOffField));
   };
 
-  const allErrors = validateWriteOffDraft(draft, ctx);
+  // The preview needs a valid date first; whether "fully depreciated" fits depends on the preview.
+  const received = receivedAmount(draft);
+  const dateReady = Boolean(draft.incidentDate) && !validateWriteOffDraft(draft, ctx).incidentDate;
+  const preview = useDisposalPreview(asset.id, dateReady ? draft.incidentDate : '', received);
+  const bookValue = preview.data?.bookValue ?? asset.netBookValue;
+  const fullyDepreciatedAllowed = canBeFullyDepreciated(bookValue, asset.residualValue);
+  const fullCtx = { ...ctx, fullyDepreciatedAllowed };
+
+  const allErrors = validateWriteOffDraft(draft, fullCtx);
   // A field shows its error once the user has worked on it, or after a submit attempt.
   const errors = Object.fromEntries(
     Object.entries(allErrors).filter(([key]) => showAll || touched.has(key as WriteOffField))
   ) as Partial<Record<WriteOffField, string>>;
-  const checklist = writeOffChecklist(draft, ctx);
+  const checklist = writeOffChecklist(draft, fullCtx);
   const ready = checklist.every((row) => row.done);
-
-  const received = receivedAmount(draft);
-  const dateReady = Boolean(draft.incidentDate) && !allErrors.incidentDate;
-  const preview = useDisposalPreview(asset.id, dateReady ? draft.incidentDate : '', received);
-  const bookValue = preview.data?.bookValue ?? asset.netBookValue;
-  const fullyDepreciatedAllowed = canBeFullyDepreciated(bookValue, asset.residualValue);
 
   const evidenceUrls = useMemo(
     () => draft.evidence.map((file) => (isImage(file) ? URL.createObjectURL(file) : null)),

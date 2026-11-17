@@ -3,6 +3,7 @@ import { Box, Paper, Stack, Tabs } from '@mantine/core';
 import { IconBook2, IconBuildingWarehouse, IconTrendingDown } from '@tabler/icons-react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
+import { canDisposeAsset } from '@/module/assets/domain/assetRules';
 import { routes } from '@/router/routes';
 import { AssetDepreciationPanel } from '@/module/assets/presentation/components/AssetDepreciationPanel';
 import { AssetDetailHeader } from '@/module/assets/presentation/components/AssetDetailHeader';
@@ -43,7 +44,8 @@ export const AssetDetailPage: React.FC = () => {
   const { data: asset, isLoading } = useAsset(id);
   const dialogs = useAssetDialogs();
   const journals = useAssetJournals(id, Boolean(asset) && asset?.status !== 'pending');
-  const pendingReport = usePendingWriteOffForAsset(id, asset?.status === 'active').data ?? null;
+  const pendingReport =
+    usePendingWriteOffForAsset(id, asset ? canDisposeAsset(asset) : false).data ?? null;
 
   const requested = searchParams.get('tab');
   const tab: DetailTab = isDetailTab(requested) ? requested : 'details';

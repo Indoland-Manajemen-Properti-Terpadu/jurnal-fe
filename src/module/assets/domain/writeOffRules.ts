@@ -26,6 +26,8 @@ export interface WriteOffContext {
   today: string;
   /** `YYYY-MM-DD` */
   acquisitionDate: string;
+  /** False when the book value on the incident date is still above the residual value. */
+  fullyDepreciatedAllowed?: boolean;
 }
 
 /** A sale cannot be filed without its price. */
@@ -73,7 +75,11 @@ export const validateWriteOffDraft = (
   ctx: WriteOffContext
 ): Partial<Record<WriteOffField, string>> => {
   const errors: Partial<Record<WriteOffField, string>> = {};
-  if (!draft.type) errors.type = 'errType';
+  if (!draft.type) {
+    errors.type = 'errType';
+  } else if (draft.type === 'fully_depreciated' && ctx.fullyDepreciatedAllowed === false) {
+    errors.type = 'errFullyDepreciatedBlocked';
+  }
   if (!dateInRange(draft.incidentDate, ctx)) errors.incidentDate = 'errDateRange';
   const description = descriptionError(draft.description);
   if (description) errors.description = description;

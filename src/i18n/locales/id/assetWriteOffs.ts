@@ -150,6 +150,8 @@ export const assetWriteOffs = {
   reportNotFoundTitle: 'Berita acara tidak ditemukan',
   reportNotFoundBody: 'Tautannya mungkin keliru atau Anda tidak punya akses ke dokumen ini.',
   loadFailed: 'Data belum bisa dimuat. Coba lagi sebentar.',
+  loadFailedBody:
+    'Angka di halaman ini belum lengkap, jadi belum bisa dipastikan apa saja yang menunggu Anda.',
   retry: 'Coba lagi',
   openFile: 'Buka {name}',
 
@@ -227,6 +229,8 @@ export const assetWriteOffs = {
 
   // Errors
   errType: 'Pilih apa yang terjadi pada aset',
+  errFullyDepreciatedBlocked:
+    'Nilai buku aset pada tanggal itu masih di atas nilai sisa. Pilih jenis lain atau ubah tanggalnya.',
   errDateRange: 'Pilih tanggal antara tanggal perolehan dan hari ini',
   errDescriptionShort: 'Ceritakan kronologinya minimal 10 karakter',
   errDescriptionLong: 'Kronologi maksimal 5.000 karakter',

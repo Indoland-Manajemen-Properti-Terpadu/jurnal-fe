@@ -102,6 +102,21 @@ describe('validateWriteOffDraft', () => {
   });
 });
 
+describe('a fully depreciated report on a date the asset still has book value', () => {
+  it('is refused when the type is no longer allowed', () => {
+    const blocked = { ...ctx, fullyDepreciatedAllowed: false };
+    expect(validateWriteOffDraft(draft({ type: 'fully_depreciated' }), blocked).type).toBe(
+      'errFullyDepreciatedBlocked'
+    );
+    expect(
+      validateWriteOffDraft(draft({ type: 'fully_depreciated' }), {
+        ...ctx,
+        fullyDepreciatedAllowed: true,
+      }).type
+    ).toBeUndefined();
+  });
+});
+
 describe('incidentDateBounds', () => {
   it('returns the window, or null when the asset is acquired after today', () => {
     expect(incidentDateBounds('2026-04-02', '2026-11-17')).toEqual({
