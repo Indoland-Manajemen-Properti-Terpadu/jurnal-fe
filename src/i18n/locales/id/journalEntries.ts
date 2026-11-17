@@ -5,6 +5,7 @@ export const journalEntries = {
     createdTitle: 'Transaksi Berhasil Disimpan',
     createdMessage: 'Transaksi jurnal umum telah berhasil dibukukan ke dalam sistem.',
     createFailedTitle: 'Gagal Menyimpan Transaksi Jurnal',
+    referenceTaken: 'Nomor referensi ini sudah dipakai jurnal lain. Gunakan nomor yang berbeda.',
     tagCreated: 'Tag berhasil dibuat.',
     tagFailed: 'Gagal membuat tag: {reason}',
     rejectedTitle: 'Format Berkas Tidak Didukung',
