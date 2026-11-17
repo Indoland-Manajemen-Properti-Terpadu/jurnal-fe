@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 import { AppShellLayout } from '@/components/AppShellLayout';
 import { ConfirmModal } from '@/components';
+import { UnsavedChangesGuard } from '@/components/UnsavedChangesGuard';
 import { useLatestClosingEnd } from '@/module/period-closing';
 import deleteModalImage from '@/assets/images/illustrations/delete-confirm.svg';
 import publishModalImage from '@/assets/images/illustrations/publish-balance.svg';
@@ -107,6 +108,8 @@ const BeginningBalancePage: React.FC = () => {
   const populated = useRef(false);
   const dirtyRef = useRef(false);
   dirtyRef.current = isDirty;
+  // Set right before the page leaves on its own (after a publish), so the guard does not stop it.
+  const leaving = useRef(false);
   useEffect(() => {
     if (!simpleAccounts || isLoadingDraft || isLoadingLogs) return;
     if (populated.current && dirtyRef.current) return;
@@ -196,6 +199,7 @@ const BeginningBalancePage: React.FC = () => {
     publishDraftBalance(buildPayload(finalRows), {
       onSuccess: () => {
         setIsPublishModalOpen(false);
+        leaving.current = true;
         navigate(routes.chartOfAccounts.main);
       },
     });
@@ -335,6 +339,14 @@ const BeginningBalancePage: React.FC = () => {
           </Stack>
         </Box>
       </AppShellLayout>
+
+      <UnsavedChangesGuard
+        when={() => dirtyRef.current && !leaving.current}
+        title={t('leave.title')}
+        body={t('leave.body')}
+        leaveLabel={t('leave.confirm')}
+        stayLabel={t('leave.stay')}
+      />
 
       <ConfirmModal
         opened={isPublishModalOpen}

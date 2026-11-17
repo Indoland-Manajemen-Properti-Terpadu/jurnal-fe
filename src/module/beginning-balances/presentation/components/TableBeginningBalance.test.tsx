@@ -79,6 +79,16 @@ describe('TableBeginningBalance', () => {
     expect(screen.queryByText(/Biasanya diisi/)).not.toBeInTheDocument();
   });
 
+  it('says why a typed minus sign is dropped, and not for a plain amount (PRO-77)', () => {
+    const { onEnter } = setup([row()]);
+    const input = screen.getByLabelText('Debit (Rp) 1-1000');
+    fireEvent.change(input, { target: { value: '-5000' } });
+    expect(screen.getByRole('alert')).toHaveTextContent('Nominal tidak boleh negatif');
+    expect(onEnter).toHaveBeenLastCalledWith('acc-1', 'debit', '5.000');
+    fireEvent.change(input, { target: { value: '5000' } });
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
   it('offers to clear a row only when it has an amount', () => {
     const { onClear } = setup([
       row({ id: 'a', debit: 5 }),

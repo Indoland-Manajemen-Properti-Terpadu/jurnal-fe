@@ -130,17 +130,19 @@ describe('buildOpeningRows', () => {
     ]);
   });
 
-  it('takes the normal side from the type and flips it for a contra account', () => {
+  it('takes the normal side as the server sends it and never flips a contra account (PRO-78)', () => {
     const rows = buildOpeningRows(
       [
-        simple({ id: 'd', type: 'debit' }),
-        simple({ id: 'c', type: 'credit' }),
-        simple({ id: 'dc', type: 'credit', isContra: true }),
-        simple({ id: 'cc', type: 'debit', isContra: true }),
+        simple({ id: 'd', type: 'debit', normalBalance: 'debit' }),
+        simple({ id: 'c', type: 'credit', normalBalance: 'credit' }),
+        // Live 2026-11-16: Cadangan Kerugian Piutang is credit, Diskon Penjualan is debit.
+        simple({ id: 'dc', type: 'credit', normalBalance: 'credit', isContra: true }),
+        simple({ id: 'cc', type: 'debit', normalBalance: 'debit', isContra: true }),
+        simple({ id: 'noNormal', type: 'credit', isContra: true }),
       ],
       []
     );
-    expect(rows.map((r) => r.normalSide)).toEqual(['debit', 'credit', 'debit', 'credit']);
+    expect(rows.map((r) => r.normalSide)).toEqual(['debit', 'credit', 'credit', 'debit', 'credit']);
   });
 
   it('keeps a saved amount for an account the list lacks, so the totals stay the saved ones', () => {
