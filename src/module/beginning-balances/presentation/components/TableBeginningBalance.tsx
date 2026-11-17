@@ -29,6 +29,8 @@ const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
   const { t } = useTranslation('beginningBalances');
   // The text being typed in one field, so a trailing comma or decimal digits survive re-formatting.
   const [typing, setTyping] = useState<{ key: string; text: string } | null>(null);
+  // The field where a minus sign was typed: the sign is dropped, so say why instead of doing it silently.
+  const [negativeKey, setNegativeKey] = useState<string | null>(null);
 
   // Format while typing and keep the caret after the same digit: the text gets dots, so the
   // caret index of the raw text is mapped to the same count of digits and comma in the new one.
@@ -41,6 +43,7 @@ const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
     const caret = raw === input.value ? (input.selectionStart ?? raw.length) : raw.length;
     const significant = raw.slice(0, caret).replace(/[^\d,]/g, '').length;
     const text = formatAmountInput(raw);
+    setNegativeKey(/^\s*[-−–]/.test(raw) ? `${accountId}:${field}` : null);
     setTyping({ key: `${accountId}:${field}`, text });
     onEnter(accountId, field, text);
 
@@ -83,7 +86,10 @@ const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
               handleType(row.id, field, event.currentTarget, pasted.replace('.', ','));
             }
           }}
-          onBlur={() => setTyping(null)}
+          onBlur={() => {
+            setTyping(null);
+            setNegativeKey(null);
+          }}
           w="100%"
           styles={{
             input: {
@@ -102,6 +108,11 @@ const TableBeginningBalance: React.FC<TableBeginningBalanceProps> = ({
             },
           }}
         />
+        {negativeKey === key && (
+          <Text fz="var(--jurnal-text-xs)" c="red.8" role="alert" ta="right">
+            {t('table.negative')}
+          </Text>
+        )}
         {offSide && (
           <Text fz="var(--jurnal-text-xs)" c="orange.9">
             {t(field === 'debit' ? 'table.offSideDebit' : 'table.offSideCredit')}

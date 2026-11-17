@@ -1,7 +1,6 @@
 import dayjs from 'dayjs';
 import { fromMinor, sumMinor, toMinor } from '@/lib/money/money';
 import { canPublishOpeningBalance } from '@/lib/accounting/journalBalance';
-import { isDebitNormal } from '@/lib/accounting/normalBalance';
 import type {
   BalanceLog,
   DraftBalance,
@@ -166,12 +165,9 @@ const toRow = (account: SimpleAccount): OpeningRow => ({
   id: account.id,
   name: account.name,
   accountNumber: account.accountNumber,
-  // `normalBalance` is final, contra accounts included. Only an older answer without it needs the flip.
-  normalSide:
-    account.normalBalance ??
-    (isDebitNormal({ isDebit: account.type === 'debit', isContra: account.isContra })
-      ? 'debit'
-      : 'credit'),
+  // The server sends the final side, contra accounts included (PRO-78, checked 2026-11-16: 1-10201
+  // Cadangan Kerugian Piutang is credit, 4-30000 Diskon Penjualan is debit), so it is never flipped here.
+  normalSide: account.normalBalance ?? account.type,
   isContra: account.isContra,
   debit: 0,
   credit: 0,

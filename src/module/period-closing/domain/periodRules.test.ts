@@ -12,12 +12,15 @@ import {
   findOverlap,
   gapAfterLatestClosing,
   latestActiveClosing,
+  isDeletedPeriod,
   lockPresetRange,
+  matchesStatusFilter,
   suggestClosingRange,
   validatePeriodValues,
 } from './periodRules';
 
 const period = (overrides: Partial<AccountingPeriod>): AccountingPeriod => ({
+  status: overrides.isActive === false ? 'INACTIVE' : 'ACTIVE',
   id: 'p1',
   name: 'Periode',
   type: 'LOCK',
@@ -29,6 +32,11 @@ const period = (overrides: Partial<AccountingPeriod>): AccountingPeriod => ({
   closingJournalId: null,
   reopenedAt: null,
   reopenedBy: null,
+  deactivatedAt: null,
+  deactivatedBy: null,
+  deletedAt: null,
+  deletedBy: null,
+  activities: [],
   createdAt: null,
   updatedAt: null,
   ...overrides,
@@ -65,7 +73,9 @@ describe('findOverlap', () => {
   it('ignores the other type, inactive periods and the period being edited', () => {
     const range = { startDate: '2025-06-01', endDate: '2026-01-15' };
     expect(findOverlap(range, 'LOCK', [closing])).toBeUndefined();
-    expect(findOverlap(range, 'LOCK', [{ ...lock, isActive: false }])).toBeUndefined();
+    expect(
+      findOverlap(range, 'LOCK', [{ ...lock, isActive: false, status: 'INACTIVE' }])
+    ).toBeUndefined();
     expect(findOverlap(range, 'LOCK', [lock], 'lock')).toBeUndefined();
   });
 
@@ -245,5 +255,27 @@ describe('closingRangeIssue (PRO-81)', () => {
   it('says nothing about a range that is not filled in yet', () => {
     expect(closingRangeIssue({ startDate: '', endDate: '2030-01-01' }, today)).toBeNull();
     expect(addYear('2024-02-29')).toBe('2025-03-01');
+  });
+});
+
+describe('deleted periods', () => {
+  it('is a record only: it can not be deleted again and does not take part in overlaps', () => {
+    const deleted = period({ status: 'DELETED', isActive: true });
+    expect(isDeletedPeriod(deleted)).toBe(true);
+    expect(canDeletePeriod(deleted)).toBe(false);
+    expect(
+      findOverlap({ startDate: '2026-01-10', endDate: '2026-01-20' }, 'LOCK', [deleted])
+    ).toBeUndefined();
+  });
+
+  it('filters by status, with a reopened closing counted as inactive', () => {
+    const active = period({});
+    const reopened = period({ type: 'CLOSE', status: 'REOPENED', isActive: false });
+    const deleted = period({ status: 'DELETED', isActive: true });
+    expect(matchesStatusFilter(active, 'active')).toBe(true);
+    expect(matchesStatusFilter(deleted, 'active')).toBe(false);
+    expect(matchesStatusFilter(reopened, 'inactive')).toBe(true);
+    expect(matchesStatusFilter(deleted, 'inactive')).toBe(false);
+    expect(matchesStatusFilter(deleted, 'deleted')).toBe(true);
   });
 });

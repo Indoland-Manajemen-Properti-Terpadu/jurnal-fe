@@ -91,6 +91,11 @@ function JournalEntriesTable({
               {t('entriesTable.entryLink', { number: row.transactionNumber })}
             </Anchor>
           )}
+          {row.referenceNumber && (
+            <Text c="dimmed" fz="var(--jurnal-text-xs)" lineClamp={1} title={row.referenceNumber}>
+              {row.referenceNumber}
+            </Text>
+          )}
           {row.status === 'VOID' && (
             <Text c="red.7" fz="var(--jurnal-text-xs)" fw={600}>
               {t('entriesTable.statusVoid')}

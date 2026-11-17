@@ -10,6 +10,7 @@ import type { AccountingPeriod } from '@/module/period-closing/domain/accounting
 import { latestActiveClosing } from '@/module/period-closing/domain/periodRules';
 import { PeriodFormModal } from '@/module/period-closing/presentation/components/PeriodFormModal';
 import { PeriodGuide } from '@/module/period-closing/presentation/components/PeriodGuide';
+import { PeriodHistoryModal } from '@/module/period-closing/presentation/components/PeriodHistoryModal';
 import { PeriodHero } from '@/module/period-closing/presentation/components/PeriodHero';
 import type { PeriodAction } from '@/module/period-closing/presentation/components/PeriodRowActions';
 import {
@@ -33,7 +34,9 @@ import { formatRange } from '@/module/period-closing/presentation/periodFormat';
 type Dialog =
   | { kind: 'form'; period: AccountingPeriod | null }
   | { kind: 'delete'; period: AccountingPeriod }
+  | { kind: 'deactivate'; period: AccountingPeriod }
   | { kind: 'reopen'; period: AccountingPeriod }
+  | { kind: 'history'; period: AccountingPeriod }
   | null;
 
 /** Every period lock and closing of the site, with the state of the books on top. */
@@ -73,13 +76,18 @@ export function PeriodListPage() {
         setDialog({ kind: 'form', period });
         break;
       case 'toggle':
-        toggle.mutate(period);
+        // Turning a lock off reopens every transaction in its range, so it asks first; turning it on does not.
+        if (period.status === 'ACTIVE') setDialog({ kind: 'deactivate', period });
+        else toggle.mutate(period);
         break;
       case 'delete':
         setDialog({ kind: 'delete', period });
         break;
       case 'reopen':
         setDialog({ kind: 'reopen', period });
+        break;
+      case 'history':
+        setDialog({ kind: 'history', period });
         break;
       case 'journal':
         if (period.closingJournalId) {
@@ -195,6 +203,32 @@ export function PeriodListPage() {
       {dialog?.kind === 'reopen' && (
         <ReopenPeriodModal period={dialog.period} onClose={() => setDialog(null)} />
       )}
+
+      {dialog?.kind === 'history' && (
+        <PeriodHistoryModal period={dialog.period} onClose={() => setDialog(null)} />
+      )}
+
+      <ConfirmModal
+        opened={dialog?.kind === 'deactivate'}
+        onClose={() => setDialog(null)}
+        onConfirm={() => {
+          if (dialog?.kind !== 'deactivate') return;
+          toggle.mutate(dialog.period, { onSuccess: () => setDialog(null) });
+        }}
+        title={t('deactivate.title')}
+        message={
+          dialog?.kind === 'deactivate' ? t('deactivate.message', { name: dialog.period.name }) : ''
+        }
+        helperText={
+          dialog?.kind === 'deactivate'
+            ? t('deactivate.helper', { range: formatRange(dialog.period, currentLanguage) })
+            : ''
+        }
+        imageAlt=""
+        confirmLabel={t('deactivate.confirm')}
+        cancelLabel={t('actions.cancel')}
+        confirmLoading={toggle.isPending}
+      />
 
       <ConfirmModal
         opened={dialog?.kind === 'delete'}

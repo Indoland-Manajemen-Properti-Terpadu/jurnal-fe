@@ -38,7 +38,7 @@ import { FormCard } from '@/module/user-management/presentation/components/FormC
 import { PasswordField } from '@/module/user-management/presentation/components/PasswordField';
 import { RolePicker } from '@/module/user-management/presentation/components/RolePicker';
 import { RoleSummaryCard } from '@/module/user-management/presentation/components/RoleSummaryCard';
-import { UnsavedChangesGuard } from '@/module/user-management/presentation/components/UnsavedChangesGuard';
+import { UnsavedChangesGuard } from '@/components/UnsavedChangesGuard';
 import { useMyGrants, useMyId } from '@/module/user-management/presentation/hooks/useMyGrants';
 import { useRoleMenus } from '@/module/user-management/presentation/hooks/useRoleMenus';
 import { useRoles } from '@/module/user-management/presentation/hooks/useRoles';

@@ -5,8 +5,9 @@ import type {
 } from '../domain/journalEntry';
 
 /**
- * Normalizes fields of `POST /v1/journal`. A zero amount side is left out, `transactionNumber`
- * only when it is a number, and optional values only when present.
+ * Normalizes fields of `POST /v1/journal`. A zero amount side is left out and optional values only
+ * when present. The system number (`transactionNumber`) is always automatic: it must stay a number
+ * for the numbering and sorting, so text typed by the user goes in `referenceNumber`.
  */
 export const toCreateBody = (data: JournalEntryPayload): Record<string, unknown> => {
   const body: Record<string, unknown> = {
@@ -19,8 +20,8 @@ export const toCreateBody = (data: JournalEntryPayload): Record<string, unknown>
     })),
   };
 
-  if (data.transactionNumber !== undefined && !Number.isNaN(data.transactionNumber)) {
-    body.transactionNumber = data.transactionNumber;
+  if (data.referenceNumber?.trim()) {
+    body.referenceNumber = data.referenceNumber.trim();
   }
   if (data.notes && data.notes.trim().length > 0) {
     body.notes = data.notes;

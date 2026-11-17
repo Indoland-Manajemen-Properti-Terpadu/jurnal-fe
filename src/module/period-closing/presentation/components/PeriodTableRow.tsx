@@ -1,5 +1,5 @@
-import { Badge, Group, Stack, Table, Text, ThemeIcon, Tooltip } from '@mantine/core';
-import { IconBook2, IconLock } from '@tabler/icons-react';
+import { ActionIcon, Badge, Group, Stack, Table, Text, ThemeIcon, Tooltip } from '@mantine/core';
+import { IconBook2, IconHistory, IconLock } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import type { AccountingPeriod } from '@/module/period-closing/domain/accountingPeriod';
 import { countDays } from '@/module/period-closing/domain/periodRules';
@@ -39,26 +39,46 @@ export function PeriodTypeBadge({ type }: Readonly<{ type: AccountingPeriod['typ
   );
 }
 
+const STATUS_STYLE = {
+  ACTIVE: { color: 'teal', text: 'teal.9' },
+  INACTIVE: { color: 'gray', text: 'gray.8' },
+  REOPENED: { color: 'orange', text: 'orange.9' },
+  DELETED: { color: 'red', text: 'red.9' },
+} as const;
+
 function StatusBadge({ period }: Readonly<{ period: AccountingPeriod }>) {
   const { t } = useTranslation('periodClosing');
-  if (period.isActive) {
-    return (
-      <Badge variant="light" color="teal" c="teal.9" radius="sm" tt="none">
-        {t('table.active')}
-      </Badge>
-    );
-  }
-  const reopened = period.type === 'CLOSE';
+  const style = STATUS_STYLE[period.status];
   return (
-    <Badge
-      variant="light"
-      color={reopened ? 'orange' : 'gray'}
-      c={reopened ? 'orange.9' : 'gray.8'}
-      radius="sm"
-      tt="none"
-    >
-      {reopened ? t('table.reopened') : t('table.inactive')}
+    <Badge variant="light" color={style.color} c={style.text} radius="sm" tt="none">
+      {t(`table.status_${period.status}`)}
     </Badge>
+  );
+}
+
+/** Who did what and when, under the status: the delete, the switch off, or the reopening. */
+function StatusDetail({ period }: Readonly<{ period: AccountingPeriod }>) {
+  const { t, currentLanguage } = useTranslation('periodClosing');
+  const detail = (() => {
+    switch (period.status) {
+      case 'DELETED':
+        return { at: period.deletedAt, by: period.deletedBy?.name, key: 'deleted' };
+      case 'INACTIVE':
+        return { at: period.deactivatedAt, by: period.deactivatedBy?.name, key: 'deactivated' };
+      case 'REOPENED':
+        return { at: period.reopenedAt, by: period.reopenedBy?.name, key: 'reopened' };
+      default:
+        return null;
+    }
+  })();
+  if (!detail?.at) return null;
+  const date = formatDay(timestampDay(detail.at), currentLanguage);
+  return (
+    <Text size="xs" c="dimmed" mt={2}>
+      {detail.by
+        ? t(`table.${detail.key}ByOn`, { date, name: detail.by })
+        : t(`table.${detail.key}On`, { date })}
+    </Text>
   );
 }
 
@@ -104,18 +124,7 @@ export function PeriodTableRow({
       </Table.Td>
       <Table.Td>
         <StatusBadge period={period} />
-        {period.type === 'CLOSE' && !period.isActive && period.reopenedAt && (
-          <Text size="xs" c="dimmed" mt={2}>
-            {period.reopenedBy?.name
-              ? t('table.reopenedByOn', {
-                  date: formatDay(timestampDay(period.reopenedAt), currentLanguage),
-                  name: period.reopenedBy.name,
-                })
-              : t('table.reopenedOn', {
-                  date: formatDay(timestampDay(period.reopenedAt), currentLanguage),
-                })}
-          </Text>
-        )}
+        <StatusDetail period={period} />
       </Table.Td>
       <Table.Td>
         <Text size="sm" lineClamp={1}>
@@ -128,12 +137,26 @@ export function PeriodTableRow({
         )}
       </Table.Td>
       <Table.Td ta="center">
-        <PeriodRowActions
-          period={period}
-          access={access}
-          isLatestClosing={isLatestClosing}
-          onAction={onAction}
-        />
+        <Group gap={4} justify="center" wrap="nowrap">
+          {period.activities.length > 0 && (
+            <Tooltip label={t('history.open')} withArrow>
+              <ActionIcon
+                variant="subtle"
+                color="gray"
+                aria-label={t('history.openFor', { name: period.name })}
+                onClick={() => onAction('history', period)}
+              >
+                <IconHistory size={18} />
+              </ActionIcon>
+            </Tooltip>
+          )}
+          <PeriodRowActions
+            period={period}
+            access={access}
+            isLatestClosing={isLatestClosing}
+            onAction={onAction}
+          />
+        </Group>
       </Table.Td>
     </Table.Tr>
   );
