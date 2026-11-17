@@ -85,6 +85,8 @@ export interface JournalAsset {
 export interface JournalEntryDetail {
   id?: string;
   transactionNumber?: string;
+  /** The user's own proof number, when one was typed. */
+  referenceNumber?: string | null;
   transactionDate?: Date | string;
   transactionType?: string;
   transactionDetail?: JournalEntryLine[];
@@ -144,6 +146,7 @@ interface AccountEntryLine {
 export interface JournalEntryByAccount {
   id: string;
   transactionNumber: number;
+  referenceNumber?: string | null;
   transactionDate: Date;
   transactionDetail: AccountEntryLine[];
   status: string;
@@ -169,7 +172,8 @@ export interface JournalEntryLinePayload {
 }
 
 export interface JournalEntryPayload {
-  transactionNumber?: number;
+  /** The user's own proof number (text, for example "INV-2026-001"); the system number is automatic. */
+  referenceNumber?: string;
   transactionDate: string;
   transactionDetail: JournalEntryLinePayload[];
   notes: string;

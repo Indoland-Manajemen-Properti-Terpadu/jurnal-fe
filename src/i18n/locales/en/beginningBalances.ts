@@ -148,10 +148,17 @@ export const beginningBalances = {
     normalLegend: 'The blue column is the normal side of the account.',
     offSideDebit: 'Usually entered as credit',
     offSideCredit: 'Usually entered as debit',
+    negative: 'An amount cannot be negative. Enter it on the opposite debit or credit side.',
     clearRow: 'Clear this row',
     emptyTitle: 'No matching accounts',
     emptyDescription: 'Change the search, class, or filter to see other accounts.',
     emptyAction: 'Reset Filter',
+  },
+  leave: {
+    title: 'Unsaved changes',
+    body: 'The opening balances you have not saved will be lost if you leave this page.',
+    confirm: 'Leave the page',
+    stay: 'Stay on this page',
   },
   confirmPublish: {
     title: 'Publish Beginning Balance',

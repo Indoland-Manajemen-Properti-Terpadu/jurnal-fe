@@ -130,6 +130,11 @@ const JournalEntrySidebar: React.FC<JournalEntrySidebarProps> = ({ entry }) => {
           subtitle={t('detail.auditSubtitle')}
         />
         <Stack gap="xs">
+          {entry.referenceNumber && (
+            <Row label={t('detail.referenceNumber')}>
+              <Value>{entry.referenceNumber}</Value>
+            </Row>
+          )}
           <Row label={t('detail.transactionDate')}>
             <Value>
               {entry.transactionDate ? dateFormatV1(entry.transactionDate.toString()) : '—'}

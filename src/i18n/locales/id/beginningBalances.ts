@@ -147,10 +147,17 @@ export const beginningBalances = {
     normalLegend: 'Kolom berlatar biru adalah sisi normal akun.',
     offSideDebit: 'Biasanya diisi di kredit',
     offSideCredit: 'Biasanya diisi di debit',
+    negative: 'Nominal tidak boleh negatif. Isi di sisi debit atau kredit yang berlawanan.',
     clearRow: 'Kosongkan baris ini',
     emptyTitle: 'Tidak ada akun yang sesuai',
     emptyDescription: 'Ubah kata kunci, kelas akun, atau filter untuk melihat akun lainnya.',
     emptyAction: 'Reset Filter',
+  },
+  leave: {
+    title: 'Perubahan belum disimpan',
+    body: 'Isian saldo awal yang belum disimpan akan hilang bila Anda meninggalkan halaman ini.',
+    confirm: 'Tinggalkan halaman',
+    stay: 'Tetap di halaman ini',
   },
   confirmPublish: {
     title: 'Publikasikan Saldo Awal',

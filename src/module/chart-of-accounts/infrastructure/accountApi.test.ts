@@ -138,4 +138,15 @@ describe('getSimpleAccounts', () => {
       params: { isBankAndCash: true },
     });
   });
+
+  it.each(['tax_sales', 'tax_purchase'] as const)(
+    'sends type=%s for tax accounts',
+    async (type) => {
+      http.get.mockResolvedValue({
+        data: { data: [{ id: 'a1', isSuggested: true, categoryID: 'c1', categoryName: 'Pajak' }] },
+      });
+      await expect(getSimpleAccounts({ type })).resolves.toHaveLength(1);
+      expect(http.get).toHaveBeenCalledWith(API_ACCOUNT.GET_SIMPLE_ACCOUNTS, { params: { type } });
+    }
+  );
 });

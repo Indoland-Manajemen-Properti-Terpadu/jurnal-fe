@@ -1,6 +1,6 @@
 import { vi } from 'vitest';
-import { fireEvent, render, screen, userEvent, waitFor, within } from '@test-utils';
-import { MemoryRouter } from 'react-router-dom';
+import { act, fireEvent, render, screen, userEvent, waitFor, within } from '@test-utils';
+import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 import type { DraftBalance, SimpleAccount } from '../../domain/beginningBalance';
 import { useInitialBalanceStore } from '../store/useInitialBalanceStore';
 import BeginningBalancePage from './BeginningBalancePage';
@@ -64,12 +64,17 @@ const acc = (id: string, accountNumber: string, name: string, type: 'debit' | 'c
   isContra: false,
 });
 
-const renderIntro = () =>
-  render(
-    <MemoryRouter>
-      <BeginningBalancePage />
-    </MemoryRouter>
+/** A data router, which the unsaved-changes guard (`useBlocker`) needs. */
+const renderIntro = () => {
+  const router = createMemoryRouter(
+    [
+      { path: '/', element: <BeginningBalancePage /> },
+      { path: '*', element: <div>Halaman lain</div> },
+    ],
+    { initialEntries: ['/'] }
   );
+  return { router, ...render(<RouterProvider router={router} />) };
+};
 
 /** The table, past the first-visit introduction when there is one. */
 const renderPage = () => {
@@ -353,5 +358,34 @@ describe('opening balance page', () => {
     fireEvent.click(screen.getByLabelText('Hanya yang terisi'));
     expect(screen.getByText('1 dari 3 akun')).toBeInTheDocument();
     expect(screen.getByLabelText('Debit (Rp) 1-10000')).toBeInTheDocument();
+  });
+});
+
+describe('leaving with unsaved changes (PRO-77)', () => {
+  it('asks first, keeps the amounts when the user stays, and leaves when the user agrees', async () => {
+    const { router } = renderPage();
+    type('Debit (Rp) 1-10000', '5000');
+
+    await act(async () => {
+      await router.navigate('/lain');
+    });
+    expect(screen.getByText('Perubahan belum disimpan', { selector: 'h2' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Tetap di halaman ini' }));
+    expect(router.state.location.pathname).toBe('/');
+    expect(screen.getByLabelText('Debit (Rp) 1-10000')).toHaveValue('5.000');
+
+    await act(async () => {
+      await router.navigate('/lain');
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Tinggalkan halaman' }));
+    await waitFor(() => expect(router.state.location.pathname).toBe('/lain'));
+  });
+
+  it('lets the user go when nothing was changed', async () => {
+    const { router } = renderPage();
+    await act(async () => {
+      await router.navigate('/lain');
+    });
+    expect(router.state.location.pathname).toBe('/lain');
   });
 });

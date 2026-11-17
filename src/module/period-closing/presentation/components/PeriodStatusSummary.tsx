@@ -77,10 +77,7 @@ export function PeriodStatusSummary({
         {loading ? (
           <Skeleton height={44} radius="md" />
         ) : (
-          <BooksTimeline
-            closedThrough={latestClosing?.endDate}
-            lockedThrough={latestLockEnd || undefined}
-          />
+          <BooksTimeline closedThrough={latestClosing?.endDate} locks={activeLocks} />
         )}
 
         <SimpleGrid cols={{ base: 1, sm: 3 }} spacing={0} className={classes.grid}>

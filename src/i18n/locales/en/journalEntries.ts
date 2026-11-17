@@ -23,13 +23,17 @@ export const journalEntries = {
     infoSubtitle: 'Posting date, reference number and labels',
     dateLabel: 'Entry Date',
     datePlaceholder: 'Choose a date...',
-    numberLabel: 'Entry Number (Optional)',
-    numberPlaceholder: 'Example: 20260501',
-    numberHint: '* Leave empty for an automatic number',
-    numberInvalid: 'The transaction number must be digits only, for example 20260501.',
+    dateLocked:
+      'This date is in the locked period "{name}". Entries cannot be recorded on this date; choose another date.',
+    dateLockedNoName:
+      'This date is in a locked period. Entries cannot be recorded on this date; choose another date.',
+    numberLabel: 'Reference Number (Optional)',
+    numberPlaceholder: 'Example: BKK-2026-001',
+    numberHint: '* Your own proof number. The journal number is automatic.',
     tagLabel: 'Entry Tags',
     linesTitle: 'Journal Lines (Double-Entry)',
-    linesSubtitle: 'At least 2 account rows. Debit and credit must be equal.',
+    linesSubtitle:
+      'At least 2 account rows. Debit and credit must be equal, up to Rp 9,999,999,999,999 per row.',
     linesBadge: '{count} Accounts',
     memoTitle: 'Memo and Supporting Documents',
     memoSubtitle: 'Background notes and documents that support the entry',
@@ -70,6 +74,7 @@ export const journalEntries = {
     ready: 'Ready to Post',
     incomplete: 'Incomplete',
     hasDate: 'The entry date is chosen',
+    dateOpen: 'The date is not in a locked period',
     hasMinRows: 'At least 2 account rows are filled',
     allAccounts: 'Every row has an account',
     allAmounts: 'Every row has a debit or credit amount',
@@ -122,6 +127,7 @@ export const journalEntries = {
     creditHint: 'Sum of every credit side',
     balancedHint: 'Debit and credit are equal',
     unbalancedHint: 'Debit and credit are not equal',
+    referenceNumber: 'Reference Number',
     transactionType: 'Transaction Type',
     types: {
       TRANSFER_MONEY: 'Transfer Money',

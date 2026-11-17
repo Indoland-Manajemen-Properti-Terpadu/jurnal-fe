@@ -13,7 +13,13 @@ export const usePeriodListParams = () => {
   const [status, setStatusState] = useState<PeriodStatusFilter | undefined>();
   const [page, setPage] = useState(1);
 
-  const params: PeriodListParams = { type, status, page, limit: PAGE_SIZE };
+  const params: PeriodListParams = {
+    type,
+    status,
+    page,
+    limit: PAGE_SIZE,
+    includeDeleted: true,
+  };
 
   return {
     params,

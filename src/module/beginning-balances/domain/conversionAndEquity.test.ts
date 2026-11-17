@@ -183,8 +183,8 @@ describe('normal side of a contra account', () => {
     expect(discount.normalSide).toBe('debit');
   });
 
-  it('still flips the category side for an answer without normalBalance', () => {
-    const [older] = buildOpeningRows([contra({ type: 'debit' })], []);
+  it('uses type as it is for an answer without normalBalance: the server already flipped it (PRO-78)', () => {
+    const [older] = buildOpeningRows([contra({ type: 'credit' })], []);
     expect(older.normalSide).toBe('credit');
   });
 });

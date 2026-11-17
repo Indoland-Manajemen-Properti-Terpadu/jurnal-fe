@@ -24,13 +24,17 @@ export const journalEntries = {
     infoSubtitle: 'Waktu pembukuan, referensi bukti transaksi, dan label penanda',
     dateLabel: 'Tanggal Transaksi',
     datePlaceholder: 'Pilih tanggal...',
-    numberLabel: 'Nomor Transaksi (Opsional)',
-    numberPlaceholder: 'Contoh: 20260501',
-    numberHint: '* Kosongkan untuk nomor otomatis',
-    numberInvalid: 'Nomor transaksi harus berupa angka, misalnya 20260501.',
+    dateLocked:
+      'Tanggal ini berada di periode terkunci "{name}". Transaksi tidak bisa dicatat pada tanggal ini; pilih tanggal lain.',
+    dateLockedNoName:
+      'Tanggal ini berada di periode yang sudah dikunci. Transaksi tidak bisa dicatat pada tanggal ini; pilih tanggal lain.',
+    numberLabel: 'Nomor Referensi (Opsional)',
+    numberPlaceholder: 'Contoh: BKK-2026-001',
+    numberHint: '* Nomor bukti Anda sendiri. Nomor jurnal dibuat otomatis.',
     tagLabel: 'Tag Transaksi',
     linesTitle: 'Ayat Jurnal (Double-Entry)',
-    linesSubtitle: 'Minimal 2 baris akun. Nilai debit dan kredit harus seimbang.',
+    linesSubtitle:
+      'Minimal 2 baris akun. Nilai debit dan kredit harus seimbang, paling besar Rp 9.999.999.999.999 per baris.',
     linesBadge: '{count} Akun',
     memoTitle: 'Catatan Memo & Bukti Transaksi',
     memoSubtitle: 'Keterangan latar belakang dan dokumen pendukung transaksi',
@@ -71,6 +75,7 @@ export const journalEntries = {
     ready: 'Siap Dibukukan',
     incomplete: 'Belum Lengkap',
     hasDate: 'Tanggal transaksi telah dipilih',
+    dateOpen: 'Tanggal tidak berada di periode terkunci',
     hasMinRows: 'Minimal 2 baris akun terisi',
     allAccounts: 'Setiap baris telah memilih akun',
     allAmounts: 'Setiap baris terisi nominal debit/kredit',
@@ -124,6 +129,7 @@ export const journalEntries = {
     creditHint: 'Jumlah seluruh sisi kredit',
     balancedHint: 'Debit dan kredit sama',
     unbalancedHint: 'Debit dan kredit tidak sama',
+    referenceNumber: 'Nomor Referensi',
     transactionType: 'Tipe Transaksi',
     types: {
       TRANSFER_MONEY: 'Transfer Uang',

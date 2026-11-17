@@ -78,3 +78,73 @@ describe('periodMapper', () => {
     });
   });
 });
+
+describe('status, deletion and activity log (PRO-83)', () => {
+  const user = { id: 'u1', name: 'QA Tester', email: 'qa@contoh.id', accessRole: 'r' };
+  const deletedRow = {
+    ...listRow,
+    isActive: true,
+    status: 'DELETED',
+    deleted: true,
+    deactivatedBy: user,
+    deactivatedAt: '2026-11-16T03:12:40.000Z',
+    deletedBy: user,
+    deletedAt: '2026-11-16T03:14:05.000Z',
+    activities: [
+      { action: 'CREATE', performedBy: user, performedAt: '2026-11-16T03:10:00.000Z', changes: [] },
+      {
+        action: 'UPDATE',
+        performedBy: user,
+        performedAt: '2026-11-16T03:11:22.000Z',
+        changes: [{ field: 'endDate', from: '2025-01-31T00:00:00.000Z', to: '2025-02-28' }],
+      },
+      { action: 'SOMETHING_NEW', performedBy: null, performedAt: null, changes: null },
+    ],
+  };
+
+  it('reads the label from status, even when a deleted row stays isActive', () => {
+    const period = mapPeriod(deletedRow);
+    expect(period.status).toBe('DELETED');
+    expect(period.isActive).toBe(true);
+    expect(period.deletedBy).toEqual({ id: 'u1', name: 'QA Tester' });
+    expect(period.deletedAt).toBe('2026-11-16T03:14:05.000Z');
+    expect(period.deactivatedBy?.name).toBe('QA Tester');
+  });
+
+  it('keeps the log in order and reads both date formats of a change as a day', () => {
+    const { activities } = mapPeriod(deletedRow);
+    expect(activities.map((activity) => activity.action)).toEqual(['CREATE', 'UPDATE', 'OTHER']);
+    expect(activities[1].changes).toEqual([
+      { field: 'endDate', from: '2025-01-31', to: '2025-02-28' },
+    ]);
+    expect(activities[2].changes).toEqual([]);
+  });
+
+  it('works out the status of an older row that has none, and leaves the log empty', () => {
+    expect(mapPeriod({ ...listRow, status: undefined, isActive: false }).status).toBe('INACTIVE');
+    expect(
+      mapPeriod({ ...listRow, status: undefined, type: 'CLOSE', isActive: false }).status
+    ).toBe('REOPENED');
+    expect(mapPeriod({ ...listRow, status: undefined, isActive: true }).status).toBe('ACTIVE');
+    expect(mapPeriod({ ...listRow, deletedBy: null, activities: [] }).activities).toEqual([]);
+  });
+
+  it('takes who deleted or turned off from the log when the row field comes empty (live, 2026-11-16)', () => {
+    const period = mapPeriod({
+      ...deletedRow,
+      deletedBy: null,
+      deactivatedBy: null,
+      activities: [
+        ...deletedRow.activities,
+        {
+          action: 'DELETE',
+          performedBy: user,
+          performedAt: '2026-11-16T03:14:05.000Z',
+          changes: [],
+        },
+      ],
+    });
+    expect(period.deletedBy?.name).toBe('QA Tester');
+    expect(period.deactivatedBy).toBeNull();
+  });
+});
