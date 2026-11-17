@@ -61,6 +61,10 @@ Data borrowed for the wizard, through public module APIs:
 - Locks deleted or turned off before this backend change have `deletedBy`/`deactivatedBy` null and no `activities`; they do not appear with `includeDeleted=true`, and no history icon is shown for a row without a log.
 - Checked on the live service 2026-11-16 (Demo Site, lock "Uji Riwayat FE 2099", create, change end date, off, on, off, delete): `status`, `includeDeleted` and `activities` work. Differences from the ticket's example: `deletedBy` comes `null` while `deletedAt` is set (the name is then read from the last `DELETE` log line), and an `UPDATE` change's `to` is also an ISO timestamp. Rows deleted before the deploy (for example "QA Kunci Uji") have an empty log and no names, so they show only the date.
 
+- Turning a lock **off** asks first (`ConfirmModal`, "Nonaktifkan kunci periode?", with the range that opens up); turning it on does not.
+- The strip "Posisi buku Anda" draws what is really frozen (`buildBooksTimeline`): a closing is one part from the oldest day through its end date (its journal covers all of that), and each active lock is a part at its own range, with the days before it, between parts and after the last one drawn as open. Locks that overlap or touch are merged, a lock inside the closed days is left out, and only the latest three locks are drawn. It used to draw a lock from the oldest day, which suggested that earlier transactions were locked too.
+- `useDateLock(date)` (public API, `GET /check`) tells other screens whether a day is locked and by which period; the journal form uses it.
+
 ## State
 
 Server data in TanStack Query (`presentation/hooks/usePeriodQueries.ts`, keys under `accounting-periods`). A write refreshes the periods and the date checks; a closing or reopening also refreshes the reports and journal lists it changes. The list filters and the wizard state are local React state.

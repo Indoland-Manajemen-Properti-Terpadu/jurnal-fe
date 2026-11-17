@@ -38,7 +38,9 @@ export const periodClosing = {
     closed: 'Ditutup',
     closedUntil: 'sampai {date}',
     locked: 'Dikunci',
-    lockedUntil: 'sampai {date}',
+    lockedRange: '{start} – {end}',
+    openRange: '{start} – {end}',
+    openUntil: 'sampai {date}',
     open: 'Terbuka',
     openFrom: '{date} sampai hari ini',
     openLater: 'mulai {date}',
@@ -208,6 +210,13 @@ export const periodClosing = {
       endRequired: 'Pilih tanggal akhir.',
       endBeforeStart: 'Tanggal akhir tidak boleh sebelum tanggal awal.',
     },
+  },
+  deactivate: {
+    title: 'Nonaktifkan kunci periode?',
+    message: '"{name}" akan dinonaktifkan.',
+    helper:
+      'Transaksi bertanggal {range} bisa ditambah, diubah, dan dihapus lagi selama kunci nonaktif. Kunci bisa diaktifkan kembali kapan saja.',
+    confirm: 'Nonaktifkan',
   },
   delete: {
     title: 'Hapus kunci periode?',

@@ -38,7 +38,9 @@ export const periodClosing = {
     closed: 'Closed',
     closedUntil: 'through {date}',
     locked: 'Locked',
-    lockedUntil: 'through {date}',
+    lockedRange: '{start} – {end}',
+    openRange: '{start} – {end}',
+    openUntil: 'through {date}',
     open: 'Open',
     openFrom: '{date} to today',
     openLater: 'from {date}',
@@ -207,6 +209,13 @@ export const periodClosing = {
       endRequired: 'Pick an end date.',
       endBeforeStart: 'The end date cannot be before the start date.',
     },
+  },
+  deactivate: {
+    title: 'Turn off this period lock?',
+    message: '"{name}" will be turned off.',
+    helper:
+      'Transactions dated {range} can be added, changed and deleted again while the lock is off. You can turn it back on at any time.',
+    confirm: 'Turn off',
   },
   delete: {
     title: 'Delete period lock?',
