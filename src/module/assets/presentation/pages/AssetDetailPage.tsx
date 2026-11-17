@@ -6,7 +6,11 @@ import { useTranslation } from '@/i18n';
 import { routes } from '@/router/routes';
 import { AssetDepreciationPanel } from '@/module/assets/presentation/components/AssetDepreciationPanel';
 import { AssetDetailHeader } from '@/module/assets/presentation/components/AssetDetailHeader';
-import { AssetPendingNotice } from '@/module/assets/presentation/components/AssetDetailNotices';
+import {
+  AssetPendingNotice,
+  AssetWriteOffNotice,
+} from '@/module/assets/presentation/components/AssetDetailNotices';
+import { usePendingWriteOffForAsset } from '@/module/assets/presentation/hooks/useWriteOffQueries';
 import { AssetDetailSidebar } from '@/module/assets/presentation/components/AssetDetailSidebar';
 import {
   AssetDetailSkeleton,
@@ -39,6 +43,7 @@ export const AssetDetailPage: React.FC = () => {
   const { data: asset, isLoading } = useAsset(id);
   const dialogs = useAssetDialogs();
   const journals = useAssetJournals(id, Boolean(asset) && asset?.status !== 'pending');
+  const pendingReport = usePendingWriteOffForAsset(id, asset?.status === 'active').data ?? null;
 
   const requested = searchParams.get('tab');
   const tab: DetailTab = isDetailTab(requested) ? requested : 'details';
@@ -61,6 +66,8 @@ export const AssetDetailPage: React.FC = () => {
 
   const openEdit = () => dialogs.open({ kind: 'form', asset });
   const openRevise = () => dialogs.open({ kind: 'revise', asset });
+  const openReport = () =>
+    pendingReport && navigate(routes.assets.writeOffDetail.replace(':id', pendingReport.id));
   // Written like the status tabs of the list, "Jurnal (2)"; a pending asset has none yet.
   const journalCount = asset.status === 'pending' ? 0 : journals.data?.length;
 
@@ -73,8 +80,14 @@ export const AssetDetailPage: React.FC = () => {
             onBack={goToList}
             onEdit={openEdit}
             onRevise={openRevise}
-            onDispose={() => dialogs.open({ kind: 'dispose', asset })}
+            onDispose={() => navigate(`${routes.assets.writeOffNew}?asset=${asset.id}`)}
+            pendingReportNumber={pendingReport?.number}
+            onOpenReport={openReport}
           />
+
+          {pendingReport && (
+            <AssetWriteOffNotice number={pendingReport.number} onOpen={openReport} />
+          )}
 
           {asset.status === 'pending' && (
             <AssetPendingNotice onActivate={() => dialogs.open({ kind: 'activate', asset })} />

@@ -34,14 +34,15 @@ export function AssetStatsGrid({ summary, loading }: Readonly<AssetStatsGridProp
   }
 
   const { counts } = summary;
-  const total = ASSET_STATUS_ORDER.reduce((sum, status) => sum + counts[status], 0);
   const peak = Math.max(...ASSET_STATUS_ORDER.map((status) => counts[status]), 0);
   const depreciatedPercent = percentOf(
     summary.totalAccumulatedDepreciation,
     summary.totalAcquisitionCost
   );
   const bookPercent = percentOf(summary.totalNetBookValue, summary.totalAcquisitionCost);
-  const activePercent = percentOf(counts.active, total);
+  // Owned assets are active or fully depreciated; pending ones wait in "Menunggu Anda".
+  const owned = summary.ownedCount || counts.active + counts.fully_depreciated;
+  const activePercent = percentOf(counts.active, owned);
   const statusCounts = ASSET_STATUS_ORDER.map((status) => counts[status]);
 
   return (
@@ -50,7 +51,7 @@ export function AssetStatsGrid({ summary, loading }: Readonly<AssetStatsGridProp
         label={t('totalAcquisitionCost')}
         value={formatAssetMoneyShort(summary.totalAcquisitionCost, precision)}
         valueTitle={formatAssetMoney(summary.totalAcquisitionCost, precision)}
-        hint={t('statsTotalHint', { count: total })}
+        hint={t('statsTotalHint', { count: owned })}
         visual={
           <div
             className={statCardClasses.bars}
@@ -113,7 +114,7 @@ export function AssetStatsGrid({ summary, loading }: Readonly<AssetStatsGridProp
 
       <AssetStatCard
         label={t('activeAssetsCount')}
-        value={t('activeUnits', { count: counts.active })}
+        value={t('activeUnits', { count: owned })}
         hint={t('pendingAssetsSub', { count: counts.pending })}
         visual={
           <>

@@ -9,7 +9,6 @@ import type {
   AssetListParams,
   AssetSummary,
   AssetTag,
-  DisposalValues,
   Paginated,
 } from '@/module/assets/domain/asset';
 import type { AssetEditRights } from '@/module/assets/domain/assetRules';
@@ -37,5 +36,4 @@ export interface AssetRepository {
     disposalDate: string,
     disposalPrice: number
   ) => Promise<DisposalPreview>;
-  dispose: (id: string, values: DisposalValues) => Promise<AssetItem>;
 }

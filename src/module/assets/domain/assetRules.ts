@@ -4,7 +4,6 @@ import {
   type ActivationValues,
   type AssetItem,
   type AssetJournalLine,
-  type DisposalValues,
 } from '@/module/assets/domain/asset';
 
 const toNumber = (minor: number): number => Number(fromMinor(minor));
@@ -108,32 +107,6 @@ export const previewAcquisitionJournal = (
     accumulated: toNumber(accumulated),
     counter: toNumber(cost - accumulated),
   };
-};
-
-export type DisposalErrorKey =
-  | 'errDisposalDate'
-  | 'errDisposalFuture'
-  | 'errDisposalPrice'
-  | 'errProceedsAccount';
-export type DisposalErrors = Partial<Record<keyof DisposalValues, DisposalErrorKey>>;
-
-/** `sold` asks for a sale price and the account that receives it; a scrapped asset needs neither. */
-export type DisposalKind = 'sold' | 'scrapped';
-
-export const validateDisposal = (
-  values: DisposalValues,
-  today: string,
-  kind: DisposalKind = values.disposalPrice > 0 ? 'sold' : 'scrapped'
-): DisposalErrors => {
-  const errors: DisposalErrors = {};
-  if (!values.disposalDate) errors.disposalDate = 'errDisposalDate';
-  else if (values.disposalDate > today) errors.disposalDate = 'errDisposalFuture';
-  if (kind === 'sold') {
-    if (!(values.disposalPrice > 0)) errors.disposalPrice = 'errDisposalPrice';
-    if (!values.proceedsAccount) errors.proceedsAccount = 'errProceedsAccount';
-  }
-  // The gain/loss account is optional: without it the API uses the mapped disposal account.
-  return errors;
 };
 
 export type PhotoErrorKey = 'errPhotoUrl' | 'errPhotoLimit';

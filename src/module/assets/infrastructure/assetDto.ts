@@ -69,6 +69,9 @@ export type AssetDto = {
   disposalPrice?: number | null;
   disposalGainLoss?: number | null;
   proappsSyncError?: string | null;
+  disposalType?: string | null;
+  disposalReport?: string | { id: string } | null;
+  depreciationDue?: { months?: number; amount?: number; upTo?: string } | null;
   schedule?: AssetScheduleRowDto[] | null;
 };
 
@@ -77,6 +80,8 @@ export type AssetSummaryDto = {
   totalAccumulatedDepreciation?: number;
   totalNetBookValue?: number;
   counts?: Partial<Record<AssetStatus, number>>;
+  ownedCount?: number;
+  pending?: { count?: number; totalAcquisitionCost?: number } | null;
 };
 
 export type AssetJournalDto = {

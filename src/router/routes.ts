@@ -167,6 +167,9 @@ export const routes = {
   assets: {
     main: '/assets',
     detail: '/assets/:id',
+    needsYou: '/assets/needs-you',
+    writeOffNew: '/assets/write-offs/new',
+    writeOffDetail: '/assets/write-offs/:id',
   },
 
   pendingChanges: {

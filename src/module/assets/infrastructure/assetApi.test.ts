@@ -3,7 +3,6 @@ import type { ActivationValues, AssetFormValues } from '@/module/assets/domain/a
 import {
   activateAsset,
   createAsset,
-  disposeAsset,
   fetchAsset,
   fetchAssetAccounts,
   fetchAssetAccountsOfKind,
@@ -236,21 +235,6 @@ describe('assetApi writes', () => {
     });
   });
 
-  it('disposes with the proceeds and gain/loss accounts', async () => {
-    await disposeAsset('a1', {
-      disposalDate: '2026-10-20',
-      disposalPrice: 3000000,
-      proceedsAccount: 'p',
-      gainLossAccount: '',
-    });
-    expect(http.post).toHaveBeenCalledWith('/v1/assets/a1/dispose', {
-      disposalDate: '2026-10-20',
-      disposalPrice: 3000000,
-      proceedsAccount: 'p',
-      gainLossAccount: undefined,
-    });
-  });
-
   it('edits everything for a pending asset made in Jurnal, clearing empty notes', async () => {
     await updateAsset('a1', values({ categoryName: '', notes: '' }), {
       details: true,
@@ -327,5 +311,17 @@ describe('assetApi writes', () => {
     });
     expect(getApiErrorMessage(apiError, 'fallback')).toBe('Kode sudah dipakai');
     expect(getApiErrorMessage(new Error('boom'), 'fallback')).toBe('fallback');
+  });
+
+  it('hides validation messages that name a raw field', () => {
+    const joi = (message: string) =>
+      Object.assign(new Error('x'), { isAxiosError: true, response: { data: { message } } });
+    expect(getApiErrorMessage(joi('"reason" is required'), 'fallback')).toBe('fallback');
+    expect(
+      getApiErrorMessage(joi('"reason" length must be at least 3 characters long'), 'fallback')
+    ).toBe('fallback');
+    expect(getApiErrorMessage(joi('""assetId"" must be a valid mongo id'), 'fallback')).toBe(
+      'fallback'
+    );
   });
 });

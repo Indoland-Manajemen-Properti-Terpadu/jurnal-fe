@@ -33,4 +33,13 @@ describe('isNavigationChildActive', () => {
       true
     );
   });
+
+  it('selects only "Menunggu Anda" on the hub and only the list on an asset or a report', () => {
+    const children = ['/assets', '/assets/needs-you'];
+
+    expect(isNavigationChildActive('/assets/needs-you', children[0], children)).toBe(false);
+    expect(isNavigationChildActive('/assets/needs-you', children[1], children)).toBe(true);
+    expect(isNavigationChildActive('/assets/a1', children[0], children)).toBe(true);
+    expect(isNavigationChildActive('/assets/a1', children[1], children)).toBe(false);
+  });
 });
