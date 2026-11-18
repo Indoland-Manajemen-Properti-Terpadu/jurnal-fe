@@ -315,11 +315,11 @@ export const assets = {
   sectionActivation: 'Akun dan penyusutan',
   sectionActivationSub: 'Diisi bila aset langsung dimasukkan ke pembukuan.',
   photoDropTitle: 'Tarik foto ke sini atau klik untuk memilih',
-  photoDropHint: 'JPG atau PNG, maksimal 10 MB per foto, sampai {max} foto.',
+  photoDropHint: 'JPG, PNG atau WebP, maksimal 5 MB per foto, sampai {max} foto.',
   photoCount: '{count} dari {max} foto',
   removePhoto: 'Hapus foto {name}',
-  errPhotoType: '{name}: gunakan foto JPG atau PNG.',
-  errPhotoSize: '{name}: ukuran foto melebihi 10 MB.',
+  errPhotoType: '{name}: gunakan foto JPG, PNG atau WebP.',
+  errPhotoSize: '{name}: ukuran foto melebihi 5 MB.',
   errPhotoTooMany: 'Foto maksimal 5. Kelebihannya tidak ditambahkan.',
   summaryTitle: 'Ringkasan',
   summaryStatusPending: 'Aset menunggu aktivasi',
@@ -330,6 +330,16 @@ export const assets = {
   leaveBody: 'Isian aset belum disimpan dan akan hilang.',
   leaveConfirm: 'Tinggalkan',
   leaveStay: 'Tetap di sini',
+  invalidAccountsTitle: 'Akun aset tidak sesuai jenisnya',
+  invalidAccountsBody:
+    'Akun yang tersimpan untuk {fields} bukan akun yang dipakai untuk aset tetap. Pilih ulang akunnya agar penyusutan dibukukan dengan benar.',
+  invalidAccountsFix: 'Ubah akun',
+  invalidFieldAsset: 'akun aset',
+  invalidFieldAccumulated: 'akun akumulasi penyusutan',
+  invalidFieldExpense: 'akun beban penyusutan',
+  errStartBeforeAcquisition: 'Tanggal mulai disusutkan tidak boleh sebelum tanggal perolehan.',
+  errPettyCashAccount:
+    'Akun kas kecil tidak bisa dipakai di sini. Pilih akun kas atau bank lain sebagai akun lawan.',
 };
 
 export default assets;

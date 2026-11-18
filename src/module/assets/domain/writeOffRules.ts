@@ -131,3 +131,15 @@ export const documentTitleKey = (type: WriteOffType) => `docTitle_${type}`;
 /** `YYYY-MM` of the last month that has ended; depreciation is booked up to it. */
 export const lastClosedMonth = (today: string) =>
   dayjs(today).subtract(1, 'month').format('YYYY-MM');
+
+/**
+ * The person who filed a report never decides it, whatever the API says: the approval has to
+ * come from someone else. Until the signed-in user is known nobody is offered the decision.
+ */
+export const separateDuties = <T extends { canDecide: boolean; createdBy: { id: string } }>(
+  report: T,
+  userId: string | undefined
+): T => ({
+  ...report,
+  canDecide: Boolean(userId) && report.canDecide && report.createdBy.id !== userId,
+});

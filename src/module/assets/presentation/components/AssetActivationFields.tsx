@@ -21,6 +21,8 @@ import { estimateDepreciation } from '@/module/assets/domain/depreciation';
 import { AccountSelect } from '@/module/assets/presentation/components/AccountSelect';
 import { MoneyInput } from '@/module/assets/presentation/components/MoneyInput';
 import { useAssetAccountsOfKind } from '@/module/assets/presentation/hooks/useAssetQueries';
+import { formatAssetMoney } from '@/module/assets/presentation/components/formatAssetMoney';
+import { useDecimalPrecision } from '@/module/settings';
 import { formatCurrency } from '@/utils/formatCurrency';
 
 export type AssetActivationFieldsProps = {
@@ -28,6 +30,8 @@ export type AssetActivationFieldsProps = {
   accounts: AccountOption[];
   loadingAccounts?: boolean;
   acquisitionCost: number;
+  /** `YYYY-MM-DD`; depreciation cannot start before it. */
+  acquisitionDate?: string;
 };
 
 const COUNTER_TYPES = ['Kas & Bank', 'Akun Hutang', 'Ekuitas'];
@@ -66,6 +70,7 @@ function JournalPreview({
   cost: number;
 }>) {
   const { t } = useTranslation('assets');
+  const precision = useDecimalPrecision();
   const { values } = form;
   const name = (id: string, fallback: string) =>
     accounts.find((account) => account.id === id)?.name ?? fallback;
@@ -130,7 +135,7 @@ function JournalPreview({
                   {t(row.key)}
                 </Text>
                 <Text size="sm" fw={600} ta="right" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                  {formatCurrency(row.amount)}
+                  {formatAssetMoney(row.amount, precision)}
                 </Text>
               </Group>
             ))}
@@ -147,6 +152,7 @@ export function AssetActivationFields({
   accounts,
   loadingAccounts,
   acquisitionCost,
+  acquisitionDate,
 }: Readonly<AssetActivationFieldsProps>) {
   const { t } = useTranslation('assets');
   const { values } = form;
@@ -298,6 +304,8 @@ export function AssetActivationFields({
                 valueFormat="DD/MM/YYYY"
                 clearable
                 size="sm"
+                minDate={acquisitionDate ? new Date(acquisitionDate) : undefined}
+                error={form.errors.depreciationStartDate}
                 leftSection={<IconCalendar size={15} color="var(--mantine-color-dimmed)" />}
                 value={values.depreciationStartDate ? new Date(values.depreciationStartDate) : null}
                 onChange={(date) =>

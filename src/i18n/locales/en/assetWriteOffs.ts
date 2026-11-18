@@ -306,6 +306,9 @@ export const assetWriteOffs = {
   errFileSize: '{name} is larger than 10 MB.',
   errSignatureFile: 'Use a PNG or JPG image for the signature.',
   errReasonShort: 'Write a reason of at least 3 characters',
+  accountsInvalidRow: 'Invalid accounts',
+  bookBlocked: 'Fix the assets marked as having invalid accounts before booking depreciation.',
+  ownReportNotice: 'You filed this report, so someone else has to approve it.',
 };
 
 export default assetWriteOffs;

@@ -319,11 +319,11 @@ export const assets = {
   sectionActivation: 'Accounts and depreciation',
   sectionActivationSub: 'Fill this in when the asset goes into the books right away.',
   photoDropTitle: 'Drag photos here or click to choose',
-  photoDropHint: 'JPG or PNG, up to 10 MB each, up to {max} photos.',
+  photoDropHint: 'JPG, PNG or WebP, up to 5 MB each, up to {max} photos.',
   photoCount: '{count} of {max} photos',
   removePhoto: 'Remove photo {name}',
-  errPhotoType: '{name}: use a JPG or PNG photo.',
-  errPhotoSize: '{name}: the photo is larger than 10 MB.',
+  errPhotoType: '{name}: use a JPG, PNG or WebP photo.',
+  errPhotoSize: '{name}: the photo is larger than 5 MB.',
   errPhotoTooMany: 'Up to 5 photos. The extra ones were not added.',
   summaryTitle: 'Summary',
   summaryStatusPending: 'The asset waits for activation',
@@ -334,6 +334,16 @@ export const assets = {
   leaveBody: 'The asset has not been saved and the entries will be lost.',
   leaveConfirm: 'Leave',
   leaveStay: 'Stay here',
+  invalidAccountsTitle: 'Asset accounts do not match their kind',
+  invalidAccountsBody:
+    'The saved {fields} is not an account used for fixed assets. Pick the accounts again so depreciation is booked correctly.',
+  invalidAccountsFix: 'Change accounts',
+  invalidFieldAsset: 'asset account',
+  invalidFieldAccumulated: 'accumulated depreciation account',
+  invalidFieldExpense: 'depreciation expense account',
+  errStartBeforeAcquisition: 'The depreciation start date cannot be before the acquisition date.',
+  errPettyCashAccount:
+    'A petty cash account cannot be used here. Pick another cash or bank account as the counter account.',
 };
 
 export default assets;

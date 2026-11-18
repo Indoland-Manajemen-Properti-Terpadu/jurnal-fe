@@ -174,17 +174,37 @@ describe('assetApi writes', () => {
     });
   });
 
-  it('sends a multipart body when photos are picked from the device', async () => {
+  it('uploads picked photos first, then saves their links with the old ones', async () => {
+    http.post.mockImplementation((url: string) =>
+      Promise.resolve({
+        data: {
+          data:
+            url === '/v1/assets/photos' ? { urls: ['https://api.test/uploads/new.jpg'] } : assetDto,
+        },
+      })
+    );
     const photo = new File(['x'], 'depan.png', { type: 'image/png' });
-    await createAsset(values({ photoFiles: [photo], tagIds: ['t1'] }));
-    const [url, body] = http.post.mock.calls.at(-1) as [string, FormData];
-    expect(url).toBe('/v1/assets');
-    expect(body).toBeInstanceOf(FormData);
-    expect(body.get('code')).toBe('ZZ/1');
-    expect(body.get('acquisitionCost')).toBe('12000000');
-    expect(body.get('tags')).toBe('["t1"]');
-    expect(body.getAll('photos')).toHaveLength(1);
-    expect((body.get('photos') as File).name).toBe('depan.png');
+    await createAsset(
+      values({ photos: ['https://api.test/uploads/old.jpg'], photoFiles: [photo] })
+    );
+
+    const [uploadUrl, form] = http.post.mock.calls[0] as [string, FormData];
+    expect(uploadUrl).toBe('/v1/assets/photos');
+    expect(form).toBeInstanceOf(FormData);
+    expect((form.get('photos') as File).name).toBe('depan.png');
+
+    const [createUrl, body] = http.post.mock.calls[1] as [string, { photos: string[] }];
+    expect(createUrl).toBe('/v1/assets');
+    expect(body.photos).toEqual([
+      'https://api.test/uploads/old.jpg',
+      'https://api.test/uploads/new.jpg',
+    ]);
+  });
+
+  it('does not call the upload when no photo was picked', async () => {
+    await createAsset(values());
+    expect(http.post).toHaveBeenCalledTimes(1);
+    expect(http.post.mock.calls[0][0]).toBe('/v1/assets');
   });
 
   it('sends the optional details and the vendor contact when they are filled', async () => {

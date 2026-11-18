@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Alert, Badge, Box, Button, Group, List, Modal, Stack, Text } from '@mantine/core';
+import { Alert, Badge, Box, Button, Group, List, Modal, Stack, Text, Tooltip } from '@mantine/core';
 import { IconAlertTriangle, IconCalendarDue, IconCircleCheck } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import type { AssetItem } from '@/module/assets/domain/asset';
@@ -9,6 +9,7 @@ import { formatAssetMoney } from '@/module/assets/presentation/components/format
 import { AssetCard } from '@/module/assets/presentation/components/AssetSection';
 import classes from '@/module/assets/presentation/components/WorkList.module.css';
 import { WorkRow } from '@/module/assets/presentation/components/WorkRow';
+import { useAssetAccountCheck } from '@/module/assets/presentation/hooks/useAssetAccountCheck';
 import { useRunDepreciation } from '@/module/assets/presentation/hooks/useWriteOffQueries';
 import { useDecimalPrecision } from '@/module/settings';
 import { routes } from '@/router/routes';
@@ -79,6 +80,11 @@ export function NeedsYouDepreciation({ id, assets, upTo }: Readonly<NeedsYouDepr
   const { t, i18n } = useTranslation('assetWriteOffs');
   const precision = useDecimalPrecision();
   const run = useRunDepreciation();
+  const accountCheck = useAssetAccountCheck();
+  const invalidIds = new Set(
+    assets.filter((asset) => accountCheck.invalidFor(asset).length > 0).map((asset) => asset.id)
+  );
+  const blocked = invalidIds.size > 0;
   const [confirming, setConfirming] = useState(false);
   const [result, setResult] = useState<DepreciationRunResult | null>(null);
   const month = formatAssetMonth(upTo, i18n.language);
@@ -108,9 +114,11 @@ export function NeedsYouDepreciation({ id, assets, upTo }: Readonly<NeedsYouDepr
               {assets.length}
             </Badge>
             {assets.length > 0 && (
-              <Button radius="md" onClick={() => setConfirming(true)}>
-                {t('bookUpTo', { month })}
-              </Button>
+              <Tooltip label={t('bookBlocked')} disabled={!blocked} multiline w={260} withArrow>
+                <Button radius="md" disabled={blocked} onClick={() => setConfirming(true)}>
+                  {t('bookUpTo', { month })}
+                </Button>
+              </Tooltip>
             )}
           </Group>
         }
@@ -123,7 +131,11 @@ export function NeedsYouDepreciation({ id, assets, upTo }: Readonly<NeedsYouDepr
               icon={IconCalendarDue}
               title={asset.code}
               titleSuffix={asset.name}
-              subtitle={t('monthsDue', { months: asset.depreciationDue.months })}
+              subtitle={
+                invalidIds.has(asset.id)
+                  ? `${t('monthsDue', { months: asset.depreciationDue.months })} · ${t('accountsInvalidRow')}`
+                  : t('monthsDue', { months: asset.depreciationDue.months })
+              }
               side={
                 <Text size="sm" fw={500} className={classes.amount}>
                   {formatAssetMoney(asset.depreciationDue.amount, precision)}
