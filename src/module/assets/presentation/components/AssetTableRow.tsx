@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
 import { routes } from '@/router/routes';
 import type { AssetItem } from '@/module/assets/domain/asset';
+import { disposalTypeLabelKey } from '@/module/assets/domain/writeOffRules';
 import {
   ASSET_STATUS_COLOR,
   ASSET_STATUS_LABEL_KEY,
@@ -16,11 +17,18 @@ import { useDecimalPrecision } from '@/module/settings';
 export type AssetTableRowProps = {
   asset: AssetItem;
   onViewDetail: (asset: AssetItem) => void;
+  /** On the disposed tab: what came in, and how the asset left with a link to its report. */
+  disposedColumns?: boolean;
 };
 
-export function AssetTableRow({ asset, onViewDetail }: Readonly<AssetTableRowProps>) {
+export function AssetTableRow({
+  asset,
+  onViewDetail,
+  disposedColumns,
+}: Readonly<AssetTableRowProps>) {
   const precision = useDecimalPrecision();
   const { t } = useTranslation('assets');
+  const { t: tw } = useTranslation('assetWriteOffs');
 
   return (
     <Table.Tr
@@ -71,19 +79,39 @@ export function AssetTableRow({ asset, onViewDetail }: Readonly<AssetTableRowPro
 
       <Table.Td className={`${classes.cell} ${classes.amount}`}>
         <Text size="sm" fw={600}>
-          {formatAssetMoney(asset.netBookValue, precision)}
+          {formatAssetMoney(
+            disposedColumns ? (asset.disposalPrice ?? 0) : asset.netBookValue,
+            precision
+          )}
         </Text>
       </Table.Td>
 
       <Table.Td className={classes.cell}>
-        <Badge
-          variant="light"
-          color={ASSET_STATUS_COLOR[asset.status]}
-          radius="sm"
-          miw="max-content"
-        >
-          {t(ASSET_STATUS_LABEL_KEY[asset.status])}
-        </Badge>
+        {disposedColumns ? (
+          <>
+            <Text size="sm" fw={500}>
+              {tw(disposalTypeLabelKey(asset.disposalType, asset.disposalPrice ?? 0))}
+            </Text>
+            {asset.disposalReportId && (
+              <Anchor
+                component={Link}
+                to={routes.assets.writeOffDetail.replace(':id', asset.disposalReportId)}
+                size="xs"
+              >
+                {tw('reportLink')}
+              </Anchor>
+            )}
+          </>
+        ) : (
+          <Badge
+            variant="light"
+            color={ASSET_STATUS_COLOR[asset.status]}
+            radius="sm"
+            miw="max-content"
+          >
+            {t(ASSET_STATUS_LABEL_KEY[asset.status])}
+          </Badge>
+        )}
       </Table.Td>
 
       <Table.Td className={classes.cell}>

@@ -1,0 +1,106 @@
+.ln {
+  fill: none;
+  stroke: var(--mantine-color-primary-9);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.fl {
+  fill: var(--mantine-color-primary-0);
+  stroke: var(--mantine-color-primary-9);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+.fm {
+  fill: var(--mantine-color-primary-2);
+}
+
+.ac {
+  fill: var(--mantine-color-secondary-6);
+}
+
+.acl {
+  fill: none;
+  stroke: var(--mantine-color-secondary-6);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.wh {
+  fill: var(--mantine-color-white);
+  stroke: var(--mantine-color-primary-9);
+  stroke-width: 2;
+}
+
+.tx {
+  fill: var(--mantine-color-primary-9);
+  font-size: var(--jurnal-text-xs);
+  font-weight: 700;
+}
+
+.dash {
+  fill: none;
+  stroke: var(--mantine-color-primary-4);
+  stroke-width: 2;
+  stroke-dasharray: 3 5;
+  stroke-linecap: round;
+}
+
+/* Warnings: damage and loss. */
+.fo {
+  fill: var(--mantine-color-orange-1);
+}
+
+.ao {
+  fill: var(--mantine-color-orange-6);
+}
+
+.aol {
+  fill: none;
+  stroke: var(--mantine-color-orange-6);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Approved stamp and the all-done state. */
+.ft {
+  fill: var(--mantine-color-teal-0);
+}
+
+.atl {
+  fill: none;
+  stroke: var(--mantine-color-teal-7);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Rejected stamp. */
+.fr {
+  fill: var(--mantine-color-red-0);
+}
+
+.arl {
+  fill: none;
+  stroke: var(--mantine-color-red-7);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .flow {
+    stroke-dasharray: 4 6;
+    animation: flow 1.6s linear infinite;
+  }
+}
+
+@keyframes flow {
+  to {
+    stroke-dashoffset: -20;
+  }
+}

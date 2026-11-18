@@ -1,40 +1,27 @@
 import { Group, Select, Tabs, TextInput } from '@mantine/core';
-import {
-  IconCircleCheck,
-  IconClockHour4,
-  IconListTree,
-  IconScale,
-  IconSearch,
-  IconTrendingDown,
-} from '@tabler/icons-react';
+import { IconCircleCheck, IconScale, IconSearch, IconTrendingDown } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import type { AssetStatus, AssetSummary } from '@/module/assets/domain/asset';
 import { ASSET_STATUS_LABEL_KEY } from '@/module/assets/presentation/components/assetStatusMeta';
 import { ASSET_SORT_OPTIONS } from '@/module/assets/presentation/hooks/assetSortOptions';
 
-export const ALL_TAB = 'all';
-
 const STATUS_TABS = [
-  { value: 'pending', icon: IconClockHour4 },
   { value: 'active', icon: IconCircleCheck },
   { value: 'fully_depreciated', icon: IconTrendingDown },
   { value: 'disposed', icon: IconScale },
 ] as const satisfies ReadonlyArray<{ value: AssetStatus; icon: unknown }>;
 
-/** Pill tabs, one per status, with the number of assets in brackets once it is known. */
+/**
+ * Pill tabs, one per status, with the number of assets in brackets once it is known. Pending
+ * assets have no tab: they wait in "Menunggu Anda".
+ */
 export function AssetStatusTabsList({ counts }: Readonly<{ counts?: AssetSummary['counts'] }>) {
   const { t } = useTranslation('assets');
   const withCount = (label: string, count: number | undefined) =>
     count === undefined ? label : `${label} (${count})`;
-  const total = counts
-    ? counts.pending + counts.active + counts.fully_depreciated + counts.disposed
-    : undefined;
 
   return (
     <Tabs.List mb="md">
-      <Tabs.Tab value={ALL_TAB} leftSection={<IconListTree size={16} />}>
-        {withCount(t('allCategories'), total)}
-      </Tabs.Tab>
       {STATUS_TABS.map(({ value, icon: TabIcon }) => (
         <Tabs.Tab key={value} value={value} leftSection={<TabIcon size={16} />}>
           {withCount(t(ASSET_STATUS_LABEL_KEY[value]), counts?.[value])}

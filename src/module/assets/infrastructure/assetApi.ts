@@ -11,7 +11,6 @@ import type {
   AssetListParams,
   AssetSummary,
   AssetTag,
-  DisposalValues,
   Paginated,
 } from '@/module/assets/domain/asset';
 import type { AssetRepository } from '@/module/assets/domain/assetRepository';
@@ -43,7 +42,6 @@ export const ASSET_ENDPOINTS = {
   asset: (id: string) => `/v1/assets/${id}`,
   summary: '/v1/assets/summary',
   activate: (id: string) => `/v1/assets/${id}/activate`,
-  dispose: (id: string) => `/v1/assets/${id}/dispose`,
   journals: (id: string) => `/v1/assets/${id}/journals`,
   tags: '/v1/tags',
   accounts: '/v1/accounts',
@@ -54,10 +52,28 @@ export const ASSET_ENDPOINTS = {
 const ACCOUNT_PAGE_SIZE = 500;
 const TAG_PAGE_SIZE = 100;
 
+/** Schema validation text names a raw field in quotes (`"reason" is required`); it is never shown. */
+const RAW_VALIDATION = /^"+[\w.[\]]+"+\s/;
+
+/** The server answered and said no (a 4xx): nothing was written. A timeout or 5xx proves nothing. */
+export const isRefusedByServer = (error: unknown): boolean => {
+  if (!axios.isAxiosError(error)) {
+    return false;
+  }
+  const status = error.response?.status;
+  return status !== undefined && status >= 400 && status < 500;
+};
+
+/** The server answered 404: the thing is not there, as opposed to a failure to ask. */
+export const isNotFoundError = (error: unknown): boolean =>
+  axios.isAxiosError(error) && error.response?.status === 404;
+
 export const getApiErrorMessage = (error: unknown, fallback: string): string => {
   if (axios.isAxiosError(error)) {
     const message = (error.response?.data as { message?: unknown } | undefined)?.message;
-    if (typeof message === 'string' && message.trim()) return message;
+    if (typeof message === 'string' && message.trim() && !RAW_VALIDATION.test(message.trim())) {
+      return message;
+    }
   }
   return fallback;
 };
@@ -217,16 +233,6 @@ export const reviseAssetActivation = async (
   return mapAsset(data.data);
 };
 
-export const disposeAsset = async (id: string, values: DisposalValues): Promise<AssetItem> => {
-  const { data } = await apiClient.post<ApiEnvelope<AssetDto>>(ASSET_ENDPOINTS.dispose(id), {
-    disposalDate: values.disposalDate,
-    disposalPrice: values.disposalPrice,
-    proceedsAccount: values.proceedsAccount || undefined,
-    gainLossAccount: values.gainLossAccount || undefined,
-  });
-  return mapAsset(data.data);
-};
-
 export const httpAssetRepository: AssetRepository = {
   list: fetchAssets,
   get: fetchAsset,
@@ -240,5 +246,4 @@ export const httpAssetRepository: AssetRepository = {
   activate: activateAsset,
   reviseActivation: reviseAssetActivation,
   disposePreview: fetchDisposalPreview,
-  dispose: disposeAsset,
 };

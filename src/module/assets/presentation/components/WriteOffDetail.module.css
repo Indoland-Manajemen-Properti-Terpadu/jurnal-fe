@@ -1,0 +1,64 @@
+.chronology {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.6;
+}
+
+.numeric {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.files {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+  gap: var(--mantine-spacing-sm);
+}
+
+.file {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+.file:focus-visible {
+  outline: 2px solid var(--mantine-color-primary-6);
+  outline-offset: 2px;
+  border-radius: var(--mantine-radius-md);
+}
+
+.thumb {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border: 1px solid var(--jurnal-color-border-subtle);
+  border-radius: var(--mantine-radius-md);
+  background: var(--jurnal-color-surface-hover);
+  color: var(--mantine-color-gray-6);
+}
+
+.file:hover .thumb {
+  border-color: var(--mantine-color-primary-3);
+}
+
+.signature {
+  padding: var(--mantine-spacing-md);
+  border: 1px solid var(--jurnal-color-border-subtle);
+  border-radius: var(--mantine-radius-md);
+  text-align: center;
+}
+
+.ink {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 64px;
+  margin: var(--mantine-spacing-xs) 0;
+  border-bottom: 1px solid var(--jurnal-color-border-subtle);
+}

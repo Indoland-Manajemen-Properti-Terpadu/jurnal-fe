@@ -1,3 +1,5 @@
+import type { DepreciationDue, WriteOffType } from '@/module/assets/domain/writeOff';
+
 export type DepreciationMethod = 'straight_line' | 'double_declining' | 'none';
 
 /** `pending` is an asset that has no accounts or depreciation yet and is not in the books. */
@@ -83,6 +85,12 @@ export interface AssetItem {
   disposalDate?: string;
   disposalPrice?: number;
   disposalGainLoss?: number;
+  /** Why the asset left the books; null for disposals made before write-off reports existed. */
+  disposalType: WriteOffType | null;
+  /** Id of the write-off report that disposed the asset. */
+  disposalReportId: string | null;
+  /** Depreciation the books are still missing, up to the last closed month. */
+  depreciationDue: DepreciationDue;
   /** Set when the last hand-over to ProApps did not go through. */
   syncError?: string;
   schedule: AssetScheduleRow[];
@@ -150,14 +158,6 @@ export interface ActivationValues {
   depreciationStartDate: string;
 }
 
-export interface DisposalValues {
-  disposalDate: string;
-  disposalPrice: number;
-  proceedsAccount: string;
-  /** Optional: empty lets the API use the account mapped to asset disposal gain or loss. */
-  gainLossAccount: string;
-}
-
 /** What disposing the asset on a date for a price would book, as the API calculates it. */
 export interface DisposalPreview {
   /** Depreciation not yet posted that the disposal books first. */
@@ -208,4 +208,8 @@ export interface AssetSummary {
   totalAccumulatedDepreciation: number;
   totalNetBookValue: number;
   counts: Record<AssetStatus, number>;
+  /** Assets in the books (active and fully depreciated). */
+  ownedCount: number;
+  /** Assets waiting to be activated, which the totals leave out. */
+  pending: { count: number; totalAcquisitionCost: number };
 }
