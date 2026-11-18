@@ -77,8 +77,8 @@ describe('<AssetPage />', () => {
     expect(screen.getByText('Aset Tetap (Fixed Assets)')).toBeInTheDocument();
     expect(await screen.findByText('Genset Mitsubishi')).toBeInTheDocument();
     expect(screen.getByText('Total Nilai Perolehan')).toBeInTheDocument();
-    // Assets waiting for activation have their own tab so they can be found and edited.
-    expect(screen.getByRole('tab', { name: /Menunggu Aktivasi/ })).toBeInTheDocument();
+    // Pending assets live in "Menunggu Anda", not in this list.
+    expect(screen.queryByRole('tab', { name: /Menunggu Aktivasi/ })).not.toBeInTheDocument();
     expect(screen.queryByRole('tab', { name: /Semua/ })).not.toBeInTheDocument();
     expect(screen.getByRole('tab', { name: /Aktif/ })).toHaveAttribute('aria-selected', 'true');
   });
@@ -134,16 +134,13 @@ describe('<AssetPage />', () => {
     expect(screen.getByTestId('path')).toHaveTextContent('/assets/a1');
   });
 
-  it('opens the pending tab from a link and asks the API for pending assets', async () => {
+  it('falls back to the active tab for an old link to the pending tab', async () => {
     mockApi([]);
     renderPage('/assets?status=pending');
-    expect(await screen.findByRole('tab', { name: /Menunggu Aktivasi/ })).toHaveAttribute(
-      'aria-selected',
-      'true'
-    );
+    await screen.findByText('Belum Ada Aset Tetap Terdaftar');
     expect(http.get).toHaveBeenCalledWith(
       '/v1/assets',
-      expect.objectContaining({ params: expect.objectContaining({ status: 'pending' }) })
+      expect.objectContaining({ params: expect.objectContaining({ status: 'active' }) })
     );
   });
 

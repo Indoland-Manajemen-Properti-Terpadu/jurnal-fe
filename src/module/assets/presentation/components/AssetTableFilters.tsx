@@ -1,11 +1,5 @@
 import { Group, Select, Tabs, TextInput } from '@mantine/core';
-import {
-  IconCircleCheck,
-  IconClockHour4,
-  IconScale,
-  IconSearch,
-  IconTrendingDown,
-} from '@tabler/icons-react';
+import { IconCircleCheck, IconScale, IconSearch, IconTrendingDown } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import type { AssetStatus, AssetSummary } from '@/module/assets/domain/asset';
 import { ASSET_STATUS_LABEL_KEY } from '@/module/assets/presentation/components/assetStatusMeta';
@@ -13,14 +7,13 @@ import { ASSET_SORT_OPTIONS } from '@/module/assets/presentation/hooks/assetSort
 
 const STATUS_TABS = [
   { value: 'active', icon: IconCircleCheck },
-  { value: 'pending', icon: IconClockHour4 },
   { value: 'fully_depreciated', icon: IconTrendingDown },
   { value: 'disposed', icon: IconScale },
 ] as const satisfies ReadonlyArray<{ value: AssetStatus; icon: unknown }>;
 
 /**
- * Pill tabs, one per status, with the number of assets in brackets once it is known. Assets
- * waiting for activation have their own tab, so they can be found and edited before activation.
+ * Pill tabs, one per status, with the number of assets in brackets once it is known. Pending
+ * assets have no tab: they wait in "Menunggu Anda".
  */
 export function AssetStatusTabsList({ counts }: Readonly<{ counts?: AssetSummary['counts'] }>) {
   const { t } = useTranslation('assets');

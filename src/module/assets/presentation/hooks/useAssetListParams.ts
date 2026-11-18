@@ -5,12 +5,7 @@ import { ASSET_SORT_OPTIONS, DEFAULT_ASSET_SORT, resolveAssetSort } from './asse
 
 const DEFAULT_LIMIT = 10;
 /** Pending assets are handled in "Menunggu Anda"; the list shows assets in or out of the books. */
-export const LIST_STATUSES: readonly AssetStatus[] = [
-  'active',
-  'pending',
-  'fully_depreciated',
-  'disposed',
-];
+export const LIST_STATUSES: readonly AssetStatus[] = ['active', 'fully_depreciated', 'disposed'];
 const DEFAULT_STATUS: AssetStatus = 'active';
 
 const toPositiveInt = (value: string | null, fallback: number): number => {
