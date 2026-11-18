@@ -3,7 +3,9 @@ import { IconCircleCheck, IconInfoCircle } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import type { ActivationValues, AssetItem } from '@/module/assets/domain/asset';
 import { AssetActivationFields } from '@/module/assets/presentation/components/AssetActivationFields';
+import { AssetInvalidAccountsAlert } from '@/module/assets/presentation/components/AssetInvalidAccountsAlert';
 import { AssetModalTitle } from '@/module/assets/presentation/components/AssetModalTitle';
+import { useAssetAccountCheck } from '@/module/assets/presentation/hooks/useAssetAccountCheck';
 import { useActivationForm } from '@/module/assets/presentation/hooks/useActivationForm';
 import {
   useActivateAsset,
@@ -28,7 +30,12 @@ export function AssetActivationModal({
   const activate = useActivateAsset(asset.id);
   const revise = useReviseAsset(asset.id);
   const mutation = mode === 'activate' ? activate : revise;
-  const form = useActivationForm(asset, () => asset.acquisitionCost);
+  const invalidAccounts = useAssetAccountCheck().invalidFor(asset);
+  const form = useActivationForm(
+    asset,
+    () => asset.acquisitionCost,
+    () => asset.acquisitionDate
+  );
 
   const handleSubmit = async (values: ActivationValues) => {
     try {
@@ -61,11 +68,14 @@ export function AssetActivationModal({
             {mode === 'activate' ? t('activateNotice') : t('reviseNotice')}
           </Alert>
 
+          <AssetInvalidAccountsAlert fields={mode === 'revise' ? invalidAccounts : []} />
+
           <AssetActivationFields
             form={form}
             accounts={accounts.data ?? []}
             loadingAccounts={accounts.isLoading}
             acquisitionCost={asset.acquisitionCost}
+            acquisitionDate={asset.acquisitionDate}
           />
 
           <Group justify="flex-end" gap="sm">

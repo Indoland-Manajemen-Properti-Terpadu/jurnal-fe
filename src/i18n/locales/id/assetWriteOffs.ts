@@ -309,6 +309,10 @@ export const assetWriteOffs = {
   errFileSize: '{name} lebih dari 10 MB.',
   errSignatureFile: 'Gunakan gambar PNG atau JPG untuk tanda tangan.',
   errReasonShort: 'Tulis alasannya minimal 3 karakter',
+  accountsInvalidRow: 'Akun tidak valid',
+  bookBlocked: 'Perbaiki dulu akun aset yang bertanda tidak valid sebelum membukukan penyusutan.',
+  ownReportNotice:
+    'Anda yang mengajukan berita acara ini, jadi persetujuannya harus dari orang lain.',
 };
 
 export default assetWriteOffs;

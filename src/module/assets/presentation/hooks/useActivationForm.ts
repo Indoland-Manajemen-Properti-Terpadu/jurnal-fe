@@ -21,14 +21,20 @@ export const initialActivationValues = (asset?: AssetItem | null): ActivationVal
  * Form state of the accounts and depreciation terms. `getCost` reads the acquisition cost at
  * validation time because the add form owns it.
  */
-export function useActivationForm(asset: AssetItem | null | undefined, getCost: () => number) {
+export function useActivationForm(
+  asset: AssetItem | null | undefined,
+  getCost: () => number,
+  getAcquisitionDate?: () => string
+) {
   const { t } = useTranslation('assets');
 
   return useForm<ActivationValues>({
     initialValues: initialActivationValues(asset),
     validate: (values) =>
       Object.fromEntries(
-        Object.entries(validateActivation(values, getCost())).map(([field, key]) => [field, t(key)])
+        Object.entries(validateActivation(values, getCost(), getAcquisitionDate?.())).map(
+          ([field, key]) => [field, t(key)]
+        )
       ),
   });
 }

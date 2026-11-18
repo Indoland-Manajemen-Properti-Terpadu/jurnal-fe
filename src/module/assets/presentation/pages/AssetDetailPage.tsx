@@ -22,6 +22,8 @@ import { AssetJournalList } from '@/module/assets/presentation/components/AssetJ
 import { AssetOverviewPanel } from '@/module/assets/presentation/components/AssetOverviewPanel';
 import { AssetValueSummary } from '@/module/assets/presentation/components/AssetValueSummary';
 import classes from '@/module/assets/presentation/components/AssetDetail.module.css';
+import { AssetInvalidAccountsAlert } from '@/module/assets/presentation/components/AssetInvalidAccountsAlert';
+import { useAssetAccountCheck } from '@/module/assets/presentation/hooks/useAssetAccountCheck';
 import { useAssetDialogs } from '@/module/assets/presentation/hooks/useAssetDialogs';
 import { useAsset, useAssetJournals } from '@/module/assets/presentation/hooks/useAssetQueries';
 
@@ -43,6 +45,7 @@ export const AssetDetailPage: React.FC = () => {
   const navigate = useNavigate();
   const { data: asset, isLoading } = useAsset(id);
   const dialogs = useAssetDialogs();
+  const accountCheck = useAssetAccountCheck();
   const journals = useAssetJournals(id, Boolean(asset) && asset?.status !== 'pending');
   const pendingReport =
     usePendingWriteOffForAsset(id, asset ? canDisposeAsset(asset) : false).data ?? null;
@@ -94,6 +97,8 @@ export const AssetDetailPage: React.FC = () => {
           {asset.status === 'pending' && (
             <AssetPendingNotice onActivate={() => dialogs.open({ kind: 'activate', asset })} />
           )}
+
+          <AssetInvalidAccountsAlert fields={accountCheck.invalidFor(asset)} onFix={openRevise} />
 
           <AssetValueSummary asset={asset} />
 

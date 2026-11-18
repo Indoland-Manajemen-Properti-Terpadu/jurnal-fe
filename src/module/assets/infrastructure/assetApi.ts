@@ -39,6 +39,7 @@ import {
 
 export const ASSET_ENDPOINTS = {
   assets: '/v1/assets',
+  photos: '/v1/assets/photos',
   asset: (id: string) => `/v1/assets/${id}`,
   summary: '/v1/assets/summary',
   activate: (id: string) => `/v1/assets/${id}/activate`,
@@ -166,48 +167,53 @@ const toDetailFields = (values: AssetFormValues) => ({
   photos: values.photos.length > 0 ? values.photos : undefined,
 });
 
-/** Objects and lists travel as JSON text and photos as file parts, like the journal form. */
-const toMultipart = (body: Record<string, unknown>, files: File[]): FormData => {
+/**
+ * Photos go up first as files; the API answers with their links, which are then saved on the
+ * asset together with the photos it already has. The content type is left to the browser.
+ */
+export const uploadAssetPhotos = async (files: File[]): Promise<string[]> => {
+  if (files.length === 0) return [];
   const form = new FormData();
-  Object.entries(body).forEach(([key, value]) => {
-    if (value === undefined) return;
-    if (value === null) form.append(key, '');
-    else if (typeof value === 'object') form.append(key, JSON.stringify(value));
-    else form.append(key, String(value));
-  });
   files.forEach((file) => form.append('photos', file));
-  return form;
+  const { data } = await apiClient.post<ApiEnvelope<{ urls?: string[] }>>(
+    ASSET_ENDPOINTS.photos,
+    form
+  );
+  return data.data.urls ?? [];
 };
+
+const withUploadedPhotos = async (values: AssetFormValues): Promise<AssetFormValues> => ({
+  ...values,
+  photos: [...values.photos, ...(await uploadAssetPhotos(values.photoFiles ?? []))],
+  photoFiles: [],
+});
 
 export const createAsset = async (
   values: AssetFormValues,
   activation?: ActivationValues
 ): Promise<AssetItem> => {
-  const files = values.photoFiles ?? [];
-  const body = {
+  const saved = await withUploadedPhotos(values);
+  const { data } = await apiClient.post<ApiEnvelope<AssetDto>>(ASSET_ENDPOINTS.assets, {
     code: values.code.trim(),
     name: values.name.trim(),
     categoryName: values.categoryName.trim() || undefined,
     acquisitionDate: values.acquisitionDate,
     acquisitionCost: values.acquisitionCost,
     notes: values.notes.trim() || undefined,
-    ...toDetailFields(values),
+    ...toDetailFields(saved),
     tags: values.tagIds,
     activation: activation ? toActivationBody(activation) : undefined,
-  };
-  const { data } = await apiClient.post<ApiEnvelope<AssetDto>>(
-    ASSET_ENDPOINTS.assets,
-    files.length > 0 ? toMultipart(body, files) : body
-  );
+  });
   return mapAsset(data.data);
 };
 
 /** Sends only what `rights` lets this asset change; an edit that sends more is rejected. */
 export const updateAsset = async (
   id: string,
-  values: AssetFormValues,
+  formValues: AssetFormValues,
   rights: AssetEditRights
 ): Promise<AssetItem> => {
+  const values = rights.details ? await withUploadedPhotos(formValues) : formValues;
   const body: Record<string, unknown> = {};
   if (rights.details) {
     body.name = values.name.trim();
@@ -229,11 +235,7 @@ export const updateAsset = async (
     body.acquisitionCost = values.acquisitionCost;
   }
   if (rights.tags) body.tags = values.tagIds;
-  const files = rights.details ? (values.photoFiles ?? []) : [];
-  const { data } = await apiClient.patch<ApiEnvelope<AssetDto>>(
-    ASSET_ENDPOINTS.asset(id),
-    files.length > 0 ? toMultipart(body, files) : body
-  );
+  const { data } = await apiClient.patch<ApiEnvelope<AssetDto>>(ASSET_ENDPOINTS.asset(id), body);
   return mapAsset(data.data);
 };
 

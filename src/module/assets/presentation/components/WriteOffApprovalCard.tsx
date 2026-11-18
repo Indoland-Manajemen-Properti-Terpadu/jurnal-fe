@@ -6,6 +6,7 @@ import type { WriteOffReport } from '@/module/assets/domain/writeOff';
 import { AssetCard } from '@/module/assets/presentation/components/AssetSection';
 import { formatAssetDate } from '@/module/assets/presentation/components/formatAssetDate';
 import { StepTimeline, type StepItem } from '@/module/assets/presentation/components/StepTimeline';
+import { useCurrentUserId } from '@/module/assets/presentation/hooks/useWriteOffQueries';
 import {
   WriteOffApproveModal,
   WriteOffRejectModal,
@@ -17,6 +18,7 @@ import {
  */
 export function WriteOffApprovalCard({ report }: Readonly<{ report: WriteOffReport }>) {
   const { t } = useTranslation('assetWriteOffs');
+  const me = useCurrentUserId().data;
   const [open, setOpen] = useState<'approve' | 'reject' | null>(null);
   const waiting = report.status === 'PENDING_APPROVAL';
   const decider = report.signatures[1];
@@ -123,7 +125,7 @@ export function WriteOffApprovalCard({ report }: Readonly<{ report: WriteOffRepo
 
         {waiting && !report.canDecide && (
           <Text size="xs" c="dimmed">
-            {t('notYourDecision', { roles })}
+            {report.createdBy.id === me ? t('ownReportNotice') : t('notYourDecision', { roles })}
           </Text>
         )}
       </Stack>

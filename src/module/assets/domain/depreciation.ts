@@ -33,7 +33,8 @@ export const estimateDepreciation = (
         ? Math.round(depreciableAmount / usefulLifeYears)
         : Math.round(cost * (2 / usefulLifeYears));
   }
-  return { annual, monthly: Math.round(annual / 12) };
+  // Cents are kept, as the books keep them: Rp 83.333,33 a month, not Rp 83.333.
+  return { annual, monthly: Math.round((annual / 12) * 100) / 100 };
 };
 
 /** `part` as a whole percent of `whole`, capped at 100; zero when there is no whole. */
@@ -66,6 +67,12 @@ export const depreciationEndMonth = (asset: LifeFields): string | undefined => {
   const start = asset.depreciationStartDate || asset.acquisitionDate;
   if (!start) return undefined;
   return fromMonthIndex(toMonthIndex(start) + Math.round(asset.usefulLifeYears * 12));
+};
+
+/** First day of the last month that still carries depreciation: one month before the life ends. */
+export const lastDepreciationMonth = (asset: LifeFields): string | undefined => {
+  const end = depreciationEndMonth(asset);
+  return end ? fromMonthIndex(toMonthIndex(end) - 1) : undefined;
 };
 
 /** Whole months of useful life left after `today` (`YYYY-MM-DD`); never below zero. */
