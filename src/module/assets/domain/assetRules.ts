@@ -122,8 +122,8 @@ export const previewAcquisitionJournal = (
 };
 
 export const ASSET_PHOTO_LIMITS = {
-  mime: ['image/jpeg', 'image/png'],
-  maxBytes: 10 * 1024 * 1024,
+  mime: ['image/jpeg', 'image/png', 'image/webp'],
+  maxBytes: 5 * 1024 * 1024,
 } as const;
 
 export const validatePhotoFile = (file: { type: string; size: number }) => {

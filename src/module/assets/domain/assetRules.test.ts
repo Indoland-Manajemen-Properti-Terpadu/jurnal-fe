@@ -189,11 +189,12 @@ describe('getWarrantyStatus', () => {
 });
 
 describe('photos picked from the device', () => {
-  it('accepts JPG and PNG up to 10 MB only', () => {
+  it('accepts JPG, PNG and WebP up to 5 MB only', () => {
     expect(validatePhotoFile({ type: 'image/png', size: 1024 })).toBeNull();
-    expect(validatePhotoFile({ type: 'image/jpeg', size: 10 * 1024 * 1024 })).toBeNull();
+    expect(validatePhotoFile({ type: 'image/jpeg', size: 5 * 1024 * 1024 })).toBeNull();
+    expect(validatePhotoFile({ type: 'image/webp', size: 1024 })).toBeNull();
     expect(validatePhotoFile({ type: 'application/pdf', size: 1024 })).toBe('errPhotoType');
-    expect(validatePhotoFile({ type: 'image/png', size: 10 * 1024 * 1024 + 1 })).toBe(
+    expect(validatePhotoFile({ type: 'image/png', size: 5 * 1024 * 1024 + 1 })).toBe(
       'errPhotoSize'
     );
   });
