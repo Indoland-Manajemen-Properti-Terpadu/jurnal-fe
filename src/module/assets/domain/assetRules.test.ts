@@ -11,6 +11,7 @@ import {
   previewAcquisitionJournal,
   sumJournalLines,
   validateActivation,
+  validatePhotoFile,
   validatePhotos,
 } from '@/module/assets/domain/assetRules';
 
@@ -183,5 +184,21 @@ describe('getWarrantyStatus', () => {
     expect(getWarrantyStatus('2026-12-31', '2026-11-16')).toEqual({ state: 'endingSoon' });
     expect(getWarrantyStatus('2026-11-16', '2026-11-16')).toEqual({ state: 'endingSoon' });
     expect(getWarrantyStatus('2026-11-15', '2026-11-16')).toEqual({ state: 'expired' });
+  });
+});
+
+describe('photos picked from the device', () => {
+  it('accepts JPG and PNG up to 10 MB only', () => {
+    expect(validatePhotoFile({ type: 'image/png', size: 1024 })).toBeNull();
+    expect(validatePhotoFile({ type: 'image/jpeg', size: 10 * 1024 * 1024 })).toBeNull();
+    expect(validatePhotoFile({ type: 'application/pdf', size: 1024 })).toBe('errPhotoType');
+    expect(validatePhotoFile({ type: 'image/png', size: 10 * 1024 * 1024 + 1 })).toBe(
+      'errPhotoSize'
+    );
+  });
+
+  it('counts new files toward the limit of five', () => {
+    expect(validatePhotos(['https://x.test/a.jpg'], 4)).toBeNull();
+    expect(validatePhotos(['https://x.test/a.jpg'], 5)).toBe('errPhotoLimit');
   });
 });

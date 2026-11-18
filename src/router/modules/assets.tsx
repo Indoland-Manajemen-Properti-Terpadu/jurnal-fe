@@ -2,6 +2,7 @@ import type { RouteObject } from 'react-router-dom';
 import { AppShellLayout } from '@/components/AppShellLayout';
 import {
   AssetDetailPage,
+  AssetFormPage,
   AssetPage,
   NeedsYouPage,
   WriteOffDetailPage,
@@ -39,6 +40,22 @@ export const assetsRoutes: RouteObject[] = [
     element: (
       <AppShellLayout>
         <WriteOffDetailPage />
+      </AppShellLayout>
+    ),
+  },
+  {
+    path: routes.assets.new,
+    element: (
+      <AppShellLayout>
+        <AssetFormPage />
+      </AppShellLayout>
+    ),
+  },
+  {
+    path: routes.assets.edit,
+    element: (
+      <AppShellLayout>
+        <AssetFormPage />
       </AppShellLayout>
     ),
   },

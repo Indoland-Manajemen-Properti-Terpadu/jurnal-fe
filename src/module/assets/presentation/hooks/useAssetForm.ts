@@ -22,6 +22,7 @@ const initialValues = (asset?: AssetItem | null): AssetFormValues => ({
   location: asset?.location ?? '',
   vendorContactId: asset?.vendorContactId ?? '',
   photos: asset?.photos ?? [],
+  photoFiles: [],
 });
 
 /**
@@ -42,8 +43,8 @@ export function useAssetForm(assetToEdit?: AssetItem | null) {
         return val > dayjs().format('YYYY-MM-DD') ? t('errDateFuture') : null;
       },
       acquisitionCost: (val) => (Number(val) > 0 ? null : t('errCostPositive')),
-      photos: (val) => {
-        const key = validatePhotos(val);
+      photos: (val, values) => {
+        const key = validatePhotos(val, values.photoFiles?.length ?? 0);
         return key ? t(key) : null;
       },
     },
