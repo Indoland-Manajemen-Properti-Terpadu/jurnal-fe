@@ -17,9 +17,10 @@ import { SignOut, SidebarSimpleIcon } from '@phosphor-icons/react';
 import { useAuthStore } from '@/store/useAuthentications';
 import { routes } from '@/router/routes';
 import { filterNavigation, type CanReadMenu } from '@/components/Navbar/navigationAccess';
-import { navigationSections } from '@/components/Navbar/navigationRegistry';
+import { navigationSections, type NavBadge } from '@/components/Navbar/navigationRegistry';
 import { useNavigationAccess } from '@/components/Navbar/useNavigationAccess';
 import { usePendingChangesCount } from '@/module/pending-changes';
+import { useAssetDecisionCount } from '@/module/asset-decisions';
 import { useTranslation } from '@/i18n';
 import { LinksGroup, type LinksGroupChild } from '@/components/Navbar/Links/NavLinksGroup';
 import classes from '@/components/Navbar/Navbar.module.css';
@@ -37,8 +38,8 @@ type NavLinkEntry = {
   icon: React.ElementType;
   link: string;
   match?: string;
-  badge?: 'pendingChanges';
-  links?: LinksGroupChild[];
+  badge?: NavBadge;
+  links?: (LinksGroupChild & { badgeKind?: NavBadge })[];
 };
 type NavGroupEntry = { id: string; title: string; links: NavLinkEntry[] };
 
@@ -57,6 +58,7 @@ const getNavGroups = (t: (key: string) => string, canRead: CanReadMenu): NavGrou
         label: t(child.labelKey),
         link: child.link,
         icon: child.icon,
+        badgeKind: child.badge,
       })),
     })),
   }));
@@ -99,6 +101,34 @@ const NavbarComponent = ({
       ? rawCount
       : ((rawCount as { data?: { count?: number } } | undefined)?.data?.count ?? 0);
 
+  const assetDecisions = useAssetDecisionCount().data ?? 0;
+  const badgeCounts: Record<NavBadge, number> = {
+    pendingChanges: pendingCount,
+    assetDecisions,
+  };
+  const renderBadge = (kind: NavBadge | undefined) => {
+    const count = kind ? badgeCounts[kind] : 0;
+    if (!kind || count <= 0) return undefined;
+    return (
+      <Badge
+        size="xs"
+        color="orange"
+        variant="filled"
+        radius="xl"
+        style={{
+          padding: '0 6px',
+          height: 18,
+          minWidth: 18,
+          fontSize: 'var(--jurnal-text-xs)',
+          fontWeight: 700,
+          lineHeight: '18px',
+        }}
+      >
+        {count > 99 ? '99+' : count}
+      </Badge>
+    );
+  };
+
   const viewportRef = useRef<HTMLDivElement>(null);
   const restoredRef = useRef(false);
   useLayoutEffect(() => {
@@ -117,25 +147,11 @@ const NavbarComponent = ({
         {collapsed ? '•••' : item.title}
       </Text>
       {item.links.map((linkItem) => {
-        const badge =
-          linkItem.badge === 'pendingChanges' && pendingCount > 0 ? (
-            <Badge
-              size="xs"
-              color="orange"
-              variant="filled"
-              radius="xl"
-              style={{
-                padding: '0 6px',
-                height: 18,
-                minWidth: 18,
-                fontSize: 'var(--jurnal-text-xs)',
-                fontWeight: 700,
-                lineHeight: '18px',
-              }}
-            >
-              {pendingCount > 99 ? '99+' : pendingCount}
-            </Badge>
-          ) : undefined;
+        const badge = renderBadge(linkItem.badge);
+        const children = linkItem.links?.map(({ badgeKind, ...entry }) => ({
+          ...entry,
+          badge: renderBadge(badgeKind),
+        }));
 
         return (
           <LinksGroup
@@ -143,7 +159,7 @@ const NavbarComponent = ({
             icon={linkItem.icon}
             link={linkItem.link}
             match={linkItem.match}
-            links={linkItem.links}
+            links={children}
             expandOnly={Boolean(linkItem.links?.length)}
             badge={badge}
             key={linkItem.id}

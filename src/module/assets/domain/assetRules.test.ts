@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { ActivationValues, DisposalValues } from '@/module/assets/domain/asset';
+import type { ActivationValues } from '@/module/assets/domain/asset';
 import {
   canActivateAsset,
   canDisposeAsset,
@@ -11,7 +11,6 @@ import {
   previewAcquisitionJournal,
   sumJournalLines,
   validateActivation,
-  validateDisposal,
   validatePhotos,
 } from '@/module/assets/domain/assetRules';
 
@@ -61,6 +60,9 @@ describe('asset actions by status', () => {
     expect(canActivateAsset({ status: 'active' })).toBe(false);
     expect(canDisposeAsset({ status: 'active' })).toBe(true);
     expect(canDisposeAsset({ status: 'pending' })).toBe(false);
+    // A fully depreciated asset is the natural case for a write-off report.
+    expect(canDisposeAsset({ status: 'fully_depreciated' })).toBe(true);
+    expect(canDisposeAsset({ status: 'disposed' })).toBe(false);
     expect(canReviseAsset({ status: 'fully_depreciated' })).toBe(true);
     expect(canReviseAsset({ status: 'disposed' })).toBe(false);
   });
@@ -132,58 +134,6 @@ describe('previewAcquisitionJournal', () => {
       accumulated: 50,
       counter: 0,
     });
-  });
-});
-
-describe('disposal', () => {
-  const disposal = (overrides: Partial<DisposalValues> = {}): DisposalValues => ({
-    disposalDate: '2026-11-01',
-    disposalPrice: 0,
-    proceedsAccount: '',
-    gainLossAccount: 'g',
-    ...overrides,
-  });
-
-  it('needs a date that is not in the future', () => {
-    expect(validateDisposal(disposal({ disposalDate: '' }), '2026-11-09').disposalDate).toBe(
-      'errDisposalDate'
-    );
-    expect(
-      validateDisposal(disposal({ disposalDate: '2026-11-10' }), '2026-11-09').disposalDate
-    ).toBe('errDisposalFuture');
-    expect(validateDisposal(disposal(), '2026-11-09')).toEqual({});
-  });
-
-  it('asks a sold asset for its price and proceeds account, and a scrapped one for neither', () => {
-    expect(validateDisposal(disposal(), '2026-11-09', 'sold')).toEqual({
-      disposalPrice: 'errDisposalPrice',
-      proceedsAccount: 'errProceedsAccount',
-    });
-    expect(validateDisposal(disposal({ proceedsAccount: '' }), '2026-11-09', 'scrapped')).toEqual(
-      {}
-    );
-  });
-
-  it('needs a proceeds account only when the asset is sold for money', () => {
-    expect(validateDisposal(disposal({ disposalPrice: 5 }), '2026-11-09').proceedsAccount).toBe(
-      'errProceedsAccount'
-    );
-    expect(
-      validateDisposal(disposal({ disposalPrice: 5, proceedsAccount: 'x' }), '2026-11-09')
-    ).toEqual({});
-  });
-
-  it('leaves the gain/loss account optional, sold or scrapped', () => {
-    expect(validateDisposal(disposal({ gainLossAccount: '' }), '2026-11-09', 'scrapped')).toEqual(
-      {}
-    );
-    expect(
-      validateDisposal(
-        disposal({ disposalPrice: 5, proceedsAccount: 'x', gainLossAccount: '' }),
-        '2026-11-09',
-        'sold'
-      )
-    ).toEqual({});
   });
 });
 

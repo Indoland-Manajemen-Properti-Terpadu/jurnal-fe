@@ -134,6 +134,42 @@ describe('mapSummary', () => {
       totalAccumulatedDepreciation: 0,
       totalNetBookValue: 10,
       counts: { pending: 6, active: 0, fully_depreciated: 0, disposed: 0 },
+      ownedCount: 0,
+      pending: { count: 0, totalAcquisitionCost: 0 },
     });
+  });
+
+  it('maps the owned count and the pending assets', () => {
+    const summary = mapSummary({
+      ownedCount: 5,
+      pending: { count: 1, totalAcquisitionCost: 1000 },
+    });
+    expect(summary.ownedCount).toBe(5);
+    expect(summary.pending).toEqual({ count: 1, totalAcquisitionCost: 1000 });
+  });
+});
+
+describe('mapAsset write-off fields', () => {
+  it('reads the depreciation still due, and nothing due when the field is missing', () => {
+    expect(mapAsset(dto()).depreciationDue).toEqual({ months: 0, amount: 0, upTo: '' });
+    expect(
+      mapAsset(dto({ depreciationDue: { months: 7, amount: 656250, upTo: '2026-10' } }))
+        .depreciationDue
+    ).toEqual({ months: 7, amount: 656250, upTo: '2026-10' });
+  });
+
+  it('keeps the disposal type and the report id', () => {
+    const asset = mapAsset(
+      dto({
+        status: 'disposed',
+        disposalType: 'scrapped',
+        disposalReport: '6afc21870a53958c6fbc5ff4',
+      })
+    );
+    expect(asset.disposalType).toBe('scrapped');
+    expect(asset.disposalReportId).toBe('6afc21870a53958c6fbc5ff4');
+    const legacy = mapAsset(dto({ disposalType: null, disposalReport: null }));
+    expect(legacy.disposalType).toBeNull();
+    expect(legacy.disposalReportId).toBeNull();
   });
 });

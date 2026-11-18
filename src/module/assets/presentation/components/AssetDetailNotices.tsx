@@ -1,15 +1,25 @@
 import type { ReactNode } from 'react';
 import { Box, Button, Group, Paper, Text, ThemeIcon } from '@mantine/core';
-import { IconCircleCheck, IconClockHour4, type Icon } from '@tabler/icons-react';
+import {
+  IconCircleCheck,
+  IconClockHour4,
+  IconFileCertificate,
+  type Icon,
+} from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 
-type Tone = 'warning';
+type Tone = 'warning' | 'info';
 
 const TONE: Record<Tone, { bg: string; border: string; color: string }> = {
   warning: {
     bg: 'var(--mantine-color-yellow-0)',
     border: 'var(--mantine-color-yellow-2)',
     color: 'yellow',
+  },
+  info: {
+    bg: 'var(--mantine-color-primary-0)',
+    border: 'var(--mantine-color-primary-1)',
+    color: 'primary',
   },
 };
 
@@ -78,6 +88,28 @@ export function AssetPendingNotice({ onActivate }: Readonly<{ onActivate: () => 
       }
     >
       {t('pendingNoticeBody')}
+    </AssetNotice>
+  );
+}
+
+/** An active asset whose write-off report waits for approval: it stays active until then. */
+export function AssetWriteOffNotice({
+  number,
+  onOpen,
+}: Readonly<{ number: string; onOpen: () => void }>) {
+  const { t } = useTranslation('assetWriteOffs');
+  return (
+    <AssetNotice
+      tone="info"
+      icon={IconFileCertificate}
+      title={t('assetPendingNoticeTitle')}
+      action={
+        <Button size="md" radius="md" variant="light" onClick={onOpen}>
+          {t('openReport')}
+        </Button>
+      }
+    >
+      {t('assetPendingNoticeBody', { number })}
     </AssetNotice>
   );
 }

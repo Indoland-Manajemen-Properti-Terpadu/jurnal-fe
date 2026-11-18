@@ -7,13 +7,11 @@ import type {
   AssetAccountKind,
   AssetFormValues,
   AssetListParams,
-  DisposalValues,
 } from '@/module/assets/domain/asset';
 import type { AssetEditRights } from '@/module/assets/domain/assetRules';
 import {
   activateAsset,
   createAsset,
-  disposeAsset,
   fetchAsset,
   fetchAssetAccounts,
   fetchAssetAccountsOfKind,
@@ -122,7 +120,7 @@ export const useDisposalPreview = (id: string, disposalDate: string, disposalPri
 };
 
 /** A write changes the list, the totals, the detail and the journals alike. */
-const useInvalidateAssets = () => {
+export const useInvalidateAssets = () => {
   const queryClient = useQueryClient();
   return () => queryClient.invalidateQueries({ queryKey: assetKeys.all });
 };
@@ -178,17 +176,5 @@ export const useReviseAsset = (id: string) => {
       notifySuccess(tr('notifySuccessTitle'), tr('notifyAssetRevised', { name: asset.name }));
     },
     onError: (error) => notifyError(error, 'notifySaveFailed'),
-  });
-};
-
-export const useDisposeAsset = (id: string) => {
-  const invalidate = useInvalidateAssets();
-  return useMutation({
-    mutationFn: (values: DisposalValues) => disposeAsset(id, values),
-    onSuccess: () => {
-      invalidate();
-      notifySuccess(tr('notifyDisposedTitle'), tr('notifyDisposed'));
-    },
-    onError: (error) => notifyError(error, 'notifyDisposeFailed'),
   });
 };

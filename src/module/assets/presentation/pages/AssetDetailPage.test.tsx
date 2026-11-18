@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@test-utils';
 import { within } from '@testing-library/react';
@@ -44,14 +44,41 @@ const active = {
   ],
 };
 
-const mockApi = (asset: Record<string, unknown>, journals: unknown[] = []) => {
+const pendingReport = {
+  id: 'r1',
+  number: 'BA/ASET/2026/11/0001',
+  asset: 'a1',
+  type: 'damaged',
+  status: 'PENDING_APPROVAL',
+};
+
+const mockApi = (
+  asset: Record<string, unknown>,
+  journals: unknown[] = [],
+  reports: unknown[] = []
+) => {
   http.get.mockImplementation((url: string) => {
+    if (url === '/v1/asset-reports') {
+      return Promise.resolve({
+        data: {
+          data: {
+            data: reports,
+            pagination: { total: reports.length, page: 1, limit: 1, totalPages: 1 },
+          },
+        },
+      });
+    }
     if (url.endsWith('/journals')) return Promise.resolve({ data: { data: journals } });
     if (url === '/v1/accounts') return Promise.resolve({ data: { results: [] } });
     if (url === '/v1/tags') return Promise.resolve({ data: { data: { data: [] } } });
     return Promise.resolve({ data: { data: asset } });
   });
 };
+
+function LocationProbe() {
+  const location = useLocation();
+  return <div>Lokasi: {location.pathname + location.search}</div>;
+}
 
 const renderPage = (path = '/assets/a1') =>
   render(
@@ -61,12 +88,14 @@ const renderPage = (path = '/assets/a1') =>
       <MemoryRouter initialEntries={[path]}>
         <Routes>
           <Route path="/assets/:id" element={<AssetDetailPage />} />
+          <Route path="/assets/write-offs/new" element={<LocationProbe />} />
+          <Route path="/assets/write-offs/:id" element={<LocationProbe />} />
         </Routes>
       </MemoryRouter>
     </QueryClientProvider>
   );
 
-describe('<AssetDetailPage />', () => {
+describe('<AssetDetailPage />', { timeout: 15_000 }, () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -147,5 +176,38 @@ describe('<AssetDetailPage />', () => {
       'true'
     );
     expect(await screen.findByText('Apa itu penyusutan?')).toBeInTheDocument();
+  });
+
+  it('opens the report form when an active asset is disposed', async () => {
+    mockApi(active);
+    const user = userEvent.setup();
+    renderPage();
+    await user.click(await screen.findByRole('button', { name: 'Aksi Lainnya' }));
+    await user.click(await screen.findByRole('menuitem', { name: 'Lepas Aset', hidden: true }));
+    expect(await screen.findByText('Lokasi: /assets/write-offs/new?asset=a1')).toBeInTheDocument();
+  });
+
+  it('points to the pending report instead of offering a second one', async () => {
+    mockApi(active, [], [pendingReport]);
+    const user = userEvent.setup();
+    renderPage();
+    expect(await screen.findByText(/BA\/ASET\/2026\/11\/0001/)).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Aksi Lainnya' }));
+    expect(
+      screen.queryByRole('menuitem', { name: 'Lepas Aset', hidden: true })
+    ).not.toBeInTheDocument();
+    await user.click(
+      await screen.findByRole('menuitem', { name: 'Buka berita acara', hidden: true })
+    );
+    expect(await screen.findByText('Lokasi: /assets/write-offs/r1')).toBeInTheDocument();
+  });
+
+  it('links a disposed asset to the report that disposed it', async () => {
+    mockApi({ ...active, status: 'disposed', disposalType: 'scrapped', disposalReport: 'r7' });
+    renderPage();
+    expect(await screen.findByRole('link', { name: /Berita acara/ })).toHaveAttribute(
+      'href',
+      '/assets/write-offs/r7'
+    );
   });
 });

@@ -4,7 +4,9 @@ import type { AssetStatus } from '@/module/assets/domain/asset';
 import { ASSET_SORT_OPTIONS, DEFAULT_ASSET_SORT, resolveAssetSort } from './assetSortOptions';
 
 const DEFAULT_LIMIT = 10;
-const STATUSES: readonly AssetStatus[] = ['pending', 'active', 'fully_depreciated', 'disposed'];
+/** Pending assets are handled in "Menunggu Anda"; the list shows assets in or out of the books. */
+export const LIST_STATUSES: readonly AssetStatus[] = ['active', 'fully_depreciated', 'disposed'];
+const DEFAULT_STATUS: AssetStatus = 'active';
 
 const toPositiveInt = (value: string | null, fallback: number): number => {
   const n = Number(value);
@@ -37,7 +39,7 @@ export const useAssetListParams = () => {
   );
 
   const rawStatus = params.get('status') as AssetStatus | null;
-  const status = rawStatus && STATUSES.includes(rawStatus) ? rawStatus : undefined;
+  const status = rawStatus && LIST_STATUSES.includes(rawStatus) ? rawStatus : DEFAULT_STATUS;
   const sort = resolveAssetSort(params.get('sort'));
 
   return {
@@ -49,12 +51,13 @@ export const useAssetListParams = () => {
     sortOrder: sort.sortOrder,
     page: toPositiveInt(params.get('page'), 1),
     limit: toPositiveInt(params.get('limit'), DEFAULT_LIMIT),
-    hasFilters: Boolean(status || params.get('search')),
+    hasFilters: Boolean(params.get('search')),
     setSearchInput: (value: string) => {
       setSearchInput(value);
       update({ search: value.trim() ? value : null, page: null });
     },
-    setStatus: (value: AssetStatus | undefined) => update({ status: value ?? null, page: null }),
+    setStatus: (value: AssetStatus) =>
+      update({ status: value === DEFAULT_STATUS ? null : value, page: null }),
     setSort: (value: string) =>
       update({
         sort:

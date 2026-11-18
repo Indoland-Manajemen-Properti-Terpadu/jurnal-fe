@@ -1,6 +1,12 @@
 import type { RouteObject } from 'react-router-dom';
 import { AppShellLayout } from '@/components/AppShellLayout';
-import { AssetDetailPage, AssetPage } from '@/module/assets';
+import {
+  AssetDetailPage,
+  AssetPage,
+  NeedsYouPage,
+  WriteOffDetailPage,
+  WriteOffFormPage,
+} from '@/module/assets';
 import { routes } from '../routes';
 
 export const assetsRoutes: RouteObject[] = [
@@ -9,6 +15,30 @@ export const assetsRoutes: RouteObject[] = [
     element: (
       <AppShellLayout>
         <AssetPage />
+      </AppShellLayout>
+    ),
+  },
+  {
+    path: routes.assets.needsYou,
+    element: (
+      <AppShellLayout>
+        <NeedsYouPage />
+      </AppShellLayout>
+    ),
+  },
+  {
+    path: routes.assets.writeOffNew,
+    element: (
+      <AppShellLayout>
+        <WriteOffFormPage />
+      </AppShellLayout>
+    ),
+  },
+  {
+    path: routes.assets.writeOffDetail,
+    element: (
+      <AppShellLayout>
+        <WriteOffDetailPage />
       </AppShellLayout>
     ),
   },
