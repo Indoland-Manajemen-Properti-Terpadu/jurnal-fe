@@ -1,3 +1,4 @@
+import { isWriteOffType } from '@/module/assets/domain/writeOff';
 import type {
   AccountOption,
   AccountRef,
@@ -24,10 +25,10 @@ import type {
 } from './assetDto';
 
 /** The API sends ISO timestamps; the register works with calendar dates. */
-const toDateOnly = (value: string | null | undefined): string | undefined =>
+export const toDateOnly = (value: string | null | undefined): string | undefined =>
   value ? value.slice(0, 10) : undefined;
 
-const mapAccountRef = (dto: AccountRefDto | undefined): AccountRef | null => {
+export const mapAccountRef = (dto: AccountRefDto | undefined): AccountRef | null => {
   if (!dto) return null;
   if (typeof dto === 'string') return { id: dto, accountNumber: '', name: '' };
   return { id: dto.id, accountNumber: dto.accountNumber ?? '', name: dto.name ?? '' };
@@ -88,6 +89,14 @@ export const mapAsset = (dto: AssetDto): AssetItem => ({
   disposalPrice: dto.disposalPrice ?? undefined,
   disposalGainLoss: dto.disposalGainLoss ?? undefined,
   syncError: dto.proappsSyncError || undefined,
+  disposalType: isWriteOffType(dto.disposalType) ? dto.disposalType : null,
+  disposalReportId:
+    (typeof dto.disposalReport === 'string' ? dto.disposalReport : dto.disposalReport?.id) ?? null,
+  depreciationDue: {
+    months: dto.depreciationDue?.months ?? 0,
+    amount: dto.depreciationDue?.amount ?? 0,
+    upTo: dto.depreciationDue?.upTo ?? '',
+  },
   schedule: (dto.schedule ?? []).map((row) => ({ ...row })),
 });
 
@@ -105,6 +114,11 @@ export const mapSummary = (dto: AssetSummaryDto): AssetSummary => ({
     active: dto.counts?.active ?? 0,
     fully_depreciated: dto.counts?.fully_depreciated ?? 0,
     disposed: dto.counts?.disposed ?? 0,
+  },
+  ownedCount: dto.ownedCount ?? 0,
+  pending: {
+    count: dto.pending?.count ?? 0,
+    totalAcquisitionCost: dto.pending?.totalAcquisitionCost ?? 0,
   },
 });
 

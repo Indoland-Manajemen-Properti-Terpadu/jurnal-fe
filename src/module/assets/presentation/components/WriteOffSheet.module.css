@@ -1,0 +1,125 @@
+.sheet {
+  position: relative;
+  padding: var(--mantine-spacing-xl) var(--mantine-spacing-lg);
+  background: var(--mantine-color-white);
+  border: 1px solid var(--mantine-color-gray-3);
+  border-top: 4px solid var(--mantine-color-primary-7);
+  border-radius: var(--mantine-radius-md);
+  box-shadow:
+    0 1px 2px color-mix(in srgb, var(--mantine-color-primary-9) 6%, transparent),
+    0 8px 24px -12px color-mix(in srgb, var(--mantine-color-primary-9) 18%, transparent);
+}
+
+.sheet[data-status='REJECTED'] {
+  border-top-color: var(--mantine-color-red-6);
+}
+
+.sheet[data-status='APPROVED'] {
+  border-top-color: var(--mantine-color-teal-6);
+}
+
+.head {
+  padding-bottom: var(--mantine-spacing-md);
+  margin-bottom: var(--mantine-spacing-md);
+  border-bottom: 1px double var(--mantine-color-gray-3);
+  text-align: center;
+}
+
+.title {
+  font-size: var(--mantine-font-size-md);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--mantine-color-primary-9);
+}
+
+.stamp {
+  position: absolute;
+  top: 56px;
+  right: 16px;
+  width: 96px;
+  opacity: 0.9;
+  transform: rotate(-12deg);
+  pointer-events: none;
+}
+
+.section {
+  padding: var(--mantine-spacing-sm) 0;
+  border-bottom: 1px dashed var(--mantine-color-gray-3);
+}
+
+.sectionTitle {
+  margin-bottom: 4px;
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--mantine-color-dimmed);
+}
+
+.factLabel {
+  font-size: var(--jurnal-text-xs);
+  color: var(--mantine-color-dimmed);
+}
+
+.factValue {
+  font-size: var(--mantine-font-size-sm);
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.chronology {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.thumb {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border: 1px solid var(--mantine-color-gray-3);
+  border-radius: var(--mantine-radius-sm);
+  color: var(--mantine-color-red-7);
+  background: var(--mantine-color-gray-0);
+}
+
+.num {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.total {
+  padding-top: 6px;
+  border-top: 1px solid var(--mantine-color-gray-3);
+}
+
+.rejection {
+  margin-top: var(--mantine-spacing-sm);
+  padding: var(--mantine-spacing-sm);
+  border-radius: var(--mantine-radius-sm);
+  background: var(--mantine-color-red-0);
+}
+
+.signatures {
+  margin-top: var(--mantine-spacing-md);
+}
+
+.signature {
+  text-align: center;
+}
+
+.signatureInk {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 64px;
+  margin: 4px 0;
+  border-bottom: 1px solid var(--mantine-color-gray-5);
+}
+
+.signature[data-state='waiting'] .signatureInk {
+  border-bottom-style: dashed;
+}

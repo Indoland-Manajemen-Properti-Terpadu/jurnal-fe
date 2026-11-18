@@ -22,7 +22,10 @@ const asset = {
   source: 'proapps',
 };
 
-const mockApi = (items: unknown[]) => {
+const mockApi = (
+  items: unknown[],
+  counts = { pending: items.length, active: 0, fully_depreciated: 0, disposed: 0 }
+) => {
   http.get.mockImplementation((url: string) =>
     Promise.resolve({
       data:
@@ -32,7 +35,9 @@ const mockApi = (items: unknown[]) => {
                 totalAcquisitionCost: 400000000,
                 totalAccumulatedDepreciation: 0,
                 totalNetBookValue: 400000000,
-                counts: { pending: items.length, active: 0, fully_depreciated: 0, disposed: 0 },
+                counts,
+                ownedCount: counts.active + counts.fully_depreciated,
+                pending: { count: counts.pending, totalAcquisitionCost: 0 },
               },
             }
           : {
@@ -45,12 +50,12 @@ const mockApi = (items: unknown[]) => {
   );
 };
 
-const renderPage = () =>
+const renderPage = (path = '/assets') =>
   render(
     <QueryClientProvider
       client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
     >
-      <MemoryRouter>
+      <MemoryRouter initialEntries={[path]}>
         <AssetPage />
       </MemoryRouter>
     </QueryClientProvider>
@@ -72,8 +77,10 @@ describe('<AssetPage />', () => {
     expect(screen.getByText('Aset Tetap (Fixed Assets)')).toBeInTheDocument();
     expect(await screen.findByText('Genset Mitsubishi')).toBeInTheDocument();
     expect(screen.getByText('Total Nilai Perolehan')).toBeInTheDocument();
-    expect(screen.getByRole('tab', { name: /Menunggu Aktivasi \(1\)/ })).toBeInTheDocument();
-    expect(screen.getByText('1 aset menunggu aktivasi')).toBeInTheDocument();
+    // Pending assets live in "Menunggu Anda", not in this list.
+    expect(screen.queryByRole('tab', { name: /Menunggu Aktivasi/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole('tab', { name: /Semua/ })).not.toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: /Aktif/ })).toHaveAttribute('aria-selected', 'true');
   });
 
   it('asks the API for the first page, newest first', async () => {
@@ -84,7 +91,7 @@ describe('<AssetPage />', () => {
       params: {
         page: 1,
         limit: 10,
-        status: undefined,
+        status: 'active',
         search: undefined,
         sortBy: 'createdAt',
         sortOrder: 'desc',
@@ -125,5 +132,44 @@ describe('<AssetPage />', () => {
     );
     await user.click(await screen.findByText('Generator Set'));
     expect(screen.getByTestId('path')).toHaveTextContent('/assets/a1');
+  });
+
+  it('falls back to the active tab for an old link to the pending tab', async () => {
+    mockApi([]);
+    renderPage('/assets?status=pending');
+    await screen.findByText('Belum Ada Aset Tetap Terdaftar');
+    expect(http.get).toHaveBeenCalledWith(
+      '/v1/assets',
+      expect.objectContaining({ params: expect.objectContaining({ status: 'active' }) })
+    );
+  });
+
+  it('names how each disposed asset left and links its report', async () => {
+    const disposed = (id: string, patch: Record<string, unknown>) => ({
+      ...asset,
+      id,
+      code: id.toUpperCase(),
+      name: `Aset ${id}`,
+      status: 'disposed',
+      ...patch,
+    });
+    mockApi(
+      [
+        disposed('d1', { disposalType: null, disposalPrice: 9000000 }),
+        disposed('d2', { disposalType: null, disposalPrice: 0 }),
+        disposed('d3', { disposalType: 'scrapped', disposalPrice: 0, disposalReport: 'r7' }),
+      ],
+      { pending: 0, active: 0, fully_depreciated: 0, disposed: 3 }
+    );
+    renderPage('/assets?status=disposed');
+    expect(await screen.findByText('Aset d1')).toBeInTheDocument();
+    expect(screen.getByText('Hasil pelepasan')).toBeInTheDocument();
+    expect(screen.getByText('Dijual')).toBeInTheDocument();
+    expect(screen.getByText('Dilepas')).toBeInTheDocument();
+    expect(screen.getByText('Dimusnahkan')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Berita acara' })).toHaveAttribute(
+      'href',
+      '/assets/write-offs/r7'
+    );
   });
 });

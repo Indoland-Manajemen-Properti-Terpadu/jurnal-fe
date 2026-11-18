@@ -10,7 +10,6 @@ import type {
   AssetSummary,
 } from '@/module/assets/domain/asset';
 import {
-  ALL_TAB,
   AssetListToolbar,
   AssetStatusTabsList,
 } from '@/module/assets/presentation/components/AssetTableFilters';
@@ -42,6 +41,8 @@ export const AssetTable: React.FC<AssetTableProps> = ({
   onViewDetail,
 }) => {
   const { t } = useTranslation('assets');
+  const { t: tw } = useTranslation('assetWriteOffs');
+  const disposedTab = filters.status === 'disposed';
 
   const headerLabel = (label: string, minWidth: number, right?: boolean, center?: boolean) => (
     <Table.Th
@@ -96,16 +97,19 @@ export const AssetTable: React.FC<AssetTableProps> = ({
     }
 
     return assets.map((asset) => (
-      <AssetTableRow key={asset.id} asset={asset} onViewDetail={onViewDetail} />
+      <AssetTableRow
+        key={asset.id}
+        asset={asset}
+        onViewDetail={onViewDetail}
+        disposedColumns={disposedTab}
+      />
     ));
   };
 
   return (
     <Tabs
-      value={filters.status ?? ALL_TAB}
-      onChange={(value) =>
-        filters.setStatus(value && value !== ALL_TAB ? (value as AssetStatus) : undefined)
-      }
+      value={filters.status}
+      onChange={(value) => value && filters.setStatus(value as AssetStatus)}
       color="primary"
       variant="pills"
       radius="md"
@@ -129,8 +133,10 @@ export const AssetTable: React.FC<AssetTableProps> = ({
                   {headerLabel(t('name'), 160)}
                   {headerLabel(t('category'), 90)}
                   {headerLabel(t('acquisitionCost'), 110, true)}
-                  {headerLabel(t('currentNBV'), 110, true)}
-                  {headerLabel(t('status'), 120)}
+                  {disposedTab
+                    ? headerLabel(tw('colProceeds'), 110, true)
+                    : headerLabel(t('currentNBV'), 110, true)}
+                  {disposedTab ? headerLabel(tw('colType'), 120) : headerLabel(t('status'), 120)}
                   {headerLabel(t('actions'), 56, false, true)}
                 </Table.Tr>
               </Table.Thead>

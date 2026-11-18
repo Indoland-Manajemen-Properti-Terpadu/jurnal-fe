@@ -1,0 +1,81 @@
+.typeCard {
+  height: 100%;
+  padding: var(--mantine-spacing-sm);
+  border: 1px solid var(--mantine-color-gray-3);
+  transition: border-color 120ms ease, background-color 120ms ease;
+}
+
+.typeCard[data-checked] {
+  border-color: var(--mantine-color-primary-6);
+  background: var(--mantine-color-primary-0);
+}
+
+.typeCard:disabled,
+.typeCard[data-disabled] {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.typeArt {
+  flex: 0 0 56px;
+}
+
+.dropzone {
+  border: 1.5px dashed var(--mantine-color-gray-4);
+  background: var(--mantine-color-gray-0);
+}
+
+.dropzone[data-error] {
+  border-color: var(--mantine-color-red-6);
+}
+
+.fileTile {
+  position: relative;
+  width: 96px;
+}
+
+.fileThumb {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 96px;
+  height: 72px;
+  object-fit: cover;
+  border: 1px solid var(--mantine-color-gray-3);
+  border-radius: var(--mantine-radius-sm);
+  color: var(--mantine-color-red-7);
+  background: var(--mantine-color-gray-0);
+}
+
+.fileName {
+  margin-top: 4px;
+}
+
+.fileRemove {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+}
+
+.aside {
+  position: sticky;
+  top: 20px;
+}
+
+.hero {
+  display: flex;
+  align-items: center;
+  gap: var(--mantine-spacing-lg);
+}
+
+@media (max-width: 48em) {
+  .heroArt {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .typeCard {
+    transition: none;
+  }
+}

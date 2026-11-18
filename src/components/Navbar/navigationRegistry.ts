@@ -47,6 +47,9 @@ import { routes } from '@/router/routes';
  * Every entry opens a page. A module that is not built yet still has its page (the shared
  * `PlannedModulePage`), so the whole menu can be seen and each module starts from a real route.
  */
+/** Counts a sidebar entry can show: pending changes, and asset reports waiting on the user. */
+export type NavBadge = 'pendingChanges' | 'assetDecisions';
+
 export type NavChild = {
   id: string;
   /** Key in the `navigation` namespace. */
@@ -54,6 +57,7 @@ export type NavChild = {
   icon: ElementType;
   link: string;
   menus?: string[];
+  badge?: NavBadge;
 };
 
 export type NavItem = {
@@ -67,7 +71,7 @@ export type NavItem = {
   menus?: string[];
   children?: NavChild[];
   /** Shows the pending-approval count. */
-  badge?: 'pendingChanges';
+  badge?: NavBadge;
 };
 
 export type NavSection = {
@@ -209,7 +213,14 @@ export const navigationSections: NavSection[] = [
         link: routes.beginningBalances.main,
         menus: [...NAV_MENU.ledger],
       },
-      { id: 'assets', labelKey: 'assets', icon: Toolbox, link: routes.assets.main },
+      {
+        id: 'assets',
+        labelKey: 'assets',
+        icon: Toolbox,
+        link: routes.assets.main,
+        match: routes.assets.main,
+        badge: 'assetDecisions',
+      },
       {
         id: 'budgetPlanning',
         labelKey: 'budgetMenu',
@@ -257,6 +268,8 @@ type TitleEntry = SectionTitle & { prefix: string };
  * Matching is by longest prefix, so a detail page wins over the list it belongs to.
  */
 const extraTitles: TitleEntry[] = [
+  { prefix: '/assets/write-offs', titleKey: 'assetWriteOffs', groupKey: 'groupAccounting' },
+  { prefix: '/assets/needs-you', titleKey: 'assetNeedsYou', groupKey: 'groupAccounting' },
   { prefix: routes.bankConnection.main, titleKey: 'bankConnection', groupKey: 'groupTransactions' },
   // The general journal opens from the report center, so it keeps its own title there.
   { prefix: routes.journalEntries.main, titleKey: 'journalEntries', groupKey: 'groupAccounting' },
