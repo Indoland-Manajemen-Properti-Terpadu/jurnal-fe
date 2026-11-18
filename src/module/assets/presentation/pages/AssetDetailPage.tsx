@@ -66,7 +66,7 @@ export const AssetDetailPage: React.FC = () => {
   if (isLoading) return <AssetDetailSkeleton />;
   if (!asset) return <AssetNotFound onBack={goToList} />;
 
-  const openEdit = () => dialogs.open({ kind: 'form', asset });
+  const openEdit = () => navigate(routes.assets.edit.replace(':id', asset.id));
   const openRevise = () => dialogs.open({ kind: 'revise', asset });
   const openReport = () =>
     pendingReport && navigate(routes.assets.writeOffDetail.replace(':id', pendingReport.id));

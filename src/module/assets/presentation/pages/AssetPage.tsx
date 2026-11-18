@@ -6,11 +6,9 @@ import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
 import { routes } from '@/router/routes';
 import { useTranslation } from '@/i18n';
 import { AssetListParams } from '@/module/assets/domain/asset';
-import { AssetDialogs } from '@/module/assets/presentation/components/AssetDialogs';
 import { AssetStatsGrid } from '@/module/assets/presentation/components/AssetStatsGrid';
 import { AssetTable } from '@/module/assets/presentation/components/AssetTable';
 import { NeedsYouCard } from '@/module/assets/presentation/components/NeedsYouCard';
-import { useAssetDialogs } from '@/module/assets/presentation/hooks/useAssetDialogs';
 import { useAssetListParams } from '@/module/assets/presentation/hooks/useAssetListParams';
 import { useAssetSummary, useAssets } from '@/module/assets/presentation/hooks/useAssetQueries';
 
@@ -30,7 +28,7 @@ export function AssetPage() {
   const list = useAssets(listParams);
   const summary = useAssetSummary();
 
-  const dialogs = useAssetDialogs();
+  const goToNew = () => navigate(routes.assets.new);
 
   const refetch = () => {
     list.refetch();
@@ -65,7 +63,7 @@ export function AssetPage() {
                   size="md"
                   radius="md"
                   leftSection={<IconPlus size={18} />}
-                  onClick={() => dialogs.open({ kind: 'form', asset: null })}
+                  onClick={() => goToNew()}
                 >
                   {t('addAsset')}
                 </Button>
@@ -89,14 +87,12 @@ export function AssetPage() {
               counts={summary.data?.counts}
               filters={filters}
               loading={list.isLoading}
-              onAddNew={() => dialogs.open({ kind: 'form', asset: null })}
+              onAddNew={() => goToNew()}
               onViewDetail={(asset) => navigate(routes.assets.detail.replace(':id', asset.id))}
             />
           </Paper>
         </Stack>
       </Box>
-
-      <AssetDialogs dialog={dialogs.dialog} onClose={dialogs.close} />
     </>
   );
 }
