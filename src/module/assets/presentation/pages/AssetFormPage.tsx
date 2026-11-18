@@ -73,7 +73,11 @@ function AssetFormBody({ asset }: Readonly<FormBodyProps>) {
   const pending = create.isPending || update.isPending;
 
   const form = useAssetForm(asset);
-  const activationForm = useActivationForm(null, () => Number(form.values.acquisitionCost) || 0);
+  const activationForm = useActivationForm(
+    null,
+    () => Number(form.values.acquisitionCost) || 0,
+    () => form.values.acquisitionDate
+  );
 
   const back = () =>
     navigate(asset ? routes.assets.detail.replace(':id', asset.id) : routes.assets.main);
@@ -174,6 +178,7 @@ function AssetFormBody({ asset }: Readonly<FormBodyProps>) {
                   accounts={accounts.data ?? []}
                   loadingAccounts={accounts.isLoading}
                   acquisitionCost={Number(form.values.acquisitionCost) || 0}
+                  acquisitionDate={form.values.acquisitionDate}
                 />
               </AssetCard>
             )}

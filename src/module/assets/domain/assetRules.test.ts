@@ -11,6 +11,7 @@ import {
   previewAcquisitionJournal,
   sumJournalLines,
   validateActivation,
+  invalidAccountFields,
   validatePhotoFile,
   validatePhotos,
 } from '@/module/assets/domain/assetRules';
@@ -188,11 +189,12 @@ describe('getWarrantyStatus', () => {
 });
 
 describe('photos picked from the device', () => {
-  it('accepts JPG and PNG up to 10 MB only', () => {
+  it('accepts JPG, PNG and WebP up to 5 MB only', () => {
     expect(validatePhotoFile({ type: 'image/png', size: 1024 })).toBeNull();
-    expect(validatePhotoFile({ type: 'image/jpeg', size: 10 * 1024 * 1024 })).toBeNull();
+    expect(validatePhotoFile({ type: 'image/jpeg', size: 5 * 1024 * 1024 })).toBeNull();
+    expect(validatePhotoFile({ type: 'image/webp', size: 1024 })).toBeNull();
     expect(validatePhotoFile({ type: 'application/pdf', size: 1024 })).toBe('errPhotoType');
-    expect(validatePhotoFile({ type: 'image/png', size: 10 * 1024 * 1024 + 1 })).toBe(
+    expect(validatePhotoFile({ type: 'image/png', size: 5 * 1024 * 1024 + 1 })).toBe(
       'errPhotoSize'
     );
   });
@@ -200,5 +202,49 @@ describe('photos picked from the device', () => {
   it('counts new files toward the limit of five', () => {
     expect(validatePhotos(['https://x.test/a.jpg'], 4)).toBeNull();
     expect(validatePhotos(['https://x.test/a.jpg'], 5)).toBe('errPhotoLimit');
+  });
+});
+
+describe('invalidAccountFields', () => {
+  const kinds = {
+    fixed_asset: [{ id: 'fa', accountNumber: '1-20004', name: 'Peralatan', type: '' }],
+    accumulated_depreciation: [{ id: 'ad', accountNumber: '1-20005', name: 'Akum', type: '' }],
+    depreciation_expense: [{ id: 'de', accountNumber: '6-10001', name: 'Beban', type: '' }],
+  };
+  const ref = (id: string) => ({ id, accountNumber: '', name: '' });
+
+  it('flags a saved account that is not of the kind its field needs', () => {
+    expect(
+      invalidAccountFields(
+        {
+          assetAccount: ref('kas'),
+          accumDeprAccount: ref('biaya'),
+          deprExpenseAccount: ref('kas2'),
+        },
+        kinds
+      )
+    ).toEqual(['assetAccount', 'accumDeprAccount', 'deprExpenseAccount']);
+  });
+
+  it('accepts matching accounts and ignores an unset field', () => {
+    expect(
+      invalidAccountFields(
+        { assetAccount: ref('fa'), accumDeprAccount: ref('ad'), deprExpenseAccount: null },
+        kinds
+      )
+    ).toEqual([]);
+  });
+});
+
+describe('validateActivation start date', () => {
+  it('refuses a depreciation start before the acquisition date', () => {
+    const base = activation({ depreciationStartDate: '2026-10-01' });
+    expect(validateActivation(base, 1000000, '2026-11-18').depreciationStartDate).toBe(
+      'errStartBeforeAcquisition'
+    );
+    expect(
+      validateActivation({ ...base, depreciationStartDate: '2026-11-18' }, 1000000, '2026-11-18')
+        .depreciationStartDate
+    ).toBeUndefined();
   });
 });

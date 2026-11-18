@@ -46,12 +46,17 @@ const tr = (key: string, params?: Record<string, string | number>) => t(key, par
 const notifySuccess = (title: string, message: string) =>
   notifications.show({ color: 'teal', title, message });
 
-const notifyError = (error: unknown, fallbackKey: string) =>
+/** The API words this for manual journals; here the cause is the account picked for the asset. */
+const PETTY_CASH_REFUSED = /kas kecil.*(jurnal manual|tidak boleh)/i;
+
+const notifyError = (error: unknown, fallbackKey: string) => {
+  const message = getApiErrorMessage(error, tr(fallbackKey));
   notifications.show({
     color: 'red',
     title: tr('notifyErrorTitle'),
-    message: getApiErrorMessage(error, tr(fallbackKey)),
+    message: PETTY_CASH_REFUSED.test(message) ? tr('errPettyCashAccount') : message,
   });
+};
 
 export const useAssets = (params: AssetListParams) =>
   useQuery({
