@@ -141,7 +141,10 @@ export interface AssetFormValues {
   location: string;
   /** Id of a Supplier contact; empty means no vendor. */
   vendorContactId: string;
+  /** Photos already saved on the asset, as links or paths. */
   photos: string[];
+  /** Photos picked from the device, sent with the save. */
+  photoFiles?: File[];
 }
 
 /** Accounts and depreciation terms that put an asset in the books. */
