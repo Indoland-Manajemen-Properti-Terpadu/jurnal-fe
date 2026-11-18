@@ -100,13 +100,15 @@ const rejected = (reason: string) => ({
 });
 
 let current: Record<string, unknown> = pending;
+// The signed-in user; the report was filed by `u1`.
+let me = 'u2';
 
 const renderPage = (state?: Record<string, unknown>) => {
-  http.get.mockImplementation((url: string) =>
-    url === '/v1/asset-reports/r1'
-      ? Promise.resolve({ data: { data: current } })
-      : Promise.reject(new Error(`unexpected ${url}`))
-  );
+  http.get.mockImplementation((url: string) => {
+    if (url === '/v1/asset-reports/r1') return Promise.resolve({ data: { data: current } });
+    if (url === '/v1/users/me') return Promise.resolve({ data: { id: me } });
+    return Promise.reject(new Error(`unexpected ${url}`));
+  });
   const router = createMemoryRouter(
     [
       { path: '/assets/write-offs/:id', element: <WriteOffDetailPage /> },
@@ -129,6 +131,7 @@ beforeEach(() => {
   http.get.mockReset();
   http.post.mockReset();
   current = pending;
+  me = 'u2';
 });
 
 describe('WriteOffDetailPage', { timeout: 20_000 }, () => {
@@ -139,6 +142,16 @@ describe('WriteOffDetailPage', { timeout: 20_000 }, () => {
     ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Tolak' })).toBeInTheDocument();
     expect(screen.getByText(/Berita Acara Pemusnahan Aset/)).toBeInTheDocument();
+  });
+
+  it('never offers the decision to the person who filed the report', async () => {
+    me = 'u1';
+    renderPage();
+    expect(await screen.findByText(/Berita Acara Pemusnahan Aset/)).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Setujui & tandatangani' })
+    ).not.toBeInTheDocument();
+    expect(await screen.findByText(/Anda yang mengajukan/)).toBeInTheDocument();
   });
 
   it('hides the decision when the user cannot decide', async () => {

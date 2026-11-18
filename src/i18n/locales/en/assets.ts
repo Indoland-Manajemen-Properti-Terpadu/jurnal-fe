@@ -334,6 +334,16 @@ export const assets = {
   leaveBody: 'The asset has not been saved and the entries will be lost.',
   leaveConfirm: 'Leave',
   leaveStay: 'Stay here',
+  invalidAccountsTitle: 'Asset accounts do not match their kind',
+  invalidAccountsBody:
+    'The saved {fields} is not an account used for fixed assets. Pick the accounts again so depreciation is booked correctly.',
+  invalidAccountsFix: 'Change accounts',
+  invalidFieldAsset: 'asset account',
+  invalidFieldAccumulated: 'accumulated depreciation account',
+  invalidFieldExpense: 'depreciation expense account',
+  errStartBeforeAcquisition: 'The depreciation start date cannot be before the acquisition date.',
+  errPettyCashAccount:
+    'A petty cash account cannot be used here. Pick another cash or bank account as the counter account.',
 };
 
 export default assets;

@@ -330,6 +330,16 @@ export const assets = {
   leaveBody: 'Isian aset belum disimpan dan akan hilang.',
   leaveConfirm: 'Tinggalkan',
   leaveStay: 'Tetap di sini',
+  invalidAccountsTitle: 'Akun aset tidak sesuai jenisnya',
+  invalidAccountsBody:
+    'Akun yang tersimpan untuk {fields} bukan akun yang dipakai untuk aset tetap. Pilih ulang akunnya agar penyusutan dibukukan dengan benar.',
+  invalidAccountsFix: 'Ubah akun',
+  invalidFieldAsset: 'akun aset',
+  invalidFieldAccumulated: 'akun akumulasi penyusutan',
+  invalidFieldExpense: 'akun beban penyusutan',
+  errStartBeforeAcquisition: 'Tanggal mulai disusutkan tidak boleh sebelum tanggal perolehan.',
+  errPettyCashAccount:
+    'Akun kas kecil tidak bisa dipakai di sini. Pilih akun kas atau bank lain sebagai akun lawan.',
 };
 
 export default assets;

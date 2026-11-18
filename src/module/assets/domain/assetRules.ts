@@ -1,7 +1,9 @@
 import { fromMinor, toMinor } from '@/lib/money/money';
 import {
   MAX_ASSET_PHOTOS,
+  type AccountOption,
   type ActivationValues,
+  type AssetAccountKind,
   type AssetItem,
   type AssetJournalLine,
 } from '@/module/assets/domain/asset';
@@ -50,7 +52,8 @@ export type ActivationErrorKey =
   | 'errAccountsDistinct'
   | 'errUsefulLifeMin'
   | 'errResidualTooHigh'
-  | 'errOpeningTooHigh';
+  | 'errOpeningTooHigh'
+  | 'errStartBeforeAcquisition';
 
 export type ActivationErrors = Partial<Record<keyof ActivationValues, ActivationErrorKey>>;
 
@@ -67,7 +70,8 @@ const requiredAccounts = (method: ActivationValues['depreciationMethod']) =>
 
 export const validateActivation = (
   values: ActivationValues,
-  acquisitionCost: number
+  acquisitionCost: number,
+  acquisitionDate?: string
 ): ActivationErrors => {
   const errors: ActivationErrors = {};
   const depreciated = values.depreciationMethod !== 'none';
@@ -83,6 +87,13 @@ export const validateActivation = (
   });
 
   if (depreciated) {
+    if (
+      acquisitionDate &&
+      values.depreciationStartDate &&
+      values.depreciationStartDate < acquisitionDate
+    ) {
+      errors.depreciationStartDate = 'errStartBeforeAcquisition';
+    }
     if (!(values.usefulLifeYears > 0)) errors.usefulLifeYears = 'errUsefulLifeMin';
     if (values.residualValue >= acquisitionCost) errors.residualValue = 'errResidualTooHigh';
     if (values.accumulatedDepreciation > acquisitionCost - values.residualValue) {
@@ -162,3 +173,26 @@ export const getWarrantyStatus = (
   const monthsLeft = monthIndex(warrantyUntil) - monthIndex(today);
   return monthsLeft <= 1 ? { state: 'endingSoon' } : { state: 'active', monthsLeft };
 };
+
+export type AssetAccountField = 'assetAccount' | 'accumDeprAccount' | 'deprExpenseAccount';
+
+const ACCOUNT_KIND_OF: Record<AssetAccountField, AssetAccountKind> = {
+  assetAccount: 'fixed_asset',
+  accumDeprAccount: 'accumulated_depreciation',
+  deprExpenseAccount: 'depreciation_expense',
+};
+
+/**
+ * Accounts saved on the asset that are not of the kind the field needs (a petty cash account as
+ * the asset account, for example). A field with no account is not wrong, only unset.
+ */
+export const invalidAccountFields = (
+  asset: Pick<AssetItem, AssetAccountField>,
+  accountsByKind: Record<AssetAccountKind, AccountOption[]>
+): AssetAccountField[] =>
+  (Object.keys(ACCOUNT_KIND_OF) as AssetAccountField[]).filter((field) => {
+    const saved = asset[field];
+    return (
+      Boolean(saved) && !accountsByKind[ACCOUNT_KIND_OF[field]].some((a) => a.id === saved?.id)
+    );
+  });

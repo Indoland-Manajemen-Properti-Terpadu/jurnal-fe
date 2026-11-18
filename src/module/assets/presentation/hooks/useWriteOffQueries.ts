@@ -2,6 +2,7 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tansta
 import { notifications } from '@mantine/notifications';
 import { t } from '@/i18n';
 import type { WriteOffDraft, WriteOffListParams } from '@/module/assets/domain/writeOff';
+import { separateDuties } from '@/module/assets/domain/writeOffRules';
 import { getApiErrorMessage } from '@/module/assets/infrastructure/assetApi';
 import {
   addWriteOffAttachments,
@@ -49,13 +50,16 @@ export const useWriteOffs = (params: WriteOffListParams, enabled = true) =>
     enabled,
   });
 
-export const useWriteOff = (id: string | undefined) =>
-  useQuery({
+export const useWriteOff = (id: string | undefined) => {
+  const me = useCurrentUserId();
+  return useQuery({
     queryKey: writeOffKeys.detail(id ?? ''),
     queryFn: () => fetchWriteOff(id as string),
     enabled: Boolean(id),
     retry: false,
+    select: (report) => separateDuties(report, me.data),
   });
+};
 
 /** The report of an asset that still waits for approval, or null. */
 export const usePendingWriteOffForAsset = (assetId: string | undefined, enabled = true) =>
@@ -79,7 +83,8 @@ export const useWriteOffDecisions = () => {
     queryKey: writeOffKeys.decisions,
     queryFn: () => fetchWriteOffs({ page: 1, limit: DECISION_LIMIT, status: 'PENDING_APPROVAL' }),
   });
-  const pending = query.data?.items ?? [];
+  const me = useCurrentUserId();
+  const pending = (query.data?.items ?? []).map((report) => separateDuties(report, me.data));
   const reports = pending.filter((report) => report.canDecide);
   return { reports, pending, count: reports.length, isLoading: query.isLoading, query };
 };

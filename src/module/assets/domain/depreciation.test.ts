@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   depreciationEndMonth,
+  lastDepreciationMonth,
   depreciationPercent,
   estimateDepreciation,
   isNonDepreciable,
@@ -12,14 +13,14 @@ describe('estimateDepreciation', () => {
   it('spreads cost minus residual over the useful life for straight line', () => {
     expect(estimateDepreciation(13000000, 2000000, 4, 'straight_line')).toEqual({
       annual: 2750000,
-      monthly: 229167,
+      monthly: 229166.67,
     });
   });
 
   it('takes twice the straight-line rate of the cost for double declining', () => {
     expect(estimateDepreciation(12500000, 1000000, 5, 'double_declining')).toEqual({
       annual: 5000000,
-      monthly: 416667,
+      monthly: 416666.67,
     });
   });
 
@@ -66,6 +67,10 @@ describe('useful life left', () => {
     expect(depreciationEndMonth({ ...genset, depreciationStartDate: undefined })).toBe(
       '2034-09-01'
     );
+  });
+
+  it('names the last month that carries depreciation, one before the life ends', () => {
+    expect(lastDepreciationMonth(genset)).toBe('2034-08-01');
   });
 
   it('counts the months left from today and stops at zero', () => {

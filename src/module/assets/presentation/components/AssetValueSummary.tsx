@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 import { useTranslation } from '@/i18n';
 import type { AssetItem } from '@/module/assets/domain/asset';
 import {
-  depreciationEndMonth,
+  lastDepreciationMonth,
   isNonDepreciable,
   percentOf,
   remainingLifeMonths,
@@ -42,7 +42,7 @@ export function AssetValueSummary({ asset }: Readonly<{ asset: AssetItem }>) {
 
   const depreciable = Math.max(asset.acquisitionCost - asset.residualValue, 0);
   const progress = percentOf(asset.accumulatedDepreciation, depreciable);
-  const end = depreciationEndMonth(asset);
+  const end = lastDepreciationMonth(asset);
   const left = remainingLifeMonths(asset, dayjs().format('YYYY-MM-DD'));
   const years = Math.floor(left / 12);
   const months = left % 12;
