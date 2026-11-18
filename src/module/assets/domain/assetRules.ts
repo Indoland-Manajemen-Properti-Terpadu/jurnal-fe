@@ -110,6 +110,17 @@ export const previewAcquisitionJournal = (
   };
 };
 
+export const ASSET_PHOTO_LIMITS = {
+  mime: ['image/jpeg', 'image/png'],
+  maxBytes: 10 * 1024 * 1024,
+} as const;
+
+export const validatePhotoFile = (file: { type: string; size: number }) => {
+  if (!(ASSET_PHOTO_LIMITS.mime as readonly string[]).includes(file.type)) return 'errPhotoType';
+  if (file.size > ASSET_PHOTO_LIMITS.maxBytes) return 'errPhotoSize';
+  return null;
+};
+
 export type PhotoErrorKey = 'errPhotoUrl' | 'errPhotoLimit';
 
 /** The API takes http(s) links or a path on the same site, without spaces. */
@@ -117,8 +128,8 @@ const PHOTO_PATTERN = /^(https?:\/\/|\/(?!\/))\S+$/;
 
 export const isValidPhotoUrl = (value: string): boolean => PHOTO_PATTERN.test(value);
 
-export const validatePhotos = (photos: string[]): PhotoErrorKey | null => {
-  if (photos.length > MAX_ASSET_PHOTOS) return 'errPhotoLimit';
+export const validatePhotos = (photos: string[], extra = 0): PhotoErrorKey | null => {
+  if (photos.length + extra > MAX_ASSET_PHOTOS) return 'errPhotoLimit';
   return photos.every(isValidPhotoUrl) ? null : 'errPhotoUrl';
 };
 

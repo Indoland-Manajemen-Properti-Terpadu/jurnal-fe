@@ -174,6 +174,19 @@ describe('assetApi writes', () => {
     });
   });
 
+  it('sends a multipart body when photos are picked from the device', async () => {
+    const photo = new File(['x'], 'depan.png', { type: 'image/png' });
+    await createAsset(values({ photoFiles: [photo], tagIds: ['t1'] }));
+    const [url, body] = http.post.mock.calls.at(-1) as [string, FormData];
+    expect(url).toBe('/v1/assets');
+    expect(body).toBeInstanceOf(FormData);
+    expect(body.get('code')).toBe('ZZ/1');
+    expect(body.get('acquisitionCost')).toBe('12000000');
+    expect(body.get('tags')).toBe('["t1"]');
+    expect(body.getAll('photos')).toHaveLength(1);
+    expect((body.get('photos') as File).name).toBe('depan.png');
+  });
+
   it('sends the optional details and the vendor contact when they are filled', async () => {
     await createAsset(
       values({

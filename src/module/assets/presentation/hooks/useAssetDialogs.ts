@@ -2,7 +2,6 @@ import { useCallback, useState } from 'react';
 import type { AssetItem } from '@/module/assets/domain/asset';
 
 export type AssetDialog =
-  | { kind: 'form'; asset: AssetItem | null }
   | { kind: 'activate'; asset: AssetItem }
   | { kind: 'revise'; asset: AssetItem };
 

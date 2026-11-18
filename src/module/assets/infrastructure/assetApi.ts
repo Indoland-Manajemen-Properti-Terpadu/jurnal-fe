@@ -166,11 +166,25 @@ const toDetailFields = (values: AssetFormValues) => ({
   photos: values.photos.length > 0 ? values.photos : undefined,
 });
 
+/** Objects and lists travel as JSON text and photos as file parts, like the journal form. */
+const toMultipart = (body: Record<string, unknown>, files: File[]): FormData => {
+  const form = new FormData();
+  Object.entries(body).forEach(([key, value]) => {
+    if (value === undefined) return;
+    if (value === null) form.append(key, '');
+    else if (typeof value === 'object') form.append(key, JSON.stringify(value));
+    else form.append(key, String(value));
+  });
+  files.forEach((file) => form.append('photos', file));
+  return form;
+};
+
 export const createAsset = async (
   values: AssetFormValues,
   activation?: ActivationValues
 ): Promise<AssetItem> => {
-  const { data } = await apiClient.post<ApiEnvelope<AssetDto>>(ASSET_ENDPOINTS.assets, {
+  const files = values.photoFiles ?? [];
+  const body = {
     code: values.code.trim(),
     name: values.name.trim(),
     categoryName: values.categoryName.trim() || undefined,
@@ -180,7 +194,11 @@ export const createAsset = async (
     ...toDetailFields(values),
     tags: values.tagIds,
     activation: activation ? toActivationBody(activation) : undefined,
-  });
+  };
+  const { data } = await apiClient.post<ApiEnvelope<AssetDto>>(
+    ASSET_ENDPOINTS.assets,
+    files.length > 0 ? toMultipart(body, files) : body
+  );
   return mapAsset(data.data);
 };
 
@@ -211,7 +229,11 @@ export const updateAsset = async (
     body.acquisitionCost = values.acquisitionCost;
   }
   if (rights.tags) body.tags = values.tagIds;
-  const { data } = await apiClient.patch<ApiEnvelope<AssetDto>>(ASSET_ENDPOINTS.asset(id), body);
+  const files = rights.details ? (values.photoFiles ?? []) : [];
+  const { data } = await apiClient.patch<ApiEnvelope<AssetDto>>(
+    ASSET_ENDPOINTS.asset(id),
+    files.length > 0 ? toMultipart(body, files) : body
+  );
   return mapAsset(data.data);
 };
 

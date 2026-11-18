@@ -1,0 +1,33 @@
+.dropzone {
+  border: 1.5px dashed var(--mantine-color-gray-4);
+  background: var(--mantine-color-gray-0);
+}
+
+.dropzone[data-error] {
+  border-color: var(--mantine-color-red-6);
+}
+
+.tile {
+  position: relative;
+  width: 104px;
+}
+
+.thumb {
+  width: 104px;
+  height: 78px;
+  object-fit: cover;
+  border: 1px solid var(--mantine-color-gray-3);
+  border-radius: var(--mantine-radius-sm);
+  background: var(--mantine-color-gray-0);
+}
+
+.remove {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+}
+
+.aside {
+  position: sticky;
+  top: 20px;
+}
