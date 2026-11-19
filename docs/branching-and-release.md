@@ -17,11 +17,26 @@ hotfix/*           cut from main-frontend
 - Work branches are squash-merged into `develop-frontend` after CI is green. CI is not yet a required status check on the protected branches (it is applied after the first green PR run; see `.github/branch-protection/README.md`), so until then reviewers must not merge a red PR.
 - `main-frontend` requires a PR and applies to admins, but no approving review: the team is currently one developer, so a required review would only block releases. Raise `required_approving_review_count` in [`.github/branch-protection/main-frontend.json`](../.github/branch-protection/main-frontend.json) and in the repository settings when a second maintainer joins.
 - Promotion is `develop-frontend` to `staging` to `main-frontend`, each by PR. The `guard` job in `.github/workflows/deploy.yml` (logic in `scripts/lib/deployGuard.mjs`, with tests) refuses to deploy a commit that is not a merged PR from an allowed source: `staging` or `hotfix/*` into `main-frontend`; `develop-frontend`, `main-frontend` (hotfix back-merge) or `hotfix/*` into `staging`. It retries briefly because GitHub can lag in linking a commit to its PR.
-- Releases are tagged `vMAJOR.MINOR.PATCH` on `main-frontend`.
+- Releases are tagged `vMAJOR.MINOR.PATCH` on `main-frontend`, one per production deploy, made by the `release` job of `deploy.yml` (see [Versioning](#versioning)).
 
 ## How the CI gate is built
 
 A PR into any of the three protected branches runs `.github/workflows/pr-check.yml`: a `changes` job, then `typecheck`, `lint` (ESLint ratchet, Stylelint, format of changed files), three `unit` shards of Vitest, and `build` (`npx vite build`, the command of the Dockerfile) in parallel, then the `test-and-build` job that the protection requires. A newer push to the same PR cancels the older run. A PR that changes only `.md` files skips the heavy jobs. A push to `staging` or `main-frontend` runs `deploy.yml`, which builds the image and never runs two deploys of one environment at once. A Docker layer cache in the GitHub cache was tried and made the build slower (1m40s against 55s: exporting the layers cost more than the install layer saved, and a branch cannot read the cache of another), so the image is built without one.
+
+## Versioning
+
+Versions follow [SemVer](https://semver.org) and are decided by the commits, never by hand. When a deploy of `main-frontend` succeeds, `scripts/release.mjs` reads the Conventional Commit subjects between the last `v*` tag and the deployed commit and creates the next tag and a GitHub Release:
+
+| Commits that shipped                                        | Bump                                                 |
+| ----------------------------------------------------------- | ---------------------------------------------------- |
+| A breaking change (`type!:` or a `BREAKING CHANGE:` footer) | minor while the version is `0.x`, major from `1.0.0` |
+| At least one `feat`                                         | minor                                                |
+| Anything else (`fix`, `perf`, `docs`, `ci`, ...)            | patch                                                |
+| Only merge commits and `chore(release)` back-merges         | no release (a redeploy)                              |
+
+The release notes group the commits by type (Fitur, Perbaikan, Performa, Perapian kode, Dokumentasi, Lainnya) and link the comparison with the previous tag. This is why the title of a squash-merged PR must be a Conventional Commit: it is the line that appears in the notes and decides the bump. Moving from `0.x` to `1.0.0` is a deliberate act: create the tag `v1.0.0` by hand.
+
+The first tag must exist (`v0.2.0` was made by hand on 2026-11-19); the job fails loudly when there is none. A release is not created from `staging`, and a failed deploy leaves no release. To preview the result, run `node scripts/release.mjs <owner/repo> <sha> --dry-run`.
 
 ## Release gate (PR into `main-frontend`)
 
