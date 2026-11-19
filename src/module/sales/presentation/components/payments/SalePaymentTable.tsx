@@ -49,9 +49,7 @@ type Column = { key: string; align?: 'right'; sort?: PaymentSortBy };
 
 const COLUMNS: Column[] = [
   { key: 'colDate', sort: 'paymentDate' },
-  { key: 'colNumber', sort: 'transactionNumber' },
   { key: 'colInvoice' },
-  { key: 'colCustomer' },
   { key: 'colMethod' },
   { key: 'colAmount', align: 'right', sort: 'amount' },
   { key: 'colOverpayment', align: 'right', sort: 'overpaymentAmount' },
@@ -187,22 +185,12 @@ export function SalePaymentTable({
                     <Text size="sm">{formatDate(row.paymentDate)}</Text>
                   </Table.Td>
                   <Table.Td>
-                    <Text size="sm" fw={700}>
-                      {row.transactionNumber}
-                    </Text>
-                    {row.memo && (
-                      <Text size="xs" c="dimmed" lineClamp={1}>
-                        {row.memo}
-                      </Text>
-                    )}
-                  </Table.Td>
-                  <Table.Td>
                     <Text size="sm" fw={600} c="primary.9">
                       {row.sale?.transactionNumber ?? '—'}
                     </Text>
-                  </Table.Td>
-                  <Table.Td>
-                    <Text size="sm">{row.sale?.customerName ?? '—'}</Text>
+                    <Text size="xs" c="dimmed">
+                      {row.sale?.customerName ?? '—'}
+                    </Text>
                   </Table.Td>
                   <Table.Td>
                     <Text size="sm">{row.paymentMethodName ?? '—'}</Text>
