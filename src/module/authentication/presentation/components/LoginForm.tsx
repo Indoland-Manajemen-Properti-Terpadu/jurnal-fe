@@ -14,6 +14,7 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { IconArrowLeft, IconArrowRight, IconLock, IconMail } from '@tabler/icons-react';
+import BrandIcon from '@/assets/images/brand/icon.svg';
 import GoogleIcon from '@/assets/images/brand/google.svg';
 import { Link } from 'react-router-dom';
 import { routes } from '@/router/routes';
@@ -129,6 +130,16 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onForgotPassword, onSubmit
           leftSection={<img src={GoogleIcon} width={20} height={20} alt="" />}
         >
           {ta('login.google')}
+        </Button>
+        <Button
+          type="button"
+          size="md"
+          radius="md"
+          variant="default"
+          fullWidth
+          leftSection={<img src={BrandIcon} width={20} height={20} alt="" />}
+        >
+          {ta('login.proapps')}
         </Button>
       </Stack>
 
