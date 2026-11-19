@@ -1,7 +1,7 @@
 import type { AmountCount } from '../domain/saleDocument';
 import type { QuoteDisplayStatus, QuoteStatus, QuoteSummary, SaleQuote } from '../domain/saleQuote';
 import { mapDocHeader } from './saleDocMapper';
-import { toMoney, toNumber, toRefId } from './saleMapperUtils';
+import { toMoney, toNumber, toRefId, toRefNumber } from './saleMapperUtils';
 import type { QuoteSummaryDto, SaleQuoteDto } from './saleQuoteDto';
 
 const STATUSES: QuoteStatus[] = ['DRAFT', 'SENT', 'ACCEPTED', 'REJECTED', 'VOID'];
@@ -26,6 +26,7 @@ export const mapQuoteDto = (dto: SaleQuoteDto): SaleQuote => {
     status,
     displayStatus: asDisplayStatus(dto, status),
     order: toRefId(dto.order),
+    orderNumber: toRefNumber(dto.order),
     emails: Array.isArray(dto.emails) ? dto.emails : [],
     sentAt: dto.sentAt || null,
     acceptedAt: dto.acceptedAt || null,

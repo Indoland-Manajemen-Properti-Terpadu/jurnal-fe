@@ -2,6 +2,7 @@ import { useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
 import { routes } from '@/router/routes';
+import { returnFilename } from '../../domain/saleDocFormat';
 import { formatIDR } from '../../domain/saleFormat';
 import type { ReturnApplication, SaleReturn } from '../../domain/saleReturn';
 import { ApplyCreditDialog } from '../components/returns/ApplyCreditDialog';
@@ -14,6 +15,7 @@ import {
   useCancelReturnApplication,
   useCancelReturnRefund,
   useDeleteReturn,
+  useDownloadReturnPdf,
   useIssueReturn,
   useRefundReturn,
 } from './useReturnMutations';
@@ -24,6 +26,7 @@ export interface ReturnHandlers {
   onView: (ret: SaleReturn) => void;
   onEdit: (ret: SaleReturn) => void;
   onIssue: (ret: SaleReturn) => void;
+  onPdf: (ret: SaleReturn) => void;
   onCancel: (ret: SaleReturn) => void;
   onDelete: (ret: SaleReturn) => void;
   onApplyCredit: (ret: SaleReturn) => void;
@@ -43,6 +46,7 @@ const editPath = (id: string) => routes.sales.returnEdit.replace(':id', id);
 export function useReturnActions(options: { onDeleted?: () => void } = {}): {
   handlers: ReturnHandlers;
   dialogs: ReactNode;
+  busy: boolean;
 } {
   const navigate = useNavigate();
   const { t } = useTranslation('salesReturns');
@@ -58,6 +62,7 @@ export function useReturnActions(options: { onDeleted?: () => void } = {}): {
   const cancelMutation = useCancelReturn();
   const applyMutation = useApplyReturnCredit();
   const refundMutation = useRefundReturn();
+  const pdfMutation = useDownloadReturnPdf();
   const cancelRefundMutation = useCancelReturnRefund();
   const cancelApplicationMutation = useCancelReturnApplication();
 
@@ -73,6 +78,7 @@ export function useReturnActions(options: { onDeleted?: () => void } = {}): {
     onView: (r) => navigate(returnDetailPath(r.id)),
     onEdit: (r) => navigate(editPath(r.id)),
     onIssue: open('issue'),
+    onPdf: (r) => pdfMutation.mutate({ id: r.id, filename: returnFilename(r.transactionNumber) }),
     onCancel: open('cancel'),
     onDelete: open('delete'),
     onApplyCredit: open('apply'),
@@ -167,5 +173,5 @@ export function useReturnActions(options: { onDeleted?: () => void } = {}): {
     </>
   );
 
-  return { handlers, dialogs };
+  return { handlers, dialogs, busy: pdfMutation.isPending };
 }

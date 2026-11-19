@@ -2,23 +2,29 @@ import { useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
 import { routes } from '@/router/routes';
+import { orderFilename } from '@/module/sales/domain/saleDocFormat';
 import type { SaleOrder } from '@/module/sales/domain/saleOrder';
 import { ConfirmModal } from '../components/shared/ConfirmModal';
+import { SendDocDialog } from '../components/docs/SendDocDialog';
 import { ReasonModal } from '../components/shared/ReasonModal';
 import {
   useCancelOrder,
   useConfirmOrder,
   useDeleteOrder,
+  useDownloadOrderPdf,
   useDuplicateOrder,
+  useResendOrder,
   useSendOrder,
 } from './useOrderMutations';
 
-type Kind = 'delete' | 'send' | 'confirm' | 'cancel';
+type Kind = 'delete' | 'send' | 'resend' | 'confirm' | 'cancel';
 
 export interface OrderHandlers {
   onView: (order: SaleOrder) => void;
   onEdit: (order: SaleOrder) => void;
   onSend: (order: SaleOrder) => void;
+  onResend: (order: SaleOrder) => void;
+  onPdf: (order: SaleOrder) => void;
   onConfirm: (order: SaleOrder) => void;
   onCancel: (order: SaleOrder) => void;
   onDelete: (order: SaleOrder) => void;
@@ -37,6 +43,7 @@ const editPath = (id: string) => routes.sales.orderEdit.replace(':id', id);
 export function useOrderActions(options: { onDeleted?: () => void } = {}): {
   handlers: OrderHandlers;
   dialogs: ReactNode;
+  busy: boolean;
 } {
   const navigate = useNavigate();
   const { t } = useTranslation('salesOrders');
@@ -45,6 +52,8 @@ export function useOrderActions(options: { onDeleted?: () => void } = {}): {
 
   const deleteMutation = useDeleteOrder();
   const sendMutation = useSendOrder();
+  const resendMutation = useResendOrder();
+  const pdfMutation = useDownloadOrderPdf();
   const confirmMutation = useConfirmOrder();
   const cancelMutation = useCancelOrder();
   const duplicateMutation = useDuplicateOrder();
@@ -61,6 +70,8 @@ export function useOrderActions(options: { onDeleted?: () => void } = {}): {
     onView: (o) => navigate(orderDetailPath(o.id)),
     onEdit: (o) => navigate(editPath(o.id)),
     onSend: open('send'),
+    onResend: open('resend'),
+    onPdf: (o) => pdfMutation.mutate({ id: o.id, filename: orderFilename(o.transactionNumber) }),
     onConfirm: open('confirm'),
     onCancel: open('cancel'),
     onDelete: open('delete'),
@@ -91,15 +102,24 @@ export function useOrderActions(options: { onDeleted?: () => void } = {}): {
           )
         }
       />
-      <ConfirmModal
-        opened={pending?.kind === 'send'}
-        loading={sendMutation.isPending}
-        title={t('confirm.sendTitle', { number })}
-        message={t('confirm.sendMessage')}
-        confirmLabel={t('confirm.sendConfirm')}
-        onClose={close}
-        onConfirm={() => order && run(sendMutation.mutateAsync(order.id))}
-      />
+      {(pending?.kind === 'send' || pending?.kind === 'resend') && (
+        <SendDocDialog
+          ns="salesOrders"
+          key={`${pending.kind}-${pending.order.id}`}
+          opened
+          doc={pending.order}
+          resend={pending.kind === 'resend'}
+          loading={sendMutation.isPending || resendMutation.isPending}
+          onClose={close}
+          onSubmit={(input) =>
+            run(
+              pending.kind === 'send'
+                ? sendMutation.mutateAsync({ id: pending.order.id, input })
+                : resendMutation.mutateAsync({ id: pending.order.id, input })
+            )
+          }
+        />
+      )}
       <ConfirmModal
         opened={pending?.kind === 'confirm'}
         loading={confirmMutation.isPending}
@@ -121,5 +141,5 @@ export function useOrderActions(options: { onDeleted?: () => void } = {}): {
     </>
   );
 
-  return { handlers, dialogs };
+  return { handlers, dialogs, busy: duplicateMutation.isPending || pdfMutation.isPending };
 }

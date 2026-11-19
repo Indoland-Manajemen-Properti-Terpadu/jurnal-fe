@@ -3,6 +3,7 @@ import type { SaleDocPage } from '../domain/saleDocument';
 import type { OrderListParams, OrderSummary, SaleOrder } from '../domain/saleOrder';
 import type { OrderFormValues } from '../domain/saleOrderForm';
 import type { SaleDocPageDto } from './saleDocDto';
+import { buildSendBody, type SendDocInput } from './saleDocPayloads';
 import { mapDocPage } from './saleDocMapper';
 import type { OrderSummaryDto, SaleOrderDto } from './saleOrderDto';
 import { mapOrderDto, mapOrderSummary } from './saleOrderMapper';
@@ -13,6 +14,8 @@ export const ORDER_ENDPOINTS = {
   detail: (id: string) => `/v1/sale-orders/${id}`,
   fromQuote: (quoteId: string) => `/v1/sale-orders/from-quote/${quoteId}`,
   send: (id: string) => `/v1/sale-orders/${id}/send`,
+  resend: (id: string) => `/v1/sale-orders/${id}/resend`,
+  print: (id: string) => `/v1/sale-orders/${id}/print`,
   confirm: (id: string) => `/v1/sale-orders/${id}/confirm`,
   cancel: (id: string) => `/v1/sale-orders/${id}/cancel`,
   duplicate: (id: string) => `/v1/sale-orders/${id}/duplicate`,
@@ -86,8 +89,47 @@ const transition = async (url: string, body?: object): Promise<SaleOrder> => {
   return mapOrderDto(data.data);
 };
 
-export const sendOrder = (id: string) => transition(ORDER_ENDPOINTS.send(id));
 export const confirmOrder = (id: string) => transition(ORDER_ENDPOINTS.confirm(id));
 export const cancelOrder = (id: string, reason: string) =>
   transition(ORDER_ENDPOINTS.cancel(id), { reason });
 export const duplicateOrder = (id: string) => transition(ORDER_ENDPOINTS.duplicate(id));
+
+export interface SendOrderResult {
+  order: SaleOrder;
+  emailSent: boolean;
+  emailRecipients: string[];
+  emailError: string;
+}
+
+const mapSendResult = (dto: SaleOrderDto): SendOrderResult => ({
+  order: mapOrderDto(dto),
+  emailSent: Boolean(dto.emailSent),
+  emailRecipients: dto.emailRecipients ?? [],
+  emailError: dto.emailError || '',
+});
+
+/** Moves a draft to waiting for confirmation; with addresses the email goes out after that. */
+export const sendOrder = async (id: string, input: SendDocInput): Promise<SendOrderResult> => {
+  const { data } = await apiClient.post<Envelope<SaleOrderDto>>(
+    ORDER_ENDPOINTS.send(id),
+    buildSendBody(input)
+  );
+  return mapSendResult(data.data);
+};
+
+/**
+ * Emails again, for an order that is waiting, confirmed or completed. An empty list uses the
+ * saved addresses, else the customer's; the server allows one every 30 seconds (429).
+ */
+export const resendOrder = async (id: string, input: SendDocInput): Promise<SendOrderResult> => {
+  const { data } = await apiClient.post<Envelope<SaleOrderDto>>(
+    ORDER_ENDPOINTS.resend(id),
+    buildSendBody(input)
+  );
+  return mapSendResult(data.data);
+};
+
+export const downloadOrderPdf = async (id: string): Promise<Blob> => {
+  const { data } = await apiClient.get<Blob>(ORDER_ENDPOINTS.print(id), { responseType: 'blob' });
+  return data;
+};

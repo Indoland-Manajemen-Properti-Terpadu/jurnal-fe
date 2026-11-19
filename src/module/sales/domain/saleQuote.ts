@@ -22,6 +22,8 @@ export interface SaleQuote extends SaleDocHeader {
   displayStatus: QuoteDisplayStatus;
   /** Id of the active order made from this quote. */
   order: string | null;
+  /** Number of that order; null when the API sent only its id. */
+  orderNumber: string | null;
   emails: string[];
   sentAt: string | null;
   acceptedAt: string | null;
@@ -77,9 +79,6 @@ export const quoteActions = (
     viewOrder: status === 'ACCEPTED' && Boolean(order),
   };
 };
-
-export const QUOTE_MAX_EMAILS = 10;
-export const QUOTE_MAX_MESSAGE = 2000;
 
 /** What the signed-in user may do with quotes, from the menu rights. */
 export interface QuoteRights {

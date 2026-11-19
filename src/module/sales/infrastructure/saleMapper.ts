@@ -169,6 +169,10 @@ const emptySale = (): Sale => ({
   canEdit: false,
   canDelete: false,
   createdByApi: false,
+  isPartiallyPaid: false,
+  hasReturn: false,
+  canVoid: null,
+  voidBlockedReason: null,
   deleted: false,
   createdAt: null,
   updatedAt: null,
@@ -245,6 +249,10 @@ export const mapSaleDto = (dto: SaleDto | null | undefined): Sale => {
     canEdit: Boolean(dto.canEdit),
     canDelete: Boolean(dto.canDelete),
     createdByApi: Boolean(dto.createdByApi),
+    isPartiallyPaid: Boolean(dto.isPartiallyPaid),
+    hasReturn: Boolean(dto.hasReturn),
+    canVoid: typeof dto.canVoid === 'boolean' ? dto.canVoid : null,
+    voidBlockedReason: dto.voidBlockedReason || null,
     invoiceLink: dto.invoiceLink || null,
     journalId:
       dto.journalId ||
@@ -348,6 +356,8 @@ export const mapStatusCounts = (raw: SaleStatusCountsDto | undefined): SaleStatu
   PAID: toNumber(raw?.PAID),
   OVERDUE: toNumber(raw?.OVERDUE),
   VOID: toNumber(raw?.VOID),
+  PARTIAL_PAID: toNumber(raw?.PARTIAL_PAID),
+  RETURNED: toNumber(raw?.RETURNED),
   sent: toNumber(raw?.sent),
   all: toNumber(raw?.all),
 });

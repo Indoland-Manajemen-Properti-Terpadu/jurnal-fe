@@ -10,6 +10,21 @@ import {
 const at = (status: SaleOrder['status'], sale: string | null = null) =>
   orderActions({ status, sale });
 
+describe('orderActions email and PDF', () => {
+  it('emails again only once the order went to the customer', () => {
+    expect(at('DRAFT').resend).toBe(false);
+    expect(at('WAITING_CONFIRMATION').resend).toBe(true);
+    expect(at('CONFIRMED').resend).toBe(true);
+    expect(at('COMPLETED', 's-1').resend).toBe(true);
+    expect(at('CANCELLED').resend).toBe(false);
+  });
+
+  it('offers the PDF in every status', () => {
+    expect(at('DRAFT').pdf).toBe(true);
+    expect(at('CANCELLED').pdf).toBe(true);
+  });
+});
+
 describe('orderActions', () => {
   it('lets a draft be edited, sent, deleted and copied', () => {
     expect(at('DRAFT')).toMatchObject({
@@ -41,9 +56,12 @@ describe('orderActions', () => {
     expect(done.edit || done.cancel || done.createInvoice).toBe(false);
   });
 
-  it('only allows copying a cancelled order', () => {
+  it('only allows copying a cancelled order, and its PDF', () => {
     const cancelled = at('CANCELLED');
-    expect(Object.entries(cancelled).filter(([, on]) => on)).toEqual([['duplicate', true]]);
+    expect(Object.entries(cancelled).filter(([, on]) => on)).toEqual([
+      ['duplicate', true],
+      ['pdf', true],
+    ]);
   });
 });
 
@@ -58,7 +76,8 @@ describe('allowedOrderActions', () => {
 
   it('drops what the rights do not cover', () => {
     const limited = allowedOrderActions(at('CONFIRMED'), rights);
-    expect(Object.values(limited).some(Boolean)).toBe(false);
+    // The PDF is a read, so it stays; everything that changes the order is gone.
+    expect(Object.entries(limited).filter(([, on]) => on)).toEqual([['pdf', true]]);
   });
 
   it('asks for the invoice rights, not the order rights, to make or see an invoice', () => {
@@ -121,7 +140,10 @@ describe('order form', () => {
       updatedAt: null,
       status: 'DRAFT',
       quote: null,
+      quoteNumber: null,
       sale: null,
+      saleNumber: null,
+      emails: [],
       sentAt: null,
       confirmedAt: null,
     });

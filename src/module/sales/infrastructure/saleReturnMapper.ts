@@ -1,5 +1,6 @@
 import type { AmountCount } from '../domain/saleDocument';
 import type {
+  ReturnActivity,
   ReturnApplication,
   ReturnDisplayStatus,
   ReturnLine,
@@ -10,6 +11,7 @@ import type {
 } from '../domain/saleReturn';
 import { toMoney, toNumber, toRefId } from './saleMapperUtils';
 import type {
+  ReturnActivityDto,
   ReturnApplicationDto,
   ReturnLineDto,
   ReturnSummaryDto,
@@ -42,6 +44,16 @@ const mapApplication = (dto: ReturnApplicationDto): ReturnApplication => ({
   saleNumber: dto.saleNumber || '',
   amount: toMoney(dto.amount),
   appliedAt: dto.appliedAt || null,
+  voided: Boolean(dto.voided),
+});
+
+const mapActivity = (dto: ReturnActivityDto): ReturnActivity => ({
+  type: dto.type || '',
+  label: dto.label || '',
+  at: dto.at || null,
+  by: dto.by?.name || '',
+  amount: typeof dto.amount === 'number' ? toMoney(dto.amount) : null,
+  saleNumber: dto.saleNumber || '',
   voided: Boolean(dto.voided),
 });
 
@@ -81,6 +93,7 @@ export const mapReturnDto = (dto: SaleReturnDto): SaleReturn => {
     status,
     displayStatus: DISPLAY.includes(shown) ? shown : fallbackDisplay(status),
     applications: (dto.applications ?? []).map(mapApplication),
+    activities: (dto.activities ?? []).map(mapActivity),
     postedAt: dto.postedAt || null,
     createdAt: dto.createdAt || null,
     updatedAt: dto.updatedAt || null,

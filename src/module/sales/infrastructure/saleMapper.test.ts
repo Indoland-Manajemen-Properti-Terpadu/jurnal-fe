@@ -170,6 +170,8 @@ describe('summary and counts mappers', () => {
       PAID: 0,
       OVERDUE: 0,
       VOID: 0,
+      PARTIAL_PAID: 0,
+      RETURNED: 0,
       sent: 5,
       all: 7,
     });

@@ -36,7 +36,7 @@ Company and accounting settings, reached from one "Settings" entry in the app si
 - Accounting rule: a payment method with an admin fee above 0 needs an admin expense account, so the journal knows where to debit the fee.
 - The tax form starts at 11 (`DEFAULT_TAX_RATE`); an unchosen account is sent as `undefined`.
 - A payment term has an advance (none, partial 1-99 %, full 100 %), a billing split (single, several installments of at least 2, recurring with a unit and at least 2 periods), an optional due date (days of 0 or more, counted from the vendor invoice or the receipt) and, for installments only, a retention (percent and maintenance months). `visiblePaymentTermFields` decides which fields apply; the form shows only those, validates only those and sends only those. `PUT` replaces the whole term, so a field left out is reset by the API.
-- Terms are shared by purchases and sales. A term in use (`canDelete: false`) cannot be deleted from the UI, only deactivated; if the API still answers 409 on delete, the dialog shows its message and offers to deactivate. Editing a term in use is allowed and only affects later documents.
+- Terms are shared by purchases and sales. "In use" (`usageCount`, `canDelete`) counts purchase orders, purchase bills and sales invoices that are not deleted (the backend confirmed this on PRO-92, 2026-11-19). Deleting a used term answers 409 with `{ code: 409, message: "Termin sudah dipakai, nonaktifkan saja" }` and deletes nothing; the backend confirmed it and the dialog follows it (not run against the live Net 30 term on purpose). `pagination.total` no longer counts deleted terms (fixed and checked live). A term in use (`canDelete: false`) cannot be deleted from the UI, only deactivated; if the API still answers 409 on delete, the dialog shows its message and offers to deactivate. Editing a term in use is allowed and only affects later documents.
 - The number preview is the prefix, the number padded to six digits and the suffix, joined with slashes (`PRO/INV/000001`).
 
 ## State
@@ -54,7 +54,6 @@ Namespace `settings` is the existing hub and layout keys plus `settingsPages` (f
 - The payment method account selector falls back to the hard-coded Indonesian category label `Kas & Bank` for bank and cash accounts without a type.
 - Component tests cover the payment term pages only; the other settings pages are covered through their hooks, rules and option builder.
 - The Purchases and Sales term dropdowns still use `/v1/payment-terms` and list inactive terms and terms of any `appliesTo`; the settings screen does not filter them.
-- The 409 answer of deleting a term in use was not observed against the API (the only used term is shared by live documents); the dialog follows the ticket and is tested with a stubbed answer.
 - The retention percent has no upper bound on the frontend; the API decides.
 
 ## Planned pages

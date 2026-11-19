@@ -15,7 +15,7 @@ import {
   voidQuote,
   type SendQuoteResult,
 } from '../../infrastructure/saleQuoteApi';
-import type { SendQuoteInput } from '../../infrastructure/saleQuotePayloads';
+import type { SendDocInput } from '../../infrastructure/saleDocPayloads';
 import { downloadBlob } from './downloadBlob';
 import { quoteKeys } from './useQuoteQueries';
 import { useQuoteNotifier } from './useQuoteNotifier';
@@ -55,7 +55,7 @@ export const useUpdateQuote = (id: string) => {
 const reportSend = (
   notify: ReturnType<typeof useQuoteNotifier>,
   result: SendQuoteResult,
-  input: SendQuoteInput,
+  input: SendDocInput,
   resend: boolean
 ) => {
   const number = result.quote.transactionNumber;
@@ -73,7 +73,7 @@ export const useSendQuote = () => {
   const notify = useQuoteNotifier();
   const refresh = useRefreshQuotes();
   return useMutation({
-    mutationFn: ({ id, input }: { id: string; input: SendQuoteInput }) => sendQuote(id, input),
+    mutationFn: ({ id, input }: { id: string; input: SendDocInput }) => sendQuote(id, input),
     onSuccess: (result, { input }) => reportSend(notify, result, input, false),
     onError: notify.failure,
     onSettled: refresh,
@@ -84,7 +84,7 @@ export const useResendQuote = () => {
   const notify = useQuoteNotifier();
   const refresh = useRefreshQuotes();
   return useMutation({
-    mutationFn: ({ id, input }: { id: string; input: SendQuoteInput }) => resendQuote(id, input),
+    mutationFn: ({ id, input }: { id: string; input: SendDocInput }) => resendQuote(id, input),
     onSuccess: (result, { input }) => reportSend(notify, result, input, true),
     onError: notify.failure,
     onSettled: refresh,

@@ -17,6 +17,8 @@ import {
   IconClipboardList,
   IconCopy,
   IconDotsVertical,
+  IconDownload,
+  IconMailForward,
   IconPencil,
   IconReceipt2,
   IconSend,
@@ -31,6 +33,7 @@ import { routes } from '@/router/routes';
 import { formatDate, formatDateTime } from '../../domain/saleFormat';
 import { allowedOrderActions, orderActions, type SaleOrder } from '../../domain/saleOrder';
 import type { NoteTone } from '../components/docs/DocNoteBanner';
+import { DocLinkedRefs } from '../components/docs/DocLinkedRefs';
 import { DocLinesCard } from '../components/docs/DocLinesCard';
 import { DocOverviewCard } from '../components/docs/DocOverviewCard';
 import { DocSideCards } from '../components/docs/DocSideCards';
@@ -54,7 +57,7 @@ export function OrderDetailPage() {
   const { t } = useTranslation('salesOrders');
   const rights = useOrderRights();
   const { data: order, isLoading, isError, refetch } = useOrder(id);
-  const { handlers, dialogs } = useOrderActions({
+  const { handlers, dialogs, busy } = useOrderActions({
     onDeleted: () => navigate(routes.sales.orders, { replace: true }),
   });
   const back = () => navigate(routes.sales.orders);
@@ -119,7 +122,8 @@ export function OrderDetailPage() {
               run: () => handlers.onViewInvoice(order),
             }
           : null;
-  const hasMenu = actions.edit || actions.duplicate || actions.cancel || actions.remove;
+  const hasMenu =
+    actions.edit || actions.duplicate || actions.cancel || actions.remove || actions.resend;
 
   return (
     <AppShellLayout>
@@ -148,6 +152,25 @@ export function OrderDetailPage() {
             number={order.transactionNumber}
             badge={<OrderStatusBadge status={order.status} />}
             customerName={order.customer?.displayName ?? ''}
+            subtitle={
+              <DocLinkedRefs
+                customerName={order.customer?.displayName ?? ''}
+                refs={[
+                  {
+                    label: t('detail.linkedQuote'),
+                    number: order.quoteNumber,
+                    onOpen: () =>
+                      order.quote &&
+                      navigate(routes.sales.quotationDetail.replace(':id', order.quote)),
+                  },
+                  {
+                    label: t('detail.linkedInvoice'),
+                    number: order.saleNumber,
+                    onOpen: () => handlers.onViewInvoice(order),
+                  },
+                ]}
+              />
+            }
             stats={[
               { label: t('detail.date'), value: formatDate(order.transactionDate) },
               {
@@ -162,6 +185,16 @@ export function OrderDetailPage() {
             note={{ tone: NOTES[order.status].tone, text: t(NOTES[order.status].key) }}
             actions={
               <Group gap="xs">
+                {actions.pdf && (
+                  <Button
+                    variant="default"
+                    leftSection={<IconDownload size={16} />}
+                    loading={busy}
+                    onClick={() => handlers.onPdf(order)}
+                  >
+                    {t('actions.pdf')}
+                  </Button>
+                )}
                 {primary && (
                   <Button color="primary" leftSection={primary.icon} onClick={primary.run}>
                     {primary.label}
@@ -188,6 +221,14 @@ export function OrderDetailPage() {
                           {t('actions.edit')}
                         </Menu.Item>
                       )}
+                      {actions.resend && (
+                        <Menu.Item
+                          leftSection={<IconMailForward size={16} />}
+                          onClick={() => handlers.onResend(order)}
+                        >
+                          {t('actions.resend')}
+                        </Menu.Item>
+                      )}
                       {actions.duplicate && (
                         <Menu.Item
                           leftSection={<IconCopy size={16} />}
@@ -196,7 +237,7 @@ export function OrderDetailPage() {
                           {t('actions.duplicate')}
                         </Menu.Item>
                       )}
-                      {(actions.edit || actions.duplicate) &&
+                      {(actions.edit || actions.duplicate || actions.resend) &&
                         (actions.cancel || actions.remove) && <Menu.Divider />}
                       {actions.cancel && (
                         <Menu.Item

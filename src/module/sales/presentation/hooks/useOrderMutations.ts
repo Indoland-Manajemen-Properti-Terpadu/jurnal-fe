@@ -7,10 +7,15 @@ import {
   createOrder,
   createOrderFromQuote,
   deleteOrder,
+  downloadOrderPdf,
   duplicateOrder,
+  resendOrder,
   sendOrder,
   updateOrder,
+  type SendOrderResult,
 } from '../../infrastructure/saleOrderApi';
+import type { SendDocInput } from '../../infrastructure/saleDocPayloads';
+import { downloadBlob } from './downloadBlob';
 import { useDocNotifier } from './useDocNotifier';
 import { orderKeys } from './useOrderQueries';
 import { quoteKeys } from './useQuoteQueries';
@@ -75,7 +80,56 @@ const useOrderTransition = (run: (id: string) => Promise<SaleOrder>, successKey:
   });
 };
 
-export const useSendOrder = () => useOrderTransition(sendOrder, 'sent');
+const reportSend = (
+  notify: ReturnType<typeof useDocNotifier>,
+  result: SendOrderResult,
+  input: SendDocInput,
+  resend: boolean
+) => {
+  const number = result.order.transactionNumber;
+  const emailFailed = input.emails.length > 0 && !result.emailSent;
+  if (emailFailed) {
+    if (!resend) notify.success('sent', number);
+    const reason = result.emailError;
+    if (resend) notify.warning(reason ? 'resendNotSentReason' : 'resendNotSent', reason);
+    else notify.warning(reason ? 'emailNotSentReason' : 'emailNotSent', reason);
+    return;
+  }
+  if (resend) notify.success('resent', number);
+  else notify.success(input.emails.length ? 'sentEmail' : 'sent', number);
+};
+
+export const useSendOrder = () => {
+  const notify = useDocNotifier('salesOrders');
+  const refresh = useRefreshOrders();
+  return useMutation({
+    mutationFn: ({ id, input }: { id: string; input: SendDocInput }) => sendOrder(id, input),
+    onSuccess: (result, { input }) => reportSend(notify, result, input, false),
+    onError: notify.failure,
+    onSettled: refresh,
+  });
+};
+
+export const useResendOrder = () => {
+  const notify = useDocNotifier('salesOrders');
+  const refresh = useRefreshOrders();
+  return useMutation({
+    mutationFn: ({ id, input }: { id: string; input: SendDocInput }) => resendOrder(id, input),
+    onSuccess: (result, { input }) => reportSend(notify, result, input, true),
+    onError: notify.failure,
+    onSettled: refresh,
+  });
+};
+
+export const useDownloadOrderPdf = () => {
+  const notify = useDocNotifier('salesOrders');
+  return useMutation({
+    mutationFn: async ({ id, filename }: { id: string; filename: string }) =>
+      downloadBlob(await downloadOrderPdf(id), filename),
+    onError: notify.failure,
+  });
+};
+
 export const useConfirmOrder = () => useOrderTransition(confirmOrder, 'confirmed');
 export const useDuplicateOrder = () => useOrderTransition(duplicateOrder, 'duplicated');
 

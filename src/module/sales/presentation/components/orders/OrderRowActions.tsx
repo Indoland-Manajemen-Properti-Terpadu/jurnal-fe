@@ -4,7 +4,9 @@ import {
   IconCheck,
   IconCopy,
   IconDotsVertical,
+  IconDownload,
   IconEye,
+  IconMailForward,
   IconPencil,
   IconReceipt2,
   IconSend,
@@ -66,6 +68,19 @@ export const OrderRowActions = ({
             onClick={() => handlers.onConfirm(order)}
           >
             {t('actions.confirm')}
+          </Menu.Item>
+        )}
+        {actions.pdf && (
+          <Menu.Item leftSection={<IconDownload size={16} />} onClick={() => handlers.onPdf(order)}>
+            {t('actions.pdf')}
+          </Menu.Item>
+        )}
+        {actions.resend && (
+          <Menu.Item
+            leftSection={<IconMailForward size={16} />}
+            onClick={() => handlers.onResend(order)}
+          >
+            {t('actions.resend')}
           </Menu.Item>
         )}
         {actions.edit && (

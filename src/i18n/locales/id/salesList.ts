@@ -94,6 +94,7 @@ export const salesList = {
     remove: 'Hapus',
     removeDisabled: 'Dibuat dari ProApps, tidak bisa dihapus dari sini',
     resendDisabled: 'Pelanggan belum punya alamat email',
+    voidDisabledServer: 'Faktur ini belum bisa di-void.',
     voidDisabled: 'Dibuat dari ProApps, tidak bisa di-void dari sini',
     voidDisabledReturn:
       'Faktur ini punya retur terbit. Batalkan returnya dulu untuk meng-void faktur.',

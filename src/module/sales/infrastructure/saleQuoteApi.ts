@@ -6,7 +6,8 @@ import type { SaleDocPageDto } from './saleDocDto';
 import { mapDocPage } from './saleDocMapper';
 import type { QuoteSummaryDto, SaleQuoteDto } from './saleQuoteDto';
 import { mapQuoteDto, mapQuoteSummary } from './saleQuoteMapper';
-import { buildQuoteBody, buildSendBody, type SendQuoteInput } from './saleQuotePayloads';
+import { buildSendBody, type SendDocInput } from './saleDocPayloads';
+import { buildQuoteBody } from './saleQuotePayloads';
 
 export const QUOTE_ENDPOINTS = {
   quotes: '/v1/sale-quotes',
@@ -88,7 +89,7 @@ const mapSendResult = (dto: SaleQuoteDto): SendQuoteResult => ({
 });
 
 /** Marks a draft as sent; with addresses the email goes out after the status changed. */
-export const sendQuote = async (id: string, input: SendQuoteInput): Promise<SendQuoteResult> => {
+export const sendQuote = async (id: string, input: SendDocInput): Promise<SendQuoteResult> => {
   const { data } = await apiClient.post<Envelope<SaleQuoteDto>>(
     QUOTE_ENDPOINTS.send(id),
     buildSendBody(input)
@@ -97,7 +98,7 @@ export const sendQuote = async (id: string, input: SendQuoteInput): Promise<Send
 };
 
 /** Emails again; an empty address list uses the saved ones, else the customer's. */
-export const resendQuote = async (id: string, input: SendQuoteInput): Promise<SendQuoteResult> => {
+export const resendQuote = async (id: string, input: SendDocInput): Promise<SendQuoteResult> => {
   const { data } = await apiClient.post<Envelope<SaleQuoteDto>>(
     QUOTE_ENDPOINTS.resend(id),
     buildSendBody(input)

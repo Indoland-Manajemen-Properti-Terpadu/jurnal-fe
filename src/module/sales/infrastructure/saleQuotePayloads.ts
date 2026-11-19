@@ -29,12 +29,3 @@ export const buildQuoteBody = (values: QuoteFormValues, mode: 'create' | 'update
     ...(item.taxId ? { tax: item.taxId } : {}),
   })),
 });
-
-export interface SendQuoteInput {
-  /** Up to 10 addresses; none means the quote is only marked as sent. */
-  emails: string[];
-  message: string;
-}
-
-export const buildSendBody = ({ emails, message }: SendQuoteInput) =>
-  emails.length ? { emails, ...(message.trim() ? { message: message.trim() } : {}) } : {};

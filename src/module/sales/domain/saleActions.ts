@@ -17,7 +17,9 @@ export interface SaleActionSet {
   /** Offered on an open invoice; disabled for an invoice ProApps created or one with an issued return. */
   void: ActionState;
   /** Why `void` is disabled, so the screen can say so. */
-  voidBlockedBy: 'api' | 'return' | null;
+  voidBlockedBy: 'api' | 'return' | 'server' | null;
+  /** The server's own words for why `void` is disabled; empty when it gave none. */
+  voidBlockedReason: string;
 }
 
 /** The address an invoice is emailed to: its own, else the customer's. */
@@ -41,7 +43,12 @@ export interface HeaderActions {
 /** What a row or the detail page offers. Edit and delete come from the server's own flags. */
 export const saleActions = (
   sale: Pick<Sale, 'displayStatus' | 'canEdit' | 'canDelete' | 'createdByApi'> &
-    Partial<Pick<Sale, 'emails' | 'customer' | 'returnedAmount' | 'items'>>
+    Partial<
+      Pick<
+        Sale,
+        'emails' | 'customer' | 'returnedAmount' | 'items' | 'canVoid' | 'voidBlockedReason'
+      >
+    >
 ): SaleActionSet => {
   const { code } = sale.displayStatus;
   const isDraft = code === 'DRAFT';
@@ -64,6 +71,7 @@ export const saleActions = (
   if (isOpen) {
     if (returned) [voidState, voidBlockedBy] = ['disabled', 'return'];
     else if (sale.createdByApi) [voidState, voidBlockedBy] = ['disabled', 'api'];
+    else if (sale.canVoid === false) [voidState, voidBlockedBy] = ['disabled', 'server'];
     else voidState = 'enabled';
   }
 
@@ -84,6 +92,7 @@ export const saleActions = (
     link: !isDraft && !isVoid,
     void: voidState,
     voidBlockedBy,
+    voidBlockedReason: voidBlockedBy === 'server' ? (sale.voidBlockedReason ?? '') : '',
   };
 };
 

@@ -62,8 +62,8 @@ export const salesPay = {
     summary: {
       thisMonth: 'Diterima bulan ini',
       total: 'Total diterima',
-      withholding: 'PPh dipotong',
-      withholdingHint: 'PPh yang perlu bukti potong',
+      withholding: 'Total PPh dipotong',
+      withholdingHint: 'Seluruhnya, dari faktur yang sudah ada pembayarannya',
       count: '{count} pembayaran',
     },
     title: 'Pembayaran Masuk',

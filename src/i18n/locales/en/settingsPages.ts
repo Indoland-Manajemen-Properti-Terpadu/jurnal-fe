@@ -231,7 +231,7 @@ export const settingsPages = {
     switchStatus: 'Change status of {{name}}',
     edit: 'Edit term {{name}}',
     delete: 'Delete term {{name}}',
-    deleteBlocked: 'This term is used in Purchases, deactivate it instead',
+    deleteBlocked: 'This term is used by documents, deactivate it instead',
     emptyTitle: 'No payment terms yet',
     emptyDescription:
       'Create a payment term so it can be chosen when making quotations, orders and invoices.',

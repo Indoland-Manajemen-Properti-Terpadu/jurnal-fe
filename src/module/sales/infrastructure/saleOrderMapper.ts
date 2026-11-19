@@ -1,7 +1,7 @@
 import type { AmountCount } from '../domain/saleDocument';
 import type { OrderStatus, OrderSummary, SaleOrder } from '../domain/saleOrder';
 import { mapDocHeader } from './saleDocMapper';
-import { toMoney, toNumber, toRefId } from './saleMapperUtils';
+import { toMoney, toNumber, toRefId, toRefNumber } from './saleMapperUtils';
 import type { OrderSummaryDto, SaleOrderDto } from './saleOrderDto';
 
 const STATUSES: OrderStatus[] = [
@@ -23,7 +23,10 @@ export const mapOrderDto = (dto: SaleOrderDto): SaleOrder => ({
   deliveryAddress: dto.deliveryAddress || '',
   status: asStatus(dto.status),
   quote: toRefId(dto.quote),
+  quoteNumber: toRefNumber(dto.quote),
   sale: toRefId(dto.sale),
+  saleNumber: toRefNumber(dto.sale),
+  emails: Array.isArray(dto.emails) ? dto.emails : [],
   sentAt: dto.sentAt || null,
   confirmedAt: dto.confirmedAt || null,
 });
