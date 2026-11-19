@@ -7,6 +7,7 @@ import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
 import { useTranslation } from '@/i18n';
 import { routes } from '@/router/routes';
 import type { CreateSalePaymentPayload } from '../../domain/sale';
+import { hasIssuedReturn } from '../../domain/saleLocks';
 import { PaySaleModal } from '../components/PaySaleModal';
 import { SaleActionBar } from '../components/detail/SaleActionBar';
 import { SaleDetailError, SaleDetailLoading } from '../components/detail/SaleDetailStates';
@@ -38,7 +39,10 @@ export function SaleDetailPage() {
   }
 
   const { code } = sale.displayStatus;
-  const note = code === 'DRAFT' ? 'view.draftNote' : code === 'VOID' ? 'view.voidNote' : null;
+  let note: string | null = null;
+  if (code === 'DRAFT') note = 'view.draftNote';
+  else if (code === 'VOID') note = 'view.voidNote';
+  else if (hasIssuedReturn(sale)) note = 'view.returnedNote';
 
   return (
     <AppShellLayout>

@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Button, Group, Modal, Stack, Text, Textarea } from '@mantine/core';
+import { Button, Textarea } from '@mantine/core';
+import { ModalFrame } from '@/components/Modals/ModalFrame';
 import { useTranslation } from '@/i18n';
 
 const MIN_REASON = 3;
@@ -33,24 +34,13 @@ export const ReasonModal = ({
   };
 
   return (
-    <Modal opened={opened} onClose={close} title={title} centered radius="lg">
-      <Stack gap="md">
-        {description && (
-          <Text size="sm" c="dimmed">
-            {description}
-          </Text>
-        )}
-        <Textarea
-          label={t('reason.label')}
-          placeholder={t('reason.placeholder')}
-          value={reason}
-          onChange={(event) => setReason(event.currentTarget.value)}
-          minRows={3}
-          autosize
-          maxLength={500}
-          data-autofocus
-        />
-        <Group justify="flex-end" gap="sm">
+    <ModalFrame
+      opened={opened}
+      onClose={close}
+      title={title}
+      description={description}
+      footer={
+        <>
           <Button variant="default" onClick={close} disabled={loading}>
             {t('common.cancel')}
           </Button>
@@ -65,8 +55,19 @@ export const ReasonModal = ({
           >
             {confirmLabel}
           </Button>
-        </Group>
-      </Stack>
-    </Modal>
+        </>
+      }
+    >
+      <Textarea
+        label={t('reason.label')}
+        placeholder={t('reason.placeholder')}
+        value={reason}
+        onChange={(event) => setReason(event.currentTarget.value)}
+        minRows={3}
+        autosize
+        maxLength={500}
+        data-autofocus
+      />
+    </ModalFrame>
   );
 };

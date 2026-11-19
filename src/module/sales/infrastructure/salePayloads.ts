@@ -18,6 +18,8 @@ export const buildSaleFormData = (values: CreateSaleFormValues, mode: SaleSaveMo
   formData.append('customer', values.customer);
 
   if (mode !== 'update') formData.append('status', mode === 'send' ? 'SENT' : 'DRAFT');
+  // An order is linked only when the invoice is created; an edit never moves it.
+  if (mode !== 'update' && values.saleOrder) formData.append('saleOrder', values.saleOrder);
   if (mode === 'send') formData.append('sendEmail', 'true');
 
   if (values.transactionDate) formData.append('transactionDate', values.transactionDate);

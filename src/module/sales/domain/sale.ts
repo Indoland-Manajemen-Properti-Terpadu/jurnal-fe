@@ -77,6 +77,8 @@ export type SaleItem = {
   discountAmount?: number;
   /** The part of the invoice withholding that falls on this line; 0 on older invoices. */
   withholdingAmount?: number;
+  /** How much of this line issued returns already took back; 0 when the API does not send it. */
+  returnedQty?: number;
   journalTransaction?: string | null;
   journalId?: string | null;
   transactionId?: string | null;
@@ -129,8 +131,12 @@ export type Sale = {
   withholdingAmount?: number;
   withholdingAccount?: SaleWithholdingAccount | null;
   finalAmount: number;
+  /** The part of `finalAmount` issued returns took off; 0 when the API does not send it. */
+  returnedAmount?: number;
   paidAmount: number;
   remainingAmount: number;
+  /** Id of the sales order this invoice was made from, if any. */
+  saleOrder?: string | null;
   attachments: SaleAttachment[];
   message?: string | null;
   memo?: string | null;
@@ -220,6 +226,8 @@ export type CreateSaleFormValues = {
   message: string;
   memo: string;
   attachments?: File[];
+  /** Id of the confirmed order this invoice is made from; sent as `saleOrder` when it is created. */
+  saleOrder?: string;
 };
 
 export type SaleAccountRef = string | { id?: string; name?: string } | null;

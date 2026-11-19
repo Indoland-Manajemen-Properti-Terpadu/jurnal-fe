@@ -67,6 +67,7 @@ describe('saleActions', () => {
       pdf: true,
       link: false,
       void: 'hidden',
+      voidBlockedBy: null,
     });
   });
 
@@ -130,5 +131,42 @@ describe('headerActions', () => {
       'resend',
       'void',
     ]);
+  });
+});
+
+describe('saleActions with an issued return', () => {
+  const open = {
+    displayStatus: { code: 'UNPAID' as const, label: 'Belum Lunas' },
+    canEdit: false,
+    canDelete: false,
+    createdByApi: false,
+  };
+  const item = (returnedQty?: number) => ({
+    quantity: 2,
+    unitPrice: 100,
+    amount: 200,
+    returnedQty,
+  });
+
+  it('disables void with the return as the reason, but keeps paying', () => {
+    const actions = saleActions({ ...open, returnedAmount: 50, items: [item()] });
+    expect(actions.void).toBe('disabled');
+    expect(actions.voidBlockedBy).toBe('return');
+    expect(actions.pay).toBe(true);
+  });
+
+  it('counts a credit-only return, which leaves the amount at 0', () => {
+    const actions = saleActions({ ...open, returnedAmount: 0, items: [item(1)] });
+    expect(actions.voidBlockedBy).toBe('return');
+  });
+
+  it('names the integration as the reason when there is no return', () => {
+    expect(saleActions({ ...open, createdByApi: true, items: [item(0)] }).voidBlockedBy).toBe(
+      'api'
+    );
+    expect(saleActions({ ...open, items: [item(0)] })).toMatchObject({
+      void: 'enabled',
+      voidBlockedBy: null,
+    });
   });
 });

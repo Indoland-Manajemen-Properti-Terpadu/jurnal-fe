@@ -10,6 +10,7 @@ export const salesForm = {
     descriptionNew:
       'Isi dalam tiga langkah: informasi umum, rincian produk dan jasa, lalu diskon dan tambahan.',
     descriptionEdit: 'Perbarui draf ini, lalu simpan atau terbitkan ke pelanggan.',
+    stepLabel: 'Langkah {count}',
     stepperAria: 'Langkah pengisian faktur',
     steps: {
       general: 'Informasi Umum',
@@ -29,6 +30,11 @@ export const salesForm = {
       paymentTerm: 'Termin Pembayaran',
       paymentTermPlaceholder: 'Pilih termin (COD, Net 30, ...)',
       paymentTermHint: 'Jatuh tempo mengikuti termin yang dipilih.',
+      orderSource: 'Ambil dari Pesanan',
+      orderSourceHint: 'Opsional. Kosongkan untuk dokumen yang berdiri sendiri.',
+      orderSourcePlaceholder: 'Pilih pesanan yang sudah dikonfirmasi',
+      orderSourceNeedsCustomer: 'Pilih pelanggan dulu',
+      orderSourceEmpty: 'Tidak ada pesanan yang siap difakturkan',
       customerRef: 'Nomor Referensi Pelanggan',
       customerRefPlaceholder: 'Misal: PO-2026/05',
       billingAddress: 'Alamat Penagihan',
@@ -100,7 +106,7 @@ export const salesForm = {
       reviewDue: 'Jatuh tempo {date}',
     },
     actions: {
-      back: 'Kembali',
+      back: 'Langkah sebelumnya',
       next: 'Lanjut',
       cancel: 'Batal',
       saveDraft: 'Simpan sebagai Draf',

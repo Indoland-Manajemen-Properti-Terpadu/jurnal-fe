@@ -2,10 +2,10 @@ import { describe, expect, it } from 'vitest';
 import { SENT_STATUS_FILTERS, saleStatusTone, saleTimeline, tabParams } from './saleStatus';
 
 describe('tabParams', () => {
-  it('offers void as a filter but leaves it out of the default sent list', () => {
-    expect(SENT_STATUS_FILTERS).toContain('VOID');
-    expect(tabParams('sent', 'VOID')).toEqual({ paymentStatus: 'VOID' });
-    expect(tabParams('sent', 'all').paymentStatus).not.toContain('VOID');
+  it('lists void on its own tab, never among the issued statuses', () => {
+    expect(SENT_STATUS_FILTERS).not.toContain('VOID');
+    expect(tabParams('void', 'all')).toEqual({ paymentStatus: 'VOID' });
+    expect(tabParams('issued', 'all').paymentStatus).not.toContain('VOID');
   });
 
   it('asks only for drafts on the draft tab', () => {
@@ -13,18 +13,18 @@ describe('tabParams', () => {
   });
 
   it('lists every sent status (and leaves void out) when no status is chosen', () => {
-    expect(tabParams('sent', 'all')).toEqual({ paymentStatus: ['UNPAID', 'PAID', 'OVERDUE'] });
+    expect(tabParams('issued', 'all')).toEqual({ paymentStatus: ['UNPAID', 'PAID', 'OVERDUE'] });
   });
 
   it('uses the chosen status exactly', () => {
-    expect(tabParams('sent', 'OVERDUE')).toEqual({ paymentStatus: 'OVERDUE' });
+    expect(tabParams('issued', 'OVERDUE')).toEqual({ paymentStatus: 'OVERDUE' });
   });
 });
 
 describe('saleStatusTone', () => {
   it('keeps red for overdue and green for paid only', () => {
     expect(saleStatusTone('OVERDUE').color).toBe('red');
-    expect(saleStatusTone('PAID').color).toBe('teal');
+    expect(saleStatusTone('PAID').color).toBe('green');
     expect(saleStatusTone('UNPAID').color).toBe('primary');
     expect(saleStatusTone('DRAFT').color).toBe('gray');
     expect(saleStatusTone('VOID').color).toBe('gray');

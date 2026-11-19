@@ -1,6 +1,11 @@
 import { dateFilter, type DateRange } from './saleListState';
 
-export type OverpaymentFilter = 'all' | 'yes' | 'no';
+export type SalePaymentSummary = {
+  thisMonth: { amount: number; count: number };
+  total: { amount: number; count: number };
+  /** Withholding tax deducted from what customers paid, as the API totals it. */
+  withholding: number;
+};
 
 export type SalePaymentRow = {
   id: string;
@@ -31,22 +36,17 @@ export type SalePaymentListParams = {
   sale?: string;
   customer?: string;
   paymentMethod?: string;
-  depositAccount?: string;
   sortBy?: PaymentSortBy;
   sortOrder?: SortOrder;
   startDate?: string;
   endDate?: string;
-  /** `true` only those with an excess, `false` only those without. */
-  hasOverpayment?: boolean;
 };
 
 export interface SalePaymentListState {
   search: string;
   range: DateRange;
-  overpayment: OverpaymentFilter;
   customer: string | null;
   paymentMethod: string | null;
-  depositAccount: string | null;
   sortBy: PaymentSortBy;
   sortOrder: SortOrder;
   page: number;
@@ -56,10 +56,8 @@ export interface SalePaymentListState {
 export type SalePaymentListAction =
   | { type: 'search'; value: string }
   | { type: 'range'; value: DateRange }
-  | { type: 'overpayment'; value: OverpaymentFilter }
   | { type: 'customer'; value: string | null }
   | { type: 'paymentMethod'; value: string | null }
-  | { type: 'depositAccount'; value: string | null }
   | { type: 'sort'; by: PaymentSortBy }
   | { type: 'page'; value: number }
   | { type: 'limit'; value: number }
@@ -68,10 +66,8 @@ export type SalePaymentListAction =
 export const initialPaymentListState: SalePaymentListState = {
   search: '',
   range: [null, null],
-  overpayment: 'all',
   customer: null,
   paymentMethod: null,
-  depositAccount: null,
   sortBy: 'paymentDate',
   sortOrder: 'desc',
   page: 1,
@@ -99,14 +95,10 @@ export const paymentListReducer = (
       return { ...state, search: action.value, page: 1 };
     case 'range':
       return { ...state, range: action.value, page: 1 };
-    case 'overpayment':
-      return { ...state, overpayment: action.value, page: 1 };
     case 'customer':
       return { ...state, customer: action.value, page: 1 };
     case 'paymentMethod':
       return { ...state, paymentMethod: action.value, page: 1 };
-    case 'depositAccount':
-      return { ...state, depositAccount: action.value, page: 1 };
     case 'sort':
       return { ...state, ...nextSort(state, action.by), page: 1 };
     case 'limit':
@@ -130,16 +122,13 @@ export const paymentListParams = (state: SalePaymentListState): SalePaymentListP
   limit: state.limit,
   search: state.search.trim() || undefined,
   ...dateFilter(state.range),
-  hasOverpayment: state.overpayment === 'all' ? undefined : state.overpayment === 'yes',
   customer: state.customer || undefined,
   paymentMethod: state.paymentMethod || undefined,
-  depositAccount: state.depositAccount || undefined,
   sortBy: state.sortBy,
   sortOrder: state.sortOrder,
 });
 
 export const hasActivePaymentFilters = (state: SalePaymentListState): boolean =>
-  state.overpayment !== 'all' ||
-  Boolean(state.customer || state.paymentMethod || state.depositAccount) ||
+  Boolean(state.customer || state.paymentMethod) ||
   Boolean(state.search.trim()) ||
   Boolean(dateFilter(state.range).startDate);

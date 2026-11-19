@@ -14,5 +14,7 @@ export const salesView = {
       'Faktur ini masih draf. Belum tercatat sebagai piutang usaha dan belum bisa dibayar.',
     voidNote: 'Faktur ini sudah di-void. Faktur tidak dapat dibayar, diubah, atau dihapus.',
     moreActions: 'Aksi lainnya',
+    returnedNote:
+      'Faktur ini punya retur yang sudah terbit, jadi tidak bisa di-void dan barisnya terkunci. Batalkan returnya lebih dulu bila perlu.',
   },
 };

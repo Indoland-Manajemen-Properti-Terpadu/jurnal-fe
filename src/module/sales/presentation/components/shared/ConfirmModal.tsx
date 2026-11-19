@@ -1,4 +1,5 @@
-import { Button, Group, Modal, Stack, Text } from '@mantine/core';
+import { Button, Text } from '@mantine/core';
+import { ModalFrame } from '@/components/Modals/ModalFrame';
 import { useTranslation } from '@/i18n';
 
 interface ConfirmModalProps {
@@ -25,12 +26,12 @@ export const ConfirmModal = ({
 }: Readonly<ConfirmModalProps>) => {
   const { t } = useTranslation('sales');
   return (
-    <Modal opened={opened} onClose={onClose} title={title} centered radius="lg">
-      <Stack gap="md">
-        <Text size="sm" c="dimmed">
-          {message}
-        </Text>
-        <Group justify="flex-end" gap="sm">
+    <ModalFrame
+      opened={opened}
+      onClose={onClose}
+      title={title}
+      footer={
+        <>
           <Button variant="default" onClick={onClose} disabled={loading}>
             {t('common.cancel')}
           </Button>
@@ -41,8 +42,12 @@ export const ConfirmModal = ({
           >
             {confirmLabel}
           </Button>
-        </Group>
-      </Stack>
-    </Modal>
+        </>
+      }
+    >
+      <Text size="sm" c="dimmed">
+        {message}
+      </Text>
+    </ModalFrame>
   );
 };
