@@ -47,8 +47,8 @@ function AllocationStatus({ gap }: Readonly<{ gap: number }>) {
   if (gap === 0) {
     return (
       <Group gap={6} role="status" aria-live="polite">
-        <IconCircleCheck size={16} color="var(--mantine-color-teal-7)" />
-        <Text size="sm" fw={600} c="teal.8">
+        <IconCircleCheck size={16} color="var(--mantine-color-green-7)" />
+        <Text size="sm" fw={600} c="green.8">
           {t('pay.allocatedAll')}
         </Text>
       </Group>

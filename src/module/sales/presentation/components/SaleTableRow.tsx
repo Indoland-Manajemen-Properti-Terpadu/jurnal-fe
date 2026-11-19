@@ -37,7 +37,7 @@ export function SaleTableRow({ sale, tab, handlers }: Readonly<SaleTableRowProps
                 <ActionIcon
                   size="xs"
                   variant="subtle"
-                  color={copied ? 'teal' : 'gray'}
+                  color={copied ? 'green' : 'gray'}
                   onClick={copy}
                   aria-label={t('table.copyAria')}
                 >
@@ -86,6 +86,11 @@ export function SaleTableRow({ sale, tab, handlers }: Readonly<SaleTableRowProps
         <Text size="sm" fw={700} c="dark.8" style={{ fontVariantNumeric: 'tabular-nums' }}>
           {formatIDR(sale.finalAmount)}
         </Text>
+        {(sale.discountAmount ?? 0) > 0 && (
+          <Text size="xs" c="dimmed" style={{ fontVariantNumeric: 'tabular-nums' }}>
+            {t('table.discount', { amount: formatIDR(sale.discountAmount) })}
+          </Text>
+        )}
       </Table.Td>
 
       {!isDraft && (
@@ -94,7 +99,7 @@ export function SaleTableRow({ sale, tab, handlers }: Readonly<SaleTableRowProps
             {formatIDR(sale.remainingAmount)}
           </Text>
           {sale.paidAmount > 0 && (
-            <Text size="xs" c="dimmed" style={{ fontVariantNumeric: 'tabular-nums' }}>
+            <Text size="xs" c="green.7" style={{ fontVariantNumeric: 'tabular-nums' }}>
               {t('table.paidAmount', { amount: formatIDR(sale.paidAmount) })}
             </Text>
           )}

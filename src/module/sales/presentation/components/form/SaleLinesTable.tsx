@@ -3,7 +3,7 @@ import { IconTrash } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import { formatIDR } from '@/module/sales/domain/saleFormat';
 import { lineAmount } from '@/module/sales/domain/saleTotals';
-import type { SaleFormApi } from '../../hooks/useSaleForm';
+import type { CreateSaleItemForm } from '@/module/sales/domain/sale';
 
 const money = {
   thousandSeparator: '.',
@@ -16,9 +16,31 @@ const money = {
 /** A cleared field counts as 0 but stays empty on screen, so typing never lands after a "0". */
 const toAmount = (value: number | string): number => (typeof value === 'number' ? value : 0);
 
-export function SaleLinesTable({ api }: Readonly<{ api: SaleFormApi }>) {
+type Option = { value: string; label: string };
+
+interface SaleLinesTableProps {
+  items: CreateSaleItemForm[];
+  /** Messages by field path (`items.0.quantity`), already translated. */
+  errors: Record<string, React.ReactNode>;
+  productOptions: Option[];
+  taxOptions: Option[];
+  /** Picking a product also fills the price, unit, description and tax, so it is its own handler. */
+  onProductChange: (index: number, productId: string | null) => void;
+  onChange: (index: number, patch: Partial<CreateSaleItemForm>) => void;
+  onRemove: (index: number) => void;
+}
+
+/** The lines of an invoice, quote or order; the caller owns the form state. */
+export function SaleLinesTable({
+  items,
+  errors,
+  productOptions,
+  taxOptions,
+  onProductChange,
+  onChange,
+  onRemove,
+}: Readonly<SaleLinesTableProps>) {
   const { t } = useTranslation('sales');
-  const { form } = api;
   const head = (key: string, align?: 'right') => (
     <Table.Th ta={align}>
       <Text size="xs" fw={700} c="dimmed" style={{ whiteSpace: 'nowrap' }}>
@@ -42,25 +64,26 @@ export function SaleLinesTable({ api }: Readonly<{ api: SaleFormApi }>) {
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
-          {form.values.items.map((item, index) => (
+          {items.map((item, index) => (
             // eslint-disable-next-line react/no-array-index-key
             <Table.Tr key={index}>
               <Table.Td miw={260}>
                 <Select
                   aria-label={t('form.lines.colProduct')}
                   placeholder={t('form.lines.productPlaceholder')}
-                  data={api.productOptions}
+                  data={productOptions}
                   searchable
                   value={item.productId}
-                  onChange={(value) => api.changeProduct(index, value)}
-                  error={form.errors[`items.${index}.productId`]}
+                  onChange={(value) => onProductChange(index, value)}
+                  error={errors[`items.${index}.productId`]}
                 />
                 <TextInput
                   mt={4}
                   size="xs"
                   aria-label={t('form.lines.linePlaceholder')}
                   placeholder={t('form.lines.linePlaceholder')}
-                  {...form.getInputProps(`items.${index}.description`)}
+                  value={item.description}
+                  onChange={(event) => onChange(index, { description: event.currentTarget.value })}
                 />
               </Table.Td>
               <Table.Td w={110}>
@@ -79,10 +102,8 @@ export function SaleLinesTable({ api }: Readonly<{ api: SaleFormApi }>) {
                   {...money}
                   placeholder="0"
                   value={item.quantity || ''}
-                  onChange={(value) =>
-                    form.setFieldValue(`items.${index}.quantity`, toAmount(value))
-                  }
-                  error={form.errors[`items.${index}.quantity`]}
+                  onChange={(value) => onChange(index, { quantity: toAmount(value) })}
+                  error={errors[`items.${index}.quantity`]}
                 />
               </Table.Td>
               <Table.Td w={150}>
@@ -93,20 +114,18 @@ export function SaleLinesTable({ api }: Readonly<{ api: SaleFormApi }>) {
                   {...money}
                   placeholder="0"
                   value={item.unitPrice || ''}
-                  onChange={(value) =>
-                    form.setFieldValue(`items.${index}.unitPrice`, toAmount(value))
-                  }
-                  error={form.errors[`items.${index}.unitPrice`]}
+                  onChange={(value) => onChange(index, { unitPrice: toAmount(value) })}
+                  error={errors[`items.${index}.unitPrice`]}
                 />
               </Table.Td>
               <Table.Td w={170}>
                 <Select
                   aria-label={t('form.lines.colTax')}
                   placeholder={t('form.lines.taxPlaceholder')}
-                  data={api.taxOptions}
+                  data={taxOptions}
                   clearable
                   value={item.taxId || null}
-                  onChange={(value) => form.setFieldValue(`items.${index}.taxId`, value || '')}
+                  onChange={(value) => onChange(index, { taxId: value || '' })}
                 />
               </Table.Td>
               <Table.Td ta="right" w={140}>
@@ -118,8 +137,8 @@ export function SaleLinesTable({ api }: Readonly<{ api: SaleFormApi }>) {
                 <ActionIcon
                   variant="subtle"
                   color="gray"
-                  onClick={() => api.removeLine(index)}
-                  disabled={form.values.items.length === 1}
+                  onClick={() => onRemove(index)}
+                  disabled={items.length === 1}
                   aria-label={t('form.lines.removeRow', { number: index + 1 })}
                 >
                   <IconTrash size={16} />

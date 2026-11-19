@@ -81,26 +81,6 @@ export const plannedModules = {
         four: 'Count report',
       },
     },
-    salesQuotations: {
-      title: 'Quotations',
-      description: 'Prepare price quotations for customers before an order is placed.',
-      features: {
-        one: 'Quotations with an expiry date',
-        two: 'Turn a quotation into an order or invoice',
-        three: 'Quotation status: sent, accepted, declined',
-        four: 'Quotation history per customer',
-      },
-    },
-    salesOrders: {
-      title: 'Sales Orders',
-      description: 'Record customer orders before goods are delivered and billed.',
-      features: {
-        one: 'Customer orders',
-        two: 'Turn an order into an invoice',
-        three: 'Track goods not yet delivered',
-        four: 'Order status from draft to done',
-      },
-    },
     salesPayments: {
       title: 'Payments Received',
       description: 'Record money received from customers and apply it to invoices.',
@@ -109,16 +89,6 @@ export const plannedModules = {
         two: 'Apply to one or more invoices',
         three: 'Customer advances',
         four: 'Payment receipts',
-      },
-    },
-    salesReturns: {
-      title: 'Sales Returns',
-      description: 'Record goods returned by customers and adjust their bills.',
-      features: {
-        one: 'Returns against issued invoices',
-        two: 'Credit notes for customers',
-        three: 'Goods back into stock',
-        four: 'Automatic reduction of receivables',
       },
     },
     receivables: {

@@ -81,26 +81,6 @@ export const plannedModules = {
         four: 'Berita acara opname',
       },
     },
-    salesQuotations: {
-      title: 'Penawaran',
-      description: 'Buat penawaran harga untuk pelanggan sebelum pesanan dibuat.',
-      features: {
-        one: 'Penawaran dengan masa berlaku',
-        two: 'Ubah penawaran menjadi pesanan atau faktur',
-        three: 'Status penawaran: dikirim, diterima, ditolak',
-        four: 'Riwayat penawaran per pelanggan',
-      },
-    },
-    salesOrders: {
-      title: 'Pesanan Penjualan',
-      description: 'Catat pesanan pelanggan sebelum barang dikirim dan ditagih.',
-      features: {
-        one: 'Pesanan dari pelanggan',
-        two: 'Ubah pesanan menjadi faktur',
-        three: 'Pantau barang yang belum dikirim',
-        four: 'Status pesanan dari draf sampai selesai',
-      },
-    },
     salesPayments: {
       title: 'Pembayaran Masuk',
       description: 'Catat uang yang diterima dari pelanggan dan alokasikan ke faktur.',
@@ -109,16 +89,6 @@ export const plannedModules = {
         two: 'Alokasi ke satu atau beberapa faktur',
         three: 'Uang muka pelanggan',
         four: 'Kwitansi pembayaran',
-      },
-    },
-    salesReturns: {
-      title: 'Retur Penjualan',
-      description: 'Catat barang yang dikembalikan pelanggan dan koreksi tagihannya.',
-      features: {
-        one: 'Retur atas faktur yang sudah terbit',
-        two: 'Nota kredit untuk pelanggan',
-        three: 'Barang kembali ke stok',
-        four: 'Pengurangan piutang otomatis',
       },
     },
     receivables: {

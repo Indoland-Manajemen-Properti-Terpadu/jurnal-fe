@@ -6,7 +6,6 @@ import {
   FileInput,
   Grid,
   Group,
-  Modal,
   NumberInput,
   Paper,
   Select,
@@ -28,6 +27,7 @@ import {
   IconReceipt2,
 } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
+import { ModalFrame } from '@/components/Modals/ModalFrame';
 import { useTranslation } from '@/i18n';
 import { routes } from '@/router/routes';
 import type { CreateSalePaymentPayload, Sale, SalePaymentResult } from '@/module/sales/domain/sale';
@@ -61,6 +61,8 @@ type PaySaleModalProps = {
 };
 
 const localToday = (): string => new Date().toLocaleDateString('en-CA');
+
+const FORM_ID = 'pay-sale-form';
 
 export function PaySaleModal({
   opened,
@@ -161,7 +163,7 @@ export function PaySaleModal({
   const isFull = kind !== 'partial';
 
   return (
-    <Modal
+    <ModalFrame
       opened={opened}
       onClose={onClose}
       title={
@@ -173,13 +175,36 @@ export function PaySaleModal({
         </Group>
       }
       size="lg"
-      radius="lg"
+      scrollBody
+      footer={
+        sale && !result ? (
+          <>
+            <Button variant="default" onClick={onClose} disabled={isSubmitting}>
+              {t('pay.cancel')}
+            </Button>
+            <Tooltip label={t('pay.saveBlocked')} disabled={!allocationBlocked} withArrow>
+              <span>
+                <Button
+                  type="submit"
+                  form={FORM_ID}
+                  color="primary"
+                  loading={isSubmitting}
+                  disabled={mappingMissing || (kind === 'partial' && !invoice) || allocationBlocked}
+                >
+                  {t('pay.save')}
+                </Button>
+              </span>
+            </Tooltip>
+          </>
+        ) : undefined
+      }
     >
       {sale && result && (
         <PaymentResultView result={result} lineNames={lineNames} onClose={onClose} />
       )}
       {sale && !result && (
         <form
+          id={FORM_ID}
           onSubmit={(event) => {
             event.preventDefault();
             submit();
@@ -354,30 +379,10 @@ export function PaySaleModal({
                     remaining: formatIDR(remainingAfterPayment(remaining, form.values.amount || 0)),
                   })}
             </Alert>
-
-            <Group justify="flex-end" gap="sm">
-              <Button variant="default" onClick={onClose} disabled={isSubmitting}>
-                {t('pay.cancel')}
-              </Button>
-              <Tooltip label={t('pay.saveBlocked')} disabled={!allocationBlocked} withArrow>
-                <span>
-                  <Button
-                    type="submit"
-                    color="primary"
-                    loading={isSubmitting}
-                    disabled={
-                      mappingMissing || (kind === 'partial' && !invoice) || allocationBlocked
-                    }
-                  >
-                    {t('pay.save')}
-                  </Button>
-                </span>
-              </Tooltip>
-            </Group>
           </Stack>
         </form>
       )}
-    </Modal>
+    </ModalFrame>
   );
 }
 

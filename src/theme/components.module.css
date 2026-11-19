@@ -34,6 +34,11 @@
   overflow: hidden;
 }
 
+/* A sticky header sticks to the nearest scrolling ancestor, which a clipped table would become. */
+.table:has(> thead[data-sticky]) {
+  overflow: visible;
+}
+
 .tableHead {
   background-color: var(--jurnal-color-bg-subtle);
 }

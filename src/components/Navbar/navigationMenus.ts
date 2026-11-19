@@ -3,7 +3,7 @@ export const NAV_MENU = {
   ledger: ['JP-GL'],
   /** Period locks and closing the books ("Tutup Buku & Lock Period"). */
   periodClosing: ['JP-GL-PC'],
-  sales: ['JP-SALES'],
+  sales: ['JP-SALES', 'JP-SALES-QUOTE', 'JP-SALES-ORDER', 'JP-SALES-RETURN'],
   products: ['JP-PRDCT'],
   contacts: ['JP-CNTCT'],
   approvals: ['JP-SETT-AS'],

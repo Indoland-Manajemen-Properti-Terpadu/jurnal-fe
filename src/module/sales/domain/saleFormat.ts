@@ -87,7 +87,7 @@ export const getSaleStatusConfig = (status?: SaleStatus | string | null): SaleSt
   const norm = String(status || 'DRAFT').toUpperCase();
   switch (norm) {
     case 'PAID':
-      return { color: 'teal', label: 'Lunas', labelKey: 'paid', variant: 'light' };
+      return { color: 'green', label: 'Lunas', labelKey: 'paid', variant: 'light' };
     case 'PARTIAL':
     case 'PARTIALLY_PAID':
       return { color: 'yellow', label: 'Sebagian', labelKey: 'partial', variant: 'light' };

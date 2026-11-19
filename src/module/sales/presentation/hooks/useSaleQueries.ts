@@ -12,6 +12,7 @@ import {
   fetchPublicInvoice,
   fetchSaleDetail,
   fetchSaleTags,
+  fetchSalePaymentSummary,
   fetchSalePayments,
   fetchSales,
 } from '../../infrastructure/saleApi';
@@ -30,6 +31,7 @@ export const saleKeys = {
   detail: (id: string) => [...saleKeys.details(), id] as const,
   paymentMethods: () => ['sales', 'payment-methods'] as const,
   paymentList: (params: SalePaymentListParams) => ['sales', 'payment-list', params] as const,
+  paymentSummary: () => ['sales', 'payment-summary'] as const,
   paymentDetail: (id: string) => ['sales', 'payment-detail', id] as const,
   products: () => ['sales', 'products'] as const,
   taxes: () => ['sales', 'taxes'] as const,
@@ -182,6 +184,14 @@ export const useCustomerById = (id: string | null, enabled: boolean) =>
     queryFn: async () => toCustomerSummary(await fetchContact(id as string)),
     enabled: enabled && Boolean(id),
     staleTime: 5 * 60_000,
+  });
+
+/** Three figures above the payments list; refreshed with every sales query. */
+export const useSalePaymentSummary = () =>
+  useQuery({
+    queryKey: saleKeys.paymentSummary(),
+    queryFn: fetchSalePaymentSummary,
+    staleTime: 30_000,
   });
 
 /** The payments of one invoice, newest first. */
