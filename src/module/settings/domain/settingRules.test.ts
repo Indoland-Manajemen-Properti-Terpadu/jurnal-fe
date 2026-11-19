@@ -6,8 +6,6 @@ import {
   validateFeeAccount,
   validateNumberFormatPrefix,
   validatePaymentMethodName,
-  validatePaymentTermDays,
-  validatePaymentTermName,
   validateStartNumber,
   validateTagName,
   validateTaxName,
@@ -17,7 +15,6 @@ import {
 describe('name validators', () => {
   it.each([
     [validateTaxName, 'validation.taxNameRequired'],
-    [validatePaymentTermName, 'validation.paymentTermNameRequired'],
     [validatePaymentMethodName, 'validation.paymentMethodNameRequired'],
     [validateTagName, 'validation.tagNameRequired'],
     [validateNumberFormatPrefix, 'validation.prefixRequired'],
@@ -36,9 +33,7 @@ describe('numeric validators', () => {
     expect(validateTaxRate(undefined)).toBe('validation.taxRateMin');
   });
 
-  it('accepts zero or more due days and an admin fee, rejects negatives', () => {
-    expect(validatePaymentTermDays(0)).toBeNull();
-    expect(validatePaymentTermDays(-1)).toBe('validation.paymentTermDaysMin');
+  it('accepts zero or more as an admin fee, rejects negatives', () => {
     expect(validateAdminFee(0)).toBeNull();
     expect(validateAdminFee(-5)).toBe('validation.adminFeeMin');
   });

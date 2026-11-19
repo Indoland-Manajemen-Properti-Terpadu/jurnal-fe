@@ -187,6 +187,8 @@ export const routes = {
     accountMapping: '/settings/account-mapping',
     taxes: '/settings/taxes',
     paymentTerms: '/settings/payment-terms',
+    paymentTermNew: '/settings/payment-terms/new',
+    paymentTermEdit: '/settings/payment-terms/:id/edit',
     paymentMethods: '/settings/payment-methods',
     numberFormats: '/settings/number-formats',
     tags: '/settings/tags',

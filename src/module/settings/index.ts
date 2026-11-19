@@ -3,6 +3,7 @@ export { default as CompanySettingPage } from './presentation/pages/CompanySetti
 export { default as AccountMappingPage } from './presentation/pages/AccountMappingPage';
 export { default as TaxSettingPage } from './presentation/pages/TaxSettingPage';
 export { default as PaymentTermPage } from './presentation/pages/PaymentTermPage';
+export { default as PaymentTermFormPage } from './presentation/pages/PaymentTermFormPage';
 export { default as PaymentMethodPage } from './presentation/pages/PaymentMethodPage';
 export { default as NumberFormatPage } from './presentation/pages/NumberFormatPage';
 export { default as TagSettingPage } from './presentation/pages/TagSettingPage';

@@ -7,9 +7,6 @@ import type {
   NumberFormat,
   CreateNumberFormatPayload,
   UpdateNumberFormatPayload,
-  PaymentTerm,
-  CreatePaymentTermPayload,
-  UpdatePaymentTermPayload,
   PaymentMethod,
   CreatePaymentMethodPayload,
   UpdatePaymentMethodPayload,
@@ -117,45 +114,6 @@ export const updateNumberFormat = async (
 
 export const deleteNumberFormat = async (id: string): Promise<void> => {
   await apiClient.delete(API_SETTINGS.DELETE_NUMBER_FORMAT(id));
-};
-
-/* =========================================================================
- * PAYMENT TERMS
- * ========================================================================= */
-
-export const fetchPaymentTerms = async (page = 1): Promise<PaymentTerm[]> => {
-  const { data } = await apiClient.get<ApiEnvelope<{ data: PaymentTerm[] } | PaymentTerm[]>>(
-    `${API_SETTINGS.GET_PAYMENT_TERMS}?page=${page}`
-  );
-  if (Array.isArray(data.data)) {
-    return data.data;
-  }
-  return data.data?.data || [];
-};
-
-export const createPaymentTerm = async (
-  payload: CreatePaymentTermPayload
-): Promise<PaymentTerm> => {
-  const { data } = await apiClient.post<ApiEnvelope<PaymentTerm>>(
-    API_SETTINGS.POST_PAYMENT_TERM,
-    payload
-  );
-  return data.data;
-};
-
-export const updatePaymentTerm = async (
-  id: string,
-  payload: UpdatePaymentTermPayload
-): Promise<PaymentTerm> => {
-  const { data } = await apiClient.put<ApiEnvelope<PaymentTerm>>(
-    API_SETTINGS.PUT_PAYMENT_TERM(id),
-    payload
-  );
-  return data.data;
-};
-
-export const deletePaymentTerm = async (id: string): Promise<void> => {
-  await apiClient.delete(API_SETTINGS.DELETE_PAYMENT_TERM(id));
 };
 
 /* =========================================================================
