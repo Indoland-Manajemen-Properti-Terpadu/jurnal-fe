@@ -15,6 +15,7 @@ Sales invoices (accounts receivable): a draft and send workflow, a three step in
 | `quotationAdd`    | `/sales/quotations/new`      | `QuoteFormPage` (three steps)                                       |
 | `quotationEdit`   | `/sales/quotations/:id/edit` | `QuoteFormPage` (drafts only; others open the detail)               |
 | `quotationDetail` | `/sales/quotations/:id`      | `QuoteDetailPage`                                                   |
+| `bulkRecurring`   | `/sales/bulk-recurring`      | `BulkRecurringPage` (form, then the result per customer)            |
 | `returns`         | `/sales/returns`             | `ReturnListPage` (tabs, summary, invoice picker)                    |
 | `returnAdd`       | `/sales/returns/new?sale=id` | `ReturnFormPage` (one card form for the chosen invoice)             |
 | `returnEdit`      | `/sales/returns/:id/edit`    | `ReturnFormPage` (drafts only; others open the detail)              |
@@ -125,6 +126,12 @@ Namespaces `salesQuotes` and `salesOrders` (`id` primary and `en`; parity tests 
 - **Actions:** draft = edit, send, duplicate, delete; waiting = edit, confirm, duplicate, cancel; confirmed = Buat Faktur, edit, duplicate, cancel; completed = Lihat Faktur, duplicate; cancelled = duplicate. Rights: orders by `JP-SALES-ORDER` (create copies, update changes, sends and confirms, delete cancels and deletes), invoices by `JP-SALES` (create for Buat Faktur, read for Lihat Faktur). Cancel needs a reason of at least three characters.
 - **Invoice from an order:** Buat Faktur opens `/sales/new?order=<id>`. `SaleFormPage` fetches the order (only a confirmed one; any other opens on its own page), and `orderToSaleFormValues` fills the customer, lines, prices, discount, term and notes; the invoice is dated today. `saleOrder` is sent in the multipart body when the invoice is created (never on an edit). The API refuses a customer other than the order's (400) and an order that is already invoiced (409); a line without a product must get one in the form. Saving the invoice moves the order to `COMPLETED`; voiding it or deleting the draft puts the order back to `CONFIRMED`.
 - An order shows its quote and invoice only as ids; the pages link by id and do not fetch the numbers.
+
+## Bulk recurring billing
+
+- Reached from the "Tagihan Rutin" button on the invoice list (shown with `JP-SALES` create). `POST /v1/sales/bulk-recurring` with `product`, `period` (`YYYY-MM`, from a month input), `transactionDate`, `dueDate`, `unitPrice` and 1 to 200 `customers`. One **draft** invoice per customer, no journal; the user issues them from the list.
+- The answer is always 201 with `summary { created, skipped, failed }` and `results[]` (`customer`, `name`, `status`, `saleId`, `transactionNumber` on `created`, `message` otherwise). Verified live: a customer already billed for the product and month is `skipped` ("Sudah ditagih untuk periode ..."), an unknown id is `failed` ("Pelanggan tidak ditemukan"). The page shows each row and links created drafts to their invoice.
+- Price fills from the product's selling price and can be changed. The customer picker searches 20 at a time and keeps the names of the ones already chosen.
 
 ## Returns
 

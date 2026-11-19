@@ -1,12 +1,21 @@
 import { useEffect, useReducer, useState } from 'react';
 import { ActionIcon, Box, Button, Group, Paper, Stack, Tabs, Tooltip } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
-import { IconFileText, IconPlus, IconReceipt2, IconRefresh, IconSend } from '@tabler/icons-react';
+import {
+  IconFileText,
+  IconPlus,
+  IconReceipt2,
+  IconRefresh,
+  IconRepeat,
+  IconSend,
+} from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { AppShellLayout } from '@/components/AppShellLayout';
 import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
 import { useTranslation } from '@/i18n';
+import { useMyGrants } from '@/module/user-management';
 import { routes } from '@/router/routes';
+import { SALE_MENU } from '../../domain/saleMenu';
 import type { CreateSalePaymentPayload, Sale, SaleDisplayCode } from '../../domain/sale';
 import { billingEmail } from '../../domain/saleActions';
 import { formatCount, invoiceFilename } from '../../domain/saleFormat';
@@ -40,6 +49,9 @@ const editPath = (id: string) => routes.sales.edit.replace(':id', id);
 export function SaleMainPage() {
   const navigate = useNavigate();
   const { t } = useTranslation('sales');
+  const { t: tBulk } = useTranslation('salesBulk');
+  const { can, isReady } = useMyGrants();
+  const canBulk = !isReady || can(SALE_MENU.invoices, 'create');
 
   const [state, dispatch] = useReducer(saleListReducer, initialListState);
   const [searchInput, setSearchInput] = useState('');
@@ -124,6 +136,15 @@ export function SaleMainPage() {
                     <IconRefresh size={18} />
                   </ActionIcon>
                 </Tooltip>
+                {canBulk && (
+                  <Button
+                    variant="default"
+                    leftSection={<IconRepeat size={18} />}
+                    onClick={() => navigate(routes.sales.bulkRecurring)}
+                  >
+                    {tBulk('page.open')}
+                  </Button>
+                )}
                 <Button
                   color="primary"
                   leftSection={<IconPlus size={18} />}

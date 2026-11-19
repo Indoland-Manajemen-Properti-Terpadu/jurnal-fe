@@ -12,6 +12,7 @@ export { default as QuoteFormPage } from './presentation/pages/QuoteFormPage';
 export { default as OrderListPage } from './presentation/pages/OrderListPage';
 export { default as OrderDetailPage } from './presentation/pages/OrderDetailPage';
 export { default as OrderFormPage } from './presentation/pages/OrderFormPage';
+export { default as BulkRecurringPage } from './presentation/pages/BulkRecurringPage';
 export { default as ReturnListPage } from './presentation/pages/ReturnListPage';
 export { default as ReturnDetailPage } from './presentation/pages/ReturnDetailPage';
 export { default as ReturnFormPage } from './presentation/pages/ReturnFormPage';
