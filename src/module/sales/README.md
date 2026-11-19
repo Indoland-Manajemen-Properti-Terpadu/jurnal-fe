@@ -148,7 +148,7 @@ Every list but the invoice list (which keeps its receivables panel) opens with t
 
 ## Date filter
 
-The invoice list and the payments list filter by period through `DateRangeFilter`: a dropdown (Semua tanggal, Hari ini, Minggu ini, Bulan ini, Tahun ini, Kustom) that fills `startDate` and `endDate` itself, with the range picker shown only for Kustom. The presets are worked out in local time (`presetRange`, weeks run Monday to Sunday). The payments list filters by search, customer, method and period only; the account and the excess filters were dropped.
+The invoice list and the payments list filter by period through `DateRangeFilter`: a dropdown (Semua tanggal, Hari ini, Minggu ini, Bulan ini, Tahun ini, Kustom) that fills `startDate` and `endDate` itself, and choosing Kustom opens a calendar under the same field (no second control); the chosen days replace the field's label. The presets are worked out in local time (`presetRange`, weeks run Monday to Sunday). The payments list filters by search, customer, method and period only; the account and the excess filters were dropped.
 
 ## Dialogs
 
