@@ -4,8 +4,6 @@ import type { CreateTaxPayload } from './settingTypes';
 export type SettingValidationKey =
   | 'validation.taxNameRequired'
   | 'validation.taxRateMin'
-  | 'validation.paymentTermNameRequired'
-  | 'validation.paymentTermDaysMin'
   | 'validation.paymentMethodNameRequired'
   | 'validation.adminFeeMin'
   | 'validation.feeAccountRequired'
@@ -28,10 +26,6 @@ const atLeast = (
 export const validateTaxName = (value: string) => required(value, 'validation.taxNameRequired');
 export const validateTaxRate = (value: number | undefined) =>
   atLeast(value, 0, 'validation.taxRateMin');
-export const validatePaymentTermName = (value: string) =>
-  required(value, 'validation.paymentTermNameRequired');
-export const validatePaymentTermDays = (value: number | undefined) =>
-  atLeast(value, 0, 'validation.paymentTermDaysMin');
 export const validatePaymentMethodName = (value: string) =>
   required(value, 'validation.paymentMethodNameRequired');
 export const validateAdminFee = (value: number | undefined) =>

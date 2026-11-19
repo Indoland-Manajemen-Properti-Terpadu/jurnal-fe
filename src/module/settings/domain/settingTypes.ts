@@ -65,27 +65,6 @@ export type UpdateNumberFormatPayload = {
   status?: 'active' | 'inactive';
 };
 
-export type PaymentTerm = {
-  id: string;
-  site?: string;
-  name: string;
-  days: number;
-  isDefault?: boolean;
-  deleted?: boolean;
-  createdAt?: string;
-  updatedAt?: string;
-};
-
-export type CreatePaymentTermPayload = {
-  name: string;
-  days: number;
-};
-
-export type UpdatePaymentTermPayload = {
-  name?: string;
-  days?: number;
-};
-
 export type PaymentMethod = {
   id: string;
   site?: string;

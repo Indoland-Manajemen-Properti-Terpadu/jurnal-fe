@@ -99,10 +99,12 @@ export const API_SETTINGS = {
   DELETE_NUMBER_FORMAT: (id: string) => `/v1/settings/number-formats/${id}`,
 
   // Payment terms
-  GET_PAYMENT_TERMS: `/v1/payment-terms`,
-  POST_PAYMENT_TERM: `/v1/payment-terms`,
-  PUT_PAYMENT_TERM: (id: string) => `/v1/payment-terms/${id}`,
-  DELETE_PAYMENT_TERM: (id: string) => `/v1/payment-terms/${id}`,
+  GET_PAYMENT_TERMS: `/v1/settings/payment-terms`,
+  GET_PAYMENT_TERM: (id: string) => `/v1/settings/payment-terms/${id}`,
+  POST_PAYMENT_TERM: `/v1/settings/payment-terms`,
+  PUT_PAYMENT_TERM: (id: string) => `/v1/settings/payment-terms/${id}`,
+  PATCH_PAYMENT_TERM_STATUS: (id: string) => `/v1/settings/payment-terms/${id}/status`,
+  DELETE_PAYMENT_TERM: (id: string) => `/v1/settings/payment-terms/${id}`,
 
   // Payment methods
   GET_PAYMENT_METHODS: `/v1/payment-methods`,
