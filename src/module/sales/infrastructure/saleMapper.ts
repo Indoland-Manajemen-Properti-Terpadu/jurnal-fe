@@ -12,8 +12,8 @@ import type {
   SaleStatus,
   SaleTag,
 } from '../domain/sale';
-import { roundToCents } from '../domain/saleMoney';
 import type { SalePaymentRow } from '../domain/salePaymentList';
+import { toMoney, toNumber, toOptionalMoney, toRefId } from './saleMapperUtils';
 import type {
   ReceivablesSummaryDto,
   SaleAttachmentDto,
@@ -26,15 +26,6 @@ import type {
   SalePaymentRowDto,
   SaleTagDto,
 } from './saleDto';
-
-const toNumber = (value: unknown): number =>
-  typeof value === 'number' && Number.isFinite(value) ? value : 0;
-
-/** Money received from the API is rounded half up to the cent at this boundary. */
-const toMoney = (value: unknown): number => roundToCents(toNumber(value));
-
-const toOptionalMoney = (value: unknown): number | undefined =>
-  value !== undefined && value !== null ? toMoney(value) : undefined;
 
 const DISPLAY_CODES: SaleDisplayCode[] = ['DRAFT', 'UNPAID', 'PAID', 'OVERDUE', 'VOID'];
 
@@ -70,10 +61,6 @@ const mapUnit = (unit: SaleItemDto['unit']): string | null => {
   if (typeof unit === 'string') return unit || null;
   return unit?.name || null;
 };
-
-/** A reference the API may send as a bare id or as an object with an id. */
-const mapRefId = (ref: string | { id?: string; _id?: string } | null | undefined): string | null =>
-  typeof ref === 'string' ? ref || null : ref?.id || ref?._id || null;
 
 const mapItem = (i: SaleItemDto): SaleItem => {
   const journalTransactionId =
@@ -246,7 +233,7 @@ export const mapSaleDto = (dto: SaleDto | null | undefined): Sale => {
       : null,
     finalAmount: toMoney(dto.finalAmount ?? dto.total),
     returnedAmount: toMoney(dto.returnedAmount),
-    saleOrder: mapRefId(dto.saleOrder),
+    saleOrder: toRefId(dto.saleOrder),
     paidAmount: toMoney(dto.paidAmount),
     // A void invoice owes nothing, whatever the server still reports as its remainder.
     remainingAmount: mapDisplayStatus(dto).code === 'VOID' ? 0 : toMoney(dto.remainingAmount),

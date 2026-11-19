@@ -81,16 +81,6 @@ export const plannedModules = {
         four: 'Berita acara opname',
       },
     },
-    salesQuotations: {
-      title: 'Penawaran',
-      description: 'Buat penawaran harga untuk pelanggan sebelum pesanan dibuat.',
-      features: {
-        one: 'Penawaran dengan masa berlaku',
-        two: 'Ubah penawaran menjadi pesanan atau faktur',
-        three: 'Status penawaran: dikirim, diterima, ditolak',
-        four: 'Riwayat penawaran per pelanggan',
-      },
-    },
     salesOrders: {
       title: 'Pesanan Penjualan',
       description: 'Catat pesanan pelanggan sebelum barang dikirim dan ditagih.',

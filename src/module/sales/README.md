@@ -4,14 +4,18 @@ Sales invoices (accounts receivable): a draft and send workflow, a three step in
 
 ## Routes (`routes.sales`)
 
-| Key             | Path              | Page                                                                |
-| --------------- | ----------------- | ------------------------------------------------------------------- |
-| `main`          | `/sales`          | `SaleMainPage` (tabs Draf and Terkirim, filters, statistics)        |
-| `add`           | `/sales/new`      | `SaleFormPage` (stepper)                                            |
-| `edit`          | `/sales/:id/edit` | `SaleFormPage` (drafts only; any other invoice redirects to detail) |
-| `detail`        | `/sales/:id`      | `SaleDetailPage`                                                    |
-| `payments`      | `/sales/payments` | `SalePaymentsPage` (list of received payments)                      |
-| `publicInvoice` | `/invoice/:token` | `PublicInvoicePage` (no sign-in, no app shell)                      |
+| Key               | Path                         | Page                                                                |
+| ----------------- | ---------------------------- | ------------------------------------------------------------------- |
+| `main`            | `/sales`                     | `SaleMainPage` (tabs Draf and Terkirim, filters, statistics)        |
+| `add`             | `/sales/new`                 | `SaleFormPage` (stepper)                                            |
+| `edit`            | `/sales/:id/edit`            | `SaleFormPage` (drafts only; any other invoice redirects to detail) |
+| `detail`          | `/sales/:id`                 | `SaleDetailPage`                                                    |
+| `payments`        | `/sales/payments`            | `SalePaymentsPage` (list of received payments)                      |
+| `quotations`      | `/sales/quotations`          | `QuoteListPage` (tabs, summary, search, row menu)                   |
+| `quotationAdd`    | `/sales/quotations/new`      | `QuoteFormPage` (three steps)                                       |
+| `quotationEdit`   | `/sales/quotations/:id/edit` | `QuoteFormPage` (drafts only; others open the detail)               |
+| `quotationDetail` | `/sales/quotations/:id`      | `QuoteDetailPage`                                                   |
+| `publicInvoice`   | `/invoice/:token`            | `PublicInvoicePage` (no sign-in, no app shell)                      |
 
 `index.ts` exports the four pages, the `Sale` type, `mapSaleDto`, `formatIDR` and `getSaleStatusConfig`. The last three are used by the `contacts` module for a customer's sales.
 
@@ -82,11 +86,11 @@ Source: the backend's sales API guide and its Postman collection ("All Features"
 
 ## i18n
 
-Namespace `sales`, assembled from `salesCommon`, `salesList`, `salesForm`, `salesPay`, `salesPublic` and `salesView` (`id` primary, `en`). `saleDetail` still serves the detail page cards. Parity tests: `src/i18n/locales/sales.test.ts` and `saleDetail.test.ts`. UI copy says "Draf" in Indonesian and "Draft" in English.
+Namespace `salesQuotes` (quotes, `id` primary and `en`; parity test `salesQuotes.test.ts`) and namespace `sales`, assembled from `salesCommon`, `salesList`, `salesForm`, `salesPay`, `salesPublic` and `salesView` (`id` primary, `en`). `saleDetail` still serves the detail page cards. Parity tests: `src/i18n/locales/sales.test.ts` and `saleDetail.test.ts`. UI copy says "Draf" in Indonesian and "Draft" in English.
 
 ## Known gaps
 
-- Out of scope: Tukar Faktur, Pemesanan Penjualan and Penawaran Penjualan.
+- Out of scope: Tukar Faktur.
 - The customer picker loads the first 100 contacts only.
 - `APP_BASE_URL` must be set per environment on the backend, or emails carry no link.
 - The public page has no PDF download (the print endpoint needs sign-in); it offers the browser print dialog.
@@ -96,6 +100,18 @@ Namespace `sales`, assembled from `salesCommon`, `salesList`, `salesForm`, `sale
 
 `GET /v1/sale-payments` (page, limit, `search`, `startDate`/`endDate` once both are set, `hasOverpayment` true or false; the server sorts by payment date). One table: date, payment number, invoice, customer, method and account, amount received, excess. A row opens its invoice. Filters: search, overpayment (all, with, without) and date range. More filters: customer (`CustomerPicker`), payment method and deposit account. The Tanggal, No. Pembayaran, Diterima and Kelebihan headers sort on the server (`sortBy`, `sortOrder`; a new column starts newest or largest first, and the sort survives "reset filters").
 
+## Quotes (Penawaran)
+
+`GET|POST /v1/sale-quotes`, `GET|PUT|DELETE /v1/sale-quotes/:id`, `GET :id/print` (PDF) and `POST :id/send|resend|revise|accept|reject|void|duplicate` (`infrastructure/saleQuoteApi.ts`; the contract is in "Sales cycle: contract facts" above).
+
+- **Layers:** `domain/saleQuote.ts` (types, tabs, `quoteActions` per status, `allowedQuoteActions` by rights), `saleQuoteForm.ts` (form values, validation, a 14 day default for valid-until), `saleDocument.ts` (what quotes and orders share); `infrastructure/saleQuoteDto|Mapper|Payloads|Api.ts` and the shared `saleDocMapper.ts`; hooks `useQuoteQueries`, `useQuoteMutations`, `useQuoteActions` (the actions and their dialogs for rows and the detail alike), `useQuoteForm`, `useQuoteRights`; screens under `presentation/components/quotes`.
+- **Status** is the server's `displayStatus` string (`EXPIRED` for a sent quote past its day); nothing is derived on the client. Tabs: Berjalan (draft and waiting), Diterima, Selesai (rejected, expired, cancelled).
+- **Actions** follow the API guide per status: draft = edit, send, duplicate, delete; waiting = accept, reject, revise, resend, duplicate, cancel; expired = revise, duplicate, cancel; accepted = resend, duplicate (and Buat Pesanan, see below); rejected and cancelled = duplicate. They are hidden, not disabled, when the status forbids them or the user lacks the right (`JP-SALES-QUOTE`: create copies, update changes, sends and answers, delete cancels and deletes); nothing is hidden before the rights have loaded.
+- **Send dialog:** up to 10 addresses (prefilled from the quote, else the customer) and a message of up to 2000 characters; without an address the quote is only marked as sent ("Tandai Terkirim Tanpa Email"). The status changes before the email goes, so a failed email is a warning, never an error. Resend uses the typed addresses, else the saved ones or the customer's.
+- **Reject and cancel** need a reason of at least three characters (the shared `ReasonModal`).
+- **Totals** in the form are the estimate of `calculateSaleTotals` without withholding; the detail shows the server's figures.
+- **Not wired yet:** Buat Pesanan and Lihat Pesanan on an accepted quote arrive with the order screens (`quoteActions` already says when they apply).
+
 ## Planned pages
 
-`presentation/pages/planned/` holds the pages of sales documents that are not built yet: quotations (`/sales/quotations`), sales orders (`/sales/orders`), sales returns (`/sales/returns`) and receivables (`/sales/receivables`). Each renders the shared `PlannedModulePage` (header and planned scope, copy in the `plannedModules` namespace) and has no endpoint or state. The sidebar lists them next to the invoice list so the whole sales cycle is visible.
+`presentation/pages/planned/` holds the pages of sales documents that are not built yet: sales orders (`/sales/orders`), sales returns (`/sales/returns`) and receivables (`/sales/receivables`). Each renders the shared `PlannedModulePage` (header and planned scope, copy in the `plannedModules` namespace) and has no endpoint or state. The sidebar lists them next to the invoice list so the whole sales cycle is visible.

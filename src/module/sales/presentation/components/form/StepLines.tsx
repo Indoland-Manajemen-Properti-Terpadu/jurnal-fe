@@ -27,7 +27,19 @@ export function StepLines({ api }: Readonly<{ api: SaleFormApi }>) {
             {form.errors.lines}
           </Alert>
         )}
-        <SaleLinesTable api={api} />
+        <SaleLinesTable
+          items={form.values.items}
+          errors={form.errors}
+          productOptions={api.productOptions}
+          taxOptions={api.taxOptions}
+          onProductChange={api.changeProduct}
+          onChange={(index, patch) =>
+            Object.entries(patch).forEach(([key, value]) =>
+              form.setFieldValue(`items.${index}.${key}`, value)
+            )
+          }
+          onRemove={api.removeLine}
+        />
         <Button
           variant="light"
           leftSection={<IconPlus size={16} />}

@@ -81,16 +81,6 @@ export const plannedModules = {
         four: 'Count report',
       },
     },
-    salesQuotations: {
-      title: 'Quotations',
-      description: 'Prepare price quotations for customers before an order is placed.',
-      features: {
-        one: 'Quotations with an expiry date',
-        two: 'Turn a quotation into an order or invoice',
-        three: 'Quotation status: sent, accepted, declined',
-        four: 'Quotation history per customer',
-      },
-    },
     salesOrders: {
       title: 'Sales Orders',
       description: 'Record customer orders before goods are delivered and billed.',

@@ -16,6 +16,8 @@ interface SaleTotalsPanelProps {
   totals: SaleTotals;
   isPriceIncludeTax: boolean;
   review?: SaleReview;
+  /** Quotes and orders carry no withholding, so they leave its row out. */
+  showWithholding?: boolean;
 }
 
 const Row = ({
@@ -38,6 +40,7 @@ export function SaleTotalsPanel({
   totals,
   isPriceIncludeTax,
   review,
+  showWithholding = true,
 }: Readonly<SaleTotalsPanelProps>) {
   const { t } = useTranslation('sales');
   const minus = (amount: number) => (amount > 0 ? `− ${formatIDR(amount)}` : formatIDR(0));
@@ -52,7 +55,9 @@ export function SaleTotalsPanel({
           label={isPriceIncludeTax ? t('form.summary.vatIncluded') : t('form.summary.vat')}
           value={formatIDR(totals.taxTotal)}
         />
-        <Row label={t('form.summary.withholding')} value={minus(totals.withholdingAmount)} />
+        {showWithholding && (
+          <Row label={t('form.summary.withholding')} value={minus(totals.withholdingAmount)} />
+        )}
         <Divider />
         <Row label={t('form.summary.final')} value={formatIDR(totals.finalAmount)} bold />
         <Text size="xs" c="dimmed">

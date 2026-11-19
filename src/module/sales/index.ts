@@ -6,7 +6,9 @@ export { default as PublicInvoicePage } from './presentation/pages/PublicInvoice
 export type { Sale } from './domain/sale';
 export { mapSaleDto } from './infrastructure/saleMapper';
 export { formatIDR, getSaleStatusConfig } from './domain/saleFormat';
-export { default as SalesQuotationsPage } from './presentation/pages/planned/SalesQuotationsPage';
+export { default as QuoteListPage } from './presentation/pages/QuoteListPage';
+export { default as QuoteDetailPage } from './presentation/pages/QuoteDetailPage';
+export { default as QuoteFormPage } from './presentation/pages/QuoteFormPage';
 export { default as SalesOrdersPage } from './presentation/pages/planned/SalesOrdersPage';
 export { default as SalesReturnsPage } from './presentation/pages/planned/SalesReturnsPage';
 export { default as ReceivablesPage } from './presentation/pages/planned/ReceivablesPage';
