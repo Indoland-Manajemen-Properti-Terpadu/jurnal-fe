@@ -59,6 +59,12 @@ export const salesPay = {
     save: 'Simpan Pembayaran',
   },
   payments: {
+    summary: {
+      thisMonth: 'Diterima bulan ini',
+      total: 'Total diterima',
+      withholding: 'PPh dipotong',
+      count: '{count} pembayaran',
+    },
     title: 'Pembayaran Masuk',
     refreshTooltip: 'Muat ulang',
     refreshAria: 'Muat ulang daftar pembayaran',

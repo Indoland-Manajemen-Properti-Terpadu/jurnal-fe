@@ -59,6 +59,12 @@ export const salesPay = {
     save: 'Save Payment',
   },
   payments: {
+    summary: {
+      thisMonth: 'Received this month',
+      total: 'Total received',
+      withholding: 'Withholding tax deducted',
+      count: '{count} payments',
+    },
     title: 'Payments Received',
     refreshTooltip: 'Refresh',
     refreshAria: 'Refresh the payment list',

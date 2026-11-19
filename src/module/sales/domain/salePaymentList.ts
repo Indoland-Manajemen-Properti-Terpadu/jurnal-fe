@@ -2,6 +2,13 @@ import { dateFilter, type DateRange } from './saleListState';
 
 export type OverpaymentFilter = 'all' | 'yes' | 'no';
 
+export type SalePaymentSummary = {
+  thisMonth: { amount: number; count: number };
+  total: { amount: number; count: number };
+  /** Withholding tax deducted from what customers paid, as the API totals it. */
+  withholding: number;
+};
+
 export type SalePaymentRow = {
   id: string;
   transactionNumber: string;

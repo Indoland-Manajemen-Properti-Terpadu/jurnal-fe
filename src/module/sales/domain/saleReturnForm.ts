@@ -17,6 +17,12 @@ export interface ReturnFormLine {
   remaining: number;
   /** What this return takes back. */
   returnQty: number;
+  /** The invoice line's own figures; a return takes back the same share of each as of its quantity. */
+  lineAmount: number;
+  lineDiscount: number;
+  lineTax: number;
+  lineWithholding: number;
+  taxName: string;
 }
 
 export interface ReturnFormValues {
@@ -45,6 +51,11 @@ export const returnLinesOf = (sale: Pick<Sale, 'items'>): ReturnFormLine[] =>
         returned,
         remaining: Math.max(item.quantity - returned, 0),
         returnQty: 0,
+        lineAmount: item.amount ?? 0,
+        lineDiscount: item.discountAmount ?? 0,
+        lineTax: item.taxAmount ?? 0,
+        lineWithholding: item.withholdingAmount ?? 0,
+        taxName: item.tax?.name ?? '',
       };
     });
 
@@ -78,6 +89,67 @@ export const returnToFormValues = (ret: SaleReturn, sale: Sale): ReturnFormValue
 /** "Retur semua": every line takes back what is left of it. */
 export const returnAll = (lines: ReturnFormLine[]): ReturnFormLine[] =>
   lines.map((line) => ({ ...line, returnQty: line.remaining }));
+
+const cents = (value: number): number => Math.round(value * 100) / 100;
+
+/** The share of an invoice line's figure that `returnQty` of its `quantity` represents. */
+const share = (line: ReturnFormLine, figure: number): number =>
+  line.quantity > 0 ? cents((figure * Math.max(line.returnQty, 0)) / line.quantity) : 0;
+
+export interface ReturnLineEstimate {
+  /** What the returned quantity is worth before the invoice discount. */
+  gross: number;
+  discount: number;
+  /** Per unit, after the discount: what the customer really paid for one. */
+  netUnit: number;
+  tax: number;
+  withholding: number;
+  /** Gross less discount, so the line total shown beside the tax. */
+  total: number;
+}
+
+export const estimateReturnLine = (line: ReturnFormLine): ReturnLineEstimate => {
+  const gross = share(line, line.lineAmount);
+  const discount = share(line, line.lineDiscount);
+  return {
+    gross,
+    discount,
+    netUnit: line.quantity > 0 ? cents((line.lineAmount - line.lineDiscount) / line.quantity) : 0,
+    tax: share(line, line.lineTax),
+    withholding: share(line, line.lineWithholding),
+    total: cents(gross - discount),
+  };
+};
+
+export interface ReturnEstimate {
+  subtotal: number;
+  discount: number;
+  tax: number;
+  withholding: number;
+  total: number;
+}
+
+/**
+ * What the return should come to: the same share of each invoice line's amount, discount, tax and
+ * withholding as the quantity returned. The server prices the return when the draft is saved and
+ * its figure wins; this is shown so the user sees roughly what they are about to issue.
+ */
+export const estimateReturn = (lines: ReturnFormLine[]): ReturnEstimate => {
+  const parts = lines.map(estimateReturnLine);
+  const sum = (pick: (part: ReturnLineEstimate) => number) =>
+    cents(parts.reduce((total, part) => total + pick(part), 0));
+  const subtotal = sum((part) => part.gross);
+  const discount = sum((part) => part.discount);
+  const tax = sum((part) => part.tax);
+  const withholding = sum((part) => part.withholding);
+  return {
+    subtotal,
+    discount,
+    tax,
+    withholding,
+    total: cents(subtotal - discount + tax - withholding),
+  };
+};
 
 export type ReturnFormErrors = Record<string, string>;
 

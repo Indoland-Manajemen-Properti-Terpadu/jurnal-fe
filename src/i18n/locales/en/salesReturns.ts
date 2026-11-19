@@ -168,6 +168,19 @@ export const salesReturns = {
     colRemaining: 'Left',
     colReturnQty: 'Return qty',
     colUnitPrice: 'Price',
+    colNetPrice: 'Net price',
+    colTax: 'Tax',
+    colTotal: 'Total',
+    noTax: 'No tax',
+    totals: {
+      subtotal: 'Return subtotal',
+      discount: 'Discount',
+      tax: 'Tax',
+      withholding: 'Withholding tax',
+      total: 'Return total',
+      estimateHint:
+        'An estimate. The system works out the final figure from the invoice when the draft is saved.',
+    },
     nothingLeft: 'All returned',
     actions: {
       cancel: 'Cancel',

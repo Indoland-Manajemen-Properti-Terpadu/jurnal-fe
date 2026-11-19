@@ -170,6 +170,18 @@ export const salesReturns = {
     colRemaining: 'Sisa',
     colReturnQty: 'Qty retur',
     colUnitPrice: 'Harga',
+    colNetPrice: 'Harga netto',
+    colTax: 'Pajak',
+    colTotal: 'Total',
+    noTax: 'Tanpa pajak',
+    totals: {
+      subtotal: 'Subtotal retur',
+      discount: 'Diskon',
+      tax: 'Pajak',
+      withholding: 'PPh dipotong',
+      total: 'Total retur',
+      estimateHint: 'Perkiraan. Angka akhir dihitung sistem dari faktur saat draf disimpan.',
+    },
     nothingLeft: 'Semua sudah diretur',
     actions: {
       cancel: 'Batal',

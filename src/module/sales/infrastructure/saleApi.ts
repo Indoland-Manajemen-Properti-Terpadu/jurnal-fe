@@ -27,7 +27,12 @@ import type {
   SalePaymentResult,
   SendSaleResult,
 } from '../domain/sale';
-import type { SalePaymentListParams, SalePaymentRow } from '../domain/salePaymentList';
+import type {
+  SalePaymentListParams,
+  SalePaymentRow,
+  SalePaymentSummary,
+} from '../domain/salePaymentList';
+import { toNumber } from './saleMapperUtils';
 
 export const SALE_ENDPOINTS = {
   sales: '/v1/sales',
@@ -199,6 +204,26 @@ export const fetchOverpaymentAccount = async (): Promise<OverpaymentAccount> => 
     .find((item) => item.key === 'sales_overpayment');
   const account = mapping?.account;
   return account?.name ? { name: account.name, accountNumber: account.accountNumber } : null;
+};
+
+interface SalePaymentSummaryDto {
+  data: {
+    thisMonth?: { amount?: number; count?: number };
+    total?: { amount?: number; count?: number };
+    withholding?: number;
+  };
+}
+
+export const fetchSalePaymentSummary = async (): Promise<SalePaymentSummary> => {
+  const { data } = await apiClient.get<SalePaymentSummaryDto>(
+    `${SALE_ENDPOINTS.salePayments}/summary`
+  );
+  const { thisMonth, total, withholding } = data.data ?? {};
+  return {
+    thisMonth: { amount: toNumber(thisMonth?.amount), count: toNumber(thisMonth?.count) },
+    total: { amount: toNumber(total?.amount), count: toNumber(total?.count) },
+    withholding: toNumber(withholding),
+  };
 };
 
 export const fetchSalePayments = async (

@@ -5,6 +5,8 @@ import {
   canReturnSale,
   canSaveReturn,
   emptyReturnForm,
+  estimateReturn,
+  estimateReturnLine,
   returnAll,
   returnLinesOf,
   returnToFormValues,
@@ -112,6 +114,53 @@ const invoice = {
     { quantity: 1, unitPrice: 1, amount: 1 },
   ],
 } as unknown as Sale;
+
+describe('return estimate', () => {
+  const line = {
+    saleItem: 'i',
+    name: 'N',
+    description: '',
+    unitPrice: 45000,
+    quantity: 1,
+    returned: 0,
+    remaining: 1,
+    returnQty: 1,
+    lineAmount: 45000,
+    lineDiscount: 900,
+    lineTax: 4851,
+    lineWithholding: 35294,
+    taxName: 'PPN',
+  };
+
+  it('matches what the server priced for the live return (45000 less 900, tax 4851, PPh 35294)', () => {
+    expect(estimateReturn([line])).toEqual({
+      subtotal: 45000,
+      discount: 900,
+      tax: 4851,
+      withholding: 35294,
+      total: 13657,
+    });
+  });
+
+  it('takes back the same share of every figure as of the quantity, to the cent', () => {
+    const half = {
+      ...line,
+      quantity: 4,
+      lineAmount: 100,
+      lineDiscount: 10,
+      lineTax: 9.9,
+      lineWithholding: 0,
+    };
+    expect(estimateReturnLine({ ...half, returnQty: 1 })).toMatchObject({
+      gross: 25,
+      discount: 2.5,
+      tax: 2.48,
+      netUnit: 22.5,
+      total: 22.5,
+    });
+    expect(estimateReturn([{ ...half, returnQty: 0 }]).total).toBe(0);
+  });
+});
 
 describe('return form', () => {
   it('lists the invoice lines with what is left to return', () => {
