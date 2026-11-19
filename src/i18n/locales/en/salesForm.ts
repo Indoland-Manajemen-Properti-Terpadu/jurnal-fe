@@ -10,6 +10,7 @@ export const salesForm = {
     descriptionNew:
       'Fill it in three steps: general information, products and services, then discount and extras.',
     descriptionEdit: 'Update this draft, then save it or issue it to the customer.',
+    stepLabel: 'Step {count}',
     stepperAria: 'Invoice steps',
     steps: {
       general: 'General Information',
@@ -29,6 +30,11 @@ export const salesForm = {
       paymentTerm: 'Payment Terms',
       paymentTermPlaceholder: 'Select terms (COD, Net 30, ...)',
       paymentTermHint: 'The due date follows the selected terms.',
+      orderSource: 'Take from Order',
+      orderSourceHint: 'Optional. Leave empty for a stand-alone document.',
+      orderSourcePlaceholder: 'Choose a confirmed order',
+      orderSourceNeedsCustomer: 'Choose a customer first',
+      orderSourceEmpty: 'No order is ready to be invoiced',
       customerRef: 'Customer Reference Number',
       customerRefPlaceholder: 'For example: PO-2026/05',
       billingAddress: 'Billing Address',
@@ -100,7 +106,7 @@ export const salesForm = {
       reviewDue: 'Due {date}',
     },
     actions: {
-      back: 'Back',
+      back: 'Previous step',
       next: 'Next',
       cancel: 'Cancel',
       saveDraft: 'Save as Draft',

@@ -20,7 +20,9 @@ import {
   IconTag,
   IconUser,
 } from '@tabler/icons-react';
+import { Link } from 'react-router-dom';
 import { DetailCardHeader } from '@/components/DetailCardHeader/DetailCardHeader';
+import { routes } from '@/router/routes';
 import type { Sale } from '@/module/sales/domain/sale';
 import { saleActions } from '@/module/sales/domain/saleActions';
 import { buildInvoiceLink } from '@/module/sales/domain/saleFormat';
@@ -63,6 +65,20 @@ export function SaleSidebar({ sale, display }: Readonly<{ sale: Sale; display: S
           subtitle={t('documentsSubtitle')}
         />
         <Stack gap="md">
+          {sale.saleOrder && (
+            <DetailField label={t('sourceOrder')}>
+              <Button
+                component={Link}
+                to={routes.sales.orderDetail.replace(':id', sale.saleOrder)}
+                variant="light"
+                size="xs"
+                leftSection={<IconExternalLink size={14} />}
+                style={{ width: 'max-content' }}
+              >
+                {t('openOrder')}
+              </Button>
+            </DetailField>
+          )}
           {invoiceUrl ? (
             <Box className={classes.linkPanel}>
               <Text size="xs" fw={700}>

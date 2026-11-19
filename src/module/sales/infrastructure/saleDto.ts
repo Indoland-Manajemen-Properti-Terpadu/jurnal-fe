@@ -23,6 +23,7 @@ export type SaleItemDto = IdRefDto & {
   outstandingAmount?: unknown;
   discountAmount?: unknown;
   withholdingAmount?: unknown;
+  returnedQty?: unknown;
   journalTransaction?: string | IdRefDto | null;
   journalId?: string;
   journal_id?: string;
@@ -97,6 +98,8 @@ export type SaleDto = IdRefDto & {
   withholdingAmount?: unknown;
   withholdingAccount?: SaleWithholdingAccountDto | null;
   finalAmount?: unknown;
+  returnedAmount?: unknown;
+  saleOrder?: string | IdRefDto | null;
   paidAmount?: unknown;
   remainingAmount?: unknown;
   attachments?: SaleAttachmentDto[];

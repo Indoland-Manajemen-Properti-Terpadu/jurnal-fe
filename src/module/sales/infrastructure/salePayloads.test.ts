@@ -144,3 +144,15 @@ describe('buildPaymentFormData', () => {
     expect(plain.has('lateFeeAmount')).toBe(false);
   });
 });
+
+describe('buildSaleFormData with an order', () => {
+  it('sends the order id when an invoice is created from an order', () => {
+    expect(buildSaleFormData(values({ saleOrder: 'o-1' }), 'draft').get('saleOrder')).toBe('o-1');
+    expect(buildSaleFormData(values({ saleOrder: 'o-1' }), 'send').get('saleOrder')).toBe('o-1');
+  });
+
+  it('never sends it on an edit, or when there is none', () => {
+    expect(buildSaleFormData(values({ saleOrder: 'o-1' }), 'update').has('saleOrder')).toBe(false);
+    expect(buildSaleFormData(values(), 'draft').has('saleOrder')).toBe(false);
+  });
+});

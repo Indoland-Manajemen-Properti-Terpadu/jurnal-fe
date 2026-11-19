@@ -1,13 +1,13 @@
 import type { SaleDisplayCode, SaleListParams } from './sale';
 
-export const SALE_TABS = ['draft', 'sent'] as const;
+export const SALE_TABS = ['draft', 'issued', 'void'] as const;
 export type SaleTab = (typeof SALE_TABS)[number];
 
-/** What the Terkirim tab lists by default; void shows only when it is chosen in the filter. */
+/** What the Terbit tab lists: every invoice that was issued and not cancelled. */
 export const SENT_STATUSES: SaleDisplayCode[] = ['UNPAID', 'PAID', 'OVERDUE'];
 
-/** Status choices inside a tab: the draft tab has none, the sent tab filters further. */
-export const SENT_STATUS_FILTERS: SaleDisplayCode[] = ['UNPAID', 'OVERDUE', 'PAID', 'VOID'];
+/** Status choices inside the Terbit tab; the draft and cancelled tabs have none. */
+export const SENT_STATUS_FILTERS: SaleDisplayCode[] = ['UNPAID', 'OVERDUE', 'PAID'];
 
 /** List query for a tab and an optional status filter ("all" = no extra filter). */
 export const tabParams = (
@@ -15,6 +15,7 @@ export const tabParams = (
   status: SaleDisplayCode | 'all'
 ): Pick<SaleListParams, 'paymentStatus'> => {
   if (tab === 'draft') return { paymentStatus: 'DRAFT' };
+  if (tab === 'void') return { paymentStatus: 'VOID' };
   return { paymentStatus: status === 'all' ? SENT_STATUSES : status };
 };
 
@@ -26,7 +27,7 @@ export const saleStatusTone = (code: SaleDisplayCode): SaleStatusTone => {
     case 'OVERDUE':
       return { color: 'red', variant: 'light' };
     case 'PAID':
-      return { color: 'teal', variant: 'light' };
+      return { color: 'green', variant: 'light' };
     case 'UNPAID':
       return { color: 'primary', variant: 'light' };
     case 'VOID':

@@ -14,5 +14,7 @@ export const salesView = {
       'This invoice is still a draft. It is not yet recorded as accounts receivable and cannot be paid.',
     voidNote: 'This invoice has been voided. It cannot be paid, changed or deleted.',
     moreActions: 'More actions',
+    returnedNote:
+      'This invoice has an issued return, so it cannot be voided and its lines are locked. Cancel the return first if needed.',
   },
 };

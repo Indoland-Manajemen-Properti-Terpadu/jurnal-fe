@@ -2,6 +2,8 @@ import { useMemo, useState } from 'react';
 import { useForm } from '@mantine/form';
 import { useTranslation } from '@/i18n';
 import type { CreateSaleFormValues } from '@/module/sales/domain/sale';
+import type { SaleOrder } from '@/module/sales/domain/saleOrder';
+import { orderToSaleFormValues } from '@/module/sales/domain/saleOrderInvoice';
 import type { CustomerSummary } from '@/module/sales/domain/saleCustomer';
 import {
   dueDateFromTerm,
@@ -41,9 +43,30 @@ export function useSaleForm(initial?: CreateSaleFormValues) {
   /** Fills the billing address and email from the customer the user picked. */
   const changeCustomer = (customerId: string | null, picked: CustomerSummary | null) => {
     form.setFieldValue('customer', customerId || '');
+    // An invoice made from an order bills that order's customer; another customer cuts the link.
+    if (form.values.saleOrder && (customerId || '') !== form.values.customer) {
+      form.setFieldValue('saleOrder', '');
+    }
     if (!picked) return;
     if (picked.billingAddress) form.setFieldValue('billingAddress', picked.billingAddress);
     if (picked.emails.length) form.setFieldValue('emails', picked.emails);
+  };
+
+  /** Fills the form from a confirmed order of this customer, keeping what is already typed that the order has no say in. */
+  const pickOrder = (order: SaleOrder | null) => {
+    if (!order) {
+      form.setFieldValue('saleOrder', '');
+      return;
+    }
+    const keep = form.values;
+    form.setValues({
+      ...orderToSaleFormValues(order, keep.transactionDate),
+      transactionNumber: keep.transactionNumber,
+      billingAddress: keep.billingAddress,
+      emails: keep.emails,
+      tags: keep.tags,
+      attachments: keep.attachments,
+    });
   };
 
   /** Whether an email can go out: the invoice's own addresses, else the customer's. */
@@ -129,6 +152,7 @@ export function useSaleForm(initial?: CreateSaleFormValues) {
     totals,
     checkStep,
     changeCustomer,
+    pickOrder,
     customer,
     setCustomer,
     canEmail,

@@ -1,12 +1,22 @@
 import { useEffect, useReducer, useState } from 'react';
 import { ActionIcon, Box, Button, Group, Paper, Stack, Tabs, Tooltip } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
-import { IconFileText, IconPlus, IconReceipt2, IconRefresh, IconSend } from '@tabler/icons-react';
+import {
+  IconBan,
+  IconFileText,
+  IconPlus,
+  IconReceipt2,
+  IconRefresh,
+  IconRepeat,
+  IconSend,
+} from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { AppShellLayout } from '@/components/AppShellLayout';
 import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
 import { useTranslation } from '@/i18n';
+import { useMyGrants } from '@/module/user-management';
 import { routes } from '@/router/routes';
+import { SALE_MENU } from '../../domain/saleMenu';
 import type { CreateSalePaymentPayload, Sale, SaleDisplayCode } from '../../domain/sale';
 import { billingEmail } from '../../domain/saleActions';
 import { formatCount, invoiceFilename } from '../../domain/saleFormat';
@@ -19,6 +29,7 @@ import {
 } from '../../domain/saleListState';
 import type { SaleTab } from '../../domain/saleStatus';
 import { PaySaleModal } from '../components/PaySaleModal';
+import { BulkRecurringDialog } from '../components/bulk/BulkRecurringDialog';
 import { SaleFilters } from '../components/list/SaleFilters';
 import type { SaleRowHandlers } from '../components/list/SaleRowActions';
 import { ReceivablesPanel } from '../components/list/ReceivablesPanel';
@@ -40,6 +51,9 @@ const editPath = (id: string) => routes.sales.edit.replace(':id', id);
 export function SaleMainPage() {
   const navigate = useNavigate();
   const { t } = useTranslation('sales');
+  const { t: tBulk } = useTranslation('salesBulk');
+  const { can, isReady } = useMyGrants();
+  const canBulk = !isReady || can(SALE_MENU.invoices, 'create');
 
   const [state, dispatch] = useReducer(saleListReducer, initialListState);
   const [searchInput, setSearchInput] = useState('');
@@ -51,6 +65,7 @@ export function SaleMainPage() {
   const [payTarget, setPayTarget] = useState<Sale | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Sale | null>(null);
   const [sendTarget, setSendTarget] = useState<Sale | null>(null);
+  const [bulkOpen, setBulkOpen] = useState(false);
 
   const dates = dateFilter(state.range);
   const salesQuery = useSales(listParams(state));
@@ -74,7 +89,7 @@ export function SaleMainPage() {
   };
 
   const showStatus = (value: SaleDisplayCode) => {
-    dispatch({ type: 'tab', tab: 'sent' });
+    dispatch({ type: 'tab', tab: 'issued' });
     dispatch({ type: 'status', value });
   };
 
@@ -95,7 +110,7 @@ export function SaleMainPage() {
 
   const handlePaySubmit = (payload: CreateSalePaymentPayload) => payMutation.mutateAsync(payload);
 
-  const tabLabel = (key: 'draft' | 'sent', count?: number) =>
+  const tabLabel = (key: SaleTab, count?: number) =>
     count === undefined ? t(`tabs.${key}`) : t(`tabs.${key}Count`, { count: formatCount(count) });
 
   return (
@@ -124,6 +139,15 @@ export function SaleMainPage() {
                     <IconRefresh size={18} />
                   </ActionIcon>
                 </Tooltip>
+                {canBulk && (
+                  <Button
+                    variant="default"
+                    leftSection={<IconRepeat size={18} />}
+                    onClick={() => setBulkOpen(true)}
+                  >
+                    {tBulk('page.open')}
+                  </Button>
+                )}
                 <Button
                   color="primary"
                   leftSection={<IconPlus size={18} />}
@@ -154,8 +178,11 @@ export function SaleMainPage() {
                 <Tabs.Tab value="draft" leftSection={<IconFileText size={16} />}>
                   {tabLabel('draft', counts?.DRAFT)}
                 </Tabs.Tab>
-                <Tabs.Tab value="sent" leftSection={<IconSend size={16} />}>
-                  {tabLabel('sent', counts?.sent)}
+                <Tabs.Tab value="issued" leftSection={<IconSend size={16} />}>
+                  {tabLabel('issued', counts?.sent)}
+                </Tabs.Tab>
+                <Tabs.Tab value="void" leftSection={<IconBan size={16} />}>
+                  {tabLabel('void', counts?.VOID)}
                 </Tabs.Tab>
               </Tabs.List>
 
@@ -231,6 +258,7 @@ export function SaleMainPage() {
         onClose={() => setPayTarget(null)}
         onSubmit={handlePaySubmit}
       />
+      {bulkOpen && <BulkRecurringDialog onClose={() => setBulkOpen(false)} />}
     </AppShellLayout>
   );
 }

@@ -49,9 +49,7 @@ type Column = { key: string; align?: 'right'; sort?: PaymentSortBy };
 
 const COLUMNS: Column[] = [
   { key: 'colDate', sort: 'paymentDate' },
-  { key: 'colNumber', sort: 'transactionNumber' },
   { key: 'colInvoice' },
-  { key: 'colCustomer' },
   { key: 'colMethod' },
   { key: 'colAmount', align: 'right', sort: 'amount' },
   { key: 'colOverpayment', align: 'right', sort: 'overpaymentAmount' },
@@ -76,6 +74,8 @@ export function SalePaymentTable({
 }: Readonly<SalePaymentTableProps>) {
   const { t } = useTranslation('sales');
   const emptyKey = isFiltered ? 'filteredEmpty' : 'empty';
+  // What the rows on screen brought in, so the line under the table adds up with what is shown.
+  const receivedOnPage = rows.reduce((sum, row) => sum + row.amount, 0);
 
   return (
     <Stack gap="md">
@@ -185,22 +185,12 @@ export function SalePaymentTable({
                     <Text size="sm">{formatDate(row.paymentDate)}</Text>
                   </Table.Td>
                   <Table.Td>
-                    <Text size="sm" fw={700}>
-                      {row.transactionNumber}
-                    </Text>
-                    {row.memo && (
-                      <Text size="xs" c="dimmed" lineClamp={1}>
-                        {row.memo}
-                      </Text>
-                    )}
-                  </Table.Td>
-                  <Table.Td>
                     <Text size="sm" fw={600} c="primary.9">
                       {row.sale?.transactionNumber ?? '—'}
                     </Text>
-                  </Table.Td>
-                  <Table.Td>
-                    <Text size="sm">{row.sale?.customerName ?? '—'}</Text>
+                    <Text size="xs" c="dimmed">
+                      {row.sale?.customerName ?? '—'}
+                    </Text>
                   </Table.Td>
                   <Table.Td>
                     <Text size="sm">{row.paymentMethodName ?? '—'}</Text>
@@ -229,6 +219,8 @@ export function SalePaymentTable({
       <Group justify="space-between" align="center" wrap="wrap" px="xs">
         <Text size="xs" c="dimmed">
           {t('payments.showing', { shown: rows.length, total })}
+          {' · '}
+          {t('payments.receivedOnPage', { amount: formatIDR(receivedOnPage) })}
         </Text>
         <Group gap="sm">
           <Select
@@ -252,6 +244,9 @@ export function SalePaymentTable({
           />
         </Group>
       </Group>
+      <Text size="xs" c="dimmed" ta="center">
+        {t('payments.recordHint')}
+      </Text>
     </Stack>
   );
 }

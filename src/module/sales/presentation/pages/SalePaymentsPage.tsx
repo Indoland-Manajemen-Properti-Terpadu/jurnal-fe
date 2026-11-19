@@ -13,9 +13,10 @@ import {
   paymentListParams,
   paymentListReducer,
 } from '../../domain/salePaymentList';
+import { SalePaymentSummaryStrip } from '../components/payments/SalePaymentSummaryStrip';
 import { SalePaymentFilters } from '../components/payments/SalePaymentFilters';
 import { SalePaymentTable } from '../components/payments/SalePaymentTable';
-import { useSalePayments } from '../hooks/useSaleQueries';
+import { useSalePaymentSummary, useSalePayments } from '../hooks/useSaleQueries';
 
 export function SalePaymentsPage() {
   const navigate = useNavigate();
@@ -28,6 +29,7 @@ export function SalePaymentsPage() {
   }, [debouncedSearch]);
 
   const query = useSalePayments(paymentListParams(state));
+  const summaryQuery = useSalePaymentSummary();
   const pagination = query.data?.pagination;
   const isFiltered = hasActivePaymentFilters(state);
 
@@ -45,7 +47,10 @@ export function SalePaymentsPage() {
                   variant="default"
                   size="lg"
                   radius="md"
-                  onClick={() => query.refetch()}
+                  onClick={() => {
+                    query.refetch();
+                    summaryQuery.refetch();
+                  }}
                   loading={query.isFetching}
                   aria-label={t('payments.refreshAria')}
                 >
@@ -55,6 +60,8 @@ export function SalePaymentsPage() {
             }
           />
 
+          <SalePaymentSummaryStrip summary={summaryQuery.data} isLoading={summaryQuery.isLoading} />
+
           <Paper withBorder radius="lg" p="md" bg="white">
             <Stack gap="md">
               <SalePaymentFilters
@@ -62,14 +69,10 @@ export function SalePaymentsPage() {
                 onSearchInput={setSearchInput}
                 range={state.range}
                 onRange={(value) => dispatch({ type: 'range', value })}
-                overpayment={state.overpayment}
-                onOverpayment={(value) => dispatch({ type: 'overpayment', value })}
                 customer={state.customer}
                 onCustomer={(value) => dispatch({ type: 'customer', value })}
                 paymentMethod={state.paymentMethod}
                 onPaymentMethod={(value) => dispatch({ type: 'paymentMethod', value })}
-                depositAccount={state.depositAccount}
-                onDepositAccount={(value) => dispatch({ type: 'depositAccount', value })}
                 isFiltered={isFiltered}
                 onReset={() => {
                   setSearchInput('');

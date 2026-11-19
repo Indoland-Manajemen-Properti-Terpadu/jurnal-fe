@@ -35,4 +35,3 @@
   background-color: color-mix(in srgb, var(--mantine-color-slate-9) 4%, transparent);
   border: rem(1px) solid color-mix(in srgb, var(--mantine-color-slate-9) 6%, transparent);
 }
-

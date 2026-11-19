@@ -94,6 +94,11 @@ export function SaleItemsCard({ sale, display }: Readonly<{ sale: Sale; display:
                     <Table.Td>{itemContent(item)}</Table.Td>
                     <Table.Td ta="right" className={classes.amount}>
                       {number(item.quantity)}
+                      {!!item.returnedQty && item.returnedQty > 0 && (
+                        <Text size="xs" c="dimmed">
+                          {t('returnedQty', { qty: number(item.returnedQty) })}
+                        </Text>
+                      )}
                     </Table.Td>
                     <Table.Td ta="right" className={classes.amount}>
                       {money(item.unitPrice)}
@@ -110,7 +115,7 @@ export function SaleItemsCard({ sale, display }: Readonly<{ sale: Sale; display:
                             component="span"
                             size="sm"
                             fw={600}
-                            c={item.adjustedAmount > 0 ? 'teal.7' : 'red.7'}
+                            c={item.adjustedAmount > 0 ? 'green.7' : 'red.7'}
                           >
                             {formatSignedAmount(item.adjustedAmount, money)}
                           </Text>
@@ -149,9 +154,12 @@ export function SaleItemsCard({ sale, display }: Readonly<{ sale: Sale; display:
                   <Text size="xs" c="dimmed">
                     {number(item.quantity)} × {money(item.unitPrice)}
                     {item.tax?.name ? ` · ${item.tax.name}` : ''}
+                    {!!item.returnedQty && item.returnedQty > 0
+                      ? ` · ${t('returnedQty', { qty: number(item.returnedQty) })}`
+                      : ''}
                   </Text>
                   {item.adjustedAmount !== undefined && item.adjustedAmount !== 0 && (
-                    <Text size="xs" c={item.adjustedAmount > 0 ? 'teal.7' : 'red.7'} fw={600}>
+                    <Text size="xs" c={item.adjustedAmount > 0 ? 'green.7' : 'red.7'} fw={600}>
                       {t('adjustedAmount')}: {formatSignedAmount(item.adjustedAmount, money)}
                     </Text>
                   )}
@@ -184,7 +192,7 @@ export function SaleItemsCard({ sale, display }: Readonly<{ sale: Sale; display:
           <AmountRow
             label={t('adjustedAmountTotal')}
             amount={formatSignedAmount(sale.adjustedAmount, money)}
-            color={sale.adjustedAmount > 0 ? 'teal.7' : 'red.7'}
+            color={sale.adjustedAmount > 0 ? 'green.7' : 'red.7'}
           />
         )}
         {!!sale.lateFeeAmount && sale.lateFeeAmount > 0 && (
@@ -198,6 +206,9 @@ export function SaleItemsCard({ sale, display }: Readonly<{ sale: Sale; display:
         )}
         <Divider my="xs" />
         <AmountRow label={t('invoiceTotal')} amount={money(sale.finalAmount)} emphasis />
+        {!!sale.returnedAmount && sale.returnedAmount > 0 && (
+          <AmountRow label={t('returnedAmount')} amount={`−${money(sale.returnedAmount)}`} />
+        )}
         {sale.displayStatus.code !== 'DRAFT' && sale.displayStatus.code !== 'VOID' && (
           <>
             <AmountRow label={t('paid')} amount={money(sale.paidAmount)} />

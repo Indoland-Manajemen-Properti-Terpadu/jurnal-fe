@@ -175,3 +175,25 @@ describe('summary and counts mappers', () => {
     });
   });
 });
+
+describe('mapSaleDto order and return fields', () => {
+  it('reads the order id and what returns took off', () => {
+    const sale = mapSaleDto({
+      ...baseDto,
+      saleOrder: 'o-1',
+      returnedAmount: 120.5,
+      items: [{ id: 'i-1', quantity: 3, returnedQty: 1 }],
+    });
+    expect(sale.saleOrder).toBe('o-1');
+    expect(sale.returnedAmount).toBe(120.5);
+    expect(sale.items[0].returnedQty).toBe(1);
+  });
+
+  it('accepts the order as an object and defaults to none', () => {
+    expect(mapSaleDto({ ...baseDto, saleOrder: { id: 'o-2' } }).saleOrder).toBe('o-2');
+    const plain = mapSaleDto(baseDto);
+    expect(plain.saleOrder).toBeNull();
+    expect(plain.returnedAmount).toBe(0);
+    expect(plain.items[0].returnedQty).toBe(0);
+  });
+});
