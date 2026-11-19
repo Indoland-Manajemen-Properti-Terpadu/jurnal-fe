@@ -13,3 +13,8 @@ export const toOptionalMoney = (value: unknown): number | undefined =>
 export const toRefId = (
   ref: string | { id?: string; _id?: string } | null | undefined
 ): string | null => (typeof ref === 'string' ? ref || null : ref?.id || ref?._id || null);
+
+/** The number of a reference the API sends as `{ id, transactionNumber }`; bare ids have none. */
+export const toRefNumber = (
+  ref: string | { transactionNumber?: string } | null | undefined
+): string | null => (typeof ref === 'object' && ref ? ref.transactionNumber || null : null);

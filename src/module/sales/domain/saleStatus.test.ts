@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { SENT_STATUS_FILTERS, saleStatusTone, saleTimeline, tabParams } from './saleStatus';
+import {
+  SENT_STATUS_FILTERS,
+  saleBadges,
+  saleStatusTone,
+  saleTimeline,
+  tabParams,
+} from './saleStatus';
 
 describe('tabParams', () => {
   it('lists void on its own tab, never among the issued statuses', () => {
@@ -31,6 +37,15 @@ describe('saleStatusTone', () => {
   });
 });
 
+describe('status filters', () => {
+  it('offers partly paid and returned next to the states, and asks for them by name', () => {
+    expect(SENT_STATUS_FILTERS).toContain('PARTIAL_PAID');
+    expect(SENT_STATUS_FILTERS).toContain('RETURNED');
+    expect(tabParams('issued', 'PARTIAL_PAID')).toEqual({ paymentStatus: 'PARTIAL_PAID' });
+    expect(tabParams('issued', 'RETURNED')).toEqual({ paymentStatus: 'RETURNED' });
+  });
+});
+
 describe('saleTimeline', () => {
   const states = (code: Parameters<typeof saleTimeline>[0]) =>
     saleTimeline(code).map((step) => `${step.key}:${step.state}`);
@@ -50,5 +65,30 @@ describe('saleTimeline', () => {
 
   it('ends a void invoice on the void step', () => {
     expect(states('VOID')).toEqual(['draft:done', 'void:current']);
+  });
+});
+
+const sale = (code: 'DRAFT' | 'UNPAID' | 'OVERDUE' | 'PAID' | 'VOID', extra = {}) => ({
+  displayStatus: { code },
+  ...extra,
+});
+
+describe('saleBadges', () => {
+  it('reads "returned" for an issued invoice with a return', () => {
+    expect(saleBadges(sale('UNPAID', { hasReturn: true })).main).toBe('RETURNED');
+    expect(saleBadges(sale('PAID', { hasReturn: true })).main).toBe('RETURNED');
+  });
+
+  it('keeps the server state without a return, and for drafts and void ones', () => {
+    expect(saleBadges(sale('OVERDUE')).main).toBe('OVERDUE');
+    expect(saleBadges(sale('VOID', { hasReturn: true })).main).toBe('VOID');
+    expect(saleBadges(sale('DRAFT', { hasReturn: true })).main).toBe('DRAFT');
+  });
+
+  it('adds "partly paid" only while the invoice is still open', () => {
+    expect(saleBadges(sale('UNPAID', { isPartiallyPaid: true })).partialPaid).toBe(true);
+    expect(saleBadges(sale('OVERDUE', { isPartiallyPaid: true })).partialPaid).toBe(true);
+    expect(saleBadges(sale('PAID', { isPartiallyPaid: true })).partialPaid).toBe(false);
+    expect(saleBadges(sale('UNPAID')).partialPaid).toBe(false);
   });
 });

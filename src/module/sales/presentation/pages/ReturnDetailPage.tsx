@@ -18,6 +18,7 @@ import {
   IconCheck,
   IconCoin,
   IconDotsVertical,
+  IconDownload,
   IconPencil,
   IconReceipt2,
   IconReceiptRefund,
@@ -66,7 +67,7 @@ export function ReturnDetailPage() {
   const { t } = useTranslation('salesReturns');
   const rights = useReturnRights();
   const { data: ret, isLoading, isError, refetch } = useReturn(id);
-  const { handlers, dialogs } = useReturnActions({
+  const { handlers, dialogs, busy } = useReturnActions({
     onDeleted: () => navigate(routes.sales.returns, { replace: true }),
   });
   const back = () => navigate(routes.sales.returns);
@@ -182,6 +183,14 @@ export function ReturnDetailPage() {
             note={{ tone: note.tone, text: t(note.key) }}
             actions={
               <Group gap="xs">
+                <Button
+                  variant="default"
+                  leftSection={<IconDownload size={16} />}
+                  loading={busy}
+                  onClick={() => handlers.onPdf(ret)}
+                >
+                  {t('actions.pdf')}
+                </Button>
                 {primary && (
                   <Button color="primary" leftSection={primary.icon} onClick={primary.run}>
                     {primary.label}

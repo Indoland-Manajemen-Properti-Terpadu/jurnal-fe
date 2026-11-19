@@ -41,6 +41,30 @@ export interface ReturnApplication {
   voided: boolean;
 }
 
+export type ReturnActivityType =
+  | 'CREATED'
+  | 'POSTED'
+  | 'CREDIT_APPLIED'
+  | 'CREDIT_UNAPPLIED'
+  | 'REFUNDED'
+  | 'VOIDED';
+
+/** One line of the server's history of a return, oldest first as the API sends it. */
+export interface ReturnActivity {
+  /** A type this app does not know is kept as written and shown with the server's label. */
+  type: ReturnActivityType | string;
+  /** The server's own wording, Indonesian. */
+  label: string;
+  at: string | null;
+  by: string;
+  /** Credit applied or refunded, when the entry moves money. */
+  amount: number | null;
+  /** The invoice a credit was applied to. */
+  saleNumber: string;
+  /** An application that was taken back later. */
+  voided: boolean;
+}
+
 export interface SaleReturn {
   id: string;
   transactionNumber: string;
@@ -67,6 +91,8 @@ export interface SaleReturn {
   status: ReturnStatus;
   displayStatus: ReturnDisplayStatus;
   applications: ReturnApplication[];
+  /** Empty on a server that does not send a history yet. */
+  activities: ReturnActivity[];
   postedAt: string | null;
   createdAt: string | null;
   updatedAt: string | null;

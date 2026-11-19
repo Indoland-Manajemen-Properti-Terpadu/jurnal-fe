@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { mapDocPage } from './saleDocMapper';
 import type { SaleQuoteDto } from './saleQuoteDto';
 import { mapQuoteDto, mapQuoteSummary } from './saleQuoteMapper';
-import { buildQuoteBody, buildSendBody } from './saleQuotePayloads';
+import { buildSendBody } from './saleDocPayloads';
+import { buildQuoteBody } from './saleQuotePayloads';
 import { emptyQuoteForm } from '../domain/saleQuoteForm';
 
 // Shaped like the live answer of 2026-11-19 (customer, product and tax shortened).
@@ -68,6 +69,12 @@ describe('mapQuoteDto', () => {
     expect(mapQuoteDto({ status: 'SENT', displayStatus: 'EXPIRED' }).displayStatus).toBe('EXPIRED');
     expect(mapQuoteDto({ status: 'SENT' }).displayStatus).toBe('SENT');
     expect(mapQuoteDto({ status: 'nonsense' }).status).toBe('DRAFT');
+  });
+
+  it('reads the number of the order when the API sends it', () => {
+    const quote = mapQuoteDto({ order: { id: 'o-1', transactionNumber: 'SO/2026/11/0001' } });
+    expect(quote).toMatchObject({ order: 'o-1', orderNumber: 'SO/2026/11/0001' });
+    expect(mapQuoteDto({ order: 'o-2' }).orderNumber).toBeNull();
   });
 
   it('has no order when the API sends none', () => {

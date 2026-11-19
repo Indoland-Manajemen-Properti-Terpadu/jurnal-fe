@@ -150,3 +150,45 @@ describe('return payloads', () => {
     ).toBe('ok');
   });
 });
+
+describe('mapReturnDto activities', () => {
+  it('reads the history the server sends, with who did it and what moved', () => {
+    const ret = mapReturnDto({
+      activities: [
+        { type: 'CREATED', label: 'Dibuat', at: '2026-11-19T08:00:00.000Z', by: { name: 'Edi' } },
+        {
+          type: 'CREDIT_APPLIED',
+          label: 'Kredit dipakai',
+          at: '2026-11-19T00:00:00.000Z',
+          amount: 1000,
+          saleNumber: 'INV-1',
+          voided: true,
+        },
+      ],
+    });
+    expect(ret.activities).toEqual([
+      {
+        type: 'CREATED',
+        label: 'Dibuat',
+        at: '2026-11-19T08:00:00.000Z',
+        by: 'Edi',
+        amount: null,
+        saleNumber: '',
+        voided: false,
+      },
+      {
+        type: 'CREDIT_APPLIED',
+        label: 'Kredit dipakai',
+        at: '2026-11-19T00:00:00.000Z',
+        by: '',
+        amount: 1000,
+        saleNumber: 'INV-1',
+        voided: true,
+      },
+    ]);
+  });
+
+  it('has no history when the server sends none', () => {
+    expect(mapReturnDto({}).activities).toEqual([]);
+  });
+});

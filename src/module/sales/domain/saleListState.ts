@@ -1,11 +1,11 @@
-import type { SaleDisplayCode, SaleListParams } from './sale';
-import { tabParams, type SaleTab } from './saleStatus';
+import type { SaleListParams } from './sale';
+import { tabParams, type SaleStatusFilter, type SaleTab } from './saleStatus';
 
 export type DateRange = [string | null, string | null];
 
 export interface SaleListState {
   tab: SaleTab;
-  status: SaleDisplayCode | 'all';
+  status: SaleStatusFilter | 'all';
   range: DateRange;
   search: string;
   page: number;
@@ -14,7 +14,7 @@ export interface SaleListState {
 
 export type SaleListAction =
   | { type: 'tab'; tab: SaleTab }
-  | { type: 'status'; value: SaleDisplayCode | 'all' }
+  | { type: 'status'; value: SaleStatusFilter | 'all' }
   | { type: 'range'; value: DateRange }
   | { type: 'search'; value: string }
   | { type: 'page'; value: number }

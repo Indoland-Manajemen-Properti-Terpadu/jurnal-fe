@@ -114,6 +114,14 @@ export function SaleActionBar({ sale, onPay }: Readonly<SaleActionBarProps>) {
       </Button>
     );
 
+  const voidReason = (): string => {
+    if (actions.voidBlockedBy === 'return') return t('actions.voidDisabledReturn');
+    if (actions.voidBlockedBy === 'server') {
+      return actions.voidBlockedReason || t('actions.voidDisabledServer');
+    }
+    return t('actions.voidDisabled');
+  };
+
   /** A menu item that can be shown but switched off, with the reason as a tooltip. */
   const guarded = (
     key: HeaderMenuItem,
@@ -160,21 +168,12 @@ export function SaleActionBar({ sale, onPay }: Readonly<SaleActionBarProps>) {
             run(() => sendMutation.mutateAsync({ id: sale.id, sendEmail: true, resend: true })),
         });
       case 'void':
-        return guarded(
-          'void',
-          actions.void,
-          t(
-            actions.voidBlockedBy === 'return'
-              ? 'actions.voidDisabledReturn'
-              : 'actions.voidDisabled'
-          ),
-          {
-            label: t('actions.void'),
-            icon: <IconBan size={16} />,
-            color: 'red',
-            onClick: () => setConfirm('void'),
-          }
-        );
+        return guarded('void', actions.void, voidReason(), {
+          label: t('actions.void'),
+          icon: <IconBan size={16} />,
+          color: 'red',
+          onClick: () => setConfirm('void'),
+        });
       default:
         return guarded('remove', actions.remove, t('actions.removeDisabled'), {
           label: t('actions.remove'),

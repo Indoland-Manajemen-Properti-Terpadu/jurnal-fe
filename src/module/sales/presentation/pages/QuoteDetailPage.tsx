@@ -37,6 +37,7 @@ import { formatDate, formatDateTime } from '../../domain/saleFormat';
 import { allowedQuoteActions, quoteActions, type SaleQuote } from '../../domain/saleQuote';
 import { QuoteStatusBadge } from '../components/quotes/QuoteStatusBadge';
 import type { NoteTone } from '../components/docs/DocNoteBanner';
+import { DocLinkedRefs } from '../components/docs/DocLinkedRefs';
 import { DocLinesCard } from '../components/docs/DocLinesCard';
 import { DocOverviewCard } from '../components/docs/DocOverviewCard';
 import { DocSideCards } from '../components/docs/DocSideCards';
@@ -184,6 +185,18 @@ export function QuoteDetailPage() {
             number={quote.transactionNumber}
             badge={<QuoteStatusBadge status={quote.displayStatus} />}
             customerName={quote.customer?.displayName ?? ''}
+            subtitle={
+              <DocLinkedRefs
+                customerName={quote.customer?.displayName ?? ''}
+                refs={[
+                  {
+                    label: t('detail.linkedOrder'),
+                    number: quote.orderNumber,
+                    onOpen: () => handlers.onViewOrder(quote),
+                  },
+                ]}
+              />
+            }
             stats={[
               { label: t('detail.date'), value: formatDate(quote.transactionDate) },
               { label: t('detail.validUntil'), value: formatDate(quote.validUntil) },

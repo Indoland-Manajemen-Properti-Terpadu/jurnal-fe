@@ -275,7 +275,7 @@ describe('<PaymentTermPage />', () => {
       await user.hover(remove.parentElement as HTMLElement);
 
       expect(
-        await screen.findByText('Termin sudah dipakai di Pembelian, nonaktifkan saja')
+        await screen.findByText('Termin sudah dipakai dokumen, nonaktifkan saja')
       ).toBeInTheDocument();
       expect(http.delete).not.toHaveBeenCalled();
     });

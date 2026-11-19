@@ -1,4 +1,4 @@
-import type { SaleDisplayCode, SaleListParams } from './sale';
+import type { SaleDisplayCode, SaleExtraFilter, SaleListParams } from './sale';
 
 export const SALE_TABS = ['draft', 'issued', 'void'] as const;
 export type SaleTab = (typeof SALE_TABS)[number];
@@ -7,23 +7,55 @@ export type SaleTab = (typeof SALE_TABS)[number];
 export const SENT_STATUSES: SaleDisplayCode[] = ['UNPAID', 'PAID', 'OVERDUE'];
 
 /** Status choices inside the Terbit tab; the draft and cancelled tabs have none. */
-export const SENT_STATUS_FILTERS: SaleDisplayCode[] = ['UNPAID', 'OVERDUE', 'PAID'];
+export const SENT_STATUS_FILTERS: SaleStatusFilter[] = [
+  'UNPAID',
+  'OVERDUE',
+  'PAID',
+  'PARTIAL_PAID',
+  'RETURNED',
+];
+
+/** One choice of the status filter. The last two only narrow the list; they are not badges. */
+export type SaleStatusFilter = SaleDisplayCode | SaleExtraFilter;
 
 /** List query for a tab and an optional status filter ("all" = no extra filter). */
 export const tabParams = (
   tab: SaleTab,
-  status: SaleDisplayCode | 'all'
+  status: SaleStatusFilter | 'all'
 ): Pick<SaleListParams, 'paymentStatus'> => {
   if (tab === 'draft') return { paymentStatus: 'DRAFT' };
   if (tab === 'void') return { paymentStatus: 'VOID' };
   return { paymentStatus: status === 'all' ? SENT_STATUSES : status };
 };
 
+/** What the badges of an invoice say: its state, and whether a payment covers only part of it. */
+export interface SaleBadges {
+  /** A returned invoice reads "Diretur"; otherwise the server's own state. */
+  main: SaleDisplayCode | 'RETURNED';
+  partialPaid: boolean;
+}
+
+export const saleBadges = (sale: {
+  displayStatus: { code: SaleDisplayCode };
+  hasReturn?: boolean;
+  isPartiallyPaid?: boolean;
+}): SaleBadges => {
+  const { code } = sale.displayStatus;
+  const issued = code !== 'DRAFT' && code !== 'VOID';
+  return {
+    main: issued && sale.hasReturn ? 'RETURNED' : code,
+    // Paid in full or void is never "partly paid", whatever the flag says.
+    partialPaid: Boolean(sale.isPartiallyPaid) && (code === 'UNPAID' || code === 'OVERDUE'),
+  };
+};
+
 export type SaleStatusTone = { color: string; variant: 'light' | 'filled' | 'outline' };
 
 /** Red only for real lateness and green only for paid; everything else stays neutral or brand. */
-export const saleStatusTone = (code: SaleDisplayCode): SaleStatusTone => {
+export const saleStatusTone = (code: SaleDisplayCode | 'RETURNED'): SaleStatusTone => {
   switch (code) {
+    case 'RETURNED':
+      return { color: 'orange', variant: 'light' };
     case 'OVERDUE':
       return { color: 'red', variant: 'light' };
     case 'PAID':

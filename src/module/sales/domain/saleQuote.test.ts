@@ -141,6 +141,7 @@ describe('quote form', () => {
       status: 'DRAFT',
       displayStatus: 'DRAFT',
       order: null,
+      orderNumber: null,
       emails: [],
       sentAt: null,
       acceptedAt: null,
