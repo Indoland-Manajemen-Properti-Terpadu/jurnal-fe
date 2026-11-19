@@ -226,6 +226,8 @@ export type CreateSaleFormValues = {
   message: string;
   memo: string;
   attachments?: File[];
+  /** Id of the confirmed order this invoice is made from; sent as `saleOrder` when it is created. */
+  saleOrder?: string;
 };
 
 export type SaleAccountRef = string | { id?: string; name?: string } | null;

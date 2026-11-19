@@ -81,16 +81,6 @@ export const plannedModules = {
         four: 'Count report',
       },
     },
-    salesOrders: {
-      title: 'Sales Orders',
-      description: 'Record customer orders before goods are delivered and billed.',
-      features: {
-        one: 'Customer orders',
-        two: 'Turn an order into an invoice',
-        three: 'Track goods not yet delivered',
-        four: 'Order status from draft to done',
-      },
-    },
     salesPayments: {
       title: 'Payments Received',
       description: 'Record money received from customers and apply it to invoices.',

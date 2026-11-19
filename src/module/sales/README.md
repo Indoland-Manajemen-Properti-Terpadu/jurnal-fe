@@ -86,7 +86,7 @@ Source: the backend's sales API guide and its Postman collection ("All Features"
 
 ## i18n
 
-Namespace `salesQuotes` (quotes, `id` primary and `en`; parity test `salesQuotes.test.ts`) and namespace `sales`, assembled from `salesCommon`, `salesList`, `salesForm`, `salesPay`, `salesPublic` and `salesView` (`id` primary, `en`). `saleDetail` still serves the detail page cards. Parity tests: `src/i18n/locales/sales.test.ts` and `saleDetail.test.ts`. UI copy says "Draf" in Indonesian and "Draft" in English.
+Namespaces `salesQuotes` and `salesOrders` (`id` primary and `en`; parity tests `salesQuotes.test.ts` and `salesOrders.test.ts`) and namespace `sales`, assembled from `salesCommon`, `salesList`, `salesForm`, `salesPay`, `salesPublic` and `salesView` (`id` primary, `en`). `saleDetail` still serves the detail page cards. Parity tests: `src/i18n/locales/sales.test.ts` and `saleDetail.test.ts`. UI copy says "Draf" in Indonesian and "Draft" in English.
 
 ## Known gaps
 
@@ -110,8 +110,31 @@ Namespace `salesQuotes` (quotes, `id` primary and `en`; parity test `salesQuotes
 - **Send dialog:** up to 10 addresses (prefilled from the quote, else the customer) and a message of up to 2000 characters; without an address the quote is only marked as sent ("Tandai Terkirim Tanpa Email"). The status changes before the email goes, so a failed email is a warning, never an error. Resend uses the typed addresses, else the saved ones or the customer's.
 - **Reject and cancel** need a reason of at least three characters (the shared `ReasonModal`).
 - **Totals** in the form are the estimate of `calculateSaleTotals` without withholding; the detail shows the server's figures.
-- **Not wired yet:** Buat Pesanan and Lihat Pesanan on an accepted quote arrive with the order screens (`quoteActions` already says when they apply).
+- **Buat Pesanan / Lihat Pesanan** on an accepted quote: the first asks for an optional target date and calls `POST /v1/sale-orders/from-quote/:id`, then opens the new order; the second opens the order. They need `JP-SALES-ORDER` create and read (`QuoteRights.orderCreate`, `orderRead`).
+
+## Orders (Pesanan)
+
+`GET|POST /v1/sale-orders`, `GET|PUT|DELETE /v1/sale-orders/:id`, `POST /from-quote/:quoteId` and `POST :id/send|confirm|cancel|duplicate` (`infrastructure/saleOrderApi.ts`).
+
+- **Layers** mirror quotes: `domain/saleOrder.ts` (types, tabs, `orderActions`, `allowedOrderActions`), `saleOrderForm.ts` (a target date a month on by default), `saleOrderInvoice.ts`; `infrastructure/saleOrderDto|Mapper|Payloads|Api.ts`; hooks `useOrderQueries|Mutations|Actions|Form|Rights`; screens under `presentation/components/orders`. The line table, the discount and notes step and the lines card are shared with quotes (`components/docs`, copy from each document's own namespace).
+- **Status** is the stored `status` (`DRAFT`, `WAITING_CONFIRMATION`, `CONFIRMED`, `COMPLETED`, `CANCELLED`); the API sends no display status for orders. `COMPLETED` is set by making an invoice, never by an order endpoint. Tabs: Berjalan, Selesai, Dibatalkan. The list has search but no status filter (the guide documents none).
+- **Actions:** draft = edit, send, duplicate, delete; waiting = edit, confirm, duplicate, cancel; confirmed = Buat Faktur, edit, duplicate, cancel; completed = Lihat Faktur, duplicate; cancelled = duplicate. Rights: orders by `JP-SALES-ORDER` (create copies, update changes, sends and confirms, delete cancels and deletes), invoices by `JP-SALES` (create for Buat Faktur, read for Lihat Faktur). Cancel needs a reason of at least three characters.
+- **Invoice from an order:** Buat Faktur opens `/sales/new?order=<id>`. `SaleFormPage` fetches the order (only a confirmed one; any other opens on its own page), and `orderToSaleFormValues` fills the customer, lines, prices, discount, term and notes; the invoice is dated today. `saleOrder` is sent in the multipart body when the invoice is created (never on an edit). The API refuses a customer other than the order's (400) and an order that is already invoiced (409); a line without a product must get one in the form. Saving the invoice moves the order to `COMPLETED`; voiding it or deleting the draft puts the order back to `CONFIRMED`.
+- An order shows its quote and invoice only as ids; the pages link by id and do not fetch the numbers.
+
+## Waiting on the backend
+
+Things the screens could use that the API does not offer yet (checked on the live service, 2026-11-19). Add to this list as new ones turn up and delete a line when it ships.
+
+| Wanted                                                                             | Why                                                                              | Seen                                    |
+| ---------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- | --------------------------------------- |
+| `GET /v1/sale-orders/:id/print` (PDF)                                              | The reference design has "Unduh PDF" on an order; quotes have it                 | 404                                     |
+| An email for orders (`send` with addresses and a `resend`)                         | The reference menu has "Kirim ulang email"; today `send` only changes the status | `resend`, `send-email`, `email` all 404 |
+| `quote` and `sale` on an order, `order` on a quote, as `{ id, transactionNumber }` | The pages show only ids today; showing the number costs one more fetch           | bare ids                                |
+| `displayStatus` on orders                                                          | Quotes and returns send one, invoices send `{ code, label }`, orders none        | absent                                  |
+| No `stack` in error answers                                                        | Production errors carry the server's stack trace and file paths                  | present on every 4xx                    |
+| PDF for returns                                                                    | Same as orders; the guide lists none                                             | not in the guide                        |
 
 ## Planned pages
 
-`presentation/pages/planned/` holds the pages of sales documents that are not built yet: sales orders (`/sales/orders`), sales returns (`/sales/returns`) and receivables (`/sales/receivables`). Each renders the shared `PlannedModulePage` (header and planned scope, copy in the `plannedModules` namespace) and has no endpoint or state. The sidebar lists them next to the invoice list so the whole sales cycle is visible.
+`presentation/pages/planned/` holds the pages of sales documents that are not built yet: sales returns (`/sales/returns`) and receivables (`/sales/receivables`). Each renders the shared `PlannedModulePage` (header and planned scope, copy in the `plannedModules` namespace) and has no endpoint or state. The sidebar lists them next to the invoice list so the whole sales cycle is visible.

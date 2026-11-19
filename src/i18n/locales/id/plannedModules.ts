@@ -81,16 +81,6 @@ export const plannedModules = {
         four: 'Berita acara opname',
       },
     },
-    salesOrders: {
-      title: 'Pesanan Penjualan',
-      description: 'Catat pesanan pelanggan sebelum barang dikirim dan ditagih.',
-      features: {
-        one: 'Pesanan dari pelanggan',
-        two: 'Ubah pesanan menjadi faktur',
-        three: 'Pantau barang yang belum dikirim',
-        four: 'Status pesanan dari draf sampai selesai',
-      },
-    },
     salesPayments: {
       title: 'Pembayaran Masuk',
       description: 'Catat uang yang diterima dari pelanggan dan alokasikan ke faktur.',

@@ -6,7 +6,10 @@ import type { SaleQuote } from '@/module/sales/domain/saleQuote';
 import { quoteFilename } from '@/module/sales/domain/saleQuoteFormat';
 import { ConfirmModal } from '../components/shared/ConfirmModal';
 import { ReasonModal } from '../components/shared/ReasonModal';
+import { CreateOrderDialog } from '../components/orders/CreateOrderDialog';
 import { SendQuoteDialog } from '../components/quotes/SendQuoteDialog';
+import { orderDetailPath } from './useOrderActions';
+import { useCreateOrderFromQuote } from './useOrderMutations';
 import {
   useAcceptQuote,
   useCancelQuote,
@@ -19,7 +22,15 @@ import {
   useSendQuote,
 } from './useQuoteMutations';
 
-type Kind = 'delete' | 'accept' | 'revise' | 'reject' | 'cancel' | 'send' | 'resend';
+type Kind =
+  | 'delete'
+  | 'accept'
+  | 'revise'
+  | 'reject'
+  | 'cancel'
+  | 'send'
+  | 'resend'
+  | 'createOrder';
 
 export interface QuoteHandlers {
   onView: (quote: SaleQuote) => void;
@@ -33,6 +44,8 @@ export interface QuoteHandlers {
   onDelete: (quote: SaleQuote) => void;
   onDuplicate: (quote: SaleQuote) => void;
   onPdf: (quote: SaleQuote) => void;
+  onCreateOrder: (quote: SaleQuote) => void;
+  onViewOrder: (quote: SaleQuote) => void;
 }
 
 const detailPath = (id: string) => routes.sales.quotationDetail.replace(':id', id);
@@ -61,6 +74,7 @@ export function useQuoteActions(options: { onDeleted?: () => void } = {}): {
   const resendMutation = useResendQuote();
   const duplicateMutation = useDuplicateQuote();
   const pdfMutation = useDownloadQuotePdf();
+  const orderMutation = useCreateOrderFromQuote();
 
   const open = (kind: Kind) => (quote: SaleQuote) => setPending({ kind, quote });
   const quote = pending?.quote ?? null;
@@ -85,6 +99,8 @@ export function useQuoteActions(options: { onDeleted?: () => void } = {}): {
       if (copy) navigate(detailPath(copy.id));
     },
     onPdf: (q) => pdfMutation.mutate({ id: q.id, filename: quoteFilename(q.transactionNumber) }),
+    onCreateOrder: open('createOrder'),
+    onViewOrder: (q) => q.order && navigate(orderDetailPath(q.order)),
   };
 
   const dialogs = (
@@ -142,6 +158,22 @@ export function useQuoteActions(options: { onDeleted?: () => void } = {}): {
         onClose={close}
         onConfirm={(reason) => quote && run(cancelMutation.mutateAsync({ id: quote.id, reason }))}
       />
+      {pending?.kind === 'createOrder' && (
+        <CreateOrderDialog
+          key={pending.quote.id}
+          opened
+          quoteNumber={pending.quote.transactionNumber}
+          loading={orderMutation.isPending}
+          onClose={close}
+          onSubmit={async (targetDate) => {
+            const created = await orderMutation
+              .mutateAsync({ quoteId: pending.quote.id, targetDate })
+              .catch(() => null);
+            close();
+            if (created) navigate(orderDetailPath(created.id));
+          }}
+        />
+      )}
       {(pending?.kind === 'send' || pending?.kind === 'resend') && (
         <SendQuoteDialog
           key={`${pending.kind}-${pending.quote.id}`}

@@ -1,13 +1,39 @@
+import type { ReactNode } from 'react';
 import { Grid, Input, NumberInput, Paper, SegmentedControl, Stack, Textarea } from '@mantine/core';
 import { useTranslation } from '@/i18n';
-import type { QuoteFormApi } from '../../hooks/useQuoteForm';
+import type { DiscountType } from '@/module/sales/domain/sale';
 import { StepHeading } from '../form/StepHeading';
 
-export function QuoteStepExtras({ api }: Readonly<{ api: QuoteFormApi }>) {
-  const { t } = useTranslation('salesQuotes');
+export type DocTextField = 'terms' | 'message' | 'memo';
+
+interface DocStepExtrasProps {
+  ns: 'salesQuotes' | 'salesOrders';
+  discountType: DiscountType;
+  discountValue: number;
+  /** The most a nominal discount can be: the subtotal it applies to. */
+  subtotal: number;
+  errors: Record<string, ReactNode>;
+  text: Record<DocTextField, string>;
+  onDiscountType: (value: DiscountType) => void;
+  onDiscountValue: (value: number) => void;
+  onText: (field: DocTextField, value: string) => void;
+}
+
+/** Step three of a quote or an order: the discount and the notes. */
+export function DocStepExtras({
+  ns,
+  discountType,
+  discountValue,
+  subtotal,
+  errors,
+  text,
+  onDiscountType,
+  onDiscountValue,
+  onText,
+}: Readonly<DocStepExtrasProps>) {
+  const { t } = useTranslation(ns);
   const { t: ts } = useTranslation('sales');
-  const { form } = api;
-  const { discountType } = form.values;
+  const fields: DocTextField[] = ['terms', 'message', 'memo'];
 
   return (
     <Paper withBorder radius="md" p="lg" bg="white" shadow="xs">
@@ -27,9 +53,7 @@ export function QuoteStepExtras({ api }: Readonly<{ api: QuoteFormApi }>) {
                   { value: 'nominal', label: t('form.extras.nominal') },
                 ]}
                 value={discountType}
-                onChange={(value) =>
-                  form.setFieldValue('discountType', value as typeof discountType)
-                }
+                onChange={(value) => onDiscountType(value as DiscountType)}
               />
             </Input.Wrapper>
           </Grid.Col>
@@ -43,36 +67,28 @@ export function QuoteStepExtras({ api }: Readonly<{ api: QuoteFormApi }>) {
               }
               inputWrapperOrder={['label', 'input', 'description', 'error']}
               min={0}
-              max={discountType === 'percentage' ? 100 : api.totals.subtotal}
+              max={discountType === 'percentage' ? 100 : subtotal}
               clampBehavior="strict"
               decimalScale={2}
               thousandSeparator="."
               decimalSeparator=","
-              {...form.getInputProps('discountValue')}
+              value={discountValue}
+              onChange={(value) => onDiscountValue(typeof value === 'number' ? value : 0)}
+              error={errors.discountValue}
             />
           </Grid.Col>
         </Grid>
-        <Textarea
-          label={t('form.extras.terms')}
-          placeholder={t('form.extras.termsPlaceholder')}
-          minRows={2}
-          autosize
-          {...form.getInputProps('terms')}
-        />
-        <Textarea
-          label={t('form.extras.message')}
-          placeholder={t('form.extras.messagePlaceholder')}
-          minRows={2}
-          autosize
-          {...form.getInputProps('message')}
-        />
-        <Textarea
-          label={t('form.extras.memo')}
-          placeholder={t('form.extras.memoPlaceholder')}
-          minRows={2}
-          autosize
-          {...form.getInputProps('memo')}
-        />
+        {fields.map((field) => (
+          <Textarea
+            key={field}
+            label={t(`form.extras.${field}`)}
+            placeholder={t(`form.extras.${field}Placeholder`)}
+            minRows={2}
+            autosize
+            value={text[field]}
+            onChange={(event) => onText(field, event.currentTarget.value)}
+          />
+        ))}
       </Stack>
     </Paper>
   );

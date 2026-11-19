@@ -86,6 +86,9 @@ export interface QuoteRights {
   create: boolean;
   update: boolean;
   delete: boolean;
+  /** Making an order from a quote needs create on orders; opening it needs read. */
+  orderCreate: boolean;
+  orderRead: boolean;
 }
 
 /**
@@ -106,6 +109,6 @@ export const allowedQuoteActions = (
   cancel: actions.cancel && rights.delete,
   remove: actions.remove && rights.delete,
   duplicate: actions.duplicate && rights.create,
-  createOrder: actions.createOrder,
-  viewOrder: actions.viewOrder,
+  createOrder: actions.createOrder && rights.orderCreate,
+  viewOrder: actions.viewOrder && rights.orderRead,
 });

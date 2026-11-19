@@ -5,7 +5,7 @@ import type { QuoteDisplayStatus } from '@/module/sales/domain/saleQuote';
 const TONES: Record<QuoteDisplayStatus, { color: string; variant: 'light' | 'outline' }> = {
   DRAFT: { color: 'gray', variant: 'light' },
   SENT: { color: 'primary', variant: 'light' },
-  ACCEPTED: { color: 'teal', variant: 'light' },
+  ACCEPTED: { color: 'green', variant: 'light' },
   REJECTED: { color: 'gray', variant: 'outline' },
   VOID: { color: 'gray', variant: 'outline' },
   // Red only for real lateness: a quote past its day without an answer.

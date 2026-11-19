@@ -161,11 +161,25 @@ describe('allowedQuoteActions', () => {
   const sent = quoteActions({ status: 'SENT', displayStatus: 'SENT', order: null });
 
   it('keeps everything for a user with every right', () => {
-    expect(allowedQuoteActions(sent, { create: true, update: true, delete: true })).toEqual(sent);
+    expect(
+      allowedQuoteActions(sent, {
+        create: true,
+        update: true,
+        delete: true,
+        orderCreate: true,
+        orderRead: true,
+      })
+    ).toEqual(sent);
   });
 
   it('drops answering and sending without update, cancelling without delete, copying without create', () => {
-    const limited = allowedQuoteActions(sent, { create: false, update: false, delete: false });
+    const limited = allowedQuoteActions(sent, {
+      create: false,
+      update: false,
+      delete: false,
+      orderCreate: false,
+      orderRead: false,
+    });
     expect(limited).toMatchObject({
       accept: false,
       reject: false,
@@ -177,8 +191,27 @@ describe('allowedQuoteActions', () => {
   });
 
   it('lets a user who may only delete cancel a quote', () => {
-    const limited = allowedQuoteActions(sent, { create: false, update: false, delete: true });
+    const limited = allowedQuoteActions(sent, {
+      create: false,
+      update: false,
+      delete: true,
+      orderCreate: false,
+      orderRead: false,
+    });
     expect(limited.cancel).toBe(true);
     expect(limited.accept).toBe(false);
+  });
+});
+
+describe('quote to order rights', () => {
+  const accepted = quoteActions({ status: 'ACCEPTED', displayStatus: 'ACCEPTED', order: null });
+  const none = { create: true, update: true, delete: true, orderCreate: false, orderRead: false };
+
+  it('asks for the order rights, not the quote rights, to make or open an order', () => {
+    expect(allowedQuoteActions(accepted, none).createOrder).toBe(false);
+    expect(allowedQuoteActions(accepted, { ...none, orderCreate: true }).createOrder).toBe(true);
+    const withOrder = quoteActions({ status: 'ACCEPTED', displayStatus: 'ACCEPTED', order: 'o-1' });
+    expect(allowedQuoteActions(withOrder, none).viewOrder).toBe(false);
+    expect(allowedQuoteActions(withOrder, { ...none, orderRead: true }).viewOrder).toBe(true);
   });
 });

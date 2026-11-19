@@ -1,5 +1,8 @@
 import type { RouteObject } from 'react-router-dom';
 import {
+  OrderDetailPage,
+  OrderFormPage,
+  OrderListPage,
   PublicInvoicePage,
   QuoteDetailPage,
   QuoteFormPage,
@@ -9,7 +12,6 @@ import {
   SaleFormPage,
   SaleMainPage,
   SalePaymentsPage,
-  SalesOrdersPage,
   SalesReturnsPage,
 } from '@/module/sales';
 import { routes } from '../routes';
@@ -21,7 +23,10 @@ export const salesRoutes: RouteObject[] = [
   { path: routes.sales.quotationAdd, element: <QuoteFormPage /> },
   { path: routes.sales.quotationEdit, element: <QuoteFormPage /> },
   { path: routes.sales.quotationDetail, element: <QuoteDetailPage /> },
-  { path: routes.sales.orders, element: <SalesOrdersPage /> },
+  { path: routes.sales.orders, element: <OrderListPage /> },
+  { path: routes.sales.orderAdd, element: <OrderFormPage /> },
+  { path: routes.sales.orderEdit, element: <OrderFormPage /> },
+  { path: routes.sales.orderDetail, element: <OrderDetailPage /> },
   { path: routes.sales.payments, element: <SalePaymentsPage /> },
   { path: routes.sales.returns, element: <SalesReturnsPage /> },
   { path: routes.sales.receivables, element: <ReceivablesPage /> },

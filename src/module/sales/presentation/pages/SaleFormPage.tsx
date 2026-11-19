@@ -1,13 +1,15 @@
 import { useMemo } from 'react';
 import { Box, Button, Loader, Stack, Text } from '@mantine/core';
 import { IconArrowLeft, IconReceipt2 } from '@tabler/icons-react';
-import { Navigate, useNavigate, useParams } from 'react-router-dom';
+import { Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { AppShellLayout } from '@/components/AppShellLayout';
 import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
 import { useTranslation } from '@/i18n';
 import { routes } from '@/router/routes';
 import { saleToFormValues } from '../../domain/saleForm';
+import { orderToSaleFormValues } from '../../domain/saleOrderInvoice';
 import { SaleFormBody } from '../components/form/SaleFormBody';
+import { useOrder } from '../hooks/useOrderQueries';
 import { useSaleDetail } from '../hooks/useSaleQueries';
 
 /** Create an invoice, or edit a draft when the route carries an id. */
@@ -16,15 +18,34 @@ export function SaleFormPage() {
   const navigate = useNavigate();
   const { t } = useTranslation('sales');
   const { data: sale, isLoading, isError } = useSaleDetail(id);
-  const initial = useMemo(() => (sale ? saleToFormValues(sale) : undefined), [sale]);
+  // `?order=<id>` starts a new invoice from a confirmed order.
+  const [params] = useSearchParams();
+  const orderId = id ? undefined : params.get('order') || undefined;
+  const orderQuery = useOrder(orderId);
+  const order = orderQuery.data;
+  const initial = useMemo(() => {
+    if (sale) return saleToFormValues(sale);
+    if (order) return orderToSaleFormValues(order, new Date().toLocaleDateString('en-CA'));
+    return undefined;
+  }, [sale, order]);
 
   const isEdit = Boolean(id);
-  const back = () => navigate(id ? routes.sales.detail.replace(':id', id) : routes.sales.main);
+  const waiting = isEdit ? isLoading : Boolean(orderId) && orderQuery.isLoading;
+  const orderPath = (value: string) => routes.sales.orderDetail.replace(':id', value);
+  const back = () => {
+    if (id) navigate(routes.sales.detail.replace(':id', id));
+    else navigate(orderId ? orderPath(orderId) : routes.sales.main);
+  };
 
   if (isEdit && sale && !(sale.displayStatus.code === 'DRAFT' && sale.canEdit)) {
     return <Navigate to={routes.sales.detail.replace(':id', sale.id)} replace />;
   }
   if (isEdit && isError) return <Navigate to={routes.sales.main} replace />;
+  // Only a confirmed order can be invoiced; any other opens on its own page.
+  if (orderId && order && order.status !== 'CONFIRMED') {
+    return <Navigate to={orderPath(order.id)} replace />;
+  }
+  if (orderId && orderQuery.isError) return <Navigate to={routes.sales.orders} replace />;
 
   return (
     <AppShellLayout>
@@ -40,7 +61,7 @@ export function SaleFormPage() {
               </Button>
             }
           />
-          {isEdit && isLoading && (
+          {waiting && (
             <Stack align="center" gap="xs" py="xl">
               <Loader size="sm" />
               <Text size="sm" c="dimmed">
@@ -48,7 +69,9 @@ export function SaleFormPage() {
               </Text>
             </Stack>
           )}
-          {(!isEdit || initial) && <SaleFormBody key={id ?? 'new'} saleId={id} initial={initial} />}
+          {(!(isEdit || orderId) || initial) && (
+            <SaleFormBody key={id ?? orderId ?? 'new'} saleId={id} initial={initial} />
+          )}
         </Stack>
       </Box>
     </AppShellLayout>

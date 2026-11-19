@@ -12,10 +12,10 @@ import {
 } from '@/module/sales/domain/saleQuoteForm';
 import { useQuoteForm } from '../../hooks/useQuoteForm';
 import { useCreateQuote, useUpdateQuote } from '../../hooks/useQuoteMutations';
+import { DocStepExtras } from '../docs/DocStepExtras';
+import { DocStepLines } from '../docs/DocStepLines';
 import { SaleTotalsPanel } from '../form/SaleTotalsPanel';
-import { QuoteStepExtras } from './QuoteStepExtras';
 import { QuoteStepGeneral } from './QuoteStepGeneral';
-import { QuoteStepLines } from './QuoteStepLines';
 
 interface QuoteFormBodyProps {
   /** Present when editing a draft. */
@@ -86,7 +86,21 @@ export function QuoteFormBody({ quoteId, initial }: Readonly<QuoteFormBodyProps>
         <Grid.Col span={{ base: 12, lg: isLast ? 8 : 12 }}>
           <Stack gap="lg">
             {step === 'general' && <QuoteStepGeneral api={api} />}
-            {step === 'lines' && <QuoteStepLines api={api} />}
+            {step === 'lines' && (
+              <DocStepLines
+                ns="salesQuotes"
+                items={form.values.items}
+                errors={form.errors}
+                isPriceIncludeTax={form.values.isPriceIncludeTax}
+                onTaxInclusiveChange={(value) => form.setFieldValue('isPriceIncludeTax', value)}
+                productOptions={api.productOptions}
+                taxOptions={api.taxOptions}
+                onProductChange={api.changeProduct}
+                onLineChange={api.changeLine}
+                onAddLine={api.addLine}
+                onRemoveLine={api.removeLine}
+              />
+            )}
             {step === 'lines' && (
               <Group justify="flex-end">
                 <div style={{ width: '100%', maxWidth: 420 }}>
@@ -98,7 +112,23 @@ export function QuoteFormBody({ quoteId, initial }: Readonly<QuoteFormBodyProps>
                 </div>
               </Group>
             )}
-            {isLast && <QuoteStepExtras api={api} />}
+            {isLast && (
+              <DocStepExtras
+                ns="salesQuotes"
+                discountType={form.values.discountType}
+                discountValue={form.values.discountValue}
+                subtotal={api.totals.subtotal}
+                errors={form.errors}
+                text={{
+                  terms: form.values.terms,
+                  message: form.values.message,
+                  memo: form.values.memo,
+                }}
+                onDiscountType={(value) => form.setFieldValue('discountType', value)}
+                onDiscountValue={(value) => form.setFieldValue('discountValue', value)}
+                onText={(field, value) => form.setFieldValue(field, value)}
+              />
+            )}
           </Stack>
         </Grid.Col>
         {isLast && (

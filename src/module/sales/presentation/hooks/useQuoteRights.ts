@@ -14,6 +14,8 @@ export const useQuoteRights = (): QuoteRights & { canRead: boolean; isReady: boo
     create: allow('create'),
     update: allow('update'),
     delete: allow('delete'),
+    orderCreate: !isReady || can(SALE_MENU.orders, 'create'),
+    orderRead: !isReady || can(SALE_MENU.orders, 'read'),
     canRead: allow('read'),
     isReady,
   };

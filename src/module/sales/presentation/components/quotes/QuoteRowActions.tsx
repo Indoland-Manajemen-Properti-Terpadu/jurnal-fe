@@ -3,6 +3,8 @@ import {
   IconArrowBackUp,
   IconBan,
   IconCheck,
+  IconClipboardPlus,
+  IconClipboardList,
   IconCopy,
   IconDotsVertical,
   IconDownload,
@@ -42,6 +44,22 @@ export const QuoteRowActions = ({
         <Menu.Item leftSection={<IconEye size={16} />} onClick={() => handlers.onView(quote)}>
           {t('actions.view')}
         </Menu.Item>
+        {actions.createOrder && (
+          <Menu.Item
+            leftSection={<IconClipboardPlus size={16} />}
+            onClick={() => handlers.onCreateOrder(quote)}
+          >
+            {t('actions.createOrder')}
+          </Menu.Item>
+        )}
+        {actions.viewOrder && (
+          <Menu.Item
+            leftSection={<IconClipboardList size={16} />}
+            onClick={() => handlers.onViewOrder(quote)}
+          >
+            {t('actions.viewOrder')}
+          </Menu.Item>
+        )}
         {actions.send && (
           <Menu.Item leftSection={<IconSend size={16} />} onClick={() => handlers.onSend(quote)}>
             {t('actions.send')}
