@@ -69,14 +69,10 @@ export function SalePaymentsPage() {
                 onSearchInput={setSearchInput}
                 range={state.range}
                 onRange={(value) => dispatch({ type: 'range', value })}
-                overpayment={state.overpayment}
-                onOverpayment={(value) => dispatch({ type: 'overpayment', value })}
                 customer={state.customer}
                 onCustomer={(value) => dispatch({ type: 'customer', value })}
                 paymentMethod={state.paymentMethod}
                 onPaymentMethod={(value) => dispatch({ type: 'paymentMethod', value })}
-                depositAccount={state.depositAccount}
-                onDepositAccount={(value) => dispatch({ type: 'depositAccount', value })}
                 isFiltered={isFiltered}
                 onReset={() => {
                   setSearchInput('');

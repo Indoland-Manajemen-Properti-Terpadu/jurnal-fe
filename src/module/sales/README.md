@@ -146,6 +146,10 @@ Every list but the invoice list (which keeps its receivables panel) opens with t
 - The order form has "Ambil dari Penawaran" (create only): accepted quotes of the chosen customer with no order yet. `POST /v1/sale-orders` takes no quote link; only `POST /v1/sale-orders/from-quote/:id` (a `targetDate` and nothing else) makes an order that knows its quote. So picking a quote opens the same dialog as "Buat Pesanan" on the quote instead of filling the form.
 - The payments list says how much the rows on screen brought in and where a new payment is recorded.
 
+## Date filter
+
+The invoice list and the payments list filter by period through `DateRangeFilter`: a dropdown (Semua tanggal, Hari ini, Minggu ini, Bulan ini, Tahun ini, Kustom) that fills `startDate` and `endDate` itself, with the range picker shown only for Kustom. The presets are worked out in local time (`presetRange`, weeks run Monday to Sunday). The payments list filters by search, customer, method and period only; the account and the excess filters were dropped.
+
 ## Dialogs
 
 Every dialog uses `ModalFrame` (`src/components/Modals/ModalFrame.tsx`): a header with the title and description, a footer with the actions, both separated from the body by a 1px line that runs edge to edge, and a body that pads its own content. A search box or filter goes in the header (`headerExtra`) so it stays put; a table that should run edge to edge sets `bodyPadding={0}`. A table header that must stay in view uses `stickyHeader` inside the element that scrolls (the theme lets such a table overflow so the header sticks). In a list picker the row is the click target, with the customer under the document number; there is no select button.

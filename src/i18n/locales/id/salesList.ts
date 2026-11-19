@@ -18,6 +18,15 @@ export const salesList = {
     void: 'Dibatalkan',
   },
   filter: {
+    period: 'Periode',
+    periods: {
+      all: 'Semua tanggal',
+      today: 'Hari ini',
+      week: 'Minggu ini',
+      month: 'Bulan ini',
+      year: 'Tahun ini',
+      custom: 'Kustom',
+    },
     status: 'Status',
     statusAll: 'Semua status',
     date: 'Tanggal transaksi',

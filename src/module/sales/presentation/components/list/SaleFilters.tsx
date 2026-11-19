@@ -1,10 +1,10 @@
 import { ActionIcon, Button, Group, Select, TextInput } from '@mantine/core';
-import { DatePickerInput } from '@mantine/dates';
-import { IconCalendar, IconFilterOff, IconSearch, IconX } from '@tabler/icons-react';
+import { IconFilterOff, IconSearch, IconX } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import type { SaleDisplayCode } from '@/module/sales/domain/sale';
 import type { DateRange } from '@/module/sales/domain/saleListState';
 import { SENT_STATUS_FILTERS, type SaleTab } from '@/module/sales/domain/saleStatus';
+import { DateRangeFilter } from '../shared/DateRangeFilter';
 
 interface SaleFiltersProps {
   tab: SaleTab;
@@ -17,8 +17,6 @@ interface SaleFiltersProps {
   isFiltered: boolean;
   onReset: () => void;
 }
-
-const toIso = (value: unknown): string | null => (value ? String(value).slice(0, 10) : null);
 
 export const SaleFilters = ({
   tab,
@@ -73,17 +71,7 @@ export const SaleFilters = ({
           w={{ base: '100%', sm: 180 }}
         />
       )}
-      <DatePickerInput
-        type="range"
-        aria-label={t('filter.date')}
-        placeholder={t('filter.datePlaceholder')}
-        valueFormat="DD MMM YYYY"
-        leftSection={<IconCalendar size={16} />}
-        value={range}
-        onChange={(value) => onRange([toIso(value[0]), toIso(value[1])])}
-        clearable
-        w={{ base: '100%', sm: 250 }}
-      />
+      <DateRangeFilter range={range} onRange={onRange} />
       {isFiltered && (
         <Button
           variant="subtle"

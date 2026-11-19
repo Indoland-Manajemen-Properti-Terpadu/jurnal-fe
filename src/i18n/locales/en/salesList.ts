@@ -18,6 +18,15 @@ export const salesList = {
     void: 'Cancelled',
   },
   filter: {
+    period: 'Period',
+    periods: {
+      all: 'All dates',
+      today: 'Today',
+      week: 'This week',
+      month: 'This month',
+      year: 'This year',
+      custom: 'Custom',
+    },
     status: 'Status',
     statusAll: 'All statuses',
     date: 'Transaction date',
