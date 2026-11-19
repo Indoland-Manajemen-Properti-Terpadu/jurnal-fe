@@ -160,12 +160,21 @@ export function SaleActionBar({ sale, onPay }: Readonly<SaleActionBarProps>) {
             run(() => sendMutation.mutateAsync({ id: sale.id, sendEmail: true, resend: true })),
         });
       case 'void':
-        return guarded('void', actions.void, t('actions.voidDisabled'), {
-          label: t('actions.void'),
-          icon: <IconBan size={16} />,
-          color: 'red',
-          onClick: () => setConfirm('void'),
-        });
+        return guarded(
+          'void',
+          actions.void,
+          t(
+            actions.voidBlockedBy === 'return'
+              ? 'actions.voidDisabledReturn'
+              : 'actions.voidDisabled'
+          ),
+          {
+            label: t('actions.void'),
+            icon: <IconBan size={16} />,
+            color: 'red',
+            onClick: () => setConfirm('void'),
+          }
+        );
       default:
         return guarded('remove', actions.remove, t('actions.removeDisabled'), {
           label: t('actions.remove'),

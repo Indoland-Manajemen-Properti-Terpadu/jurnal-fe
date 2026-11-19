@@ -81,6 +81,8 @@ export const salesList = {
     removeDisabled: 'Created from ProApps, it cannot be deleted here',
     resendDisabled: 'The customer has no email address',
     voidDisabled: 'Created from ProApps, it cannot be voided from here',
+    voidDisabledReturn:
+      'This invoice has an issued return. Cancel the return first to void the invoice.',
     send: 'Send',
     resend: 'Resend Email',
     pay: 'Record Payment',

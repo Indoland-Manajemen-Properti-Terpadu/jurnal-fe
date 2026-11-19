@@ -122,6 +122,13 @@ Namespaces `salesQuotes` and `salesOrders` (`id` primary and `en`; parity tests 
 - **Invoice from an order:** Buat Faktur opens `/sales/new?order=<id>`. `SaleFormPage` fetches the order (only a confirmed one; any other opens on its own page), and `orderToSaleFormValues` fills the customer, lines, prices, discount, term and notes; the invoice is dated today. `saleOrder` is sent in the multipart body when the invoice is created (never on an edit). The API refuses a customer other than the order's (400) and an order that is already invoiced (409); a line without a product must get one in the form. Saving the invoice moves the order to `COMPLETED`; voiding it or deleting the draft puts the order back to `CONFIRMED`.
 - An order shows its quote and invoice only as ids; the pages link by id and do not fetch the numbers.
 
+## Invoices and returns (what the invoice shows)
+
+- `Sale.returnedAmount`, `items[].returnedQty` and `saleOrder` are read by the mapper (0 or none when the API omits them). `hasIssuedReturn` (`domain/saleLocks.ts`) is the lock rule: a return amount above 0, or any returned quantity (a credit-only return leaves the amount at 0).
+- **Void** is disabled, with a reason ("Faktur ini punya retur terbit..."), for an invoice with an issued return (`saleActions` gives `voidBlockedBy: 'return'`; an integration invoice gives `'api'`). Paying stays possible. The server also refuses it (400).
+- The **detail page** shows a note for an invoice with a return, "Diretur n" under a line's quantity, a "Dipotong retur" row under the invoice total, and a "Pesanan asal" button to the order the invoice came from.
+- An invoice that has an issued return is never an editable draft, so the form's own lock (lines, discount, withholding and tax mode) cannot be reached from the screens; the server enforces it for API callers.
+
 ## Waiting on the backend
 
 Things the screens could use that the API does not offer yet (checked on the live service, 2026-11-19). Add to this list as new ones turn up and delete a line when it ships.
