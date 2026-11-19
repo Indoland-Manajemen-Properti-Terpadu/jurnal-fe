@@ -28,11 +28,34 @@ export const tabParams = (
   return { paymentStatus: status === 'all' ? SENT_STATUSES : status };
 };
 
+/** What the badges of an invoice say: its state, and whether a payment covers only part of it. */
+export interface SaleBadges {
+  /** A returned invoice reads "Diretur"; otherwise the server's own state. */
+  main: SaleDisplayCode | 'RETURNED';
+  partialPaid: boolean;
+}
+
+export const saleBadges = (sale: {
+  displayStatus: { code: SaleDisplayCode };
+  hasReturn?: boolean;
+  isPartiallyPaid?: boolean;
+}): SaleBadges => {
+  const { code } = sale.displayStatus;
+  const issued = code !== 'DRAFT' && code !== 'VOID';
+  return {
+    main: issued && sale.hasReturn ? 'RETURNED' : code,
+    // Paid in full or void is never "partly paid", whatever the flag says.
+    partialPaid: Boolean(sale.isPartiallyPaid) && (code === 'UNPAID' || code === 'OVERDUE'),
+  };
+};
+
 export type SaleStatusTone = { color: string; variant: 'light' | 'filled' | 'outline' };
 
 /** Red only for real lateness and green only for paid; everything else stays neutral or brand. */
-export const saleStatusTone = (code: SaleDisplayCode): SaleStatusTone => {
+export const saleStatusTone = (code: SaleDisplayCode | 'RETURNED'): SaleStatusTone => {
   switch (code) {
+    case 'RETURNED':
+      return { color: 'orange', variant: 'light' };
     case 'OVERDUE':
       return { color: 'red', variant: 'light' };
     case 'PAID':
