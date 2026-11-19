@@ -8,11 +8,13 @@ import {
   QuoteFormPage,
   QuoteListPage,
   ReceivablesPage,
+  ReturnDetailPage,
+  ReturnFormPage,
+  ReturnListPage,
   SaleDetailPage,
   SaleFormPage,
   SaleMainPage,
   SalePaymentsPage,
-  SalesReturnsPage,
 } from '@/module/sales';
 import { routes } from '../routes';
 
@@ -28,7 +30,10 @@ export const salesRoutes: RouteObject[] = [
   { path: routes.sales.orderEdit, element: <OrderFormPage /> },
   { path: routes.sales.orderDetail, element: <OrderDetailPage /> },
   { path: routes.sales.payments, element: <SalePaymentsPage /> },
-  { path: routes.sales.returns, element: <SalesReturnsPage /> },
+  { path: routes.sales.returns, element: <ReturnListPage /> },
+  { path: routes.sales.returnAdd, element: <ReturnFormPage /> },
+  { path: routes.sales.returnEdit, element: <ReturnFormPage /> },
+  { path: routes.sales.returnDetail, element: <ReturnDetailPage /> },
   { path: routes.sales.receivables, element: <ReceivablesPage /> },
   { path: routes.sales.edit, element: <SaleFormPage /> },
   { path: routes.sales.detail, element: <SaleDetailPage /> },

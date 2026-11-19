@@ -2,7 +2,7 @@ import { notifications } from '@mantine/notifications';
 import { useTranslation } from '@/i18n';
 import { useSaleErrorMessage } from './saleErrorMessage';
 
-type DocNamespace = 'salesQuotes' | 'salesOrders';
+type DocNamespace = 'salesQuotes' | 'salesOrders' | 'salesReturns';
 
 /** Success, warning and failure messages of the actions on a sales document. */
 export const useDocNotifier = (ns: DocNamespace) => {

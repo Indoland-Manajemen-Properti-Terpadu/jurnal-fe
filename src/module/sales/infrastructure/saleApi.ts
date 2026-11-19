@@ -87,7 +87,7 @@ export const fetchSales = async (params: SaleListParams = {}): Promise<Paginated
       sortOrder: params.sortBy ? params.sortOrder : undefined,
       startDate: params.startDate || undefined,
       endDate: params.endDate || undefined,
-      customerId: params.customerId || undefined,
+      customer: params.customerId || undefined,
     },
   });
 

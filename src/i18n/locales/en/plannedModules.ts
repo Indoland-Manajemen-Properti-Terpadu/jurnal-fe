@@ -91,16 +91,6 @@ export const plannedModules = {
         four: 'Payment receipts',
       },
     },
-    salesReturns: {
-      title: 'Sales Returns',
-      description: 'Record goods returned by customers and adjust their bills.',
-      features: {
-        one: 'Returns against issued invoices',
-        two: 'Credit notes for customers',
-        three: 'Goods back into stock',
-        four: 'Automatic reduction of receivables',
-      },
-    },
     receivables: {
       title: 'Receivables',
       description: 'Follow unpaid customer invoices and how old they are.',

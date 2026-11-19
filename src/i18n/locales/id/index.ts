@@ -12,6 +12,7 @@ import { saleDetail } from './saleDetail';
 import { sales } from './sales';
 import { salesQuotes } from './salesQuotes';
 import { salesOrders } from './salesOrders';
+import { salesReturns } from './salesReturns';
 import { dashboard } from './dashboard';
 import { plannedModules } from './plannedModules';
 import { landing } from './landing';
@@ -46,6 +47,7 @@ export const id = {
   sales,
   salesQuotes,
   salesOrders,
+  salesReturns,
   dashboard,
   plannedModules,
   landing,

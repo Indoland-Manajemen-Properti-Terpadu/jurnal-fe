@@ -22,7 +22,7 @@ export interface DocStat {
 }
 
 interface DocOverviewCardProps {
-  ns: 'salesQuotes' | 'salesOrders';
+  ns: 'salesQuotes' | 'salesOrders' | 'salesReturns';
   number: string;
   /** The status badge. */
   badge: ReactNode;

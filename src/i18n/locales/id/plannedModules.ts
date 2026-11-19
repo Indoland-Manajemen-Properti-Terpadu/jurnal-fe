@@ -91,16 +91,6 @@ export const plannedModules = {
         four: 'Kwitansi pembayaran',
       },
     },
-    salesReturns: {
-      title: 'Retur Penjualan',
-      description: 'Catat barang yang dikembalikan pelanggan dan koreksi tagihannya.',
-      features: {
-        one: 'Retur atas faktur yang sudah terbit',
-        two: 'Nota kredit untuk pelanggan',
-        three: 'Barang kembali ke stok',
-        four: 'Pengurangan piutang otomatis',
-      },
-    },
     receivables: {
       title: 'Piutang Usaha',
       description: 'Pantau tagihan pelanggan yang belum lunas dan umurnya.',

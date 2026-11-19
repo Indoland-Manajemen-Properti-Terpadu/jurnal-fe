@@ -15,9 +15,13 @@ Sales invoices (accounts receivable): a draft and send workflow, a three step in
 | `quotationAdd`    | `/sales/quotations/new`      | `QuoteFormPage` (three steps)                                       |
 | `quotationEdit`   | `/sales/quotations/:id/edit` | `QuoteFormPage` (drafts only; others open the detail)               |
 | `quotationDetail` | `/sales/quotations/:id`      | `QuoteDetailPage`                                                   |
+| `returns`         | `/sales/returns`             | `ReturnListPage` (tabs, summary, invoice picker)                    |
+| `returnAdd`       | `/sales/returns/new?sale=id` | `ReturnFormPage` (one card form for the chosen invoice)             |
+| `returnEdit`      | `/sales/returns/:id/edit`    | `ReturnFormPage` (drafts only; others open the detail)              |
+| `returnDetail`    | `/sales/returns/:id`         | `ReturnDetailPage`                                                  |
 | `publicInvoice`   | `/invoice/:token`            | `PublicInvoicePage` (no sign-in, no app shell)                      |
 
-`index.ts` exports the four pages, the `Sale` type, `mapSaleDto`, `formatIDR` and `getSaleStatusConfig`. The last three are used by the `contacts` module for a customer's sales.
+`index.ts` exports the pages, the `Sale` type, `mapSaleDto`, `formatIDR` and `getSaleStatusConfig`. The last three are used by the `contacts` module for a customer's sales.
 
 ## Endpoints (`infrastructure/saleApi.ts`, `saleReceivablesApi.ts`)
 
@@ -122,6 +126,15 @@ Namespaces `salesQuotes` and `salesOrders` (`id` primary and `en`; parity tests 
 - **Invoice from an order:** Buat Faktur opens `/sales/new?order=<id>`. `SaleFormPage` fetches the order (only a confirmed one; any other opens on its own page), and `orderToSaleFormValues` fills the customer, lines, prices, discount, term and notes; the invoice is dated today. `saleOrder` is sent in the multipart body when the invoice is created (never on an edit). The API refuses a customer other than the order's (400) and an order that is already invoiced (409); a line without a product must get one in the form. Saving the invoice moves the order to `COMPLETED`; voiding it or deleting the draft puts the order back to `CONFIRMED`.
 - An order shows its quote and invoice only as ids; the pages link by id and do not fetch the numbers.
 
+## Returns
+
+- **Create:** "Buat Retur" opens a picker of issued invoices (`GET /v1/sales?paymentStatus=UNPAID,OVERDUE,PAID` plus search), then `/sales/returns/new?sale=<id>`. The form loads the invoice, lists its lines with invoice quantity, already returned and remaining, and takes a return quantity per line ("Retur Semua" fills the remainder). The API prices the lines from the invoice, so the form shows no totals. A draft or void invoice opens a notice instead of the form.
+- **Settlement:** `REDUCE_INVOICE` takes the amount off the invoice balance (any excess becomes credit); `CUSTOMER_CREDIT` leaves the invoice and keeps all of it as credit. Reasons are the five Indonesian strings the API accepts, sent as written.
+- **Status:** the API's `displayStatus` (`DRAFT`, `ISSUED`, `COMPLETED`, `VOID`). Tabs: Draf, Terbit, Selesai, Dibatalkan; search by number, invoice or customer. Green is used only for `COMPLETED`.
+- **Actions:** draft = edit, issue (Terbitkan), delete; issued = apply credit (Pakai Kredit), refund (Kembalikan Dana), cancel refund, cancel return. Cancel is disabled with a reason while credit has been used or refunded; each use of credit has its own "Batalkan Pemakaian". Rights come from `JP-SALES-RETURN` (create/update/delete).
+- **Credit:** `creditRemaining` is what can still be applied to another invoice of the same customer or refunded; the detail page lists every application. Applying credit was verified live (and cancelled again).
+- **Not verified live:** the cash refund body. The request shape (`amount`, `date`, `depositAccount`) follows the guide; money movement was not exercised, so check the first real refund.
+
 ## Invoices and returns (what the invoice shows)
 
 - `Sale.returnedAmount`, `items[].returnedQty` and `saleOrder` are read by the mapper (0 or none when the API omits them). `hasIssuedReturn` (`domain/saleLocks.ts`) is the lock rule: a return amount above 0, or any returned quantity (a credit-only return leaves the amount at 0).
@@ -144,4 +157,4 @@ Things the screens could use that the API does not offer yet (checked on the liv
 
 ## Planned pages
 
-`presentation/pages/planned/` holds the pages of sales documents that are not built yet: sales returns (`/sales/returns`) and receivables (`/sales/receivables`). Each renders the shared `PlannedModulePage` (header and planned scope, copy in the `plannedModules` namespace) and has no endpoint or state. The sidebar lists them next to the invoice list so the whole sales cycle is visible.
+`presentation/pages/planned/` holds the sales pages that are not built yet: receivables (`/sales/receivables`). It renders the shared `PlannedModulePage` (header and planned scope, copy in the `plannedModules` namespace) and has no endpoint or state. The sidebar lists it next to the invoice list so the whole sales cycle is visible.
