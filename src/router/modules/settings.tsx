@@ -7,11 +7,13 @@ import {
   GeneralSettingPage,
   NumberFormatPage,
   PaymentMethodPage,
+  PaymentTermFormPage,
   PaymentTermPage,
   SitesPage,
   TagSettingPage,
   TaxSettingPage,
 } from '@/module/settings';
+import { AppShellLayout } from '@/components/AppShellLayout';
 import { defaultSettingsPath } from '@/components/Navbar/settingsMenu';
 import { routes } from '../routes';
 
@@ -25,6 +27,23 @@ export const settingsRoutes: RouteObject[] = [
   { path: routes.settings.accountMapping, element: <AccountMappingPage /> },
   { path: routes.settings.taxes, element: <TaxSettingPage /> },
   { path: routes.settings.paymentTerms, element: <PaymentTermPage /> },
+  // Forms use the full width, so they sit in the app shell without the settings side menu.
+  {
+    path: routes.settings.paymentTermNew,
+    element: (
+      <AppShellLayout>
+        <PaymentTermFormPage />
+      </AppShellLayout>
+    ),
+  },
+  {
+    path: routes.settings.paymentTermEdit,
+    element: (
+      <AppShellLayout>
+        <PaymentTermFormPage />
+      </AppShellLayout>
+    ),
+  },
   { path: routes.settings.paymentMethods, element: <PaymentMethodPage /> },
   { path: routes.settings.numberFormats, element: <NumberFormatPage /> },
   { path: routes.settings.tags, element: <TagSettingPage /> },
