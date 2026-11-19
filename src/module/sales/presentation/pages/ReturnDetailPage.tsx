@@ -29,7 +29,7 @@ import { EmptyState } from '@/components/EmptyState';
 import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
 import { useTranslation } from '@/i18n';
 import { routes } from '@/router/routes';
-import { formatDate, formatDateTime } from '../../domain/saleFormat';
+import { formatDate } from '../../domain/saleFormat';
 import { allowedReturnActions, returnActions, type SaleReturn } from '../../domain/saleReturn';
 import type { NoteTone } from '../components/docs/DocNoteBanner';
 import { DocOverviewCard } from '../components/docs/DocOverviewCard';
@@ -38,6 +38,7 @@ import {
   ReturnLinesCard,
   ReturnMemoCard,
 } from '../components/returns/ReturnDetailCards';
+import { ReturnActivityCard } from '../components/returns/ReturnActivityCard';
 import { ReturnStatusBadge } from '../components/returns/ReturnStatusBadge';
 import { useReturnActions } from '../hooks/useReturnActions';
 import { useReturn } from '../hooks/useReturnQueries';
@@ -152,13 +153,30 @@ export function ReturnDetailPage() {
             number={ret.transactionNumber}
             badge={<ReturnStatusBadge status={ret.displayStatus} />}
             customerName={ret.customer?.displayName ?? ''}
+            subtitle={
+              <Text size="sm" c="dimmed">
+                {t('detail.creditNoteOf')}{' '}
+                {ret.sale ? (
+                  <Anchor
+                    component="button"
+                    type="button"
+                    size="sm"
+                    fw={600}
+                    onClick={() => handlers.onViewInvoice(ret)}
+                  >
+                    {ret.saleNumber}
+                  </Anchor>
+                ) : (
+                  ret.saleNumber
+                )}
+                {' · '}
+                {t(`reasons.${ret.reason}`)}
+              </Text>
+            }
             stats={[
+              { label: t('detail.customer'), value: ret.customer?.displayName ?? '' },
               { label: t('detail.date'), value: formatDate(ret.transactionDate) },
-              { label: t('detail.invoice'), value: ret.saleNumber },
-              { label: t('detail.reason'), value: t(`reasons.${ret.reason}`) },
-              ret.postedAt
-                ? { label: t('detail.postedAt'), value: formatDateTime(ret.postedAt) }
-                : { label: t('detail.settlement'), value: t(`settlement.${ret.settlement}`) },
+              { label: t('detail.settlement'), value: t(`settlement.${ret.settlement}`) },
             ]}
             valueAmount={ret.finalAmount}
             note={{ tone: note.tone, text: t(note.key) }}
@@ -253,6 +271,7 @@ export function ReturnDetailPage() {
               <Stack gap="lg">
                 <ReturnLinesCard ret={ret} />
                 <ReturnMemoCard ret={ret} />
+                <ReturnActivityCard ret={ret} />
               </Stack>
             </Grid.Col>
             <Grid.Col span={{ base: 12, lg: 4 }}>

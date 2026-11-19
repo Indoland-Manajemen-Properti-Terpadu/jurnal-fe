@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Button, Group, Modal, Stack, Text, TextInput } from '@mantine/core';
+import { Button, TextInput } from '@mantine/core';
 import { IconCalendar } from '@tabler/icons-react';
+import { ModalFrame } from '@/components/Modals/ModalFrame';
 import { useTranslation } from '@/i18n';
 
 interface CreateOrderDialogProps {
@@ -24,36 +25,32 @@ export function CreateOrderDialog({
   const [target, setTarget] = useState('');
 
   return (
-    <Modal
+    <ModalFrame
       opened={opened}
       onClose={onClose}
-      centered
-      radius="lg"
       title={t('fromQuote.title', { number: quoteNumber })}
-    >
-      <Stack gap="md">
-        <Text size="sm" c="dimmed">
-          {t('fromQuote.intro')}
-        </Text>
-        <TextInput
-          type="date"
-          label={t('fromQuote.targetLabel')}
-          description={t('fromQuote.targetHint')}
-          inputWrapperOrder={['label', 'input', 'description', 'error']}
-          leftSection={<IconCalendar size={16} />}
-          value={target}
-          onChange={(event) => setTarget(event.currentTarget.value)}
-          data-autofocus
-        />
-        <Group justify="flex-end" gap="sm">
+      description={t('fromQuote.intro')}
+      footer={
+        <>
           <Button variant="default" onClick={onClose} disabled={loading}>
             {t('fromQuote.cancel')}
           </Button>
           <Button color="primary" loading={loading} onClick={() => onSubmit(target || undefined)}>
             {t('fromQuote.submit')}
           </Button>
-        </Group>
-      </Stack>
-    </Modal>
+        </>
+      }
+    >
+      <TextInput
+        type="date"
+        label={t('fromQuote.targetLabel')}
+        description={t('fromQuote.targetHint')}
+        inputWrapperOrder={['label', 'input', 'description', 'error']}
+        leftSection={<IconCalendar size={16} />}
+        value={target}
+        onChange={(event) => setTarget(event.currentTarget.value)}
+        data-autofocus
+      />
+    </ModalFrame>
   );
 }

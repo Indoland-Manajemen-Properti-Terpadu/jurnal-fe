@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Button, Group, Modal, NumberInput, Select, Stack, Text, TextInput } from '@mantine/core';
+import { Button, NumberInput, Select, TextInput } from '@mantine/core';
+import { ModalFrame } from '@/components/Modals/ModalFrame';
 import { useTranslation } from '@/i18n';
 import { formatIDR } from '@/module/sales/domain/saleFormat';
 import type { SaleReturn } from '@/module/sales/domain/saleReturn';
@@ -52,51 +53,13 @@ export function ApplyCreditDialog({
   const ready = Boolean(sale) && value > 0 && !error && Boolean(date) && !dateError;
 
   return (
-    <Modal
+    <ModalFrame
       opened
       onClose={onClose}
-      centered
-      radius="lg"
       title={t('apply.title', { number: ret.transactionNumber })}
-    >
-      <Stack gap="md">
-        <Text size="sm" c="dimmed">
-          {t('apply.intro', { credit: formatIDR(ret.creditRemaining) })}
-        </Text>
-        <Select
-          label={t('apply.invoice')}
-          placeholder={t('apply.invoicePlaceholder')}
-          data={options}
-          value={sale}
-          onChange={(next) => {
-            setSale(next);
-            const picked = options.find((option) => option.value === next);
-            setAmount(picked ? Math.min(ret.creditRemaining, picked.remaining) : '');
-          }}
-          searchable
-          nothingFoundMessage={t('apply.invoiceEmpty')}
-          data-autofocus
-        />
-        <NumberInput
-          label={t('apply.amount')}
-          description={t('apply.amountHint')}
-          inputWrapperOrder={['label', 'input', 'description', 'error']}
-          min={0}
-          decimalScale={2}
-          thousandSeparator="."
-          decimalSeparator=","
-          value={amount}
-          onChange={(next) => setAmount(typeof next === 'number' ? next : '')}
-          error={error}
-        />
-        <TextInput
-          type="date"
-          label={t('apply.date')}
-          value={date}
-          onChange={(event) => setDate(event.currentTarget.value)}
-          error={dateError}
-        />
-        <Group justify="flex-end" gap="sm">
+      description={t('apply.intro', { credit: formatIDR(ret.creditRemaining) })}
+      footer={
+        <>
           <Button variant="default" onClick={onClose} disabled={loading}>
             {t('apply.cancel')}
           </Button>
@@ -108,8 +71,42 @@ export function ApplyCreditDialog({
           >
             {t('apply.submit')}
           </Button>
-        </Group>
-      </Stack>
-    </Modal>
+        </>
+      }
+    >
+      <Select
+        label={t('apply.invoice')}
+        placeholder={t('apply.invoicePlaceholder')}
+        data={options}
+        value={sale}
+        onChange={(next) => {
+          setSale(next);
+          const picked = options.find((option) => option.value === next);
+          setAmount(picked ? Math.min(ret.creditRemaining, picked.remaining) : '');
+        }}
+        searchable
+        nothingFoundMessage={t('apply.invoiceEmpty')}
+        data-autofocus
+      />
+      <NumberInput
+        label={t('apply.amount')}
+        description={t('apply.amountHint')}
+        inputWrapperOrder={['label', 'input', 'description', 'error']}
+        min={0}
+        decimalScale={2}
+        thousandSeparator="."
+        decimalSeparator=","
+        value={amount}
+        onChange={(next) => setAmount(typeof next === 'number' ? next : '')}
+        error={error}
+      />
+      <TextInput
+        type="date"
+        label={t('apply.date')}
+        value={date}
+        onChange={(event) => setDate(event.currentTarget.value)}
+        error={dateError}
+      />
+    </ModalFrame>
   );
 }

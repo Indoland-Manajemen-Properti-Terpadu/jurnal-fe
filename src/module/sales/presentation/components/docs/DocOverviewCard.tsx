@@ -27,6 +27,8 @@ interface DocOverviewCardProps {
   /** The status badge. */
   badge: ReactNode;
   customerName: string;
+  /** Replaces the customer line under the badge when a document has something better to say. */
+  subtitle?: ReactNode;
   stats: DocStat[];
   valueAmount: number;
   note: { tone: NoteTone; text: string };
@@ -42,6 +44,7 @@ export function DocOverviewCard({
   number,
   badge,
   customerName,
+  subtitle,
   stats,
   valueAmount,
   note,
@@ -74,9 +77,11 @@ export function DocOverviewCard({
               </CopyButton>
             </Group>
             <Group gap="xs">{badge}</Group>
-            <Text size="sm" c="dimmed">
-              {customerName || '–'}
-            </Text>
+            {subtitle ?? (
+              <Text size="sm" c="dimmed">
+                {customerName || '–'}
+              </Text>
+            )}
           </Stack>
           {actions}
         </Group>

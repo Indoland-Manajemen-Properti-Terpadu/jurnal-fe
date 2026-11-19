@@ -151,6 +151,51 @@ export const estimateReturn = (lines: ReturnFormLine[]): ReturnEstimate => {
   };
 };
 
+export const RETURN_STEPS = ['info', 'lines', 'settlement'] as const;
+export type ReturnStepId = (typeof RETURN_STEPS)[number];
+
+/** The errors that belong to one step, so "Lanjut" only stops on what is on screen. */
+export const returnStepErrors = (
+  step: ReturnStepId,
+  errors: Record<string, string>
+): Record<string, string> =>
+  Object.fromEntries(
+    Object.entries(errors).filter(([key]) =>
+      step === 'info'
+        ? key === 'transactionDate'
+        : step === 'lines'
+          ? key === 'lines' || key.startsWith('lines.')
+          : false
+    )
+  );
+
+export interface ReturnSplit {
+  /** The part that takes money off the invoice's balance. */
+  reducesInvoice: number;
+  /** The part that becomes customer credit. */
+  becomesCredit: number;
+  /** What the invoice still owes once this return is issued. */
+  balanceAfter: number;
+}
+
+/**
+ * How a return of `total` is shared: "potong tagihan" first takes the invoice's open balance and
+ * turns the rest into credit; "kredit pelanggan" keeps all of it as credit and leaves the invoice.
+ */
+export const splitReturn = (
+  total: number,
+  invoiceBalance: number,
+  settlement: ReturnSettlement
+): ReturnSplit => {
+  const balance = Math.max(invoiceBalance, 0);
+  const reducesInvoice = settlement === 'REDUCE_INVOICE' ? cents(Math.min(total, balance)) : 0;
+  return {
+    reducesInvoice,
+    becomesCredit: cents(total - reducesInvoice),
+    balanceAfter: cents(balance - reducesInvoice),
+  };
+};
+
 export type ReturnFormErrors = Record<string, string>;
 
 /** Errors by field path; each value is an i18n key under `salesReturns`. */

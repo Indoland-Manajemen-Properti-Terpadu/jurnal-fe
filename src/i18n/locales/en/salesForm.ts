@@ -10,6 +10,7 @@ export const salesForm = {
     descriptionNew:
       'Fill it in three steps: general information, products and services, then discount and extras.',
     descriptionEdit: 'Update this draft, then save it or issue it to the customer.',
+    stepLabel: 'Step {count}',
     stepperAria: 'Invoice steps',
     steps: {
       general: 'General Information',
@@ -100,7 +101,7 @@ export const salesForm = {
       reviewDue: 'Due {date}',
     },
     actions: {
-      back: 'Back',
+      back: 'Previous step',
       next: 'Next',
       cancel: 'Cancel',
       saveDraft: 'Save as Draft',

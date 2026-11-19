@@ -10,6 +10,7 @@ export const salesForm = {
     descriptionNew:
       'Isi dalam tiga langkah: informasi umum, rincian produk dan jasa, lalu diskon dan tambahan.',
     descriptionEdit: 'Perbarui draf ini, lalu simpan atau terbitkan ke pelanggan.',
+    stepLabel: 'Langkah {count}',
     stepperAria: 'Langkah pengisian faktur',
     steps: {
       general: 'Informasi Umum',
@@ -100,7 +101,7 @@ export const salesForm = {
       reviewDue: 'Jatuh tempo {date}',
     },
     actions: {
-      back: 'Kembali',
+      back: 'Langkah sebelumnya',
       next: 'Lanjut',
       cancel: 'Batal',
       saveDraft: 'Simpan sebagai Draf',

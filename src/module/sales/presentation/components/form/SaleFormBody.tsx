@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Grid, Group, Paper, Stack } from '@mantine/core';
+import { Stack } from '@mantine/core';
+import { IconFileText, IconReceipt2, IconSend, IconUser } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
 import { routes } from '@/router/routes';
@@ -13,9 +14,11 @@ import {
 } from '@/module/sales/domain/saleForm';
 import { useCreateSale, useSendSale, useUpdateSale } from '../../hooks/useSaleMutations';
 import { useSaleForm } from '../../hooks/useSaleForm';
-import { FormActionBar } from './FormActionBar';
-import { SaleStepper } from './SaleStepper';
-import { SaleTotalsPanel, type SaleReview } from './SaleTotalsPanel';
+import { WizardActionBar } from '../wizard/WizardActionBar';
+import { WizardCard } from '../wizard/WizardCard';
+import { WizardStepper } from '../wizard/WizardStepper';
+import { WizardTotals } from '../wizard/WizardTotals';
+import { SaleReviewNote, type SaleReview } from './SaleReviewNote';
 import { StepExtras } from './StepExtras';
 import { StepGeneral } from './StepGeneral';
 import { StepLines } from './StepLines';
@@ -28,6 +31,11 @@ interface SaleFormBodyProps {
 
 const detailPath = (id: string) => routes.sales.detail.replace(':id', id);
 const editPath = (id: string) => routes.sales.edit.replace(':id', id);
+const STEP_ICONS = {
+  general: <IconUser size={20} />,
+  lines: <IconReceipt2 size={20} />,
+  extras: <IconFileText size={20} />,
+};
 
 export function SaleFormBody({ saleId, initial }: Readonly<SaleFormBodyProps>) {
   const { t } = useTranslation('sales');
@@ -87,65 +95,93 @@ export function SaleFormBody({ saleId, initial }: Readonly<SaleFormBodyProps>) {
   const missing = SALE_STEPS.filter(
     (id) => Object.keys(validateStep(id, form.values)).length > 0
   ).map((id) => t(`form.steps.${id}`));
-  const customerName = api.customer?.name ?? '';
   const review: SaleReview = {
     missing,
-    customerName,
+    customerName: api.customer?.name ?? '',
     dueDate: form.values.dueDate,
     lineCount: form.values.items.filter((item) => item.productId).length,
   };
+  const index = SALE_STEPS.indexOf(step);
+  const isLast = index === SALE_STEPS.length - 1;
+  const { totals } = api;
+  const draftOk = canSaveDraft(form.values);
+  const sendOk = canSend(form.values);
 
   return (
     <Stack gap="lg">
-      <Paper withBorder radius="md" p="md" bg="white">
-        <SaleStepper step={step} onStepClick={setStep} />
-      </Paper>
-
-      <Grid gutter="lg" align="flex-start">
-        <Grid.Col span={{ base: 12, lg: step === 'extras' ? 8 : 12 }}>
-          <Stack gap="lg">
-            {step === 'general' && <StepGeneral api={api} />}
-            {step === 'lines' && <StepLines api={api} />}
-            {step === 'lines' && (
-              <Group justify="flex-end">
-                <div style={{ width: '100%', maxWidth: 420 }}>
-                  <SaleTotalsPanel
-                    totals={api.totals}
-                    isPriceIncludeTax={form.values.isPriceIncludeTax}
-                  />
-                </div>
-              </Group>
-            )}
-            {step === 'extras' && <StepExtras api={api} />}
-          </Stack>
-        </Grid.Col>
-        {step === 'extras' && (
-          <Grid.Col span={{ base: 12, lg: 4 }}>
-            <div style={{ position: 'sticky', top: 20 }}>
-              <SaleTotalsPanel
-                totals={api.totals}
-                isPriceIncludeTax={form.values.isPriceIncludeTax}
-                review={review}
-              />
-            </div>
-          </Grid.Col>
-        )}
-      </Grid>
-
-      {/* One footer for every step: always the full width of the form, below all its content. */}
-      <FormActionBar
-        step={step}
-        isEdit={Boolean(saleId)}
-        canSaveDraft={canSaveDraft(form.values)}
-        canSend={canSend(form.values)}
-        canEmail={api.canEmail}
-        pending={pending}
-        onBack={goBack}
-        onNext={goNext}
-        onCancel={() => navigate(saleId ? detailPath(saleId) : routes.sales.main)}
-        onSaveDraft={() => submit('draft')}
-        onSaveSend={() => submit('send')}
+      <WizardStepper
+        steps={SALE_STEPS.map((id) => ({
+          id,
+          label: t(`form.steps.${id}`),
+          description: t(`form.steps.${id}Desc`),
+          icon: STEP_ICONS[id],
+        }))}
+        active={index}
+        onStepClick={(i) => setStep(SALE_STEPS[i])}
       />
+      <WizardCard
+        icon={STEP_ICONS[step]}
+        title={t(`form.steps.${step}`)}
+        description={t(`form.steps.${step}Desc`)}
+        summary={
+          <WizardTotals
+            rows={[
+              { label: t('form.summary.subtotal'), value: totals.subtotal },
+              {
+                label: t('form.summary.discount'),
+                value: -totals.discountAmount,
+                hidden: !totals.discountAmount,
+              },
+              {
+                label: form.values.isPriceIncludeTax
+                  ? t('form.summary.vatIncluded')
+                  : t('form.summary.vat'),
+                value: totals.taxTotal,
+                hidden: !totals.taxTotal,
+              },
+              {
+                label: t('form.summary.withholding'),
+                value: -totals.withholdingAmount,
+                hidden: !totals.withholdingAmount,
+              },
+            ]}
+            totalLabel={t('form.summary.final')}
+            total={totals.finalAmount}
+            hint={t('form.summary.estimate')}
+            aside={isLast ? <SaleReviewNote review={review} /> : undefined}
+          />
+        }
+        footer={
+          <WizardActionBar
+            isFirst={index === 0}
+            isLast={isLast}
+            busy={pending !== null}
+            cancelLabel={t('form.actions.cancel')}
+            onCancel={() => navigate(saleId ? detailPath(saleId) : routes.sales.main)}
+            onBack={goBack}
+            onNext={goNext}
+            draft={{
+              label: saleId ? t('form.actions.saveChanges') : t('form.actions.saveDraft'),
+              onClick: () => submit('draft'),
+              loading: pending === 'draft',
+              disabled: !draftOk,
+              hint: t('form.actions.saveDraftHint'),
+            }}
+            finish={{
+              label: api.canEmail ? t('form.actions.saveSend') : t('form.actions.saveIssue'),
+              icon: <IconSend size={16} />,
+              onClick: () => submit('send'),
+              loading: pending === 'send',
+              disabled: !sendOk,
+              hint: t('form.actions.saveSendHint'),
+            }}
+          />
+        }
+      >
+        {step === 'general' && <StepGeneral api={api} />}
+        {step === 'lines' && <StepLines api={api} />}
+        {step === 'extras' && <StepExtras api={api} />}
+      </WizardCard>
     </Stack>
   );
 }

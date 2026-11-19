@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Button, Group, Modal, Select, Stack, Text, TextInput, Textarea } from '@mantine/core';
+import { Button, Select, TextInput, Textarea } from '@mantine/core';
+import { ModalFrame } from '@/components/Modals/ModalFrame';
 import { useTranslation } from '@/i18n';
 import { formatIDR } from '@/module/sales/domain/saleFormat';
 import type { SaleReturn } from '@/module/sales/domain/saleReturn';
@@ -27,42 +28,13 @@ export function RefundDialog({ ret, loading, onClose, onSubmit }: Readonly<Refun
     returnDay && date && date < returnDay ? t('validation.dateBeforeReturn') : undefined;
 
   return (
-    <Modal
+    <ModalFrame
       opened
       onClose={onClose}
-      centered
-      radius="lg"
       title={t('refund.title', { number: ret.transactionNumber })}
-    >
-      <Stack gap="md">
-        <Text size="sm" c="dimmed">
-          {t('refund.intro', { credit: formatIDR(ret.creditRemaining) })}
-        </Text>
-        <Select
-          label={t('refund.account')}
-          placeholder={t('refund.accountPlaceholder')}
-          data={(accounts.data ?? []).map((item) => ({ value: item.value, label: item.label }))}
-          value={account}
-          onChange={setAccount}
-          searchable
-          data-autofocus
-        />
-        <TextInput
-          type="date"
-          label={t('refund.date')}
-          value={date}
-          onChange={(event) => setDate(event.currentTarget.value)}
-          error={dateError}
-        />
-        <Textarea
-          label={t('refund.memo')}
-          placeholder={t('refund.memoPlaceholder')}
-          value={memo}
-          onChange={(event) => setMemo(event.currentTarget.value)}
-          minRows={2}
-          autosize
-        />
-        <Group justify="flex-end" gap="sm">
+      description={t('refund.intro', { credit: formatIDR(ret.creditRemaining) })}
+      footer={
+        <>
           <Button variant="default" onClick={onClose} disabled={loading}>
             {t('refund.cancel')}
           </Button>
@@ -74,8 +46,33 @@ export function RefundDialog({ ret, loading, onClose, onSubmit }: Readonly<Refun
           >
             {t('refund.submit')}
           </Button>
-        </Group>
-      </Stack>
-    </Modal>
+        </>
+      }
+    >
+      <Select
+        label={t('refund.account')}
+        placeholder={t('refund.accountPlaceholder')}
+        data={(accounts.data ?? []).map((item) => ({ value: item.value, label: item.label }))}
+        value={account}
+        onChange={setAccount}
+        searchable
+        data-autofocus
+      />
+      <TextInput
+        type="date"
+        label={t('refund.date')}
+        value={date}
+        onChange={(event) => setDate(event.currentTarget.value)}
+        error={dateError}
+      />
+      <Textarea
+        label={t('refund.memo')}
+        placeholder={t('refund.memoPlaceholder')}
+        value={memo}
+        onChange={(event) => setMemo(event.currentTarget.value)}
+        minRows={2}
+        autosize
+      />
+    </ModalFrame>
   );
 }

@@ -8,6 +8,8 @@ import {
   estimateReturn,
   estimateReturnLine,
   returnAll,
+  returnStepErrors,
+  splitReturn,
   returnLinesOf,
   returnToFormValues,
   validateReturnForm,
@@ -159,6 +161,36 @@ describe('return estimate', () => {
       total: 22.5,
     });
     expect(estimateReturn([{ ...half, returnQty: 0 }]).total).toBe(0);
+  });
+});
+
+describe('return steps and split', () => {
+  it('keeps each step to its own errors', () => {
+    const errors = { transactionDate: 'a', lines: 'b', 'lines.0': 'c' };
+    expect(Object.keys(returnStepErrors('info', errors))).toEqual(['transactionDate']);
+    expect(Object.keys(returnStepErrors('lines', errors))).toEqual(['lines', 'lines.0']);
+    expect(returnStepErrors('settlement', errors)).toEqual({});
+  });
+
+  it('reduces the invoice first and turns the rest into credit', () => {
+    expect(splitReturn(182000, 182000, 'REDUCE_INVOICE')).toEqual({
+      reducesInvoice: 182000,
+      becomesCredit: 0,
+      balanceAfter: 0,
+    });
+    expect(splitReturn(50000, 20000, 'REDUCE_INVOICE')).toEqual({
+      reducesInvoice: 20000,
+      becomesCredit: 30000,
+      balanceAfter: 0,
+    });
+  });
+
+  it('keeps everything as credit and leaves the invoice alone when asked for credit', () => {
+    expect(splitReturn(50000, 20000, 'CUSTOMER_CREDIT')).toEqual({
+      reducesInvoice: 0,
+      becomesCredit: 50000,
+      balanceAfter: 20000,
+    });
   });
 });
 

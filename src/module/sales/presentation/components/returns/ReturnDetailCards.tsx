@@ -34,6 +34,7 @@ export function ReturnLinesCard({ ret }: Readonly<{ ret: SaleReturn }>) {
               <Table.Th w={50}>{t('detail.colNo')}</Table.Th>
               <Table.Th>{t('detail.colItem')}</Table.Th>
               <Table.Th ta="right">{t('detail.colQuantity')}</Table.Th>
+              <Table.Th ta="right">{t('detail.colNetPrice')}</Table.Th>
               <Table.Th ta="right">{t('detail.colTax')}</Table.Th>
               <Table.Th ta="right">{t('detail.colAmount')}</Table.Th>
             </Table.Tr>
@@ -56,7 +57,18 @@ export function ReturnLinesCard({ ret }: Readonly<{ ret: SaleReturn }>) {
                   {item.quantity}
                 </Table.Td>
                 <Table.Td ta="right" style={num}>
-                  {item.taxAmount ? formatIDR(item.taxAmount) : '–'}
+                  {formatIDR(
+                    item.quantity > 0 ? (item.amount - item.discountAmount) / item.quantity : 0
+                  )}
+                </Table.Td>
+                <Table.Td ta="right" style={num}>
+                  {item.taxAmount ? (
+                    formatIDR(item.taxAmount)
+                  ) : (
+                    <Text span size="sm" c="dimmed">
+                      {t('form.noTax')}
+                    </Text>
+                  )}
                 </Table.Td>
                 <Table.Td ta="right" style={num}>
                   {formatIDR(item.amount)}

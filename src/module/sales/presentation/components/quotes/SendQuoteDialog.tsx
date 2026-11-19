@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Button, Group, Modal, Stack, TagsInput, Text, Textarea } from '@mantine/core';
+import { Button, TagsInput, Textarea } from '@mantine/core';
+import { ModalFrame } from '@/components/Modals/ModalFrame';
 import { useTranslation } from '@/i18n';
 import {
   QUOTE_MAX_EMAILS,
@@ -50,42 +51,15 @@ export function SendQuoteDialog({
       : t('send.submitNoEmail');
 
   return (
-    <Modal
+    <ModalFrame
       opened={opened}
       onClose={onClose}
-      centered
-      radius="lg"
       title={t(resend ? 'send.resendTitle' : 'send.title', {
         number: quote?.transactionNumber ?? '',
       })}
-    >
-      <Stack gap="md">
-        <Text size="sm" c="dimmed">
-          {t('send.intro')}
-        </Text>
-        <TagsInput
-          label={t('send.emailsLabel')}
-          placeholder={t('send.emailsPlaceholder')}
-          description={
-            resend ? t('send.resendHint') : t('send.emailsHint', { max: QUOTE_MAX_EMAILS })
-          }
-          inputWrapperOrder={['label', 'input', 'description', 'error']}
-          value={emails}
-          onChange={setEmails}
-          error={error}
-          data-autofocus
-        />
-        <Textarea
-          label={t('send.messageLabel')}
-          description={t('send.messageHint', { max: QUOTE_MAX_MESSAGE })}
-          inputWrapperOrder={['label', 'input', 'description', 'error']}
-          value={message}
-          onChange={(event) => setMessage(event.currentTarget.value)}
-          maxLength={QUOTE_MAX_MESSAGE}
-          minRows={3}
-          autosize
-        />
-        <Group justify="flex-end" gap="sm">
+      description={t('send.intro')}
+      footer={
+        <>
           <Button variant="default" onClick={onClose} disabled={loading}>
             {t('send.cancel')}
           </Button>
@@ -97,8 +71,31 @@ export function SendQuoteDialog({
           >
             {submitLabel}
           </Button>
-        </Group>
-      </Stack>
-    </Modal>
+        </>
+      }
+    >
+      <TagsInput
+        label={t('send.emailsLabel')}
+        placeholder={t('send.emailsPlaceholder')}
+        description={
+          resend ? t('send.resendHint') : t('send.emailsHint', { max: QUOTE_MAX_EMAILS })
+        }
+        inputWrapperOrder={['label', 'input', 'description', 'error']}
+        value={emails}
+        onChange={setEmails}
+        error={error}
+        data-autofocus
+      />
+      <Textarea
+        label={t('send.messageLabel')}
+        description={t('send.messageHint', { max: QUOTE_MAX_MESSAGE })}
+        inputWrapperOrder={['label', 'input', 'description', 'error']}
+        value={message}
+        onChange={(event) => setMessage(event.currentTarget.value)}
+        maxLength={QUOTE_MAX_MESSAGE}
+        minRows={3}
+        autosize
+      />
+    </ModalFrame>
   );
 }

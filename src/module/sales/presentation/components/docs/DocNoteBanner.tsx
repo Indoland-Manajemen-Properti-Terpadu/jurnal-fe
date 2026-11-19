@@ -10,10 +10,14 @@ const TONES: Record<NoteTone, { bg: string; fg: string; icon: typeof IconInfoCir
 };
 
 /** The one sentence that says where a document stands; green only for a good outcome. */
-export function DocNoteBanner({ tone, text }: Readonly<{ tone: NoteTone; text: string }>) {
+export function DocNoteBanner({
+  tone,
+  text,
+  radius = 'md',
+}: Readonly<{ tone: NoteTone; text: string; radius?: 'md' | 'lg' }>) {
   const { bg, fg, icon: ToneIcon } = TONES[tone];
   return (
-    <Paper radius="md" px="md" py="sm" bg={bg}>
+    <Paper radius={radius} px="md" py="sm" bg={bg}>
       <Group gap="sm" wrap="nowrap">
         <ThemeIcon
           size={22}

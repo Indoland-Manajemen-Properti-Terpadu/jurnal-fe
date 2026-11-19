@@ -96,18 +96,19 @@ export const salesOrders = {
     cancel: 'Cancel',
   },
   form: {
-    titleNew: 'Create Order',
+    titleNew: 'Create Sales Order',
     titleEdit: 'Edit Order',
-    descriptionNew: 'Fill in the customer, the target date and what is ordered.',
+    descriptionNew:
+      'Fill in three steps: general information, products and services, then discount and extras.',
     descriptionEdit: 'Change this order before it is invoiced.',
     loading: 'Loading the order…',
     steps: {
       general: 'General Information',
-      generalDesc: 'Who the customer is and when the work should be done.',
-      lines: 'Goods & Services',
-      linesDesc: 'What is ordered, how many and at what price.',
-      extras: 'Discount & Notes',
-      extrasDesc: 'Price reduction, terms and a message for the customer.',
+      generalDesc: 'Customer, date, terms',
+      lines: 'Products & Services',
+      linesDesc: 'What is ordered',
+      extras: 'Discount & Extras',
+      extrasDesc: 'Discount, deductions, notes',
     },
     general: {
       customer: 'Customer',
@@ -138,7 +139,12 @@ export const salesOrders = {
       memo: 'Internal note',
       memoPlaceholder: 'For your team only, not printed',
     },
+    summary: {
+      estimate: 'An estimate. The final figure is worked out when the order is saved.',
+      total: 'Order total',
+    },
     actions: {
+      saveDraft: 'Save as Draft',
       cancel: 'Cancel',
       back: 'Back',
       next: 'Next',

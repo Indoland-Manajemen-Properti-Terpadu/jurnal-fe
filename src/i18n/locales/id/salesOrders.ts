@@ -97,18 +97,19 @@ export const salesOrders = {
     cancel: 'Batal',
   },
   form: {
-    titleNew: 'Buat Pesanan',
+    titleNew: 'Buat Pesanan Penjualan',
     titleEdit: 'Ubah Pesanan',
-    descriptionNew: 'Isi pelanggan, target selesai, dan barang atau jasa yang dipesan.',
+    descriptionNew:
+      'Isi dalam tiga langkah: informasi umum, rincian produk dan jasa, lalu diskon dan tambahan.',
     descriptionEdit: 'Ubah pesanan ini sebelum difakturkan.',
     loading: 'Memuat pesanan…',
     steps: {
       general: 'Informasi Umum',
-      generalDesc: 'Siapa pelanggannya dan kapan pekerjaan harus selesai.',
-      lines: 'Barang & Jasa',
-      linesDesc: 'Apa yang dipesan, jumlah, dan harganya.',
-      extras: 'Diskon & Catatan',
-      extrasDesc: 'Potongan harga, syarat, dan pesan untuk pelanggan.',
+      generalDesc: 'Pelanggan, tanggal, termin',
+      lines: 'Rincian Produk & Jasa',
+      linesDesc: 'Yang dipesan',
+      extras: 'Diskon & Tambahan',
+      extrasDesc: 'Diskon, potongan, catatan',
     },
     general: {
       customer: 'Pelanggan',
@@ -139,7 +140,12 @@ export const salesOrders = {
       memo: 'Catatan internal',
       memoPlaceholder: 'Hanya untuk tim Anda, tidak ikut tercetak',
     },
+    summary: {
+      estimate: 'Perkiraan. Angka akhir dihitung saat pesanan disimpan.',
+      total: 'Total pesanan',
+    },
     actions: {
+      saveDraft: 'Simpan sebagai Draf',
       cancel: 'Batal',
       back: 'Kembali',
       next: 'Lanjut',

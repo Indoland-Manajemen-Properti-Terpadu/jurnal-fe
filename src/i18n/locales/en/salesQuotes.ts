@@ -120,16 +120,17 @@ export const salesQuotes = {
   form: {
     titleNew: 'Create Quote',
     titleEdit: 'Edit Quote',
-    descriptionNew: 'Fill in the customer, how long it is valid, and what you are offering.',
+    descriptionNew:
+      'Fill in three steps: general information, products and services, then discount and extras.',
     descriptionEdit: 'Change this draft quote before it goes to the customer.',
     loading: 'Loading the quote…',
     steps: {
       general: 'General Information',
-      generalDesc: 'Who the customer is and how long the price holds.',
-      lines: 'Goods & Services',
-      linesDesc: 'What is offered, how many and at what price.',
-      extras: 'Discount & Notes',
-      extrasDesc: 'Price reduction, terms and a message for the customer.',
+      generalDesc: 'Customer, date, terms',
+      lines: 'Products & Services',
+      linesDesc: 'What is offered',
+      extras: 'Discount & Extras',
+      extrasDesc: 'Discount, terms, notes',
     },
     general: {
       customer: 'Customer',
@@ -158,7 +159,12 @@ export const salesQuotes = {
       memo: 'Internal note',
       memoPlaceholder: 'For your team only, not printed',
     },
+    summary: {
+      estimate: 'An estimate. The final figure is worked out when the quote is saved.',
+      total: 'Quote total',
+    },
     actions: {
+      saveDraft: 'Save as Draft',
       cancel: 'Cancel',
       back: 'Back',
       next: 'Next',

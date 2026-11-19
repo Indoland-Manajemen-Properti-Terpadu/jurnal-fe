@@ -122,16 +122,17 @@ export const salesQuotes = {
   form: {
     titleNew: 'Buat Penawaran',
     titleEdit: 'Ubah Penawaran',
-    descriptionNew: 'Isi pelanggan, masa berlaku, dan barang atau jasa yang ditawarkan.',
+    descriptionNew:
+      'Isi dalam tiga langkah: informasi umum, rincian produk dan jasa, lalu diskon dan tambahan.',
     descriptionEdit: 'Ubah draf penawaran ini sebelum dikirim ke pelanggan.',
     loading: 'Memuat penawaran…',
     steps: {
       general: 'Informasi Umum',
-      generalDesc: 'Siapa pelanggannya dan sampai kapan harga berlaku.',
-      lines: 'Barang & Jasa',
-      linesDesc: 'Apa yang ditawarkan, jumlah, dan harganya.',
-      extras: 'Diskon & Catatan',
-      extrasDesc: 'Potongan harga, syarat, dan pesan untuk pelanggan.',
+      generalDesc: 'Pelanggan, tanggal, termin',
+      lines: 'Rincian Produk & Jasa',
+      linesDesc: 'Yang ditawarkan',
+      extras: 'Diskon & Tambahan',
+      extrasDesc: 'Diskon, syarat, catatan',
     },
     general: {
       customer: 'Pelanggan',
@@ -160,7 +161,12 @@ export const salesQuotes = {
       memo: 'Catatan internal',
       memoPlaceholder: 'Hanya untuk tim Anda, tidak ikut tercetak',
     },
+    summary: {
+      estimate: 'Perkiraan. Angka akhir dihitung saat penawaran disimpan.',
+      total: 'Total penawaran',
+    },
     actions: {
+      saveDraft: 'Simpan sebagai Draf',
       cancel: 'Batal',
       back: 'Kembali',
       next: 'Lanjut',
