@@ -15,10 +15,14 @@ export interface SaleOrder extends SaleDocHeader {
   targetDate: string | null;
   deliveryAddress: string;
   status: OrderStatus;
-  /** Id of the quote this order was made from. */
+  /** Id of the quote this order was made from, and its number. */
   quote: string | null;
-  /** Id of the invoice made from this order. */
+  quoteNumber: string | null;
+  /** Id of the invoice made from this order, and its number. */
   sale: string | null;
+  saleNumber: string | null;
+  /** Addresses the order was emailed to; empty until it was. */
+  emails: string[];
   sentAt: string | null;
   confirmedAt: string | null;
 }
@@ -43,6 +47,9 @@ export interface OrderActionSet {
   duplicate: boolean;
   createInvoice: boolean;
   viewInvoice: boolean;
+  /** Email it again: only once it was sent to the customer. */
+  resend: boolean;
+  pdf: boolean;
 }
 
 /**
@@ -60,6 +67,8 @@ export const orderActions = (order: Pick<SaleOrder, 'status' | 'sale'>): OrderAc
     duplicate: true,
     createInvoice: status === 'CONFIRMED',
     viewInvoice: status === 'COMPLETED' && Boolean(order.sale),
+    resend: status === 'WAITING_CONFIRMATION' || status === 'CONFIRMED' || status === 'COMPLETED',
+    pdf: true,
   };
 };
 
@@ -84,4 +93,6 @@ export const allowedOrderActions = (
   duplicate: actions.duplicate && rights.create,
   createInvoice: actions.createInvoice && rights.createInvoice,
   viewInvoice: actions.viewInvoice && rights.readInvoice,
+  resend: actions.resend && rights.update,
+  pdf: actions.pdf,
 });

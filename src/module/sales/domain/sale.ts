@@ -11,6 +11,9 @@ export type SaleStatus =
 
 export type SaleDisplayCode = 'DRAFT' | 'UNPAID' | 'PAID' | 'OVERDUE' | 'VOID';
 
+/** Filters only: the badge of an invoice stays one of `SaleDisplayCode`. */
+export type SaleExtraFilter = 'PARTIAL_PAID' | 'RETURNED';
+
 /** What the badge shows: the backend's own label for the payment state. */
 export type SaleDisplayStatus = { code: SaleDisplayCode; label: string };
 
@@ -147,6 +150,13 @@ export type Sale = {
   canDelete: boolean;
   /** True for an invoice that ProApps created through its own API. */
   createdByApi: boolean;
+  /** Server flags: the invoice has a payment that does not cover it yet / an issued return. */
+  isPartiallyPaid: boolean;
+  hasReturn: boolean;
+  /** The server's own void decision; `null` when it did not send one. */
+  canVoid: boolean | null;
+  /** Why the invoice cannot be voided, worded by the server in Indonesian. */
+  voidBlockedReason: string | null;
   invoiceLink?: string | null;
   journalId?: string | null;
   transactionId?: string | null;
@@ -161,7 +171,7 @@ export type SaleListParams = {
   search?: string;
   status?: string;
   /** One or several payment states; several are sent as a comma list. */
-  paymentStatus?: SaleDisplayCode | SaleDisplayCode[];
+  paymentStatus?: SaleDisplayCode | SaleExtraFilter | (SaleDisplayCode | SaleExtraFilter)[];
   excludeDraft?: boolean;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
@@ -179,7 +189,7 @@ export type ReceivablesSummary = {
   received: number;
 };
 
-export type SaleStatusCounts = Record<SaleDisplayCode | 'sent' | 'all', number>;
+export type SaleStatusCounts = Record<SaleDisplayCode | SaleExtraFilter | 'sent' | 'all', number>;
 
 export type SendSaleResult = { sale: Sale; emailSent: boolean; emailError: string };
 

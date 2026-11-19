@@ -11,6 +11,8 @@ export const salesCommon = {
     overdue: 'Jatuh Tempo',
     void: 'Void',
     partial: 'Sebagian',
+    partialPaid: 'Dibayar Sebagian',
+    returned: 'Diretur',
     sent: 'Terkirim',
   },
   reason: {

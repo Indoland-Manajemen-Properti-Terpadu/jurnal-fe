@@ -5,6 +5,7 @@ import {
   IconCheck,
   IconCoin,
   IconDotsVertical,
+  IconDownload,
   IconEye,
   IconPencil,
   IconReceipt2,
@@ -38,6 +39,9 @@ export const ReturnRowActions = ({
       <Menu.Dropdown>
         <Menu.Item leftSection={<IconEye size={16} />} onClick={() => handlers.onView(ret)}>
           {t('actions.view')}
+        </Menu.Item>
+        <Menu.Item leftSection={<IconDownload size={16} />} onClick={() => handlers.onPdf(ret)}>
+          {t('actions.pdf')}
         </Menu.Item>
         {actions.issue && (
           <Menu.Item leftSection={<IconCheck size={16} />} onClick={() => handlers.onIssue(ret)}>

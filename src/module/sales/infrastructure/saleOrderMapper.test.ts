@@ -46,6 +46,20 @@ describe('mapOrderDto', () => {
     expect(mapOrderDto({ status: 'COMPLETED', sale: { id: 's-1' } }).sale).toBe('s-1');
   });
 
+  it('reads the number of a linked quote and invoice when the API sends it', () => {
+    const order = mapOrderDto({
+      quote: { id: 'q-1', transactionNumber: 'PNW/2026/11/0001' },
+      sale: { id: 's-1', transactionNumber: 'INV-1' },
+    });
+    expect(order).toMatchObject({
+      quote: 'q-1',
+      quoteNumber: 'PNW/2026/11/0001',
+      sale: 's-1',
+      saleNumber: 'INV-1',
+    });
+    expect(mapOrderDto({ quote: 'q-2' })).toMatchObject({ quote: 'q-2', quoteNumber: null });
+  });
+
   it('keeps an order without a target date', () => {
     expect(mapOrderDto({ targetDate: null }).targetDate).toBeNull();
   });

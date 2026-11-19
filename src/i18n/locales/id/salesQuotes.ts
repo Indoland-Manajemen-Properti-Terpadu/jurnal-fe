@@ -104,6 +104,7 @@ export const salesQuotes = {
   send: {
     title: 'Kirim penawaran {number}',
     resendTitle: 'Kirim ulang penawaran {number}',
+    resendIntro: 'Kirim ulang email penawaran ini ke pelanggan. Status penawaran tidak berubah.',
     intro: 'Kirim penawaran ini ke pelanggan lewat email, atau tandai terkirim tanpa email.',
     emailsLabel: 'Kirim ke',
     emailsPlaceholder: 'Ketik alamat email lalu tekan Enter',
@@ -193,6 +194,7 @@ export const salesQuotes = {
     discountPercent: 'Diskon persen tidak boleh lebih dari 100.',
   },
   detail: {
+    linkedOrder: 'Pesanan',
     total: 'Total penawaran',
     valueLabel: 'Nilai penawaran',
     linesCount: '{count} baris ditawarkan',

@@ -14,7 +14,7 @@ import {
 import { IconCheck, IconCopy } from '@tabler/icons-react';
 import type { Sale } from '@/module/sales/domain/sale';
 import type { SaleDisplay } from '../../hooks/useSaleDisplay';
-import { SaleStatusBadge } from '../shared/SaleStatusBadge';
+import { SaleStatusBadges } from '../shared/SaleStatusBadge';
 import { DetailField } from './DetailField';
 import { PaymentProgress } from './PaymentProgress';
 import { SaleTimeline } from './SaleTimeline';
@@ -64,7 +64,7 @@ export function SaleOverviewCard({ sale, display, actions }: Readonly<SaleOvervi
                 </Tooltip>
               )}
             </CopyButton>
-            <SaleStatusBadge status={sale.displayStatus} />
+            <SaleStatusBadges sale={sale} align="flex-start" />
           </Group>
           <Text size="sm" c="dimmed" mt="sm">
             {sale.customer?.displayName || t('unknownCustomer')}

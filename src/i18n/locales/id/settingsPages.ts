@@ -230,7 +230,7 @@ export const settingsPages = {
     switchStatus: 'Ubah status {{name}}',
     edit: 'Ubah termin {{name}}',
     delete: 'Hapus termin {{name}}',
-    deleteBlocked: 'Termin sudah dipakai di Pembelian, nonaktifkan saja',
+    deleteBlocked: 'Termin sudah dipakai dokumen, nonaktifkan saja',
     emptyTitle: 'Belum ada termin pembayaran',
     emptyDescription:
       'Buat termin pembayaran supaya bisa dipilih saat membuat penawaran, pesanan, dan faktur.',

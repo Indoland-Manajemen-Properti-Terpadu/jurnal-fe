@@ -5,7 +5,7 @@ import type { Sale } from '../../domain/sale';
 import { formatDate, formatIDR } from '../../domain/saleFormat';
 import type { SaleTab } from '../../domain/saleStatus';
 import { SaleRowActions, type SaleRowHandlers } from './list/SaleRowActions';
-import { SaleStatusBadge } from './shared/SaleStatusBadge';
+import { SaleStatusBadges } from './shared/SaleStatusBadge';
 
 type SaleTableRowProps = {
   sale: Sale;
@@ -107,7 +107,7 @@ export function SaleTableRow({ sale, tab, handlers }: Readonly<SaleTableRowProps
       )}
 
       <Table.Td ta="center">
-        <SaleStatusBadge status={sale.displayStatus} />
+        <SaleStatusBadges sale={sale} />
       </Table.Td>
 
       <Table.Td ta="center" onClick={(event) => event.stopPropagation()}>

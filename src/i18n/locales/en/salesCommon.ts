@@ -11,6 +11,8 @@ export const salesCommon = {
     overdue: 'Overdue',
     void: 'Void',
     partial: 'Partial',
+    partialPaid: 'Partially paid',
+    returned: 'Returned',
     sent: 'Sent',
   },
   reason: {

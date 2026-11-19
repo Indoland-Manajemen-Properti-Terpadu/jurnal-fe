@@ -74,3 +74,7 @@ export interface SaleDocListParams<Tab extends string, Status extends string = s
   page?: number;
   limit?: number;
 }
+
+/** What the API accepts when a quote or an order is emailed. */
+export const DOC_MAX_EMAILS = 10;
+export const DOC_MAX_MESSAGE = 2000;
