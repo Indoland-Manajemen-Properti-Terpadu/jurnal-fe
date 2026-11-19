@@ -110,6 +110,10 @@ export type SaleDto = IdRefDto & {
   canEdit?: boolean;
   canDelete?: boolean;
   createdByApi?: boolean;
+  isPartiallyPaid?: boolean;
+  hasReturn?: boolean;
+  canVoid?: boolean;
+  voidBlockedReason?: string | null;
   invoiceLink?: string | null;
   journalId?: string;
   journal_id?: string;
@@ -178,5 +182,8 @@ export type ReceivablesSummaryDto = {
 };
 
 export type SaleStatusCountsDto = Partial<
-  Record<'DRAFT' | 'UNPAID' | 'PAID' | 'OVERDUE' | 'VOID' | 'sent' | 'all', unknown>
+  Record<
+    'DRAFT' | 'UNPAID' | 'PAID' | 'OVERDUE' | 'VOID' | 'PARTIAL_PAID' | 'RETURNED' | 'sent' | 'all',
+    unknown
+  >
 >;

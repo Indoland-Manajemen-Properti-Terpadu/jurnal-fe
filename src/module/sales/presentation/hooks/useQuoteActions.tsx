@@ -3,11 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
 import { routes } from '@/router/routes';
 import type { SaleQuote } from '@/module/sales/domain/saleQuote';
-import { quoteFilename } from '@/module/sales/domain/saleQuoteFormat';
+import { quoteFilename } from '@/module/sales/domain/saleDocFormat';
 import { ConfirmModal } from '../components/shared/ConfirmModal';
 import { ReasonModal } from '../components/shared/ReasonModal';
 import { CreateOrderDialog } from '../components/orders/CreateOrderDialog';
-import { SendQuoteDialog } from '../components/quotes/SendQuoteDialog';
+import { SendDocDialog } from '../components/docs/SendDocDialog';
 import { orderDetailPath } from './useOrderActions';
 import { useCreateOrderFromQuote } from './useOrderMutations';
 import {
@@ -175,10 +175,11 @@ export function useQuoteActions(options: { onDeleted?: () => void } = {}): {
         />
       )}
       {(pending?.kind === 'send' || pending?.kind === 'resend') && (
-        <SendQuoteDialog
+        <SendDocDialog
+          ns="salesQuotes"
           key={`${pending.kind}-${pending.quote.id}`}
           opened
-          quote={pending.quote}
+          doc={pending.quote}
           resend={pending.kind === 'resend'}
           loading={sendMutation.isPending || resendMutation.isPending}
           onClose={close}

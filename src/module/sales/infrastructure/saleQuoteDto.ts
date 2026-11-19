@@ -4,7 +4,7 @@ export type SaleQuoteDto = SaleDocHeaderDto & {
   validUntil?: string | null;
   status?: string;
   displayStatus?: string | null;
-  order?: string | { id?: string; _id?: string } | null;
+  order?: string | { id?: string; _id?: string; transactionNumber?: string } | null;
   emails?: string[];
   sentAt?: string | null;
   acceptedAt?: string | null;

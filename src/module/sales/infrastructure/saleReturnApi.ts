@@ -19,6 +19,7 @@ export const RETURN_ENDPOINTS = {
   returns: '/v1/sale-returns',
   detail: (id: string) => `/v1/sale-returns/${id}`,
   post: (id: string) => `/v1/sale-returns/${id}/post`,
+  print: (id: string) => `/v1/sale-returns/${id}/print`,
   void: (id: string) => `/v1/sale-returns/${id}/void`,
   apply: (id: string) => `/v1/sale-returns/${id}/apply`,
   voidApplication: (id: string, applicationId: string) =>
@@ -93,3 +94,8 @@ export const voidReturnApplication = (id: string, applicationId: string) =>
 export const refundReturn = (id: string, input: RefundInput) =>
   transition(RETURN_ENDPOINTS.refund(id), buildRefundBody(input));
 export const voidReturnRefund = (id: string) => transition(RETURN_ENDPOINTS.voidRefund(id));
+
+export const downloadReturnPdf = async (id: string): Promise<Blob> => {
+  const { data } = await apiClient.get<Blob>(RETURN_ENDPOINTS.print(id), { responseType: 'blob' });
+  return data;
+};

@@ -1,17 +1,30 @@
 import { ActionIcon, Button, Group, Select, TextInput } from '@mantine/core';
 import { IconFilterOff, IconSearch, IconX } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
-import type { SaleDisplayCode } from '@/module/sales/domain/sale';
 import type { DateRange } from '@/module/sales/domain/saleListState';
-import { SENT_STATUS_FILTERS, type SaleTab } from '@/module/sales/domain/saleStatus';
+import {
+  SENT_STATUS_FILTERS,
+  type SaleStatusFilter,
+  type SaleTab,
+} from '@/module/sales/domain/saleStatus';
 import { DateRangeFilter } from '../shared/DateRangeFilter';
+
+const STATUS_LABEL_KEY: Record<SaleStatusFilter, string> = {
+  DRAFT: 'status.draft',
+  UNPAID: 'status.unpaid',
+  OVERDUE: 'status.overdue',
+  PAID: 'status.paid',
+  VOID: 'status.void',
+  PARTIAL_PAID: 'status.partialPaid',
+  RETURNED: 'status.returned',
+};
 
 interface SaleFiltersProps {
   tab: SaleTab;
   searchInput: string;
   onSearchInput: (value: string) => void;
-  status: SaleDisplayCode | 'all';
-  onStatus: (value: SaleDisplayCode | 'all') => void;
+  status: SaleStatusFilter | 'all';
+  onStatus: (value: SaleStatusFilter | 'all') => void;
   range: DateRange;
   onRange: (value: DateRange) => void;
   isFiltered: boolean;
@@ -34,7 +47,7 @@ export const SaleFilters = ({
     { value: 'all', label: t('filter.statusAll') },
     ...SENT_STATUS_FILTERS.map((code) => ({
       value: code,
-      label: t(`status.${code.toLowerCase()}`),
+      label: t(STATUS_LABEL_KEY[code]),
     })),
   ];
 
@@ -66,7 +79,7 @@ export const SaleFilters = ({
           aria-label={t('filter.status')}
           data={statusOptions}
           value={status}
-          onChange={(value) => onStatus((value as SaleDisplayCode | 'all') || 'all')}
+          onChange={(value) => onStatus((value as SaleStatusFilter | 'all') || 'all')}
           allowDeselect={false}
           w={{ base: '100%', sm: 180 }}
         />

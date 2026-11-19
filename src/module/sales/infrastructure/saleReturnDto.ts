@@ -21,6 +21,16 @@ export type ReturnApplicationDto = IdRef & {
   voided?: boolean;
 };
 
+export type ReturnActivityDto = {
+  type?: string;
+  label?: string;
+  at?: string | null;
+  by?: { id?: string; name?: string } | null;
+  amount?: unknown;
+  saleNumber?: string;
+  voided?: boolean;
+};
+
 export type SaleReturnDto = IdRef & {
   transactionNumber?: string;
   transactionDate?: string | null;
@@ -44,6 +54,7 @@ export type SaleReturnDto = IdRef & {
   status?: string;
   displayStatus?: string | null;
   applications?: ReturnApplicationDto[];
+  activities?: ReturnActivityDto[];
   postedAt?: string | null;
   createdAt?: string | null;
   updatedAt?: string | null;

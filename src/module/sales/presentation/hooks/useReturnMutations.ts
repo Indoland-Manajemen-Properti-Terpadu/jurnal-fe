@@ -5,6 +5,7 @@ import {
   applyReturnCredit,
   createReturn,
   deleteReturn,
+  downloadReturnPdf,
   postReturn,
   refundReturn,
   updateReturn,
@@ -13,6 +14,7 @@ import {
   voidReturnRefund,
 } from '../../infrastructure/saleReturnApi';
 import type { ApplyCreditInput, RefundInput } from '../../infrastructure/saleReturnPayloads';
+import { downloadBlob } from './downloadBlob';
 import { useDocNotifier } from './useDocNotifier';
 import { returnKeys } from './useReturnQueries';
 import { saleKeys } from './useSaleQueries';
@@ -127,5 +129,14 @@ export const useDeleteReturn = () => {
     },
     onError: notify.failure,
     onSettled: refresh,
+  });
+};
+
+export const useDownloadReturnPdf = () => {
+  const notify = useDocNotifier('salesReturns');
+  return useMutation({
+    mutationFn: async ({ id, filename }: { id: string; filename: string }) =>
+      downloadBlob(await downloadReturnPdf(id), filename),
+    onError: notify.failure,
   });
 };

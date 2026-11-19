@@ -68,6 +68,7 @@ describe('saleActions', () => {
       link: false,
       void: 'hidden',
       voidBlockedBy: null,
+      voidBlockedReason: '',
     });
   });
 
@@ -168,5 +169,20 @@ describe('saleActions with an issued return', () => {
       void: 'enabled',
       voidBlockedBy: null,
     });
+  });
+
+  it("follows the server's own void decision and passes its reason on", () => {
+    const blocked = saleActions({
+      ...open,
+      items: [item(0)],
+      canVoid: false,
+      voidBlockedReason: 'Faktur sudah punya pembayaran.',
+    });
+    expect(blocked).toMatchObject({
+      void: 'disabled',
+      voidBlockedBy: 'server',
+      voidBlockedReason: 'Faktur sudah punya pembayaran.',
+    });
+    expect(saleActions({ ...open, items: [item(0)], canVoid: true }).void).toBe('enabled');
   });
 });

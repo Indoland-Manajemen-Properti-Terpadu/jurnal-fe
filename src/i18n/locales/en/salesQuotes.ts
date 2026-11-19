@@ -102,6 +102,7 @@ export const salesQuotes = {
   send: {
     title: 'Send quote {number}',
     resendTitle: 'Resend quote {number}',
+    resendIntro: 'Email this quote to the customer again. Its status does not change.',
     intro: 'Email this quote to the customer, or mark it as sent without an email.',
     emailsLabel: 'Send to',
     emailsPlaceholder: 'Type an email address and press Enter',
@@ -191,6 +192,7 @@ export const salesQuotes = {
     discountPercent: 'A percentage discount cannot be more than 100.',
   },
   detail: {
+    linkedOrder: 'Order',
     total: 'Quote total',
     valueLabel: 'Quote value',
     linesCount: '{count} lines offered',

@@ -1,11 +1,19 @@
 import type { SaleDocHeaderDto } from './saleDocDto';
 
+/** A linked document: a bare id, or `{ id, transactionNumber }` on the newer API. */
+type DocRefDto = string | { id?: string; _id?: string; transactionNumber?: string } | null;
+
 export type SaleOrderDto = SaleDocHeaderDto & {
   targetDate?: string | null;
   deliveryAddress?: string | null;
   status?: string;
-  quote?: string | { id?: string; _id?: string } | null;
-  sale?: string | { id?: string; _id?: string } | null;
+  quote?: DocRefDto;
+  sale?: DocRefDto;
+  emails?: string[];
+  /** Present on the answer to a send or a resend. */
+  emailSent?: boolean;
+  emailRecipients?: string[];
+  emailError?: string | null;
   sentAt?: string | null;
   confirmedAt?: string | null;
 };

@@ -62,8 +62,8 @@ export const salesPay = {
     summary: {
       thisMonth: 'Received this month',
       total: 'Total received',
-      withholding: 'Withholding tax deducted',
-      withholdingHint: 'Withholding tax that needs a withholding slip',
+      withholding: 'Total withholding tax',
+      withholdingHint: 'All time, from invoices that have a payment',
       count: '{count} payments',
     },
     title: 'Payments Received',

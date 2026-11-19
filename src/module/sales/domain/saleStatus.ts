@@ -1,4 +1,4 @@
-import type { SaleDisplayCode, SaleListParams } from './sale';
+import type { SaleDisplayCode, SaleExtraFilter, SaleListParams } from './sale';
 
 export const SALE_TABS = ['draft', 'issued', 'void'] as const;
 export type SaleTab = (typeof SALE_TABS)[number];
@@ -7,12 +7,21 @@ export type SaleTab = (typeof SALE_TABS)[number];
 export const SENT_STATUSES: SaleDisplayCode[] = ['UNPAID', 'PAID', 'OVERDUE'];
 
 /** Status choices inside the Terbit tab; the draft and cancelled tabs have none. */
-export const SENT_STATUS_FILTERS: SaleDisplayCode[] = ['UNPAID', 'OVERDUE', 'PAID'];
+export const SENT_STATUS_FILTERS: SaleStatusFilter[] = [
+  'UNPAID',
+  'OVERDUE',
+  'PAID',
+  'PARTIAL_PAID',
+  'RETURNED',
+];
+
+/** One choice of the status filter. The last two only narrow the list; they are not badges. */
+export type SaleStatusFilter = SaleDisplayCode | SaleExtraFilter;
 
 /** List query for a tab and an optional status filter ("all" = no extra filter). */
 export const tabParams = (
   tab: SaleTab,
-  status: SaleDisplayCode | 'all'
+  status: SaleStatusFilter | 'all'
 ): Pick<SaleListParams, 'paymentStatus'> => {
   if (tab === 'draft') return { paymentStatus: 'DRAFT' };
   if (tab === 'void') return { paymentStatus: 'VOID' };
