@@ -71,6 +71,10 @@ const mapUnit = (unit: SaleItemDto['unit']): string | null => {
   return unit?.name || null;
 };
 
+/** A reference the API may send as a bare id or as an object with an id. */
+const mapRefId = (ref: string | { id?: string; _id?: string } | null | undefined): string | null =>
+  typeof ref === 'string' ? ref || null : ref?.id || ref?._id || null;
+
 const mapItem = (i: SaleItemDto): SaleItem => {
   const journalTransactionId =
     typeof i.journalTransaction === 'string' ? i.journalTransaction : i.journalTransaction?.id;
@@ -102,6 +106,7 @@ const mapItem = (i: SaleItemDto): SaleItem => {
     outstandingAmount: toOptionalMoney(i.outstandingAmount),
     discountAmount: toMoney(i.discountAmount),
     withholdingAmount: toMoney(i.withholdingAmount),
+    returnedQty: toNumber(i.returnedQty),
     journalTransaction:
       typeof i.journalTransaction === 'string'
         ? i.journalTransaction
@@ -240,6 +245,8 @@ export const mapSaleDto = (dto: SaleDto | null | undefined): Sale => {
         }
       : null,
     finalAmount: toMoney(dto.finalAmount ?? dto.total),
+    returnedAmount: toMoney(dto.returnedAmount),
+    saleOrder: mapRefId(dto.saleOrder),
     paidAmount: toMoney(dto.paidAmount),
     // A void invoice owes nothing, whatever the server still reports as its remainder.
     remainingAmount: mapDisplayStatus(dto).code === 'VOID' ? 0 : toMoney(dto.remainingAmount),
