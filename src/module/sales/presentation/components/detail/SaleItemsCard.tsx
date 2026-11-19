@@ -115,7 +115,7 @@ export function SaleItemsCard({ sale, display }: Readonly<{ sale: Sale; display:
                             component="span"
                             size="sm"
                             fw={600}
-                            c={item.adjustedAmount > 0 ? 'teal.7' : 'red.7'}
+                            c={item.adjustedAmount > 0 ? 'green.7' : 'red.7'}
                           >
                             {formatSignedAmount(item.adjustedAmount, money)}
                           </Text>
@@ -159,7 +159,7 @@ export function SaleItemsCard({ sale, display }: Readonly<{ sale: Sale; display:
                       : ''}
                   </Text>
                   {item.adjustedAmount !== undefined && item.adjustedAmount !== 0 && (
-                    <Text size="xs" c={item.adjustedAmount > 0 ? 'teal.7' : 'red.7'} fw={600}>
+                    <Text size="xs" c={item.adjustedAmount > 0 ? 'green.7' : 'red.7'} fw={600}>
                       {t('adjustedAmount')}: {formatSignedAmount(item.adjustedAmount, money)}
                     </Text>
                   )}
@@ -192,7 +192,7 @@ export function SaleItemsCard({ sale, display }: Readonly<{ sale: Sale; display:
           <AmountRow
             label={t('adjustedAmountTotal')}
             amount={formatSignedAmount(sale.adjustedAmount, money)}
-            color={sale.adjustedAmount > 0 ? 'teal.7' : 'red.7'}
+            color={sale.adjustedAmount > 0 ? 'green.7' : 'red.7'}
           />
         )}
         {!!sale.lateFeeAmount && sale.lateFeeAmount > 0 && (

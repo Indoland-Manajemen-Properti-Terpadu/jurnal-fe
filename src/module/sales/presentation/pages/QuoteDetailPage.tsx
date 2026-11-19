@@ -140,7 +140,6 @@ export function QuoteDetailPage() {
             }
           : null;
   const more = [
-    actions.reject && { key: 'reject', icon: <IconThumbDown size={16} />, run: handlers.onReject },
     actions.revise && {
       key: 'revise',
       icon: <IconArrowBackUp size={16} />,
@@ -196,11 +195,6 @@ export function QuoteDetailPage() {
             note={{ tone: noteTone(quote), text: note }}
             actions={
               <Group gap="xs">
-                {primary && (
-                  <Button color="primary" leftSection={primary.icon} onClick={primary.run}>
-                    {primary.label}
-                  </Button>
-                )}
                 {actions.edit && (
                   <Button
                     variant="default"
@@ -217,6 +211,20 @@ export function QuoteDetailPage() {
                 >
                   {t('actions.pdf')}
                 </Button>
+                {actions.reject && (
+                  <Button
+                    variant="default"
+                    leftSection={<IconThumbDown size={16} />}
+                    onClick={() => handlers.onReject(quote)}
+                  >
+                    {t('actions.reject')}
+                  </Button>
+                )}
+                {primary && (
+                  <Button color="primary" leftSection={primary.icon} onClick={primary.run}>
+                    {primary.label}
+                  </Button>
+                )}
                 {(more.length > 0 || actions.cancel || actions.remove) && (
                   <Menu position="bottom-end" shadow="md" width={220}>
                     <Menu.Target>

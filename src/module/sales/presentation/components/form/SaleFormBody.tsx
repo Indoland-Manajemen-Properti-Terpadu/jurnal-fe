@@ -178,7 +178,7 @@ export function SaleFormBody({ saleId, initial }: Readonly<SaleFormBodyProps>) {
           />
         }
       >
-        {step === 'general' && <StepGeneral api={api} />}
+        {step === 'general' && <StepGeneral api={api} canLinkOrder={!saleId} />}
         {step === 'lines' && <StepLines api={api} />}
         {step === 'extras' && <StepExtras api={api} />}
       </WizardCard>

@@ -63,6 +63,7 @@ export const salesPay = {
       thisMonth: 'Received this month',
       total: 'Total received',
       withholding: 'Withholding tax deducted',
+      withholdingHint: 'Withholding tax that needs a withholding slip',
       count: '{count} payments',
     },
     title: 'Payments Received',
@@ -92,6 +93,8 @@ export const salesPay = {
     filteredEmptyTitle: 'No payments match',
     filteredEmptyDescription: 'Change or reset the filters to see other payments.',
     errorTitle: 'The payment list could not be loaded',
+    receivedOnPage: '{amount} received',
+    recordHint: 'Record a new payment from a sales invoice.',
     showing: 'Showing {shown} of {total} payments',
   },
 };

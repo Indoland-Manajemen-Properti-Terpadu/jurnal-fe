@@ -9,10 +9,11 @@ export const quoteKeys = {
   detail: (id: string) => [...quoteKeys.all, 'detail', id] as const,
 };
 
-export const useQuotes = (params: QuoteListParams = {}) =>
+export const useQuotes = (params: QuoteListParams = {}, options: { enabled?: boolean } = {}) =>
   useQuery({
     queryKey: quoteKeys.list(params),
     queryFn: () => fetchQuotes(params),
+    enabled: options.enabled ?? true,
     staleTime: 30_000,
   });
 

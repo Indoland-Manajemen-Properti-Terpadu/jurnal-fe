@@ -3,9 +3,16 @@ import { IconCalendar } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import { CustomerPicker } from '../shared/CustomerPicker';
 import { SaleTagField } from '../shared/SaleTagField';
+import { OrderSourceSelect } from './OrderSourceSelect';
 import type { SaleFormApi } from '../../hooks/useSaleForm';
 
-export function StepGeneral({ api }: Readonly<{ api: SaleFormApi }>) {
+interface StepGeneralProps {
+  api: SaleFormApi;
+  /** An invoice can be started from an order only when it is created, never when a draft is edited. */
+  canLinkOrder?: boolean;
+}
+
+export function StepGeneral({ api, canLinkOrder = false }: Readonly<StepGeneralProps>) {
   const { t } = useTranslation('sales');
   const { form } = api;
 
@@ -71,6 +78,14 @@ export function StepGeneral({ api }: Readonly<{ api: SaleFormApi }>) {
           />
         </Grid.Col>
       </Grid>
+
+      {canLinkOrder && (
+        <OrderSourceSelect
+          customerId={form.values.customer}
+          value={form.values.saleOrder ?? ''}
+          onPick={api.pickOrder}
+        />
+      )}
 
       <Textarea
         label={t('form.general.billingAddress')}

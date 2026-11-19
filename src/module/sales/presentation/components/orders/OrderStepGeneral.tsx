@@ -3,8 +3,12 @@ import { IconCalendar } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import type { OrderFormApi } from '../../hooks/useOrderForm';
 import { CustomerPicker } from '../shared/CustomerPicker';
+import { QuoteSourceSelect } from './QuoteSourceSelect';
 
-export function OrderStepGeneral({ api }: Readonly<{ api: OrderFormApi }>) {
+export function OrderStepGeneral({
+  api,
+  canPickQuote = false,
+}: Readonly<{ api: OrderFormApi; canPickQuote?: boolean }>) {
   const { t } = useTranslation('salesOrders');
   const { form } = api;
 
@@ -68,6 +72,11 @@ export function OrderStepGeneral({ api }: Readonly<{ api: OrderFormApi }>) {
             {...form.getInputProps('customerRefNumber')}
           />
         </Grid.Col>
+        {canPickQuote && (
+          <Grid.Col span={12}>
+            <QuoteSourceSelect customerId={form.values.customer} />
+          </Grid.Col>
+        )}
         <Grid.Col span={12}>
           <TextInput
             label={t('form.general.unitTower')}

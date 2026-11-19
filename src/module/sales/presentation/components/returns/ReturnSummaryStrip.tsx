@@ -1,31 +1,8 @@
-import { Group, Paper, Skeleton, Stack, Text } from '@mantine/core';
+import { IconFilePencil, IconReceiptRefund, IconWallet } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
-import type { AmountCount } from '@/module/sales/domain/saleDocument';
-import { formatCount, formatIDR } from '@/module/sales/domain/saleFormat';
+import { formatCompactIDR, formatCount } from '@/module/sales/domain/saleFormat';
 import type { ReturnSummary } from '@/module/sales/domain/saleReturn';
-
-const Stat = ({
-  label,
-  figure,
-  loading,
-  countLabel,
-}: Readonly<{ label: string; figure?: AmountCount; loading?: boolean; countLabel: string }>) => (
-  <Stack gap={2} style={{ flex: '1 1 200px' }}>
-    <Text size="xs" fw={700} c="dimmed">
-      {label}
-    </Text>
-    {loading ? (
-      <Skeleton height={26} width={140} radius="sm" />
-    ) : (
-      <Text fw={700} fz={22} style={{ fontVariantNumeric: 'tabular-nums' }}>
-        {formatIDR(figure?.amount)}
-      </Text>
-    )}
-    <Text size="xs" c="dimmed">
-      {countLabel.replace('{count}', formatCount(figure?.count ?? 0))}
-    </Text>
-  </Stack>
-);
+import { StatCard, StatCardRow } from '../shared/StatCard';
 
 /** Returns issued this month, credit still owed to customers, and drafts waiting to be issued. */
 export function ReturnSummaryStrip({
@@ -33,30 +10,34 @@ export function ReturnSummaryStrip({
   isLoading,
 }: Readonly<{ summary?: ReturnSummary; isLoading?: boolean }>) {
   const { t } = useTranslation('salesReturns');
-  const countLabel = t('summary.count', { count: '{count}' });
+  const count = (n?: number) => t('summary.count', { count: formatCount(n ?? 0) });
 
   return (
-    <Paper withBorder radius="lg" p="lg" bg="white">
-      <Group gap="xl" align="flex-start" wrap="wrap">
-        <Stat
-          loading={isLoading}
-          label={t('summary.thisMonth')}
-          figure={summary?.thisMonth}
-          countLabel={countLabel}
-        />
-        <Stat
-          loading={isLoading}
-          label={t('summary.credit')}
-          figure={summary?.credit}
-          countLabel={countLabel}
-        />
-        <Stat
-          loading={isLoading}
-          label={t('summary.waiting')}
-          figure={summary?.waiting}
-          countLabel={countLabel}
-        />
-      </Group>
-    </Paper>
+    <StatCardRow>
+      <StatCard
+        loading={isLoading}
+        tone="primary"
+        icon={<IconReceiptRefund size={22} />}
+        label={t('summary.thisMonth')}
+        value={formatCompactIDR(summary?.thisMonth.amount)}
+        caption={count(summary?.thisMonth.count)}
+      />
+      <StatCard
+        loading={isLoading}
+        tone="green"
+        icon={<IconWallet size={22} />}
+        label={t('summary.credit')}
+        value={formatCompactIDR(summary?.credit.amount)}
+        caption={count(summary?.credit.count)}
+      />
+      <StatCard
+        loading={isLoading}
+        tone="gray"
+        icon={<IconFilePencil size={22} />}
+        label={t('summary.waiting')}
+        value={formatCompactIDR(summary?.waiting.amount)}
+        caption={count(summary?.waiting.count)}
+      />
+    </StatCardRow>
   );
 }

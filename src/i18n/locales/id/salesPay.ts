@@ -63,6 +63,7 @@ export const salesPay = {
       thisMonth: 'Diterima bulan ini',
       total: 'Total diterima',
       withholding: 'PPh dipotong',
+      withholdingHint: 'PPh yang perlu bukti potong',
       count: '{count} pembayaran',
     },
     title: 'Pembayaran Masuk',
@@ -92,6 +93,8 @@ export const salesPay = {
     filteredEmptyTitle: 'Tidak ada pembayaran yang cocok',
     filteredEmptyDescription: 'Ubah atau atur ulang filter untuk melihat pembayaran lainnya.',
     errorTitle: 'Daftar pembayaran belum dapat dimuat',
+    receivedOnPage: '{amount} masuk kas',
+    recordHint: 'Catat pembayaran baru lewat Faktur Penjualan.',
     showing: 'Menampilkan {shown} dari {total} pembayaran',
   },
 };

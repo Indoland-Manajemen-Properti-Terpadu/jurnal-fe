@@ -133,7 +133,7 @@ export function OrderFormBody({ orderId, initial }: Readonly<OrderFormBodyProps>
           />
         }
       >
-        {step === 'general' && <OrderStepGeneral api={api} />}
+        {step === 'general' && <OrderStepGeneral api={api} canPickQuote={!orderId} />}
         {step === 'lines' && (
           <DocStepLines
             items={form.values.items}

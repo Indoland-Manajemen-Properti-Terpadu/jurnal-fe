@@ -4,7 +4,7 @@ import { initialListState, listParams, saleListReducer } from './saleListState';
 describe('saleListReducer', () => {
   it('starts on the sent tab, first page, no filters', () => {
     expect(initialListState).toMatchObject({
-      tab: 'sent',
+      tab: 'issued',
       status: 'all',
       page: 1,
       search: '',
@@ -13,7 +13,7 @@ describe('saleListReducer', () => {
   });
 
   it('resets the status and page when the tab changes', () => {
-    const state = { ...initialListState, tab: 'sent' as const, status: 'PAID' as const, page: 4 };
+    const state = { ...initialListState, tab: 'issued' as const, status: 'PAID' as const, page: 4 };
     expect(saleListReducer(state, { type: 'tab', tab: 'draft' })).toMatchObject({
       tab: 'draft',
       status: 'all',
@@ -41,14 +41,14 @@ describe('saleListReducer', () => {
   it('clears every filter but keeps the tab and page size', () => {
     const state = {
       ...initialListState,
-      tab: 'sent' as const,
+      tab: 'issued' as const,
       limit: 25,
       status: 'PAID' as const,
       search: 'x',
       range: ['2026-11-01', '2026-11-30'] as [string, string],
     };
     expect(saleListReducer(state, { type: 'reset' })).toMatchObject({
-      tab: 'sent',
+      tab: 'issued',
       limit: 25,
       status: 'all',
       search: '',

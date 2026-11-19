@@ -1,26 +1,26 @@
 export const salesBulk = {
   page: {
-    title: 'Tagihan Rutin Massal',
-    description:
-      'Buat satu draf faktur per pelanggan untuk tagihan dan bulan yang sama, misalnya iuran bulanan. Draf bisa diperiksa dulu sebelum dikirim.',
-    back: 'Daftar faktur',
     open: 'Tagihan Rutin',
   },
+  dialog: {
+    title: 'Tagihan Rutin Massal',
+    description: 'Membuat satu draf faktur per unit untuk periode yang sama.',
+  },
   form: {
-    title: 'Isi tagihan',
     product: 'Jenis tagihan',
     productPlaceholder: 'Pilih barang atau jasa',
-    period: 'Bulan tagihan',
-    periodHint: 'Pelanggan yang sudah ditagih untuk jenis dan bulan ini dilewati.',
+    period: 'Periode',
+    periodHint: 'Pelanggan yang sudah ditagih untuk jenis dan periode ini dilewati.',
     transactionDate: 'Tanggal faktur',
     dueDate: 'Jatuh tempo',
-    unitPrice: 'Harga per pelanggan',
-    priceHint: 'Terisi dari harga jual barang, bisa diubah.',
-    customers: 'Pelanggan',
-    customersPlaceholder: 'Cari dan pilih pelanggan',
+    unitPrice: 'Harga per unit',
+    priceHint: 'Harga bawaan dari master Produk, boleh diubah.',
+    customers: 'Unit / pelanggan yang ditagih',
+    customersPlaceholder: 'Pilih pelanggan…',
     customersHint: 'Pilih 1 sampai {max} pelanggan.',
     selected: '{count} pelanggan dipilih',
     clear: 'Kosongkan',
+    cancel: 'Batal',
     submit: 'Buat Draf Faktur',
     submitHint: 'Lengkapi jenis tagihan, bulan, tanggal, harga, dan pilih pelanggan.',
     nothingFound: 'Pelanggan tidak ditemukan',
@@ -36,7 +36,6 @@ export const salesBulk = {
     customersTooMany: 'Maksimal {max} pelanggan sekali proses.',
   },
   result: {
-    title: 'Hasil proses',
     created: 'Draf dibuat',
     skipped: 'Dilewati',
     failed: 'Gagal',
@@ -51,6 +50,6 @@ export const salesBulk = {
     someDone: 'Sebagian pelanggan tidak diproses. Alasannya ada di tabel.',
     noneDone: 'Tidak ada draf yang dibuat. Alasannya ada di tabel.',
     again: 'Proses Lagi',
-    toList: 'Lihat Daftar Faktur',
+    close: 'Tutup',
   },
 };

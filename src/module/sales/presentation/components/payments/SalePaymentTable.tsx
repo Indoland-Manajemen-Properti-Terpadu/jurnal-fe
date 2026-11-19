@@ -76,6 +76,8 @@ export function SalePaymentTable({
 }: Readonly<SalePaymentTableProps>) {
   const { t } = useTranslation('sales');
   const emptyKey = isFiltered ? 'filteredEmpty' : 'empty';
+  // What the rows on screen brought in, so the line under the table adds up with what is shown.
+  const receivedOnPage = rows.reduce((sum, row) => sum + row.amount, 0);
 
   return (
     <Stack gap="md">
@@ -229,6 +231,8 @@ export function SalePaymentTable({
       <Group justify="space-between" align="center" wrap="wrap" px="xs">
         <Text size="xs" c="dimmed">
           {t('payments.showing', { shown: rows.length, total })}
+          {' · '}
+          {t('payments.receivedOnPage', { amount: formatIDR(receivedOnPage) })}
         </Text>
         <Group gap="sm">
           <Select
@@ -252,6 +256,9 @@ export function SalePaymentTable({
           />
         </Group>
       </Group>
+      <Text size="xs" c="dimmed" ta="center">
+        {t('payments.recordHint')}
+      </Text>
     </Stack>
   );
 }

@@ -1,32 +1,8 @@
-import { Group, Paper, Skeleton, Stack, Text } from '@mantine/core';
+import { IconCalendarDollar, IconCashBanknote, IconReceiptTax } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
-import { formatCount, formatIDR } from '@/module/sales/domain/saleFormat';
+import { formatCompactIDR, formatCount } from '@/module/sales/domain/saleFormat';
 import type { SalePaymentSummary } from '@/module/sales/domain/salePaymentList';
-
-const Stat = ({
-  label,
-  amount,
-  caption,
-  loading,
-}: Readonly<{ label: string; amount?: number; caption?: string; loading?: boolean }>) => (
-  <Stack gap={2} style={{ flex: '1 1 200px' }}>
-    <Text size="xs" fw={700} c="dimmed">
-      {label}
-    </Text>
-    {loading ? (
-      <Skeleton height={26} width={140} radius="sm" />
-    ) : (
-      <Text fw={700} fz={22} style={{ fontVariantNumeric: 'tabular-nums' }}>
-        {formatIDR(amount)}
-      </Text>
-    )}
-    {caption && (
-      <Text size="xs" c="dimmed">
-        {caption}
-      </Text>
-    )}
-  </Stack>
-);
+import { StatCard, StatCardRow } from '../shared/StatCard';
 
 /** Received this month, received in total, and the withholding tax taken off payments. */
 export function SalePaymentSummaryStrip({
@@ -35,27 +11,33 @@ export function SalePaymentSummaryStrip({
 }: Readonly<{ summary?: SalePaymentSummary; isLoading?: boolean }>) {
   const { t } = useTranslation('sales');
   const count = (n?: number) => t('payments.summary.count', { count: formatCount(n ?? 0) });
+
   return (
-    <Paper withBorder radius="lg" p="lg" bg="white">
-      <Group gap="xl" align="flex-start" wrap="wrap">
-        <Stat
-          loading={isLoading}
-          label={t('payments.summary.thisMonth')}
-          amount={summary?.thisMonth.amount}
-          caption={count(summary?.thisMonth.count)}
-        />
-        <Stat
-          loading={isLoading}
-          label={t('payments.summary.total')}
-          amount={summary?.total.amount}
-          caption={count(summary?.total.count)}
-        />
-        <Stat
-          loading={isLoading}
-          label={t('payments.summary.withholding')}
-          amount={summary?.withholding}
-        />
-      </Group>
-    </Paper>
+    <StatCardRow>
+      <StatCard
+        loading={isLoading}
+        tone="primary"
+        icon={<IconCalendarDollar size={22} />}
+        label={t('payments.summary.thisMonth')}
+        value={formatCompactIDR(summary?.thisMonth.amount)}
+        caption={count(summary?.thisMonth.count)}
+      />
+      <StatCard
+        loading={isLoading}
+        tone="green"
+        icon={<IconCashBanknote size={22} />}
+        label={t('payments.summary.total')}
+        value={formatCompactIDR(summary?.total.amount)}
+        caption={count(summary?.total.count)}
+      />
+      <StatCard
+        loading={isLoading}
+        tone="orange"
+        icon={<IconReceiptTax size={22} />}
+        label={t('payments.summary.withholding')}
+        value={formatCompactIDR(summary?.withholding)}
+        caption={t('payments.summary.withholdingHint')}
+      />
+    </StatCardRow>
   );
 }

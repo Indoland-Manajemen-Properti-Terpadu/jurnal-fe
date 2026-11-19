@@ -124,6 +124,12 @@ export const salesOrders = {
       paymentTermPlaceholder: 'Choose a term',
       unitTower: 'Unit / Tower',
       unitTowerPlaceholder: 'Example: Tower A / Unit 12-03',
+      quoteSource: 'Take from Quote',
+      quoteSourceHint:
+        'Optional. Makes an order from an accepted quote; its content follows the quote.',
+      quoteSourcePlaceholder: 'Choose an accepted quote',
+      quoteSourceNeedsCustomer: 'Choose a customer first',
+      quoteSourceEmpty: 'No accepted quote is waiting for an order',
       customerRef: 'Customer reference number',
       customerRefPlaceholder: 'Example: PO-2026/05',
     },

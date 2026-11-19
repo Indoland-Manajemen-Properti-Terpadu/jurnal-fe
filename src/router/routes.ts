@@ -109,7 +109,6 @@ export const routes = {
     orderAdd: '/sales/orders/new',
     orderEdit: '/sales/orders/:id/edit',
     orderDetail: '/sales/orders/:id',
-    bulkRecurring: '/sales/bulk-recurring',
     payments: '/sales/payments',
     returns: '/sales/returns',
     returnAdd: '/sales/returns/new',

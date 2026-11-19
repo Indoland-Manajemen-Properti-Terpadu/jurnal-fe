@@ -63,7 +63,7 @@ export const SaleFilters = ({
         onChange={(event) => onSearchInput(event.currentTarget.value)}
         w={{ base: '100%', sm: 320 }}
       />
-      {tab === 'sent' && (
+      {tab === 'issued' && (
         <Select
           aria-label={t('filter.status')}
           data={statusOptions}

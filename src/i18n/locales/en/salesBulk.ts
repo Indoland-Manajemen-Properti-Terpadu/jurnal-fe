@@ -1,26 +1,26 @@
 export const salesBulk = {
   page: {
-    title: 'Bulk Recurring Billing',
-    description:
-      'Create one draft invoice per customer for the same charge and month, such as a monthly fee. Review the drafts before sending them.',
-    back: 'Invoice list',
     open: 'Recurring Billing',
   },
+  dialog: {
+    title: 'Bulk Recurring Billing',
+    description: 'Creates one draft invoice per unit for the same period.',
+  },
   form: {
-    title: 'Billing details',
     product: 'Charge',
     productPlaceholder: 'Choose an item or service',
-    period: 'Billing month',
-    periodHint: 'Customers already billed for this charge and month are skipped.',
+    period: 'Period',
+    periodHint: 'Customers already billed for this charge and period are skipped.',
     transactionDate: 'Invoice date',
     dueDate: 'Due date',
-    unitPrice: 'Price per customer',
-    priceHint: 'Filled from the item’s selling price; you can change it.',
-    customers: 'Customers',
-    customersPlaceholder: 'Search and choose customers',
+    unitPrice: 'Price per unit',
+    priceHint: 'Default price from the Product master; you can change it.',
+    customers: 'Unit / customer to bill',
+    customersPlaceholder: 'Choose customers…',
     customersHint: 'Choose 1 to {max} customers.',
     selected: '{count} customers selected',
     clear: 'Clear',
+    cancel: 'Cancel',
     submit: 'Create Draft Invoices',
     submitHint: 'Fill in the charge, month, dates and price, and choose customers.',
     nothingFound: 'No customers found',
@@ -36,7 +36,6 @@ export const salesBulk = {
     customersTooMany: 'At most {max} customers per run.',
   },
   result: {
-    title: 'Result',
     created: 'Drafts created',
     skipped: 'Skipped',
     failed: 'Failed',
@@ -51,6 +50,6 @@ export const salesBulk = {
     someDone: 'Some customers were not processed. The reasons are in the table.',
     noneDone: 'No drafts were created. The reasons are in the table.',
     again: 'Run Again',
-    toList: 'View Invoice List',
+    close: 'Close',
   },
 };

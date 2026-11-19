@@ -15,7 +15,6 @@ Sales invoices (accounts receivable): a draft and send workflow, a three step in
 | `quotationAdd`    | `/sales/quotations/new`      | `QuoteFormPage` (three steps)                                       |
 | `quotationEdit`   | `/sales/quotations/:id/edit` | `QuoteFormPage` (drafts only; others open the detail)               |
 | `quotationDetail` | `/sales/quotations/:id`      | `QuoteDetailPage`                                                   |
-| `bulkRecurring`   | `/sales/bulk-recurring`      | `BulkRecurringPage` (form, then the result per customer)            |
 | `returns`         | `/sales/returns`             | `ReturnListPage` (tabs, summary, invoice picker)                    |
 | `returnAdd`       | `/sales/returns/new?sale=id` | `ReturnFormPage` (one card form for the chosen invoice)             |
 | `returnEdit`      | `/sales/returns/:id/edit`    | `ReturnFormPage` (drafts only; others open the detail)              |
@@ -131,14 +130,30 @@ Namespaces `salesQuotes` and `salesOrders` (`id` primary and `en`; parity tests 
 
 All four create/edit forms share one shell in `presentation/components/wizard/`, matching the reference design: `WizardStepper` (icon orbs with "LANGKAH n", done steps filled, current outlined), one `WizardCard` (header with icon and title, the fields, a grey totals band, and the action bar inside the same card) and `WizardActionBar` (Batal or Langkah sebelumnya on the left; Simpan sebagai Draf, Lanjut and the final action on the right). `WizardTotals` renders subtotal rows and the total; on the invoice's last step its left side carries the readiness note (`SaleReviewNote`). Surfaces use `radius="lg"` and elements inside them `md`; the theme gives `Paper` a default padding, so the card sets `p={0}` and pads its own sections. New forms use these components instead of their own Paper and Stepper.
 
+## Invoice list and form
+
+- Tabs: Draf, Terbit (unpaid, overdue and paid) and Dibatalkan (void, counted from `status-counts.VOID`). The status filter lives inside Terbit. "Dibayar sebagian" and "Diretur" are not offered: the API has no such status or filter (asked of the backend). A paid invoice's badge and amounts are green, not teal.
+- Rows show "Total Faktur" with "Diskon: -Rp" under it when there is one, and "Terbayar: Rp" in green under the balance.
+- The form has "Ambil dari Pesanan" (create only): once a customer is picked it lists that customer's confirmed orders (`GET /v1/sale-orders?customer=`); choosing one fills lines, discount, term and notes like the "Buat Faktur" button on an order, and clearing it only drops the link. A different customer cuts the link. The reference also offers quotes here; the API has no invoice-from-quote, so only orders are listed.
+
+## List summaries
+
+Every list but the invoice list (which keeps its receivables panel) opens with three separate `StatCard`s (`presentation/components/shared/StatCard.tsx`): an uppercase label, a short amount (`formatCompactIDR`, "Rp 1,6 jt"), a line of context and a tinted icon tile on the right, as in the reference design. No bars or rings: a visual that only some cards have says nothing.
+
+## Quote and order forms
+
+- The quote detail header shows Unduh PDF, Tandai ditolak and the main action (Tandai diterima, Buat Pesanan, Kirim) side by side; the rest sits in the menu.
+- The order form has "Ambil dari Penawaran" (create only): accepted quotes of the chosen customer with no order yet. `POST /v1/sale-orders` takes no quote link; only `POST /v1/sale-orders/from-quote/:id` (a `targetDate` and nothing else) makes an order that knows its quote. So picking a quote opens the same dialog as "Buat Pesanan" on the quote instead of filling the form.
+- The payments list says how much the rows on screen brought in and where a new payment is recorded.
+
 ## Dialogs
 
 Every dialog uses `ModalFrame` (`src/components/Modals/ModalFrame.tsx`): a header with the title and description, a footer with the actions, both separated from the body by a 1px line that runs edge to edge, and a body that pads its own content. A search box or filter goes in the header (`headerExtra`) so it stays put; a table that should run edge to edge sets `bodyPadding={0}`. A table header that must stay in view uses `stickyHeader` inside the element that scrolls (the theme lets such a table overflow so the header sticks). In a list picker the row is the click target, with the customer under the document number; there is no select button.
 
 ## Bulk recurring billing
 
-- Reached from the "Tagihan Rutin" button on the invoice list (shown with `JP-SALES` create). `POST /v1/sales/bulk-recurring` with `product`, `period` (`YYYY-MM`, from a month input), `transactionDate`, `dueDate`, `unitPrice` and 1 to 200 `customers`. One **draft** invoice per customer, no journal; the user issues them from the list.
-- The answer is always 201 with `summary { created, skipped, failed }` and `results[]` (`customer`, `name`, `status`, `saleId`, `transactionNumber` on `created`, `message` otherwise). Verified live: a customer already billed for the product and month is `skipped` ("Sudah ditagih untuk periode ..."), an unknown id is `failed` ("Pelanggan tidak ditemukan"). The page shows each row and links created drafts to their invoice.
+- A dialog (`BulkRecurringDialog`, `ModalFrame`) opened by the "Tagihan Rutin" button on the invoice list (shown with `JP-SALES` create); the result per customer shows in the same dialog. `POST /v1/sales/bulk-recurring` with `product`, `period` (`YYYY-MM`, from a month input), `transactionDate`, `dueDate`, `unitPrice` and 1 to 200 `customers`. One **draft** invoice per customer, no journal; the user issues them from the list.
+- The answer is always 201 with `summary { created, skipped, failed }` and `results[]` (`customer`, `name`, `status`, `saleId`, `transactionNumber` on `created`, `message` otherwise). Verified live: a customer already billed for the product and month is `skipped` ("Sudah ditagih untuk periode ..."), an unknown id is `failed` ("Pelanggan tidak ditemukan"). The dialog shows each row and links created drafts to their invoice.
 - Price fills from the product's selling price and can be changed. The customer picker searches 20 at a time and keeps the names of the ones already chosen.
 
 ## Returns

@@ -125,6 +125,12 @@ export const salesOrders = {
       paymentTermPlaceholder: 'Pilih termin',
       unitTower: 'Unit / Tower',
       unitTowerPlaceholder: 'Contoh: Tower A / Unit 12-03',
+      quoteSource: 'Ambil dari Penawaran',
+      quoteSourceHint:
+        'Opsional. Membuat pesanan dari penawaran yang sudah diterima; isinya mengikuti penawaran.',
+      quoteSourcePlaceholder: 'Pilih penawaran yang sudah diterima',
+      quoteSourceNeedsCustomer: 'Pilih pelanggan dulu',
+      quoteSourceEmpty: 'Tidak ada penawaran diterima yang belum jadi pesanan',
       customerRef: 'Nomor referensi pelanggan',
       customerRefPlaceholder: 'Contoh: PO-2026/05',
     },

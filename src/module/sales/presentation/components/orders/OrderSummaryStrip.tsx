@@ -1,31 +1,8 @@
-import { Group, Paper, Skeleton, Stack, Text } from '@mantine/core';
+import { IconClipboardCheck, IconHourglassHigh, IconReceipt2 } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
-import { formatCount, formatIDR } from '@/module/sales/domain/saleFormat';
-import type { AmountCount } from '@/module/sales/domain/saleDocument';
+import { formatCompactIDR, formatCount } from '@/module/sales/domain/saleFormat';
 import type { OrderSummary } from '@/module/sales/domain/saleOrder';
-
-const Stat = ({
-  label,
-  figure,
-  loading,
-  countLabel,
-}: Readonly<{ label: string; figure?: AmountCount; loading?: boolean; countLabel: string }>) => (
-  <Stack gap={2} style={{ flex: '1 1 200px' }}>
-    <Text size="xs" fw={700} c="dimmed">
-      {label}
-    </Text>
-    {loading ? (
-      <Skeleton height={26} width={140} radius="sm" />
-    ) : (
-      <Text fw={700} fz={22} style={{ fontVariantNumeric: 'tabular-nums' }}>
-        {formatIDR(figure?.amount)}
-      </Text>
-    )}
-    <Text size="xs" c="dimmed">
-      {countLabel.replace('{count}', formatCount(figure?.count ?? 0))}
-    </Text>
-  </Stack>
-);
+import { StatCard, StatCardRow } from '../shared/StatCard';
 
 /** What waits for the customer, what is ready to invoice, and what already was. */
 export function OrderSummaryStrip({
@@ -33,30 +10,34 @@ export function OrderSummaryStrip({
   isLoading,
 }: Readonly<{ summary?: OrderSummary; isLoading?: boolean }>) {
   const { t } = useTranslation('salesOrders');
-  const countLabel = t('summary.count', { count: '{count}' });
+  const count = (n?: number) => t('summary.count', { count: formatCount(n ?? 0) });
 
   return (
-    <Paper withBorder radius="lg" p="lg" bg="white">
-      <Group gap="xl" align="flex-start" wrap="wrap">
-        <Stat
-          loading={isLoading}
-          label={t('summary.awaiting')}
-          figure={summary?.awaiting}
-          countLabel={countLabel}
-        />
-        <Stat
-          loading={isLoading}
-          label={t('summary.ready')}
-          figure={summary?.ready}
-          countLabel={countLabel}
-        />
-        <Stat
-          loading={isLoading}
-          label={t('summary.invoiced')}
-          figure={summary?.invoiced}
-          countLabel={countLabel}
-        />
-      </Group>
-    </Paper>
+    <StatCardRow>
+      <StatCard
+        loading={isLoading}
+        tone="orange"
+        icon={<IconHourglassHigh size={22} />}
+        label={t('summary.awaiting')}
+        value={formatCompactIDR(summary?.awaiting.amount)}
+        caption={count(summary?.awaiting.count)}
+      />
+      <StatCard
+        loading={isLoading}
+        tone="primary"
+        icon={<IconClipboardCheck size={22} />}
+        label={t('summary.ready')}
+        value={formatCompactIDR(summary?.ready.amount)}
+        caption={count(summary?.ready.count)}
+      />
+      <StatCard
+        loading={isLoading}
+        tone="green"
+        icon={<IconReceipt2 size={22} />}
+        label={t('summary.invoiced')}
+        value={formatCompactIDR(summary?.invoiced.amount)}
+        caption={count(summary?.invoiced.count)}
+      />
+    </StatCardRow>
   );
 }

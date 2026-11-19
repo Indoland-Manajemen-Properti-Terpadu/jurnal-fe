@@ -1,6 +1,5 @@
 import type { RouteObject } from 'react-router-dom';
 import {
-  BulkRecurringPage,
   OrderDetailPage,
   OrderFormPage,
   OrderListPage,
@@ -22,7 +21,6 @@ import { routes } from '../routes';
 export const salesRoutes: RouteObject[] = [
   { path: routes.sales.main, element: <SaleMainPage /> },
   { path: routes.sales.add, element: <SaleFormPage /> },
-  { path: routes.sales.bulkRecurring, element: <BulkRecurringPage /> },
   { path: routes.sales.quotations, element: <QuoteListPage /> },
   { path: routes.sales.quotationAdd, element: <QuoteFormPage /> },
   { path: routes.sales.quotationEdit, element: <QuoteFormPage /> },

@@ -22,7 +22,7 @@ export type SaleListAction =
   | { type: 'reset' };
 
 export const initialListState: SaleListState = {
-  tab: 'sent',
+  tab: 'issued',
   status: 'all',
   range: [null, null],
   search: '',
