@@ -4,9 +4,9 @@ Cash and bank accounts: an overview with the total balance and one account list,
 
 ## Routes (`src/router/routes.ts`)
 
-| Constant                       | Path                            | Page                                                                   |
-| ------------------------------ | ------------------------------- | ---------------------------------------------------------------------- |
-| `bankCash.main`             | `/bank-cash`                    | `BankAndCashMainPage` (stats, account table, record-transaction menu)  |
+| Constant               | Path                            | Page                                                                   |
+| ---------------------- | ------------------------------- | ---------------------------------------------------------------------- |
+| `bankCash.main`        | `/bank-cash`                    | `BankAndCashMainPage` (stats, account table, record-transaction menu)  |
 | `bankCash.addTransfer` | `/bank-cash/add-transfer-money` | `AddTransferMoneyPage` (`?fromAccountId=` preselects the source)       |
 | `bankCash.addReceive`  | `/bank-cash/add-receive-money`  | `AddReceiveMoneyPage` (`?toAccountId=` preselects the deposit account) |
 | `bankCash.addSent`     | `/bank-cash/add-sent-money`     | `AddSentMoneyPage` (`?fromAccountId=` preselects the paying account)   |
@@ -57,6 +57,8 @@ TanStack Query. A successful post invalidates `accounts`, `journal_transactions`
 ## i18n
 
 Namespace `bankCash` (`id` and `en`) for the forms, summaries, table footer and mutation messages, with key and placeholder parity tests in `src/i18n/locales/bankCash.test.ts` and a hard-coded-text guard in `presentation/hardcodedText.test.ts`. The overview page and the account table still read their existing keys from the `journal` namespace.
+
+- **Coming from an account's detail page**: its "Buat" menu opens Transfer, Terima and Kirim Uang with that account preselected and `returnTo=<the detail page>`. Saving, cancelling and the back button return there; without `returnTo` they go to Kas & Bank. `safeReturnTo` accepts only a path inside the app (PRO-101).
 
 ## Known gaps
 

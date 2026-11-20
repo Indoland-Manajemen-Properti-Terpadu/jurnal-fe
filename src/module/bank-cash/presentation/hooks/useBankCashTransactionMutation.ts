@@ -1,15 +1,16 @@
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
-import { routes } from '@/router/routes';
 import type { BankCashTransactionPayload } from '@/module/bank-cash/domain/transactionTypes';
 import { submitBankCashTransaction } from '@/module/bank-cash/infrastructure/bankCashTransactionApi';
 
 import { useTranslation } from '@/i18n';
+import { useReturnPath } from './useReturnPath';
 
 export const useBankCashTransactionMutation = (successMessage?: string) => {
   const { t: tb } = useTranslation('bankCash');
   const navigate = useNavigate();
+  const returnPath = useReturnPath();
   const queryClient = useQueryClient();
 
   return useMutation<unknown, Error, BankCashTransactionPayload>({
@@ -29,7 +30,7 @@ export const useBankCashTransactionMutation = (successMessage?: string) => {
         message: successMessage || tb('mutation.successMessage'),
       });
 
-      navigate(routes.bankCash.main);
+      navigate(returnPath);
     },
     onError: (error) => {
       notifications.show({

@@ -5,7 +5,7 @@ import { Box, Button, Grid, Stack } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
 import { AppShellLayout } from '@/components/AppShellLayout';
 import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
-import { routes } from '@/router/routes';
+import { useReturnPath } from '@/module/bank-cash/presentation/hooks/useReturnPath';
 import { useTranslation } from '@/i18n';
 
 /** The frame every posting form shares: header with a way back, notices, form cards left, summary right. */
@@ -28,6 +28,7 @@ export function TransactionFormLayout({
 }>) {
   const { t } = useTranslation('bankCash');
   const navigate = useNavigate();
+  const returnPath = useReturnPath();
 
   return (
     <AppShellLayout withFooter>
@@ -42,7 +43,7 @@ export function TransactionFormLayout({
                 variant="default"
                 radius="md"
                 leftSection={<IconArrowLeft size={16} />}
-                onClick={() => navigate(routes.bankCash.main)}
+                onClick={() => navigate(returnPath)}
               >
                 {t('common.backToCashBank')}
               </Button>
