@@ -35,6 +35,29 @@ describe('validatePayment', () => {
     );
   });
 
+  it('refuses a payment dated before the invoice', () => {
+    const errors = validatePayment(
+      { ...valid(), paymentDate: '2026-11-01' },
+      1000,
+      undefined,
+      '2026-11-20'
+    );
+    expect(errors.paymentDate).toBe('validation.paymentBeforeInvoice');
+  });
+
+  it('accepts a payment on or after the invoice date', () => {
+    expect(
+      validatePayment({ ...valid(), paymentDate: '2026-11-20' }, 1000, undefined, '2026-11-20')
+    ).toEqual({});
+    expect(
+      validatePayment({ ...valid(), paymentDate: '2026-11-25' }, 1000, undefined, '2026-11-20')
+    ).toEqual({});
+  });
+
+  it('skips the date rule when the invoice date is unknown', () => {
+    expect(validatePayment({ ...valid(), paymentDate: '2020-01-01' }, 1000)).toEqual({});
+  });
+
   it('compares in cents so a float tail does not block a full payment', () => {
     expect(validatePayment({ ...valid(), amount: 0.3 }, 0.1 + 0.2)).toEqual({});
   });

@@ -307,6 +307,10 @@ export const mapSalePaymentRow = (raw: SalePaymentRowDto): SalePaymentRow => ({
   overpaymentAmount: toMoney(raw.overpaymentAmount),
   lateFeeAmount: toMoney(raw.lateFeeAmount),
   memo: raw.memo || null,
+  journalId:
+    (typeof raw.journalTransaction === 'string'
+      ? raw.journalTransaction
+      : raw.journalTransaction?.id || raw.journalTransaction?._id) || null,
   sale: raw.sale
     ? {
         id: (raw.sale.id || raw.sale._id) as string,
@@ -358,6 +362,8 @@ export const mapStatusCounts = (raw: SaleStatusCountsDto | undefined): SaleStatu
   VOID: toNumber(raw?.VOID),
   PARTIAL_PAID: toNumber(raw?.PARTIAL_PAID),
   RETURNED: toNumber(raw?.RETURNED),
-  sent: toNumber(raw?.sent),
+  // The server's `sent` also holds void invoices, which have their own tab; the issued tab lists
+  // only these three.
+  sent: toNumber(raw?.UNPAID) + toNumber(raw?.PAID) + toNumber(raw?.OVERDUE),
   all: toNumber(raw?.all),
 });

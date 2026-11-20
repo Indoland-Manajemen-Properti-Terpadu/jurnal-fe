@@ -37,6 +37,7 @@ import {
   overpaymentOf,
   paymentKind,
   toPaymentPayload,
+  toLocalDay,
   validatePayment,
   type PaymentFormValues,
   type PaymentTarget,
@@ -150,7 +151,7 @@ export function PaySaleModal({
 
   const submit = async () => {
     if (!sale || !invoice) return;
-    const errors = validatePayment(form.values, remaining, target);
+    const errors = validatePayment(form.values, remaining, target, invoice.transactionDate);
     form.setErrors(Object.fromEntries(Object.entries(errors).map(([k, v]) => [k, t(v)])));
     if (Object.keys(errors).length > 0) return;
     const payload = toPaymentPayload(sale.id, form.values, remaining);
@@ -279,6 +280,7 @@ export function PaySaleModal({
                   label={t('pay.paymentDate')}
                   leftSection={<IconCalendar size={16} />}
                   withAsterisk
+                  min={invoice?.transactionDate ? toLocalDay(invoice.transactionDate) : undefined}
                   {...form.getInputProps('paymentDate')}
                 />
               </Grid.Col>

@@ -4,7 +4,7 @@ import { DateInput } from '@mantine/dates';
 import { IconArrowsExchange, IconCalendar, IconCoins, IconBuildingBank } from '@tabler/icons-react';
 import dayjs from 'dayjs';
 import { useNavigate } from 'react-router-dom';
-import { routes } from '@/router/routes';
+import { useReturnPath } from '@/module/bank-cash/presentation/hooks/useReturnPath';
 import { useTranslation } from '@/i18n';
 import { formatCurrency } from '@/utils/formatCurrency';
 import { balanceAfter, buildTransferPayload } from '@/module/bank-cash/domain/transactionPayload';
@@ -28,6 +28,7 @@ import { TransactionSummaryCard } from '@/module/bank-cash/presentation/componen
 export const AddTransferMoneyPage = () => {
   const { t, currentLanguage } = useTranslation('bankCash');
   const navigate = useNavigate();
+  const returnPath = useReturnPath();
 
   const { cashAccounts, ready, isError } = useCashBankChoices();
   const from = usePrefilledAccount('fromAccountId', cashAccounts, ready);
@@ -193,7 +194,7 @@ export const AddTransferMoneyPage = () => {
           )}
           submitLabel={t('transfer.submit')}
           isPending={isPending}
-          onCancel={() => navigate(routes.bankCash.main)}
+          onCancel={() => navigate(returnPath)}
         />
       }
     />

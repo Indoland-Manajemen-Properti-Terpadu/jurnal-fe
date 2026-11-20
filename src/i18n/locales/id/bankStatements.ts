@@ -106,6 +106,7 @@ export const bankStatements = {
       noSide: 'Diterima atau Dikirim harus lebih dari 0',
       receivedNumber: 'Diterima harus berupa angka tanpa pemisah ribuan',
       spentNumber: 'Dikirim harus berupa angka tanpa pemisah ribuan',
+      negativeAmount: 'Diterima atau Dikirim harus lebih dari 0',
       unexpectedColumn: 'kolom tidak dikenal: {fields}. Gunakan template terbaru',
     },
     duplicates: {

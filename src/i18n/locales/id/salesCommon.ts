@@ -47,6 +47,7 @@ export const salesCommon = {
     deleted: 'Draf faktur dihapus.',
     voided: 'Faktur {number} di-void.',
     paid: 'Pembayaran faktur dicatat dan masuk ke kas atau bank.',
+    paymentDeleted: 'Pembayaran dihapus. Jurnalnya dibalik dan sisa tagihan faktur dihitung ulang.',
     paidWithOverpayment:
       'Pembayaran faktur dicatat. Kelebihan bayar dicatat ke akun kelebihan pembayaran pelanggan.',
     linkCopied: 'Tautan faktur disalin.',

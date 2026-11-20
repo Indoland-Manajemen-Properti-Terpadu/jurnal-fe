@@ -83,6 +83,7 @@ export const salesReturns = {
     cancelApplication: 'Cancel Use',
     pdf: 'Download PDF',
     viewInvoice: 'View Invoice',
+    viewJournal: 'View Journal',
     more: 'More actions',
   },
   confirm: {

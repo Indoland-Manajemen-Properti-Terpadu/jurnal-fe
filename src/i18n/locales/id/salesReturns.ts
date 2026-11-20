@@ -86,6 +86,7 @@ export const salesReturns = {
     cancelApplication: 'Batalkan Pemakaian',
     pdf: 'Unduh PDF',
     viewInvoice: 'Lihat Faktur',
+    viewJournal: 'Lihat Jurnal',
     more: 'Aksi lainnya',
   },
   confirm: {

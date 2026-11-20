@@ -13,7 +13,13 @@ import {
   Text,
   Title,
 } from '@mantine/core';
-import { IconAlertTriangle, IconArrowLeft, IconInfoCircle, IconTrash } from '@tabler/icons-react';
+import {
+  IconAlertTriangle,
+  IconArrowLeft,
+  IconCheck,
+  IconInfoCircle,
+  IconTrash,
+} from '@tabler/icons-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { AppShellLayout } from '@/components/AppShellLayout';
 import { ConfirmModal } from '@/components';
@@ -250,6 +256,7 @@ const ImportBankStatementDraftPage = () => {
         confirmLabel={t('importDraft.confirmLabel')}
         cancelLabel={t('importDraft.cancelLabel')}
         confirmLoading={isConfirming}
+        confirmButtonProps={{ color: 'primary', leftSection: <IconCheck size={18} /> }}
         imageSrc={importModalImage}
       />
     </AppShellLayout>

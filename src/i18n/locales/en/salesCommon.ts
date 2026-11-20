@@ -47,6 +47,8 @@ export const salesCommon = {
     deleted: 'Draft invoice deleted.',
     voided: 'Invoice {number} voided.',
     paid: 'Payment recorded and deposited to cash or bank.',
+    paymentDeleted:
+      'Payment deleted. Its journal was reversed and the invoice balance recalculated.',
     paidWithOverpayment:
       'Payment recorded. The excess was booked to the customer overpayment account.',
     linkCopied: 'Invoice link copied.',

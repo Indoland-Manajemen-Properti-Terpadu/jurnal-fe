@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { mapReceivablesSummary, mapSaleDto, mapStatusCounts } from './saleMapper';
+import {
+  mapReceivablesSummary,
+  mapSaleDto,
+  mapSalePaymentRow,
+  mapStatusCounts,
+} from './saleMapper';
 
 const baseDto = {
   id: 's-1',
@@ -164,7 +169,7 @@ describe('summary and counts mappers', () => {
   });
 
   it('maps status counts with zero defaults', () => {
-    expect(mapStatusCounts({ DRAFT: 2, sent: 5, all: 7 })).toEqual({
+    expect(mapStatusCounts({ DRAFT: 2, all: 7 })).toEqual({
       DRAFT: 2,
       UNPAID: 0,
       PAID: 0,
@@ -172,7 +177,7 @@ describe('summary and counts mappers', () => {
       VOID: 0,
       PARTIAL_PAID: 0,
       RETURNED: 0,
-      sent: 5,
+      sent: 0,
       all: 7,
     });
   });
@@ -197,5 +202,23 @@ describe('mapSaleDto order and return fields', () => {
     expect(plain.saleOrder).toBeNull();
     expect(plain.returnedAmount).toBe(0);
     expect(plain.items[0].returnedQty).toBe(0);
+  });
+});
+
+describe('mapStatusCounts', () => {
+  it('counts the issued tab as the statuses it lists, without the void invoices the server adds', () => {
+    const counts = mapStatusCounts({ UNPAID: 3, PAID: 240, OVERDUE: 3234, VOID: 5, sent: 3482 });
+    expect(counts.sent).toBe(3477);
+  });
+});
+
+describe('mapSalePaymentRow journal', () => {
+  it('keeps the id of the journal the payment posted', () => {
+    const row = mapSalePaymentRow({ id: 'p-1', journalTransaction: { id: 'j-1' } });
+    expect(row.journalId).toBe('j-1');
+  });
+
+  it('is empty when the answer has no journal', () => {
+    expect(mapSalePaymentRow({ id: 'p-1' }).journalId).toBeNull();
   });
 });

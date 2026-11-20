@@ -29,6 +29,7 @@ Imports a bank statement file for a cash/bank account and lists the imported row
 ## Domain rules
 
 - `importValidation.ts`: `validateImportRow` applies the preview rules again after a row is edited (description, a real `dd/mm/yyyy` date, one side greater than 0, plain numbers), so an edited row is never marked valid just because it was edited; the edit modal blocks Save while a rule fails. `parseServerImportError` maps the English server messages to codes the screen translates (`importDraft.errors.*`).
+- `recheckPreviewRow` (`importValidation.ts`) runs `validateImportRow` on every row of the server preview, because the server passes an ISO date or an empty description and blames a negative amount on the thousand separator. The app's findings replace the server's known messages (stored as `client:<code>`); unknown server messages are kept. A negative amount has its own code, `negativeAmount` (PRO-101).
 - `statementSummary.ts`: `summarizeStatements` (cents), `sortStatementsNewestFirst`, `findDuplicateRows` (same day, signed amount and description; the first occurrence in the file is never flagged; the server does not check this). The draft page warns and offers "remove duplicates".
 
 - Sign split of the list (`bankStatementMapper.ts`): positive bank amount = received (`debit`), negative = spent (`credit`, shown as a positive number). Zero or missing goes to neither side. Tested.

@@ -6,15 +6,23 @@ import {
   IconChevronDown,
   IconPlus,
 } from '@tabler/icons-react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { withAccountPrefill } from '@/module/bank-cash';
 import { useTranslation } from '@/i18n';
 import { routes } from '@/router/routes';
 import type { LedgerVariant } from '../../domain/ledgerVariant';
 
 /** Header "create" control: a menu of four cash/bank transactions, or one journal button. */
-export const LedgerCreateActions: React.FC<{ variant: LedgerVariant }> = ({ variant }) => {
+/** The account is preselected in the posting form, and saving returns here. */
+export const LedgerCreateActions: React.FC<{ variant: LedgerVariant; accountId: string }> = ({
+  variant,
+  accountId,
+}) => {
   const { t } = useTranslation('accountLedger');
   const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const openForm = (path: string, param: 'fromAccountId' | 'toAccountId') =>
+    navigate(withAccountPrefill(path, param, accountId, pathname));
 
   if (variant === 'nonCashBank') {
     return (
@@ -51,19 +59,19 @@ export const LedgerCreateActions: React.FC<{ variant: LedgerVariant }> = ({ vari
         </Menu.Item>
         <Menu.Item
           leftSection={<IconArrowsExchange size={16} />}
-          onClick={() => navigate(routes.bankCash.addTransfer)}
+          onClick={() => openForm(routes.bankCash.addTransfer, 'fromAccountId')}
         >
           {t('cashBank.create.transfer')}
         </Menu.Item>
         <Menu.Item
           leftSection={<IconArrowDownRight size={16} />}
-          onClick={() => navigate(routes.bankCash.addReceive)}
+          onClick={() => openForm(routes.bankCash.addReceive, 'toAccountId')}
         >
           {t('cashBank.create.receive')}
         </Menu.Item>
         <Menu.Item
           leftSection={<IconArrowUpRight size={16} />}
-          onClick={() => navigate(routes.bankCash.addSent)}
+          onClick={() => openForm(routes.bankCash.addSent, 'fromAccountId')}
         >
           {t('cashBank.create.send')}
         </Menu.Item>

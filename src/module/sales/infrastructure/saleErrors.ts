@@ -39,3 +39,7 @@ export const classifySaleError = (error: unknown): ClassifiedSaleError => {
   }
   return { kind: 'unknown' };
 };
+
+/** An unknown id is a 404 answer, not a transient failure; retrying it only keeps the skeleton up. */
+export const retryUnlessNotFound = (failures: number, error: unknown): boolean =>
+  classifySaleError(error).kind !== 'notFound' && failures < 2;

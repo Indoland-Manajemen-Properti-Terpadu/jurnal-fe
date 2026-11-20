@@ -104,6 +104,7 @@ export const bankStatements = {
       noSide: 'Received or Sent must be greater than 0',
       receivedNumber: 'Received must be a number without thousands separators',
       spentNumber: 'Sent must be a number without thousands separators',
+      negativeAmount: 'Received or Sent must be greater than 0',
       unexpectedColumn: 'unknown column: {fields}. Use the latest template',
     },
     duplicates: {

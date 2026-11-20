@@ -1,6 +1,6 @@
 import { AxiosError, type AxiosResponse } from 'axios';
 import { describe, expect, it } from 'vitest';
-import { classifySaleError } from './saleErrors';
+import { classifySaleError, retryUnlessNotFound } from './saleErrors';
 
 const failure = (status: number, data: unknown) =>
   new AxiosError('failed', String(status), undefined, undefined, {
@@ -32,5 +32,18 @@ describe('classifySaleError', () => {
     expect(classifySaleError(failure(502, '<html>')).kind).toBe('unknown');
     expect(classifySaleError(new AxiosError('offline')).kind).toBe('network');
     expect(classifySaleError(new Error('x')).kind).toBe('unknown');
+  });
+});
+
+describe('retryUnlessNotFound', () => {
+  const answer = (status: number) => failure(status, {});
+
+  it('gives up at once on an unknown id', () => {
+    expect(retryUnlessNotFound(0, answer(404))).toBe(false);
+  });
+
+  it('retries a failure that may pass, up to twice', () => {
+    expect(retryUnlessNotFound(0, answer(500))).toBe(true);
+    expect(retryUnlessNotFound(2, answer(500))).toBe(false);
   });
 });

@@ -16,7 +16,7 @@ export const SaleStatusBadge = ({ status }: Readonly<{ status: SaleDisplayStatus
   );
 };
 
-const STATUS_KEY = { RETURNED: 'status.returned' } as const;
+const STATUS_KEY = { RETURNED: 'status.returned', PARTIAL: 'status.partialPaid' } as const;
 
 /**
  * The badges of a whole invoice: "Diretur" instead of the state once it has a return, and a
@@ -35,7 +35,11 @@ export const SaleStatusBadges = ({
   return (
     <Group gap={6} justify={align} wrap="wrap">
       <Badge color={tone.color} variant={tone.variant} radius="sm" size="md" style={BADGE_STYLE}>
-        {t(main === 'RETURNED' ? STATUS_KEY.RETURNED : `status.${main.toLowerCase()}`)}
+        {t(
+          main === 'RETURNED' || main === 'PARTIAL'
+            ? STATUS_KEY[main]
+            : `status.${main.toLowerCase()}`
+        )}
       </Badge>
       {partialPaid && (
         <Badge color="blue" variant="outline" radius="sm" size="md" style={BADGE_STYLE}>

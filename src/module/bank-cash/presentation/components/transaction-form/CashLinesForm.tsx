@@ -11,7 +11,7 @@ import {
 } from '@tabler/icons-react';
 import dayjs from 'dayjs';
 import { useNavigate } from 'react-router-dom';
-import { routes } from '@/router/routes';
+import { useReturnPath } from '@/module/bank-cash/presentation/hooks/useReturnPath';
 import { useTranslation } from '@/i18n';
 import { formatCurrency } from '@/utils/formatCurrency';
 import {
@@ -53,6 +53,7 @@ export type CashLinesKind = 'receive' | 'sent';
 export function CashLinesForm({ kind }: Readonly<{ kind: CashLinesKind }>) {
   const { t, currentLanguage } = useTranslation('bankCash');
   const navigate = useNavigate();
+  const returnPath = useReturnPath();
   const incoming = kind === 'receive';
 
   const { cashAccounts, sourceOptions, ready, isError } = useCashBankChoices();
@@ -228,7 +229,7 @@ export function CashLinesForm({ kind }: Readonly<{ kind: CashLinesKind }>) {
           journal={journal}
           submitLabel={t(`${kind}.submit`)}
           isPending={isPending}
-          onCancel={() => navigate(routes.bankCash.main)}
+          onCancel={() => navigate(returnPath)}
         />
       }
     />

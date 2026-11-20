@@ -158,6 +158,7 @@ export type SalePaymentRowDto = IdRefDto & {
   overpaymentAmount?: unknown;
   lateFeeAmount?: unknown;
   memo?: string | null;
+  journalTransaction?: string | IdRefDto | null;
   sale?: (IdRefDto & { transactionNumber?: string; customer?: SaleCustomerDto | null }) | null;
   items?: Array<IdRefDto & { saleItem?: string | IdRefDto | null; amount?: unknown }>;
   paymentMethod?: { name?: string } | null;

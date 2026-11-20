@@ -39,6 +39,8 @@ export type SaleReturnDto = IdRef & {
   saleNumber?: string;
   reason?: string;
   settlement?: string;
+  /** The journal an issued return posted: an id, or the journal itself. */
+  journalTransaction?: string | IdRef | null;
   memo?: string | null;
   items?: ReturnLineDto[];
   amount?: unknown;

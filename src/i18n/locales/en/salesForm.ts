@@ -136,6 +136,7 @@ export const salesForm = {
     depositAccountRequired: 'Select the cash or bank account that receives the money',
     paymentMethodRequired: 'Select a payment method',
     paymentDateRequired: 'Enter the payment date',
+    paymentBeforeInvoice: 'The payment date cannot be before the invoice date',
     amountPositive: 'The payment amount must be more than 0',
     allocationNegative: 'An allocation cannot be negative',
     allocationExceedsItem: 'More than this product owes',
