@@ -214,6 +214,10 @@ export type CreateSaleItemForm = {
   quantity: number;
   unitPrice: number;
   taxId?: string;
+  /** From an order: the order line this invoice line bills (sent as `saleOrderItem`). */
+  saleOrderItem?: string;
+  /** From an order: what is left on that line; the quantity may not go above it. Screen only. */
+  maxQuantity?: number;
 };
 
 export type CreateSaleFormValues = {

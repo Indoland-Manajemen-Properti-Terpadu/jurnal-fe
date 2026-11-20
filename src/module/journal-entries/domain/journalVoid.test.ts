@@ -26,18 +26,10 @@ describe('voidGate', () => {
     });
   });
 
-  it.each(['SALE', 'SALE_PAYMENT'])(
-    'blocks a journal posted by a sales document (%s) even if the server allows it',
-    (sourceType) => {
-      expect(voidGate(entry({ sourceType, canVoid: true }))).toEqual({
-        allowed: false,
-        kind: 'source',
-      });
-    }
-  );
-
-  it('still reports a void sales journal as void', () => {
-    expect(voidGate(entry({ sourceType: 'SALE', status: 'VOID' }))).toMatchObject({ kind: 'void' });
+  it('follows the server for a journal posted by a sales document', () => {
+    expect(
+      voidGate(entry({ canVoid: false, voidBlockedReason: 'Batalkan dari menu Penjualan.' }))
+    ).toEqual({ allowed: false, kind: 'blocked', reason: 'Batalkan dari menu Penjualan.' });
   });
 
   it('does not allow a void when the server sent no flag', () => {

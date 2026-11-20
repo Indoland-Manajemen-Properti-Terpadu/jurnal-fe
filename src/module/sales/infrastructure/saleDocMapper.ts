@@ -2,6 +2,10 @@ import type { SaleDocHeader, SaleDocLine, SaleDocPage } from '../domain/saleDocu
 import type { SaleDocHeaderDto, SaleDocLineDto, SaleDocPageDto } from './saleDocDto';
 import { toMoney, toNumber } from './saleMapperUtils';
 
+/** A figure only some servers send: absent stays absent, so a screen can tell "none" from "unknown". */
+const optionalNumber = (value: unknown): number | undefined =>
+  value === undefined || value === null ? undefined : toNumber(value);
+
 export const mapDocLine = (dto: SaleDocLineDto): SaleDocLine => ({
   id: dto.id || dto._id || '',
   product: dto.product
@@ -24,6 +28,8 @@ export const mapDocLine = (dto: SaleDocLineDto): SaleDocLine => ({
   taxAmount: toMoney(dto.taxAmount),
   amount: toMoney(dto.amount),
   discountAmount: toMoney(dto.discountAmount),
+  invoicedQty: optionalNumber(dto.invoicedQty),
+  remainingQty: optionalNumber(dto.remainingQty),
 });
 
 export const mapDocHeader = (dto: SaleDocHeaderDto): SaleDocHeader => ({

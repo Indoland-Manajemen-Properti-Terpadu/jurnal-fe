@@ -6,6 +6,7 @@ const TONES: Record<OrderStatus, { color: string; variant: 'light' | 'outline' }
   DRAFT: { color: 'gray', variant: 'light' },
   WAITING_CONFIRMATION: { color: 'primary', variant: 'light' },
   CONFIRMED: { color: 'green', variant: 'light' },
+  PARTIALLY_INVOICED: { color: 'blue', variant: 'light' },
   COMPLETED: { color: 'green', variant: 'light' },
   CANCELLED: { color: 'gray', variant: 'outline' },
 };

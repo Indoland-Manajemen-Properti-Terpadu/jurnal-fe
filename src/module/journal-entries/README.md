@@ -58,7 +58,7 @@ Namespace `journalEntries` (`id` and `en`, parity test in `src/i18n/locales/jour
 ## Known gaps (documented, not changed)
 
 - Bulk void is not atomic: the entries are voided one after the other (a parallel batch that partly fails makes the backend answer 500), a failure does not stop the rest, and the toast says how many went through. The list rows carry `canVoid`; a row the server will not void (reconciled, already void, a reversal, petty cash) has no checkbox (`voidGate`).
-- `voidGate` also blocks a journal whose `sourceType` is `SALE` or `SALE_PAYMENT` (kind `source`), because the server still sends `canVoid: true` for them. It is undone from its sales document, like a sales return (PRO-99). Drop the rule when the backend locks these entries itself (PRO-98).
+- Journals posted by a sale or a sale payment come with `canVoid: false` and a reason from the server (PRO-98, checked on the sandbox 2026-11-20), so `voidGate` follows the server like for any other entry. An earlier client rule on `sourceType` was removed.
 - Not enforced: future date guard, posting to header or archived accounts, journal edit (the backend has no update endpoint; an entry can only be voided).
 - The dropzone accepts 5 MB (the component default) while the hint says 30 MB.
 - Typing a decimal point can clear the field: the controlled NumberInput maps a zero value to an empty string.
