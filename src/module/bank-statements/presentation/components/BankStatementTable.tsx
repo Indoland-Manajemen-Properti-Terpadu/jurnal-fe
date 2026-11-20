@@ -14,6 +14,7 @@ import {
   IconAlertCircle,
   IconCalendar,
   IconFileSpreadsheet,
+  IconLinkOff,
   IconRefresh,
   IconSearch,
   IconTrash,
@@ -28,6 +29,7 @@ import { ConfirmModal } from '@/components';
 import { EmptyState } from '@/components/EmptyState';
 import deleteModalImage from '@/assets/images/illustrations/delete-confirm.svg';
 import { useTranslation } from '@/i18n';
+import { useCancelReconciliation } from '@/module/reconciliation-match';
 import { formatCurrency } from '@/utils/formatCurrency';
 import { dateFormatV1 } from '@/utils/formatDate';
 import type { Result } from '../../domain/bankStatement';
@@ -58,11 +60,13 @@ export default function BankStatementTable() {
   const queryClient = useQueryClient();
   const { data, isLoading, isError, refetch } = useBankStatement(idAccount);
   const deleteMutation = useDeleteBankStatement(idAccount);
+  const cancelMatch = useCancelReconciliation();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [toDelete, setToDelete] = useState<Result | null>(null);
+  const [toUnmatch, setToUnmatch] = useState<Result | null>(null);
 
   const records = useMemo(
     () =>
@@ -191,9 +195,23 @@ export default function BankStatementTable() {
       title: t('table.columns.action'),
       textAlignment: 'center' as const,
       titleStyle: { textAlign: 'center' as const },
-      width: 90,
+      width: 110,
       render: (row: Result) => (
-        <Group justify="center">
+        <Group justify="center" gap={4} wrap="nowrap">
+          {row.reconciled && row.reconciliationMatch?.id && (
+            <Tooltip label={t('table.unmatchTooltip')}>
+              <ActionIcon
+                variant="subtle"
+                color="gray"
+                size="sm"
+                radius="md"
+                aria-label={t('table.unmatchTooltip')}
+                onClick={() => setToUnmatch(row)}
+              >
+                <IconLinkOff size={16} />
+              </ActionIcon>
+            </Tooltip>
+          )}
           <Tooltip label={row.reconciled ? t('table.deleteBlocked') : t('table.deleteTooltip')}>
             <ActionIcon
               variant="subtle"
@@ -319,6 +337,28 @@ export default function BankStatementTable() {
         confirmLabel={t('table.deleteConfirm')}
         cancelLabel={t('table.cancel')}
         confirmLoading={deleteMutation.isPending}
+      />
+      <ConfirmModal
+        opened={Boolean(toUnmatch)}
+        onClose={() => setToUnmatch(null)}
+        onConfirm={() => {
+          const matchId = toUnmatch?.reconciliationMatch?.id;
+          if (!matchId) return;
+          cancelMatch.mutate(matchId, { onSettled: () => setToUnmatch(null) });
+        }}
+        title={t('table.unmatchTitle')}
+        message={
+          <>
+            {t('table.unmatchConfirmBefore')}
+            <strong>{toUnmatch?.transactionName}</strong>
+            {t('table.unmatchConfirmAfter')}
+          </>
+        }
+        helperText={t('table.unmatchHelper')}
+        imageSrc={deleteModalImage}
+        confirmLabel={t('table.unmatchConfirm')}
+        cancelLabel={t('table.cancel')}
+        confirmLoading={cancelMatch.isPending}
       />
       {importModal}
     </Stack>

@@ -8,6 +8,7 @@ import {
   confirmBankStatementImport,
   errorMessage,
   hasResponse,
+  rowErrorsMessage,
   bodyMessage,
   uploadBankStatement,
 } from '../../infrastructure/bankStatementApi';
@@ -59,7 +60,8 @@ export const useConfirmImportBankStatement = (idAccount: string) => {
         color: 'red',
         title: tr(rejected ? 'toast.confirmFailedTitle' : 'toast.serverErrorTitle'),
         message: rejected
-          ? errorMessage(error, tr('toast.confirmFailedFallback'))
+          ? rowErrorsMessage(error, (row) => tr('toast.confirmRow', { row })) ||
+            errorMessage(error, tr('toast.confirmFailedFallback'))
           : tr('toast.serverErrorMessage'),
       });
     },

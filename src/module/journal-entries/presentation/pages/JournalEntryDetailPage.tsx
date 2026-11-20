@@ -20,6 +20,7 @@ import {
   IconNotes,
   IconPrinter,
   IconBan,
+  IconLinkOff,
 } from '@tabler/icons-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useDisclosure } from '@mantine/hooks';
@@ -31,6 +32,7 @@ import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
 import deleteModalImage from '@/assets/images/illustrations/delete-confirm.svg';
 import { SummaryBar, type SummaryItem } from '@/components/SummaryBar';
 import { useTranslation } from '@/i18n';
+import { useCancelReconciliation, useJournalMatches } from '@/module/reconciliation-match';
 import { routes } from '@/router/routes';
 import { formatCurrency } from '@/utils/formatCurrency';
 import { absoluteDifference, isDetailBalanced, sumAmounts } from '../../domain/journalRules';
@@ -43,11 +45,15 @@ import JournalEntrySidebar from '../components/JournalEntrySidebar';
 
 export const JournalEntryDetailPage: React.FC = () => {
   const { t } = useTranslation('journalEntries');
+  const { t: rt } = useTranslation('reconciliation');
   const navigate = useNavigate();
   const { idTransaction } = useParams<{ idTransaction: string }>();
   const { journalEntry, isError, isLoading } = useJournalEntryDetail(idTransaction!);
   const [voidOpened, { open: openVoid, close: closeVoid }] = useDisclosure(false);
   const voidMutation = useVoidJournalEntry();
+  const [unmatchOpened, { open: openUnmatch, close: closeUnmatch }] = useDisclosure(false);
+  const { data: matchIds = [] } = useJournalMatches(idTransaction);
+  const cancelMatch = useCancelReconciliation();
 
   const lines = journalEntry?.transactionDetail || [];
   const totalDebit = sumAmounts(lines.map((item) => Number(item.debit) || 0));
@@ -112,6 +118,13 @@ export const JournalEntryDetailPage: React.FC = () => {
     voidMutation.mutate({ id: idTransaction, number: numberText }, { onSettled: closeVoid });
   };
 
+  const handleConfirmUnmatch = () => {
+    // Cancelled one by one; a journal almost always sits in a single match.
+    Promise.all(matchIds.map((matchId) => cancelMatch.mutateAsync(matchId)))
+      .catch(() => undefined)
+      .finally(closeUnmatch);
+  };
+
   const summary: SummaryItem[] = [
     {
       key: 'debit',
@@ -168,6 +181,17 @@ export const JournalEntryDetailPage: React.FC = () => {
                 >
                   {t('detail.print')}
                 </Button>
+                {matchIds.length > 0 && (
+                  <Button
+                    variant="default"
+                    size="md"
+                    leftSection={<IconLinkOff size={16} />}
+                    loading={cancelMatch.isPending}
+                    onClick={openUnmatch}
+                  >
+                    {rt('unmatch.action')}
+                  </Button>
+                )}
                 {gate.allowed && (
                   <Button
                     variant="light"
@@ -247,6 +271,19 @@ export const JournalEntryDetailPage: React.FC = () => {
           </Grid>
         </Stack>
       </Box>
+
+      <ConfirmModal
+        opened={unmatchOpened}
+        onClose={closeUnmatch}
+        onConfirm={handleConfirmUnmatch}
+        title={rt('unmatch.title')}
+        message={rt('unmatch.message')}
+        helperText={rt('unmatch.helper')}
+        imageSrc={deleteModalImage}
+        confirmLabel={rt('unmatch.confirm')}
+        cancelLabel={rt('unmatch.cancel')}
+        confirmLoading={cancelMatch.isPending}
+      />
 
       <ConfirmModal
         opened={voidOpened}

@@ -71,6 +71,8 @@ export const API_ACCOUNT = {
 
   GET_RECONCILIATION: `${BASE_URL}/v1/reconciliation/`,
   MATCH_RECONCILIATION: `${BASE_URL}/v1/reconciliation/match-multiple`,
+  GET_RECONCILIATION_MATCHES: `${BASE_URL}/v1/reconciliation/matches`,
+  CANCEL_RECONCILIATION: `${BASE_URL}/v1/reconciliation/cancel/:matchId`,
   GET_JOURNAL_DETAILS_FOR_RECON: `${BASE_URL}/v1/reconciliation/bank-statements/:bankStatementId/journal-details`,
 
   ARCHIVE_ACCOUNT: `${BASE_URL}/v1/accounts/:accountId/archive`,

@@ -17,6 +17,8 @@ export interface Result {
   transactionDate?: Date;
   transactionName?: string;
   reconciled?: boolean;
+  /** The match that holds this row; what Un-Reconcile cancels. */
+  reconciliationMatch?: { id?: string } | null;
 }
 
 export interface Site {

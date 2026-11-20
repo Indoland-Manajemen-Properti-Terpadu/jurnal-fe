@@ -85,11 +85,22 @@ export const reconciliation = {
   confirm: {
     title: 'Reconcile Bank Statement',
     message: 'Are you sure you want to reconcile this transaction?',
-    helper: 'A reconciled transaction cannot be undone.',
+    helper: 'You can undo a match later with Cancel match.',
+  },
+  unmatch: {
+    action: 'Cancel match',
+    title: 'Cancel Match',
+    message: 'Cancel the match with this bank statement?',
+    helper:
+      'The statement row becomes unmatched again and the journal can be voided. Adjustment journals created with the match are not voided; void them from the journal menu.',
+    confirm: 'Cancel Match',
+    cancel: 'Back',
   },
   notifications: {
     successTitle: 'Success',
     matched: 'Transaction reconciled successfully',
+    unmatched: 'Match cancelled. The statement row is unmatched again.',
+    unmatchFailed: 'The match could not be cancelled. Reload the page and try again.',
     failureTitle: 'Failed',
     reason: {
       amountMismatch:
