@@ -22,6 +22,9 @@ export const useCancelReconciliation = () => {
       queryClient.invalidateQueries({ queryKey: ['bank_statement'] });
       queryClient.invalidateQueries({ queryKey: ['journal_details_for_recon'] });
       queryClient.invalidateQueries({ queryKey: journalMatchKeys.all });
+      // The journal was locked because it was reconciled; its detail and lists must be read again.
+      queryClient.invalidateQueries({ queryKey: ['detail_transaction'] });
+      queryClient.invalidateQueries({ queryKey: ['journal_history'] });
       queryClient.invalidateQueries({ queryKey: ['transaction_by_account'] });
       queryClient.invalidateQueries({ queryKey: ['detail_account'] });
     },

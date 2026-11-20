@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import {
   ActionIcon,
+  Box,
   Button,
   Group,
   Skeleton,
@@ -198,20 +199,23 @@ export default function BankStatementTable() {
       width: 110,
       render: (row: Result) => (
         <Group justify="center" gap={4} wrap="nowrap">
-          {row.reconciled && row.reconciliationMatch?.id && (
-            <Tooltip label={t('table.unmatchTooltip')}>
-              <ActionIcon
-                variant="subtle"
-                color="gray"
-                size="sm"
-                radius="md"
-                aria-label={t('table.unmatchTooltip')}
-                onClick={() => setToUnmatch(row)}
-              >
-                <IconLinkOff size={16} />
-              </ActionIcon>
-            </Tooltip>
-          )}
+          {/* Fixed width, so the delete icons of matched and unmatched rows line up. */}
+          <Box w={26} h={26}>
+            {row.reconciled && row.reconciliationMatch?.id && (
+              <Tooltip label={t('table.unmatchTooltip')}>
+                <ActionIcon
+                  variant="subtle"
+                  color="gray"
+                  size="sm"
+                  radius="md"
+                  aria-label={t('table.unmatchTooltip')}
+                  onClick={() => setToUnmatch(row)}
+                >
+                  <IconLinkOff size={16} />
+                </ActionIcon>
+              </Tooltip>
+            )}
+          </Box>
           <Tooltip label={row.reconciled ? t('table.deleteBlocked') : t('table.deleteTooltip')}>
             <ActionIcon
               variant="subtle"
