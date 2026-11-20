@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { fetchContact, fetchPaymentTerms, fetchContacts } from '@/module/contacts';
+import { fetchContact, fetchContacts } from '@/module/contacts';
 import { fetchProducts, fetchTaxes } from '@/module/products';
 import { getJournalAccounts } from '@/module/chart-of-accounts';
 import type { SaleListParams } from '../../domain/sale';
@@ -9,6 +9,7 @@ import { depositAccountOptions } from '../../domain/saleDeposit';
 import {
   fetchOverpaymentAccount,
   fetchPaymentMethods,
+  fetchSalePaymentTerms,
   fetchPublicInvoice,
   fetchSaleDetail,
   fetchSaleTags,
@@ -108,7 +109,7 @@ export const useSaleTaxes = () =>
 export const useSalePaymentTerms = () =>
   useQuery({
     queryKey: saleKeys.paymentTerms(),
-    queryFn: fetchPaymentTerms,
+    queryFn: fetchSalePaymentTerms,
     staleTime: 5 * 60_000,
   });
 

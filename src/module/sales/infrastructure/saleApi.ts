@@ -49,7 +49,7 @@ export const SALE_ENDPOINTS = {
   salePaymentDetail: (id: string) => `/v1/sale-payments/${id}`,
   paymentMethods: '/v1/payment-methods',
   accountMappings: '/v1/settings/account-mappings',
-  paymentTerms: '/v1/payment-terms',
+  paymentTermOptions: '/v1/payment-terms/options',
   taxes: '/v1/taxes',
   tags: '/v1/tags',
   salesByCustomer: (contactId: string) => `/v1/sales/customer/${contactId}`,
@@ -251,6 +251,25 @@ export const fetchPaymentMethods = async (): Promise<SalePaymentMethod[]> => {
     SALE_ENDPOINTS.paymentMethods
   );
   return (data.data?.data || []).map(mapSalePaymentMethod);
+};
+
+export type SalePaymentTermOption = { id: string; name: string; days: number; isDefault: boolean };
+
+type PaymentTermOptionDto = SalePaymentTermOption & { isActive?: boolean };
+
+/** Terms a new sale may pick. The options endpoint lists active terms only; the filter is a second guard. */
+export const fetchSalePaymentTerms = async (): Promise<SalePaymentTermOption[]> => {
+  const { data } = await apiClient.get<ApiEnvelope<PaymentTermOptionDto[]>>(
+    SALE_ENDPOINTS.paymentTermOptions
+  );
+  return (data.data || [])
+    .filter((term) => term.isActive !== false)
+    .map((term) => ({
+      id: term.id,
+      name: term.name,
+      days: Number(term.days) || 0,
+      isDefault: Boolean(term.isDefault),
+    }));
 };
 
 export type SaleTagOption = { id: string; name: string; color?: string };
