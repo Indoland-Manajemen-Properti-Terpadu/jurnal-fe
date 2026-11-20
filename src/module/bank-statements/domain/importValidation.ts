@@ -98,6 +98,12 @@ export const parseServerImportError = (message: string): ImportRowError | null =
   if (message.startsWith('Either Received or Spent')) return { code: 'noSide' };
   if (message.startsWith('Received is required')) return { code: 'receivedNumber' };
   if (message.startsWith('Spent is required')) return { code: 'spentNumber' };
+  // Since 2026-11-20 the server answers in Indonesian (PRO-100); the English ones stay for old data.
+  if (message.startsWith('Hanya salah satu')) return { code: 'bothSides' };
+  if (message.startsWith('Salah satu dari Received atau Spent')) return { code: 'noSide' };
+  if (/^(Received|Spent) tidak boleh negatif/.test(message)) return { code: 'negativeAmount' };
+  if (message.startsWith('Received harus berupa angka')) return { code: 'receivedNumber' };
+  if (message.startsWith('Spent harus berupa angka')) return { code: 'spentNumber' };
   const unexpected = /^Unexpected field\(s\):\s*(.+)$/.exec(message);
   if (unexpected) return { code: 'unexpectedColumn', detail: unexpected[1].trim() };
   return null;

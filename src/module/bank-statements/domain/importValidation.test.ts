@@ -68,6 +68,22 @@ describe('parseServerImportError', () => {
     });
     expect(parseServerImportError('Something new')).toBeNull();
   });
+
+  it('maps the Indonesian messages the server sends since PRO-100', () => {
+    expect(
+      parseServerImportError('Hanya salah satu dari Received atau Spent yang boleh lebih dari 0')
+    ).toEqual({ code: 'bothSides' });
+    expect(
+      parseServerImportError('Salah satu dari Received atau Spent harus lebih dari 0')
+    ).toEqual({ code: 'noSide' });
+    expect(parseServerImportError('Spent tidak boleh negatif. Isi nominal keluar')).toEqual({
+      code: 'negativeAmount',
+    });
+    expect(parseServerImportError('Received harus berupa angka tanpa pemisah ribuan')).toEqual({
+      code: 'receivedNumber',
+    });
+    expect(parseServerImportError('Description wajib diisi')).toEqual({ code: 'description' });
+  });
 });
 
 const previewRow = (over: Partial<BankStatementPreviewItem> = {}): BankStatementPreviewItem => ({

@@ -5,6 +5,8 @@ import { JournalEntryDetailPage } from './JournalEntryDetailPage';
 
 const state = { entry: null as JournalEntryDetail | null };
 const voidMutate = vi.fn();
+const matches = { ids: [] as string[] };
+const cancelMatch = vi.fn();
 
 vi.mock('@/components/AppShellLayout', () => ({
   AppShellLayout: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
@@ -14,6 +16,11 @@ vi.mock('../hooks/useJournalEntryDetail', () => ({
 }));
 vi.mock('../hooks/useVoidJournalEntry', () => ({
   useVoidJournalEntry: () => ({ mutate: voidMutate, isPending: false }),
+}));
+
+vi.mock('@/module/reconciliation-match', () => ({
+  useJournalMatches: () => ({ data: matches.ids }),
+  useCancelReconciliation: () => ({ mutateAsync: cancelMatch, isPending: false }),
 }));
 
 const entry = (overrides: Partial<JournalEntryDetail>): JournalEntryDetail => ({
@@ -44,6 +51,8 @@ const renderPage = () =>
 
 beforeEach(() => {
   voidMutate.mockReset();
+  cancelMatch.mockReset().mockResolvedValue(undefined);
+  matches.ids = [];
   state.entry = entry({});
 });
 
@@ -89,5 +98,23 @@ describe('journal detail: an entry is voided, never edited', () => {
     await user.click(within(dialog).getByRole('button', { name: 'Batalkan Jurnal' }));
     await waitFor(() => expect(voidMutate).toHaveBeenCalledTimes(1));
     expect(voidMutate.mock.calls[0][0]).toEqual({ id: 'j1', number: '31294' });
+  });
+});
+
+describe('journal detail: Un-Reconcile', () => {
+  it('hides the button for a journal that no bank row is matched to', () => {
+    renderPage();
+    expect(screen.queryByRole('button', { name: /Batalkan Pencocokan/ })).not.toBeInTheDocument();
+  });
+
+  it('cancels every match of a reconciled journal after a confirmation', async () => {
+    matches.ids = ['m-1', 'm-2'];
+    renderPage();
+    await userEvent.click(screen.getByRole('button', { name: /Batalkan Pencocokan/ }));
+    const dialog = await screen.findByRole('dialog');
+    await userEvent.click(within(dialog).getByRole('button', { name: /Batalkan Pencocokan/ }));
+    await waitFor(() => expect(cancelMatch).toHaveBeenCalledTimes(2));
+    expect(cancelMatch).toHaveBeenCalledWith('m-1');
+    expect(cancelMatch).toHaveBeenCalledWith('m-2');
   });
 });

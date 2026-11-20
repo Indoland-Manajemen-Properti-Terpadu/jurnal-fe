@@ -9,12 +9,16 @@ const state = {
   isError: false,
 };
 const deleteMutate = vi.fn();
+const cancelMutate = vi.fn();
 
 vi.mock('../hooks/useBankStatement', () => ({
   useBankStatement: () => ({ ...state, refetch: vi.fn() }),
 }));
 vi.mock('../hooks/useDeleteBankStatement', () => ({
   useDeleteBankStatement: () => ({ mutate: deleteMutate, isPending: false }),
+}));
+vi.mock('@/module/reconciliation-match', () => ({
+  useCancelReconciliation: () => ({ mutate: cancelMutate, isPending: false }),
 }));
 vi.mock('./ImportBankStatementModal', () => ({ default: () => null }));
 // jsdom has no layout, so the data table renders no rows; this stand-in draws the same columns.
@@ -71,13 +75,20 @@ const renderTable = () =>
 
 beforeEach(() => {
   deleteMutate.mockReset();
+  cancelMutate.mockReset();
   state.isLoading = false;
   state.isError = false;
   state.data = {
     results: [
       row({}),
       row({ id: 'r2', transactionName: 'BIAYA ADMIN', debit: 0, credit: 250000 }),
-      row({ id: 'r3', transactionName: 'TRF SEWA', reconciled: true, debit: 500000 }),
+      row({
+        id: 'r3',
+        transactionName: 'TRF SEWA',
+        reconciled: true,
+        debit: 500000,
+        reconciliationMatch: { id: 'm-9' },
+      }),
     ],
   };
 });
@@ -143,5 +154,16 @@ describe('BankStatementTable', () => {
     expect(await screen.findByText('Tidak ada baris yang sesuai')).toBeInTheDocument();
     await user.click(screen.getAllByRole('button', { name: 'Reset Filter' })[0]);
     expect(await screen.findByText('SETORAN MODAL')).toBeInTheDocument();
+  });
+
+  it('cancels the match of a matched row after a confirmation, and only for matched rows', async () => {
+    renderTable();
+    const user = userEvent.setup();
+    const buttons = screen.getAllByRole('button', { name: 'Batalkan pencocokan' });
+    expect(buttons).toHaveLength(1);
+    await user.click(buttons[0]);
+    await user.click(await screen.findByRole('button', { name: 'Batalkan Pencocokan' }));
+    await waitFor(() => expect(cancelMutate).toHaveBeenCalledTimes(1));
+    expect(cancelMutate.mock.calls[0][0]).toBe('m-9');
   });
 });
