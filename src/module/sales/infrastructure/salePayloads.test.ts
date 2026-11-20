@@ -156,3 +156,33 @@ describe('buildSaleFormData with an order', () => {
     expect(buildSaleFormData(values(), 'draft').has('saleOrder')).toBe(false);
   });
 });
+
+describe('buildSaleFormData from an order', () => {
+  it('names the order line each invoice line bills, so the server can bill part of it', () => {
+    const form = buildSaleFormData(
+      values({
+        saleOrder: 'o-1',
+        items: [
+          {
+            productId: 'p-1',
+            description: '',
+            unit: '',
+            quantity: 3,
+            unitPrice: 1000,
+            saleOrderItem: 'l-1',
+            maxQuantity: 3,
+          },
+        ],
+      }),
+      'draft'
+    );
+    expect(form.get('saleOrder')).toBe('o-1');
+    expect(form.get('items[0][saleOrderItem]')).toBe('l-1');
+    // The limit is only for the screen.
+    expect(form.get('items[0][maxQuantity]')).toBeNull();
+  });
+
+  it('sends no order line for a line typed by hand', () => {
+    expect(buildSaleFormData(values(), 'draft').get('items[0][saleOrderItem]')).toBeNull();
+  });
+});

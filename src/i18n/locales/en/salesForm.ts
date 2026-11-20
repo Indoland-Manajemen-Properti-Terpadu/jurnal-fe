@@ -61,6 +61,7 @@ export const salesForm = {
       addRow: 'Add Row',
       noCode: 'No Code',
       unitEmpty: '–',
+      orderLeft: 'Left on order {{count}}',
       unitHint: 'The unit follows the selected product.',
     },
     extras: {
@@ -129,6 +130,7 @@ export const salesForm = {
     totalZero: 'The invoice total is still Rp 0. Enter a price on at least one line.',
     productRequired: 'Select a product',
     quantityMin: 'Quantity must be more than 0',
+    quantityAboveOrder: 'Quantity is above what is left on the order',
     priceNegative: 'Price cannot be negative',
     discountNegative: 'Discount cannot be negative',
     discountPercent: 'A percentage discount is at most 100',

@@ -6,6 +6,9 @@ import { formatIDR } from '@/module/sales/domain/saleFormat';
 import type { SaleOrder } from '@/module/sales/domain/saleOrder';
 import { useOrder, useOrders } from '../../hooks/useOrderQueries';
 
+/** Orders that still have something to bill. */
+const INVOICEABLE = new Set<SaleOrder['status']>(['CONFIRMED', 'PARTIALLY_INVOICED']);
+
 interface OrderSourceSelectProps {
   /** The customer picked on this form; orders are listed only once there is one. */
   customerId: string;
@@ -24,7 +27,7 @@ export function OrderSourceSelect({ customerId, value, onPick }: Readonly<OrderS
   // The order this form already carries may not be in the list (or not yet loaded).
   const current = useOrder(value || undefined);
   const orders = useMemo(() => {
-    const confirmed = (query.data?.items ?? []).filter((order) => order.status === 'CONFIRMED');
+    const confirmed = (query.data?.items ?? []).filter((order) => INVOICEABLE.has(order.status));
     if (current.data && !confirmed.some((order) => order.id === current.data?.id)) {
       confirmed.unshift(current.data);
     }

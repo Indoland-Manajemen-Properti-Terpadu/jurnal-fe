@@ -4,11 +4,21 @@ export type OrderStatus =
   | 'DRAFT'
   | 'WAITING_CONFIRMATION'
   | 'CONFIRMED'
+  | 'PARTIALLY_INVOICED'
   | 'COMPLETED'
   | 'CANCELLED';
 
 export const ORDER_TABS = ['running', 'finished', 'cancelled'] as const;
 export type OrderTab = (typeof ORDER_TABS)[number];
+
+/** One invoice made from the order. */
+export interface OrderInvoice {
+  id: string;
+  number: string;
+  date: string | null;
+  status: string;
+  amount: number;
+}
 
 export interface SaleOrder extends SaleDocHeader {
   /** Target Selesai: when the work should be done; null when none was given. */
@@ -25,6 +35,11 @@ export interface SaleOrder extends SaleDocHeader {
   emails: string[];
   sentAt: string | null;
   confirmedAt: string | null;
+  /** Every invoice made from the order; empty on a server that does not list them. */
+  invoices: OrderInvoice[];
+  /** What invoices bill so far and what is left, in rupiah; null when the server sends none. */
+  invoicedAmount: number | null;
+  remainingAmount: number | null;
 }
 
 export interface OrderSummary {
@@ -32,6 +47,8 @@ export interface OrderSummary {
   awaiting: AmountCount;
   /** Confirmed and ready to be invoiced. */
   ready: AmountCount;
+  /** Billed in part, with something left to invoice. */
+  partial: AmountCount;
   invoiced: AmountCount;
   counts: Record<OrderTab, number>;
 }
@@ -54,10 +71,12 @@ export interface OrderActionSet {
 
 /**
  * What an order offers in its current status, as the sales API guide lays it out. COMPLETED is
- * set by making an invoice, never by an order endpoint. Rights are applied separately.
+ * set by making an invoice, never by an order endpoint. Once an invoice exists the order can no
+ * longer be edited or cancelled (void the invoice first). Rights are applied separately.
  */
 export const orderActions = (order: Pick<SaleOrder, 'status' | 'sale'>): OrderActionSet => {
   const { status } = order;
+  const partly = status === 'PARTIALLY_INVOICED';
   return {
     edit: status === 'DRAFT' || status === 'WAITING_CONFIRMATION' || status === 'CONFIRMED',
     send: status === 'DRAFT',
@@ -65,9 +84,13 @@ export const orderActions = (order: Pick<SaleOrder, 'status' | 'sale'>): OrderAc
     cancel: status === 'WAITING_CONFIRMATION' || status === 'CONFIRMED',
     remove: status === 'DRAFT',
     duplicate: true,
-    createInvoice: status === 'CONFIRMED',
-    viewInvoice: status === 'COMPLETED' && Boolean(order.sale),
-    resend: status === 'WAITING_CONFIRMATION' || status === 'CONFIRMED' || status === 'COMPLETED',
+    createInvoice: status === 'CONFIRMED' || partly,
+    viewInvoice: (status === 'COMPLETED' || partly) && Boolean(order.sale),
+    resend:
+      status === 'WAITING_CONFIRMATION' ||
+      status === 'CONFIRMED' ||
+      partly ||
+      status === 'COMPLETED',
     pdf: true,
   };
 };

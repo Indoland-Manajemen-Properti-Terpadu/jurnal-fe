@@ -1,4 +1,9 @@
-import { IconClipboardCheck, IconHourglassHigh, IconReceipt2 } from '@tabler/icons-react';
+import {
+  IconClipboardCheck,
+  IconHourglassHigh,
+  IconReceipt2,
+  IconReceiptOff,
+} from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import { formatCompactIDR, formatCount } from '@/module/sales/domain/saleFormat';
 import type { OrderSummary } from '@/module/sales/domain/saleOrder';
@@ -13,7 +18,7 @@ export function OrderSummaryStrip({
   const count = (n?: number) => t('summary.count', { count: formatCount(n ?? 0) });
 
   return (
-    <StatCardRow>
+    <StatCardRow columns={4}>
       <StatCard
         loading={isLoading}
         tone="orange"
@@ -29,6 +34,14 @@ export function OrderSummaryStrip({
         label={t('summary.ready')}
         value={formatCompactIDR(summary?.ready.amount)}
         caption={count(summary?.ready.count)}
+      />
+      <StatCard
+        loading={isLoading}
+        tone="gray"
+        icon={<IconReceiptOff size={22} />}
+        label={t('summary.partial')}
+        value={formatCompactIDR(summary?.partial.amount)}
+        caption={count(summary?.partial.count)}
       />
       <StatCard
         loading={isLoading}
