@@ -192,3 +192,14 @@ describe('mapReturnDto activities', () => {
     expect(mapReturnDto({}).activities).toEqual([]);
   });
 });
+
+describe('mapReturnDto journal', () => {
+  it('keeps the id of the journal an issued return posted', () => {
+    expect(mapReturnDto({ ...issued, journalTransaction: 'j-9' }).journalId).toBe('j-9');
+  });
+
+  it('reads an embedded journal and tolerates a return with none', () => {
+    expect(mapReturnDto({ ...issued, journalTransaction: { id: 'j-8' } }).journalId).toBe('j-8');
+    expect(mapReturnDto(issued).journalId).toBeNull();
+  });
+});

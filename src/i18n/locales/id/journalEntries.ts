@@ -160,6 +160,8 @@ export const journalEntries = {
       void: 'Jurnal ini sudah dibatalkan dan tidak dapat diubah lagi.',
       reversal:
         'Ini jurnal pembalik yang dibuat saat jurnal lain dibatalkan, sehingga tidak dapat diubah.',
+      source:
+        'Jurnal ini dibuat otomatis dari faktur atau pembayaran penjualan, sehingga tidak dapat dibatalkan dari menu jurnal. Batalkan lewat dokumennya di menu Penjualan.',
       blocked: 'Jurnal ini tidak dapat diubah.',
     },
     noticeLink: { void: 'Lihat jurnal pembalik', reversal: 'Lihat jurnal asal' },

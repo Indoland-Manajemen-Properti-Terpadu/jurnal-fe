@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { retryUnlessNotFound } from '../../infrastructure/saleErrors';
 import type { QuoteListParams } from '../../domain/saleQuote';
 import { fetchQuote, fetchQuotes } from '../../infrastructure/saleQuoteApi';
 
@@ -23,4 +24,5 @@ export const useQuote = (id?: string) =>
     queryFn: () => fetchQuote(id || ''),
     enabled: Boolean(id),
     staleTime: 30_000,
+    retry: retryUnlessNotFound,
   });

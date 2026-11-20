@@ -35,7 +35,7 @@ interface ImportBankStatementDraftTableProps {
 /** A plain number is formatted; anything else (`1.000.000,50`) is shown as typed, so it is not read as `1`. */
 const amountOrRaw = (value: string): string => {
   if (!value) return '-';
-  return /^\d+(\.\d+)?$/.test(value.trim()) ? formatCurrency(Number(value)) : value;
+  return /^-?\d+(\.\d+)?$/.test(value.trim()) ? formatCurrency(Number(value)) : value;
 };
 
 const headTableStyle = {

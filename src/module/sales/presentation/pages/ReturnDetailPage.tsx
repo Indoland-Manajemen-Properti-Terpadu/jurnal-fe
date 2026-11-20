@@ -19,6 +19,7 @@ import {
   IconCoin,
   IconDotsVertical,
   IconDownload,
+  IconNotebook,
   IconPencil,
   IconReceipt2,
   IconReceiptRefund,
@@ -125,6 +126,7 @@ export function ReturnDetailPage() {
     actions.cancelRefund ||
     actions.cancel ||
     actions.remove ||
+    Boolean(ret.journalId) ||
     Boolean(ret.sale);
 
   return (
@@ -239,6 +241,21 @@ export function ReturnDetailPage() {
                           onClick={() => handlers.onViewInvoice(ret)}
                         >
                           {t('actions.viewInvoice')}
+                        </Menu.Item>
+                      )}
+                      {ret.journalId && (
+                        <Menu.Item
+                          leftSection={<IconNotebook size={16} />}
+                          onClick={() =>
+                            navigate(
+                              routes.journalEntries.detail.replace(
+                                ':idTransaction',
+                                ret.journalId ?? ''
+                              )
+                            )
+                          }
+                        >
+                          {t('actions.viewJournal')}
                         </Menu.Item>
                       )}
                       {(actions.cancel || actions.remove) && <Menu.Divider />}

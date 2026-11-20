@@ -17,6 +17,8 @@ export type SalePaymentRow = {
   overpaymentAmount: number;
   lateFeeAmount: number;
   memo: string | null;
+  /** The journal this payment posted, for the "Lihat Jurnal" link. */
+  journalId: string | null;
   sale: { id: string; transactionNumber: string; customerName: string } | null;
   /** Where the money went: one entry per invoice line (the line's id), plus the late fee above. */
   items: Array<{ saleItem: string | null; amount: number }>;

@@ -16,6 +16,7 @@ import {
   sendSale,
   updateSale,
   voidSale,
+  deleteSalePayment,
 } from '../../infrastructure/saleApi';
 import { saleKeys } from './useSaleQueries';
 import { useSaleNotifier } from './useSaleNotifier';
@@ -110,6 +111,17 @@ export const useCreateSalePayment = () => {
     mutationFn: (payload: CreateSalePaymentPayload) => createSalePayment(payload),
     onSuccess: (result) =>
       notify.success(result.overpaymentAmount > 0 ? 'paidWithOverpayment' : 'paid'),
+    onError: notify.failure,
+    onSettled: refresh,
+  });
+};
+
+export const useDeleteSalePayment = () => {
+  const notify = useSaleNotifier();
+  const refresh = useRefreshSales();
+  return useMutation({
+    mutationFn: (id: string) => deleteSalePayment(id),
+    onSuccess: () => notify.success('paymentDeleted'),
     onError: notify.failure,
     onSettled: refresh,
   });

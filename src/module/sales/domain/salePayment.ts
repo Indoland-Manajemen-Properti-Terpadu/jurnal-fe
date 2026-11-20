@@ -92,16 +92,24 @@ export const fillRestAmount = (
 
 export const itemErrorKey = (itemId: string) => `item:${itemId}`;
 
+/** The calendar day of a date the server sent, in the user's time zone (`YYYY-MM-DD`). */
+export const toLocalDay = (value: string): string =>
+  /^\d{4}-\d{2}-\d{2}$/.test(value) ? value : new Date(value).toLocaleDateString('en-CA');
+
 /** Errors by field; each value is an i18n key. Amounts are compared in cents. */
 export const validatePayment = (
   values: PaymentFormValues,
   remaining: number,
-  target?: PaymentTarget
+  target?: PaymentTarget,
+  invoiceDate?: string | null
 ): Record<string, string> => {
   const errors: Record<string, string> = {};
   if (!values.depositAccount) errors.depositAccount = 'validation.depositAccountRequired';
   if (!values.paymentMethod) errors.paymentMethod = 'validation.paymentMethodRequired';
   if (!values.paymentDate) errors.paymentDate = 'validation.paymentDateRequired';
+  else if (invoiceDate && values.paymentDate < toLocalDay(invoiceDate)) {
+    errors.paymentDate = 'validation.paymentBeforeInvoice';
+  }
   if (!(toCents(values.amount) > 0)) errors.amount = 'validation.amountPositive';
 
   const needsManualAllocation =

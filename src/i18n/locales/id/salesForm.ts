@@ -136,6 +136,7 @@ export const salesForm = {
     depositAccountRequired: 'Pilih akun kas atau bank penerima',
     paymentMethodRequired: 'Pilih metode pembayaran',
     paymentDateRequired: 'Tanggal pembayaran wajib diisi',
+    paymentBeforeInvoice: 'Tanggal pembayaran tidak boleh sebelum tanggal faktur',
     amountPositive: 'Jumlah pembayaran harus lebih dari 0',
     allocationNegative: 'Alokasi tidak boleh minus',
     allocationExceedsItem: 'Melebihi sisa tagihan produk',

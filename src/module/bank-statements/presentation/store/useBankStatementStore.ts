@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { t } from '@/i18n';
 import { summarizePreview } from '../../domain/importDraft';
-import { parseServerImportError } from '../../domain/importValidation';
+import { parseServerImportError, recheckPreviewRow } from '../../domain/importValidation';
 import type { BankStatementPreviewItem, PreviewSummary } from '../../domain/importPreview';
 
 interface BankStatementState extends PreviewSummary {
@@ -49,7 +49,7 @@ export const useBankStatementStore = create<BankStatementState>((set) => ({
 
   setShowAlert: (status) => set({ showAlert: status }),
 
-  setImportData: (preview) => set(derive(preview)),
+  setImportData: (preview) => set(derive(preview.map(recheckPreviewRow))),
 
   setErrorMessages: (dataMessages) =>
     set({ errorMessages: dataMessages, showAlert: dataMessages.length > 0 }),

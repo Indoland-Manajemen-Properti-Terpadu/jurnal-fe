@@ -8,6 +8,7 @@ export type ImportErrorCode =
   | 'noSide'
   | 'receivedNumber'
   | 'spentNumber'
+  | 'negativeAmount'
   | 'unexpectedColumn';
 
 export interface ImportRowError {
@@ -28,9 +29,13 @@ export const isValidImportDate = (value: string): boolean => {
   return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day;
 };
 
-const toAmount = (value: string | undefined): number | null => {
+const NEGATIVE_AMOUNT = /^-\d+(\.\d+)?$/;
+
+/** `null` is text that is not a number; `'negative'` is a number below zero. */
+const toAmount = (value: string | undefined): number | 'negative' | null => {
   const text = (value ?? '').trim();
   if (text === '') return 0;
+  if (NEGATIVE_AMOUNT.test(text)) return 'negative';
   return /^\d+(\.\d+)?$/.test(text) ? Number(text) : null;
 };
 
@@ -50,17 +55,43 @@ export const validateImportRow = (
 
   const received = toAmount(row.Received);
   const spent = toAmount(row.Spent);
+  if (received === 'negative' || spent === 'negative') errors.push({ code: 'negativeAmount' });
   if (received === null) errors.push({ code: 'receivedNumber' });
   if (spent === null) errors.push({ code: 'spentNumber' });
-  if (received !== null && spent !== null) {
+  if (typeof received === 'number' && typeof spent === 'number') {
     if (received > 0 && spent > 0) errors.push({ code: 'bothSides' });
     if (received === 0 && spent === 0) errors.push({ code: 'noSide' });
   }
   return errors;
 };
 
+/** A message the app wrote itself, kept in the same list as the server's messages. */
+const CLIENT_PREFIX = 'client:';
+
+/**
+ * The server's preview passes rows the template forbids (an ISO date, an empty description) and
+ * blames a negative amount on the thousand separator. Every preview row is checked again here;
+ * the app's findings replace the server's known messages, and unknown ones are kept.
+ */
+export const recheckPreviewRow = (row: BankStatementPreviewItem): BankStatementPreviewItem => {
+  const found = validateImportRow(row);
+  if (found.length === 0) return row;
+  const kept = row.errors.filter((message) => {
+    const known = parseServerImportError(message);
+    return known === null || known.code === 'unexpectedColumn';
+  });
+  return {
+    ...row,
+    isValid: false,
+    errors: [...kept, ...found.map(({ code }) => `${CLIENT_PREFIX}${code}`)],
+  };
+};
+
 /** The server answers in English; this maps its known messages to the codes above. */
 export const parseServerImportError = (message: string): ImportRowError | null => {
+  if (message.startsWith(CLIENT_PREFIX)) {
+    return { code: message.slice(CLIENT_PREFIX.length) as ImportErrorCode };
+  }
   if (message.startsWith('Description')) return { code: 'description' };
   if (message.startsWith('TransactionDate')) return { code: 'date' };
   if (message.startsWith('Only one of Received or Spent')) return { code: 'bothSides' };

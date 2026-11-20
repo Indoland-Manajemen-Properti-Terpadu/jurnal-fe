@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { fromCents, roundToCents, toCents } from './saleMoney';
+import { fromCents, invoiceTotalBeforeReturns, roundToCents, toCents } from './saleMoney';
 
 describe('saleMoney', () => {
   it('converts to cents and back', () => {
@@ -30,5 +30,22 @@ describe('saleMoney', () => {
   it('rejects non-finite amounts', () => {
     expect(() => toCents(Number.NaN)).toThrow(RangeError);
     expect(() => toCents(Number.POSITIVE_INFINITY)).toThrow(RangeError);
+  });
+
+  describe('invoiceTotalBeforeReturns', () => {
+    it('adds the returned amount back, because the server sends the total net of returns', () => {
+      expect(invoiceTotalBeforeReturns({ finalAmount: 124875, returnedAmount: 124875 })).toBe(
+        249750
+      );
+    });
+
+    it('leaves the total alone when nothing was returned', () => {
+      expect(invoiceTotalBeforeReturns({ finalAmount: 249750, returnedAmount: 0 })).toBe(249750);
+      expect(invoiceTotalBeforeReturns({ finalAmount: 249750 })).toBe(249750);
+    });
+
+    it('adds in cents so a float tail does not show', () => {
+      expect(invoiceTotalBeforeReturns({ finalAmount: 0.1, returnedAmount: 0.2 })).toBe(0.3);
+    });
   });
 });
