@@ -242,18 +242,3 @@ export const toPaymentTermFormValues = (term: PaymentTerm): PaymentTermFormValue
   retentionPercent: term.defaultRetentionPercent ?? '',
   maintenanceMonths: term.defaultMaintenanceMonths ?? '',
 });
-
-/**
- * The due-date line of a term, built from its own fields so that it never calls the invoice a
- * "vendor invoice": a term is used on sales invoices too. Null when the term has no due days and the
- * server's own label should be shown.
- */
-export const dueTextOf = (
-  term: Pick<PaymentTerm, 'hasDueTerm' | 'defaultDueDays' | 'dueBasis'>
-): { key: 'dueFromInvoice' | 'dueFromReceipt'; days: number } | null => {
-  if (!term.hasDueTerm || term.defaultDueDays == null) return null;
-  return {
-    key: term.dueBasis === 'receipt_date' ? 'dueFromReceipt' : 'dueFromInvoice',
-    days: term.defaultDueDays,
-  };
-};

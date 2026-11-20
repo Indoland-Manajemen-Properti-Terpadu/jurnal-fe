@@ -1,7 +1,7 @@
 import { ActionIcon, Badge, Box, Group, Stack, Switch, Table, Text, Tooltip } from '@mantine/core';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
-import { dueTextOf, type PaymentTerm } from '@/module/settings/domain/paymentTerm';
+import type { PaymentTerm } from '@/module/settings/domain/paymentTerm';
 
 type Props = {
   term: PaymentTerm;
@@ -19,7 +19,6 @@ export function PaymentTermRow({
   onDelete,
 }: Readonly<Props>) {
   const { t: st } = useTranslation('settings');
-  const due = dueTextOf(term);
 
   return (
     <Table.Tr>
@@ -44,7 +43,7 @@ export function PaymentTermRow({
       <Table.Td>
         <Text size="sm">{term.summary.billingLabel}</Text>
         <Text size="xs" c="dimmed">
-          {due ? st(`paymentTerm.${due.key}`, { days: due.days }) : term.summary.dueLabel}
+          {term.summary.dueLabel}
         </Text>
       </Table.Td>
       <Table.Td>
