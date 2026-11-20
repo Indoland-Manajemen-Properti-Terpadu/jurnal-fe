@@ -47,3 +47,20 @@ describe('retryUnlessNotFound', () => {
     expect(retryUnlessNotFound(2, answer(500))).toBe(false);
   });
 });
+
+describe('classifySaleError for an inactive payment term', () => {
+  it('keeps the server sentence so the form can show why the save was refused', () => {
+    expect(
+      classifySaleError(
+        failure(400, {
+          code: 400,
+          message: 'Syarat pembayaran sudah nonaktif, pilih syarat pembayaran lain',
+          data: null,
+        })
+      )
+    ).toEqual({
+      kind: 'domain',
+      serverMessage: 'Syarat pembayaran sudah nonaktif, pilih syarat pembayaran lain',
+    });
+  });
+});

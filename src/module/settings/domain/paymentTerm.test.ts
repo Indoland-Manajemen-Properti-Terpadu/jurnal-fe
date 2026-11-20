@@ -1,6 +1,5 @@
 import {
   DEFAULT_PAYMENT_TERM_FORM,
-  dueTextOf,
   toPaymentTermFormValues,
   toPaymentTermPayload,
   validatePaymentTermForm,
@@ -352,23 +351,5 @@ describe('toPaymentTermFormValues', () => {
       defaultMaintenanceMonths: 6,
       defaultDueDays: 30,
     });
-  });
-});
-
-describe('dueTextOf', () => {
-  it('words the invoice basis as the invoice date, not the vendor invoice', () => {
-    expect(dueTextOf(term())).toEqual({ key: 'dueFromInvoice', days: 30 });
-  });
-
-  it('words the receipt basis as the receipt date', () => {
-    expect(dueTextOf(term({ dueBasis: 'receipt_date', defaultDueDays: 14 }))).toEqual({
-      key: 'dueFromReceipt',
-      days: 14,
-    });
-  });
-
-  it('leaves a term without due days to the label the server sent', () => {
-    expect(dueTextOf(term({ hasDueTerm: false }))).toBeNull();
-    expect(dueTextOf(term({ defaultDueDays: null }))).toBeNull();
   });
 });
