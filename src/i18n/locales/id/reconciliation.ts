@@ -86,11 +86,22 @@ export const reconciliation = {
   confirm: {
     title: 'Rekonsiliasi Rekening Koran',
     message: 'Apakah Anda yakin ingin merekonsiliasi transaksi ini?',
-    helper: 'Transaksi yang sudah direkonsiliasi tidak dapat dibatalkan.',
+    helper: 'Pencocokan bisa dibatalkan lagi lewat Batalkan Pencocokan.',
+  },
+  unmatch: {
+    action: 'Batalkan Pencocokan',
+    title: 'Batalkan Pencocokan',
+    message: 'Batalkan pencocokan dengan rekening koran ini?',
+    helper:
+      'Baris rekening koran kembali menjadi belum dicocokkan dan jurnalnya bisa dibatalkan lagi. Jurnal penyesuaian yang dibuat saat pencocokan tidak ikut dibatalkan, batalkan sendiri dari menu jurnal.',
+    confirm: 'Batalkan Pencocokan',
+    cancel: 'Kembali',
   },
   notifications: {
     successTitle: 'Berhasil',
     matched: 'Transaksi berhasil direkonsiliasi',
+    unmatched: 'Pencocokan dibatalkan. Baris rekening koran kembali belum dicocokkan.',
+    unmatchFailed: 'Pencocokan belum dapat dibatalkan. Muat ulang halaman lalu coba lagi.',
     failureTitle: 'Gagal',
     reason: {
       amountMismatch:

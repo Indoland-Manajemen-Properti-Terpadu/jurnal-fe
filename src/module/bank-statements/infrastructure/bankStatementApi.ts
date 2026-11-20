@@ -57,6 +57,23 @@ export const errorMessage = (error: unknown, fallback: string): string =>
     ? error.response?.data?.message || fallback
     : fallback;
 
+/**
+ * A rejected confirm names the bad rows in `data.errors` as `{ "<row number>": [message] }`;
+ * the first few are joined into one line. Empty when the answer carries none.
+ */
+export const rowErrorsMessage = (error: unknown, rowLabel: (row: string) => string): string => {
+  if (!axios.isAxiosError<{ data?: { errors?: Record<string, unknown> } }>(error)) return '';
+  const errors = error.response?.data?.data?.errors;
+  if (!errors || typeof errors !== 'object' || Array.isArray(errors)) return '';
+  return Object.entries(errors)
+    .slice(0, 3)
+    .map(([row, messages]) => {
+      const text = (Array.isArray(messages) ? messages : [messages]).join('; ');
+      return `${rowLabel(row)}: ${text}`;
+    })
+    .join('\n');
+};
+
 /** True when the server answered with an error status (as opposed to a network failure). */
 export const hasResponse = (error: unknown): boolean =>
   axios.isAxiosError(error) && error.response !== undefined;
