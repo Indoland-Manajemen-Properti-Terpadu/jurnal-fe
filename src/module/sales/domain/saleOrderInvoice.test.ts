@@ -71,3 +71,39 @@ describe('orderToSaleFormValues', () => {
     expect(noTerm.paymentTerm).toBe('');
   });
 });
+
+describe('orderToSaleFormValues for a partly invoiced order', () => {
+  const partly = {
+    ...order,
+    items: [
+      { ...order.items[0], quantity: 4, invoicedQty: 1, remainingQty: 3 },
+      { ...order.items[1], quantity: 1, invoicedQty: 1, remainingQty: 0 },
+    ],
+  } as unknown as SaleOrder;
+  const values = orderToSaleFormValues(partly, '2026-11-19');
+
+  it('bills what is left of each line and skips a line that is fully invoiced', () => {
+    expect(values.items).toHaveLength(1);
+    expect(values.items[0]).toMatchObject({ quantity: 3, saleOrderItem: 'l-1', maxQuantity: 3 });
+  });
+
+  it('keeps the whole quantity for an order that has no invoice yet', () => {
+    const fresh = orderToSaleFormValues(order, '2026-11-19');
+    expect(fresh.items[0]).toMatchObject({ quantity: 2, saleOrderItem: 'l-1' });
+    expect(fresh.items[0].maxQuantity).toBeUndefined();
+  });
+
+  it('shrinks a nominal discount to the share that is billed', () => {
+    const nominal = {
+      ...partly,
+      discountType: 'nominal',
+      discountValue: 400,
+      items: [{ ...partly.items[0], quantity: 4, unitPrice: 1000, remainingQty: 1 }],
+    } as unknown as SaleOrder;
+    expect(orderToSaleFormValues(nominal, '2026-11-19').discountValue).toBe(100);
+  });
+
+  it('leaves a percentage discount as it is', () => {
+    expect(values.discountValue).toBe(10);
+  });
+});

@@ -120,3 +120,53 @@ describe('buildOrderBody', () => {
     expect(body).toHaveProperty('paymentTerm', '');
   });
 });
+
+describe('mapOrderDto invoicing', () => {
+  const partly: SaleOrderDto = {
+    status: 'PARTIALLY_INVOICED',
+    invoicedAmount: 249750,
+    remainingAmount: 249750,
+    items: [{ _id: 'l-1', quantity: 4, invoicedQty: 1, remainingQty: 3 }],
+    // Shaped like the live answer of 2026-11-20.
+    invoices: [
+      {
+        sale: { id: 's-1', transactionNumber: 'INV-1' },
+        transactionDate: '2026-11-20T00:00:00.000Z',
+        status: 'SENT',
+        amount: 249750,
+      },
+    ],
+  };
+
+  it('reads the status, what is left per line and the invoices made so far', () => {
+    const order = mapOrderDto(partly);
+    expect(order.status).toBe('PARTIALLY_INVOICED');
+    expect(order.items[0]).toMatchObject({ quantity: 4, invoicedQty: 1, remainingQty: 3 });
+    expect(order.invoicedAmount).toBe(249750);
+    expect(order.remainingAmount).toBe(249750);
+    expect(order.invoices).toEqual([
+      {
+        id: 's-1',
+        number: 'INV-1',
+        date: '2026-11-20T00:00:00.000Z',
+        status: 'SENT',
+        amount: 249750,
+      },
+    ]);
+  });
+
+  it('leaves the invoicing figures out when the server sends none', () => {
+    const order = mapOrderDto({ status: 'CONFIRMED', items: [{ _id: 'l-1', quantity: 2 }] });
+    expect(order.items[0].remainingQty).toBeUndefined();
+    expect(order.invoices).toEqual([]);
+    expect(order.invoicedAmount).toBeNull();
+  });
+
+  it('counts a partial bucket in the summary', () => {
+    expect(mapOrderSummary({ partial: { amount: 10, count: 1 } }).partial).toEqual({
+      amount: 10,
+      count: 1,
+    });
+    expect(mapOrderSummary(undefined).partial).toEqual({ amount: 0, count: 0 });
+  });
+});

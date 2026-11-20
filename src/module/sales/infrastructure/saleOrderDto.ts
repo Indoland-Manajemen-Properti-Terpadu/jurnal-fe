@@ -16,6 +16,17 @@ export type SaleOrderDto = SaleDocHeaderDto & {
   emailError?: string | null;
   sentAt?: string | null;
   confirmedAt?: string | null;
+  invoices?: OrderInvoiceDto[];
+  invoicedAmount?: unknown;
+  remainingAmount?: unknown;
+};
+
+/** As the sandbox answers (2026-11-20): the invoice itself is under `sale`. */
+export type OrderInvoiceDto = {
+  sale?: { id?: string; _id?: string; transactionNumber?: string } | null;
+  transactionDate?: string | null;
+  status?: string;
+  amount?: unknown;
 };
 
 type AmountCountDto = { amount?: unknown; count?: unknown };
@@ -23,6 +34,7 @@ type AmountCountDto = { amount?: unknown; count?: unknown };
 export type OrderSummaryDto = {
   awaiting?: AmountCountDto;
   ready?: AmountCountDto;
+  partial?: AmountCountDto;
   invoiced?: AmountCountDto;
   counts?: { running?: unknown; finished?: unknown; cancelled?: unknown };
 };

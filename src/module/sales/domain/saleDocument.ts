@@ -23,6 +23,9 @@ export interface SaleDocLine {
   amount: number;
   /** This line's share of the document discount. */
   discountAmount: number;
+  /** Orders only: how much of the line invoices already bill, and what is left. */
+  invoicedQty?: number;
+  remainingQty?: number;
 }
 
 /** The parts of a quote or an order that the two share. */

@@ -69,6 +69,9 @@ const validateLines = (values: CreateSaleFormValues): StepErrors => {
   values.items.forEach((item, index) => {
     if (!item.productId) errors[`items.${index}.productId`] = 'validation.productRequired';
     if (!(item.quantity > 0)) errors[`items.${index}.quantity`] = 'validation.quantityMin';
+    else if (item.maxQuantity !== undefined && item.quantity > item.maxQuantity) {
+      errors[`items.${index}.quantity`] = 'validation.quantityAboveOrder';
+    }
     if (item.unitPrice < 0) errors[`items.${index}.unitPrice`] = 'validation.priceNegative';
   });
   return errors;

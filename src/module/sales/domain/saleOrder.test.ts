@@ -146,6 +146,9 @@ describe('order form', () => {
       emails: [],
       sentAt: null,
       confirmedAt: null,
+      invoices: [],
+      invoicedAmount: null,
+      remainingAmount: null,
     });
     expect(values).toMatchObject({
       customer: 'c-1',
@@ -153,6 +156,19 @@ describe('order form', () => {
       targetDate: '2026-12-20',
       deliveryAddress: 'Jl. A',
       discountType: 'percentage',
+    });
+  });
+});
+
+describe('orderActions for a partly invoiced order', () => {
+  it('offers another invoice and the invoices, but no edit or cancel once an invoice exists', () => {
+    expect(at('PARTIALLY_INVOICED', 's-1')).toMatchObject({
+      createInvoice: true,
+      viewInvoice: true,
+      edit: false,
+      cancel: false,
+      resend: true,
+      remove: false,
     });
   });
 });

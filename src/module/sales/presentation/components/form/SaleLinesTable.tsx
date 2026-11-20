@@ -98,9 +98,15 @@ export function SaleLinesTable({
                 <NumberInput
                   aria-label={t('form.lines.colQuantity')}
                   min={0}
+                  max={item.maxQuantity}
                   decimalScale={4}
                   {...money}
                   placeholder="0"
+                  description={
+                    item.maxQuantity === undefined
+                      ? undefined
+                      : t('form.lines.orderLeft', { count: item.maxQuantity })
+                  }
                   value={item.quantity || ''}
                   onChange={(value) => onChange(index, { quantity: toAmount(value) })}
                   error={errors[`items.${index}.quantity`]}

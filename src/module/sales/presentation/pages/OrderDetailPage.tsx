@@ -37,6 +37,7 @@ import { DocLinkedRefs } from '../components/docs/DocLinkedRefs';
 import { DocLinesCard } from '../components/docs/DocLinesCard';
 import { DocOverviewCard } from '../components/docs/DocOverviewCard';
 import { DocSideCards } from '../components/docs/DocSideCards';
+import { OrderInvoicesCard } from '../components/orders/OrderInvoicesCard';
 import { OrderStatusBadge } from '../components/orders/OrderStatusBadge';
 import { useOrderActions } from '../hooks/useOrderActions';
 import { useOrder } from '../hooks/useOrderQueries';
@@ -47,9 +48,13 @@ const NOTES: Record<SaleOrder['status'], { key: string; tone: NoteTone }> = {
   DRAFT: { key: 'detail.draftNote', tone: 'gray' },
   WAITING_CONFIRMATION: { key: 'detail.waitingNote', tone: 'blue' },
   CONFIRMED: { key: 'detail.confirmedNote', tone: 'green' },
+  PARTIALLY_INVOICED: { key: 'detail.partialNote', tone: 'blue' },
   COMPLETED: { key: 'detail.completedNote', tone: 'green' },
   CANCELLED: { key: 'detail.cancelledNote', tone: 'gray' },
 };
+
+/** Statuses from which an order has lines to bill or already billed. */
+const INVOICING = new Set<SaleOrder['status']>(['CONFIRMED', 'PARTIALLY_INVOICED', 'COMPLETED']);
 
 export function OrderDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -265,7 +270,14 @@ export function OrderDetailPage() {
           />
           <Grid gutter="lg" align="flex-start">
             <Grid.Col span={{ base: 12, lg: 8 }}>
-              <DocLinesCard ns="salesOrders" doc={order} />
+              <Stack gap="lg">
+                <DocLinesCard
+                  ns="salesOrders"
+                  doc={order}
+                  showInvoiced={INVOICING.has(order.status)}
+                />
+                <OrderInvoicesCard order={order} />
+              </Stack>
             </Grid.Col>
             <Grid.Col span={{ base: 12, lg: 4 }}>
               <DocSideCards
