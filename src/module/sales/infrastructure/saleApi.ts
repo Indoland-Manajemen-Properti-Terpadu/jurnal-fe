@@ -272,6 +272,11 @@ export const fetchSalePaymentTerms = async (): Promise<SalePaymentTermOption[]> 
     }));
 };
 
+/** Removes a payment; the backend reverses its journal and reopens the invoice balance. */
+export const deleteSalePayment = async (id: string): Promise<void> => {
+  await apiClient.delete(SALE_ENDPOINTS.salePaymentDetail(id));
+};
+
 export type SaleTagOption = { id: string; name: string; color?: string };
 
 export const fetchSaleTags = async (): Promise<SaleTagOption[]> => {

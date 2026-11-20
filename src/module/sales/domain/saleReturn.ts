@@ -1,3 +1,4 @@
+import { fromCents, toCents } from './saleMoney';
 import type { AmountCount, SaleDocCustomer, SaleDocListParams } from './saleDocument';
 
 export type ReturnStatus = 'DRAFT' | 'POSTED' | 'VOID';
@@ -91,6 +92,8 @@ export interface SaleReturn {
   status: ReturnStatus;
   displayStatus: ReturnDisplayStatus;
   applications: ReturnApplication[];
+  /** The journal of an issued return; null for a draft. */
+  journalId: string | null;
   /** Empty on a server that does not send a history yet. */
   activities: ReturnActivity[];
   postedAt: string | null;
@@ -123,6 +126,18 @@ export interface ReturnActionSet {
   /** An unused application can be taken back. */
   cancelApplication: boolean;
 }
+
+/**
+ * What was put against invoices. The server's `creditUsed` also counts a refund, so a refunded
+ * return would read as "used" while its list of uses is empty.
+ */
+export const creditAppliedOf = (ret: Pick<SaleReturn, 'applications'>): number =>
+  fromCents(
+    ret.applications.reduce(
+      (sum, application) => (application.voided ? sum : sum + toCents(application.amount)),
+      0
+    )
+  );
 
 /**
  * What a return offers in its current state, from the sales API guide. The server decides and a

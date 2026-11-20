@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { retryUnlessNotFound } from '../../infrastructure/saleErrors';
 import type { OrderListParams } from '../../domain/saleOrder';
 import { fetchOrder, fetchOrders } from '../../infrastructure/saleOrderApi';
 
@@ -23,4 +24,5 @@ export const useOrder = (id?: string) =>
     queryFn: () => fetchOrder(id || ''),
     enabled: Boolean(id),
     staleTime: 30_000,
+    retry: retryUnlessNotFound,
   });

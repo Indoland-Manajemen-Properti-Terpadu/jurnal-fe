@@ -86,9 +86,26 @@ describe('saleBadges', () => {
   });
 
   it('adds "partly paid" only while the invoice is still open', () => {
-    expect(saleBadges(sale('UNPAID', { isPartiallyPaid: true })).partialPaid).toBe(true);
     expect(saleBadges(sale('OVERDUE', { isPartiallyPaid: true })).partialPaid).toBe(true);
     expect(saleBadges(sale('PAID', { isPartiallyPaid: true })).partialPaid).toBe(false);
     expect(saleBadges(sale('UNPAID')).partialPaid).toBe(false);
+  });
+
+  it('shows an unpaid invoice with a payment as "partly paid" alone, not twice', () => {
+    expect(saleBadges(sale('UNPAID', { isPartiallyPaid: true }))).toEqual({
+      main: 'PARTIAL',
+      partialPaid: false,
+    });
+  });
+
+  it('keeps both badges when the partly paid invoice is overdue or returned', () => {
+    expect(saleBadges(sale('OVERDUE', { isPartiallyPaid: true }))).toEqual({
+      main: 'OVERDUE',
+      partialPaid: true,
+    });
+    expect(saleBadges(sale('UNPAID', { isPartiallyPaid: true, hasReturn: true }))).toEqual({
+      main: 'RETURNED',
+      partialPaid: true,
+    });
   });
 });

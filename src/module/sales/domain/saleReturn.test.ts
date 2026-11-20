@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import type { Sale } from './sale';
-import { allowedReturnActions, returnActions, type SaleReturn } from './saleReturn';
+import {
+  allowedReturnActions,
+  creditAppliedOf,
+  returnActions,
+  type SaleReturn,
+} from './saleReturn';
 import {
   canReturnSale,
   canSaveReturn,
@@ -262,5 +267,22 @@ describe('return form', () => {
     const at = (code: string) => canReturnSale({ displayStatus: { code, label: '' } } as Sale);
     expect(at('UNPAID') && at('OVERDUE') && at('PAID')).toBe(true);
     expect(at('DRAFT') || at('VOID')).toBe(false);
+  });
+});
+
+describe('creditAppliedOf', () => {
+  const application = (amount: number, voided = false) =>
+    ({ amount, voided }) as unknown as SaleReturn['applications'][number];
+
+  it('is zero for a refunded return that was never put against an invoice', () => {
+    expect(creditAppliedOf({ applications: [] })).toBe(0);
+  });
+
+  it('adds the uses that still stand and skips the ones taken back', () => {
+    expect(
+      creditAppliedOf({
+        applications: [application(100.1), application(50.2), application(999, true)],
+      })
+    ).toBe(150.3);
   });
 });

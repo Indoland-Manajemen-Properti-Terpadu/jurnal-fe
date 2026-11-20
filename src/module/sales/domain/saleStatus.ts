@@ -30,8 +30,11 @@ export const tabParams = (
 
 /** What the badges of an invoice say: its state, and whether a payment covers only part of it. */
 export interface SaleBadges {
-  /** A returned invoice reads "Diretur"; otherwise the server's own state. */
-  main: SaleDisplayCode | 'RETURNED';
+  /**
+   * A returned invoice reads "Diretur"; an unpaid one with a payment on it reads "Dibayar
+   * sebagian" alone, since "Belum lunas" next to it says the same twice; otherwise the server's own state.
+   */
+  main: SaleDisplayCode | 'RETURNED' | 'PARTIAL';
   partialPaid: boolean;
 }
 
@@ -42,18 +45,20 @@ export const saleBadges = (sale: {
 }): SaleBadges => {
   const { code } = sale.displayStatus;
   const issued = code !== 'DRAFT' && code !== 'VOID';
-  return {
-    main: issued && sale.hasReturn ? 'RETURNED' : code,
-    // Paid in full or void is never "partly paid", whatever the flag says.
-    partialPaid: Boolean(sale.isPartiallyPaid) && (code === 'UNPAID' || code === 'OVERDUE'),
-  };
+  // Paid in full or void is never "partly paid", whatever the flag says.
+  const partial = Boolean(sale.isPartiallyPaid) && (code === 'UNPAID' || code === 'OVERDUE');
+  if (issued && sale.hasReturn) return { main: 'RETURNED', partialPaid: partial };
+  if (partial && code === 'UNPAID') return { main: 'PARTIAL', partialPaid: false };
+  return { main: code, partialPaid: partial };
 };
 
 export type SaleStatusTone = { color: string; variant: 'light' | 'filled' | 'outline' };
 
 /** Red only for real lateness and green only for paid; everything else stays neutral or brand. */
-export const saleStatusTone = (code: SaleDisplayCode | 'RETURNED'): SaleStatusTone => {
+export const saleStatusTone = (code: SaleDisplayCode | 'RETURNED' | 'PARTIAL'): SaleStatusTone => {
   switch (code) {
+    case 'PARTIAL':
+      return { color: 'blue', variant: 'outline' };
     case 'RETURNED':
       return { color: 'orange', variant: 'light' };
     case 'OVERDUE':

@@ -1,7 +1,7 @@
 import { Anchor, Badge, Divider, Group, Paper, Stack, Table, Text } from '@mantine/core';
 import { useTranslation } from '@/i18n';
 import { formatDate, formatIDR } from '@/module/sales/domain/saleFormat';
-import type { SaleReturn } from '@/module/sales/domain/saleReturn';
+import { creditAppliedOf, type SaleReturn } from '@/module/sales/domain/saleReturn';
 
 const num = { fontVariantNumeric: 'tabular-nums' } as const;
 
@@ -119,7 +119,7 @@ export function ReturnCreditCard({
       </Text>
       <Stack gap={6}>
         <TotalRow strong label={t('detail.creditRemaining')} value={ret.creditRemaining} />
-        <TotalRow label={t('detail.creditUsed')} value={ret.creditUsed} />
+        <TotalRow label={t('detail.creditUsed')} value={creditAppliedOf(ret)} />
         <TotalRow label={t('detail.refunded')} value={ret.refundAmount} />
       </Stack>
       <Divider my="md" />

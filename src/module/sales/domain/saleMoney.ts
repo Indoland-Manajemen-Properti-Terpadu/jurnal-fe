@@ -22,3 +22,13 @@ export const toCents = (amount: number): number => roundMinor(amount * 100);
 export const roundToCents = (amount: number): number => Number(fromMinor(toCents(amount)));
 
 export const fromCents = (cents: number): number => Number(fromMinor(cents));
+
+/**
+ * What the invoice was issued for. After a return the server sends `finalAmount` net of it, and
+ * the detail page lists the return as its own line, so the total must add it back to avoid
+ * showing the same deduction twice.
+ */
+export const invoiceTotalBeforeReturns = (sale: {
+  finalAmount: number;
+  returnedAmount?: number;
+}): number => fromCents(toCents(sale.finalAmount) + toCents(sale.returnedAmount ?? 0));
