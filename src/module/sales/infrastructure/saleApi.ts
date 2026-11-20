@@ -260,7 +260,8 @@ type PaymentTermOptionDto = SalePaymentTermOption & { isActive?: boolean };
 /** Terms a new sale may pick. The options endpoint lists active terms only; the filter is a second guard. */
 export const fetchSalePaymentTerms = async (): Promise<SalePaymentTermOption[]> => {
   const { data } = await apiClient.get<ApiEnvelope<PaymentTermOptionDto[]>>(
-    SALE_ENDPOINTS.paymentTermOptions
+    SALE_ENDPOINTS.paymentTermOptions,
+    { params: { context: 'sale' } }
   );
   return (data.data || [])
     .filter((term) => term.isActive !== false)

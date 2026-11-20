@@ -129,7 +129,8 @@ export const useSalePaymentTerms = () =>
   useQuery({
     queryKey: saleKeys.paymentTerms(),
     queryFn: fetchSalePaymentTerms,
-    staleTime: 5 * 60_000,
+    // Never kept: a term deactivated a moment ago must not stay in the dropdown.
+    staleTime: 0,
   });
 
 /** Cash and bank accounts only (headers expand to their sub-accounts). */

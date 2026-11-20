@@ -9,7 +9,7 @@ describe('fetchSalePaymentTerms', () => {
     vi.mocked(apiClient.get).mockReset();
   });
 
-  it('reads the options list, which holds active terms only', async () => {
+  it('reads the options of the sale context, which hold usable active terms only', async () => {
     vi.mocked(apiClient.get).mockResolvedValue({
       data: {
         data: [
@@ -22,7 +22,10 @@ describe('fetchSalePaymentTerms', () => {
       { id: 't1', name: 'Net 30', days: 30, isDefault: true },
       { id: 't2', name: 'Net 15', days: 15, isDefault: false },
     ]);
-    expect(apiClient.get).toHaveBeenCalledWith('/v1/payment-terms/options');
+    // The sale context keeps out terms a sales form cannot handle (deposit, instalments, retention).
+    expect(apiClient.get).toHaveBeenCalledWith('/v1/payment-terms/options', {
+      params: { context: 'sale' },
+    });
   });
 
   it('drops a term flagged inactive even if the list returns it', async () => {
