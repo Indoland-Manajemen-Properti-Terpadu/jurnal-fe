@@ -1,12 +1,29 @@
-import { useEffect } from 'react';
-import { Alert, Button, Group, Paper, Skeleton, Stack, Table, Text } from '@mantine/core';
-import { IconAlertCircle, IconCashBanknote } from '@tabler/icons-react';
+import { useEffect, useState } from 'react';
+import {
+  ActionIcon,
+  Alert,
+  Anchor,
+  Button,
+  Group,
+  Paper,
+  Skeleton,
+  Stack,
+  Table,
+  Text,
+  Tooltip,
+  VisuallyHidden,
+} from '@mantine/core';
+import { IconAlertCircle, IconCashBanknote, IconNotebook, IconTrash } from '@tabler/icons-react';
+import { Link } from 'react-router-dom';
 import { DetailCardHeader } from '@/components/DetailCardHeader/DetailCardHeader';
+import { routes } from '@/router/routes';
 import type { Sale } from '@/module/sales/domain/sale';
 import type { SalePaymentRow } from '@/module/sales/domain/salePaymentList';
 import { fromCents, toCents } from '@/module/sales/domain/saleMoney';
 import type { SaleDisplay } from '../../hooks/useSaleDisplay';
 import { useSalePaymentsOfSale } from '../../hooks/useSaleQueries';
+import { useDeleteSalePayment } from '../../hooks/useSaleMutations';
+import { ConfirmModal } from '../shared/ConfirmModal';
 import classes from './SaleDetail.module.css';
 
 type SalePaymentHistoryCardProps = {
@@ -25,6 +42,18 @@ export function SalePaymentHistoryCard({
   const { t, money, date } = display;
   const query = useSalePaymentsOfSale(sale.id);
   const rows = query.data?.items ?? [];
+  const [toDelete, setToDelete] = useState<SalePaymentRow | null>(null);
+  const deleteMutation = useDeleteSalePayment();
+
+  const confirmDelete = async () => {
+    if (!toDelete) return;
+    try {
+      await deleteMutation.mutateAsync(toDelete.id);
+    } catch {
+      // The mutation hook already told the user what went wrong.
+    }
+    setToDelete(null);
+  };
 
   useEffect(() => {
     if (!highlightId || rows.length === 0) return;
@@ -86,6 +115,9 @@ export function SalePaymentHistoryCard({
               <Table.Th>{t('colPayment')}</Table.Th>
               <Table.Th>{t('colAllocation')}</Table.Th>
               <Table.Th ta="right">{t('colReceived')}</Table.Th>
+              <Table.Th w={56}>
+                <VisuallyHidden>{t('colActions')}</VisuallyHidden>
+              </Table.Th>
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
@@ -110,6 +142,18 @@ export function SalePaymentHistoryCard({
                       {row.memo}
                     </Text>
                   )}
+                  {row.journalId && (
+                    <Anchor
+                      component={Link}
+                      to={routes.journalEntries.detail.replace(':idTransaction', row.journalId)}
+                      size="xs"
+                      fw={600}
+                      className={classes.inlineLink}
+                    >
+                      <IconNotebook size={14} aria-hidden="true" />
+                      {t('viewJournal')}
+                    </Anchor>
+                  )}
                 </Table.Td>
                 <Table.Td>
                   <Stack gap={2}>
@@ -133,6 +177,18 @@ export function SalePaymentHistoryCard({
                     </Text>
                   )}
                 </Table.Td>
+                <Table.Td>
+                  <Tooltip label={t('deletePayment')} withArrow>
+                    <ActionIcon
+                      variant="subtle"
+                      color="red"
+                      aria-label={t('deletePayment')}
+                      onClick={() => setToDelete(row)}
+                    >
+                      <IconTrash size={16} />
+                    </ActionIcon>
+                  </Tooltip>
+                </Table.Td>
               </Table.Tr>
             ))}
           </Table.Tbody>
@@ -153,6 +209,16 @@ export function SalePaymentHistoryCard({
         }
       />
       {body}
+      <ConfirmModal
+        opened={toDelete !== null}
+        tone="danger"
+        loading={deleteMutation.isPending}
+        title={t('deletePaymentTitle', { number: toDelete?.transactionNumber ?? '' })}
+        message={t('deletePaymentMessage')}
+        confirmLabel={t('deletePaymentConfirm')}
+        onClose={() => setToDelete(null)}
+        onConfirm={confirmDelete}
+      />
     </Paper>
   );
 }

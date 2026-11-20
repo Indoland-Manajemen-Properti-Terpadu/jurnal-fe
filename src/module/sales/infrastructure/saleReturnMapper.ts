@@ -79,6 +79,7 @@ export const mapReturnDto = (dto: SaleReturnDto): SaleReturn => {
       ? 'CUSTOMER_CREDIT'
       : 'REDUCE_INVOICE') as ReturnSettlement,
     memo: dto.memo || '',
+    journalId: toRefId(dto.journalTransaction),
     items: (dto.items ?? []).map(mapLine),
     amount: toMoney(dto.amount),
     discountAmount: toMoney(dto.discountAmount),

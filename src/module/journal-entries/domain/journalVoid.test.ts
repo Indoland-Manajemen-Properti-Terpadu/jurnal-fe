@@ -26,6 +26,20 @@ describe('voidGate', () => {
     });
   });
 
+  it.each(['SALE', 'SALE_PAYMENT'])(
+    'blocks a journal posted by a sales document (%s) even if the server allows it',
+    (sourceType) => {
+      expect(voidGate(entry({ sourceType, canVoid: true }))).toEqual({
+        allowed: false,
+        kind: 'source',
+      });
+    }
+  );
+
+  it('still reports a void sales journal as void', () => {
+    expect(voidGate(entry({ sourceType: 'SALE', status: 'VOID' }))).toMatchObject({ kind: 'void' });
+  });
+
   it('does not allow a void when the server sent no flag', () => {
     expect(voidGate(entry({ canVoid: undefined }))).toMatchObject({ allowed: false });
   });

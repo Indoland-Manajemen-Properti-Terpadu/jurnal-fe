@@ -1,4 +1,10 @@
-import { isValidImportDate, parseServerImportError, validateImportRow } from './importValidation';
+import type { BankStatementPreviewItem } from './importPreview';
+import {
+  isValidImportDate,
+  parseServerImportError,
+  recheckPreviewRow,
+  validateImportRow,
+} from './importValidation';
 
 const row = { Description: 'SETORAN', TransactionDate: '01/11/2026', Received: '100', Spent: '0' };
 
@@ -35,7 +41,13 @@ describe('validateImportRow', () => {
     expect(validateImportRow({ ...row, Received: '1.000.000,50' })).toEqual([
       { code: 'receivedNumber' },
     ]);
-    expect(validateImportRow({ ...row, Spent: '-5' })).toEqual([{ code: 'spentNumber' }]);
+  });
+
+  it('names a negative amount instead of blaming the thousand separator', () => {
+    expect(validateImportRow({ ...row, Received: '0', Spent: '-5000' })).toEqual([
+      { code: 'negativeAmount' },
+    ]);
+    expect(validateImportRow({ ...row, Received: '-1' })).toEqual([{ code: 'negativeAmount' }]);
   });
 });
 
@@ -55,5 +67,66 @@ describe('parseServerImportError', () => {
       detail: 'Transaction',
     });
     expect(parseServerImportError('Something new')).toBeNull();
+  });
+});
+
+const previewRow = (over: Partial<BankStatementPreviewItem> = {}): BankStatementPreviewItem => ({
+  rowIndex: 1,
+  TransactionDate: '20/11/2026',
+  Received: '10000',
+  Spent: '0',
+  Description: 'Setoran',
+  date: null,
+  received: null,
+  spent: null,
+  amount: null,
+  description: '',
+  isDateValid: true,
+  isReceivedValid: true,
+  isSpentValid: true,
+  isDescriptionValid: true,
+  isValid: true,
+  errors: [],
+  ...over,
+});
+
+describe('recheckPreviewRow', () => {
+  it('leaves a row alone when it passes every rule', () => {
+    const ok = previewRow();
+    expect(recheckPreviewRow(ok)).toBe(ok);
+  });
+
+  it('marks invalid a row the server passed with an ISO date', () => {
+    const checked = recheckPreviewRow(previewRow({ TransactionDate: '2026-11-20' }));
+    expect(checked.isValid).toBe(false);
+    expect(checked.errors.map((m) => parseServerImportError(m))).toEqual([{ code: 'date' }]);
+  });
+
+  it('marks invalid a row the server passed with an empty description', () => {
+    const checked = recheckPreviewRow(previewRow({ Description: '' }));
+    expect(checked.isValid).toBe(false);
+    expect(checked.errors.map((m) => parseServerImportError(m))).toEqual([{ code: 'description' }]);
+  });
+
+  it('replaces the misleading server message of a negative amount', () => {
+    const checked = recheckPreviewRow(
+      previewRow({
+        Received: '0',
+        Spent: '-5000',
+        isValid: false,
+        errors: ['Spent is required and must be a valid number'],
+      })
+    );
+    expect(checked.errors.map((m) => parseServerImportError(m))).toEqual([
+      { code: 'negativeAmount' },
+    ]);
+  });
+
+  it('keeps a server message the app does not know', () => {
+    const checked = recheckPreviewRow(
+      previewRow({ Description: '', isValid: false, errors: ['Something new'] })
+    );
+    expect(checked.errors[0]).toBe('Something new');
+    expect(checked.errors).toHaveLength(2);
   });
 });

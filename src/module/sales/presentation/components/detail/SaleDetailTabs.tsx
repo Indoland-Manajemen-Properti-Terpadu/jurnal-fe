@@ -6,6 +6,7 @@ import { TAB_DIVIDER } from '../shared/tabDivider';
 import type { SaleDisplay } from '../../hooks/useSaleDisplay';
 import { SaleItemsCard } from './SaleItemsCard';
 import { SaleNotesCard } from './SaleNotesCard';
+import { SaleReturnsCard } from './SaleReturnsCard';
 import { SalePaymentHistoryCard } from './SalePaymentHistoryCard';
 import { SaleSidebar } from './SaleSidebar';
 
@@ -53,6 +54,7 @@ export function SaleDetailTabs({ sale, display, paymentCount }: Readonly<SaleDet
       <Grid.Col span={{ base: 12, lg: 8 }}>
         <Stack gap="lg">
           <SaleItemsCard sale={sale} display={display} />
+          <SaleReturnsCard sale={sale} display={display} />
           {(sale.message || sale.memo) && <SaleNotesCard sale={sale} display={display} />}
         </Stack>
       </Grid.Col>

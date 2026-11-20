@@ -1,14 +1,16 @@
 import { useQuery } from '@tanstack/react-query';
-import { fetchContact, fetchPaymentTerms, fetchContacts } from '@/module/contacts';
+import { fetchContact, fetchContacts } from '@/module/contacts';
 import { fetchProducts, fetchTaxes } from '@/module/products';
 import { getJournalAccounts } from '@/module/chart-of-accounts';
+import { retryUnlessNotFound } from '../../infrastructure/saleErrors';
 import type { SaleListParams } from '../../domain/sale';
-import type { CustomerSummary } from '../../domain/saleCustomer';
+import { withContactDetails, type CustomerSummary } from '../../domain/saleCustomer';
 import type { SalePaymentListParams } from '../../domain/salePaymentList';
 import { depositAccountOptions } from '../../domain/saleDeposit';
 import {
   fetchOverpaymentAccount,
   fetchPaymentMethods,
+  fetchSalePaymentTerms,
   fetchPublicInvoice,
   fetchSaleDetail,
   fetchSaleTags,
@@ -53,12 +55,30 @@ export const useSales = (params: SaleListParams = {}) =>
     staleTime: 30_000,
   });
 
+/** The detail response names the customer only; the contact has the email and address. */
+const fetchSaleDetailWithContact = async (id: string) => {
+  const sale = await fetchSaleDetail(id);
+  const customerId = sale.customer?.id;
+  const complete = sale.customer?.emails?.some(Boolean) && sale.customer.billingAddress;
+  if (!customerId || complete) return sale;
+  try {
+    const contact = await fetchContact(customerId);
+    return withContactDetails(sale, {
+      emails: contact.emails ?? [],
+      billingAddress: contact.addresses?.billing?.general ?? '',
+    });
+  } catch {
+    return sale;
+  }
+};
+
 export const useSaleDetail = (id?: string) =>
   useQuery({
     queryKey: saleKeys.detail(id || ''),
-    queryFn: () => fetchSaleDetail(id || ''),
+    queryFn: () => fetchSaleDetailWithContact(id || ''),
     enabled: Boolean(id),
     staleTime: 30_000,
+    retry: retryUnlessNotFound,
   });
 
 /* Form dropdown lookups */
@@ -108,7 +128,7 @@ export const useSaleTaxes = () =>
 export const useSalePaymentTerms = () =>
   useQuery({
     queryKey: saleKeys.paymentTerms(),
-    queryFn: fetchPaymentTerms,
+    queryFn: fetchSalePaymentTerms,
     staleTime: 5 * 60_000,
   });
 

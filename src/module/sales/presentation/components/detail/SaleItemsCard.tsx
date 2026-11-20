@@ -4,6 +4,7 @@ import { IconArrowUpRight, IconNotebook, IconReceipt2 } from '@tabler/icons-reac
 import { Link } from 'react-router-dom';
 import { routes } from '@/router/routes';
 import type { Sale, SaleItem } from '@/module/sales/domain/sale';
+import { invoiceTotalBeforeReturns } from '@/module/sales/domain/saleMoney';
 import type { SaleDisplay } from '../../hooks/useSaleDisplay';
 import { AmountRow } from './AmountRow';
 import { formatSignedAmount } from './formatSignedAmount';
@@ -205,7 +206,11 @@ export function SaleItemsCard({ sale, display }: Readonly<{ sale: Sale; display:
           />
         )}
         <Divider my="xs" />
-        <AmountRow label={t('invoiceTotal')} amount={money(sale.finalAmount)} emphasis />
+        <AmountRow
+          label={t('invoiceTotal')}
+          amount={money(invoiceTotalBeforeReturns(sale))}
+          emphasis
+        />
         {!!sale.returnedAmount && sale.returnedAmount > 0 && (
           <AmountRow label={t('returnedAmount')} amount={`−${money(sale.returnedAmount)}`} />
         )}

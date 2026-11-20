@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { retryUnlessNotFound } from '../../infrastructure/saleErrors';
 import type { ReturnListParams } from '../../domain/saleReturn';
 import { fetchReturn, fetchReturns } from '../../infrastructure/saleReturnApi';
 
@@ -22,4 +23,5 @@ export const useReturn = (id?: string) =>
     queryFn: () => fetchReturn(id || ''),
     enabled: Boolean(id),
     staleTime: 30_000,
+    retry: retryUnlessNotFound,
   });

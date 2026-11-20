@@ -13,6 +13,7 @@ import {
 } from '@mantine/core';
 import { IconCheck, IconCopy } from '@tabler/icons-react';
 import type { Sale } from '@/module/sales/domain/sale';
+import { invoiceTotalBeforeReturns } from '@/module/sales/domain/saleMoney';
 import type { SaleDisplay } from '../../hooks/useSaleDisplay';
 import { SaleStatusBadges } from '../shared/SaleStatusBadge';
 import { DetailField } from './DetailField';
@@ -78,7 +79,9 @@ export function SaleOverviewCard({ sale, display, actions }: Readonly<SaleOvervi
       <SimpleGrid cols={{ base: 2, sm: 4 }} spacing="md" className={classes.facts}>
         <DetailField label={t('transactionDate')}>{date(sale.transactionDate)}</DetailField>
         <DetailField label={t('dueDate')}>{date(sale.dueDate)}</DetailField>
-        <DetailField label={t('invoiceTotal')}>{money(sale.finalAmount)}</DetailField>
+        <DetailField label={t('invoiceTotal')}>
+          {money(invoiceTotalBeforeReturns(sale))}
+        </DetailField>
         {isReceivable && (
           <Box className={classes.balanceFact}>
             <Text size="xs" fw={700}>

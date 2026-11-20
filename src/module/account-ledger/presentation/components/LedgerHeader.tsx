@@ -145,7 +145,7 @@ export const LedgerHeader: React.FC<LedgerHeaderProps> = ({
             onArchive={onArchive}
             onDelete={onDelete}
           />
-          <LedgerCreateActions variant={variant} />
+          <LedgerCreateActions variant={variant} accountId={idAccount} />
         </Group>
       }
     />
