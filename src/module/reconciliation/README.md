@@ -14,6 +14,7 @@ None of its own. `ReconciliationTable` renders inside the account detail page (`
 
 - `GET /v1/reconciliation/:idAccount`: ONLY the statement rows that are not reconciled yet (with `recommendations`), `unreconciledJournalDetails` (journal lines of the account with no statement row) and `balance`, which is the net of those unreconciled rows, not a bank balance. A matched row leaves this list.
 - `GET /v1/reconciliation/bank-statements/:bankStatementId/journal-details`: candidates for the manual modal (`data.results`, other shapes accepted).
+- `DELETE /v1/reconciliation/cancel/:matchId` (no body) and `GET /v1/reconciliation/matches?journalId=` are used by `src/module/reconciliation-match` (Un-Reconcile on the Rekening Koran tab and on the journal detail). The module is separate because `reconciliation` imports `bank-statements`, and both `bank-statements` and `journal-entries` need it. Adjustment or cash-mapping journals made with a match are not voided by cancelling it; the user voids them from the journal menu. Candidates of `journal-details` no longer include VOID journals or their reversals (the server excludes them; each row carries `journalTransaction.status`).
 - `POST /v1/reconciliation/match-multiple` `{ matches: [{ bankStatementId, journalDetailIds }] }`. A failed request throws (status >= 400) and the error toast shows the server message.
 
 ## Domain rules (`domain/matchRules.ts`)
