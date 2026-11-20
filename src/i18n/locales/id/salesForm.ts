@@ -61,6 +61,7 @@ export const salesForm = {
       addRow: 'Tambah Baris',
       noCode: 'Tanpa Kode',
       unitEmpty: '–',
+      orderLeft: 'Sisa pesanan {{count}}',
       unitHint: 'Satuan mengikuti produk yang dipilih.',
     },
     extras: {
@@ -129,6 +130,7 @@ export const salesForm = {
     totalZero: 'Total faktur masih Rp 0. Isi harga pada minimal satu baris.',
     productRequired: 'Pilih produk',
     quantityMin: 'Jumlah harus lebih dari 0',
+    quantityAboveOrder: 'Jumlah melebihi sisa pesanan',
     priceNegative: 'Harga tidak boleh negatif',
     discountNegative: 'Diskon tidak boleh negatif',
     discountPercent: 'Diskon persentase maksimal 100',

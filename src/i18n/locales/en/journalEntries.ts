@@ -159,8 +159,6 @@ export const journalEntries = {
       void: 'This entry has been voided and can no longer be changed.',
       reversal:
         'This is the reversal entry made when another entry was voided, so it cannot be changed.',
-      source:
-        'This entry was posted automatically from a sales invoice or payment, so it cannot be voided from the journal menu. Void it from its document in Sales.',
       blocked: 'This entry cannot be changed.',
     },
     noticeLink: {

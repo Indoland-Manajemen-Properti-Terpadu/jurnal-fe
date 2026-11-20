@@ -31,7 +31,13 @@ const Note = ({ title, text }: Readonly<{ title: string; text: string }>) =>
 export function DocLinesCard({
   ns,
   doc,
-}: Readonly<{ ns: 'salesQuotes' | 'salesOrders'; doc: SaleDocHeader }>) {
+  showInvoiced = false,
+}: Readonly<{
+  ns: 'salesQuotes' | 'salesOrders';
+  doc: SaleDocHeader;
+  /** An order past confirmation: adds what each line has billed so far and what is left. */
+  showInvoiced?: boolean;
+}>) {
   const { t } = useTranslation(ns);
   const head = (key: string, align?: 'right') => (
     <Table.Th ta={align}>
@@ -57,13 +63,15 @@ export function DocLinesCard({
           </div>
         </Group>
 
-        <Table.ScrollContainer minWidth={620}>
+        <Table.ScrollContainer minWidth={showInvoiced ? 760 : 620}>
           <Table verticalSpacing="sm" horizontalSpacing="md">
             <Table.Thead bg="gray.0">
               <Table.Tr>
                 {head('colNo')}
                 {head('colItem')}
                 {head('colQuantity', 'right')}
+                {showInvoiced && head('colInvoiced', 'right')}
+                {showInvoiced && head('colRemaining', 'right')}
                 {head('colUnitPrice', 'right')}
                 {head('colTax')}
                 {head('colAmount', 'right')}
@@ -90,6 +98,18 @@ export function DocLinesCard({
                   <Table.Td ta="right">
                     <Text size="sm">{line.quantity}</Text>
                   </Table.Td>
+                  {showInvoiced && (
+                    <Table.Td ta="right">
+                      <Text size="sm">{line.invoicedQty ?? '–'}</Text>
+                    </Table.Td>
+                  )}
+                  {showInvoiced && (
+                    <Table.Td ta="right">
+                      <Text size="sm" fw={600}>
+                        {line.remainingQty ?? '–'}
+                      </Text>
+                    </Table.Td>
+                  )}
                   <Table.Td ta="right">
                     <Text size="sm" style={{ fontVariantNumeric: 'tabular-nums' }}>
                       {formatIDR(line.unitPrice)}

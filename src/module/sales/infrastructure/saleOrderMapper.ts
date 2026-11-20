@@ -1,13 +1,14 @@
 import type { AmountCount } from '../domain/saleDocument';
-import type { OrderStatus, OrderSummary, SaleOrder } from '../domain/saleOrder';
+import type { OrderInvoice, OrderStatus, OrderSummary, SaleOrder } from '../domain/saleOrder';
 import { mapDocHeader } from './saleDocMapper';
 import { toMoney, toNumber, toRefId, toRefNumber } from './saleMapperUtils';
-import type { OrderSummaryDto, SaleOrderDto } from './saleOrderDto';
+import type { OrderInvoiceDto, OrderSummaryDto, SaleOrderDto } from './saleOrderDto';
 
 const STATUSES: OrderStatus[] = [
   'DRAFT',
   'WAITING_CONFIRMATION',
   'CONFIRMED',
+  'PARTIALLY_INVOICED',
   'COMPLETED',
   'CANCELLED',
 ];
@@ -16,6 +17,17 @@ const asStatus = (value: string | undefined): OrderStatus => {
   const status = String(value || 'DRAFT').toUpperCase() as OrderStatus;
   return STATUSES.includes(status) ? status : 'DRAFT';
 };
+
+const mapInvoice = (dto: OrderInvoiceDto): OrderInvoice => ({
+  id: dto.sale?.id || dto.sale?._id || '',
+  number: dto.sale?.transactionNumber || '',
+  date: dto.transactionDate || null,
+  status: dto.status || '',
+  amount: toMoney(dto.amount),
+});
+
+const optionalMoney = (value: unknown): number | null =>
+  value === undefined || value === null ? null : toMoney(value);
 
 export const mapOrderDto = (dto: SaleOrderDto): SaleOrder => ({
   ...mapDocHeader(dto),
@@ -29,6 +41,9 @@ export const mapOrderDto = (dto: SaleOrderDto): SaleOrder => ({
   emails: Array.isArray(dto.emails) ? dto.emails : [],
   sentAt: dto.sentAt || null,
   confirmedAt: dto.confirmedAt || null,
+  invoices: (dto.invoices ?? []).map(mapInvoice).filter((invoice) => invoice.id),
+  invoicedAmount: optionalMoney(dto.invoicedAmount),
+  remainingAmount: optionalMoney(dto.remainingAmount),
 });
 
 const amountCount = (value: { amount?: unknown; count?: unknown } | undefined): AmountCount => ({
@@ -39,6 +54,7 @@ const amountCount = (value: { amount?: unknown; count?: unknown } | undefined): 
 export const mapOrderSummary = (dto: OrderSummaryDto | undefined): OrderSummary => ({
   awaiting: amountCount(dto?.awaiting),
   ready: amountCount(dto?.ready),
+  partial: amountCount(dto?.partial),
   invoiced: amountCount(dto?.invoiced),
   counts: {
     running: toNumber(dto?.counts?.running),

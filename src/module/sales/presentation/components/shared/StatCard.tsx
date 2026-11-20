@@ -52,9 +52,12 @@ export function StatCard({
   );
 }
 
-/** A row of separate cards, three across on a wide screen and one on a phone. */
-export const StatCardRow = ({ children }: Readonly<{ children: ReactNode }>) => (
-  <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="md">
+/** A row of separate cards, three (or four) across on a wide screen and one on a phone. */
+export const StatCardRow = ({
+  children,
+  columns = 3,
+}: Readonly<{ children: ReactNode; columns?: 3 | 4 }>) => (
+  <SimpleGrid cols={{ base: 1, sm: 2, lg: columns }} spacing="md">
     {children}
   </SimpleGrid>
 );

@@ -7,6 +7,7 @@ import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
 import { useTranslation } from '@/i18n';
 import { routes } from '@/router/routes';
 import { saleToFormValues } from '../../domain/saleForm';
+import { orderActions } from '../../domain/saleOrder';
 import { orderToSaleFormValues } from '../../domain/saleOrderInvoice';
 import { SaleFormBody } from '../components/form/SaleFormBody';
 import { useOrder } from '../hooks/useOrderQueries';
@@ -41,8 +42,8 @@ export function SaleFormPage() {
     return <Navigate to={routes.sales.detail.replace(':id', sale.id)} replace />;
   }
   if (isEdit && isError) return <Navigate to={routes.sales.main} replace />;
-  // Only a confirmed order can be invoiced; any other opens on its own page.
-  if (orderId && order && order.status !== 'CONFIRMED') {
+  // Only an order with something left to bill can be invoiced; any other opens on its own page.
+  if (orderId && order && !orderActions(order).createInvoice) {
     return <Navigate to={orderPath(order.id)} replace />;
   }
   if (orderId && orderQuery.isError) return <Navigate to={routes.sales.orders} replace />;

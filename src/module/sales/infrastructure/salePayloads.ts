@@ -39,6 +39,7 @@ export const buildSaleFormData = (values: CreateSaleFormValues, mode: SaleSaveMo
 
   values.items.forEach((item, index) => {
     formData.append(`items[${index}][product]`, item.productId);
+    if (item.saleOrderItem) formData.append(`items[${index}][saleOrderItem]`, item.saleOrderItem);
     if (item.description) formData.append(`items[${index}][description]`, item.description);
     formData.append(`items[${index}][quantity]`, String(item.quantity));
     formData.append(`items[${index}][unitPrice]`, String(roundToCents(item.unitPrice)));

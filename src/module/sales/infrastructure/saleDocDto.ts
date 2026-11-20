@@ -15,6 +15,9 @@ export type SaleDocLineDto = IdRef & {
   taxAmount?: unknown;
   amount?: unknown;
   discountAmount?: unknown;
+  /** Orders only. */
+  invoicedQty?: unknown;
+  remainingQty?: unknown;
 };
 
 export type SaleDocHeaderDto = IdRef & {

@@ -179,3 +179,29 @@ describe('an invoice that bills nothing (PRO-75)', () => {
     expect(validateStep('lines', mixed)).toEqual({});
   });
 });
+
+describe('validateStep lines from an order', () => {
+  const line = (quantity: number, maxQuantity?: number) => ({
+    productId: 'p-1',
+    description: '',
+    unit: '',
+    quantity,
+    unitPrice: 1000,
+    saleOrderItem: 'l-1',
+    maxQuantity,
+  });
+
+  it('refuses a quantity above what is left on the order', () => {
+    const errors = validateStep('lines', valid({ items: [line(4, 3)] }));
+    expect(errors['items.0.quantity']).toBe('validation.quantityAboveOrder');
+  });
+
+  it('accepts the remaining quantity or less', () => {
+    expect(validateStep('lines', valid({ items: [line(3, 3)] }))).toEqual({});
+    expect(validateStep('lines', valid({ items: [line(1, 3)] }))).toEqual({});
+  });
+
+  it('does not limit a line that has no order behind it', () => {
+    expect(validateStep('lines', valid({ items: [line(9)] }))).toEqual({});
+  });
+});
