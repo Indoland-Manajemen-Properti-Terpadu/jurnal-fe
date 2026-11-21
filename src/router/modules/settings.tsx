@@ -4,6 +4,7 @@ import {
   AccountMappingPage,
   ApprovalFlowPage,
   CompanySettingPage,
+  DepartmentPage,
   GeneralSettingPage,
   NumberFormatPage,
   PaymentMethodPage,
@@ -47,4 +48,5 @@ export const settingsRoutes: RouteObject[] = [
   { path: routes.settings.paymentMethods, element: <PaymentMethodPage /> },
   { path: routes.settings.numberFormats, element: <NumberFormatPage /> },
   { path: routes.settings.tags, element: <TagSettingPage /> },
+  { path: routes.settings.departments, element: <DepartmentPage /> },
 ];

@@ -42,6 +42,7 @@ export const NAV_MENU = {
   purchaseReturns: ['JP-PURCH-RET'],
   payables: ['JP-PURCH-RPT', 'JP-PURCH'],
   settings: ['JP-SETT'],
+  departments: ['JP-SETT-DEPT'],
   /** Users and roles screens; either menu opens the user list because it needs the roles too. */
   users: ['JP-SETT-UM', 'JP-SETT-CT'],
   userAccess: ['JP-SETT-UM'],

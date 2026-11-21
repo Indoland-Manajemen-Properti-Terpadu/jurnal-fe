@@ -3,6 +3,7 @@ import { navigation } from './navigation';
 import { journal } from './journal';
 import { settings } from './settings';
 import { settingsPages } from './settingsPages';
+import { settingsDepartments } from './settingsDepartments';
 import { pendingChanges } from './pendingChanges';
 import { assets } from './assets';
 import { assetWriteOffs } from './assetWriteOffs';
@@ -38,7 +39,7 @@ export const en = {
   common,
   navigation,
   journal,
-  settings: { ...settings, ...settingsPages },
+  settings: { ...settings, ...settingsPages, ...settingsDepartments },
   pendingChanges,
   assets,
   assetWriteOffs,

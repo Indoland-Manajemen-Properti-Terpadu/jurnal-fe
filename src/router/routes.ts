@@ -201,6 +201,7 @@ export const routes = {
     paymentMethods: '/settings/payment-methods',
     numberFormats: '/settings/number-formats',
     tags: '/settings/tags',
+    departments: '/settings/departments',
   },
 
   userManagement: {

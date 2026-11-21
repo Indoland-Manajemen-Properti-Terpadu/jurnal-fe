@@ -139,12 +139,20 @@ export const navigationSections: NavSection[] = [
         menus: [...NAV_MENU.purchases],
         children: [
           child('purchasesOverview', SquaresFour, routes.purchases.main),
-          child('purchasesRequests', FileText, routes.purchases.requests, [...NAV_MENU.purchaseRequests]),
+          child('purchasesRequests', FileText, routes.purchases.requests, [
+            ...NAV_MENU.purchaseRequests,
+          ]),
           child('purchasesOrders', Package, routes.purchases.orders, [...NAV_MENU.purchaseOrders]),
-          child('purchasesReceipts', Truck, routes.purchases.receipts, [...NAV_MENU.purchaseReceipts]),
+          child('purchasesReceipts', Truck, routes.purchases.receipts, [
+            ...NAV_MENU.purchaseReceipts,
+          ]),
           child('purchasesBills', Receipt, routes.purchases.bills, [...NAV_MENU.purchaseBills]),
-          child('purchasesPayments', Wallet, routes.purchases.payments, [...NAV_MENU.purchasePayments]),
-          child('purchasesReturns', ArrowUUpLeft, routes.purchases.returns, [...NAV_MENU.purchaseReturns]),
+          child('purchasesPayments', Wallet, routes.purchases.payments, [
+            ...NAV_MENU.purchasePayments,
+          ]),
+          child('purchasesReturns', ArrowUUpLeft, routes.purchases.returns, [
+            ...NAV_MENU.purchaseReturns,
+          ]),
           child('payables', ChartBar, routes.purchases.payables, [...NAV_MENU.payables]),
         ],
       },

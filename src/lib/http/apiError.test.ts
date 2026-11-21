@@ -1,0 +1,85 @@
+import { AxiosError, type AxiosResponse } from 'axios';
+import { describe, expect, it } from 'vitest';
+import { ApiError, describeApiError, toApiError, type ApiErrorMessages } from './apiError';
+
+const respond = (status: number, data: unknown) =>
+  new AxiosError('failed', 'ERR', undefined, undefined, {
+    status,
+    data,
+    statusText: '',
+    headers: {},
+    config: {},
+  } as AxiosResponse);
+
+const messages: ApiErrorMessages = {
+  rejected: 'rejected',
+  forbidden: 'forbidden',
+  validation: 'validation',
+  unauthorized: 'unauthorized',
+  notFound: 'notFound',
+  network: 'network',
+  generic: 'generic',
+};
+
+describe('toApiError', () => {
+  it('keeps the Indonesian business message of a refused request', () => {
+    const error = toApiError(respond(400, { code: 400, message: 'Nama departemen sudah dipakai' }));
+
+    expect(error.kind).toBe('domain');
+    expect(error.serverMessage).toBe('Nama departemen sudah dipakai');
+  });
+
+  it('treats a 400 with a field list as validation and keeps the fields', () => {
+    const error = toApiError(
+      respond(400, {
+        message: '"name" is required',
+        data: [{ field: 'name', message: '"name" is required' }],
+        stack: 'Error: boom\n at somewhere',
+      })
+    );
+
+    expect(error.kind).toBe('validation');
+    expect(error.fieldErrors).toEqual([{ field: 'name', message: '"name" is required' }]);
+    expect(error.serverMessage).toBeUndefined();
+  });
+
+  it.each([
+    [401, 'unauthorized'],
+    [403, 'forbidden'],
+    [404, 'notFound'],
+    [502, 'network'],
+    [500, 'unknown'],
+  ])('maps status %i to %s', (status, kind) => {
+    expect(toApiError(respond(status, { message: 'x' })).kind).toBe(kind);
+  });
+
+  it('reports a request with no response as a network failure', () => {
+    expect(toApiError(new AxiosError('offline')).kind).toBe('network');
+  });
+
+  it('returns an ApiError unchanged and turns anything else into unknown', () => {
+    const own = new ApiError({ kind: 'notFound' });
+
+    expect(toApiError(own)).toBe(own);
+    expect(toApiError(new Error('oops')).kind).toBe('unknown');
+  });
+});
+
+describe('describeApiError', () => {
+  const duplicate = respond(400, { message: 'Nama departemen sudah dipakai' });
+
+  it('shows the Indonesian business message to Indonesian readers only', () => {
+    expect(describeApiError(duplicate, 'id', messages)).toBe('Nama departemen sudah dipakai');
+    expect(describeApiError(duplicate, 'en', messages)).toBe('rejected');
+  });
+
+  it('never shows validation text, server errors or a bare role refusal', () => {
+    const invalid = respond(400, { message: '"name" is required', data: [{ field: 'name' }] });
+
+    expect(describeApiError(invalid, 'id', messages)).toBe('validation');
+    expect(describeApiError(respond(500, { message: 'db down' }), 'id', messages)).toBe('generic');
+    expect(
+      describeApiError(respond(403, { message: 'Forbidden Access Role' }), 'id', messages)
+    ).toBe('forbidden');
+  });
+});
