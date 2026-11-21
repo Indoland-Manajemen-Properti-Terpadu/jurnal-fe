@@ -20,6 +20,12 @@ The backend rules are in the backend's `PURCHASE_MODULE.md`; this file records w
 
 The old `/pembelian` (`routes.legacyPaths.purchases`) still redirects to the overview, and the old `/purchases?tab=bills` style links redirect to the matching list page. Each sidebar sub-menu item is its own page; the hub has no tabs. Orders, receipts and bills are always created from the previous document, never from an empty form.
 
+## Menus and rights (revamp, 2026-11-20)
+
+The backend rebuilt purchasing around the prototype flow (FPPBJ, Accounting verification, procurement with approval, PO/SPK, FPB/BAPP, bills, Payment Request, Payment Voucher, returns). `PURCHASE_MENU` in `domain/purchaseAccess.ts` holds the eleven menu ids; each sidebar page opens on its own menus (`NAV_MENU` in `navigationMenus.ts`), so a requester sees only their requests and an approver only the list of the document they approve. The approval menus are granted by Settings > Alur Persetujuan, not by hand in Roles. `JP-PURCH-APR-PR` and `JP-PURCH-APR-PO` no longer exist.
+
+The revamp lands one slice per PR, following the backend hand-over note. Until the last slice lands, pages that have not been rebuilt still talk to the removed endpoints and fail.
+
 ## Layers
 
 - `domain/` pure rules: entity types per document, status tones, allowed actions per status (`purchaseActions`), menu access (`purchaseAccess`), the live totals estimate (`purchaseTotals`, integer minor units through `@/lib/money`), form mapping and validation per document, overview ordering.

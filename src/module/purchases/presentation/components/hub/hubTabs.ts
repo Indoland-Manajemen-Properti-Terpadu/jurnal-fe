@@ -35,21 +35,19 @@ export type CanFn = (menu: PurchaseMenu, action: MenuAction) => boolean;
 
 const M = PURCHASE_MENU;
 
-/** The approval menus also open the matching list, so an approver can find the document. */
+/** Menus that open each page. An approval menu also opens the list its document lives in. */
+const TAB_MENUS: Record<ListTab, PurchaseMenu[]> = {
+  requests: [M.request, M.requestVerify, M.approveProcurement],
+  orders: [M.documents, M.approveProcurement],
+  receipts: [M.receipts, M.approveReceipt],
+  bills: [M.documents],
+  payments: [M.payments, M.paymentRequests, M.approvePayment],
+  returns: [M.returns],
+};
+
 export const canReadTab = (tab: HubTab, can: CanFn): boolean => {
-  const documents = can(M.documents, 'read');
-  switch (tab) {
-    case 'overview':
-      return documents || can(M.payments, 'read') || can(M.reports, 'read');
-    case 'requests':
-      return documents || can(M.approvePurchaseRequest, 'read');
-    case 'orders':
-      return documents || can(M.approvePurchaseOrder, 'read');
-    case 'payments':
-      return can(M.payments, 'read') || can(M.approvePayment, 'read');
-    default:
-      return documents;
-  }
+  const menus = tab === 'overview' ? Object.values(M) : TAB_MENUS[tab];
+  return menus.some((menu) => can(menu, 'read'));
 };
 
 export const visibleTabs = (can: CanFn): HubTab[] => HUB_TABS.filter((tab) => canReadTab(tab, can));

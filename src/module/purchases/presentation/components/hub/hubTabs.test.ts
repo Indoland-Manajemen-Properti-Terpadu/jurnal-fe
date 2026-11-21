@@ -14,14 +14,25 @@ const only =
     allowed.includes(`${menu}:${action}`);
 
 describe('hubTabs', () => {
-  it('shows everything to someone who can read documents and payments', () => {
-    const can = only(`${PURCHASE_MENU.documents}:read`, `${PURCHASE_MENU.payments}:read`);
+  it('shows every page to someone who holds every purchasing menu', () => {
+    const can = only(...Object.values(PURCHASE_MENU).map((menu) => `${menu}:read`));
     expect(visibleTabs(can)).toHaveLength(7);
   });
 
-  it('gives a payment approver the payments list but no document lists', () => {
+  it('gives a requester the overview and their requests only', () => {
+    const can = only(`${PURCHASE_MENU.request}:read`);
+    expect(visibleTabs(can)).toEqual(['overview', 'requests']);
+  });
+
+  it('gives a payment approver the overview and the payments list but no document lists', () => {
     const can = only(`${PURCHASE_MENU.approvePayment}:read`);
-    expect(visibleTabs(can)).toEqual(['payments']);
+    expect(visibleTabs(can)).toEqual(['overview', 'payments']);
+  });
+
+  it('opens the receipts list to a BAPP approver and the orders list to a procurement approver', () => {
+    expect(canReadTab('receipts', only(`${PURCHASE_MENU.approveReceipt}:read`))).toBe(true);
+    expect(canReadTab('orders', only(`${PURCHASE_MENU.approveProcurement}:read`))).toBe(true);
+    expect(canReadTab('bills', only(`${PURCHASE_MENU.approveProcurement}:read`))).toBe(false);
   });
 
   it('keeps a page closed to someone who cannot read it', () => {

@@ -32,11 +32,11 @@ export const useOverviewData = (can: CanFn) => {
   const canDocs = can(M.documents, 'read');
   const requests = useRequests(
     { ...base, status: 'PENDING_APPROVAL' },
-    can(M.approvePurchaseRequest, 'read')
+    can(M.requestVerify, 'read')
   );
   const ordersPending = useOrders(
     { ...base, status: 'PENDING_APPROVAL' },
-    can(M.approvePurchaseOrder, 'read')
+    can(M.approveProcurement, 'read')
   );
   const paymentsPending = usePayments(
     { ...base, status: 'PENDING_APPROVAL' },

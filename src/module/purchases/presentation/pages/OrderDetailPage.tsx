@@ -85,7 +85,7 @@ export default function OrderDetailPage() {
             <ApprovalPanel
               approval={doc.approval}
               status={doc.status}
-              canApprove={can(PURCHASE_MENU.approvePurchaseOrder, 'update')}
+              canApprove={can(PURCHASE_MENU.approveProcurement, 'update')}
               busy={approve.isPending || reject.isPending}
               onApprove={(note) => approve.mutate({ id: doc.id, note })}
               onReject={(reason) => reject.mutate({ id: doc.id, reason })}
