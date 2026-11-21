@@ -8,6 +8,12 @@ import type {
   PurchaseReturn,
   VendorCredits,
 } from '@/module/purchases/domain/purchaseDocuments';
+import type { PayInput, PaymentVoucherInput } from '@/module/purchases/domain/paymentForm';
+import type {
+  PaymentRequest,
+  PaymentRequestInput,
+  PaymentRequestUpdate,
+} from '@/module/purchases/domain/paymentRequest';
 import type { BillSourceDoc } from '@/module/purchases/domain/billSources';
 import type { ProcurementInput } from '@/module/purchases/domain/procurement';
 import type { PurchaseRequest } from '@/module/purchases/domain/purchaseRequest';
@@ -16,7 +22,6 @@ import type {
   BillUpdateInput,
   GoodsReceiptInput,
   OrderDraftInput,
-  PaymentVoucherInput,
   PurchaseBillInput,
   PurchaseRequestInput,
   PurchaseReturnInput,
@@ -29,6 +34,7 @@ import type {
   GoodsReceiptDto,
   ListDto,
   PayablesAgingDto,
+  PaymentRequestDto,
   PaymentVoucherDto,
   PurchaseBillDto,
   PurchaseOrderDto,
@@ -39,6 +45,7 @@ import {
   toBillSource,
   toGoodsReceipt,
   toPayablesAging,
+  toPaymentRequest,
   toPaymentVoucher,
   toPurchaseBill,
   toPurchaseOrder,
@@ -108,6 +115,14 @@ const bills = resource<PurchaseBillDto, PurchaseBill>(
 const payments = resource<PaymentVoucherDto, PaymentVoucher>(
   { list: PURCHASE_API.payments, one: PURCHASE_API.payment, action: PURCHASE_API.paymentAction },
   toPaymentVoucher
+);
+const paymentRequests = resource<PaymentRequestDto, PaymentRequest>(
+  {
+    list: PURCHASE_API.paymentRequests,
+    one: PURCHASE_API.paymentRequest,
+    action: PURCHASE_API.paymentRequestAction,
+  },
+  toPaymentRequest
 );
 const returns = resource<PurchaseReturnDto, PurchaseReturn>(
   { list: PURCHASE_API.returns, one: PURCHASE_API.return, action: PURCHASE_API.returnAction },
@@ -224,15 +239,32 @@ export const getPayablesAging = async (params: {
     (await http.get<ApiEnvelope<PayablesAgingDto>>(PURCHASE_API.payablesBySupplier, params)).data
   );
 
+/* ---------- Payment Request ---------- */
+export interface PaymentRequestListParams extends ListParams {
+  kind?: 'DP' | 'SETTLEMENT';
+  /** Approved and not yet in a voucher. */
+  ready?: boolean;
+}
+
+export const listPaymentRequests = (params: PaymentRequestListParams = {}) =>
+  paymentRequests.list(params);
+export const getPaymentRequest = paymentRequests.get;
+export const createPaymentRequest = (input: PaymentRequestInput) => paymentRequests.create(input);
+export const updatePaymentRequest = (id: string, input: PaymentRequestUpdate) =>
+  paymentRequests.update(id, input);
+export const submitPaymentRequest = (id: string) => paymentRequests.act(id, 'submit');
+export const approvePaymentRequest = (id: string, note?: string) =>
+  paymentRequests.act(id, 'approve', note ? { note } : undefined);
+export const rejectPaymentRequest = (id: string, reason: string) =>
+  paymentRequests.act(id, 'reject', { reason });
+export const cancelPaymentRequest = (id: string, reason: string) =>
+  paymentRequests.act(id, 'cancel', { reason });
+
 /* ---------- Payment voucher ---------- */
 export const listPayments = payments.list;
 export const getPayment = payments.get;
 export const createPayment = (input: PaymentVoucherInput) => payments.create(input);
-export const submitPayment = (id: string) => payments.act(id, 'submit');
-export const approvePayment = (id: string, note?: string) =>
-  payments.act(id, 'approve', note ? { note } : undefined);
-export const rejectPayment = (id: string, reason: string) => payments.act(id, 'reject', { reason });
-export const payVoucher = (id: string) => payments.act(id, 'pay');
+export const payVoucher = (id: string, input: PayInput) => payments.act(id, 'pay', input);
 export const voidPayment = (id: string, reason: string) => payments.act(id, 'void', { reason });
 
 /* ---------- Return ---------- */

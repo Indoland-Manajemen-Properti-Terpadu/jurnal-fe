@@ -4,60 +4,38 @@ import { useParams } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
 import { PURCHASE_MENU } from '@/module/purchases/domain/purchaseAccess';
 import { PaymentActionBar } from '@/module/purchases/presentation/components/payments/PaymentActionBar';
-import { PaymentAmountsCard } from '@/module/purchases/presentation/components/payments/PaymentAmountsCard';
-import { PaymentBillsCard } from '@/module/purchases/presentation/components/payments/PaymentBillsCard';
-import { PaymentInfoCard } from '@/module/purchases/presentation/components/payments/PaymentInfoCard';
+import {
+  PaymentAmountsCard,
+  PaymentInfoCard,
+  PaymentItemsCard,
+} from '@/module/purchases/presentation/components/payments/PaymentDetailCards';
 import { StateFrame } from '@/module/purchases/presentation/components/requests/StateFrame';
-import { ApprovalPanel } from '@/module/purchases/presentation/components/shared/ApprovalPanel';
 import { AttachmentsCard } from '@/module/purchases/presentation/components/shared/AttachmentsCard';
-import { DocumentJourney } from '@/module/purchases/presentation/components/shared/DocumentJourney';
 import { PaymentHighlights } from '@/module/purchases/presentation/components/shared/DocumentHighlights';
+import { PageFrame } from '@/module/purchases/presentation/components/shared/PageFrame';
 import {
   StatusNote,
   type NoteTone,
 } from '@/module/purchases/presentation/components/shared/StatusNote';
-import { PageFrame } from '@/module/purchases/presentation/components/shared/PageFrame';
 import { StatusBadge } from '@/module/purchases/presentation/components/shared/StatusBadge';
 import { usePurchaseAccess } from '@/module/purchases/presentation/hooks/usePurchaseAccess';
-import {
-  useApprovePayment,
-  useRejectPayment,
-} from '@/module/purchases/presentation/hooks/usePurchaseMutations';
-import { usePurchaseJourney } from '@/module/purchases/presentation/hooks/usePurchaseJourney';
-import { useBill, usePayment } from '@/module/purchases/presentation/hooks/usePurchaseQueries';
+import { usePayment } from '@/module/purchases/presentation/hooks/usePurchaseQueries';
 import { routes } from '@/router/routes';
 
 const BACK = routes.purchases.payments;
 
-const NOTE_TONE: Record<string, NoteTone> = {
-  DRAFT: 'neutral',
-  PENDING_APPROVAL: 'warning',
-  APPROVED: 'info',
-  PAID: 'info',
-  REJECTED: 'danger',
-  VOID: 'danger',
-};
+const NOTE_TONE: Record<string, NoteTone> = { DRAFT: 'warning', PAID: 'info', VOID: 'danger' };
 
 export default function PaymentDetailPage() {
   const { id } = useParams();
   const { t } = useTranslation('purchases');
   const { can, isLoading: accessLoading } = usePurchaseAccess();
   const voucher = usePayment(id);
-  const firstBillId = voucher.data?.lines[0]?.billId;
-  const bill = useBill(voucher.data?.type === 'BILL' ? firstBillId : undefined);
-  const journey = usePurchaseJourney({
-    orderId: bill.data?.purchaseOrderId,
-    billId: firstBillId && voucher.data?.type === 'BILL' ? firstBillId : undefined,
-    current: 'payment',
-  });
-  const approve = useApprovePayment();
-  const reject = useRejectPayment();
 
   if (accessLoading || voucher.isLoading) {
     return <StateFrame kind="loading" />;
   }
-  const canRead = can(PURCHASE_MENU.payments, 'read') || can(PURCHASE_MENU.approvePayment, 'read');
-  if (!canRead) {
+  if (!can(PURCHASE_MENU.payments, 'read')) {
     return <StateFrame kind="noAccess" backTo={BACK} />;
   }
   if (voucher.isError) {
@@ -77,7 +55,6 @@ export default function PaymentDetailPage() {
   if (!doc) {
     return <StateFrame kind="loading" />;
   }
-  const isAdvance = doc.type === 'ADVANCE';
 
   return (
     <PageFrame
@@ -85,13 +62,10 @@ export default function PaymentDetailPage() {
       title={
         <Group gap="sm" align="center">
           <span>{doc.number}</span>
-          <StatusBadge status={doc.status} />
+          <StatusBadge status={doc.status} label={doc.statusLabel} />
         </Group>
       }
-      description={t('payments.detail.subtitle', {
-        type: t(`payments.detail.type${doc.type}`),
-        vendor: doc.vendor.name,
-      })}
+      description={t('payments.detail.subtitle', { vendor: doc.vendor.name })}
       backTo={BACK}
       backLabel={t('common.back')}
       actions={<PaymentActionBar doc={doc} />}
@@ -104,21 +78,12 @@ export default function PaymentDetailPage() {
               {t(`payments.detail.note.${doc.status}`)}
             </StatusNote>
             <PaymentInfoCard doc={doc} />
-            {!isAdvance && <PaymentBillsCard lines={doc.lines} />}
+            <PaymentItemsCard doc={doc} />
           </Stack>
         </Grid.Col>
         <Grid.Col span={{ base: 12, lg: 4 }}>
           <Stack gap="lg">
             <PaymentAmountsCard doc={doc} />
-            <ApprovalPanel
-              approval={doc.approval}
-              status={doc.status}
-              canApprove={can(PURCHASE_MENU.approvePayment, 'update')}
-              busy={approve.isPending || reject.isPending}
-              onApprove={(note) => approve.mutate({ id: doc.id, note })}
-              onReject={(reason) => reject.mutate({ id: doc.id, reason })}
-            />
-            {!isAdvance && <DocumentJourney steps={journey.steps} />}
             <AttachmentsCard
               target="payment"
               documentId={doc.id}

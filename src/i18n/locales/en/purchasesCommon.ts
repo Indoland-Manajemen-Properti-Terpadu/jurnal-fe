@@ -37,6 +37,7 @@ export const purchasesCommon = {
     IN_PROCUREMENT: 'In Procurement',
     COMPLETED: 'Completed',
     CANCELLED: 'Cancelled',
+    PROCESSED: 'In Voucher',
     SENT: 'Sent to Vendor',
     PARTIAL_RECEIVED: 'Partially Received',
     RECEIVED: 'Fully Received',

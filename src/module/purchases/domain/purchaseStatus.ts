@@ -5,6 +5,7 @@ import type {
   PurchaseOrderStatus,
   PurchaseReturnStatus,
 } from '@/module/purchases/domain/purchaseDocuments';
+import type { PaymentRequestStatus } from '@/module/purchases/domain/paymentRequest';
 import type { PurchaseRequestStatus } from '@/module/purchases/domain/purchaseRequest';
 
 /** Tone drives the badge color: color only carries real success, warning and failure. */
@@ -16,6 +17,7 @@ export type PurchaseStatus =
   | GoodsReceiptStatus
   | PurchaseBillStatus
   | PaymentVoucherStatus
+  | PaymentRequestStatus
   | PurchaseReturnStatus;
 
 const TONES: Record<PurchaseStatus, StatusTone> = {
@@ -37,6 +39,7 @@ const TONES: Record<PurchaseStatus, StatusTone> = {
   VERIFIED: 'info',
   PARTIAL_PAID: 'warning',
   PAID: 'success',
+  PROCESSED: 'info',
 };
 
 export const statusTone = (status: PurchaseStatus): StatusTone => TONES[status];
@@ -68,12 +71,5 @@ export const BILL_STATUSES: PurchaseBillStatus[] = [
   'PAID',
   'VOID',
 ];
-export const VOUCHER_STATUSES: PaymentVoucherStatus[] = [
-  'DRAFT',
-  'PENDING_APPROVAL',
-  'APPROVED',
-  'PAID',
-  'REJECTED',
-  'VOID',
-];
+export const VOUCHER_STATUSES: PaymentVoucherStatus[] = ['DRAFT', 'PAID', 'VOID'];
 export const RETURN_STATUSES: PurchaseReturnStatus[] = ['DRAFT', 'POSTED', 'VOID'];

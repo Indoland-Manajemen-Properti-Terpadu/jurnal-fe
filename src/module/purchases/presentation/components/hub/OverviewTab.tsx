@@ -5,6 +5,7 @@ import {
   IconCheck,
   IconChecklist,
   IconChevronRight,
+  IconCoins,
   IconFileText,
   IconPackage,
   IconReceipt2,
@@ -30,6 +31,7 @@ const KIND_ICON: Record<WorkItem['docKind'], Icon> = {
   request: IconFileText,
   order: IconPackage,
   bill: IconReceipt2,
+  paymentRequest: IconCoins,
   payment: IconWallet,
 };
 

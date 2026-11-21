@@ -7,6 +7,7 @@ const order = (overrides: Record<string, unknown> = {}) =>
     withReceipt: true,
     billedAmount: 0,
     payableAmount: 100,
+    advance: { available: 0 },
     items: [{ receivedQty: 0, billedQty: 0 }],
     ...overrides,
   }) as unknown as PurchaseOrder;
@@ -19,6 +20,7 @@ describe('orderActions', () => {
       receive: false,
       bill: false,
       close: false,
+      requestAdvance: false,
       void: true,
     });
   });
@@ -41,6 +43,15 @@ describe('orderActions', () => {
     expect(orderActions(order({ withReceipt: false, billedAmount: 100 })).bill).toBe(false);
   });
 
+  it('offers the advance only while the order is live and the advance is not used up', () => {
+    const advance = { available: 500 };
+    expect(orderActions(order({ advance })).requestAdvance).toBe(true);
+    expect(orderActions(order({ advance, status: 'RECEIVED' })).requestAdvance).toBe(true);
+    expect(orderActions(order({ advance, status: 'DRAFT' })).requestAdvance).toBe(false);
+    expect(orderActions(order({ advance, status: 'VOID' })).requestAdvance).toBe(false);
+    expect(orderActions(order()).requestAdvance).toBe(false);
+  });
+
   it('cannot void an order that already received or billed something', () => {
     expect(orderActions(order({ items: [{ receivedQty: 1, billedQty: 0 }] })).void).toBe(false);
     expect(orderActions(order({ items: [{ receivedQty: 0, billedQty: 2 }] })).void).toBe(false);
@@ -54,6 +65,7 @@ describe('orderActions', () => {
         receive: false,
         bill: false,
         close: false,
+        requestAdvance: false,
         void: false,
       });
     }

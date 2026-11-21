@@ -4,6 +4,10 @@ import type {
   PurchaseBill,
   PurchaseOrder,
 } from '@/module/purchases/domain/purchaseDocuments';
+import {
+  paymentRequestActions,
+  type PaymentRequest,
+} from '@/module/purchases/domain/paymentRequest';
 import type { PurchaseRequest } from '@/module/purchases/domain/purchaseRequest';
 
 /** Why a document is on the work list; each reason has its own sentence in the overview. */
@@ -19,7 +23,7 @@ export type WorkReason =
 export interface WorkItem {
   key: string;
   reason: WorkReason;
-  docKind: 'request' | 'order' | 'bill' | 'payment';
+  docKind: 'request' | 'order' | 'bill' | 'paymentRequest' | 'payment';
   id: string;
   number: string;
   /** Empty for a request, which has no vendor yet. */
@@ -94,17 +98,17 @@ export const orderFollowUpItems = (docs: PurchaseOrder[]): WorkItem[] =>
       : [];
   });
 
-export const paymentApprovalItems = (docs: PaymentVoucher[]): WorkItem[] =>
+export const paymentApprovalItems = (docs: PaymentRequest[]): WorkItem[] =>
   docs
-    .filter((doc) => voucherActions(doc).decide)
+    .filter((doc) => paymentRequestActions(doc).decide)
     .map((doc) => ({
       key: `payment-approval:${doc.id}`,
       reason: 'approvePayment' as const,
-      docKind: 'payment' as const,
+      docKind: 'paymentRequest' as const,
       id: doc.id,
       number: doc.number,
-      vendorName: doc.vendor.name,
-      amount: doc.totalAmount,
+      vendorName: doc.vendor?.name ?? '',
+      amount: doc.amount,
       date: doc.date,
     }));
 

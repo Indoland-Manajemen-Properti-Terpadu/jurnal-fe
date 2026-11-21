@@ -129,7 +129,7 @@ export const PaymentHighlights = ({ doc }: Readonly<{ doc: PaymentVoucher }>) =>
   const { label, day } = useHighlightText();
   const items: Highlight[] = [
     { icon: IconBuildingStore, label: label('vendor'), value: doc.vendor.name },
-    { icon: IconCalendar, label: label('date'), value: day(doc.paidAt ?? doc.date) },
+    { icon: IconCalendar, label: label('date'), value: day((doc.paidAt ?? doc.date).slice(0, 10)) },
     {
       icon: IconCash,
       label: label('total'),

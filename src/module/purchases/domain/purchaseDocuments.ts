@@ -43,13 +43,8 @@ export type BillSource = 'RECEIPT' | 'ORDER' | 'MANUAL';
 
 /** The tabs of the list: not yet verified, owed, owed and late, paid, voided. */
 export type BillDisplayStatus = 'DRAFT' | 'UNPAID' | 'OVERDUE' | 'PAID' | 'VOID';
-export type PaymentVoucherStatus =
-  | 'DRAFT'
-  | 'PENDING_APPROVAL'
-  | 'APPROVED'
-  | 'PAID'
-  | 'REJECTED'
-  | 'VOID';
+/** A voucher has no approval of its own: the Payment Request it pays was approved already. */
+export type PaymentVoucherStatus = 'DRAFT' | 'PAID' | 'VOID';
 export type PurchaseReturnStatus = 'DRAFT' | 'POSTED' | 'VOID';
 
 /** The money block shared by orders and bills; amounts come from the server. */
@@ -235,27 +230,33 @@ export interface PurchaseBill extends DocumentBase, DocumentAmounts {
   verifiedAt: string | null;
 }
 
-export type PaymentVoucherType = 'BILL' | 'ADVANCE';
-
-export interface PaymentLine {
-  billId: string;
+/** What one voucher line pays: a Payment Request, which is for a bill (settlement) or an order (advance). */
+export interface PaymentVoucherItem {
+  requestId: string;
+  requestNumber: string;
+  kind: 'DP' | 'SETTLEMENT';
   amount: number;
+  billId: string | null;
+  billNumber: string | null;
+  vendorInvoiceNumber: string;
+  orderId: string | null;
+  orderNumber: string | null;
 }
 
 export interface PaymentVoucher extends DocumentBase {
-  type: PaymentVoucherType;
+  /** The server's Indonesian label of the status. */
+  statusLabel: string;
   vendor: PartyRef;
   status: PaymentVoucherStatus;
-  lines: PaymentLine[];
+  items: PaymentVoucherItem[];
   totalAmount: number;
-  advanceAppliedAmount: number;
-  purchaseOrderId: string | null;
   paymentMethod: PaymentMethodRef | null;
+  depositAccountId: string | null;
   adminFee: number;
   referenceNumber: string;
   journalId: string | null;
   paidAt: string | null;
-  approval: ApprovalState;
+  voidReason: string | null;
 }
 
 export interface ReturnItem {

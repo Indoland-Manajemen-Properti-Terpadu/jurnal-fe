@@ -3,6 +3,7 @@ const PO = '/v1/purchase-orders';
 const GR = '/v1/goods-receipts';
 const BILL = '/v1/purchase-bills';
 const PAY = '/v1/purchase-payments';
+const PAYREQ = '/v1/purchase-payment-requests';
 const RET = '/v1/purchase-returns';
 
 export const PURCHASE_API = {
@@ -35,6 +36,10 @@ export const PURCHASE_API = {
   vendorCredits: `${BILL}/vendor-credits`,
   payablesBySupplier: `${BILL}/payables/by-supplier`,
   payablesExport: `${BILL}/payables/by-supplier/export`,
+
+  paymentRequests: PAYREQ,
+  paymentRequest: (id: string) => `${PAYREQ}/${id}`,
+  paymentRequestAction: (id: string, action: string) => `${PAYREQ}/${id}/${action}`,
 
   payments: PAY,
   payment: (id: string) => `${PAY}/${id}`,

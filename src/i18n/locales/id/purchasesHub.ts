@@ -4,7 +4,6 @@ export const purchasesHub = {
     'Kelola pembelian dari permintaan, pesanan, penerimaan barang, tagihan vendor hingga pembayaran.',
   refresh: 'Segarkan data',
   createRequest: 'Buat Permintaan Pembelian',
-  createAdvance: 'Buat Uang Muka',
   noAccessTitle: 'Anda belum memiliki akses ke Pembelian',
   noAccessDescription: 'Hubungi administrator untuk mendapatkan hak akses pada menu pembelian.',
   tabs: {
@@ -13,7 +12,8 @@ export const purchasesHub = {
     orders: 'Pesanan',
     receipts: 'Penerimaan',
     bills: 'Tagihan',
-    payments: 'Pembayaran',
+    paymentRequests: 'Payment Request',
+    payments: 'Payment Voucher',
     returns: 'Retur',
   },
   pages: {
@@ -36,9 +36,15 @@ export const purchasesHub = {
       description:
         'Faktur dari vendor, dibuat dari penerimaan atau PO/SPK. Verifikasi dulu sebelum dibayar.',
     },
+    paymentRequests: {
+      title: 'Payment Request',
+      description:
+        'Pengajuan pembayaran: pelunasan faktur atau uang muka PO/SPK. Perlu disetujui sebelum dibayar.',
+    },
     payments: {
-      title: 'Pembayaran Pembelian',
-      description: 'Voucher pembayaran tagihan dan uang muka ke vendor.',
+      title: 'Payment Voucher',
+      description:
+        'Voucher yang diterbitkan kasir dari Payment Request yang disetujui, lalu dibayar.',
     },
     returns: {
       title: 'Retur Pembelian',
@@ -133,18 +139,6 @@ export const purchasesHub = {
     emptyTitle: 'Belum ada tagihan vendor',
     emptyDescription:
       'Tagihan dibuat dari pesanan yang barangnya sudah diterima, lalu diverifikasi sebelum dibayar.',
-  },
-  payments: {
-    search: 'Cari nomor voucher, referensi, atau vendor',
-    allTypes: 'Semua jenis',
-    typeFilter: 'Filter jenis pembayaran',
-    types: {
-      BILL: 'Tagihan',
-      ADVANCE: 'Uang Muka',
-    },
-    emptyTitle: 'Belum ada voucher pembayaran',
-    emptyDescription:
-      'Voucher dibuat dari tagihan yang sudah diverifikasi. Anda juga dapat mencatat uang muka ke vendor.',
   },
   returns: {
     search: 'Cari nomor retur atau vendor',

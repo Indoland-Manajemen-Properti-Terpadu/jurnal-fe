@@ -38,6 +38,7 @@ export const NAV_MENU = {
   purchaseOrders: ['JP-PURCH', 'JP-PURCH-APR-PROC'],
   purchaseReceipts: ['JP-PURCH-RCV', 'JP-PURCH-APR-BAPP'],
   purchaseBills: ['JP-PURCH'],
+  purchasePaymentRequests: ['JP-PURCH-PAYREQ', 'JP-PURCH-APR-PAY'],
   purchasePayments: ['JP-PURCH-PAY'],
   purchaseReturns: ['JP-PURCH-RET'],
   payables: ['JP-PURCH-RPT', 'JP-PURCH'],

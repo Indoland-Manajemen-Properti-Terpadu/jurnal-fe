@@ -8,6 +8,8 @@ export { default as ReceiptFormPage } from './presentation/pages/ReceiptFormPage
 export { default as ReceiptDetailPage } from './presentation/pages/ReceiptDetailPage';
 export { default as BillFormPage } from './presentation/pages/BillFormPage';
 export { default as BillDetailPage } from './presentation/pages/BillDetailPage';
+export { default as PaymentRequestFormPage } from './presentation/pages/PaymentRequestFormPage';
+export { default as PaymentRequestDetailPage } from './presentation/pages/PaymentRequestDetailPage';
 export { default as PaymentFormPage } from './presentation/pages/PaymentFormPage';
 export { default as PaymentDetailPage } from './presentation/pages/PaymentDetailPage';
 export { default as ReturnFormPage } from './presentation/pages/ReturnFormPage';

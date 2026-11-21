@@ -91,6 +91,7 @@ export const purchasesOrders = {
     billedAria: 'Quantity already billed',
     amountsTitle: 'Order Value',
     send: 'Send to Vendor',
+    requestAdvance: 'Request Advance',
     receive: 'Record Receipt',
     createBill: 'Create Bill',
     print: 'Print PDF',

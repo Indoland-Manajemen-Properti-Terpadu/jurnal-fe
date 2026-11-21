@@ -12,6 +12,7 @@ import {
   Factory,
   FileText,
   GearSix,
+  HandCoins,
   Handshake,
   HouseLine,
   ListBullets,
@@ -147,6 +148,9 @@ export const navigationSections: NavSection[] = [
             ...NAV_MENU.purchaseReceipts,
           ]),
           child('purchasesBills', Receipt, routes.purchases.bills, [...NAV_MENU.purchaseBills]),
+          child('purchasesPaymentRequests', HandCoins, routes.purchases.paymentRequests, [
+            ...NAV_MENU.purchasePaymentRequests,
+          ]),
           child('purchasesPayments', Wallet, routes.purchases.payments, [
             ...NAV_MENU.purchasePayments,
           ]),

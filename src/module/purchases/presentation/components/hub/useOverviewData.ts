@@ -16,6 +16,7 @@ import {
   useBills,
   useOrders,
   usePayablesAging,
+  usePaymentRequests,
   usePayments,
   useRequests,
 } from '@/module/purchases/presentation/hooks/usePurchaseQueries';
@@ -38,11 +39,11 @@ export const useOverviewData = (can: CanFn) => {
     { ...base, status: 'DRAFT' },
     canDocs && can(M.documents, 'update')
   );
-  const paymentsPending = usePayments(
+  const paymentsPending = usePaymentRequests(
     { ...base, status: 'PENDING_APPROVAL' },
     can(M.approvePayment, 'read')
   );
-  const paymentsReady = usePayments({ ...base, status: 'APPROVED' }, can(M.payments, 'update'));
+  const paymentsReady = usePayments({ ...base, status: 'DRAFT' }, can(M.payments, 'update'));
   const billsDraft = useBills({ ...base, status: 'DRAFT' }, canDocs && can(M.documents, 'update'));
   const ordersSent = useOrders({ ...base, status: 'SENT' }, canDocs);
   const ordersPartial = useOrders({ ...base, status: 'PARTIAL_RECEIVED' }, canDocs);

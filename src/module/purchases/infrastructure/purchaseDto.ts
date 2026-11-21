@@ -254,19 +254,72 @@ export interface PurchaseBillDto extends DocumentDto, AmountsDto {
   verifiedAt?: string | null;
 }
 
-export interface PaymentVoucherDto extends DocumentDto, ApprovalFieldsDto {
-  type?: 'BILL' | 'ADVANCE' | null;
+export interface PaymentVoucherDto extends DocumentDto {
+  statusLabel?: string | null;
   vendor: PartyDto;
   status: string;
-  items?: { bill: IdOr<{ id: string }>; amount: number }[] | null;
   totalAmount: number;
-  advanceAppliedAmount?: number | null;
-  purchaseOrder?: IdOr<{ id: string }> | null;
-  paymentMethod?: PaymentMethodDto | null;
+  paymentMethod?: PaymentMethodDto | string | null;
+  depositAccount?: string | null;
   adminFee?: number | null;
   referenceNumber?: string | null;
   journalTransaction?: string | null;
   paidAt?: string | null;
+  voidReason?: string | null;
+  itemRefs?:
+    | {
+        kind: 'DP' | 'SETTLEMENT';
+        amount: number;
+        paymentRequest: { id: string; transactionNumber?: string | null };
+        bill?: {
+          id: string;
+          transactionNumber?: string | null;
+          vendorInvoiceNumber?: string | null;
+        } | null;
+        purchaseOrder?: { id: string; transactionNumber?: string | null } | null;
+      }[]
+    | null;
+}
+
+export interface PaymentRequestDto extends DocumentDto, ApprovalFieldsDto {
+  statusLabel?: string | null;
+  kindLabel?: string | null;
+  kind: 'DP' | 'SETTLEMENT';
+  status: string;
+  vendor?: PartyDto | null;
+  amount: number;
+  dueDate?: string | null;
+  advanceAccount?: string | null;
+  advanceAppliedAmount?: number | null;
+  cancelReason?: string | null;
+  purchaseOrderRef?: {
+    id: string;
+    transactionNumber?: string | null;
+    isService?: boolean | null;
+    total?: number | null;
+    status?: string | null;
+  } | null;
+  paymentVoucherRef?: {
+    id: string;
+    transactionNumber?: string | null;
+    totalAmount?: number | null;
+    status?: string | null;
+    paidAt?: string | null;
+  } | null;
+  itemRefs?:
+    | {
+        amount: number;
+        bill: {
+          id: string;
+          transactionNumber?: string | null;
+          vendorInvoiceNumber?: string | null;
+          dueDate?: string | null;
+          finalAmount?: number | null;
+          remainingAmount?: number | null;
+          status?: string | null;
+        };
+      }[]
+    | null;
 }
 
 export interface PurchaseReturnDto extends DocumentDto {

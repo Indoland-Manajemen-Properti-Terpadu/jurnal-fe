@@ -88,20 +88,6 @@ export interface BillUpdateInput {
   memo?: string;
 }
 
-export interface PaymentVoucherInput {
-  type?: 'ADVANCE';
-  transactionDate: string;
-  vendor: string;
-  paymentMethod?: string;
-  referenceNumber?: string;
-  memo?: string;
-  /** Bill vouchers only. */
-  items?: { bill: string; amount: number }[];
-  /** Advance vouchers only. */
-  amount?: number;
-  purchaseOrder?: string;
-}
-
 export interface PurchaseReturnInput {
   bill: string;
   transactionDate: string;

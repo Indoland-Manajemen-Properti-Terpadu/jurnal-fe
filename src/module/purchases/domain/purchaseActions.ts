@@ -13,8 +13,6 @@ import type { PurchaseRequest } from '@/module/purchases/domain/purchaseRequest'
  * Access rights are applied separately by the screens.
  */
 
-const editable = (status: string) => status === 'DRAFT' || status === 'REJECTED';
-
 /**
  * What the status of an FPPBJ allows. The requester edits, submits and cancels their own request
  * while it is a draft or sent back; Accounting verifies or returns it after it is submitted.
@@ -51,6 +49,8 @@ export const orderActions = (doc: PurchaseOrder) => {
     /** A bill straight from the order, for an order that takes no receipt. */
     bill: !doc.withReceipt && live && doc.billedAmount < doc.payableAmount,
     close: live || doc.status === 'RECEIVED',
+    /** The advance of the payment term, not yet fully asked for in Payment Requests. */
+    requestAdvance: (live || doc.status === 'RECEIVED') && doc.advance.available > 0,
     void:
       (doc.status === 'DRAFT' || doc.status === 'SENT') &&
       received < QTY_EPSILON &&
@@ -86,11 +86,9 @@ export const billActions = (doc: PurchaseBill) => {
   };
 };
 
+/** A voucher is paid straight from its draft; a paid one can still be voided, which reverses the journal. */
 export const voucherActions = (doc: PaymentVoucher) => ({
-  edit: editable(doc.status),
-  submit: editable(doc.status),
-  decide: doc.status === 'PENDING_APPROVAL' && doc.approval.canDecide,
-  pay: doc.status === 'APPROVED',
+  pay: doc.status === 'DRAFT',
   void: doc.status !== 'VOID',
 });
 

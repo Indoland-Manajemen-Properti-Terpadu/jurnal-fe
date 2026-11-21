@@ -2,6 +2,7 @@ import { purchasesBills } from './purchasesBills';
 import { purchasesCommon } from './purchasesCommon';
 import { purchasesHub } from './purchasesHub';
 import { purchasesOrders } from './purchasesOrders';
+import { purchasesPaymentRequests } from './purchasesPaymentRequests';
 import { purchasesPayments } from './purchasesPayments';
 import { purchasesProcurement } from './purchasesProcurement';
 import { purchasesReceipts } from './purchasesReceipts';
@@ -17,6 +18,7 @@ export const purchases = {
   orders: purchasesOrders,
   receipts: purchasesReceipts,
   bills: purchasesBills,
+  paymentRequests: purchasesPaymentRequests,
   payments: purchasesPayments,
   returns: purchasesReturns,
   reports: purchasesReports,

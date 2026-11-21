@@ -1,9 +1,11 @@
 import type { PaymentVoucher, PurchaseOrder } from '@/module/purchases/domain/purchaseDocuments';
+import type { PaymentRequest } from '@/module/purchases/domain/paymentRequest';
 import type { PurchaseRequest } from '@/module/purchases/domain/purchaseRequest';
 import {
   countDecisions,
   orderFollowUpItems,
   orderSendItems,
+  paymentApprovalItems,
   paymentReleaseItems,
   requestItems,
   sortWorkItems,
@@ -44,6 +46,7 @@ const order = (
     payableAmount: 100,
     billedAmount,
     withReceipt,
+    advance: { available: 0 },
     vendor: { name: 'V' },
     items: [{ quantity: 10, receivedQty: received, billedQty: billed }],
   }) as unknown as PurchaseOrder;
@@ -80,25 +83,43 @@ describe('purchaseOverview', () => {
     ).toEqual(['d']);
   });
 
-  it('offers only approved vouchers for payment', () => {
+  it('lists Payment Requests only for an approver who can decide on them now', () => {
+    const doc = (id: string, status: string, canDecide: boolean) =>
+      ({
+        id,
+        number: id,
+        date: '2026-11-01',
+        status,
+        amount: 5,
+        vendor: { name: 'V' },
+        approval: approval(canDecide),
+      }) as unknown as PaymentRequest;
+    expect(
+      paymentApprovalItems([
+        doc('a', 'PENDING_APPROVAL', true),
+        doc('b', 'PENDING_APPROVAL', false),
+        doc('c', 'APPROVED', true),
+      ]).map((i) => i.id)
+    ).toEqual(['a']);
+  });
+
+  it('offers only draft vouchers for payment', () => {
     const vouchers = [
       {
         id: 'p1',
         number: 'p1',
         date: '2026-11-01',
-        status: 'APPROVED',
+        status: 'DRAFT',
         totalAmount: 5,
         vendor: { name: 'V' },
-        approval: approval(false),
       },
       {
         id: 'p2',
         number: 'p2',
         date: '2026-11-01',
-        status: 'DRAFT',
+        status: 'PAID',
         totalAmount: 5,
         vendor: { name: 'V' },
-        approval: approval(false),
       },
     ] as unknown as PaymentVoucher[];
     expect(paymentReleaseItems(vouchers).map((i) => i.id)).toEqual(['p1']);

@@ -1,10 +1,14 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import type { PayInput, PaymentVoucherInput } from '@/module/purchases/domain/paymentForm';
+import type {
+  PaymentRequestInput,
+  PaymentRequestUpdate,
+} from '@/module/purchases/domain/paymentRequest';
 import type { ProcurementInput } from '@/module/purchases/domain/procurement';
 import type {
   CreditApplicationInput,
   GoodsReceiptInput,
   OrderDraftInput,
-  PaymentVoucherInput,
   PurchaseBillInput,
   PurchaseRequestInput,
   PurchaseReturnInput,
@@ -156,16 +160,32 @@ export const useVoidCreditApplication = () =>
     }
   );
 
+/* ---------- Payment Request ---------- */
+export const useCreatePaymentRequest = (onDone?: (doc: WithId & Doc) => void) =>
+  useAction('created', (input: PaymentRequestInput) => api.createPaymentRequest(input), onDone);
+export const useUpdatePaymentRequest = (onDone?: (doc: WithId & Doc) => void) =>
+  useAction(
+    'updated',
+    ({ id, input }: WithId & { input: PaymentRequestUpdate }) =>
+      api.updatePaymentRequest(id, input),
+    onDone
+  );
+export const useSubmitPaymentRequest = () =>
+  useAction('submitted', ({ id }: WithId) => api.submitPaymentRequest(id));
+export const useApprovePaymentRequest = () =>
+  useAction('approved', ({ id, note }: WithId & { note?: string }) =>
+    api.approvePaymentRequest(id, note)
+  );
+export const useRejectPaymentRequest = () =>
+  useAction('rejected', ({ id, reason }: WithReason) => api.rejectPaymentRequest(id, reason));
+export const useCancelPaymentRequest = () =>
+  useAction('cancelled', ({ id, reason }: WithReason) => api.cancelPaymentRequest(id, reason));
+
 /* ---------- Payment voucher ---------- */
 export const useCreatePayment = (onDone?: (doc: WithId & Doc) => void) =>
   useAction('created', (input: PaymentVoucherInput) => api.createPayment(input), onDone);
-export const useSubmitPayment = () =>
-  useAction('submitted', ({ id }: WithId) => api.submitPayment(id));
-export const useApprovePayment = () =>
-  useAction('approved', ({ id, note }: WithId & { note?: string }) => api.approvePayment(id, note));
-export const useRejectPayment = () =>
-  useAction('rejected', ({ id, reason }: WithReason) => api.rejectPayment(id, reason));
-export const usePayVoucher = () => useAction('paid', ({ id }: WithId) => api.payVoucher(id));
+export const usePayVoucher = () =>
+  useAction('paid', ({ id, input }: WithId & { input: PayInput }) => api.payVoucher(id, input));
 export const useVoidPayment = () =>
   useAction('voided', ({ id, reason }: WithReason) => api.voidPayment(id, reason));
 

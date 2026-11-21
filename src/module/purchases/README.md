@@ -1,22 +1,24 @@
 # purchases
 
-Procure-to-pay: purchase requests, purchase orders, goods receipts, vendor bills, payment vouchers (including advances), purchase returns, vendor credit and the payables aging report. Every screen talks to the live purchasing API; there is no local data.
+Procure-to-pay: purchase requests, purchase orders, goods receipts, vendor bills, Payment Requests, payment vouchers, purchase returns, vendor credit and the payables aging report. Every screen talks to the live purchasing API; there is no local data.
 
 The backend rules are in the backend's `PURCHASE_MODULE.md`; this file records what the frontend relies on.
 
 ## Routes (`routes.purchases`)
 
-| Key                                                                   | Path                                                                             | Page                                                             |
-| --------------------------------------------------------------------- | -------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| `main`                                                                | `/purchases`                                                                     | `PurchasesPage` (overview: attention list, pipeline, aging)      |
-| `requests` / `orders` / `receipts` / `bills` / `payments` / `returns` | `/purchases/requests`, `/orders`, `/receipts`, `/bills`, `/payments`, `/returns` | `PurchaseListPage tab=...` (one page per document list, no tabs) |
-| `payables`                                                            | `/purchases/payables`                                                            | `PayablesReportPage`                                             |
-| `requestAdd` / `requestDetail` / `requestEdit`                        | `/purchases/requests/new`, `/:id`, `/:id/edit`                                   | `RequestFormPage`, `RequestDetailPage`                           |
-| `orderDetail`                                                         | `/purchases/orders/:id`                                                          | `OrderDetailPage` (a PO is never created by hand, see below)     |
-| `receiptAdd` / `receiptDetail`                                        | `/purchases/receipts/new?order=<id>`, `/:id`                                     | `ReceiptFormPage`, `ReceiptDetailPage`                           |
-| `billAdd` / `billDetail` / `billEdit`                                 | `/purchases/bills/new?order=<id>`, `/:id`, `/:id/edit`                           | `BillFormPage`, `BillDetailPage`                                 |
-| `paymentAdd` / `paymentDetail` / `paymentEdit`                        | `/purchases/payments/new?bill=<id>` or `?type=advance`, `/:id`, `/:id/edit`      | `PaymentFormPage`, `PaymentDetailPage`                           |
-| `returnAdd` / `returnDetail` / `returnEdit`                           | `/purchases/returns/new?bill=<id>`, `/:id`, `/:id/edit`                          | `ReturnFormPage`, `ReturnDetailPage`                             |
+| Key                                                                   | Path                                                                              | Page                                                             |
+| --------------------------------------------------------------------- | --------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| `main`                                                                | `/purchases`                                                                      | `PurchasesPage` (overview: attention list, pipeline, aging)      |
+| `requests` / `orders` / `receipts` / `bills` / `payments` / `returns` | `/purchases/requests`, `/orders`, `/receipts`, `/bills`, `/payments`, `/returns`  | `PurchaseListPage tab=...` (one page per document list, no tabs) |
+| `payables`                                                            | `/purchases/payables`                                                             | `PayablesReportPage`                                             |
+| `requestAdd` / `requestDetail` / `requestEdit`                        | `/purchases/requests/new`, `/:id`, `/:id/edit`                                    | `RequestFormPage`, `RequestDetailPage`                           |
+| `orderDetail`                                                         | `/purchases/orders/:id`                                                           | `OrderDetailPage` (a PO is never created by hand, see below)     |
+| `receiptAdd` / `receiptDetail`                                        | `/purchases/receipts/new?order=<id>`, `/:id`                                      | `ReceiptFormPage`, `ReceiptDetailPage`                           |
+| `billAdd` / `billDetail` / `billEdit`                                 | `/purchases/bills/new?order=<id>`, `/:id`, `/:id/edit`                            | `BillFormPage`, `BillDetailPage`                                 |
+| `paymentRequests`                                                     | `/purchases/payment-requests`                                                     | `PurchaseListPage tab=paymentRequests`                           |
+| `paymentRequestAdd` / `Detail` / `Edit`                               | `/purchases/payment-requests/new?bill=<id>` or `?order=<id>`, `/:id`, `/:id/edit` | `PaymentRequestFormPage`, `PaymentRequestDetailPage`             |
+| `paymentAdd` / `paymentDetail`                                        | `/purchases/payments/new?request=<id>`, `/:id` (a voucher is never edited)        | `PaymentFormPage`, `PaymentDetailPage`                           |
+| `returnAdd` / `returnDetail` / `returnEdit`                           | `/purchases/returns/new?bill=<id>`, `/:id`, `/:id/edit`                           | `ReturnFormPage`, `ReturnDetailPage`                             |
 
 The old `/pembelian` (`routes.legacyPaths.purchases`) still redirects to the overview, and the old `/purchases?tab=bills` style links redirect to the matching list page. Each sidebar sub-menu item is its own page; the hub has no tabs. Orders, receipts and bills are always created from the previous document, never from an empty form.
 
@@ -107,11 +109,27 @@ A bill has three sources, chosen on the form (`BillSource`): `RECEIPT` (one or m
 - A bill's `displayStatus`, `noMatch`, `heldAmount` and `requestableAmount` come from the server and are shown as they are.
 - Probe note: a request with `sendEmail: true` on a PO really sent an email to a seeded vendor address (slice 5). It cannot be undone.
 
+## Payment Request and Payment Voucher (slice 8/9)
+
+Verified live on the Demo Site (2026-11-21), positive and negative.
+
+- **Payment Request** (`/v1/purchase-payment-requests`, menu `JP-PURCH-PAYREQ`, approval `JP-PURCH-APR-PAY`). `kind` `DP` takes `purchaseOrder`, `amount` and an optional `advanceAccount` (the server picks one when it is left out); `SETTLEMENT` takes `items[{bill, amount}]` of one vendor. `transactionDate` is required for both. Statuses `DRAFT`, `PENDING_APPROVAL`, `APPROVED`, `REJECTED`, `PROCESSED` (inside a voucher), `PAID`, `CANCELLED`; labels come from `statusLabel` / `kindLabel`.
+- Limits the server enforces with Indonesian business messages (shown to Indonesian readers only): a settlement amount may not exceed the bill's `requestableAmount` (a draft already holds its own amount, so an edit may ask for that part again); all bills share one vendor; a DP cannot exceed `advance.available` of the order and the order's term must use an advance. Zero, empty `items` and a missing `reason` are English field errors (never shown). The form checks the same limits first (`validatePaymentRequestForm`).
+- `PUT` rejects `kind` and `purchaseOrder` (400) and keeps omitted fields, so `toPaymentRequestUpdate` sends the whole body without them. Submit, approve (`note`), reject (`reason`) and cancel (`reason`, allowed until a voucher takes the request) are `POST /:id/<action>`. `canDecide` and `pendingApprovers` drive the approve buttons (the shared `ApprovalPanel`); `segregationOfDuties` is off on the Demo Site. A request has no attachments endpoint.
+- List filters: `kind`, `ready=true` (approved and not yet in a voucher), `status` (one or several), `search` (number). `useOrders` takes `vendor`; the advance form lists the vendor's orders that still have `advance.available`.
+- **Payment Voucher** (`/v1/purchase-payments`, menu `JP-PURCH-PAY`): `POST` takes `transactionDate` and `paymentRequests[]` of one vendor, optional `paymentMethod`, `depositAccount`, `referenceNumber`, `memo`. A request that is not approved, or already processed, is refused (400). The voucher has no approval and is `DRAFT`, `PAID` or `VOID`; it cannot be edited (no screen, no route).
+- `POST /:id/pay` takes `paidAt`, `depositAccount`, `paymentMethod`, `adminFee`, `referenceNumber`. **Without a deposit account the server pays from a default cash account without a word**, so the pay dialog requires one (bank and cash accounts come from `useSimpleAccounts({ isBankAndCash: true })`). The server refuses a payment date before any settled bill's date, so the dialog starts at the latest bill date (`useVoucherMinDate`). Paying a paid voucher is a 400.
+- `POST /:id/void` needs a `reason`; voiding a paid voucher reverses the journal and puts its requests back to `APPROVED`. `GET /:id/print` is a PDF; files go to `/:id/attachments`.
+- Entry points: the bill detail has "Ajukan Pembayaran" (`?bill=`), the order detail menu has "Ajukan Uang Muka" (`?order=`), an approved request opens the voucher form (`?request=`). The sidebar has two entries, Payment Request and Payment Voucher.
+- The Overview "Perlu tindakan" list now reads Payment Requests waiting for the user's approval (`canDecide`) and draft vouchers to pay; slice 9 replaces it with the server's own list.
+- Files: `domain/paymentRequest` (types, form, validation, payloads), `domain/paymentForm` (voucher form, pay form), `infrastructure/purchaseDto` / `purchaseDocumentMappers` / `purchaseApi`, `components/paymentRequests/`, `components/payments/`, `lists/PaymentRequestList`, `lists/PaymentList`, locales `purchasesPaymentRequests` and `purchasesPayments`.
+- Test data kept on the Demo Site: PP/2026/11/0001 (approved, back from a voided voucher), 0002 (cancelled DP), 0003 (approved), 0004 (paid by PV/2026/11/0003); PV/2026/11/0001 (voided after paying), 0002 (voided draft).
+
 ## Contract facts that differ from the backend document (older documents, to be replaced slice by slice)
 
 Verified against the live service on 2026-11-04:
 
-- `PUT` bodies are not the create bodies. Bill: no `purchaseOrder`; `dueDate: null` is refused. Voucher: no `vendor` or `type`. Return: no `bill`. Each has its own update hook next to its pages (`useUpdateBill`, `useUpdatePaymentVoucher`, `useUpdatePurchaseReturn`).
+- `PUT` bodies are not the create bodies. Bill: no `purchaseOrder`; `dueDate: null` is refused. Payment Request: no `kind` or `purchaseOrder`. Return: no `bill`. Each has its own update hook next to its pages (`useUpdateBill`, `useUpdatePurchaseReturn`).
 - Reject, cancel and void take `{ reason }`; approve takes an optional `{ note }`.
 - Bill variances arrive as `{ type, expected, actual }`; credit applications as `{ source, sourceId, amount, appliedAt, voided }`.
 - The payables aging rows carry `vendor: { id, name }`; `usePayablesReport` normalizes them locally.

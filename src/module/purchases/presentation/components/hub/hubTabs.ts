@@ -12,6 +12,7 @@ export type HubTab =
   | 'orders'
   | 'receipts'
   | 'bills'
+  | 'paymentRequests'
   | 'payments'
   | 'returns';
 
@@ -22,6 +23,7 @@ export const LIST_TABS: ListTab[] = [
   'orders',
   'receipts',
   'bills',
+  'paymentRequests',
   'payments',
   'returns',
 ];
@@ -41,7 +43,8 @@ const TAB_MENUS: Record<ListTab, PurchaseMenu[]> = {
   orders: [M.documents, M.approveProcurement],
   receipts: [M.receipts, M.approveReceipt],
   bills: [M.documents],
-  payments: [M.payments, M.paymentRequests, M.approvePayment],
+  paymentRequests: [M.paymentRequests, M.approvePayment],
+  payments: [M.payments],
   returns: [M.returns],
 };
 

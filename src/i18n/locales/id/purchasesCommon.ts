@@ -37,6 +37,7 @@ export const purchasesCommon = {
     IN_PROCUREMENT: 'Dalam Pengadaan',
     COMPLETED: 'Selesai',
     CANCELLED: 'Dibatalkan',
+    PROCESSED: 'Dalam Voucher',
     SENT: 'Terkirim ke Vendor',
     PARTIAL_RECEIVED: 'Diterima Sebagian',
     RECEIVED: 'Diterima Penuh',

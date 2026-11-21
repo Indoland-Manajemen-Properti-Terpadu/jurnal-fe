@@ -1,4 +1,5 @@
 import type { BillSourceDoc, BillSourceLine } from '@/module/purchases/domain/billSources';
+import type { PaymentRequest } from '@/module/purchases/domain/paymentRequest';
 import type {
   BillItem,
   CreditApplication,
@@ -22,6 +23,7 @@ import type {
   DocumentRefDto,
   GoodsReceiptDto,
   PayablesAgingDto,
+  PaymentRequestDto,
   PaymentVoucherDto,
   PurchaseBillDto,
   PurchaseOrderDto,
@@ -236,18 +238,72 @@ export const toPurchaseBill = (dto: PurchaseBillDto): PurchaseBill => {
 
 export const toPaymentVoucher = (dto: PaymentVoucherDto): PaymentVoucher => ({
   ...base(dto),
-  type: dto.type === 'ADVANCE' ? 'ADVANCE' : 'BILL',
+  statusLabel: dto.statusLabel ?? '',
   vendor: toParty(dto.vendor),
   status: dto.status as PaymentVoucher['status'],
-  lines: (dto.items ?? []).map((line) => ({ billId: refId(line.bill), amount: line.amount })),
+  items: (dto.itemRefs ?? []).map((line) => ({
+    requestId: line.paymentRequest.id,
+    requestNumber: line.paymentRequest.transactionNumber ?? '',
+    kind: line.kind,
+    amount: line.amount,
+    billId: line.bill?.id ?? null,
+    billNumber: line.bill?.transactionNumber ?? null,
+    vendorInvoiceNumber: line.bill?.vendorInvoiceNumber ?? '',
+    orderId: line.purchaseOrder?.id ?? null,
+    orderNumber: line.purchaseOrder?.transactionNumber ?? null,
+  })),
   totalAmount: dto.totalAmount,
-  advanceAppliedAmount: dto.advanceAppliedAmount ?? 0,
-  purchaseOrderId: refId(dto.purchaseOrder) || null,
-  paymentMethod: toPaymentMethod(dto.paymentMethod),
+  paymentMethod: typeof dto.paymentMethod === 'object' ? toPaymentMethod(dto.paymentMethod) : null,
+  depositAccountId: dto.depositAccount ?? null,
   adminFee: dto.adminFee ?? 0,
   referenceNumber: dto.referenceNumber ?? '',
   journalId: dto.journalTransaction ?? null,
   paidAt: dto.paidAt ?? null,
+  voidReason: dto.voidReason ?? null,
+});
+
+export const toPaymentRequest = (dto: PaymentRequestDto): PaymentRequest => ({
+  ...base(dto),
+  statusLabel: dto.statusLabel ?? '',
+  kindLabel: dto.kindLabel ?? '',
+  kind: dto.kind,
+  status: dto.status as PaymentRequest['status'],
+  vendor: dto.vendor ? toParty(dto.vendor) : null,
+  amount: dto.amount,
+  dueDate: toDateOrNull(dto.dueDate),
+  order: dto.purchaseOrderRef
+    ? {
+        id: dto.purchaseOrderRef.id,
+        number: dto.purchaseOrderRef.transactionNumber ?? '',
+        isService: Boolean(dto.purchaseOrderRef.isService),
+        total: dto.purchaseOrderRef.total ?? 0,
+        status: dto.purchaseOrderRef.status ?? '',
+      }
+    : null,
+  items: (dto.itemRefs ?? []).map((line) => ({
+    amount: line.amount,
+    bill: {
+      id: line.bill.id,
+      number: line.bill.transactionNumber ?? '',
+      vendorInvoiceNumber: line.bill.vendorInvoiceNumber ?? '',
+      dueDate: toDateOrNull(line.bill.dueDate),
+      finalAmount: line.bill.finalAmount ?? 0,
+      remainingAmount: line.bill.remainingAmount ?? 0,
+      status: line.bill.status ?? '',
+    },
+  })),
+  advanceAccountId: dto.advanceAccount ?? null,
+  advanceAppliedAmount: dto.advanceAppliedAmount ?? 0,
+  voucher: dto.paymentVoucherRef
+    ? {
+        id: dto.paymentVoucherRef.id,
+        number: dto.paymentVoucherRef.transactionNumber ?? '',
+        status: dto.paymentVoucherRef.status ?? '',
+        totalAmount: dto.paymentVoucherRef.totalAmount ?? 0,
+        paidAt: dto.paymentVoucherRef.paidAt ?? null,
+      }
+    : null,
+  cancelReason: dto.cancelReason ?? null,
   approval: toApproval(dto),
 });
 

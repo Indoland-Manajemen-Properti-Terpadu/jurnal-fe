@@ -3,7 +3,6 @@ export const purchasesHub = {
   subtitle: 'Manage purchasing from request and order to goods receipt, vendor bill and payment.',
   refresh: 'Refresh data',
   createRequest: 'New Purchase Request',
-  createAdvance: 'New Advance Payment',
   noAccessTitle: 'You do not have access to Purchases yet',
   noAccessDescription: 'Contact your administrator to get access to the purchasing menus.',
   tabs: {
@@ -12,7 +11,8 @@ export const purchasesHub = {
     orders: 'Orders',
     receipts: 'Receipts',
     bills: 'Bills',
-    payments: 'Payments',
+    paymentRequests: 'Payment Requests',
+    payments: 'Payment Vouchers',
     returns: 'Returns',
   },
   pages: {
@@ -35,9 +35,14 @@ export const purchasesHub = {
       title: 'Vendor Bills',
       description: 'Bills from vendors. Verify each one before it is paid.',
     },
+    paymentRequests: {
+      title: 'Payment Requests',
+      description:
+        'Requests to pay: settle a bill or the advance of a PO/SPK. They need approval before payment.',
+    },
     payments: {
-      title: 'Purchase Payments',
-      description: 'Payment vouchers for vendor bills and advances to vendors.',
+      title: 'Payment Vouchers',
+      description: 'Vouchers the cashier issues from approved Payment Requests, then pays.',
     },
     returns: {
       title: 'Purchase Returns',
@@ -131,18 +136,6 @@ export const purchasesHub = {
     emptyTitle: 'No vendor bills yet',
     emptyDescription:
       'Bills are created from orders whose goods have been received, then verified before payment.',
-  },
-  payments: {
-    search: 'Search voucher number, reference or vendor',
-    allTypes: 'All types',
-    typeFilter: 'Payment type filter',
-    types: {
-      BILL: 'Bill',
-      ADVANCE: 'Advance',
-    },
-    emptyTitle: 'No payment vouchers yet',
-    emptyDescription:
-      'Vouchers are created from verified bills. You can also record an advance payment to a vendor.',
   },
   returns: {
     search: 'Search return number or vendor',

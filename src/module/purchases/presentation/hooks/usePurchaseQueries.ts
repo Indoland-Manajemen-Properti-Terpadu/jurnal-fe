@@ -17,6 +17,7 @@ import type {
   PurchaseReturn,
   VendorCredits,
 } from '@/module/purchases/domain/purchaseDocuments';
+import type { PaymentRequest } from '@/module/purchases/domain/paymentRequest';
 import type { BillSourceDoc } from '@/module/purchases/domain/billSources';
 import type { PurchaseRequest } from '@/module/purchases/domain/purchaseRequest';
 import {
@@ -24,6 +25,7 @@ import {
   getOrder,
   getPayablesAging,
   getPayment,
+  getPaymentRequest,
   getReceipt,
   getRequest,
   getReturn,
@@ -32,10 +34,12 @@ import {
   listBills,
   listOrders,
   listPayments,
+  listPaymentRequests,
   listReceipts,
   listRequests,
   listReturns,
   type ListParams,
+  type PaymentRequestListParams,
   type BillListParams,
   type ReceiptListParams,
   type RequestListParams,
@@ -118,6 +122,11 @@ export const useReceipt = (id?: string) => useDetail<GoodsReceipt>('receipts', i
 export const useBills = (params: BillListParams, enabled?: boolean) =>
   useList<PurchaseBill>('bills', params, listBills, enabled);
 export const useBill = (id?: string) => useDetail<PurchaseBill>('bills', id, getBill);
+
+export const usePaymentRequests = (params: PaymentRequestListParams, enabled?: boolean) =>
+  useList<PaymentRequest>('paymentRequests', params, listPaymentRequests, enabled);
+export const usePaymentRequest = (id?: string) =>
+  useDetail<PaymentRequest>('paymentRequests', id, getPaymentRequest);
 
 export const usePayments = (params: ListParams, enabled?: boolean) =>
   useList<PaymentVoucher>('payments', params, listPayments, enabled);

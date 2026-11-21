@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { ActionIcon, Button, Paper, Skeleton, Stack, Tooltip } from '@mantine/core';
 import {
   IconArrowBackUp,
+  IconCoins,
   IconFileText,
   IconLock,
   IconPackage,
@@ -20,6 +21,7 @@ import { PURCHASE_MENU } from '@/module/purchases/domain/purchaseAccess';
 import { canReadTab, type ListTab } from '@/module/purchases/presentation/components/hub/hubTabs';
 import { BillList } from '@/module/purchases/presentation/components/lists/BillList';
 import { OrderList } from '@/module/purchases/presentation/components/lists/OrderList';
+import { PaymentRequestList } from '@/module/purchases/presentation/components/lists/PaymentRequestList';
 import { PaymentList } from '@/module/purchases/presentation/components/lists/PaymentList';
 import { ReceiptList } from '@/module/purchases/presentation/components/lists/ReceiptList';
 import { RequestList } from '@/module/purchases/presentation/components/lists/RequestList';
@@ -34,7 +36,7 @@ interface ListPageConfig {
   icon: Icon;
   list: () => ReactNode;
   /** Only the first and last steps of the chain start from scratch; the others follow a document. */
-  create?: { labelKey: string; path: string; menu: 'request' | 'payments' };
+  create?: { labelKey: string; path: string; menu: 'request' | 'paymentRequests' | 'payments' };
 }
 
 const PAGES: Record<ListTab, ListPageConfig> = {
@@ -46,12 +48,21 @@ const PAGES: Record<ListTab, ListPageConfig> = {
   orders: { icon: IconPackage, list: () => <OrderList /> },
   receipts: { icon: IconTruckDelivery, list: () => <ReceiptList /> },
   bills: { icon: IconReceipt2, list: () => <BillList /> },
+  paymentRequests: {
+    icon: IconCoins,
+    list: () => <PaymentRequestList />,
+    create: {
+      labelKey: 'paymentRequests.list.create',
+      path: routes.purchases.paymentRequestAdd,
+      menu: 'paymentRequests',
+    },
+  },
   payments: {
     icon: IconWallet,
     list: () => <PaymentList />,
     create: {
-      labelKey: 'hub.createAdvance',
-      path: `${routes.purchases.paymentAdd}?type=advance`,
+      labelKey: 'payments.list.create',
+      path: routes.purchases.paymentAdd,
       menu: 'payments',
     },
   },

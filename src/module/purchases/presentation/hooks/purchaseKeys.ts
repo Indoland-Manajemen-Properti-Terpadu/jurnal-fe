@@ -1,6 +1,13 @@
 import type { ListParams } from '@/module/purchases/infrastructure/purchaseApi';
 
-export type DocumentKind = 'requests' | 'orders' | 'receipts' | 'bills' | 'payments' | 'returns';
+export type DocumentKind =
+  | 'requests'
+  | 'orders'
+  | 'receipts'
+  | 'bills'
+  | 'paymentRequests'
+  | 'payments'
+  | 'returns';
 
 /**
  * Every key starts with the signed-in user, so the cache of one user is never served to the next

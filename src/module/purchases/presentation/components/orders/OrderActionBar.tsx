@@ -3,6 +3,7 @@ import { Button, Menu } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import {
   IconCircleCheck,
+  IconCoins,
   IconDots,
   IconEdit,
   IconFileInvoice,
@@ -49,6 +50,7 @@ export const OrderActionBar = ({ order }: Readonly<{ order: PurchaseOrder }>) =>
   const showSend = actions.send && canUpdate;
   const showReceive = actions.receive && can(PURCHASE_MENU.receipts, 'create');
   const showBill = actions.bill && canCreate;
+  const showAdvance = actions.requestAdvance && can(PURCHASE_MENU.paymentRequests, 'create');
   const showClose = actions.close && canUpdate;
   const showVoid = actions.void && can(PURCHASE_MENU.documents, 'delete');
   const closeDialog = () => setDialog(null);
@@ -120,6 +122,14 @@ export const OrderActionBar = ({ order }: Readonly<{ order: PurchaseOrder }>) =>
           >
             {t('orders.detail.print')}
           </Menu.Item>
+          {showAdvance && (
+            <Menu.Item
+              leftSection={<IconCoins size={14} />}
+              onClick={() => navigate(`${routes.purchases.paymentRequestAdd}?order=${order.id}`)}
+            >
+              {t('orders.detail.requestAdvance')}
+            </Menu.Item>
+          )}
           {showClose && (
             <Menu.Item
               leftSection={<IconCircleCheck size={14} />}

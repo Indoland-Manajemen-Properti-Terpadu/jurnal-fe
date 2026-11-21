@@ -93,6 +93,7 @@ export const purchasesOrders = {
     amountsTitle: 'Nilai Pesanan',
     send: 'Kirim ke Vendor',
     receive: 'Catat Penerimaan',
+    requestAdvance: 'Ajukan Uang Muka',
     createBill: 'Buat Faktur',
     print: 'Cetak PDF',
     close: 'Tutup {label}',

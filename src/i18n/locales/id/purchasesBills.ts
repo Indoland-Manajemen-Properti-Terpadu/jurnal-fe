@@ -145,6 +145,7 @@ export const purchasesBills = {
     verifyDescription:
       'Tagihan diakui sebagai Hutang Usaha dan jurnalnya dibuat. Setelah diverifikasi, tagihan tidak bisa diubah dan siap dibayar.',
     verifyAcknowledge: 'Saya sudah memeriksa selisih di atas dan tetap ingin memverifikasi.',
+    requestPayment: 'Ajukan Pembayaran',
     applyCredit: 'Alokasikan Kredit',
     createReturn: 'Buat Retur',
     void: 'Batalkan Tagihan',

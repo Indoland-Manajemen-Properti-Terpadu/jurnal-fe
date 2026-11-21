@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { Select, Table } from '@mantine/core';
+import { Table } from '@mantine/core';
 import { IconWallet } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
@@ -24,44 +23,26 @@ export const PaymentList = () => {
   const navigate = useNavigate();
   const { can } = usePurchaseAccess();
   const state = useListState();
-  const [type, setType] = useState<string | null>(null);
-  const query = usePayments({ ...state.params, type });
+  const query = usePayments(state.params);
   const canCreate = can(PURCHASE_MENU.payments, 'create');
 
   return (
     <ListShell
       searchValue={state.searchInput}
       onSearchChange={state.setSearch}
-      searchPlaceholder={t('hub.payments.search')}
+      searchPlaceholder={t('payments.list.search')}
       statusValue={state.status}
       onStatusChange={state.setStatus}
       statusOptions={VOUCHER_STATUSES.map((status) => ({
         value: status,
         label: t(`status.${status}`),
       }))}
-      filters={
-        <Select
-          value={type}
-          onChange={(value) => {
-            setType(value);
-            state.setPage(1);
-          }}
-          data={[
-            { value: 'BILL', label: t('hub.payments.types.BILL') },
-            { value: 'ADVANCE', label: t('hub.payments.types.ADVANCE') },
-          ]}
-          placeholder={t('hub.payments.allTypes')}
-          aria-label={t('hub.payments.typeFilter')}
-          clearable
-          radius="md"
-          w={180}
-        />
-      }
       columns={[
         { key: 'number', label: t('common.number') },
         { key: 'date', label: t('common.date') },
         { key: 'vendor', label: t('common.vendor'), minWidth: 180 },
-        { key: 'reference', label: t('common.reference') },
+        { key: 'requests', label: t('payments.list.col.requests'), minWidth: 180 },
+        { key: 'paidAt', label: t('payments.list.col.paidAt') },
         { key: 'status', label: t('common.status') },
         { key: 'amount', label: t('common.amount'), align: 'right' },
       ]}
@@ -74,13 +55,18 @@ export const PaymentList = () => {
             kind="payment"
             id={row.id}
             number={row.number}
-            sub={t(`hub.payments.types.${row.type}`)}
+            sub={row.referenceNumber || undefined}
           />
           <TextCell value={formatDay(row.date, currentLanguage)} />
           <TextCell value={row.vendor.name} maxWidth={260} />
-          <TextCell value={row.referenceNumber} dimmed />
+          <TextCell
+            value={row.items.map((item) => item.requestNumber).join(', ')}
+            maxWidth={260}
+            dimmed
+          />
+          <TextCell value={formatDay(row.paidAt?.slice(0, 10), currentLanguage)} />
           <Table.Td>
-            <StatusBadge status={row.status} />
+            <StatusBadge status={row.status} label={row.statusLabel} />
           </Table.Td>
           <AmountCell value={row.totalAmount} />
         </>
@@ -88,23 +74,18 @@ export const PaymentList = () => {
       isLoading={query.isLoading}
       isError={query.isError}
       onRetry={query.refetch}
-      isFiltered={state.isFiltered || type !== null}
-      onResetFilters={() => {
-        state.reset();
-        setType(null);
-      }}
+      isFiltered={state.isFiltered}
+      onResetFilters={state.reset}
       page={state.page}
       totalPages={query.data?.totalPages ?? 0}
       totalResults={query.data?.totalResults ?? 0}
       onPageChange={state.setPage}
       empty={{
         icon: <IconWallet size={32} stroke={1.6} />,
-        title: t('hub.payments.emptyTitle'),
-        description: t('hub.payments.emptyDescription'),
-        actionLabel: canCreate ? t('hub.createAdvance') : undefined,
-        onAction: canCreate
-          ? () => navigate(`${routes.purchases.paymentAdd}?type=advance`)
-          : undefined,
+        title: t('payments.list.emptyTitle'),
+        description: t('payments.list.emptyDescription'),
+        actionLabel: canCreate ? t('payments.list.create') : undefined,
+        onAction: canCreate ? () => navigate(routes.purchases.paymentAdd) : undefined,
       }}
     />
   );

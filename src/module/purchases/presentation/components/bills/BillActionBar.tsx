@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Alert, Button, Checkbox, Group, Menu, Modal, Stack, Text } from '@mantine/core';
 import {
+  IconCoins,
   IconDots,
   IconEdit,
   IconReceiptRefund,
@@ -38,6 +39,7 @@ export const BillActionBar = ({ bill }: Readonly<{ bill: PurchaseBill }>) => {
   const hasVariance = bill.variances.length > 0;
   const showEdit = actions.edit && can(PURCHASE_MENU.documents, 'update');
   const showVerify = actions.verify && can(PURCHASE_MENU.documents, 'update');
+  const showPay = actions.requestPayment && can(PURCHASE_MENU.paymentRequests, 'create');
   const showCredit = actions.applyCredit && can(PURCHASE_MENU.payments, 'create');
   const showReturn = actions.createReturn && can(PURCHASE_MENU.documents, 'create');
   const showVoid = actions.void && can(PURCHASE_MENU.documents, 'delete');
@@ -67,6 +69,15 @@ export const BillActionBar = ({ bill }: Readonly<{ bill: PurchaseBill }>) => {
           onClick={() => setVerifying(true)}
         >
           {t('bills.detail.verify')}
+        </Button>
+      )}
+      {showPay && (
+        <Button
+          radius="md"
+          leftSection={<IconCoins size={16} />}
+          onClick={() => navigate(`${routes.purchases.paymentRequestAdd}?bill=${bill.id}`)}
+        >
+          {t('bills.detail.requestPayment')}
         </Button>
       )}
       {hasMenu && (
