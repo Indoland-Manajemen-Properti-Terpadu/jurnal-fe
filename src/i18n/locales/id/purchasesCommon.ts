@@ -159,5 +159,10 @@ export const purchasesCommon = {
     quotationsSaved: 'Penawaran vendor berhasil disimpan',
     vendorSelected: 'Vendor berhasil dipilih',
     uploaded: 'Lampiran berhasil ditambahkan',
+    procurementSaved: 'Pengadaan berhasil disimpan',
+    procurementSubmitted: 'Pengadaan berhasil diajukan ke approver',
+    procurementApproved: 'Persetujuan pengadaan tercatat',
+    procurementRejected: 'Pengadaan ditolak dan dikembalikan ke bagian pengadaan',
+    ordersCreated: 'Pesanan berhasil dibuat sebagai draf',
   },
 };

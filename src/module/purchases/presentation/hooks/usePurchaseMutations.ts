@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import type { ProcurementInput } from '@/module/purchases/domain/procurement';
 import type {
   CreditApplicationInput,
   GoodsReceiptInput,
@@ -66,6 +67,24 @@ export const useReturnRequest = () =>
   );
 export const useCancelRequest = () =>
   useAction('cancelled', ({ id, reason }: WithReason) => api.cancelRequest(id, reason));
+
+/* ---------- Procurement ---------- */
+export const useSaveProcurement = () =>
+  useAction('procurementSaved', ({ id, input }: WithId & { input: ProcurementInput }) =>
+    api.saveProcurement(id, input)
+  );
+export const useSubmitProcurement = () =>
+  useAction('procurementSubmitted', ({ id }: WithId) => api.submitProcurement(id));
+export const useApproveProcurement = () =>
+  useAction('procurementApproved', ({ id, note }: WithId & { note?: string }) =>
+    api.approveProcurement(id, note)
+  );
+export const useRejectProcurement = () =>
+  useAction('procurementRejected', ({ id, reason }: WithReason) =>
+    api.rejectProcurement(id, reason)
+  );
+export const useCreateOrdersFromProcurement = () =>
+  useAction('ordersCreated', ({ id }: WithId) => api.createOrdersFromProcurement(id));
 
 /* ---------- Purchase order ---------- */
 export const useSubmitOrder = () => useAction('submitted', ({ id }: WithId) => api.submitOrder(id));
@@ -146,14 +165,16 @@ export const useUploadAttachments = () =>
       id,
       files,
       requestFile,
+      quoteId,
     }: {
       target: api.AttachmentTarget;
       id: string;
       files: File[];
-      /** On an FPPBJ: the request itself or its IOM memo. */
+      /** On an FPPBJ: the request itself, its IOM memo or one quote. */
       requestFile?: api.RequestFileTarget;
+      quoteId?: string;
     }) => {
-      await api.uploadAttachments(target, id, files, requestFile);
+      await api.uploadAttachments(target, id, files, requestFile, quoteId);
       return {} as { number?: string };
     }
   );

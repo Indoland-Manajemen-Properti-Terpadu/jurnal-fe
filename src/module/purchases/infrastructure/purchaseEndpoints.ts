@@ -9,6 +9,8 @@ export const PURCHASE_API = {
   requests: PR,
   request: (id: string) => `${PR}/${id}`,
   requestAction: (id: string, action: string) => `${PR}/${id}/${action}`,
+  requestProcurement: (id: string) => `${PR}/${id}/procurement`,
+  requestProcurementAction: (id: string, action: string) => `${PR}/${id}/procurement/${action}`,
   requestAttachments: (id: string) => `${PR}/${id}/attachments`,
 
   orders: PO,

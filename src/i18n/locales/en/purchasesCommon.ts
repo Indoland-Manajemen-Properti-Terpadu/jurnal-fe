@@ -159,5 +159,10 @@ export const purchasesCommon = {
     quotationsSaved: 'Vendor quotations saved',
     vendorSelected: 'Vendor selected',
     uploaded: 'Attachment added',
+    procurementSaved: 'Procurement saved',
+    procurementSubmitted: 'Procurement submitted to the approvers',
+    procurementApproved: 'Procurement approval recorded',
+    procurementRejected: 'Procurement rejected and returned to procurement',
+    ordersCreated: 'Order created as a draft',
   },
 };

@@ -1,3 +1,4 @@
+import type { OrderRef, Procurement } from '@/module/purchases/domain/procurement';
 import type {
   Attachment,
   DocumentBase,
@@ -49,4 +50,9 @@ export interface PurchaseRequest extends DocumentBase {
   isOwner: boolean;
   /** Chosen at procurement; null until then. */
   route: ProcurementRoute | null;
+  procurement: Procurement;
+  /** The orders (PO / SPK) the approved procurement created. */
+  orders: OrderRef[];
+  /** The procurement is approved but has no order yet, so the order can be created by hand. */
+  readyForOrder: boolean;
 }

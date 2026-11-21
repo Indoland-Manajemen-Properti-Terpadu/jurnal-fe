@@ -8,6 +8,7 @@ import type {
   PurchaseReturn,
   VendorCredits,
 } from '@/module/purchases/domain/purchaseDocuments';
+import type { ProcurementInput } from '@/module/purchases/domain/procurement';
 import type { PurchaseRequest } from '@/module/purchases/domain/purchaseRequest';
 import type {
   CreditApplicationInput,
@@ -124,6 +125,38 @@ export const verifyRequest = (id: string, note?: string) =>
 export const returnRequest = (id: string, note: string) => requests.act(id, 'return', { note });
 export const cancelRequest = (id: string, reason: string) => requests.act(id, 'cancel', { reason });
 
+/* ---------- Procurement (a part of the FPPBJ) ---------- */
+const procurementCall = async (call: Promise<ApiEnvelope<PurchaseRequestDto>>) =>
+  toPurchaseRequest((await call).data);
+
+export const saveProcurement = (id: string, input: ProcurementInput) =>
+  procurementCall(
+    http.put<ApiEnvelope<PurchaseRequestDto>>(PURCHASE_API.requestProcurement(id), input)
+  );
+export const submitProcurement = (id: string) =>
+  procurementCall(
+    http.post<ApiEnvelope<PurchaseRequestDto>>(PURCHASE_API.requestProcurementAction(id, 'submit'))
+  );
+export const approveProcurement = (id: string, note?: string) =>
+  procurementCall(
+    http.post<ApiEnvelope<PurchaseRequestDto>>(
+      PURCHASE_API.requestProcurementAction(id, 'approve'),
+      note ? { note } : undefined
+    )
+  );
+export const rejectProcurement = (id: string, reason: string) =>
+  procurementCall(
+    http.post<ApiEnvelope<PurchaseRequestDto>>(
+      PURCHASE_API.requestProcurementAction(id, 'reject'),
+      { reason }
+    )
+  );
+/** Backup for an approved procurement that has no order: creates the draft PO / SPK. */
+export const createOrdersFromProcurement = (id: string) =>
+  procurementCall(
+    http.post<ApiEnvelope<PurchaseRequestDto>>(PURCHASE_API.requestProcurementAction(id, 'orders'))
+  );
+
 /* ---------- Purchase order ---------- */
 export const listOrders = orders.list;
 export const getOrder = orders.get;
@@ -185,7 +218,7 @@ export const voidReturn = (id: string, reason: string) => returns.act(id, 'void'
 export type AttachmentTarget = 'request' | 'order' | 'receipt' | 'bill' | 'payment' | 'return';
 
 /** Where on an FPPBJ the file belongs: the request itself, or its IOM memo. */
-export type RequestFileTarget = 'request' | 'iom';
+export type RequestFileTarget = 'request' | 'iom' | 'quote';
 
 const ATTACHMENT_URL: Record<AttachmentTarget, (id: string) => string> = {
   request: PURCHASE_API.requestAttachments,
@@ -201,10 +234,12 @@ export const uploadAttachments = async (
   target: AttachmentTarget,
   id: string,
   files: File[],
-  requestFile?: RequestFileTarget
+  requestFile?: RequestFileTarget,
+  quoteId?: string
 ) => {
   const form = new FormData();
   if (target === 'request') form.append('target', requestFile ?? 'request');
+  if (quoteId) form.append('quoteId', quoteId);
   files.forEach((file) => form.append('attachments', file));
   await http.upload<unknown>(ATTACHMENT_URL[target](id), form);
 };

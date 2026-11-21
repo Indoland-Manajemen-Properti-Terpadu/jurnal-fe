@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
 import { requestActions } from '@/module/purchases/domain/purchaseActions';
 import { requestRights } from '@/module/purchases/domain/requestAccess';
+import { ProcurementSection } from '@/module/purchases/presentation/components/procurement/ProcurementSection';
 import { RequestActionBar } from '@/module/purchases/presentation/components/requests/RequestActionBar';
 import { RequestStatusNotice } from '@/module/purchases/presentation/components/requests/RequestStatusNotice';
 import { RequestSummaryCard } from '@/module/purchases/presentation/components/requests/RequestSummaryCard';
@@ -72,6 +73,7 @@ export default function RequestDetailPage() {
         <Grid.Col span={{ base: 12, lg: 8 }}>
           <Stack gap="lg">
             <RequestStatusNotice request={doc} />
+            <ProcurementSection request={doc} />
             <RequestSummaryCard request={doc} />
           </Stack>
         </Grid.Col>

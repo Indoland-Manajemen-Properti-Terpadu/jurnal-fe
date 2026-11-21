@@ -11,6 +11,8 @@ interface ApprovalPanelProps {
   approval: ApprovalState;
   /** Document status; the panel shows only once the document has entered approval. */
   status: string;
+  /** The status that means "waiting for a decision"; PENDING_APPROVAL unless the document says otherwise. */
+  waitingStatus?: string;
   /** The user holds the approval right for this document type. */
   canApprove: boolean;
   busy?: boolean;
@@ -22,6 +24,7 @@ interface ApprovalPanelProps {
 export const ApprovalPanel = ({
   approval,
   status,
+  waitingStatus = 'PENDING_APPROVAL',
   canApprove,
   busy,
   onApprove,
@@ -31,7 +34,7 @@ export const ApprovalPanel = ({
   const [note, setNote] = useState('');
   const [rejecting, setRejecting] = useState(false);
 
-  const waiting = status === 'PENDING_APPROVAL';
+  const waiting = status === waitingStatus;
   const rejected = status === 'REJECTED' && approval.rejectionReason;
   if (!waiting && !rejected && approval.entries.length === 0) return null;
 
