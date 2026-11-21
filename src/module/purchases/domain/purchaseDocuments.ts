@@ -37,6 +37,12 @@ export type GoodsReceiptStatus = 'POSTED' | 'PENDING_APPROVAL' | 'REJECTED' | 'V
 /** Goods go through an FPB and post at once; services go through a BAPP that needs approval. */
 export type ReceiptKind = 'GOODS' | 'SERVICE';
 export type PurchaseBillStatus = 'DRAFT' | 'VERIFIED' | 'PARTIAL_PAID' | 'PAID' | 'VOID';
+
+/** Where a bill comes from: receipts (FPB / BAPP), an order that takes no receipt, or typed in. */
+export type BillSource = 'RECEIPT' | 'ORDER' | 'MANUAL';
+
+/** The tabs of the list: not yet verified, owed, owed and late, paid, voided. */
+export type BillDisplayStatus = 'DRAFT' | 'UNPAID' | 'OVERDUE' | 'PAID' | 'VOID';
 export type PaymentVoucherStatus =
   | 'DRAFT'
   | 'PENDING_APPROVAL'
@@ -168,8 +174,10 @@ export interface BillVariance {
 
 export interface BillItem {
   id: string;
+  /** Empty on a manual bill, which is not tied to an order. */
   purchaseOrderItemId: string;
   product: ProductRef | null;
+  account: NamedRef | null;
   description: string;
   quantity: number;
   unitName: string | null;
@@ -192,17 +200,35 @@ export interface CreditApplication {
 }
 
 export interface PurchaseBill extends DocumentBase, DocumentAmounts {
+  source: BillSource;
+  /** True for a manual bill: no order or receipt to compare it with. */
+  noMatch: boolean;
+  statusLabel: string;
+  displayStatus: BillDisplayStatus;
+  displayStatusLabel: string;
   vendor: PartyRef;
+  /** The first order the bill comes from; a bill can combine receipts of several orders. */
   purchaseOrderId: string;
   vendorInvoiceNumber: string;
+  taxInvoiceNumber: string;
   vendorInvoiceTotal: number | null;
   dueDate: string | null;
+  paymentTermName: string | null;
   status: PurchaseBillStatus;
   items: BillItem[];
+  tags: string[];
   paidAmount: number;
   returnedAmount: number;
   creditAppliedAmount: number;
   remainingAmount: number;
+  /** Inside a Payment Request that is not paid yet. */
+  heldAmount: number;
+  /** What a Payment Request can still ask for. */
+  requestableAmount: number;
+  goodsReceiptRefs: DocumentRef[];
+  purchaseOrderRefs: DocumentRef[];
+  paymentRequestRefs: DocumentRef[];
+  returnRefs: DocumentRef[];
   variances: BillVariance[];
   creditApplications: CreditApplication[];
   journalId: string | null;

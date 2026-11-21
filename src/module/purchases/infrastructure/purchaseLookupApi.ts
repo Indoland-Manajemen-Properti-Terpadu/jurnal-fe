@@ -154,3 +154,11 @@ export const listWarehouses = async (): Promise<NamedRef[]> => {
   });
   return data.results.map(({ id, name }) => ({ id, name }));
 };
+
+/** Transaction tags a bill can carry (the service allows 100 per page). */
+export const listTags = async (): Promise<NamedRef[]> => {
+  const { data } = await http.get<ApiEnvelope<{ data: NamedDto[] }>>(PURCHASE_API.tags, {
+    limit: 100,
+  });
+  return data.data.map(({ id, name }) => ({ id, name }));
+};

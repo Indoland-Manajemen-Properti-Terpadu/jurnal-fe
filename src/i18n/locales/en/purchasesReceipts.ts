@@ -52,6 +52,7 @@ export const purchasesReceipts = {
     infoTitle: '{label} Details',
     bills: 'Bills',
     resubmit: 'Resubmit',
+    createBill: 'Create Bill',
     order: 'Purchase order',
     viewOrder: 'View order',
     receivedOn: 'Date received',

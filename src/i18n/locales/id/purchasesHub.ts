@@ -33,7 +33,8 @@ export const purchasesHub = {
     },
     bills: {
       title: 'Tagihan Vendor',
-      description: 'Tagihan dari vendor. Verifikasi dulu sebelum dibayar.',
+      description:
+        'Faktur dari vendor, dibuat dari penerimaan atau PO/SPK. Verifikasi dulu sebelum dibayar.',
     },
     payments: {
       title: 'Pembayaran Pembelian',
@@ -122,7 +123,13 @@ export const purchasesHub = {
     dueDate: 'Jatuh tempo',
     payable: 'Hutang',
     remaining: 'Sisa hutang',
-    overdueOnly: 'Hanya yang jatuh tempo',
+    display: {
+      DRAFT: 'Draf',
+      UNPAID: 'Belum dibayar',
+      OVERDUE: 'Jatuh tempo',
+      PAID: 'Lunas',
+      VOID: 'Dibatalkan',
+    },
     emptyTitle: 'Belum ada tagihan vendor',
     emptyDescription:
       'Tagihan dibuat dari pesanan yang barangnya sudah diterima, lalu diverifikasi sebelum dibayar.',

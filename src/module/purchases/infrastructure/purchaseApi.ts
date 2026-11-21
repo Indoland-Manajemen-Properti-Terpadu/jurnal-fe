@@ -8,10 +8,12 @@ import type {
   PurchaseReturn,
   VendorCredits,
 } from '@/module/purchases/domain/purchaseDocuments';
+import type { BillSourceDoc } from '@/module/purchases/domain/billSources';
 import type { ProcurementInput } from '@/module/purchases/domain/procurement';
 import type { PurchaseRequest } from '@/module/purchases/domain/purchaseRequest';
 import type {
   CreditApplicationInput,
+  BillUpdateInput,
   GoodsReceiptInput,
   OrderDraftInput,
   PaymentVoucherInput,
@@ -23,6 +25,7 @@ import type {
 import { PURCHASE_API } from '@/module/purchases/infrastructure/purchaseEndpoints';
 import type {
   ApiEnvelope,
+  BillSourceDto,
   GoodsReceiptDto,
   ListDto,
   PayablesAgingDto,
@@ -33,6 +36,7 @@ import type {
   VendorCreditsDto,
 } from '@/module/purchases/infrastructure/purchaseDto';
 import {
+  toBillSource,
   toGoodsReceipt,
   toPayablesAging,
   toPaymentVoucher,
@@ -185,9 +189,22 @@ export const resubmitReceipt = (id: string) => receipts.act(id, 'resubmit');
 export const voidReceipt = (id: string, reason: string) => receipts.act(id, 'void', { reason });
 
 /* ---------- Bill ---------- */
-export const listBills = bills.list;
 export const getBill = bills.get;
 export const createBill = (input: PurchaseBillInput) => bills.create(input);
+export const updateBill = (id: string, input: BillUpdateInput) => bills.update(id, input);
+export interface BillListParams extends ListParams {
+  displayStatus?: string | string[];
+  source?: string;
+}
+export const listBills = (params: BillListParams = {}) => bills.list(params);
+/** Receipts or orders ready to be billed, optionally of one vendor. */
+export const listBillSources = async (
+  source: 'RECEIPT' | 'ORDER',
+  vendor?: string
+): Promise<BillSourceDoc[]> =>
+  (
+    await http.get<ApiEnvelope<BillSourceDto[]>>(PURCHASE_API.billSources, { source, vendor })
+  ).data.map(toBillSource);
 export const verifyBill = (id: string, acknowledgeVariance: boolean) =>
   bills.act(id, 'verify', { acknowledgeVariance });
 export const voidBill = (id: string, reason: string) => bills.act(id, 'void', { reason });

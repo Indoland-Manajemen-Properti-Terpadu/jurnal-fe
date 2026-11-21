@@ -25,12 +25,15 @@ export class ApiError extends Error {
   /** Indonesian business message from the server; only set for `domain` and `forbidden`. */
   readonly serverMessage?: string;
   readonly fieldErrors: FieldError[];
+  /** Extra data a business refusal carries (for example the figures that differ); never shown as written. */
+  readonly details: unknown[];
 
   constructor(init: {
     kind: ApiErrorKind;
     status?: number;
     serverMessage?: string;
     fieldErrors?: FieldError[];
+    details?: unknown[];
   }) {
     super(init.kind);
     this.name = 'ApiError';
@@ -38,6 +41,7 @@ export class ApiError extends Error {
     this.status = init.status;
     this.serverMessage = init.serverMessage;
     this.fieldErrors = init.fieldErrors ?? [];
+    this.details = init.details ?? [];
   }
 }
 
@@ -47,7 +51,9 @@ const readFieldErrors = (data: unknown[]): FieldError[] =>
   data.flatMap((item) => {
     if (typeof item !== 'object' || item === null) return [];
     const { field, message } = item as Record<string, unknown>;
-    return typeof field === 'string' && typeof message === 'string' ? [{ field, message }] : [];
+    return typeof field === 'string'
+      ? [{ field, message: typeof message === 'string' ? message : '' }]
+      : [];
   });
 
 export const toApiError = (error: unknown): ApiError => {
@@ -66,7 +72,12 @@ export const toApiError = (error: unknown): ApiError => {
   if (status === 404) return new ApiError({ kind: 'notFound', status });
   if ([408, 502, 503, 504].includes(status)) return new ApiError({ kind: 'network', status });
   if (status === 400 && Array.isArray(body.data)) {
-    return new ApiError({ kind: 'validation', status, fieldErrors: readFieldErrors(body.data) });
+    const fieldErrors = readFieldErrors(body.data);
+    // A list without fields is a business refusal that carries data (a bill's differences), not a bad entry.
+    if (fieldErrors.length === 0 && serverMessage) {
+      return new ApiError({ kind: 'domain', status, serverMessage, details: body.data });
+    }
+    return new ApiError({ kind: 'validation', status, fieldErrors });
   }
   if (status >= 400 && status < 500 && serverMessage) {
     return new ApiError({ kind: 'domain', status, serverMessage });

@@ -52,6 +52,7 @@ export const purchasesReceipts = {
     infoTitle: 'Informasi {label}',
     bills: 'Faktur',
     resubmit: 'Ajukan Ulang',
+    createBill: 'Buat Faktur',
     order: 'Pesanan pembelian',
     viewOrder: 'Lihat pesanan',
     receivedOn: 'Tanggal diterima',

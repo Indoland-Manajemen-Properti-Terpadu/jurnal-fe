@@ -31,6 +31,7 @@ export const PURCHASE_API = {
   billCreditApplications: (id: string) => `${BILL}/${id}/credit-applications`,
   billCreditApplicationVoid: (id: string, applicationId: string) =>
     `${BILL}/${id}/credit-applications/${applicationId}/void`,
+  billSources: `${BILL}/sources`,
   vendorCredits: `${BILL}/vendor-credits`,
   payablesBySupplier: `${BILL}/payables/by-supplier`,
   payablesExport: `${BILL}/payables/by-supplier/export`,
@@ -50,6 +51,7 @@ export const PURCHASE_API = {
   departments: '/v1/departments',
   units: '/v1/units',
   warehouses: '/v1/warehouses',
+  tags: '/v1/tags',
   products: '/v1/products',
   taxes: '/v1/taxes',
   paymentMethods: '/v1/payment-methods',

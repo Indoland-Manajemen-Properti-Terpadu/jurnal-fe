@@ -17,6 +17,7 @@ import type {
   PurchaseReturn,
   VendorCredits,
 } from '@/module/purchases/domain/purchaseDocuments';
+import type { BillSourceDoc } from '@/module/purchases/domain/billSources';
 import type { PurchaseRequest } from '@/module/purchases/domain/purchaseRequest';
 import {
   getBill,
@@ -27,6 +28,7 @@ import {
   getRequest,
   getReturn,
   getVendorCredits,
+  listBillSources,
   listBills,
   listOrders,
   listPayments,
@@ -34,6 +36,7 @@ import {
   listRequests,
   listReturns,
   type ListParams,
+  type BillListParams,
   type ReceiptListParams,
   type RequestListParams,
 } from '@/module/purchases/infrastructure/purchaseApi';
@@ -45,6 +48,7 @@ import {
   listPaymentTerms,
   listTaxes,
   searchPurchasableProducts,
+  listTags,
   listUnits,
   listWarehouses,
   searchSuppliers,
@@ -111,7 +115,7 @@ export const useReceipts = (params: ReceiptListParams, enabled?: boolean) =>
   useList<GoodsReceipt>('receipts', params, listReceipts, enabled);
 export const useReceipt = (id?: string) => useDetail<GoodsReceipt>('receipts', id, getReceipt);
 
-export const useBills = (params: ListParams, enabled?: boolean) =>
+export const useBills = (params: BillListParams, enabled?: boolean) =>
   useList<PurchaseBill>('bills', params, listBills, enabled);
 export const useBill = (id?: string) => useDetail<PurchaseBill>('bills', id, getBill);
 
@@ -213,5 +217,24 @@ export const useWarehouseOptions = () => {
     queryKey: [...purchaseKeys.lookups(scope), 'warehouses'],
     queryFn: listWarehouses,
     staleTime: STABLE_MS,
+  });
+};
+
+export const useTagOptions = () => {
+  const scope = usePurchaseScope();
+  return useQuery<NamedRef[], PurchaseError>({
+    queryKey: [...purchaseKeys.lookups(scope), 'tags'],
+    queryFn: listTags,
+    staleTime: STABLE_MS,
+  });
+};
+
+/** Receipts or orders ready to be billed, of one vendor when given. */
+export const useBillSources = (source: 'RECEIPT' | 'ORDER' | null, vendor?: string) => {
+  const scope = usePurchaseScope();
+  return useQuery<BillSourceDoc[], PurchaseError>({
+    queryKey: [...purchaseKeys.all(scope), 'bill-sources', source, vendor ?? ''],
+    queryFn: () => listBillSources(source as 'RECEIPT' | 'ORDER', vendor),
+    enabled: source !== null,
   });
 };

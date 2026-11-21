@@ -121,7 +121,13 @@ export const purchasesHub = {
     dueDate: 'Due date',
     payable: 'Payable',
     remaining: 'Remaining',
-    overdueOnly: 'Past due only',
+    display: {
+      DRAFT: 'Draft',
+      UNPAID: 'Unpaid',
+      OVERDUE: 'Overdue',
+      PAID: 'Paid',
+      VOID: 'Voided',
+    },
     emptyTitle: 'No vendor bills yet',
     emptyDescription:
       'Bills are created from orders whose goods have been received, then verified before payment.',

@@ -20,7 +20,7 @@ import { SectionCard } from '@/module/purchases/presentation/components/shared/S
 import { StatusBadge } from '@/module/purchases/presentation/components/shared/StatusBadge';
 import { usePurchaseAccess } from '@/module/purchases/presentation/hooks/usePurchaseAccess';
 import { usePurchaseJourney } from '@/module/purchases/presentation/hooks/usePurchaseJourney';
-import { useBill, useOrder } from '@/module/purchases/presentation/hooks/usePurchaseQueries';
+import { useBill } from '@/module/purchases/presentation/hooks/usePurchaseQueries';
 import { routes } from '@/router/routes';
 
 const BACK = routes.purchases.bills;
@@ -31,7 +31,6 @@ export default function BillDetailPage() {
   const { can, canRead, isLoading: accessLoading } = usePurchaseAccess();
   const bill = useBill(id);
   const extras = useBillExtras(id);
-  const order = useOrder(bill.data?.purchaseOrderId);
   const journey = usePurchaseJourney({
     orderId: bill.data?.purchaseOrderId,
     billId: id,
@@ -69,7 +68,7 @@ export default function BillDetailPage() {
       title={
         <Group gap="sm" align="center">
           <span>{doc.number}</span>
-          <StatusBadge status={doc.status} />
+          <StatusBadge status={doc.status} label={doc.statusLabel} />
         </Group>
       }
       description={t('bills.detail.subtitle', { vendor: doc.vendor.name })}
@@ -82,7 +81,7 @@ export default function BillDetailPage() {
         <Grid.Col span={{ base: 12, lg: 8 }}>
           <Stack gap="lg">
             <BillVariancesCard bill={doc} findings={extras.data?.variances ?? []} />
-            <BillInfoCard bill={doc} orderNumber={order.data?.number ?? null} />
+            <BillInfoCard bill={doc} />
             <BillItemsCard bill={doc} />
             <CreditApplicationsCard
               billId={doc.id}

@@ -56,6 +56,16 @@ export const BillSettlementCard = ({ bill }: Readonly<{ bill: PurchaseBill }>) =
                   },
                 ]
               : []),
+            ...(bill.heldAmount > 0
+              ? [
+                  {
+                    key: 'held',
+                    label: t('bills.detail.held'),
+                    value: formatAmount(bill.heldAmount),
+                    color: 'var(--mantine-color-yellow-5)',
+                  },
+                ]
+              : []),
             {
               key: 'open',
               label: t('bills.detail.remaining'),

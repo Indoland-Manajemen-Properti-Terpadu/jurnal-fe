@@ -200,7 +200,8 @@ export interface GoodsReceiptDto extends DocumentDto, ApprovalFieldsDto {
 }
 
 export interface BillItemDto extends LineDto {
-  purchaseOrderItem: string;
+  purchaseOrderItem?: string | null;
+  account?: { id: string; name?: string | null } | null;
   returnedQty?: number | null;
 }
 
@@ -216,18 +217,37 @@ export interface CreditApplicationDto {
   voided?: boolean;
 }
 
+export interface DocumentRefDto {
+  id: string;
+  transactionNumber?: string | null;
+  status?: string | null;
+}
+
 export interface PurchaseBillDto extends DocumentDto, AmountsDto {
+  source?: 'RECEIPT' | 'ORDER' | 'MANUAL' | null;
+  noMatch?: boolean | null;
+  statusLabel?: string | null;
+  displayStatus?: string | null;
+  displayStatusLabel?: string | null;
   vendorInvoiceNumber?: string | null;
+  taxInvoiceNumber?: string | null;
   vendorInvoiceTotal?: number | null;
   vendor: PartyDto;
-  purchaseOrder: IdOr<{ id: string }>;
+  purchaseOrderRefs?: DocumentRefDto[] | null;
+  goodsReceiptRefs?: DocumentRefDto[] | null;
+  paymentRequestRefs?: DocumentRefDto[] | null;
+  returnRefs?: DocumentRefDto[] | null;
+  paymentTerm?: { name?: string | null } | null;
   dueDate?: string | null;
   status: string;
   items: BillItemDto[];
+  tags?: string[] | null;
   paidAmount: number;
   returnedAmount: number;
   creditAppliedAmount: number;
   remainingAmount: number;
+  heldAmount?: number | null;
+  requestableAmount?: number | null;
   variances?: { type: 'PRICE' | 'TOTAL'; expected?: number; actual?: number }[] | null;
   creditApplications?: CreditApplicationDto[] | null;
   journalTransaction?: string | null;
@@ -319,4 +339,29 @@ export interface MyPermissionsDto {
     update?: boolean;
     delete?: boolean;
   }[];
+}
+
+export interface BillSourceLineDto {
+  purchaseOrderItem: string;
+  description?: string | null;
+  open?: number | null;
+  unitPrice: number;
+  taxRate?: number | null;
+  schedule?: OrderItemDto['schedule'];
+}
+
+/** A receipt or an order that is ready to be billed (`GET /purchase-bills/sources`). */
+export interface BillSourceDto {
+  id: string;
+  transactionNumber: string;
+  transactionDate: string;
+  kind?: 'GOODS' | 'SERVICE' | null;
+  isService?: boolean | null;
+  vendor: PartyDto;
+  purchaseOrder?: { id: string; transactionNumber?: string | null } | null;
+  termKey?: string | null;
+  termName?: string | null;
+  isPriceIncludeTax?: boolean | null;
+  lines?: BillSourceLineDto[] | null;
+  orderLines?: BillSourceLineDto[] | null;
 }

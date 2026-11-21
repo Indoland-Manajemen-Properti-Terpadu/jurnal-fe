@@ -24,7 +24,9 @@ import { usePurchaseScope } from '@/module/purchases/presentation/hooks/usePurch
 const useAction = <Variables, Result extends { number?: string }>(
   successKey: string,
   run: (variables: Variables) => Promise<Result>,
-  onDone?: (result: Result) => void
+  onDone?: (result: Result) => void,
+  /** An error the screen answers itself (a question to confirm); no failure message is shown for it. */
+  isHandled?: (error: unknown) => boolean
 ) => {
   const client = useQueryClient();
   const scope = usePurchaseScope();
@@ -38,7 +40,7 @@ const useAction = <Variables, Result extends { number?: string }>(
       onDone?.(result);
     },
     onError: async (error) => {
-      notify.failure(error);
+      if (!isHandled?.(error)) notify.failure(error);
       await refresh();
     },
   });
@@ -119,8 +121,10 @@ export const useVoidReceipt = () =>
   useAction('voided', ({ id, reason }: WithReason) => api.voidReceipt(id, reason));
 
 /* ---------- Bill ---------- */
-export const useCreateBill = (onDone?: (doc: WithId & Doc) => void) =>
-  useAction('created', (input: PurchaseBillInput) => api.createBill(input), onDone);
+export const useCreateBill = (
+  onDone?: (doc: WithId & Doc) => void,
+  isHandled?: (error: unknown) => boolean
+) => useAction('created', (input: PurchaseBillInput) => api.createBill(input), onDone, isHandled);
 export const useVerifyBill = () =>
   useAction('verified', ({ id, acknowledgeVariance }: WithId & { acknowledgeVariance: boolean }) =>
     api.verifyBill(id, acknowledgeVariance)

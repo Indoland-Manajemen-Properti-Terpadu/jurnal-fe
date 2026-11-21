@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Button, Grid, Group, Stack } from '@mantine/core';
-import { IconPackageImport, IconSend, IconX } from '@tabler/icons-react';
-import { useParams } from 'react-router-dom';
+import { IconFileInvoice, IconPackageImport, IconSend, IconX } from '@tabler/icons-react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
 import { PURCHASE_MENU } from '@/module/purchases/domain/purchaseAccess';
 import { receiptActions } from '@/module/purchases/domain/purchaseActions';
@@ -29,6 +29,7 @@ const BACK = routes.purchases.receipts;
 
 export default function ReceiptDetailPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { t } = useTranslation('purchases');
   const { can, canRead, isLoading: accessLoading } = usePurchaseAccess();
   const receipt = useReceipt(id);
@@ -67,6 +68,7 @@ export default function ReceiptDetailPage() {
   }
   const actions = receiptActions(doc);
   const canVoid = actions.void && can(PURCHASE_MENU.receipts, 'delete');
+  const canBill = doc.status === 'POSTED' && can(PURCHASE_MENU.documents, 'create');
   const canResubmit = actions.resubmit && can(PURCHASE_MENU.receipts, 'update');
 
   return (
@@ -86,6 +88,15 @@ export default function ReceiptDetailPage() {
       backLabel={t('common.back')}
       actions={
         <>
+          {canBill && (
+            <Button
+              radius="md"
+              leftSection={<IconFileInvoice size={16} />}
+              onClick={() => navigate(`${routes.purchases.billAdd}?receipt=${doc.id}`)}
+            >
+              {t('receipts.detail.createBill')}
+            </Button>
+          )}
           {canResubmit && (
             <Button
               radius="md"

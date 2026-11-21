@@ -65,14 +65,22 @@ export const receiptActions = (doc: GoodsReceipt) => ({
   decide: doc.status === 'PENDING_APPROVAL' && doc.approval.canDecide,
 });
 
+/**
+ * What the status of a bill allows. Payment is asked for through a Payment Request (slice 8), and a bill
+ * that sits inside one, or already has a payment, return or credit, cannot be voided.
+ */
 export const billActions = (doc: PurchaseBill) => {
-  const settled = doc.paidAmount > 0 || doc.returnedAmount > 0 || doc.creditAppliedAmount > 0;
+  const settled =
+    doc.paidAmount > 0 ||
+    doc.returnedAmount > 0 ||
+    doc.creditAppliedAmount > 0 ||
+    doc.heldAmount > 0;
   const open = doc.status === 'VERIFIED' || doc.status === 'PARTIAL_PAID';
   return {
     edit: doc.status === 'DRAFT',
     verify: doc.status === 'DRAFT',
     void: (doc.status === 'DRAFT' || doc.status === 'VERIFIED') && !settled,
-    pay: open && doc.remainingAmount > 0,
+    requestPayment: open && doc.requestableAmount > 0,
     applyCredit: open && doc.remainingAmount > 0,
     createReturn: open || doc.status === 'PAID',
   };

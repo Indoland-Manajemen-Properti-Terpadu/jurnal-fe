@@ -32,16 +32,60 @@ export interface GoodsReceiptInput {
   items: { purchaseOrderItem: string; receivedQty: number; rejectedQty?: number }[];
 }
 
-export interface PurchaseBillInput {
-  purchaseOrder: string;
+export type DiscountKind = 'percentage' | 'nominal';
+
+/** The header a bill takes whatever its source; dates are `YYYY-MM-DD`. */
+export interface BillHeaderInput {
   transactionDate: string;
   vendorInvoiceNumber?: string;
+  taxInvoiceNumber?: string;
+  vendorInvoiceTotal?: number;
+  paymentTerm?: string;
+  dueDate?: string;
+  discountType?: DiscountKind;
+  discountValue?: number;
+  withholdingType?: DiscountKind;
+  withholdingValue?: number;
+  withholdingTaxCode?: string;
+  /** Ids of transaction tags. */
+  tags?: string[];
+  memo?: string;
+  /** Creates the bill already verified. */
+  post?: boolean;
+  /** Goes on verifying even though the vendor's prices differ from the order. */
+  acknowledgeVariance?: boolean;
+}
+
+export interface ManualBillItemInput {
+  product?: string;
+  account?: string;
+  description: string;
+  quantity: number;
+  unitPrice: number;
+  tax?: string;
+}
+
+export type PurchaseBillInput = BillHeaderInput &
+  (
+    | { source: 'RECEIPT'; goodsReceipts: string[] }
+    | { source: 'ORDER'; purchaseOrders: string[] }
+    | { source: 'MANUAL'; vendor: string; items: ManualBillItemInput[] }
+  );
+
+/** A draft bill changes its header only; the lines follow the receipts or the order. A cleared field is sent empty or null. */
+export interface BillUpdateInput {
+  transactionDate?: string;
+  vendorInvoiceNumber?: string;
+  taxInvoiceNumber?: string;
   vendorInvoiceTotal?: number;
   dueDate?: string;
-  paymentTerm?: string;
+  discountType?: DiscountKind | null;
+  discountValue?: number;
+  withholdingType?: DiscountKind | null;
+  withholdingValue?: number;
+  withholdingTaxCode?: string;
+  tags?: string[];
   memo?: string;
-  /** Left out, the whole received and not yet billed quantity is billed. */
-  items?: { purchaseOrderItem: string; quantity: number; unitPrice?: number; tax?: string }[];
 }
 
 export interface PaymentVoucherInput {

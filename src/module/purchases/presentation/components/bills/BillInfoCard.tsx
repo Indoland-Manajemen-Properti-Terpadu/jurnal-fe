@@ -1,4 +1,4 @@
-import { Anchor, Text } from '@mantine/core';
+import { Anchor, Group, Text } from '@mantine/core';
 import { IconClipboardText } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
@@ -15,11 +15,10 @@ import { routes } from '@/router/routes';
 
 interface BillInfoCardProps {
   bill: PurchaseBill;
-  orderNumber: string | null;
 }
 
 /** Vendor, invoice, dates and where the bill comes from. */
-export const BillInfoCard = ({ bill, orderNumber }: Readonly<BillInfoCardProps>) => {
+export const BillInfoCard = ({ bill }: Readonly<BillInfoCardProps>) => {
   const { t, currentLanguage } = useTranslation('purchases');
   const overdue = isBillOverdue(bill, todayIso());
 
@@ -29,18 +28,37 @@ export const BillInfoCard = ({ bill, orderNumber }: Readonly<BillInfoCardProps>)
         items={[
           { label: t('common.vendor'), value: bill.vendor.name },
           {
-            label: t('bills.detail.order'),
+            label: t('bills.detail.source'),
+            value: t(`bills.form.source.${bill.source}`),
+          },
+          {
+            label: t('bills.detail.documents'),
             value: (
-              <Anchor
-                component={Link}
-                to={routes.purchases.orderDetail.replace(':id', bill.purchaseOrderId)}
-                size="sm"
-                fw={500}
-              >
-                {orderNumber ?? t('bills.detail.viewOrder')}
-              </Anchor>
+              <Group gap={8}>
+                {[
+                  ...bill.goodsReceiptRefs.map((ref) => ({
+                    ...ref,
+                    to: routes.purchases.receiptDetail.replace(':id', ref.id),
+                  })),
+                  ...bill.purchaseOrderRefs.map((ref) => ({
+                    ...ref,
+                    to: routes.purchases.orderDetail.replace(':id', ref.id),
+                  })),
+                ].map((ref) => (
+                  <Anchor key={ref.id} component={Link} to={ref.to} size="sm" fw={500}>
+                    {ref.number}
+                  </Anchor>
+                ))}
+                {bill.noMatch && (
+                  <Text span size="sm" c="dimmed">
+                    {t('bills.detail.noMatch')}
+                  </Text>
+                )}
+              </Group>
             ),
           },
+          { label: t('bills.detail.taxInvoiceNumber'), value: bill.taxInvoiceNumber },
+          { label: t('orders.form.paymentTerm'), value: bill.paymentTermName ?? '' },
           { label: t('bills.detail.invoiceNumber'), value: bill.vendorInvoiceNumber },
           {
             label: t('bills.detail.invoiceTotal'),

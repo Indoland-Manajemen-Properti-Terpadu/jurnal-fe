@@ -97,6 +97,16 @@ Verified live on 2026-11-21 (`/v1/goods-receipts`). `kind` is `GOODS` (an FPB) o
 - List: `kind`, `billable=true` (receipts not fully billed yet), `purchaseOrder`, `vendor`, `status` (one or several), `search` (the number); an unknown parameter is a 400. Rows carry `purchaseOrderRef`, `billRefs` and `amount`.
 - Receipts are recorded from the PO/SPK detail ("Catat Penerimaan"), never from an empty list.
 
+## Bills (slice 7/9)
+
+A bill has three sources, chosen on the form (`BillSource`): `RECEIPT` (one or more FPB/BAPP), `ORDER` (one or more PO/SPK) and `MANUAL` (no PO: vendor plus lines). Verified live on the Demo Site (2026-11-21).
+
+- Documents picked together must share one vendor and one payment term (`compatibleWith` in `domain/billSources`); the picker disables the others.
+- The server compares the bill with the order. A price difference answers 400 with an Indonesian message and a data list without `field` (`type`, `expected`, `actual`). `toApiError` keeps it as a business refusal with `details`; the form shows `BillVarianceDialog`, and confirming resends the same body with `acknowledgeVariance: true`.
+- `PUT` keeps omitted fields, so the edit form sends the full header. A saved draft is edited on its header only (`validateBillForm(..., { headerOnly: true })`); its lines are not on the form.
+- A bill's `displayStatus`, `noMatch`, `heldAmount` and `requestableAmount` come from the server and are shown as they are.
+- Probe note: a request with `sendEmail: true` on a PO really sent an email to a seeded vendor address (slice 5). It cannot be undone.
+
 ## Contract facts that differ from the backend document (older documents, to be replaced slice by slice)
 
 Verified against the live service on 2026-11-04:

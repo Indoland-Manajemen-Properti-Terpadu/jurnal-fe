@@ -43,6 +43,18 @@ describe('toApiError', () => {
     expect(error.serverMessage).toBeUndefined();
   });
 
+  it('keeps a 400 whose list has no fields as a business refusal with its details', () => {
+    const error = toApiError(
+      respond(400, {
+        message: 'Harga faktur berbeda dari PO/SPK pada 1 baris. Konfirmasi selisih',
+        data: [{ type: 'TOTAL', expected: 3330000, actual: 3000000 }],
+      })
+    );
+
+    expect(error.kind).toBe('domain');
+    expect(error.details).toEqual([{ type: 'TOTAL', expected: 3330000, actual: 3000000 }]);
+  });
+
   it.each([
     [401, 'unauthorized'],
     [403, 'forbidden'],
