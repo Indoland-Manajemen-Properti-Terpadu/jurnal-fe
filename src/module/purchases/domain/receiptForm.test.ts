@@ -2,6 +2,8 @@ import type { OrderItem, PurchaseOrder } from '@/module/purchases/domain/purchas
 import {
   canReceive,
   clampReceived,
+  defaultWarehouse,
+  needsWarehouse,
   emptyReceiptForm,
   hasReceiptErrors,
   receiptLines,
@@ -87,6 +89,79 @@ describe('receiptForm', () => {
       transactionDate: '2026-11-05',
       deliveryNote: 'SJ-1',
       items: [{ purchaseOrderItem: 'a', receivedQty: 3 }],
+    });
+  });
+
+  it('skips the lines that are only billed, like an advance, and marks stocked goods', () => {
+    const advance = { ...item('adv', 1, 0), billOnly: true };
+    const stocked = { ...item('s', 5, 0), product: { id: 'p', name: 'Claude', isInventory: true } };
+    const lines = receiptLines(order([advance, stocked as unknown as OrderItem, item('a', 2, 0)]));
+
+    expect(lines.map((line) => [line.itemId, line.stocked])).toEqual([
+      ['s', true],
+      ['a', false],
+    ]);
+  });
+
+  describe('the warehouse', () => {
+    const stockedOrder = () => {
+      const stocked = {
+        ...item('s', 5, 0),
+        product: { id: 'p', name: 'Claude', isInventory: true },
+      };
+      return order([stocked as unknown as OrderItem]);
+    };
+
+    it('starts from the order warehouse, or the only active one, else blank', () => {
+      expect(defaultWarehouse({ warehouse: { id: 'w1' } } as unknown as PurchaseOrder, [])).toBe(
+        'w1'
+      );
+      expect(
+        defaultWarehouse({ warehouse: null } as unknown as PurchaseOrder, [{ id: 'w2' }])
+      ).toBe('w2');
+      expect(
+        defaultWarehouse({ warehouse: null } as unknown as PurchaseOrder, [
+          { id: 'a' },
+          { id: 'b' },
+        ])
+      ).toBe('');
+    });
+
+    it('is required only for stocked goods when more than one warehouse is active', () => {
+      const po = stockedOrder();
+      const lines = receiptLines(po);
+      const form = { ...emptyReceiptForm(po, '2026-11-05'), quantities: { s: 2 } };
+
+      expect(needsWarehouse(po, lines, form, 2)).toBe(true);
+      expect(needsWarehouse(po, lines, form, 1)).toBe(false);
+      expect(needsWarehouse(po, lines, { ...form, quantities: { s: 0 } }, 2)).toBe(false);
+      expect(validateReceipt(form, po, lines, 2).warehouse).toBe(true);
+      expect(validateReceipt({ ...form, warehouseId: 'w1' }, po, lines, 2).warehouse).toBe(false);
+    });
+
+    it('is never asked for a service', () => {
+      const po = { ...stockedOrder(), isService: true } as PurchaseOrder;
+      const form = { ...emptyReceiptForm(po, '2026-11-05'), quantities: { s: 1 } };
+      expect(needsWarehouse(po, receiptLines(po), form, 3)).toBe(false);
+    });
+  });
+
+  it('sends the warehouse and the rejected quantity only when there is one', () => {
+    const po = order([item('a', 4, 0), item('b', 2, 0)]);
+    const form = {
+      ...emptyReceiptForm(po, '2026-11-05', 'w1'),
+      quantities: { a: 3, b: 1 },
+      rejected: { a: 1, b: 0 },
+    };
+
+    expect(toReceiptInput(form, 'po1')).toEqual({
+      purchaseOrder: 'po1',
+      transactionDate: '2026-11-05',
+      warehouse: 'w1',
+      items: [
+        { purchaseOrderItem: 'a', receivedQty: 3, rejectedQty: 1 },
+        { purchaseOrderItem: 'b', receivedQty: 1 },
+      ],
     });
   });
 });

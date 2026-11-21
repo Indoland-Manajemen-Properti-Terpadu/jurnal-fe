@@ -32,7 +32,10 @@ export interface OrderSchedule {
   periodTo: string | null;
 }
 
-export type GoodsReceiptStatus = 'POSTED' | 'VOID';
+export type GoodsReceiptStatus = 'POSTED' | 'PENDING_APPROVAL' | 'REJECTED' | 'VOID';
+
+/** Goods go through an FPB and post at once; services go through a BAPP that needs approval. */
+export type ReceiptKind = 'GOODS' | 'SERVICE';
 export type PurchaseBillStatus = 'DRAFT' | 'VERIFIED' | 'PARTIAL_PAID' | 'PAID' | 'VOID';
 export type PaymentVoucherStatus =
   | 'DRAFT'
@@ -124,16 +127,35 @@ export interface ReceiptItem {
   product: ProductRef | null;
   description: string;
   receivedQty: number;
+  /** Goods turned away at delivery; they are not counted as received. */
+  rejectedQty: number;
   accrualAmount: number;
 }
 
+export interface DocumentRef {
+  id: string;
+  number: string;
+  status: string;
+}
+
 export interface GoodsReceipt extends DocumentBase {
+  kind: ReceiptKind;
+  /** `FPB` for goods, `BAPP` for services. */
+  documentLabel: string;
+  statusLabel: string;
   vendor: PartyRef;
   purchaseOrderId: string;
+  purchaseOrderNumber: string;
+  warehouse: NamedRef | null;
   deliveryNote: string;
   status: GoodsReceiptStatus;
   items: ReceiptItem[];
+  /** What the receipt recognises as accrued before the bill. */
+  amount: number;
   journalId: string | null;
+  /** The bills made from this receipt. */
+  billRefs: DocumentRef[];
+  approval: ApprovalState;
 }
 
 export type VarianceType = 'PRICE' | 'TOTAL';

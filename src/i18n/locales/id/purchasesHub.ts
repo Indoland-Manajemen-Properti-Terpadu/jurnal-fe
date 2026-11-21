@@ -28,8 +28,8 @@ export const purchasesHub = {
         'PO dan SPK yang dibuat otomatis saat pengadaan disetujui. Kirim ke vendor dari detailnya.',
     },
     receipts: {
-      title: 'Penerimaan Barang',
-      description: 'Catat barang atau jasa dari vendor yang sudah sampai.',
+      title: 'Penerimaan Barang/Jasa',
+      description: 'FPB untuk barang dan BAPP untuk jasa. BAPP perlu disetujui sebelum dijurnal.',
     },
     bills: {
       title: 'Tagihan Vendor',
@@ -106,12 +106,16 @@ export const purchasesHub = {
       'PO atau SPK dibuat otomatis saat pengadaan disetujui. Selesaikan pengadaan di detail permintaan.',
   },
   receipts: {
-    search: 'Cari nomor penerimaan atau vendor',
+    search: 'Cari nomor FPB atau BAPP',
+    colReceipt: 'FPB / BAPP dan tanggal',
+    order: 'PO / SPK',
+    kind: 'Jenis',
+    kinds: { GOODS: 'FPB (barang)', SERVICE: 'BAPP (jasa)' },
     deliveryNote: 'Surat jalan',
     quantity: 'Jumlah diterima',
     emptyTitle: 'Belum ada penerimaan barang',
     emptyDescription:
-      'Penerimaan dicatat dari pesanan yang sudah disetujui, saat barang atau jasa sudah sampai.',
+      'FPB atau BAPP dicatat dari PO atau SPK yang sudah dikirim, saat barang atau jasa sudah sampai.',
   },
   bills: {
     search: 'Cari nomor tagihan, faktur vendor, atau vendor',

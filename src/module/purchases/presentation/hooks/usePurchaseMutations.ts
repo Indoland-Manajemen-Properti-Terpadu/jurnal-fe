@@ -107,6 +107,14 @@ export const useVoidOrder = () =>
 /* ---------- Goods receipt ---------- */
 export const useCreateReceipt = (onDone?: (doc: WithId & Doc) => void) =>
   useAction('received', (input: GoodsReceiptInput) => api.createReceipt(input), onDone);
+export const useApproveReceipt = () =>
+  useAction('receiptApproved', ({ id, note }: WithId & { note?: string }) =>
+    api.approveReceipt(id, note)
+  );
+export const useRejectReceipt = () =>
+  useAction('receiptRejected', ({ id, reason }: WithReason) => api.rejectReceipt(id, reason));
+export const useResubmitReceipt = () =>
+  useAction('receiptResubmitted', ({ id }: WithId) => api.resubmitReceipt(id));
 export const useVoidReceipt = () =>
   useAction('voided', ({ id, reason }: WithReason) => api.voidReceipt(id, reason));
 

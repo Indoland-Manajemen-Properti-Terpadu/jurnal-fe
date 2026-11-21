@@ -16,17 +16,20 @@ const numeric = { whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' } as 
 
 interface ReceiptSummaryCardProps {
   receipt: GoodsReceipt;
-  orderNumber: string | null;
 }
 
 /** Who delivered what, when, against which order, and the value recognised for it. */
-export const ReceiptSummaryCard = ({ receipt, orderNumber }: Readonly<ReceiptSummaryCardProps>) => {
+export const ReceiptSummaryCard = ({ receipt }: Readonly<ReceiptSummaryCardProps>) => {
   const { t, currentLanguage } = useTranslation('purchases');
-  const total = receipt.items.reduce((sum, item) => sum + item.accrualAmount, 0);
+  const total = receipt.amount || receipt.items.reduce((sum, item) => sum + item.accrualAmount, 0);
+  const service = receipt.kind === 'SERVICE';
 
   return (
     <>
-      <SectionCard icon={IconClipboardText} title={t('receipts.detail.infoTitle')}>
+      <SectionCard
+        icon={IconClipboardText}
+        title={t('receipts.detail.infoTitle', { label: receipt.documentLabel })}
+      >
         <InfoGrid
           items={[
             { label: t('common.vendor'), value: receipt.vendor.name },
@@ -39,7 +42,7 @@ export const ReceiptSummaryCard = ({ receipt, orderNumber }: Readonly<ReceiptSum
                   size="sm"
                   fw={500}
                 >
-                  {orderNumber ?? t('receipts.detail.viewOrder')}
+                  {receipt.purchaseOrderNumber || t('receipts.detail.viewOrder')}
                 </Anchor>
               ),
             },
@@ -47,7 +50,17 @@ export const ReceiptSummaryCard = ({ receipt, orderNumber }: Readonly<ReceiptSum
               label: t('receipts.detail.receivedOn'),
               value: formatDay(receipt.date, currentLanguage),
             },
+            ...(service
+              ? []
+              : [{ label: t('receipts.form.warehouse'), value: receipt.warehouse?.name ?? '' }]),
             { label: t('receipts.form.deliveryNote'), value: receipt.deliveryNote },
+            {
+              label: t('receipts.detail.bills'),
+              value:
+                receipt.billRefs.length > 0
+                  ? receipt.billRefs.map((bill) => bill.number).join(', ')
+                  : '',
+            },
             ...(receipt.memo
               ? [{ label: t('common.memo'), value: receipt.memo, span: 2 as const }]
               : []),
@@ -65,7 +78,7 @@ export const ReceiptSummaryCard = ({ receipt, orderNumber }: Readonly<ReceiptSum
           <Table verticalSpacing="sm" horizontalSpacing="sm">
             <Table.Thead bg="var(--jurnal-color-surface-hover)">
               <Table.Tr>
-                {['item', 'quantity', 'accrual'].map((key) => (
+                {['item', 'quantity', ...(service ? [] : ['rejected']), 'accrual'].map((key) => (
                   <Table.Th key={key} ta={key === 'item' ? undefined : 'right'}>
                     <Text size="xs" fw={700} c="dimmed" tt="uppercase">
                       {t(`receipts.detail.col.${key}`)}
@@ -87,6 +100,13 @@ export const ReceiptSummaryCard = ({ receipt, orderNumber }: Readonly<ReceiptSum
                       {formatQuantity(item.receivedQty)} {item.product?.unitName}
                     </Text>
                   </Table.Td>
+                  {!service && (
+                    <Table.Td ta="right" style={numeric}>
+                      <Text size="sm" c={item.rejectedQty > 0 ? undefined : 'dimmed'}>
+                        {formatQuantity(item.rejectedQty)}
+                      </Text>
+                    </Table.Td>
+                  )}
                   <Table.Td ta="right" style={numeric}>
                     <Text size="sm" fw={500}>
                       {formatAmount(item.accrualAmount)}
@@ -97,7 +117,7 @@ export const ReceiptSummaryCard = ({ receipt, orderNumber }: Readonly<ReceiptSum
             </Table.Tbody>
             <Table.Tfoot>
               <Table.Tr>
-                <Table.Td colSpan={2}>
+                <Table.Td colSpan={service ? 2 : 3}>
                   <Text size="sm" fw={700}>
                     {t('receipts.detail.totalAccrual')}
                   </Text>

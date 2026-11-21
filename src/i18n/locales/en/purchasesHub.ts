@@ -27,8 +27,9 @@ export const purchasesHub = {
         'POs and SPKs created automatically when procurement is approved. Send them to the vendor from the detail.',
     },
     receipts: {
-      title: 'Goods Receipts',
-      description: 'Record the goods or services that have arrived from a vendor.',
+      title: 'Goods & Service Receipts',
+      description:
+        'An FPB for goods and a BAPP for services. A BAPP needs approval before it is journaled.',
     },
     bills: {
       title: 'Vendor Bills',
@@ -104,12 +105,16 @@ export const purchasesHub = {
       'A PO or SPK is created automatically when procurement is approved. Complete the procurement on the request detail.',
   },
   receipts: {
-    search: 'Search receipt number or vendor',
+    search: 'Search FPB or BAPP number',
+    colReceipt: 'FPB / BAPP and date',
+    order: 'PO / SPK',
+    kind: 'Type',
+    kinds: { GOODS: 'FPB (goods)', SERVICE: 'BAPP (services)' },
     deliveryNote: 'Delivery note',
     quantity: 'Quantity received',
     emptyTitle: 'No goods receipts yet',
     emptyDescription:
-      'Receipts are recorded from an approved order when the goods or services arrive.',
+      'An FPB or BAPP is recorded from a sent PO or SPK when the goods or services arrive.',
   },
   bills: {
     search: 'Search bill number, vendor invoice or vendor',

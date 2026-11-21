@@ -123,8 +123,13 @@ export const toPurchaseOrder = (dto: PurchaseOrderDto): PurchaseOrder => ({
 
 export const toGoodsReceipt = (dto: GoodsReceiptDto): GoodsReceipt => ({
   ...base(dto),
+  kind: dto.kind ?? 'GOODS',
+  documentLabel: dto.documentLabel ?? (dto.kind === 'SERVICE' ? 'BAPP' : 'FPB'),
+  statusLabel: dto.statusLabel ?? '',
   vendor: toParty(dto.vendor),
-  purchaseOrderId: refId(dto.purchaseOrder),
+  purchaseOrderId: dto.purchaseOrderRef?.id ?? refId(dto.purchaseOrder),
+  purchaseOrderNumber: dto.purchaseOrderRef?.transactionNumber ?? '',
+  warehouse: dto.warehouse ? { id: dto.warehouse.id, name: dto.warehouse.name } : null,
   deliveryNote: dto.deliveryNote ?? '',
   status: dto.status as GoodsReceipt['status'],
   items: dto.items.map((item) => ({
@@ -133,9 +138,17 @@ export const toGoodsReceipt = (dto: GoodsReceiptDto): GoodsReceipt => ({
     product: toProduct(item.product),
     description: item.description ?? '',
     receivedQty: item.receivedQty,
+    rejectedQty: item.rejectedQty ?? 0,
     accrualAmount: item.accrualAmount,
   })),
+  amount: dto.amount ?? 0,
   journalId: dto.journalTransaction ?? null,
+  billRefs: (dto.billRefs ?? []).map((ref) => ({
+    id: ref.id,
+    number: ref.transactionNumber ?? '',
+    status: ref.status ?? '',
+  })),
+  approval: toApproval(dto),
 });
 
 const toBillItem = (dto: PurchaseBillDto['items'][number]): BillItem => ({

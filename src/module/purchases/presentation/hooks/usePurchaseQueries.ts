@@ -34,6 +34,7 @@ import {
   listRequests,
   listReturns,
   type ListParams,
+  type ReceiptListParams,
   type RequestListParams,
 } from '@/module/purchases/infrastructure/purchaseApi';
 import type { PurchaseError } from '@/module/purchases/infrastructure/purchaseErrors';
@@ -106,7 +107,7 @@ export const useOrders = (params: ListParams, enabled?: boolean) =>
   useList<PurchaseOrder>('orders', params, listOrders, enabled);
 export const useOrder = (id?: string) => useDetail<PurchaseOrder>('orders', id, getOrder);
 
-export const useReceipts = (params: ListParams, enabled?: boolean) =>
+export const useReceipts = (params: ReceiptListParams, enabled?: boolean) =>
   useList<GoodsReceipt>('receipts', params, listReceipts, enabled);
 export const useReceipt = (id?: string) => useDetail<GoodsReceipt>('receipts', id, getReceipt);
 

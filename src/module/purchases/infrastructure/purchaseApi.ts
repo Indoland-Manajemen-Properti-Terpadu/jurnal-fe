@@ -168,10 +168,20 @@ export const sendOrder = (id: string, input: SendOrderInput) => orders.act(id, '
 export const closeOrder = (id: string, note: string) => orders.act(id, 'close', { note });
 export const voidOrder = (id: string, reason: string) => orders.act(id, 'void', { reason });
 
-/* ---------- Goods receipt ---------- */
-export const listReceipts = receipts.list;
+/* ---------- Goods and service receipt (FPB / BAPP) ---------- */
+export interface ReceiptListParams extends ListParams {
+  kind?: 'GOODS' | 'SERVICE';
+  billable?: boolean;
+  purchaseOrder?: string;
+}
+
+export const listReceipts = (params: ReceiptListParams = {}) => receipts.list(params);
 export const getReceipt = receipts.get;
 export const createReceipt = (input: GoodsReceiptInput) => receipts.create(input);
+export const approveReceipt = (id: string, note?: string) =>
+  receipts.act(id, 'approve', note ? { note } : undefined);
+export const rejectReceipt = (id: string, reason: string) => receipts.act(id, 'reject', { reason });
+export const resubmitReceipt = (id: string) => receipts.act(id, 'resubmit');
 export const voidReceipt = (id: string, reason: string) => receipts.act(id, 'void', { reason });
 
 /* ---------- Bill ---------- */

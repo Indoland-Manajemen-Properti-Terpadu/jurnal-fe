@@ -23,7 +23,7 @@ export const navigation = {
   purchasesOverview: 'Ringkasan Pembelian',
   purchasesRequests: 'Permintaan',
   purchasesOrders: 'Pesanan',
-  purchasesReceipts: 'Penerimaan Barang',
+  purchasesReceipts: 'Penerimaan Barang/Jasa',
   purchasesBills: 'Tagihan Vendor',
   purchasesPayments: 'Pembayaran',
   payables: 'Hutang Usaha',

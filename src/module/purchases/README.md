@@ -86,6 +86,17 @@ Verified live on 2026-11-21. A PO is never created by hand: the last procurement
 - Receiving: only a sent or partly received order with `withReceipt: true` takes an FPB / BAPP (400 otherwise, so the button is hidden); with `withReceipt: false` the bill is made straight from the order.
 - Not tested live: the sendEmail failure above, and warehouses (the sandbox had none; one named "Gudang Utama" and one "Gudang Cadangan" were created for the tests; the inventory README still says `/v1/warehouses` is 404, but it answers now).
 
+## FPB / BAPP (slice 6/9)
+
+Verified live on 2026-11-21 (`/v1/goods-receipts`). `kind` is `GOODS` (an FPB) or `SERVICE` (a BAPP); `documentLabel` says which.
+
+- Create: `purchaseOrder`, `transactionDate`, `deliveryNote`, `warehouse`, `memo`, `items[] { purchaseOrderItem, receivedQty, rejectedQty }`. Only a sent or partly received PO/SPK with `withReceipt: true` takes one (400 otherwise). Refused with Indonesian messages: no quantity, a quantity above what is left (`sisa N`, fractions are fine), an unknown item, a billing-only line (an advance or shipping is "langsung difaktur", never received). `rejectedQty` is kept on the line and is not counted as received.
+- **A warehouse is required once more than one is active** ("Gudang wajib dipilih karena ada lebih dari satu gudang aktif"); with one active warehouse, or the PO's own, it is the default. The form follows that rule for stocked goods (`product.isInventory`) and never asks for one on a service.
+- An FPB is `POSTED` at once (the label "Dikonfirmasi"), adds stock for stocked products and journals the accrual (`accrualAmount` per line, `amount`, `journalTransaction`). A BAPP is `PENDING_APPROVAL`, then approved level by level (`JP-PURCH-APR-BAPP`, default Chief Finance then Building Manager) to `POSTED` and journaled, or `REJECTED` with a `reason` (400 without), after which `POST /:id/resubmit` returns it to approval. Approve on a rejected or posted one, and resubmit twice, are 400.
+- `POST /:id/void` needs `reason`; it reverses the receipt and lowers `receivedQty` on the order. The screen offers it on a `POSTED` receipt. Not tested live: voiding a pending BAPP, and voiding a receipt that is already billed (slice 7).
+- List: `kind`, `billable=true` (receipts not fully billed yet), `purchaseOrder`, `vendor`, `status` (one or several), `search` (the number); an unknown parameter is a 400. Rows carry `purchaseOrderRef`, `billRefs` and `amount`.
+- Receipts are recorded from the PO/SPK detail ("Catat Penerimaan"), never from an empty list.
+
 ## Contract facts that differ from the backend document (older documents, to be replaced slice by slice)
 
 Verified against the live service on 2026-11-04:

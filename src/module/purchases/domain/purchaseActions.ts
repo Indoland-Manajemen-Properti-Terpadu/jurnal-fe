@@ -58,7 +58,12 @@ export const orderActions = (doc: PurchaseOrder) => {
   };
 };
 
-export const receiptActions = (doc: GoodsReceipt) => ({ void: doc.status === 'POSTED' });
+/** A confirmed receipt can be voided (until it is billed); a BAPP waits for approval or a resubmit. */
+export const receiptActions = (doc: GoodsReceipt) => ({
+  void: doc.status === 'POSTED',
+  resubmit: doc.status === 'REJECTED',
+  decide: doc.status === 'PENDING_APPROVAL' && doc.approval.canDecide,
+});
 
 export const billActions = (doc: PurchaseBill) => {
   const settled = doc.paidAmount > 0 || doc.returnedAmount > 0 || doc.creditAppliedAmount > 0;

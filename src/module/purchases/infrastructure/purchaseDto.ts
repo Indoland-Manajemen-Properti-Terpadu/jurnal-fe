@@ -175,17 +175,25 @@ export interface PurchaseOrderDto extends DocumentDto, AmountsDto {
   sentNote?: string | null;
 }
 
-export interface GoodsReceiptDto extends DocumentDto {
+export interface GoodsReceiptDto extends DocumentDto, ApprovalFieldsDto {
+  kind?: 'GOODS' | 'SERVICE' | null;
+  documentLabel?: string | null;
+  statusLabel?: string | null;
   vendor: PartyDto;
   purchaseOrder: IdOr<{ id: string }>;
+  purchaseOrderRef?: { id: string; transactionNumber?: string | null } | null;
+  warehouse?: { id: string; name: string } | null;
   deliveryNote?: string | null;
   status: string;
+  amount?: number | null;
+  billRefs?: { id: string; transactionNumber?: string | null; status?: string | null }[] | null;
   items: {
     _id: string;
     purchaseOrderItem: string;
     product?: ProductDto | null;
     description?: string | null;
     receivedQty: number;
+    rejectedQty?: number | null;
     accrualAmount: number;
   }[];
   journalTransaction?: string | null;

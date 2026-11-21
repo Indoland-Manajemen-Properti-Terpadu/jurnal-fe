@@ -23,7 +23,7 @@ export const navigation = {
   purchasesOverview: 'Purchasing Overview',
   purchasesRequests: 'Requests',
   purchasesOrders: 'Orders',
-  purchasesReceipts: 'Goods Receipts',
+  purchasesReceipts: 'Goods & Service Receipts',
   purchasesBills: 'Vendor Bills',
   purchasesPayments: 'Payments',
   payables: 'Payables',

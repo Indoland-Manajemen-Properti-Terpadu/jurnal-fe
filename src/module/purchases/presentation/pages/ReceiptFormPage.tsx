@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Anchor, Grid, Stack, Text, TextInput, Textarea } from '@mantine/core';
+import { Anchor, Grid, Select, Stack, Text, TextInput, Textarea } from '@mantine/core';
 import {
   IconClipboardText,
   IconListDetails,
@@ -12,7 +12,9 @@ import { PURCHASE_MENU } from '@/module/purchases/domain/purchaseAccess';
 import type { PurchaseOrder } from '@/module/purchases/domain/purchaseDocuments';
 import {
   canReceive,
+  defaultWarehouse,
   emptyReceiptForm,
+  needsWarehouse,
   hasReceiptErrors,
   receiptLines,
   receiveAllRemaining,
@@ -30,7 +32,10 @@ import { SectionCard } from '@/module/purchases/presentation/components/shared/S
 import { todayIso } from '@/module/purchases/presentation/components/shared/format';
 import { usePurchaseAccess } from '@/module/purchases/presentation/hooks/usePurchaseAccess';
 import { useCreateReceipt } from '@/module/purchases/presentation/hooks/usePurchaseMutations';
-import { useOrder } from '@/module/purchases/presentation/hooks/usePurchaseQueries';
+import {
+  useOrder,
+  useWarehouseOptions,
+} from '@/module/purchases/presentation/hooks/usePurchaseQueries';
 import { routes } from '@/router/routes';
 
 const orderDetail = (id: string) => routes.purchases.orderDetail.replace(':id', id);
@@ -40,13 +45,20 @@ const ReceiptFormBody = ({ order }: Readonly<{ order: PurchaseOrder }>) => {
   const { t } = useTranslation('purchases');
   const navigate = useNavigate();
   const lines = receiptLines(order);
+  const warehouses = useWarehouseOptions();
+  const activeWarehouses = warehouses.data ?? [];
   const [values, setValues] = useState<ReceiptFormValues>(() =>
-    emptyReceiptForm(order, todayIso())
+    emptyReceiptForm(order, todayIso(), order.warehouse?.id ?? '')
   );
   const [showErrors, setShowErrors] = useState(false);
   const create = useCreateReceipt((doc) => navigate(receiptDetail(doc.id)));
 
-  const errors = validateReceipt(values, order, lines);
+  // A single active warehouse is the answer; it is chosen once the list is known.
+  const fallbackWarehouse = defaultWarehouse(order, activeWarehouses);
+  const warehouseValue = values.warehouseId || fallbackWarehouse;
+  const effective = { ...values, warehouseId: warehouseValue };
+  const errors = validateReceipt(effective, order, lines, activeWarehouses.length);
+  const askWarehouse = needsWarehouse(order, lines, effective, activeWarehouses.length);
   const patch = (next: Partial<ReceiptFormValues>) =>
     setValues((current) => ({ ...current, ...next }));
   const receivedLines = lines.filter((line) => (values.quantities[line.itemId] ?? 0) > 0).length;
@@ -56,14 +68,16 @@ const ReceiptFormBody = ({ order }: Readonly<{ order: PurchaseOrder }>) => {
       setShowErrors(true);
       return;
     }
-    create.mutate(toReceiptInput(values, order.id));
+    create.mutate(toReceiptInput(effective, order.id));
   };
 
   return (
     <PageFrame
       icon={IconPackageImport}
-      title={t('receipts.form.titleCreate')}
-      description={t('receipts.form.subtitle', { number: order.number })}
+      title={t(order.isService ? 'receipts.form.titleService' : 'receipts.form.titleCreate')}
+      description={t(order.isService ? 'receipts.form.subtitleService' : 'receipts.form.subtitle', {
+        number: order.number,
+      })}
       backTo={orderDetail(order.id)}
       backLabel={t('common.back')}
     >
@@ -106,6 +120,31 @@ const ReceiptFormBody = ({ order }: Readonly<{ order: PurchaseOrder }>) => {
                     }
                   />
                 </Grid.Col>
+                {!order.isService && (
+                  <Grid.Col span={12}>
+                    <Select
+                      radius="md"
+                      searchable
+                      clearable={!askWarehouse}
+                      withAsterisk={askWarehouse}
+                      label={t('receipts.form.warehouse')}
+                      description={t('receipts.form.warehouseHint')}
+                      placeholder={t('receipts.form.warehousePlaceholder')}
+                      nothingFoundMessage={t('receipts.form.noWarehouse')}
+                      data={activeWarehouses.map((warehouse) => ({
+                        value: warehouse.id,
+                        label: warehouse.name,
+                      }))}
+                      value={warehouseValue || null}
+                      onChange={(value) => patch({ warehouseId: value ?? '' })}
+                      error={
+                        showErrors && errors.warehouse
+                          ? t('receipts.form.warehouseRequired')
+                          : undefined
+                      }
+                    />
+                  </Grid.Col>
+                )}
                 <Grid.Col span={{ base: 12, sm: 6 }}>
                   <TextInput
                     radius="md"
@@ -138,6 +177,11 @@ const ReceiptFormBody = ({ order }: Readonly<{ order: PurchaseOrder }>) => {
               <ReceiptLinesEditor
                 lines={lines}
                 quantities={values.quantities}
+                rejected={values.rejected}
+                service={order.isService}
+                onReject={(itemId, quantity) =>
+                  patch({ rejected: { ...values.rejected, [itemId]: quantity } })
+                }
                 overIds={errors.overIds}
                 showErrors={showErrors}
                 onChange={(itemId, quantity) =>
@@ -188,7 +232,7 @@ export default function ReceiptFormPage() {
   if (accessLoading || (orderId && order.isLoading)) {
     return <StateFrame kind="loading" />;
   }
-  if (!can(PURCHASE_MENU.documents, 'create')) {
+  if (!can(PURCHASE_MENU.receipts, 'create')) {
     return <StateFrame kind="noAccess" backTo={back} />;
   }
   if (!orderId) {

@@ -7,6 +7,10 @@ import { formatQuantity } from '@/module/purchases/presentation/components/share
 interface ReceiptLinesEditorProps {
   lines: ReceiptLine[];
   quantities: Record<string, number>;
+  /** Goods turned away at delivery; services have none. */
+  rejected: Record<string, number>;
+  service: boolean;
+  onReject: (itemId: string, quantity: number) => void;
   overIds: string[];
   showErrors: boolean;
   onChange: (itemId: string, quantity: number) => void;
@@ -17,6 +21,9 @@ interface ReceiptLinesEditorProps {
 export const ReceiptLinesEditor = ({
   lines,
   quantities,
+  rejected,
+  service,
+  onReject,
   overIds,
   showErrors,
   onChange,
@@ -42,7 +49,14 @@ export const ReceiptLinesEditor = ({
         <Table verticalSpacing="xs" horizontalSpacing="xs">
           <Table.Thead bg="var(--jurnal-color-surface-hover)">
             <Table.Tr>
-              {['item', 'ordered', 'received', 'remaining', 'now'].map((key) => (
+              {[
+                'item',
+                'ordered',
+                'received',
+                'remaining',
+                'now',
+                ...(service ? [] : ['rejected']),
+              ].map((key) => (
                 <Table.Th key={key} ta={key === 'item' ? undefined : 'right'}>
                   <Text size="xs" fw={700} c="dimmed" tt="uppercase">
                     {t(`receipts.form.col.${key}`)}
@@ -95,6 +109,21 @@ export const ReceiptLinesEditor = ({
                     }
                   />
                 </Table.Td>
+                {!service && (
+                  <Table.Td w={130}>
+                    <NumberInput
+                      radius="md"
+                      aria-label={t('receipts.form.rejectedAria', { item: line.name })}
+                      value={rejected[line.itemId] ?? 0}
+                      min={0}
+                      hideControls
+                      allowNegative={false}
+                      decimalScale={4}
+                      disabled={(quantities[line.itemId] ?? 0) <= 0}
+                      onChange={(value) => onReject(line.itemId, value === '' ? 0 : Number(value))}
+                    />
+                  </Table.Td>
+                )}
               </Table.Tr>
             ))}
           </Table.Tbody>

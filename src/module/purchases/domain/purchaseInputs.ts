@@ -25,9 +25,11 @@ export interface PurchaseRequestInput {
 export interface GoodsReceiptInput {
   purchaseOrder: string;
   transactionDate: string;
+  /** Required when more than one warehouse is active and the order has stocked goods. */
+  warehouse?: string;
   deliveryNote?: string;
   memo?: string;
-  items: { purchaseOrderItem: string; receivedQty: number }[];
+  items: { purchaseOrderItem: string; receivedQty: number; rejectedQty?: number }[];
 }
 
 export interface PurchaseBillInput {

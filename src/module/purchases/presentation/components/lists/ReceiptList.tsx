@@ -1,4 +1,5 @@
-import { Table } from '@mantine/core';
+import { useState } from 'react';
+import { Select, Table } from '@mantine/core';
 import { IconTruckDelivery } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
@@ -18,7 +19,8 @@ export const ReceiptList = () => {
   const { t, currentLanguage } = useTranslation('purchases');
   const navigate = useNavigate();
   const state = useListState();
-  const query = useReceipts(state.params);
+  const [kind, setKind] = useState<'GOODS' | 'SERVICE' | null>(null);
+  const query = useReceipts({ ...state.params, ...(kind ? { kind } : {}) });
 
   return (
     <ListShell
@@ -31,11 +33,28 @@ export const ReceiptList = () => {
         value: status,
         label: t(`status.${status}`),
       }))}
+      filters={
+        <Select
+          clearable
+          radius="md"
+          w={{ base: '100%', sm: 190 }}
+          aria-label={t('hub.receipts.kind')}
+          placeholder={t('hub.receipts.kind')}
+          data={(['GOODS', 'SERVICE'] as const).map((value) => ({
+            value,
+            label: t(`hub.receipts.kinds.${value}`),
+          }))}
+          value={kind}
+          onChange={(value) => {
+            setKind(value as 'GOODS' | 'SERVICE' | null);
+            state.setPage(1);
+          }}
+        />
+      }
       columns={[
-        { key: 'number', label: t('common.number') },
-        { key: 'date', label: t('common.date') },
+        { key: 'number', label: t('hub.receipts.colReceipt') },
         { key: 'vendor', label: t('common.vendor'), minWidth: 180 },
-        { key: 'note', label: t('hub.receipts.deliveryNote') },
+        { key: 'order', label: t('hub.receipts.order') },
         { key: 'quantity', label: t('hub.receipts.quantity'), align: 'right' },
         { key: 'status', label: t('common.status') },
       ]}
@@ -44,23 +63,30 @@ export const ReceiptList = () => {
       onRowClick={(row) => navigate(detailPath('receipt', row.id))}
       renderCells={(row) => (
         <>
-          <NumberCell kind="receipt" id={row.id} number={row.number} />
-          <TextCell value={formatDay(row.date, currentLanguage)} />
+          <NumberCell
+            kind="receipt"
+            id={row.id}
+            number={row.number}
+            sub={formatDay(row.date, currentLanguage)}
+          />
           <TextCell value={row.vendor.name} maxWidth={260} />
-          <TextCell value={row.deliveryNote} dimmed />
+          <TextCell value={row.purchaseOrderNumber} dimmed />
           <Table.Td ta="right" style={{ fontVariantNumeric: 'tabular-nums' }}>
             {formatQuantity(row.items.reduce((total, item) => total + item.receivedQty, 0))}
           </Table.Td>
           <Table.Td>
-            <StatusBadge status={row.status} />
+            <StatusBadge status={row.status} label={row.statusLabel} />
           </Table.Td>
         </>
       )}
       isLoading={query.isLoading}
       isError={query.isError}
       onRetry={query.refetch}
-      isFiltered={state.isFiltered}
-      onResetFilters={state.reset}
+      isFiltered={state.isFiltered || kind !== null}
+      onResetFilters={() => {
+        state.reset();
+        setKind(null);
+      }}
       page={state.page}
       totalPages={query.data?.totalPages ?? 0}
       totalResults={query.data?.totalResults ?? 0}
