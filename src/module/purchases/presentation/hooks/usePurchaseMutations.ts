@@ -4,6 +4,7 @@ import type {
   PaymentRequestInput,
   PaymentRequestUpdate,
 } from '@/module/purchases/domain/paymentRequest';
+import type { RefundInput } from '@/module/purchases/domain/returnForm';
 import type { ProcurementInput } from '@/module/purchases/domain/procurement';
 import type {
   CreditApplicationInput,
@@ -193,6 +194,10 @@ export const useVoidPayment = () =>
 export const useCreateReturn = (onDone?: (doc: WithId & Doc) => void) =>
   useAction('created', (input: PurchaseReturnInput) => api.createReturn(input), onDone);
 export const usePostReturn = () => useAction('posted', ({ id }: WithId) => api.postReturn(id));
+export const useRefundReturn = () =>
+  useAction('refunded', ({ id, input }: WithId & { input: RefundInput }) =>
+    api.refundReturn(id, input)
+  );
 export const useVoidReturn = () =>
   useAction('voided', ({ id, reason }: WithReason) => api.voidReturn(id, reason));
 

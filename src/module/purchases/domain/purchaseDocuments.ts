@@ -270,9 +270,18 @@ export interface ReturnItem {
   taxAmount: number;
 }
 
+/** What happens to the value of a posted return: cut from the bill, kept as vendor credit, or paid back. */
+export type ReturnSettlement = 'DEDUCT' | 'CREDIT' | 'REFUND';
+
 export interface PurchaseReturn extends DocumentBase {
+  /** The server's Indonesian labels. */
+  statusLabel: string;
+  settlementLabel: string;
+  settlement: ReturnSettlement;
+  warehouse: NamedRef | null;
   vendor: PartyRef;
   billId: string;
+  billNumber: string;
   reason: string;
   status: PurchaseReturnStatus;
   items: ReturnItem[];
@@ -286,6 +295,8 @@ export interface PurchaseReturn extends DocumentBase {
   appliedToBill: number;
   creditUsed: number;
   creditRemaining: number;
+  /** Paid back in cash so far (settlement REFUND). */
+  refundAmount: number;
   journalId: string | null;
 }
 

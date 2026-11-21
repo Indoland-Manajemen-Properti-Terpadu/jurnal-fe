@@ -36,6 +36,16 @@ export const ReturnInfoCard = ({ doc, billNumber }: Readonly<ReturnInfoCardProps
           },
           { label: t('returns.detail.date'), value: formatDay(doc.date, currentLanguage) },
           { label: t('returns.detail.reason'), value: doc.reason },
+          {
+            label: t('returns.detail.settlementKind'),
+            value:
+              currentLanguage === 'id' && doc.settlementLabel
+                ? doc.settlementLabel
+                : t(`returns.form.settlement.${doc.settlement}`),
+          },
+          ...(doc.warehouse
+            ? [{ label: t('returns.detail.warehouse'), value: doc.warehouse.name }]
+            : []),
           ...(doc.memo ? [{ label: t('common.memo'), value: doc.memo, span: 2 as const }] : []),
         ]}
       />

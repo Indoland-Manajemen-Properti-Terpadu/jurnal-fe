@@ -18,6 +18,8 @@ import {
   type NoteTone,
 } from '@/module/purchases/presentation/components/shared/StatusNote';
 import { StatusBadge } from '@/module/purchases/presentation/components/shared/StatusBadge';
+import { DocumentJourney } from '@/module/purchases/presentation/components/shared/DocumentJourney';
+import { useDocumentChain } from '@/module/purchases/presentation/hooks/useDashboard';
 import { usePurchaseAccess } from '@/module/purchases/presentation/hooks/usePurchaseAccess';
 import { usePayment } from '@/module/purchases/presentation/hooks/usePurchaseQueries';
 import { routes } from '@/router/routes';
@@ -31,6 +33,7 @@ export default function PaymentDetailPage() {
   const { t } = useTranslation('purchases');
   const { can, isLoading: accessLoading } = usePurchaseAccess();
   const voucher = usePayment(id);
+  const journey = useDocumentChain('purchasePayment', id);
 
   if (accessLoading || voucher.isLoading) {
     return <StateFrame kind="loading" />;
@@ -84,6 +87,7 @@ export default function PaymentDetailPage() {
         <Grid.Col span={{ base: 12, lg: 4 }}>
           <Stack gap="lg">
             <PaymentAmountsCard doc={doc} />
+            <DocumentJourney steps={journey.steps} />
             <AttachmentsCard
               target="payment"
               documentId={doc.id}

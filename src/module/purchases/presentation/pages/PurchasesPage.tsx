@@ -6,14 +6,18 @@ import { EmptyState } from '@/components/EmptyState';
 import { useTranslation } from '@/i18n';
 import { PURCHASE_MENU } from '@/module/purchases/domain/purchaseAccess';
 import {
+  canReadTab,
   LIST_TABS,
   listPath,
   visibleTabs,
 } from '@/module/purchases/presentation/components/hub/hubTabs';
 import { OverviewMetrics } from '@/module/purchases/presentation/components/hub/OverviewMetrics';
 import { OverviewTab } from '@/module/purchases/presentation/components/hub/OverviewTab';
-import { useOverviewData } from '@/module/purchases/presentation/components/hub/useOverviewData';
 import { PageFrame } from '@/module/purchases/presentation/components/shared/PageFrame';
+import {
+  useDashboardActions,
+  useDashboardSummary,
+} from '@/module/purchases/presentation/hooks/useDashboard';
 import { purchaseKeys } from '@/module/purchases/presentation/hooks/purchaseKeys';
 import { usePurchaseAccess } from '@/module/purchases/presentation/hooks/usePurchaseAccess';
 import { usePurchaseScope } from '@/module/purchases/presentation/hooks/usePurchaseScope';
@@ -29,7 +33,8 @@ export default function PurchasesPage() {
   const scope = usePurchaseScope();
   const fetching = useIsFetching({ queryKey: purchaseKeys.all(scope) }) > 0;
 
-  const overview = useOverviewData(access.can);
+  const summary = useDashboardSummary(!access.isLoading);
+  const actions = useDashboardActions(!access.isLoading);
   const canReport = access.can(PURCHASE_MENU.reports, 'read');
   const openReport = () => navigate(routes.purchases.payables);
   const visible = visibleTabs(access.can);
@@ -59,13 +64,26 @@ export default function PurchasesPage() {
     return (
       <>
         <OverviewMetrics
-          data={overview}
+          summary={summary.data}
+          actions={actions.data}
+          isLoading={summary.isLoading || actions.isLoading}
           onOpenReport={canReport ? openReport : undefined}
-          onOpenTab={() => navigate(routes.purchases.payments)}
+          onOpenReady={
+            access.can(PURCHASE_MENU.payments, 'read')
+              ? () => navigate(routes.purchases.paymentRequests)
+              : undefined
+          }
         />
         <OverviewTab
-          can={access.can}
-          data={overview}
+          summary={summary.data}
+          actions={actions.data}
+          isLoading={summary.isLoading || actions.isLoading}
+          isError={summary.isError || actions.isError}
+          refetch={() => {
+            summary.refetch();
+            actions.refetch();
+          }}
+          canOpen={(tab) => canReadTab(tab, access.can)}
           onOpen={(tab) => navigate(listPath(tab))}
           onOpenReport={canReport ? openReport : undefined}
         />
@@ -92,7 +110,7 @@ export default function PurchasesPage() {
               <IconRefresh size={18} />
             </ActionIcon>
           </Tooltip>
-          {access.can(PURCHASE_MENU.documents, 'create') && (
+          {access.can(PURCHASE_MENU.request, 'create') && (
             <Button
               radius="md"
               leftSection={<IconPlus size={16} />}

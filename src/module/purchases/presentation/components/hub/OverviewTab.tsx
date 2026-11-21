@@ -9,58 +9,76 @@ import {
   IconFileText,
   IconPackage,
   IconReceipt2,
+  IconReceiptRefund,
+  IconTruckDelivery,
   IconWallet,
   type Icon,
 } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 import { EmptyState } from '@/components/EmptyState';
 import { useTranslation } from '@/i18n';
-import type { WorkItem } from '@/module/purchases/domain/purchaseOverview';
+import {
+  actionPath,
+  actionPrefix,
+  lateDays,
+  type ActionTargetType,
+  type DashboardAction,
+  type DashboardActions,
+  type DashboardSummary,
+} from '@/module/purchases/domain/dashboard';
 import { AgingCard } from '@/module/purchases/presentation/components/hub/AgingCard';
-import { detailPath } from '@/module/purchases/presentation/components/hub/documentPaths';
-import type { CanFn, ListTab } from '@/module/purchases/presentation/components/hub/hubTabs';
+import type { ListTab } from '@/module/purchases/presentation/components/hub/hubTabs';
 import classes from '@/module/purchases/presentation/components/hub/OverviewTab.module.css';
 import { PipelineStrip } from '@/module/purchases/presentation/components/hub/PipelineStrip';
-import type { OverviewData } from '@/module/purchases/presentation/components/hub/useOverviewData';
 import { SectionCard } from '@/module/purchases/presentation/components/shared/SectionCard';
-import { formatAmount, formatDay } from '@/module/purchases/presentation/components/shared/format';
+import { formatDay } from '@/module/purchases/presentation/components/shared/format';
 
 const VISIBLE_ROWS = 8;
 
-const KIND_ICON: Record<WorkItem['docKind'], Icon> = {
-  request: IconFileText,
-  order: IconPackage,
-  bill: IconReceipt2,
+const TARGET_ICON: Record<ActionTargetType, Icon> = {
+  purchaseRequest: IconFileText,
+  purchaseOrder: IconPackage,
+  goodsReceipt: IconTruckDelivery,
+  purchaseBill: IconReceipt2,
   paymentRequest: IconCoins,
-  payment: IconWallet,
+  purchasePayment: IconWallet,
+  purchaseReturn: IconReceiptRefund,
 };
 
-const WorkRow = ({ item, language }: Readonly<{ item: WorkItem; language: string }>) => {
+const ActionRow = ({
+  action,
+  language,
+}: Readonly<{ action: DashboardAction; language: string }>) => {
   const { t } = useTranslation('purchases');
-  const RowIcon = KIND_ICON[item.docKind];
+  const RowIcon = TARGET_ICON[action.target.type];
+  const prefix = actionPrefix(action.key);
+  // The service words each action in Indonesian; English readers get a line of ours, never a guess.
+  const title =
+    language === 'id'
+      ? action.title
+      : prefix
+        ? t(`hub.overview.action.${prefix}`)
+        : t('hub.overview.action.other');
+  const late = lateDays(action);
   return (
-    <Link to={detailPath(item.docKind, item.id)} className={classes.row}>
+    <Link to={actionPath(action.target)} className={classes.row}>
       <ThemeIcon variant="light" color="primary" size={32} radius="md">
         <RowIcon size={16} stroke={1.8} />
       </ThemeIcon>
       <div className={classes.main}>
         <Text size="sm" fw={500} c="primary.7" truncate>
-          {item.number}
-          {item.vendorName && (
-            <Text span size="sm" c="dimmed" fw={400}>
-              {' · '}
-              {item.vendorName}
-            </Text>
-          )}
+          {title}
         </Text>
-        <Text size="xs" c="dimmed">
-          {t(`hub.overview.reason.${item.reason}`)} · {formatDay(item.date, language)}
+        <Text size="xs" c="dimmed" truncate>
+          {action.subtitle}
+          {action.due &&
+            ` · ${t('hub.overview.dueOn', { date: formatDay(action.due.slice(0, 10), language) })}`}
         </Text>
       </div>
-      {item.amount !== null && (
-        <Text size="sm" fw={500} className={classes.amount}>
-          {formatAmount(item.amount)}
-        </Text>
+      {late !== null && (
+        <Badge color="red" variant="light" radius="sm">
+          {t('hub.overview.lateBy', { count: late })}
+        </Badge>
       )}
       <IconChevronRight size={16} color="var(--mantine-color-dimmed)" aria-hidden />
     </Link>
@@ -68,20 +86,35 @@ const WorkRow = ({ item, language }: Readonly<{ item: WorkItem; language: string
 };
 
 interface OverviewTabProps {
-  can: CanFn;
-  data: OverviewData;
+  summary: DashboardSummary | undefined;
+  actions: DashboardActions | undefined;
+  isLoading: boolean;
+  isError: boolean;
+  refetch: () => void;
+  canOpen: (tab: ListTab) => boolean;
   onOpen: (tab: ListTab) => void;
   onOpenReport?: () => void;
 }
 
-/** What needs the user's attention now, where each document stands, and how late the payables are. */
-export const OverviewTab = ({ can, data, onOpen, onOpenReport }: Readonly<OverviewTabProps>) => {
+/** What needs the user's attention now (the service's own list), where each document stands, payables aging. */
+export const OverviewTab = ({
+  summary,
+  actions,
+  isLoading,
+  isError,
+  refetch,
+  canOpen,
+  onOpen,
+  onOpenReport,
+}: Readonly<OverviewTabProps>) => {
   const { t, currentLanguage } = useTranslation('purchases');
   const [expanded, setExpanded] = useState(false);
-  const rows = expanded ? data.items : data.items.slice(0, VISIBLE_ROWS);
+  const items = actions?.items ?? [];
+  const rows = expanded ? items : items.slice(0, VISIBLE_ROWS);
+  const aging = summary?.payables?.aging;
 
   const body = () => {
-    if (data.isLoading) {
+    if (isLoading) {
       return (
         <Stack gap="sm">
           {Array.from({ length: 4 }, (_, index) => (
@@ -91,7 +124,7 @@ export const OverviewTab = ({ can, data, onOpen, onOpenReport }: Readonly<Overvi
         </Stack>
       );
     }
-    if (data.isError) {
+    if (isError) {
       return (
         <EmptyState
           icon={<IconAlertCircle size={32} stroke={1.6} />}
@@ -99,11 +132,11 @@ export const OverviewTab = ({ can, data, onOpen, onOpenReport }: Readonly<Overvi
           title={t('list.errorTitle')}
           description={t('list.errorDescription')}
           actionLabel={t('common.retry')}
-          onAction={data.refetch}
+          onAction={refetch}
         />
       );
     }
-    if (data.items.length === 0) {
+    if (items.length === 0) {
       return (
         <EmptyState
           icon={<IconCheck size={32} stroke={1.6} />}
@@ -114,12 +147,12 @@ export const OverviewTab = ({ can, data, onOpen, onOpenReport }: Readonly<Overvi
     }
     return (
       <div className={classes.list}>
-        {rows.map((item) => (
-          <WorkRow key={item.key} item={item} language={currentLanguage} />
+        {rows.map((action) => (
+          <ActionRow key={action.key} action={action} language={currentLanguage} />
         ))}
-        {!expanded && data.items.length > VISIBLE_ROWS && (
+        {!expanded && items.length > VISIBLE_ROWS && (
           <Button variant="subtle" fullWidth mt="xs" onClick={() => setExpanded(true)}>
-            {t('hub.overview.showAll', { count: data.items.length })}
+            {t('hub.overview.showAll', { count: items.length })}
           </Button>
         )}
       </div>
@@ -128,17 +161,17 @@ export const OverviewTab = ({ can, data, onOpen, onOpenReport }: Readonly<Overvi
 
   return (
     <Stack gap="lg">
-      <PipelineStrip can={can} onOpen={onOpen} />
+      {summary && <PipelineStrip summary={summary} canOpen={canOpen} onOpen={onOpen} />}
       <Grid gutter="lg" align="flex-start">
-        <Grid.Col span={{ base: 12, lg: data.totals && onOpenReport ? 8 : 12 }}>
+        <Grid.Col span={{ base: 12, lg: aging && onOpenReport ? 8 : 12 }}>
           <SectionCard
             icon={IconChecklist}
             title={t('hub.overview.workTitle')}
             subtitle={t('hub.overview.workSubtitle')}
             action={
-              data.items.length > 0 ? (
+              actions && actions.total > 0 ? (
                 <Badge variant="light" color="gray" radius="sm">
-                  {data.items.length}
+                  {actions.total}
                 </Badge>
               ) : undefined
             }
@@ -146,9 +179,9 @@ export const OverviewTab = ({ can, data, onOpen, onOpenReport }: Readonly<Overvi
             {body()}
           </SectionCard>
         </Grid.Col>
-        {data.totals && onOpenReport && (
+        {aging && onOpenReport && (
           <Grid.Col span={{ base: 12, lg: 4 }}>
-            <AgingCard totals={data.totals} onOpenReport={onOpenReport} />
+            <AgingCard buckets={aging} onOpenReport={onOpenReport} />
           </Grid.Col>
         )}
       </Grid>

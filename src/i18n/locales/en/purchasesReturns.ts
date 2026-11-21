@@ -10,6 +10,23 @@ export const purchasesReturns = {
     date: 'Return Date',
     dateRequired: 'Return date is required',
     dateBeforeBill: 'The return date cannot be before the bill date',
+    settlementTitle: 'How the Value Is Settled',
+    settlement: {
+      DEDUCT: 'Deduct from the bill',
+      CREDIT: 'Keep as vendor credit',
+      REFUND: 'Ask for the money back',
+    },
+    settlementHint: {
+      DEDUCT:
+        'The return value reduces what this bill still owes. Any excess becomes vendor credit.',
+      CREDIT: 'The whole return value becomes vendor credit usable on other bills.',
+      REFUND:
+        'The vendor pays the money back. Once the return is posted, record the refund from the return page.',
+    },
+    settlementNoBalance: 'This bill is fully paid, so the return value cannot reduce what is owed.',
+    warehouse: 'Warehouse the Goods Leave',
+    warehousePlaceholder: 'Choose a warehouse',
+    warehouseHint: 'The warehouse whose stock goes down when the goods are sent back.',
     reason: 'Reason for Return',
     reasonPlaceholder: 'E.g. damaged goods or not as ordered',
     reasonError: 'Write the reason for the return (at least 3 characters)',
@@ -39,6 +56,7 @@ export const purchasesReturns = {
     effectOpen: 'This return lowers the bill balance by {applied}.',
     effectSplit:
       '{applied} lowers the bill balance, and {credit} becomes vendor credit that can be used on other bills.',
+    effectRefund: 'The vendor pays back {credit}. Record the refund once the return is posted.',
     effectCredit:
       'This bill is already settled, so the whole return value ({credit}) becomes vendor credit that can be used on other bills.',
     submit: 'Save Return',
@@ -74,6 +92,22 @@ export const purchasesReturns = {
     withholding: 'Income tax returned',
     final: 'Return value',
     settlementTitle: 'How the Value Is Settled',
+    warehouse: 'Warehouse',
+    settlementKind: 'Settlement',
+    refundedAmount: 'Already paid back by the vendor',
+    toRefund: 'Still to be paid back',
+    refund: 'Record Refund',
+    refundTitle: 'Record a refund from the vendor',
+    refundDescription:
+      'The money the vendor pays back goes to the chosen account and is journalled. Still to be paid back: {amount}.',
+    refundDate: 'Refund Date',
+    refundDateRequired: 'Refund date is required',
+    refundDeposit: 'Receiving Account',
+    refundDepositRequired: 'Choose the cash or bank account that receives the money',
+    refundAmount: 'Refund Amount',
+    refundAmountInvalid: 'Enter an amount above zero, with at most two decimals',
+    refundAmountTooHigh: 'At most {max}, what is still to be paid back',
+    refundConfirm: 'Record Refund',
     settlementSubtitle: 'Where this return value goes',
     appliedToBill: 'Lowers the bill balance',
     creditCreated: 'Becomes vendor credit',
@@ -84,6 +118,10 @@ export const purchasesReturns = {
     postTitle: 'Post this return?',
     postDescription:
       'The return journal is created. {amount} lowers the bill balance, and any excess becomes vendor credit.',
+    postDescriptionCredit:
+      'The return journal is created. All of {amount} becomes vendor credit usable on other bills.',
+    postDescriptionRefund:
+      'The return journal is created. {amount} waits to be paid back by the vendor; record the refund once the money arrives.',
     postConfirm: 'Yes, Post',
     void: 'Void Return',
     voidTitle: 'Void return',

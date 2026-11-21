@@ -1,42 +1,37 @@
 import { Skeleton } from '@mantine/core';
 import { useTranslation } from '@/i18n';
-import { overdueAmount } from '@/module/purchases/domain/payablesView';
-import type { WorkItem } from '@/module/purchases/domain/purchaseOverview';
-import type { OverviewData } from '@/module/purchases/presentation/components/hub/useOverviewData';
+import type { DashboardActions, DashboardSummary } from '@/module/purchases/domain/dashboard';
 import {
   MetricCard,
   MetricGrid,
 } from '@/module/purchases/presentation/components/shared/MetricCard';
 import {
   AGING_COLOR,
-  MiniBars,
   RingStat,
   SegmentBar,
 } from '@/module/purchases/presentation/components/shared/visuals';
 import { formatAmount } from '@/module/purchases/presentation/components/shared/format';
 
-const DECISION_REASONS: { reason: WorkItem['reason']; tab: string }[] = [
-  { reason: 'verifyRequest', tab: 'requests' },
-  { reason: 'sendOrder', tab: 'orders' },
-  { reason: 'approvePayment', tab: 'payments' },
-];
-
 interface OverviewMetricsProps {
-  data: OverviewData;
+  summary: DashboardSummary | undefined;
+  actions: DashboardActions | undefined;
+  isLoading: boolean;
+  /** Opens the payables report; absent for people without the report right. */
   onOpenReport?: () => void;
-  onOpenTab: (tab: 'payments') => void;
+  onOpenReady?: () => void;
 }
 
 /** The figures that change what the user does next, shown at the top of the overview. */
 export const OverviewMetrics = ({
-  data,
+  summary,
+  actions,
+  isLoading,
   onOpenReport,
-  onOpenTab,
+  onOpenReady,
 }: Readonly<OverviewMetricsProps>) => {
   const { t } = useTranslation('purchases');
-  const { totals } = data;
 
-  if (data.isLoading) {
+  if (isLoading) {
     return (
       <MetricGrid>
         {Array.from({ length: 4 }, (_, index) => (
@@ -47,68 +42,66 @@ export const OverviewMetrics = ({
     );
   }
 
-  const overdue = totals ? overdueAmount(totals) : 0;
-  const overduePercent =
-    totals && totals.totalRemaining > 0 ? Math.round((overdue / totals.totalRemaining) * 100) : 0;
-  const counts = DECISION_REASONS.map(({ reason }) => ({
-    reason,
-    count: data.items.filter((item) => item.reason === reason).length,
-  }));
+  const payables = summary?.payables ?? null;
+  const ready = summary?.readyToPay;
 
   return (
     <MetricGrid>
-      {totals && (
+      {payables && (
         <>
           <MetricCard
             label={t('hub.overview.outstanding')}
-            value={formatAmount(totals.totalRemaining)}
-            hint={t('hub.overview.outstandingHint', { count: totals.billCount })}
+            value={formatAmount(payables.total)}
+            hint={t('hub.overview.outstandingHint', { count: payables.billCount })}
             onClick={onOpenReport}
             visual={
               <SegmentBar
                 aria-label={t('hub.overview.agingTitle')}
                 segments={[
-                  { key: 'current', value: totals.current, color: AGING_COLOR.current },
-                  { key: 'late', value: overdue, color: AGING_COLOR.days31to60 },
+                  {
+                    key: 'current',
+                    value: payables.total - payables.overdue,
+                    color: AGING_COLOR.current,
+                  },
+                  { key: 'late', value: payables.overdue, color: AGING_COLOR.days31to60 },
                 ]}
               />
             }
           />
           <MetricCard
             label={t('hub.overview.overdue')}
-            value={formatAmount(overdue)}
-            hint={t('hub.overview.overdueShare', { percent: overduePercent })}
-            tone={overdue > 0 ? 'danger' : 'default'}
+            value={formatAmount(payables.overdue)}
+            hint={t('hub.overview.overdueShare', { percent: payables.overduePercent })}
+            tone={payables.overdue > 0 ? 'danger' : 'default'}
             onClick={onOpenReport}
             visual={
               <RingStat
-                percent={overduePercent}
-                danger={overdue > 0}
-                aria-label={`${t('hub.overview.overdue')} ${overduePercent}%`}
+                percent={payables.overduePercent}
+                danger={payables.overdue > 0}
+                aria-label={`${t('hub.overview.overdue')} ${payables.overduePercent}%`}
               />
             }
           />
         </>
       )}
-      <MetricCard
-        label={t('hub.overview.decisions')}
-        value={String(data.decisions)}
-        hint={t('hub.overview.decisionsHint')}
-        visual={
-          <MiniBars
-            values={counts.map((item) => item.count)}
-            aria-label={counts
-              .map((item) => `${t(`hub.overview.decisionType.${item.reason}`)}: ${item.count}`)
-              .join(', ')}
-          />
-        }
-      />
-      {data.showReadyToPay && (
+      {actions && (
+        <MetricCard
+          label={t('hub.overview.actionsCount')}
+          value={String(actions.total)}
+          hint={
+            actions.late > 0
+              ? t('hub.overview.actionsLate', { count: actions.late })
+              : t('hub.overview.actionsOnTime')
+          }
+          tone={actions.late > 0 ? 'danger' : 'default'}
+        />
+      )}
+      {ready && ready.count > 0 && (
         <MetricCard
           label={t('hub.overview.readyToPay')}
-          value={String(data.readyToPay)}
-          hint={t('hub.overview.readyToPayHint')}
-          onClick={() => onOpenTab('payments')}
+          value={formatAmount(ready.amount)}
+          hint={t('hub.overview.readyToPayHint', { count: ready.count })}
+          onClick={onOpenReady}
         />
       )}
     </MetricGrid>

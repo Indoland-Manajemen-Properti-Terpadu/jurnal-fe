@@ -2,7 +2,7 @@ import { Anchor, Group, Text } from '@mantine/core';
 import { IconRoute } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
-import type { PurchaseStatus } from '@/module/purchases/domain/purchaseStatus';
+import type { JourneyStepData } from '@/module/purchases/domain/documentChain';
 import { SectionCard } from '@/module/purchases/presentation/components/shared/SectionCard';
 import { StatusBadge } from '@/module/purchases/presentation/components/shared/StatusBadge';
 import {
@@ -10,14 +10,7 @@ import {
   type TimelineItem,
 } from '@/module/purchases/presentation/components/shared/Timeline';
 
-export interface JourneyStep {
-  /** i18n key suffix under `journey.`: request, order, receipt, bill, payment, return. */
-  kind: 'request' | 'order' | 'receipt' | 'bill' | 'payment' | 'return';
-  /** Documents already created for this step; empty means the step is still ahead. */
-  documents: { id: string; number: string; status: PurchaseStatus; to: string }[];
-  /** Highlights the document being viewed. */
-  current?: boolean;
-}
+export type JourneyStep = JourneyStepData;
 
 const DRAFT = new Set(['DRAFT']);
 const DEAD = new Set(['VOID', 'CANCELLED', 'REJECTED']);

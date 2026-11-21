@@ -309,6 +309,11 @@ export const toPaymentRequest = (dto: PaymentRequestDto): PaymentRequest => ({
 
 export const toPurchaseReturn = (dto: PurchaseReturnDto): PurchaseReturn => ({
   ...base(dto),
+  statusLabel: dto.statusLabel ?? '',
+  settlementLabel: dto.settlementLabel ?? '',
+  settlement: (dto.settlement as PurchaseReturn['settlement']) ?? 'DEDUCT',
+  warehouse: dto.warehouse ? { id: dto.warehouse.id, name: dto.warehouse.name } : null,
+  billNumber: dto.billRef?.transactionNumber ?? '',
   vendor: toParty(dto.vendor),
   billId: refId(dto.bill),
   reason: dto.reason,
@@ -332,6 +337,7 @@ export const toPurchaseReturn = (dto: PurchaseReturnDto): PurchaseReturn => ({
   appliedToBill: dto.appliedToBill ?? 0,
   creditUsed: dto.creditUsed ?? 0,
   creditRemaining: dto.creditRemaining ?? 0,
+  refundAmount: dto.refundAmount ?? 0,
   journalId: dto.journalTransaction ?? null,
 });
 

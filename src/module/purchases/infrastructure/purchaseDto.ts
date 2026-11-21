@@ -323,6 +323,12 @@ export interface PaymentRequestDto extends DocumentDto, ApprovalFieldsDto {
 }
 
 export interface PurchaseReturnDto extends DocumentDto {
+  statusLabel?: string | null;
+  settlementLabel?: string | null;
+  settlement?: string | null;
+  warehouse?: { id: string; name: string } | null;
+  billRef?: { id: string; transactionNumber?: string | null } | null;
+  refundAmount?: number | null;
   vendor: PartyDto;
   bill: IdOr<{ id: string }>;
   reason: string;

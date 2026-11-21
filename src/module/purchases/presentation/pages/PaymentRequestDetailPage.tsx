@@ -16,6 +16,8 @@ import {
   type NoteTone,
 } from '@/module/purchases/presentation/components/shared/StatusNote';
 import { StatusBadge } from '@/module/purchases/presentation/components/shared/StatusBadge';
+import { DocumentJourney } from '@/module/purchases/presentation/components/shared/DocumentJourney';
+import { useDocumentChain } from '@/module/purchases/presentation/hooks/useDashboard';
 import { usePurchaseAccess } from '@/module/purchases/presentation/hooks/usePurchaseAccess';
 import {
   useApprovePaymentRequest,
@@ -41,6 +43,7 @@ export default function PaymentRequestDetailPage() {
   const { t } = useTranslation('purchases');
   const { can, isLoading: accessLoading } = usePurchaseAccess();
   const request = usePaymentRequest(id);
+  const journey = useDocumentChain('paymentRequest', id);
   const approve = useApprovePaymentRequest();
   const reject = useRejectPaymentRequest();
 
@@ -107,6 +110,7 @@ export default function PaymentRequestDetailPage() {
               onApprove={(note) => approve.mutate({ id: doc.id, note })}
               onReject={(reason) => reject.mutate({ id: doc.id, reason })}
             />
+            <DocumentJourney steps={journey.steps} />
           </Stack>
         </Grid.Col>
       </Grid>

@@ -9,33 +9,30 @@ import {
   type Icon,
 } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
-import type { CanFn, ListTab } from '@/module/purchases/presentation/components/hub/hubTabs';
+import type { DashboardSummary, FlowStage } from '@/module/purchases/domain/dashboard';
+import type { ListTab } from '@/module/purchases/presentation/components/hub/hubTabs';
 import classes from '@/module/purchases/presentation/components/hub/PipelineStrip.module.css';
-import {
-  usePipelineCounts,
-  type PipelineStage,
-} from '@/module/purchases/presentation/components/hub/usePipelineCounts';
 import { SectionCard } from '@/module/purchases/presentation/components/shared/SectionCard';
 
-const STAGE_ICON: Record<PipelineStage, Icon> = {
-  requests: IconFileText,
-  orders: IconPackage,
-  receipts: IconTruckDelivery,
-  bills: IconReceipt2,
-  payments: IconWallet,
+const STAGE: Record<FlowStage['key'], { icon: Icon; tab: ListTab }> = {
+  request: { icon: IconFileText, tab: 'requests' },
+  order: { icon: IconPackage, tab: 'orders' },
+  receipt: { icon: IconTruckDelivery, tab: 'receipts' },
+  bill: { icon: IconReceipt2, tab: 'bills' },
+  payment: { icon: IconWallet, tab: 'payments' },
 };
 
 interface PipelineStripProps {
-  can: CanFn;
+  summary: DashboardSummary;
+  /** Lists the user may open; a stage the user cannot read is shown without a link. */
+  canOpen: (tab: ListTab) => boolean;
   onOpen: (tab: ListTab) => void;
 }
 
-/** The buying chain as five connected steps; each opens its list. */
-export const PipelineStrip = ({ can, onOpen }: Readonly<PipelineStripProps>) => {
+/** The buying chain as connected steps with the number of documents in each; each opens its list. */
+export const PipelineStrip = ({ summary, canOpen, onOpen }: Readonly<PipelineStripProps>) => {
   const { t } = useTranslation('purchases');
-  const counts = usePipelineCounts(can).filter((item) => item.total !== null);
-  if (counts.length === 0) return null;
-
+  const { procurement } = summary;
   return (
     <SectionCard
       icon={IconRoute}
@@ -43,14 +40,15 @@ export const PipelineStrip = ({ can, onOpen }: Readonly<PipelineStripProps>) => 
       subtitle={t('hub.overview.pipelineSubtitle')}
     >
       <div className={classes.steps}>
-        {counts.map(({ stage, total }) => {
-          const StageIcon = STAGE_ICON[stage];
+        {summary.flow.map(({ key, count }) => {
+          const { icon: StageIcon, tab } = STAGE[key];
           return (
             <button
-              key={stage}
+              key={key}
               type="button"
               className={classes.step}
-              onClick={() => onOpen(stage)}
+              disabled={!canOpen(tab)}
+              onClick={() => onOpen(tab)}
             >
               <span className={classes.orb}>
                 <ThemeIcon variant="light" color="primary" size={40} radius="xl">
@@ -58,15 +56,27 @@ export const PipelineStrip = ({ can, onOpen }: Readonly<PipelineStripProps>) => 
                 </ThemeIcon>
               </span>
               <Text fz="xs" c="dimmed" fw={500}>
-                {t(`hub.tabs.${stage}`)}
+                {t(`hub.overview.stage.${key}`)}
               </Text>
               <Text fz="xl" fw={700} lh={1.1} style={{ fontVariantNumeric: 'tabular-nums' }}>
-                {total}
+                {count}
               </Text>
             </button>
           );
         })}
       </div>
+      <Text size="xs" c="dimmed">
+        {t('hub.overview.procurementLine', {
+          bidding: procurement.bidding,
+          single: procurement.single,
+        })}
+        {procurement.pastRequiredDate > 0 && (
+          <Text span size="xs" c="red.7" fw={600}>
+            {' · '}
+            {t('hub.overview.pastRequired', { count: procurement.pastRequiredDate })}
+          </Text>
+        )}
+      </Text>
     </SectionCard>
   );
 };

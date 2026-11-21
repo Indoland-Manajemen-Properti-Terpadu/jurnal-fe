@@ -6,6 +6,8 @@ interface DepositAccountFieldProps {
   value: string;
   onChange: (id: string) => void;
   withAsterisk?: boolean;
+  /** Overrides the label of a voucher's paying account. */
+  label?: string;
   error?: string;
 }
 
@@ -14,6 +16,7 @@ export const DepositAccountField = ({
   value,
   onChange,
   withAsterisk,
+  label,
   error,
 }: Readonly<DepositAccountFieldProps>) => {
   const { t } = useTranslation('purchases');
@@ -25,7 +28,7 @@ export const DepositAccountField = ({
       searchable
       clearable={!withAsterisk}
       withAsterisk={withAsterisk}
-      label={t('payments.form.deposit')}
+      label={label ?? t('payments.form.deposit')}
       placeholder={t('payments.form.depositPlaceholder')}
       data={accounts.map((account) => ({
         value: account.id,

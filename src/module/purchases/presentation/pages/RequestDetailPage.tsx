@@ -15,7 +15,7 @@ import { RequestHighlights } from '@/module/purchases/presentation/components/sh
 import { PageFrame } from '@/module/purchases/presentation/components/shared/PageFrame';
 import { StatusBadge } from '@/module/purchases/presentation/components/shared/StatusBadge';
 import { usePurchaseAccess } from '@/module/purchases/presentation/hooks/usePurchaseAccess';
-import { usePurchaseJourney } from '@/module/purchases/presentation/hooks/usePurchaseJourney';
+import { useDocumentChain } from '@/module/purchases/presentation/hooks/useDashboard';
 import { useRequest } from '@/module/purchases/presentation/hooks/usePurchaseQueries';
 import { routes } from '@/router/routes';
 
@@ -26,7 +26,7 @@ export default function RequestDetailPage() {
   const { t } = useTranslation('purchases');
   const { can, canRead, isLoading: accessLoading } = usePurchaseAccess();
   const request = useRequest(id);
-  const journey = usePurchaseJourney({ requestId: id, current: 'request' });
+  const journey = useDocumentChain('purchaseRequest', id);
 
   if (accessLoading || request.isLoading) {
     return <StateFrame kind="loading" />;

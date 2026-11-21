@@ -19,7 +19,7 @@ import { PageFrame } from '@/module/purchases/presentation/components/shared/Pag
 import { SectionCard } from '@/module/purchases/presentation/components/shared/SectionCard';
 import { StatusBadge } from '@/module/purchases/presentation/components/shared/StatusBadge';
 import { usePurchaseAccess } from '@/module/purchases/presentation/hooks/usePurchaseAccess';
-import { usePurchaseJourney } from '@/module/purchases/presentation/hooks/usePurchaseJourney';
+import { useDocumentChain } from '@/module/purchases/presentation/hooks/useDashboard';
 import { useBill } from '@/module/purchases/presentation/hooks/usePurchaseQueries';
 import { routes } from '@/router/routes';
 
@@ -31,11 +31,7 @@ export default function BillDetailPage() {
   const { can, canRead, isLoading: accessLoading } = usePurchaseAccess();
   const bill = useBill(id);
   const extras = useBillExtras(id);
-  const journey = usePurchaseJourney({
-    orderId: bill.data?.purchaseOrderId,
-    billId: id,
-    current: 'bill',
-  });
+  const journey = useDocumentChain('purchaseBill', id);
 
   if (accessLoading || bill.isLoading) {
     return <StateFrame kind="loading" />;

@@ -95,6 +95,8 @@ export const voucherActions = (doc: PaymentVoucher) => ({
 export const returnActions = (doc: PurchaseReturn) => ({
   edit: doc.status === 'DRAFT',
   post: doc.status === 'DRAFT',
+  /** A posted REFUND return waits for the vendor's money; each refund takes from what is left. */
+  refund: doc.status === 'POSTED' && doc.settlement === 'REFUND' && doc.creditRemaining > 0,
   void: doc.status === 'DRAFT' || doc.status === 'POSTED',
 });
 

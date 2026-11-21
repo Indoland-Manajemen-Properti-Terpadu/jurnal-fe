@@ -111,7 +111,8 @@ export const purchasesCommon = {
     order: 'Pesanan (PO / SPK)',
     receipt: 'Penerimaan Barang',
     bill: 'Tagihan Vendor',
-    payment: 'Pembayaran',
+    paymentRequest: 'Payment Request',
+    payment: 'Payment Voucher',
     return: 'Retur',
   },
   attachments: {
@@ -154,6 +155,7 @@ export const purchasesCommon = {
     requestVerified: 'Permintaan berhasil diverifikasi',
     requestReturned: 'Permintaan dikembalikan ke peminta',
     paid: 'Pembayaran berhasil dicatat dan dijurnal',
+    refunded: 'Refund berhasil dicatat dan dijurnal',
     posted: 'Retur berhasil diposting dan dijurnal',
     received: 'Penerimaan berhasil dicatat',
     creditApplied: 'Kredit berhasil dialokasikan ke tagihan',

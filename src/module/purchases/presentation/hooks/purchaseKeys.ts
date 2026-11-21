@@ -28,6 +28,10 @@ export const purchaseKeys = {
     [...purchaseKeys.documents(scope, kind), 'detail', id] as const,
   credits: (scope: string, vendor: string) =>
     [...purchaseKeys.all(scope), 'credits', vendor] as const,
+  dashboard: (scope: string, part: 'summary' | 'actions' | 'config') =>
+    [...purchaseKeys.all(scope), 'dashboard', part] as const,
+  chain: (scope: string, type: string, id: string) =>
+    [...purchaseKeys.all(scope), 'chain', type, id] as const,
   aging: (scope: string, params: { asOf?: string; vendor?: string }) =>
     [...purchaseKeys.all(scope), 'aging', params] as const,
 };

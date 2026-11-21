@@ -92,6 +92,8 @@ export interface PurchaseReturnInput {
   bill: string;
   transactionDate: string;
   reason: string;
+  settlement: 'DEDUCT' | 'CREDIT' | 'REFUND';
+  warehouse?: string;
   memo?: string;
   items: { billItem: string; quantity: number }[];
 }

@@ -41,7 +41,7 @@ export const BillActionBar = ({ bill }: Readonly<{ bill: PurchaseBill }>) => {
   const showVerify = actions.verify && can(PURCHASE_MENU.documents, 'update');
   const showPay = actions.requestPayment && can(PURCHASE_MENU.paymentRequests, 'create');
   const showCredit = actions.applyCredit && can(PURCHASE_MENU.payments, 'create');
-  const showReturn = actions.createReturn && can(PURCHASE_MENU.documents, 'create');
+  const showReturn = actions.createReturn && can(PURCHASE_MENU.returns, 'create');
   const showVoid = actions.void && can(PURCHASE_MENU.documents, 'delete');
   const hasMenu = showCredit || showReturn || showVoid;
 

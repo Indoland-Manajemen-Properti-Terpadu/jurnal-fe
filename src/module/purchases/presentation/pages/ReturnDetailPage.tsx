@@ -17,7 +17,7 @@ import { PageFrame } from '@/module/purchases/presentation/components/shared/Pag
 import { SectionCard } from '@/module/purchases/presentation/components/shared/SectionCard';
 import { StatusBadge } from '@/module/purchases/presentation/components/shared/StatusBadge';
 import { usePurchaseAccess } from '@/module/purchases/presentation/hooks/usePurchaseAccess';
-import { usePurchaseJourney } from '@/module/purchases/presentation/hooks/usePurchaseJourney';
+import { useDocumentChain } from '@/module/purchases/presentation/hooks/useDashboard';
 import { useBill, useReturn } from '@/module/purchases/presentation/hooks/usePurchaseQueries';
 import { routes } from '@/router/routes';
 
@@ -29,11 +29,7 @@ export default function ReturnDetailPage() {
   const { can, canRead, isLoading: accessLoading } = usePurchaseAccess();
   const doc = useReturn(id);
   const bill = useBill(doc.data?.billId);
-  const journey = usePurchaseJourney({
-    orderId: bill.data?.purchaseOrderId,
-    billId: doc.data?.billId,
-    current: 'return',
-  });
+  const journey = useDocumentChain('purchaseReturn', id);
 
   if (accessLoading || doc.isLoading) {
     return <StateFrame kind="loading" />;
@@ -65,7 +61,7 @@ export default function ReturnDetailPage() {
       title={
         <Group gap="sm" align="center">
           <span>{data.number}</span>
-          <StatusBadge status={data.status} />
+          <StatusBadge status={data.status} label={data.statusLabel} />
         </Group>
       }
       description={t('returns.detail.subtitle', {
@@ -98,7 +94,7 @@ export default function ReturnDetailPage() {
               target="return"
               documentId={data.id}
               attachments={data.attachments}
-              canUpload={can(PURCHASE_MENU.documents, 'update') && data.status !== 'VOID'}
+              canUpload={can(PURCHASE_MENU.returns, 'update') && data.status !== 'VOID'}
             />
           </Stack>
         </Grid.Col>

@@ -8,6 +8,7 @@ import type {
   PurchaseReturn,
   VendorCredits,
 } from '@/module/purchases/domain/purchaseDocuments';
+import type { RefundInput } from '@/module/purchases/domain/returnForm';
 import type { PayInput, PaymentVoucherInput } from '@/module/purchases/domain/paymentForm';
 import type {
   PaymentRequest,
@@ -272,6 +273,7 @@ export const listReturns = returns.list;
 export const getReturn = returns.get;
 export const createReturn = (input: PurchaseReturnInput) => returns.create(input);
 export const postReturn = (id: string) => returns.act(id, 'post');
+export const refundReturn = (id: string, input: RefundInput) => returns.act(id, 'refund', input);
 export const voidReturn = (id: string, reason: string) => returns.act(id, 'void', { reason });
 
 /* ---------- Files ---------- */

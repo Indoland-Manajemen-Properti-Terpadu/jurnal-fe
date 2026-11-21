@@ -10,6 +10,23 @@ export const purchasesReturns = {
     date: 'Tanggal Retur',
     dateRequired: 'Tanggal retur wajib diisi',
     dateBeforeBill: 'Tanggal retur tidak boleh sebelum tanggal tagihan',
+    settlementTitle: 'Penyelesaian Nilai Retur',
+    settlement: {
+      DEDUCT: 'Potong hutang faktur',
+      CREDIT: 'Jadikan kredit vendor',
+      REFUND: 'Minta uang kembali',
+    },
+    settlementHint: {
+      DEDUCT:
+        'Nilai retur mengurangi sisa hutang faktur ini. Bila lebih besar dari sisa hutang, selisihnya jadi kredit vendor.',
+      CREDIT: 'Seluruh nilai retur menjadi kredit vendor yang bisa dipakai di faktur lain.',
+      REFUND:
+        'Vendor mengembalikan uangnya. Setelah retur diposting, catat refund-nya dari halaman retur.',
+    },
+    settlementNoBalance: 'Faktur ini sudah lunas, jadi nilai retur tidak bisa memotong hutang.',
+    warehouse: 'Gudang Asal Barang',
+    warehousePlaceholder: 'Pilih gudang',
+    warehouseHint: 'Gudang yang stoknya berkurang saat barang dikembalikan.',
     reason: 'Alasan Retur',
     reasonPlaceholder: 'Mis. barang rusak atau tidak sesuai pesanan',
     reasonError: 'Tulis alasan retur (minimal 3 karakter)',
@@ -39,6 +56,7 @@ export const purchasesReturns = {
     effectOpen: 'Nilai retur ini mengurangi sisa hutang tagihan sebesar {applied}.',
     effectSplit:
       '{applied} mengurangi sisa hutang tagihan, dan {credit} menjadi kredit vendor yang dapat dipakai di tagihan lain.',
+    effectRefund: 'Vendor mengembalikan {credit}. Catat refund-nya setelah retur diposting.',
     effectCredit:
       'Tagihan ini sudah lunas, jadi seluruh nilai retur ({credit}) menjadi kredit vendor yang dapat dipakai di tagihan lain.',
     submit: 'Simpan Retur',
@@ -74,6 +92,22 @@ export const purchasesReturns = {
     withholding: 'PPh dikembalikan',
     final: 'Nilai retur',
     settlementTitle: 'Penyelesaian Nilai Retur',
+    warehouse: 'Gudang',
+    settlementKind: 'Penyelesaian',
+    refundedAmount: 'Sudah dikembalikan vendor',
+    toRefund: 'Belum dikembalikan',
+    refund: 'Catat Refund',
+    refundTitle: 'Catat refund dari vendor',
+    refundDescription:
+      'Uang yang dikembalikan vendor masuk ke rekening yang dipilih dan dijurnal. Sisa yang belum dikembalikan: {amount}.',
+    refundDate: 'Tanggal Refund',
+    refundDateRequired: 'Tanggal refund wajib diisi',
+    refundDeposit: 'Rekening Penerima',
+    refundDepositRequired: 'Pilih rekening kas atau bank penerima',
+    refundAmount: 'Jumlah Refund',
+    refundAmountInvalid: 'Isi jumlah lebih dari nol, maksimal dua desimal',
+    refundAmountTooHigh: 'Maksimal {max}, sisa yang belum dikembalikan',
+    refundConfirm: 'Catat Refund',
     settlementSubtitle: 'Ke mana nilai retur ini dialokasikan',
     appliedToBill: 'Mengurangi hutang tagihan',
     creditCreated: 'Menjadi kredit vendor',
@@ -84,6 +118,10 @@ export const purchasesReturns = {
     postTitle: 'Posting retur ini?',
     postDescription:
       'Jurnal retur akan dibuat. Nilai {amount} mengurangi sisa hutang tagihan, dan bagian yang berlebih menjadi kredit vendor.',
+    postDescriptionCredit:
+      'Jurnal retur akan dibuat. Nilai {amount} seluruhnya menjadi kredit vendor yang dapat dipakai di tagihan lain.',
+    postDescriptionRefund:
+      'Jurnal retur akan dibuat. Nilai {amount} menunggu dikembalikan vendor; catat refund-nya setelah uangnya diterima.',
     postConfirm: 'Ya, Posting',
     void: 'Batalkan Retur',
     voidTitle: 'Batalkan retur',

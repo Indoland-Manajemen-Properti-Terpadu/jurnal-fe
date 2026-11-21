@@ -15,7 +15,7 @@ import { PageFrame } from '@/module/purchases/presentation/components/shared/Pag
 import { ReasonModal } from '@/module/purchases/presentation/components/shared/ReasonModal';
 import { StatusBadge } from '@/module/purchases/presentation/components/shared/StatusBadge';
 import { usePurchaseAccess } from '@/module/purchases/presentation/hooks/usePurchaseAccess';
-import { usePurchaseJourney } from '@/module/purchases/presentation/hooks/usePurchaseJourney';
+import { useDocumentChain } from '@/module/purchases/presentation/hooks/useDashboard';
 import {
   useApproveReceipt,
   useRejectReceipt,
@@ -33,10 +33,7 @@ export default function ReceiptDetailPage() {
   const { t } = useTranslation('purchases');
   const { can, canRead, isLoading: accessLoading } = usePurchaseAccess();
   const receipt = useReceipt(id);
-  const journey = usePurchaseJourney({
-    orderId: receipt.data?.purchaseOrderId,
-    current: 'receipt',
-  });
+  const journey = useDocumentChain('goodsReceipt', id);
   const voidReceipt = useVoidReceipt();
   const approve = useApproveReceipt();
   const reject = useRejectReceipt();

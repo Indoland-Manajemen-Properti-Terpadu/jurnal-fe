@@ -45,12 +45,21 @@ export const ReturnList = () => {
       onRowClick={(row) => navigate(detailPath('return', row.id))}
       renderCells={(row) => (
         <>
-          <NumberCell kind="return" id={row.id} number={row.number} />
+          <NumberCell
+            kind="return"
+            id={row.id}
+            number={row.number}
+            sub={
+              currentLanguage === 'id' && row.settlementLabel
+                ? row.settlementLabel
+                : t(`returns.form.settlement.${row.settlement}`)
+            }
+          />
           <TextCell value={formatDay(row.date, currentLanguage)} />
           <TextCell value={row.vendor.name} maxWidth={260} />
           <TextCell value={row.reason} dimmed maxWidth={300} />
           <Table.Td>
-            <StatusBadge status={row.status} />
+            <StatusBadge status={row.status} label={row.statusLabel} />
           </Table.Td>
           <AmountCell value={row.finalAmount} />
         </>

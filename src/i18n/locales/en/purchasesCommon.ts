@@ -111,7 +111,8 @@ export const purchasesCommon = {
     order: 'Purchase Order',
     receipt: 'Goods Receipt',
     bill: 'Vendor Bill',
-    payment: 'Payment',
+    paymentRequest: 'Payment Request',
+    payment: 'Payment Voucher',
     return: 'Return',
   },
   attachments: {
@@ -152,6 +153,7 @@ export const purchasesCommon = {
     closed: 'Order closed',
     verified: 'Bill verified and journaled',
     paid: 'Payment recorded and journaled',
+    refunded: 'Refund recorded and journaled',
     posted: 'Return posted and journaled',
     received: 'Receipt recorded',
     creditApplied: 'Credit applied to the bill',
