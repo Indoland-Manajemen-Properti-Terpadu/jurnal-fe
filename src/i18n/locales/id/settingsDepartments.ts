@@ -39,6 +39,7 @@ export const settingsDepartments = {
     deleteTitle: 'Hapus Departemen',
     deleteConfirm: 'Apakah Anda yakin ingin menghapus departemen',
     inUseTitle: 'Departemen tidak bisa dihapus',
+    inUseBody: 'Departemen ini sudah dipakai di permintaan pembelian, jadi tidak bisa dihapus.',
     inUseHint: 'Nonaktifkan departemen ini agar tidak muncul lagi di pilihan baru.',
     deactivate: 'Nonaktifkan',
     validation: {

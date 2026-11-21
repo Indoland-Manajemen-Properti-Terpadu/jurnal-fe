@@ -16,7 +16,7 @@ import {
 import { formatAmount } from '@/module/purchases/presentation/components/shared/format';
 
 const DECISION_REASONS: { reason: WorkItem['reason']; tab: string }[] = [
-  { reason: 'approveRequest', tab: 'requests' },
+  { reason: 'verifyRequest', tab: 'requests' },
   { reason: 'approveOrder', tab: 'orders' },
   { reason: 'approvePayment', tab: 'payments' },
 ];

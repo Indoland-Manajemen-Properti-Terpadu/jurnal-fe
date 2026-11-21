@@ -29,7 +29,7 @@ interface JourneyAnchor {
  */
 export const usePurchaseJourney = ({ requestId, orderId, billId, current }: JourneyAnchor) => {
   const request = useRequest(requestId);
-  const resolvedOrderId = orderId ?? request.data?.purchaseOrderId ?? undefined;
+  const resolvedOrderId = orderId;
   const order = useOrder(resolvedOrderId);
   const resolvedRequestId = requestId ?? order.data?.purchaseRequestId;
   const requestDoc = useRequest(requestId ? undefined : resolvedRequestId);

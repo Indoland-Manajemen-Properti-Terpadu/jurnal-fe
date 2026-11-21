@@ -48,7 +48,7 @@ export function DepartmentDeleteDialog({ department, canDeactivate, onClose }: R
           {refused && (
             <Alert color="orange" variant="light" icon={<IconInfoCircle size={18} />}>
               <Stack gap={4}>
-                <Text size="sm">{describe(remove.error)}</Text>
+                <Text size="sm">{st('department.inUseBody')}</Text>
                 {canDeactivate && department.isActive && (
                   <Text size="sm">{st('department.inUseHint')}</Text>
                 )}

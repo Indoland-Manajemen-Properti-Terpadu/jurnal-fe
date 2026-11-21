@@ -20,7 +20,7 @@ export const purchasesHub = {
     requests: {
       title: 'Permintaan Pembelian',
       description:
-        'Ajukan kebutuhan barang atau jasa. Setelah disetujui, permintaan dijadikan pesanan ke vendor.',
+        'Ajukan kebutuhan barang atau jasa. Setelah diverifikasi Accounting, jalur bidding atau vendor tunggal dipilih di tahap pengadaan.',
     },
     orders: {
       title: 'Pesanan Pembelian',
@@ -66,7 +66,7 @@ export const purchasesHub = {
     seeReport: 'Lihat Laporan Hutang',
     agingSubtitle: 'Sisa hutang menurut lama jatuh tempo',
     decisionType: {
-      approveRequest: 'Permintaan',
+      verifyRequest: 'Permintaan',
       approveOrder: 'Pesanan',
       approvePayment: 'Pembayaran',
     },
@@ -76,7 +76,7 @@ export const purchasesHub = {
     emptyTitle: 'Semua sudah beres',
     emptyDescription: 'Tidak ada dokumen yang menunggu tindakan Anda saat ini.',
     reason: {
-      approveRequest: 'Permintaan menunggu persetujuan Anda',
+      verifyRequest: 'Permintaan menunggu verifikasi Anda',
       approveOrder: 'Pesanan menunggu persetujuan Anda',
       approvePayment: 'Pembayaran menunggu persetujuan Anda',
       payVoucher: 'Voucher disetujui, siap dibayar',
@@ -86,16 +86,14 @@ export const purchasesHub = {
     },
   },
   requests: {
-    search: 'Cari nomor, keperluan, atau departemen',
-    mode: 'Pengadaan',
-    items: 'Item',
-    modes: {
-      DIRECT: 'Langsung',
-      WITH_QUOTATION: 'Dengan penawaran',
-    },
+    search: 'Cari nomor, keperluan, atau deskripsi barang',
+    colRequest: 'Permintaan dan tanggal',
+    route: 'Jalur',
+    routes: { BIDDING: 'Bidding', SINGLE: 'Vendor tunggal' },
+    neededOn: 'Dibutuhkan {date}',
     emptyTitle: 'Belum ada permintaan pembelian',
     emptyDescription:
-      'Pembelian dimulai dari permintaan. Setelah disetujui, permintaan dijadikan pesanan ke vendor.',
+      'Pembelian dimulai dari permintaan. Setelah diverifikasi Accounting, permintaan masuk ke pengadaan.',
   },
   orders: {
     search: 'Cari nomor pesanan atau vendor',

@@ -3,7 +3,6 @@ import { Button, Group, Menu, Modal, Stack, Text } from '@mantine/core';
 import {
   IconCircleCheck,
   IconDots,
-  IconEdit,
   IconFileInvoice,
   IconPackageImport,
   IconPrinter,
@@ -44,7 +43,6 @@ export const OrderActionBar = ({ order }: Readonly<{ order: PurchaseOrder }>) =>
   const actions = orderActions(order);
   const canUpdate = can(PURCHASE_MENU.documents, 'update');
   const canCreate = can(PURCHASE_MENU.documents, 'create');
-  const showEdit = actions.edit && canUpdate;
   const showSubmit = actions.submit && canUpdate;
   const showReceive = actions.receive && canCreate;
   const showBill = actions.billable && canCreate;
@@ -67,16 +65,6 @@ export const OrderActionBar = ({ order }: Readonly<{ order: PurchaseOrder }>) =>
 
   return (
     <>
-      {showEdit && (
-        <Button
-          variant="default"
-          radius="md"
-          leftSection={<IconEdit size={16} />}
-          onClick={() => navigate(routes.purchases.orderEdit.replace(':id', order.id))}
-        >
-          {t('common.edit')}
-        </Button>
-      )}
       {showSubmit && (
         <Button
           radius="md"

@@ -3,9 +3,9 @@ import type {
   PaymentVoucherStatus,
   PurchaseBillStatus,
   PurchaseOrderStatus,
-  PurchaseRequestStatus,
   PurchaseReturnStatus,
 } from '@/module/purchases/domain/purchaseDocuments';
+import type { PurchaseRequestStatus } from '@/module/purchases/domain/purchaseRequest';
 
 /** Tone drives the badge color: color only carries real success, warning and failure. */
 export type StatusTone = 'neutral' | 'info' | 'warning' | 'success' | 'danger';
@@ -23,8 +23,10 @@ const TONES: Record<PurchaseStatus, StatusTone> = {
   PENDING_APPROVAL: 'warning',
   APPROVED: 'info',
   REJECTED: 'danger',
-  VENDOR_SELECTED: 'info',
-  CONVERTED: 'success',
+  SUBMITTED: 'warning',
+  RETURNED: 'warning',
+  IN_PROCUREMENT: 'info',
+  COMPLETED: 'success',
   CANCELLED: 'neutral',
   PARTIAL_RECEIVED: 'info',
   RECEIVED: 'success',
@@ -41,11 +43,11 @@ export const statusTone = (status: PurchaseStatus): StatusTone => TONES[status];
 /** Statuses a list filters by, per document, in the order of the tabs and menus. */
 export const REQUEST_STATUSES: PurchaseRequestStatus[] = [
   'DRAFT',
-  'PENDING_APPROVAL',
-  'APPROVED',
-  'REJECTED',
-  'VENDOR_SELECTED',
-  'CONVERTED',
+  'SUBMITTED',
+  'VERIFIED',
+  'RETURNED',
+  'IN_PROCUREMENT',
+  'COMPLETED',
   'CANCELLED',
 ];
 export const ORDER_STATUSES: PurchaseOrderStatus[] = [

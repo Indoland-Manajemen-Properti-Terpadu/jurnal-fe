@@ -8,10 +8,7 @@ import type {
   PaymentVoucher,
   PurchaseBill,
   PurchaseOrder,
-  PurchaseRequest,
   PurchaseReturn,
-  Quotation,
-  RequestItem,
   VendorCredits,
 } from '@/module/purchases/domain/purchaseDocuments';
 import type {
@@ -23,10 +20,7 @@ import type {
   PaymentVoucherDto,
   PurchaseBillDto,
   PurchaseOrderDto,
-  PurchaseRequestDto,
   PurchaseReturnDto,
-  QuotationDto,
-  RequestItemDto,
   VendorCreditsDto,
 } from '@/module/purchases/infrastructure/purchaseDto';
 import {
@@ -64,43 +58,6 @@ const toAmounts = (dto: AmountsDto): DocumentAmounts => ({
   withholdingTaxCode: dto.withholdingTaxCode ?? null,
   finalAmount: dto.finalAmount,
   isPriceIncludeTax: Boolean(dto.isPriceIncludeTax),
-});
-
-const toRequestItem = (dto: RequestItemDto): RequestItem => ({
-  id: dto._id,
-  product: toProduct(dto.product),
-  description: dto.description ?? '',
-  quantity: dto.quantity,
-  unitName: dto.unit?.name ?? dto.product?.unit?.name ?? null,
-});
-
-const toQuotation = (dto: QuotationDto): Quotation => ({
-  id: dto._id,
-  vendor: toParty(dto.vendor),
-  number: dto.quotationNumber ?? '',
-  date: toDate(dto.quotationDate),
-  validUntil: toDateOrNull(dto.validUntil),
-  items: dto.items.map((item) => ({
-    requestItemId: item.requestItem,
-    quantity: item.quantity,
-    unitPrice: item.unitPrice,
-  })),
-  total: dto.total,
-  notes: dto.notes ?? '',
-});
-
-export const toPurchaseRequest = (dto: PurchaseRequestDto): PurchaseRequest => ({
-  ...base(dto),
-  requiredDate: toDateOrNull(dto.requiredDate),
-  department: dto.department ?? '',
-  purpose: dto.purpose ?? '',
-  mode: dto.procurementMode,
-  status: dto.status as PurchaseRequest['status'],
-  items: dto.items.map(toRequestItem),
-  quotations: (dto.quotations ?? []).map(toQuotation),
-  selectedQuotationId: dto.selectedQuotation ?? null,
-  purchaseOrderId: refId(dto.purchaseOrder) || null,
-  approval: toApproval(dto),
 });
 
 const toOrderItem = (dto: PurchaseOrderDto['items'][number]): OrderItem => ({

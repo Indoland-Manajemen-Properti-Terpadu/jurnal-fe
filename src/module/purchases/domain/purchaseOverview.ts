@@ -3,12 +3,12 @@ import type {
   PaymentVoucher,
   PurchaseBill,
   PurchaseOrder,
-  PurchaseRequest,
 } from '@/module/purchases/domain/purchaseDocuments';
+import type { PurchaseRequest } from '@/module/purchases/domain/purchaseRequest';
 
 /** Why a document is on the work list; each reason has its own sentence in the overview. */
 export type WorkReason =
-  | 'approveRequest'
+  | 'verifyRequest'
   | 'approveOrder'
   | 'approvePayment'
   | 'payVoucher'
@@ -30,7 +30,7 @@ export interface WorkItem {
 
 /** Lower comes first: decisions waiting on the user, then money to release, then follow-up. */
 const PRIORITY: Record<WorkReason, number> = {
-  approveRequest: 0,
+  verifyRequest: 0,
   approveOrder: 0,
   approvePayment: 0,
   payVoucher: 1,
@@ -39,12 +39,13 @@ const PRIORITY: Record<WorkReason, number> = {
   billOrder: 3,
 };
 
+/** Submitted requests wait for Accounting to verify or return them. */
 export const requestItems = (docs: PurchaseRequest[]): WorkItem[] =>
   docs
-    .filter((doc) => doc.status === 'PENDING_APPROVAL' && doc.approval.canDecide)
+    .filter((doc) => doc.status === 'SUBMITTED')
     .map((doc) => ({
       key: `request:${doc.id}`,
-      reason: 'approveRequest' as const,
+      reason: 'verifyRequest' as const,
       docKind: 'request' as const,
       id: doc.id,
       number: doc.number,

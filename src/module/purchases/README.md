@@ -12,7 +12,7 @@ The backend rules are in the backend's `PURCHASE_MODULE.md`; this file records w
 | `requests` / `orders` / `receipts` / `bills` / `payments` / `returns` | `/purchases/requests`, `/orders`, `/receipts`, `/bills`, `/payments`, `/returns` | `PurchaseListPage tab=...` (one page per document list, no tabs) |
 | `payables`                                                            | `/purchases/payables`                                                            | `PayablesReportPage`                                             |
 | `requestAdd` / `requestDetail` / `requestEdit`                        | `/purchases/requests/new`, `/:id`, `/:id/edit`                                   | `RequestFormPage`, `RequestDetailPage`                           |
-| `orderAdd` / `orderDetail` / `orderEdit`                              | `/purchases/orders/new?request=<id>`, `/:id`, `/:id/edit`                        | `OrderFormPage`, `OrderDetailPage`                               |
+| `orderDetail`                                                         | `/purchases/orders/:id`                                                          | `OrderDetailPage` (a PO is never created by hand, see below)     |
 | `receiptAdd` / `receiptDetail`                                        | `/purchases/receipts/new?order=<id>`, `/:id`                                     | `ReceiptFormPage`, `ReceiptDetailPage`                           |
 | `billAdd` / `billDetail` / `billEdit`                                 | `/purchases/bills/new?order=<id>`, `/:id`, `/:id/edit`                           | `BillFormPage`, `BillDetailPage`                                 |
 | `paymentAdd` / `paymentDetail` / `paymentEdit`                        | `/purchases/payments/new?bill=<id>` or `?type=advance`, `/:id`, `/:id/edit`      | `PaymentFormPage`, `PaymentDetailPage`                           |
@@ -45,17 +45,31 @@ The revamp lands one slice per PR, following the backend hand-over note. Until t
 - Files: up to 5 per document, 5 MB each, multipart field `attachments`.
 - Error copy never shows server text for validation or unknown failures. Indonesian business messages from the server are shown as written in Indonesian; English readers get a generic sentence.
 
-## Contract facts that differ from the backend document
+## FPPBJ (purchase request), revamp 3/9
+
+Verified live on 2026-11-21 (Demo Site). The old request (`procurementMode`, quotations, approve/reject) is gone.
+
+- Flow: `DRAFT` -> `SUBMITTED` -> `VERIFIED` or `RETURNED` (-> edit, resubmit) -> `IN_PROCUREMENT` -> `COMPLETED`; `CANCELLED`. The requester edits, submits and cancels their own request (`JP-PURCH-FPPBJ` u/d plus `isOwner`); Accounting verifies, returns and may cancel any request (`JP-PURCH-FPPBJ-VER` u/d). `domain/requestAccess` holds these rules and `domain/purchaseActions.requestActions` the status gates; both have tests.
+- Create body: `transactionDate`, `requiredDate`, `department` (id), `purpose`, `iom { number, date }`, `memo`, `items[] { product?, kind GOODS|SERVICE, description, specification, quantity, unit (id) }`. `unit` must be a unit id from `/v1/units` (at most 100 per page); a text unit is a 400. A line needs a product or a description. An FPPBJ takes no price (`estimatedPrice` is a 400).
+- The service is looser than the screen: it accepts a missing department, a blank purpose, a needed-by date before the request date, a fractional quantity and any quantity above 0.01. The form requires the department, the purpose and the needed-by date, rejects a date before the request date and keeps the quantity at 0.01 or more. Limits (a longer text is a 400): purpose 1000, memo 2000, IOM number 100, description 500, specification 1000.
+- `PUT` keeps what it leaves out, so the form sends every field: `memo: ''`, `iom: { number: '', date: null }` and a changed line list replace the old values (line ids change on every PUT). Editing needs `DRAFT` or `RETURNED` (400 otherwise).
+- Actions: `POST /:id/submit`; `/verify` (`note` optional; the note is appended to `memo`); `/return` (`note` required, kept as `returnNote` after the requester resubmits); `/cancel` (`reason` required, the screen asks for 3 or more characters). A department that is inactive is refused on save (400); the department select lists only active ones plus the one the request already has.
+- Files: `POST /:id/attachments` with the multipart `target` = `request` or `iom` (a missing target means `request`; `quote` is for procurement) and the field `attachments`. Only a `DRAFT` or `RETURNED` request accepts files (400 otherwise). 5 MB per file is refused in Indonesian; the service accepts any file type. Request files come back in `attachments`, IOM files in `iom.attachments`, as `{ id, fileName, filePath, mimeType }`; a file is served at `<api address>/<filePath>` without a token.
+- List: `page`, `limit` (1 to 100), `search` (number, purpose and item description, not the IOM), `status` (one value, or several as `status[]=A&status[]=B`; a comma list is a 400), `department`, `mine`, `sortBy`, `sortOrder`, `startDate`, `endDate`, `procurementStatus`, `route`, `readyForOrder`. An unknown parameter is a 400. A list row has `statusLabel`, `requesterInfo`, `returnNote`, `cancelReason`; only the detail adds `verifiedByInfo` and `returnedByInfo`.
+- The status text comes from the service's own `statusLabel` for Indonesian readers; English readers get the translated key.
+- Not built here (no endpoint in the hand-over note): a PDF of the FPPBJ, which the prototype offers, and a delivery location on the request.
+- A purchase order is never created by hand any more, so the order form, `orderAdd` and `orderEdit` are removed; the draft PO fields are edited from the PO detail (slice 5).
+
+## Contract facts that differ from the backend document (older documents, to be replaced slice by slice)
 
 Verified against the live service on 2026-11-04:
 
-- A purchase request item has only `product`, `description` and `quantity`. `estimatedPrice` is rejected.
-- List filters accept a single `status` (a comma list is a 400). Lists sort with `sortBy` (per document) and `sortOrder`. Returns do not accept `endDate`.
-- `PUT` bodies are not the create bodies. Order: no `purchaseRequest`, items also carry `quantity`. Bill: no `purchaseOrder`; `dueDate: null` is refused. Voucher: no `vendor` or `type`. Return: no `bill`. Each has its own update hook next to its pages (`useUpdateOrder`, `useUpdateBill`, `useUpdatePaymentVoucher`, `useUpdatePurchaseReturn`).
+- `PUT` bodies are not the create bodies. Bill: no `purchaseOrder`; `dueDate: null` is refused. Voucher: no `vendor` or `type`. Return: no `bill`. Each has its own update hook next to its pages (`useUpdateBill`, `useUpdatePaymentVoucher`, `useUpdatePurchaseReturn`).
 - Reject, cancel and void take `{ reason }`; approve takes an optional `{ note }`.
 - Bill variances arrive as `{ type, expected, actual }`; credit applications as `{ source, sourceId, amount, appliedAt, voided }`.
 - The payables aging rows carry `vendor: { id, name }`; `usePayablesReport` normalizes them locally.
 - A bill does not store its payment term, so editing a draft cannot restore the chosen term.
+- Lists sort with `sortBy` (per document) and `sortOrder`. Returns do not accept `endDate`.
 
 ## i18n
 

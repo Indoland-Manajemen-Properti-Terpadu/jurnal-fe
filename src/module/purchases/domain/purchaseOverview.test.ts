@@ -1,8 +1,5 @@
-import type {
-  PaymentVoucher,
-  PurchaseOrder,
-  PurchaseRequest,
-} from '@/module/purchases/domain/purchaseDocuments';
+import type { PaymentVoucher, PurchaseOrder } from '@/module/purchases/domain/purchaseDocuments';
+import type { PurchaseRequest } from '@/module/purchases/domain/purchaseRequest';
 import {
   countDecisions,
   orderFollowUpItems,
@@ -21,13 +18,12 @@ const approval = (canDecide: boolean) => ({
   rejectedAt: null,
 });
 
-const request = (id: string, canDecide: boolean) =>
+const request = (id: string, status: string) =>
   ({
     id,
     number: id,
     date: '2026-11-01',
-    status: 'PENDING_APPROVAL',
-    approval: approval(canDecide),
+    status,
   }) as unknown as PurchaseRequest;
 
 const order = (id: string, status: string, received: number, billed: number) =>
@@ -42,8 +38,13 @@ const order = (id: string, status: string, received: number, billed: number) =>
   }) as unknown as PurchaseOrder;
 
 describe('purchaseOverview', () => {
-  it('lists only requests the user can decide on', () => {
-    expect(requestItems([request('a', true), request('b', false)]).map((i) => i.id)).toEqual(['a']);
+  it('lists only submitted requests, which wait for Accounting to verify them', () => {
+    const docs = ['DRAFT', 'SUBMITTED', 'VERIFIED', 'RETURNED', 'CANCELLED'].map((status) =>
+      request(status, status)
+    );
+
+    expect(requestItems(docs).map((item) => item.id)).toEqual(['SUBMITTED']);
+    expect(requestItems(docs)[0].reason).toBe('verifyRequest');
   });
 
   it('asks to receive an approved order and to bill one that has unbilled goods', () => {

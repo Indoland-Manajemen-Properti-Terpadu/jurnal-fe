@@ -25,7 +25,7 @@ const M = PURCHASE_MENU;
 /** Document totals per step of the buying chain; one single-row request per step. */
 export const usePipelineCounts = (can: CanFn): StageCount[] => {
   const docs = can(M.documents, 'read');
-  const requests = useRequests(ONE, docs);
+  const requests = useRequests(ONE, can(M.request, 'read') || can(M.requestVerify, 'read'));
   const orders = useOrders(ONE, docs);
   const receipts = useReceipts(ONE, docs);
   const bills = useBills(ONE, docs);

@@ -1,6 +1,7 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import type { PurchaseAccessProfile } from '@/module/purchases/domain/purchaseAccess';
 import type {
+  NamedRef,
   Page,
   PartyRef,
   PaymentMethodRef,
@@ -13,10 +14,10 @@ import type {
   PaymentVoucher,
   PurchaseBill,
   PurchaseOrder,
-  PurchaseRequest,
   PurchaseReturn,
   VendorCredits,
 } from '@/module/purchases/domain/purchaseDocuments';
+import type { PurchaseRequest } from '@/module/purchases/domain/purchaseRequest';
 import {
   getBill,
   getOrder,
@@ -33,14 +34,17 @@ import {
   listRequests,
   listReturns,
   type ListParams,
+  type RequestListParams,
 } from '@/module/purchases/infrastructure/purchaseApi';
 import type { PurchaseError } from '@/module/purchases/infrastructure/purchaseErrors';
 import {
   getAccessProfile,
+  listDepartments,
   listPaymentMethods,
   listPaymentTerms,
   listTaxes,
   searchPurchasableProducts,
+  listUnits,
   searchSuppliers,
 } from '@/module/purchases/infrastructure/purchaseLookupApi';
 import {
@@ -93,7 +97,7 @@ export const usePurchaseAccessProfile = () => {
   });
 };
 
-export const useRequests = (params: ListParams, enabled?: boolean) =>
+export const useRequests = (params: RequestListParams, enabled?: boolean) =>
   useList<PurchaseRequest>('requests', params, listRequests, enabled);
 export const useRequest = (id?: string) => useDetail<PurchaseRequest>('requests', id, getRequest);
 
@@ -179,6 +183,24 @@ export const usePaymentTermOptions = () => {
   return useQuery({
     queryKey: [...purchaseKeys.lookups(scope), 'payment-terms'],
     queryFn: listPaymentTerms,
+    staleTime: STABLE_MS,
+  });
+};
+
+export const useDepartmentOptions = () => {
+  const scope = usePurchaseScope();
+  return useQuery<NamedRef[], PurchaseError>({
+    queryKey: [...purchaseKeys.lookups(scope), 'departments'],
+    queryFn: listDepartments,
+    staleTime: STABLE_MS,
+  });
+};
+
+export const useUnitOptions = () => {
+  const scope = usePurchaseScope();
+  return useQuery<NamedRef[], PurchaseError>({
+    queryKey: [...purchaseKeys.lookups(scope), 'units'],
+    queryFn: listUnits,
     staleTime: STABLE_MS,
   });
 };

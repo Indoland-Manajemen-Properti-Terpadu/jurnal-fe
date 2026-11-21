@@ -32,7 +32,7 @@ export interface ProductDto {
   id: string;
   name: string;
   sku?: string | null;
-  unit?: { name?: string | null } | null;
+  unit?: { id?: string; name?: string | null } | null;
   inventoryInfo?: { isTracked?: boolean } | null;
 }
 
@@ -52,11 +52,11 @@ export interface PaymentMethodDto {
 export interface AttachmentDto {
   _id?: string;
   id?: string;
-  name?: string;
-  filename?: string;
-  originalName?: string;
-  url?: string;
-  path?: string;
+  /** Stored file name as the user uploaded it. */
+  fileName?: string;
+  /** Path under the API address, e.g. `uploads/1795241690857-f61abb15.pdf`. */
+  filePath?: string;
+  mimeType?: string;
 }
 
 export interface ApprovalPlanDto {
@@ -96,37 +96,6 @@ export interface ApprovalFieldsDto {
   canDecide?: boolean | null;
   rejectionReason?: string | null;
   rejectedAt?: string | null;
-}
-
-export interface RequestItemDto {
-  _id: string;
-  product?: ProductDto | null;
-  description?: string | null;
-  quantity: number;
-  unit?: { name?: string | null } | null;
-}
-
-export interface QuotationDto {
-  _id: string;
-  vendor: PartyDto;
-  quotationNumber?: string | null;
-  quotationDate: string;
-  validUntil?: string | null;
-  items: { requestItem: string; quantity: number; unitPrice: number }[];
-  total: number;
-  notes?: string | null;
-}
-
-export interface PurchaseRequestDto extends DocumentDto, ApprovalFieldsDto {
-  requiredDate?: string | null;
-  department?: string | null;
-  purpose?: string | null;
-  procurementMode: 'DIRECT' | 'WITH_QUOTATION';
-  status: string;
-  items: RequestItemDto[];
-  quotations?: QuotationDto[] | null;
-  selectedQuotation?: string | null;
-  purchaseOrder?: IdOr<{ id: string }> | null;
 }
 
 export interface AmountsDto {

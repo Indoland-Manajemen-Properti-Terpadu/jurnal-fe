@@ -19,7 +19,7 @@ export const purchasesHub = {
     requests: {
       title: 'Purchase Requests',
       description:
-        'Ask for goods or services. Once approved, a request becomes an order to the vendor.',
+        'Ask for goods or services. Once Accounting verifies the request, the bidding or single-vendor route is chosen at procurement.',
     },
     orders: {
       title: 'Purchase Orders',
@@ -65,7 +65,7 @@ export const purchasesHub = {
     seeReport: 'Open payables report',
     agingSubtitle: 'Remaining payables by days past due',
     decisionType: {
-      approveRequest: 'Requests',
+      verifyRequest: 'Requests',
       approveOrder: 'Orders',
       approvePayment: 'Payments',
     },
@@ -74,7 +74,7 @@ export const purchasesHub = {
     emptyTitle: 'All caught up',
     emptyDescription: 'No documents are waiting for your action right now.',
     reason: {
-      approveRequest: 'Request waiting for your approval',
+      verifyRequest: 'Request waiting for your verification',
       approveOrder: 'Order waiting for your approval',
       approvePayment: 'Payment waiting for your approval',
       payVoucher: 'Voucher approved, ready to pay',
@@ -84,16 +84,14 @@ export const purchasesHub = {
     },
   },
   requests: {
-    search: 'Search number, purpose or department',
-    mode: 'Procurement',
-    items: 'Items',
-    modes: {
-      DIRECT: 'Direct',
-      WITH_QUOTATION: 'With quotations',
-    },
+    search: 'Search number, purpose or item description',
+    colRequest: 'Request and date',
+    route: 'Route',
+    routes: { BIDDING: 'Bidding', SINGLE: 'Single vendor' },
+    neededOn: 'Needed {date}',
     emptyTitle: 'No purchase requests yet',
     emptyDescription:
-      'Purchasing starts with a request. Once approved, the request becomes an order to a vendor.',
+      'Purchasing starts with a request. Once Accounting verifies it, the request moves to procurement.',
   },
   orders: {
     search: 'Search order number or vendor',

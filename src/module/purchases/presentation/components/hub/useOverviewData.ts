@@ -31,8 +31,8 @@ const M = PURCHASE_MENU;
 export const useOverviewData = (can: CanFn) => {
   const canDocs = can(M.documents, 'read');
   const requests = useRequests(
-    { ...base, status: 'PENDING_APPROVAL' },
-    can(M.requestVerify, 'read')
+    { ...base, status: 'SUBMITTED' },
+    can(M.requestVerify, 'read') && can(M.requestVerify, 'update')
   );
   const ordersPending = useOrders(
     { ...base, status: 'PENDING_APPROVAL' },

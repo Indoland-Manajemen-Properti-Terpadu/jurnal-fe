@@ -18,6 +18,7 @@ export interface ProductRef {
   id: string;
   name: string;
   sku: string | null;
+  unitId: string | null;
   unitName: string | null;
   isInventory: boolean;
 }
@@ -39,6 +40,20 @@ export interface Attachment {
   id: string;
   name: string;
   url: string;
+  mimeType: string;
+}
+
+export interface NamedRef {
+  id: string;
+  name: string;
+}
+
+/** A person as the server describes them on a document. */
+export interface UserInfo {
+  id: string;
+  name: string;
+  email: string;
+  title: string;
 }
 
 export type ApprovalMode = 'ANY' | 'ALL';

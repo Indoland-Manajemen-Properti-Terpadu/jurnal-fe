@@ -1,7 +1,7 @@
 import apiClient from '@/lib/http/apiClient';
 import { toPurchaseError } from '@/module/purchases/infrastructure/purchaseErrors';
 
-export type QueryValue = string | number | boolean | null | undefined;
+export type QueryValue = string | number | boolean | string[] | null | undefined;
 
 const READ_TIMEOUT_MS = 30_000;
 const WRITE_TIMEOUT_MS = 60_000;
@@ -10,13 +10,17 @@ const UPLOAD_TIMEOUT_MS = 120_000;
 /** The backend rejects empty and unknown query values with a 400, so only real values are sent. */
 export const cleanParams = (
   params: Record<string, QueryValue>
-): Record<string, string | number | boolean> =>
-  Object.entries(params).reduce<Record<string, string | number | boolean>>((acc, [key, value]) => {
-    if (value === undefined || value === null) return acc;
-    if (typeof value === 'string' && value.trim() === '') return acc;
-    acc[key] = value;
-    return acc;
-  }, {});
+): Record<string, string | number | boolean | string[]> =>
+  Object.entries(params).reduce<Record<string, string | number | boolean | string[]>>(
+    (acc, [key, value]) => {
+      if (value === undefined || value === null) return acc;
+      if (typeof value === 'string' && value.trim() === '') return acc;
+      if (Array.isArray(value) && value.length === 0) return acc;
+      acc[key] = value;
+      return acc;
+    },
+    {}
+  );
 
 const request = async <T>(call: () => Promise<{ data: T }>): Promise<T> => {
   try {

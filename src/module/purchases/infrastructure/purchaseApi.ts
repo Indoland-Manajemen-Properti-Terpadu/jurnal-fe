@@ -5,19 +5,17 @@ import type {
   PaymentVoucher,
   PurchaseBill,
   PurchaseOrder,
-  PurchaseRequest,
   PurchaseReturn,
   VendorCredits,
 } from '@/module/purchases/domain/purchaseDocuments';
+import type { PurchaseRequest } from '@/module/purchases/domain/purchaseRequest';
 import type {
   CreditApplicationInput,
   GoodsReceiptInput,
   PaymentVoucherInput,
   PurchaseBillInput,
-  PurchaseOrderInput,
   PurchaseRequestInput,
   PurchaseReturnInput,
-  QuotationInput,
 } from '@/module/purchases/domain/purchaseInputs';
 import { PURCHASE_API } from '@/module/purchases/infrastructure/purchaseEndpoints';
 import type {
@@ -28,7 +26,6 @@ import type {
   PaymentVoucherDto,
   PurchaseBillDto,
   PurchaseOrderDto,
-  PurchaseRequestDto,
   PurchaseReturnDto,
   VendorCreditsDto,
 } from '@/module/purchases/infrastructure/purchaseDto';
@@ -38,10 +35,11 @@ import {
   toPaymentVoucher,
   toPurchaseBill,
   toPurchaseOrder,
-  toPurchaseRequest,
   toPurchaseReturn,
   toVendorCredits,
 } from '@/module/purchases/infrastructure/purchaseDocumentMappers';
+import type { PurchaseRequestDto } from '@/module/purchases/infrastructure/requestDto';
+import { toPurchaseRequest } from '@/module/purchases/infrastructure/requestMappers';
 import { http, type QueryValue } from '@/module/purchases/infrastructure/purchaseHttp';
 import { toPage } from '@/module/purchases/infrastructure/purchaseMappers';
 
@@ -49,7 +47,8 @@ export interface ListParams {
   page?: number;
   limit?: number;
   search?: string;
-  status?: string;
+  /** One status, or several (`status[]=A&status[]=B`). */
+  status?: string | string[];
   vendor?: string;
   startDate?: string;
   endDate?: string;
@@ -108,32 +107,26 @@ const returns = resource<PurchaseReturnDto, PurchaseReturn>(
   toPurchaseReturn
 );
 
-/* ---------- Purchase request ---------- */
-export const listRequests = requests.list;
+/* ---------- Purchase request (FPPBJ) ---------- */
+export interface RequestListParams extends ListParams {
+  mine?: boolean;
+  department?: string;
+}
+
+export const listRequests = (params: RequestListParams = {}) => requests.list(params);
 export const getRequest = requests.get;
 export const createRequest = (input: PurchaseRequestInput) => requests.create(input);
 export const updateRequest = (id: string, input: PurchaseRequestInput) =>
   requests.update(id, input);
 export const submitRequest = (id: string) => requests.act(id, 'submit');
-export const approveRequest = (id: string, note?: string) =>
-  requests.act(id, 'approve', note ? { note } : undefined);
-export const rejectRequest = (id: string, reason: string) => requests.act(id, 'reject', { reason });
+export const verifyRequest = (id: string, note?: string) =>
+  requests.act(id, 'verify', note ? { note } : undefined);
+export const returnRequest = (id: string, note: string) => requests.act(id, 'return', { note });
 export const cancelRequest = (id: string, reason: string) => requests.act(id, 'cancel', { reason });
-export const saveQuotations = async (id: string, quotations: QuotationInput[]) =>
-  toPurchaseRequest(
-    (
-      await http.put<ApiEnvelope<PurchaseRequestDto>>(PURCHASE_API.requestQuotations(id), {
-        quotations,
-      })
-    ).data
-  );
-export const selectQuotation = (id: string, quotationId: string) =>
-  requests.act(id, 'select-quotation', { quotationId });
 
 /* ---------- Purchase order ---------- */
 export const listOrders = orders.list;
 export const getOrder = orders.get;
-export const createOrder = (input: PurchaseOrderInput) => orders.create(input);
 export const submitOrder = (id: string) => orders.act(id, 'submit');
 export const approveOrder = (id: string, note?: string) =>
   orders.act(id, 'approve', note ? { note } : undefined);
@@ -191,6 +184,9 @@ export const voidReturn = (id: string, reason: string) => returns.act(id, 'void'
 /* ---------- Files ---------- */
 export type AttachmentTarget = 'request' | 'order' | 'receipt' | 'bill' | 'payment' | 'return';
 
+/** Where on an FPPBJ the file belongs: the request itself, or its IOM memo. */
+export type RequestFileTarget = 'request' | 'iom';
+
 const ATTACHMENT_URL: Record<AttachmentTarget, (id: string) => string> = {
   request: PURCHASE_API.requestAttachments,
   order: PURCHASE_API.orderAttachments,
@@ -201,8 +197,14 @@ const ATTACHMENT_URL: Record<AttachmentTarget, (id: string) => string> = {
 };
 
 /** The backend takes up to 5 files of 5 MB each, in the multipart field `attachments`. */
-export const uploadAttachments = async (target: AttachmentTarget, id: string, files: File[]) => {
+export const uploadAttachments = async (
+  target: AttachmentTarget,
+  id: string,
+  files: File[],
+  requestFile?: RequestFileTarget
+) => {
   const form = new FormData();
+  if (target === 'request') form.append('target', requestFile ?? 'request');
   files.forEach((file) => form.append('attachments', file));
   await http.upload<unknown>(ATTACHMENT_URL[target](id), form);
 };

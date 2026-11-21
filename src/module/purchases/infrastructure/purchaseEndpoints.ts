@@ -9,7 +9,6 @@ export const PURCHASE_API = {
   requests: PR,
   request: (id: string) => `${PR}/${id}`,
   requestAction: (id: string, action: string) => `${PR}/${id}/${action}`,
-  requestQuotations: (id: string) => `${PR}/${id}/quotations`,
   requestAttachments: (id: string) => `${PR}/${id}/attachments`,
 
   orders: PO,
@@ -46,6 +45,8 @@ export const PURCHASE_API = {
   returnAttachments: (id: string) => `${RET}/${id}/attachments`,
 
   contacts: '/v1/contacts',
+  departments: '/v1/departments',
+  units: '/v1/units',
   products: '/v1/products',
   taxes: '/v1/taxes',
   paymentMethods: '/v1/payment-methods',

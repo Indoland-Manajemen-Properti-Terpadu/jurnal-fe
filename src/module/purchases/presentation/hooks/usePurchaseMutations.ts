@@ -4,10 +4,8 @@ import type {
   GoodsReceiptInput,
   PaymentVoucherInput,
   PurchaseBillInput,
-  PurchaseOrderInput,
   PurchaseRequestInput,
   PurchaseReturnInput,
-  QuotationInput,
 } from '@/module/purchases/domain/purchaseInputs';
 import * as api from '@/module/purchases/infrastructure/purchaseApi';
 import { purchaseKeys } from '@/module/purchases/presentation/hooks/purchaseKeys';
@@ -47,7 +45,7 @@ type WithId = { id: string };
 type WithReason = WithId & { reason: string };
 type Doc = { number: string };
 
-/* ---------- Purchase request ---------- */
+/* ---------- Purchase request (FPPBJ) ---------- */
 export const useCreateRequest = (onDone?: (doc: WithId & Doc) => void) =>
   useAction('created', (input: PurchaseRequestInput) => api.createRequest(input), onDone);
 export const useUpdateRequest = (onDone?: (doc: WithId & Doc) => void) =>
@@ -58,24 +56,18 @@ export const useUpdateRequest = (onDone?: (doc: WithId & Doc) => void) =>
   );
 export const useSubmitRequest = () =>
   useAction('submitted', ({ id }: WithId) => api.submitRequest(id));
-export const useApproveRequest = () =>
-  useAction('approved', ({ id, note }: WithId & { note?: string }) => api.approveRequest(id, note));
-export const useRejectRequest = () =>
-  useAction('rejected', ({ id, reason }: WithReason) => api.rejectRequest(id, reason));
+export const useVerifyRequest = () =>
+  useAction('requestVerified', ({ id, note }: WithId & { note?: string }) =>
+    api.verifyRequest(id, note)
+  );
+export const useReturnRequest = () =>
+  useAction('requestReturned', ({ id, note }: WithId & { note: string }) =>
+    api.returnRequest(id, note)
+  );
 export const useCancelRequest = () =>
   useAction('cancelled', ({ id, reason }: WithReason) => api.cancelRequest(id, reason));
-export const useSaveQuotations = () =>
-  useAction('quotationsSaved', ({ id, quotations }: WithId & { quotations: QuotationInput[] }) =>
-    api.saveQuotations(id, quotations)
-  );
-export const useSelectQuotation = () =>
-  useAction('vendorSelected', ({ id, quotationId }: WithId & { quotationId: string }) =>
-    api.selectQuotation(id, quotationId)
-  );
 
 /* ---------- Purchase order ---------- */
-export const useCreateOrder = (onDone?: (doc: WithId & Doc) => void) =>
-  useAction('created', (input: PurchaseOrderInput) => api.createOrder(input), onDone);
 export const useSubmitOrder = () => useAction('submitted', ({ id }: WithId) => api.submitOrder(id));
 export const useApproveOrder = () =>
   useAction('approved', ({ id, note }: WithId & { note?: string }) => api.approveOrder(id, note));
@@ -149,8 +141,19 @@ export const useVoidReturn = () =>
 export const useUploadAttachments = () =>
   useAction(
     'uploaded',
-    async ({ target, id, files }: { target: api.AttachmentTarget; id: string; files: File[] }) => {
-      await api.uploadAttachments(target, id, files);
+    async ({
+      target,
+      id,
+      files,
+      requestFile,
+    }: {
+      target: api.AttachmentTarget;
+      id: string;
+      files: File[];
+      /** On an FPPBJ: the request itself or its IOM memo. */
+      requestFile?: api.RequestFileTarget;
+    }) => {
+      await api.uploadAttachments(target, id, files, requestFile);
       return {} as { number?: string };
     }
   );

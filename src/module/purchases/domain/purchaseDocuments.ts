@@ -7,18 +7,8 @@ import type {
   TaxRef,
 } from '@/module/purchases/domain/purchaseCommon';
 
-export type ProcurementMode = 'DIRECT' | 'WITH_QUOTATION';
 export type DiscountType = 'percentage' | 'nominal';
 export type WithholdingType = 'percentage' | 'nominal';
-
-export type PurchaseRequestStatus =
-  | 'DRAFT'
-  | 'PENDING_APPROVAL'
-  | 'APPROVED'
-  | 'REJECTED'
-  | 'VENDOR_SELECTED'
-  | 'CONVERTED'
-  | 'CANCELLED';
 
 export type PurchaseOrderStatus =
   | 'DRAFT'
@@ -40,44 +30,6 @@ export type PaymentVoucherStatus =
   | 'REJECTED'
   | 'VOID';
 export type PurchaseReturnStatus = 'DRAFT' | 'POSTED' | 'VOID';
-
-export interface RequestItem {
-  id: string;
-  product: ProductRef | null;
-  description: string;
-  quantity: number;
-  unitName: string | null;
-}
-
-export interface QuotationItem {
-  requestItemId: string;
-  quantity: number;
-  unitPrice: number;
-}
-
-export interface Quotation {
-  id: string;
-  vendor: PartyRef;
-  number: string;
-  date: string;
-  validUntil: string | null;
-  items: QuotationItem[];
-  total: number;
-  notes: string;
-}
-
-export interface PurchaseRequest extends DocumentBase {
-  requiredDate: string | null;
-  department: string;
-  purpose: string;
-  mode: ProcurementMode;
-  status: PurchaseRequestStatus;
-  items: RequestItem[];
-  quotations: Quotation[];
-  selectedQuotationId: string | null;
-  purchaseOrderId: string | null;
-  approval: ApprovalState;
-}
 
 /** The money block shared by orders and bills; amounts come from the server. */
 export interface DocumentAmounts {

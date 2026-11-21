@@ -1,16 +1,17 @@
 import { useState } from 'react';
-import { Grid, Group, Stack, Text, TextInput, Textarea } from '@mantine/core';
+import { Button, Grid, Group, Stack, Text } from '@mantine/core';
 import {
   IconClipboardText,
+  IconDeviceFloppy,
   IconListDetails,
-  IconRoute,
+  IconSend,
   IconShoppingCartPlus,
 } from '@tabler/icons-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
-import { PURCHASE_MENU } from '@/module/purchases/domain/purchaseAccess';
 import { requestActions } from '@/module/purchases/domain/purchaseActions';
-import type { PurchaseRequest } from '@/module/purchases/domain/purchaseDocuments';
+import type { PurchaseRequest } from '@/module/purchases/domain/purchaseRequest';
+import { canCreateRequest, requestRights } from '@/module/purchases/domain/requestAccess';
 import {
   emptyRequestForm,
   hasRequestErrors,
@@ -19,20 +20,24 @@ import {
   validateRequestForm,
   type RequestFormValues,
 } from '@/module/purchases/domain/requestForm';
-import { DateField } from '@/module/purchases/presentation/components/requests/DateField';
+import { RequestInfoSection } from '@/module/purchases/presentation/components/requests/RequestInfoSection';
+import { RequestIomSection } from '@/module/purchases/presentation/components/requests/RequestIomSection';
 import { RequestItemsEditor } from '@/module/purchases/presentation/components/requests/RequestItemsEditor';
-import { RequestModeCards } from '@/module/purchases/presentation/components/requests/RequestModeCards';
 import { StateFrame } from '@/module/purchases/presentation/components/requests/StateFrame';
-import { FormActions } from '@/module/purchases/presentation/components/shared/FormActions';
 import { PageFrame } from '@/module/purchases/presentation/components/shared/PageFrame';
 import { SectionCard } from '@/module/purchases/presentation/components/shared/SectionCard';
-import { todayIso } from '@/module/purchases/presentation/components/shared/format';
+import { formatDay, todayIso } from '@/module/purchases/presentation/components/shared/format';
 import { usePurchaseAccess } from '@/module/purchases/presentation/hooks/usePurchaseAccess';
 import {
   useCreateRequest,
+  useSubmitRequest,
   useUpdateRequest,
+  useUploadAttachments,
 } from '@/module/purchases/presentation/hooks/usePurchaseMutations';
-import { useRequest } from '@/module/purchases/presentation/hooks/usePurchaseQueries';
+import {
+  useDepartmentOptions,
+  useRequest,
+} from '@/module/purchases/presentation/hooks/usePurchaseQueries';
 import { routes } from '@/router/routes';
 
 const detailOf = (id: string) => routes.purchases.requestDetail.replace(':id', id);
@@ -42,28 +47,58 @@ interface FormBodyProps {
 }
 
 const RequestFormBody = ({ existing }: Readonly<FormBodyProps>) => {
-  const { t } = useTranslation('purchases');
+  const { t, currentLanguage } = useTranslation('purchases');
   const navigate = useNavigate();
   const [values, setValues] = useState<RequestFormValues>(() =>
     existing ? requestToForm(existing) : emptyRequestForm(todayIso())
   );
+  const [iomFiles, setIomFiles] = useState<File[]>([]);
   const [showErrors, setShowErrors] = useState(false);
-  const create = useCreateRequest((doc) => navigate(detailOf(doc.id)));
-  const update = useUpdateRequest((doc) => navigate(detailOf(doc.id)));
-  const pending = create.isPending || update.isPending;
+  const [saving, setSaving] = useState(false);
+  const create = useCreateRequest();
+  const update = useUpdateRequest();
+  const submit = useSubmitRequest();
+  const upload = useUploadAttachments();
+  const departments = useDepartmentOptions();
+
+  // An inactive department a request already uses stays listed, so editing does not blank it.
+  const departmentOptions = [...(departments.data ?? [])];
+  if (existing?.department && !departmentOptions.some((d) => d.id === existing.department?.id)) {
+    departmentOptions.unshift(existing.department);
+  }
 
   const errors = validateRequestForm(values);
   const set = <K extends keyof RequestFormValues>(key: K, value: RequestFormValues[K]) =>
     setValues((current) => ({ ...current, [key]: value }));
 
-  const submit = () => {
+  /** Saves the request, sends the chosen IOM files, then optionally submits it. */
+  const save = async (thenSubmit: boolean) => {
     if (hasRequestErrors(errors)) {
       setShowErrors(true);
       return;
     }
-    const input = toRequestInput(values);
-    if (existing) update.mutate({ id: existing.id, input });
-    else create.mutate(input);
+    setSaving(true);
+    let id = existing?.id;
+    try {
+      const input = toRequestInput(values);
+      const saved = existing
+        ? await update.mutateAsync({ id: existing.id, input })
+        : await create.mutateAsync(input);
+      id = saved.id;
+    } catch {
+      setSaving(false);
+      return;
+    }
+    if (iomFiles.length > 0) {
+      await upload
+        .mutateAsync({ target: 'request', id, files: iomFiles, requestFile: 'iom' })
+        .catch(() => undefined);
+    }
+    if (thenSubmit) {
+      await submit.mutateAsync({ id }).catch(() => undefined);
+    }
+    setSaving(false);
+    navigate(detailOf(id));
   };
 
   return (
@@ -81,81 +116,23 @@ const RequestFormBody = ({ existing }: Readonly<FormBodyProps>) => {
       <Grid gutter="lg" align="flex-start">
         <Grid.Col span={{ base: 12, lg: 8 }}>
           <Stack gap="lg">
-            <SectionCard
-              icon={IconClipboardText}
-              title={t('requests.form.infoTitle')}
-              subtitle={t('requests.form.infoSubtitle')}
-            >
-              <Grid gutter="md">
-                <Grid.Col span={{ base: 12, sm: 6 }}>
-                  <DateField
-                    withAsterisk
-                    label={t('requests.form.date')}
-                    value={values.transactionDate}
-                    onChange={(value) => set('transactionDate', value)}
-                    error={
-                      showErrors && errors.transactionDate
-                        ? t('requests.form.dateRequired')
-                        : undefined
-                    }
-                  />
-                </Grid.Col>
-                <Grid.Col span={{ base: 12, sm: 6 }}>
-                  <DateField
-                    label={t('requests.form.requiredDate')}
-                    value={values.requiredDate}
-                    minDate={values.transactionDate || undefined}
-                    clearable
-                    onChange={(value) => set('requiredDate', value)}
-                    error={
-                      showErrors && errors.requiredDate
-                        ? t('requests.form.requiredBeforeDate')
-                        : undefined
-                    }
-                  />
-                </Grid.Col>
-                <Grid.Col span={{ base: 12, sm: 6 }}>
-                  <TextInput
-                    radius="md"
-                    label={t('common.department')}
-                    placeholder={t('requests.form.departmentPlaceholder')}
-                    value={values.department}
-                    maxLength={100}
-                    onChange={(event) => set('department', event.currentTarget.value)}
-                  />
-                </Grid.Col>
-                <Grid.Col span={{ base: 12, sm: 6 }}>
-                  <TextInput
-                    radius="md"
-                    label={t('common.purpose')}
-                    placeholder={t('requests.form.purposePlaceholder')}
-                    value={values.purpose}
-                    maxLength={255}
-                    onChange={(event) => set('purpose', event.currentTarget.value)}
-                  />
-                </Grid.Col>
-                <Grid.Col span={12}>
-                  <Textarea
-                    radius="md"
-                    label={t('common.memo')}
-                    value={values.memo}
-                    minRows={2}
-                    autosize
-                    maxLength={500}
-                    onChange={(event) => set('memo', event.currentTarget.value)}
-                  />
-                </Grid.Col>
-              </Grid>
-            </SectionCard>
-
-            <SectionCard
-              icon={IconRoute}
-              title={t('requests.form.modeTitle')}
-              subtitle={t('requests.form.modeSubtitle')}
-            >
-              <RequestModeCards value={values.mode} onChange={(mode) => set('mode', mode)} />
-            </SectionCard>
-
+            <RequestInfoSection
+              values={values}
+              errors={errors}
+              showErrors={showErrors}
+              departments={departmentOptions}
+              departmentsLoading={departments.isLoading}
+              onChange={set}
+            />
+            <RequestIomSection
+              values={values}
+              errors={errors}
+              showErrors={showErrors}
+              stored={existing?.iom.attachments ?? []}
+              files={iomFiles}
+              onChange={set}
+              onFilesChange={setIomFiles}
+            />
             <SectionCard
               icon={IconListDetails}
               title={t('requests.form.itemsTitle')}
@@ -184,24 +161,48 @@ const RequestFormBody = ({ existing }: Readonly<FormBodyProps>) => {
               </Group>
               <Group justify="space-between">
                 <Text size="sm" c="dimmed">
-                  {t('requests.form.summaryMode')}
+                  {t('requests.form.requiredDate')}
                 </Text>
                 <Text size="sm" fw={600}>
-                  {t(`requests.form.mode.${values.mode}`)}
+                  {formatDay(values.requiredDate, currentLanguage)}
                 </Text>
               </Group>
               <Text size="xs" c="dimmed" mt="xs">
                 {t('requests.form.nextStep')}
               </Text>
             </Stack>
-            <FormActions
-              loading={pending}
-              submitLabel={existing ? t('common.save') : t('common.saveDraft')}
-              onSubmit={submit}
-              onCancel={() =>
-                navigate(existing ? detailOf(existing.id) : routes.purchases.requests)
-              }
-            />
+            <Stack gap="xs">
+              <Button
+                fullWidth
+                leftSection={<IconSend size={16} />}
+                loading={saving}
+                onClick={() => save(true)}
+              >
+                {existing?.status === 'RETURNED'
+                  ? t('requests.form.saveResubmit')
+                  : t('requests.form.saveSubmit')}
+              </Button>
+              <Button
+                fullWidth
+                variant="default"
+                leftSection={<IconDeviceFloppy size={16} />}
+                disabled={saving}
+                onClick={() => save(false)}
+              >
+                {existing ? t('common.save') : t('common.saveDraft')}
+              </Button>
+              <Button
+                fullWidth
+                variant="subtle"
+                color="gray"
+                disabled={saving}
+                onClick={() =>
+                  navigate(existing ? detailOf(existing.id) : routes.purchases.requests)
+                }
+              >
+                {t('common.cancel')}
+              </Button>
+            </Stack>
           </SectionCard>
         </Grid.Col>
       </Grid>
@@ -218,11 +219,8 @@ export default function RequestFormPage() {
   if (accessLoading || (id && request.isLoading)) {
     return <StateFrame kind="loading" />;
   }
-  if (!can(PURCHASE_MENU.documents, id ? 'update' : 'create')) {
-    return <StateFrame kind="noAccess" />;
-  }
   if (!id) {
-    return <RequestFormBody />;
+    return canCreateRequest(can) ? <RequestFormBody /> : <StateFrame kind="noAccess" />;
   }
   if (request.isError) {
     return request.error?.kind === 'notFound' ? (
@@ -238,6 +236,9 @@ export default function RequestFormPage() {
   }
   if (!request.data) {
     return <StateFrame kind="loading" />;
+  }
+  if (!requestRights(can, request.data.isOwner).edit) {
+    return <StateFrame kind="noAccess" backTo={detailOf(request.data.id)} />;
   }
   if (!requestActions(request.data).edit) {
     return (

@@ -39,6 +39,7 @@ export const settingsDepartments = {
     deleteTitle: 'Delete Department',
     deleteConfirm: 'Are you sure you want to delete the department',
     inUseTitle: 'Department cannot be deleted',
+    inUseBody: 'This department is already used on a purchase request, so it cannot be deleted.',
     inUseHint: 'Deactivate this department so it no longer appears in new choices.',
     deactivate: 'Deactivate',
     validation: {

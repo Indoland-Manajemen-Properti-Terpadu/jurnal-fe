@@ -34,14 +34,14 @@ interface ListPageConfig {
   icon: Icon;
   list: () => ReactNode;
   /** Only the first and last steps of the chain start from scratch; the others follow a document. */
-  create?: { labelKey: string; path: string; menu: 'documents' | 'payments' };
+  create?: { labelKey: string; path: string; menu: 'request' | 'payments' };
 }
 
 const PAGES: Record<ListTab, ListPageConfig> = {
   requests: {
     icon: IconFileText,
     list: () => <RequestList />,
-    create: { labelKey: 'hub.createRequest', path: routes.purchases.requestAdd, menu: 'documents' },
+    create: { labelKey: 'hub.createRequest', path: routes.purchases.requestAdd, menu: 'request' },
   },
   orders: { icon: IconPackage, list: () => <OrderList /> },
   receipts: { icon: IconTruckDelivery, list: () => <ReceiptList /> },

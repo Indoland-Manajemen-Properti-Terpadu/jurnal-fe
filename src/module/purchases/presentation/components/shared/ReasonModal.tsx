@@ -11,18 +11,25 @@ interface ReasonModalProps {
   confirmLabel: string;
   /** `danger` for void, cancel and reject. */
   tone?: 'primary' | 'danger';
+  /** The note may stay empty (a verification note); otherwise at least three characters. */
+  optional?: boolean;
+  label?: string;
+  placeholder?: string;
   loading?: boolean;
   onClose: () => void;
   onConfirm: (reason: string) => void;
 }
 
-/** Rejecting, cancelling and voiding all need a reason of at least three characters. */
+/** Rejecting, cancelling, returning and voiding need a reason of at least three characters. */
 export const ReasonModal = ({
   opened,
   title,
   description,
   confirmLabel,
   tone = 'danger',
+  optional = false,
+  label,
+  placeholder,
   loading,
   onClose,
   onConfirm,
@@ -44,8 +51,8 @@ export const ReasonModal = ({
           </Text>
         )}
         <Textarea
-          label={t('shared.reasonLabel')}
-          placeholder={t('shared.reasonPlaceholder')}
+          label={label ?? t('shared.reasonLabel')}
+          placeholder={placeholder ?? t('shared.reasonPlaceholder')}
           value={reason}
           onChange={(event) => setReason(event.currentTarget.value)}
           minRows={3}
@@ -60,7 +67,7 @@ export const ReasonModal = ({
           <Button
             color={tone === 'danger' ? 'red' : 'primary'}
             loading={loading}
-            disabled={trimmed.length < MIN_REASON}
+            disabled={!optional && trimmed.length < MIN_REASON}
             onClick={() => {
               onConfirm(trimmed);
               setReason('');

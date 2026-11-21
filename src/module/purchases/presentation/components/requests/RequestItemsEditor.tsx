@@ -1,12 +1,26 @@
-import { ActionIcon, Button, NumberInput, Table, Text, TextInput, Tooltip } from '@mantine/core';
+import {
+  ActionIcon,
+  Button,
+  NumberInput,
+  Select,
+  Stack,
+  Table,
+  Text,
+  Textarea,
+  TextInput,
+  Tooltip,
+} from '@mantine/core';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import {
   emptyRequestItem,
+  MIN_QUANTITY,
+  REQUEST_LIMITS,
   type RequestFormErrors,
   type RequestFormItem,
 } from '@/module/purchases/domain/requestForm';
 import { ProductPicker } from '@/module/purchases/presentation/components/requests/ProductPicker';
+import { useUnitOptions } from '@/module/purchases/presentation/hooks/usePurchaseQueries';
 
 interface RequestItemsEditorProps {
   items: RequestFormItem[];
@@ -15,7 +29,9 @@ interface RequestItemsEditorProps {
   onChange: (items: RequestFormItem[]) => void;
 }
 
-/** Lines of a request: a purchasable product, or a service typed as a description. */
+const KINDS = ['GOODS', 'SERVICE'] as const;
+
+/** Lines of a request: goods or a service, a product when it exists, a spec, a quantity and a unit. */
 export const RequestItemsEditor = ({
   items,
   errors,
@@ -23,16 +39,18 @@ export const RequestItemsEditor = ({
   onChange,
 }: Readonly<RequestItemsEditorProps>) => {
   const { t } = useTranslation('purchases');
+  const units = useUnitOptions();
+  const unitData = (units.data ?? []).map((unit) => ({ value: unit.id, label: unit.name }));
   const update = (key: string, patch: Partial<RequestFormItem>) =>
     onChange(items.map((item) => (item.key === key ? { ...item, ...patch } : item)));
 
   return (
     <>
-      <Table.ScrollContainer minWidth={680}>
+      <Table.ScrollContainer minWidth={860}>
         <Table verticalSpacing="xs" horizontalSpacing="xs">
           <Table.Thead bg="var(--jurnal-color-surface-hover)">
             <Table.Tr>
-              {['product', 'description', 'quantity', 'unit'].map((key) => (
+              {['kind', 'item', 'specification', 'quantity', 'unit'].map((key) => (
                 <Table.Th key={key}>
                   <Text size="xs" fw={700} c="dimmed" tt="uppercase">
                     {t(`requests.form.col.${key}`)}
@@ -45,47 +63,83 @@ export const RequestItemsEditor = ({
           <Table.Tbody>
             {items.map((item, index) => {
               const row = errors.itemRows[item.key];
+              const number = index + 1;
               return (
                 <Table.Tr key={item.key} style={{ verticalAlign: 'top' }}>
-                  <Table.Td miw={220}>
-                    <ProductPicker
-                      aria-label={t('requests.form.productAria', { number: index + 1 })}
-                      value={item.productId}
-                      selectedName={item.productName}
-                      onChange={(product) =>
-                        update(item.key, {
-                          productId: product?.id ?? '',
-                          productName: product?.name ?? '',
-                          unitName: product?.unitName ?? '',
-                        })
+                  <Table.Td w={120}>
+                    <Select
+                      radius="md"
+                      allowDeselect={false}
+                      aria-label={t('requests.form.kindAria', { number })}
+                      data={KINDS.map((kind) => ({
+                        value: kind,
+                        label: t(`requests.kind.${kind}`),
+                      }))}
+                      value={item.kind}
+                      onChange={(kind) =>
+                        kind && update(item.key, { kind: kind as typeof item.kind })
                       }
                     />
                   </Table.Td>
-                  <Table.Td miw={220} w="45%">
-                    <TextInput
+                  <Table.Td miw={240}>
+                    <Stack gap={6}>
+                      <ProductPicker
+                        aria-label={t('requests.form.productAria', { number })}
+                        value={item.productId}
+                        selectedName={item.productName}
+                        onChange={(product) =>
+                          update(item.key, {
+                            productId: product?.id ?? '',
+                            productName: product?.name ?? '',
+                            unitId: product?.unitId ?? item.unitId,
+                          })
+                        }
+                      />
+                      <TextInput
+                        radius="md"
+                        aria-label={t('requests.form.descriptionAria', { number })}
+                        placeholder={
+                          item.productId
+                            ? t('requests.form.descriptionOptional')
+                            : t('requests.form.descriptionPlaceholder')
+                        }
+                        value={item.description}
+                        error={
+                          showErrors && row?.description
+                            ? t(`requests.form.itemError.${row.description}`)
+                            : undefined
+                        }
+                        onChange={(event) =>
+                          update(item.key, { description: event.currentTarget.value })
+                        }
+                      />
+                    </Stack>
+                  </Table.Td>
+                  <Table.Td miw={200}>
+                    <Textarea
                       radius="md"
-                      aria-label={t('requests.form.descriptionAria', { number: index + 1 })}
-                      placeholder={
-                        item.productId
-                          ? t('requests.form.descriptionOptional')
-                          : t('requests.form.descriptionPlaceholder')
-                      }
-                      value={item.description}
-                      maxLength={255}
+                      autosize
+                      minRows={1}
+                      maxRows={4}
+                      aria-label={t('requests.form.specificationAria', { number })}
+                      placeholder={t('requests.form.specificationPlaceholder')}
+                      value={item.specification}
                       error={
-                        showErrors && row?.description
-                          ? t('requests.form.descriptionRequired')
+                        showErrors && row?.specification
+                          ? t('requests.form.itemError.tooLongSpec', {
+                              max: REQUEST_LIMITS.specification,
+                            })
                           : undefined
                       }
                       onChange={(event) =>
-                        update(item.key, { description: event.currentTarget.value })
+                        update(item.key, { specification: event.currentTarget.value })
                       }
                     />
                   </Table.Td>
                   <Table.Td w={120}>
                     <NumberInput
                       radius="md"
-                      aria-label={t('requests.form.quantityAria', { number: index + 1 })}
+                      aria-label={t('requests.form.quantityAria', { number })}
                       value={item.quantity}
                       min={0}
                       decimalScale={4}
@@ -93,7 +147,7 @@ export const RequestItemsEditor = ({
                       allowNegative={false}
                       error={
                         showErrors && row?.quantity
-                          ? t('requests.form.quantityPositive')
+                          ? t('requests.form.quantityMin', { min: MIN_QUANTITY })
                           : undefined
                       }
                       onChange={(value) =>
@@ -101,17 +155,24 @@ export const RequestItemsEditor = ({
                       }
                     />
                   </Table.Td>
-                  <Table.Td w={110}>
-                    <Text size="sm" c="dimmed" pt={7}>
-                      {item.unitName || '-'}
-                    </Text>
+                  <Table.Td w={130}>
+                    <Select
+                      radius="md"
+                      searchable
+                      clearable
+                      aria-label={t('requests.form.unitAria', { number })}
+                      placeholder={t('requests.form.unitPlaceholder')}
+                      data={unitData}
+                      value={item.unitId || null}
+                      onChange={(unit) => update(item.key, { unitId: unit ?? '' })}
+                    />
                   </Table.Td>
                   <Table.Td>
                     <Tooltip label={t('requests.form.removeItem')}>
                       <ActionIcon
                         variant="subtle"
                         color="gray"
-                        aria-label={t('requests.form.removeItemAria', { number: index + 1 })}
+                        aria-label={t('requests.form.removeItemAria', { number })}
                         disabled={items.length === 1}
                         onClick={() => onChange(items.filter((other) => other.key !== item.key))}
                         mt={4}

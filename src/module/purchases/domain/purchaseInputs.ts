@@ -1,61 +1,25 @@
-import type {
-  DiscountType,
-  ProcurementMode,
-  WithholdingType,
-} from '@/module/purchases/domain/purchaseDocuments';
+import type { RequestItemKind } from '@/module/purchases/domain/purchaseRequest';
 
 /** What a form submits. Dates are `YYYY-MM-DD`; optional fields are left out when empty. */
 
 export interface RequestItemInput {
   product?: string;
+  kind: RequestItemKind;
   description: string;
+  specification: string;
   quantity: number;
+  unit?: string;
 }
 
+/** The body of a create or update. The service keeps what a PUT leaves out, so every field is sent. */
 export interface PurchaseRequestInput {
   transactionDate: string;
-  requiredDate?: string;
-  department?: string;
-  purpose?: string;
-  procurementMode: ProcurementMode;
-  memo?: string;
+  requiredDate: string;
+  department: string;
+  purpose: string;
+  iom: { number: string; date: string | null };
+  memo: string;
   items: RequestItemInput[];
-}
-
-export interface QuotationInput {
-  vendor: string;
-  quotationNumber?: string;
-  quotationDate: string;
-  validUntil?: string;
-  notes?: string;
-  items: { requestItem: string; quantity: number; unitPrice: number }[];
-}
-
-export interface OrderItemInput {
-  requestItem: string;
-  unitPrice: number;
-  tax?: string;
-}
-
-export interface OrderPricing {
-  isPriceIncludeTax: boolean;
-  discountType?: DiscountType;
-  discountValue?: number;
-  withholdingType?: WithholdingType;
-  withholdingValue?: number;
-  withholdingTaxCode?: string;
-}
-
-export interface PurchaseOrderInput extends OrderPricing {
-  purchaseRequest: string;
-  transactionDate: string;
-  expectedDate?: string;
-  /** Required for a direct request; a request with quotations takes the chosen vendor. */
-  vendor?: string;
-  paymentTerm?: string;
-  deliveryAddress?: string;
-  memo?: string;
-  items: OrderItemInput[];
 }
 
 export interface GoodsReceiptInput {

@@ -3,9 +3,9 @@ import type {
   PaymentVoucher,
   PurchaseBill,
   PurchaseOrder,
-  PurchaseRequest,
   PurchaseReturn,
 } from '@/module/purchases/domain/purchaseDocuments';
+import type { PurchaseRequest } from '@/module/purchases/domain/purchaseRequest';
 
 /**
  * Which actions a document offers in its current status. These are the same gates the server
@@ -15,22 +15,23 @@ import type {
 
 const editable = (status: string) => status === 'DRAFT' || status === 'REJECTED';
 
-export const requestActions = (doc: PurchaseRequest) => ({
-  edit: editable(doc.status),
-  submit: editable(doc.status),
-  decide: doc.status === 'PENDING_APPROVAL' && doc.approval.canDecide,
-  fillQuotations:
-    doc.mode === 'WITH_QUOTATION' &&
-    (doc.status === 'APPROVED' || doc.status === 'VENDOR_SELECTED'),
-  selectVendor:
-    doc.mode === 'WITH_QUOTATION' &&
-    (doc.status === 'APPROVED' || doc.status === 'VENDOR_SELECTED') &&
-    doc.quotations.length > 0,
-  createOrder:
-    (doc.mode === 'DIRECT' && doc.status === 'APPROVED') ||
-    (doc.mode === 'WITH_QUOTATION' && doc.status === 'VENDOR_SELECTED'),
-  cancel: doc.status !== 'CONVERTED' && doc.status !== 'CANCELLED',
-});
+/**
+ * What the status of an FPPBJ allows. The requester edits, submits and cancels their own request
+ * while it is a draft or sent back; Accounting verifies or returns it after it is submitted.
+ * Rights and ownership are applied separately by the screens.
+ */
+export const requestActions = (doc: PurchaseRequest) => {
+  const open = doc.status === 'DRAFT' || doc.status === 'RETURNED';
+  return {
+    edit: open,
+    submit: open,
+    attach: open,
+    verify: doc.status === 'SUBMITTED',
+    /** The service lets Accounting send it back until procurement starts. */
+    return: doc.status === 'SUBMITTED' || doc.status === 'VERIFIED',
+    cancel: open || doc.status === 'SUBMITTED' || doc.status === 'VERIFIED',
+  };
+};
 
 const sum = (values: number[]) => values.reduce((total, value) => total + value, 0);
 const QTY_EPSILON = 1e-4;

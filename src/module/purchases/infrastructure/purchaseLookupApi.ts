@@ -1,4 +1,5 @@
 import type {
+  NamedRef,
   PartyRef,
   PaymentMethodRef,
   ProductRef,
@@ -9,6 +10,7 @@ import { PURCHASE_API } from '@/module/purchases/infrastructure/purchaseEndpoint
 import type {
   ApiEnvelope,
   ContactListDto,
+  ListDto,
   MyPermissionsDto,
   PartyDto,
   PaymentMethodDto,
@@ -81,4 +83,26 @@ export const getAccessProfile = async (): Promise<PurchaseAccessProfile> => {
     };
   });
   return { isSuperAdmin: body.role === 'superadmin', rights };
+};
+
+interface NamedDto {
+  id: string;
+  name: string;
+}
+
+/** Active departments of the site, for the department choice of a request. */
+export const listDepartments = async (): Promise<NamedRef[]> => {
+  const { data } = await http.get<ApiEnvelope<ListDto<NamedDto>>>(PURCHASE_API.departments, {
+    isActive: true,
+    limit: 200,
+  });
+  return data.results.map(({ id, name }) => ({ id, name }));
+};
+
+/** Units of measure, for the lines of a request. The service allows at most 100 per page. */
+export const listUnits = async (): Promise<NamedRef[]> => {
+  const { data } = await http.get<ApiEnvelope<{ data: NamedDto[] }>>(PURCHASE_API.units, {
+    limit: 100,
+  });
+  return data.data.map(({ id, name }) => ({ id, name }));
 };
