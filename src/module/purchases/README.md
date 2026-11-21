@@ -73,6 +73,19 @@ Part of the FPPBJ detail (`PUT /purchase-requests/:id/procurement`, `components/
 - Totals and scores come from the service (`procurementView.quotes[]`); the screen never adds up money itself.
 - Not tested live: the "Buat pesanan" backup (`POST .../procurement/orders`, only when `readyForOrder`), because an approved procurement always had its order. A removed winner's quote is sent without `winner` (the service answers 400 if the old winner stays).
 
+## PO / SPK (slice 5/9)
+
+Verified live on 2026-11-21. A PO is never created by hand: the last procurement approval drafts one per winning vendor, so there is no order form and no `POST /purchase-orders`. It is an SPK (`documentLabel`, `isService`) when every line is a service.
+
+- Status: `DRAFT` -> `SENT` -> `PARTIAL_RECEIVED` -> `RECEIVED` -> `COMPLETED`; `CLOSED`, `VOID`. The service's `statusLabel` is shown to Indonesian readers.
+- Draft only: `PUT` takes `transactionDate`, `expectedDate` (null clears), `warehouse` (id, null clears), `deliveryAddress` (500) and `memo` (2000); any other field (`items`, prices) is a 400, and a sent order answers 400. The service accepts an expected date before the order date; the dialog refuses it. Prices follow the procurement.
+- Send: `POST /:id/send` with `{ sendEmail: false, note? }` only marks it `SENT` (the note is kept as `sentNote`), or `{ sendEmail: true, to?, cc?, note? }` mails the PDF to the vendor's email in Contacts (or `to`) and then marks it (`sentByEmail`, `sentTo`, `sentCc`). **A test with `sendEmail: true` really sends the mail**, so it was run once on 2026-11-21 against a seeded vendor address (sales@teknologinusantara.co.id) by mistake and is not repeated; the failure answer for a vendor without an email was therefore not run live. A second send, an edit after sending, and closing a draft are 400.
+- `GET /:id/print` answers a PDF (`application/pdf`). `POST /:id/close` needs `note` (a one-character note was accepted; the screen asks for 3) and works on a sent order, not a draft, a closed or a voided one. `POST /:id/void` needs `reason` and works on a draft or a sent order with no receipt or bill; it returns the FPPBJ to a draft procurement (`IN_PROCUREMENT`, procurement `DRAFT`). Attachments take any status, the screen hides adding on a voided order.
+- An SPK splits the lines by term: `items[].schedule { kind FULL|ADVANCE|TERM|PERIOD|RETENTION, seq, of, percent, ... }` with the amount and the wording in `description`; the advance and shipping lines have `billOnly: true` (nothing is received for them). `advance { amount, requested, paid, used, available }` drives the Payment Request for the advance (slice 8).
+- List: `status` one or several (`status[]=`), `vendor`, `purchaseRequest`, `search` (the number only, not the vendor name), `sortBy`, `sortOrder`; an unknown parameter is a 400.
+- Receiving: only a sent or partly received order with `withReceipt: true` takes an FPB / BAPP (400 otherwise, so the button is hidden); with `withReceipt: false` the bill is made straight from the order.
+- Not tested live: the sendEmail failure above, and warehouses (the sandbox had none; one named "Gudang Utama" and one "Gudang Cadangan" were created for the tests; the inventory README still says `/v1/warehouses` is 404, but it answers now).
+
 ## Contract facts that differ from the backend document (older documents, to be replaced slice by slice)
 
 Verified against the live service on 2026-11-04:

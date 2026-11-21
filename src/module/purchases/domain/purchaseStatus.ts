@@ -28,6 +28,7 @@ const TONES: Record<PurchaseStatus, StatusTone> = {
   IN_PROCUREMENT: 'info',
   COMPLETED: 'success',
   CANCELLED: 'neutral',
+  SENT: 'info',
   PARTIAL_RECEIVED: 'info',
   RECEIVED: 'success',
   CLOSED: 'neutral',
@@ -52,11 +53,10 @@ export const REQUEST_STATUSES: PurchaseRequestStatus[] = [
 ];
 export const ORDER_STATUSES: PurchaseOrderStatus[] = [
   'DRAFT',
-  'PENDING_APPROVAL',
-  'APPROVED',
-  'REJECTED',
+  'SENT',
   'PARTIAL_RECEIVED',
   'RECEIVED',
+  'COMPLETED',
   'CLOSED',
   'VOID',
 ];

@@ -9,7 +9,7 @@ import type { PurchaseRequest } from '@/module/purchases/domain/purchaseRequest'
 /** Why a document is on the work list; each reason has its own sentence in the overview. */
 export type WorkReason =
   | 'verifyRequest'
-  | 'approveOrder'
+  | 'sendOrder'
   | 'approvePayment'
   | 'payVoucher'
   | 'verifyBill'
@@ -31,7 +31,7 @@ export interface WorkItem {
 /** Lower comes first: decisions waiting on the user, then money to release, then follow-up. */
 const PRIORITY: Record<WorkReason, number> = {
   verifyRequest: 0,
-  approveOrder: 0,
+  sendOrder: 0,
   approvePayment: 0,
   payVoucher: 1,
   verifyBill: 2,
@@ -54,12 +54,13 @@ export const requestItems = (docs: PurchaseRequest[]): WorkItem[] =>
       date: doc.date,
     }));
 
-export const orderApprovalItems = (docs: PurchaseOrder[]): WorkItem[] =>
+/** A drafted PO / SPK waits for Accounting to send it to the vendor. */
+export const orderSendItems = (docs: PurchaseOrder[]): WorkItem[] =>
   docs
-    .filter((doc) => orderActions(doc).decide)
+    .filter((doc) => orderActions(doc).send)
     .map((doc) => ({
-      key: `order-approval:${doc.id}`,
-      reason: 'approveOrder' as const,
+      key: `order-send:${doc.id}`,
+      reason: 'sendOrder' as const,
       docKind: 'order' as const,
       id: doc.id,
       number: doc.number,
@@ -68,11 +69,11 @@ export const orderApprovalItems = (docs: PurchaseOrder[]): WorkItem[] =>
       date: doc.date,
     }));
 
-/** An approved or partly received order waits for goods, or for a bill on what arrived. */
+/** A sent or partly received order waits for goods, or for a bill when it takes no receipt. */
 export const orderFollowUpItems = (docs: PurchaseOrder[]): WorkItem[] =>
   docs.flatMap((doc) => {
     const actions = orderActions(doc);
-    const reason: WorkReason | null = actions.billable
+    const reason: WorkReason | null = actions.bill
       ? 'billOrder'
       : actions.receive
         ? 'receiveOrder'

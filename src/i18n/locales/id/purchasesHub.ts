@@ -24,7 +24,8 @@ export const purchasesHub = {
     },
     orders: {
       title: 'Pesanan Pembelian',
-      description: 'Pesanan ke vendor yang dibuat dari permintaan yang sudah disetujui.',
+      description:
+        'PO dan SPK yang dibuat otomatis saat pengadaan disetujui. Kirim ke vendor dari detailnya.',
     },
     receipts: {
       title: 'Penerimaan Barang',
@@ -67,7 +68,7 @@ export const purchasesHub = {
     agingSubtitle: 'Sisa hutang menurut lama jatuh tempo',
     decisionType: {
       verifyRequest: 'Permintaan',
-      approveOrder: 'Pesanan',
+      sendOrder: 'Pesanan',
       approvePayment: 'Pembayaran',
     },
     workTitle: 'Perlu tindakan',
@@ -77,7 +78,7 @@ export const purchasesHub = {
     emptyDescription: 'Tidak ada dokumen yang menunggu tindakan Anda saat ini.',
     reason: {
       verifyRequest: 'Permintaan menunggu verifikasi Anda',
-      approveOrder: 'Pesanan menunggu persetujuan Anda',
+      sendOrder: 'Pesanan draf menunggu dikirim ke vendor',
       approvePayment: 'Pembayaran menunggu persetujuan Anda',
       payVoucher: 'Voucher disetujui, siap dibayar',
       verifyBill: 'Tagihan draf, perlu diverifikasi',
@@ -96,12 +97,13 @@ export const purchasesHub = {
       'Pembelian dimulai dari permintaan. Setelah diverifikasi Accounting, permintaan masuk ke pengadaan.',
   },
   orders: {
-    search: 'Cari nomor pesanan atau vendor',
+    colOrder: 'PO / SPK',
+    search: 'Cari nomor PO atau SPK',
     expected: 'Perkiraan tiba',
     payable: 'Hutang ke vendor',
     emptyTitle: 'Belum ada pesanan pembelian',
     emptyDescription:
-      'Pesanan dibuat dari permintaan pembelian yang sudah disetujui. Buka permintaan tersebut lalu pilih Buat Pesanan.',
+      'PO atau SPK dibuat otomatis saat pengadaan disetujui. Selesaikan pengadaan di detail permintaan.',
   },
   receipts: {
     search: 'Cari nomor penerimaan atau vendor',

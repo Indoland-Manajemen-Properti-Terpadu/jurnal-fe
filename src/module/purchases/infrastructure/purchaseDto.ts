@@ -128,18 +128,51 @@ export interface LineDto {
 
 export interface OrderItemDto extends LineDto {
   requestItem: string;
+  specification?: string | null;
   receivedQty: number;
   billedQty: number;
+  billOnly?: boolean | null;
+  schedule?: {
+    kind: 'FULL' | 'ADVANCE' | 'TERM' | 'PERIOD' | 'RETENTION';
+    seq?: number | null;
+    of?: number | null;
+    periodFrom?: string | null;
+    periodTo?: string | null;
+  } | null;
 }
 
-export interface PurchaseOrderDto extends DocumentDto, AmountsDto, ApprovalFieldsDto {
+export interface PurchaseOrderDto extends DocumentDto, AmountsDto {
+  statusLabel?: string | null;
+  documentLabel?: string | null;
+  isService?: boolean | null;
   expectedDate?: string | null;
-  vendor: PartyDto;
+  vendor: PartyDto & { emails?: string[] | null };
   purchaseRequest: IdOr<{ id: string }>;
+  purchaseRequestRef?: {
+    id: string;
+    transactionNumber?: string | null;
+    purpose?: string | null;
+  } | null;
   paymentTerm?: { name?: string | null } | null;
+  warranty?: string | null;
+  warehouse?: { id: string; name: string } | null;
   deliveryAddress?: string | null;
   status: string;
+  withReceipt?: boolean | null;
   items: OrderItemDto[];
+  advance?: {
+    amount?: number | null;
+    requested?: number | null;
+    paid?: number | null;
+    used?: number | null;
+    available?: number | null;
+  } | null;
+  payableAmount?: number | null;
+  billedAmount?: number | null;
+  sentByEmail?: boolean | null;
+  sentTo?: string | null;
+  sentCc?: string[] | null;
+  sentNote?: string | null;
 }
 
 export interface GoodsReceiptDto extends DocumentDto {

@@ -7,7 +7,6 @@ import { OrderActionBar } from '@/module/purchases/presentation/components/order
 import { OrderSummaryCard } from '@/module/purchases/presentation/components/orders/OrderSummaryCard';
 import { StateFrame } from '@/module/purchases/presentation/components/requests/StateFrame';
 import { AmountSummary } from '@/module/purchases/presentation/components/shared/AmountSummary';
-import { ApprovalPanel } from '@/module/purchases/presentation/components/shared/ApprovalPanel';
 import { AttachmentsCard } from '@/module/purchases/presentation/components/shared/AttachmentsCard';
 import { DocumentJourney } from '@/module/purchases/presentation/components/shared/DocumentJourney';
 import { OrderHighlights } from '@/module/purchases/presentation/components/shared/DocumentHighlights';
@@ -16,10 +15,6 @@ import { SectionCard } from '@/module/purchases/presentation/components/shared/S
 import { StatusBadge } from '@/module/purchases/presentation/components/shared/StatusBadge';
 import { usePurchaseAccess } from '@/module/purchases/presentation/hooks/usePurchaseAccess';
 import { usePurchaseJourney } from '@/module/purchases/presentation/hooks/usePurchaseJourney';
-import {
-  useApproveOrder,
-  useRejectOrder,
-} from '@/module/purchases/presentation/hooks/usePurchaseMutations';
 import { useOrder } from '@/module/purchases/presentation/hooks/usePurchaseQueries';
 import { routes } from '@/router/routes';
 
@@ -31,8 +26,6 @@ export default function OrderDetailPage() {
   const { can, canRead, isLoading: accessLoading } = usePurchaseAccess();
   const order = useOrder(id);
   const journey = usePurchaseJourney({ orderId: id, current: 'order' });
-  const approve = useApproveOrder();
-  const reject = useRejectOrder();
 
   if (accessLoading || order.isLoading) {
     return <StateFrame kind="loading" />;
@@ -64,10 +57,13 @@ export default function OrderDetailPage() {
       title={
         <Group gap="sm" align="center">
           <span>{doc.number}</span>
-          <StatusBadge status={doc.status} />
+          <StatusBadge status={doc.status} label={doc.statusLabel} />
         </Group>
       }
-      description={t('orders.detail.subtitle', { vendor: doc.vendor.name })}
+      description={t('orders.detail.subtitle', {
+        label: doc.documentLabel,
+        vendor: doc.vendor.name,
+      })}
       backTo={BACK}
       backLabel={t('common.back')}
       actions={<OrderActionBar order={doc} />}
@@ -82,20 +78,12 @@ export default function OrderDetailPage() {
             <SectionCard icon={IconCalculator} title={t('orders.detail.amountsTitle')}>
               <AmountSummary {...doc} />
             </SectionCard>
-            <ApprovalPanel
-              approval={doc.approval}
-              status={doc.status}
-              canApprove={can(PURCHASE_MENU.approveProcurement, 'update')}
-              busy={approve.isPending || reject.isPending}
-              onApprove={(note) => approve.mutate({ id: doc.id, note })}
-              onReject={(reason) => reject.mutate({ id: doc.id, reason })}
-            />
             <DocumentJourney steps={journey.steps} />
             <AttachmentsCard
               target="order"
               documentId={doc.id}
               attachments={doc.attachments}
-              canUpload={can(PURCHASE_MENU.documents, 'update')}
+              canUpload={can(PURCHASE_MENU.documents, 'update') && doc.status !== 'VOID'}
             />
           </Stack>
         </Grid.Col>

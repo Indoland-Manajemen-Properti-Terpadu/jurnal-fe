@@ -36,22 +36,23 @@ export const requestActions = (doc: PurchaseRequest) => {
 const sum = (values: number[]) => values.reduce((total, value) => total + value, 0);
 const QTY_EPSILON = 1e-4;
 
+/**
+ * What the status of a PO / SPK allows. Only a draft can be changed or sent; the prices were fixed
+ * by the procurement. Receiving and billing depend on whether the quote asked for a receipt.
+ */
 export const orderActions = (doc: PurchaseOrder) => {
   const received = sum(doc.items.map((item) => item.receivedQty));
   const billed = sum(doc.items.map((item) => item.billedQty));
-  const open = doc.status === 'APPROVED' || doc.status === 'PARTIAL_RECEIVED';
+  const live = doc.status === 'SENT' || doc.status === 'PARTIAL_RECEIVED';
   return {
-    edit: editable(doc.status),
-    submit: editable(doc.status),
-    decide: doc.status === 'PENDING_APPROVAL' && doc.approval.canDecide,
-    receive: open,
-    billable:
-      doc.status !== 'VOID' &&
-      doc.items.some((item) => item.receivedQty - item.billedQty > QTY_EPSILON),
-    close: open || doc.status === 'RECEIVED',
+    edit: doc.status === 'DRAFT',
+    send: doc.status === 'DRAFT',
+    receive: doc.withReceipt && live,
+    /** A bill straight from the order, for an order that takes no receipt. */
+    bill: !doc.withReceipt && live && doc.billedAmount < doc.payableAmount,
+    close: live || doc.status === 'RECEIVED',
     void:
-      doc.status !== 'CLOSED' &&
-      doc.status !== 'VOID' &&
+      (doc.status === 'DRAFT' || doc.status === 'SENT') &&
       received < QTY_EPSILON &&
       billed < QTY_EPSILON,
   };

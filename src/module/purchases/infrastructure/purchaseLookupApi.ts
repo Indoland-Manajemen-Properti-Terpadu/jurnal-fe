@@ -145,3 +145,12 @@ export const listUnits = async (): Promise<NamedRef[]> => {
   });
   return data.data.map(({ id, name }) => ({ id, name }));
 };
+
+/** Active warehouses, for the delivery warehouse of an order (the service allows 100 per page). */
+export const listWarehouses = async (): Promise<NamedRef[]> => {
+  const { data } = await http.get<ApiEnvelope<ListDto<NamedDto>>>(PURCHASE_API.warehouses, {
+    isActive: true,
+    limit: 100,
+  });
+  return data.results.map(({ id, name }) => ({ id, name }));
+};

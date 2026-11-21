@@ -33,7 +33,7 @@ export const OrderList = () => {
         label: t(`status.${status}`),
       }))}
       columns={[
-        { key: 'number', label: t('common.number') },
+        { key: 'number', label: t('hub.orders.colOrder') },
         { key: 'date', label: t('common.date') },
         { key: 'vendor', label: t('common.vendor'), minWidth: 180 },
         { key: 'expected', label: t('hub.orders.expected') },
@@ -45,12 +45,17 @@ export const OrderList = () => {
       onRowClick={(row) => navigate(detailPath('order', row.id))}
       renderCells={(row) => (
         <>
-          <NumberCell kind="order" id={row.id} number={row.number} />
+          <NumberCell
+            kind="order"
+            id={row.id}
+            number={row.number}
+            sub={row.purchaseRequestNumber}
+          />
           <TextCell value={formatDay(row.date, currentLanguage)} />
           <TextCell value={row.vendor.name} maxWidth={260} />
           <TextCell value={formatDay(row.expectedDate, currentLanguage)} dimmed />
           <Table.Td>
-            <StatusBadge status={row.status} />
+            <StatusBadge status={row.status} label={row.statusLabel} />
           </Table.Td>
           <AmountCell value={row.finalAmount} />
         </>

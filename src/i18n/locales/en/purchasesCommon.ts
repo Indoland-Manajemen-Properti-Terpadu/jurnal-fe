@@ -37,6 +37,7 @@ export const purchasesCommon = {
     IN_PROCUREMENT: 'In Procurement',
     COMPLETED: 'Completed',
     CANCELLED: 'Cancelled',
+    SENT: 'Sent to Vendor',
     PARTIAL_RECEIVED: 'Partially Received',
     RECEIVED: 'Fully Received',
     CLOSED: 'Closed',
@@ -163,6 +164,7 @@ export const purchasesCommon = {
     procurementSubmitted: 'Procurement submitted to the approvers',
     procurementApproved: 'Procurement approval recorded',
     procurementRejected: 'Procurement rejected and returned to procurement',
+    orderSent: 'Order sent to the vendor',
     ordersCreated: 'Order created as a draft',
   },
 };

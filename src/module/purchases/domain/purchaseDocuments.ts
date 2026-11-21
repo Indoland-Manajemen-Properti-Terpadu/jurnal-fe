@@ -1,6 +1,7 @@
 import type {
   ApprovalState,
   DocumentBase,
+  NamedRef,
   PartyRef,
   PaymentMethodRef,
   ProductRef,
@@ -12,13 +13,24 @@ export type WithholdingType = 'percentage' | 'nominal';
 
 export type PurchaseOrderStatus =
   | 'DRAFT'
-  | 'PENDING_APPROVAL'
-  | 'APPROVED'
-  | 'REJECTED'
+  | 'SENT'
   | 'PARTIAL_RECEIVED'
   | 'RECEIVED'
+  | 'COMPLETED'
   | 'CLOSED'
   | 'VOID';
+
+/** How a line of a PO / SPK is billed: all at once, as an advance, by term, by period or as retention. */
+export type OrderScheduleKind = 'FULL' | 'ADVANCE' | 'TERM' | 'PERIOD' | 'RETENTION';
+
+export interface OrderSchedule {
+  kind: OrderScheduleKind;
+  /** 1-based position among the lines of its kind, e.g. term 2 of 3. */
+  seq: number;
+  of: number;
+  periodFrom: string | null;
+  periodTo: string | null;
+}
 
 export type GoodsReceiptStatus = 'POSTED' | 'VOID';
 export type PurchaseBillStatus = 'DRAFT' | 'VERIFIED' | 'PARTIAL_PAID' | 'PAID' | 'VOID';
@@ -53,6 +65,7 @@ export interface OrderItem {
   requestItemId: string;
   product: ProductRef | null;
   description: string;
+  specification: string;
   quantity: number;
   unitName: string | null;
   unitPrice: number;
@@ -62,17 +75,47 @@ export interface OrderItem {
   amount: number;
   receivedQty: number;
   billedQty: number;
+  schedule: OrderSchedule;
+  /** A line that is only billed (shipping, advance, retention): nothing is received for it. */
+  billOnly: boolean;
+}
+
+export interface OrderAdvance {
+  /** The advance agreed in the quote. */
+  amount: number;
+  /** Asked for in Payment Requests. */
+  requested: number;
+  paid: number;
+  used: number;
+  /** What a Payment Request can still ask for. */
+  available: number;
 }
 
 export interface PurchaseOrder extends DocumentBase, DocumentAmounts {
+  /** The server's Indonesian label of the status. */
+  statusLabel: string;
+  /** `PO` for goods, `SPK` when every line is a service. */
+  documentLabel: string;
+  isService: boolean;
   expectedDate: string | null;
   vendor: PartyRef;
+  vendorEmails: string[];
   purchaseRequestId: string;
+  purchaseRequestNumber: string;
+  purchaseRequestPurpose: string;
   paymentTermName: string | null;
+  warranty: string;
+  warehouse: NamedRef | null;
   deliveryAddress: string;
   status: PurchaseOrderStatus;
+  /** Goods and services are received (FPB / BAPP) before billing; false bills straight from the order. */
+  withReceipt: boolean;
   items: OrderItem[];
-  approval: ApprovalState;
+  advance: OrderAdvance;
+  /** What the vendor is owed on this order, and how much of it is billed. */
+  payableAmount: number;
+  billedAmount: number;
+  sent: { byEmail: boolean; to: string; cc: string[]; note: string };
 }
 
 export interface ReceiptItem {

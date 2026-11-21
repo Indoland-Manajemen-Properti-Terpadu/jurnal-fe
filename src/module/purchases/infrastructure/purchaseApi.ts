@@ -13,10 +13,12 @@ import type { PurchaseRequest } from '@/module/purchases/domain/purchaseRequest'
 import type {
   CreditApplicationInput,
   GoodsReceiptInput,
+  OrderDraftInput,
   PaymentVoucherInput,
   PurchaseBillInput,
   PurchaseRequestInput,
   PurchaseReturnInput,
+  SendOrderInput,
 } from '@/module/purchases/domain/purchaseInputs';
 import { PURCHASE_API } from '@/module/purchases/infrastructure/purchaseEndpoints';
 import type {
@@ -157,14 +159,13 @@ export const createOrdersFromProcurement = (id: string) =>
     http.post<ApiEnvelope<PurchaseRequestDto>>(PURCHASE_API.requestProcurementAction(id, 'orders'))
   );
 
-/* ---------- Purchase order ---------- */
-export const listOrders = orders.list;
+/* ---------- Purchase order (PO / SPK) ---------- */
+export const listOrders = (params: ListParams = {}) => orders.list(params);
 export const getOrder = orders.get;
-export const submitOrder = (id: string) => orders.act(id, 'submit');
-export const approveOrder = (id: string, note?: string) =>
-  orders.act(id, 'approve', note ? { note } : undefined);
-export const rejectOrder = (id: string, reason: string) => orders.act(id, 'reject', { reason });
-export const closeOrder = (id: string) => orders.act(id, 'close');
+/** Only the draft fields change; the prices follow the procurement. */
+export const updateOrder = (id: string, input: OrderDraftInput) => orders.update(id, input);
+export const sendOrder = (id: string, input: SendOrderInput) => orders.act(id, 'send', input);
+export const closeOrder = (id: string, note: string) => orders.act(id, 'close', { note });
 export const voidOrder = (id: string, reason: string) => orders.act(id, 'void', { reason });
 
 /* ---------- Goods receipt ---------- */

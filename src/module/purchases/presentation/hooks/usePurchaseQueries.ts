@@ -45,6 +45,7 @@ import {
   listTaxes,
   searchPurchasableProducts,
   listUnits,
+  listWarehouses,
   searchSuppliers,
 } from '@/module/purchases/infrastructure/purchaseLookupApi';
 import {
@@ -201,6 +202,15 @@ export const useUnitOptions = () => {
   return useQuery<NamedRef[], PurchaseError>({
     queryKey: [...purchaseKeys.lookups(scope), 'units'],
     queryFn: listUnits,
+    staleTime: STABLE_MS,
+  });
+};
+
+export const useWarehouseOptions = () => {
+  const scope = usePurchaseScope();
+  return useQuery<NamedRef[], PurchaseError>({
+    queryKey: [...purchaseKeys.lookups(scope), 'warehouses'],
+    queryFn: listWarehouses,
     staleTime: STABLE_MS,
   });
 };

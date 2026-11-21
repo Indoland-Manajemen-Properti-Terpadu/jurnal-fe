@@ -70,3 +70,17 @@ export interface CreditApplicationInput {
   amount: number;
   transactionDate: string;
 }
+
+/** What can change on a draft PO / SPK; a field sent as null or empty is cleared. */
+export interface OrderDraftInput {
+  transactionDate: string;
+  expectedDate: string | null;
+  warehouse?: string | null;
+  deliveryAddress: string;
+  memo: string;
+}
+
+/** Marking an order as sent, with or without an email to the vendor. */
+export type SendOrderInput =
+  | { sendEmail: false; note?: string }
+  | { sendEmail: true; to?: string; cc?: string[]; note?: string };

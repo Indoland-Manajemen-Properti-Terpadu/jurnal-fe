@@ -3,10 +3,12 @@ import type { ProcurementInput } from '@/module/purchases/domain/procurement';
 import type {
   CreditApplicationInput,
   GoodsReceiptInput,
+  OrderDraftInput,
   PaymentVoucherInput,
   PurchaseBillInput,
   PurchaseRequestInput,
   PurchaseReturnInput,
+  SendOrderInput,
 } from '@/module/purchases/domain/purchaseInputs';
 import * as api from '@/module/purchases/infrastructure/purchaseApi';
 import { purchaseKeys } from '@/module/purchases/presentation/hooks/purchaseKeys';
@@ -87,12 +89,18 @@ export const useCreateOrdersFromProcurement = () =>
   useAction('ordersCreated', ({ id }: WithId) => api.createOrdersFromProcurement(id));
 
 /* ---------- Purchase order ---------- */
-export const useSubmitOrder = () => useAction('submitted', ({ id }: WithId) => api.submitOrder(id));
-export const useApproveOrder = () =>
-  useAction('approved', ({ id, note }: WithId & { note?: string }) => api.approveOrder(id, note));
-export const useRejectOrder = () =>
-  useAction('rejected', ({ id, reason }: WithReason) => api.rejectOrder(id, reason));
-export const useCloseOrder = () => useAction('closed', ({ id }: WithId) => api.closeOrder(id));
+export const useUpdateOrder = (onDone?: (doc: WithId & Doc) => void) =>
+  useAction(
+    'updated',
+    ({ id, input }: WithId & { input: OrderDraftInput }) => api.updateOrder(id, input),
+    onDone
+  );
+export const useSendOrder = () =>
+  useAction('orderSent', ({ id, input }: WithId & { input: SendOrderInput }) =>
+    api.sendOrder(id, input)
+  );
+export const useCloseOrder = () =>
+  useAction('closed', ({ id, note }: WithId & { note: string }) => api.closeOrder(id, note));
 export const useVoidOrder = () =>
   useAction('voided', ({ id, reason }: WithReason) => api.voidOrder(id, reason));
 

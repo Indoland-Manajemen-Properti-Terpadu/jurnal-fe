@@ -3,7 +3,7 @@ import { PURCHASE_MENU } from '@/module/purchases/domain/purchaseAccess';
 import {
   billVerifyItems,
   countDecisions,
-  orderApprovalItems,
+  orderSendItems,
   orderFollowUpItems,
   paymentApprovalItems,
   paymentReleaseItems,
@@ -34,9 +34,9 @@ export const useOverviewData = (can: CanFn) => {
     { ...base, status: 'SUBMITTED' },
     can(M.requestVerify, 'read') && can(M.requestVerify, 'update')
   );
-  const ordersPending = useOrders(
-    { ...base, status: 'PENDING_APPROVAL' },
-    can(M.approveProcurement, 'read')
+  const ordersDraft = useOrders(
+    { ...base, status: 'DRAFT' },
+    canDocs && can(M.documents, 'update')
   );
   const paymentsPending = usePayments(
     { ...base, status: 'PENDING_APPROVAL' },
@@ -44,17 +44,17 @@ export const useOverviewData = (can: CanFn) => {
   );
   const paymentsReady = usePayments({ ...base, status: 'APPROVED' }, can(M.payments, 'update'));
   const billsDraft = useBills({ ...base, status: 'DRAFT' }, canDocs && can(M.documents, 'update'));
-  const ordersApproved = useOrders({ ...base, status: 'APPROVED' }, canDocs);
+  const ordersSent = useOrders({ ...base, status: 'SENT' }, canDocs);
   const ordersPartial = useOrders({ ...base, status: 'PARTIAL_RECEIVED' }, canDocs);
   const aging = usePayablesAging({}, can(M.reports, 'read'));
 
   const queries = [
     requests,
-    ordersPending,
+    ordersDraft,
     paymentsPending,
     paymentsReady,
     billsDraft,
-    ordersApproved,
+    ordersSent,
     ordersPartial,
   ];
 
@@ -62,22 +62,22 @@ export const useOverviewData = (can: CanFn) => {
     () =>
       sortWorkItems([
         ...requestItems(requests.data?.items ?? []),
-        ...orderApprovalItems(ordersPending.data?.items ?? []),
+        ...orderSendItems(ordersDraft.data?.items ?? []),
         ...paymentApprovalItems(paymentsPending.data?.items ?? []),
         ...paymentReleaseItems(paymentsReady.data?.items ?? []),
         ...billVerifyItems(billsDraft.data?.items ?? []),
         ...orderFollowUpItems([
-          ...(ordersApproved.data?.items ?? []),
+          ...(ordersSent.data?.items ?? []),
           ...(ordersPartial.data?.items ?? []),
         ]),
       ]),
     [
       requests.data,
-      ordersPending.data,
+      ordersDraft.data,
       paymentsPending.data,
       paymentsReady.data,
       billsDraft.data,
-      ordersApproved.data,
+      ordersSent.data,
       ordersPartial.data,
     ]
   );

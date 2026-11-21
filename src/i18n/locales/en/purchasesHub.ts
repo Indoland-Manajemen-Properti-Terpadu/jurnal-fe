@@ -23,7 +23,8 @@ export const purchasesHub = {
     },
     orders: {
       title: 'Purchase Orders',
-      description: 'Orders to vendors, created from approved purchase requests.',
+      description:
+        'POs and SPKs created automatically when procurement is approved. Send them to the vendor from the detail.',
     },
     receipts: {
       title: 'Goods Receipts',
@@ -66,7 +67,7 @@ export const purchasesHub = {
     agingSubtitle: 'Remaining payables by days past due',
     decisionType: {
       verifyRequest: 'Requests',
-      approveOrder: 'Orders',
+      sendOrder: 'Orders',
       approvePayment: 'Payments',
     },
     workTitle: 'Needs action',
@@ -75,7 +76,7 @@ export const purchasesHub = {
     emptyDescription: 'No documents are waiting for your action right now.',
     reason: {
       verifyRequest: 'Request waiting for your verification',
-      approveOrder: 'Order waiting for your approval',
+      sendOrder: 'Draft order waiting to be sent to the vendor',
       approvePayment: 'Payment waiting for your approval',
       payVoucher: 'Voucher approved, ready to pay',
       verifyBill: 'Draft bill, needs verification',
@@ -94,12 +95,13 @@ export const purchasesHub = {
       'Purchasing starts with a request. Once Accounting verifies it, the request moves to procurement.',
   },
   orders: {
-    search: 'Search order number or vendor',
+    colOrder: 'PO / SPK',
+    search: 'Search PO or SPK number',
     expected: 'Expected on',
     payable: 'Payable to vendor',
     emptyTitle: 'No purchase orders yet',
     emptyDescription:
-      'Orders are created from an approved purchase request. Open that request and choose Create Order.',
+      'A PO or SPK is created automatically when procurement is approved. Complete the procurement on the request detail.',
   },
   receipts: {
     search: 'Search receipt number or vendor',

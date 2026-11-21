@@ -49,6 +49,7 @@ export const PURCHASE_API = {
   contacts: '/v1/contacts',
   departments: '/v1/departments',
   units: '/v1/units',
+  warehouses: '/v1/warehouses',
   products: '/v1/products',
   taxes: '/v1/taxes',
   paymentMethods: '/v1/payment-methods',

@@ -24,14 +24,18 @@ const item = (id: string, quantity: number, receivedQty: number): OrderItem => (
   amount: quantity * 1000,
   receivedQty,
   billedQty: 0,
+  specification: '',
+  billOnly: false,
+  schedule: { kind: 'FULL', seq: 1, of: 1, periodFrom: null, periodTo: null },
 });
 
-const order = (items: OrderItem[], status: PurchaseOrder['status'] = 'APPROVED') =>
-  ({ id: 'po1', date: '2026-11-01', status, items }) as unknown as PurchaseOrder;
+const order = (items: OrderItem[], status: PurchaseOrder['status'] = 'SENT', withReceipt = true) =>
+  ({ id: 'po1', date: '2026-11-01', status, items, withReceipt }) as unknown as PurchaseOrder;
 
 describe('receiptForm', () => {
-  it('only approved or partly received orders can take a receipt', () => {
-    expect(canReceive(order([], 'APPROVED'))).toBe(true);
+  it('only sent or partly received orders that use receipts can take a receipt', () => {
+    expect(canReceive(order([], 'SENT'))).toBe(true);
+    expect(canReceive(order([], 'SENT', false))).toBe(false);
     expect(canReceive(order([], 'PARTIAL_RECEIVED'))).toBe(true);
     expect(canReceive(order([], 'RECEIVED'))).toBe(false);
     expect(canReceive(order([], 'DRAFT'))).toBe(false);

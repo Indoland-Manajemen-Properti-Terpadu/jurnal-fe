@@ -33,9 +33,9 @@ const QTY_EPSILON = 1e-4;
 export const itemName = (item: Pick<OrderItem, 'product' | 'description'>): string =>
   item.product?.name || item.description || '-';
 
-/** An order can take a receipt while it is approved or partly received. */
+/** An order can take a receipt once it is sent to the vendor and while it is partly received. */
 export const canReceive = (order: PurchaseOrder): boolean =>
-  order.status === 'APPROVED' || order.status === 'PARTIAL_RECEIVED';
+  order.withReceipt && (order.status === 'SENT' || order.status === 'PARTIAL_RECEIVED');
 
 export const receiptLines = (order: PurchaseOrder): ReceiptLine[] =>
   order.items.map((item) => ({
