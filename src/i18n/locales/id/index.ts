@@ -21,6 +21,7 @@ import { landing } from './landing';
 import { profile } from './profile';
 import { purchases } from './purchases';
 import { products } from './products';
+import { warehouses } from './warehouses';
 import { periodClosing } from './periodClosing';
 import { beginningBalances } from './beginningBalances';
 import { bankStatements } from './bankStatements';
@@ -57,6 +58,7 @@ export const id = {
   profile,
   purchases,
   products,
+  warehouses,
   periodClosing,
   beginningBalances,
   bankStatements,

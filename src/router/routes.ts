@@ -161,6 +161,7 @@ export const routes = {
 
   inventory: {
     warehouses: '/inventory/warehouses',
+    warehouseDetail: '/inventory/warehouses/:id',
     stockMovements: '/inventory/stock-movements',
     stockTake: '/inventory/stock-take',
   },

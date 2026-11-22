@@ -1,0 +1,17 @@
+/* A plain scroller: the scroll area component keeps a gutter under the table for its scrollbar. */
+.scroll {
+  overflow-x: auto;
+}
+
+/* The last row sits on the card's own line or the footer's, so it needs none of its own. */
+.table tbody:not(:has(+ tfoot)) tr:last-child,
+.table tbody:not(:has(+ tfoot)) tr:last-child td,
+.table tfoot tr:last-child,
+.table tfoot tr:last-child td {
+  border-bottom: 0;
+}
+
+/* The total row is set apart from the rows above it by one line. */
+.table tfoot tr td {
+  border-top: 1px solid var(--jurnal-color-border-subtle);
+}
