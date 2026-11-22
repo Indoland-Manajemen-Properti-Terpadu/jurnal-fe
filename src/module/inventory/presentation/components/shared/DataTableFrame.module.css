@@ -1,0 +1,56 @@
+/* A plain scroller: the scroll area component keeps a gutter under the table for its scrollbar. */
+.scroll {
+  overflow-x: auto;
+}
+
+/* The theme clips tables (overflow: hidden), which would stop the sticky columns below. */
+.scroll .table {
+  overflow: visible;
+}
+
+/* A wide table keeps its first column in view while the rest scrolls sideways. */
+.table[data-sticky-first='true'] th:first-child,
+.table[data-sticky-first='true'] td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  box-shadow: 1px 0 0 var(--jurnal-color-border-subtle);
+}
+
+.table[data-sticky-first='true'] td:first-child {
+  background: var(--mantine-color-white);
+}
+
+.table[data-sticky-first='true'] th:first-child {
+  background: var(--mantine-color-gray-0);
+}
+
+/* ... and its last column (the value), so a matrix of many warehouses keeps both ends readable. */
+.table[data-sticky-last='true'] th:last-child,
+.table[data-sticky-last='true'] td:last-child {
+  position: sticky;
+  right: 0;
+  z-index: 1;
+  box-shadow: -1px 0 0 var(--jurnal-color-border-subtle);
+}
+
+.table[data-sticky-last='true'] td:last-child {
+  background: var(--mantine-color-white);
+}
+
+.table[data-sticky-last='true'] th:last-child {
+  background: var(--mantine-color-gray-0);
+}
+
+/* The last row sits on the card's own line or the footer's, so it needs none of its own. */
+.table tbody:not(:has(+ tfoot)) tr:last-child,
+.table tbody:not(:has(+ tfoot)) tr:last-child td,
+.table tfoot tr:last-child,
+.table tfoot tr:last-child td {
+  border-bottom: 0;
+}
+
+/* The total row is set apart from the rows above it by one line. */
+.table tfoot tr td {
+  border-top: 1px solid var(--jurnal-color-border-subtle);
+}
