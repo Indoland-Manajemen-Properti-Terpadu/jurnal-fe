@@ -1,7 +1,7 @@
 import tableClasses from '@/module/purchases/presentation/components/shared/Table.module.css';
 import { Anchor, Table, Text } from '@mantine/core';
 import { IconClipboardText, IconListDetails } from '@tabler/icons-react';
-import { Link } from 'react-router-dom';
+import { Link, generatePath } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
 import type { GoodsReceipt } from '@/module/purchases/domain/purchaseDocuments';
 import { InfoGrid } from '@/module/purchases/presentation/components/shared/InfoGrid';
@@ -69,12 +69,31 @@ export const ReceiptSummaryCard = ({ receipt }: Readonly<ReceiptSummaryCardProps
               ? [
                   {
                     label: t('receipts.detail.journalLabel'),
-                    value: t('receipts.detail.journalNote'),
+                    value: (
+                      <Anchor
+                        component={Link}
+                        to={generatePath(routes.journalEntries.detail, {
+                          idTransaction: receipt.journalId,
+                        })}
+                        size="sm"
+                        fw={700}
+                      >
+                        {t('receipts.detail.viewJournal')}
+                      </Anchor>
+                    ),
+                    sub: t('receipts.detail.journalNote'),
                   },
                 ]
               : []),
             ...(receipt.memo
-              ? [{ label: t('common.memo'), value: receipt.memo, span: 2 as const }]
+              ? [
+                  {
+                    label: t('common.memo'),
+                    value: receipt.memo,
+                    // Beside the journal it fills the row; alone it takes the whole row.
+                    span: receipt.journalId ? undefined : (2 as const),
+                  },
+                ]
               : []),
           ]}
         />

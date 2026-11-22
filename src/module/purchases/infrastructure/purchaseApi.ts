@@ -1,4 +1,4 @@
-import type { Page } from '@/module/purchases/domain/purchaseCommon';
+import type { AttachmentKind, Page } from '@/module/purchases/domain/purchaseCommon';
 import type {
   GoodsReceipt,
   PayablesAging,
@@ -15,6 +15,8 @@ import type {
   PaymentRequestInput,
   PaymentRequestUpdate,
 } from '@/module/purchases/domain/paymentRequest';
+import type { BillSourceDto } from '@/module/purchases/infrastructure/billSourceDto';
+import { toBillSource } from '@/module/purchases/infrastructure/billSourceMappers';
 import type { BillSourceDoc } from '@/module/purchases/domain/billSources';
 import type { ProcurementInput } from '@/module/purchases/domain/procurement';
 import type { PurchaseRequest } from '@/module/purchases/domain/purchaseRequest';
@@ -31,7 +33,6 @@ import type {
 import { PURCHASE_API } from '@/module/purchases/infrastructure/purchaseEndpoints';
 import type {
   ApiEnvelope,
-  BillSourceDto,
   GoodsReceiptDto,
   ListDto,
   PayablesAgingDto,
@@ -43,7 +44,6 @@ import type {
   VendorCreditsDto,
 } from '@/module/purchases/infrastructure/purchaseDto';
 import {
-  toBillSource,
   toGoodsReceipt,
   toPayablesAging,
   toPaymentRequest,
@@ -297,9 +297,11 @@ export const uploadAttachments = async (
   id: string,
   files: File[],
   requestFile?: RequestFileTarget,
-  quoteId?: string
+  quoteId?: string,
+  kind?: AttachmentKind
 ) => {
   const form = new FormData();
+  if (kind) form.append('kind', kind);
   if (target === 'request') form.append('target', requestFile ?? 'request');
   if (quoteId) form.append('quoteId', quoteId);
   files.forEach((file) => form.append('attachments', file));
@@ -310,3 +312,36 @@ export const downloadOrderPdf = (id: string) => http.blob(PURCHASE_API.orderPrin
 export const downloadPaymentPdf = (id: string) => http.blob(PURCHASE_API.paymentPrint(id));
 export const downloadPayablesExcel = (params: { asOf?: string; vendor?: string }) =>
   http.blob(PURCHASE_API.payablesExport, params);
+
+/** The figures the service works out for a bill that has not been saved (`POST /purchase-bills/preview`). */
+export interface BillPreview {
+  /** DPP: the amount before tax, after any discount. */
+  taxBase: number;
+  taxAmount: number;
+  total: number;
+  withholdingAmount: number;
+  /** What the bill adds to payables. */
+  finalAmount: number;
+  dueDate: string | null;
+}
+
+interface BillPreviewDto {
+  taxBase?: number;
+  taxAmount?: number;
+  total?: number;
+  withholdingAmount?: number;
+  finalAmount?: number;
+  dueDate?: string | null;
+}
+
+export const previewBill = async (input: PurchaseBillInput): Promise<BillPreview> => {
+  const dto = (await http.post<ApiEnvelope<BillPreviewDto>>(PURCHASE_API.billPreview, input)).data;
+  return {
+    taxBase: dto.taxBase ?? 0,
+    taxAmount: dto.taxAmount ?? 0,
+    total: dto.total ?? 0,
+    withholdingAmount: dto.withholdingAmount ?? 0,
+    finalAmount: dto.finalAmount ?? dto.total ?? 0,
+    dueDate: dto.dueDate ? dto.dueDate.slice(0, 10) : null,
+  };
+};

@@ -57,6 +57,8 @@ export interface AttachmentDto {
   /** Path under the API address, e.g. `uploads/1795241690857-f61abb15.pdf`. */
   filePath?: string;
   mimeType?: string;
+  kind?: 'VENDOR_INVOICE' | 'TAX_INVOICE' | 'OTHER';
+  kindLabel?: string;
 }
 
 export interface ApprovalPlanDto {
@@ -398,29 +400,4 @@ export interface MyPermissionsDto {
     update?: boolean;
     delete?: boolean;
   }[];
-}
-
-export interface BillSourceLineDto {
-  purchaseOrderItem: string;
-  description?: string | null;
-  open?: number | null;
-  unitPrice: number;
-  taxRate?: number | null;
-  schedule?: OrderItemDto['schedule'];
-}
-
-/** A receipt or an order that is ready to be billed (`GET /purchase-bills/sources`). */
-export interface BillSourceDto {
-  id: string;
-  transactionNumber: string;
-  transactionDate: string;
-  kind?: 'GOODS' | 'SERVICE' | null;
-  isService?: boolean | null;
-  vendor: PartyDto;
-  purchaseOrder?: { id: string; transactionNumber?: string | null } | null;
-  termKey?: string | null;
-  termName?: string | null;
-  isPriceIncludeTax?: boolean | null;
-  lines?: BillSourceLineDto[] | null;
-  orderLines?: BillSourceLineDto[] | null;
 }

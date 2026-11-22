@@ -1,3 +1,4 @@
+import type { BillItemInput } from '@/module/purchases/domain/billSources';
 import type { RequestItemKind } from '@/module/purchases/domain/purchaseRequest';
 
 /** What a form submits. Dates are `YYYY-MM-DD`; optional fields are left out when empty. */
@@ -69,6 +70,7 @@ export type PurchaseBillInput = BillHeaderInput &
   (
     | { source: 'RECEIPT'; goodsReceipts: string[] }
     | { source: 'ORDER'; purchaseOrders: string[] }
+    | { source: 'RECEIPT' | 'ORDER'; items: BillItemInput[] }
     | { source: 'MANUAL'; vendor: string; items: ManualBillItemInput[] }
   );
 

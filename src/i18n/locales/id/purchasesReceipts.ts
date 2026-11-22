@@ -77,6 +77,7 @@ export const purchasesReceipts = {
     order: 'Pesanan pembelian',
     viewOrder: 'Lihat pesanan',
     receivedOn: 'Tanggal diterima',
+    viewJournal: 'Lihat jurnal',
     journalNote: 'Penerimaan ini sudah dijurnal sebagai hutang belum ditagih.',
     linesTitle: 'Barang yang Diterima',
     col: {

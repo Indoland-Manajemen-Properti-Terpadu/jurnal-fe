@@ -58,11 +58,18 @@ export interface PaymentTermOption {
   isActive: boolean;
 }
 
+/** What a bill file is: the vendor's invoice, the tax invoice, or any other file. */
+export type AttachmentKind = 'VENDOR_INVOICE' | 'TAX_INVOICE' | 'OTHER';
+
 export interface Attachment {
   id: string;
   name: string;
   url: string;
   mimeType: string;
+  /** Only bill files carry a kind; the others are `OTHER`. */
+  kind: AttachmentKind;
+  /** The service's own label ("Invoice vendor"); empty when it sent none. */
+  kindLabel: string;
 }
 
 export interface NamedRef {

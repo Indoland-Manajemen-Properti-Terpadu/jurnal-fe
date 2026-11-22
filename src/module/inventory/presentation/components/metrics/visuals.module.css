@@ -1,0 +1,70 @@
+.bar {
+  display: flex;
+  gap: 2px;
+  width: 100%;
+  height: 6px;
+}
+
+.segment {
+  min-width: 4px;
+  border-radius: 4px;
+}
+
+.track {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  background: var(--mantine-color-primary-0);
+  border-radius: 4px;
+}
+
+.fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 4px;
+}
+
+.caption {
+  overflow: hidden;
+  font-size: var(--mantine-font-size-xs);
+  color: var(--mantine-color-dimmed);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 12px;
+  font-size: var(--mantine-font-size-xs);
+  color: var(--mantine-color-dimmed);
+  font-variant-numeric: tabular-nums;
+}
+
+.legendRow {
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.legendLabel {
+  min-width: 0;
+  max-width: 14ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.legendRow b {
+  font-weight: 600;
+  color: var(--mantine-color-dark-7);
+}
+
+.dot {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}

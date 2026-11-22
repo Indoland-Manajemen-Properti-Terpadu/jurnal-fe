@@ -3,6 +3,7 @@ import {
   IconBuildingStore,
   IconClock,
   IconCreditCard,
+  IconClipboardCheck,
   IconHash,
   IconHistory,
   IconPercentage,
@@ -68,6 +69,12 @@ export const settingsGroups: SettingsGroup[] = [
         menus: NAV_MENU.settings,
       },
       { key: 'taxes', path: routes.settings.taxes, icon: IconPercentage, menus: NAV_MENU.settings },
+      {
+        key: 'opnameAccounts',
+        path: routes.settings.opnameAccounts,
+        icon: IconClipboardCheck,
+        menus: NAV_MENU.settings,
+      },
     ],
   },
   {

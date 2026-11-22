@@ -74,6 +74,8 @@ export const toAttachments = (dtos: AttachmentDto[] | null | undefined): Attachm
     name: dto.fileName ?? 'Lampiran',
     url: dto.filePath ? fileUrl(dto.filePath) : '',
     mimeType: dto.mimeType ?? '',
+    kind: dto.kind ?? 'OTHER',
+    kindLabel: dto.kindLabel ?? '',
   }));
 
 export const toApproval = (dto: ApprovalFieldsDto): ApprovalState => ({
