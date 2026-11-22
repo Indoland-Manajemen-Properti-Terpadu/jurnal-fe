@@ -1,0 +1,30 @@
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1px;
+  background: var(--jurnal-color-border-subtle);
+}
+
+@media (min-width: 48em) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .cell[data-span='full'] {
+    grid-column: 1 / -1;
+  }
+}
+
+.cell {
+  min-width: 0;
+  padding: var(--mantine-spacing-md) var(--mantine-spacing-lg);
+  background: var(--mantine-color-white);
+  overflow-wrap: anywhere;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  background: var(--jurnal-color-border-subtle);
+}

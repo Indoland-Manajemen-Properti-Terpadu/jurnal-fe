@@ -12,6 +12,7 @@ import {
   IconSitemap,
   IconTag,
   IconUsers,
+  IconUsersGroup,
 } from '@tabler/icons-react';
 import type { Icon } from '@tabler/icons-react';
 import { routes } from '@/router/routes';
@@ -91,6 +92,12 @@ export const settingsGroups: SettingsGroup[] = [
         menus: NAV_MENU.settings,
       },
       { key: 'tags', path: routes.settings.tags, icon: IconTag, menus: NAV_MENU.settings },
+      {
+        key: 'departments',
+        path: routes.settings.departments,
+        icon: IconUsersGroup,
+        menus: NAV_MENU.departments,
+      },
     ],
   },
   {

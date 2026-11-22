@@ -1,3 +1,4 @@
+import tableClasses from '@/module/purchases/presentation/components/shared/Table.module.css';
 import { Anchor, Table, Text } from '@mantine/core';
 import { IconClipboardText, IconListDetails } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
@@ -16,17 +17,23 @@ const numeric = { whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' } as 
 
 interface ReceiptSummaryCardProps {
   receipt: GoodsReceipt;
-  orderNumber: string | null;
 }
 
 /** Who delivered what, when, against which order, and the value recognised for it. */
-export const ReceiptSummaryCard = ({ receipt, orderNumber }: Readonly<ReceiptSummaryCardProps>) => {
+export const ReceiptSummaryCard = ({ receipt }: Readonly<ReceiptSummaryCardProps>) => {
   const { t, currentLanguage } = useTranslation('purchases');
-  const total = receipt.items.reduce((sum, item) => sum + item.accrualAmount, 0);
+  const total = receipt.amount || receipt.items.reduce((sum, item) => sum + item.accrualAmount, 0);
+  const service = receipt.kind === 'SERVICE';
 
   return (
     <>
-      <SectionCard icon={IconClipboardText} title={t('receipts.detail.infoTitle')}>
+      <SectionCard
+        icon={IconClipboardText}
+        label
+        flush
+        title={t('receipts.detail.infoTitle', { label: receipt.documentLabel })}
+        subtitle={t('receipts.detail.infoSubtitle')}
+      >
         <InfoGrid
           items={[
             { label: t('common.vendor'), value: receipt.vendor.name },
@@ -37,9 +44,9 @@ export const ReceiptSummaryCard = ({ receipt, orderNumber }: Readonly<ReceiptSum
                   component={Link}
                   to={routes.purchases.orderDetail.replace(':id', receipt.purchaseOrderId)}
                   size="sm"
-                  fw={500}
+                  fw={700}
                 >
-                  {orderNumber ?? t('receipts.detail.viewOrder')}
+                  {receipt.purchaseOrderNumber || t('receipts.detail.viewOrder')}
                 </Anchor>
               ),
             },
@@ -47,27 +54,46 @@ export const ReceiptSummaryCard = ({ receipt, orderNumber }: Readonly<ReceiptSum
               label: t('receipts.detail.receivedOn'),
               value: formatDay(receipt.date, currentLanguage),
             },
+            ...(service
+              ? []
+              : [{ label: t('receipts.form.warehouse'), value: receipt.warehouse?.name ?? '' }]),
             { label: t('receipts.form.deliveryNote'), value: receipt.deliveryNote },
+            {
+              label: t('receipts.detail.bills'),
+              value:
+                receipt.billRefs.length > 0
+                  ? receipt.billRefs.map((bill) => bill.number).join(', ')
+                  : '',
+            },
+            ...(receipt.journalId
+              ? [
+                  {
+                    label: t('receipts.detail.journalLabel'),
+                    value: t('receipts.detail.journalNote'),
+                  },
+                ]
+              : []),
             ...(receipt.memo
               ? [{ label: t('common.memo'), value: receipt.memo, span: 2 as const }]
               : []),
           ]}
         />
-        {receipt.journalId && (
-          <Text size="xs" c="dimmed">
-            {t('receipts.detail.journalNote')}
-          </Text>
-        )}
       </SectionCard>
 
-      <SectionCard icon={IconListDetails} title={t('receipts.detail.linesTitle')}>
-        <Table.ScrollContainer minWidth={520}>
-          <Table verticalSpacing="sm" horizontalSpacing="sm">
-            <Table.Thead bg="var(--jurnal-color-surface-hover)">
+      <SectionCard
+        icon={IconListDetails}
+        flush
+        title={t('receipts.detail.linesTitle')}
+        subtitle={t('receipts.detail.linesSubtitle')}
+        count={t('receipts.detail.itemsCount', { count: receipt.items.length })}
+      >
+        <Table.ScrollContainer type="native" minWidth={520}>
+          <Table className={tableClasses.table} verticalSpacing="sm" horizontalSpacing="lg">
+            <Table.Thead bg="var(--jurnal-color-surface-muted)">
               <Table.Tr>
-                {['item', 'quantity', 'accrual'].map((key) => (
+                {['item', 'quantity', ...(service ? [] : ['rejected']), 'accrual'].map((key) => (
                   <Table.Th key={key} ta={key === 'item' ? undefined : 'right'}>
-                    <Text size="xs" fw={700} c="dimmed" tt="uppercase">
+                    <Text size="xs" fw={700} c="dark.7">
                       {t(`receipts.detail.col.${key}`)}
                     </Text>
                   </Table.Th>
@@ -78,7 +104,7 @@ export const ReceiptSummaryCard = ({ receipt, orderNumber }: Readonly<ReceiptSum
               {receipt.items.map((item) => (
                 <Table.Tr key={item.id}>
                   <Table.Td>
-                    <Text size="sm" fw={500}>
+                    <Text size="sm" fw={700}>
                       {item.product?.name || item.description || '-'}
                     </Text>
                   </Table.Td>
@@ -87,6 +113,13 @@ export const ReceiptSummaryCard = ({ receipt, orderNumber }: Readonly<ReceiptSum
                       {formatQuantity(item.receivedQty)} {item.product?.unitName}
                     </Text>
                   </Table.Td>
+                  {!service && (
+                    <Table.Td ta="right" style={numeric}>
+                      <Text size="sm" c={item.rejectedQty > 0 ? undefined : 'dimmed'}>
+                        {formatQuantity(item.rejectedQty)}
+                      </Text>
+                    </Table.Td>
+                  )}
                   <Table.Td ta="right" style={numeric}>
                     <Text size="sm" fw={500}>
                       {formatAmount(item.accrualAmount)}
@@ -97,7 +130,7 @@ export const ReceiptSummaryCard = ({ receipt, orderNumber }: Readonly<ReceiptSum
             </Table.Tbody>
             <Table.Tfoot>
               <Table.Tr>
-                <Table.Td colSpan={2}>
+                <Table.Td colSpan={service ? 2 : 3}>
                   <Text size="sm" fw={700}>
                     {t('receipts.detail.totalAccrual')}
                   </Text>

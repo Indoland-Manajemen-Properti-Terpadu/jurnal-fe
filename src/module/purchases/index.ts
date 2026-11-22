@@ -3,12 +3,13 @@ export { default as PurchaseListPage } from './presentation/pages/PurchaseListPa
 export { default as PayablesReportPage } from './presentation/pages/PayablesReportPage';
 export { default as RequestFormPage } from './presentation/pages/RequestFormPage';
 export { default as RequestDetailPage } from './presentation/pages/RequestDetailPage';
-export { default as OrderFormPage } from './presentation/pages/OrderFormPage';
 export { default as OrderDetailPage } from './presentation/pages/OrderDetailPage';
 export { default as ReceiptFormPage } from './presentation/pages/ReceiptFormPage';
 export { default as ReceiptDetailPage } from './presentation/pages/ReceiptDetailPage';
 export { default as BillFormPage } from './presentation/pages/BillFormPage';
 export { default as BillDetailPage } from './presentation/pages/BillDetailPage';
+export { default as PaymentRequestFormPage } from './presentation/pages/PaymentRequestFormPage';
+export { default as PaymentRequestDetailPage } from './presentation/pages/PaymentRequestDetailPage';
 export { default as PaymentFormPage } from './presentation/pages/PaymentFormPage';
 export { default as PaymentDetailPage } from './presentation/pages/PaymentDetailPage';
 export { default as ReturnFormPage } from './presentation/pages/ReturnFormPage';

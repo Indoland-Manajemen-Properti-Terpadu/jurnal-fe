@@ -1,3 +1,4 @@
+import tableClasses from '@/module/purchases/presentation/components/shared/Table.module.css';
 import { Table, Text } from '@mantine/core';
 import { IconListDetails } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
@@ -12,8 +13,8 @@ export const ReturnLinesCard = ({ items }: Readonly<{ items: ReturnItem[] }>) =>
   const { t } = useTranslation('purchases');
   return (
     <SectionCard icon={IconListDetails} title={t('returns.detail.linesTitle')}>
-      <Table.ScrollContainer minWidth={420}>
-        <Table verticalSpacing="sm" horizontalSpacing="sm">
+      <Table.ScrollContainer type="native" minWidth={420}>
+        <Table className={tableClasses.table} verticalSpacing="sm" horizontalSpacing="sm">
           <Table.Thead bg="var(--jurnal-color-surface-hover)">
             <Table.Tr>
               {(['item', 'quantity', 'amount'] as const).map((key) => (

@@ -1,42 +1,36 @@
-import { Grid, Group, Stack } from '@mantine/core';
-import { IconFileInvoice, IconCalculator } from '@tabler/icons-react';
+import { Grid, Stack } from '@mantine/core';
+import { IconFileInvoice, IconReceiptRefund, IconWallet } from '@tabler/icons-react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
 import { PURCHASE_MENU } from '@/module/purchases/domain/purchaseAccess';
 import { BillActionBar } from '@/module/purchases/presentation/components/bills/BillActionBar';
 import { BillInfoCard } from '@/module/purchases/presentation/components/bills/BillInfoCard';
 import { BillItemsCard } from '@/module/purchases/presentation/components/bills/BillItemsCard';
-import { BillSettlementCard } from '@/module/purchases/presentation/components/bills/BillSettlementCard';
 import { BillVariancesCard } from '@/module/purchases/presentation/components/bills/BillVariancesCard';
 import { CreditApplicationsCard } from '@/module/purchases/presentation/components/bills/CreditApplicationsCard';
 import { useBillExtras } from '@/module/purchases/presentation/components/bills/billExtras';
 import { StateFrame } from '@/module/purchases/presentation/components/requests/StateFrame';
-import { AmountSummary } from '@/module/purchases/presentation/components/shared/AmountSummary';
+import { AmountsCard } from '@/module/purchases/presentation/components/shared/AmountsCard';
 import { AttachmentsCard } from '@/module/purchases/presentation/components/shared/AttachmentsCard';
 import { DocumentJourney } from '@/module/purchases/presentation/components/shared/DocumentJourney';
-import { BillHighlights } from '@/module/purchases/presentation/components/shared/DocumentHighlights';
-import { PageFrame } from '@/module/purchases/presentation/components/shared/PageFrame';
-import { SectionCard } from '@/module/purchases/presentation/components/shared/SectionCard';
+import { DocumentFrame } from '@/module/purchases/presentation/components/shared/DocumentFrame';
+import { formatAmount, formatDay } from '@/module/purchases/presentation/components/shared/format';
+import { RelatedDocsCard } from '@/module/purchases/presentation/components/shared/RelatedDocsCard';
 import { StatusBadge } from '@/module/purchases/presentation/components/shared/StatusBadge';
 import { usePurchaseAccess } from '@/module/purchases/presentation/hooks/usePurchaseAccess';
-import { usePurchaseJourney } from '@/module/purchases/presentation/hooks/usePurchaseJourney';
-import { useBill, useOrder } from '@/module/purchases/presentation/hooks/usePurchaseQueries';
+import { useDocumentChain } from '@/module/purchases/presentation/hooks/useDashboard';
+import { useBill } from '@/module/purchases/presentation/hooks/usePurchaseQueries';
 import { routes } from '@/router/routes';
 
 const BACK = routes.purchases.bills;
 
 export default function BillDetailPage() {
   const { id } = useParams();
-  const { t } = useTranslation('purchases');
+  const { t, currentLanguage } = useTranslation('purchases');
   const { can, canRead, isLoading: accessLoading } = usePurchaseAccess();
   const bill = useBill(id);
   const extras = useBillExtras(id);
-  const order = useOrder(bill.data?.purchaseOrderId);
-  const journey = usePurchaseJourney({
-    orderId: bill.data?.purchaseOrderId,
-    billId: id,
-    current: 'bill',
-  });
+  const journey = useDocumentChain('purchaseBill', id);
 
   if (accessLoading || bill.isLoading) {
     return <StateFrame kind="loading" />;
@@ -62,42 +56,79 @@ export default function BillDetailPage() {
     return <StateFrame kind="loading" />;
   }
   const open = doc.status === 'VERIFIED' || doc.status === 'PARTIAL_PAID';
+  const amountRows = [
+    { label: t('bills.detail.payableLabel'), value: formatAmount(doc.finalAmount) },
+    ...(doc.returnedAmount > 0
+      ? [
+          {
+            label: t('bills.detail.returnedLabel'),
+            value: `-${formatAmount(doc.returnedAmount)}`,
+            tone: 'danger' as const,
+          },
+        ]
+      : []),
+    ...(doc.creditAppliedAmount > 0
+      ? [
+          {
+            label: t('bills.detail.offset'),
+            value: `-${formatAmount(doc.creditAppliedAmount)}`,
+            tone: 'danger' as const,
+          },
+        ]
+      : []),
+    ...(doc.heldAmount > 0
+      ? [{ label: t('bills.detail.held'), value: formatAmount(doc.heldAmount) }]
+      : []),
+    {
+      label: t('bills.detail.paid'),
+      value: formatAmount(doc.paidAmount),
+      tone: 'success' as const,
+    },
+  ];
 
   return (
-    <PageFrame
+    <DocumentFrame
       icon={IconFileInvoice}
-      title={
-        <Group gap="sm" align="center">
-          <span>{doc.number}</span>
-          <StatusBadge status={doc.status} />
-        </Group>
-      }
-      description={t('bills.detail.subtitle', { vendor: doc.vendor.name })}
+      number={doc.number}
+      badges={<StatusBadge status={doc.status} label={doc.displayStatusLabel || doc.statusLabel} />}
+      date={formatDay(doc.date, currentLanguage)}
       backTo={BACK}
-      backLabel={t('common.back')}
+      backLabel={t('bills.detail.backToList')}
       actions={<BillActionBar bill={doc} />}
     >
-      <BillHighlights doc={doc} />
+      <BillVariancesCard bill={doc} findings={extras.data?.variances ?? []} />
       <Grid gutter="lg" align="flex-start">
         <Grid.Col span={{ base: 12, lg: 8 }}>
           <Stack gap="lg">
-            <BillVariancesCard bill={doc} findings={extras.data?.variances ?? []} />
-            <BillInfoCard bill={doc} orderNumber={order.data?.number ?? null} />
+            <BillInfoCard bill={doc} />
             <BillItemsCard bill={doc} />
+            <RelatedDocsCard
+              icon={IconWallet}
+              title={t('bills.detail.paymentsTitle')}
+              subtitle={t('bills.detail.paymentsSubtitle')}
+              count={t('bills.detail.docsCount', { count: doc.paymentRequestRefs.length })}
+              emptyText={t('bills.detail.paymentsEmpty')}
+              docs={doc.paymentRequestRefs.map((ref) => ({
+                ...ref,
+                to: routes.purchases.paymentRequestDetail.replace(':id', ref.id),
+              }))}
+            />
+            <RelatedDocsCard
+              icon={IconReceiptRefund}
+              title={t('bills.detail.returnsTitle')}
+              subtitle={t('bills.detail.returnsSubtitle')}
+              count={t('bills.detail.returnsCount', { count: doc.returnRefs.length })}
+              emptyText={t('bills.detail.returnsEmpty')}
+              docs={doc.returnRefs.map((ref) => ({
+                ...ref,
+                to: routes.purchases.returnDetail.replace(':id', ref.id),
+              }))}
+            />
             <CreditApplicationsCard
               billId={doc.id}
               allocations={extras.data?.allocations ?? []}
               canVoid={open && can(PURCHASE_MENU.payments, 'delete')}
             />
-          </Stack>
-        </Grid.Col>
-        <Grid.Col span={{ base: 12, lg: 4 }}>
-          <Stack gap="lg">
-            <SectionCard icon={IconCalculator} title={t('bills.detail.amountsTitle')}>
-              <AmountSummary {...doc} />
-            </SectionCard>
-            {doc.status !== 'DRAFT' && <BillSettlementCard bill={doc} />}
-            <DocumentJourney steps={journey.steps} />
             <AttachmentsCard
               target="bill"
               documentId={doc.id}
@@ -106,7 +137,21 @@ export default function BillDetailPage() {
             />
           </Stack>
         </Grid.Col>
+        <Grid.Col span={{ base: 12, lg: 4 }}>
+          <Stack gap="lg">
+            <AmountsCard
+              subtotal={doc.subtotal}
+              discountAmount={doc.discountAmount}
+              taxAmount={doc.taxAmount}
+              withholdingAmount={doc.withholdingAmount}
+              extra={amountRows}
+              closing={{ label: t('bills.detail.remaining'), value: doc.remainingAmount }}
+              subtitle={t('bills.detail.amountsSubtitle')}
+            />
+            <DocumentJourney steps={journey.steps} />
+          </Stack>
+        </Grid.Col>
       </Grid>
-    </PageFrame>
+    </DocumentFrame>
   );
 }

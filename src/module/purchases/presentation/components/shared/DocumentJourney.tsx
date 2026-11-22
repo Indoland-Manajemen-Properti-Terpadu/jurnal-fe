@@ -1,78 +1,94 @@
-import { Anchor, Group, Text } from '@mantine/core';
-import { IconRoute } from '@tabler/icons-react';
+import { Anchor, Text, ThemeIcon } from '@mantine/core';
+import { IconCheck, IconMinus, IconRoute } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
-import type { PurchaseStatus } from '@/module/purchases/domain/purchaseStatus';
+import type { JourneyKind, JourneyStepData } from '@/module/purchases/domain/documentChain';
 import { SectionCard } from '@/module/purchases/presentation/components/shared/SectionCard';
 import { StatusBadge } from '@/module/purchases/presentation/components/shared/StatusBadge';
-import {
-  Timeline,
-  type TimelineItem,
-} from '@/module/purchases/presentation/components/shared/Timeline';
+import classes from '@/module/purchases/presentation/components/shared/Journey.module.css';
 
-export interface JourneyStep {
-  /** i18n key suffix under `journey.`: request, order, receipt, bill, payment, return. */
-  kind: 'request' | 'order' | 'receipt' | 'bill' | 'payment' | 'return';
-  /** Documents already created for this step; empty means the step is still ahead. */
-  documents: { id: string; number: string; status: PurchaseStatus; to: string }[];
-  /** Highlights the document being viewed. */
-  current?: boolean;
-}
+export type JourneyStep = JourneyStepData;
 
-const DRAFT = new Set(['DRAFT']);
-const DEAD = new Set(['VOID', 'CANCELLED', 'REJECTED']);
+/** The letters in the circle of a step that is not a number: the advance and the voucher. */
+const SHORT: Partial<Record<JourneyKind, string>> = { advance: 'DP', voucher: 'PV' };
 
 /**
- * A step is done once one of its documents is past draft and still alive. Documents that are only
- * drafts keep the step open (waiting); documents that are all cancelled leave it as not started.
+ * The purchase flow of one document, as in the reference web: numbered circles on a line (a check
+ * once done, a dash when skipped), each step with its documents as links and the one on screen
+ * marked "Dokumen ini".
  */
-const stepState = (documents: JourneyStep['documents']): TimelineItem['state'] => {
-  const live = documents.filter((doc) => !DEAD.has(doc.status));
-  if (live.length === 0) return 'upcoming';
-  return live.some((doc) => !DRAFT.has(doc.status)) ? 'done' : 'waiting';
-};
-
-/** The procure-to-pay chain of one purchase: what exists, what is next, one click to each document. */
 export const DocumentJourney = ({ steps }: Readonly<{ steps: JourneyStep[] }>) => {
   const { t } = useTranslation('purchases');
 
-  const items: TimelineItem[] = steps.map((step) => {
-    const done = step.documents.length > 0;
-    return {
-      id: step.kind,
-      state: stepState(step.documents),
-      children: (
-        <>
-          <Text size="sm" fw={600} c={done ? 'dark.8' : 'dimmed'} lh={1.4}>
-            {t(`journey.${step.kind}`)}
-            {step.current && (
-              <Text span size="xs" c="primary.7" fw={600} ml={8}>
-                {t('journey.thisDocument')}
-              </Text>
-            )}
-          </Text>
-          {done ? (
-            step.documents.map((doc) => (
-              <Group key={doc.id} gap={8} mt={2}>
-                <Anchor component={Link} to={doc.to} size="sm" fw={step.current ? 600 : 400}>
-                  {doc.number}
-                </Anchor>
-                <StatusBadge status={doc.status} />
-              </Group>
-            ))
-          ) : (
-            <Text size="xs" c="dimmed">
-              {t('journey.notCreated')}
-            </Text>
-          )}
-        </>
-      ),
-    };
-  });
-
   return (
     <SectionCard icon={IconRoute} title={t('journey.title')} subtitle={t('journey.subtitle')}>
-      <Timeline items={items} />
+      <ol className={classes.list}>
+        {steps.map((step, index) => (
+          <li key={step.kind} className={classes.item} data-done={step.state === 'done'}>
+            <ThemeIcon
+              size={30}
+              radius="xl"
+              className={classes.marker}
+              variant={step.state === 'done' ? 'filled' : step.state === 'next' ? 'light' : 'white'}
+              color={step.state === 'todo' || step.state === 'skipped' ? 'gray' : 'primary'}
+              bd={
+                step.state === 'todo' || step.state === 'skipped'
+                  ? '1px solid var(--mantine-color-gray-4)'
+                  : step.state === 'next'
+                    ? '1px solid var(--mantine-color-primary-3)'
+                    : undefined
+              }
+            >
+              {step.state === 'done' ? (
+                <IconCheck size={16} stroke={2.5} />
+              ) : step.state === 'skipped' ? (
+                <IconMinus size={14} />
+              ) : (
+                <Text fz="xs" fw={600} component="span">
+                  {SHORT[step.kind] && step.state !== 'todo' ? SHORT[step.kind] : index + 1}
+                </Text>
+              )}
+            </ThemeIcon>
+            <div className={classes.body}>
+              <Text
+                fz="md"
+                fw={600}
+                lh={1.35}
+                c={step.state === 'done' || step.state === 'next' ? 'dark.9' : 'dimmed'}
+              >
+                {t(`journey.${step.kind}`)}
+              </Text>
+              {step.documents.length > 0 ? (
+                step.documents.map((doc) => (
+                  <div key={doc.id} className={classes.doc}>
+                    <Anchor component={Link} to={doc.to} fz="sm" fw={700}>
+                      {doc.number}
+                    </Anchor>
+                    {doc.current && (
+                      <Text fz="xs" c="primary.7" fw={600}>
+                        {t('journey.thisDocument')}
+                      </Text>
+                    )}
+                    {(step.kind === 'advance' || step.documents.length > 1) && (
+                      <StatusBadge status={doc.status} />
+                    )}
+                  </div>
+                ))
+              ) : (
+                <Text fz="sm" c="dimmed">
+                  {t(
+                    step.state === 'skipped'
+                      ? `journey.skipped.${step.kind}`
+                      : step.state === 'done'
+                        ? `journey.done.${step.kind}`
+                        : `journey.empty.${step.kind}`
+                  )}
+                </Text>
+              )}
+            </div>
+          </li>
+        ))}
+      </ol>
     </SectionCard>
   );
 };

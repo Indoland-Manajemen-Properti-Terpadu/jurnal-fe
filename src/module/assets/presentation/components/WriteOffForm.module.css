@@ -2,7 +2,9 @@
   height: 100%;
   padding: var(--mantine-spacing-sm);
   border: 1px solid var(--mantine-color-gray-3);
-  transition: border-color 120ms ease, background-color 120ms ease;
+  transition:
+    border-color 120ms ease,
+    background-color 120ms ease;
 }
 
 .typeCard[data-checked] {

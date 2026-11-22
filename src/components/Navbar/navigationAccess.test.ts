@@ -43,13 +43,46 @@ describe('filterNavigation', () => {
     expect(ids).not.toEqual(expect.arrayContaining(['sales', 'products', 'chartOfAccounts']));
   });
 
-  it('opens purchasing for an approver but keeps the payables report closed', () => {
-    const result = filterNavigation(navigationSections, reads('JP-PURCH-APR-PO'));
+  it('opens only the matching pages for a procurement approver', () => {
+    const result = filterNavigation(navigationSections, reads('JP-PURCH-APR-PROC'));
     const purchases = itemsOf(result).find((item) => item.id === 'purchases');
     const childIds = purchases?.children?.map((child) => child.id) ?? [];
 
-    expect(childIds).toContain('purchasesOrders');
-    expect(childIds).not.toContain('payables');
+    expect(childIds).toEqual(['purchasesOverview', 'purchasesRequests', 'purchasesOrders']);
+  });
+
+  it('gives a requester only their requests and the overview', () => {
+    const result = filterNavigation(navigationSections, reads('JP-PURCH-FPPBJ'));
+    const purchases = itemsOf(result).find((item) => item.id === 'purchases');
+
+    expect(purchases?.children?.map((child) => child.id)).toEqual([
+      'purchasesOverview',
+      'purchasesRequests',
+    ]);
+  });
+
+  it('gives Accounting verification the requests list without orders or bills', () => {
+    const result = filterNavigation(navigationSections, reads('JP-PURCH-FPPBJ-VER'));
+    const purchases = itemsOf(result).find((item) => item.id === 'purchases');
+    const childIds = purchases?.children?.map((child) => child.id) ?? [];
+
+    expect(childIds).toContain('purchasesRequests');
+    expect(childIds).not.toEqual(expect.arrayContaining(['purchasesOrders', 'purchasesBills']));
+  });
+
+  it('keeps the payables report closed to a BAPP approver and the cashier', () => {
+    const bapp = itemsOf(filterNavigation(navigationSections, reads('JP-PURCH-APR-BAPP'))).find(
+      (item) => item.id === 'purchases'
+    );
+    const cashier = itemsOf(filterNavigation(navigationSections, reads('JP-PURCH-PAY'))).find(
+      (item) => item.id === 'purchases'
+    );
+
+    expect(bapp?.children?.map((child) => child.id)).toEqual([
+      'purchasesOverview',
+      'purchasesReceipts',
+    ]);
+    expect(cashier?.children?.map((child) => child.id)).not.toContain('payables');
   });
 
   it('drops an entry with sub-items when none of them is allowed', () => {

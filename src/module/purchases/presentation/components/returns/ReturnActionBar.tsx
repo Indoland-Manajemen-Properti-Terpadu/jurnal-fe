@@ -1,11 +1,13 @@
 import { useState } from 'react';
-import { Button, Group, Menu, Modal, Stack, Text } from '@mantine/core';
-import { IconCheck, IconDots, IconEdit, IconX } from '@tabler/icons-react';
+import { Button, Menu } from '@mantine/core';
+import { ModalFrame } from '@/components/Modals/ModalFrame';
+import { IconCash, IconCheck, IconDots, IconEdit, IconX } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
 import { PURCHASE_MENU } from '@/module/purchases/domain/purchaseAccess';
 import { returnActions } from '@/module/purchases/domain/purchaseActions';
 import type { PurchaseReturn } from '@/module/purchases/domain/purchaseDocuments';
+import { RefundDialog } from '@/module/purchases/presentation/components/returns/RefundDialog';
 import { ReasonModal } from '@/module/purchases/presentation/components/shared/ReasonModal';
 import { formatAmount } from '@/module/purchases/presentation/components/shared/format';
 import { usePurchaseAccess } from '@/module/purchases/presentation/hooks/usePurchaseAccess';
@@ -24,11 +26,13 @@ export const ReturnActionBar = ({ doc }: Readonly<{ doc: PurchaseReturn }>) => {
   const voidReturn = useVoidReturn();
   const [posting, setPosting] = useState(false);
   const [voiding, setVoiding] = useState(false);
+  const [refunding, setRefunding] = useState(false);
 
   const actions = returnActions(doc);
-  const showEdit = actions.edit && can(PURCHASE_MENU.documents, 'update');
-  const showPost = actions.post && can(PURCHASE_MENU.documents, 'update');
-  const showVoid = actions.void && can(PURCHASE_MENU.documents, 'delete');
+  const showEdit = actions.edit && can(PURCHASE_MENU.returns, 'update');
+  const showPost = actions.post && can(PURCHASE_MENU.returns, 'update');
+  const showRefund = actions.refund && can(PURCHASE_MENU.returns, 'update');
+  const showVoid = actions.void && can(PURCHASE_MENU.returns, 'delete');
 
   return (
     <>
@@ -47,6 +51,12 @@ export const ReturnActionBar = ({ doc }: Readonly<{ doc: PurchaseReturn }>) => {
           {t('returns.detail.post')}
         </Button>
       )}
+      {showRefund && (
+        <Button radius="md" leftSection={<IconCash size={16} />} onClick={() => setRefunding(true)}>
+          {t('returns.detail.refund')}
+        </Button>
+      )}
+      {refunding && <RefundDialog doc={doc} opened onClose={() => setRefunding(false)} />}
       {showVoid && (
         <Menu position="bottom-end" withinPortal>
           <Menu.Target>
@@ -66,18 +76,20 @@ export const ReturnActionBar = ({ doc }: Readonly<{ doc: PurchaseReturn }>) => {
         </Menu>
       )}
 
-      <Modal
+      <ModalFrame
         opened={posting}
         onClose={() => setPosting(false)}
         title={t('returns.detail.postTitle')}
-        centered
-        radius="lg"
-      >
-        <Stack gap="md">
-          <Text size="sm" c="dimmed">
-            {t('returns.detail.postDescription', { amount: formatAmount(doc.finalAmount) })}
-          </Text>
-          <Group justify="flex-end" gap="sm">
+        description={t(
+          doc.settlement === 'REFUND'
+            ? 'returns.detail.postDescriptionRefund'
+            : doc.settlement === 'CREDIT'
+              ? 'returns.detail.postDescriptionCredit'
+              : 'returns.detail.postDescription',
+          { amount: formatAmount(doc.finalAmount) }
+        )}
+        footer={
+          <>
             <Button variant="default" disabled={post.isPending} onClick={() => setPosting(false)}>
               {t('common.cancel')}
             </Button>
@@ -87,9 +99,9 @@ export const ReturnActionBar = ({ doc }: Readonly<{ doc: PurchaseReturn }>) => {
             >
               {t('returns.detail.postConfirm')}
             </Button>
-          </Group>
-        </Stack>
-      </Modal>
+          </>
+        }
+      />
 
       <ReasonModal
         opened={voiding}

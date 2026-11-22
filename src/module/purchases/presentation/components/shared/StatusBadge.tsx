@@ -14,12 +14,18 @@ const COLORS: Record<StatusTone, string> = {
   danger: 'red',
 };
 
+interface StatusBadgeProps {
+  status: PurchaseStatus;
+  /** The service's own Indonesian label; Indonesian readers see it as written. */
+  label?: string;
+}
+
 /** Color only carries real state: waiting, done or refused. Everything else stays neutral or brand. */
-export const StatusBadge = ({ status }: Readonly<{ status: PurchaseStatus }>) => {
-  const { t } = useTranslation('purchases');
+export const StatusBadge = ({ status, label }: Readonly<StatusBadgeProps>) => {
+  const { t, currentLanguage } = useTranslation('purchases');
   return (
     <Badge variant="light" radius="sm" color={COLORS[statusTone(status)]}>
-      {t(`status.${status}`)}
+      {currentLanguage === 'id' && label ? label : t(`status.${status}`)}
     </Badge>
   );
 };

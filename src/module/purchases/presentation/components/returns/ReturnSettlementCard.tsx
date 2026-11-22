@@ -14,9 +14,20 @@ import { SegmentBar } from '@/module/purchases/presentation/components/shared/vi
 export const ReturnSettlementCard = ({ doc }: Readonly<{ doc: PurchaseReturn }>) => {
   const { t } = useTranslation('purchases');
   const credit = Math.round((doc.finalAmount - doc.appliedToBill) * 100) / 100;
+  const refunding = doc.settlement === 'REFUND';
   const rows: MoneyRow[] = [
     { label: t('returns.detail.appliedToBill'), amount: formatAmount(doc.appliedToBill) },
-    ...(credit > 0
+    ...(refunding
+      ? [
+          { label: t('returns.detail.refundedAmount'), amount: formatAmount(doc.refundAmount) },
+          {
+            label: t('returns.detail.toRefund'),
+            amount: formatAmount(doc.creditRemaining),
+            emphasis: 'total' as const,
+          },
+        ]
+      : []),
+    ...(!refunding && credit > 0
       ? [
           { label: t('returns.detail.creditCreated'), amount: formatAmount(credit) },
           ...(doc.creditUsed > 0

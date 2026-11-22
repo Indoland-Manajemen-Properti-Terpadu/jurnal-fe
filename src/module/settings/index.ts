@@ -6,6 +6,7 @@ export { default as PaymentTermPage } from './presentation/pages/PaymentTermPage
 export { default as PaymentTermFormPage } from './presentation/pages/PaymentTermFormPage';
 export { default as PaymentMethodPage } from './presentation/pages/PaymentMethodPage';
 export { default as NumberFormatPage } from './presentation/pages/NumberFormatPage';
+export { default as DepartmentPage } from './presentation/pages/DepartmentPage';
 export { default as TagSettingPage } from './presentation/pages/TagSettingPage';
 export { ApprovalFlowPage, SitesPage } from './presentation/pages/PlannedSettingsPages';
 export { default as SettingsLayout } from './presentation/components/SettingsLayout';

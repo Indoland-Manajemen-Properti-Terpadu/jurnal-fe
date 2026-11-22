@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Alert, Button, Checkbox, Group, Menu, Modal, Stack, Text } from '@mantine/core';
+import { Alert, Button, Checkbox, Menu } from '@mantine/core';
+import { ModalFrame } from '@/components/Modals/ModalFrame';
 import {
-  IconCash,
+  IconCoins,
   IconDots,
   IconEdit,
   IconReceiptRefund,
@@ -39,9 +40,9 @@ export const BillActionBar = ({ bill }: Readonly<{ bill: PurchaseBill }>) => {
   const hasVariance = bill.variances.length > 0;
   const showEdit = actions.edit && can(PURCHASE_MENU.documents, 'update');
   const showVerify = actions.verify && can(PURCHASE_MENU.documents, 'update');
-  const showPay = actions.pay && can(PURCHASE_MENU.payments, 'create');
+  const showPay = actions.requestPayment && can(PURCHASE_MENU.paymentRequests, 'create');
   const showCredit = actions.applyCredit && can(PURCHASE_MENU.payments, 'create');
-  const showReturn = actions.createReturn && can(PURCHASE_MENU.documents, 'create');
+  const showReturn = actions.createReturn && can(PURCHASE_MENU.returns, 'create');
   const showVoid = actions.void && can(PURCHASE_MENU.documents, 'delete');
   const hasMenu = showCredit || showReturn || showVoid;
 
@@ -74,10 +75,10 @@ export const BillActionBar = ({ bill }: Readonly<{ bill: PurchaseBill }>) => {
       {showPay && (
         <Button
           radius="md"
-          leftSection={<IconCash size={16} />}
-          onClick={() => navigate(`${routes.purchases.paymentAdd}?bill=${bill.id}`)}
+          leftSection={<IconCoins size={16} />}
+          onClick={() => navigate(`${routes.purchases.paymentRequestAdd}?bill=${bill.id}`)}
         >
-          {t('bills.detail.pay')}
+          {t('bills.detail.requestPayment')}
         </Button>
       )}
       {hasMenu && (
@@ -117,27 +118,13 @@ export const BillActionBar = ({ bill }: Readonly<{ bill: PurchaseBill }>) => {
         </Menu>
       )}
 
-      <Modal
+      <ModalFrame
         opened={verifying}
         onClose={closeVerify}
         title={t('bills.detail.verifyTitle')}
-        centered
-        radius="lg"
-      >
-        <Stack gap="md">
-          <Text size="sm" c="dimmed">
-            {t('bills.detail.verifyDescription')}
-          </Text>
-          {hasVariance && (
-            <Alert color="yellow" variant="light" radius="md">
-              <Checkbox
-                checked={acknowledged}
-                onChange={(event) => setAcknowledged(event.currentTarget.checked)}
-                label={t('bills.detail.verifyAcknowledge')}
-              />
-            </Alert>
-          )}
-          <Group justify="flex-end" gap="sm">
+        description={t('bills.detail.verifyDescription')}
+        footer={
+          <>
             <Button variant="default" onClick={closeVerify} disabled={verify.isPending}>
               {t('common.cancel')}
             </Button>
@@ -153,9 +140,19 @@ export const BillActionBar = ({ bill }: Readonly<{ bill: PurchaseBill }>) => {
             >
               {t('bills.detail.verify')}
             </Button>
-          </Group>
-        </Stack>
-      </Modal>
+          </>
+        }
+      >
+        {hasVariance && (
+          <Alert color="yellow" variant="light" radius="md">
+            <Checkbox
+              checked={acknowledged}
+              onChange={(event) => setAcknowledged(event.currentTarget.checked)}
+              label={t('bills.detail.verifyAcknowledge')}
+            />
+          </Alert>
+        )}
+      </ModalFrame>
 
       <ReasonModal
         opened={voiding}

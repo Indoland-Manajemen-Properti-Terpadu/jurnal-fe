@@ -1,25 +1,42 @@
 import type { ReactNode } from 'react';
-import { SimpleGrid, Text } from '@mantine/core';
+import { Text } from '@mantine/core';
+import classes from '@/module/purchases/presentation/components/shared/InfoGrid.module.css';
 
 export interface InfoItem {
   label: string;
   value: ReactNode;
+  /** A dimmed line under the value. */
+  sub?: ReactNode;
   /** 2 spans the full width of the grid. */
   span?: 1 | 2;
 }
 
-/** Facts as a small label over a value, two columns from tablet width. */
-export const InfoGrid = ({ items }: Readonly<{ items: InfoItem[] }>) => (
-  <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md" verticalSpacing="md">
-    {items.map(({ label, value, span }) => (
-      <div key={label} style={span === 2 ? { gridColumn: '1 / -1' } : undefined}>
-        <Text fz="xs" c="dimmed" fw={500}>
-          {label}
-        </Text>
-        <Text fz="sm" fw={500} component="div">
-          {value === null || value === undefined || value === '' ? '-' : value}
-        </Text>
-      </div>
-    ))}
-  </SimpleGrid>
-);
+/**
+ * Facts as bordered cells, two columns from tablet width, as in the reference web: a small label
+ * over a bold value. Put it in a `flush` card so the lines run to the edges.
+ */
+export const InfoGrid = ({ items }: Readonly<{ items: InfoItem[] }>) => {
+  // A lone cell on the last row gets a blank neighbour so the grid has no grey hole.
+  const columns = items.reduce((total, item) => total + (item.span === 2 ? 2 : 1), 0);
+  const needsFiller = columns % 2 === 1;
+  return (
+    <div className={classes.grid}>
+      {items.map(({ label, value, sub, span }) => (
+        <div key={label} className={classes.cell} data-span={span === 2 ? 'full' : undefined}>
+          <Text fz="xs" c="dimmed" fw={500}>
+            {label}
+          </Text>
+          <Text fz="md" fw={700} component="div" lh={1.35}>
+            {value === null || value === undefined || value === '' ? '-' : value}
+          </Text>
+          {sub && (
+            <Text fz="xs" c="dimmed" component="div">
+              {sub}
+            </Text>
+          )}
+        </div>
+      ))}
+      {needsFiller && <div className={classes.cell} aria-hidden />}
+    </div>
+  );
+};

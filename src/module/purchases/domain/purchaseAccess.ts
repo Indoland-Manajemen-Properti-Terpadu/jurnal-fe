@@ -1,11 +1,24 @@
 export type MenuAction = 'create' | 'read' | 'update' | 'delete';
 
-/** Menu ids the purchasing backend checks (see the module README). */
+/**
+ * Menu ids the purchasing backend checks. The approval menus are not set by hand in Roles: the
+ * backend grants them to the roles chosen in Settings > Alur Persetujuan.
+ */
 export const PURCHASE_MENU = {
+  /** Procurement (quotes = update, create order = create), orders, bills. */
   documents: 'JP-PURCH',
+  /** The requester's own FPPBJ. */
+  request: 'JP-PURCH-FPPBJ',
+  /** Accounting: sees every FPPBJ, verifies or returns (update), cancels (delete). */
+  requestVerify: 'JP-PURCH-FPPBJ-VER',
+  /** Goods receipts (FPB) and service receipts (BAPP). */
+  receipts: 'JP-PURCH-RCV',
+  returns: 'JP-PURCH-RET',
+  paymentRequests: 'JP-PURCH-PAYREQ',
+  /** Payment vouchers (cashier). */
   payments: 'JP-PURCH-PAY',
-  approvePurchaseRequest: 'JP-PURCH-APR-PR',
-  approvePurchaseOrder: 'JP-PURCH-APR-PO',
+  approveProcurement: 'JP-PURCH-APR-PROC',
+  approveReceipt: 'JP-PURCH-APR-BAPP',
   approvePayment: 'JP-PURCH-APR-PAY',
   reports: 'JP-PURCH-RPT',
 } as const;

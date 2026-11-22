@@ -1,5 +1,9 @@
 import {
   clampReturnQty,
+  defaultSettlement,
+  hasRefundErrors,
+  toRefundInput,
+  validateRefund,
   emptyReturnForm,
   hasReturnErrors,
   previewReturn,
@@ -85,6 +89,45 @@ describe('splitReturn', () => {
   });
 });
 
+describe('settlement choice', () => {
+  const open = { status: 'VERIFIED', remainingAmount: 100 } as unknown as PurchaseBill;
+  const settled = { status: 'PAID', remainingAmount: 0 } as unknown as PurchaseBill;
+
+  it('deducts from a bill that still owes money and credits one that is settled', () => {
+    expect(defaultSettlement(open)).toBe('DEDUCT');
+    expect(defaultSettlement(settled)).toBe('CREDIT');
+    expect(emptyReturnForm('2026-11-05', settled).settlement).toBe('CREDIT');
+  });
+
+  it('puts the whole value into credit or refund instead of cutting the bill', () => {
+    expect(splitReturn(51775, 10000, 'CREDIT')).toEqual({ appliedToBill: 0, credit: 51775 });
+    expect(splitReturn(51775, 10000, 'REFUND')).toEqual({ appliedToBill: 0, credit: 51775 });
+  });
+});
+
+describe('refund validation', () => {
+  const ok = { date: '2026-11-22', depositAccountId: 'acc', amount: 200000 as number | '' };
+
+  it('accepts a refund within what is left and nothing else', () => {
+    expect(hasRefundErrors(validateRefund(ok, 355000))).toBe(false);
+    expect(validateRefund({ ...ok, amount: 355000.01 }, 355000).amount).toBe('amountTooHigh');
+    expect(validateRefund({ ...ok, amount: 0 }, 355000).amount).toBe('amountInvalid');
+    expect(validateRefund({ ...ok, amount: 1.234 }, 355000).amount).toBe('amountInvalid');
+    expect(validateRefund({ ...ok, amount: '' }, 355000).amount).toBe('amountInvalid');
+  });
+
+  it('needs the receiving account and a date, as the server does', () => {
+    const errors = validateRefund({ ...ok, depositAccountId: '', date: '' }, 355000);
+    expect(errors.depositAccountId).toBe('depositRequired');
+    expect(errors.date).toBe('dateRequired');
+    expect(toRefundInput(ok)).toEqual({
+      transactionDate: '2026-11-22',
+      depositAccount: 'acc',
+      amount: 200000,
+    });
+  });
+});
+
 describe('return lines and validation', () => {
   it('derives what can still go back', () => {
     const bill = {
@@ -123,6 +166,8 @@ describe('return lines and validation', () => {
 
 describe('return payloads', () => {
   const values = {
+    settlement: 'DEDUCT' as const,
+    warehouseId: '',
     date: '2026-11-05',
     reason: ' Barang rusak ',
     memo: '',
@@ -134,6 +179,7 @@ describe('return payloads', () => {
       bill: 'bill1',
       transactionDate: '2026-11-05',
       reason: 'Barang rusak',
+      settlement: 'DEDUCT',
       memo: undefined,
       items: [{ billItem: 'i1', quantity: 2 }],
     });
@@ -141,5 +187,16 @@ describe('return payloads', () => {
 
   it('leaves the bill out of an update', () => {
     expect(toReturnUpdateInput(values)).not.toHaveProperty('bill');
+  });
+
+  it('sends the chosen settlement and the warehouse only when one is picked', () => {
+    expect(
+      toReturnInput({ ...values, settlement: 'REFUND', warehouseId: 'w1' }, 'bill1')
+    ).toMatchObject({
+      settlement: 'REFUND',
+      warehouse: 'w1',
+    });
+    expect(toReturnInput(values, 'bill1')).not.toHaveProperty('warehouse');
+    expect(toReturnUpdateInput({ ...values, settlement: 'CREDIT' }).settlement).toBe('CREDIT');
   });
 });

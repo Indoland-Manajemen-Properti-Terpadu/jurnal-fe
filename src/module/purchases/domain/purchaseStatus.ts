@@ -3,9 +3,10 @@ import type {
   PaymentVoucherStatus,
   PurchaseBillStatus,
   PurchaseOrderStatus,
-  PurchaseRequestStatus,
   PurchaseReturnStatus,
 } from '@/module/purchases/domain/purchaseDocuments';
+import type { PaymentRequestStatus } from '@/module/purchases/domain/paymentRequest';
+import type { PurchaseRequestStatus } from '@/module/purchases/domain/purchaseRequest';
 
 /** Tone drives the badge color: color only carries real success, warning and failure. */
 export type StatusTone = 'neutral' | 'info' | 'warning' | 'success' | 'danger';
@@ -16,6 +17,7 @@ export type PurchaseStatus =
   | GoodsReceiptStatus
   | PurchaseBillStatus
   | PaymentVoucherStatus
+  | PaymentRequestStatus
   | PurchaseReturnStatus;
 
 const TONES: Record<PurchaseStatus, StatusTone> = {
@@ -23,9 +25,12 @@ const TONES: Record<PurchaseStatus, StatusTone> = {
   PENDING_APPROVAL: 'warning',
   APPROVED: 'info',
   REJECTED: 'danger',
-  VENDOR_SELECTED: 'info',
-  CONVERTED: 'success',
+  SUBMITTED: 'warning',
+  RETURNED: 'warning',
+  IN_PROCUREMENT: 'info',
+  COMPLETED: 'success',
   CANCELLED: 'neutral',
+  SENT: 'info',
   PARTIAL_RECEIVED: 'info',
   RECEIVED: 'success',
   CLOSED: 'neutral',
@@ -34,6 +39,7 @@ const TONES: Record<PurchaseStatus, StatusTone> = {
   VERIFIED: 'info',
   PARTIAL_PAID: 'warning',
   PAID: 'success',
+  PROCESSED: 'info',
 };
 
 export const statusTone = (status: PurchaseStatus): StatusTone => TONES[status];
@@ -41,20 +47,19 @@ export const statusTone = (status: PurchaseStatus): StatusTone => TONES[status];
 /** Statuses a list filters by, per document, in the order of the tabs and menus. */
 export const REQUEST_STATUSES: PurchaseRequestStatus[] = [
   'DRAFT',
-  'PENDING_APPROVAL',
-  'APPROVED',
-  'REJECTED',
-  'VENDOR_SELECTED',
-  'CONVERTED',
+  'SUBMITTED',
+  'VERIFIED',
+  'RETURNED',
+  'IN_PROCUREMENT',
+  'COMPLETED',
   'CANCELLED',
 ];
 export const ORDER_STATUSES: PurchaseOrderStatus[] = [
   'DRAFT',
-  'PENDING_APPROVAL',
-  'APPROVED',
-  'REJECTED',
+  'SENT',
   'PARTIAL_RECEIVED',
   'RECEIVED',
+  'COMPLETED',
   'CLOSED',
   'VOID',
 ];
@@ -66,12 +71,5 @@ export const BILL_STATUSES: PurchaseBillStatus[] = [
   'PAID',
   'VOID',
 ];
-export const VOUCHER_STATUSES: PaymentVoucherStatus[] = [
-  'DRAFT',
-  'PENDING_APPROVAL',
-  'APPROVED',
-  'PAID',
-  'REJECTED',
-  'VOID',
-];
+export const VOUCHER_STATUSES: PaymentVoucherStatus[] = ['DRAFT', 'PAID', 'VOID'];
 export const RETURN_STATUSES: PurchaseReturnStatus[] = ['DRAFT', 'POSTED', 'VOID'];

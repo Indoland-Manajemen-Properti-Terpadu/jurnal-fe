@@ -1,209 +1,144 @@
-import { fromMinor, sumMinor, toMinor } from '@/lib/money/money';
-import type { PaymentVoucher, PurchaseBill } from '@/module/purchases/domain/purchaseDocuments';
-import type { PaymentVoucherInput } from '@/module/purchases/domain/purchaseInputs';
+import { sumMinor, toMinor } from '@/lib/money/money';
+import type { PartyRef } from '@/module/purchases/domain/purchaseCommon';
+import type { PaymentRequest } from '@/module/purchases/domain/paymentRequest';
 
-export type PaymentMode = 'BILL' | 'ADVANCE';
-
-export interface PayableBill {
+/** An approved Payment Request waiting for a voucher. */
+export interface ReadyRequest {
   id: string;
   number: string;
-  date: string;
+  kind: PaymentRequest['kind'];
+  vendorId: string;
+  vendorName: string;
+  amount: number;
   dueDate: string | null;
-  remaining: number;
+  /** The bill or the order the money goes to, for the list. */
+  target: string;
 }
+
+export const toReadyRequest = (doc: PaymentRequest): ReadyRequest => ({
+  id: doc.id,
+  number: doc.number,
+  kind: doc.kind,
+  vendorId: doc.vendor?.id ?? '',
+  vendorName: doc.vendor?.name ?? '-',
+  amount: doc.amount,
+  dueDate: doc.dueDate,
+  target:
+    doc.kind === 'DP'
+      ? (doc.order?.number ?? '')
+      : doc.items.map((item) => item.bill.number).join(', '),
+});
+
+/** Requests of one vendor can share a voucher; the first one picked decides the vendor. */
+export const compatibleRequest = (picked: ReadyRequest[], candidate: ReadyRequest): boolean =>
+  picked.length === 0 || picked.every((request) => request.vendorId === candidate.vendorId);
 
 export interface PaymentFormValues {
-  mode: PaymentMode;
-  vendorId: string;
   date: string;
   paymentMethodId: string;
+  depositAccountId: string;
   referenceNumber: string;
   memo: string;
-  /** Bills chosen for this voucher with the amount paid on each; a missing key is not chosen. */
-  amounts: Record<string, number>;
-  advanceAmount: number | '';
-  purchaseOrderId: string;
 }
 
-/** A voucher changes only these fields; the vendor and the type are fixed once it exists. */
-export interface PaymentUpdateInput {
-  transactionDate: string;
-  paymentMethod?: string;
-  referenceNumber?: string;
-  memo?: string;
-  items?: { bill: string; amount: number }[];
-  amount?: number;
-  purchaseOrder?: string | null;
-}
-
-export const emptyPaymentForm = (mode: PaymentMode, date: string): PaymentFormValues => ({
-  mode,
-  vendorId: '',
+export const emptyPaymentForm = (date: string): PaymentFormValues => ({
   date,
   paymentMethodId: '',
+  depositAccountId: '',
   referenceNumber: '',
   memo: '',
-  amounts: {},
-  advanceAmount: '',
-  purchaseOrderId: '',
 });
 
-export const toPayableBill = (bill: PurchaseBill): PayableBill => ({
-  id: bill.id,
-  number: bill.number,
-  date: bill.date,
-  dueDate: bill.dueDate,
-  remaining: bill.remainingAmount,
-});
-
-/** Verified and partly paid bills side by side, the earliest due date first. */
-export const mergePayableBills = (...lists: PurchaseBill[][]): PayableBill[] =>
-  lists
-    .flat()
-    .filter((bill) => bill.remainingAmount > 0)
-    .map(toPayableBill)
-    .sort(
-      (a, b) =>
-        (a.dueDate ?? '9999').localeCompare(b.dueDate ?? '9999') || a.number.localeCompare(b.number)
-    );
-
-/** A paid amount is never negative and never above what the bill still owes. */
-export const clampAmount = (value: number | string, max: number): number => {
-  const number = typeof value === 'number' ? value : Number(value);
-  if (!Number.isFinite(number) || number <= 0) return 0;
-  return Math.min(number, max);
-};
-
-export const selectedBillIds = (values: PaymentFormValues): string[] => Object.keys(values.amounts);
-
-export const billsTotal = (values: PaymentFormValues): number =>
-  Number(fromMinor(sumMinor(Object.values(values.amounts).map((amount) => toMinor(amount || 0)))));
-
-export const totalToPay = (values: PaymentFormValues): number =>
-  values.mode === 'ADVANCE' ? Number(values.advanceAmount || 0) : billsTotal(values);
-
-/** What leaves the bank: the payment plus the method's fee, which is booked as an expense. */
-export const cashOut = (total: number, adminFee: number): number =>
-  Number(fromMinor(toMinor(total) + toMinor(adminFee)));
-
-/** Chooses a bill with its whole remaining balance, or drops it. */
-export const toggleBill = (
-  values: PaymentFormValues,
-  bill: PayableBill,
-  chosen: boolean
-): PaymentFormValues => {
-  const amounts = { ...values.amounts };
-  if (chosen) amounts[bill.id] = bill.remaining;
-  else delete amounts[bill.id];
-  return { ...values, amounts };
-};
-
-export const payAllBills = (
-  values: PaymentFormValues,
-  bills: PayableBill[]
-): PaymentFormValues => ({
-  ...values,
-  amounts: Object.fromEntries(bills.map((bill) => [bill.id, bill.remaining])),
-});
-
-export interface PaymentErrors {
-  vendor: boolean;
-  date: 'required' | 'beforeBill' | null;
-  method: boolean;
-  noBill: boolean;
-  advanceAmount: boolean;
-  zeroIds: string[];
-  overIds: string[];
+export interface PaymentFormErrors {
+  date?: 'dateRequired';
+  requests?: 'noRequests';
 }
 
-export const validatePayment = (values: PaymentFormValues, bills: PayableBill[]): PaymentErrors => {
-  const chosen = bills.filter((bill) => bill.id in values.amounts);
-  const zeroIds = chosen.filter((bill) => !(values.amounts[bill.id] > 0)).map((bill) => bill.id);
-  const overIds = chosen
-    .filter((bill) => values.amounts[bill.id] > bill.remaining)
-    .map((bill) => bill.id);
-  const latestBill = chosen.reduce((latest, bill) => (bill.date > latest ? bill.date : latest), '');
+export const hasPaymentErrors = (errors: PaymentFormErrors): boolean =>
+  Boolean(errors.date || errors.requests);
 
-  let date: PaymentErrors['date'] = null;
-  if (!values.date) date = 'required';
-  else if (values.mode === 'BILL' && latestBill && values.date < latestBill) date = 'beforeBill';
-
-  return {
-    vendor: !values.vendorId,
-    date,
-    method: !values.paymentMethodId,
-    noBill: values.mode === 'BILL' && selectedBillIds(values).length === 0,
-    advanceAmount: values.mode === 'ADVANCE' && !(Number(values.advanceAmount) > 0),
-    zeroIds,
-    overIds,
-  };
-};
-
-export const hasPaymentErrors = (errors: PaymentErrors): boolean =>
-  errors.vendor ||
-  errors.date !== null ||
-  errors.method ||
-  errors.noBill ||
-  errors.advanceAmount ||
-  errors.zeroIds.length > 0 ||
-  errors.overIds.length > 0;
-
-const optional = (value: string) => value.trim() || undefined;
-
-export const toPaymentInput = (values: PaymentFormValues): PaymentVoucherInput => {
-  const common = {
-    transactionDate: values.date,
-    vendor: values.vendorId,
-    paymentMethod: optional(values.paymentMethodId),
-    referenceNumber: optional(values.referenceNumber),
-    memo: optional(values.memo),
-  };
-  if (values.mode === 'ADVANCE') {
-    return {
-      ...common,
-      type: 'ADVANCE',
-      amount: Number(values.advanceAmount),
-      purchaseOrder: optional(values.purchaseOrderId),
-    };
-  }
-  return {
-    ...common,
-    items: Object.entries(values.amounts).map(([bill, amount]) => ({ bill, amount })),
-  };
-};
-
-export const toPaymentUpdateInput = (values: PaymentFormValues): PaymentUpdateInput => {
-  const common = {
-    transactionDate: values.date,
-    paymentMethod: optional(values.paymentMethodId),
-    referenceNumber: values.referenceNumber.trim(),
-    memo: values.memo.trim(),
-  };
-  if (values.mode === 'ADVANCE') {
-    return {
-      ...common,
-      amount: Number(values.advanceAmount),
-      purchaseOrder: optional(values.purchaseOrderId) ?? null,
-    };
-  }
-  return {
-    ...common,
-    items: Object.entries(values.amounts).map(([bill, amount]) => ({ bill, amount })),
-  };
-};
-
-export const paymentFormFromVoucher = (doc: PaymentVoucher): PaymentFormValues => ({
-  mode: doc.type === 'ADVANCE' ? 'ADVANCE' : 'BILL',
-  vendorId: doc.vendor.id,
-  date: doc.date,
-  paymentMethodId: doc.paymentMethod?.id ?? '',
-  referenceNumber: doc.referenceNumber,
-  memo: doc.memo,
-  amounts: Object.fromEntries(doc.lines.map((line) => [line.billId, line.amount])),
-  advanceAmount: doc.type === 'ADVANCE' ? doc.totalAmount : '',
-  purchaseOrderId: doc.purchaseOrderId ?? '',
+export const validatePaymentForm = (
+  values: PaymentFormValues,
+  picked: ReadyRequest[]
+): PaymentFormErrors => ({
+  ...(values.date ? {} : { date: 'dateRequired' as const }),
+  ...(picked.length > 0 ? {} : { requests: 'noRequests' as const }),
 });
 
-/** Only vouchers that have not entered approval can be changed. */
-export const canEditVoucher = (doc: PaymentVoucher): boolean =>
-  doc.status === 'DRAFT' || doc.status === 'REJECTED';
+export interface PaymentVoucherInput {
+  transactionDate: string;
+  paymentRequests: string[];
+  paymentMethod?: string;
+  depositAccount?: string;
+  referenceNumber?: string;
+  memo?: string;
+}
+
+export const toPaymentInput = (
+  values: PaymentFormValues,
+  picked: ReadyRequest[]
+): PaymentVoucherInput => ({
+  transactionDate: values.date,
+  paymentRequests: picked.map((request) => request.id),
+  ...(values.paymentMethodId ? { paymentMethod: values.paymentMethodId } : {}),
+  ...(values.depositAccountId ? { depositAccount: values.depositAccountId } : {}),
+  ...(values.referenceNumber.trim() ? { referenceNumber: values.referenceNumber.trim() } : {}),
+  ...(values.memo.trim() ? { memo: values.memo.trim() } : {}),
+});
+
+/** What a voucher shows while it is made: how much it pays and for whom. */
+export const voucherTotal = (picked: ReadyRequest[]): number =>
+  sumMinor(picked.map((request) => toMinor(request.amount))) / 100;
+
+export const voucherVendor = (picked: ReadyRequest[]): Pick<PartyRef, 'id'> | null =>
+  picked[0] ? { id: picked[0].vendorId } : null;
+
+/* ---------- Paying a voucher ---------- */
+
+export interface PayFormValues {
+  paidAt: string;
+  depositAccountId: string;
+  paymentMethodId: string;
+  adminFee: number | '';
+  referenceNumber: string;
+}
+
+export interface PayFormErrors {
+  paidAt?: 'dateRequired';
+  depositAccountId?: 'depositRequired';
+  adminFee?: 'feeInvalid';
+}
+
+export const hasPayErrors = (errors: PayFormErrors): boolean => Object.keys(errors).length > 0;
+
+/**
+ * The server falls back to a default cash account when none is sent, which would book the payment to a
+ * bank nobody chose; the form insists on a choice instead.
+ */
+export const validatePayForm = (values: PayFormValues): PayFormErrors => ({
+  ...(values.paidAt ? {} : { paidAt: 'dateRequired' as const }),
+  ...(values.depositAccountId ? {} : { depositAccountId: 'depositRequired' as const }),
+  ...(values.adminFee !== '' && (!Number.isFinite(values.adminFee) || values.adminFee < 0)
+    ? { adminFee: 'feeInvalid' as const }
+    : {}),
+});
+
+export interface PayInput {
+  paidAt: string;
+  depositAccount: string;
+  paymentMethod?: string;
+  adminFee?: number;
+  referenceNumber?: string;
+}
+
+export const toPayInput = (values: PayFormValues): PayInput => ({
+  paidAt: values.paidAt,
+  depositAccount: values.depositAccountId,
+  ...(values.paymentMethodId ? { paymentMethod: values.paymentMethodId } : {}),
+  ...(values.adminFee === '' ? {} : { adminFee: values.adminFee }),
+  ...(values.referenceNumber.trim() ? { referenceNumber: values.referenceNumber.trim() } : {}),
+});
+
+/** What leaves the bank: the amount paid plus the admin fee, added in whole minor units. */
+export const cashOutOf = (total: number, adminFee: number): number =>
+  sumMinor([toMinor(total), toMinor(adminFee)]) / 100;

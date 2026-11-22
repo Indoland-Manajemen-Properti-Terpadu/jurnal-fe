@@ -32,7 +32,7 @@ export interface ProductDto {
   id: string;
   name: string;
   sku?: string | null;
-  unit?: { name?: string | null } | null;
+  unit?: { id?: string; name?: string | null } | null;
   inventoryInfo?: { isTracked?: boolean } | null;
 }
 
@@ -52,11 +52,11 @@ export interface PaymentMethodDto {
 export interface AttachmentDto {
   _id?: string;
   id?: string;
-  name?: string;
-  filename?: string;
-  originalName?: string;
-  url?: string;
-  path?: string;
+  /** Stored file name as the user uploaded it. */
+  fileName?: string;
+  /** Path under the API address, e.g. `uploads/1795241690857-f61abb15.pdf`. */
+  filePath?: string;
+  mimeType?: string;
 }
 
 export interface ApprovalPlanDto {
@@ -98,37 +98,6 @@ export interface ApprovalFieldsDto {
   rejectedAt?: string | null;
 }
 
-export interface RequestItemDto {
-  _id: string;
-  product?: ProductDto | null;
-  description?: string | null;
-  quantity: number;
-  unit?: { name?: string | null } | null;
-}
-
-export interface QuotationDto {
-  _id: string;
-  vendor: PartyDto;
-  quotationNumber?: string | null;
-  quotationDate: string;
-  validUntil?: string | null;
-  items: { requestItem: string; quantity: number; unitPrice: number }[];
-  total: number;
-  notes?: string | null;
-}
-
-export interface PurchaseRequestDto extends DocumentDto, ApprovalFieldsDto {
-  requiredDate?: string | null;
-  department?: string | null;
-  purpose?: string | null;
-  procurementMode: 'DIRECT' | 'WITH_QUOTATION';
-  status: string;
-  items: RequestItemDto[];
-  quotations?: QuotationDto[] | null;
-  selectedQuotation?: string | null;
-  purchaseOrder?: IdOr<{ id: string }> | null;
-}
-
 export interface AmountsDto {
   subtotal: number;
   discountType?: 'percentage' | 'nominal' | null;
@@ -159,38 +128,80 @@ export interface LineDto {
 
 export interface OrderItemDto extends LineDto {
   requestItem: string;
+  specification?: string | null;
   receivedQty: number;
   billedQty: number;
+  billOnly?: boolean | null;
+  schedule?: {
+    kind: 'FULL' | 'ADVANCE' | 'TERM' | 'PERIOD' | 'RETENTION';
+    seq?: number | null;
+    of?: number | null;
+    periodFrom?: string | null;
+    periodTo?: string | null;
+  } | null;
 }
 
-export interface PurchaseOrderDto extends DocumentDto, AmountsDto, ApprovalFieldsDto {
+export interface PurchaseOrderDto extends DocumentDto, AmountsDto {
+  statusLabel?: string | null;
+  documentLabel?: string | null;
+  isService?: boolean | null;
   expectedDate?: string | null;
-  vendor: PartyDto;
+  vendor: PartyDto & { emails?: string[] | null };
   purchaseRequest: IdOr<{ id: string }>;
+  purchaseRequestRef?: {
+    id: string;
+    transactionNumber?: string | null;
+    purpose?: string | null;
+  } | null;
   paymentTerm?: { name?: string | null } | null;
+  warranty?: string | null;
+  warehouse?: { id: string; name: string } | null;
   deliveryAddress?: string | null;
   status: string;
+  withReceipt?: boolean | null;
   items: OrderItemDto[];
+  advance?: {
+    amount?: number | null;
+    requested?: number | null;
+    paid?: number | null;
+    used?: number | null;
+    available?: number | null;
+  } | null;
+  payableAmount?: number | null;
+  billedAmount?: number | null;
+  sentByEmail?: boolean | null;
+  sentTo?: string | null;
+  sentCc?: string[] | null;
+  sentNote?: string | null;
 }
 
-export interface GoodsReceiptDto extends DocumentDto {
+export interface GoodsReceiptDto extends DocumentDto, ApprovalFieldsDto {
+  kind?: 'GOODS' | 'SERVICE' | null;
+  documentLabel?: string | null;
+  statusLabel?: string | null;
   vendor: PartyDto;
   purchaseOrder: IdOr<{ id: string }>;
+  purchaseOrderRef?: { id: string; transactionNumber?: string | null } | null;
+  warehouse?: { id: string; name: string } | null;
   deliveryNote?: string | null;
   status: string;
+  amount?: number | null;
+  billRefs?: { id: string; transactionNumber?: string | null; status?: string | null }[] | null;
   items: {
     _id: string;
     purchaseOrderItem: string;
     product?: ProductDto | null;
     description?: string | null;
     receivedQty: number;
+    rejectedQty?: number | null;
     accrualAmount: number;
   }[];
   journalTransaction?: string | null;
 }
 
 export interface BillItemDto extends LineDto {
-  purchaseOrderItem: string;
+  purchaseOrderItem?: string | null;
+  account?: { id: string; name?: string | null } | null;
   returnedQty?: number | null;
 }
 
@@ -206,40 +217,118 @@ export interface CreditApplicationDto {
   voided?: boolean;
 }
 
+export interface DocumentRefDto {
+  id: string;
+  transactionNumber?: string | null;
+  status?: string | null;
+}
+
 export interface PurchaseBillDto extends DocumentDto, AmountsDto {
+  source?: 'RECEIPT' | 'ORDER' | 'MANUAL' | null;
+  noMatch?: boolean | null;
+  statusLabel?: string | null;
+  displayStatus?: string | null;
+  displayStatusLabel?: string | null;
   vendorInvoiceNumber?: string | null;
+  taxInvoiceNumber?: string | null;
   vendorInvoiceTotal?: number | null;
   vendor: PartyDto;
-  purchaseOrder: IdOr<{ id: string }>;
+  purchaseOrderRefs?: DocumentRefDto[] | null;
+  goodsReceiptRefs?: DocumentRefDto[] | null;
+  paymentRequestRefs?: DocumentRefDto[] | null;
+  returnRefs?: DocumentRefDto[] | null;
+  paymentTerm?: { name?: string | null } | null;
   dueDate?: string | null;
   status: string;
   items: BillItemDto[];
+  tags?: string[] | null;
   paidAmount: number;
   returnedAmount: number;
   creditAppliedAmount: number;
   remainingAmount: number;
+  heldAmount?: number | null;
+  requestableAmount?: number | null;
   variances?: { type: 'PRICE' | 'TOTAL'; expected?: number; actual?: number }[] | null;
   creditApplications?: CreditApplicationDto[] | null;
   journalTransaction?: string | null;
   verifiedAt?: string | null;
 }
 
-export interface PaymentVoucherDto extends DocumentDto, ApprovalFieldsDto {
-  type?: 'BILL' | 'ADVANCE' | null;
+export interface PaymentVoucherDto extends DocumentDto {
+  statusLabel?: string | null;
   vendor: PartyDto;
   status: string;
-  items?: { bill: IdOr<{ id: string }>; amount: number }[] | null;
   totalAmount: number;
-  advanceAppliedAmount?: number | null;
-  purchaseOrder?: IdOr<{ id: string }> | null;
-  paymentMethod?: PaymentMethodDto | null;
+  paymentMethod?: PaymentMethodDto | string | null;
+  depositAccount?: string | null;
   adminFee?: number | null;
   referenceNumber?: string | null;
   journalTransaction?: string | null;
   paidAt?: string | null;
+  voidReason?: string | null;
+  itemRefs?:
+    | {
+        kind: 'DP' | 'SETTLEMENT';
+        amount: number;
+        paymentRequest: { id: string; transactionNumber?: string | null };
+        bill?: {
+          id: string;
+          transactionNumber?: string | null;
+          vendorInvoiceNumber?: string | null;
+        } | null;
+        purchaseOrder?: { id: string; transactionNumber?: string | null } | null;
+      }[]
+    | null;
+}
+
+export interface PaymentRequestDto extends DocumentDto, ApprovalFieldsDto {
+  statusLabel?: string | null;
+  kindLabel?: string | null;
+  kind: 'DP' | 'SETTLEMENT';
+  status: string;
+  vendor?: PartyDto | null;
+  amount: number;
+  dueDate?: string | null;
+  advanceAccount?: string | null;
+  advanceAppliedAmount?: number | null;
+  cancelReason?: string | null;
+  purchaseOrderRef?: {
+    id: string;
+    transactionNumber?: string | null;
+    isService?: boolean | null;
+    total?: number | null;
+    status?: string | null;
+  } | null;
+  paymentVoucherRef?: {
+    id: string;
+    transactionNumber?: string | null;
+    totalAmount?: number | null;
+    status?: string | null;
+    paidAt?: string | null;
+  } | null;
+  itemRefs?:
+    | {
+        amount: number;
+        bill: {
+          id: string;
+          transactionNumber?: string | null;
+          vendorInvoiceNumber?: string | null;
+          dueDate?: string | null;
+          finalAmount?: number | null;
+          remainingAmount?: number | null;
+          status?: string | null;
+        };
+      }[]
+    | null;
 }
 
 export interface PurchaseReturnDto extends DocumentDto {
+  statusLabel?: string | null;
+  settlementLabel?: string | null;
+  settlement?: string | null;
+  warehouse?: { id: string; name: string } | null;
+  billRef?: { id: string; transactionNumber?: string | null } | null;
+  refundAmount?: number | null;
   vendor: PartyDto;
   bill: IdOr<{ id: string }>;
   reason: string;
@@ -309,4 +398,29 @@ export interface MyPermissionsDto {
     update?: boolean;
     delete?: boolean;
   }[];
+}
+
+export interface BillSourceLineDto {
+  purchaseOrderItem: string;
+  description?: string | null;
+  open?: number | null;
+  unitPrice: number;
+  taxRate?: number | null;
+  schedule?: OrderItemDto['schedule'];
+}
+
+/** A receipt or an order that is ready to be billed (`GET /purchase-bills/sources`). */
+export interface BillSourceDto {
+  id: string;
+  transactionNumber: string;
+  transactionDate: string;
+  kind?: 'GOODS' | 'SERVICE' | null;
+  isService?: boolean | null;
+  vendor: PartyDto;
+  purchaseOrder?: { id: string; transactionNumber?: string | null } | null;
+  termKey?: string | null;
+  termName?: string | null;
+  isPriceIncludeTax?: boolean | null;
+  lines?: BillSourceLineDto[] | null;
+  orderLines?: BillSourceLineDto[] | null;
 }

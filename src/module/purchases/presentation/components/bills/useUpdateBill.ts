@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import type { BillUpdateInput } from '@/module/purchases/domain/billForm';
+import type { BillUpdateInput } from '@/module/purchases/domain/purchaseInputs';
 import type { PurchaseBill } from '@/module/purchases/domain/purchaseDocuments';
 import type { ApiEnvelope, PurchaseBillDto } from '@/module/purchases/infrastructure/purchaseDto';
 import { toPurchaseBill } from '@/module/purchases/infrastructure/purchaseDocumentMappers';
