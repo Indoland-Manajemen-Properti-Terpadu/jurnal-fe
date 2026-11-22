@@ -78,6 +78,7 @@ export const purchasesBills = {
     removeLine: 'Remove line',
     removeLineAria: 'Remove line {number}',
     error: {
+      qtyEmpty: 'Enter a quantity for at least one line to bill.',
       pickOne: 'Pick at least one document to bill.',
       vendorRequired: 'Select a vendor',
       linesEmpty: 'Add at least one line.',
@@ -115,6 +116,7 @@ export const purchasesBills = {
     continue: 'Continue Verifying',
   },
   wizard: {
+    qtyAria: 'Quantity to bill for {name}',
     title: 'Record Bill',
     source: 'Bill Source',
     sourceHint: 'The vendor and the receipts to bill',
@@ -132,6 +134,8 @@ export const purchasesBills = {
       amount: 'Amount',
     },
     summary: {
+      withholding: 'Withholding tax',
+      calculated: 'Calculated by the system; the same as after the bill is saved.',
       subtotal: 'Subtotal (before tax)',
       tax: 'VAT',
       taxRate: 'VAT {rate}%',

@@ -10,7 +10,11 @@ import type {
   BillVariance,
   PurchaseBill,
 } from '@/module/purchases/domain/purchaseDocuments';
-import type { BillSourceDoc } from '@/module/purchases/domain/billSources';
+import {
+  billItemsFor,
+  type BillQuantities,
+  type BillSourceDoc,
+} from '@/module/purchases/domain/billSources';
 
 /** Same tolerance the backend applies when it compares the vendor's invoice total (Rp1). */
 export const TOTAL_TOLERANCE = 1;
@@ -221,12 +225,16 @@ export const toBillInput = (
   source: BillSource,
   values: BillFormValues,
   picked: BillSourceDoc[],
-  post: boolean
+  post: boolean,
+  quantities: BillQuantities = {}
 ): PurchaseBillInput => {
   const base = { ...header(values), ...(post ? { post: true } : {}) };
   if (source === 'MANUAL') {
     return { ...base, source, vendor: values.vendorId, items: manualItems(values.lines) };
   }
+  // A line billed in part is sent with its quantity; otherwise the service takes whole documents.
+  const items = billItemsFor(source, picked, quantities);
+  if (items) return { ...base, source, items };
   const ids = picked.map((doc) => doc.id);
   return source === 'RECEIPT'
     ? { ...base, source, goodsReceipts: ids }

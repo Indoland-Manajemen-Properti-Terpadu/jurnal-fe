@@ -11,6 +11,7 @@ import { toDate, toDateOrNull, toParty } from '@/module/purchases/infrastructure
 
 const toSourceLine = (dto: BillSourceLineDto): BillSourceLine => ({
   purchaseOrderItemId: dto.purchaseOrderItem,
+  receiptItemId: dto._id ?? '',
   description: dto.description ?? '',
   openQty: dto.open ?? 0,
   unitPrice: dto.unitPrice,

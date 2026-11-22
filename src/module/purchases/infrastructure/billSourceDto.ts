@@ -1,6 +1,8 @@
 import type { OrderItemDto, PartyDto } from '@/module/purchases/infrastructure/purchaseDto';
 
 export interface BillSourceLineDto {
+  /** The id of the receipt's own line. */
+  _id?: string;
   purchaseOrderItem: string;
   description?: string | null;
   open?: number | null;

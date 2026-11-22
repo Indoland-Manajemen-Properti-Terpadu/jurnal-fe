@@ -1,7 +1,8 @@
-import { Alert, Box, Group, Paper, Stack, Table, Text } from '@mantine/core';
+import { Alert, Box, Group, NumberInput, Paper, Stack, Table, Text } from '@mantine/core';
 import { IconAlertTriangle } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import type { BillEstimate } from '@/module/purchases/domain/billSources';
+import type { BillPreview } from '@/module/purchases/infrastructure/purchaseApi';
 import tableClasses from '@/module/purchases/presentation/components/shared/Table.module.css';
 import {
   formatAmount,
@@ -12,7 +13,14 @@ const COLUMNS = ['item', 'from', 'open', 'qty', 'price', 'amount'] as const;
 const RIGHT = new Set(['open', 'qty', 'price', 'amount']);
 
 /** The lines the bill will take from the picked documents, with the three-way matching reminder. */
-export const BillPickedItems = ({ estimate }: Readonly<{ estimate: BillEstimate }>) => {
+export const BillPickedItems = ({
+  estimate,
+  onQuantity,
+}: Readonly<{
+  estimate: BillEstimate;
+  /** Called with the row key and the quantity typed for it. */
+  onQuantity: (key: string, quantity: number) => void;
+}>) => {
   const { t } = useTranslation('purchases');
   return (
     <Stack gap="md">
@@ -44,10 +52,25 @@ export const BillPickedItems = ({ estimate }: Readonly<{ estimate: BillEstimate 
                     </Text>
                   </Table.Td>
                   <Table.Td ta="right">
-                    <Text size="sm">{formatQuantity(row.qty)}</Text>
+                    <Text size="sm">{formatQuantity(row.max)}</Text>
                   </Table.Td>
                   <Table.Td ta="right">
-                    <Text size="sm">{formatQuantity(row.qty)}</Text>
+                    <NumberInput
+                      aria-label={t('bills.wizard.qtyAria', { name: row.description })}
+                      value={row.qty}
+                      onChange={(value) =>
+                        onQuantity(row.key, value === '' ? 0 : Math.min(Number(value), row.max))
+                      }
+                      min={0}
+                      max={row.max}
+                      decimalScale={2}
+                      hideControls
+                      radius="md"
+                      size="xs"
+                      w={96}
+                      ml="auto"
+                      styles={{ input: { textAlign: 'right' } }}
+                    />
                   </Table.Td>
                   <Table.Td ta="right">
                     <Text size="sm">{formatAmount(row.unitPrice)}</Text>
@@ -77,7 +100,10 @@ export const BillPickedItems = ({ estimate }: Readonly<{ estimate: BillEstimate 
 };
 
 /** DPP, tax and what the bill adds to payables, right aligned in the grey band under the lines. */
-export const BillEstimateSummary = ({ estimate }: Readonly<{ estimate: BillEstimate }>) => {
+export const BillEstimateSummary = ({
+  estimate,
+  preview,
+}: Readonly<{ estimate: BillEstimate; preview?: BillPreview }>) => {
   const { t } = useTranslation('purchases');
   const row = (label: string, value: string) => (
     <Group key={label} justify="space-between" wrap="nowrap" gap="xl">
@@ -92,14 +118,20 @@ export const BillEstimateSummary = ({ estimate }: Readonly<{ estimate: BillEstim
   return (
     <Box maw={380} ml="auto">
       <Stack gap={6}>
-        {row(t('bills.wizard.summary.subtotal'), formatAmount(estimate.subtotal))}
-        {estimate.tax > 0 &&
+        {row(
+          t('bills.wizard.summary.subtotal'),
+          formatAmount(preview?.taxBase ?? estimate.subtotal)
+        )}
+        {(preview?.taxAmount ?? estimate.tax) > 0 &&
           row(
             estimate.taxRate
               ? t('bills.wizard.summary.taxRate', { rate: estimate.taxRate })
               : t('bills.wizard.summary.tax'),
-            `+${formatAmount(estimate.tax)}`
+            `+${formatAmount(preview?.taxAmount ?? estimate.tax)}`
           )}
+        {preview &&
+          preview.withholdingAmount > 0 &&
+          row(t('bills.wizard.summary.withholding'), `-${formatAmount(preview.withholdingAmount)}`)}
       </Stack>
       <Group
         justify="space-between"
@@ -114,11 +146,11 @@ export const BillEstimateSummary = ({ estimate }: Readonly<{ estimate: BillEstim
           {t('bills.wizard.summary.payable')}
         </Text>
         <Text fz={22} fw={700} c="primary.8" style={{ fontVariantNumeric: 'tabular-nums' }}>
-          {formatAmount(estimate.total)}
+          {formatAmount(preview?.finalAmount ?? estimate.total)}
         </Text>
       </Group>
       <Text size="xs" c="dimmed" mt="xs" ta="right">
-        {t('bills.wizard.summary.estimate')}
+        {t(preview ? 'bills.wizard.summary.calculated' : 'bills.wizard.summary.estimate')}
       </Text>
     </Box>
   );

@@ -6,6 +6,8 @@ export type PickedSource = Exclude<BillSource, 'MANUAL'>;
 
 export interface BillSourceLine {
   purchaseOrderItemId: string;
+  /** The line of the receipt itself; empty on a line that only the order has. */
+  receiptItemId: string;
   description: string;
   /** What can still be billed on this line: received and not billed yet, or the order's open quantity. */
   openQty: number;
@@ -85,12 +87,23 @@ export const togglePicked = (
   return source === 'ORDER' || source === 'RECEIPT' ? [...picked, doc] : picked;
 };
 
+/** The key of one line in the quantities the person edits. */
+export const rowKey = (docId: string, lineId: string): string => `${docId}-${lineId}`;
+
+/** What the person chose to bill per line, by row key; a line without an entry is billed in full. */
+export type BillQuantities = Record<string, number>;
+
+const clamp = (value: number, max: number): number => Math.min(Math.max(value, 0), max);
+
 export interface BillEstimateRow {
   key: string;
   description: string;
   /** The receipt the line was received on, or the order for a line that only the order has. */
   from: string;
+  /** What is billed on this line now. */
   qty: number;
+  /** The most that can be billed: what is still open. */
+  max: number;
   unitPrice: number;
   amount: number;
 }
@@ -105,11 +118,52 @@ export interface BillEstimate {
   taxRate: number | null;
 }
 
+export type BillItemInput =
+  | { goodsReceipt: string; goodsReceiptItem: string; quantity: number }
+  | { purchaseOrder: string; purchaseOrderItem: string; quantity: number };
+
 /**
- * What the bill will roughly come to, from the quantities still open and the order's prices. The service
- * works out the real figures when the bill is saved; this is only the preview shown before that.
+ * The lines of a partial bill, or null while every line is billed in full (the service then takes
+ * the whole documents). A line billed at zero is left out.
  */
-export const estimateBill = (picked: BillSourceDoc[]): BillEstimate => {
+export const billItemsFor = (
+  source: PickedSource,
+  picked: BillSourceDoc[],
+  quantities: BillQuantities
+): BillItemInput[] | null => {
+  const entries = picked.flatMap((doc) => [
+    ...(doc.lines ?? []).map((line) => ({ doc, line, order: source === 'ORDER' })),
+    ...(doc.orderLines ?? []).map((line) => ({ doc, line, order: true })),
+  ]);
+  const quantityOf = ({ doc, line }: (typeof entries)[number]) =>
+    clamp(quantities[rowKey(doc.id, line.purchaseOrderItemId)] ?? line.openQty, line.openQty);
+  if (entries.every((entry) => quantityOf(entry) === entry.line.openQty)) return null;
+  return entries
+    .filter((entry) => quantityOf(entry) > 0)
+    .map((entry) =>
+      entry.order
+        ? {
+            purchaseOrder: entry.doc.orderId || entry.doc.id,
+            purchaseOrderItem: entry.line.purchaseOrderItemId,
+            quantity: quantityOf(entry),
+          }
+        : {
+            goodsReceipt: entry.doc.id,
+            goodsReceiptItem: entry.line.receiptItemId,
+            quantity: quantityOf(entry),
+          }
+    );
+};
+
+/**
+ * What the bill will roughly come to, from the quantities chosen (everything still open by default)
+ * and the order's prices. The service works out the real figures; the screen asks it for them and
+ * shows this only while that answer is not there.
+ */
+export const estimateBill = (
+  picked: BillSourceDoc[],
+  quantities: BillQuantities = {}
+): BillEstimate => {
   const rows: BillEstimateRow[] = [];
   let subtotal = 0;
   let tax = 0;
@@ -119,17 +173,20 @@ export const estimateBill = (picked: BillSourceDoc[]): BillEstimate => {
       ...doc.lines.map((line) => ({ line, from: doc.number })),
       ...doc.orderLines.map((line) => ({ line, from: doc.orderNumber })),
     ].forEach(({ line, from }) => {
-      const amount = line.openQty * line.unitPrice;
+      const key = rowKey(doc.id, line.purchaseOrderItemId);
+      const qty = clamp(quantities[key] ?? line.openQty, line.openQty);
+      const amount = qty * line.unitPrice;
       const rate = line.taxRate / 100;
       const base = doc.isPriceIncludeTax ? amount / (1 + rate) : amount;
       subtotal += base;
       tax += doc.isPriceIncludeTax ? amount - base : base * rate;
       if (line.taxRate > 0) rates.add(line.taxRate);
       rows.push({
-        key: `${doc.id}-${line.purchaseOrderItemId}`,
+        key,
         description: line.description,
         from,
-        qty: line.openQty,
+        qty,
+        max: line.openQty,
         unitPrice: line.unitPrice,
         amount,
       });
