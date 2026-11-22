@@ -53,6 +53,9 @@ export interface JourneyStepData {
 }
 
 const DEAD = new Set(['VOID', 'CANCELLED', 'REJECTED', 'RETURNED']);
+
+/** A document that no longer counts in the purchase: cancelled, voided, rejected or sent back. */
+export const isClosedStatus = (status: string): boolean => DEAD.has(status);
 const live = (docs: ChainDocument[]) => docs.filter((doc) => !DEAD.has(doc.status));
 
 const toDocs = (docs: ChainDocument[], route: string, currentId?: string) =>
