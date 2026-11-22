@@ -8,14 +8,11 @@ import {
   type BlockReason,
   type Warehouse,
   type WarehouseInput,
-  type WarehouseMove,
   type WarehouseStockItem,
   type WarehouseSummary,
 } from '@/module/inventory/domain/warehouse';
 
 const WAREHOUSES = '/v1/warehouses';
-const MOVEMENTS = '/v1/stock/movements';
-const LATEST_MOVES = 20;
 
 type Envelope<T> = { code?: number; message?: string; data: T };
 
@@ -80,20 +77,6 @@ interface StockItemDto {
   minQty?: number | null;
   avgCost?: number | null;
   value?: number | null;
-}
-
-interface MoveDto {
-  id: string;
-  date?: string;
-  typeLabel?: string;
-  isReversal?: boolean;
-  documentNumber?: string | null;
-  product?: { name?: string } | null;
-  quantityIn?: number;
-  quantityOut?: number;
-  unitCost?: number | null;
-  value?: number | null;
-  journalTransaction?: string | null;
 }
 
 interface AuditDto {
@@ -176,20 +159,6 @@ export const toStockItem = (dto: StockItemDto): WarehouseStockItem => {
     value: dto.value ?? null,
   };
 };
-
-export const toMove = (dto: MoveDto): WarehouseMove => ({
-  id: dto.id,
-  date: text(dto.date),
-  typeLabel: text(dto.typeLabel),
-  isReversal: dto.isReversal === true,
-  documentNumber: text(dto.documentNumber),
-  productName: text(dto.product?.name),
-  quantityIn: dto.quantityIn ?? 0,
-  quantityOut: dto.quantityOut ?? 0,
-  unitCost: dto.unitCost ?? null,
-  value: dto.value ?? null,
-  hasJournal: Boolean(dto.journalTransaction),
-});
 
 const show = (value: unknown): string | null => {
   if (value === null || value === undefined || value === '') return null;
@@ -287,15 +256,6 @@ export const fetchWarehouseStock = async (id: string): Promise<WarehouseStockIte
     apiClient.get<Envelope<{ items?: StockItemDto[] }>>(`${WAREHOUSES}/${id}/stock`)
   );
   return (body.data.items ?? []).map(toStockItem);
-};
-
-export const fetchWarehouseMoves = async (id: string): Promise<WarehouseMove[]> => {
-  const body = await call(() =>
-    apiClient.get<Envelope<{ results?: MoveDto[] }>>(MOVEMENTS, {
-      params: { warehouse: id, limit: LATEST_MOVES },
-    })
-  );
-  return (body.data.results ?? []).map(toMove);
 };
 
 export const fetchWarehouseAudit = async (id: string): Promise<AuditEntry[]> => {

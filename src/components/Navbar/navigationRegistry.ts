@@ -276,6 +276,18 @@ type TitleEntry = SectionTitle & { prefix: string };
  * Matching is by longest prefix, so a detail page wins over the list it belongs to.
  */
 const extraTitles: TitleEntry[] = [
+  { prefix: '/inventory/stock-movements/card', titleKey: 'stockCard', groupKey: 'groupOperations' },
+  {
+    prefix: '/inventory/stock-movements/transfers',
+    titleKey: 'transferDetail',
+    groupKey: 'groupOperations',
+  },
+  {
+    prefix: '/inventory/stock-movements/transfers/new',
+    titleKey: 'transferNew',
+    groupKey: 'groupOperations',
+  },
+  { prefix: '/inventory/stock-take/new', titleKey: 'stockTakeNew', groupKey: 'groupOperations' },
   { prefix: '/assets/write-offs', titleKey: 'assetWriteOffs', groupKey: 'groupAccounting' },
   { prefix: '/assets/needs-you', titleKey: 'assetNeedsYou', groupKey: 'groupAccounting' },
   { prefix: routes.bankConnection.main, titleKey: 'bankConnection', groupKey: 'groupTransactions' },

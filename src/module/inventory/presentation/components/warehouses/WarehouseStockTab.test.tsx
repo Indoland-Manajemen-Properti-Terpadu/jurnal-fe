@@ -1,3 +1,4 @@
+import { MemoryRouter } from 'react-router-dom';
 import { render, screen, userEvent, within } from '@test-utils';
 import type { WarehouseStockItem } from '@/module/inventory/domain/warehouse';
 import { MinStockDialog } from './MinStockDialog';
@@ -42,20 +43,32 @@ const items = [
 
 const renderTab = (props: Record<string, unknown> = {}) =>
   render(
-    <WarehouseStockTab
-      items={items}
-      loading={false}
-      failed={false}
-      showValue
-      totalValue={3570500}
-      canUpdate
-      onSetMin={vi.fn()}
-      onRetry={vi.fn()}
-      {...props}
-    />
+    <MemoryRouter>
+      <WarehouseStockTab
+        items={items}
+        loading={false}
+        failed={false}
+        showValue
+        totalValue={3570500}
+        warehouseId="w1"
+        canUpdate
+        onSetMin={vi.fn()}
+        onRetry={vi.fn()}
+        {...props}
+      />
+    </MemoryRouter>
   );
 
 describe('WarehouseStockTab', () => {
+  it('opens the stock card of a product for this warehouse', () => {
+    renderTab();
+
+    expect(screen.getByRole('link', { name: 'Kertas A4 80 gsm' })).toHaveAttribute(
+      'href',
+      '/inventory/stock-movements/card/p1?warehouse=w1'
+    );
+  });
+
   it('names the stock status of every product in words', () => {
     renderTab();
     const table = within(screen.getByRole('table'));

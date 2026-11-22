@@ -1,4 +1,10 @@
 export { default as WarehousesPage } from './presentation/pages/WarehousesPage';
 export { default as WarehouseDetailPage } from './presentation/pages/WarehouseDetailPage';
 export { default as StockMovementsPage } from './presentation/pages/StockMovementsPage';
+export { default as StockCardPage } from './presentation/pages/StockCardPage';
+export { default as TransferFormPage } from './presentation/pages/TransferFormPage';
+export { default as TransferDetailPage } from './presentation/pages/TransferDetailPage';
 export { default as StockTakePage } from './presentation/pages/StockTakePage';
+export { default as StockTakeFormPage } from './presentation/pages/StockTakeFormPage';
+export { default as StockTakeDetailPage } from './presentation/pages/StockTakeDetailPage';
+export { default as OpnameAccountsPage } from './presentation/pages/OpnameAccountsPage';

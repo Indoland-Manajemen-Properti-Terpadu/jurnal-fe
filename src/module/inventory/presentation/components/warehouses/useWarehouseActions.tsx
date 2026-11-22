@@ -30,15 +30,13 @@ const UNDO_MS = 8000;
 interface Options {
   /** Runs after a warehouse is deleted, for a page that must leave the deleted record. */
   onDeleted?: () => void;
-  /** Set on the warehouse's own page, so a blocked dialog does not link back to it. */
-  onOwnPage?: boolean;
 }
 
 /**
  * The actions of a warehouse that ask for a decision: make main, switch off, switch on, delete.
  * The list and the detail page share it so a refusal reads the same in both.
  */
-export const useWarehouseActions = ({ onDeleted, onOwnPage }: Options = {}) => {
+export const useWarehouseActions = ({ onDeleted }: Options = {}) => {
   const { t } = useTranslation('warehouses');
   const describe = useWarehouseErrorMessage();
   const actions = useWarehouseMutations();
@@ -194,7 +192,6 @@ export const useWarehouseActions = ({ onDeleted, onOwnPage }: Options = {}) => {
       <WarehouseBlockedDialog
         warehouse={pending?.kind === 'blocked' ? pending.warehouse : null}
         reasons={pending?.kind === 'blocked' ? pending.reasons : []}
-        onOwnPage={onOwnPage}
         onClose={close}
       />
     </>

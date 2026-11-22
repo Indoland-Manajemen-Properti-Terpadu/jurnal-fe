@@ -1,0 +1,35 @@
+/*
+ * Each cell draws its own right and bottom hairline; the grid reaches 1px past the card's edge so
+ * the lines on the outer side fall under the card's clip. Empty space stays white, never a hole.
+ */
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  margin: 0 -1px -1px 0;
+  background: var(--mantine-color-white);
+}
+
+@media (min-width: 48em) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .cell[data-span='full'] {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (min-width: 75em) {
+  .grid[data-columns='3'] {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.cell {
+  min-width: 0;
+  padding: var(--mantine-spacing-md) var(--mantine-spacing-lg);
+  overflow-wrap: anywhere;
+  box-shadow:
+    inset -1px 0 0 var(--jurnal-color-border-subtle),
+    inset 0 -1px 0 var(--jurnal-color-border-subtle);
+}

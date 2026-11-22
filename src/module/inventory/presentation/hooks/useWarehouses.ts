@@ -13,7 +13,6 @@ import {
   fetchPicOptions,
   fetchWarehouse,
   fetchWarehouseAudit,
-  fetchWarehouseMoves,
   fetchWarehouses,
   fetchWarehouseStock,
   setDefaultWarehouse,
@@ -56,15 +55,6 @@ export const useWarehouseStock = (id: string | undefined) => {
     queryKey: inventoryKeys.warehouseStock(scope, id ?? ''),
     queryFn: () => fetchWarehouseStock(id ?? ''),
     enabled: Boolean(id),
-  });
-};
-
-export const useWarehouseMoves = (id: string | undefined, enabled = true) => {
-  const scope = useInventoryScope();
-  return useQuery({
-    queryKey: inventoryKeys.warehouseMoves(scope, id ?? ''),
-    queryFn: () => fetchWarehouseMoves(id ?? ''),
-    enabled: Boolean(id) && enabled,
   });
 };
 

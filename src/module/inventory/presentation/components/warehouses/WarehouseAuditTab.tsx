@@ -2,7 +2,7 @@ import { Alert, Button, Group, Skeleton, Stack, Table, Text } from '@mantine/cor
 import { IconAlertCircle, IconHistory } from '@tabler/icons-react';
 import { EmptyState } from '@/components/EmptyState/EmptyState';
 import { useTranslation } from '@/i18n';
-import { DataTableFrame } from '@/module/inventory/presentation/components/warehouses/DataTableFrame';
+import { DataTableFrame } from '@/module/inventory/presentation/components/shared/DataTableFrame';
 import type { AuditEntry } from '@/module/inventory/domain/warehouse';
 import { resolveAuditChange, type AuditLookups } from '@/module/inventory/domain/warehouseAudit';
 import { dateFormatV1 } from '@/utils/formatDate';

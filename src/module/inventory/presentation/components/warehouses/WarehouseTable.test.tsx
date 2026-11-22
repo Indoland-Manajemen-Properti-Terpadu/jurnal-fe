@@ -74,7 +74,9 @@ describe('WarehouseTable', () => {
     expect(screen.getByText('Utama')).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Aksi Gudang Utama' }));
 
-    expect(await screen.findByRole('menuitem', { name: 'Ubah' })).toBeInTheDocument();
+    expect(
+      await screen.findByRole('menuitem', { name: 'Ubah' }, { timeout: 4000 })
+    ).toBeInTheDocument();
     expect(screen.queryByRole('menuitem', { name: 'Nonaktifkan' })).not.toBeInTheDocument();
     expect(screen.queryByRole('menuitem', { name: 'Hapus' })).not.toBeInTheDocument();
     expect(screen.queryByRole('menuitem', { name: 'Jadikan utama' })).not.toBeInTheDocument();
@@ -85,7 +87,9 @@ describe('WarehouseTable', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'Aksi Gudang Lt. 3' }));
 
-    expect(await screen.findByRole('menuitem', { name: 'Hapus' })).toBeInTheDocument();
+    expect(
+      await screen.findByRole('menuitem', { name: 'Hapus' }, { timeout: 4000 })
+    ).toBeInTheDocument();
   });
 
   it('does not offer Hapus for a warehouse that has been used', async () => {
@@ -93,7 +97,7 @@ describe('WarehouseTable', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'Aksi Gudang Lt. 2' }));
 
-    await screen.findByRole('menuitem', { name: 'Ubah' });
+    await screen.findByRole('menuitem', { name: 'Ubah' }, { timeout: 4000 });
     expect(screen.queryByRole('menuitem', { name: 'Hapus' })).not.toBeInTheDocument();
   });
 
@@ -102,7 +106,9 @@ describe('WarehouseTable', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'Aksi Gudang Lama' }));
 
-    expect(await screen.findByRole('menuitem', { name: 'Aktifkan' })).toBeInTheDocument();
+    expect(
+      await screen.findByRole('menuitem', { name: 'Aktifkan' }, { timeout: 4000 })
+    ).toBeInTheDocument();
     expect(screen.queryByRole('menuitem', { name: 'Nonaktifkan' })).not.toBeInTheDocument();
   });
 

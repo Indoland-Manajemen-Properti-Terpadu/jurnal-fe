@@ -65,8 +65,7 @@ describe('WarehouseListMetrics', () => {
     expect(screen.getByText('3 dari 4 gudang')).toBeInTheDocument();
     expect(screen.getByText('Total item')).toBeInTheDocument();
     expect(screen.getByText('Nilai persediaan')).toBeInTheDocument();
-    expect(screen.getAllByText('Gudang Utama').length).toBeGreaterThan(0);
-    expect(screen.getAllByText('95%').length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Gudang Utama \(95%\)/).length).toBeGreaterThan(0);
   });
 
   it('draws no slice for a warehouse with nothing in it', () => {

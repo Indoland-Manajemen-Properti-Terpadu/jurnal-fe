@@ -6,32 +6,30 @@ import {
   Box,
   Button,
   Group,
-  Menu,
   Paper,
   Skeleton,
   Stack,
   Tabs,
   Text,
+  ThemeIcon,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import {
-  IconArrowLeft,
   IconArrowsLeftRight,
   IconBuildingWarehouse,
-  IconDots,
   IconEdit,
   IconHistory,
-  IconInfoCircle,
+  IconLock,
   IconPackage,
   IconPlayerPause,
   IconPlayerPlay,
   IconStar,
+  IconClipboardCheck,
+  IconTransfer,
   IconTrash,
 } from '@tabler/icons-react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { AppShellLayout } from '@/components/AppShellLayout';
 import { EmptyState } from '@/components/EmptyState/EmptyState';
-import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
 import { useTranslation } from '@/i18n';
 import { ApiError } from '@/lib/http/apiError';
 import type { WarehouseStockItem } from '@/module/inventory/domain/warehouse';
@@ -48,20 +46,35 @@ import {
   useWarehouse,
   useWarehouseAudit,
   useWarehouseErrorMessage,
-  useWarehouseMoves,
   useWarehouseMutations,
   useWarehouseRights,
   useWarehouseStock,
 } from '@/module/inventory/presentation/hooks/useWarehouses';
+import { useStockRights } from '@/module/inventory/presentation/hooks/useStockQueries';
+import {
+  DetailFrame,
+  PageFrame,
+  type FrameMenuItem,
+} from '@/module/inventory/presentation/components/shared/DetailFrame';
+import {
+  stockTakeDetailPath,
+  stockTakeNewPath,
+  transferNewPath,
+} from '@/module/inventory/presentation/components/shared/stockLinks';
+import { useOpnameRights } from '@/module/inventory/presentation/hooks/useOpnames';
 import { routes } from '@/router/routes';
 
 type TabKey = 'stock' | 'moves' | 'audit';
 
 export default function WarehouseDetailPage() {
   const { t } = useTranslation('warehouses');
+  const { t: tt } = useTranslation('stockTake');
+  const opnameRights = useOpnameRights();
+  const canCount = opnameRights.count || opnameRights.review;
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const rights = useWarehouseRights();
+  const { transfer: transferRights } = useStockRights();
   const describe = useWarehouseErrorMessage();
   const [tab, setTab] = useState<TabKey>('stock');
   const [formOpen, setFormOpen] = useState(false);
@@ -69,12 +82,10 @@ export default function WarehouseDetailPage() {
 
   const warehouseQuery = useWarehouse(id);
   const stockQuery = useWarehouseStock(id);
-  const movesQuery = useWarehouseMoves(id, tab === 'moves');
   const auditQuery = useWarehouseAudit(id, tab === 'audit');
   const people = usePicOptions(tab === 'audit');
   const { setMinStock } = useWarehouseMutations();
   const { request, dialogs } = useWarehouseActions({
-    onOwnPage: true,
     onDeleted: () => navigate(routes.inventory.warehouses),
   });
 
@@ -90,23 +101,10 @@ export default function WarehouseDetailPage() {
     [stockItems]
   );
 
-  const back = (
-    <Button
-      variant="default"
-      component={Link}
-      to={routes.inventory.warehouses}
-      leftSection={<IconArrowLeft size={16} />}
-    >
-      {t('detail.back')}
-    </Button>
-  );
-
   const frame = (content: React.ReactNode) => (
-    <AppShellLayout>
-      <Box p={{ base: 'md', sm: 'xl' }}>
-        <Stack gap="lg">{content}</Stack>
-      </Box>
-    </AppShellLayout>
+    <PageFrame backTo={routes.inventory.warehouses} backLabel={t('detail.back')}>
+      {content}
+    </PageFrame>
   );
 
   if (warehouseQuery.isLoading) {
@@ -140,7 +138,6 @@ export default function WarehouseDetailPage() {
   const canDeactivate = rights.update && warehouse.isActive && !warehouse.isDefault;
   const canActivate = rights.update && !warehouse.isActive;
   const canDelete = rights.delete && warehouse.canDelete && !warehouse.isDefault;
-  const hasMenu = canMakeDefault || canDeactivate || canActivate || canDelete;
 
   const saveMinStock = (minQty: number) => {
     if (!id || !minItem) return;
@@ -163,99 +160,109 @@ export default function WarehouseDetailPage() {
     );
   };
 
-  return frame(
-    <>
-      <ModuleHeader
-        icon={IconBuildingWarehouse}
-        title={warehouse.name}
-        description={
-          <Group gap="xs">
-            <Text size="sm" c="dimmed">
-              {[warehouse.code, warehouse.city].filter(Boolean).join(' · ')}
-            </Text>
-            {warehouse.isDefault && (
-              <Badge variant="light" color="primary" size="sm">
-                {t('table.main')}
-              </Badge>
-            )}
-            {!warehouse.isActive && (
-              <Badge variant="light" color="gray" size="sm">
-                {t('status.inactive')}
-              </Badge>
-            )}
-          </Group>
-        }
-        actions={
-          <Group gap="xs">
-            {back}
-            {rights.update && (
-              <Button
-                variant="default"
-                leftSection={<IconEdit size={16} />}
-                onClick={() => setFormOpen(true)}
-              >
-                {t('menu.edit')}
-              </Button>
-            )}
-            {hasMenu && (
-              <Menu position="bottom-end" withinPortal shadow="md" radius="md">
-                <Menu.Target>
-                  <Button
-                    variant="default"
-                    px="xs"
-                    aria-label={t('menu.actions', { name: warehouse.name })}
-                  >
-                    <IconDots size={18} />
-                  </Button>
-                </Menu.Target>
-                <Menu.Dropdown>
-                  {canMakeDefault && (
-                    <Menu.Item
-                      leftSection={<IconStar size={16} />}
-                      onClick={() => request.makeDefault(warehouse)}
-                    >
-                      {t('menu.makeDefault')}
-                    </Menu.Item>
-                  )}
-                  {canDeactivate && (
-                    <Menu.Item
-                      leftSection={<IconPlayerPause size={16} />}
-                      onClick={() => request.deactivate(warehouse)}
-                    >
-                      {t('menu.deactivate')}
-                    </Menu.Item>
-                  )}
-                  {canActivate && (
-                    <Menu.Item
-                      leftSection={<IconPlayerPlay size={16} />}
-                      onClick={() => request.activate(warehouse)}
-                    >
-                      {t('menu.activate')}
-                    </Menu.Item>
-                  )}
-                  {canDelete && (
-                    <Menu.Item
-                      color="red"
-                      leftSection={<IconTrash size={16} />}
-                      onClick={() => request.remove(warehouse)}
-                    >
-                      {t('menu.delete')}
-                    </Menu.Item>
-                  )}
-                </Menu.Dropdown>
-              </Menu>
-            )}
-          </Group>
-        }
-      />
+  const menu: FrameMenuItem[] = [
+    ...(rights.update
+      ? [{ label: t('menu.edit'), icon: IconEdit, onClick: () => setFormOpen(true) }]
+      : []),
+    ...(canMakeDefault
+      ? [
+          {
+            label: t('menu.makeDefault'),
+            icon: IconStar,
+            onClick: () => request.makeDefault(warehouse),
+          },
+        ]
+      : []),
+    ...(canDeactivate
+      ? [
+          {
+            label: t('menu.deactivate'),
+            icon: IconPlayerPause,
+            onClick: () => request.deactivate(warehouse),
+          },
+        ]
+      : []),
+    ...(canActivate
+      ? [
+          {
+            label: t('menu.activate'),
+            icon: IconPlayerPlay,
+            onClick: () => request.activate(warehouse),
+          },
+        ]
+      : []),
+    ...(canDelete
+      ? [
+          {
+            label: t('menu.delete'),
+            icon: IconTrash,
+            onClick: () => request.remove(warehouse),
+            danger: true,
+          },
+        ]
+      : []),
+  ];
 
+  return (
+    <DetailFrame
+      icon={IconBuildingWarehouse}
+      title={warehouse.name}
+      badges={
+        <>
+          {warehouse.isDefault && (
+            <Badge variant="light" color="primary" size="sm">
+              {t('table.main')}
+            </Badge>
+          )}
+          {!warehouse.isActive && (
+            <Badge variant="light" color="gray" size="sm">
+              {t('status.inactive')}
+            </Badge>
+          )}
+        </>
+      }
+      subtitle={[warehouse.code, warehouse.city].filter(Boolean).join(' · ')}
+      backTo={routes.inventory.warehouses}
+      backLabel={t('detail.back')}
+      menu={menu}
+      actions={
+        <>
+          {canCount && warehouse.isActive && !warehouse.runningOpname && (
+            <Button
+              variant="default"
+              leftSection={<IconClipboardCheck size={16} />}
+              onClick={() => navigate(stockTakeNewPath({ warehouse: warehouse.id }))}
+            >
+              {tt('frozen.create')}
+            </Button>
+          )}
+          {transferRights.create && warehouse.isActive && (
+            <Button
+              leftSection={<IconTransfer size={16} />}
+              onClick={() => navigate(transferNewPath({ from: warehouse.id }))}
+            >
+              {t('detail.transfer')}
+            </Button>
+          )}
+        </>
+      }
+    >
       {warehouse.runningOpname && (
-        <Alert color="blue" variant="light" icon={<IconInfoCircle size={18} />}>
+        <Alert
+          color="yellow"
+          variant="light"
+          radius="md"
+          icon={<IconLock size={18} />}
+          title={tt('frozen.title')}
+        >
           <Group justify="space-between" wrap="wrap" gap="sm">
-            <Text size="sm">
-              {t('detail.runningBanner', { number: warehouse.runningOpname.number })}
-            </Text>
-            <Anchor component={Link} to={routes.inventory.stockTake} size="sm" fw={600}>
+            <Text size="sm">{tt('frozen.banner', { number: warehouse.runningOpname.number })}</Text>
+            <Anchor
+              component={Link}
+              to={stockTakeDetailPath(warehouse.runningOpname.id)}
+              size="sm"
+              fw={600}
+            >
               {t('blocked.openOpname')}
             </Anchor>
           </Group>
@@ -271,14 +278,19 @@ export default function WarehouseDetailPage() {
 
       <Paper withBorder radius="lg" p="md" bg="white">
         <Stack gap="md">
-          <Box>
-            <Text fw={700} fz={15} c="dark.9">
-              {t('detail.contentTitle')}
-            </Text>
-            <Text fz={12} c="dimmed">
-              {t('detail.contentSubtitle')}
-            </Text>
-          </Box>
+          <Group gap="sm" wrap="nowrap">
+            <ThemeIcon size={36} radius="md" variant="light" color="primary">
+              <IconBuildingWarehouse size={18} stroke={1.8} />
+            </ThemeIcon>
+            <Box>
+              <Text fw={700} fz="md" lh={1.3}>
+                {t('detail.contentTitle')}
+              </Text>
+              <Text fz="xs" c="dimmed">
+                {t('detail.contentSubtitle')}
+              </Text>
+            </Box>
+          </Group>
           <Tabs
             value={tab}
             onChange={(value) => setTab((value as TabKey | null) ?? 'stock')}
@@ -305,19 +317,14 @@ export default function WarehouseDetailPage() {
               failed={stockQuery.isError}
               showValue={showValue}
               totalValue={warehouse.inventoryValue}
+              warehouseId={warehouse.id}
               canUpdate={rights.update}
               onSetMin={setMinItem}
               onRetry={() => stockQuery.refetch()}
             />
           )}
           {tab === 'moves' && (
-            <WarehouseMovesTab
-              moves={movesQuery.data ?? []}
-              loading={movesQuery.isLoading}
-              failed={movesQuery.isError}
-              showValue={showValue}
-              onRetry={() => movesQuery.refetch()}
-            />
+            <WarehouseMovesTab warehouseId={warehouse.id} showValue={showValue} />
           )}
           {tab === 'audit' && (
             <WarehouseAuditTab
@@ -345,6 +352,6 @@ export default function WarehouseDetailPage() {
         onClose={() => setMinItem(null)}
       />
       {dialogs}
-    </>
+    </DetailFrame>
   );
 }

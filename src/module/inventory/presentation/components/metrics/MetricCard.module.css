@@ -6,35 +6,45 @@
 
 @media (min-width: 48em) {
   .grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: var(--mantine-spacing-md);
+  }
+
+  .grid[data-columns='4'] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-/* The cell is the container, so the card reacts to its own width and not to the screen's. */
+@media (min-width: 75em) {
+  .grid[data-columns='4'] {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* The cell is the container, so the figure sizes to its own card and not to the screen. */
 .cell {
   display: flex;
   min-width: 0;
   container-type: inline-size;
 }
 
+/* Every card has the same parts in the same places; cards in one row share one height. */
 .card {
   display: flex;
   flex: 1;
-  gap: var(--mantine-spacing-md);
-  align-items: center;
+  flex-direction: column;
+  gap: var(--mantine-spacing-sm);
   min-width: 0;
   padding: var(--mantine-spacing-md);
   background: var(--jurnal-color-surface);
   border: 1px solid var(--jurnal-color-border-subtle);
-  border-radius: var(--mantine-radius-md);
+  border-radius: var(--mantine-radius-lg);
 }
 
 .main {
   display: flex;
-  flex: 1;
   gap: var(--mantine-spacing-sm);
-  align-items: center;
+  align-items: flex-start;
   min-width: 0;
 }
 
@@ -45,35 +55,15 @@
 /* A figure breaks only between words ("Rp" and the number), never inside the number. */
 .value {
   font-variant-numeric: tabular-nums;
-  line-height: 1.1;
+  line-height: 1.15;
   overflow-wrap: break-word;
 }
 
+/* The picture sits at the foot of the card, full width, the same in every card. */
 .visual {
   display: flex;
   flex-direction: column;
-  flex-shrink: 0;
-  gap: 8px;
-  align-items: stretch;
-  justify-content: center;
-  min-width: 96px;
-  max-width: 180px;
-}
-
-.card[data-wide='true'] .visual {
-  width: 148px;
-}
-
-/* In a narrow card a bar with a legend goes under the figure instead of squeezing it. */
-@container (max-width: 400px) {
-  .card[data-wide='true'] {
-    flex-direction: column;
-    gap: var(--mantine-spacing-sm);
-    align-items: stretch;
-  }
-
-  .card[data-wide='true'] .visual {
-    width: 100%;
-    max-width: none;
-  }
+  gap: 6px;
+  margin-top: auto;
+  padding-top: 4px;
 }

@@ -75,22 +75,6 @@ export const stockStatus = (qty: number, minQty: number): StockStatus => {
   return minQty > 0 && qty < minQty ? 'belowMin' : 'safe';
 };
 
-/** One movement of the stock ledger, as the warehouse's latest-movements tab shows it. */
-export interface WarehouseMove {
-  id: string;
-  date: string;
-  typeLabel: string;
-  isReversal: boolean;
-  documentNumber: string;
-  productName: string;
-  quantityIn: number;
-  quantityOut: number;
-  unitCost: number | null;
-  value: number | null;
-  /** Set when a journal exists for the movement. */
-  hasJournal: boolean;
-}
-
 export interface AuditChange {
   field: string;
   from: string | null;

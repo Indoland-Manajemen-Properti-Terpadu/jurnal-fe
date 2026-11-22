@@ -1,10 +1,14 @@
 import type { ReactNode } from 'react';
 import { Anchor, Button, Group, Stack, Text } from '@mantine/core';
 import { IconAlertTriangle } from '@tabler/icons-react';
-import { Link, generatePath } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { ModalFrame } from '@/components/Modals/ModalFrame';
 import { useTranslation } from '@/i18n';
 import type { BlockReason, Warehouse } from '@/module/inventory/domain/warehouse';
+import {
+  stockTakeDetailPath,
+  transferNewPath,
+} from '@/module/inventory/presentation/components/shared/stockLinks';
 import { routes } from '@/router/routes';
 import { formatCurrency } from '@/utils/formatCurrency';
 
@@ -58,18 +62,11 @@ export function WarehouseConfirmDialog({
 type BlockedProps = {
   warehouse: Warehouse | null;
   reasons: BlockReason[];
-  /** Whether the dialog is opened on the warehouse's own page, where "view contents" would go nowhere. */
-  onOwnPage?: boolean;
   onClose: () => void;
 };
 
 /** Every reason a warehouse cannot be switched off yet, each with the place to settle it. */
-export function WarehouseBlockedDialog({
-  warehouse,
-  reasons,
-  onOwnPage,
-  onClose,
-}: Readonly<BlockedProps>) {
+export function WarehouseBlockedDialog({ warehouse, reasons, onClose }: Readonly<BlockedProps>) {
   const { t, currentLanguage } = useTranslation('warehouses');
 
   const renderReason = (reason: BlockReason) => {
@@ -86,13 +83,12 @@ export function WarehouseBlockedDialog({
                   count: reason.itemCount,
                   value: formatCurrency(reason.value),
                 });
-        const link =
-          warehouse && !onOwnPage
-            ? {
-                to: generatePath(routes.inventory.warehouseDetail, { id: warehouse.id }),
-                label: t('blocked.viewStock'),
-              }
-            : undefined;
+        const link = warehouse
+          ? {
+              to: transferNewPath({ from: warehouse.id, fillAll: true }),
+              label: t('blocked.transferStock'),
+            }
+          : undefined;
         return { text, link };
       }
       case 'orders':
@@ -106,7 +102,7 @@ export function WarehouseBlockedDialog({
       case 'opname':
         return {
           text: t('blocked.opname', { number: reason.number }),
-          link: { to: routes.inventory.stockTake, label: t('blocked.openOpname') },
+          link: { to: stockTakeDetailPath(reason.id), label: t('blocked.openOpname') },
         };
       default:
         return {

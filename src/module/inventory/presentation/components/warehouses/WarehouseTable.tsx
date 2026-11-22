@@ -27,7 +27,7 @@ import {
 import { Link } from 'react-router-dom';
 import { EmptyState } from '@/components/EmptyState/EmptyState';
 import { useTranslation } from '@/i18n';
-import { DataTableFrame } from '@/module/inventory/presentation/components/warehouses/DataTableFrame';
+import { DataTableFrame } from '@/module/inventory/presentation/components/shared/DataTableFrame';
 import type { Warehouse } from '@/module/inventory/domain/warehouse';
 import type { MenuRights } from '@/module/inventory/infrastructure/inventoryRightsApi';
 import type { WarehousePage } from '@/module/inventory/infrastructure/warehouseApi';

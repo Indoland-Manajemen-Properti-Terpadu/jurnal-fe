@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
   toBlockReasons,
-  toMove,
   toStockItem,
   toWarehouse,
   toWarehouseQuery,
@@ -63,29 +62,6 @@ describe('toStockItem', () => {
     expect(toStockItem({ ...base, quantity: 0, minQty: 3 }).status).toBe('empty');
     expect(toStockItem({ ...base, quantity: 2, minQty: 3 }).status).toBe('belowMin');
     expect(toStockItem({ ...base, quantity: 2, minQty: 0 }).status).toBe('safe');
-  });
-});
-
-describe('toMove', () => {
-  it('marks a movement with a journal', () => {
-    const move = toMove({
-      id: 'm1',
-      date: '2026-11-22T00:00:00.000Z',
-      typeLabel: 'Penerimaan barang',
-      isReversal: false,
-      documentNumber: 'FPB/2026/11/0004',
-      product: { name: 'Claude Max' },
-      quantityIn: 1,
-      quantityOut: 0,
-      unitCost: 2000000,
-      value: 2000000,
-      journalTransaction: 'j1',
-    });
-
-    expect(move.hasJournal).toBe(true);
-    expect(
-      toMove({ ...{ id: 'm2', typeLabel: 'Pindah', product: { name: 'x' } } }).hasJournal
-    ).toBe(false);
   });
 });
 

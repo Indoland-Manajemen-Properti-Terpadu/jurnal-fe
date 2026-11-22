@@ -5,15 +5,10 @@ import { WarehouseBlockedDialog } from './WarehouseActionDialogs';
 
 const warehouse = { id: 'w2', name: 'Gudang Lt. 2' } as Warehouse;
 
-const renderBlocked = (reasons: BlockReason[], onOwnPage = false) =>
+const renderBlocked = (reasons: BlockReason[]) =>
   render(
     <MemoryRouter>
-      <WarehouseBlockedDialog
-        warehouse={warehouse}
-        reasons={reasons}
-        onOwnPage={onOwnPage}
-        onClose={vi.fn()}
-      />
+      <WarehouseBlockedDialog warehouse={warehouse} reasons={reasons} onClose={vi.fn()} />
     </MemoryRouter>
   );
 
@@ -45,9 +40,9 @@ describe('WarehouseBlockedDialog', () => {
       { kind: 'opname', number: 'SO/2026/11/0003', id: 'o3' },
     ]);
 
-    expect(screen.getByRole('link', { name: 'Lihat isi gudang' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'Pindah barang' })).toHaveAttribute(
       'href',
-      '/inventory/warehouses/w2'
+      '/inventory/stock-movements/transfers/new?from=w2&fill=all'
     );
     expect(screen.getByRole('link', { name: 'Lihat pesanan' })).toHaveAttribute(
       'href',
@@ -55,14 +50,8 @@ describe('WarehouseBlockedDialog', () => {
     );
     expect(screen.getByRole('link', { name: 'Buka opname' })).toHaveAttribute(
       'href',
-      '/inventory/stock-take'
+      '/inventory/stock-take/o3'
     );
-  });
-
-  it('does not link back to the warehouse page it is opened on', () => {
-    renderBlocked([{ kind: 'stock', itemCount: 1, value: 568000 }], true);
-
-    expect(screen.queryByRole('link', { name: 'Lihat isi gudang' })).not.toBeInTheDocument();
   });
 
   it('shows the stock reason without a value when the service sends no values', () => {

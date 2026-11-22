@@ -22,6 +22,8 @@ import { profile } from './profile';
 import { purchases } from './purchases';
 import { products } from './products';
 import { warehouses } from './warehouses';
+import { stockMovements } from './stockMovements';
+import { stockTake } from './stockTake';
 import { periodClosing } from './periodClosing';
 import { beginningBalances } from './beginningBalances';
 import { bankStatements } from './bankStatements';
@@ -59,6 +61,8 @@ export const en = {
   purchases,
   products,
   warehouses,
+  stockMovements,
+  stockTake,
   periodClosing,
   beginningBalances,
   bankStatements,

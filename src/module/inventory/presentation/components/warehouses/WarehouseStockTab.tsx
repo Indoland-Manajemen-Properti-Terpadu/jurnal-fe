@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import {
   ActionIcon,
+  Anchor,
   Alert,
   Button,
   Group,
@@ -19,9 +20,11 @@ import {
   IconSearch,
   IconAdjustments,
 } from '@tabler/icons-react';
+import { Link } from 'react-router-dom';
 import { EmptyState } from '@/components/EmptyState/EmptyState';
 import { useTranslation } from '@/i18n';
-import { DataTableFrame } from '@/module/inventory/presentation/components/warehouses/DataTableFrame';
+import { stockCardPath } from '@/module/inventory/presentation/components/shared/stockLinks';
+import { DataTableFrame } from '@/module/inventory/presentation/components/shared/DataTableFrame';
 import type { StockStatus, WarehouseStockItem } from '@/module/inventory/domain/warehouse';
 import { formatCurrency, numberFormat } from '@/utils/formatCurrency';
 
@@ -33,6 +36,8 @@ type Props = {
   showValue: boolean;
   /** The warehouse's own value, as the service totals it. */
   totalValue: number | null;
+  /** The warehouse the figures belong to; a product opens its stock card for this warehouse. */
+  warehouseId: string;
   canUpdate: boolean;
   onSetMin: (item: WarehouseStockItem) => void;
   onRetry: () => void;
@@ -61,6 +66,7 @@ export function WarehouseStockTab({
   failed,
   showValue,
   totalValue,
+  warehouseId,
   canUpdate,
   onSetMin,
   onRetry,
@@ -132,9 +138,15 @@ export function WarehouseStockTab({
     return visible.map((item) => (
       <Table.Tr key={item.productId}>
         <Table.Td>
-          <Text size="sm" fw={600} c="dark.8">
+          <Anchor
+            component={Link}
+            to={stockCardPath(item.productId, warehouseId)}
+            size="sm"
+            fw={600}
+            c="dark.8"
+          >
             {item.name}
-          </Text>
+          </Anchor>
           {item.sku && (
             <Text size="xs" c="dimmed">
               {item.sku}

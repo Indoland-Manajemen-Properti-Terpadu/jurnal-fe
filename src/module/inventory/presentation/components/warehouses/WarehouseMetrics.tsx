@@ -16,35 +16,30 @@ import {
   MetricGrid,
 } from '@/module/inventory/presentation/components/metrics/MetricCard';
 import {
-  Legend,
+  PercentBar,
   RANK_COLORS,
-  RingStat,
-  SegmentBar,
+  ShareBar,
   type BarSegment,
 } from '@/module/inventory/presentation/components/metrics/visuals';
 import { formatCurrency, numberFormat } from '@/utils/formatCurrency';
 
 const MAX_SLICES = 3;
 
-/** Ranked slices of a total in brand blues, each labelled with its percent. */
-const useShareSegments = () => {
+/** Ranked slices of a total in brand blues, and the largest one for the caption. */
+const useShares = () => {
   const { t } = useTranslation('warehouses');
-  return (items: ShareInput[]): BarSegment[] =>
-    topShares(items, MAX_SLICES, t('summary.others')).map((share, index) => ({
+  return (items: ShareInput[]) => {
+    const shares = topShares(items, MAX_SLICES, t('summary.others'));
+    const segments: BarSegment[] = shares.map((share, index) => ({
       key: share.key,
       label: share.label,
       value: share.value,
       color: RANK_COLORS[Math.min(index, RANK_COLORS.length - 1)],
       display: `${share.percent}%`,
     }));
+    return { segments, largest: shares[0] };
+  };
 };
-
-const ShareVisual = ({ segments, label }: Readonly<{ segments: BarSegment[]; label: string }>) => (
-  <>
-    <SegmentBar segments={segments} aria-label={label} />
-    <Legend segments={segments} />
-  </>
-);
 
 type ListProps = {
   summary: WarehouseSummary;
@@ -52,15 +47,15 @@ type ListProps = {
   warehouses: Warehouse[];
 };
 
-/** The three figures above the warehouse list, each with a picture of how it is spread. */
+/** The three figures above the warehouse list; each card has one bar and one line that reads it. */
 export function WarehouseListMetrics({ summary, warehouses }: Readonly<ListProps>) {
   const { t } = useTranslation('warehouses');
-  const segmentsOf = useShareSegments();
+  const sharesOf = useShares();
   const activePercent = shareOfTotal(summary.activeCount, summary.totalCount);
-  const byItems = segmentsOf(
+  const byItems = sharesOf(
     warehouses.map((item) => ({ key: item.id, label: item.name, value: item.itemCount }))
   );
-  const byValue = segmentsOf(
+  const byValue = sharesOf(
     warehouses.map((item) => ({ key: item.id, label: item.name, value: item.inventoryValue ?? 0 }))
   );
 
@@ -69,26 +64,28 @@ export function WarehouseListMetrics({ summary, warehouses }: Readonly<ListProps
       <MetricCard
         icon={IconBuildingWarehouse}
         label={t('summary.active')}
-        value={numberFormat(summary.activeCount)}
-        hint={t('summary.activeOf', { active: summary.activeCount, total: summary.totalCount })}
+        value={t('summary.activeOf', { active: summary.activeCount, total: summary.totalCount })}
         visual={
-          summary.totalCount > 0 ? (
-            <RingStat
-              percent={activePercent}
-              aria-label={t('summary.activeShare', { percent: activePercent })}
-            />
-          ) : undefined
+          <PercentBar
+            percent={activePercent}
+            caption={t('summary.activeShare', { percent: activePercent })}
+          />
         }
       />
       <MetricCard
         icon={IconPackage}
         label={t('summary.items')}
-        value={numberFormat(summary.itemCount)}
-        hint={t('summary.itemsCount', { count: summary.itemCount })}
-        wideVisual
+        value={t('summary.itemsCount', { count: numberFormat(summary.itemCount) })}
         visual={
-          byItems.length > 0 ? (
-            <ShareVisual segments={byItems} label={t('summary.itemsByWarehouse')} />
+          byItems.largest ? (
+            <ShareBar
+              segments={byItems.segments}
+              caption={t('summary.mostItems', {
+                name: byItems.largest.label,
+                percent: byItems.largest.percent,
+              })}
+              aria-label={t('summary.itemsByWarehouse')}
+            />
           ) : undefined
         }
       />
@@ -97,13 +94,16 @@ export function WarehouseListMetrics({ summary, warehouses }: Readonly<ListProps
           icon={IconCoin}
           label={t('summary.value')}
           value={formatCurrency(summary.inventoryValue)}
-          hint={t('summary.valueHint', {
-            count: warehouses.filter((item) => item.itemCount > 0).length,
-          })}
-          wideVisual
           visual={
-            byValue.length > 0 ? (
-              <ShareVisual segments={byValue} label={t('summary.valueByWarehouse')} />
+            byValue.largest ? (
+              <ShareBar
+                segments={byValue.segments}
+                caption={t('summary.largest', {
+                  name: byValue.largest.label,
+                  percent: byValue.largest.percent,
+                })}
+                aria-label={t('summary.valueByWarehouse')}
+              />
             ) : undefined
           }
         />
@@ -128,15 +128,14 @@ const STATUS_COLOR = {
 /** The three figures on a warehouse's own page. */
 export function WarehouseDetailMetrics({ warehouse, stock, stockReady }: Readonly<DetailProps>) {
   const { t } = useTranslation('warehouses');
-  const segmentsOf = useShareSegments();
+  const sharesOf = useShares();
   const inStock = stock.filter((item) => item.quantity > 0).length;
   const stockedPercent = shareOfTotal(inStock, stock.length);
-  const byProduct = segmentsOf(
+  const byProduct = sharesOf(
     stock.map((item) => ({ key: item.productId, label: item.name, value: item.value ?? 0 }))
   );
   const countOf = (status: WarehouseStockItem['status']) =>
     stock.filter((item) => item.status === status).length;
-  const emptyCount = countOf('empty');
   const statusSegments: BarSegment[] = (['safe', 'belowMin', 'empty'] as const).map((status) => ({
     key: status,
     label: t(`detail.stockStatus.${status}`),
@@ -144,29 +143,25 @@ export function WarehouseDetailMetrics({ warehouse, stock, stockReady }: Readonl
     color: STATUS_COLOR[status],
   }));
   const short = warehouse.belowMinCount > 0;
+  const ready = stockReady && stock.length > 0;
+  const emptyCount = countOf('empty');
   let shortHint: string | undefined;
   if (emptyCount > 0) shortHint = t('detail.stats.emptyCount', { count: emptyCount });
   else if (short) shortHint = t('detail.stats.restock');
-  else if (stockReady && stock.length > 0) shortHint = t('detail.stats.allSafe');
+  else if (ready) shortHint = t('detail.stats.allSafe');
 
   return (
     <MetricGrid>
       <MetricCard
         icon={IconPackage}
         label={t('detail.stats.items')}
-        value={numberFormat(warehouse.itemCount)}
-        hint={
-          stockReady
-            ? stock.length > 0
-              ? t('detail.stats.inStock', { count: inStock, total: stock.length })
-              : t('detail.stats.noProducts')
-            : undefined
-        }
+        value={t('summary.itemsCount', { count: numberFormat(warehouse.itemCount) })}
+        hint={stockReady && stock.length === 0 ? t('detail.stats.noProducts') : undefined}
         visual={
-          stockReady && stock.length > 0 ? (
-            <RingStat
+          ready ? (
+            <PercentBar
               percent={stockedPercent}
-              aria-label={t('detail.stats.inStockShare', { percent: stockedPercent })}
+              caption={t('detail.stats.inStock', { count: inStock, total: stock.length })}
             />
           ) : undefined
         }
@@ -176,17 +171,16 @@ export function WarehouseDetailMetrics({ warehouse, stock, stockReady }: Readonl
           icon={IconCoin}
           label={t('detail.stats.value')}
           value={formatCurrency(warehouse.inventoryValue)}
-          hint={
-            stockReady
-              ? t('detail.stats.valueHint', {
-                  count: stock.filter((item) => (item.value ?? 0) > 0).length,
-                })
-              : undefined
-          }
-          wideVisual
           visual={
-            stockReady && byProduct.length > 0 ? (
-              <ShareVisual segments={byProduct} label={t('detail.stats.valueByProduct')} />
+            ready && byProduct.largest ? (
+              <ShareBar
+                segments={byProduct.segments}
+                caption={t('detail.stats.largest', {
+                  name: byProduct.largest.label,
+                  percent: byProduct.largest.percent,
+                })}
+                aria-label={t('detail.stats.valueByProduct')}
+              />
             ) : undefined
           }
         />
@@ -194,13 +188,20 @@ export function WarehouseDetailMetrics({ warehouse, stock, stockReady }: Readonl
       <MetricCard
         icon={IconAlertTriangle}
         label={t('detail.stats.belowMin')}
-        value={numberFormat(warehouse.belowMinCount)}
+        value={t('summary.itemsCount', { count: numberFormat(warehouse.belowMinCount) })}
         hint={shortHint}
         tone={short ? 'warning' : 'default'}
-        wideVisual
         visual={
-          stockReady && stock.length > 0 ? (
-            <ShareVisual segments={statusSegments} label={t('detail.stats.statusSplit')} />
+          ready ? (
+            <ShareBar
+              segments={statusSegments}
+              caption={t('detail.stats.statusCaption', {
+                safe: countOf('safe'),
+                below: countOf('belowMin'),
+                empty: emptyCount,
+              })}
+              aria-label={t('detail.stats.statusSplit')}
+            />
           ) : undefined
         }
       />
