@@ -79,6 +79,7 @@ export const purchasesBills = {
     removeLine: 'Hapus baris',
     removeLineAria: 'Hapus baris {number}',
     error: {
+      qtyEmpty: 'Isi qty minimal satu baris untuk difakturkan.',
       pickOne: 'Pilih minimal satu dokumen yang difakturkan.',
       vendorRequired: 'Pilih vendor',
       linesEmpty: 'Tambahkan minimal satu baris.',
@@ -117,6 +118,7 @@ export const purchasesBills = {
     continue: 'Lanjutkan Verifikasi',
   },
   wizard: {
+    qtyAria: 'Qty difakturkan untuk {name}',
     title: 'Catat Faktur',
     source: 'Sumber Tagihan',
     sourceHint: 'Vendor dan penerimaan yang ditagih',
@@ -134,6 +136,8 @@ export const purchasesBills = {
       amount: 'Jumlah',
     },
     summary: {
+      withholding: 'PPh dipotong',
+      calculated: 'Dihitung oleh sistem; sama dengan angka setelah faktur disimpan.',
       subtotal: 'DPP',
       tax: 'PPN',
       taxRate: 'PPN {rate}%',

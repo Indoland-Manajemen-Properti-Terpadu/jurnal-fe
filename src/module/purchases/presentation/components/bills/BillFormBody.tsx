@@ -21,7 +21,7 @@ import {
 } from '@/module/purchases/domain/billForm';
 import {
   dueDateFor,
-  estimateBill,
+  type BillQuantities,
   type BillSourceDoc,
   type PickedSource,
 } from '@/module/purchases/domain/billSources';
@@ -46,6 +46,7 @@ import {
   BillPickedItems,
 } from '@/module/purchases/presentation/components/bills/BillPickedItems';
 import { BillSourceStep } from '@/module/purchases/presentation/components/bills/BillSourceStep';
+import { useBillPricing } from '@/module/purchases/presentation/components/bills/useBillPricing';
 import { useUpdateBill } from '@/module/purchases/presentation/components/bills/useUpdateBill';
 import { FormFrame } from '@/module/purchases/presentation/components/shared/FormFrame';
 import { WizardActionBar } from '@/module/purchases/presentation/components/shared/wizard/WizardActionBar';
@@ -79,6 +80,7 @@ export const BillFormBody = ({
   const navigate = useNavigate();
   const [source, setSource] = useState<BillSource>(existing?.source ?? initialSource);
   const [picked, setPicked] = useState<BillSourceDoc[]>([]);
+  const [quantities, setQuantities] = useState<BillQuantities>({});
   const [pickVendor, setPickVendor] = useState('');
   const [values, setValues] = useState<BillFormValues>(() =>
     existing ? billToForm(existing) : emptyBillForm(todayIso())
@@ -133,13 +135,16 @@ export const BillFormBody = ({
     subtotal: existing?.subtotal,
     headerOnly: Boolean(existing),
   });
+  const { estimate, preview, hasQuantity } = useBillPricing(source, values, picked, quantities);
   const pickError = !existing && source !== 'MANUAL' && picked.length === 0;
+  const quantityError = !existing && source !== 'MANUAL' && picked.length > 0 && !hasQuantity;
   const set = <K extends keyof BillFormValues>(key: K, value: BillFormValues[K]) =>
     setValues((current) => ({ ...current, [key]: value }));
 
   const changeSource = (next: BillSource) => {
     setSource(next);
     setPicked([]);
+    setQuantities({});
     setPickVendor('');
     setShowErrors(false);
   };
@@ -148,7 +153,7 @@ export const BillFormBody = ({
     (key) => key !== 'vendorId' && key !== 'lines'
   );
   const save = (post: boolean) => {
-    if (hasBillErrors(errors) || pickError) {
+    if (hasBillErrors(errors) || pickError || quantityError) {
       setShowErrors(true);
       if (!existing) {
         setStep(pickError || errors.fields.vendorId ? 0 : hasHeaderFieldErrors ? 1 : 2);
@@ -159,7 +164,7 @@ export const BillFormBody = ({
       update.mutate({ id: existing.id, input: toBillUpdate(values) });
       return;
     }
-    const input = toBillInput(source, values, picked, post);
+    const input = toBillInput(source, values, picked, post, quantities);
     setLastInput(input);
     create.mutate(input, {
       onError: (error) => {
@@ -169,7 +174,6 @@ export const BillFormBody = ({
     });
   };
 
-  const estimate = useMemo(() => estimateBill(picked), [picked]);
   const dueHint = useMemo(() => {
     const first = picked[0];
     if (!first) return undefined;
@@ -353,7 +357,11 @@ export const BillFormBody = ({
           description={t('bills.wizard.itemsHint')}
           hintTitle={picked[0]?.vendor.name ?? (values.vendorName || undefined)}
           hint={picked.map((doc) => doc.number).join(', ') || undefined}
-          summary={source === 'MANUAL' ? undefined : <BillEstimateSummary estimate={estimate} />}
+          summary={
+            source === 'MANUAL' ? undefined : (
+              <BillEstimateSummary estimate={estimate} preview={preview} />
+            )
+          }
           footer={bar(true)}
         >
           {source === 'MANUAL' ? (
@@ -364,7 +372,19 @@ export const BillFormBody = ({
               onChange={(lines) => set('lines', lines)}
             />
           ) : (
-            <BillPickedItems estimate={estimate} />
+            <>
+              <BillPickedItems
+                estimate={estimate}
+                onQuantity={(key, quantity) =>
+                  setQuantities((current) => ({ ...current, [key]: quantity }))
+                }
+              />
+              {showErrors && quantityError && (
+                <Text size="sm" c="red" mt="sm" role="alert">
+                  {t('bills.form.error.qtyEmpty')}
+                </Text>
+              )}
+            </>
           )}
           {showErrors && errors.fields.lines && source === 'MANUAL' && (
             <Text size="sm" c="red" mt="sm" role="alert">
