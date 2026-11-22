@@ -1,4 +1,5 @@
 import type { TagListParams } from '@/module/settings/domain/settingTypes';
+import type { DepartmentListParams } from '@/module/settings/infrastructure/departmentApi';
 import type { PaymentTermListParams } from '@/module/settings/infrastructure/paymentTermApi';
 
 export const settingKeys = {
@@ -12,5 +13,8 @@ export const settingKeys = {
   paymentTermDetail: (id: string) => [...settingKeys.paymentTerms(), 'detail', id] as const,
   paymentMethods: () => [...settingKeys.all, 'payment-methods'] as const,
   taxes: () => [...settingKeys.all, 'taxes'] as const,
+  departments: () => [...settingKeys.all, 'departments'] as const,
+  departmentList: (params: DepartmentListParams) =>
+    [...settingKeys.departments(), 'list', params] as const,
   tags: (params?: TagListParams) => [...settingKeys.all, 'tags', params] as const,
 };

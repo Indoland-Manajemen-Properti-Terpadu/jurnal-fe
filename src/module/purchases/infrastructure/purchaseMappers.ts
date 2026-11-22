@@ -1,3 +1,4 @@
+import apiClient from '@/lib/http/apiClient';
 import type {
   ApprovalState,
   Attachment,
@@ -40,6 +41,7 @@ export const toProduct = (dto: ProductDto | null | undefined): ProductRef | null
         id: dto.id,
         name: dto.name,
         sku: dto.sku ?? null,
+        unitId: dto.unit?.id ?? null,
         unitName: dto.unit?.name ?? null,
         isInventory: Boolean(dto.inventoryInfo?.isTracked),
       }
@@ -60,11 +62,18 @@ export const toPaymentMethod = (
       }
     : null;
 
+/** Uploaded files are served from the API address, under the path the service stores. */
+export const fileUrl = (path: string): string => {
+  const base = String(apiClient.defaults.baseURL ?? '').replace(/\/+$/, '');
+  return `${base}/${path.replace(/^\/+/, '')}`;
+};
+
 export const toAttachments = (dtos: AttachmentDto[] | null | undefined): Attachment[] =>
   (dtos ?? []).map((dto, index) => ({
     id: dto._id ?? dto.id ?? String(index),
-    name: dto.originalName ?? dto.filename ?? dto.name ?? 'Lampiran',
-    url: dto.url ?? dto.path ?? '',
+    name: dto.fileName ?? 'Lampiran',
+    url: dto.filePath ? fileUrl(dto.filePath) : '',
+    mimeType: dto.mimeType ?? '',
   }));
 
 export const toApproval = (dto: ApprovalFieldsDto): ApprovalState => ({

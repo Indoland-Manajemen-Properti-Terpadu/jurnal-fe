@@ -1,38 +1,33 @@
-import { Grid, Group, Stack } from '@mantine/core';
-import { IconCalculator, IconShoppingCart } from '@tabler/icons-react';
+import { Grid, Stack } from '@mantine/core';
+import { IconShoppingCart, IconTruckDelivery, IconWallet } from '@tabler/icons-react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
 import { PURCHASE_MENU } from '@/module/purchases/domain/purchaseAccess';
 import { OrderActionBar } from '@/module/purchases/presentation/components/orders/OrderActionBar';
 import { OrderSummaryCard } from '@/module/purchases/presentation/components/orders/OrderSummaryCard';
 import { StateFrame } from '@/module/purchases/presentation/components/requests/StateFrame';
-import { AmountSummary } from '@/module/purchases/presentation/components/shared/AmountSummary';
-import { ApprovalPanel } from '@/module/purchases/presentation/components/shared/ApprovalPanel';
+import { AmountsCard } from '@/module/purchases/presentation/components/shared/AmountsCard';
 import { AttachmentsCard } from '@/module/purchases/presentation/components/shared/AttachmentsCard';
 import { DocumentJourney } from '@/module/purchases/presentation/components/shared/DocumentJourney';
-import { OrderHighlights } from '@/module/purchases/presentation/components/shared/DocumentHighlights';
-import { PageFrame } from '@/module/purchases/presentation/components/shared/PageFrame';
-import { SectionCard } from '@/module/purchases/presentation/components/shared/SectionCard';
+import { DocumentFrame } from '@/module/purchases/presentation/components/shared/DocumentFrame';
+import { formatDay } from '@/module/purchases/presentation/components/shared/format';
+import { BillsTableCard } from '@/module/purchases/presentation/components/shared/BillsTableCard';
+import { RelatedDocsCard } from '@/module/purchases/presentation/components/shared/RelatedDocsCard';
 import { StatusBadge } from '@/module/purchases/presentation/components/shared/StatusBadge';
 import { usePurchaseAccess } from '@/module/purchases/presentation/hooks/usePurchaseAccess';
-import { usePurchaseJourney } from '@/module/purchases/presentation/hooks/usePurchaseJourney';
-import {
-  useApproveOrder,
-  useRejectOrder,
-} from '@/module/purchases/presentation/hooks/usePurchaseMutations';
-import { useOrder } from '@/module/purchases/presentation/hooks/usePurchaseQueries';
+import { useDocumentChain } from '@/module/purchases/presentation/hooks/useDashboard';
+import { useBills, useOrder } from '@/module/purchases/presentation/hooks/usePurchaseQueries';
 import { routes } from '@/router/routes';
 
 const BACK = routes.purchases.orders;
 
 export default function OrderDetailPage() {
   const { id } = useParams();
-  const { t } = useTranslation('purchases');
+  const { t, currentLanguage } = useTranslation('purchases');
   const { can, canRead, isLoading: accessLoading } = usePurchaseAccess();
   const order = useOrder(id);
-  const journey = usePurchaseJourney({ orderId: id, current: 'order' });
-  const approve = useApproveOrder();
-  const reject = useRejectOrder();
+  const journey = useDocumentChain('purchaseOrder', id);
+  const orderBills = useBills({ purchaseOrder: id, limit: 50 }, Boolean(id));
 
   if (accessLoading || order.isLoading) {
     return <StateFrame kind="loading" />;
@@ -58,48 +53,70 @@ export default function OrderDetailPage() {
     return <StateFrame kind="loading" />;
   }
 
+  const { chain } = journey;
+  const docsOf = (
+    list: { id: string; number: string; status: string }[] | undefined,
+    route: string
+  ) => (list ?? []).map((ref) => ({ ...ref, to: route.replace(':id', ref.id) }));
+
   return (
-    <PageFrame
+    <DocumentFrame
       icon={IconShoppingCart}
-      title={
-        <Group gap="sm" align="center">
-          <span>{doc.number}</span>
-          <StatusBadge status={doc.status} />
-        </Group>
-      }
-      description={t('orders.detail.subtitle', { vendor: doc.vendor.name })}
+      number={doc.number}
+      badges={<StatusBadge status={doc.status} label={doc.statusLabel} />}
+      date={`${doc.documentLabel} · ${formatDay(doc.date, currentLanguage)}`}
       backTo={BACK}
-      backLabel={t('common.back')}
+      backLabel={t('orders.detail.backToList')}
       actions={<OrderActionBar order={doc} />}
     >
-      <OrderHighlights doc={doc} />
       <Grid gutter="lg" align="flex-start">
         <Grid.Col span={{ base: 12, lg: 8 }}>
-          <OrderSummaryCard order={doc} />
-        </Grid.Col>
-        <Grid.Col span={{ base: 12, lg: 4 }}>
           <Stack gap="lg">
-            <SectionCard icon={IconCalculator} title={t('orders.detail.amountsTitle')}>
-              <AmountSummary {...doc} />
-            </SectionCard>
-            <ApprovalPanel
-              approval={doc.approval}
-              status={doc.status}
-              canApprove={can(PURCHASE_MENU.approvePurchaseOrder, 'update')}
-              busy={approve.isPending || reject.isPending}
-              onApprove={(note) => approve.mutate({ id: doc.id, note })}
-              onReject={(reason) => reject.mutate({ id: doc.id, reason })}
+            <OrderSummaryCard order={doc} />
+            <RelatedDocsCard
+              icon={IconTruckDelivery}
+              title={t('orders.detail.receiptsTitle')}
+              subtitle={t('orders.detail.receiptsSubtitle')}
+              count={t('bills.detail.docsCount', { count: chain?.goodsReceipts.length ?? 0 })}
+              emptyText={t('orders.detail.receiptsEmpty')}
+              docs={docsOf(chain?.goodsReceipts, routes.purchases.receiptDetail)}
             />
-            <DocumentJourney steps={journey.steps} />
+            <BillsTableCard
+              title={t('orders.detail.billsTitle')}
+              subtitle={t('orders.detail.billsSubtitle')}
+              bills={(orderBills.data?.items ?? []).filter((bill) => bill.status !== 'VOID')}
+              emptyText={t('orders.detail.billsEmpty')}
+            />
+            <RelatedDocsCard
+              icon={IconWallet}
+              title={t('orders.detail.requestsTitle')}
+              subtitle={t('orders.detail.requestsSubtitle')}
+              count={t('bills.detail.docsCount', { count: chain?.paymentRequests.length ?? 0 })}
+              emptyText={t('orders.detail.requestsEmpty')}
+              docs={docsOf(chain?.paymentRequests, routes.purchases.paymentRequestDetail)}
+            />
             <AttachmentsCard
               target="order"
               documentId={doc.id}
               attachments={doc.attachments}
-              canUpload={can(PURCHASE_MENU.documents, 'update')}
+              canUpload={can(PURCHASE_MENU.documents, 'update') && doc.status !== 'VOID'}
             />
           </Stack>
         </Grid.Col>
+        <Grid.Col span={{ base: 12, lg: 4 }}>
+          <Stack gap="lg">
+            <AmountsCard
+              subtotal={doc.subtotal}
+              discountAmount={doc.discountAmount}
+              taxAmount={doc.taxAmount}
+              withholdingAmount={doc.withholdingAmount}
+              closing={{ label: t('orders.detail.total'), value: doc.finalAmount }}
+              subtitle={t('orders.detail.amountsSubtitle')}
+            />
+            <DocumentJourney steps={journey.steps} />
+          </Stack>
+        </Grid.Col>
       </Grid>
-    </PageFrame>
+    </DocumentFrame>
   );
 }

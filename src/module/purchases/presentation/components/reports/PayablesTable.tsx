@@ -1,3 +1,4 @@
+import tableClasses from '@/module/purchases/presentation/components/shared/Table.module.css';
 import { Group, Paper, Skeleton, Table, Text } from '@mantine/core';
 import { IconAlertCircle, IconCircleCheck } from '@tabler/icons-react';
 import { EmptyState } from '@/components/EmptyState';
@@ -126,8 +127,13 @@ export const PayablesTable = ({
 
   return (
     <Paper withBorder radius="md" bg="white" p={0} style={{ overflow: 'hidden' }}>
-      <Table.ScrollContainer minWidth={900}>
-        <Table verticalSpacing="sm" horizontalSpacing="md" highlightOnHover>
+      <Table.ScrollContainer type="native" minWidth={900}>
+        <Table
+          className={tableClasses.table}
+          verticalSpacing="sm"
+          horizontalSpacing="md"
+          highlightOnHover
+        >
           <Table.Thead bg="var(--jurnal-color-surface-hover)">
             <Table.Tr>
               <Head label={t('reports.col.vendor')} />

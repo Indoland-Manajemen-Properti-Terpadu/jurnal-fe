@@ -1,16 +1,18 @@
 import { useState } from 'react';
-import { Alert, Badge, Button, Group, Stack, Text, Textarea, ThemeIcon } from '@mantine/core';
+import { Alert, Button, Group, Stack, Text, Textarea } from '@mantine/core';
 import { IconCheck, IconShieldCheck, IconX } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import type { ApprovalState } from '@/module/purchases/domain/purchaseCommon';
 import { SectionCard } from '@/module/purchases/presentation/components/shared/SectionCard';
-import { Timeline } from '@/module/purchases/presentation/components/shared/Timeline';
+import { ApprovalTrail } from '@/module/purchases/presentation/components/shared/ApprovalTrail';
 import { ReasonModal } from '@/module/purchases/presentation/components/shared/ReasonModal';
 
 interface ApprovalPanelProps {
   approval: ApprovalState;
   /** Document status; the panel shows only once the document has entered approval. */
   status: string;
+  /** The status that means "waiting for a decision"; PENDING_APPROVAL unless the document says otherwise. */
+  waitingStatus?: string;
   /** The user holds the approval right for this document type. */
   canApprove: boolean;
   busy?: boolean;
@@ -22,6 +24,7 @@ interface ApprovalPanelProps {
 export const ApprovalPanel = ({
   approval,
   status,
+  waitingStatus = 'PENDING_APPROVAL',
   canApprove,
   busy,
   onApprove,
@@ -31,7 +34,7 @@ export const ApprovalPanel = ({
   const [note, setNote] = useState('');
   const [rejecting, setRejecting] = useState(false);
 
-  const waiting = status === 'PENDING_APPROVAL';
+  const waiting = status === waitingStatus;
   const rejected = status === 'REJECTED' && approval.rejectionReason;
   if (!waiting && !rejected && approval.entries.length === 0) return null;
 
@@ -50,50 +53,21 @@ export const ApprovalPanel = ({
           </Alert>
         )}
 
-        {approval.pending.length > 0 && (
-          <Timeline
-            items={approval.pending.map((level, index) => ({
-              id: String(level.level),
-              state: index === 0 ? 'waiting' : 'upcoming',
-              children: (
-                <>
-                  <Text size="sm" fw={600} c={index === 0 ? 'dark.8' : 'dimmed'} lh={1.4}>
-                    {level.name}
-                  </Text>
-                  <Text size="xs" c="dimmed">
-                    {index === 0
-                      ? level.mode === 'ALL'
-                        ? t('approval.modeAll')
-                        : t('approval.modeAny')
-                      : t('approval.afterPrevious')}
-                  </Text>
-                  {index === 0 && (
-                    <Group gap={6} mt={6}>
-                      {level.roles.map((role) => (
-                        <Badge
-                          key={role.id}
-                          variant={role.approved ? 'light' : 'outline'}
-                          color={role.approved ? 'green' : 'gray'}
-                          radius="sm"
-                          leftSection={role.approved ? <IconCheck size={12} /> : undefined}
-                        >
-                          {role.name}
-                        </Badge>
-                      ))}
-                    </Group>
-                  )}
-                </>
-              ),
-            }))}
-          />
+        {approval.plan.length > 0 && (
+          <ApprovalTrail approval={approval} status={status} hideReason />
         )}
 
-        {!waiting && approval.entries.length > 0 && (
-          <Group gap="xs">
-            <ThemeIcon variant="light" color="primary" size={26} radius="xl">
-              <IconCheck size={16} />
-            </ThemeIcon>
-            <Text size="sm">{t('approval.completed', { count: approval.entries.length })}</Text>
+        {waiting && approval.pending[0] && (
+          <Group gap={6}>
+            {approval.pending[0].roles.map((role) => (
+              <Text key={role.id} size="xs" c={role.approved ? 'green.7' : 'dimmed'} fw={600}>
+                {role.approved ? '✓ ' : ''}
+                {role.name}
+              </Text>
+            ))}
+            <Text size="xs" c="dimmed">
+              {approval.pending[0].mode === 'ALL' ? t('approval.modeAll') : t('approval.modeAny')}
+            </Text>
           </Group>
         )}
 

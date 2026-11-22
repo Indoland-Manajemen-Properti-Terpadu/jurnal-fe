@@ -1,5 +1,9 @@
 import { fromMinor, sumMinor, toMinor } from '@/lib/money/money';
-import type { PurchaseBill, PurchaseReturn } from '@/module/purchases/domain/purchaseDocuments';
+import type {
+  PurchaseBill,
+  PurchaseReturn,
+  ReturnSettlement,
+} from '@/module/purchases/domain/purchaseDocuments';
 import type { PurchaseReturnInput } from '@/module/purchases/domain/purchaseInputs';
 
 export interface ReturnLine {
@@ -16,6 +20,8 @@ export interface ReturnLine {
 }
 
 export interface ReturnFormValues {
+  settlement: ReturnSettlement;
+  warehouseId: string;
   date: string;
   reason: string;
   memo: string;
@@ -25,6 +31,8 @@ export interface ReturnFormValues {
 export interface ReturnUpdateInput {
   transactionDate: string;
   reason: string;
+  settlement: ReturnSettlement;
+  warehouse?: string;
   memo?: string;
   items: { billItem: string; quantity: number }[];
 }
@@ -57,7 +65,13 @@ export const returnLines = (bill: PurchaseBill): ReturnLine[] =>
     taxAmount: item.taxAmount,
   }));
 
-export const emptyReturnForm = (date: string): ReturnFormValues => ({
+/** A bill with nothing left to pay cannot be deducted from; its return becomes vendor credit. */
+export const defaultSettlement = (bill: PurchaseBill): ReturnSettlement =>
+  bill.status !== 'PAID' && bill.remainingAmount > 0 ? 'DEDUCT' : 'CREDIT';
+
+export const emptyReturnForm = (date: string, bill?: PurchaseBill): ReturnFormValues => ({
+  settlement: bill ? defaultSettlement(bill) : 'DEDUCT',
+  warehouseId: '',
   date,
   reason: '',
   memo: '',
@@ -130,8 +144,12 @@ export const previewReturn = (
  */
 export const splitReturn = (
   finalAmount: number,
-  remainingAmount: number
+  remainingAmount: number,
+  settlement: ReturnSettlement = 'DEDUCT'
 ): { appliedToBill: number; credit: number } => {
+  if (settlement !== 'DEDUCT') {
+    return { appliedToBill: 0, credit: finalAmount };
+  }
   const applied = Math.min(Math.max(remainingAmount, 0), finalAmount);
   return {
     appliedToBill: applied,
@@ -176,6 +194,8 @@ export const toReturnInput = (values: ReturnFormValues, billId: string): Purchas
   bill: billId,
   transactionDate: values.date,
   reason: values.reason.trim(),
+  settlement: values.settlement,
+  ...(values.warehouseId ? { warehouse: values.warehouseId } : {}),
   memo: values.memo.trim() || undefined,
   items: items(values),
 });
@@ -183,13 +203,72 @@ export const toReturnInput = (values: ReturnFormValues, billId: string): Purchas
 export const toReturnUpdateInput = (values: ReturnFormValues): ReturnUpdateInput => ({
   transactionDate: values.date,
   reason: values.reason.trim(),
+  settlement: values.settlement,
+  ...(values.warehouseId ? { warehouse: values.warehouseId } : {}),
   memo: values.memo.trim(),
   items: items(values),
 });
 
 export const returnFormFromReturn = (doc: PurchaseReturn): ReturnFormValues => ({
+  settlement: doc.settlement,
+  warehouseId: doc.warehouse?.id ?? '',
   date: doc.date,
   reason: doc.reason,
   memo: doc.memo,
   quantities: Object.fromEntries(doc.items.map((item) => [item.billItemId, item.quantity])),
+});
+
+/* ---------- Refund of a return ---------- */
+
+export interface RefundFormValues {
+  date: string;
+  depositAccountId: string;
+  amount: number | '';
+}
+
+export interface RefundErrors {
+  date?: 'dateRequired';
+  depositAccountId?: 'depositRequired';
+  amount?: 'amountInvalid' | 'amountTooHigh';
+}
+
+export const hasRefundErrors = (errors: RefundErrors): boolean => Object.keys(errors).length > 0;
+
+/** Whole minor units of a typed amount, or null when it has more than two decimals or is not a number. */
+const minorOf = (value: number): number | null => {
+  try {
+    return toMinor(value);
+  } catch {
+    return null;
+  }
+};
+
+/** A refund takes from the credit still left on the return; the server refuses more with a 400. */
+export const validateRefund = (values: RefundFormValues, remaining: number): RefundErrors => {
+  const errors: RefundErrors = {};
+  if (!values.date) {
+    errors.date = 'dateRequired';
+  }
+  if (!values.depositAccountId) {
+    errors.depositAccountId = 'depositRequired';
+  }
+  const amount = typeof values.amount === 'number' ? minorOf(values.amount) : null;
+  if (amount === null || amount <= 0) {
+    errors.amount = 'amountInvalid';
+  } else if (amount > (minorOf(remaining) ?? 0)) {
+    errors.amount = 'amountTooHigh';
+  }
+  return errors;
+};
+
+export interface RefundInput {
+  transactionDate: string;
+  depositAccount: string;
+  amount: number;
+}
+
+export const toRefundInput = (values: RefundFormValues): RefundInput => ({
+  transactionDate: values.date,
+  depositAccount: values.depositAccountId,
+  amount: typeof values.amount === 'number' ? values.amount : 0,
 });

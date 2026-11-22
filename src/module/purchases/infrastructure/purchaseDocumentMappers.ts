@@ -1,32 +1,33 @@
+import type { BillSourceDoc, BillSourceLine } from '@/module/purchases/domain/billSources';
+import type { PaymentRequest } from '@/module/purchases/domain/paymentRequest';
 import type {
   BillItem,
   CreditApplication,
   DocumentAmounts,
+  DocumentRef,
   GoodsReceipt,
   OrderItem,
   PayablesAging,
   PaymentVoucher,
   PurchaseBill,
   PurchaseOrder,
-  PurchaseRequest,
   PurchaseReturn,
-  Quotation,
-  RequestItem,
   VendorCredits,
 } from '@/module/purchases/domain/purchaseDocuments';
 import type {
   AmountsDto,
+  BillSourceDto,
+  BillSourceLineDto,
   CreditApplicationDto,
   DocumentDto,
+  DocumentRefDto,
   GoodsReceiptDto,
   PayablesAgingDto,
+  PaymentRequestDto,
   PaymentVoucherDto,
   PurchaseBillDto,
   PurchaseOrderDto,
-  PurchaseRequestDto,
   PurchaseReturnDto,
-  QuotationDto,
-  RequestItemDto,
   VendorCreditsDto,
 } from '@/module/purchases/infrastructure/purchaseDto';
 import {
@@ -66,48 +67,12 @@ const toAmounts = (dto: AmountsDto): DocumentAmounts => ({
   isPriceIncludeTax: Boolean(dto.isPriceIncludeTax),
 });
 
-const toRequestItem = (dto: RequestItemDto): RequestItem => ({
-  id: dto._id,
-  product: toProduct(dto.product),
-  description: dto.description ?? '',
-  quantity: dto.quantity,
-  unitName: dto.unit?.name ?? dto.product?.unit?.name ?? null,
-});
-
-const toQuotation = (dto: QuotationDto): Quotation => ({
-  id: dto._id,
-  vendor: toParty(dto.vendor),
-  number: dto.quotationNumber ?? '',
-  date: toDate(dto.quotationDate),
-  validUntil: toDateOrNull(dto.validUntil),
-  items: dto.items.map((item) => ({
-    requestItemId: item.requestItem,
-    quantity: item.quantity,
-    unitPrice: item.unitPrice,
-  })),
-  total: dto.total,
-  notes: dto.notes ?? '',
-});
-
-export const toPurchaseRequest = (dto: PurchaseRequestDto): PurchaseRequest => ({
-  ...base(dto),
-  requiredDate: toDateOrNull(dto.requiredDate),
-  department: dto.department ?? '',
-  purpose: dto.purpose ?? '',
-  mode: dto.procurementMode,
-  status: dto.status as PurchaseRequest['status'],
-  items: dto.items.map(toRequestItem),
-  quotations: (dto.quotations ?? []).map(toQuotation),
-  selectedQuotationId: dto.selectedQuotation ?? null,
-  purchaseOrderId: refId(dto.purchaseOrder) || null,
-  approval: toApproval(dto),
-});
-
 const toOrderItem = (dto: PurchaseOrderDto['items'][number]): OrderItem => ({
   id: dto._id,
   requestItemId: dto.requestItem,
   product: toProduct(dto.product),
   description: dto.description ?? '',
+  specification: dto.specification ?? '',
   quantity: dto.quantity,
   unitName: dto.unit?.name ?? dto.product?.unit?.name ?? null,
   unitPrice: dto.unitPrice,
@@ -117,25 +82,61 @@ const toOrderItem = (dto: PurchaseOrderDto['items'][number]): OrderItem => ({
   amount: dto.amount,
   receivedQty: dto.receivedQty,
   billedQty: dto.billedQty,
+  billOnly: Boolean(dto.billOnly),
+  schedule: {
+    kind: dto.schedule?.kind ?? 'FULL',
+    seq: dto.schedule?.seq ?? 1,
+    of: dto.schedule?.of ?? 1,
+    periodFrom: toDateOrNull(dto.schedule?.periodFrom),
+    periodTo: toDateOrNull(dto.schedule?.periodTo),
+  },
 });
 
 export const toPurchaseOrder = (dto: PurchaseOrderDto): PurchaseOrder => ({
   ...base(dto),
   ...toAmounts(dto),
+  statusLabel: dto.statusLabel ?? '',
+  documentLabel: dto.documentLabel ?? 'PO',
+  isService: Boolean(dto.isService),
   expectedDate: toDateOrNull(dto.expectedDate),
   vendor: toParty(dto.vendor),
-  purchaseRequestId: refId(dto.purchaseRequest),
+  vendorEmails: dto.vendor.emails ?? [],
+  purchaseRequestId: dto.purchaseRequestRef?.id ?? refId(dto.purchaseRequest),
+  purchaseRequestNumber: dto.purchaseRequestRef?.transactionNumber ?? '',
+  purchaseRequestPurpose: dto.purchaseRequestRef?.purpose ?? '',
   paymentTermName: dto.paymentTerm?.name ?? null,
+  warranty: dto.warranty ?? '',
+  warehouse: dto.warehouse ? { id: dto.warehouse.id, name: dto.warehouse.name } : null,
   deliveryAddress: dto.deliveryAddress ?? '',
   status: dto.status as PurchaseOrder['status'],
+  withReceipt: dto.withReceipt !== false,
   items: dto.items.map(toOrderItem),
-  approval: toApproval(dto),
+  advance: {
+    amount: dto.advance?.amount ?? 0,
+    requested: dto.advance?.requested ?? 0,
+    paid: dto.advance?.paid ?? 0,
+    used: dto.advance?.used ?? 0,
+    available: dto.advance?.available ?? 0,
+  },
+  payableAmount: dto.payableAmount ?? 0,
+  billedAmount: dto.billedAmount ?? 0,
+  sent: {
+    byEmail: Boolean(dto.sentByEmail),
+    to: dto.sentTo ?? '',
+    cc: dto.sentCc ?? [],
+    note: dto.sentNote ?? '',
+  },
 });
 
 export const toGoodsReceipt = (dto: GoodsReceiptDto): GoodsReceipt => ({
   ...base(dto),
+  kind: dto.kind ?? 'GOODS',
+  documentLabel: dto.documentLabel ?? (dto.kind === 'SERVICE' ? 'BAPP' : 'FPB'),
+  statusLabel: dto.statusLabel ?? '',
   vendor: toParty(dto.vendor),
-  purchaseOrderId: refId(dto.purchaseOrder),
+  purchaseOrderId: dto.purchaseOrderRef?.id ?? refId(dto.purchaseOrder),
+  purchaseOrderNumber: dto.purchaseOrderRef?.transactionNumber ?? '',
+  warehouse: dto.warehouse ? { id: dto.warehouse.id, name: dto.warehouse.name } : null,
   deliveryNote: dto.deliveryNote ?? '',
   status: dto.status as GoodsReceipt['status'],
   items: dto.items.map((item) => ({
@@ -144,15 +145,24 @@ export const toGoodsReceipt = (dto: GoodsReceiptDto): GoodsReceipt => ({
     product: toProduct(item.product),
     description: item.description ?? '',
     receivedQty: item.receivedQty,
+    rejectedQty: item.rejectedQty ?? 0,
     accrualAmount: item.accrualAmount,
   })),
+  amount: dto.amount ?? 0,
   journalId: dto.journalTransaction ?? null,
+  billRefs: (dto.billRefs ?? []).map((ref) => ({
+    id: ref.id,
+    number: ref.transactionNumber ?? '',
+    status: ref.status ?? '',
+  })),
+  approval: toApproval(dto),
 });
 
 const toBillItem = (dto: PurchaseBillDto['items'][number]): BillItem => ({
   id: dto._id,
-  purchaseOrderItemId: dto.purchaseOrderItem,
+  purchaseOrderItemId: dto.purchaseOrderItem ?? '',
   product: toProduct(dto.product),
+  account: dto.account ? { id: dto.account.id, name: dto.account.name ?? '' } : null,
   description: dto.description ?? '',
   quantity: dto.quantity,
   unitName: dto.unit?.name ?? dto.product?.unit?.name ?? null,
@@ -162,6 +172,12 @@ const toBillItem = (dto: PurchaseBillDto['items'][number]): BillItem => ({
   taxAmount: dto.taxAmount,
   amount: dto.amount,
   returnedQty: dto.returnedQty ?? 0,
+});
+
+const toDocumentRef = (dto: DocumentRefDto): DocumentRef => ({
+  id: dto.id,
+  number: dto.transactionNumber ?? '',
+  status: dto.status ?? '',
 });
 
 const toCreditApplication = (dto: CreditApplicationDto): CreditApplication => {
@@ -179,49 +195,125 @@ const toCreditApplication = (dto: CreditApplicationDto): CreditApplication => {
   };
 };
 
-export const toPurchaseBill = (dto: PurchaseBillDto): PurchaseBill => ({
-  ...base(dto),
-  ...toAmounts(dto),
-  vendor: toParty(dto.vendor),
-  purchaseOrderId: refId(dto.purchaseOrder),
-  vendorInvoiceNumber: dto.vendorInvoiceNumber ?? '',
-  vendorInvoiceTotal: dto.vendorInvoiceTotal ?? null,
-  dueDate: toDateOrNull(dto.dueDate),
-  status: dto.status as PurchaseBill['status'],
-  items: dto.items.map(toBillItem),
-  paidAmount: dto.paidAmount,
-  returnedAmount: dto.returnedAmount,
-  creditAppliedAmount: dto.creditAppliedAmount,
-  remainingAmount: dto.remainingAmount,
-  variances: (dto.variances ?? []).map((variance) => ({
-    type: variance.type,
-    expected: variance.expected ?? 0,
-    actual: variance.actual ?? 0,
-  })),
-  creditApplications: (dto.creditApplications ?? []).map(toCreditApplication),
-  journalId: dto.journalTransaction ?? null,
-  verifiedAt: dto.verifiedAt ?? null,
-});
+export const toPurchaseBill = (dto: PurchaseBillDto): PurchaseBill => {
+  const orderRefs = (dto.purchaseOrderRefs ?? []).map(toDocumentRef);
+  return {
+    ...base(dto),
+    ...toAmounts(dto),
+    source: dto.source ?? 'RECEIPT',
+    noMatch: Boolean(dto.noMatch),
+    statusLabel: dto.statusLabel ?? '',
+    displayStatus: (dto.displayStatus ?? dto.status) as PurchaseBill['displayStatus'],
+    displayStatusLabel: dto.displayStatusLabel ?? '',
+    vendor: toParty(dto.vendor),
+    purchaseOrderId: orderRefs[0]?.id ?? '',
+    vendorInvoiceNumber: dto.vendorInvoiceNumber ?? '',
+    taxInvoiceNumber: dto.taxInvoiceNumber ?? '',
+    vendorInvoiceTotal: dto.vendorInvoiceTotal ?? null,
+    dueDate: toDateOrNull(dto.dueDate),
+    paymentTermName: dto.paymentTerm?.name ?? null,
+    status: dto.status as PurchaseBill['status'],
+    items: dto.items.map(toBillItem),
+    tags: dto.tags ?? [],
+    paidAmount: dto.paidAmount,
+    returnedAmount: dto.returnedAmount,
+    creditAppliedAmount: dto.creditAppliedAmount,
+    remainingAmount: dto.remainingAmount,
+    heldAmount: dto.heldAmount ?? 0,
+    requestableAmount: dto.requestableAmount ?? 0,
+    goodsReceiptRefs: (dto.goodsReceiptRefs ?? []).map(toDocumentRef),
+    purchaseOrderRefs: orderRefs,
+    paymentRequestRefs: (dto.paymentRequestRefs ?? []).map(toDocumentRef),
+    returnRefs: (dto.returnRefs ?? []).map(toDocumentRef),
+    variances: (dto.variances ?? []).map((variance) => ({
+      type: variance.type,
+      expected: variance.expected ?? 0,
+      actual: variance.actual ?? 0,
+    })),
+    creditApplications: (dto.creditApplications ?? []).map(toCreditApplication),
+    journalId: dto.journalTransaction ?? null,
+    verifiedAt: dto.verifiedAt ?? null,
+  };
+};
 
 export const toPaymentVoucher = (dto: PaymentVoucherDto): PaymentVoucher => ({
   ...base(dto),
-  type: dto.type === 'ADVANCE' ? 'ADVANCE' : 'BILL',
+  statusLabel: dto.statusLabel ?? '',
   vendor: toParty(dto.vendor),
   status: dto.status as PaymentVoucher['status'],
-  lines: (dto.items ?? []).map((line) => ({ billId: refId(line.bill), amount: line.amount })),
+  items: (dto.itemRefs ?? []).map((line) => ({
+    requestId: line.paymentRequest.id,
+    requestNumber: line.paymentRequest.transactionNumber ?? '',
+    kind: line.kind,
+    amount: line.amount,
+    billId: line.bill?.id ?? null,
+    billNumber: line.bill?.transactionNumber ?? null,
+    vendorInvoiceNumber: line.bill?.vendorInvoiceNumber ?? '',
+    orderId: line.purchaseOrder?.id ?? null,
+    orderNumber: line.purchaseOrder?.transactionNumber ?? null,
+  })),
   totalAmount: dto.totalAmount,
-  advanceAppliedAmount: dto.advanceAppliedAmount ?? 0,
-  purchaseOrderId: refId(dto.purchaseOrder) || null,
-  paymentMethod: toPaymentMethod(dto.paymentMethod),
+  paymentMethod: typeof dto.paymentMethod === 'object' ? toPaymentMethod(dto.paymentMethod) : null,
+  depositAccountId: dto.depositAccount ?? null,
   adminFee: dto.adminFee ?? 0,
   referenceNumber: dto.referenceNumber ?? '',
   journalId: dto.journalTransaction ?? null,
   paidAt: dto.paidAt ?? null,
+  voidReason: dto.voidReason ?? null,
+});
+
+export const toPaymentRequest = (dto: PaymentRequestDto): PaymentRequest => ({
+  ...base(dto),
+  statusLabel: dto.statusLabel ?? '',
+  kindLabel: dto.kindLabel ?? '',
+  kind: dto.kind,
+  status: dto.status as PaymentRequest['status'],
+  vendor: dto.vendor ? toParty(dto.vendor) : null,
+  amount: dto.amount,
+  dueDate: toDateOrNull(dto.dueDate),
+  order: dto.purchaseOrderRef
+    ? {
+        id: dto.purchaseOrderRef.id,
+        number: dto.purchaseOrderRef.transactionNumber ?? '',
+        isService: Boolean(dto.purchaseOrderRef.isService),
+        total: dto.purchaseOrderRef.total ?? 0,
+        status: dto.purchaseOrderRef.status ?? '',
+      }
+    : null,
+  items: (dto.itemRefs ?? []).map((line) => ({
+    amount: line.amount,
+    bill: {
+      id: line.bill.id,
+      number: line.bill.transactionNumber ?? '',
+      vendorInvoiceNumber: line.bill.vendorInvoiceNumber ?? '',
+      dueDate: toDateOrNull(line.bill.dueDate),
+      finalAmount: line.bill.finalAmount ?? 0,
+      remainingAmount: line.bill.remainingAmount ?? 0,
+      status: line.bill.status ?? '',
+    },
+  })),
+  advanceAccountId: dto.advanceAccount ?? null,
+  advanceAppliedAmount: dto.advanceAppliedAmount ?? 0,
+  voucher: dto.paymentVoucherRef
+    ? {
+        id: dto.paymentVoucherRef.id,
+        number: dto.paymentVoucherRef.transactionNumber ?? '',
+        status: dto.paymentVoucherRef.status ?? '',
+        totalAmount: dto.paymentVoucherRef.totalAmount ?? 0,
+        paidAt: dto.paymentVoucherRef.paidAt ?? null,
+      }
+    : null,
+  cancelReason: dto.cancelReason ?? null,
   approval: toApproval(dto),
 });
 
 export const toPurchaseReturn = (dto: PurchaseReturnDto): PurchaseReturn => ({
   ...base(dto),
+  statusLabel: dto.statusLabel ?? '',
+  settlementLabel: dto.settlementLabel ?? '',
+  settlement: (dto.settlement as PurchaseReturn['settlement']) ?? 'DEDUCT',
+  warehouse: dto.warehouse ? { id: dto.warehouse.id, name: dto.warehouse.name } : null,
+  billNumber: dto.billRef?.transactionNumber ?? '',
   vendor: toParty(dto.vendor),
   billId: refId(dto.bill),
   reason: dto.reason,
@@ -245,6 +337,7 @@ export const toPurchaseReturn = (dto: PurchaseReturnDto): PurchaseReturn => ({
   appliedToBill: dto.appliedToBill ?? 0,
   creditUsed: dto.creditUsed ?? 0,
   creditRemaining: dto.creditRemaining ?? 0,
+  refundAmount: dto.refundAmount ?? 0,
   journalId: dto.journalTransaction ?? null,
 });
 
@@ -287,4 +380,36 @@ export const toPayablesAging = (dto: PayablesAgingDto): PayablesAging => ({
     };
   }),
   totals: dto.totals,
+});
+
+const toSourceLine = (dto: BillSourceLineDto): BillSourceLine => ({
+  purchaseOrderItemId: dto.purchaseOrderItem,
+  description: dto.description ?? '',
+  openQty: dto.open ?? 0,
+  unitPrice: dto.unitPrice,
+  taxRate: dto.taxRate ?? 0,
+  schedule: dto.schedule
+    ? {
+        kind: dto.schedule.kind,
+        seq: dto.schedule.seq ?? 1,
+        of: dto.schedule.of ?? 1,
+        periodFrom: toDateOrNull(dto.schedule.periodFrom),
+        periodTo: toDateOrNull(dto.schedule.periodTo),
+      }
+    : null,
+});
+
+export const toBillSource = (dto: BillSourceDto): BillSourceDoc => ({
+  id: dto.id,
+  number: dto.transactionNumber,
+  date: toDate(dto.transactionDate),
+  vendor: toParty(dto.vendor),
+  kind: dto.kind ?? (dto.isService ? 'SERVICE' : null),
+  orderId: dto.purchaseOrder?.id ?? '',
+  orderNumber: dto.purchaseOrder?.transactionNumber ?? '',
+  termKey: dto.termKey ?? '',
+  termName: dto.termName ?? '',
+  isPriceIncludeTax: Boolean(dto.isPriceIncludeTax),
+  lines: (dto.lines ?? []).map(toSourceLine),
+  orderLines: (dto.orderLines ?? []).map(toSourceLine),
 });

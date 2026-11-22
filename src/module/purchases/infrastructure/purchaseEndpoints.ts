@@ -3,13 +3,15 @@ const PO = '/v1/purchase-orders';
 const GR = '/v1/goods-receipts';
 const BILL = '/v1/purchase-bills';
 const PAY = '/v1/purchase-payments';
+const PAYREQ = '/v1/purchase-payment-requests';
 const RET = '/v1/purchase-returns';
 
 export const PURCHASE_API = {
   requests: PR,
   request: (id: string) => `${PR}/${id}`,
   requestAction: (id: string, action: string) => `${PR}/${id}/${action}`,
-  requestQuotations: (id: string) => `${PR}/${id}/quotations`,
+  requestProcurement: (id: string) => `${PR}/${id}/procurement`,
+  requestProcurementAction: (id: string, action: string) => `${PR}/${id}/procurement/${action}`,
   requestAttachments: (id: string) => `${PR}/${id}/attachments`,
 
   orders: PO,
@@ -30,9 +32,14 @@ export const PURCHASE_API = {
   billCreditApplications: (id: string) => `${BILL}/${id}/credit-applications`,
   billCreditApplicationVoid: (id: string, applicationId: string) =>
     `${BILL}/${id}/credit-applications/${applicationId}/void`,
+  billSources: `${BILL}/sources`,
   vendorCredits: `${BILL}/vendor-credits`,
   payablesBySupplier: `${BILL}/payables/by-supplier`,
   payablesExport: `${BILL}/payables/by-supplier/export`,
+
+  paymentRequests: PAYREQ,
+  paymentRequest: (id: string) => `${PAYREQ}/${id}`,
+  paymentRequestAction: (id: string, action: string) => `${PAYREQ}/${id}/${action}`,
 
   payments: PAY,
   payment: (id: string) => `${PAY}/${id}`,
@@ -46,6 +53,10 @@ export const PURCHASE_API = {
   returnAttachments: (id: string) => `${RET}/${id}/attachments`,
 
   contacts: '/v1/contacts',
+  departments: '/v1/departments',
+  units: '/v1/units',
+  warehouses: '/v1/warehouses',
+  tags: '/v1/tags',
   products: '/v1/products',
   taxes: '/v1/taxes',
   paymentMethods: '/v1/payment-methods',

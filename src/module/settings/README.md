@@ -16,6 +16,7 @@ Company and accounting settings, reached from one "Settings" entry in the app si
 | `settings.paymentMethods`  | `/settings/payment-methods`        | `PaymentMethodPage`                                 |
 | `settings.numberFormats`   | `/settings/number-formats`         | `NumberFormatPage`                                  |
 | `settings.tags`            | `/settings/tags`                   | `TagSettingPage`                                    |
+| `settings.departments`     | `/settings/departments`            | `DepartmentPage` (menu `JP-SETT-DEPT`)              |
 | `settings.company`         | `/settings/company-setting`        | `CompanySettingPage`                                |
 
 `/settings/approval-setting` redirects to pending changes (the old approval stub page was removed). `index.ts` exports the pages (the eight settings pages and `PaymentTermFormPage`) and `SettingsLayout`, which `UserManagement` renders inside. The payment term form sits in the app shell without the settings side menu (full width, Standard B).
@@ -23,6 +24,15 @@ Company and accounting settings, reached from one "Settings" entry in the app si
 ## Endpoints (`API_SETTINGS`, `infrastructure/settingApi.ts`)
 
 `/v1/settings/general-settings` (read, update), `/v1/settings/account-mappings` (read, `/seed`, `/:id`, `/batch`), `/v1/settings/number-formats` (list, create, update, delete), `/v1/payment-methods`, `/v1/taxes`, `/v1/tags` (each list, create, update, delete). Payment terms have their own client, `infrastructure/paymentTermApi.ts` (`/v1/settings/payment-terms`: list with `q`, `appliesTo`, `isActive`, `page`; detail; create; `PUT`; `PATCH /:id/status` with `{ isActive }`; delete). The API is camelCase in query and body; snake_case is rejected with 400. Account choices come from `@/module/chart-of-accounts` (`getJournalAccounts`); the tax form uses `useSimpleAccounts({ type: 'tax_sales' })` and `{ type: 'tax_purchase' }` for its sales and purchase account dropdowns.
+
+### Departments (`/v1/departments`)
+
+The master that a purchase request picks its department from (revamp 1/9). Verified live on 2026-11-21 (Demo Site):
+
+- List takes `page`, `limit` (1 to 200), `search`, `isActive`; it answers `{ results, page, limit, totalPages, totalResults }`. `search` matches the **name only**, not the code or description. A new site starts with Engineering, Housekeeping, Security, Management and Keuangan.
+- Body: `name` (required, at most 100, trimmed by the server), `code` (at most 20), `description` (at most 500), `isActive` (boolean). An unknown field, an empty or blank name or a longer value is a 400 with an English field list (never shown). A name already used on the site, compared without case, is a 400 with the Indonesian `Nama departemen sudah dipakai`; Indonesian readers see it, English readers see a generic sentence. A missing id is 404, a malformed id is 400.
+- Delete answers `200`; a department that a purchase request uses is refused (400, Indonesian message) and the dialog then offers to deactivate it (`isActive: false`). Rights on the menu `JP-SETT-DEPT` (create, update, delete) hide the add, edit, switch and delete controls; the page reads them with its own request because `user-management` cannot be imported here without an import cycle.
+- Files: `domain/department`, `infrastructure/departmentApi` and `myRightsApi`, `hooks/useDepartments`, `components/departments/`, `pages/DepartmentPage`, locale `settingsDepartments` (merged into the `settings` namespace). Errors go through the shared `src/lib/http/apiError`, which purchasing now uses too.
 
 ## Layers
 

@@ -1,3 +1,4 @@
+import tableClasses from '@/module/purchases/presentation/components/shared/Table.module.css';
 import { Table, Text } from '@mantine/core';
 import { IconListDetails } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
@@ -25,20 +26,20 @@ export const BillItemsCard = ({ bill }: Readonly<{ bill: PurchaseBill }>) => {
   ];
 
   return (
-    <SectionCard icon={IconListDetails} title={t('bills.detail.itemsTitle')}>
-      <Table.ScrollContainer minWidth={560}>
-        <Table verticalSpacing="sm" horizontalSpacing="sm">
-          <Table.Thead bg="var(--jurnal-color-surface-hover)">
+    <SectionCard
+      icon={IconListDetails}
+      flush
+      title={t('bills.detail.itemsTitle')}
+      subtitle={t('bills.detail.itemsSubtitle')}
+      count={t('bills.detail.itemsCount', { count: bill.items.length })}
+    >
+      <Table.ScrollContainer type="native" minWidth={560}>
+        <Table className={tableClasses.table} verticalSpacing="sm" horizontalSpacing="lg">
+          <Table.Thead bg="var(--jurnal-color-surface-muted)">
             <Table.Tr>
               {columns.map((key) => (
                 <Table.Th key={key} ta={key === 'item' ? undefined : 'right'}>
-                  <Text
-                    size="xs"
-                    fw={700}
-                    c="dimmed"
-                    tt="uppercase"
-                    style={{ whiteSpace: 'nowrap' }}
-                  >
+                  <Text size="xs" fw={700} c="dark.7" style={{ whiteSpace: 'nowrap' }}>
                     {t(`bills.detail.col.${key}`)}
                   </Text>
                 </Table.Th>

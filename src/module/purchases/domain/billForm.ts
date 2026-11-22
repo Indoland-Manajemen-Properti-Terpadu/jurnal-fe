@@ -1,300 +1,266 @@
-import type { TaxRef } from '@/module/purchases/domain/purchaseCommon';
-import type { PurchaseBill, PurchaseOrder } from '@/module/purchases/domain/purchaseDocuments';
-import type { PurchaseBillInput } from '@/module/purchases/domain/purchaseInputs';
-import {
-  calculateTotals,
-  remainingQty,
-  type Totals,
-} from '@/module/purchases/domain/purchaseTotals';
-import { itemName } from '@/module/purchases/domain/receiptForm';
+import type {
+  BillHeaderInput,
+  BillUpdateInput,
+  DiscountKind,
+  ManualBillItemInput,
+  PurchaseBillInput,
+} from '@/module/purchases/domain/purchaseInputs';
+import type {
+  BillSource,
+  BillVariance,
+  PurchaseBill,
+} from '@/module/purchases/domain/purchaseDocuments';
+import type { BillSourceDoc } from '@/module/purchases/domain/billSources';
 
 /** Same tolerance the backend applies when it compares the vendor's invoice total (Rp1). */
 export const TOTAL_TOLERANCE = 1;
-const QTY_EPSILON = 1e-4;
 
-export interface BillableLine {
-  itemId: string;
-  name: string;
-  unitName: string | null;
-  /** Most that can go on this bill: received and not yet billed (plus this bill's own quantity). */
-  maxQty: number;
-  poUnitPrice: number;
-  poTaxId: string;
-}
+export type AdjustmentKind = 'none' | DiscountKind;
 
-export interface BillLineValues {
-  quantity: number;
-  unitPrice: number;
+export interface ManualLine {
+  /** Local key so rows keep their identity while editing. */
+  key: string;
+  productId: string;
+  productName: string;
+  accountId: string;
+  description: string;
+  quantity: number | '';
+  unitPrice: number | '';
   taxId: string;
 }
 
 export interface BillFormValues {
   date: string;
   vendorInvoiceNumber: string;
+  taxInvoiceNumber: string;
   vendorInvoiceTotal: number | '';
+  /** Blank lets the service work it out from the payment term. */
   dueDate: string;
-  paymentTermId: string;
+  discountKind: AdjustmentKind;
+  discountValue: number | '';
+  withholdingKind: AdjustmentKind;
+  withholdingValue: number | '';
+  withholdingTaxCode: string;
+  tagIds: string[];
   memo: string;
-  lines: Record<string, BillLineValues>;
+  /** Manual bills only. */
+  vendorId: string;
+  vendorName: string;
+  lines: ManualLine[];
 }
 
-/** Order lines that can be billed: received more than already billed. */
-export const billableLines = (
-  order: PurchaseOrder,
-  ownQuantities: Record<string, number> = {}
-): BillableLine[] =>
-  order.items
-    .map((item) => ({
-      itemId: item.id,
-      name: itemName(item),
-      unitName: item.unitName,
-      maxQty: remainingQty(item.receivedQty, item.billedQty - (ownQuantities[item.id] ?? 0)),
-      poUnitPrice: item.unitPrice,
-      poTaxId: item.tax?.id ?? '',
-    }))
-    .filter((line) => line.maxQty > QTY_EPSILON);
+export type BillFormIssue =
+  | 'dateRequired'
+  | 'dueBeforeDate'
+  | 'discountPercent'
+  | 'discountNegative'
+  | 'discountTooHigh'
+  | 'withholdingPercent'
+  | 'withholdingNegative'
+  | 'invoiceTotalNegative'
+  | 'vendorRequired'
+  | 'linesEmpty';
 
-/** Adds days to a `YYYY-MM-DD` day without time-zone drift. */
-export const addDays = (day: string, days: number): string => {
-  const [year, month, date] = day.split('-').map(Number);
-  if (!year || !month || !date) return '';
-  const moved = new Date(Date.UTC(year, month - 1, date + days));
-  return moved.toISOString().slice(0, 10);
+export interface BillFormErrors {
+  fields: Partial<Record<keyof BillFormValues, BillFormIssue>>;
+  /** By line key. */
+  lines: Record<
+    string,
+    { target?: 'targetRequired'; quantity?: 'quantityPositive'; unitPrice?: 'pricePositive' }
+  >;
+}
+
+let counter = 0;
+export const newLineKey = (): string => {
+  counter += 1;
+  return `line-${counter}`;
 };
 
-/** Due date from a term in days; empty when the term is unknown so the server decides. */
-export const dueDateFor = (date: string, days: number | null): string =>
-  date && days !== null ? addDays(date, days) : '';
+export const emptyManualLine = (): ManualLine => ({
+  key: newLineKey(),
+  productId: '',
+  productName: '',
+  accountId: '',
+  description: '',
+  quantity: 1,
+  unitPrice: '',
+  taxId: '',
+});
 
-export const defaultBillForm = (
-  order: PurchaseOrder,
-  lines: BillableLine[],
-  today: string,
-  termDays: number | null,
-  termId: string
-): BillFormValues => ({
+export const emptyBillForm = (today: string): BillFormValues => ({
   date: today,
   vendorInvoiceNumber: '',
+  taxInvoiceNumber: '',
   vendorInvoiceTotal: '',
-  dueDate: dueDateFor(today, termDays),
-  paymentTermId: termId,
+  dueDate: '',
+  discountKind: 'none',
+  discountValue: '',
+  withholdingKind: 'none',
+  withholdingValue: '',
+  withholdingTaxCode: '',
+  tagIds: [],
   memo: '',
-  lines: Object.fromEntries(
-    lines.map((line) => [
-      line.itemId,
-      { quantity: line.maxQty, unitPrice: line.poUnitPrice, taxId: line.poTaxId },
-    ])
-  ),
+  vendorId: '',
+  vendorName: '',
+  lines: [emptyManualLine()],
 });
 
-export const billToForm = (bill: PurchaseBill, termId: string): BillFormValues => ({
-  date: bill.date,
+/** A saved draft opened for editing: only the header can change. */
+export const billToForm = (bill: PurchaseBill, tagIds: string[] = bill.tags): BillFormValues => ({
+  ...emptyBillForm(bill.date),
   vendorInvoiceNumber: bill.vendorInvoiceNumber,
+  taxInvoiceNumber: bill.taxInvoiceNumber,
   vendorInvoiceTotal: bill.vendorInvoiceTotal ?? '',
   dueDate: bill.dueDate ?? '',
-  paymentTermId: termId,
+  discountKind: bill.discountType ?? 'none',
+  discountValue: bill.discountType ? bill.discountValue : '',
+  withholdingKind: bill.withholdingType ?? 'none',
+  withholdingValue: bill.withholdingType ? bill.withholdingValue : '',
+  withholdingTaxCode: bill.withholdingTaxCode ?? '',
+  tagIds,
   memo: bill.memo,
-  lines: Object.fromEntries(
-    bill.items.map((item) => [
-      item.purchaseOrderItemId,
-      { quantity: item.quantity, unitPrice: item.unitPrice, taxId: item.tax?.id ?? '' },
-    ])
-  ),
+  vendorId: bill.vendor.id,
+  vendorName: bill.vendor.name,
+  lines: [],
 });
 
-/** True when any line differs from "bill everything received at the order's price and tax". */
-export const isCustomized = (values: BillFormValues, lines: BillableLine[]): boolean =>
-  lines.some((line) => {
-    const current = values.lines[line.itemId];
-    return (
-      !current ||
-      Math.abs(current.quantity - line.maxQty) > QTY_EPSILON ||
-      current.unitPrice !== line.poUnitPrice ||
-      current.taxId !== line.poTaxId
-    );
-  });
-
-export const clampBilled = (value: number | string, max: number): number => {
-  const parsed = typeof value === 'number' ? value : Number(value);
-  if (!Number.isFinite(parsed) || parsed < 0) return 0;
-  return Math.min(Math.round(parsed * 1e4) / 1e4, max);
-};
-
-export const toNumber = (value: number | string): number | '' => {
-  if (value === '' || value === null) return '';
-  const parsed = typeof value === 'number' ? value : Number(value);
-  return Number.isFinite(parsed) ? parsed : '';
-};
+const isNumber = (value: number | ''): value is number => value !== '' && Number.isFinite(value);
 
 /**
- * Estimate of the bill, shaped like the order it is taken from: the discount and withholding of the
- * order apply to the part that is billed (a fixed amount is shared by the billed part of the order).
+ * The service accepts a percentage above 100, a discount above the bill (its total becomes 0) and a due
+ * date before the bill date; the form does not. `subtotal` is known only when a saved draft is edited, and
+ * then only the header is checked (`headerOnly`): the lines of a saved bill are not on the form.
  */
-export const estimateBill = (
-  order: PurchaseOrder,
-  lines: BillableLine[],
+export const validateBillForm = (
   values: BillFormValues,
-  taxes: TaxRef[]
-): Totals => {
-  const active = lines.filter((line) => (values.lines[line.itemId]?.quantity ?? 0) > QTY_EPSILON);
-  const billedAtOrderPrice = active.reduce(
-    (sum, line) => sum + (values.lines[line.itemId]?.quantity ?? 0) * line.poUnitPrice,
-    0
-  );
-  const share = order.subtotal > 0 ? Math.min(1, billedAtOrderPrice / order.subtotal) : 0;
-  const prorate = (type: 'percentage' | 'nominal' | null, value: number) =>
-    type === 'nominal' ? Math.round(value * share * 100) / 100 : value;
-  const rate = (taxId: string) => taxes.find((tax) => tax.id === taxId)?.rate ?? 0;
-
-  return calculateTotals({
-    lines: active.map((line) => {
-      const current = values.lines[line.itemId];
-      return {
-        quantity: current.quantity,
-        unitPrice: current.unitPrice,
-        taxRate: rate(current.taxId),
-      };
-    }),
-    isPriceIncludeTax: order.isPriceIncludeTax,
-    discountType: order.discountType,
-    discountValue: prorate(order.discountType, order.discountValue),
-    withholdingType: order.withholdingType,
-    withholdingValue: prorate(order.withholdingType, order.withholdingValue),
-  });
-};
-
-export interface VarianceNotice {
-  type: 'PRICE' | 'TOTAL';
-  itemName?: string;
-  expected: number;
-  actual: number;
-}
-
-/** What the three-way match will flag: a price above or below the order, or an invoice total that differs. */
-export const detectVariances = (
-  values: BillFormValues,
-  lines: BillableLine[],
-  estimate: Totals
-): VarianceNotice[] => {
-  const notices: VarianceNotice[] = [];
-  lines.forEach((line) => {
-    const current = values.lines[line.itemId];
-    if (current && current.quantity > QTY_EPSILON && current.unitPrice !== line.poUnitPrice) {
-      notices.push({
-        type: 'PRICE',
-        itemName: line.name,
-        expected: line.poUnitPrice,
-        actual: current.unitPrice,
-      });
+  source: BillSource,
+  options: { subtotal?: number; headerOnly?: boolean } = {}
+): BillFormErrors => {
+  const { subtotal, headerOnly = false } = options;
+  const fields: BillFormErrors['fields'] = {};
+  const lines: BillFormErrors['lines'] = {};
+  if (!values.date) fields.date = 'dateRequired';
+  else if (values.dueDate && values.dueDate < values.date) fields.dueDate = 'dueBeforeDate';
+  if (values.discountKind !== 'none') {
+    const value = isNumber(values.discountValue) ? values.discountValue : 0;
+    if (value < 0) {
+      fields.discountValue = 'discountNegative';
+    } else if (values.discountKind === 'percentage' && value > 100) {
+      fields.discountValue = 'discountPercent';
+    } else if (values.discountKind === 'nominal' && subtotal !== undefined && value > subtotal) {
+      fields.discountValue = 'discountTooHigh';
     }
-  });
-  if (
-    values.vendorInvoiceTotal !== '' &&
-    Math.abs(values.vendorInvoiceTotal - estimate.finalAmount) > TOTAL_TOLERANCE
-  ) {
-    notices.push({
-      type: 'TOTAL',
-      expected: estimate.finalAmount,
-      actual: values.vendorInvoiceTotal,
+  }
+  if (values.withholdingKind !== 'none') {
+    const value = isNumber(values.withholdingValue) ? values.withholdingValue : 0;
+    if (value < 0) fields.withholdingValue = 'withholdingNegative';
+    else if (values.withholdingKind === 'percentage' && value > 100) {
+      fields.withholdingValue = 'withholdingPercent';
+    }
+  }
+  if (isNumber(values.vendorInvoiceTotal) && values.vendorInvoiceTotal < 0) {
+    fields.vendorInvoiceTotal = 'invoiceTotalNegative';
+  }
+  if (source === 'MANUAL' && !headerOnly) {
+    if (!values.vendorId) fields.vendorId = 'vendorRequired';
+    if (values.lines.length === 0) fields.lines = 'linesEmpty';
+    values.lines.forEach((line) => {
+      const row: BillFormErrors['lines'][string] = {};
+      if (!line.productId && !line.accountId) row.target = 'targetRequired';
+      if (!isNumber(line.quantity) || line.quantity <= 0) row.quantity = 'quantityPositive';
+      if (!isNumber(line.unitPrice) || line.unitPrice <= 0) row.unitPrice = 'pricePositive';
+      if (Object.keys(row).length > 0) lines[line.key] = row;
     });
   }
-  return notices;
+  return { fields, lines };
 };
 
-export type BillDateError = 'required' | null;
-export type DueDateError = 'beforeDate' | null;
+export const hasBillErrors = (errors: BillFormErrors): boolean =>
+  Object.keys(errors.fields).length > 0 || Object.keys(errors.lines).length > 0;
 
-export interface BillErrors {
-  date: BillDateError;
-  dueDate: DueDateError;
-  noQuantity: boolean;
-  invalidInvoiceTotal: boolean;
-  /** Lines whose quantity is above what can still be billed, or whose price is negative. */
-  invalidLineIds: string[];
-}
+const adjustment = (kind: AdjustmentKind, value: number | '') =>
+  kind === 'none' || !isNumber(value) ? {} : { kind, value };
 
-export const validateBill = (values: BillFormValues, lines: BillableLine[]): BillErrors => {
-  const invalidLineIds = lines
-    .filter((line) => {
-      const current = values.lines[line.itemId];
-      return !current || current.quantity > line.maxQty + QTY_EPSILON || current.unitPrice < 0;
-    })
-    .map((line) => line.itemId);
+const header = (values: BillFormValues): BillHeaderInput => {
+  const discount = adjustment(values.discountKind, values.discountValue);
+  const withholding = adjustment(values.withholdingKind, values.withholdingValue);
   return {
-    date: values.date ? null : 'required',
-    dueDate: values.dueDate && values.date && values.dueDate < values.date ? 'beforeDate' : null,
-    noQuantity: !lines.some((line) => (values.lines[line.itemId]?.quantity ?? 0) > QTY_EPSILON),
-    invalidInvoiceTotal: values.vendorInvoiceTotal !== '' && values.vendorInvoiceTotal < 0,
-    invalidLineIds,
+    transactionDate: values.date,
+    ...(values.vendorInvoiceNumber.trim()
+      ? { vendorInvoiceNumber: values.vendorInvoiceNumber.trim() }
+      : {}),
+    ...(values.taxInvoiceNumber.trim() ? { taxInvoiceNumber: values.taxInvoiceNumber.trim() } : {}),
+    ...(isNumber(values.vendorInvoiceTotal)
+      ? { vendorInvoiceTotal: values.vendorInvoiceTotal }
+      : {}),
+    ...(values.dueDate ? { dueDate: values.dueDate } : {}),
+    ...(discount.kind ? { discountType: discount.kind, discountValue: discount.value } : {}),
+    ...(withholding.kind
+      ? { withholdingType: withholding.kind, withholdingValue: withholding.value }
+      : {}),
+    ...(withholding.kind && values.withholdingTaxCode.trim()
+      ? { withholdingTaxCode: values.withholdingTaxCode.trim() }
+      : {}),
+    ...(values.tagIds.length > 0 ? { tags: values.tagIds } : {}),
+    ...(values.memo.trim() ? { memo: values.memo.trim() } : {}),
   };
 };
 
-export const hasBillErrors = (errors: BillErrors): boolean =>
-  errors.date !== null ||
-  errors.dueDate !== null ||
-  errors.noQuantity ||
-  errors.invalidInvoiceTotal ||
-  errors.invalidLineIds.length > 0;
+const manualItems = (lines: ManualLine[]): ManualBillItemInput[] =>
+  lines.map((line) => ({
+    ...(line.productId ? { product: line.productId } : {}),
+    ...(!line.productId && line.accountId ? { account: line.accountId } : {}),
+    description: line.description.trim(),
+    quantity: Number(line.quantity),
+    unitPrice: Number(line.unitPrice),
+    ...(line.taxId ? { tax: line.taxId } : {}),
+  }));
 
-const billedItems = (values: BillFormValues, lines: BillableLine[]) =>
-  lines
-    .filter((line) => (values.lines[line.itemId]?.quantity ?? 0) > QTY_EPSILON)
-    .map((line) => {
-      const current = values.lines[line.itemId];
-      return {
-        purchaseOrderItem: line.itemId,
-        quantity: current.quantity,
-        unitPrice: current.unitPrice,
-        tax: current.taxId || null,
-      };
-    });
-
-/** `items` is sent only when a line was changed; otherwise the server bills everything received. */
+/** The create body for the chosen source. `post` creates the bill already verified. */
 export const toBillInput = (
+  source: BillSource,
   values: BillFormValues,
-  lines: BillableLine[],
-  orderId: string
-): PurchaseBillInput => ({
-  purchaseOrder: orderId,
-  transactionDate: values.date,
-  ...(values.vendorInvoiceNumber.trim()
-    ? { vendorInvoiceNumber: values.vendorInvoiceNumber.trim() }
-    : {}),
-  ...(values.vendorInvoiceTotal !== '' ? { vendorInvoiceTotal: values.vendorInvoiceTotal } : {}),
-  ...(values.dueDate ? { dueDate: values.dueDate } : {}),
-  ...(values.paymentTermId ? { paymentTerm: values.paymentTermId } : {}),
-  ...(values.memo.trim() ? { memo: values.memo.trim() } : {}),
-  ...(isCustomized(values, lines)
-    ? {
-        items: billedItems(values, lines).map(({ tax, ...rest }) => ({
-          ...rest,
-          ...(tax ? { tax } : {}),
-        })),
-      }
-    : {}),
-});
+  picked: BillSourceDoc[],
+  post: boolean
+): PurchaseBillInput => {
+  const base = { ...header(values), ...(post ? { post: true } : {}) };
+  if (source === 'MANUAL') {
+    return { ...base, source, vendor: values.vendorId, items: manualItems(values.lines) };
+  }
+  const ids = picked.map((doc) => doc.id);
+  return source === 'RECEIPT'
+    ? { ...base, source, goodsReceipts: ids }
+    : { ...base, source, purchaseOrders: ids };
+};
 
-/** Saving a draft takes the same fields without the order, with explicit nulls to clear a field. */
-export interface BillUpdateInput {
-  transactionDate: string;
-  vendorInvoiceNumber: string;
-  vendorInvoiceTotal: number | null;
-  dueDate?: string;
-  paymentTerm: string | null;
-  memo: string;
-  items: { purchaseOrderItem: string; quantity: number; unitPrice: number; tax: string | null }[];
-}
-
-export const toBillUpdateInput = (
-  values: BillFormValues,
-  lines: BillableLine[]
-): BillUpdateInput => ({
+/** The update body: every header field, cleared ones empty, so a PUT replaces what the person emptied. */
+export const toBillUpdate = (values: BillFormValues): BillUpdateInput => ({
   transactionDate: values.date,
   vendorInvoiceNumber: values.vendorInvoiceNumber.trim(),
-  vendorInvoiceTotal: values.vendorInvoiceTotal === '' ? null : values.vendorInvoiceTotal,
-  // The service refuses a null due date and recomputes one that is left out.
+  taxInvoiceNumber: values.taxInvoiceNumber.trim(),
+  ...(isNumber(values.vendorInvoiceTotal) ? { vendorInvoiceTotal: values.vendorInvoiceTotal } : {}),
   ...(values.dueDate ? { dueDate: values.dueDate } : {}),
-  paymentTerm: values.paymentTermId || null,
+  discountType: values.discountKind === 'none' ? null : values.discountKind,
+  discountValue:
+    values.discountKind === 'none' || !isNumber(values.discountValue) ? 0 : values.discountValue,
+  withholdingType: values.withholdingKind === 'none' ? null : values.withholdingKind,
+  withholdingValue:
+    values.withholdingKind === 'none' || !isNumber(values.withholdingValue)
+      ? 0
+      : values.withholdingValue,
+  withholdingTaxCode: values.withholdingKind === 'none' ? '' : values.withholdingTaxCode.trim(),
+  tags: values.tagIds,
   memo: values.memo.trim(),
-  items: billedItems(values, lines),
 });
+
+/** The differences a refused verification lists (`type` TOTAL or PRICE, with what was expected and found). */
+export const readVariances = (details: unknown[]): BillVariance[] =>
+  details.flatMap((item) => {
+    if (typeof item !== 'object' || item === null) return [];
+    const { type, expected, actual } = item as Record<string, unknown>;
+    return (type === 'TOTAL' || type === 'PRICE') &&
+      typeof expected === 'number' &&
+      typeof actual === 'number'
+      ? [{ type, expected, actual }]
+      : [];
+  });

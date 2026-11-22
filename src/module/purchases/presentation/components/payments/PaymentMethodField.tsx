@@ -6,15 +6,10 @@ import { usePaymentMethodOptions } from '@/module/purchases/presentation/hooks/u
 interface PaymentMethodFieldProps {
   value: string;
   onChange: (id: string) => void;
-  error?: string;
 }
 
-/** How the money leaves: the method decides the bank account and the admin fee. */
-export const PaymentMethodField = ({
-  value,
-  onChange,
-  error,
-}: Readonly<PaymentMethodFieldProps>) => {
+/** How the money leaves: the method suggests the account and carries the default admin fee. */
+export const PaymentMethodField = ({ value, onChange }: Readonly<PaymentMethodFieldProps>) => {
   const { t } = useTranslation('purchases');
   const { data: methods = [], isLoading } = usePaymentMethodOptions();
   const selected = methods.find((method) => method.id === value);
@@ -23,15 +18,14 @@ export const PaymentMethodField = ({
     <div>
       <Select
         radius="md"
-        withAsterisk
         searchable
+        clearable
         label={t('payments.form.method')}
         placeholder={t('payments.form.methodPlaceholder')}
         data={methods.map((method) => ({ value: method.id, label: method.name }))}
         value={value || null}
         disabled={isLoading}
         onChange={(id) => onChange(id ?? '')}
-        error={error}
       />
       {selected && (
         <Text size="xs" c="dimmed" mt={4}>

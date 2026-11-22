@@ -1,16 +1,19 @@
+import tableClasses from '@/module/purchases/presentation/components/shared/Table.module.css';
 import type { ReactNode } from 'react';
 import {
+  ActionIcon,
+  Box,
   Group,
+  Menu,
   Pagination,
   Paper,
   Select,
   Skeleton,
-  Stack,
   Table,
   Text,
   TextInput,
 } from '@mantine/core';
-import { IconAlertCircle, IconSearch } from '@tabler/icons-react';
+import { IconAlertCircle, IconDotsVertical, IconSearch } from '@tabler/icons-react';
 import { EmptyState } from '@/components/EmptyState';
 import { useTranslation } from '@/i18n';
 
@@ -20,6 +23,15 @@ export interface ListColumn {
   align?: 'right';
   minWidth?: number;
 }
+
+export interface RowAction {
+  label: string;
+  icon: ReactNode;
+  onClick: () => void;
+  color?: string;
+}
+
+const PAGE_SIZES = ['10', '20', '50'];
 
 interface ListShellProps<T> {
   searchValue: string;
@@ -45,6 +57,12 @@ interface ListShellProps<T> {
   totalPages: number;
   totalResults: number;
   onPageChange: (page: number) => void;
+  /** What the rows are, for the footer: "permintaan", "faktur". */
+  noun: string;
+  limit: number;
+  onLimitChange: (limit: number) => void;
+  /** The menu of the Aksi column; leave it out and the column is not shown. */
+  rowActions?: (row: T) => RowAction[];
   empty: {
     title: string;
     description: string;
@@ -79,10 +97,16 @@ export function ListShell<T>({
   totalPages,
   totalResults,
   onPageChange,
+  noun,
+  limit,
+  onLimitChange,
+  rowActions,
   empty,
 }: Readonly<ListShellProps<T>>) {
   const { t } = useTranslation('purchases');
-  const span = columns.length;
+  const span = columns.length + (rowActions ? 1 : 0);
+  const from = totalResults === 0 ? 0 : (page - 1) * limit + 1;
+  const to = Math.min(page * limit, totalResults);
 
   const body = () => {
     if (isLoading) {
@@ -143,13 +167,43 @@ export function ListShell<T>({
         style={onRowClick ? { cursor: 'pointer' } : undefined}
       >
         {renderCells(row)}
+        {rowActions && (
+          <Table.Td w={64} ta="center" onClick={(event) => event.stopPropagation()}>
+            <Menu position="bottom-end" withinPortal shadow="md" radius="md">
+              <Menu.Target>
+                <ActionIcon variant="subtle" color="gray" aria-label={t('list.actions')}>
+                  <IconDotsVertical size={18} />
+                </ActionIcon>
+              </Menu.Target>
+              <Menu.Dropdown>
+                {rowActions(row).map((action) => (
+                  <Menu.Item
+                    key={action.label}
+                    leftSection={action.icon}
+                    color={action.color}
+                    onClick={action.onClick}
+                  >
+                    {action.label}
+                  </Menu.Item>
+                ))}
+              </Menu.Dropdown>
+            </Menu>
+          </Table.Td>
+        )}
       </Table.Tr>
     ));
   };
 
   return (
-    <Stack gap="md">
-      <Group gap="sm" align="flex-end" wrap="wrap">
+    <Paper withBorder radius="lg" p={0} bg="white" style={{ overflow: 'hidden' }}>
+      <Group
+        gap="sm"
+        align="center"
+        wrap="wrap"
+        p="md"
+        bg="var(--jurnal-color-surface-muted)"
+        style={{ borderBottom: '1px solid var(--jurnal-color-border-subtle)' }}
+      >
         <TextInput
           value={searchValue}
           onChange={(event) => onSearchChange(event.currentTarget.value)}
@@ -159,59 +213,98 @@ export function ListShell<T>({
           radius="md"
           style={{ flex: '1 1 260px', maxWidth: 420 }}
         />
-        <Select
-          value={statusValue || null}
-          onChange={onStatusChange}
-          data={statusOptions}
-          placeholder={t('list.allStatuses')}
-          aria-label={t('list.statusFilter')}
-          clearable
-          radius="md"
-          w={220}
-        />
-        {filters}
-        {totalResults > 0 && (
-          <Text size="sm" c="dimmed" ml="auto" pb={8}>
-            {t('list.total', { count: totalResults })}
-          </Text>
+        {statusOptions.length > 0 && (
+          <Select
+            value={statusValue || null}
+            onChange={onStatusChange}
+            data={statusOptions}
+            placeholder={t('list.allStatuses')}
+            aria-label={t('list.statusFilter')}
+            clearable
+            radius="md"
+            w={220}
+          />
         )}
+        {filters}
       </Group>
 
-      <Paper withBorder radius="md" bg="white" p={0} style={{ overflow: 'hidden' }}>
-        <Table.ScrollContainer minWidth={760}>
-          <Table verticalSpacing="sm" horizontalSpacing="md" highlightOnHover={Boolean(onRowClick)}>
-            <Table.Thead bg="var(--jurnal-color-surface-hover)">
-              <Table.Tr>
-                {columns.map((column) => (
-                  <Table.Th
-                    key={column.key}
-                    ta={column.align}
-                    miw={column.minWidth}
-                    style={{ whiteSpace: 'nowrap' }}
-                  >
-                    <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-                      {column.label}
-                    </Text>
-                  </Table.Th>
-                ))}
-              </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>{body()}</Table.Tbody>
-          </Table>
-        </Table.ScrollContainer>
-      </Paper>
+      <Box p="md">
+        <Paper withBorder radius="md" bg="white" p={0} style={{ overflow: 'hidden' }}>
+          <Table.ScrollContainer type="native" minWidth={760}>
+            <Table
+              className={tableClasses.table}
+              verticalSpacing="sm"
+              horizontalSpacing="md"
+              highlightOnHover={Boolean(onRowClick)}
+            >
+              <Table.Thead bg="var(--jurnal-color-surface-muted)">
+                <Table.Tr>
+                  {columns.map((column) => (
+                    <Table.Th
+                      key={column.key}
+                      ta={column.align}
+                      miw={column.minWidth}
+                      style={{ whiteSpace: 'nowrap' }}
+                    >
+                      <Text size="xs" fw={700} c="dark.7" tt="uppercase">
+                        {column.label}
+                      </Text>
+                    </Table.Th>
+                  ))}
+                  {rowActions && (
+                    <Table.Th ta="center" w={64}>
+                      <Text size="xs" fw={700} c="dark.7" tt="uppercase">
+                        {t('list.actionsColumn')}
+                      </Text>
+                    </Table.Th>
+                  )}
+                </Table.Tr>
+              </Table.Thead>
+              <Table.Tbody>{body()}</Table.Tbody>
+            </Table>
+          </Table.ScrollContainer>
 
-      {totalPages > 1 && (
-        <Group justify="flex-end">
-          <Pagination
-            value={page}
-            onChange={onPageChange}
-            total={totalPages}
-            radius="md"
-            size="sm"
-          />
-        </Group>
-      )}
-    </Stack>
+          {totalResults > 0 && (
+            <Group
+              justify="space-between"
+              align="center"
+              wrap="wrap"
+              gap="sm"
+              px="md"
+              py="sm"
+              style={{ borderTop: '1px solid var(--jurnal-color-border-subtle)' }}
+            >
+              <Text size="xs" c="dimmed">
+                {t('list.showing', { from, to, total: totalResults, noun })}
+              </Text>
+              <Group gap="sm" wrap="nowrap">
+                <Select
+                  value={String(limit)}
+                  onChange={(value) => value && onLimitChange(Number(value))}
+                  data={PAGE_SIZES.map((size) => ({
+                    value: size,
+                    label: t('list.perPage', { count: size }),
+                  }))}
+                  allowDeselect={false}
+                  aria-label={t('list.perPageAria')}
+                  radius="md"
+                  size="xs"
+                  w={96}
+                />
+                {totalPages > 1 && (
+                  <Pagination
+                    value={page}
+                    onChange={onPageChange}
+                    total={totalPages}
+                    radius="md"
+                    size="sm"
+                  />
+                )}
+              </Group>
+            </Group>
+          )}
+        </Paper>
+      </Box>
+    </Paper>
   );
 }

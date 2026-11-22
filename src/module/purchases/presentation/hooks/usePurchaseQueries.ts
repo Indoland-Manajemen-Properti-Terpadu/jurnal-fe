@@ -1,6 +1,7 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import type { PurchaseAccessProfile } from '@/module/purchases/domain/purchaseAccess';
 import type {
+  NamedRef,
   Page,
   PartyRef,
   PaymentMethodRef,
@@ -13,34 +14,47 @@ import type {
   PaymentVoucher,
   PurchaseBill,
   PurchaseOrder,
-  PurchaseRequest,
   PurchaseReturn,
   VendorCredits,
 } from '@/module/purchases/domain/purchaseDocuments';
+import type { PaymentRequest } from '@/module/purchases/domain/paymentRequest';
+import type { BillSourceDoc } from '@/module/purchases/domain/billSources';
+import type { PurchaseRequest } from '@/module/purchases/domain/purchaseRequest';
 import {
   getBill,
   getOrder,
   getPayablesAging,
   getPayment,
+  getPaymentRequest,
   getReceipt,
   getRequest,
   getReturn,
   getVendorCredits,
+  listBillSources,
   listBills,
   listOrders,
   listPayments,
+  listPaymentRequests,
   listReceipts,
   listRequests,
   listReturns,
   type ListParams,
+  type PaymentRequestListParams,
+  type BillListParams,
+  type ReceiptListParams,
+  type RequestListParams,
 } from '@/module/purchases/infrastructure/purchaseApi';
 import type { PurchaseError } from '@/module/purchases/infrastructure/purchaseErrors';
 import {
   getAccessProfile,
+  listDepartments,
   listPaymentMethods,
   listPaymentTerms,
   listTaxes,
   searchPurchasableProducts,
+  listTags,
+  listUnits,
+  listWarehouses,
   searchSuppliers,
 } from '@/module/purchases/infrastructure/purchaseLookupApi';
 import {
@@ -93,7 +107,7 @@ export const usePurchaseAccessProfile = () => {
   });
 };
 
-export const useRequests = (params: ListParams, enabled?: boolean) =>
+export const useRequests = (params: RequestListParams, enabled?: boolean) =>
   useList<PurchaseRequest>('requests', params, listRequests, enabled);
 export const useRequest = (id?: string) => useDetail<PurchaseRequest>('requests', id, getRequest);
 
@@ -101,13 +115,18 @@ export const useOrders = (params: ListParams, enabled?: boolean) =>
   useList<PurchaseOrder>('orders', params, listOrders, enabled);
 export const useOrder = (id?: string) => useDetail<PurchaseOrder>('orders', id, getOrder);
 
-export const useReceipts = (params: ListParams, enabled?: boolean) =>
+export const useReceipts = (params: ReceiptListParams, enabled?: boolean) =>
   useList<GoodsReceipt>('receipts', params, listReceipts, enabled);
 export const useReceipt = (id?: string) => useDetail<GoodsReceipt>('receipts', id, getReceipt);
 
-export const useBills = (params: ListParams, enabled?: boolean) =>
+export const useBills = (params: BillListParams, enabled?: boolean) =>
   useList<PurchaseBill>('bills', params, listBills, enabled);
 export const useBill = (id?: string) => useDetail<PurchaseBill>('bills', id, getBill);
+
+export const usePaymentRequests = (params: PaymentRequestListParams, enabled?: boolean) =>
+  useList<PaymentRequest>('paymentRequests', params, listPaymentRequests, enabled);
+export const usePaymentRequest = (id?: string) =>
+  useDetail<PaymentRequest>('paymentRequests', id, getPaymentRequest);
 
 export const usePayments = (params: ListParams, enabled?: boolean) =>
   useList<PaymentVoucher>('payments', params, listPayments, enabled);
@@ -180,5 +199,51 @@ export const usePaymentTermOptions = () => {
     queryKey: [...purchaseKeys.lookups(scope), 'payment-terms'],
     queryFn: listPaymentTerms,
     staleTime: STABLE_MS,
+  });
+};
+
+export const useDepartmentOptions = () => {
+  const scope = usePurchaseScope();
+  return useQuery<NamedRef[], PurchaseError>({
+    queryKey: [...purchaseKeys.lookups(scope), 'departments'],
+    queryFn: listDepartments,
+    staleTime: STABLE_MS,
+  });
+};
+
+export const useUnitOptions = () => {
+  const scope = usePurchaseScope();
+  return useQuery<NamedRef[], PurchaseError>({
+    queryKey: [...purchaseKeys.lookups(scope), 'units'],
+    queryFn: listUnits,
+    staleTime: STABLE_MS,
+  });
+};
+
+export const useWarehouseOptions = () => {
+  const scope = usePurchaseScope();
+  return useQuery<NamedRef[], PurchaseError>({
+    queryKey: [...purchaseKeys.lookups(scope), 'warehouses'],
+    queryFn: listWarehouses,
+    staleTime: STABLE_MS,
+  });
+};
+
+export const useTagOptions = () => {
+  const scope = usePurchaseScope();
+  return useQuery<NamedRef[], PurchaseError>({
+    queryKey: [...purchaseKeys.lookups(scope), 'tags'],
+    queryFn: listTags,
+    staleTime: STABLE_MS,
+  });
+};
+
+/** Receipts or orders ready to be billed, of one vendor when given. */
+export const useBillSources = (source: 'RECEIPT' | 'ORDER' | null, vendor?: string) => {
+  const scope = usePurchaseScope();
+  return useQuery<BillSourceDoc[], PurchaseError>({
+    queryKey: [...purchaseKeys.all(scope), 'bill-sources', source, vendor ?? ''],
+    queryFn: () => listBillSources(source as 'RECEIPT' | 'ORDER', vendor),
+    enabled: source !== null,
   });
 };

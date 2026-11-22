@@ -1,8 +1,7 @@
 import { Button } from '@mantine/core';
 import { IconHourglass } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
-import { AGING_BUCKETS, bucketShares } from '@/module/purchases/domain/payablesView';
-import type { PayablesAging } from '@/module/purchases/domain/purchaseDocuments';
+import type { AgingBucket } from '@/module/purchases/domain/dashboard';
 import { SectionCard } from '@/module/purchases/presentation/components/shared/SectionCard';
 import { formatAmount } from '@/module/purchases/presentation/components/shared/format';
 import {
@@ -12,14 +11,13 @@ import {
 } from '@/module/purchases/presentation/components/shared/visuals';
 
 interface AgingCardProps {
-  totals: PayablesAging['totals'];
+  buckets: AgingBucket[];
   onOpenReport: () => void;
 }
 
-/** How the remaining payables split by days past due. */
-export const AgingCard = ({ totals, onOpenReport }: Readonly<AgingCardProps>) => {
+/** How the remaining payables split by days past due, as the summary of the service sends them. */
+export const AgingCard = ({ buckets, onOpenReport }: Readonly<AgingCardProps>) => {
   const { t } = useTranslation('purchases');
-  const shares = bucketShares(totals);
   return (
     <SectionCard
       icon={IconHourglass}
@@ -29,18 +27,18 @@ export const AgingCard = ({ totals, onOpenReport }: Readonly<AgingCardProps>) =>
       <SegmentBar
         height={12}
         aria-label={t('hub.overview.agingTitle')}
-        segments={shares.map((bucket) => ({
+        segments={buckets.map((bucket) => ({
           key: bucket.key,
           value: bucket.amount,
           color: AGING_COLOR[bucket.key],
         }))}
       />
       <Legend
-        items={AGING_BUCKETS.map((key) => ({
-          key,
-          label: t(`hub.overview.aging.${key}`),
-          value: formatAmount(totals[key]),
-          color: AGING_COLOR[key],
+        items={buckets.map((bucket) => ({
+          key: bucket.key,
+          label: t(`hub.overview.aging.${bucket.key}`),
+          value: formatAmount(bucket.amount),
+          color: AGING_COLOR[bucket.key],
         }))}
       />
       <Button variant="light" fullWidth onClick={onOpenReport}>

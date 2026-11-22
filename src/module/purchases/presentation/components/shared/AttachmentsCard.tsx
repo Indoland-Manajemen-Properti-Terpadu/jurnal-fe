@@ -3,7 +3,10 @@ import { notifications } from '@mantine/notifications';
 import { IconPaperclip, IconUpload } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import type { Attachment } from '@/module/purchases/domain/purchaseCommon';
-import type { AttachmentTarget } from '@/module/purchases/infrastructure/purchaseApi';
+import type {
+  AttachmentTarget,
+  RequestFileTarget,
+} from '@/module/purchases/infrastructure/purchaseApi';
 import { SectionCard } from '@/module/purchases/presentation/components/shared/SectionCard';
 import { useUploadAttachments } from '@/module/purchases/presentation/hooks/usePurchaseMutations';
 
@@ -16,6 +19,10 @@ interface AttachmentsCardProps {
   attachments: Attachment[];
   /** The user may change the document (adds files). */
   canUpload: boolean;
+  /** On an FPPBJ: files of the request or of its IOM memo. */
+  requestFile?: RequestFileTarget;
+  /** Translation key of the card title; defaults to the generic attachments title. */
+  titleKey?: string;
 }
 
 /** Files on a document; up to 5 files of 5 MB each can be added. */
@@ -24,6 +31,8 @@ export const AttachmentsCard = ({
   documentId,
   attachments,
   canUpload,
+  requestFile,
+  titleKey = 'attachments.title',
 }: Readonly<AttachmentsCardProps>) => {
   const { t } = useTranslation('purchases');
   const upload = useUploadAttachments();
@@ -34,15 +43,11 @@ export const AttachmentsCard = ({
       notifications.show({ color: 'orange', message: t('attachments.tooLarge') });
       return;
     }
-    upload.mutate({ target, id: documentId, files });
+    upload.mutate({ target, id: documentId, files, requestFile });
   };
 
   return (
-    <SectionCard
-      icon={IconPaperclip}
-      title={t('attachments.title')}
-      subtitle={t('attachments.limit')}
-    >
+    <SectionCard icon={IconPaperclip} title={t(titleKey)} subtitle={t('attachments.limit')}>
       {attachments.length === 0 ? (
         <Text size="sm" c="dimmed">
           {t('attachments.empty')}
@@ -60,7 +65,11 @@ export const AttachmentsCard = ({
         </Stack>
       )}
       {canUpload && (
-        <FileButton onChange={handleFiles} multiple accept="image/*,application/pdf">
+        <FileButton
+          onChange={handleFiles}
+          multiple
+          accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx"
+        >
           {(props) => (
             <Button
               {...props}

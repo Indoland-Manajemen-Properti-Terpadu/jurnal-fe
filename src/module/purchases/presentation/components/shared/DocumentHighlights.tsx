@@ -5,6 +5,7 @@ import {
   IconCash,
   IconCreditCard,
   IconListDetails,
+  IconUser,
   IconTruckDelivery,
   IconWallet,
 } from '@tabler/icons-react';
@@ -14,9 +15,9 @@ import type {
   PaymentVoucher,
   PurchaseBill,
   PurchaseOrder,
-  PurchaseRequest,
   PurchaseReturn,
 } from '@/module/purchases/domain/purchaseDocuments';
+import type { PurchaseRequest } from '@/module/purchases/domain/purchaseRequest';
 import { isBillOverdue } from '@/module/purchases/domain/purchaseActions';
 import {
   DetailHighlights,
@@ -51,12 +52,12 @@ export const RequestHighlights = ({ doc }: Readonly<{ doc: PurchaseRequest }>) =
     {
       icon: IconBuildingStore,
       label: label('department'),
-      value: doc.department || DASH,
+      value: doc.department?.name || DASH,
     },
     {
-      icon: IconListDetails,
-      label: label('items'),
-      value: String(doc.items.length),
+      icon: IconUser,
+      label: label('requester'),
+      value: doc.requester?.name || DASH,
     },
   ];
   return <DetailHighlights items={items} />;
@@ -128,7 +129,7 @@ export const PaymentHighlights = ({ doc }: Readonly<{ doc: PaymentVoucher }>) =>
   const { label, day } = useHighlightText();
   const items: Highlight[] = [
     { icon: IconBuildingStore, label: label('vendor'), value: doc.vendor.name },
-    { icon: IconCalendar, label: label('date'), value: day(doc.paidAt ?? doc.date) },
+    { icon: IconCalendar, label: label('date'), value: day((doc.paidAt ?? doc.date).slice(0, 10)) },
     {
       icon: IconCash,
       label: label('total'),

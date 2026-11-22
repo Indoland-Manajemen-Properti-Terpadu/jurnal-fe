@@ -1,4 +1,4 @@
-import { Anchor, Text } from '@mantine/core';
+import { Anchor } from '@mantine/core';
 import { IconClipboardText } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
@@ -17,7 +17,7 @@ interface ReturnInfoCardProps {
 export const ReturnInfoCard = ({ doc, billNumber }: Readonly<ReturnInfoCardProps>) => {
   const { t, currentLanguage } = useTranslation('purchases');
   return (
-    <SectionCard icon={IconClipboardText} title={t('returns.detail.infoTitle')}>
+    <SectionCard icon={IconClipboardText} label flush title={t('returns.detail.infoTitle')}>
       <InfoGrid
         items={[
           { label: t('returns.detail.vendor'), value: doc.vendor.name },
@@ -36,14 +36,22 @@ export const ReturnInfoCard = ({ doc, billNumber }: Readonly<ReturnInfoCardProps
           },
           { label: t('returns.detail.date'), value: formatDay(doc.date, currentLanguage) },
           { label: t('returns.detail.reason'), value: doc.reason },
+          {
+            label: t('returns.detail.settlementKind'),
+            value:
+              currentLanguage === 'id' && doc.settlementLabel
+                ? doc.settlementLabel
+                : t(`returns.form.settlement.${doc.settlement}`),
+          },
+          ...(doc.warehouse
+            ? [{ label: t('returns.detail.warehouse'), value: doc.warehouse.name }]
+            : []),
+          ...(doc.journalId
+            ? [{ label: t('returns.detail.journalLabel'), value: t('returns.detail.journal') }]
+            : []),
           ...(doc.memo ? [{ label: t('common.memo'), value: doc.memo, span: 2 as const }] : []),
         ]}
       />
-      {doc.journalId && (
-        <Text size="xs" c="dimmed">
-          {t('returns.detail.journal')}
-        </Text>
-      )}
     </SectionCard>
   );
 };

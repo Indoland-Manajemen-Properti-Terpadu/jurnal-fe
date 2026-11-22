@@ -1,157 +1,213 @@
-import type { PurchaseOrder } from '@/module/purchases/domain/purchaseDocuments';
+import type { PurchaseBill } from '@/module/purchases/domain/purchaseDocuments';
+import type { BillSourceDoc } from '@/module/purchases/domain/billSources';
 import {
-  addDays,
-  billableLines,
-  clampBilled,
-  defaultBillForm,
-  detectVariances,
-  dueDateFor,
-  estimateBill,
+  billToForm,
+  emptyBillForm,
+  emptyManualLine,
   hasBillErrors,
-  isCustomized,
   toBillInput,
-  toBillUpdateInput,
-  validateBill,
+  toBillUpdate,
+  validateBillForm,
 } from '@/module/purchases/domain/billForm';
 
-const tax = { id: 't11', name: 'PPN 11%', rate: 11 };
+const doc = (id: string): BillSourceDoc =>
+  ({ id, vendor: { id: 'v1' }, termKey: 'k' }) as unknown as BillSourceDoc;
 
-const order = (overrides: Partial<PurchaseOrder> = {}): PurchaseOrder =>
-  ({
-    id: 'po1',
-    subtotal: 40000,
-    discountType: null,
-    discountValue: 0,
-    withholdingType: null,
-    withholdingValue: 0,
-    isPriceIncludeTax: false,
-    items: [
-      {
-        id: 'i1',
-        product: null,
-        description: 'Layanan A',
-        quantity: 4,
-        unitName: null,
-        unitPrice: 10000,
-        tax,
-        receivedQty: 3,
-        billedQty: 1,
-      },
-      {
-        id: 'i2',
-        product: null,
-        description: 'Layanan B',
-        quantity: 2,
-        unitName: null,
-        unitPrice: 5000,
-        tax: null,
-        receivedQty: 0,
-        billedQty: 0,
-      },
-    ],
-    ...overrides,
-  }) as unknown as PurchaseOrder;
+const valid = () => ({ ...emptyBillForm('2026-11-22') });
 
-describe('billForm', () => {
-  it('bills only what was received and not yet billed', () => {
-    const lines = billableLines(order());
-    expect(lines).toHaveLength(1);
-    expect(lines[0]).toMatchObject({ itemId: 'i1', maxQty: 2, poUnitPrice: 10000, poTaxId: 't11' });
+describe('validateBillForm', () => {
+  it('accepts a bill from receipts with only the date', () => {
+    expect(hasBillErrors(validateBillForm(valid(), 'RECEIPT'))).toBe(false);
   });
 
-  it('adds back the quantity a draft bill already holds when editing it', () => {
-    const lines = billableLines(order(), { i1: 1 });
-    expect(lines[0].maxQty).toBe(3);
+  it('requires the bill date and keeps the due date on or after it', () => {
+    expect(validateBillForm({ ...valid(), date: '' }, 'RECEIPT').fields.date).toBe('dateRequired');
+    expect(validateBillForm({ ...valid(), dueDate: '2026-11-01' }, 'RECEIPT').fields.dueDate).toBe(
+      'dueBeforeDate'
+    );
+    expect(validateBillForm({ ...valid(), dueDate: '2026-11-22' }, 'RECEIPT').fields).toEqual({});
   });
 
-  it('computes due dates without time-zone drift', () => {
-    expect(addDays('2026-11-05', 30)).toBe('2026-12-05');
-    expect(addDays('2026-12-31', 1)).toBe('2027-01-01');
-    expect(dueDateFor('2026-11-05', null)).toBe('');
-    expect(dueDateFor('', 30)).toBe('');
-  });
-
-  it('is not customized by default and sends no items', () => {
-    const lines = billableLines(order());
-    const form = defaultBillForm(order(), lines, '2026-11-05', 30, '');
-    expect(form.dueDate).toBe('2026-12-05');
-    expect(isCustomized(form, lines)).toBe(false);
-    expect(toBillInput(form, lines, 'po1')).toEqual({
-      purchaseOrder: 'po1',
-      transactionDate: '2026-11-05',
-      dueDate: '2026-12-05',
+  it('refuses what the service accepts: a percent above 100 and a negative amount', () => {
+    const form = {
+      ...valid(),
+      discountKind: 'percentage' as const,
+      discountValue: 150,
+      withholdingKind: 'percentage' as const,
+      withholdingValue: 120,
+      vendorInvoiceTotal: -1,
+    };
+    expect(validateBillForm(form, 'RECEIPT').fields).toMatchObject({
+      discountValue: 'discountPercent',
+      withholdingValue: 'withholdingPercent',
+      vendorInvoiceTotal: 'invoiceTotalNegative',
     });
   });
 
-  it('sends the items once a quantity, price or tax is changed', () => {
-    const lines = billableLines(order());
-    const form = defaultBillForm(order(), lines, '2026-11-05', null, '');
-    form.lines.i1 = { quantity: 1, unitPrice: 11000, taxId: '' };
-    expect(isCustomized(form, lines)).toBe(true);
-    expect(toBillInput(form, lines, 'po1').items).toEqual([
-      { purchaseOrderItem: 'i1', quantity: 1, unitPrice: 11000 },
-    ]);
+  it('refuses a nominal discount above the subtotal once the subtotal is known', () => {
+    const form = { ...valid(), discountKind: 'nominal' as const, discountValue: 1_000_001 };
+    expect(validateBillForm(form, 'RECEIPT').fields.discountValue).toBeUndefined();
+    expect(validateBillForm(form, 'RECEIPT', { subtotal: 1_000_000 }).fields.discountValue).toBe(
+      'discountTooHigh'
+    );
+    expect(
+      validateBillForm({ ...form, discountValue: 1_000_000 }, 'RECEIPT', { subtotal: 1_000_000 })
+        .fields
+    ).toEqual({});
   });
 
-  it('clamps a quantity to what can still be billed', () => {
-    expect(clampBilled(9, 2)).toBe(2);
-    expect(clampBilled(-3, 2)).toBe(0);
-  });
-
-  it('estimates the bill from the billed part of the order', () => {
-    const lines = billableLines(order());
-    const form = defaultBillForm(order(), lines, '2026-11-05', null, '');
-    const totals = estimateBill(order(), lines, form, [tax]);
-    expect(totals).toMatchObject({ subtotal: 20000, taxAmount: 2200, finalAmount: 22200 });
-  });
-
-  it('shares a fixed discount in proportion to the part that is billed', () => {
-    const po = order({ discountType: 'nominal', discountValue: 4000 });
-    const lines = billableLines(po);
-    const form = defaultBillForm(po, lines, '2026-11-05', null, '');
-    // half of the order subtotal is billed, so half of the fixed discount applies
-    expect(estimateBill(po, lines, form, [tax]).discountAmount).toBe(2000);
-  });
-
-  it('flags a price change and an invoice total off by more than Rp1', () => {
-    const lines = billableLines(order());
-    const form = {
-      ...defaultBillForm(order(), lines, '2026-11-05', null, ''),
-      vendorInvoiceTotal: 11100,
+  it('checks a manual bill: a vendor, a product or account per line, a quantity and a price above 0', () => {
+    const errors = validateBillForm(valid(), 'MANUAL');
+    const [line] = valid().lines;
+    expect(errors.fields.vendorId).toBe('vendorRequired');
+    expect(Object.values(errors.lines)[0]).toEqual({
+      target: 'targetRequired',
+      unitPrice: 'pricePositive',
+    });
+    const fixed = {
+      ...valid(),
+      vendorId: 'v1',
+      lines: [{ ...emptyManualLine(), accountId: 'a1', unitPrice: 1800000 }],
     };
-    form.lines.i1 = { quantity: 1, unitPrice: 11000, taxId: 't11' };
-    const estimate = estimateBill(order(), lines, form, [tax]);
-    const notices = detectVariances(form, lines, estimate);
-    expect(notices.map((notice) => notice.type)).toEqual(['PRICE', 'TOTAL']);
-    expect(notices[0]).toMatchObject({ itemName: 'Layanan A', expected: 10000, actual: 11000 });
-
-    const within = { ...form, vendorInvoiceTotal: estimate.finalAmount + 1 };
-    expect(detectVariances(within, lines, estimate).some((n) => n.type === 'TOTAL')).toBe(false);
+    expect(hasBillErrors(validateBillForm(fixed, 'MANUAL'))).toBe(false);
+    expect(
+      validateBillForm({ ...fixed, lines: [{ ...fixed.lines[0], unitPrice: 0 }] }, 'MANUAL').lines[
+        fixed.lines[0].key
+      ]
+    ).toEqual({ unitPrice: 'pricePositive' });
+    expect(line.quantity).toBe(1);
   });
 
-  it('validates date, due date, quantity and invoice total', () => {
-    const lines = billableLines(order());
-    const form = defaultBillForm(order(), lines, '2026-11-05', null, '');
-    expect(hasBillErrors(validateBill(form, lines))).toBe(false);
-    expect(validateBill({ ...form, date: '' }, lines).date).toBe('required');
-    expect(validateBill({ ...form, dueDate: '2026-11-01' }, lines).dueDate).toBe('beforeDate');
-    expect(validateBill({ ...form, vendorInvoiceTotal: -1 }, lines).invalidInvoiceTotal).toBe(true);
-    form.lines.i1 = { quantity: 0, unitPrice: 10000, taxId: 't11' };
-    expect(validateBill(form, lines).noQuantity).toBe(true);
-    form.lines.i1 = { quantity: 5, unitPrice: 10000, taxId: 't11' };
-    expect(validateBill(form, lines).invalidLineIds).toEqual(['i1']);
+  it('does not ask a saved manual draft for lines, which are not on its edit form', () => {
+    const edited = { ...valid(), vendorId: 'v1', lines: [] };
+    expect(hasBillErrors(validateBillForm(edited, 'MANUAL', { headerOnly: true }))).toBe(false);
   });
 
-  it('builds the update payload with explicit nulls and without the order', () => {
-    const lines = billableLines(order());
-    const form = defaultBillForm(order(), lines, '2026-11-05', null, '');
-    expect(toBillUpdateInput(form, lines)).toEqual({
-      transactionDate: '2026-11-05',
+  it('needs at least one manual line', () => {
+    expect(validateBillForm({ ...valid(), vendorId: 'v1', lines: [] }, 'MANUAL').fields.lines).toBe(
+      'linesEmpty'
+    );
+  });
+});
+
+describe('toBillInput', () => {
+  it('names the receipts picked and sends only the header fields that were filled', () => {
+    const form = {
+      ...valid(),
+      vendorInvoiceNumber: ' INV-1 ',
+      vendorInvoiceTotal: 1733200,
+      discountKind: 'nominal' as const,
+      discountValue: 50000,
+      withholdingKind: 'percentage' as const,
+      withholdingValue: 2,
+      withholdingTaxCode: ' PPh23 ',
+      tagIds: ['t1'],
+      memo: ' catatan ',
+    };
+
+    expect(toBillInput('RECEIPT', form, [doc('r1'), doc('r2')], true)).toEqual({
+      source: 'RECEIPT',
+      goodsReceipts: ['r1', 'r2'],
+      transactionDate: '2026-11-22',
+      vendorInvoiceNumber: 'INV-1',
+      vendorInvoiceTotal: 1733200,
+      discountType: 'nominal',
+      discountValue: 50000,
+      withholdingType: 'percentage',
+      withholdingValue: 2,
+      withholdingTaxCode: 'PPh23',
+      tags: ['t1'],
+      memo: 'catatan',
+      post: true,
+    });
+  });
+
+  it('bills the orders of an ORDER source, as a draft by default', () => {
+    expect(toBillInput('ORDER', valid(), [doc('o1')], false)).toEqual({
+      source: 'ORDER',
+      purchaseOrders: ['o1'],
+      transactionDate: '2026-11-22',
+    });
+  });
+
+  it('sends a manual bill with its vendor and lines, an account only when no product is chosen', () => {
+    const form = {
+      ...valid(),
+      vendorId: 'v1',
+      lines: [
+        {
+          ...emptyManualLine(),
+          accountId: 'a1',
+          description: ' Listrik ',
+          quantity: 1,
+          unitPrice: 1800000,
+        },
+        {
+          ...emptyManualLine(),
+          productId: 'p1',
+          accountId: 'a2',
+          quantity: 2,
+          unitPrice: 5,
+          taxId: 'tax',
+        },
+      ],
+    };
+    expect(toBillInput('MANUAL', form, [], false)).toMatchObject({
+      source: 'MANUAL',
+      vendor: 'v1',
+      items: [
+        { account: 'a1', description: 'Listrik', quantity: 1, unitPrice: 1800000 },
+        { product: 'p1', description: '', quantity: 2, unitPrice: 5, tax: 'tax' },
+      ],
+    });
+    const second = (toBillInput('MANUAL', form, [], false) as { items: object[] }).items[1];
+    expect(second).not.toHaveProperty('account');
+  });
+});
+
+describe('toBillUpdate and billToForm', () => {
+  const bill = {
+    date: '2026-11-22',
+    vendorInvoiceNumber: 'INV-1',
+    taxInvoiceNumber: '010',
+    vendorInvoiceTotal: 100,
+    dueDate: '2026-12-22',
+    discountType: 'percentage',
+    discountValue: 10,
+    withholdingType: null,
+    withholdingValue: 0,
+    withholdingTaxCode: null,
+    tags: ['t1'],
+    memo: 'm',
+    vendor: { id: 'v1', name: 'PT A' },
+  } as unknown as PurchaseBill;
+
+  it('opens a draft with its header', () => {
+    expect(billToForm(bill)).toMatchObject({
+      date: '2026-11-22',
+      vendorInvoiceNumber: 'INV-1',
+      discountKind: 'percentage',
+      discountValue: 10,
+      withholdingKind: 'none',
+      tagIds: ['t1'],
+    });
+  });
+
+  it('sends cleared fields as empty or null so a PUT replaces them', () => {
+    const cleared = {
+      ...billToForm(bill),
       vendorInvoiceNumber: '',
-      vendorInvoiceTotal: null,
-      paymentTerm: null,
+      discountKind: 'none' as const,
       memo: '',
-      items: [{ purchaseOrderItem: 'i1', quantity: 2, unitPrice: 10000, tax: 't11' }],
+      tagIds: [],
+    };
+    expect(toBillUpdate(cleared)).toMatchObject({
+      vendorInvoiceNumber: '',
+      discountType: null,
+      discountValue: 0,
+      withholdingType: null,
+      memo: '',
+      tags: [],
     });
   });
 });

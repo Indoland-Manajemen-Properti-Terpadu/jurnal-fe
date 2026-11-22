@@ -1,19 +1,16 @@
-import { useState } from 'react';
-import { Switch, Table } from '@mantine/core';
+import { Table, Text } from '@mantine/core';
 import { IconReceipt2 } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
+import { viewAction } from '@/module/purchases/presentation/components/lists/rowActions';
 import { useTranslation } from '@/i18n';
-import { isBillOverdue } from '@/module/purchases/domain/purchaseActions';
-import { BILL_STATUSES } from '@/module/purchases/domain/purchaseStatus';
 import { detailPath } from '@/module/purchases/presentation/components/hub/documentPaths';
 import {
-  AmountCell,
   DueCell,
   NumberCell,
   PartyCell,
 } from '@/module/purchases/presentation/components/lists/cells';
 import { ListShell } from '@/module/purchases/presentation/components/shared/ListShell';
-import { formatDay, todayIso } from '@/module/purchases/presentation/components/shared/format';
+import { formatAmount, formatDay } from '@/module/purchases/presentation/components/shared/format';
 import { StatusBadge } from '@/module/purchases/presentation/components/shared/StatusBadge';
 import { useListState } from '@/module/purchases/presentation/components/shared/useListState';
 import { useBills } from '@/module/purchases/presentation/hooks/usePurchaseQueries';
@@ -22,9 +19,9 @@ export const BillList = () => {
   const { t, currentLanguage } = useTranslation('purchases');
   const navigate = useNavigate();
   const state = useListState();
-  const [overdueOnly, setOverdueOnly] = useState(false);
-  const query = useBills({ ...state.params, overdue: overdueOnly || undefined });
-  const today = todayIso();
+  // The status filter is the list's tabs: not verified, owed, owed and late, paid, voided.
+  const { status: displayStatus, ...rest } = state.params;
+  const query = useBills({ ...rest, displayStatus: displayStatus || undefined });
 
   return (
     <ListShell
@@ -33,21 +30,10 @@ export const BillList = () => {
       searchPlaceholder={t('hub.bills.search')}
       statusValue={state.status}
       onStatusChange={state.setStatus}
-      statusOptions={BILL_STATUSES.map((status) => ({
+      statusOptions={(['DRAFT', 'UNPAID', 'OVERDUE', 'PAID', 'VOID'] as const).map((status) => ({
         value: status,
-        label: t(`status.${status}`),
+        label: t(`hub.bills.display.${status}`),
       }))}
-      filters={
-        <Switch
-          label={t('hub.bills.overdueOnly')}
-          checked={overdueOnly}
-          onChange={(event) => {
-            setOverdueOnly(event.currentTarget.checked);
-            state.setPage(1);
-          }}
-          pb={8}
-        />
-      }
       columns={[
         { key: 'number', label: t('common.number') },
         { key: 'vendor', label: t('common.vendor'), minWidth: 180 },
@@ -59,33 +45,52 @@ export const BillList = () => {
       rows={query.data?.items}
       getKey={(row) => row.id}
       onRowClick={(row) => navigate(detailPath('bill', row.id))}
-      renderCells={(row) => {
-        const overdue = isBillOverdue(row, today);
-        return (
-          <>
-            <NumberCell kind="bill" id={row.id} number={row.number} />
-            <PartyCell name={row.vendor.name} sub={row.vendorInvoiceNumber || undefined} />
-            <DueCell label={formatDay(row.dueDate, currentLanguage)} overdue={overdue} />
-            <Table.Td>
-              <StatusBadge status={row.status} />
-            </Table.Td>
-            <AmountCell value={row.finalAmount} />
-            <AmountCell value={row.remainingAmount} dimmed={row.remainingAmount === 0} />
-          </>
-        );
-      }}
+      renderCells={(row) => (
+        <>
+          <NumberCell
+            kind="bill"
+            id={row.id}
+            number={row.number}
+            sub={row.vendorInvoiceNumber || undefined}
+          />
+          <PartyCell name={row.vendor.name} />
+          <DueCell
+            label={formatDay(row.dueDate, currentLanguage)}
+            overdue={row.displayStatus === 'OVERDUE'}
+          />
+          <Table.Td>
+            <StatusBadge status={row.status} label={row.displayStatusLabel || row.statusLabel} />
+          </Table.Td>
+          <Table.Td ta="right" style={{ whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>
+            <Text size="sm" fw={500}>
+              {formatAmount(row.finalAmount)}
+            </Text>
+            {row.paidAmount > 0 && (
+              <Text size="xs" c="green.7">
+                {t('hub.bills.paidSub', { amount: formatAmount(row.paidAmount) })}
+              </Text>
+            )}
+          </Table.Td>
+          <Table.Td ta="right" style={{ whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>
+            <Text size="sm" fw={600} c={row.remainingAmount > 0 ? 'red.7' : 'green.7'}>
+              {formatAmount(row.remainingAmount)}
+            </Text>
+          </Table.Td>
+        </>
+      )}
       isLoading={query.isLoading}
       isError={query.isError}
       onRetry={query.refetch}
-      isFiltered={state.isFiltered || overdueOnly}
-      onResetFilters={() => {
-        state.reset();
-        setOverdueOnly(false);
-      }}
+      isFiltered={state.isFiltered}
+      onResetFilters={state.reset}
       page={state.page}
       totalPages={query.data?.totalPages ?? 0}
       totalResults={query.data?.totalResults ?? 0}
       onPageChange={state.setPage}
+      noun={t('list.nouns.bill')}
+      limit={state.limit}
+      onLimitChange={state.setLimit}
+      rowActions={(row) => [viewAction(t('list.view'), () => navigate(detailPath('bill', row.id)))]}
       empty={{
         icon: <IconReceipt2 size={32} stroke={1.6} />,
         title: t('hub.bills.emptyTitle'),

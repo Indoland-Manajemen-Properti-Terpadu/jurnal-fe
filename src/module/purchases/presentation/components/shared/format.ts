@@ -1,11 +1,23 @@
 /** Display helpers shared by every purchasing screen. Amounts are rupiah as the server sends them. */
 
+/**
+ * Decimal digits of money. The general settings decide (`GET /purchase-dashboard/config`); the purchasing
+ * pages store it here once it is known so that every amount, however deep in a table, follows it.
+ */
+let amountPrecision = 2;
+
+export const setAmountPrecision = (precision: number): void => {
+  if (Number.isInteger(precision) && precision >= 0 && precision <= 6) {
+    amountPrecision = precision;
+  }
+};
+
 export const formatAmount = (amount: number): string =>
   amount.toLocaleString('id-ID', {
     style: 'currency',
     currency: 'IDR',
     minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
+    maximumFractionDigits: amountPrecision,
   });
 
 /** `YYYY-MM-DD` shown as a calendar day in the reader's language, never shifted by time zone. */
