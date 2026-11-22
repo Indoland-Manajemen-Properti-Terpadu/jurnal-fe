@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Button, Group, Modal, Stack, Text, Textarea } from '@mantine/core';
+import { Button, Textarea } from '@mantine/core';
+import { ModalFrame } from '@/components/Modals/ModalFrame';
 import { useTranslation } from '@/i18n';
 
 const MIN_REASON = 3;
@@ -11,18 +12,25 @@ interface ReasonModalProps {
   confirmLabel: string;
   /** `danger` for void, cancel and reject. */
   tone?: 'primary' | 'danger';
+  /** The note may stay empty (a verification note); otherwise at least three characters. */
+  optional?: boolean;
+  label?: string;
+  placeholder?: string;
   loading?: boolean;
   onClose: () => void;
   onConfirm: (reason: string) => void;
 }
 
-/** Rejecting, cancelling and voiding all need a reason of at least three characters. */
+/** Rejecting, cancelling, returning and voiding need a reason of at least three characters. */
 export const ReasonModal = ({
   opened,
   title,
   description,
   confirmLabel,
   tone = 'danger',
+  optional = false,
+  label,
+  placeholder,
   loading,
   onClose,
   onConfirm,
@@ -36,31 +44,20 @@ export const ReasonModal = ({
   };
 
   return (
-    <Modal opened={opened} onClose={close} title={title} centered radius="lg">
-      <Stack gap="md">
-        {description && (
-          <Text size="sm" c="dimmed">
-            {description}
-          </Text>
-        )}
-        <Textarea
-          label={t('shared.reasonLabel')}
-          placeholder={t('shared.reasonPlaceholder')}
-          value={reason}
-          onChange={(event) => setReason(event.currentTarget.value)}
-          minRows={3}
-          autosize
-          maxLength={500}
-          data-autofocus
-        />
-        <Group justify="flex-end" gap="sm">
+    <ModalFrame
+      opened={opened}
+      onClose={close}
+      title={title}
+      description={description}
+      footer={
+        <>
           <Button variant="default" onClick={close} disabled={loading}>
             {t('common.cancel')}
           </Button>
           <Button
             color={tone === 'danger' ? 'red' : 'primary'}
             loading={loading}
-            disabled={trimmed.length < MIN_REASON}
+            disabled={!optional && trimmed.length < MIN_REASON}
             onClick={() => {
               onConfirm(trimmed);
               setReason('');
@@ -68,8 +65,19 @@ export const ReasonModal = ({
           >
             {confirmLabel}
           </Button>
-        </Group>
-      </Stack>
-    </Modal>
+        </>
+      }
+    >
+      <Textarea
+        label={label ?? t('shared.reasonLabel')}
+        placeholder={placeholder ?? t('shared.reasonPlaceholder')}
+        value={reason}
+        onChange={(event) => setReason(event.currentTarget.value)}
+        minRows={3}
+        autosize
+        maxLength={500}
+        data-autofocus
+      />
+    </ModalFrame>
   );
 };

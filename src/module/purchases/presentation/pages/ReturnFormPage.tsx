@@ -28,7 +28,7 @@ export default function ReturnFormPage() {
   if (accessLoading || (id && draft.isLoading) || (billId && bill.isLoading)) {
     return <StateFrame kind="loading" />;
   }
-  if (!can(PURCHASE_MENU.documents, id ? 'update' : 'create')) {
+  if (!can(PURCHASE_MENU.returns, id ? 'update' : 'create')) {
     return <StateFrame kind="noAccess" backTo={BACK} />;
   }
   if (id && draft.isError) {
@@ -110,7 +110,7 @@ export default function ReturnFormPage() {
     <ReturnFormBody
       key={billDoc.id}
       bill={billDoc}
-      initial={emptyReturnForm(today > billDoc.date ? today : billDoc.date)}
+      initial={emptyReturnForm(today > billDoc.date ? today : billDoc.date, billDoc)}
     />
   );
 }

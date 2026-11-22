@@ -1,0 +1,7 @@
+/* The last row of a table sits on the card's own line or the footer's, so it needs none of its own. */
+.table tbody:not(:has(+ tfoot)) tr:last-child,
+.table tbody:not(:has(+ tfoot)) tr:last-child td,
+.table tfoot tr:last-child,
+.table tfoot tr:last-child td {
+  border-bottom: 0;
+}

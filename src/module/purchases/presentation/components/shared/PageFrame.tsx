@@ -4,6 +4,7 @@ import { IconArrowLeft, type Icon } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { AppShellLayout } from '@/components/AppShellLayout';
 import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
+import { useDashboardConfig } from '@/module/purchases/presentation/hooks/useDashboard';
 
 interface PageFrameProps {
   icon: Icon;
@@ -27,6 +28,7 @@ export const PageFrame = ({
   children,
 }: Readonly<PageFrameProps>) => {
   const navigate = useNavigate();
+  useDashboardConfig();
   return (
     <AppShellLayout>
       <Box p={{ base: 'md', sm: 'xl' }}>

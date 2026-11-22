@@ -9,7 +9,9 @@
   --lp-muted: var(--mantine-color-slate-5);
   --lp-line: var(--mantine-color-slate-2);
   --lp-bg-subtle: var(--mantine-color-slate-0);
-  --lp-card-shadow: 0 10px 25px -5px color-mix(in srgb, var(--mantine-color-primary-6) 8%, transparent), 0 8px 10px -6px color-mix(in srgb, var(--mantine-color-primary-6) 4%, transparent);
+  --lp-card-shadow:
+    0 10px 25px -5px color-mix(in srgb, var(--mantine-color-primary-6) 8%, transparent),
+    0 8px 10px -6px color-mix(in srgb, var(--mantine-color-primary-6) 4%, transparent);
 
   background: var(--mantine-color-white);
   color: var(--lp-ink);
@@ -115,7 +117,11 @@
     linear-gradient(var(--lp-line) 1px, transparent 1px),
     linear-gradient(90deg, var(--lp-line) 1px, transparent 1px);
   background-size: 48px 48px;
-  mask-image: radial-gradient(ellipse 75% 60% at 50% 0%, var(--mantine-color-black) 30%, transparent 80%);
+  mask-image: radial-gradient(
+    ellipse 75% 60% at 50% 0%,
+    var(--mantine-color-black) 30%,
+    transparent 80%
+  );
   opacity: 0.55;
   pointer-events: none;
 }
@@ -127,7 +133,11 @@
   width: 960px;
   height: 520px;
   transform: translateX(-50%);
-  background: radial-gradient(closest-side, color-mix(in srgb, var(--mantine-color-secondary-6) 24%, transparent), transparent);
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--mantine-color-secondary-6) 24%, transparent),
+    transparent
+  );
   pointer-events: none;
 }
 
@@ -236,7 +246,11 @@
   margin: 0 auto;
   border-radius: 18px;
   padding: 10px;
-  background: linear-gradient(180deg, color-mix(in srgb, var(--mantine-color-primary-6) 12%, transparent), color-mix(in srgb, var(--mantine-color-secondary-6) 8%, transparent));
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--mantine-color-primary-6) 12%, transparent),
+    color-mix(in srgb, var(--mantine-color-secondary-6) 8%, transparent)
+  );
   border: 1px solid color-mix(in srgb, var(--mantine-color-primary-6) 15%, transparent);
   box-shadow: 0 45px 95px -25px color-mix(in srgb, var(--mantine-color-slate-9) 30%, transparent);
 }
@@ -368,7 +382,11 @@
 
 .previewKpiCardHighlight {
   border-color: color-mix(in srgb, var(--mantine-color-secondary-6) 40%, transparent);
-  background: linear-gradient(180deg, color-mix(in srgb, var(--mantine-color-secondary-6) 4%, transparent), var(--mantine-color-white));
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--mantine-color-secondary-6) 4%, transparent),
+    var(--mantine-color-white)
+  );
 }
 
 .previewKpiLabel {
@@ -611,7 +629,11 @@
   border-radius: 14px;
   display: grid;
   place-items: center;
-  background: linear-gradient(135deg, color-mix(in srgb, var(--mantine-color-primary-6) 8%, transparent), color-mix(in srgb, var(--mantine-color-secondary-6) 14%, transparent));
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--mantine-color-primary-6) 8%, transparent),
+    color-mix(in srgb, var(--mantine-color-secondary-6) 14%, transparent)
+  );
   color: var(--lp-navy);
   margin-bottom: 22px;
 }
@@ -680,7 +702,11 @@
 }
 
 .comparisonColHighlightHead {
-  background: linear-gradient(180deg, color-mix(in srgb, var(--mantine-color-primary-6) 8%, transparent), color-mix(in srgb, var(--mantine-color-secondary-6) 5%, transparent)) !important;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--mantine-color-primary-6) 8%, transparent),
+    color-mix(in srgb, var(--mantine-color-secondary-6) 5%, transparent)
+  ) !important;
   border-left: 2px solid var(--lp-navy) !important;
   border-right: 2px solid var(--lp-navy) !important;
   border-top: 4px solid var(--lp-navy) !important;
@@ -879,8 +905,16 @@
   text-align: center;
   color: var(--mantine-color-white);
   background:
-    radial-gradient(700px 350px at 85% 0%, color-mix(in srgb, var(--mantine-color-secondary-6) 45%, transparent), transparent),
-    radial-gradient(500px 300px at 15% 100%, color-mix(in srgb, var(--mantine-color-primary-6) 70%, transparent), transparent),
+    radial-gradient(
+      700px 350px at 85% 0%,
+      color-mix(in srgb, var(--mantine-color-secondary-6) 45%, transparent),
+      transparent
+    ),
+    radial-gradient(
+      500px 300px at 15% 100%,
+      color-mix(in srgb, var(--mantine-color-primary-6) 70%, transparent),
+      transparent
+    ),
     linear-gradient(135deg, var(--lp-navy-deep), var(--lp-navy));
   box-shadow: 0 35px 80px -25px color-mix(in srgb, var(--mantine-color-slate-9) 45%, transparent);
 }
@@ -890,8 +924,15 @@
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(color-mix(in srgb, var(--mantine-color-white) 6%, transparent) 1px, transparent 1px),
-    linear-gradient(90deg, color-mix(in srgb, var(--mantine-color-white) 6%, transparent) 1px, transparent 1px);
+    linear-gradient(
+      color-mix(in srgb, var(--mantine-color-white) 6%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--mantine-color-white) 6%, transparent) 1px,
+      transparent 1px
+    );
   background-size: 40px 40px;
   mask-image: radial-gradient(ellipse at center, var(--mantine-color-black), transparent 75%);
   pointer-events: none;

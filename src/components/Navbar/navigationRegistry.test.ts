@@ -129,6 +129,9 @@ describe('resolveSectionTitle', () => {
   it('titles each purchasing page by its own name', () => {
     expect(resolveSectionTitle(routes.purchases.bills)?.titleKey).toBe('purchasesBills');
     expect(resolveSectionTitle(routes.purchases.payables)?.titleKey).toBe('payables');
+    expect(resolveSectionTitle('/purchases/payment-requests/abc')?.titleKey).toBe(
+      'purchasesPayments'
+    );
     expect(resolveSectionTitle(routes.purchases.main)?.titleKey).toBe('purchasesOverview');
   });
 

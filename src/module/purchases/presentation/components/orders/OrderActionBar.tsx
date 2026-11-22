@@ -1,7 +1,9 @@
 import { useState } from 'react';
-import { Button, Group, Menu, Modal, Stack, Text } from '@mantine/core';
+import { Button, Menu } from '@mantine/core';
+import { notifications } from '@mantine/notifications';
 import {
   IconCircleCheck,
+  IconCoins,
   IconDots,
   IconEdit,
   IconFileInvoice,
@@ -10,49 +12,48 @@ import {
   IconSend,
   IconX,
 } from '@tabler/icons-react';
-import { notifications } from '@mantine/notifications';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
 import { PURCHASE_MENU } from '@/module/purchases/domain/purchaseAccess';
 import { orderActions } from '@/module/purchases/domain/purchaseActions';
 import type { PurchaseOrder } from '@/module/purchases/domain/purchaseDocuments';
 import { downloadOrderPdf } from '@/module/purchases/infrastructure/purchaseApi';
+import { OrderDraftModal } from '@/module/purchases/presentation/components/orders/OrderDraftModal';
+import { SendOrderDialog } from '@/module/purchases/presentation/components/orders/SendOrderDialog';
 import { saveBlob } from '@/module/purchases/presentation/components/orders/saveBlob';
 import { ReasonModal } from '@/module/purchases/presentation/components/shared/ReasonModal';
 import { usePurchaseErrorMessage } from '@/module/purchases/presentation/hooks/purchaseErrorMessage';
 import { usePurchaseAccess } from '@/module/purchases/presentation/hooks/usePurchaseAccess';
 import {
   useCloseOrder,
-  useSubmitOrder,
   useVoidOrder,
 } from '@/module/purchases/presentation/hooks/usePurchaseMutations';
 import { routes } from '@/router/routes';
 
-/** The next step of the flow is the only filled button; the rest are secondary or in the menu. */
+type Dialog = 'edit' | 'send' | 'close' | 'void' | null;
+
+/** The next step is the only filled button: send a draft, then receive or bill. The rest is secondary. */
 export const OrderActionBar = ({ order }: Readonly<{ order: PurchaseOrder }>) => {
   const { t } = useTranslation('purchases');
   const navigate = useNavigate();
   const describe = usePurchaseErrorMessage();
   const { can } = usePurchaseAccess();
-  const submit = useSubmitOrder();
   const close = useCloseOrder();
   const voidOrder = useVoidOrder();
-  const [closing, setClosing] = useState(false);
-  const [voiding, setVoiding] = useState(false);
+  const [dialog, setDialog] = useState<Dialog>(null);
   const [printing, setPrinting] = useState(false);
 
   const actions = orderActions(order);
   const canUpdate = can(PURCHASE_MENU.documents, 'update');
   const canCreate = can(PURCHASE_MENU.documents, 'create');
   const showEdit = actions.edit && canUpdate;
-  const showSubmit = actions.submit && canUpdate;
-  const showReceive = actions.receive && canCreate;
-  const showBill = actions.billable && canCreate;
+  const showSend = actions.send && canUpdate;
+  const showReceive = actions.receive && can(PURCHASE_MENU.receipts, 'create');
+  const showBill = actions.bill && canCreate;
+  const showAdvance = actions.requestAdvance && can(PURCHASE_MENU.paymentRequests, 'create');
   const showClose = actions.close && canUpdate;
   const showVoid = actions.void && can(PURCHASE_MENU.documents, 'delete');
-
-  const receivePrimary = showReceive && !showSubmit;
-  const billPrimary = showBill && !showSubmit && !receivePrimary;
+  const closeDialog = () => setDialog(null);
 
   const print = async () => {
     setPrinting(true);
@@ -72,24 +73,18 @@ export const OrderActionBar = ({ order }: Readonly<{ order: PurchaseOrder }>) =>
           variant="default"
           radius="md"
           leftSection={<IconEdit size={16} />}
-          onClick={() => navigate(routes.purchases.orderEdit.replace(':id', order.id))}
+          onClick={() => setDialog('edit')}
         >
           {t('common.edit')}
         </Button>
       )}
-      {showSubmit && (
-        <Button
-          radius="md"
-          leftSection={<IconSend size={16} />}
-          loading={submit.isPending}
-          onClick={() => submit.mutate({ id: order.id })}
-        >
-          {order.status === 'REJECTED' ? t('requests.detail.resubmit') : t('common.submit')}
+      {showSend && (
+        <Button radius="md" leftSection={<IconSend size={16} />} onClick={() => setDialog('send')}>
+          {t('orders.detail.send', { label: order.documentLabel })}
         </Button>
       )}
       {showBill && (
         <Button
-          variant={billPrimary ? 'filled' : 'default'}
           radius="md"
           leftSection={<IconFileInvoice size={16} />}
           onClick={() => navigate(`${routes.purchases.billAdd}?order=${order.id}`)}
@@ -99,7 +94,6 @@ export const OrderActionBar = ({ order }: Readonly<{ order: PurchaseOrder }>) =>
       )}
       {showReceive && (
         <Button
-          variant={receivePrimary ? 'filled' : 'default'}
           radius="md"
           leftSection={<IconPackageImport size={16} />}
           onClick={() => navigate(`${routes.purchases.receiptAdd}?order=${order.id}`)}
@@ -128,56 +122,56 @@ export const OrderActionBar = ({ order }: Readonly<{ order: PurchaseOrder }>) =>
           >
             {t('orders.detail.print')}
           </Menu.Item>
+          {showAdvance && (
+            <Menu.Item
+              leftSection={<IconCoins size={14} />}
+              onClick={() => navigate(`${routes.purchases.paymentRequestAdd}?order=${order.id}`)}
+            >
+              {t('orders.detail.requestAdvance')}
+            </Menu.Item>
+          )}
           {showClose && (
-            <Menu.Item leftSection={<IconCircleCheck size={14} />} onClick={() => setClosing(true)}>
-              {t('orders.detail.close')}
+            <Menu.Item
+              leftSection={<IconCircleCheck size={14} />}
+              onClick={() => setDialog('close')}
+            >
+              {t('orders.detail.close', { label: order.documentLabel })}
             </Menu.Item>
           )}
           {showVoid && (
             <Menu.Item
               color="red"
               leftSection={<IconX size={14} />}
-              onClick={() => setVoiding(true)}
+              onClick={() => setDialog('void')}
             >
-              {t('orders.detail.void')}
+              {t('orders.detail.void', { label: order.documentLabel })}
             </Menu.Item>
           )}
         </Menu.Dropdown>
       </Menu>
 
-      <Modal
-        opened={closing}
-        onClose={() => setClosing(false)}
-        title={t('orders.detail.closeTitle')}
-        centered
-        radius="lg"
-      >
-        <Stack gap="md">
-          <Text size="sm" c="dimmed">
-            {t('orders.detail.closeDescription')}
-          </Text>
-          <Group justify="flex-end" gap="sm">
-            <Button variant="default" onClick={() => setClosing(false)} disabled={close.isPending}>
-              {t('common.cancel')}
-            </Button>
-            <Button
-              loading={close.isPending}
-              onClick={() => close.mutate({ id: order.id }, { onSuccess: () => setClosing(false) })}
-            >
-              {t('orders.detail.close')}
-            </Button>
-          </Group>
-        </Stack>
-      </Modal>
+      <OrderDraftModal order={order} opened={dialog === 'edit'} onClose={closeDialog} />
+      <SendOrderDialog order={order} opened={dialog === 'send'} onClose={closeDialog} />
       <ReasonModal
-        opened={voiding}
-        title={t('orders.detail.voidTitle')}
+        opened={dialog === 'close'}
+        title={t('orders.detail.closeTitle', { label: order.documentLabel })}
+        description={t('orders.detail.closeDescription')}
+        confirmLabel={t('orders.detail.close', { label: order.documentLabel })}
+        tone="primary"
+        label={t('orders.detail.closeNote')}
+        loading={close.isPending}
+        onClose={closeDialog}
+        onConfirm={(note) => close.mutate({ id: order.id, note }, { onSuccess: closeDialog })}
+      />
+      <ReasonModal
+        opened={dialog === 'void'}
+        title={t('orders.detail.voidTitle', { label: order.documentLabel })}
         description={t('orders.detail.voidDescription')}
-        confirmLabel={t('orders.detail.void')}
+        confirmLabel={t('orders.detail.void', { label: order.documentLabel })}
         loading={voidOrder.isPending}
-        onClose={() => setVoiding(false)}
+        onClose={closeDialog}
         onConfirm={(reason) =>
-          voidOrder.mutate({ id: order.id, reason }, { onSuccess: () => setVoiding(false) })
+          voidOrder.mutate({ id: order.id, reason }, { onSuccess: closeDialog })
         }
       />
     </>

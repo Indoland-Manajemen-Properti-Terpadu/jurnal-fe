@@ -18,6 +18,7 @@ export interface ProductRef {
   id: string;
   name: string;
   sku: string | null;
+  unitId: string | null;
   unitName: string | null;
   isInventory: boolean;
 }
@@ -35,10 +36,46 @@ export interface PaymentMethodRef {
   accountName: string | null;
 }
 
+/** A payment term the user can pick on a quote; the mechanism decides which overrides apply. */
+export interface PaymentTermOption {
+  id: string;
+  name: string;
+  days: number;
+  advanceType: 'none' | 'partial' | 'full';
+  billingSplit: 'single' | 'milestone' | 'recurring';
+  hasDueTerm: boolean;
+  hasRetention: boolean;
+  defaultAdvancePercent: number | null;
+  defaultInstallments: number | null;
+  defaultPeriods: number | null;
+  defaultDueDays: number | null;
+  defaultRetentionPercent: number | null;
+  defaultMaintenanceMonths: number | null;
+  /** The service's ready-made sentence of the term, e.g. "Uang muka 30%". */
+  paymentLabel: string;
+  billingLabel: string;
+  dueLabel: string;
+  isActive: boolean;
+}
+
 export interface Attachment {
   id: string;
   name: string;
   url: string;
+  mimeType: string;
+}
+
+export interface NamedRef {
+  id: string;
+  name: string;
+}
+
+/** A person as the server describes them on a document. */
+export interface UserInfo {
+  id: string;
+  name: string;
+  email: string;
+  title: string;
 }
 
 export type ApprovalMode = 'ANY' | 'ALL';
@@ -55,6 +92,7 @@ export interface ApprovalEntry {
   roleId: string;
   byId: string;
   at: string;
+  note?: string;
 }
 
 /** What the server says about a document's approval, including whether this user may decide now. */

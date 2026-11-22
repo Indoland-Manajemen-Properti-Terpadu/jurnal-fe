@@ -1,83 +1,51 @@
 import type {
   ApprovalState,
   DocumentBase,
+  NamedRef,
   PartyRef,
   PaymentMethodRef,
   ProductRef,
   TaxRef,
 } from '@/module/purchases/domain/purchaseCommon';
 
-export type ProcurementMode = 'DIRECT' | 'WITH_QUOTATION';
 export type DiscountType = 'percentage' | 'nominal';
 export type WithholdingType = 'percentage' | 'nominal';
 
-export type PurchaseRequestStatus =
-  | 'DRAFT'
-  | 'PENDING_APPROVAL'
-  | 'APPROVED'
-  | 'REJECTED'
-  | 'VENDOR_SELECTED'
-  | 'CONVERTED'
-  | 'CANCELLED';
-
 export type PurchaseOrderStatus =
   | 'DRAFT'
-  | 'PENDING_APPROVAL'
-  | 'APPROVED'
-  | 'REJECTED'
+  | 'SENT'
   | 'PARTIAL_RECEIVED'
   | 'RECEIVED'
+  | 'COMPLETED'
   | 'CLOSED'
   | 'VOID';
 
-export type GoodsReceiptStatus = 'POSTED' | 'VOID';
+/** How a line of a PO / SPK is billed: all at once, as an advance, by term, by period or as retention. */
+export type OrderScheduleKind = 'FULL' | 'ADVANCE' | 'TERM' | 'PERIOD' | 'RETENTION';
+
+export interface OrderSchedule {
+  kind: OrderScheduleKind;
+  /** 1-based position among the lines of its kind, e.g. term 2 of 3. */
+  seq: number;
+  of: number;
+  periodFrom: string | null;
+  periodTo: string | null;
+}
+
+export type GoodsReceiptStatus = 'POSTED' | 'PENDING_APPROVAL' | 'REJECTED' | 'VOID';
+
+/** Goods go through an FPB and post at once; services go through a BAPP that needs approval. */
+export type ReceiptKind = 'GOODS' | 'SERVICE';
 export type PurchaseBillStatus = 'DRAFT' | 'VERIFIED' | 'PARTIAL_PAID' | 'PAID' | 'VOID';
-export type PaymentVoucherStatus =
-  | 'DRAFT'
-  | 'PENDING_APPROVAL'
-  | 'APPROVED'
-  | 'PAID'
-  | 'REJECTED'
-  | 'VOID';
+
+/** Where a bill comes from: receipts (FPB / BAPP), an order that takes no receipt, or typed in. */
+export type BillSource = 'RECEIPT' | 'ORDER' | 'MANUAL';
+
+/** The tabs of the list: not yet verified, owed, owed and late, paid, voided. */
+export type BillDisplayStatus = 'DRAFT' | 'UNPAID' | 'OVERDUE' | 'PAID' | 'VOID';
+/** A voucher has no approval of its own: the Payment Request it pays was approved already. */
+export type PaymentVoucherStatus = 'DRAFT' | 'PAID' | 'VOID';
 export type PurchaseReturnStatus = 'DRAFT' | 'POSTED' | 'VOID';
-
-export interface RequestItem {
-  id: string;
-  product: ProductRef | null;
-  description: string;
-  quantity: number;
-  unitName: string | null;
-}
-
-export interface QuotationItem {
-  requestItemId: string;
-  quantity: number;
-  unitPrice: number;
-}
-
-export interface Quotation {
-  id: string;
-  vendor: PartyRef;
-  number: string;
-  date: string;
-  validUntil: string | null;
-  items: QuotationItem[];
-  total: number;
-  notes: string;
-}
-
-export interface PurchaseRequest extends DocumentBase {
-  requiredDate: string | null;
-  department: string;
-  purpose: string;
-  mode: ProcurementMode;
-  status: PurchaseRequestStatus;
-  items: RequestItem[];
-  quotations: Quotation[];
-  selectedQuotationId: string | null;
-  purchaseOrderId: string | null;
-  approval: ApprovalState;
-}
 
 /** The money block shared by orders and bills; amounts come from the server. */
 export interface DocumentAmounts {
@@ -101,6 +69,7 @@ export interface OrderItem {
   requestItemId: string;
   product: ProductRef | null;
   description: string;
+  specification: string;
   quantity: number;
   unitName: string | null;
   unitPrice: number;
@@ -110,17 +79,47 @@ export interface OrderItem {
   amount: number;
   receivedQty: number;
   billedQty: number;
+  schedule: OrderSchedule;
+  /** A line that is only billed (shipping, advance, retention): nothing is received for it. */
+  billOnly: boolean;
+}
+
+export interface OrderAdvance {
+  /** The advance agreed in the quote. */
+  amount: number;
+  /** Asked for in Payment Requests. */
+  requested: number;
+  paid: number;
+  used: number;
+  /** What a Payment Request can still ask for. */
+  available: number;
 }
 
 export interface PurchaseOrder extends DocumentBase, DocumentAmounts {
+  /** The server's Indonesian label of the status. */
+  statusLabel: string;
+  /** `PO` for goods, `SPK` when every line is a service. */
+  documentLabel: string;
+  isService: boolean;
   expectedDate: string | null;
   vendor: PartyRef;
+  vendorEmails: string[];
   purchaseRequestId: string;
+  purchaseRequestNumber: string;
+  purchaseRequestPurpose: string;
   paymentTermName: string | null;
+  warranty: string;
+  warehouse: NamedRef | null;
   deliveryAddress: string;
   status: PurchaseOrderStatus;
+  /** Goods and services are received (FPB / BAPP) before billing; false bills straight from the order. */
+  withReceipt: boolean;
   items: OrderItem[];
-  approval: ApprovalState;
+  advance: OrderAdvance;
+  /** What the vendor is owed on this order, and how much of it is billed. */
+  payableAmount: number;
+  billedAmount: number;
+  sent: { byEmail: boolean; to: string; cc: string[]; note: string };
 }
 
 export interface ReceiptItem {
@@ -129,16 +128,35 @@ export interface ReceiptItem {
   product: ProductRef | null;
   description: string;
   receivedQty: number;
+  /** Goods turned away at delivery; they are not counted as received. */
+  rejectedQty: number;
   accrualAmount: number;
 }
 
+export interface DocumentRef {
+  id: string;
+  number: string;
+  status: string;
+}
+
 export interface GoodsReceipt extends DocumentBase {
+  kind: ReceiptKind;
+  /** `FPB` for goods, `BAPP` for services. */
+  documentLabel: string;
+  statusLabel: string;
   vendor: PartyRef;
   purchaseOrderId: string;
+  purchaseOrderNumber: string;
+  warehouse: NamedRef | null;
   deliveryNote: string;
   status: GoodsReceiptStatus;
   items: ReceiptItem[];
+  /** What the receipt recognises as accrued before the bill. */
+  amount: number;
   journalId: string | null;
+  /** The bills made from this receipt. */
+  billRefs: DocumentRef[];
+  approval: ApprovalState;
 }
 
 export type VarianceType = 'PRICE' | 'TOTAL';
@@ -151,8 +169,10 @@ export interface BillVariance {
 
 export interface BillItem {
   id: string;
+  /** Empty on a manual bill, which is not tied to an order. */
   purchaseOrderItemId: string;
   product: ProductRef | null;
+  account: NamedRef | null;
   description: string;
   quantity: number;
   unitName: string | null;
@@ -175,44 +195,68 @@ export interface CreditApplication {
 }
 
 export interface PurchaseBill extends DocumentBase, DocumentAmounts {
+  source: BillSource;
+  /** True for a manual bill: no order or receipt to compare it with. */
+  noMatch: boolean;
+  statusLabel: string;
+  displayStatus: BillDisplayStatus;
+  displayStatusLabel: string;
   vendor: PartyRef;
+  /** The first order the bill comes from; a bill can combine receipts of several orders. */
   purchaseOrderId: string;
   vendorInvoiceNumber: string;
+  taxInvoiceNumber: string;
   vendorInvoiceTotal: number | null;
   dueDate: string | null;
+  paymentTermName: string | null;
   status: PurchaseBillStatus;
   items: BillItem[];
+  tags: string[];
   paidAmount: number;
   returnedAmount: number;
   creditAppliedAmount: number;
   remainingAmount: number;
+  /** Inside a Payment Request that is not paid yet. */
+  heldAmount: number;
+  /** What a Payment Request can still ask for. */
+  requestableAmount: number;
+  goodsReceiptRefs: DocumentRef[];
+  purchaseOrderRefs: DocumentRef[];
+  paymentRequestRefs: DocumentRef[];
+  returnRefs: DocumentRef[];
   variances: BillVariance[];
   creditApplications: CreditApplication[];
   journalId: string | null;
   verifiedAt: string | null;
 }
 
-export type PaymentVoucherType = 'BILL' | 'ADVANCE';
-
-export interface PaymentLine {
-  billId: string;
+/** What one voucher line pays: a Payment Request, which is for a bill (settlement) or an order (advance). */
+export interface PaymentVoucherItem {
+  requestId: string;
+  requestNumber: string;
+  kind: 'DP' | 'SETTLEMENT';
   amount: number;
+  billId: string | null;
+  billNumber: string | null;
+  vendorInvoiceNumber: string;
+  orderId: string | null;
+  orderNumber: string | null;
 }
 
 export interface PaymentVoucher extends DocumentBase {
-  type: PaymentVoucherType;
+  /** The server's Indonesian label of the status. */
+  statusLabel: string;
   vendor: PartyRef;
   status: PaymentVoucherStatus;
-  lines: PaymentLine[];
+  items: PaymentVoucherItem[];
   totalAmount: number;
-  advanceAppliedAmount: number;
-  purchaseOrderId: string | null;
   paymentMethod: PaymentMethodRef | null;
+  depositAccountId: string | null;
   adminFee: number;
   referenceNumber: string;
   journalId: string | null;
   paidAt: string | null;
-  approval: ApprovalState;
+  voidReason: string | null;
 }
 
 export interface ReturnItem {
@@ -226,9 +270,18 @@ export interface ReturnItem {
   taxAmount: number;
 }
 
+/** What happens to the value of a posted return: cut from the bill, kept as vendor credit, or paid back. */
+export type ReturnSettlement = 'DEDUCT' | 'CREDIT' | 'REFUND';
+
 export interface PurchaseReturn extends DocumentBase {
+  /** The server's Indonesian labels. */
+  statusLabel: string;
+  settlementLabel: string;
+  settlement: ReturnSettlement;
+  warehouse: NamedRef | null;
   vendor: PartyRef;
   billId: string;
+  billNumber: string;
   reason: string;
   status: PurchaseReturnStatus;
   items: ReturnItem[];
@@ -242,6 +295,8 @@ export interface PurchaseReturn extends DocumentBase {
   appliedToBill: number;
   creditUsed: number;
   creditRemaining: number;
+  /** Paid back in cash so far (settlement REFUND). */
+  refundAmount: number;
   journalId: string | null;
 }
 

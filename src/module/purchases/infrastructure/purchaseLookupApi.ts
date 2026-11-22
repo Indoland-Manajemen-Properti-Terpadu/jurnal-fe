@@ -1,6 +1,8 @@
 import type {
+  NamedRef,
   PartyRef,
   PaymentMethodRef,
+  PaymentTermOption,
   ProductRef,
   TaxRef,
 } from '@/module/purchases/domain/purchaseCommon';
@@ -9,6 +11,7 @@ import { PURCHASE_API } from '@/module/purchases/infrastructure/purchaseEndpoint
 import type {
   ApiEnvelope,
   ContactListDto,
+  ListDto,
   MyPermissionsDto,
   PartyDto,
   PaymentMethodDto,
@@ -62,11 +65,49 @@ export const listPaymentMethods = async (): Promise<PaymentMethodRef[]> => {
   return data.data.map((method) => toPaymentMethod(method) as PaymentMethodRef);
 };
 
-export const listPaymentTerms = async (): Promise<{ id: string; name: string; days: number }[]> => {
-  const { data } = await http.get<
-    ApiEnvelope<{ data: { id: string; name: string; days: number }[] }>
-  >(PURCHASE_API.paymentTerms);
-  return data.data;
+interface PaymentTermDto {
+  id: string;
+  name: string;
+  days?: number | null;
+  advanceType?: PaymentTermOption['advanceType'] | null;
+  billingSplit?: PaymentTermOption['billingSplit'] | null;
+  hasDueTerm?: boolean | null;
+  hasRetention?: boolean | null;
+  defaultAdvancePercent?: number | null;
+  defaultInstallments?: number | null;
+  defaultPeriods?: number | null;
+  defaultDueDays?: number | null;
+  defaultRetentionPercent?: number | null;
+  defaultMaintenanceMonths?: number | null;
+  summary?: { paymentLabel?: string; billingLabel?: string; dueLabel?: string } | null;
+  isActive?: boolean | null;
+}
+
+/** Active payment terms for the quote and the bill (the service allows 100 per page). */
+export const listPaymentTerms = async (): Promise<PaymentTermOption[]> => {
+  const { data } = await http.get<ApiEnvelope<{ data: PaymentTermDto[] }>>(
+    PURCHASE_API.paymentTerms,
+    { isActive: true, limit: 100 }
+  );
+  return data.data.map((term) => ({
+    id: term.id,
+    name: term.name,
+    days: term.days ?? 0,
+    advanceType: term.advanceType ?? 'none',
+    billingSplit: term.billingSplit ?? 'single',
+    hasDueTerm: Boolean(term.hasDueTerm),
+    hasRetention: Boolean(term.hasRetention),
+    defaultAdvancePercent: term.defaultAdvancePercent ?? null,
+    defaultInstallments: term.defaultInstallments ?? null,
+    defaultPeriods: term.defaultPeriods ?? null,
+    defaultDueDays: term.defaultDueDays ?? null,
+    defaultRetentionPercent: term.defaultRetentionPercent ?? null,
+    defaultMaintenanceMonths: term.defaultMaintenanceMonths ?? null,
+    paymentLabel: term.summary?.paymentLabel ?? '',
+    billingLabel: term.summary?.billingLabel ?? '',
+    dueLabel: term.summary?.dueLabel ?? '',
+    isActive: term.isActive !== false,
+  }));
 };
 
 export const getAccessProfile = async (): Promise<PurchaseAccessProfile> => {
@@ -81,4 +122,43 @@ export const getAccessProfile = async (): Promise<PurchaseAccessProfile> => {
     };
   });
   return { isSuperAdmin: body.role === 'superadmin', rights };
+};
+
+interface NamedDto {
+  id: string;
+  name: string;
+}
+
+/** Active departments of the site, for the department choice of a request. */
+export const listDepartments = async (): Promise<NamedRef[]> => {
+  const { data } = await http.get<ApiEnvelope<ListDto<NamedDto>>>(PURCHASE_API.departments, {
+    isActive: true,
+    limit: 200,
+  });
+  return data.results.map(({ id, name }) => ({ id, name }));
+};
+
+/** Units of measure, for the lines of a request. The service allows at most 100 per page. */
+export const listUnits = async (): Promise<NamedRef[]> => {
+  const { data } = await http.get<ApiEnvelope<{ data: NamedDto[] }>>(PURCHASE_API.units, {
+    limit: 100,
+  });
+  return data.data.map(({ id, name }) => ({ id, name }));
+};
+
+/** Active warehouses, for the delivery warehouse of an order (the service allows 100 per page). */
+export const listWarehouses = async (): Promise<NamedRef[]> => {
+  const { data } = await http.get<ApiEnvelope<ListDto<NamedDto>>>(PURCHASE_API.warehouses, {
+    isActive: true,
+    limit: 100,
+  });
+  return data.results.map(({ id, name }) => ({ id, name }));
+};
+
+/** Transaction tags a bill can carry (the service allows 100 per page). */
+export const listTags = async (): Promise<NamedRef[]> => {
+  const { data } = await http.get<ApiEnvelope<{ data: NamedDto[] }>>(PURCHASE_API.tags, {
+    limit: 100,
+  });
+  return data.data.map(({ id, name }) => ({ id, name }));
 };

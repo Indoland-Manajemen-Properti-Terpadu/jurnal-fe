@@ -1,6 +1,7 @@
 import { Stack, Text } from '@mantine/core';
 import { IconCalculator } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
+import type { ReturnSettlement } from '@/module/purchases/domain/purchaseDocuments';
 import type { ReturnPreview } from '@/module/purchases/domain/returnForm';
 import { ReturnValueRows } from '@/module/purchases/presentation/components/returns/ReturnValueRows';
 import { FormActions } from '@/module/purchases/presentation/components/shared/FormActions';
@@ -11,6 +12,7 @@ interface ReturnPreviewCardProps {
   preview: ReturnPreview;
   appliedToBill: number;
   credit: number;
+  settlement: ReturnSettlement;
   submitLabel: string;
   loading: boolean;
   blockedReason: string | null;
@@ -23,6 +25,7 @@ export const ReturnPreviewCard = ({
   preview,
   appliedToBill,
   credit,
+  settlement,
   submitLabel,
   loading,
   blockedReason,
@@ -34,7 +37,9 @@ export const ReturnPreviewCard = ({
 
   let effect = '';
   if (hasValue) {
-    if (appliedToBill === 0) {
+    if (settlement === 'REFUND') {
+      effect = t('returns.form.effectRefund', { credit: formatAmount(credit) });
+    } else if (appliedToBill === 0) {
       effect = t('returns.form.effectCredit', { credit: formatAmount(credit) });
     } else if (credit === 0) {
       effect = t('returns.form.effectOpen', { applied: formatAmount(appliedToBill) });

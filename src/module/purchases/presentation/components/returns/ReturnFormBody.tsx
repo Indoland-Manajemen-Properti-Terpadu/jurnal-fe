@@ -1,9 +1,22 @@
 import { useState } from 'react';
-import { Anchor, Grid, Stack, Text, TextInput, Textarea } from '@mantine/core';
+import {
+  Anchor,
+  Grid,
+  SegmentedControl,
+  Select,
+  Stack,
+  Text,
+  TextInput,
+  Textarea,
+} from '@mantine/core';
 import { IconClipboardText, IconListDetails, IconReceiptRefund } from '@tabler/icons-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
-import type { PurchaseBill, PurchaseReturn } from '@/module/purchases/domain/purchaseDocuments';
+import type {
+  PurchaseBill,
+  PurchaseReturn,
+  ReturnSettlement,
+} from '@/module/purchases/domain/purchaseDocuments';
 import {
   hasReturnErrors,
   previewReturn,
@@ -21,6 +34,7 @@ import { DateField } from '@/module/purchases/presentation/components/requests/D
 import { PageFrame } from '@/module/purchases/presentation/components/shared/PageFrame';
 import { SectionCard } from '@/module/purchases/presentation/components/shared/SectionCard';
 import { useCreateReturn } from '@/module/purchases/presentation/hooks/usePurchaseMutations';
+import { useWarehouseOptions } from '@/module/purchases/presentation/hooks/usePurchaseQueries';
 import { routes } from '@/router/routes';
 
 const returnDetail = (id: string) => routes.purchases.returnDetail.replace(':id', id);
@@ -44,7 +58,14 @@ export const ReturnFormBody = ({ bill, initial, editing }: Readonly<ReturnFormBo
   const lines = returnLines(bill);
   const errors = validateReturn(values, bill, lines);
   const preview = previewReturn(bill, values.quantities);
-  const split = splitReturn(preview.finalAmount, bill.status === 'PAID' ? 0 : bill.remainingAmount);
+  const split = splitReturn(
+    preview.finalAmount,
+    bill.status === 'PAID' ? 0 : bill.remainingAmount,
+    values.settlement
+  );
+  const canDeduct = bill.status !== 'PAID' && bill.remainingAmount > 0;
+  const hasStock = bill.items.some((item) => item.product?.isInventory);
+  const { data: warehouses = [] } = useWarehouseOptions();
   const patch = (next: Partial<ReturnFormValues>) =>
     setValues((current) => ({ ...current, ...next }));
   const back = editing ? returnDetail(editing.id) : billDetail(bill.id);
@@ -78,7 +99,7 @@ export const ReturnFormBody = ({ bill, initial, editing }: Readonly<ReturnFormBo
       backLabel={t('common.back')}
     >
       <Grid gutter="lg" align="flex-start">
-        <Grid.Col span={{ base: 12, lg: 8 }}>
+        <Grid.Col span={{ base: 12, lg: 9 }}>
           <Stack gap="lg">
             <SectionCard
               icon={IconClipboardText}
@@ -120,6 +141,42 @@ export const ReturnFormBody = ({ bill, initial, editing }: Readonly<ReturnFormBo
                     onChange={(event) => patch({ reason: event.currentTarget.value })}
                   />
                 </Grid.Col>
+                <Grid.Col span={12}>
+                  <Text size="sm" fw={500} mb={4}>
+                    {t('returns.form.settlementTitle')}
+                  </Text>
+                  <SegmentedControl
+                    fullWidth
+                    radius="md"
+                    value={values.settlement}
+                    onChange={(value) => patch({ settlement: value as ReturnSettlement })}
+                    data={(['DEDUCT', 'CREDIT', 'REFUND'] as const).map((kind) => ({
+                      value: kind,
+                      label: t(`returns.form.settlement.${kind}`),
+                      disabled: kind === 'DEDUCT' && !canDeduct,
+                    }))}
+                  />
+                  <Text size="xs" c="dimmed" mt={4}>
+                    {!canDeduct && values.settlement !== 'DEDUCT'
+                      ? t('returns.form.settlementNoBalance')
+                      : t(`returns.form.settlementHint.${values.settlement}`)}
+                  </Text>
+                </Grid.Col>
+                {hasStock && warehouses.length > 0 && (
+                  <Grid.Col span={{ base: 12, sm: 6 }}>
+                    <Select
+                      radius="md"
+                      searchable
+                      clearable
+                      label={t('returns.form.warehouse')}
+                      placeholder={t('returns.form.warehousePlaceholder')}
+                      description={t('returns.form.warehouseHint')}
+                      data={warehouses.map((item) => ({ value: item.id, label: item.name }))}
+                      value={values.warehouseId || null}
+                      onChange={(id) => patch({ warehouseId: id ?? '' })}
+                    />
+                  </Grid.Col>
+                )}
                 <Grid.Col span={12}>
                   <Textarea
                     radius="md"
@@ -166,11 +223,12 @@ export const ReturnFormBody = ({ bill, initial, editing }: Readonly<ReturnFormBo
           </Stack>
         </Grid.Col>
 
-        <Grid.Col span={{ base: 12, lg: 4 }} pos="sticky" top={20}>
+        <Grid.Col span={{ base: 12, lg: 3 }} pos="sticky" top={20}>
           <ReturnPreviewCard
             preview={preview}
             appliedToBill={split.appliedToBill}
             credit={split.credit}
+            settlement={values.settlement}
             submitLabel={editing ? t('returns.form.submitEdit') : t('returns.form.submit')}
             loading={create.isPending || update.isPending}
             blockedReason={

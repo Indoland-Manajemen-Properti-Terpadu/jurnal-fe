@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Anchor, Badge, Button, Group, Stack, Text } from '@mantine/core';
+import { Anchor, Button, Group, Stack, Text } from '@mantine/core';
 import { IconReceiptRefund } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
@@ -83,9 +83,9 @@ export const CreditApplicationsCard = ({
                 {formatAmount(allocation.amount)}
               </Text>
               {allocation.voided ? (
-                <Badge color="gray" variant="light" radius="sm">
+                <Text size="xs" c="dimmed">
                   {t('bills.credits.cancelled')}
-                </Badge>
+                </Text>
               ) : (
                 canVoid && (
                   <Button

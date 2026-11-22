@@ -1,10 +1,11 @@
-import { Table } from '@mantine/core';
+import { Table, Text } from '@mantine/core';
 import { IconFilePlus } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
-import { PURCHASE_MENU } from '@/module/purchases/domain/purchaseAccess';
 import { REQUEST_STATUSES } from '@/module/purchases/domain/purchaseStatus';
+import { canCreateRequest } from '@/module/purchases/domain/requestAccess';
 import { detailPath } from '@/module/purchases/presentation/components/hub/documentPaths';
+import { viewAction } from '@/module/purchases/presentation/components/lists/rowActions';
 import { NumberCell, TextCell } from '@/module/purchases/presentation/components/lists/cells';
 import { ListShell } from '@/module/purchases/presentation/components/shared/ListShell';
 import { formatDay } from '@/module/purchases/presentation/components/shared/format';
@@ -20,7 +21,7 @@ export const RequestList = () => {
   const { can } = usePurchaseAccess();
   const state = useListState();
   const query = useRequests(state.params);
-  const canCreate = can(PURCHASE_MENU.documents, 'create');
+  const canCreate = canCreateRequest(can);
 
   return (
     <ListShell
@@ -34,28 +35,46 @@ export const RequestList = () => {
         label: t(`status.${status}`),
       }))}
       columns={[
-        { key: 'number', label: t('common.number') },
-        { key: 'date', label: t('common.date') },
-        { key: 'purpose', label: t('common.purpose'), minWidth: 200 },
+        { key: 'number', label: t('hub.requests.colRequest') },
+        { key: 'purpose', label: t('common.purpose'), minWidth: 220 },
         { key: 'department', label: t('common.department') },
-        { key: 'mode', label: t('hub.requests.mode') },
+        { key: 'route', label: t('hub.requests.route') },
         { key: 'status', label: t('common.status') },
-        { key: 'items', label: t('hub.requests.items'), align: 'right' },
       ]}
       rows={query.data?.items}
       getKey={(row) => row.id}
       onRowClick={(row) => navigate(detailPath('request', row.id))}
       renderCells={(row) => (
         <>
-          <NumberCell kind="request" id={row.id} number={row.number} />
-          <TextCell value={formatDay(row.date, currentLanguage)} />
-          <TextCell value={row.purpose} maxWidth={320} />
-          <TextCell value={row.department} dimmed />
-          <TextCell value={t(`hub.requests.modes.${row.mode}`)} dimmed />
-          <Table.Td>
-            <StatusBadge status={row.status} />
+          <NumberCell
+            kind="request"
+            id={row.id}
+            number={row.number}
+            sub={[formatDay(row.date, currentLanguage), row.requester?.name]
+              .filter(Boolean)
+              .join(' · ')}
+          />
+          <Table.Td style={{ maxWidth: 340 }}>
+            <Text size="sm" fw={500} truncate>
+              {row.purpose || '-'}
+            </Text>
+            {row.requiredDate && (
+              <Text size="xs" c="dimmed">
+                {t('hub.requests.neededOn', {
+                  date: formatDay(row.requiredDate, currentLanguage),
+                })}
+              </Text>
+            )}
           </Table.Td>
-          <TextCell value={String(row.items.length)} dimmed />
+          <TextCell value={row.department?.name ?? ''} />
+          <Table.Td>
+            <Text size="sm" c={row.route ? undefined : 'dimmed'}>
+              {row.route ? t(`hub.requests.routes.${row.route}`) : '-'}
+            </Text>
+          </Table.Td>
+          <Table.Td>
+            <StatusBadge status={row.status} label={row.statusLabel} />
+          </Table.Td>
         </>
       )}
       isLoading={query.isLoading}
@@ -67,6 +86,12 @@ export const RequestList = () => {
       totalPages={query.data?.totalPages ?? 0}
       totalResults={query.data?.totalResults ?? 0}
       onPageChange={state.setPage}
+      noun={t('list.nouns.request')}
+      limit={state.limit}
+      onLimitChange={state.setLimit}
+      rowActions={(row) => [
+        viewAction(t('list.view'), () => navigate(detailPath('request', row.id))),
+      ]}
       empty={{
         icon: <IconFilePlus size={32} stroke={1.6} />,
         title: t('hub.requests.emptyTitle'),

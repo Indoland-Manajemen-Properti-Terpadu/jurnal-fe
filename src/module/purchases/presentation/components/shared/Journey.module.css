@@ -1,0 +1,49 @@
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 30px 1fr;
+  column-gap: var(--mantine-spacing-md);
+  padding-bottom: var(--mantine-spacing-lg);
+}
+
+.item:last-child {
+  padding-bottom: 0;
+}
+
+/* The line from this circle down to the next; solid brand blue once this step is done. */
+.item:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  left: 14px;
+  top: 32px;
+  bottom: 2px;
+  width: 2px;
+  background: var(--mantine-color-gray-3);
+}
+
+.item[data-done='true']:not(:last-child)::before {
+  background: var(--mantine-color-primary-6);
+}
+
+.marker {
+  flex-shrink: 0;
+}
+
+.body {
+  min-width: 0;
+  padding-top: 3px;
+}
+
+.doc {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  margin-top: 2px;
+}

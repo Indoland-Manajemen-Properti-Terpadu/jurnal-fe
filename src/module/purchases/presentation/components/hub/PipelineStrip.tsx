@@ -1,41 +1,29 @@
-import { Text, ThemeIcon } from '@mantine/core';
-import {
-  IconFileText,
-  IconPackage,
-  IconReceipt2,
-  IconRoute,
-  IconTruckDelivery,
-  IconWallet,
-  type Icon,
-} from '@tabler/icons-react';
+import { Group, Text } from '@mantine/core';
+import { IconArrowRight, IconRoute } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
-import type { CanFn, ListTab } from '@/module/purchases/presentation/components/hub/hubTabs';
+import type { DashboardSummary, FlowStage } from '@/module/purchases/domain/dashboard';
+import type { ListTab } from '@/module/purchases/presentation/components/hub/hubTabs';
 import classes from '@/module/purchases/presentation/components/hub/PipelineStrip.module.css';
-import {
-  usePipelineCounts,
-  type PipelineStage,
-} from '@/module/purchases/presentation/components/hub/usePipelineCounts';
 import { SectionCard } from '@/module/purchases/presentation/components/shared/SectionCard';
 
-const STAGE_ICON: Record<PipelineStage, Icon> = {
-  requests: IconFileText,
-  orders: IconPackage,
-  receipts: IconTruckDelivery,
-  bills: IconReceipt2,
-  payments: IconWallet,
+const TAB: Record<FlowStage['key'], ListTab> = {
+  request: 'requests',
+  order: 'orders',
+  receipt: 'receipts',
+  bill: 'bills',
+  payment: 'payments',
 };
 
 interface PipelineStripProps {
-  can: CanFn;
+  summary: DashboardSummary;
+  /** Lists the user may open; a stage the user cannot read is shown without a link. */
+  canOpen: (tab: ListTab) => boolean;
   onOpen: (tab: ListTab) => void;
 }
 
-/** The buying chain as five connected steps; each opens its list. */
-export const PipelineStrip = ({ can, onOpen }: Readonly<PipelineStripProps>) => {
+/** "Alur pembelian": one box per stage with the documents still in progress; each opens its list. */
+export const PipelineStrip = ({ summary, canOpen, onOpen }: Readonly<PipelineStripProps>) => {
   const { t } = useTranslation('purchases');
-  const counts = usePipelineCounts(can).filter((item) => item.total !== null);
-  if (counts.length === 0) return null;
-
   return (
     <SectionCard
       icon={IconRoute}
@@ -43,29 +31,60 @@ export const PipelineStrip = ({ can, onOpen }: Readonly<PipelineStripProps>) => 
       subtitle={t('hub.overview.pipelineSubtitle')}
     >
       <div className={classes.steps}>
-        {counts.map(({ stage, total }) => {
-          const StageIcon = STAGE_ICON[stage];
-          return (
-            <button
-              key={stage}
-              type="button"
-              className={classes.step}
-              onClick={() => onOpen(stage)}
+        {summary.flow.map(({ key, count }) => (
+          <button
+            key={key}
+            type="button"
+            className={classes.step}
+            disabled={!canOpen(TAB[key])}
+            onClick={() => onOpen(TAB[key])}
+          >
+            <span className={classes.head}>
+              <Text fz="sm" fw={600}>
+                {t(`hub.overview.stage.${key}`)}
+              </Text>
+              <IconArrowRight size={14} color="var(--mantine-color-dimmed)" aria-hidden />
+            </span>
+            <Text
+              fz={28}
+              fw={700}
+              lh={1.1}
+              c="primary.8"
+              style={{ fontVariantNumeric: 'tabular-nums' }}
             >
-              <span className={classes.orb}>
-                <ThemeIcon variant="light" color="primary" size={40} radius="xl">
-                  <StageIcon size={20} stroke={1.8} />
-                </ThemeIcon>
-              </span>
-              <Text fz="xs" c="dimmed" fw={500}>
-                {t(`hub.tabs.${stage}`)}
-              </Text>
-              <Text fz="xl" fw={700} lh={1.1} style={{ fontVariantNumeric: 'tabular-nums' }}>
-                {total}
-              </Text>
-            </button>
-          );
-        })}
+              {count}
+            </Text>
+          </button>
+        ))}
+      </div>
+    </SectionCard>
+  );
+};
+
+/** "Pengadaan": how many requests run through bidding and as a single vendor, and any past their date. */
+export const ProcurementCard = ({ summary }: Readonly<{ summary: DashboardSummary }>) => {
+  const { t } = useTranslation('purchases');
+  const { bidding, single, pastRequiredDate } = summary.procurement;
+  const row = (label: string, value: string, danger = false) => (
+    <Group justify="space-between" py={4} wrap="nowrap">
+      <Text size="sm" c="dimmed">
+        {label}
+      </Text>
+      <Text size="sm" fw={danger ? 700 : 600} c={danger ? 'red.7' : undefined}>
+        {value}
+      </Text>
+    </Group>
+  );
+  return (
+    <SectionCard
+      icon={IconRoute}
+      title={t('hub.overview.procurementTitle')}
+      subtitle={t('hub.overview.procurementSubtitle')}
+    >
+      <div>
+        {row(t('hub.overview.bidding'), t('hub.overview.requestsCount', { count: bidding }))}
+        {row(t('hub.overview.single'), t('hub.overview.requestsCount', { count: single }))}
+        {row(t('hub.overview.pastRequiredLabel'), String(pastRequiredDate), pastRequiredDate > 0)}
       </div>
     </SectionCard>
   );

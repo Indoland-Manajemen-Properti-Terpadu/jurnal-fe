@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Alert, Button, Group, Modal, NumberInput, Radio, Stack, Text } from '@mantine/core';
+import { Alert, Button, Group, NumberInput, Radio, Stack, Text } from '@mantine/core';
+import { ModalFrame } from '@/components/Modals/ModalFrame';
 import { IconInfoCircle } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import type { PurchaseBill, VendorCreditLine } from '@/module/purchases/domain/purchaseDocuments';
@@ -68,108 +69,102 @@ export const ApplyCreditModal = ({ bill, opened, onClose }: Readonly<ApplyCredit
   };
 
   return (
-    <Modal
+    <ModalFrame
       opened={opened}
       onClose={close}
-      title={t('bills.apply.title')}
-      centered
-      radius="lg"
       size="lg"
-    >
-      <Stack gap="md">
-        <Text size="sm" c="dimmed">
-          {t('bills.apply.description', { vendor: bill.vendor.name })}
-        </Text>
-
-        {credits.isLoading && <Text size="sm">{t('bills.apply.loading')}</Text>}
-        {credits.isError && (
-          <Alert color="red" variant="light" radius="md">
-            {t('list.errorDescription')}
-          </Alert>
-        )}
-        {credits.data && lines.length === 0 && (
-          <Alert color="gray" variant="light" radius="md" icon={<IconInfoCircle size={18} />}>
-            {t('bills.apply.none')}
-          </Alert>
-        )}
-
-        {lines.length > 0 && (
-          <Radio.Group
-            value={selectedKey}
-            onChange={choose}
-            label={t('bills.apply.pick')}
-            withAsterisk
-          >
-            <Stack gap="xs" mt="xs">
-              {lines.map((line) => (
-                <Radio
-                  key={keyOf(line)}
-                  value={keyOf(line)}
-                  label={
-                    <Group justify="space-between" wrap="nowrap" gap="md" w="100%">
-                      <div>
-                        <Text size="sm" fw={500}>
-                          {line.source === 'RETURN'
-                            ? t('bills.credits.sourceReturn')
-                            : t('bills.credits.sourceAdvance')}{' '}
-                          {line.number}
-                        </Text>
-                        <Text size="xs" c="dimmed">
-                          {formatDay(line.date, currentLanguage)}
-                        </Text>
-                      </div>
-                      <Text
-                        size="sm"
-                        style={{ whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}
-                      >
-                        {t('bills.apply.available', { amount: formatAmount(line.available) })}
-                      </Text>
-                    </Group>
-                  }
-                  styles={{ label: { width: '100%' }, body: { width: '100%' } }}
-                />
-              ))}
-            </Stack>
-          </Radio.Group>
-        )}
-
-        {selected && (
-          <Group align="flex-start" grow>
-            <NumberInput
-              radius="md"
-              label={t('bills.apply.amount')}
-              description={t('bills.apply.maxHint', { max: formatAmount(max) })}
-              value={amount}
-              min={0}
-              max={max}
-              hideControls
-              allowNegative={false}
-              thousandSeparator="."
-              decimalSeparator=","
-              prefix="Rp "
-              onChange={(value) =>
-                setAmount(value === '' ? '' : Math.min(Math.max(Number(value), 0), max))
-              }
-            />
-            <DateField
-              withAsterisk
-              label={t('bills.apply.date')}
-              value={date}
-              minDate={bill.date}
-              onChange={setDate}
-            />
-          </Group>
-        )}
-
-        <Group justify="flex-end" gap="sm">
+      title={t('bills.apply.title')}
+      description={t('bills.apply.description', { vendor: bill.vendor.name })}
+      footer={
+        <>
           <Button variant="default" onClick={close} disabled={apply.isPending}>
             {t('common.cancel')}
           </Button>
           <Button loading={apply.isPending} disabled={!valid} onClick={submit}>
             {t('bills.apply.submit')}
           </Button>
+        </>
+      }
+    >
+      {credits.isLoading && <Text size="sm">{t('bills.apply.loading')}</Text>}
+      {credits.isError && (
+        <Alert color="red" variant="light" radius="md">
+          {t('list.errorDescription')}
+        </Alert>
+      )}
+      {credits.data && lines.length === 0 && (
+        <Alert color="gray" variant="light" radius="md" icon={<IconInfoCircle size={18} />}>
+          {t('bills.apply.none')}
+        </Alert>
+      )}
+
+      {lines.length > 0 && (
+        <Radio.Group
+          value={selectedKey}
+          onChange={choose}
+          label={t('bills.apply.pick')}
+          withAsterisk
+        >
+          <Stack gap="xs" mt="xs">
+            {lines.map((line) => (
+              <Radio
+                key={keyOf(line)}
+                value={keyOf(line)}
+                label={
+                  <Group justify="space-between" wrap="nowrap" gap="md" w="100%">
+                    <div>
+                      <Text size="sm" fw={500}>
+                        {line.source === 'RETURN'
+                          ? t('bills.credits.sourceReturn')
+                          : t('bills.credits.sourceAdvance')}{' '}
+                        {line.number}
+                      </Text>
+                      <Text size="xs" c="dimmed">
+                        {formatDay(line.date, currentLanguage)}
+                      </Text>
+                    </div>
+                    <Text
+                      size="sm"
+                      style={{ whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}
+                    >
+                      {t('bills.apply.available', { amount: formatAmount(line.available) })}
+                    </Text>
+                  </Group>
+                }
+                styles={{ label: { width: '100%' }, body: { width: '100%' } }}
+              />
+            ))}
+          </Stack>
+        </Radio.Group>
+      )}
+
+      {selected && (
+        <Group align="flex-start" grow>
+          <NumberInput
+            radius="md"
+            label={t('bills.apply.amount')}
+            description={t('bills.apply.maxHint', { max: formatAmount(max) })}
+            value={amount}
+            min={0}
+            max={max}
+            hideControls
+            allowNegative={false}
+            thousandSeparator="."
+            decimalSeparator=","
+            prefix="Rp "
+            onChange={(value) =>
+              setAmount(value === '' ? '' : Math.min(Math.max(Number(value), 0), max))
+            }
+          />
+          <DateField
+            withAsterisk
+            label={t('bills.apply.date')}
+            value={date}
+            minDate={bill.date}
+            onChange={setDate}
+          />
         </Group>
-      </Stack>
-    </Modal>
+      )}
+    </ModalFrame>
   );
 };

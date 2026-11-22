@@ -1,101 +1,99 @@
-import type {
-  DiscountType,
-  ProcurementMode,
-  WithholdingType,
-} from '@/module/purchases/domain/purchaseDocuments';
+import type { RequestItemKind } from '@/module/purchases/domain/purchaseRequest';
 
 /** What a form submits. Dates are `YYYY-MM-DD`; optional fields are left out when empty. */
 
 export interface RequestItemInput {
   product?: string;
+  kind: RequestItemKind;
   description: string;
+  specification: string;
   quantity: number;
+  unit?: string;
 }
 
+/** The body of a create or update. The service keeps what a PUT leaves out, so every field is sent. */
 export interface PurchaseRequestInput {
   transactionDate: string;
-  requiredDate?: string;
-  department?: string;
-  purpose?: string;
-  procurementMode: ProcurementMode;
-  memo?: string;
+  requiredDate: string;
+  department: string;
+  purpose: string;
+  iom: { number: string; date: string | null };
+  memo: string;
   items: RequestItemInput[];
-}
-
-export interface QuotationInput {
-  vendor: string;
-  quotationNumber?: string;
-  quotationDate: string;
-  validUntil?: string;
-  notes?: string;
-  items: { requestItem: string; quantity: number; unitPrice: number }[];
-}
-
-export interface OrderItemInput {
-  requestItem: string;
-  unitPrice: number;
-  tax?: string;
-}
-
-export interface OrderPricing {
-  isPriceIncludeTax: boolean;
-  discountType?: DiscountType;
-  discountValue?: number;
-  withholdingType?: WithholdingType;
-  withholdingValue?: number;
-  withholdingTaxCode?: string;
-}
-
-export interface PurchaseOrderInput extends OrderPricing {
-  purchaseRequest: string;
-  transactionDate: string;
-  expectedDate?: string;
-  /** Required for a direct request; a request with quotations takes the chosen vendor. */
-  vendor?: string;
-  paymentTerm?: string;
-  deliveryAddress?: string;
-  memo?: string;
-  items: OrderItemInput[];
 }
 
 export interface GoodsReceiptInput {
   purchaseOrder: string;
   transactionDate: string;
+  /** Required when more than one warehouse is active and the order has stocked goods. */
+  warehouse?: string;
   deliveryNote?: string;
   memo?: string;
-  items: { purchaseOrderItem: string; receivedQty: number }[];
+  items: { purchaseOrderItem: string; receivedQty: number; rejectedQty?: number }[];
 }
 
-export interface PurchaseBillInput {
-  purchaseOrder: string;
+export type DiscountKind = 'percentage' | 'nominal';
+
+/** The header a bill takes whatever its source; dates are `YYYY-MM-DD`. */
+export interface BillHeaderInput {
   transactionDate: string;
   vendorInvoiceNumber?: string;
+  taxInvoiceNumber?: string;
   vendorInvoiceTotal?: number;
-  dueDate?: string;
   paymentTerm?: string;
+  dueDate?: string;
+  discountType?: DiscountKind;
+  discountValue?: number;
+  withholdingType?: DiscountKind;
+  withholdingValue?: number;
+  withholdingTaxCode?: string;
+  /** Ids of transaction tags. */
+  tags?: string[];
   memo?: string;
-  /** Left out, the whole received and not yet billed quantity is billed. */
-  items?: { purchaseOrderItem: string; quantity: number; unitPrice?: number; tax?: string }[];
+  /** Creates the bill already verified. */
+  post?: boolean;
+  /** Goes on verifying even though the vendor's prices differ from the order. */
+  acknowledgeVariance?: boolean;
 }
 
-export interface PaymentVoucherInput {
-  type?: 'ADVANCE';
-  transactionDate: string;
-  vendor: string;
-  paymentMethod?: string;
-  referenceNumber?: string;
+export interface ManualBillItemInput {
+  product?: string;
+  account?: string;
+  description: string;
+  quantity: number;
+  unitPrice: number;
+  tax?: string;
+}
+
+export type PurchaseBillInput = BillHeaderInput &
+  (
+    | { source: 'RECEIPT'; goodsReceipts: string[] }
+    | { source: 'ORDER'; purchaseOrders: string[] }
+    | { source: 'MANUAL'; vendor: string; items: ManualBillItemInput[] }
+  );
+
+/** A draft bill changes its header only; the lines follow the receipts or the order. A cleared field is sent empty or null. */
+export interface BillUpdateInput {
+  transactionDate?: string;
+  vendorInvoiceNumber?: string;
+  taxInvoiceNumber?: string;
+  vendorInvoiceTotal?: number;
+  dueDate?: string;
+  discountType?: DiscountKind | null;
+  discountValue?: number;
+  withholdingType?: DiscountKind | null;
+  withholdingValue?: number;
+  withholdingTaxCode?: string;
+  tags?: string[];
   memo?: string;
-  /** Bill vouchers only. */
-  items?: { bill: string; amount: number }[];
-  /** Advance vouchers only. */
-  amount?: number;
-  purchaseOrder?: string;
 }
 
 export interface PurchaseReturnInput {
   bill: string;
   transactionDate: string;
   reason: string;
+  settlement: 'DEDUCT' | 'CREDIT' | 'REFUND';
+  warehouse?: string;
   memo?: string;
   items: { billItem: string; quantity: number }[];
 }
@@ -106,3 +104,17 @@ export interface CreditApplicationInput {
   amount: number;
   transactionDate: string;
 }
+
+/** What can change on a draft PO / SPK; a field sent as null or empty is cleared. */
+export interface OrderDraftInput {
+  transactionDate: string;
+  expectedDate: string | null;
+  warehouse?: string | null;
+  deliveryAddress: string;
+  memo: string;
+}
+
+/** Marking an order as sent, with or without an email to the vendor. */
+export type SendOrderInput =
+  | { sendEmail: false; note?: string }
+  | { sendEmail: true; to?: string; cc?: string[]; note?: string };

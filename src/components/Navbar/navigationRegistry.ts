@@ -139,12 +139,20 @@ export const navigationSections: NavSection[] = [
         menus: [...NAV_MENU.purchases],
         children: [
           child('purchasesOverview', SquaresFour, routes.purchases.main),
-          child('purchasesRequests', FileText, routes.purchases.requests),
-          child('purchasesOrders', Package, routes.purchases.orders),
-          child('purchasesReceipts', Truck, routes.purchases.receipts),
-          child('purchasesBills', Receipt, routes.purchases.bills),
-          child('purchasesPayments', Wallet, routes.purchases.payments),
-          child('purchasesReturns', ArrowUUpLeft, routes.purchases.returns),
+          child('purchasesRequests', FileText, routes.purchases.requests, [
+            ...NAV_MENU.purchaseRequests,
+          ]),
+          child('purchasesOrders', Package, routes.purchases.orders, [...NAV_MENU.purchaseOrders]),
+          child('purchasesReceipts', Truck, routes.purchases.receipts, [
+            ...NAV_MENU.purchaseReceipts,
+          ]),
+          child('purchasesBills', Receipt, routes.purchases.bills, [...NAV_MENU.purchaseBills]),
+          child('purchasesPayments', Wallet, routes.purchases.payments, [
+            ...NAV_MENU.purchasePayments,
+          ]),
+          child('purchasesReturns', ArrowUUpLeft, routes.purchases.returns, [
+            ...NAV_MENU.purchaseReturns,
+          ]),
           child('payables', ChartBar, routes.purchases.payables, [...NAV_MENU.payables]),
         ],
       },
@@ -303,6 +311,12 @@ const extraTitles: TitleEntry[] = [
   { prefix: '/setting-budget', titleKey: 'budgetPlanning', groupKey: 'groupAccounting' },
   { prefix: '/settings/company-setting', titleKey: 'companySettings', groupKey: 'groupSettings' },
   { prefix: '/settings/user-management', titleKey: 'userManagement', groupKey: 'groupSettings' },
+  // Payment Requests are made and read on the Pembayaran page.
+  {
+    prefix: '/purchases/payment-requests',
+    titleKey: 'purchasesPayments',
+    groupKey: 'groupTransactions',
+  },
   { prefix: '/profile', titleKey: 'profile', groupKey: 'groupAccount' },
   // Old spelling kept so a bookmarked address still shows a title.
   { prefix: '/asset', titleKey: 'assets', groupKey: 'groupAccounting' },

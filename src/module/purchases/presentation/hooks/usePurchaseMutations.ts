@@ -1,13 +1,19 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import type { PayInput, PaymentVoucherInput } from '@/module/purchases/domain/paymentForm';
+import type {
+  PaymentRequestInput,
+  PaymentRequestUpdate,
+} from '@/module/purchases/domain/paymentRequest';
+import type { RefundInput } from '@/module/purchases/domain/returnForm';
+import type { ProcurementInput } from '@/module/purchases/domain/procurement';
 import type {
   CreditApplicationInput,
   GoodsReceiptInput,
-  PaymentVoucherInput,
+  OrderDraftInput,
   PurchaseBillInput,
-  PurchaseOrderInput,
   PurchaseRequestInput,
   PurchaseReturnInput,
-  QuotationInput,
+  SendOrderInput,
 } from '@/module/purchases/domain/purchaseInputs';
 import * as api from '@/module/purchases/infrastructure/purchaseApi';
 import { purchaseKeys } from '@/module/purchases/presentation/hooks/purchaseKeys';
@@ -23,7 +29,9 @@ import { usePurchaseScope } from '@/module/purchases/presentation/hooks/usePurch
 const useAction = <Variables, Result extends { number?: string }>(
   successKey: string,
   run: (variables: Variables) => Promise<Result>,
-  onDone?: (result: Result) => void
+  onDone?: (result: Result) => void,
+  /** An error the screen answers itself (a question to confirm); no failure message is shown for it. */
+  isHandled?: (error: unknown) => boolean
 ) => {
   const client = useQueryClient();
   const scope = usePurchaseScope();
@@ -37,7 +45,7 @@ const useAction = <Variables, Result extends { number?: string }>(
       onDone?.(result);
     },
     onError: async (error) => {
-      notify.failure(error);
+      if (!isHandled?.(error)) notify.failure(error);
       await refresh();
     },
   });
@@ -47,7 +55,7 @@ type WithId = { id: string };
 type WithReason = WithId & { reason: string };
 type Doc = { number: string };
 
-/* ---------- Purchase request ---------- */
+/* ---------- Purchase request (FPPBJ) ---------- */
 export const useCreateRequest = (onDone?: (doc: WithId & Doc) => void) =>
   useAction('created', (input: PurchaseRequestInput) => api.createRequest(input), onDone);
 export const useUpdateRequest = (onDone?: (doc: WithId & Doc) => void) =>
@@ -58,42 +66,70 @@ export const useUpdateRequest = (onDone?: (doc: WithId & Doc) => void) =>
   );
 export const useSubmitRequest = () =>
   useAction('submitted', ({ id }: WithId) => api.submitRequest(id));
-export const useApproveRequest = () =>
-  useAction('approved', ({ id, note }: WithId & { note?: string }) => api.approveRequest(id, note));
-export const useRejectRequest = () =>
-  useAction('rejected', ({ id, reason }: WithReason) => api.rejectRequest(id, reason));
+export const useVerifyRequest = () =>
+  useAction('requestVerified', ({ id, note }: WithId & { note?: string }) =>
+    api.verifyRequest(id, note)
+  );
+export const useReturnRequest = () =>
+  useAction('requestReturned', ({ id, note }: WithId & { note: string }) =>
+    api.returnRequest(id, note)
+  );
 export const useCancelRequest = () =>
   useAction('cancelled', ({ id, reason }: WithReason) => api.cancelRequest(id, reason));
-export const useSaveQuotations = () =>
-  useAction('quotationsSaved', ({ id, quotations }: WithId & { quotations: QuotationInput[] }) =>
-    api.saveQuotations(id, quotations)
+
+/* ---------- Procurement ---------- */
+export const useSaveProcurement = () =>
+  useAction('procurementSaved', ({ id, input }: WithId & { input: ProcurementInput }) =>
+    api.saveProcurement(id, input)
   );
-export const useSelectQuotation = () =>
-  useAction('vendorSelected', ({ id, quotationId }: WithId & { quotationId: string }) =>
-    api.selectQuotation(id, quotationId)
+export const useSubmitProcurement = () =>
+  useAction('procurementSubmitted', ({ id }: WithId) => api.submitProcurement(id));
+export const useApproveProcurement = () =>
+  useAction('procurementApproved', ({ id, note }: WithId & { note?: string }) =>
+    api.approveProcurement(id, note)
   );
+export const useRejectProcurement = () =>
+  useAction('procurementRejected', ({ id, reason }: WithReason) =>
+    api.rejectProcurement(id, reason)
+  );
+export const useCreateOrdersFromProcurement = () =>
+  useAction('ordersCreated', ({ id }: WithId) => api.createOrdersFromProcurement(id));
 
 /* ---------- Purchase order ---------- */
-export const useCreateOrder = (onDone?: (doc: WithId & Doc) => void) =>
-  useAction('created', (input: PurchaseOrderInput) => api.createOrder(input), onDone);
-export const useSubmitOrder = () => useAction('submitted', ({ id }: WithId) => api.submitOrder(id));
-export const useApproveOrder = () =>
-  useAction('approved', ({ id, note }: WithId & { note?: string }) => api.approveOrder(id, note));
-export const useRejectOrder = () =>
-  useAction('rejected', ({ id, reason }: WithReason) => api.rejectOrder(id, reason));
-export const useCloseOrder = () => useAction('closed', ({ id }: WithId) => api.closeOrder(id));
+export const useUpdateOrder = (onDone?: (doc: WithId & Doc) => void) =>
+  useAction(
+    'updated',
+    ({ id, input }: WithId & { input: OrderDraftInput }) => api.updateOrder(id, input),
+    onDone
+  );
+export const useSendOrder = () =>
+  useAction('orderSent', ({ id, input }: WithId & { input: SendOrderInput }) =>
+    api.sendOrder(id, input)
+  );
+export const useCloseOrder = () =>
+  useAction('closed', ({ id, note }: WithId & { note: string }) => api.closeOrder(id, note));
 export const useVoidOrder = () =>
   useAction('voided', ({ id, reason }: WithReason) => api.voidOrder(id, reason));
 
 /* ---------- Goods receipt ---------- */
 export const useCreateReceipt = (onDone?: (doc: WithId & Doc) => void) =>
   useAction('received', (input: GoodsReceiptInput) => api.createReceipt(input), onDone);
+export const useApproveReceipt = () =>
+  useAction('receiptApproved', ({ id, note }: WithId & { note?: string }) =>
+    api.approveReceipt(id, note)
+  );
+export const useRejectReceipt = () =>
+  useAction('receiptRejected', ({ id, reason }: WithReason) => api.rejectReceipt(id, reason));
+export const useResubmitReceipt = () =>
+  useAction('receiptResubmitted', ({ id }: WithId) => api.resubmitReceipt(id));
 export const useVoidReceipt = () =>
   useAction('voided', ({ id, reason }: WithReason) => api.voidReceipt(id, reason));
 
 /* ---------- Bill ---------- */
-export const useCreateBill = (onDone?: (doc: WithId & Doc) => void) =>
-  useAction('created', (input: PurchaseBillInput) => api.createBill(input), onDone);
+export const useCreateBill = (
+  onDone?: (doc: WithId & Doc) => void,
+  isHandled?: (error: unknown) => boolean
+) => useAction('created', (input: PurchaseBillInput) => api.createBill(input), onDone, isHandled);
 export const useVerifyBill = () =>
   useAction('verified', ({ id, acknowledgeVariance }: WithId & { acknowledgeVariance: boolean }) =>
     api.verifyBill(id, acknowledgeVariance)
@@ -125,16 +161,32 @@ export const useVoidCreditApplication = () =>
     }
   );
 
+/* ---------- Payment Request ---------- */
+export const useCreatePaymentRequest = (onDone?: (doc: WithId & Doc) => void) =>
+  useAction('created', (input: PaymentRequestInput) => api.createPaymentRequest(input), onDone);
+export const useUpdatePaymentRequest = (onDone?: (doc: WithId & Doc) => void) =>
+  useAction(
+    'updated',
+    ({ id, input }: WithId & { input: PaymentRequestUpdate }) =>
+      api.updatePaymentRequest(id, input),
+    onDone
+  );
+export const useSubmitPaymentRequest = () =>
+  useAction('submitted', ({ id }: WithId) => api.submitPaymentRequest(id));
+export const useApprovePaymentRequest = () =>
+  useAction('approved', ({ id, note }: WithId & { note?: string }) =>
+    api.approvePaymentRequest(id, note)
+  );
+export const useRejectPaymentRequest = () =>
+  useAction('rejected', ({ id, reason }: WithReason) => api.rejectPaymentRequest(id, reason));
+export const useCancelPaymentRequest = () =>
+  useAction('cancelled', ({ id, reason }: WithReason) => api.cancelPaymentRequest(id, reason));
+
 /* ---------- Payment voucher ---------- */
 export const useCreatePayment = (onDone?: (doc: WithId & Doc) => void) =>
   useAction('created', (input: PaymentVoucherInput) => api.createPayment(input), onDone);
-export const useSubmitPayment = () =>
-  useAction('submitted', ({ id }: WithId) => api.submitPayment(id));
-export const useApprovePayment = () =>
-  useAction('approved', ({ id, note }: WithId & { note?: string }) => api.approvePayment(id, note));
-export const useRejectPayment = () =>
-  useAction('rejected', ({ id, reason }: WithReason) => api.rejectPayment(id, reason));
-export const usePayVoucher = () => useAction('paid', ({ id }: WithId) => api.payVoucher(id));
+export const usePayVoucher = () =>
+  useAction('paid', ({ id, input }: WithId & { input: PayInput }) => api.payVoucher(id, input));
 export const useVoidPayment = () =>
   useAction('voided', ({ id, reason }: WithReason) => api.voidPayment(id, reason));
 
@@ -142,6 +194,10 @@ export const useVoidPayment = () =>
 export const useCreateReturn = (onDone?: (doc: WithId & Doc) => void) =>
   useAction('created', (input: PurchaseReturnInput) => api.createReturn(input), onDone);
 export const usePostReturn = () => useAction('posted', ({ id }: WithId) => api.postReturn(id));
+export const useRefundReturn = () =>
+  useAction('refunded', ({ id, input }: WithId & { input: RefundInput }) =>
+    api.refundReturn(id, input)
+  );
 export const useVoidReturn = () =>
   useAction('voided', ({ id, reason }: WithReason) => api.voidReturn(id, reason));
 
@@ -149,8 +205,21 @@ export const useVoidReturn = () =>
 export const useUploadAttachments = () =>
   useAction(
     'uploaded',
-    async ({ target, id, files }: { target: api.AttachmentTarget; id: string; files: File[] }) => {
-      await api.uploadAttachments(target, id, files);
+    async ({
+      target,
+      id,
+      files,
+      requestFile,
+      quoteId,
+    }: {
+      target: api.AttachmentTarget;
+      id: string;
+      files: File[];
+      /** On an FPPBJ: the request itself, its IOM memo or one quote. */
+      requestFile?: api.RequestFileTarget;
+      quoteId?: string;
+    }) => {
+      await api.uploadAttachments(target, id, files, requestFile, quoteId);
       return {} as { number?: string };
     }
   );
