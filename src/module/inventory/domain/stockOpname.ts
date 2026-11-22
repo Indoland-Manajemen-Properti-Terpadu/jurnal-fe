@@ -258,6 +258,7 @@ export interface OpnameInputIssues {
   warehouse?: 'warehouse' | 'warehouseBusy';
   date?: 'date';
   products?: 'products';
+  categories?: 'categories';
 }
 
 /** What is wrong with a new count before it is sent; empty when it can be created. */
@@ -272,6 +273,9 @@ export const validateOpnameInput = (
   if (!input.date || input.date > today) issues.date = 'date';
   if (input.scope.type === 'manual' && input.scope.productIds.length === 0) {
     issues.products = 'products';
+  }
+  if (input.scope.type === 'category' && input.scope.categoryIds.length === 0) {
+    issues.categories = 'categories';
   }
   return issues;
 };

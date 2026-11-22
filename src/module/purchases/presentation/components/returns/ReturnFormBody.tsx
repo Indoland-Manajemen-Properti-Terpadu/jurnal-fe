@@ -35,6 +35,7 @@ import { PageFrame } from '@/module/purchases/presentation/components/shared/Pag
 import { SectionCard } from '@/module/purchases/presentation/components/shared/SectionCard';
 import { useCreateReturn } from '@/module/purchases/presentation/hooks/usePurchaseMutations';
 import { useWarehouseOptions } from '@/module/purchases/presentation/hooks/usePurchaseQueries';
+import { useFrozenWarehouses } from '@/module/inventory';
 import { routes } from '@/router/routes';
 
 const returnDetail = (id: string) => routes.purchases.returnDetail.replace(':id', id);
@@ -66,6 +67,8 @@ export const ReturnFormBody = ({ bill, initial, editing }: Readonly<ReturnFormBo
   const canDeduct = bill.status !== 'PAID' && bill.remainingAmount > 0;
   const hasStock = bill.items.some((item) => item.product?.isInventory);
   const { data: warehouses = [] } = useWarehouseOptions();
+  const frozen = useFrozenWarehouses();
+  const { t: tf } = useTranslation('stockTake');
   const patch = (next: Partial<ReturnFormValues>) =>
     setValues((current) => ({ ...current, ...next }));
   const back = editing ? returnDetail(editing.id) : billDetail(bill.id);
@@ -171,7 +174,16 @@ export const ReturnFormBody = ({ bill, initial, editing }: Readonly<ReturnFormBo
                       label={t('returns.form.warehouse')}
                       placeholder={t('returns.form.warehousePlaceholder')}
                       description={t('returns.form.warehouseHint')}
-                      data={warehouses.map((item) => ({ value: item.id, label: item.name }))}
+                      data={warehouses.map((item) => {
+                        const holder = frozen.get(item.id);
+                        return {
+                          value: item.id,
+                          label: holder
+                            ? `${item.name} (${tf('frozen.warehouse', { number: holder.number })})`
+                            : item.name,
+                          disabled: holder !== undefined,
+                        };
+                      })}
                       value={values.warehouseId || null}
                       onChange={(id) => patch({ warehouseId: id ?? '' })}
                     />

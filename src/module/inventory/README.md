@@ -103,17 +103,18 @@ Count the stock on the shelves, compare it with the book balance, and adjust the
 
 **Behaviour**
 
+- The scope of a count is all products, a category list, or hand-picked products.
 - Blind count: for a person without review or approve rights the service omits the book balance, difference, price and value. The screen draws no such column or card (never zero) and hides the difference tab.
 - Every field of a line saves by itself when it is left; the answer replaces the count so the difference and the allowed reasons stay the server's. The reasons offered follow the direction of the difference (a shortage can be lost, a surplus found). A reason "Lainnya" needs a note; a surplus of a product with no price needs a unit cost.
 - Submit stays off until every product is counted (0 is a count) and every difference is complete, and says how many are missing. Reject and cancel need a reason; the dialog refuses blank or spaces.
-- A count freezes its warehouse while it is counting or waiting for approval: the transfer form disables that warehouse and the transfer detail hides "Batalkan" with a banner. The warehouse detail links to its running and last count and offers "Buat opname".
+- A count freezes its warehouse while it is counting or waiting for approval: the transfer, receipt and return forms disable that warehouse, and the transfer detail hides "Batalkan" with a banner. The warehouse detail links to its running and last count and offers "Buat opname".
 - The number of a stock count in the movement history links to the count.
 - Difference accounts are one row per reason in Settings ("Akun Selisih Opname"); the preview warns, with a link, when a reason still has no account.
 
 ## Known gaps (stock count)
 
-- Scope by product category is not offered: the form takes all products or a hand-picked list (the service supports category scope; the picker needs the category list from the products module).
 - A draft cannot be edited or deleted from the screen (the service has `PUT` for the header, no delete). Cancel it instead.
-- Print of the count sheet and of the minutes (berita acara) are not built; there is no agreed print format.
-- The freeze is enforced by the service for transfers; purchase receipts and returns, and product edits during a count, are not checked on their own screens yet.
-- "Opname berjalan" for the transfer form comes from the first 100 counts; a site with more open counts than that needs a filter on the list endpoint.
+- Print is built as a browser print window (count sheet without book balance; minutes with differences, journal and signatures). The minutes list the journal by account, not an account per line.
+- The freeze is enforced by the service for transfers. The warehouse pickers of purchase receipts and returns mark a counted warehouse and cannot choose it; product edits and the "Lacak stok" lock during a count are not checked (no endpoint tells which product is being counted).
+- "Opname berjalan" for the pickers comes from the first 100 counts; a site with more open counts than that needs a filter on the list endpoint.
+- Blind count was checked against the service with a warehouse-staff account (role Warehousing): book balance, difference, price, value and `summary` are absent, and submit answers 403.

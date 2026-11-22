@@ -23,6 +23,7 @@ import {
   IconSend,
   IconX,
   IconBan,
+  IconPrinter,
 } from '@tabler/icons-react';
 import { useParams } from 'react-router-dom';
 import { EmptyState } from '@/components/EmptyState/EmptyState';
@@ -35,6 +36,7 @@ import {
   PageFrame,
   type FrameMenuItem,
 } from '@/module/inventory/presentation/components/shared/DetailFrame';
+import { useOpnamePrint } from '@/module/inventory/presentation/components/stockTake/useOpnamePrint';
 import { OpnameCountTab } from '@/module/inventory/presentation/components/stockTake/OpnameCountTab';
 import { OpnameHistoryTab } from '@/module/inventory/presentation/components/stockTake/OpnameHistoryTab';
 import { OpnameInfoCard } from '@/module/inventory/presentation/components/stockTake/OpnameInfoCard';
@@ -64,6 +66,7 @@ export default function StockTakeDetailPage() {
   const { id } = useParams<{ id: string }>();
   const describe = useStockTakeErrorMessage();
   const rights = useOpnameRights();
+  const print = useOpnamePrint();
   const { step, saveLines } = useOpnameMutations();
   const [dialog, setDialog] = useState<Dialog>(null);
   const [tab, setTab] = useState<Tab>('count');
@@ -130,16 +133,32 @@ export default function StockTakeDetailPage() {
     .filter(Boolean)
     .join(' · ');
 
-  const menu: FrameMenuItem[] = actions.cancel
-    ? [
-        {
-          label: t('actions.cancelMenu'),
-          icon: IconBan,
-          onClick: () => setDialog('cancel'),
-          danger: true,
-        },
-      ]
-    : [];
+  const open = data.status === 'draft' || data.status === 'counting';
+  const menu: FrameMenuItem[] = [
+    // The sheet to count by hand carries no book balance, so anyone who may count can print it.
+    ...(open && data.lines.length > 0
+      ? [{ label: t('print.countAction'), icon: IconPrinter, onClick: () => print('count', data) }]
+      : []),
+    ...(data.canSeeValues && !open && data.status !== 'cancelled'
+      ? [
+          {
+            label: t('print.recordAction'),
+            icon: IconPrinter,
+            onClick: () => print('record', data, preview.data),
+          },
+        ]
+      : []),
+    ...(actions.cancel
+      ? [
+          {
+            label: t('actions.cancelMenu'),
+            icon: IconBan,
+            onClick: () => setDialog('cancel'),
+            danger: true,
+          },
+        ]
+      : []),
+  ];
 
   const tabs: { value: Tab; icon: typeof IconClipboardList; count?: number }[] = [
     { value: 'count', icon: IconClipboardList, count: data.lines.length },
