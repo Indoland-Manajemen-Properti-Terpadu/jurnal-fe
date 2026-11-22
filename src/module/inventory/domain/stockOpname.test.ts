@@ -224,6 +224,22 @@ describe('validateOpnameInput', () => {
     );
   });
 
+  it('asks for at least one category when the scope is by category', () => {
+    const byCategory = {
+      ...input,
+      scope: { type: 'category' as const, categoryIds: [], productIds: [] },
+    };
+
+    expect(validateOpnameInput(byCategory, '2026-11-22', false).categories).toBe('categories');
+    expect(
+      validateOpnameInput(
+        { ...byCategory, scope: { ...byCategory.scope, categoryIds: ['c1'] } },
+        '2026-11-22',
+        false
+      )
+    ).toEqual({});
+  });
+
   it('asks for at least one product when the products are chosen by hand', () => {
     const manual = {
       ...input,
