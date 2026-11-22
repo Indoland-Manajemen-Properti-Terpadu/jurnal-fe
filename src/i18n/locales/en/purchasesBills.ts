@@ -48,6 +48,7 @@ export const purchasesBills = {
     dueDate: 'Due date',
     dueDateHint: 'Leave blank to follow the payment term.',
     dueDateFromTerm: 'Leave blank to work it out from the {term} term.',
+    dueDateSuggested: 'Leave blank to use the {term} term, due {date}.',
     tags: 'Tags',
     tagsPlaceholder: 'Select transaction tags',
     noTags: 'No tag found',
@@ -146,6 +147,7 @@ export const purchasesBills = {
       fromOrder: 'From order',
       date: 'Date',
       term: 'Payment term',
+      due: 'Due',
       open: 'Not billed yet',
     },
     mergeNote: {

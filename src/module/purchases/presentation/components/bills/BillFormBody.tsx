@@ -20,10 +20,12 @@ import {
   type BillFormValues,
 } from '@/module/purchases/domain/billForm';
 import {
+  dueDateFor,
   estimateBill,
   type BillSourceDoc,
   type PickedSource,
 } from '@/module/purchases/domain/billSources';
+import { formatDay, todayIso } from '@/module/purchases/presentation/components/shared/format';
 import type {
   BillSource,
   BillVariance,
@@ -52,7 +54,6 @@ import {
   WizardStepper,
   type WizardStep,
 } from '@/module/purchases/presentation/components/shared/wizard/WizardStepper';
-import { todayIso } from '@/module/purchases/presentation/components/shared/format';
 import {
   useCreateBill,
   useUploadAttachments,
@@ -74,7 +75,7 @@ export const BillFormBody = ({
   initialSource,
   preselect,
 }: Readonly<BillFormBodyProps>) => {
-  const { t } = useTranslation('purchases');
+  const { t, currentLanguage } = useTranslation('purchases');
   const navigate = useNavigate();
   const [source, setSource] = useState<BillSource>(existing?.source ?? initialSource);
   const [picked, setPicked] = useState<BillSourceDoc[]>([]);
@@ -94,10 +95,14 @@ export const BillFormBody = ({
   const create = useCreateBill(
     async (doc) => {
       // The files go to the saved bill first, so the detail opens with them listed.
-      const chosen = [...filesRef.current.invoice, ...filesRef.current.tax];
-      if (chosen.length > 0) {
+      const { invoice, tax } = filesRef.current;
+      const groups = [
+        { kind: 'VENDOR_INVOICE' as const, files: invoice },
+        { kind: 'TAX_INVOICE' as const, files: tax },
+      ].filter((group) => group.files.length > 0);
+      for (const group of groups) {
         await upload
-          .mutateAsync({ target: 'bill', id: doc.id, files: chosen })
+          .mutateAsync({ target: 'bill', id: doc.id, files: group.files, kind: group.kind })
           .catch(() => undefined);
       }
       navigate(detailOf(doc.id));
@@ -165,10 +170,17 @@ export const BillFormBody = ({
   };
 
   const estimate = useMemo(() => estimateBill(picked), [picked]);
-  const dueHint = useMemo(
-    () => (picked[0] ? t('bills.form.dueDateFromTerm', { term: picked[0].termName }) : undefined),
-    [picked, t]
-  );
+  const dueHint = useMemo(() => {
+    const first = picked[0];
+    if (!first) return undefined;
+    const suggested = dueDateFor(first, values.date);
+    return suggested
+      ? t('bills.form.dueDateSuggested', {
+          term: first.term.name,
+          date: formatDay(suggested, currentLanguage),
+        })
+      : t('bills.form.dueDateFromTerm', { term: first.term.name });
+  }, [picked, values.date, t, currentLanguage]);
 
   const steps: WizardStep[] = [
     {

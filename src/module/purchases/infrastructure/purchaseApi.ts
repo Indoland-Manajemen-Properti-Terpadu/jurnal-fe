@@ -1,4 +1,4 @@
-import type { Page } from '@/module/purchases/domain/purchaseCommon';
+import type { AttachmentKind, Page } from '@/module/purchases/domain/purchaseCommon';
 import type {
   GoodsReceipt,
   PayablesAging,
@@ -15,6 +15,8 @@ import type {
   PaymentRequestInput,
   PaymentRequestUpdate,
 } from '@/module/purchases/domain/paymentRequest';
+import type { BillSourceDto } from '@/module/purchases/infrastructure/billSourceDto';
+import { toBillSource } from '@/module/purchases/infrastructure/billSourceMappers';
 import type { BillSourceDoc } from '@/module/purchases/domain/billSources';
 import type { ProcurementInput } from '@/module/purchases/domain/procurement';
 import type { PurchaseRequest } from '@/module/purchases/domain/purchaseRequest';
@@ -31,7 +33,6 @@ import type {
 import { PURCHASE_API } from '@/module/purchases/infrastructure/purchaseEndpoints';
 import type {
   ApiEnvelope,
-  BillSourceDto,
   GoodsReceiptDto,
   ListDto,
   PayablesAgingDto,
@@ -43,7 +44,6 @@ import type {
   VendorCreditsDto,
 } from '@/module/purchases/infrastructure/purchaseDto';
 import {
-  toBillSource,
   toGoodsReceipt,
   toPayablesAging,
   toPaymentRequest,
@@ -297,9 +297,11 @@ export const uploadAttachments = async (
   id: string,
   files: File[],
   requestFile?: RequestFileTarget,
-  quoteId?: string
+  quoteId?: string,
+  kind?: AttachmentKind
 ) => {
   const form = new FormData();
+  if (kind) form.append('kind', kind);
   if (target === 'request') form.append('target', requestFile ?? 'request');
   if (quoteId) form.append('quoteId', quoteId);
   files.forEach((file) => form.append('attachments', file));

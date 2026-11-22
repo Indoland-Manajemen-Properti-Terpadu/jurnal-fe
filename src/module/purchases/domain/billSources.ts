@@ -14,6 +14,19 @@ export interface BillSourceLine {
   schedule: OrderSchedule | null;
 }
 
+/** The payment term as the service sends it, field by field. */
+export interface BillTerm {
+  name: string;
+  description: string;
+  /** Days to pay; null when the term has no due date. */
+  dueDays: number | null;
+  /** What the days count from: the receipt date or the vendor's invoice date. */
+  dueBasis: string;
+  hasDueTerm: boolean;
+  /** The sentence for a due date ("jatuh tempo saat penerimaan"). */
+  dueText: string;
+}
+
 /** A receipt (FPB / BAPP) or an order that is ready to be billed. */
 export interface BillSourceDoc {
   id: string;
@@ -26,11 +39,23 @@ export interface BillSourceDoc {
   /** Receipts with the same key can share a bill; a different payment term cannot. */
   termKey: string;
   termName: string;
+  term: BillTerm;
+  /** Set when the term counts from the receipt date; null when it counts from the vendor invoice. */
+  dueDate: string | null;
   isPriceIncludeTax: boolean;
   lines: BillSourceLine[];
   /** Extra lines of the order (shipping, an advance) the bill takes along. */
   orderLines: BillSourceLine[];
 }
+
+/** The due date for a vendor invoice dated `invoiceDate`; the service leaves it null for that term. */
+export const dueDateFor = (doc: BillSourceDoc, invoiceDate: string): string => {
+  if (doc.dueDate) return doc.dueDate;
+  if (!doc.term.hasDueTerm || doc.term.dueDays === null || !invoiceDate) return '';
+  const date = new Date(`${invoiceDate}T00:00:00Z`);
+  date.setUTCDate(date.getUTCDate() + doc.term.dueDays);
+  return date.toISOString().slice(0, 10);
+};
 
 /** One bill is for one vendor and one payment term. */
 export const compatibleWith = (picked: BillSourceDoc[], candidate: BillSourceDoc): boolean =>

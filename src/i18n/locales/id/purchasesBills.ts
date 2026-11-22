@@ -49,6 +49,7 @@ export const purchasesBills = {
     dueDate: 'Jatuh tempo',
     dueDateHint: 'Kosongkan agar mengikuti termin bayar.',
     dueDateFromTerm: 'Kosongkan agar dihitung dari termin {term}.',
+    dueDateSuggested: 'Kosongkan agar dihitung dari termin {term}, jatuh tempo {date}.',
     tags: 'Tag',
     tagsPlaceholder: 'Pilih tag transaksi',
     noTags: 'Tag tidak ditemukan',
@@ -148,6 +149,7 @@ export const purchasesBills = {
       fromOrder: 'Dari pesanan',
       date: 'Tanggal',
       term: 'Termin bayar',
+      due: 'Jatuh tempo',
       open: 'Belum difaktur',
     },
     mergeNote: {
