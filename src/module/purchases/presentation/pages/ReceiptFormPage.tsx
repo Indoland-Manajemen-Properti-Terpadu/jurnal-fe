@@ -36,6 +36,7 @@ import {
   useOrder,
   useWarehouseOptions,
 } from '@/module/purchases/presentation/hooks/usePurchaseQueries';
+import { useFrozenWarehouses } from '@/module/inventory';
 import { routes } from '@/router/routes';
 
 const orderDetail = (id: string) => routes.purchases.orderDetail.replace(':id', id);
@@ -46,6 +47,8 @@ const ReceiptFormBody = ({ order }: Readonly<{ order: PurchaseOrder }>) => {
   const navigate = useNavigate();
   const lines = receiptLines(order);
   const warehouses = useWarehouseOptions();
+  const frozen = useFrozenWarehouses();
+  const { t: tf } = useTranslation('stockTake');
   const activeWarehouses = warehouses.data ?? [];
   const [values, setValues] = useState<ReceiptFormValues>(() =>
     emptyReceiptForm(order, todayIso(), order.warehouse?.id ?? '')
@@ -131,10 +134,16 @@ const ReceiptFormBody = ({ order }: Readonly<{ order: PurchaseOrder }>) => {
                       description={t('receipts.form.warehouseHint')}
                       placeholder={t('receipts.form.warehousePlaceholder')}
                       nothingFoundMessage={t('receipts.form.noWarehouse')}
-                      data={activeWarehouses.map((warehouse) => ({
-                        value: warehouse.id,
-                        label: warehouse.name,
-                      }))}
+                      data={activeWarehouses.map((warehouse) => {
+                        const holder = frozen.get(warehouse.id);
+                        return {
+                          value: warehouse.id,
+                          label: holder
+                            ? `${warehouse.name} (${tf('frozen.warehouse', { number: holder.number })})`
+                            : warehouse.name,
+                          disabled: holder !== undefined,
+                        };
+                      })}
                       value={warehouseValue || null}
                       onChange={(value) => patch({ warehouseId: value ?? '' })}
                       error={

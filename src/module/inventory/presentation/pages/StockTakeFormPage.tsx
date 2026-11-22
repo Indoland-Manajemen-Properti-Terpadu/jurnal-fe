@@ -21,6 +21,7 @@ import {
   IconPlayerPlay,
   IconUsers,
 } from '@tabler/icons-react';
+import { useQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
@@ -47,9 +48,16 @@ import {
   usePicOptions,
   useWarehouseList,
 } from '@/module/inventory/presentation/hooks/useWarehouses';
+import { fetchCategories } from '@/module/products';
 import { routes } from '@/router/routes';
 
-type ScopeType = Exclude<OpnameScope['type'], 'category'>;
+type ScopeType = OpnameScope['type'];
+
+const SCOPE_COPY = {
+  all: { title: 'form.scopeAll', hint: 'form.scopeAllHint' },
+  category: { title: 'form.scopeCategory', hint: 'form.scopeCategoryHint' },
+  manual: { title: 'form.scopeManual', hint: 'form.scopeManualHint' },
+} as const;
 
 /** The new count: warehouse, date, who counts, and which products are on the list. */
 export default function StockTakeFormPage() {
@@ -66,6 +74,12 @@ export default function StockTakeFormPage() {
   const [notes, setNotes] = useState('');
   const [scopeType, setScopeType] = useState<ScopeType>('all');
   const [productIds, setProductIds] = useState<string[]>([]);
+  const [categoryIds, setCategoryIds] = useState<string[]>([]);
+  const categories = useQuery({
+    queryKey: ['inventory', 'category-options'],
+    queryFn: () => fetchCategories(1, 100),
+    staleTime: 60_000,
+  });
   const [issues, setIssues] = useState<OpnameInputIssues>({});
 
   const warehouses = useWarehouseList(ALL_ACTIVE_WAREHOUSES);
@@ -95,7 +109,7 @@ export default function StockTakeFormPage() {
       date,
       scope: {
         type: scopeType,
-        categoryIds: [],
+        categoryIds: scopeType === 'category' ? categoryIds : [],
         productIds: scopeType === 'manual' ? productIds : [],
       },
       counterUser: counter,
@@ -185,8 +199,8 @@ export default function StockTakeFormPage() {
           value={scopeType}
           onChange={(value) => setScopeType(value as ScopeType)}
         >
-          <SimpleGrid cols={{ base: 1, sm: 2 }}>
-            {(['all', 'manual'] as const).map((value) => (
+          <SimpleGrid cols={{ base: 1, sm: 3 }}>
+            {(['all', 'category', 'manual'] as const).map((value) => (
               <Radio.Card
                 key={value}
                 value={value}
@@ -201,10 +215,10 @@ export default function StockTakeFormPage() {
                   <Radio.Indicator mt={2} />
                   <div>
                     <Text size="sm" fw={600}>
-                      {t(value === 'all' ? 'form.scopeAll' : 'form.scopeManual')}
+                      {t(SCOPE_COPY[value].title)}
                     </Text>
                     <Text size="xs" c="dimmed">
-                      {t(value === 'all' ? 'form.scopeAllHint' : 'form.scopeManualHint')}
+                      {t(SCOPE_COPY[value].hint)}
                     </Text>
                   </div>
                 </Group>
@@ -212,6 +226,22 @@ export default function StockTakeFormPage() {
             ))}
           </SimpleGrid>
         </Radio.Group>
+        {scopeType === 'category' && (
+          <MultiSelect
+            label={t('form.categories')}
+            placeholder={t('form.categoriesPlaceholder')}
+            data={(categories.data?.items ?? []).map((item) => ({
+              value: item.id,
+              label: item.name,
+            }))}
+            value={categoryIds}
+            onChange={setCategoryIds}
+            error={issueText(issues.categories)}
+            searchable
+            clearable
+            radius="md"
+          />
+        )}
         {scopeType === 'manual' && (
           <MultiSelect
             label={t('form.products')}

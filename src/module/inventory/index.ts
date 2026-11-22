@@ -1,3 +1,4 @@
+export { useFrozenWarehouses } from './presentation/hooks/useOpnames';
 export { default as WarehousesPage } from './presentation/pages/WarehousesPage';
 export { default as WarehouseDetailPage } from './presentation/pages/WarehouseDetailPage';
 export { default as StockMovementsPage } from './presentation/pages/StockMovementsPage';
