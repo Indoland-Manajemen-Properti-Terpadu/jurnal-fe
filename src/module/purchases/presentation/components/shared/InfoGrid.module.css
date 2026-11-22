@@ -1,8 +1,12 @@
+/*
+ * Each cell draws its own right and bottom hairline; the grid reaches 1px past the card's edge so
+ * the outer lines fall under the card's clip. Empty space stays white, never a grey hole.
+ */
 .grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 1px;
-  background: var(--jurnal-color-border-subtle);
+  margin: 0 -1px -1px 0;
+  background: var(--mantine-color-white);
 }
 
 @media (min-width: 48em) {
@@ -20,6 +24,9 @@
   padding: var(--mantine-spacing-md) var(--mantine-spacing-lg);
   background: var(--mantine-color-white);
   overflow-wrap: anywhere;
+  box-shadow:
+    inset -1px 0 0 var(--jurnal-color-border-subtle),
+    inset 0 -1px 0 var(--jurnal-color-border-subtle);
 }
 
 .stats {

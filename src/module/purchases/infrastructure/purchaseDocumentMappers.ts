@@ -1,4 +1,3 @@
-import type { BillSourceDoc, BillSourceLine } from '@/module/purchases/domain/billSources';
 import type { PaymentRequest } from '@/module/purchases/domain/paymentRequest';
 import type {
   BillItem,
@@ -16,8 +15,6 @@ import type {
 } from '@/module/purchases/domain/purchaseDocuments';
 import type {
   AmountsDto,
-  BillSourceDto,
-  BillSourceLineDto,
   CreditApplicationDto,
   DocumentDto,
   DocumentRefDto,
@@ -380,36 +377,4 @@ export const toPayablesAging = (dto: PayablesAgingDto): PayablesAging => ({
     };
   }),
   totals: dto.totals,
-});
-
-const toSourceLine = (dto: BillSourceLineDto): BillSourceLine => ({
-  purchaseOrderItemId: dto.purchaseOrderItem,
-  description: dto.description ?? '',
-  openQty: dto.open ?? 0,
-  unitPrice: dto.unitPrice,
-  taxRate: dto.taxRate ?? 0,
-  schedule: dto.schedule
-    ? {
-        kind: dto.schedule.kind,
-        seq: dto.schedule.seq ?? 1,
-        of: dto.schedule.of ?? 1,
-        periodFrom: toDateOrNull(dto.schedule.periodFrom),
-        periodTo: toDateOrNull(dto.schedule.periodTo),
-      }
-    : null,
-});
-
-export const toBillSource = (dto: BillSourceDto): BillSourceDoc => ({
-  id: dto.id,
-  number: dto.transactionNumber,
-  date: toDate(dto.transactionDate),
-  vendor: toParty(dto.vendor),
-  kind: dto.kind ?? (dto.isService ? 'SERVICE' : null),
-  orderId: dto.purchaseOrder?.id ?? '',
-  orderNumber: dto.purchaseOrder?.transactionNumber ?? '',
-  termKey: dto.termKey ?? '',
-  termName: dto.termName ?? '',
-  isPriceIncludeTax: Boolean(dto.isPriceIncludeTax),
-  lines: (dto.lines ?? []).map(toSourceLine),
-  orderLines: (dto.orderLines ?? []).map(toSourceLine),
 });

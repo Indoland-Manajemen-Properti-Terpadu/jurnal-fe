@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import type { AttachmentKind } from '@/module/purchases/domain/purchaseCommon';
 import type { PayInput, PaymentVoucherInput } from '@/module/purchases/domain/paymentForm';
 import type {
   PaymentRequestInput,
@@ -211,6 +212,7 @@ export const useUploadAttachments = () =>
       files,
       requestFile,
       quoteId,
+      kind,
     }: {
       target: api.AttachmentTarget;
       id: string;
@@ -218,8 +220,10 @@ export const useUploadAttachments = () =>
       /** On an FPPBJ: the request itself, its IOM memo or one quote. */
       requestFile?: api.RequestFileTarget;
       quoteId?: string;
+      /** On a bill: which file this is; one active file per kind. */
+      kind?: AttachmentKind;
     }) => {
-      await api.uploadAttachments(target, id, files, requestFile, quoteId);
+      await api.uploadAttachments(target, id, files, requestFile, quoteId, kind);
       return {} as { number?: string };
     }
   );

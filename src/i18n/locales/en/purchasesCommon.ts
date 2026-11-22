@@ -131,6 +131,9 @@ export const purchasesCommon = {
     paidAt: 'Paid on',
   },
   journey: {
+    showCancelled: '{count} cancelled',
+    hideCancelled: 'Hide cancelled',
+    docCount: '{count} documents',
     thisDocument: 'This document',
     title: 'Purchase flow',
     subtitle: 'Documents linked to this purchase',
