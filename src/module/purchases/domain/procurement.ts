@@ -257,7 +257,7 @@ export const procurementSteps = (procurement: Procurement): ProcurementStep[] =>
   const quotesDone = complete >= quotesNeeded(procurement);
   return [
     { key: 'quotes', done: quotesDone },
-    { key: 'winner', done: hasWinner },
+    { key: 'winner', done: hasWinner && quotesDone },
     {
       key: 'notes',
       done: submitted || (quotesDone && hasWinner && procurement.submitErrors.length === 0),

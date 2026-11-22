@@ -82,7 +82,7 @@ const ReceiptFormBody = ({ order }: Readonly<{ order: PurchaseOrder }>) => {
       backLabel={t('common.back')}
     >
       <Grid gutter="lg" align="flex-start">
-        <Grid.Col span={{ base: 12, lg: 8 }}>
+        <Grid.Col span={{ base: 12, lg: 9 }}>
           <Stack gap="lg">
             <SectionCard
               icon={IconClipboardText}
@@ -198,7 +198,7 @@ const ReceiptFormBody = ({ order }: Readonly<{ order: PurchaseOrder }>) => {
           </Stack>
         </Grid.Col>
 
-        <Grid.Col span={{ base: 12, lg: 4 }} pos="sticky" top={20}>
+        <Grid.Col span={{ base: 12, lg: 3 }} pos="sticky" top={20}>
           <Stack gap="lg">
             <SectionCard icon={IconSum} title={t('receipts.form.summaryTitle')}>
               <Text size="sm">

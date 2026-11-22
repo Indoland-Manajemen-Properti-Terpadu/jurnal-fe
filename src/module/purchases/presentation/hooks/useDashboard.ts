@@ -7,6 +7,7 @@ import type {
 import {
   chainSteps,
   type ChainType,
+  type DocumentChain,
   type JourneyStepData,
 } from '@/module/purchases/domain/documentChain';
 import {
@@ -61,7 +62,7 @@ export const useDashboardConfig = () => {
 export const useDocumentChain = (
   type: ChainType,
   id: string | undefined
-): { steps: JourneyStepData[]; isLoading: boolean } => {
+): { steps: JourneyStepData[]; chain: DocumentChain | undefined; isLoading: boolean } => {
   const scope = usePurchaseScope();
   const query = useQuery({
     queryKey: purchaseKeys.chain(scope, type, id ?? ''),
@@ -70,6 +71,7 @@ export const useDocumentChain = (
   });
   return {
     steps: query.data && id ? chainSteps(query.data, { type, id }) : [],
+    chain: query.data,
     isLoading: query.isLoading,
   };
 };

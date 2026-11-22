@@ -1,16 +1,16 @@
-import { Table } from '@mantine/core';
+import { Table, Text } from '@mantine/core';
 import { IconReceipt2 } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
+import { viewAction } from '@/module/purchases/presentation/components/lists/rowActions';
 import { useTranslation } from '@/i18n';
 import { detailPath } from '@/module/purchases/presentation/components/hub/documentPaths';
 import {
-  AmountCell,
   DueCell,
   NumberCell,
   PartyCell,
 } from '@/module/purchases/presentation/components/lists/cells';
 import { ListShell } from '@/module/purchases/presentation/components/shared/ListShell';
-import { formatDay } from '@/module/purchases/presentation/components/shared/format';
+import { formatAmount, formatDay } from '@/module/purchases/presentation/components/shared/format';
 import { StatusBadge } from '@/module/purchases/presentation/components/shared/StatusBadge';
 import { useListState } from '@/module/purchases/presentation/components/shared/useListState';
 import { useBills } from '@/module/purchases/presentation/hooks/usePurchaseQueries';
@@ -47,8 +47,13 @@ export const BillList = () => {
       onRowClick={(row) => navigate(detailPath('bill', row.id))}
       renderCells={(row) => (
         <>
-          <NumberCell kind="bill" id={row.id} number={row.number} />
-          <PartyCell name={row.vendor.name} sub={row.vendorInvoiceNumber || undefined} />
+          <NumberCell
+            kind="bill"
+            id={row.id}
+            number={row.number}
+            sub={row.vendorInvoiceNumber || undefined}
+          />
+          <PartyCell name={row.vendor.name} />
           <DueCell
             label={formatDay(row.dueDate, currentLanguage)}
             overdue={row.displayStatus === 'OVERDUE'}
@@ -56,8 +61,21 @@ export const BillList = () => {
           <Table.Td>
             <StatusBadge status={row.status} label={row.displayStatusLabel || row.statusLabel} />
           </Table.Td>
-          <AmountCell value={row.finalAmount} />
-          <AmountCell value={row.remainingAmount} dimmed={row.remainingAmount === 0} />
+          <Table.Td ta="right" style={{ whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>
+            <Text size="sm" fw={500}>
+              {formatAmount(row.finalAmount)}
+            </Text>
+            {row.paidAmount > 0 && (
+              <Text size="xs" c="green.7">
+                {t('hub.bills.paidSub', { amount: formatAmount(row.paidAmount) })}
+              </Text>
+            )}
+          </Table.Td>
+          <Table.Td ta="right" style={{ whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>
+            <Text size="sm" fw={600} c={row.remainingAmount > 0 ? 'red.7' : 'green.7'}>
+              {formatAmount(row.remainingAmount)}
+            </Text>
+          </Table.Td>
         </>
       )}
       isLoading={query.isLoading}
@@ -69,6 +87,10 @@ export const BillList = () => {
       totalPages={query.data?.totalPages ?? 0}
       totalResults={query.data?.totalResults ?? 0}
       onPageChange={state.setPage}
+      noun={t('list.nouns.bill')}
+      limit={state.limit}
+      onLimitChange={state.setLimit}
+      rowActions={(row) => [viewAction(t('list.view'), () => navigate(detailPath('bill', row.id)))]}
       empty={{
         icon: <IconReceipt2 size={32} stroke={1.6} />,
         title: t('hub.bills.emptyTitle'),

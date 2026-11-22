@@ -1,6 +1,12 @@
 import { useState } from 'react';
-import { Button, Grid, Group, Stack } from '@mantine/core';
-import { IconFileInvoice, IconPackageImport, IconSend, IconX } from '@tabler/icons-react';
+import { Button, Grid, Stack } from '@mantine/core';
+import {
+  IconCalculator,
+  IconFileInvoice,
+  IconPackageImport,
+  IconSend,
+  IconX,
+} from '@tabler/icons-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
 import { PURCHASE_MENU } from '@/module/purchases/domain/purchaseAccess';
@@ -10,10 +16,17 @@ import { StateFrame } from '@/module/purchases/presentation/components/requests/
 import { ApprovalPanel } from '@/module/purchases/presentation/components/shared/ApprovalPanel';
 import { AttachmentsCard } from '@/module/purchases/presentation/components/shared/AttachmentsCard';
 import { DocumentJourney } from '@/module/purchases/presentation/components/shared/DocumentJourney';
-import { ReceiptHighlights } from '@/module/purchases/presentation/components/shared/DocumentHighlights';
-import { PageFrame } from '@/module/purchases/presentation/components/shared/PageFrame';
+import { DocumentFrame } from '@/module/purchases/presentation/components/shared/DocumentFrame';
+import {
+  formatAmount,
+  formatDay,
+  formatQuantity,
+} from '@/module/purchases/presentation/components/shared/format';
+import { BillsTableCard } from '@/module/purchases/presentation/components/shared/BillsTableCard';
+import { SectionCard } from '@/module/purchases/presentation/components/shared/SectionCard';
+import { StatGrid } from '@/module/purchases/presentation/components/shared/StatGrid';
 import { ReasonModal } from '@/module/purchases/presentation/components/shared/ReasonModal';
-import { StatusBadge } from '@/module/purchases/presentation/components/shared/StatusBadge';
+import { ReceiptStatusBadge } from '@/module/purchases/presentation/components/receipts/ReceiptStatusBadge';
 import { usePurchaseAccess } from '@/module/purchases/presentation/hooks/usePurchaseAccess';
 import { useDocumentChain } from '@/module/purchases/presentation/hooks/useDashboard';
 import {
@@ -22,7 +35,7 @@ import {
   useResubmitReceipt,
   useVoidReceipt,
 } from '@/module/purchases/presentation/hooks/usePurchaseMutations';
-import { useReceipt } from '@/module/purchases/presentation/hooks/usePurchaseQueries';
+import { useBills, useReceipt } from '@/module/purchases/presentation/hooks/usePurchaseQueries';
 import { routes } from '@/router/routes';
 
 const BACK = routes.purchases.receipts;
@@ -30,10 +43,14 @@ const BACK = routes.purchases.receipts;
 export default function ReceiptDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { t } = useTranslation('purchases');
+  const { t, currentLanguage } = useTranslation('purchases');
   const { can, canRead, isLoading: accessLoading } = usePurchaseAccess();
   const receipt = useReceipt(id);
   const journey = useDocumentChain('goodsReceipt', id);
+  const orderBills = useBills(
+    { purchaseOrder: receipt.data?.purchaseOrderId, limit: 50 },
+    Boolean(receipt.data?.purchaseOrderId)
+  );
   const voidReceipt = useVoidReceipt();
   const approve = useApproveReceipt();
   const reject = useRejectReceipt();
@@ -68,21 +85,17 @@ export default function ReceiptDetailPage() {
   const canBill = doc.status === 'POSTED' && can(PURCHASE_MENU.documents, 'create');
   const canResubmit = actions.resubmit && can(PURCHASE_MENU.receipts, 'update');
 
+  const totalReceived = doc.items.reduce((sum, item) => sum + item.receivedQty, 0);
+  const totalRejected = doc.items.reduce((sum, item) => sum + item.rejectedQty, 0);
+
   return (
-    <PageFrame
+    <DocumentFrame
       icon={IconPackageImport}
-      title={
-        <Group gap="sm" align="center">
-          <span>{doc.number}</span>
-          <StatusBadge status={doc.status} label={doc.statusLabel} />
-        </Group>
-      }
-      description={t('receipts.detail.subtitle', {
-        label: doc.documentLabel,
-        vendor: doc.vendor.name,
-      })}
+      number={doc.number}
+      badges={<ReceiptStatusBadge receipt={doc} />}
+      date={`${doc.documentLabel} · ${formatDay(doc.date, currentLanguage)}`}
       backTo={BACK}
-      backLabel={t('common.back')}
+      backLabel={t('receipts.detail.backToList')}
       actions={
         <>
           {canBill && (
@@ -118,15 +131,54 @@ export default function ReceiptDetailPage() {
         </>
       }
     >
-      <ReceiptHighlights doc={doc} />
       <Grid gutter="lg" align="flex-start">
         <Grid.Col span={{ base: 12, lg: 8 }}>
           <Stack gap="lg">
             <ReceiptSummaryCard receipt={doc} />
+            <BillsTableCard
+              title={t('receipts.detail.billsTitle')}
+              subtitle={t('receipts.detail.billsSubtitle')}
+              bills={(orderBills.data?.items ?? []).filter((bill) =>
+                doc.billRefs.some((ref) => ref.id === bill.id)
+              )}
+              emptyText={t('receipts.detail.billsEmpty')}
+            />
+            <AttachmentsCard
+              target="receipt"
+              documentId={doc.id}
+              attachments={doc.attachments}
+              canUpload={can(PURCHASE_MENU.receipts, 'update') && doc.status !== 'VOID'}
+            />
           </Stack>
         </Grid.Col>
         <Grid.Col span={{ base: 12, lg: 4 }}>
           <Stack gap="lg">
+            <SectionCard
+              icon={IconCalculator}
+              label
+              flush
+              title={t('receipts.detail.summaryTitle')}
+              subtitle={t('receipts.detail.summarySubtitle')}
+            >
+              <StatGrid
+                items={[
+                  { label: t('receipts.detail.totalItems'), value: String(doc.items.length) },
+                  {
+                    label: t('receipts.detail.totalReceived'),
+                    value: formatQuantity(totalReceived),
+                  },
+                  ...(doc.kind === 'GOODS'
+                    ? [
+                        {
+                          label: t('receipts.detail.totalRejected'),
+                          value: formatQuantity(totalRejected),
+                        },
+                      ]
+                    : []),
+                  { label: t('receipts.detail.totalAccrual'), value: formatAmount(doc.amount) },
+                ]}
+              />
+            </SectionCard>
             <ApprovalPanel
               approval={doc.approval}
               status={doc.status}
@@ -136,12 +188,6 @@ export default function ReceiptDetailPage() {
               onReject={(reason) => reject.mutate({ id: doc.id, reason })}
             />
             <DocumentJourney steps={journey.steps} />
-            <AttachmentsCard
-              target="receipt"
-              documentId={doc.id}
-              attachments={doc.attachments}
-              canUpload={can(PURCHASE_MENU.receipts, 'update') && doc.status !== 'VOID'}
-            />
           </Stack>
         </Grid.Col>
       </Grid>
@@ -156,6 +202,6 @@ export default function ReceiptDetailPage() {
           voidReceipt.mutate({ id: doc.id, reason }, { onSuccess: () => setVoiding(false) })
         }
       />
-    </PageFrame>
+    </DocumentFrame>
   );
 }

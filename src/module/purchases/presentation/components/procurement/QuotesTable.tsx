@@ -1,3 +1,4 @@
+import tableClasses from '@/module/purchases/presentation/components/shared/Table.module.css';
 import { ActionIcon, Badge, Group, Radio, Table, Text, Tooltip } from '@mantine/core';
 import { IconEdit, IconPaperclip, IconTrash } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
@@ -30,8 +31,8 @@ export const QuotesTable = ({
   const bidding = route !== 'SINGLE';
 
   return (
-    <Table.ScrollContainer minWidth={760}>
-      <Table verticalSpacing="sm" highlightOnHover>
+    <Table.ScrollContainer type="native" minWidth={760}>
+      <Table className={tableClasses.table} verticalSpacing="sm" highlightOnHover>
         <Table.Thead bg="var(--jurnal-color-surface-hover)">
           <Table.Tr>
             {canChoose && <Table.Th w={44} />}
@@ -60,7 +61,8 @@ export const QuotesTable = ({
         <Table.Tbody>
           {procurement.quotes.map((quote) => {
             const amounts = totals[quote.id];
-            const isWinner = winnerId === quote.vendor.id;
+            // Before the quotes are enough there is nothing to have won.
+            const isWinner = winnerId === quote.vendor.id && (!bidding || canChoose || !editable);
             const cheapest = cheapestVendorId === quote.vendor.id && procurement.quotes.length > 1;
             const expired = Boolean(quote.validUntil) && (quote.validUntil as string) < todayKey();
             return (
@@ -86,9 +88,9 @@ export const QuotesTable = ({
                       </Badge>
                     )}
                     {cheapest && (
-                      <Badge size="xs" radius="sm" variant="light" color="green">
+                      <Text size="xs" c="green.7" fw={600}>
                         {t('procurement.cheapest')}
-                      </Badge>
+                      </Text>
                     )}
                     {amounts && !amounts.complete && (
                       <Badge size="xs" radius="sm" variant="light" color="yellow">

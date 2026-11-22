@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Button, Group, Modal, NumberInput, Stack, Text } from '@mantine/core';
+import { Button, NumberInput } from '@mantine/core';
+import { ModalFrame } from '@/components/Modals/ModalFrame';
 import { useTranslation } from '@/i18n';
 import type { PurchaseReturn } from '@/module/purchases/domain/purchaseDocuments';
 import {
@@ -50,60 +51,58 @@ export const RefundDialog = ({ doc, opened, onClose }: Readonly<RefundDialogProp
   }
 
   return (
-    <Modal
+    <ModalFrame
       opened={opened}
       onClose={onClose}
       title={t('returns.detail.refundTitle')}
-      centered
-      radius="lg"
-    >
-      <Stack gap="md">
-        <Text size="sm" c="dimmed">
-          {t('returns.detail.refundDescription', { amount: formatAmount(doc.creditRemaining) })}
-        </Text>
-        <DateField
-          withAsterisk
-          label={t('returns.detail.refundDate')}
-          value={values.date}
-          minDate={undefined}
-          onChange={(value) => patch({ date: value })}
-          error={showErrors && errors.date ? t('returns.detail.refundDateRequired') : undefined}
-        />
-        <DepositAccountField
-          withAsterisk
-          label={t('returns.detail.refundDeposit')}
-          value={values.depositAccountId}
-          onChange={(id) => patch({ depositAccountId: id })}
-          error={
-            showErrors && errors.depositAccountId
-              ? t('returns.detail.refundDepositRequired')
-              : undefined
-          }
-        />
-        <NumberInput
-          radius="md"
-          withAsterisk
-          label={t('returns.detail.refundAmount')}
-          value={values.amount}
-          min={0}
-          hideControls
-          allowNegative={false}
-          thousandSeparator="."
-          decimalSeparator=","
-          decimalScale={2}
-          prefix="Rp "
-          onChange={(value) => patch({ amount: typeof value === 'number' ? value : '' })}
-          error={amountError}
-        />
-        <Group justify="flex-end" gap="sm">
+      description={t('returns.detail.refundDescription', {
+        amount: formatAmount(doc.creditRemaining),
+      })}
+      footer={
+        <>
           <Button variant="default" disabled={refund.isPending} onClick={onClose}>
             {t('common.cancel')}
           </Button>
           <Button loading={refund.isPending} onClick={confirm}>
             {t('returns.detail.refundConfirm')}
           </Button>
-        </Group>
-      </Stack>
-    </Modal>
+        </>
+      }
+    >
+      <DateField
+        withAsterisk
+        label={t('returns.detail.refundDate')}
+        value={values.date}
+        minDate={undefined}
+        onChange={(value) => patch({ date: value })}
+        error={showErrors && errors.date ? t('returns.detail.refundDateRequired') : undefined}
+      />
+      <DepositAccountField
+        withAsterisk
+        label={t('returns.detail.refundDeposit')}
+        value={values.depositAccountId}
+        onChange={(id) => patch({ depositAccountId: id })}
+        error={
+          showErrors && errors.depositAccountId
+            ? t('returns.detail.refundDepositRequired')
+            : undefined
+        }
+      />
+      <NumberInput
+        radius="md"
+        withAsterisk
+        label={t('returns.detail.refundAmount')}
+        value={values.amount}
+        min={0}
+        hideControls
+        allowNegative={false}
+        thousandSeparator="."
+        decimalSeparator=","
+        decimalScale={2}
+        prefix="Rp "
+        onChange={(value) => patch({ amount: typeof value === 'number' ? value : '' })}
+        error={amountError}
+      />
+    </ModalFrame>
   );
 };

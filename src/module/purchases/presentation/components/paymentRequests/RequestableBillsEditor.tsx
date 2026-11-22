@@ -1,4 +1,5 @@
-import { Badge, Button, Checkbox, Group, NumberInput, Table, Text } from '@mantine/core';
+import tableClasses from '@/module/purchases/presentation/components/shared/Table.module.css';
+import { Button, Checkbox, Group, NumberInput, Table, Text } from '@mantine/core';
 import { useTranslation } from '@/i18n';
 import type {
   PaymentRequestErrors,
@@ -53,8 +54,8 @@ export const RequestableBillsEditor = ({
           {t('paymentRequests.form.clearAll')}
         </Button>
       </Group>
-      <Table.ScrollContainer minWidth={640}>
-        <Table verticalSpacing="xs" horizontalSpacing="xs">
+      <Table.ScrollContainer type="native" minWidth={640}>
+        <Table className={tableClasses.table} verticalSpacing="xs" horizontalSpacing="xs">
           <Table.Thead bg="var(--jurnal-color-surface-hover)">
             <Table.Tr>
               <Table.Th w={40} />
@@ -117,9 +118,9 @@ export const RequestableBillsEditor = ({
                         {formatDay(bill.dueDate, currentLanguage)}
                       </Text>
                       {overdue && (
-                        <Badge color="red" variant="light" radius="sm">
+                        <Text span size="xs" c="red.7" fw={600}>
                           {t('paymentRequests.form.overdue')}
-                        </Badge>
+                        </Text>
                       )}
                     </Group>
                   </Table.Td>

@@ -1,4 +1,11 @@
 export const purchasesReceipts = {
+  picker: {
+    title: 'Penerimaan · pilih PO/SPK',
+    description: 'Pilih pesanan yang barang atau jasanya sudah sampai.',
+    search: 'Cari nomor dokumen atau vendor...',
+    empty: 'Belum ada PO/SPK yang menunggu penerimaan.',
+    remaining: 'Sisa {count} belum diterima',
+  },
   form: {
     titleCreate: 'Catat Penerimaan Barang (FPB)',
     titleService: 'Ajukan Penerimaan Jasa (BAPP)',
@@ -48,6 +55,20 @@ export const purchasesReceipts = {
     submit: 'Catat Penerimaan',
   },
   detail: {
+    backToList: 'Kembali ke daftar penerimaan',
+    infoSubtitle: 'Vendor, pencatat, pesanan asal, dan nomor surat jalan',
+    journalLabel: 'Jurnal',
+    linesSubtitle: 'Jumlah pada penerimaan ini dibanding pesanan',
+    itemsCount: '{count} item',
+    billsTitle: 'Faktur pembelian',
+    billsSubtitle: 'Tagihan vendor yang dibuat dari penerimaan ini',
+    billsCount: '{count} faktur',
+    billsEmpty: 'Belum ada faktur dibuat dari penerimaan ini.',
+    summaryTitle: 'Ringkasan',
+    summarySubtitle: 'Total yang tercatat pada dokumen ini',
+    totalItems: 'Total item',
+    totalReceived: 'Total diterima',
+    totalRejected: 'Total ditolak',
     subtitle: '{label} dari {vendor}',
     infoTitle: 'Informasi {label}',
     bills: 'Faktur',

@@ -20,6 +20,7 @@ import {
   validateRequestForm,
   type RequestFormValues,
 } from '@/module/purchases/domain/requestForm';
+import { SubmitRequestDialog } from '@/module/purchases/presentation/components/requests/SubmitRequestDialog';
 import { RequestInfoSection } from '@/module/purchases/presentation/components/requests/RequestInfoSection';
 import { RequestIomSection } from '@/module/purchases/presentation/components/requests/RequestIomSection';
 import { RequestItemsEditor } from '@/module/purchases/presentation/components/requests/RequestItemsEditor';
@@ -55,6 +56,7 @@ const RequestFormBody = ({ existing }: Readonly<FormBodyProps>) => {
   const [iomFiles, setIomFiles] = useState<File[]>([]);
   const [showErrors, setShowErrors] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [confirming, setConfirming] = useState(false);
   const create = useCreateRequest();
   const update = useUpdateRequest();
   const submit = useSubmitRequest();
@@ -70,6 +72,15 @@ const RequestFormBody = ({ existing }: Readonly<FormBodyProps>) => {
   const errors = validateRequestForm(values);
   const set = <K extends keyof RequestFormValues>(key: K, value: RequestFormValues[K]) =>
     setValues((current) => ({ ...current, [key]: value }));
+
+  /** Submitting asks for one last look first; a form with mistakes shows them instead. */
+  const askSubmit = () => {
+    if (hasRequestErrors(errors)) {
+      setShowErrors(true);
+      return;
+    }
+    setConfirming(true);
+  };
 
   /** Saves the request, sends the chosen IOM files, then optionally submits it. */
   const save = async (thenSubmit: boolean) => {
@@ -114,7 +125,7 @@ const RequestFormBody = ({ existing }: Readonly<FormBodyProps>) => {
       backLabel={t('common.back')}
     >
       <Grid gutter="lg" align="flex-start">
-        <Grid.Col span={{ base: 12, lg: 8 }}>
+        <Grid.Col span={{ base: 12, lg: 9 }}>
           <Stack gap="lg">
             <RequestInfoSection
               values={values}
@@ -148,7 +159,7 @@ const RequestFormBody = ({ existing }: Readonly<FormBodyProps>) => {
           </Stack>
         </Grid.Col>
 
-        <Grid.Col span={{ base: 12, lg: 4 }} pos="sticky" top={20}>
+        <Grid.Col span={{ base: 12, lg: 3 }} pos="sticky" top={20}>
           <SectionCard icon={IconClipboardText} title={t('requests.form.summaryTitle')}>
             <Stack gap="xs">
               <Group justify="space-between">
@@ -176,7 +187,7 @@ const RequestFormBody = ({ existing }: Readonly<FormBodyProps>) => {
                 fullWidth
                 leftSection={<IconSend size={16} />}
                 loading={saving}
-                onClick={() => save(true)}
+                onClick={askSubmit}
               >
                 {existing?.status === 'RETURNED'
                   ? t('requests.form.saveResubmit')
@@ -206,6 +217,14 @@ const RequestFormBody = ({ existing }: Readonly<FormBodyProps>) => {
           </SectionCard>
         </Grid.Col>
       </Grid>
+      <SubmitRequestDialog
+        opened={confirming}
+        values={values}
+        departmentName={departmentOptions.find((d) => d.id === values.departmentId)?.name ?? ''}
+        loading={saving}
+        onClose={() => setConfirming(false)}
+        onConfirm={() => save(true)}
+      />
     </PageFrame>
   );
 };

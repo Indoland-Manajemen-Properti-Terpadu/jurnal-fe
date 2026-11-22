@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Button, Group, Modal, NumberInput, Stack, Text, TextInput } from '@mantine/core';
+import { Button, NumberInput, TextInput } from '@mantine/core';
+import { ModalFrame } from '@/components/Modals/ModalFrame';
 import { useTranslation } from '@/i18n';
 import {
   hasPayErrors,
@@ -57,69 +58,65 @@ export const PayDialog = ({ doc, opened, onClose }: Readonly<PayDialogProps>) =>
   };
 
   return (
-    <Modal
+    <ModalFrame
       opened={opened}
       onClose={onClose}
       title={t('payments.detail.payTitle')}
-      centered
-      radius="lg"
-    >
-      <Stack gap="md">
-        <Text size="sm" c="dimmed">
-          {t('payments.detail.payDescription', { amount: formatAmount(doc.totalAmount) })}
-        </Text>
-        <DateField
-          withAsterisk
-          label={t('payments.detail.paidAt2')}
-          value={paidAt}
-          minDate={minDate ? (fromIsoDay(minDate) ?? undefined) : undefined}
-          onChange={(value) => patch({ paidAt: value })}
-          error={showErrors && errors.paidAt ? t('payments.detail.paidAtRequired') : undefined}
-        />
-        <PaymentMethodField
-          value={values.paymentMethodId}
-          onChange={(id) => patch({ paymentMethodId: id })}
-        />
-        <DepositAccountField
-          withAsterisk
-          value={values.depositAccountId}
-          onChange={(id) => patch({ depositAccountId: id })}
-          error={
-            showErrors && errors.depositAccountId ? t('payments.detail.depositRequired') : undefined
-          }
-        />
-        <NumberInput
-          radius="md"
-          label={t('payments.detail.adminFee')}
-          description={t('payments.detail.adminFeeHint')}
-          value={values.adminFee}
-          min={0}
-          hideControls
-          allowNegative={false}
-          thousandSeparator="."
-          decimalSeparator=","
-          decimalScale={2}
-          prefix="Rp "
-          onChange={(value) => patch({ adminFee: typeof value === 'number' ? value : '' })}
-          error={showErrors && errors.adminFee ? t('payments.detail.adminFeeInvalid') : undefined}
-        />
-        <TextInput
-          radius="md"
-          label={t('payments.form.reference')}
-          placeholder={t('payments.form.referencePlaceholder')}
-          value={values.referenceNumber}
-          maxLength={100}
-          onChange={(event) => patch({ referenceNumber: event.currentTarget.value })}
-        />
-        <Group justify="flex-end" gap="sm">
+      description={t('payments.detail.payDescription', { amount: formatAmount(doc.totalAmount) })}
+      footer={
+        <>
           <Button variant="default" disabled={pay.isPending} onClick={onClose}>
             {t('common.cancel')}
           </Button>
           <Button loading={pay.isPending} onClick={confirm}>
             {t('payments.detail.payConfirm')}
           </Button>
-        </Group>
-      </Stack>
-    </Modal>
+        </>
+      }
+    >
+      <DateField
+        withAsterisk
+        label={t('payments.detail.paidAt2')}
+        value={paidAt}
+        minDate={minDate ? (fromIsoDay(minDate) ?? undefined) : undefined}
+        onChange={(value) => patch({ paidAt: value })}
+        error={showErrors && errors.paidAt ? t('payments.detail.paidAtRequired') : undefined}
+      />
+      <PaymentMethodField
+        value={values.paymentMethodId}
+        onChange={(id) => patch({ paymentMethodId: id })}
+      />
+      <DepositAccountField
+        withAsterisk
+        value={values.depositAccountId}
+        onChange={(id) => patch({ depositAccountId: id })}
+        error={
+          showErrors && errors.depositAccountId ? t('payments.detail.depositRequired') : undefined
+        }
+      />
+      <NumberInput
+        radius="md"
+        label={t('payments.detail.adminFee')}
+        description={t('payments.detail.adminFeeHint')}
+        value={values.adminFee}
+        min={0}
+        hideControls
+        allowNegative={false}
+        thousandSeparator="."
+        decimalSeparator=","
+        decimalScale={2}
+        prefix="Rp "
+        onChange={(value) => patch({ adminFee: typeof value === 'number' ? value : '' })}
+        error={showErrors && errors.adminFee ? t('payments.detail.adminFeeInvalid') : undefined}
+      />
+      <TextInput
+        radius="md"
+        label={t('payments.form.reference')}
+        placeholder={t('payments.form.referencePlaceholder')}
+        value={values.referenceNumber}
+        maxLength={100}
+        onChange={(event) => patch({ referenceNumber: event.currentTarget.value })}
+      />
+    </ModalFrame>
   );
 };

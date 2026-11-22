@@ -1,3 +1,4 @@
+import tableClasses from '@/module/purchases/presentation/components/shared/Table.module.css';
 import { Anchor, Table, Text } from '@mantine/core';
 import { IconClipboardText, IconListDetails } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
@@ -28,7 +29,10 @@ export const ReceiptSummaryCard = ({ receipt }: Readonly<ReceiptSummaryCardProps
     <>
       <SectionCard
         icon={IconClipboardText}
+        label
+        flush
         title={t('receipts.detail.infoTitle', { label: receipt.documentLabel })}
+        subtitle={t('receipts.detail.infoSubtitle')}
       >
         <InfoGrid
           items={[
@@ -40,7 +44,7 @@ export const ReceiptSummaryCard = ({ receipt }: Readonly<ReceiptSummaryCardProps
                   component={Link}
                   to={routes.purchases.orderDetail.replace(':id', receipt.purchaseOrderId)}
                   size="sm"
-                  fw={500}
+                  fw={700}
                 >
                   {receipt.purchaseOrderNumber || t('receipts.detail.viewOrder')}
                 </Anchor>
@@ -61,26 +65,35 @@ export const ReceiptSummaryCard = ({ receipt }: Readonly<ReceiptSummaryCardProps
                   ? receipt.billRefs.map((bill) => bill.number).join(', ')
                   : '',
             },
+            ...(receipt.journalId
+              ? [
+                  {
+                    label: t('receipts.detail.journalLabel'),
+                    value: t('receipts.detail.journalNote'),
+                  },
+                ]
+              : []),
             ...(receipt.memo
               ? [{ label: t('common.memo'), value: receipt.memo, span: 2 as const }]
               : []),
           ]}
         />
-        {receipt.journalId && (
-          <Text size="xs" c="dimmed">
-            {t('receipts.detail.journalNote')}
-          </Text>
-        )}
       </SectionCard>
 
-      <SectionCard icon={IconListDetails} title={t('receipts.detail.linesTitle')}>
-        <Table.ScrollContainer minWidth={520}>
-          <Table verticalSpacing="sm" horizontalSpacing="sm">
-            <Table.Thead bg="var(--jurnal-color-surface-hover)">
+      <SectionCard
+        icon={IconListDetails}
+        flush
+        title={t('receipts.detail.linesTitle')}
+        subtitle={t('receipts.detail.linesSubtitle')}
+        count={t('receipts.detail.itemsCount', { count: receipt.items.length })}
+      >
+        <Table.ScrollContainer type="native" minWidth={520}>
+          <Table className={tableClasses.table} verticalSpacing="sm" horizontalSpacing="lg">
+            <Table.Thead bg="var(--jurnal-color-surface-muted)">
               <Table.Tr>
                 {['item', 'quantity', ...(service ? [] : ['rejected']), 'accrual'].map((key) => (
                   <Table.Th key={key} ta={key === 'item' ? undefined : 'right'}>
-                    <Text size="xs" fw={700} c="dimmed" tt="uppercase">
+                    <Text size="xs" fw={700} c="dark.7">
                       {t(`receipts.detail.col.${key}`)}
                     </Text>
                   </Table.Th>
@@ -91,7 +104,7 @@ export const ReceiptSummaryCard = ({ receipt }: Readonly<ReceiptSummaryCardProps
               {receipt.items.map((item) => (
                 <Table.Tr key={item.id}>
                   <Table.Td>
-                    <Text size="sm" fw={500}>
+                    <Text size="sm" fw={700}>
                       {item.product?.name || item.description || '-'}
                     </Text>
                   </Table.Td>

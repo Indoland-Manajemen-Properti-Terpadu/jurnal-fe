@@ -1,4 +1,10 @@
 export const purchasesReturns = {
+  picker: {
+    title: 'Retur pembelian · pilih faktur',
+    description: 'Pilih dokumen yang akan dilanjutkan.',
+    search: 'Cari nomor dokumen atau vendor...',
+    empty: 'Belum ada faktur yang bisa diretur.',
+  },
   form: {
     titleCreate: 'Buat Retur Pembelian',
     titleEdit: 'Ubah Retur {number}',
@@ -71,6 +77,8 @@ export const purchasesReturns = {
     notEditableDescription: 'Hanya retur berstatus draf yang dapat diubah.',
   },
   detail: {
+    backToList: 'Kembali ke daftar retur',
+    journalLabel: 'Jurnal',
     subtitle: '{vendor} · tagihan {bill}',
     infoTitle: 'Informasi Retur',
     bill: 'Tagihan Asal',

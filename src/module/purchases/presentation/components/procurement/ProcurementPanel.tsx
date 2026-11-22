@@ -5,6 +5,7 @@ import { useTranslation } from '@/i18n';
 import {
   procurementEditable,
   procurementToInput,
+  quotesNeeded,
   type OrderRef,
   type ProcurementInput,
   type Quote,
@@ -18,6 +19,7 @@ import {
   ProcurementNotes,
   type NotesValues,
 } from '@/module/purchases/presentation/components/procurement/ProcurementNotes';
+import { ProcurementRouteCard } from '@/module/purchases/presentation/components/procurement/ProcurementRouteCard';
 import { ProcurementSteps } from '@/module/purchases/presentation/components/procurement/ProcurementSteps';
 import { QuoteModal } from '@/module/purchases/presentation/components/procurement/QuoteModal';
 import { QuotesTable } from '@/module/purchases/presentation/components/procurement/QuotesTable';
@@ -108,82 +110,101 @@ export const ProcurementPanel = ({ request, rights }: Readonly<ProcurementPanelP
       return winner && winner !== quote.vendor.id ? { ...next, winner } : next;
     }).finally(() => setRemoving(null));
 
+  const complete = Object.values(procurement.totals).filter((totals) => totals.complete).length;
+  const needed = quotesNeeded(procurement);
+  const shortBy = Math.max(0, needed - complete);
   const { submitErrors } = procurement;
   const needs = neededNotes(procurement);
+  // Reasons and submission come once the quotes are in, as the steps do.
+  const quotesIn = procurement.quotes.length > 0 && (single || shortBy === 0);
   const canSubmit = editable && submitErrors.length === 0 && procurement.quotes.length > 0;
 
   return (
     <Stack gap="lg">
+      {editable && (
+        <ProcurementRouteCard
+          route={procurement.route}
+          canChange={canSwitchRoute}
+          busy={busy}
+          onChange={(route) =>
+            persist((body) => {
+              // A winner picked on the single-vendor route is not a bidding result; the person picks again.
+              const { winner, ...rest } = body;
+              return route === 'BIDDING' ? { ...rest, route } : { ...body, route };
+            })
+          }
+        />
+      )}
       <ProcurementSteps procurement={procurement} />
 
       <SectionCard
         icon={IconUsers}
         title={t(`procurement.title.${procurement.route ?? 'BIDDING'}`)}
         subtitle={
-          bidding
-            ? t('procurement.subtitle.BIDDING', { needed: procurement.minQuotes })
-            : t('procurement.subtitle.SINGLE')
+          bidding && shortBy > 0
+            ? t('procurement.quotesShort', { count: shortBy, needed })
+            : bidding
+              ? t('procurement.subtitle.BIDDING', { needed })
+              : t('procurement.subtitle.SINGLE')
         }
         action={
-          canAddQuote ? (
-            <Button
-              variant="light"
-              size="sm"
-              leftSection={<IconPlus size={14} />}
-              onClick={() => setEditing({ quote: null })}
-            >
-              {t('procurement.addQuote')}
-            </Button>
-          ) : undefined
+          <Group gap="sm" wrap="nowrap">
+            {bidding && (
+              <Text size="sm" fw={600} c={shortBy > 0 ? 'orange.8' : 'green.7'}>
+                {t('procurement.quotesCount', { count: complete, needed })}
+              </Text>
+            )}
+            {canAddQuote && (
+              <Button
+                size="sm"
+                leftSection={<IconPlus size={14} />}
+                onClick={() => setEditing({ quote: null })}
+              >
+                {t('procurement.addQuote')}
+              </Button>
+            )}
+          </Group>
         }
       >
         {procurement.quotes.length === 0 ? (
-          <Text size="sm" c="dimmed">
-            {t(`procurement.empty.${procurement.route ?? 'BIDDING'}`)}
-          </Text>
+          <>
+            <Text size="sm" c="dimmed">
+              {t(`procurement.empty.${procurement.route ?? 'BIDDING'}`)}
+            </Text>
+            {bidding && (
+              <Alert
+                color="yellow"
+                variant="light"
+                radius="md"
+                icon={<IconAlertTriangle size={18} />}
+              >
+                {t('procurement.biddingMinimum', { needed })}
+              </Alert>
+            )}
+          </>
         ) : (
           <QuotesTable
             procurement={procurement}
             editable={editable}
-            canChoose={bidding}
+            canChoose={bidding && shortBy === 0}
             busy={busy}
             onChoose={(quote) => persist((body) => ({ ...body, winner: quote.vendor.id }))}
             onEdit={(quote) => setEditing({ quote })}
             onRemove={setRemoving}
           />
         )}
-        {editable && (
-          <Group gap="xs">
-            {(['BIDDING', 'SINGLE'] as const)
-              .filter((route) => route !== procurement.route)
-              .map((route) => (
-                <Button
-                  key={route}
-                  variant="subtle"
-                  size="xs"
-                  disabled={!canSwitchRoute || busy}
-                  onClick={() => persist((body) => ({ ...body, route }))}
-                >
-                  {t(`procurement.switchTo.${route}`)}
-                </Button>
-              ))}
-            {!canSwitchRoute && (
-              <Text size="xs" c="dimmed">
-                {t('procurement.switchBlocked')}
-              </Text>
-            )}
-          </Group>
-        )}
       </SectionCard>
 
-      <ProcurementNotes
-        procurement={procurement}
-        editable={editable}
-        saving={save.isPending}
-        onSave={(values: NotesValues) => persist((body) => ({ ...body, ...values }))}
-      />
+      {(quotesIn || !editable) && (
+        <ProcurementNotes
+          procurement={procurement}
+          editable={editable}
+          saving={save.isPending}
+          onSave={(values: NotesValues) => persist((body) => ({ ...body, ...values }))}
+        />
+      )}
 
-      {editable && (
+      {editable && quotesIn && (
         <SectionCard
           icon={IconSend}
           title={t('procurement.submitTitle')}

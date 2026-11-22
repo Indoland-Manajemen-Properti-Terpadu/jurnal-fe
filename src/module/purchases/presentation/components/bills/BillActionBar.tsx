@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Alert, Button, Checkbox, Group, Menu, Modal, Stack, Text } from '@mantine/core';
+import { Alert, Button, Checkbox, Menu } from '@mantine/core';
+import { ModalFrame } from '@/components/Modals/ModalFrame';
 import {
   IconCoins,
   IconDots,
@@ -117,27 +118,13 @@ export const BillActionBar = ({ bill }: Readonly<{ bill: PurchaseBill }>) => {
         </Menu>
       )}
 
-      <Modal
+      <ModalFrame
         opened={verifying}
         onClose={closeVerify}
         title={t('bills.detail.verifyTitle')}
-        centered
-        radius="lg"
-      >
-        <Stack gap="md">
-          <Text size="sm" c="dimmed">
-            {t('bills.detail.verifyDescription')}
-          </Text>
-          {hasVariance && (
-            <Alert color="yellow" variant="light" radius="md">
-              <Checkbox
-                checked={acknowledged}
-                onChange={(event) => setAcknowledged(event.currentTarget.checked)}
-                label={t('bills.detail.verifyAcknowledge')}
-              />
-            </Alert>
-          )}
-          <Group justify="flex-end" gap="sm">
+        description={t('bills.detail.verifyDescription')}
+        footer={
+          <>
             <Button variant="default" onClick={closeVerify} disabled={verify.isPending}>
               {t('common.cancel')}
             </Button>
@@ -153,9 +140,19 @@ export const BillActionBar = ({ bill }: Readonly<{ bill: PurchaseBill }>) => {
             >
               {t('bills.detail.verify')}
             </Button>
-          </Group>
-        </Stack>
-      </Modal>
+          </>
+        }
+      >
+        {hasVariance && (
+          <Alert color="yellow" variant="light" radius="md">
+            <Checkbox
+              checked={acknowledged}
+              onChange={(event) => setAcknowledged(event.currentTarget.checked)}
+              label={t('bills.detail.verifyAcknowledge')}
+            />
+          </Alert>
+        )}
+      </ModalFrame>
 
       <ReasonModal
         opened={voiding}

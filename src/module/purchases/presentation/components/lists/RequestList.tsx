@@ -5,6 +5,7 @@ import { useTranslation } from '@/i18n';
 import { REQUEST_STATUSES } from '@/module/purchases/domain/purchaseStatus';
 import { canCreateRequest } from '@/module/purchases/domain/requestAccess';
 import { detailPath } from '@/module/purchases/presentation/components/hub/documentPaths';
+import { viewAction } from '@/module/purchases/presentation/components/lists/rowActions';
 import { NumberCell, TextCell } from '@/module/purchases/presentation/components/lists/cells';
 import { ListShell } from '@/module/purchases/presentation/components/shared/ListShell';
 import { formatDay } from '@/module/purchases/presentation/components/shared/format';
@@ -66,7 +67,11 @@ export const RequestList = () => {
             )}
           </Table.Td>
           <TextCell value={row.department?.name ?? ''} />
-          <TextCell value={row.route ? t(`hub.requests.routes.${row.route}`) : ''} dimmed />
+          <Table.Td>
+            <Text size="sm" c={row.route ? undefined : 'dimmed'}>
+              {row.route ? t(`hub.requests.routes.${row.route}`) : '-'}
+            </Text>
+          </Table.Td>
           <Table.Td>
             <StatusBadge status={row.status} label={row.statusLabel} />
           </Table.Td>
@@ -81,6 +86,12 @@ export const RequestList = () => {
       totalPages={query.data?.totalPages ?? 0}
       totalResults={query.data?.totalResults ?? 0}
       onPageChange={state.setPage}
+      noun={t('list.nouns.request')}
+      limit={state.limit}
+      onLimitChange={state.setLimit}
+      rowActions={(row) => [
+        viewAction(t('list.view'), () => navigate(detailPath('request', row.id))),
+      ]}
       empty={{
         icon: <IconFilePlus size={32} stroke={1.6} />,
         title: t('hub.requests.emptyTitle'),

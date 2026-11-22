@@ -1,5 +1,5 @@
-import { Grid, Group, Stack } from '@mantine/core';
-import { IconShoppingCart } from '@tabler/icons-react';
+import { Grid, Stack } from '@mantine/core';
+import { IconBuilding, IconCalendar, IconFileText, IconUser } from '@tabler/icons-react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
 import { requestActions } from '@/module/purchases/domain/purchaseActions';
@@ -11,8 +11,8 @@ import { RequestSummaryCard } from '@/module/purchases/presentation/components/r
 import { StateFrame } from '@/module/purchases/presentation/components/requests/StateFrame';
 import { AttachmentsCard } from '@/module/purchases/presentation/components/shared/AttachmentsCard';
 import { DocumentJourney } from '@/module/purchases/presentation/components/shared/DocumentJourney';
-import { RequestHighlights } from '@/module/purchases/presentation/components/shared/DocumentHighlights';
-import { PageFrame } from '@/module/purchases/presentation/components/shared/PageFrame';
+import { DocumentFrame } from '@/module/purchases/presentation/components/shared/DocumentFrame';
+import { formatDay } from '@/module/purchases/presentation/components/shared/format';
 import { StatusBadge } from '@/module/purchases/presentation/components/shared/StatusBadge';
 import { usePurchaseAccess } from '@/module/purchases/presentation/hooks/usePurchaseAccess';
 import { useDocumentChain } from '@/module/purchases/presentation/hooks/useDashboard';
@@ -23,7 +23,7 @@ const BACK = routes.purchases.requests;
 
 export default function RequestDetailPage() {
   const { id } = useParams();
-  const { t } = useTranslation('purchases');
+  const { t, currentLanguage } = useTranslation('purchases');
   const { can, canRead, isLoading: accessLoading } = usePurchaseAccess();
   const request = useRequest(id);
   const journey = useDocumentChain('purchaseRequest', id);
@@ -55,24 +55,43 @@ export default function RequestDetailPage() {
   const canAttach = requestActions(doc).attach && requestRights(can, doc.isOwner).edit;
 
   return (
-    <PageFrame
-      icon={IconShoppingCart}
-      title={
-        <Group gap="sm" align="center">
-          <span>{doc.number}</span>
-          <StatusBadge status={doc.status} label={doc.statusLabel} />
-        </Group>
-      }
-      description={doc.purpose || t('requests.detail.subtitle')}
+    <DocumentFrame
+      icon={IconFileText}
+      number={doc.number}
+      badges={<StatusBadge status={doc.status} label={doc.statusLabel} />}
+      date={formatDay(doc.date, currentLanguage)}
       backTo={BACK}
-      backLabel={t('common.back')}
+      backLabel={t('requests.detail.backToList')}
       actions={<RequestActionBar request={doc} />}
+      waiting={
+        doc.status === 'SUBMITTED' &&
+        !(requestActions(doc).verify && requestRights(can, doc.isOwner).decide)
+          ? t('requests.detail.waitingAccounting')
+          : undefined
+      }
+      facts={[
+        {
+          icon: IconCalendar,
+          label: t('requests.detail.neededOn'),
+          value: formatDay(doc.requiredDate, currentLanguage),
+        },
+        {
+          icon: IconBuilding,
+          label: t('common.department'),
+          value: doc.department?.name ?? '-',
+        },
+        {
+          icon: IconUser,
+          label: t('requests.detail.requestedBy'),
+          value: doc.requester?.name ?? '-',
+          sub: doc.requester?.title,
+        },
+      ]}
     >
-      <RequestHighlights doc={doc} />
+      <RequestStatusNotice request={doc} />
       <Grid gutter="lg" align="flex-start">
         <Grid.Col span={{ base: 12, lg: 8 }}>
           <Stack gap="lg">
-            <RequestStatusNotice request={doc} />
             <ProcurementSection request={doc} />
             <RequestSummaryCard request={doc} />
           </Stack>
@@ -86,19 +105,9 @@ export default function RequestDetailPage() {
               attachments={doc.attachments}
               canUpload={canAttach}
             />
-            {doc.iom.attachments.length > 0 && (
-              <AttachmentsCard
-                target="request"
-                requestFile="iom"
-                titleKey="requests.detail.iomFiles"
-                documentId={doc.id}
-                attachments={doc.iom.attachments}
-                canUpload={canAttach}
-              />
-            )}
           </Stack>
         </Grid.Col>
       </Grid>
-    </PageFrame>
+    </DocumentFrame>
   );
 }

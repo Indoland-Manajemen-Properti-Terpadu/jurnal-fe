@@ -6,10 +6,10 @@ import {
   Stack,
   Table,
   Text,
-  Textarea,
   TextInput,
   Tooltip,
 } from '@mantine/core';
+import tableClasses from '@/module/purchases/presentation/components/shared/Table.module.css';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import {
@@ -46,11 +46,11 @@ export const RequestItemsEditor = ({
 
   return (
     <>
-      <Table.ScrollContainer minWidth={860}>
-        <Table verticalSpacing="xs" horizontalSpacing="xs">
+      <Table.ScrollContainer type="native" minWidth={680}>
+        <Table className={tableClasses.table} verticalSpacing="xs" horizontalSpacing="xs">
           <Table.Thead bg="var(--jurnal-color-surface-hover)">
             <Table.Tr>
-              {['kind', 'item', 'specification', 'quantity', 'unit'].map((key) => (
+              {['kind', 'item', 'quantity', 'unit'].map((key) => (
                 <Table.Th key={key}>
                   <Text size="xs" fw={700} c="dimmed" tt="uppercase">
                     {t(`requests.form.col.${key}`)}
@@ -66,7 +66,7 @@ export const RequestItemsEditor = ({
               const number = index + 1;
               return (
                 <Table.Tr key={item.key} style={{ verticalAlign: 'top' }}>
-                  <Table.Td w={120}>
+                  <Table.Td w={140}>
                     <Select
                       radius="md"
                       allowDeselect={false}
@@ -77,13 +77,29 @@ export const RequestItemsEditor = ({
                       }))}
                       value={item.kind}
                       onChange={(kind) =>
-                        kind && update(item.key, { kind: kind as typeof item.kind })
+                        kind &&
+                        update(item.key, {
+                          kind: kind as typeof item.kind,
+                          // A product of the other kind no longer fits the line.
+                          ...(kind !== item.kind ? { productId: '', productName: '' } : {}),
+                        })
                       }
                     />
                   </Table.Td>
                   <Table.Td miw={240}>
                     <Stack gap={6}>
                       <ProductPicker
+                        kind={item.kind}
+                        placeholder={t(
+                          item.kind === 'GOODS'
+                            ? 'requests.form.pickGoods'
+                            : 'requests.form.pickService'
+                        )}
+                        error={
+                          showErrors && row?.description
+                            ? t(`requests.form.itemError.${row.description}`)
+                            : undefined
+                        }
                         aria-label={t('requests.form.productAria', { number })}
                         value={item.productId}
                         selectedName={item.productName}
@@ -97,44 +113,21 @@ export const RequestItemsEditor = ({
                       />
                       <TextInput
                         radius="md"
-                        aria-label={t('requests.form.descriptionAria', { number })}
-                        placeholder={
-                          item.productId
-                            ? t('requests.form.descriptionOptional')
-                            : t('requests.form.descriptionPlaceholder')
-                        }
-                        value={item.description}
+                        aria-label={t('requests.form.specificationAria', { number })}
+                        placeholder={t('requests.form.specificationPlaceholder')}
+                        value={item.specification}
                         error={
-                          showErrors && row?.description
-                            ? t(`requests.form.itemError.${row.description}`)
+                          showErrors && row?.specification
+                            ? t('requests.form.itemError.tooLongSpec', {
+                                max: REQUEST_LIMITS.specification,
+                              })
                             : undefined
                         }
                         onChange={(event) =>
-                          update(item.key, { description: event.currentTarget.value })
+                          update(item.key, { specification: event.currentTarget.value })
                         }
                       />
                     </Stack>
-                  </Table.Td>
-                  <Table.Td miw={200}>
-                    <Textarea
-                      radius="md"
-                      autosize
-                      minRows={1}
-                      maxRows={4}
-                      aria-label={t('requests.form.specificationAria', { number })}
-                      placeholder={t('requests.form.specificationPlaceholder')}
-                      value={item.specification}
-                      error={
-                        showErrors && row?.specification
-                          ? t('requests.form.itemError.tooLongSpec', {
-                              max: REQUEST_LIMITS.specification,
-                            })
-                          : undefined
-                      }
-                      onChange={(event) =>
-                        update(item.key, { specification: event.currentTarget.value })
-                      }
-                    />
                   </Table.Td>
                   <Table.Td w={120}>
                     <NumberInput
@@ -192,17 +185,16 @@ export const RequestItemsEditor = ({
           {t('requests.form.itemsEmpty')}
         </Text>
       )}
-      <div>
-        <Button
-          variant="light"
-          size="sm"
-          radius="md"
-          leftSection={<IconPlus size={14} />}
-          onClick={() => onChange([...items, emptyRequestItem()])}
-        >
-          {t('requests.form.addItem')}
-        </Button>
-      </div>
+      <Button
+        fullWidth
+        variant="light"
+        size="sm"
+        radius="md"
+        leftSection={<IconPlus size={14} />}
+        onClick={() => onChange([...items, emptyRequestItem()])}
+      >
+        {t('requests.form.addItem')}
+      </Button>
     </>
   );
 };

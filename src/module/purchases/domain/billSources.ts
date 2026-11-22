@@ -59,3 +59,62 @@ export const togglePicked = (
   // An order bills straight from itself and can be combined with another of the same vendor and term.
   return source === 'ORDER' || source === 'RECEIPT' ? [...picked, doc] : picked;
 };
+
+export interface BillEstimateRow {
+  key: string;
+  description: string;
+  /** The receipt the line was received on, or the order for a line that only the order has. */
+  from: string;
+  qty: number;
+  unitPrice: number;
+  amount: number;
+}
+
+export interface BillEstimate {
+  rows: BillEstimateRow[];
+  /** DPP: the amounts before tax. */
+  subtotal: number;
+  tax: number;
+  total: number;
+  /** The one tax rate of every taxed line, or null when the rates differ or none is taxed. */
+  taxRate: number | null;
+}
+
+/**
+ * What the bill will roughly come to, from the quantities still open and the order's prices. The service
+ * works out the real figures when the bill is saved; this is only the preview shown before that.
+ */
+export const estimateBill = (picked: BillSourceDoc[]): BillEstimate => {
+  const rows: BillEstimateRow[] = [];
+  let subtotal = 0;
+  let tax = 0;
+  const rates = new Set<number>();
+  picked.forEach((doc) => {
+    [
+      ...doc.lines.map((line) => ({ line, from: doc.number })),
+      ...doc.orderLines.map((line) => ({ line, from: doc.orderNumber })),
+    ].forEach(({ line, from }) => {
+      const amount = line.openQty * line.unitPrice;
+      const rate = line.taxRate / 100;
+      const base = doc.isPriceIncludeTax ? amount / (1 + rate) : amount;
+      subtotal += base;
+      tax += doc.isPriceIncludeTax ? amount - base : base * rate;
+      if (line.taxRate > 0) rates.add(line.taxRate);
+      rows.push({
+        key: `${doc.id}-${line.purchaseOrderItemId}`,
+        description: line.description,
+        from,
+        qty: line.openQty,
+        unitPrice: line.unitPrice,
+        amount,
+      });
+    });
+  });
+  return {
+    rows,
+    subtotal,
+    tax,
+    total: subtotal + tax,
+    taxRate: rates.size === 1 ? [...rates][0] : null,
+  };
+};

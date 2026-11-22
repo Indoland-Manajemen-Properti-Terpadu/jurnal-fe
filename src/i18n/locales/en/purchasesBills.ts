@@ -1,9 +1,16 @@
 export const purchasesBills = {
   form: {
+    file: {
+      invoice: 'Vendor invoice',
+      tax: 'Tax invoice',
+      drop: 'Drop files here, or choose files',
+      hint: 'PDF, Word, Excel or images, up to 5 MB each',
+      chosen: 'Files to send when saved',
+    },
     titleCreate: 'Record Vendor Bill',
     titleEdit: 'Edit Bill {number}',
     subtitleCreate:
-      'Pick the receipts or the order to bill, then enter the data from the vendor’s invoice. Without a PO, the bill is typed in.',
+      'Vendor bill for goods or services already received. Quantities are limited by the receipt and prices are locked to the PO.',
     subtitleEdit:
       'The data of a draft bill can change. Its lines follow the receipts or the order.',
     sourceTitle: 'Bill source',
@@ -45,6 +52,7 @@ export const purchasesBills = {
     tagsPlaceholder: 'Select transaction tags',
     noTags: 'No tag found',
     kind: { none: 'None', percentage: 'Percent', nominal: 'Amount' },
+    adjustmentValue: '{label} value',
     discount: 'Discount',
     withholding: 'PPh withholding',
     withholdingCode: 'Tax code',
@@ -105,7 +113,84 @@ export const purchasesBills = {
     review: 'Check Again',
     continue: 'Continue Verifying',
   },
+  wizard: {
+    title: 'Record Bill',
+    source: 'Bill Source',
+    sourceHint: 'The vendor and the receipts to bill',
+    data: 'Bill Details',
+    dataHint: 'Number, dates, tax, files',
+    items: 'Item Details',
+    itemsHint: 'Quantity and price on the bill',
+    threeWayTitle: 'Three-way matching',
+    itemCol: {
+      item: 'Item',
+      from: 'Receipt',
+      open: 'Not billed yet',
+      qty: 'Qty',
+      price: 'PO price',
+      amount: 'Amount',
+    },
+    summary: {
+      subtotal: 'Subtotal (before tax)',
+      tax: 'VAT',
+      taxRate: 'VAT {rate}%',
+      payable: 'Accounts payable',
+      estimate: 'Estimate. The final figures are worked out when the bill is saved.',
+    },
+    nonePicked: { RECEIPT: 'No receipt chosen yet', ORDER: 'No order chosen yet' },
+    pickedCount: { RECEIPT: '{count} receipts chosen', ORDER: '{count} orders chosen' },
+    vendorHint: 'One bill is for one vendor. Changing the vendor clears the picks.',
+    col: {
+      receipt: 'Receipt no.',
+      order: 'Order no.',
+      fromOrder: 'From order',
+      date: 'Date',
+      term: 'Payment term',
+      open: 'Not billed yet',
+    },
+    mergeNote: {
+      RECEIPT:
+        'Several receipts can be combined into one bill as long as the vendor and payment term are the same. The term of the first receipt picked locks the rest.',
+      ORDER:
+        'Several orders can be combined into one bill as long as the vendor and payment term are the same. The term of the first order picked locks the rest.',
+    },
+    lineCount: '{count} lines',
+    itemsNote:
+      'Billed quantity is limited to what was received (receipt) and prices are locked to the PO. A price difference is asked about before verifying.',
+    choice: {
+      RECEIPT: {
+        title: 'From receipts (FPB/BAPP)',
+        description: 'One bill may cover several receipts from the same vendor.',
+      },
+      ORDER: {
+        title: 'From a PO/SPK',
+        description:
+          'Orders that skip the warehouse: paid in advance, or services without a handover.',
+      },
+      MANUAL: {
+        title: 'Without a receipt',
+        description: 'Non-PO bills: electricity, rent, recurring services. You type the lines.',
+      },
+    },
+  },
   detail: {
+    relatedCol: { number: 'Number', due: 'Due date', status: 'Status', remaining: 'Balance' },
+    infoSubtitle: 'Vendor, dates and where it comes from',
+    itemsSubtitle: 'Quantity and price the vendor charges',
+    itemsCount: '{count} items',
+    backToList: 'Back to the vendor bills list',
+    journalLabel: 'Journal',
+    paymentsTitle: 'Payments',
+    paymentsSubtitle: 'Payment Requests that settle this bill',
+    docsCount: '{count} documents',
+    paymentsEmpty: 'No Payment Request yet. Request payment with the button above.',
+    returnsTitle: 'Purchase returns',
+    returnsSubtitle: 'Goods sent back against this bill',
+    returnsCount: '{count} returns',
+    returnsEmpty: 'No return for this bill yet.',
+    payableLabel: 'Bill value',
+    returnedLabel: 'Return deduction',
+    amountsSubtitle: 'Bill value and remaining balance',
     subtitle: 'Bill from {vendor}',
     infoTitle: 'Bill Details',
     source: 'Source',

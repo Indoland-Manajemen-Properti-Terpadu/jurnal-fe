@@ -1,13 +1,4 @@
-import {
-  Grid,
-  MultiSelect,
-  NumberInput,
-  SegmentedControl,
-  Stack,
-  Text,
-  TextInput,
-  Textarea,
-} from '@mantine/core';
+import { Grid, MultiSelect, NumberInput, Select, TextInput, Textarea } from '@mantine/core';
 import { useTranslation } from '@/i18n';
 import type {
   BillFormErrors,
@@ -47,42 +38,52 @@ export const BillHeaderFields = ({
   const error = (key: keyof BillFormValues) =>
     showErrors && errors.fields[key] ? t(`bills.form.error.${errors.fields[key]}`) : undefined;
 
+  const KIND_DATA = KINDS.map((kind) => ({ value: kind, label: t(`bills.form.kind.${kind}`) }));
+  /** Kind as a dropdown with its value beside it; the value waits until a kind is chosen. */
   const adjustment = (
     kindKey: 'discountKind' | 'withholdingKind',
     valueKey: 'discountValue' | 'withholdingValue',
     label: string
-  ) => (
-    <Stack gap={6}>
-      <Text size="sm" fw={500}>
-        {label}
-      </Text>
-      <SegmentedControl
-        size="xs"
-        radius="md"
-        data={KINDS.map((kind) => ({ value: kind, label: t(`bills.form.kind.${kind}`) }))}
-        value={values[kindKey]}
-        onChange={(value) => onChange(kindKey, value as AdjustmentKind)}
-      />
-      {values[kindKey] !== 'none' && (
-        <NumberInput
-          radius="md"
-          aria-label={label}
-          {...MONEY}
-          min={0}
-          allowNegative={false}
-          prefix={values[kindKey] === 'nominal' ? 'Rp ' : undefined}
-          suffix={values[kindKey] === 'percentage' ? ' %' : undefined}
-          value={values[valueKey]}
-          onChange={(value) => onChange(valueKey, value === '' ? '' : Number(value))}
-          error={error(valueKey)}
-        />
-      )}
-    </Stack>
-  );
+  ) => {
+    const kind = values[kindKey];
+    return (
+      <>
+        <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
+          <Select
+            radius="md"
+            allowDeselect={false}
+            label={label}
+            data={KIND_DATA}
+            value={kind}
+            onChange={(value) => value && onChange(kindKey, value as AdjustmentKind)}
+          />
+        </Grid.Col>
+        <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
+          <NumberInput
+            radius="md"
+            label={t('bills.form.adjustmentValue', { label })}
+            {...MONEY}
+            min={0}
+            allowNegative={false}
+            disabled={kind === 'none'}
+            placeholder={kind === 'none' ? '-' : undefined}
+            prefix={kind === 'nominal' ? 'Rp ' : undefined}
+            suffix={kind === 'percentage' ? ' %' : undefined}
+            value={kind === 'none' ? '' : values[valueKey]}
+            onChange={(value) => onChange(valueKey, value === '' ? '' : Number(value))}
+            error={error(valueKey)}
+          />
+        </Grid.Col>
+      </>
+    );
+  };
+  // Hints sit under the input so every field in a row starts and ends on the same line.
+  const hintBelow = ['label', 'input', 'description', 'error'] as const;
+  const withholding = values.withholdingKind !== 'none';
 
   return (
     <Grid gutter="md">
-      <Grid.Col span={{ base: 12, sm: 6 }}>
+      <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
         <TextInput
           radius="md"
           label={t('bills.form.vendorInvoiceNumber')}
@@ -91,7 +92,7 @@ export const BillHeaderFields = ({
           onChange={(event) => onChange('vendorInvoiceNumber', event.currentTarget.value)}
         />
       </Grid.Col>
-      <Grid.Col span={{ base: 12, sm: 6 }}>
+      <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
         <TextInput
           radius="md"
           label={t('bills.form.taxInvoiceNumber')}
@@ -100,11 +101,35 @@ export const BillHeaderFields = ({
           onChange={(event) => onChange('taxInvoiceNumber', event.currentTarget.value)}
         />
       </Grid.Col>
-      <Grid.Col span={{ base: 12, sm: 6 }}>
+      <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
+        <DateField
+          withAsterisk
+          label={t('bills.form.date')}
+          value={values.date}
+          onChange={(value) => onChange('date', value)}
+          error={error('date')}
+        />
+      </Grid.Col>
+      <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
+        <DateField
+          clearable
+          label={t('bills.form.dueDate')}
+          description={dueHint ?? t('bills.form.dueDateHint')}
+          inputWrapperOrder={[...hintBelow]}
+          value={values.dueDate}
+          minDate={values.date || undefined}
+          onChange={(value) => onChange('dueDate', value)}
+          error={error('dueDate')}
+        />
+      </Grid.Col>
+      {adjustment('discountKind', 'discountValue', t('bills.form.discount'))}
+      {adjustment('withholdingKind', 'withholdingValue', t('bills.form.withholding'))}
+      <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
         <NumberInput
           radius="md"
           label={t('bills.form.vendorInvoiceTotal')}
           description={t('bills.form.vendorInvoiceTotalHint')}
+          inputWrapperOrder={[...hintBelow]}
           prefix="Rp "
           min={0}
           allowNegative={false}
@@ -114,27 +139,18 @@ export const BillHeaderFields = ({
           error={error('vendorInvoiceTotal')}
         />
       </Grid.Col>
-      <Grid.Col span={{ base: 12, sm: 6 }}>
-        <DateField
-          withAsterisk
-          label={t('bills.form.date')}
-          value={values.date}
-          onChange={(value) => onChange('date', value)}
-          error={error('date')}
-        />
-      </Grid.Col>
-      <Grid.Col span={{ base: 12, sm: 6 }}>
-        <DateField
-          clearable
-          label={t('bills.form.dueDate')}
-          description={dueHint ?? t('bills.form.dueDateHint')}
-          value={values.dueDate}
-          minDate={values.date || undefined}
-          onChange={(value) => onChange('dueDate', value)}
-          error={error('dueDate')}
-        />
-      </Grid.Col>
-      <Grid.Col span={{ base: 12, sm: 6 }}>
+      {withholding && (
+        <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
+          <TextInput
+            radius="md"
+            label={t('bills.form.withholdingCode')}
+            placeholder={t('bills.form.withholdingCodePlaceholder')}
+            value={values.withholdingTaxCode}
+            onChange={(event) => onChange('withholdingTaxCode', event.currentTarget.value)}
+          />
+        </Grid.Col>
+      )}
+      <Grid.Col span={withholding ? { base: 12, md: 6 } : { base: 12, md: 9 }}>
         <MultiSelect
           searchable
           clearable
@@ -146,22 +162,6 @@ export const BillHeaderFields = ({
           value={values.tagIds}
           onChange={(value) => onChange('tagIds', value)}
         />
-      </Grid.Col>
-      <Grid.Col span={{ base: 12, sm: 6 }}>
-        {adjustment('discountKind', 'discountValue', t('bills.form.discount'))}
-      </Grid.Col>
-      <Grid.Col span={{ base: 12, sm: 6 }}>
-        {adjustment('withholdingKind', 'withholdingValue', t('bills.form.withholding'))}
-        {values.withholdingKind !== 'none' && (
-          <TextInput
-            mt="xs"
-            radius="md"
-            aria-label={t('bills.form.withholdingCode')}
-            placeholder={t('bills.form.withholdingCodePlaceholder')}
-            value={values.withholdingTaxCode}
-            onChange={(event) => onChange('withholdingTaxCode', event.currentTarget.value)}
-          />
-        )}
       </Grid.Col>
       <Grid.Col span={12}>
         <Textarea

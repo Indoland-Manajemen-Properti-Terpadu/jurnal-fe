@@ -3,6 +3,10 @@ export const purchasesHub = {
   subtitle: 'Manage purchasing from request and order to goods receipt, vendor bill and payment.',
   refresh: 'Refresh data',
   createRequest: 'New Purchase Request',
+  createNew: 'New',
+  createReceipt: 'New Receipt',
+  createBill: 'New Vendor Bill',
+  createReturn: 'New Purchase Return',
   noAccessTitle: 'You do not have access to Purchases yet',
   noAccessDescription: 'Contact your administrator to get access to the purchasing menus.',
   tabs: {
@@ -11,8 +15,7 @@ export const purchasesHub = {
     orders: 'Orders',
     receipts: 'Receipts',
     bills: 'Bills',
-    paymentRequests: 'Payment Requests',
-    payments: 'Payment Vouchers',
+    payments: 'Payments',
     returns: 'Returns',
   },
   pages: {
@@ -35,14 +38,10 @@ export const purchasesHub = {
       title: 'Vendor Bills',
       description: 'Bills from vendors. Verify each one before it is paid.',
     },
-    paymentRequests: {
-      title: 'Payment Requests',
-      description:
-        'Requests to pay: settle a bill or the advance of a PO/SPK. They need approval before payment.',
-    },
     payments: {
-      title: 'Payment Vouchers',
-      description: 'Vouchers the cashier issues from approved Payment Requests, then pays.',
+      title: 'Purchase Payments',
+      description:
+        'Payment Requests for advances and settlements to vendors. Approvers approve, Finance pays.',
     },
     returns: {
       title: 'Purchase Returns',
@@ -50,6 +49,19 @@ export const purchasesHub = {
     },
   },
   overview: {
+    procurementTitle: 'Procurement',
+    procurementSubtitle: 'How vendors are chosen',
+    bidding: 'Bidding route',
+    single: 'Single vendor',
+    requestsCount: '{count} requests',
+    pastRequiredLabel: 'Past the required date',
+    open: 'Open',
+    waitingFor: 'waiting {count} days',
+    lateAlertTitle: '{count} actions past the usual limit',
+    lateAlertBody: 'Oldest: {title} · {subtitle}, late by {days} days.',
+    lateBadge: '{count} late',
+    moreActions: '+{count} more actions',
+    showLess: 'Show fewer',
     outstanding: 'Accounts payable outstanding',
     outstandingHint: 'across {count} unpaid bills',
     overdue: 'Past due',
@@ -110,6 +122,7 @@ export const purchasesHub = {
       'Purchasing starts with a request. Once Accounting verifies it, the request moves to procurement.',
   },
   orders: {
+    value: 'Value',
     colOrder: 'PO / SPK',
     search: 'Search PO or SPK number',
     expected: 'Expected on',
@@ -119,6 +132,10 @@ export const purchasesHub = {
       'A PO or SPK is created automatically when procurement is approved. Complete the procurement on the request detail.',
   },
   receipts: {
+    note: 'Delivery note / BAPP',
+    billed: 'Bill',
+    isBilled: 'Billed',
+    notBilled: 'Not billed yet',
     search: 'Search FPB or BAPP number',
     colReceipt: 'FPB / BAPP and date',
     order: 'PO / SPK',
@@ -131,6 +148,7 @@ export const purchasesHub = {
       'An FPB or BAPP is recorded from a sent PO or SPK when the goods or services arrive.',
   },
   bills: {
+    paidSub: 'Paid: {amount}',
     search: 'Search bill number, vendor invoice or vendor',
     dueDate: 'Due date',
     payable: 'Payable',
@@ -147,6 +165,9 @@ export const purchasesHub = {
       'Bills are created from orders whose goods have been received, then verified before payment.',
   },
   returns: {
+    colReturn: 'Return and date',
+    bill: 'Bill reference',
+    settlement: 'Settlement',
     search: 'Search return number or vendor',
     reason: 'Reason',
     value: 'Return value',

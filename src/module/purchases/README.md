@@ -137,6 +137,15 @@ Verified live on the Demo Site (2026-11-21), positive and negative.
 - Removed: `usePurchaseJourney`, `useOverviewData`, `usePipelineCounts` and `purchaseOverview` (the client side guess of "what needs action").
 - Test data kept: returns RB/2026/11/0001, 0002 and 0003 (voided), RB/2026/11/0004 (posted, `REFUND`, 1.000.000 paid back, 100.000 applied to FKT/2026/11/0004 as credit).
 
+## Screens: shared layout (slice 10)
+
+All purchasing screens share one set of building blocks in `presentation/components/shared/`: `DocumentFrame` (back link, header card, facts strip, two columns), `SectionCard` (icon tile, title, hairline, body), `InfoGrid`, `AmountsCard`, `RelatedDocsCard`, `DocumentJourney` and `ApprovalTrail` (the approval history sits inside the Persetujuan card, vertical), `ListShell`, `SourcePickerDialog` (the "Buat baru" pickers), `ReasonModal`, and `wizard/*` for the step forms (`WizardCard`, `WizardStepper`, `WizardActionBar`, `ChoiceCard`). Rules every screen follows: tables use `Table.module.css` (no line or empty space under the last row) and rows are the link; a badge is only for a status; notices sit full width under the header; dialogs use `ModalFrame`.
+
+- **Procurement** (FPPBJ detail): route card, steps card (cells follow the route: single vendor has no winner step), quotes card, then reasons and submit. The winner can be picked only when the complete quotes reach the minimum; the reasons and submit cards appear from that point; switching a request to bidding drops a winner kept from the single-vendor route. Steps count a winner as done only with enough quotes.
+- **Request form**: one column "Deskripsi / spesifikasi" (the product picker, then the specification), `Qty`, `Satuan`. The picker lists only goods (stock-tracked products) or only services, following the line's kind, and labels each option Barang or Jasa; a product of the other kind is cleared when the kind changes. There is no free-text name any more, so goods that are not in the catalog need a "Tambah produk" action in the picker (not built).
+- **Bill form** (3 steps): step 1 vendor select (the first vendor is preselected, changing it clears the picks) and a table of receipts or orders with a merge note; step 2 data and two upload boxes (vendor invoice, tax invoice), one file each, sent to `POST /purchase-bills/:id/attachments` once the bill is saved (the service has one bucket, no kind); step 3 lines with the three-way matching reminder and a DPP / PPN / payable preview from `estimateBill` (the service works out the real figures on save). Quantity is read only: the create body carries document ids, not quantities. "Total faktur vendor" stays: with it the service compares the vendor's total with its own (tolerance Rp1) when verifying.
+- Summary column of the request, receipt, payment and return forms is 3 of 12 columns.
+
 ## Contract facts that differ from the backend document (older documents, to be replaced slice by slice)
 
 Verified against the live service on 2026-11-04:
@@ -156,3 +165,5 @@ Namespace `purchases`, assembled from `purchasesCommon`, `purchasesHub`, `purcha
 
 - Who may approve each step (Settings > Alur Persetujuan) is configured elsewhere and is not part of this module.
 - Workaround adapters (`billExtras`, the aging normalizer) can be deleted once the shared mappers read those fields directly.
+- Request item editor has no "Tambah produk" action yet; the barang/jasa split relies on `inventoryInfo.isTracked`, which the service may not mean as goods vs service.
+- Bill form: no due date column or preview (the service sends only the term name), quantity cannot be partial, and the vendor invoice and tax invoice files are not told apart after saving. Open questions are on PRO-116.

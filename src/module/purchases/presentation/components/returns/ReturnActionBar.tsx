@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Button, Group, Menu, Modal, Stack, Text } from '@mantine/core';
+import { Button, Menu } from '@mantine/core';
+import { ModalFrame } from '@/components/Modals/ModalFrame';
 import { IconCash, IconCheck, IconDots, IconEdit, IconX } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
@@ -75,25 +76,20 @@ export const ReturnActionBar = ({ doc }: Readonly<{ doc: PurchaseReturn }>) => {
         </Menu>
       )}
 
-      <Modal
+      <ModalFrame
         opened={posting}
         onClose={() => setPosting(false)}
         title={t('returns.detail.postTitle')}
-        centered
-        radius="lg"
-      >
-        <Stack gap="md">
-          <Text size="sm" c="dimmed">
-            {t(
-              doc.settlement === 'REFUND'
-                ? 'returns.detail.postDescriptionRefund'
-                : doc.settlement === 'CREDIT'
-                  ? 'returns.detail.postDescriptionCredit'
-                  : 'returns.detail.postDescription',
-              { amount: formatAmount(doc.finalAmount) }
-            )}
-          </Text>
-          <Group justify="flex-end" gap="sm">
+        description={t(
+          doc.settlement === 'REFUND'
+            ? 'returns.detail.postDescriptionRefund'
+            : doc.settlement === 'CREDIT'
+              ? 'returns.detail.postDescriptionCredit'
+              : 'returns.detail.postDescription',
+          { amount: formatAmount(doc.finalAmount) }
+        )}
+        footer={
+          <>
             <Button variant="default" disabled={post.isPending} onClick={() => setPosting(false)}>
               {t('common.cancel')}
             </Button>
@@ -103,9 +99,9 @@ export const ReturnActionBar = ({ doc }: Readonly<{ doc: PurchaseReturn }>) => {
             >
               {t('returns.detail.postConfirm')}
             </Button>
-          </Group>
-        </Stack>
-      </Modal>
+          </>
+        }
+      />
 
       <ReasonModal
         opened={voiding}

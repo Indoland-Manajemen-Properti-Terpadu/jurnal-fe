@@ -180,7 +180,8 @@ describe('quotesNeeded and steps', () => {
 
   it('marks the steps as quotes, winner, notes and approval come in', () => {
     const open = procurement({ totals: { q1: complete } });
-    expect(procurementSteps(open).map((step) => step.done)).toEqual([false, true, false, false]);
+    // A winner left over from an earlier route does not count while the quotes are too few.
+    expect(procurementSteps(open).map((step) => step.done)).toEqual([false, false, false, false]);
 
     const ready = procurement({
       totals: { q1: complete, q2: complete },

@@ -1,4 +1,10 @@
 export const purchasesReturns = {
+  picker: {
+    title: 'Purchase return · choose a bill',
+    description: 'Choose the document to continue from.',
+    search: 'Search document number or vendor...',
+    empty: 'No bills can be returned yet.',
+  },
   form: {
     titleCreate: 'Create Purchase Return',
     titleEdit: 'Edit Return {number}',
@@ -71,6 +77,8 @@ export const purchasesReturns = {
     notEditableDescription: 'Only draft returns can be changed.',
   },
   detail: {
+    backToList: 'Back to the returns list',
+    journalLabel: 'Journal',
     subtitle: '{vendor} · bill {bill}',
     infoTitle: 'Return Details',
     bill: 'Source Bill',

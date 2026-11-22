@@ -8,6 +8,7 @@ import {
   type PaymentRequest,
 } from '@/module/purchases/domain/paymentRequest';
 import { PURCHASE_MENU } from '@/module/purchases/domain/purchaseAccess';
+import { IssueVoucherDialog } from '@/module/purchases/presentation/components/paymentRequests/IssueVoucherDialog';
 import { ReasonModal } from '@/module/purchases/presentation/components/shared/ReasonModal';
 import { usePurchaseAccess } from '@/module/purchases/presentation/hooks/usePurchaseAccess';
 import {
@@ -24,6 +25,7 @@ export const PaymentRequestActionBar = ({ doc }: Readonly<{ doc: PaymentRequest 
   const submit = useSubmitPaymentRequest();
   const cancel = useCancelPaymentRequest();
   const [cancelling, setCancelling] = useState(false);
+  const [issuing, setIssuing] = useState(false);
 
   const actions = paymentRequestActions(doc);
   const canUpdate = can(PURCHASE_MENU.paymentRequests, 'update');
@@ -52,11 +54,7 @@ export const PaymentRequestActionBar = ({ doc }: Readonly<{ doc: PaymentRequest 
         </Button>
       )}
       {showVoucher && (
-        <Button
-          radius="md"
-          leftSection={<IconWallet size={16} />}
-          onClick={() => navigate(`${routes.purchases.paymentAdd}?request=${doc.id}`)}
-        >
+        <Button radius="md" leftSection={<IconWallet size={16} />} onClick={() => setIssuing(true)}>
           {t('paymentRequests.detail.createVoucher')}
         </Button>
       )}
@@ -71,6 +69,7 @@ export const PaymentRequestActionBar = ({ doc }: Readonly<{ doc: PaymentRequest 
           {t('paymentRequests.detail.cancel')}
         </Button>
       )}
+      {issuing && <IssueVoucherDialog request={doc} opened onClose={() => setIssuing(false)} />}
       <ReasonModal
         opened={cancelling}
         title={t('paymentRequests.detail.cancelTitle')}

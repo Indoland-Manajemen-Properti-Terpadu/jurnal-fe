@@ -1,9 +1,16 @@
 export const purchasesBills = {
   form: {
+    file: {
+      invoice: 'Invoice vendor',
+      tax: 'Faktur pajak',
+      drop: 'Tarik berkas ke sini, atau pilih berkas',
+      hint: 'PDF, Word, Excel, atau gambar, maksimal 5 MB per berkas',
+      chosen: 'Berkas yang akan dikirim saat disimpan',
+    },
     titleCreate: 'Catat Faktur Vendor',
     titleEdit: 'Ubah Faktur {number}',
     subtitleCreate:
-      'Pilih penerimaan atau pesanan yang difakturkan, lalu isi data faktur dari vendor. Tanpa PO, faktur diketik sendiri.',
+      'Tagihan vendor atas barang/jasa yang sudah diterima. Qty dibatasi penerimaan dan harga dikunci sama dengan PO.',
     subtitleEdit:
       'Data faktur draf bisa diubah. Baris faktur mengikuti penerimaan atau pesanannya.',
     sourceTitle: 'Sumber faktur',
@@ -47,6 +54,7 @@ export const purchasesBills = {
     noTags: 'Tag tidak ditemukan',
     kind: { none: 'Tidak ada', percentage: 'Persen', nominal: 'Nominal' },
     discount: 'Diskon',
+    adjustmentValue: 'Nilai {label}',
     withholding: 'Potongan PPh',
     withholdingCode: 'Kode pajak',
     withholdingCodePlaceholder: 'Contoh: PPh23',
@@ -107,7 +115,84 @@ export const purchasesBills = {
     review: 'Periksa Lagi',
     continue: 'Lanjutkan Verifikasi',
   },
+  wizard: {
+    title: 'Catat Faktur',
+    source: 'Sumber Tagihan',
+    sourceHint: 'Vendor dan penerimaan yang ditagih',
+    data: 'Data Faktur',
+    dataHint: 'Nomor, tanggal, pajak, berkas',
+    items: 'Rincian Item',
+    itemsHint: 'Qty dan harga yang difaktur',
+    threeWayTitle: 'Pencocokan 3 arah',
+    itemCol: {
+      item: 'Item',
+      from: 'Penerimaan',
+      open: 'Belum difaktur',
+      qty: 'Qty',
+      price: 'Harga PO',
+      amount: 'Jumlah',
+    },
+    summary: {
+      subtotal: 'DPP',
+      tax: 'PPN',
+      taxRate: 'PPN {rate}%',
+      payable: 'Hutang Usaha',
+      estimate: 'Perkiraan. Angka akhir dihitung sistem saat faktur disimpan.',
+    },
+    nonePicked: { RECEIPT: 'Belum ada penerimaan dipilih', ORDER: 'Belum ada pesanan dipilih' },
+    pickedCount: { RECEIPT: '{count} penerimaan dipilih', ORDER: '{count} pesanan dipilih' },
+    vendorHint: 'Satu faktur hanya untuk satu vendor. Mengganti vendor mengosongkan pilihan.',
+    col: {
+      receipt: 'No. penerimaan',
+      order: 'No. pesanan',
+      fromOrder: 'Dari pesanan',
+      date: 'Tanggal',
+      term: 'Termin bayar',
+      open: 'Belum difaktur',
+    },
+    mergeNote: {
+      RECEIPT:
+        'Beberapa FPB/BAPP boleh digabung jadi satu faktur selama vendor dan termin bayarnya sama. Termin penerimaan yang dipilih pertama akan mengunci sisanya.',
+      ORDER:
+        'Beberapa PO/SPK boleh digabung jadi satu faktur selama vendor dan termin bayarnya sama. Termin pesanan yang dipilih pertama akan mengunci sisanya.',
+    },
+    lineCount: '{count} baris',
+    itemsNote:
+      'Qty faktur dibatasi qty diterima (FPB/BAPP) dan harga dikunci sama dengan PO. Selisih harga akan ditanyakan sebelum diverifikasi.',
+    choice: {
+      RECEIPT: {
+        title: 'Dari penerimaan (FPB/BAPP)',
+        description: 'Satu faktur boleh mencakup beberapa penerimaan dari vendor yang sama.',
+      },
+      ORDER: {
+        title: 'Dari PO/SPK',
+        description:
+          'Pesanan yang memang tidak lewat gudang: bayar di muka, atau jasa tanpa berita acara.',
+      },
+      MANUAL: {
+        title: 'Tanpa penerimaan',
+        description: 'Tagihan non-PO: listrik, sewa, jasa berulang. Barisnya diketik sendiri.',
+      },
+    },
+  },
   detail: {
+    relatedCol: { number: 'Nomor', due: 'Jatuh tempo', status: 'Status', remaining: 'Sisa hutang' },
+    infoSubtitle: 'Vendor, tanggal, dan dokumen asalnya',
+    itemsSubtitle: 'Qty dan harga yang ditagih vendor',
+    itemsCount: '{count} item',
+    backToList: 'Kembali ke daftar tagihan vendor',
+    journalLabel: 'Jurnal',
+    paymentsTitle: 'Pembayaran',
+    paymentsSubtitle: 'Payment Request yang melunasi faktur ini',
+    docsCount: '{count} dokumen',
+    paymentsEmpty: 'Belum ada Payment Request. Buat pembayaran dari tombol di atas.',
+    returnsTitle: 'Retur pembelian',
+    returnsSubtitle: 'Barang yang dikembalikan dari faktur ini',
+    returnsCount: '{count} retur',
+    returnsEmpty: 'Belum ada retur untuk faktur ini.',
+    payableLabel: 'Nilai tagihan',
+    returnedLabel: 'Potongan retur',
+    amountsSubtitle: 'Nilai tagihan dan sisa hutang',
     subtitle: 'Tagihan dari {vendor}',
     infoTitle: 'Informasi Tagihan',
     source: 'Sumber',

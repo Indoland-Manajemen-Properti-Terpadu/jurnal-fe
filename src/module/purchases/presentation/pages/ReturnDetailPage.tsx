@@ -1,4 +1,4 @@
-import { Grid, Group, Stack } from '@mantine/core';
+import { Grid, Stack } from '@mantine/core';
 import { IconCalculator, IconReceiptRefund } from '@tabler/icons-react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
@@ -11,9 +11,8 @@ import { ReturnValueRows } from '@/module/purchases/presentation/components/retu
 import { StateFrame } from '@/module/purchases/presentation/components/requests/StateFrame';
 import { AttachmentsCard } from '@/module/purchases/presentation/components/shared/AttachmentsCard';
 import { DocumentJourney } from '@/module/purchases/presentation/components/shared/DocumentJourney';
-import { ReturnHighlights } from '@/module/purchases/presentation/components/shared/DocumentHighlights';
-import { StatusNote } from '@/module/purchases/presentation/components/shared/StatusNote';
-import { PageFrame } from '@/module/purchases/presentation/components/shared/PageFrame';
+import { DocumentFrame } from '@/module/purchases/presentation/components/shared/DocumentFrame';
+import { formatDay } from '@/module/purchases/presentation/components/shared/format';
 import { SectionCard } from '@/module/purchases/presentation/components/shared/SectionCard';
 import { StatusBadge } from '@/module/purchases/presentation/components/shared/StatusBadge';
 import { usePurchaseAccess } from '@/module/purchases/presentation/hooks/usePurchaseAccess';
@@ -25,7 +24,7 @@ const BACK = routes.purchases.returns;
 
 export default function ReturnDetailPage() {
   const { id } = useParams();
-  const { t } = useTranslation('purchases');
+  const { t, currentLanguage } = useTranslation('purchases');
   const { can, canRead, isLoading: accessLoading } = usePurchaseAccess();
   const doc = useReturn(id);
   const bill = useBill(doc.data?.billId);
@@ -56,36 +55,25 @@ export default function ReturnDetailPage() {
   }
 
   return (
-    <PageFrame
+    <DocumentFrame
       icon={IconReceiptRefund}
-      title={
-        <Group gap="sm" align="center">
-          <span>{data.number}</span>
-          <StatusBadge status={data.status} label={data.statusLabel} />
-        </Group>
-      }
-      description={t('returns.detail.subtitle', {
-        vendor: data.vendor.name,
-        bill: bill.data?.number ?? '-',
-      })}
+      number={data.number}
+      badges={<StatusBadge status={data.status} label={data.statusLabel} />}
+      date={formatDay(data.date, currentLanguage)}
       backTo={BACK}
-      backLabel={t('common.back')}
+      backLabel={t('returns.detail.backToList')}
       actions={<ReturnActionBar doc={data} />}
     >
-      <ReturnHighlights doc={data} />
       <Grid gutter="lg" align="flex-start">
         <Grid.Col span={{ base: 12, lg: 8 }}>
           <Stack gap="lg">
-            {data.status === 'DRAFT' && (
-              <StatusNote tone="neutral">{t('returns.detail.draftNote')}</StatusNote>
-            )}
             <ReturnInfoCard doc={data} billNumber={bill.data?.number ?? null} />
             <ReturnLinesCard items={data.items} />
           </Stack>
         </Grid.Col>
         <Grid.Col span={{ base: 12, lg: 4 }}>
           <Stack gap="lg">
-            <SectionCard icon={IconCalculator} title={t('returns.detail.valueTitle')}>
+            <SectionCard icon={IconCalculator} label title={t('returns.detail.valueTitle')}>
               <ReturnValueRows figures={data} ns="returns.detail" />
             </SectionCard>
             {data.status === 'POSTED' && <ReturnSettlementCard doc={data} />}
@@ -99,6 +87,6 @@ export default function ReturnDetailPage() {
           </Stack>
         </Grid.Col>
       </Grid>
-    </PageFrame>
+    </DocumentFrame>
   );
 }

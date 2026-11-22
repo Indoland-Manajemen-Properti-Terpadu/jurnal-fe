@@ -1,8 +1,7 @@
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { ActionIcon, Button, Paper, Skeleton, Stack, Tooltip } from '@mantine/core';
 import {
   IconArrowBackUp,
-  IconCoins,
   IconFileText,
   IconLock,
   IconPackage,
@@ -22,10 +21,11 @@ import { canReadTab, type ListTab } from '@/module/purchases/presentation/compon
 import { BillList } from '@/module/purchases/presentation/components/lists/BillList';
 import { OrderList } from '@/module/purchases/presentation/components/lists/OrderList';
 import { PaymentRequestList } from '@/module/purchases/presentation/components/lists/PaymentRequestList';
-import { PaymentList } from '@/module/purchases/presentation/components/lists/PaymentList';
 import { ReceiptList } from '@/module/purchases/presentation/components/lists/ReceiptList';
 import { RequestList } from '@/module/purchases/presentation/components/lists/RequestList';
 import { ReturnList } from '@/module/purchases/presentation/components/lists/ReturnList';
+import { OrderPickerDialog } from '@/module/purchases/presentation/components/receipts/OrderPickerDialog';
+import { BillPickerDialog } from '@/module/purchases/presentation/components/returns/BillPickerDialog';
 import { PageFrame } from '@/module/purchases/presentation/components/shared/PageFrame';
 import { purchaseKeys } from '@/module/purchases/presentation/hooks/purchaseKeys';
 import { usePurchaseAccess } from '@/module/purchases/presentation/hooks/usePurchaseAccess';
@@ -36,7 +36,11 @@ interface ListPageConfig {
   icon: Icon;
   list: () => ReactNode;
   /** Only the first and last steps of the chain start from scratch; the others follow a document. */
-  create?: { labelKey: string; path: string; menu: 'request' | 'paymentRequests' | 'payments' };
+  create?: {
+    labelKey: string;
+    path: string;
+    menu: 'request' | 'paymentRequests' | 'documents' | 'returns' | 'receipts';
+  };
 }
 
 const PAGES: Record<ListTab, ListPageConfig> = {
@@ -46,10 +50,18 @@ const PAGES: Record<ListTab, ListPageConfig> = {
     create: { labelKey: 'hub.createRequest', path: routes.purchases.requestAdd, menu: 'request' },
   },
   orders: { icon: IconPackage, list: () => <OrderList /> },
-  receipts: { icon: IconTruckDelivery, list: () => <ReceiptList /> },
-  bills: { icon: IconReceipt2, list: () => <BillList /> },
-  paymentRequests: {
-    icon: IconCoins,
+  receipts: {
+    icon: IconTruckDelivery,
+    list: () => <ReceiptList />,
+    create: { labelKey: 'hub.createReceipt', path: 'orderPicker', menu: 'receipts' },
+  },
+  bills: {
+    icon: IconReceipt2,
+    list: () => <BillList />,
+    create: { labelKey: 'hub.createBill', path: routes.purchases.billAdd, menu: 'documents' },
+  },
+  payments: {
+    icon: IconWallet,
     list: () => <PaymentRequestList />,
     create: {
       labelKey: 'paymentRequests.list.create',
@@ -57,16 +69,11 @@ const PAGES: Record<ListTab, ListPageConfig> = {
       menu: 'paymentRequests',
     },
   },
-  payments: {
-    icon: IconWallet,
-    list: () => <PaymentList />,
-    create: {
-      labelKey: 'payments.list.create',
-      path: routes.purchases.paymentAdd,
-      menu: 'payments',
-    },
+  returns: {
+    icon: IconArrowBackUp,
+    list: () => <ReturnList />,
+    create: { labelKey: 'hub.createReturn', path: 'billPicker', menu: 'returns' },
   },
-  returns: { icon: IconArrowBackUp, list: () => <ReturnList /> },
 };
 
 interface PurchaseListPageProps {
@@ -81,6 +88,7 @@ export default function PurchaseListPage({ tab }: Readonly<PurchaseListPageProps
   const access = usePurchaseAccess();
   const scope = usePurchaseScope();
   const fetching = useIsFetching({ queryKey: purchaseKeys.all(scope) }) > 0;
+  const [picking, setPicking] = useState<'billPicker' | 'orderPicker' | null>(null);
   const config = PAGES[tab];
   const { create } = config;
   const canCreate = create ? access.can(PURCHASE_MENU[create.menu], 'create') : false;
@@ -109,7 +117,11 @@ export default function PurchaseListPage({ tab }: Readonly<PurchaseListPageProps
             <Button
               radius="md"
               leftSection={<IconPlus size={16} />}
-              onClick={() => navigate(create.path)}
+              onClick={() =>
+                create.path === 'billPicker' || create.path === 'orderPicker'
+                  ? setPicking(create.path)
+                  : navigate(create.path)
+              }
             >
               {t(create.labelKey)}
             </Button>
@@ -117,22 +129,34 @@ export default function PurchaseListPage({ tab }: Readonly<PurchaseListPageProps
         </>
       }
     >
-      <Paper withBorder radius="lg" p="md" bg="white">
-        {access.isLoading && (
+      {access.isLoading && (
+        <Paper withBorder radius="lg" p="md" bg="white">
           <Stack gap="md">
             <Skeleton height={36} radius="md" />
             <Skeleton height={220} radius="md" />
           </Stack>
-        )}
-        {!access.isLoading && allowed && config.list()}
-        {!access.isLoading && !allowed && (
+        </Paper>
+      )}
+      {!access.isLoading && allowed && config.list()}
+      {!access.isLoading && !allowed && (
+        <Paper withBorder radius="lg" p="md" bg="white">
           <EmptyState
             icon={<IconLock size={32} stroke={1.6} />}
             title={t('hub.noAccessTitle')}
             description={t('hub.noAccessDescription')}
           />
-        )}
-      </Paper>
+        </Paper>
+      )}
+      <BillPickerDialog
+        opened={picking === 'billPicker'}
+        onClose={() => setPicking(null)}
+        onPick={(billId) => navigate(`${routes.purchases.returnAdd}?bill=${billId}`)}
+      />
+      <OrderPickerDialog
+        opened={picking === 'orderPicker'}
+        onClose={() => setPicking(null)}
+        onPick={(orderId) => navigate(`${routes.purchases.receiptAdd}?order=${orderId}`)}
+      />
     </PageFrame>
   );
 }

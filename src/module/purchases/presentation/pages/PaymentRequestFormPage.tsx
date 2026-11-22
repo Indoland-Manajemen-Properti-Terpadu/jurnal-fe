@@ -17,7 +17,7 @@ import {
 } from '@/module/purchases/presentation/hooks/usePurchaseQueries';
 import { routes } from '@/router/routes';
 
-const BACK = routes.purchases.paymentRequests;
+const BACK = routes.purchases.payments;
 
 /** Creates a Payment Request (blank, or from a bill or an order) or changes a draft one. */
 export default function PaymentRequestFormPage() {

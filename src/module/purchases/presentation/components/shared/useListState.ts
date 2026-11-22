@@ -1,14 +1,13 @@
 import { useState } from 'react';
 import { useDebouncedValue } from '@mantine/hooks';
 
-export const PAGE_SIZE = 10;
-
 /** Search, status filter and page of one list; changing a filter returns to the first page. */
 export const useListState = (initialStatus = '') => {
   const [searchInput, setSearchInput] = useState('');
   const [debouncedSearch] = useDebouncedValue(searchInput, 350);
   const [status, setStatusValue] = useState(initialStatus);
   const [page, setPage] = useState(1);
+  const [limit, setLimitValue] = useState(10);
 
   return {
     searchInput,
@@ -23,6 +22,11 @@ export const useListState = (initialStatus = '') => {
     },
     page,
     setPage,
+    limit,
+    setLimit: (value: number) => {
+      setLimitValue(value);
+      setPage(1);
+    },
     reset: () => {
       setSearchInput('');
       setStatusValue('');
@@ -32,7 +36,7 @@ export const useListState = (initialStatus = '') => {
     /** Query params shared by every purchasing list. */
     params: {
       page,
-      limit: PAGE_SIZE,
+      limit,
       search: debouncedSearch.trim(),
       status,
       sortBy: 'createdAt',

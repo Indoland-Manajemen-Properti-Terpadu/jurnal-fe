@@ -1,18 +1,11 @@
 import { useState } from 'react';
-import { Badge, Button, Grid, Skeleton, Stack, Text, ThemeIcon } from '@mantine/core';
+import { Alert, Grid, Skeleton, Stack, Text } from '@mantine/core';
 import {
   IconAlertCircle,
+  IconAlertTriangle,
   IconCheck,
   IconChecklist,
   IconChevronRight,
-  IconCoins,
-  IconFileText,
-  IconPackage,
-  IconReceipt2,
-  IconReceiptRefund,
-  IconTruckDelivery,
-  IconWallet,
-  type Icon,
 } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 import { EmptyState } from '@/components/EmptyState';
@@ -21,7 +14,6 @@ import {
   actionPath,
   actionPrefix,
   lateDays,
-  type ActionTargetType,
   type DashboardAction,
   type DashboardActions,
   type DashboardSummary,
@@ -29,28 +21,20 @@ import {
 import { AgingCard } from '@/module/purchases/presentation/components/hub/AgingCard';
 import type { ListTab } from '@/module/purchases/presentation/components/hub/hubTabs';
 import classes from '@/module/purchases/presentation/components/hub/OverviewTab.module.css';
-import { PipelineStrip } from '@/module/purchases/presentation/components/hub/PipelineStrip';
+import {
+  PipelineStrip,
+  ProcurementCard,
+} from '@/module/purchases/presentation/components/hub/PipelineStrip';
 import { SectionCard } from '@/module/purchases/presentation/components/shared/SectionCard';
 import { formatDay } from '@/module/purchases/presentation/components/shared/format';
 
 const VISIBLE_ROWS = 8;
-
-const TARGET_ICON: Record<ActionTargetType, Icon> = {
-  purchaseRequest: IconFileText,
-  purchaseOrder: IconPackage,
-  goodsReceipt: IconTruckDelivery,
-  purchaseBill: IconReceipt2,
-  paymentRequest: IconCoins,
-  purchasePayment: IconWallet,
-  purchaseReturn: IconReceiptRefund,
-};
 
 const ActionRow = ({
   action,
   language,
 }: Readonly<{ action: DashboardAction; language: string }>) => {
   const { t } = useTranslation('purchases');
-  const RowIcon = TARGET_ICON[action.target.type];
   const prefix = actionPrefix(action.key);
   // The service words each action in Indonesian; English readers get a line of ours, never a guess.
   const title =
@@ -60,26 +44,27 @@ const ActionRow = ({
         ? t(`hub.overview.action.${prefix}`)
         : t('hub.overview.action.other');
   const late = lateDays(action);
+  const waiting = action.waiting !== null && action.waiting > 0 ? action.waiting : null;
   return (
-    <Link to={actionPath(action.target)} className={classes.row}>
-      <ThemeIcon variant="light" color="primary" size={32} radius="md">
-        <RowIcon size={16} stroke={1.8} />
-      </ThemeIcon>
+    <Link to={actionPath(action.target)} className={classes.row} data-late={late !== null}>
+      <span className={classes.bar} aria-hidden />
       <div className={classes.main}>
-        <Text size="sm" fw={500} c="primary.7" truncate>
+        <Text size="md" fw={600} lh={1.3}>
           {title}
         </Text>
-        <Text size="xs" c="dimmed" truncate>
+        <Text size="xs" c="dimmed">
           {action.subtitle}
           {action.due &&
+            late === null &&
             ` · ${t('hub.overview.dueOn', { date: formatDay(action.due.slice(0, 10), language) })}`}
         </Text>
+        {late !== null && (
+          <Text size="xs" c="red.7" fw={600}>
+            {t('hub.overview.lateBy', { count: late })}
+            {waiting !== null && ` · ${t('hub.overview.waitingFor', { count: waiting })}`}
+          </Text>
+        )}
       </div>
-      {late !== null && (
-        <Badge color="red" variant="light" radius="sm">
-          {t('hub.overview.lateBy', { count: late })}
-        </Badge>
-      )}
       <IconChevronRight size={16} color="var(--mantine-color-dimmed)" aria-hidden />
     </Link>
   );
@@ -145,15 +130,40 @@ export const OverviewTab = ({
         />
       );
     }
+    const oldest = items.find((action) => lateDays(action) !== null);
     return (
-      <div className={classes.list}>
-        {rows.map((action) => (
-          <ActionRow key={action.key} action={action} language={currentLanguage} />
-        ))}
-        {!expanded && items.length > VISIBLE_ROWS && (
-          <Button variant="subtle" fullWidth mt="xs" onClick={() => setExpanded(true)}>
-            {t('hub.overview.showAll', { count: items.length })}
-          </Button>
+      <div>
+        {actions && actions.late > 0 && oldest && (
+          <Alert
+            m="lg"
+            color="yellow"
+            variant="light"
+            radius="md"
+            icon={<IconAlertTriangle size={18} />}
+            title={t('hub.overview.lateAlertTitle', { count: actions.late })}
+          >
+            {t('hub.overview.lateAlertBody', {
+              title: currentLanguage === 'id' ? oldest.title : t('hub.overview.action.other'),
+              subtitle: oldest.subtitle,
+              days: lateDays(oldest) ?? 0,
+            })}
+          </Alert>
+        )}
+        <div className={classes.list}>
+          {rows.map((action) => (
+            <ActionRow key={action.key} action={action} language={currentLanguage} />
+          ))}
+        </div>
+        {items.length > VISIBLE_ROWS && (
+          <button
+            type="button"
+            className={classes.more}
+            onClick={() => setExpanded((value) => !value)}
+          >
+            {expanded
+              ? t('hub.overview.showLess')
+              : t('hub.overview.moreActions', { count: items.length - VISIBLE_ROWS })}
+          </button>
         )}
       </div>
     );
@@ -163,25 +173,29 @@ export const OverviewTab = ({
     <Stack gap="lg">
       {summary && <PipelineStrip summary={summary} canOpen={canOpen} onOpen={onOpen} />}
       <Grid gutter="lg" align="flex-start">
-        <Grid.Col span={{ base: 12, lg: aging && onOpenReport ? 8 : 12 }}>
+        <Grid.Col span={{ base: 12, lg: summary ? 8 : 12 }}>
           <SectionCard
             icon={IconChecklist}
+            flush
             title={t('hub.overview.workTitle')}
             subtitle={t('hub.overview.workSubtitle')}
             action={
-              actions && actions.total > 0 ? (
-                <Badge variant="light" color="gray" radius="sm">
-                  {actions.total}
-                </Badge>
+              actions && actions.late > 0 ? (
+                <Text size="xs" c="red.7" fw={600}>
+                  {t('hub.overview.lateBadge', { count: actions.late })}
+                </Text>
               ) : undefined
             }
           >
             {body()}
           </SectionCard>
         </Grid.Col>
-        {aging && onOpenReport && (
-          <Grid.Col span={{ base: 12, lg: 4 }}>
-            <AgingCard buckets={aging} onOpenReport={onOpenReport} />
+        {summary && (
+          <Grid.Col span={{ base: 12, lg: aging && onOpenReport ? 4 : 12 }}>
+            <Stack gap="lg">
+              {aging && onOpenReport && <AgingCard buckets={aging} onOpenReport={onOpenReport} />}
+              <ProcurementCard summary={summary} />
+            </Stack>
           </Grid.Col>
         )}
       </Grid>

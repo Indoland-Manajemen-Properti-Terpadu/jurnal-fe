@@ -8,6 +8,7 @@ import {
   TextInput,
   Tooltip,
 } from '@mantine/core';
+import tableClasses from '@/module/purchases/presentation/components/shared/Table.module.css';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { useSimpleAccounts } from '@/module/chart-of-accounts';
 import { useTranslation } from '@/i18n';
@@ -48,8 +49,8 @@ export const BillManualLines = ({
 
   return (
     <>
-      <Table.ScrollContainer minWidth={900}>
-        <Table verticalSpacing="xs" horizontalSpacing="xs">
+      <Table.ScrollContainer type="native" minWidth={900}>
+        <Table className={tableClasses.table} verticalSpacing="xs" horizontalSpacing="xs">
           <Table.Thead bg="var(--jurnal-color-surface-hover)">
             <Table.Tr>
               {['product', 'account', 'description', 'quantity', 'unitPrice', 'tax'].map((key) => (
@@ -188,17 +189,16 @@ export const BillManualLines = ({
           {t('bills.form.error.linesEmpty')}
         </Text>
       )}
-      <div>
-        <Button
-          variant="light"
-          size="sm"
-          radius="md"
-          leftSection={<IconPlus size={14} />}
-          onClick={() => onChange([...lines, emptyManualLine()])}
-        >
-          {t('bills.form.addLine')}
-        </Button>
-      </div>
+      <Button
+        fullWidth
+        variant="light"
+        size="sm"
+        radius="md"
+        leftSection={<IconPlus size={14} />}
+        onClick={() => onChange([...lines, emptyManualLine()])}
+      >
+        {t('bills.form.addLine')}
+      </Button>
     </>
   );
 };

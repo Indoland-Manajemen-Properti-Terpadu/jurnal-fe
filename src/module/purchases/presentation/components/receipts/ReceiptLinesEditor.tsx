@@ -1,3 +1,4 @@
+import tableClasses from '@/module/purchases/presentation/components/shared/Table.module.css';
 import { Button, Group, NumberInput, Table, Text } from '@mantine/core';
 import { IconChecks } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
@@ -45,8 +46,8 @@ export const ReceiptLinesEditor = ({
           {t('receipts.form.receiveAll')}
         </Button>
       </Group>
-      <Table.ScrollContainer minWidth={680}>
-        <Table verticalSpacing="xs" horizontalSpacing="xs">
+      <Table.ScrollContainer type="native" minWidth={680}>
+        <Table className={tableClasses.table} verticalSpacing="xs" horizontalSpacing="xs">
           <Table.Thead bg="var(--jurnal-color-surface-hover)">
             <Table.Tr>
               {[

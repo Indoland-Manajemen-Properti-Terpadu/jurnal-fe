@@ -1,6 +1,14 @@
 import { useMemo, useState } from 'react';
-import { Grid, NumberInput, Select, SegmentedControl, Stack, Text, Textarea } from '@mantine/core';
-import { IconClipboardText, IconCoins, IconListDetails, IconSum } from '@tabler/icons-react';
+import { Alert, Grid, Group, SimpleGrid, Stack, Text, Textarea } from '@mantine/core';
+import {
+  IconCalendar,
+  IconClipboardText,
+  IconCoins,
+  IconDeviceFloppy,
+  IconInfoCircle,
+  IconListDetails,
+  IconReceipt2,
+} from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
 import {
@@ -16,13 +24,17 @@ import {
 import type { PartyRef } from '@/module/purchases/domain/purchaseCommon';
 import { sumMinor, toMinor } from '@/lib/money/money';
 import { detailPath } from '@/module/purchases/presentation/components/hub/documentPaths';
-import { RequestableBillsEditor } from '@/module/purchases/presentation/components/paymentRequests/RequestableBillsEditor';
+import { PaymentRequestAmountFields } from '@/module/purchases/presentation/components/paymentRequests/PaymentRequestAmountFields';
 import { DateField } from '@/module/purchases/presentation/components/requests/DateField';
-import { FormActions } from '@/module/purchases/presentation/components/shared/FormActions';
+import { FormFrame } from '@/module/purchases/presentation/components/shared/FormFrame';
 import { SupplierSelect } from '@/module/purchases/presentation/components/shared/LookupSelects';
-import { MoneyRows } from '@/module/purchases/presentation/components/shared/MoneyRows';
-import { PageFrame } from '@/module/purchases/presentation/components/shared/PageFrame';
-import { SectionCard } from '@/module/purchases/presentation/components/shared/SectionCard';
+import { ChoiceCard } from '@/module/purchases/presentation/components/shared/wizard/ChoiceCard';
+import { WizardActionBar } from '@/module/purchases/presentation/components/shared/wizard/WizardActionBar';
+import { WizardCard } from '@/module/purchases/presentation/components/shared/wizard/WizardCard';
+import {
+  WizardStepper,
+  type WizardStep,
+} from '@/module/purchases/presentation/components/shared/wizard/WizardStepper';
 import { formatAmount } from '@/module/purchases/presentation/components/shared/format';
 import {
   useCreatePaymentRequest,
@@ -31,7 +43,7 @@ import {
 import { useBills, useOrders } from '@/module/purchases/presentation/hooks/usePurchaseQueries';
 import { routes } from '@/router/routes';
 
-const BACK = routes.purchases.paymentRequests;
+const BACK = routes.purchases.payments;
 
 interface PaymentRequestFormBodyProps {
   initial: PaymentRequestFormValues;
@@ -52,6 +64,7 @@ export const PaymentRequestFormBody = ({
   const [values, setValues] = useState<PaymentRequestFormValues>(initial);
   const [vendorId, setVendorId] = useState(initialVendor?.id ?? '');
   const [showErrors, setShowErrors] = useState(false);
+  const [step, setStep] = useState(0);
   const isAdvance = values.kind === 'DP';
 
   const create = useCreatePaymentRequest((doc) => navigate(detailPath('paymentRequest', doc.id)));
@@ -101,8 +114,9 @@ export const PaymentRequestFormBody = ({
     setValues((current) => ({ ...current, ...next }));
 
   const submit = () => {
-    if (hasPaymentRequestErrors(errors)) {
+    if (hasPaymentRequestErrors(errors) || !vendorId) {
       setShowErrors(true);
+      setStep(!vendorId ? 0 : errors.date ? 2 : 1);
       return;
     }
     if (editing) {
@@ -123,8 +137,76 @@ export const PaymentRequestFormBody = ({
     setShowErrors(false);
   };
 
+  const steps: WizardStep[] = [
+    {
+      id: 'source',
+      label: t('paymentRequests.wizard.source'),
+      description: t('paymentRequests.wizard.sourceHint'),
+      icon: <IconClipboardText size={20} />,
+    },
+    {
+      id: 'amount',
+      label: t('paymentRequests.wizard.amount'),
+      description: t('paymentRequests.wizard.amountHint'),
+      icon: <IconListDetails size={20} />,
+    },
+    {
+      id: 'data',
+      label: t('paymentRequests.wizard.data'),
+      description: t('paymentRequests.wizard.dataHint'),
+      icon: <IconCalendar size={20} />,
+    },
+  ];
+  const stepOk = [
+    Boolean(vendorId),
+    !errors.noBills && !errors.order && !errors.advance && Object.keys(errors.bills).length === 0,
+    !errors.date,
+  ];
+  const next = () => {
+    if (!stepOk[step]) {
+      setShowErrors(true);
+      return;
+    }
+    setShowErrors(false);
+    setStep(step + 1);
+  };
+  const pickedCount = Object.keys(values.amounts).length;
+  const summary = (
+    <Group justify="space-between" wrap="nowrap">
+      <Text size="sm" c="dimmed">
+        {isAdvance
+          ? total > 0
+            ? t('paymentRequests.form.summaryAdvance')
+            : t('paymentRequests.form.summaryNone')
+          : pickedCount > 0
+            ? t('paymentRequests.form.summaryBills', { count: pickedCount })
+            : t('paymentRequests.form.summaryNone')}
+      </Text>
+      <Text size="lg" fw={700} c="primary.8">
+        {formatAmount(total)}
+      </Text>
+    </Group>
+  );
+  const finish = {
+    label: editing ? t('paymentRequests.form.saveEdit') : t('paymentRequests.form.save'),
+    icon: <IconDeviceFloppy size={16} />,
+    loading: saving,
+    onClick: submit,
+  };
+  const bar = (
+    <WizardActionBar
+      isFirst={step === 0}
+      isLast={step === steps.length - 1}
+      busy={saving}
+      onCancel={() => navigate(backTo ?? BACK)}
+      onBack={() => setStep(step - 1)}
+      onNext={next}
+      finish={finish}
+    />
+  );
+
   return (
-    <PageFrame
+    <FormFrame
       icon={IconCoins}
       title={
         editing
@@ -133,238 +215,132 @@ export const PaymentRequestFormBody = ({
       }
       description={t('paymentRequests.form.subtitle')}
       backTo={backTo ?? BACK}
-      backLabel={t('common.back')}
+      backLabel={t('paymentRequests.form.backToList')}
     >
-      <Grid gutter="lg" align="flex-start">
-        <Grid.Col span={{ base: 12, lg: 8 }}>
-          <Stack gap="lg">
-            <SectionCard
-              icon={IconClipboardText}
-              title={t('paymentRequests.form.infoTitle')}
-              subtitle={t('paymentRequests.form.infoSubtitle')}
-            >
-              <Grid gutter="md">
-                <Grid.Col span={12}>
-                  <Text size="sm" fw={500} mb={4}>
-                    {t('paymentRequests.form.kindTitle')}
-                  </Text>
-                  <SegmentedControl
-                    fullWidth
-                    radius="md"
-                    value={values.kind}
-                    disabled={Boolean(editing)}
-                    onChange={(value) => changeKind(value as PaymentRequestKind)}
-                    data={(['SETTLEMENT', 'DP'] as const).map((kind) => ({
-                      value: kind,
-                      label: t(`paymentRequests.kinds.${kind}`),
-                    }))}
-                  />
-                  <Text size="xs" c="dimmed" mt={4}>
-                    {editing
-                      ? t('paymentRequests.form.kindLocked')
-                      : t('paymentRequests.form.kindSubtitle')}
-                  </Text>
-                </Grid.Col>
-                <Grid.Col span={{ base: 12, sm: 6 }}>
-                  <SupplierSelect
-                    withAsterisk
-                    label={t('paymentRequests.form.vendor')}
-                    value={vendorId || null}
-                    selected={initialVendor}
-                    disabled={Boolean(editing)}
-                    description={editing ? t('paymentRequests.form.vendorLocked') : undefined}
-                    error={
-                      showErrors && !vendorId ? t('paymentRequests.form.vendorRequired') : undefined
-                    }
-                    onChange={(id) => {
-                      setVendorId(id ?? '');
-                      patch({ amounts: {}, purchaseOrderId: '', advanceAmount: '' });
-                    }}
-                  />
-                </Grid.Col>
-                <Grid.Col span={{ base: 12, sm: 6 }}>
-                  <DateField
-                    withAsterisk
-                    label={t('paymentRequests.form.date')}
-                    value={values.date}
-                    onChange={(value) => patch({ date: value })}
-                    error={
-                      showErrors && errors.date ? t('paymentRequests.form.dateRequired') : undefined
-                    }
-                  />
-                </Grid.Col>
-                <Grid.Col span={12}>
-                  <Textarea
-                    radius="md"
-                    label={t('common.memo')}
-                    value={values.memo}
-                    minRows={2}
-                    autosize
-                    maxLength={500}
-                    onChange={(event) => patch({ memo: event.currentTarget.value })}
-                  />
-                </Grid.Col>
-              </Grid>
-            </SectionCard>
+      <WizardStepper steps={steps} active={step} onStepClick={setStep} />
 
-            {isAdvance ? (
-              <SectionCard
-                icon={IconListDetails}
-                title={t('paymentRequests.form.orderTitle')}
-                subtitle={t('paymentRequests.form.orderSubtitle')}
-              >
-                {!vendorId && (
-                  <Text size="sm" c="dimmed">
-                    {t('paymentRequests.form.pickVendorFirst')}
-                  </Text>
-                )}
-                {vendorId && !ordersQuery.isLoading && orders.length === 0 && (
-                  <Text size="sm" c="dimmed">
-                    {t('paymentRequests.form.noOrders')}
-                  </Text>
-                )}
-                {vendorId && orders.length > 0 && (
-                  <Stack gap="md">
-                    <Select
-                      radius="md"
-                      withAsterisk
-                      searchable
-                      label={t('paymentRequests.form.order')}
-                      placeholder={t('paymentRequests.form.orderPlaceholder')}
-                      disabled={Boolean(editing)}
-                      data={orders.map((item) => ({ value: item.id, label: item.number }))}
-                      value={values.purchaseOrderId || null}
-                      onChange={(id) => {
-                        const picked = orders.find((item) => item.id === id);
-                        patch({
-                          purchaseOrderId: id ?? '',
-                          advanceAmount: picked ? picked.advance.available : '',
-                        });
-                      }}
-                      error={
-                        showErrors && errors.order
-                          ? t('paymentRequests.form.orderRequired')
-                          : undefined
-                      }
-                    />
-                    {order && (
-                      <Text size="xs" c="dimmed">
-                        {t('paymentRequests.form.orderHint', {
-                          amount: formatAmount(order.advance.amount),
-                          requested: formatAmount(order.advance.requested),
-                          available: formatAmount(available ?? 0),
-                        })}
-                      </Text>
-                    )}
-                    <NumberInput
-                      radius="md"
-                      withAsterisk
-                      label={t('paymentRequests.form.advanceAmount')}
-                      value={values.advanceAmount}
-                      min={0}
-                      hideControls
-                      allowNegative={false}
-                      thousandSeparator="."
-                      decimalSeparator=","
-                      decimalScale={2}
-                      prefix="Rp "
-                      onChange={(value) =>
-                        patch({ advanceAmount: typeof value === 'number' ? value : '' })
-                      }
-                      error={
-                        showErrors && errors.advance
-                          ? errors.advance === 'advanceTooHigh'
-                            ? t('paymentRequests.form.advanceTooHigh', {
-                                max: formatAmount(available ?? 0),
-                              })
-                            : t('paymentRequests.form.advanceInvalid')
-                          : undefined
-                      }
-                    />
-                  </Stack>
-                )}
-              </SectionCard>
-            ) : (
-              <SectionCard
-                icon={IconListDetails}
-                title={t('paymentRequests.form.billsTitle')}
-                subtitle={t('paymentRequests.form.billsSubtitle')}
-              >
-                {!vendorId && (
-                  <Text size="sm" c="dimmed">
-                    {t('paymentRequests.form.pickVendorFirst')}
-                  </Text>
-                )}
-                {billsEnabled && billsQuery.isLoading && (
-                  <Text size="sm" c="dimmed">
-                    {t('paymentRequests.form.loadingBills')}
-                  </Text>
-                )}
-                {billsEnabled && !billsQuery.isLoading && bills.length === 0 && (
-                  <Text size="sm" c="dimmed">
-                    {t('paymentRequests.form.noBills')}
-                  </Text>
-                )}
-                {bills.length > 0 && (
-                  <RequestableBillsEditor
-                    bills={bills}
-                    values={values}
-                    errors={errors}
-                    showErrors={showErrors}
-                    onChange={(amounts) => patch({ amounts })}
-                  />
-                )}
-                {showErrors && errors.noBills && (
-                  <Text size="sm" c="red" role="alert">
-                    {t('paymentRequests.form.noBillChosen')}
-                  </Text>
-                )}
-              </SectionCard>
+      {step === 0 && (
+        <WizardCard
+          icon={<IconClipboardText size={20} />}
+          title={t('paymentRequests.wizard.source')}
+          description={t('paymentRequests.wizard.sourceHint')}
+          footer={bar}
+        >
+          <Stack gap="lg">
+            <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
+              <ChoiceCard
+                icon={<IconReceipt2 size={18} />}
+                title={t('paymentRequests.kinds.SETTLEMENT')}
+                description={t('paymentRequests.wizard.settlementDesc')}
+                selected={!isAdvance}
+                disabled={Boolean(editing)}
+                onSelect={() => changeKind('SETTLEMENT')}
+              />
+              <ChoiceCard
+                icon={<IconCoins size={18} />}
+                title={t('paymentRequests.kinds.DP')}
+                description={t('paymentRequests.wizard.advanceDesc')}
+                selected={isAdvance}
+                disabled={Boolean(editing)}
+                onSelect={() => changeKind('DP')}
+              />
+            </SimpleGrid>
+            <SupplierSelect
+              withAsterisk
+              label={t('paymentRequests.form.vendor')}
+              value={vendorId || null}
+              selected={initialVendor}
+              disabled={Boolean(editing)}
+              description={
+                editing
+                  ? t('paymentRequests.form.vendorLocked')
+                  : t('paymentRequests.wizard.vendorHint')
+              }
+              error={showErrors && !vendorId ? t('paymentRequests.form.vendorRequired') : undefined}
+              onChange={(id) => {
+                setVendorId(id ?? '');
+                patch({ amounts: {}, purchaseOrderId: '', advanceAmount: '' });
+              }}
+            />
+            {!vendorId && (
+              <Alert color="blue" variant="light" radius="md" icon={<IconInfoCircle size={16} />}>
+                {t('paymentRequests.form.pickVendorFirst')}
+              </Alert>
             )}
           </Stack>
-        </Grid.Col>
+        </WizardCard>
+      )}
 
-        <Grid.Col span={{ base: 12, lg: 4 }} pos="sticky" top={20}>
-          <SectionCard icon={IconSum} title={t('paymentRequests.form.summaryTitle')}>
-            <Text size="sm">
-              {isAdvance
-                ? total > 0
-                  ? t('paymentRequests.form.summaryAdvance')
-                  : t('paymentRequests.form.summaryNone')
-                : Object.keys(values.amounts).length > 0
-                  ? t('paymentRequests.form.summaryBills', {
-                      count: Object.keys(values.amounts).length,
-                    })
-                  : t('paymentRequests.form.summaryNone')}
+      {step === 1 && (
+        <WizardCard
+          icon={<IconListDetails size={20} />}
+          title={
+            isAdvance ? t('paymentRequests.form.orderTitle') : t('paymentRequests.form.billsTitle')
+          }
+          description={
+            isAdvance
+              ? t('paymentRequests.form.orderSubtitle')
+              : t('paymentRequests.form.billsSubtitle')
+          }
+          summary={summary}
+          footer={bar}
+        >
+          <PaymentRequestAmountFields
+            isAdvance={isAdvance}
+            editing={Boolean(editing)}
+            values={values}
+            errors={errors}
+            showErrors={showErrors}
+            bills={bills}
+            billsLoading={billsQuery.isLoading}
+            orders={orders}
+            ordersLoading={ordersQuery.isLoading}
+            order={order}
+            available={available}
+            onChange={patch}
+          />
+        </WizardCard>
+      )}
+
+      {step === 2 && (
+        <WizardCard
+          icon={<IconCalendar size={20} />}
+          title={t('paymentRequests.wizard.data')}
+          description={t('paymentRequests.wizard.dataHint')}
+          summary={summary}
+          footer={bar}
+        >
+          <Grid gutter="md">
+            <Grid.Col span={{ base: 12, sm: 6 }}>
+              <DateField
+                withAsterisk
+                label={t('paymentRequests.form.date')}
+                value={values.date}
+                onChange={(value) => patch({ date: value })}
+                error={
+                  showErrors && errors.date ? t('paymentRequests.form.dateRequired') : undefined
+                }
+              />
+            </Grid.Col>
+            <Grid.Col span={12}>
+              <Textarea
+                radius="md"
+                label={t('common.memo')}
+                value={values.memo}
+                minRows={3}
+                autosize
+                maxLength={500}
+                onChange={(event) => patch({ memo: event.currentTarget.value })}
+              />
+            </Grid.Col>
+          </Grid>
+          {showErrors && hasPaymentRequestErrors(errors) && (
+            <Text size="xs" c="red" mt="sm" role="alert">
+              {t('paymentRequests.form.fixErrors')}
             </Text>
-            <MoneyRows
-              rows={[
-                {
-                  label: t('paymentRequests.form.total'),
-                  amount: formatAmount(total),
-                  emphasis: 'total',
-                },
-              ]}
-            />
-            <Text size="xs" c="dimmed">
-              {t('paymentRequests.form.draftNote')}
-            </Text>
-            {showErrors && hasPaymentRequestErrors(errors) && (
-              <Text size="xs" c="red" role="alert">
-                {t('paymentRequests.form.fixErrors')}
-              </Text>
-            )}
-            <FormActions
-              loading={saving}
-              submitLabel={
-                editing ? t('paymentRequests.form.saveEdit') : t('paymentRequests.form.save')
-              }
-              onSubmit={submit}
-              onCancel={() => navigate(backTo ?? BACK)}
-            />
-          </SectionCard>
-        </Grid.Col>
-      </Grid>
-    </PageFrame>
+          )}
+        </WizardCard>
+      )}
+    </FormFrame>
   );
 };

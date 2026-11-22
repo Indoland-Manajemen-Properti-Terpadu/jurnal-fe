@@ -4,6 +4,10 @@ export const purchasesHub = {
     'Kelola pembelian dari permintaan, pesanan, penerimaan barang, tagihan vendor hingga pembayaran.',
   refresh: 'Segarkan data',
   createRequest: 'Buat Permintaan Pembelian',
+  createNew: 'Buat baru',
+  createReceipt: 'Buat Penerimaan',
+  createBill: 'Buat Tagihan Vendor',
+  createReturn: 'Buat Retur Pembelian',
   noAccessTitle: 'Anda belum memiliki akses ke Pembelian',
   noAccessDescription: 'Hubungi administrator untuk mendapatkan hak akses pada menu pembelian.',
   tabs: {
@@ -12,8 +16,7 @@ export const purchasesHub = {
     orders: 'Pesanan',
     receipts: 'Penerimaan',
     bills: 'Tagihan',
-    paymentRequests: 'Payment Request',
-    payments: 'Payment Voucher',
+    payments: 'Pembayaran',
     returns: 'Retur',
   },
   pages: {
@@ -36,15 +39,10 @@ export const purchasesHub = {
       description:
         'Faktur dari vendor, dibuat dari penerimaan atau PO/SPK. Verifikasi dulu sebelum dibayar.',
     },
-    paymentRequests: {
-      title: 'Payment Request',
-      description:
-        'Pengajuan pembayaran: pelunasan faktur atau uang muka PO/SPK. Perlu disetujui sebelum dibayar.',
-    },
     payments: {
-      title: 'Payment Voucher',
+      title: 'Pembayaran Pembelian',
       description:
-        'Voucher yang diterbitkan kasir dari Payment Request yang disetujui, lalu dibayar.',
+        'Payment Request DP dan pelunasan ke vendor. Approver menyetujui, Finance membayar.',
     },
     returns: {
       title: 'Retur Pembelian',
@@ -52,6 +50,19 @@ export const purchasesHub = {
     },
   },
   overview: {
+    procurementTitle: 'Pengadaan',
+    procurementSubtitle: 'Jalur pemilihan vendor',
+    bidding: 'Jalur bidding',
+    single: 'Vendor tunggal',
+    requestsCount: '{count} permintaan',
+    pastRequiredLabel: 'Lewat tanggal dibutuhkan',
+    open: 'Buka',
+    waitingFor: 'menunggu {count} hari',
+    lateAlertTitle: '{count} tindakan melewati batas wajar',
+    lateAlertBody: 'Paling lama: {title} · {subtitle}, terlambat {days} hari.',
+    lateBadge: '{count} terlambat',
+    moreActions: '+{count} tindakan lain',
+    showLess: 'Tampilkan lebih sedikit',
     outstanding: 'Hutang usaha berjalan',
     outstandingHint: 'dari {count} tagihan yang belum lunas',
     overdue: 'Sudah jatuh tempo',
@@ -112,6 +123,7 @@ export const purchasesHub = {
       'Pembelian dimulai dari permintaan. Setelah diverifikasi Accounting, permintaan masuk ke pengadaan.',
   },
   orders: {
+    value: 'Nilai',
     colOrder: 'PO / SPK',
     search: 'Cari nomor PO atau SPK',
     expected: 'Perkiraan tiba',
@@ -121,6 +133,10 @@ export const purchasesHub = {
       'PO atau SPK dibuat otomatis saat pengadaan disetujui. Selesaikan pengadaan di detail permintaan.',
   },
   receipts: {
+    note: 'Surat jalan / BAPP',
+    billed: 'Faktur',
+    isBilled: 'Sudah difaktur',
+    notBilled: 'Belum difaktur',
     search: 'Cari nomor FPB atau BAPP',
     colReceipt: 'FPB / BAPP dan tanggal',
     order: 'PO / SPK',
@@ -133,6 +149,7 @@ export const purchasesHub = {
       'FPB atau BAPP dicatat dari PO atau SPK yang sudah dikirim, saat barang atau jasa sudah sampai.',
   },
   bills: {
+    paidSub: 'Terbayar: {amount}',
     search: 'Cari nomor tagihan, faktur vendor, atau vendor',
     dueDate: 'Jatuh tempo',
     payable: 'Hutang',
@@ -149,6 +166,9 @@ export const purchasesHub = {
       'Tagihan dibuat dari pesanan yang barangnya sudah diterima, lalu diverifikasi sebelum dibayar.',
   },
   returns: {
+    colReturn: 'Retur dan tanggal',
+    bill: 'Referensi faktur',
+    settlement: 'Penyelesaian',
     search: 'Cari nomor retur atau vendor',
     reason: 'Alasan',
     value: 'Nilai retur',

@@ -1,5 +1,16 @@
-import { ActionIcon, Button, Skeleton, Stack, Tooltip } from '@mantine/core';
-import { IconLock, IconPlus, IconRefresh, IconShoppingCart } from '@tabler/icons-react';
+import { useState } from 'react';
+import { ActionIcon, Button, Menu, Skeleton, Stack, Tooltip } from '@mantine/core';
+import {
+  IconArrowBackUp,
+  IconChevronDown,
+  IconFileText,
+  IconLock,
+  IconPlus,
+  IconReceipt2,
+  IconRefresh,
+  IconShoppingCart,
+  IconWallet,
+} from '@tabler/icons-react';
 import { useIsFetching, useQueryClient } from '@tanstack/react-query';
 import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { EmptyState } from '@/components/EmptyState';
@@ -13,6 +24,7 @@ import {
 } from '@/module/purchases/presentation/components/hub/hubTabs';
 import { OverviewMetrics } from '@/module/purchases/presentation/components/hub/OverviewMetrics';
 import { OverviewTab } from '@/module/purchases/presentation/components/hub/OverviewTab';
+import { BillPickerDialog } from '@/module/purchases/presentation/components/returns/BillPickerDialog';
 import { PageFrame } from '@/module/purchases/presentation/components/shared/PageFrame';
 import {
   useDashboardActions,
@@ -38,6 +50,45 @@ export default function PurchasesPage() {
   const canReport = access.can(PURCHASE_MENU.reports, 'read');
   const openReport = () => navigate(routes.purchases.payables);
   const visible = visibleTabs(access.can);
+  const [picking, setPicking] = useState(false);
+  const createItems = [
+    ...(access.can(PURCHASE_MENU.request, 'create')
+      ? [
+          {
+            label: t('hub.createRequest'),
+            icon: <IconFileText size={16} />,
+            run: () => navigate(routes.purchases.requestAdd),
+          },
+        ]
+      : []),
+    ...(access.can(PURCHASE_MENU.documents, 'create')
+      ? [
+          {
+            label: t('hub.createBill'),
+            icon: <IconReceipt2 size={16} />,
+            run: () => navigate(routes.purchases.billAdd),
+          },
+        ]
+      : []),
+    ...(access.can(PURCHASE_MENU.paymentRequests, 'create')
+      ? [
+          {
+            label: t('paymentRequests.list.create'),
+            icon: <IconWallet size={16} />,
+            run: () => navigate(routes.purchases.paymentRequestAdd),
+          },
+        ]
+      : []),
+    ...(access.can(PURCHASE_MENU.returns, 'create')
+      ? [
+          {
+            label: t('hub.createReturn'),
+            icon: <IconArrowBackUp size={16} />,
+            run: () => setPicking(true),
+          },
+        ]
+      : []),
+  ];
 
   // Old links opened a tab of this page (`?tab=bills`); each tab is a page of its own now.
   const legacyTab = LIST_TABS.find((tab) => tab === params.get('tab'));
@@ -70,7 +121,7 @@ export default function PurchasesPage() {
           onOpenReport={canReport ? openReport : undefined}
           onOpenReady={
             access.can(PURCHASE_MENU.payments, 'read')
-              ? () => navigate(routes.purchases.paymentRequests)
+              ? () => navigate(routes.purchases.payments)
               : undefined
           }
         />
@@ -110,19 +161,35 @@ export default function PurchasesPage() {
               <IconRefresh size={18} />
             </ActionIcon>
           </Tooltip>
-          {access.can(PURCHASE_MENU.request, 'create') && (
-            <Button
-              radius="md"
-              leftSection={<IconPlus size={16} />}
-              onClick={() => navigate(routes.purchases.requestAdd)}
-            >
-              {t('hub.createRequest')}
-            </Button>
+          {createItems.length > 0 && (
+            <Menu position="bottom-end" withinPortal shadow="md" radius="md">
+              <Menu.Target>
+                <Button
+                  radius="md"
+                  leftSection={<IconPlus size={16} />}
+                  rightSection={<IconChevronDown size={16} />}
+                >
+                  {t('hub.createNew')}
+                </Button>
+              </Menu.Target>
+              <Menu.Dropdown>
+                {createItems.map((item) => (
+                  <Menu.Item key={item.label} leftSection={item.icon} onClick={item.run}>
+                    {item.label}
+                  </Menu.Item>
+                ))}
+              </Menu.Dropdown>
+            </Menu>
           )}
         </>
       }
     >
       {body()}
+      <BillPickerDialog
+        opened={picking}
+        onClose={() => setPicking(false)}
+        onPick={(billId) => navigate(`${routes.purchases.returnAdd}?bill=${billId}`)}
+      />
     </PageFrame>
   );
 }

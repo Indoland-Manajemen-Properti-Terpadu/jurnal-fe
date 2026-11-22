@@ -99,7 +99,7 @@ export const ReturnFormBody = ({ bill, initial, editing }: Readonly<ReturnFormBo
       backLabel={t('common.back')}
     >
       <Grid gutter="lg" align="flex-start">
-        <Grid.Col span={{ base: 12, lg: 8 }}>
+        <Grid.Col span={{ base: 12, lg: 9 }}>
           <Stack gap="lg">
             <SectionCard
               icon={IconClipboardText}
@@ -223,7 +223,7 @@ export const ReturnFormBody = ({ bill, initial, editing }: Readonly<ReturnFormBo
           </Stack>
         </Grid.Col>
 
-        <Grid.Col span={{ base: 12, lg: 4 }} pos="sticky" top={20}>
+        <Grid.Col span={{ base: 12, lg: 3 }} pos="sticky" top={20}>
           <ReturnPreviewCard
             preview={preview}
             appliedToBill={split.appliedToBill}

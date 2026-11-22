@@ -23,7 +23,13 @@ export const BillInfoCard = ({ bill }: Readonly<BillInfoCardProps>) => {
   const overdue = isBillOverdue(bill, todayIso());
 
   return (
-    <SectionCard icon={IconClipboardText} title={t('bills.detail.infoTitle')}>
+    <SectionCard
+      icon={IconClipboardText}
+      label
+      flush
+      title={t('bills.detail.infoTitle')}
+      subtitle={t('bills.detail.infoSubtitle')}
+    >
       <InfoGrid
         items={[
           { label: t('common.vendor'), value: bill.vendor.name },
@@ -45,7 +51,7 @@ export const BillInfoCard = ({ bill }: Readonly<BillInfoCardProps>) => {
                     to: routes.purchases.orderDetail.replace(':id', ref.id),
                   })),
                 ].map((ref) => (
-                  <Anchor key={ref.id} component={Link} to={ref.to} size="sm" fw={500}>
+                  <Anchor key={ref.id} component={Link} to={ref.to} size="sm" fw={700}>
                     {ref.number}
                   </Anchor>
                 ))}
@@ -68,20 +74,18 @@ export const BillInfoCard = ({ bill }: Readonly<BillInfoCardProps>) => {
           {
             label: t('bills.detail.dueDate'),
             value: (
-              <Text span fz="sm" fw={500} c={overdue ? 'red.7' : undefined}>
+              <Text span fz="md" fw={700} c={overdue ? 'red.7' : undefined}>
                 {formatDay(bill.dueDate, currentLanguage)}
                 {overdue && ` · ${t('bills.detail.overdue')}`}
               </Text>
             ),
           },
+          ...(bill.journalId
+            ? [{ label: t('bills.detail.journalLabel'), value: t('bills.detail.journalNote') }]
+            : []),
           ...(bill.memo ? [{ label: t('common.memo'), value: bill.memo, span: 2 as const }] : []),
         ]}
       />
-      {bill.journalId && (
-        <Text fz="xs" c="dimmed">
-          {t('bills.detail.journalNote')}
-        </Text>
-      )}
     </SectionCard>
   );
 };

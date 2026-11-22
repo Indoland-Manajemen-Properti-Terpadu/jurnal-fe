@@ -1,8 +1,12 @@
 export const purchasesProcurement = {
+  routeCard: { title: 'Jalur pengadaan' },
+  routeLocked: 'Jalur tidak dapat diubah lagi karena penawaran sudah diisi atau sudah diajukan.',
+  quotesShort: 'Kurang {count} penawaran lagi untuk memenuhi syarat minimal {needed} penawaran.',
+  quotesCount: '{count} / {needed} penawaran',
   pickTitle: 'Pilih jalur pengadaan',
   pickSubtitle:
     'Permintaan sudah diverifikasi. Tentukan jalurnya sesuai riwayat vendor dan barang. Setelah dipilih, permintaan masuk ke tahap pengadaan.',
-  route: { BIDDING: 'Pengadaan dengan bidding', SINGLE: 'Vendor tunggal' },
+  route: { BIDDING: 'Bidding', SINGLE: 'Vendor tunggal' },
   routeHint: {
     BIDDING:
       'Kumpulkan beberapa penawaran, bandingkan, lalu pilih pemenang. Jalur normal untuk sebagian besar pembelian.',
@@ -11,7 +15,9 @@ export const purchasesProcurement = {
   },
   waitingForProcurement:
     'Permintaan sudah diverifikasi dan menunggu jalur pengadaan dipilih oleh bagian pengadaan.',
-  title: { BIDDING: 'Pengadaan dengan bidding', SINGLE: 'Pengadaan vendor tunggal' },
+  title: { BIDDING: 'Penawaran vendor', SINGLE: 'Pengadaan vendor tunggal' },
+  biddingMinimum:
+    'Bidding butuh minimal {needed} penawaran. Kalau hanya satu vendor yang bisa menyuplai, ganti jalur ke Vendor tunggal.',
   subtitle: {
     BIDDING:
       'Kumpulkan penawaran vendor, pilih pemenang, lalu ajukan. Minimal {needed} penawaran lengkap.',
@@ -22,6 +28,20 @@ export const purchasesProcurement = {
     SINGLE: 'Belum ada penawaran. Tambahkan penawaran dari vendor tunggal.',
   },
   steps: {
+    finalPrice: 'Harga final',
+    title: 'Langkah pengadaan',
+    progress: '{done} dari {total}',
+    next: 'Berikutnya:',
+    winnerDone: 'Pemenang dipilih',
+    winnerTodo: 'Belum dipilih',
+    notesDone: 'Alasan lengkap',
+    notesTodo: 'Belum lengkap',
+    hint: {
+      quotes: 'Tambah penawaran di bagian bawah ini',
+      winner: 'Pilih pemenang dari tabel penawaran',
+      notes: 'Isi alasan dan catatan yang diminta',
+      approval: 'Ajukan untuk persetujuan',
+    },
     quotes: 'Kumpulkan penawaran',
     winner: 'Pilih pemenang',
     notes: 'Alasan dan catatan',
@@ -34,7 +54,7 @@ export const purchasesProcurement = {
     APPROVED: 'Disetujui',
     REJECTED: 'Ditolak',
   },
-  addQuote: 'Tambah Penawaran',
+  addQuote: 'Tambah penawaran',
   col: {
     vendor: 'Vendor',
     term: 'Termin',

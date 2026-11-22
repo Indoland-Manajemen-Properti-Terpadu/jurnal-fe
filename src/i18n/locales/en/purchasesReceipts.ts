@@ -1,4 +1,11 @@
 export const purchasesReceipts = {
+  picker: {
+    title: 'Receipt · choose a PO/SPK',
+    description: 'Choose the order whose goods or work has arrived.',
+    search: 'Search document number or vendor...',
+    empty: 'No PO/SPK is waiting for a receipt.',
+    remaining: '{count} not received yet',
+  },
   form: {
     titleCreate: 'Record Goods Receipt (FPB)',
     titleService: 'Submit Service Receipt (BAPP)',
@@ -48,6 +55,20 @@ export const purchasesReceipts = {
     submit: 'Record Receipt',
   },
   detail: {
+    backToList: 'Back to the receipts list',
+    infoSubtitle: 'Vendor, who recorded it, the order and the delivery note',
+    journalLabel: 'Journal',
+    linesSubtitle: 'Quantities on this receipt against the order',
+    itemsCount: '{count} items',
+    billsTitle: 'Purchase bills',
+    billsSubtitle: 'Vendor bills made from this receipt',
+    billsCount: '{count} bills',
+    billsEmpty: 'No bill made from this receipt yet.',
+    summaryTitle: 'Summary',
+    summarySubtitle: 'Totals recorded on this document',
+    totalItems: 'Total items',
+    totalReceived: 'Total received',
+    totalRejected: 'Total rejected',
     subtitle: '{label} from {vendor}',
     infoTitle: '{label} Details',
     bills: 'Bills',

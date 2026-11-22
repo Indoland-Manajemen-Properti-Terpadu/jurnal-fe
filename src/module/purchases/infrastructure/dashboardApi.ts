@@ -3,7 +3,11 @@ import type {
   DashboardConfig,
   DashboardSummary,
 } from '@/module/purchases/domain/dashboard';
-import type { ChainType, DocumentChain } from '@/module/purchases/domain/documentChain';
+import type {
+  ChainDocument,
+  ChainType,
+  DocumentChain,
+} from '@/module/purchases/domain/documentChain';
 import type { ApiEnvelope } from '@/module/purchases/infrastructure/purchaseDto';
 import { http } from '@/module/purchases/infrastructure/purchaseHttp';
 
@@ -56,18 +60,33 @@ export const getDashboardActions = async (): Promise<DashboardActions> => {
 export const getDashboardConfig = async (): Promise<DashboardConfig> =>
   (await http.get<ApiEnvelope<DashboardConfig>>(`${DASHBOARD}/config`)).data;
 
+interface ChainDocumentDto {
+  id: string;
+  transactionNumber?: string | null;
+  status?: string | null;
+  kind?: string | null;
+}
+
+type ChainDto = Partial<Record<keyof DocumentChain, ChainDocumentDto[]>>;
+
+const toChainDocs = (docs: ChainDocumentDto[] | undefined): ChainDocument[] =>
+  (docs ?? []).map((doc) => ({
+    id: doc.id,
+    number: doc.transactionNumber ?? '',
+    status: doc.status ?? '',
+    kind: doc.kind ?? undefined,
+  }));
+
 /** Every document linked to one document: the request it came from down to payments and returns. */
 export const getDocumentChain = async (type: ChainType, id: string): Promise<DocumentChain> => {
-  const { data } = await http.get<
-    ApiEnvelope<Partial<DocumentChain> & { start: { type: ChainType; id: string } }>
-  >(`${DASHBOARD}/chain`, { type, id });
+  const { data } = await http.get<ApiEnvelope<ChainDto>>(`${DASHBOARD}/chain`, { type, id });
   return {
-    purchaseRequests: data.purchaseRequests ?? [],
-    purchaseOrders: data.purchaseOrders ?? [],
-    goodsReceipts: data.goodsReceipts ?? [],
-    purchaseBills: data.purchaseBills ?? [],
-    paymentRequests: data.paymentRequests ?? [],
-    purchasePayments: data.purchasePayments ?? [],
-    purchaseReturns: data.purchaseReturns ?? [],
+    purchaseRequests: toChainDocs(data.purchaseRequests),
+    purchaseOrders: toChainDocs(data.purchaseOrders),
+    goodsReceipts: toChainDocs(data.goodsReceipts),
+    purchaseBills: toChainDocs(data.purchaseBills),
+    paymentRequests: toChainDocs(data.paymentRequests),
+    purchasePayments: toChainDocs(data.purchasePayments),
+    purchaseReturns: toChainDocs(data.purchaseReturns),
   };
 };

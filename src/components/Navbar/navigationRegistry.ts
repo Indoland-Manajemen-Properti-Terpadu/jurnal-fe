@@ -12,7 +12,6 @@ import {
   Factory,
   FileText,
   GearSix,
-  HandCoins,
   Handshake,
   HouseLine,
   ListBullets,
@@ -148,9 +147,6 @@ export const navigationSections: NavSection[] = [
             ...NAV_MENU.purchaseReceipts,
           ]),
           child('purchasesBills', Receipt, routes.purchases.bills, [...NAV_MENU.purchaseBills]),
-          child('purchasesPaymentRequests', HandCoins, routes.purchases.paymentRequests, [
-            ...NAV_MENU.purchasePaymentRequests,
-          ]),
           child('purchasesPayments', Wallet, routes.purchases.payments, [
             ...NAV_MENU.purchasePayments,
           ]),
@@ -315,6 +311,12 @@ const extraTitles: TitleEntry[] = [
   { prefix: '/setting-budget', titleKey: 'budgetPlanning', groupKey: 'groupAccounting' },
   { prefix: '/settings/company-setting', titleKey: 'companySettings', groupKey: 'groupSettings' },
   { prefix: '/settings/user-management', titleKey: 'userManagement', groupKey: 'groupSettings' },
+  // Payment Requests are made and read on the Pembayaran page.
+  {
+    prefix: '/purchases/payment-requests',
+    titleKey: 'purchasesPayments',
+    groupKey: 'groupTransactions',
+  },
   { prefix: '/profile', titleKey: 'profile', groupKey: 'groupAccount' },
   // Old spelling kept so a bookmarked address still shows a title.
   { prefix: '/asset', titleKey: 'assets', groupKey: 'groupAccounting' },

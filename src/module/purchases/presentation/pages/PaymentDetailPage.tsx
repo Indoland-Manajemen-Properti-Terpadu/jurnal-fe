@@ -1,4 +1,4 @@
-import { Grid, Group, Stack } from '@mantine/core';
+import { Grid, Stack } from '@mantine/core';
 import { IconWallet } from '@tabler/icons-react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
@@ -11,12 +11,8 @@ import {
 } from '@/module/purchases/presentation/components/payments/PaymentDetailCards';
 import { StateFrame } from '@/module/purchases/presentation/components/requests/StateFrame';
 import { AttachmentsCard } from '@/module/purchases/presentation/components/shared/AttachmentsCard';
-import { PaymentHighlights } from '@/module/purchases/presentation/components/shared/DocumentHighlights';
-import { PageFrame } from '@/module/purchases/presentation/components/shared/PageFrame';
-import {
-  StatusNote,
-  type NoteTone,
-} from '@/module/purchases/presentation/components/shared/StatusNote';
+import { DocumentFrame } from '@/module/purchases/presentation/components/shared/DocumentFrame';
+import { formatDay } from '@/module/purchases/presentation/components/shared/format';
 import { StatusBadge } from '@/module/purchases/presentation/components/shared/StatusBadge';
 import { DocumentJourney } from '@/module/purchases/presentation/components/shared/DocumentJourney';
 import { useDocumentChain } from '@/module/purchases/presentation/hooks/useDashboard';
@@ -26,11 +22,9 @@ import { routes } from '@/router/routes';
 
 const BACK = routes.purchases.payments;
 
-const NOTE_TONE: Record<string, NoteTone> = { DRAFT: 'warning', PAID: 'info', VOID: 'danger' };
-
 export default function PaymentDetailPage() {
   const { id } = useParams();
-  const { t } = useTranslation('purchases');
+  const { t, currentLanguage } = useTranslation('purchases');
   const { can, isLoading: accessLoading } = usePurchaseAccess();
   const voucher = usePayment(id);
   const journey = useDocumentChain('purchasePayment', id);
@@ -60,26 +54,18 @@ export default function PaymentDetailPage() {
   }
 
   return (
-    <PageFrame
+    <DocumentFrame
       icon={IconWallet}
-      title={
-        <Group gap="sm" align="center">
-          <span>{doc.number}</span>
-          <StatusBadge status={doc.status} label={doc.statusLabel} />
-        </Group>
-      }
-      description={t('payments.detail.subtitle', { vendor: doc.vendor.name })}
+      number={doc.number}
+      badges={<StatusBadge status={doc.status} label={doc.statusLabel} />}
+      date={formatDay(doc.date, currentLanguage)}
       backTo={BACK}
-      backLabel={t('common.back')}
+      backLabel={t('payments.detail.backToList')}
       actions={<PaymentActionBar doc={doc} />}
     >
-      <PaymentHighlights doc={doc} />
       <Grid gutter="lg" align="flex-start">
         <Grid.Col span={{ base: 12, lg: 8 }}>
           <Stack gap="lg">
-            <StatusNote tone={NOTE_TONE[doc.status] ?? 'neutral'}>
-              {t(`payments.detail.note.${doc.status}`)}
-            </StatusNote>
             <PaymentInfoCard doc={doc} />
             <PaymentItemsCard doc={doc} />
           </Stack>
@@ -97,6 +83,6 @@ export default function PaymentDetailPage() {
           </Stack>
         </Grid.Col>
       </Grid>
-    </PageFrame>
+    </DocumentFrame>
   );
 }

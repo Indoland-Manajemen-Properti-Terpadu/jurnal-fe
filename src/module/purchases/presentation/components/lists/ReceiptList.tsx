@@ -5,13 +5,14 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
 import { RECEIPT_STATUSES } from '@/module/purchases/domain/purchaseStatus';
 import { detailPath } from '@/module/purchases/presentation/components/hub/documentPaths';
+import { viewAction } from '@/module/purchases/presentation/components/lists/rowActions';
 import { NumberCell, TextCell } from '@/module/purchases/presentation/components/lists/cells';
 import { ListShell } from '@/module/purchases/presentation/components/shared/ListShell';
 import {
   formatDay,
   formatQuantity,
 } from '@/module/purchases/presentation/components/shared/format';
-import { StatusBadge } from '@/module/purchases/presentation/components/shared/StatusBadge';
+import { ReceiptStatusBadge } from '@/module/purchases/presentation/components/receipts/ReceiptStatusBadge';
 import { useListState } from '@/module/purchases/presentation/components/shared/useListState';
 import { useReceipts } from '@/module/purchases/presentation/hooks/usePurchaseQueries';
 
@@ -54,9 +55,9 @@ export const ReceiptList = () => {
       columns={[
         { key: 'number', label: t('hub.receipts.colReceipt') },
         { key: 'vendor', label: t('common.vendor'), minWidth: 180 },
-        { key: 'order', label: t('hub.receipts.order') },
+        { key: 'note', label: t('hub.receipts.note') },
         { key: 'quantity', label: t('hub.receipts.quantity'), align: 'right' },
-        { key: 'status', label: t('common.status') },
+        { key: 'billed', label: t('hub.receipts.billed') },
       ]}
       rows={query.data?.items}
       getKey={(row) => row.id}
@@ -67,15 +68,15 @@ export const ReceiptList = () => {
             kind="receipt"
             id={row.id}
             number={row.number}
-            sub={formatDay(row.date, currentLanguage)}
+            sub={`${formatDay(row.date, currentLanguage)} · ${row.purchaseOrderNumber}`}
           />
           <TextCell value={row.vendor.name} maxWidth={260} />
-          <TextCell value={row.purchaseOrderNumber} dimmed />
+          <TextCell value={row.deliveryNote} />
           <Table.Td ta="right" style={{ fontVariantNumeric: 'tabular-nums' }}>
             {formatQuantity(row.items.reduce((total, item) => total + item.receivedQty, 0))}
           </Table.Td>
           <Table.Td>
-            <StatusBadge status={row.status} label={row.statusLabel} />
+            <ReceiptStatusBadge receipt={row} />
           </Table.Td>
         </>
       )}
@@ -91,6 +92,12 @@ export const ReceiptList = () => {
       totalPages={query.data?.totalPages ?? 0}
       totalResults={query.data?.totalResults ?? 0}
       onPageChange={state.setPage}
+      noun={t('list.nouns.receipt')}
+      limit={state.limit}
+      onLimitChange={state.setLimit}
+      rowActions={(row) => [
+        viewAction(t('list.view'), () => navigate(detailPath('receipt', row.id))),
+      ]}
       empty={{
         icon: <IconTruckDelivery size={32} stroke={1.6} />,
         title: t('hub.receipts.emptyTitle'),

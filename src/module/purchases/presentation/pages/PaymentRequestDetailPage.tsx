@@ -1,22 +1,21 @@
-import { Grid, Group, Stack } from '@mantine/core';
+import { Grid, Stack } from '@mantine/core';
 import { IconCoins } from '@tabler/icons-react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
+import { paymentRequestActions } from '@/module/purchases/domain/paymentRequest';
 import { PURCHASE_MENU } from '@/module/purchases/domain/purchaseAccess';
 import { PaymentRequestActionBar } from '@/module/purchases/presentation/components/paymentRequests/PaymentRequestActionBar';
 import {
   PaymentRequestInfoCard,
   PaymentRequestItemsCard,
+  PaymentRequestSummaryCard,
 } from '@/module/purchases/presentation/components/paymentRequests/PaymentRequestDetailCards';
 import { StateFrame } from '@/module/purchases/presentation/components/requests/StateFrame';
 import { ApprovalPanel } from '@/module/purchases/presentation/components/shared/ApprovalPanel';
-import { PageFrame } from '@/module/purchases/presentation/components/shared/PageFrame';
-import {
-  StatusNote,
-  type NoteTone,
-} from '@/module/purchases/presentation/components/shared/StatusNote';
-import { StatusBadge } from '@/module/purchases/presentation/components/shared/StatusBadge';
+import { DocumentFrame } from '@/module/purchases/presentation/components/shared/DocumentFrame';
 import { DocumentJourney } from '@/module/purchases/presentation/components/shared/DocumentJourney';
+import { formatDay } from '@/module/purchases/presentation/components/shared/format';
+import { StatusBadge } from '@/module/purchases/presentation/components/shared/StatusBadge';
 import { useDocumentChain } from '@/module/purchases/presentation/hooks/useDashboard';
 import { usePurchaseAccess } from '@/module/purchases/presentation/hooks/usePurchaseAccess';
 import {
@@ -26,21 +25,11 @@ import {
 import { usePaymentRequest } from '@/module/purchases/presentation/hooks/usePurchaseQueries';
 import { routes } from '@/router/routes';
 
-const BACK = routes.purchases.paymentRequests;
-
-const NOTE_TONE: Record<string, NoteTone> = {
-  DRAFT: 'neutral',
-  PENDING_APPROVAL: 'warning',
-  APPROVED: 'info',
-  REJECTED: 'danger',
-  PROCESSED: 'info',
-  PAID: 'info',
-  CANCELLED: 'danger',
-};
+const BACK = routes.purchases.payments;
 
 export default function PaymentRequestDetailPage() {
   const { id } = useParams();
-  const { t } = useTranslation('purchases');
+  const { t, currentLanguage } = useTranslation('purchases');
   const { can, isLoading: accessLoading } = usePurchaseAccess();
   const request = usePaymentRequest(id);
   const journey = useDocumentChain('paymentRequest', id);
@@ -74,34 +63,34 @@ export default function PaymentRequestDetailPage() {
   }
 
   return (
-    <PageFrame
+    <DocumentFrame
       icon={IconCoins}
-      title={
-        <Group gap="sm" align="center">
-          <span>{doc.number}</span>
-          <StatusBadge status={doc.status} label={doc.statusLabel} />
-        </Group>
-      }
-      description={t('paymentRequests.detail.subtitle', {
-        kind: t(`paymentRequests.kinds.${doc.kind}`),
-        vendor: doc.vendor?.name ?? '-',
-      })}
+      number={doc.number}
+      badges={<StatusBadge status={doc.status} label={doc.statusLabel} />}
+      date={formatDay(doc.date, currentLanguage)}
       backTo={BACK}
-      backLabel={t('common.back')}
+      backLabel={t('paymentRequests.detail.backToList')}
       actions={<PaymentRequestActionBar doc={doc} />}
+      waiting={
+        doc.status === 'PENDING_APPROVAL' && !paymentRequestActions(doc).decide
+          ? t('paymentRequests.detail.waitingApproval', {
+              level: doc.approval.pending[0]?.name ?? '',
+            })
+          : doc.status === 'APPROVED' && !can(PURCHASE_MENU.payments, 'create')
+            ? t('paymentRequests.detail.waitingVoucher')
+            : undefined
+      }
     >
       <Grid gutter="lg" align="flex-start">
         <Grid.Col span={{ base: 12, lg: 8 }}>
           <Stack gap="lg">
-            <StatusNote tone={NOTE_TONE[doc.status] ?? 'neutral'}>
-              {t(`paymentRequests.detail.note.${doc.status}`)}
-            </StatusNote>
             <PaymentRequestInfoCard doc={doc} />
             <PaymentRequestItemsCard doc={doc} />
           </Stack>
         </Grid.Col>
         <Grid.Col span={{ base: 12, lg: 4 }}>
           <Stack gap="lg">
+            <PaymentRequestSummaryCard doc={doc} />
             <ApprovalPanel
               approval={doc.approval}
               status={doc.status}
@@ -114,6 +103,6 @@ export default function PaymentRequestDetailPage() {
           </Stack>
         </Grid.Col>
       </Grid>
-    </PageFrame>
+    </DocumentFrame>
   );
 }

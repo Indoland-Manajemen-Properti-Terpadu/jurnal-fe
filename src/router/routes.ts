@@ -126,7 +126,6 @@ export const routes = {
     orders: '/purchases/orders',
     receipts: '/purchases/receipts',
     bills: '/purchases/bills',
-    paymentRequests: '/purchases/payment-requests',
     payments: '/purchases/payments',
     returns: '/purchases/returns',
     payables: '/purchases/payables',

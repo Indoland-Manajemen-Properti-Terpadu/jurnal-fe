@@ -1,0 +1,14 @@
+.card {
+  transition: border-color 120ms ease;
+}
+
+.card:hover,
+.trigger:focus-visible .card {
+  border-color: var(--mantine-color-primary-4);
+}
+
+.trigger {
+  display: block;
+  width: 100%;
+  text-align: left;
+}

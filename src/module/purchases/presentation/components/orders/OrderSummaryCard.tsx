@@ -1,4 +1,5 @@
-import { Anchor, Badge, Progress, Stack, Table, Text } from '@mantine/core';
+import tableClasses from '@/module/purchases/presentation/components/shared/Table.module.css';
+import { Anchor, Progress, Stack, Table, Text } from '@mantine/core';
 import { IconClipboardText, IconListDetails, IconSend, IconWallet } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
@@ -59,6 +60,8 @@ export const OrderSummaryCard = ({ order }: Readonly<{ order: PurchaseOrder }>) 
     <Stack gap="lg">
       <SectionCard
         icon={IconClipboardText}
+        label
+        flush
         title={t('orders.detail.infoTitle', { label })}
         subtitle={t('orders.detail.infoSubtitle')}
       >
@@ -89,21 +92,13 @@ export const OrderSummaryCard = ({ order }: Readonly<{ order: PurchaseOrder }>) 
             { label: t('orders.form.deliveryAddress'), value: order.deliveryAddress },
             {
               label: t('orders.detail.receiptRule'),
-              value: (
-                <Badge variant="light" color="gray" radius="sm">
-                  {t(order.withReceipt ? 'orders.detail.withReceipt' : 'orders.detail.noReceipt')}
-                </Badge>
-              ),
+              value: t(order.withReceipt ? 'orders.detail.withReceipt' : 'orders.detail.noReceipt'),
             },
             {
               label: t('orders.detail.pricing'),
-              value: (
-                <Badge variant="light" color="gray" radius="sm">
-                  {order.isPriceIncludeTax
-                    ? t('orders.detail.taxIncluded')
-                    : t('orders.detail.taxExcluded')}
-                </Badge>
-              ),
+              value: order.isPriceIncludeTax
+                ? t('orders.detail.taxIncluded')
+                : t('orders.detail.taxExcluded'),
             },
             { label: t('common.memo'), value: order.memo, span: 2 },
           ]}
@@ -113,6 +108,8 @@ export const OrderSummaryCard = ({ order }: Readonly<{ order: PurchaseOrder }>) 
       {order.status !== 'DRAFT' && (
         <SectionCard
           icon={IconSend}
+          label
+          flush
           title={t('orders.detail.sentTitle')}
           subtitle={t(
             order.sent.byEmail ? 'orders.detail.sentByEmail' : 'orders.detail.sentMarked'
@@ -131,6 +128,8 @@ export const OrderSummaryCard = ({ order }: Readonly<{ order: PurchaseOrder }>) 
       {order.advance.amount > 0 && (
         <SectionCard
           icon={IconWallet}
+          label
+          flush
           title={t('orders.detail.advanceTitle')}
           subtitle={t('orders.detail.advanceSubtitle')}
         >
@@ -157,12 +156,14 @@ export const OrderSummaryCard = ({ order }: Readonly<{ order: PurchaseOrder }>) 
 
       <SectionCard
         icon={IconListDetails}
+        flush
         title={t('orders.detail.itemsTitle')}
         subtitle={t('orders.detail.itemsSubtitle')}
+        count={t('orders.detail.itemsCount', { count: order.items.length })}
       >
-        <Table.ScrollContainer minWidth={760}>
-          <Table verticalSpacing="sm">
-            <Table.Thead bg="var(--jurnal-color-surface-hover)">
+        <Table.ScrollContainer type="native" minWidth={760}>
+          <Table className={tableClasses.table} verticalSpacing="sm" horizontalSpacing="lg">
+            <Table.Thead bg="var(--jurnal-color-surface-muted)">
               <Table.Tr>
                 {[
                   'item',
@@ -176,7 +177,7 @@ export const OrderSummaryCard = ({ order }: Readonly<{ order: PurchaseOrder }>) 
                     key={key}
                     ta={key === 'unitPrice' || key === 'amount' ? 'right' : undefined}
                   >
-                    <Text size="xs" fw={700} c="dimmed" tt="uppercase">
+                    <Text size="xs" fw={700} c="dark.7">
                       {t(`orders.detail.col.${key}`)}
                     </Text>
                   </Table.Th>
@@ -187,7 +188,7 @@ export const OrderSummaryCard = ({ order }: Readonly<{ order: PurchaseOrder }>) 
               {order.items.map((item) => (
                 <Table.Tr key={item.id}>
                   <Table.Td>
-                    <Text size="sm" fw={500}>
+                    <Text size="sm" fw={700}>
                       {item.product?.name ?? item.description}
                     </Text>
                     {item.product && item.description && (

@@ -1,4 +1,5 @@
-import { Badge, Checkbox, Table, Text } from '@mantine/core';
+import tableClasses from '@/module/purchases/presentation/components/shared/Table.module.css';
+import { Checkbox, Table, Text } from '@mantine/core';
 import { useTranslation } from '@/i18n';
 import { compatibleRequest, type ReadyRequest } from '@/module/purchases/domain/paymentForm';
 import { formatAmount } from '@/module/purchases/presentation/components/shared/format';
@@ -19,8 +20,8 @@ export const ReadyRequestsTable = ({
   const chosen = requests.filter((request) => picked.includes(request.id));
 
   return (
-    <Table.ScrollContainer minWidth={640}>
-      <Table verticalSpacing="xs" horizontalSpacing="sm">
+    <Table.ScrollContainer type="native" minWidth={640}>
+      <Table className={tableClasses.table} verticalSpacing="xs" horizontalSpacing="sm">
         <Table.Thead bg="var(--jurnal-color-surface-hover)">
           <Table.Tr>
             <Table.Th w={40} />
@@ -64,9 +65,9 @@ export const ReadyRequestsTable = ({
                 <Table.Td>
                   <Text size="sm">{request.vendorName}</Text>
                   {blocked && (
-                    <Badge size="xs" variant="light" color="gray" radius="sm">
+                    <Text size="xs" c="dimmed">
                       {t('payments.form.otherVendor')}
-                    </Badge>
+                    </Text>
                   )}
                 </Table.Td>
                 <Table.Td>

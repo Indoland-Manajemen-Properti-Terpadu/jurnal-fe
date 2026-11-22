@@ -1,8 +1,12 @@
 export const purchasesProcurement = {
+  routeCard: { title: 'Procurement route' },
+  routeLocked: 'The route can no longer change because quotes are filled in or it was submitted.',
+  quotesShort: '{count} more quotes needed to meet the minimum of {needed}.',
+  quotesCount: '{count} / {needed} quotes',
   pickTitle: 'Choose the procurement route',
   pickSubtitle:
     'The request is verified. Decide the route from the vendor and item history. Once chosen, the request moves to procurement.',
-  route: { BIDDING: 'Procurement by bidding', SINGLE: 'Single vendor' },
+  route: { BIDDING: 'Bidding', SINGLE: 'Single vendor' },
   routeHint: {
     BIDDING:
       'Collect several quotes, compare them, then pick a winner. The normal route for most purchases.',
@@ -10,7 +14,9 @@ export const purchasesProcurement = {
       'Only one vendor can supply this. One quote is enough, with no comparison, then it goes to the approvers.',
   },
   waitingForProcurement: 'The request is verified and waiting for procurement to choose the route.',
-  title: { BIDDING: 'Procurement by bidding', SINGLE: 'Single-vendor procurement' },
+  title: { BIDDING: 'Vendor quotes', SINGLE: 'Single-vendor procurement' },
+  biddingMinimum:
+    'Bidding needs at least {needed} quotes. If only one vendor can supply this, switch the route to Single vendor.',
   subtitle: {
     BIDDING:
       'Collect vendor quotes, pick a winner, then submit. At least {needed} complete quotes.',
@@ -21,6 +27,20 @@ export const purchasesProcurement = {
     SINGLE: 'No quote yet. Add the quote from the single vendor.',
   },
   steps: {
+    finalPrice: 'Final price',
+    title: 'Procurement steps',
+    progress: '{done} of {total}',
+    next: 'Next:',
+    winnerDone: 'Winner chosen',
+    winnerTodo: 'Not chosen yet',
+    notesDone: 'Reasons complete',
+    notesTodo: 'Not complete',
+    hint: {
+      quotes: 'Add quotes in the section below',
+      winner: 'Choose the winner from the quotes table',
+      notes: 'Fill in the reasons and notes asked for',
+      approval: 'Submit for approval',
+    },
     quotes: 'Collect quotes',
     winner: 'Pick the winner',
     notes: 'Reasons and notes',
@@ -33,7 +53,7 @@ export const purchasesProcurement = {
     APPROVED: 'Approved',
     REJECTED: 'Rejected',
   },
-  addQuote: 'Add Quote',
+  addQuote: 'Add quote',
   col: {
     vendor: 'Vendor',
     term: 'Term',
