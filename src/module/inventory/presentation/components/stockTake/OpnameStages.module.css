@@ -1,0 +1,37 @@
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 30px 1fr;
+  column-gap: var(--mantine-spacing-md);
+  padding-bottom: var(--mantine-spacing-lg);
+}
+
+.item:last-child {
+  padding-bottom: 0;
+}
+
+/* The line down to the next stage; brand blue once this stage is behind. */
+.item:not(:last-child)::before {
+  position: absolute;
+  top: 32px;
+  bottom: 2px;
+  left: 14px;
+  width: 2px;
+  content: '';
+  background: var(--mantine-color-gray-3);
+}
+
+.item[data-state='done']:not(:last-child)::before {
+  background: var(--mantine-color-primary-6);
+}
+
+.body {
+  min-width: 0;
+  padding-top: 4px;
+}
