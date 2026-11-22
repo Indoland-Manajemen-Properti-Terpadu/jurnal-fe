@@ -164,7 +164,8 @@ export interface ProcurementInput {
   belowMinQuotesReason: string;
   reason: string;
   negotiationNote: string;
-  winner?: string;
+  /** `null` clears the winner: the service keeps what a PUT leaves out, so omitting it changes nothing. */
+  winner?: string | null;
   quotes: QuoteInput[];
 }
 

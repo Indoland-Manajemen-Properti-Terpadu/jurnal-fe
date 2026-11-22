@@ -127,11 +127,11 @@ export const ProcurementPanel = ({ request, rights }: Readonly<ProcurementPanelP
           canChange={canSwitchRoute}
           busy={busy}
           onChange={(route) =>
-            persist((body) => {
-              // A winner picked on the single-vendor route is not a bidding result; the person picks again.
-              const { winner, ...rest } = body;
-              return route === 'BIDDING' ? { ...rest, route } : { ...body, route };
-            })
+            persist((body) =>
+              // A winner left from the single-vendor route is not a bidding result: clear it on the
+              // service (omitting it would keep it) so the person picks again.
+              route === 'BIDDING' ? { ...body, route, winner: null } : { ...body, route }
+            )
           }
         />
       )}
