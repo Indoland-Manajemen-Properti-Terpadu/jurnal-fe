@@ -20,10 +20,12 @@ import {
   type BillFormValues,
 } from '@/module/purchases/domain/billForm';
 import {
-  estimateBill,
+  dueDateFor,
+  type BillQuantities,
   type BillSourceDoc,
   type PickedSource,
 } from '@/module/purchases/domain/billSources';
+import { formatDay, todayIso } from '@/module/purchases/presentation/components/shared/format';
 import type {
   BillSource,
   BillVariance,
@@ -44,6 +46,7 @@ import {
   BillPickedItems,
 } from '@/module/purchases/presentation/components/bills/BillPickedItems';
 import { BillSourceStep } from '@/module/purchases/presentation/components/bills/BillSourceStep';
+import { useBillPricing } from '@/module/purchases/presentation/components/bills/useBillPricing';
 import { useUpdateBill } from '@/module/purchases/presentation/components/bills/useUpdateBill';
 import { FormFrame } from '@/module/purchases/presentation/components/shared/FormFrame';
 import { WizardActionBar } from '@/module/purchases/presentation/components/shared/wizard/WizardActionBar';
@@ -52,7 +55,6 @@ import {
   WizardStepper,
   type WizardStep,
 } from '@/module/purchases/presentation/components/shared/wizard/WizardStepper';
-import { todayIso } from '@/module/purchases/presentation/components/shared/format';
 import {
   useCreateBill,
   useUploadAttachments,
@@ -74,10 +76,11 @@ export const BillFormBody = ({
   initialSource,
   preselect,
 }: Readonly<BillFormBodyProps>) => {
-  const { t } = useTranslation('purchases');
+  const { t, currentLanguage } = useTranslation('purchases');
   const navigate = useNavigate();
   const [source, setSource] = useState<BillSource>(existing?.source ?? initialSource);
   const [picked, setPicked] = useState<BillSourceDoc[]>([]);
+  const [quantities, setQuantities] = useState<BillQuantities>({});
   const [pickVendor, setPickVendor] = useState('');
   const [values, setValues] = useState<BillFormValues>(() =>
     existing ? billToForm(existing) : emptyBillForm(todayIso())
@@ -94,10 +97,14 @@ export const BillFormBody = ({
   const create = useCreateBill(
     async (doc) => {
       // The files go to the saved bill first, so the detail opens with them listed.
-      const chosen = [...filesRef.current.invoice, ...filesRef.current.tax];
-      if (chosen.length > 0) {
+      const { invoice, tax } = filesRef.current;
+      const groups = [
+        { kind: 'VENDOR_INVOICE' as const, files: invoice },
+        { kind: 'TAX_INVOICE' as const, files: tax },
+      ].filter((group) => group.files.length > 0);
+      for (const group of groups) {
         await upload
-          .mutateAsync({ target: 'bill', id: doc.id, files: chosen })
+          .mutateAsync({ target: 'bill', id: doc.id, files: group.files, kind: group.kind })
           .catch(() => undefined);
       }
       navigate(detailOf(doc.id));
@@ -128,13 +135,16 @@ export const BillFormBody = ({
     subtotal: existing?.subtotal,
     headerOnly: Boolean(existing),
   });
+  const { estimate, preview, hasQuantity } = useBillPricing(source, values, picked, quantities);
   const pickError = !existing && source !== 'MANUAL' && picked.length === 0;
+  const quantityError = !existing && source !== 'MANUAL' && picked.length > 0 && !hasQuantity;
   const set = <K extends keyof BillFormValues>(key: K, value: BillFormValues[K]) =>
     setValues((current) => ({ ...current, [key]: value }));
 
   const changeSource = (next: BillSource) => {
     setSource(next);
     setPicked([]);
+    setQuantities({});
     setPickVendor('');
     setShowErrors(false);
   };
@@ -143,7 +153,7 @@ export const BillFormBody = ({
     (key) => key !== 'vendorId' && key !== 'lines'
   );
   const save = (post: boolean) => {
-    if (hasBillErrors(errors) || pickError) {
+    if (hasBillErrors(errors) || pickError || quantityError) {
       setShowErrors(true);
       if (!existing) {
         setStep(pickError || errors.fields.vendorId ? 0 : hasHeaderFieldErrors ? 1 : 2);
@@ -154,7 +164,7 @@ export const BillFormBody = ({
       update.mutate({ id: existing.id, input: toBillUpdate(values) });
       return;
     }
-    const input = toBillInput(source, values, picked, post);
+    const input = toBillInput(source, values, picked, post, quantities);
     setLastInput(input);
     create.mutate(input, {
       onError: (error) => {
@@ -164,11 +174,17 @@ export const BillFormBody = ({
     });
   };
 
-  const estimate = useMemo(() => estimateBill(picked), [picked]);
-  const dueHint = useMemo(
-    () => (picked[0] ? t('bills.form.dueDateFromTerm', { term: picked[0].termName }) : undefined),
-    [picked, t]
-  );
+  const dueHint = useMemo(() => {
+    const first = picked[0];
+    if (!first) return undefined;
+    const suggested = dueDateFor(first, values.date);
+    return suggested
+      ? t('bills.form.dueDateSuggested', {
+          term: first.term.name,
+          date: formatDay(suggested, currentLanguage),
+        })
+      : t('bills.form.dueDateFromTerm', { term: first.term.name });
+  }, [picked, values.date, t, currentLanguage]);
 
   const steps: WizardStep[] = [
     {
@@ -341,7 +357,11 @@ export const BillFormBody = ({
           description={t('bills.wizard.itemsHint')}
           hintTitle={picked[0]?.vendor.name ?? (values.vendorName || undefined)}
           hint={picked.map((doc) => doc.number).join(', ') || undefined}
-          summary={source === 'MANUAL' ? undefined : <BillEstimateSummary estimate={estimate} />}
+          summary={
+            source === 'MANUAL' ? undefined : (
+              <BillEstimateSummary estimate={estimate} preview={preview} />
+            )
+          }
           footer={bar(true)}
         >
           {source === 'MANUAL' ? (
@@ -352,7 +372,19 @@ export const BillFormBody = ({
               onChange={(lines) => set('lines', lines)}
             />
           ) : (
-            <BillPickedItems estimate={estimate} />
+            <>
+              <BillPickedItems
+                estimate={estimate}
+                onQuantity={(key, quantity) =>
+                  setQuantities((current) => ({ ...current, [key]: quantity }))
+                }
+              />
+              {showErrors && quantityError && (
+                <Text size="sm" c="red" mt="sm" role="alert">
+                  {t('bills.form.error.qtyEmpty')}
+                </Text>
+              )}
+            </>
           )}
           {showErrors && errors.fields.lines && source === 'MANUAL' && (
             <Text size="sm" c="red" mt="sm" role="alert">

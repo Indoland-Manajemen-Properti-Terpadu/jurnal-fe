@@ -131,6 +131,9 @@ export const purchasesCommon = {
     paidAt: 'Dibayar pada',
   },
   journey: {
+    showCancelled: '{count} dibatalkan',
+    hideCancelled: 'Sembunyikan yang dibatalkan',
+    docCount: '{count} dokumen',
     thisDocument: 'Dokumen ini',
     title: 'Alur pembelian',
     subtitle: 'Dokumen yang saling terkait',

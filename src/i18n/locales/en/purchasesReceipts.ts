@@ -77,6 +77,7 @@ export const purchasesReceipts = {
     order: 'Purchase order',
     viewOrder: 'View order',
     receivedOn: 'Date received',
+    viewJournal: 'View journal',
     journalNote: 'This receipt has been journaled as an unbilled payable.',
     linesTitle: 'Items Received',
     col: {

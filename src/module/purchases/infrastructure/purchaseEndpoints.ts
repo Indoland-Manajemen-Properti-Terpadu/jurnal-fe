@@ -33,6 +33,7 @@ export const PURCHASE_API = {
   billCreditApplicationVoid: (id: string, applicationId: string) =>
     `${BILL}/${id}/credit-applications/${applicationId}/void`,
   billSources: `${BILL}/sources`,
+  billPreview: `${BILL}/preview`,
   vendorCredits: `${BILL}/vendor-credits`,
   payablesBySupplier: `${BILL}/payables/by-supplier`,
   payablesExport: `${BILL}/payables/by-supplier/export`,

@@ -92,6 +92,7 @@ export const BillSourcePicker = ({
                   ...(receipts ? ['fromOrder'] : []),
                   'date',
                   'term',
+                  'due',
                   'open',
                 ].map((key) => (
                   <Table.Th key={key} ta={key === 'open' ? 'right' : undefined}>
@@ -106,7 +107,6 @@ export const BillSourcePicker = ({
               {rows.map((doc) => {
                 const isPicked = picked.some((item) => item.id === doc.id);
                 const blocked = isPicked ? null : incompatibility(picked, doc);
-                const [term, termNote] = doc.termName.split(' · ');
                 const openLines = doc.lines.filter((line) => line.openQty > 0).length;
                 return (
                   <Table.Tr
@@ -149,11 +149,22 @@ export const BillSourcePicker = ({
                     </Table.Td>
                     <Table.Td>
                       <Text size="sm" fw={500}>
-                        {term}
+                        {doc.term.name}
                       </Text>
-                      {termNote && (
+                      {doc.term.description && (
                         <Text size="xs" c="dimmed">
-                          {termNote}
+                          {doc.term.description}
+                        </Text>
+                      )}
+                    </Table.Td>
+                    <Table.Td>
+                      {doc.dueDate ? (
+                        <Text size="sm" fw={500}>
+                          {formatDay(doc.dueDate, currentLanguage)}
+                        </Text>
+                      ) : (
+                        <Text size="sm" c="dimmed">
+                          {doc.term.dueText || '-'}
                         </Text>
                       )}
                     </Table.Td>

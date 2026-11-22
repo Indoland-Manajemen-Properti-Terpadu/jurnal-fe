@@ -161,8 +161,16 @@ export const routes = {
 
   inventory: {
     warehouses: '/inventory/warehouses',
+    warehouseDetail: '/inventory/warehouses/:id',
     stockMovements: '/inventory/stock-movements',
+    // Under the list's address so the sidebar keeps "Mutasi Stok" as the one active item.
+    stockCard: '/inventory/stock-movements/card/:productId',
+    transferNew: '/inventory/stock-movements/transfers/new',
+    transferDetail: '/inventory/stock-movements/transfers/:id',
     stockTake: '/inventory/stock-take',
+    // Under the list's address so the sidebar keeps "Stok Opname" as the one active item.
+    stockTakeNew: '/inventory/stock-take/new',
+    stockTakeDetail: '/inventory/stock-take/:id',
   },
 
   production: {
@@ -202,6 +210,7 @@ export const routes = {
     numberFormats: '/settings/number-formats',
     tags: '/settings/tags',
     departments: '/settings/departments',
+    opnameAccounts: '/settings/opname-accounts',
   },
 
   userManagement: {

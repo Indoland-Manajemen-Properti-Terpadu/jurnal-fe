@@ -19,6 +19,7 @@ import type {
 } from '@/module/purchases/domain/purchaseDocuments';
 import type { PaymentRequest } from '@/module/purchases/domain/paymentRequest';
 import type { BillSourceDoc } from '@/module/purchases/domain/billSources';
+import type { PurchaseBillInput } from '@/module/purchases/domain/purchaseInputs';
 import type { PurchaseRequest } from '@/module/purchases/domain/purchaseRequest';
 import {
   getBill,
@@ -31,6 +32,8 @@ import {
   getReturn,
   getVendorCredits,
   listBillSources,
+  previewBill,
+  type BillPreview,
   listBills,
   listOrders,
   listPayments,
@@ -245,5 +248,18 @@ export const useBillSources = (source: 'RECEIPT' | 'ORDER' | null, vendor?: stri
     queryKey: [...purchaseKeys.all(scope), 'bill-sources', source, vendor ?? ''],
     queryFn: () => listBillSources(source as 'RECEIPT' | 'ORDER', vendor),
     enabled: source !== null,
+  });
+};
+
+/** The service's own figures for the bill being filled in; off while there is nothing to price. */
+export const useBillPreview = (input: PurchaseBillInput | null) => {
+  const scope = usePurchaseScope();
+  return useQuery<BillPreview, PurchaseError>({
+    queryKey: [...purchaseKeys.all(scope), 'bill-preview', input],
+    queryFn: () => previewBill(input as PurchaseBillInput),
+    enabled: input !== null,
+    placeholderData: keepPreviousData,
+    staleTime: 10_000,
+    retry: false,
   });
 };

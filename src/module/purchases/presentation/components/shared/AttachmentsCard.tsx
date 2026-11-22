@@ -1,4 +1,4 @@
-import { Anchor, Button, FileButton, Group, Stack, Text } from '@mantine/core';
+import { Anchor, Badge, Button, FileButton, Group, Stack, Text } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconPaperclip, IconUpload } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
@@ -60,6 +60,11 @@ export const AttachmentsCard = ({
               <Anchor href={file.url} target="_blank" rel="noreferrer" size="sm" truncate>
                 {file.name}
               </Anchor>
+              {file.kind !== 'OTHER' && file.kindLabel && (
+                <Badge variant="light" radius="sm" size="sm" style={{ flexShrink: 0 }}>
+                  {file.kindLabel}
+                </Badge>
+              )}
             </Group>
           ))}
         </Stack>
