@@ -116,6 +116,7 @@ export interface PurchaseRequestDto extends DocumentDto, ApprovalFieldsDto {
   statusLabel?: string | null;
   requiredDate?: string | null;
   department?: { id: string; name: string } | null;
+  deliveryWarehouse?: { id: string; code?: string | null; name?: string | null } | null;
   purpose?: string | null;
   iom?: {
     number?: string | null;

@@ -12,6 +12,8 @@ interface SubmitRequestDialogProps {
   opened: boolean;
   values: RequestFormValues;
   departmentName: string;
+  /** Empty when every line is a service: there is no delivery warehouse to show. */
+  warehouseName?: string;
   loading: boolean;
   onClose: () => void;
   onConfirm: () => void;
@@ -25,6 +27,7 @@ export const SubmitRequestDialog = ({
   opened,
   values,
   departmentName,
+  warehouseName,
   loading,
   onClose,
   onConfirm,
@@ -87,6 +90,7 @@ export const SubmitRequestDialog = ({
         </Group>
         <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="sm" mt="md">
           {fact(t('common.department'), departmentName || '-')}
+          {warehouseName ? fact(t('requests.submitDialog.deliveryWarehouse'), warehouseName) : null}
           {fact(
             t('requests.submitDialog.requestDate'),
             formatDay(values.transactionDate, currentLanguage)

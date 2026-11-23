@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Alert, Button, Checkbox, Menu } from '@mantine/core';
+import { Alert, Button, Checkbox, List, Menu, Text } from '@mantine/core';
 import { ModalFrame } from '@/components/Modals/ModalFrame';
 import {
   IconCoins,
@@ -13,6 +13,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
 import { PURCHASE_MENU } from '@/module/purchases/domain/purchaseAccess';
+import { billVerifyMissing } from '@/module/purchases/domain/billVerify';
 import { billActions } from '@/module/purchases/domain/purchaseActions';
 import type { PurchaseBill } from '@/module/purchases/domain/purchaseDocuments';
 import { ApplyCreditModal } from '@/module/purchases/presentation/components/bills/ApplyCreditModal';
@@ -38,6 +39,7 @@ export const BillActionBar = ({ bill }: Readonly<{ bill: PurchaseBill }>) => {
 
   const actions = billActions(bill);
   const hasVariance = bill.variances.length > 0;
+  const missing = billVerifyMissing(bill);
   const showEdit = actions.edit && can(PURCHASE_MENU.documents, 'update');
   const showVerify = actions.verify && can(PURCHASE_MENU.documents, 'update');
   const showPay = actions.requestPayment && can(PURCHASE_MENU.paymentRequests, 'create');
@@ -130,7 +132,7 @@ export const BillActionBar = ({ bill }: Readonly<{ bill: PurchaseBill }>) => {
             </Button>
             <Button
               loading={verify.isPending}
-              disabled={hasVariance && !acknowledged}
+              disabled={missing.length > 0 || (hasVariance && !acknowledged)}
               onClick={() =>
                 verify.mutate(
                   { id: bill.id, acknowledgeVariance: hasVariance && acknowledged },
@@ -143,6 +145,18 @@ export const BillActionBar = ({ bill }: Readonly<{ bill: PurchaseBill }>) => {
           </>
         }
       >
+        {missing.length > 0 && (
+          <Alert color="orange" variant="light" radius="md" mb={hasVariance ? 'sm' : 0}>
+            <Text size="sm" fw={500}>
+              {t('bills.detail.verifyMissingTitle')}
+            </Text>
+            <List size="sm" mt={4}>
+              {missing.map((gap) => (
+                <List.Item key={gap}>{t(`bills.detail.verifyMissing.${gap}`)}</List.Item>
+              ))}
+            </List>
+          </Alert>
+        )}
         {hasVariance && (
           <Alert color="yellow" variant="light" radius="md">
             <Checkbox
