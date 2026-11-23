@@ -7,6 +7,8 @@ import { useTranslation } from '@/i18n';
 import type { BlockReason, Warehouse } from '@/module/inventory/domain/warehouse';
 import {
   stockTakeDetailPath,
+  transferDetailPath,
+  transferListPath,
   transferNewPath,
 } from '@/module/inventory/presentation/components/shared/stockLinks';
 import { routes } from '@/router/routes';
@@ -59,6 +61,9 @@ export function WarehouseConfirmDialog({
   );
 }
 
+/** The transfers named in the dialog; the rest are reached through the list. */
+const MAX_TRANSFER_LINKS = 5;
+
 type BlockedProps = {
   warehouse: Warehouse | null;
   reasons: BlockReason[];
@@ -72,7 +77,7 @@ export function WarehouseBlockedDialog({ warehouse, reasons, onClose }: Readonly
   const renderReason = (reason: BlockReason) => {
     switch (reason.kind) {
       case 'default':
-        return { text: t('blocked.default') };
+        return { text: t('blocked.default'), links: [] };
       case 'stock': {
         const text =
           reason.itemCount === null
@@ -89,7 +94,7 @@ export function WarehouseBlockedDialog({ warehouse, reasons, onClose }: Readonly
               label: t('blocked.transferStock'),
             }
           : undefined;
-        return { text, link };
+        return { text, links: link ? [link] : [] };
       }
       case 'orders':
         return {
@@ -97,16 +102,41 @@ export function WarehouseBlockedDialog({ warehouse, reasons, onClose }: Readonly
             reason.count === null
               ? t('blocked.ordersNoCount')
               : t('blocked.orders', { count: reason.count }),
-          link: { to: routes.purchases.orders, label: t('blocked.viewOrders') },
+          links: [{ to: routes.purchases.orders, label: t('blocked.viewOrders') }],
         };
+      case 'transfers': {
+        const listPath = transferListPath({
+          warehouse: warehouse?.id,
+          status: 'PENDING_APPROVAL',
+        });
+        const shown = reason.transfers.slice(0, MAX_TRANSFER_LINKS);
+        const hidden = Math.max(0, (reason.count ?? reason.transfers.length) - shown.length);
+        const links = shown.map((transfer) => ({
+          to: transferDetailPath(transfer.id),
+          label: transfer.number,
+        }));
+        if (shown.length === 0) {
+          links.push({ to: listPath, label: t('blocked.viewTransfers') });
+        } else if (hidden > 0) {
+          links.push({ to: listPath, label: t('blocked.moreTransfers', { count: hidden }) });
+        }
+        return {
+          text:
+            reason.count === null
+              ? t('blocked.transfersNoCount')
+              : t('blocked.transfers', { count: reason.count }),
+          links,
+        };
+      }
       case 'opname':
         return {
           text: t('blocked.opname', { number: reason.number }),
-          link: { to: stockTakeDetailPath(reason.id), label: t('blocked.openOpname') },
+          links: [{ to: stockTakeDetailPath(reason.id), label: t('blocked.openOpname') }],
         };
       default:
         return {
           text: currentLanguage === 'id' && reason.message ? reason.message : t('blocked.other'),
+          links: [],
         };
     }
   };
@@ -121,7 +151,7 @@ export function WarehouseBlockedDialog({ warehouse, reasons, onClose }: Readonly
     >
       <Stack gap="sm">
         {reasons.map((reason, index) => {
-          const { text, link } = renderReason(reason);
+          const { text, links } = renderReason(reason);
           return (
             <Group key={`${reason.kind}-${index}`} gap="sm" align="flex-start" wrap="nowrap">
               <IconAlertTriangle
@@ -131,10 +161,20 @@ export function WarehouseBlockedDialog({ warehouse, reasons, onClose }: Readonly
               />
               <Stack gap={2}>
                 <Text size="sm">{text}</Text>
-                {link && (
-                  <Anchor component={Link} to={link.to} size="sm" onClick={onClose}>
-                    {link.label}
-                  </Anchor>
+                {links.length > 0 && (
+                  <Group gap="md" wrap="wrap">
+                    {links.map((link) => (
+                      <Anchor
+                        key={link.to}
+                        component={Link}
+                        to={link.to}
+                        size="sm"
+                        onClick={onClose}
+                      >
+                        {link.label}
+                      </Anchor>
+                    ))}
+                  </Group>
                 )}
               </Stack>
             </Group>

@@ -15,6 +15,8 @@ describe('readFilters', () => {
       to: TODAY,
       product: '',
       type: '',
+      category: '',
+      doc: '',
       page: 1,
       transferStatus: '',
       transferPage: 1,
@@ -84,5 +86,30 @@ describe('applyFilterPatch', () => {
 
     expect(next.get('tstatus')).toBe('VOID');
     expect(next.has('tpage')).toBe(false);
+  });
+});
+
+describe('category, document number and several types', () => {
+  it('reads them from the address', () => {
+    expect(read('tab=history&category=c1&doc=PDH%2F2026&type=RECEIPT,SALE')).toMatchObject({
+      category: 'c1',
+      doc: 'PDH/2026',
+      type: 'RECEIPT,SALE',
+    });
+  });
+
+  it('sends the history back to its first page when one of them changes', () => {
+    const base = new URLSearchParams('tab=history&page=3');
+    for (const patch of [{ category: 'c1' }, { doc: 'PDH' }, { type: 'SALE,RECEIPT' }]) {
+      expect(applyFilterPatch(base, patch).get('page')).toBeNull();
+    }
+  });
+
+  it('drops an emptied one from the address', () => {
+    const next = applyFilterPatch(new URLSearchParams('category=c1&doc=PDH'), {
+      category: '',
+      doc: '',
+    });
+    expect(next.toString()).toBe('');
   });
 });
