@@ -1,4 +1,4 @@
-import { Alert, Badge, Group, Select, Table, Text, Tooltip } from '@mantine/core';
+import { Accordion, Badge, Group, Select, Stack, Table, Text, Tooltip } from '@mantine/core';
 import { IconInfoCircle } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import { highestScoreQuoteIds, weightedScore } from '@/module/purchases/domain/biddingScore';
@@ -32,17 +32,42 @@ export const BiddingScoring = ({
 
   return (
     <>
-      <Alert color="blue" variant="light" radius="md" icon={<IconInfoCircle size={18} />}>
-        <Text size="sm" fw={700}>
-          {t('procurement.bidding.scaleTitle')}
-        </Text>
-        <Text size="xs">{t('procurement.bidding.scaleBody')}</Text>
-      </Alert>
-      <Table.ScrollContainer type="native" minWidth={720}>
+      <Accordion variant="contained" radius="md" chevronPosition="right">
+        <Accordion.Item value="scale">
+          <Accordion.Control icon={<IconInfoCircle size={18} />}>
+            <Text size="sm" fw={700}>
+              {t('procurement.bidding.scaleTitle')}
+            </Text>
+          </Accordion.Control>
+          <Accordion.Panel>
+            <Stack gap={4}>
+              {LEVELS.map((level) => (
+                <Group key={level} gap="xs" wrap="nowrap" align="baseline">
+                  <Text size="sm" fw={700} w={18}>
+                    {level}
+                  </Text>
+                  <Text size="sm">
+                    <Text span fw={600}>
+                      {t(`procurement.bidding.level.${level}`)}
+                    </Text>{' '}
+                    <Text span c="dimmed">
+                      · {t(`procurement.bidding.levelHint.${level}`)}
+                    </Text>
+                  </Text>
+                </Group>
+              ))}
+              <Text size="xs" c="dimmed" mt={4}>
+                {t('procurement.bidding.scaleNote')}
+              </Text>
+            </Stack>
+          </Accordion.Panel>
+        </Accordion.Item>
+      </Accordion>
+      <Table.ScrollContainer type="native" minWidth={880}>
         <Table verticalSpacing="xs" withTableBorder>
           <Table.Thead bg="var(--jurnal-color-surface-hover)">
             <Table.Tr>
-              <Table.Th>{t('procurement.col.vendor')}</Table.Th>
+              <Table.Th miw={140}>{t('procurement.col.vendor')}</Table.Th>
               {SCORE_KEYS.map((key) => (
                 <Table.Th key={key}>
                   <Tooltip label={t(`procurement.bidding.criterionHint.${key}`)} multiline w={240}>
@@ -61,7 +86,9 @@ export const BiddingScoring = ({
                   </Tooltip>
                 </Table.Th>
               ))}
-              <Table.Th ta="right">{t('procurement.col.score')}</Table.Th>
+              <Table.Th ta="right" miw={96}>
+                {t('procurement.col.score')}
+              </Table.Th>
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
@@ -81,7 +108,7 @@ export const BiddingScoring = ({
                   {SCORE_KEYS.map((key) => {
                     const value = quote.scores[key];
                     return (
-                      <Table.Td key={key} miw={172}>
+                      <Table.Td key={key} miw={160}>
                         {editable ? (
                           <Select
                             size="xs"
@@ -105,16 +132,23 @@ export const BiddingScoring = ({
                     );
                   })}
                   <Table.Td ta="right">
-                    <Group gap={6} justify="flex-end" wrap="nowrap">
-                      {highest.includes(quote.id) && (
-                        <Badge size="xs" radius="sm" color="green" variant="light">
-                          {t('procurement.bidding.highest')}
-                        </Badge>
-                      )}
+                    <Stack gap={2} align="flex-end">
+                      {' '}
                       <Text size="sm" fw={700}>
                         {score === null ? '-' : score.toFixed(2)}
                       </Text>
-                    </Group>
+                      {highest.includes(quote.id) && (
+                        <Badge
+                          size="xs"
+                          radius="sm"
+                          color="green"
+                          variant="light"
+                          style={{ flexShrink: 0 }}
+                        >
+                          {t('procurement.bidding.highest')}
+                        </Badge>
+                      )}
+                    </Stack>
                   </Table.Td>
                 </Table.Tr>
               );

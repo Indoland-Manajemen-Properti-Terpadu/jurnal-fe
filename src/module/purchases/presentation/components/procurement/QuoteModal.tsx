@@ -313,7 +313,7 @@ export const QuoteModal = ({
         values={values}
         errors={errors}
         showErrors={showErrors}
-        showFinalPrice={!bidding}
+        showFinalPrice={false}
         onLine={setLine}
         onChange={set}
       />

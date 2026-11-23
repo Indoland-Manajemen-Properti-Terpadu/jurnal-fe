@@ -24,8 +24,7 @@ export const QuotesTable = ({
   onRemove,
 }: Readonly<QuotesTableProps>) => {
   const { t, currentLanguage } = useTranslation('purchases');
-  const { route, totals, cheapestVendorId, winnerId } = procurement;
-  const bidding = route !== 'SINGLE';
+  const { totals, cheapestVendorId } = procurement;
 
   return (
     <Table.ScrollContainer type="native" minWidth={760}>
@@ -39,13 +38,6 @@ export const QuotesTable = ({
                 </Text>
               </Table.Th>
             ))}
-            {bidding && (
-              <Table.Th ta="right">
-                <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-                  {t('procurement.col.score')}
-                </Text>
-              </Table.Th>
-            )}
             <Table.Th ta="right">
               <Text size="xs" fw={700} c="dimmed" tt="uppercase">
                 {t('procurement.col.total')}
@@ -57,26 +49,15 @@ export const QuotesTable = ({
         <Table.Tbody>
           {procurement.quotes.map((quote) => {
             const amounts = totals[quote.id];
-            const isWinner = winnerId === quote.vendor.id;
             const cheapest = cheapestVendorId === quote.vendor.id && procurement.quotes.length > 1;
             const expired = Boolean(quote.validUntil) && (quote.validUntil as string) < todayKey();
             return (
-              <Table.Tr key={quote.id} bg={isWinner ? 'var(--mantine-color-primary-0)' : undefined}>
+              <Table.Tr key={quote.id}>
                 <Table.Td>
                   <Group gap={6} wrap="wrap">
                     <Text size="sm" fw={600}>
                       {quote.vendor.name}
                     </Text>
-                    {isWinner && (
-                      <Badge size="xs" radius="sm" color="primary">
-                        {t('procurement.winner')}
-                      </Badge>
-                    )}
-                    {cheapest && (
-                      <Text size="xs" c="green.7" fw={600}>
-                        {t('procurement.cheapest')}
-                      </Text>
-                    )}
                     {amounts && !amounts.complete && (
                       <Badge size="xs" radius="sm" variant="light" color="yellow">
                         {t('procurement.incomplete')}
@@ -117,13 +98,6 @@ export const QuotesTable = ({
                 <Table.Td>
                   <Text size="sm">{quote.warranty || '-'}</Text>
                 </Table.Td>
-                {bidding && (
-                  <Table.Td ta="right" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                    <Text size="sm">
-                      {amounts?.score === null || !amounts ? '-' : amounts.score.toFixed(2)}
-                    </Text>
-                  </Table.Td>
-                )}
                 <Table.Td
                   ta="right"
                   style={{ fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}
@@ -131,6 +105,11 @@ export const QuotesTable = ({
                   <Text size="sm" fw={600}>
                     {amounts ? formatAmount(amounts.total) : '-'}
                   </Text>
+                  {cheapest && (
+                    <Badge size="xs" radius="sm" variant="light" color="green">
+                      {t('procurement.cheapest')}
+                    </Badge>
+                  )}
                 </Table.Td>
                 <Table.Td>
                   <Group gap={2} justify="flex-end" wrap="nowrap">

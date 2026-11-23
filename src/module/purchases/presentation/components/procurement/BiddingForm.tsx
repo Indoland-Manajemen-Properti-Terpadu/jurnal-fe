@@ -1,4 +1,5 @@
-import { Stack, Text } from '@mantine/core';
+import type { ReactNode } from 'react';
+import { Badge, Divider, Stack, Text } from '@mantine/core';
 import { IconScale } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import type { Procurement, Quote, ScoreKey } from '@/module/purchases/domain/procurement';
@@ -16,7 +17,16 @@ interface BiddingFormProps {
   busy: boolean;
   onScore: (quote: Quote, key: ScoreKey, value: number) => void;
   onChoose: (quote: Quote) => void;
+  /** Reasons, evidence, submit and approval: they belong to the same form, below the winner. */
+  children?: ReactNode;
 }
+
+const STATUS_COLOR = {
+  DRAFT: 'gray',
+  SUBMITTED: 'orange',
+  APPROVED: 'green',
+  REJECTED: 'red',
+} as const;
 
 const step = (number: number, title: string, hint: string) => (
   <Text size="sm" fw={700} tt="uppercase">
@@ -38,6 +48,7 @@ export const BiddingForm = ({
   busy,
   onScore,
   onChoose,
+  children,
 }: Readonly<BiddingFormProps>) => {
   const { t } = useTranslation('purchases');
   const decided = procurement.winnerId !== null && !editable;
@@ -47,6 +58,11 @@ export const BiddingForm = ({
       icon={IconScale}
       title={t('procurement.bidding.title')}
       subtitle={t('procurement.bidding.subtitle')}
+      action={
+        <Badge variant="light" radius="sm" color={STATUS_COLOR[procurement.status]}>
+          {t(`procurement.bidding.status.${procurement.status}`)}
+        </Badge>
+      }
     >
       <Stack gap="md">
         <BiddingHeader request={request} procurement={procurement} />
@@ -69,6 +85,12 @@ export const BiddingForm = ({
           busy={busy}
           onChoose={onChoose}
         />
+        {children && (
+          <>
+            <Divider />
+            {children}
+          </>
+        )}
       </Stack>
     </SectionCard>
   );

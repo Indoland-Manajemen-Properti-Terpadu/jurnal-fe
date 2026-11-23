@@ -14,6 +14,8 @@ interface ProcurementNotesProps {
   procurement: Procurement;
   editable: boolean;
   saving: boolean;
+  /** Without its own card, to sit inside another card. */
+  bare?: boolean;
   onSave: (values: NotesValues) => void;
 }
 
@@ -33,6 +35,7 @@ export const ProcurementNotes = ({
   procurement,
   editable,
   saving,
+  bare,
   onSave,
 }: Readonly<ProcurementNotesProps>) => {
   const { t } = useTranslation('purchases');
@@ -62,38 +65,42 @@ export const ProcurementNotes = ({
     if (editable && changed) onSave(values);
   };
 
+  const body = (
+    <Stack gap="md">
+      {fields.map(({ key, needed }) => (
+        <Textarea
+          key={key}
+          radius="md"
+          autosize
+          minRows={2}
+          withAsterisk={needed}
+          disabled={!editable}
+          label={t(`procurement.notes.${key === 'reason' ? `reason.${route}` : key}`)}
+          description={t(
+            `procurement.notes.${key === 'reason' ? `reasonHint.${route}` : `${key}Hint`}`
+          )}
+          value={values[key]}
+          onChange={(event) => setValues({ ...values, [key]: event.currentTarget.value })}
+          onBlur={leave}
+        />
+      ))}
+      <Text size="xs" c="dimmed">
+        {editable
+          ? saving
+            ? t('procurement.notes.saving')
+            : t('procurement.notes.autosave')
+          : t('procurement.notes.locked')}
+      </Text>
+    </Stack>
+  );
+  if (bare) return body;
   return (
     <SectionCard
       icon={IconNotes}
       title={t('procurement.notes.title')}
       subtitle={t('procurement.notes.subtitle')}
     >
-      <Stack gap="md">
-        {fields.map(({ key, needed }) => (
-          <Textarea
-            key={key}
-            radius="md"
-            autosize
-            minRows={2}
-            withAsterisk={needed}
-            disabled={!editable}
-            label={t(`procurement.notes.${key === 'reason' ? `reason.${route}` : key}`)}
-            description={t(
-              `procurement.notes.${key === 'reason' ? `reasonHint.${route}` : `${key}Hint`}`
-            )}
-            value={values[key]}
-            onChange={(event) => setValues({ ...values, [key]: event.currentTarget.value })}
-            onBlur={leave}
-          />
-        ))}
-        <Text size="xs" c="dimmed">
-          {editable
-            ? saving
-              ? t('procurement.notes.saving')
-              : t('procurement.notes.autosave')
-            : t('procurement.notes.locked')}
-        </Text>
-      </Stack>
+      {body}
     </SectionCard>
   );
 };

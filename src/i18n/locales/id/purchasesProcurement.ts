@@ -85,6 +85,7 @@ export const purchasesProcurement = {
   menuAria: 'Aksi untuk penawaran {vendor}',
   menu: { view: 'Lihat detail', edit: 'Ubah', remove: 'Hapus' },
   detail: {
+    vendorLabel: 'Vendor',
     title: 'Detail penawaran',
     close: 'Tutup',
     number: 'Nomor penawaran',
@@ -114,7 +115,30 @@ export const purchasesProcurement = {
   },
   removeConfirm: 'Hapus Penawaran',
   removeNote: 'Catatan (opsional)',
+  single: {
+    title: 'Pengadaan vendor tunggal',
+    subtitle: 'Periksa penawarannya, tetapkan harga final, lalu ajukan ke approver.',
+    subtitleEmpty:
+      'Cukup satu penawaran, tanpa pembanding. Mulai dengan mengunggah penawaran vendornya.',
+    upload: 'Upload penawaran',
+    edit: 'Ubah penawaran',
+    lead: 'Estimasi pengiriman',
+    quotedPrice: 'Harga penawaran',
+    finalPrice: 'Harga final',
+    finalPriceAria: 'Harga final',
+    beforeTax: 'Belum PPN',
+  },
   bidding: {
+    status: {
+      DRAFT: 'Draf',
+      SUBMITTED: 'Menunggu approval',
+      APPROVED: 'Disetujui',
+      REJECTED: 'Ditolak',
+    },
+    submit: 'Ajukan approval bidding',
+    submitSingle: 'Ajukan approval vendor tunggal',
+    quoteFileMissing: 'Penawaran {vendor}: unggah berkas penawaran',
+    completeFirst: 'Lengkapi isian wajib untuk mengajukan.',
     title: 'Form bidding',
     subtitle:
       'Nilai tiap vendor, bandingkan harganya, lalu pilih satu pemenang untuk seluruh permintaan.',
@@ -130,8 +154,14 @@ export const purchasesProcurement = {
     scoreStep: 'Penilaian vendor (1–5)',
     scoreHint: 'Nilai tiap vendor dulu, supaya pemilihan pemenang punya dasar.',
     scaleTitle: 'Arti nilai 1–5',
-    scaleBody:
-      '5 Sangat baik, jauh melampaui kebutuhan · 4 Baik, di atas kebutuhan · 3 Cukup, pas memenuhi kebutuhan · 2 Kurang, di bawah kebutuhan tapi masih bisa diterima · 1 Buruk, tidak memenuhi kebutuhan. Skor akhir adalah rata-rata tertimbang semua kriteria, jadi nilainya tetap 1–5.',
+    scaleNote: 'Skor akhir adalah rata-rata tertimbang semua kriteria, jadi nilainya tetap 1–5.',
+    levelHint: {
+      '5': 'jauh melampaui kebutuhan',
+      '4': 'di atas kebutuhan',
+      '3': 'pas memenuhi kebutuhan',
+      '2': 'di bawah kebutuhan tapi masih bisa diterima',
+      '1': 'tidak memenuhi kebutuhan',
+    },
     level: {
       '5': 'Sangat baik',
       '4': 'Baik',

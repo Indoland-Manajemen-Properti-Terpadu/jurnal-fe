@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Alert, Button, Group, List, Stack, Text } from '@mantine/core';
-import { IconAlertTriangle, IconPlus, IconSend, IconUsers } from '@tabler/icons-react';
+import { Alert, Button, Group, Stack, Text } from '@mantine/core';
+import { IconAlertTriangle, IconPlus, IconUsers } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import {
   procurementEditable,
@@ -10,12 +10,15 @@ import {
   type ProcurementInput,
   type Quote,
   type QuoteInput,
+  type ScoreKey,
 } from '@/module/purchases/domain/procurement';
 import { removalImpact, withoutQuote } from '@/module/purchases/domain/quoteRemoval';
-import { neededNotes, type NotesValues } from '@/module/purchases/domain/procurementNotes';
+import { type NotesValues } from '@/module/purchases/domain/procurementNotes';
 import type { PurchaseRequest } from '@/module/purchases/domain/purchaseRequest';
 import { ApprovedDialog } from '@/module/purchases/presentation/components/procurement/ApprovedDialog';
 import { BiddingForm } from '@/module/purchases/presentation/components/procurement/BiddingForm';
+import { ProcurementSubmit } from '@/module/purchases/presentation/components/procurement/ProcurementSubmit';
+import { SingleVendorForm } from '@/module/purchases/presentation/components/procurement/SingleVendorForm';
 import { OrdersCard } from '@/module/purchases/presentation/components/procurement/OrdersCard';
 import { ProcurementNotes } from '@/module/purchases/presentation/components/procurement/ProcurementNotes';
 import { ProcurementRouteCard } from '@/module/purchases/presentation/components/procurement/ProcurementRouteCard';
@@ -88,7 +91,11 @@ export const ProcurementPanel = ({ request, rights }: Readonly<ProcurementPanelP
         // A single vendor has one quote; it is the winner without a separate choice.
         ...(single && !existing ? { winner: input.vendor } : {}),
       }));
-      const stored = saved.procurement.quotes.find((quote) => quote.vendor.id === input.vendor);
+      // The save's answer does not carry the vendor ids, so the quote is found by the number the
+      // vendor gave it (one per quote of a procurement is enough to tell them apart).
+      const stored =
+        saved.procurement.quotes.find((quote) => quote.number === input.quotationNumber) ??
+        saved.procurement.quotes.find((quote) => quote.vendor.id === input.vendor);
       if (files.length > 0 && stored) {
         await upload
           .mutateAsync({
@@ -129,11 +136,96 @@ export const ProcurementPanel = ({ request, rights }: Readonly<ProcurementPanelP
   const complete = Object.values(procurement.totals).filter((totals) => totals.complete).length;
   const needed = quotesNeeded(procurement);
   const shortBy = Math.max(0, needed - complete);
-  const { submitErrors } = procurement;
-  const needs = neededNotes(procurement);
   // Reasons and submission come once the quotes are in, as the steps do.
   const quotesIn = procurement.quotes.length > 0 && (single || shortBy === 0);
-  const canSubmit = editable && submitErrors.length === 0 && procurement.quotes.length > 0;
+  // The service refuses a quote without its file on submit but does not list it in its own
+  // checks, so the missing files are named here and block the button.
+  const filesMissing = procurement.quotes
+    .filter((quote) => quote.attachments.length === 0)
+    .map((quote) => t('procurement.bidding.quoteFileMissing', { vendor: quote.vendor.name }));
+  const ready =
+    editable &&
+    procurement.submitErrors.length === 0 &&
+    filesMissing.length === 0 &&
+    procurement.quotes.length > 0;
+  const showForm = quotesIn || !editable;
+
+  const setScore = (quote: Quote, key: ScoreKey, value: number) =>
+    persist((body) => ({
+      ...body,
+      quotes: body.quotes.map((entry) =>
+        entry.id === quote.id ? { ...entry, scores: { ...entry.scores, [key]: value } } : entry
+      ),
+    }));
+  const setFinalPrice = (quote: Quote, requestItemId: string, finalPrice: number | null) =>
+    persist((body) => ({
+      ...body,
+      quotes: body.quotes.map((entry) =>
+        entry.id === quote.id
+          ? {
+              ...entry,
+              lines: entry.lines.map((line) =>
+                line.requestItem === requestItemId ? { ...line, finalPrice } : line
+              ),
+            }
+          : entry
+      ),
+    }));
+
+  /** The reasons, the evidence, submit and approval: the lower part of both forms. */
+  const formBody = (
+    <Stack gap="md">
+      <ProcurementNotes
+        bare
+        procurement={procurement}
+        editable={editable}
+        saving={save.isPending}
+        onSave={(values: NotesValues) => persist((body) => ({ ...body, ...values }))}
+      />
+      <AttachmentsCard
+        bare
+        target="request"
+        documentId={request.id}
+        attachments={procurement.negotiationAttachments}
+        canUpload={editable}
+        requestFile="negotiation"
+        titleKey="procurement.notes.evidenceTitle"
+      />
+      {procurement.approvalPreview.length > 0 && editable && (
+        <Text size="xs" c="dimmed">
+          {t('procurement.approversPreview', {
+            levels: procurement.approvalPreview
+              .map((level) => `${level.name} (${level.roles.join(', ')})`)
+              .join(' → '),
+          })}
+        </Text>
+      )}
+      {editable && (
+        <ProcurementSubmit
+          procurement={procurement}
+          ready={ready}
+          extraErrors={filesMissing}
+          loading={submit.isPending}
+          onSubmit={() => submit.mutate({ id: request.id })}
+        />
+      )}
+      <ApprovalPanel
+        bare
+        approval={procurement.approval}
+        status={procurement.status}
+        waitingStatus="SUBMITTED"
+        canApprove={rights.approve}
+        busy={approve.isPending || reject.isPending}
+        onApprove={(note) =>
+          approve.mutate(
+            { id: request.id, note },
+            { onSuccess: (doc) => doc.orders.length > 0 && setApproved(doc.orders) }
+          )
+        }
+        onReject={(reason) => reject.mutate({ id: request.id, reason })}
+      />
+    </Stack>
+  );
 
   return (
     <Stack gap="lg">
@@ -153,170 +245,87 @@ export const ProcurementPanel = ({ request, rights }: Readonly<ProcurementPanelP
       )}
       <ProcurementSteps procurement={procurement} />
 
-      <SectionCard
-        icon={IconUsers}
-        title={t(`procurement.title.${procurement.route ?? 'BIDDING'}`)}
-        subtitle={
-          bidding && shortBy > 0
-            ? t('procurement.quotesShort', { count: shortBy, needed })
-            : bidding
-              ? t('procurement.subtitle.BIDDING', { needed })
-              : t('procurement.subtitle.SINGLE')
-        }
-        action={
-          <Group gap="sm" wrap="nowrap">
-            {bidding && (
+      {bidding && (
+        <SectionCard
+          icon={IconUsers}
+          title={t(`procurement.title.${procurement.route ?? 'BIDDING'}`)}
+          subtitle={
+            shortBy > 0
+              ? t('procurement.quotesShort', { count: shortBy, needed })
+              : t('procurement.subtitle.BIDDING', { needed })
+          }
+          action={
+            <Group gap="sm" wrap="nowrap">
               <Text size="sm" fw={600} c={shortBy > 0 ? 'orange.8' : 'green.7'}>
                 {t('procurement.quotesCount', { count: complete, needed })}
               </Text>
-            )}
-            {canAddQuote && (
-              <Button
-                size="sm"
-                leftSection={<IconPlus size={14} />}
-                onClick={() => setEditing({ quote: null })}
-              >
-                {t('procurement.addQuote')}
-              </Button>
-            )}
-          </Group>
-        }
-      >
-        {procurement.quotes.length === 0 ? (
-          <>
-            <Text size="sm" c="dimmed">
-              {t(`procurement.empty.${procurement.route ?? 'BIDDING'}`)}
-            </Text>
-            {bidding && (
-              <Alert
-                color="yellow"
-                variant="light"
-                radius="md"
-                icon={<IconAlertTriangle size={18} />}
-              >
-                {t('procurement.biddingMinimum', { needed })}
-              </Alert>
-            )}
-          </>
-        ) : (
-          <QuotesTable
-            procurement={procurement}
-            editable={editable}
-            busy={busy}
-            onView={setViewing}
-            onEdit={(quote) => setEditing({ quote })}
-            onRemove={setRemoving}
-          />
-        )}
-      </SectionCard>
-
-      {bidding && (quotesIn || !editable) && (
-        <BiddingForm
-          request={request}
-          procurement={procurement}
-          editable={editable}
-          busy={busy}
-          onScore={(quote, key, value) =>
-            persist((body) => ({
-              ...body,
-              quotes: body.quotes.map((entry) =>
-                entry.id === quote.id
-                  ? { ...entry, scores: { ...entry.scores, [key]: value } }
-                  : entry
-              ),
-            }))
+              {canAddQuote && (
+                <Button
+                  size="sm"
+                  leftSection={<IconPlus size={14} />}
+                  onClick={() => setEditing({ quote: null })}
+                >
+                  {t('procurement.addQuote')}
+                </Button>
+              )}
+            </Group>
           }
-          onChoose={(quote) => persist((body) => ({ ...body, winner: quote.vendor.id }))}
-        />
-      )}
-
-      {(quotesIn || !editable) && (
-        <>
-          <ProcurementNotes
-            procurement={procurement}
-            editable={editable}
-            saving={save.isPending}
-            onSave={(values: NotesValues) => persist((body) => ({ ...body, ...values }))}
-          />
-          <AttachmentsCard
-            target="request"
-            documentId={request.id}
-            attachments={procurement.negotiationAttachments}
-            canUpload={editable}
-            requestFile="negotiation"
-            titleKey="procurement.notes.evidenceTitle"
-          />
-        </>
-      )}
-
-      {editable && quotesIn && (
-        <SectionCard
-          icon={IconSend}
-          title={t('procurement.submitTitle')}
-          subtitle={t('procurement.submitSubtitle')}
         >
-          {submitErrors.length > 0 ? (
+          {procurement.quotes.length === 0 ? (
+            <Text size="sm" c="dimmed">
+              {t('procurement.empty.BIDDING')}
+            </Text>
+          ) : (
+            <QuotesTable
+              procurement={procurement}
+              editable={editable}
+              busy={busy}
+              onView={setViewing}
+              onEdit={(quote) => setEditing({ quote })}
+              onRemove={setRemoving}
+            />
+          )}
+          {shortBy > 0 && (
             <Alert
               color="yellow"
               variant="light"
               radius="md"
               icon={<IconAlertTriangle size={18} />}
-              title={t('procurement.notReady')}
             >
-              <List size="sm" spacing={2}>
-                {submitErrors.map((message) => (
-                  <List.Item key={message}>{message}</List.Item>
-                ))}
-              </List>
+              {t('procurement.biddingMinimum', { needed })}
             </Alert>
-          ) : (
-            <Text size="sm" c="dimmed">
-              {t('procurement.ready')}
-            </Text>
           )}
-          {procurement.approvalPreview.length > 0 && (
-            <Text size="xs" c="dimmed">
-              {t('procurement.approversPreview', {
-                levels: procurement.approvalPreview
-                  .map((level) => `${level.name} (${level.roles.join(', ')})`)
-                  .join(' → '),
-              })}
-            </Text>
-          )}
-          <div>
-            <Button
-              leftSection={<IconSend size={16} />}
-              disabled={!canSubmit}
-              loading={submit.isPending}
-              onClick={() => submit.mutate({ id: request.id })}
-            >
-              {procurement.status === 'REJECTED'
-                ? t('procurement.resubmit')
-                : t('procurement.submit')}
-            </Button>
-            {needs.single && procurement.singleReason.trim() === '' && (
-              <Text size="xs" c="dimmed" mt={6}>
-                {t('procurement.fillReasonFirst')}
-              </Text>
-            )}
-          </div>
         </SectionCard>
       )}
 
-      <ApprovalPanel
-        approval={procurement.approval}
-        status={procurement.status}
-        waitingStatus="SUBMITTED"
-        canApprove={rights.approve}
-        busy={approve.isPending || reject.isPending}
-        onApprove={(note) =>
-          approve.mutate(
-            { id: request.id, note },
-            { onSuccess: (doc) => doc.orders.length > 0 && setApproved(doc.orders) }
-          )
-        }
-        onReject={(reason) => reject.mutate({ id: request.id, reason })}
-      />
+      {bidding && showForm && (
+        <BiddingForm
+          request={request}
+          procurement={procurement}
+          editable={editable}
+          busy={busy}
+          onScore={setScore}
+          onChoose={(quote) => persist((body) => ({ ...body, winner: quote.vendor.id }))}
+        >
+          {formBody}
+        </BiddingForm>
+      )}
+
+      {single && (
+        <SingleVendorForm
+          procurement={procurement}
+          items={request.items}
+          editable={editable}
+          busy={busy}
+          onAdd={() => setEditing({ quote: null })}
+          onEdit={(quote) => setEditing({ quote })}
+          onView={setViewing}
+          onRemove={setRemoving}
+          onFinalPrice={setFinalPrice}
+        >
+          {formBody}
+        </SingleVendorForm>
+      )}
 
       <OrdersCard orders={request.orders} />
 

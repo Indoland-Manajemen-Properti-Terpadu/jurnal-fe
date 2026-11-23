@@ -18,6 +18,8 @@ interface ApprovalPanelProps {
   busy?: boolean;
   onApprove: (note?: string) => void;
   onReject: (reason: string) => void;
+  /** Without its own card, to sit inside another card. */
+  bare?: boolean;
 }
 
 /** Who still has to approve, who already did, and the approve / reject buttons when allowed. */
@@ -29,6 +31,7 @@ export const ApprovalPanel = ({
   busy,
   onApprove,
   onReject,
+  bare,
 }: Readonly<ApprovalPanelProps>) => {
   const { t } = useTranslation('purchases');
   const [note, setNote] = useState('');
@@ -40,12 +43,8 @@ export const ApprovalPanel = ({
 
   const showActions = waiting && canApprove && approval.canDecide;
 
-  return (
-    <SectionCard
-      icon={IconShieldCheck}
-      title={t('approval.title')}
-      subtitle={waiting ? t('approval.waiting') : undefined}
-    >
+  const body = (
+    <>
       <Stack gap="sm">
         {rejected && (
           <Alert color="red" radius="md" title={t('approval.rejectedTitle')}>
@@ -125,6 +124,16 @@ export const ApprovalPanel = ({
           setRejecting(false);
         }}
       />
+    </>
+  );
+  if (bare) return body;
+  return (
+    <SectionCard
+      icon={IconShieldCheck}
+      title={t('approval.title')}
+      subtitle={waiting ? t('approval.waiting') : undefined}
+    >
+      {body}
     </SectionCard>
   );
 };
