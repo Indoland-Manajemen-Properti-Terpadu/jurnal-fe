@@ -181,14 +181,18 @@ interface ReasonDto {
   code?: string;
   message?: string;
   opname?: { id?: string; number?: string; status?: string };
+  transfers?: { id?: string; number?: string }[];
   itemCount?: number;
   value?: number;
   count?: number;
 }
 
 /**
- * Reads the refusal of a deactivation. Only `RUNNING_OPNAME` is confirmed against the service; the
- * other codes are matched by name and anything unknown keeps the service's sentence.
+ * Reads the refusal of a deactivation. The service's codes (confirmed by the backend, PRO-104):
+ * `DEFAULT`, `HAS_STOCK` and `OPEN_PURCHASE_ORDER` and `OPEN_TRANSFER` (each with `count`),
+ * `RUNNING_OPNAME` (with `opname`) and `OPEN_TRANSFER` also with `transfers`. A code is matched by
+ * name so a renamed one still lands on the right reason, and anything unknown keeps the
+ * service's own sentence.
  */
 export const toBlockReasons = (data: { reasons?: ReasonDto[] } | undefined): BlockReason[] => {
   const reasons = (data?.reasons ?? []).map((reason): BlockReason => {
@@ -196,9 +200,23 @@ export const toBlockReasons = (data: { reasons?: ReasonDto[] } | undefined): Blo
     if (code === 'RUNNING_OPNAME' && reason.opname?.number) {
       return { kind: 'opname', number: reason.opname.number, id: reason.opname.id ?? '' };
     }
+    if (code.includes('TRANSFER')) {
+      const transfers = (reason.transfers ?? []).flatMap((transfer) =>
+        transfer.id && transfer.number ? [{ id: transfer.id, number: transfer.number }] : []
+      );
+      return {
+        kind: 'transfers',
+        count: reason.count ?? (transfers.length > 0 ? transfers.length : null),
+        transfers,
+      };
+    }
     if (code.includes('DEFAULT')) return { kind: 'default' };
     if (code.includes('STOCK')) {
-      return { kind: 'stock', itemCount: reason.itemCount ?? null, value: reason.value ?? null };
+      return {
+        kind: 'stock',
+        itemCount: reason.itemCount ?? reason.count ?? null,
+        value: reason.value ?? null,
+      };
     }
     if (code.includes('ORDER') || code.includes('PO')) {
       return { kind: 'orders', count: reason.count ?? null };

@@ -4,6 +4,7 @@ import type {
   StockTransfer,
   TransferInput,
   TransferItem,
+  TransferStatus,
   TransferWarehouse,
 } from '@/module/inventory/domain/stockTransfer';
 
@@ -22,6 +23,15 @@ interface TransferItemDto {
   value?: number | null;
 }
 
+export type TransferStatusDto = 'PENDING_APPROVAL' | 'POSTED' | 'REJECTED' | 'VOID';
+
+const STATUS: Record<TransferStatusDto, TransferStatus> = {
+  PENDING_APPROVAL: 'pending',
+  POSTED: 'posted',
+  REJECTED: 'rejected',
+  VOID: 'void',
+};
+
 export interface TransferDto {
   id: string;
   transactionNumber: string;
@@ -31,7 +41,14 @@ export interface TransferDto {
   items?: TransferItemDto[] | null;
   productCount?: number;
   memo?: string | null;
-  status: 'POSTED' | 'VOID';
+  status: TransferStatusDto;
+  canDecide?: boolean;
+  createdByUser?: { id: string; name: string } | null;
+  rejectedByUser?: { id: string; name: string } | null;
+  rejectionReason?: string | null;
+  pendingApprovers?:
+    | { level?: number; name?: string; roles?: { id?: string; name: string }[] }[]
+    | null;
   voidReason?: string | null;
   voidedAt?: string | null;
   createdAt?: string;
@@ -58,7 +75,16 @@ export const toTransfer = (dto: TransferDto): StockTransfer => {
     items,
     productCount: dto.productCount ?? items.length,
     memo: dto.memo ?? '',
-    status: dto.status === 'VOID' ? 'void' : 'posted',
+    status: STATUS[dto.status] ?? 'posted',
+    canDecide: dto.canDecide === true,
+    createdByName: dto.createdByUser?.name ?? '',
+    waitingFor: [
+      ...new Set(
+        (dto.pendingApprovers ?? []).flatMap((step) => (step.roles ?? []).map((r) => r.name))
+      ),
+    ],
+    rejectedByName: dto.rejectedByUser?.name ?? null,
+    rejectReason: dto.rejectionReason ?? null,
     voidReason: dto.voidReason ?? null,
     voidedAt: dto.voidedAt ?? null,
     createdAt: dto.createdAt ?? '',
@@ -80,7 +106,7 @@ export const toCreateBody = (input: TransferInput) => {
 export interface TransferListParams {
   page?: number;
   limit?: number;
-  status?: 'POSTED' | 'VOID';
+  status?: TransferStatusDto;
   warehouse?: string;
   startDate?: string;
   endDate?: string;
@@ -148,6 +174,22 @@ export const createTransfer = async (input: TransferInput): Promise<StockTransfe
 export const voidTransfer = async (id: string, reason: string): Promise<StockTransfer> => {
   const body = await call(() =>
     apiClient.post<Envelope<TransferDto>>(`${TRANSFERS}/${id}/void`, { reason: reason.trim() })
+  );
+  return toTransfer(body.data);
+};
+
+/** An approver lets the transfer go ahead; the stock moves now. */
+export const approveTransfer = async (id: string): Promise<StockTransfer> => {
+  const body = await call(() =>
+    apiClient.post<Envelope<TransferDto>>(`${TRANSFERS}/${id}/approve`, {})
+  );
+  return toTransfer(body.data);
+};
+
+/** An approver refuses it with a reason; no stock ever moves. */
+export const rejectTransfer = async (id: string, reason: string): Promise<StockTransfer> => {
+  const body = await call(() =>
+    apiClient.post<Envelope<TransferDto>>(`${TRANSFERS}/${id}/reject`, { reason: reason.trim() })
   );
   return toTransfer(body.data);
 };

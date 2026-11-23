@@ -1,3 +1,5 @@
+import type { TransferStatusDto } from '@/module/inventory/infrastructure/transferApi';
+
 export type StockTab = 'balances' | 'history' | 'transfers';
 
 export interface StockFilterValues {
@@ -9,9 +11,14 @@ export interface StockFilterValues {
   from: string;
   to: string;
   product: string;
+  /** One or several movement types, separated by commas. */
   type: string;
+  /** Product category, for the balances and the history. */
+  category: string;
+  /** Part of a document number, for the history. */
+  doc: string;
   page: number;
-  transferStatus: '' | 'POSTED' | 'VOID';
+  transferStatus: '' | TransferStatusDto;
   transferPage: number;
 }
 
@@ -24,15 +31,33 @@ const KEYS: Record<keyof StockFilterValues, string> = {
   to: 'to',
   product: 'product',
   type: 'type',
+  category: 'category',
+  doc: 'doc',
   page: 'page',
   transferStatus: 'tstatus',
   transferPage: 'tpage',
 };
 
+/** The statuses the transfer list can be narrowed to. */
+export const TRANSFER_STATUSES: TransferStatusDto[] = [
+  'PENDING_APPROVAL',
+  'POSTED',
+  'REJECTED',
+  'VOID',
+];
+
 const TABS: StockTab[] = ['balances', 'history', 'transfers'];
 
 /** The filters whose change sends the history back to its first page. */
-const HISTORY_FILTERS: (keyof StockFilterValues)[] = ['warehouse', 'from', 'to', 'product', 'type'];
+const HISTORY_FILTERS: (keyof StockFilterValues)[] = [
+  'warehouse',
+  'from',
+  'to',
+  'product',
+  'type',
+  'category',
+  'doc',
+];
 
 const monthStart = (today: string) => `${today.slice(0, 8)}01`;
 
@@ -54,8 +79,12 @@ export const readFilters = (params: URLSearchParams, today: string): StockFilter
     to: params.get(KEYS.to) ?? today,
     product: params.get(KEYS.product) ?? '',
     type: params.get(KEYS.type) ?? '',
+    category: params.get(KEYS.category) ?? '',
+    doc: params.get(KEYS.doc) ?? '',
     page: asPage(params.get(KEYS.page)),
-    transferStatus: status === 'POSTED' || status === 'VOID' ? status : '',
+    transferStatus: TRANSFER_STATUSES.includes(status as TransferStatusDto)
+      ? (status as TransferStatusDto)
+      : '',
     transferPage: asPage(params.get(KEYS.transferPage)),
   };
 };

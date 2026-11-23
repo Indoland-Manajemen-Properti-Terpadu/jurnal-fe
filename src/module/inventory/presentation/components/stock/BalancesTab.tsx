@@ -25,7 +25,10 @@ import { BalanceMatrix } from '@/module/inventory/presentation/components/stock/
 import { BalanceMetrics } from '@/module/inventory/presentation/components/stock/BalanceMetrics';
 import { ReconciliationBanner } from '@/module/inventory/presentation/components/stock/ReconciliationBanner';
 import type { StockFilterValues } from '@/module/inventory/presentation/components/stock/stockFilters';
-import { useBalances } from '@/module/inventory/presentation/hooks/useStockQueries';
+import {
+  useBalances,
+  useCategoryOptions,
+} from '@/module/inventory/presentation/hooks/useStockQueries';
 import { useWarehouseStock } from '@/module/inventory/presentation/hooks/useWarehouses';
 
 type Props = {
@@ -47,7 +50,13 @@ export function BalancesTab({ filters, today, update, tabList }: Readonly<Props>
   const [status, setStatus] = useState<StatusFilter>('all');
 
   const asOf = filters.asOf || undefined;
-  const balances = useBalances({ asOf, warehouse: filters.warehouse || undefined, q: search });
+  const categories = useCategoryOptions();
+  const balances = useBalances({
+    asOf,
+    warehouse: filters.warehouse || undefined,
+    categoryId: filters.category || undefined,
+    q: search,
+  });
   const report = balances.data;
 
   const isToday = !filters.asOf || filters.asOf === today;
@@ -74,13 +83,14 @@ export function BalancesTab({ filters, today, update, tabList }: Readonly<Props>
     };
   }, [report, mins, status]);
 
-  const hasFilters = search !== '' || singleWarehouse || status !== 'all';
+  const hasFilters =
+    search !== '' || singleWarehouse || filters.category !== '' || status !== 'all';
   const showValue = (report?.summary.inventoryValue ?? null) !== null;
 
   const reset = () => {
     setSearchInput('');
     setStatus('all');
-    update({ warehouse: '', search: '' });
+    update({ warehouse: '', search: '', category: '' });
   };
 
   const renderBody = () => {
@@ -156,6 +166,11 @@ export function BalancesTab({ filters, today, update, tabList }: Readonly<Props>
     );
   };
 
+  const categoryOptions = (categories.data?.items ?? []).map((category) => ({
+    value: category.id,
+    label: category.name,
+  }));
+
   const warehouseOptions = (report?.warehouses ?? [])
     .filter((warehouse) => warehouse.isActive || warehouse.id === filters.warehouse)
     .map((warehouse) => ({
@@ -196,6 +211,17 @@ export function BalancesTab({ filters, today, update, tabList }: Readonly<Props>
               searchable
               radius="md"
               w={{ base: '100%', sm: 240 }}
+            />
+            <Select
+              aria-label={t('balances.category')}
+              placeholder={t('balances.allCategories')}
+              data={categoryOptions}
+              value={filters.category || null}
+              onChange={(value) => update({ category: value ?? '' })}
+              clearable
+              searchable
+              radius="md"
+              w={{ base: '100%', sm: 220 }}
             />
             {mins && (
               <Select

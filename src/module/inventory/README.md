@@ -31,13 +31,14 @@ A warehouse is a master record of a place. It never holds a stock figure of its 
 | Switch on or off              | `PATCH /v1/warehouses/:id/status` with `{ status: 'active'                                                     | 'inactive' }` |
 | Minimum stock                 | `PUT /v1/warehouses/:id/min-stock` with `{ items: [{ productId, minQty }] }`                                   |
 | Delete                        | `DELETE /v1/warehouses/:id`                                                                                    |
+| Stock of one product          | `GET /v1/products/:id/stock` (quantity, `minQty`, status, `lastOpname` per warehouse; no money)                |
 | Rights                        | `GET /v1/users/me/permissions`, menu `JP-STOCK` (create, read, update, delete)                                 |
 
 **Rules shown** (`domain/warehouse.ts`)
 
 - Exactly one main warehouse; it cannot be switched off or deleted.
 - Delete only when `canDelete` (no document ever used the warehouse). The code is read-only when `codeLocked`.
-- Switching off is refused with a 409 that lists every reason in `data.reasons[]` (`code`, `message`, extra data). `RUNNING_OPNAME` is confirmed against the service; the main-warehouse, stock and purchase-order codes are matched by name and an unknown code keeps the service's sentence. The screen shows a blocking dialog straight away for what the list already knows (main warehouse, remaining stock, running count) and asks the service for the rest.
+- Switching off is refused with a 409 that lists every reason in `data.reasons[]` (`code`, `message`, extra data). The backend confirmed the codes on PRO-104 (2026-11-23): `DEFAULT`, `HAS_STOCK` (`count` of products, no value yet), `OPEN_PURCHASE_ORDER` (`count`), `OPEN_TRANSFER` (`count` and `transfers: [{ id, number }]`, for transfers waiting for approval) and `RUNNING_OPNAME` (`opname: { id, number, status }`). They differ from the names in the QA spec (`IS_DEFAULT`, `OPEN_PO`); the screen matches by name, so either set works, and an unknown code keeps the service's sentence. The dialog names up to five waiting transfers with a link to each, and sends the rest to the transfer list narrowed to this warehouse and `PENDING_APPROVAL`. The screen shows a blocking dialog straight away for what the list already knows (main warehouse, remaining stock, running count) and asks the service for the rest.
 - Stock status: `Habis` at zero, `Di bawah minimum` under a set minimum, `Aman` otherwise. Quantities are never added across products; only the value is totalled, and the total is the service's own figure.
 - Values (inventory value, average cost, value of a movement) are shown only when the service sends them. A person without that right sees no value column, never `Rp 0`.
 - The change history names the person in charge and the product of a minimum-stock change (`domain/warehouseAudit.ts`); the service logs both as ids.
@@ -50,41 +51,41 @@ A warehouse is a master record of a place. It never holds a stock figure of its 
 
 ## Stock movements
 
-The stock ledger, read-only: nothing here adds, edits or deletes a movement. The only document made from here is a transfer. The tab and its filters live in the address (`?tab=history&warehouse=<id>&from&to&product&type&page`), so a link from a warehouse opens the right view (`components/stock/stockFilters.ts`).
+The stock ledger, read-only: nothing here adds, edits or deletes a movement. The only document made from here is a transfer. The tab and its filters live in the address (`?tab=history&warehouse=<id>&from&to&product&type&category&doc&page`), so a link from a warehouse opens the right view (`components/stock/stockFilters.ts`).
 
 **Endpoints** (`infrastructure/stockApi.ts`, `transferApi.ts`)
 
-| Use                               | Call                                                                                                                                                                                               |
-| --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- |
-| Balances (matrix, reconciliation) | `GET /v1/stock/balances?asOf&warehouse&q` (the reconciliation is inside this answer; there is no separate endpoint)                                                                                |
-| Movement history                  | `GET /v1/stock/movements?startDate&endDate&warehouse&product&type&page&limit` (one `type` at a time; answers `totals` over the whole filter)                                                       |
-| Stock card                        | `GET /v1/stock/card?product=<id>&warehouse&startDate&endDate`                                                                                                                                      |
-| Export                            | `GET /v1/stock/export?scope=balances                                                                                                                                                               | movements` (a workbook) |
-| Transfers                         | `GET /v1/stock/transfers`, `GET /:id`, `POST` with `{transactionDate, fromWarehouse, toWarehouse, items:[{product, quantity}], memo}`, `POST /:id/void` with `{reason}`; status `POSTED` or `VOID` |
-| Journal of a movement             | the journal detail page, by the movement's `journalTransaction`                                                                                                                                    |
-| Rights                            | menus `JP-STOCK-CARD` (read) and `JP-STOCK-TRF` (create, read, delete)                                                                                                                             |
+| Use                               | Call                                                                                                                                                                                                                                                                                        |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- |
+| Balances (matrix, reconciliation) | `GET /v1/stock/balances?asOf&warehouse&q&categoryId` (the reconciliation is inside this answer; there is no separate endpoint)                                                                                                                                                              |
+| Movement history                  | `GET /v1/stock/movements?startDate&endDate&warehouse&product&types&categoryId&search&page&limit` (`types` is a comma list, `search` is part of a document number; answers `totals` over the whole filter)                                                                                   |
+| Stock card                        | `GET /v1/stock/card?product=<id>&warehouse&startDate&endDate`                                                                                                                                                                                                                               |
+| Export                            | `GET /v1/stock/export?scope=balances                                                                                                                                                                                                                                                        | movements` (a workbook) |
+| Transfers                         | `GET /v1/stock/transfers`, `GET /:id`, `POST` with `{transactionDate, fromWarehouse, toWarehouse, items:[{product, quantity}], memo}`, `POST /:id/approve`, `POST /:id/reject` with `{reason}`, `POST /:id/void` with `{reason}`; status `PENDING_APPROVAL`, `POSTED`, `REJECTED` or `VOID` |
+| Journal of a movement             | the journal detail page, by the movement's `journalTransaction`                                                                                                                                                                                                                             |
+| Rights                            | menus `JP-STOCK-CARD` (read) and `JP-STOCK-TRF` (create, read, delete)                                                                                                                                                                                                                      |
 
 **Behaviour**
 
-- A transfer posts at once (no approval step in the service) and has no journal. Cancelling needs a reason and records a reversing movement; the original rows stay in the history.
+- A transfer is asked for, not saved (QA, PRO-104, 2026-11-23): it starts as `PENDING_APPROVAL` and moves no stock until an approver agrees (the approvers come from Settings > Alur Persetujuan; Building Manager by default). The detail page shows Setujui and Tolak only when the service says `canDecide`; rejecting needs a reason, and a rejected or waiting transfer produces no movement. A posted transfer can still be cancelled with a reason, which records a reversing movement; the original rows stay in the history. There is no journal. The backend confirmed (PRO-104, 2026-11-23, tried on its local API) that `/approve` takes `{}` (`note` optional) and `/reject` takes `{ reason }` of at least 3 letters, and that the answer carries `rejectionReason`, `rejectedAt` and `rejectedByUser`; `approvalHistory` holds approvals only (`{ level, by, at, note }`). None of it was run against the sandbox from here, because a decision changes a document of someone else. `canDecide` comes from the approval engine, while the route is guarded by the menu right `JP-STOCK-TRF-APR`; on 2026-11-23 the test account had `canDecide: true` but that right set to false, which the backend traced to the menu sync script not yet run on the Demo Site.
 - The balances page shows a matrix of products by warehouse when no warehouse is chosen, and a list when one is. The minimum and the status of a product come from the warehouse's own stock figures, so they show only for today's balance.
-- Only the value is totalled, never quantities across products. Values show only when the service sends them.
+- Only the value is totalled, never quantities across products. Values show only when the service sends them. The menu `JP-STOCK-VAL` (money values of stock) decides the export: without it the service leaves the rupiah fields out and answers 403 on `/v1/stock/export`, so the Ekspor button is not offered.
+- A refused decision (approve, reject or cancel of a transfer: stock short, a warehouse being counted, a locked period) keeps its dialog open and shows the server's sentence in a message, so the person reads why and can try again (the backend's spec asks for this on the cancel dialog; the same is done for approve and reject).
 - A price that carries freight or tax (`costBreakdown`) is explained by a tooltip in the history; the number of a stock count links to its page.
 - The transfer form lists only products the source warehouse holds on that date, checks the quantity against it, asks before changing the source while rows are filled, and `?from=<id>&fill=all` opens it with everything the warehouse still holds.
 
 ## Known gaps (stock movements)
 
-- No filter in the service for category or stock status over all warehouses, for a document number, or for several movement types. None of them is faked in the screen.
-- "Diserahkan kepada" and "Dibuat oleh" (name) are not in the transfer answer (`createdBy` is an id). The prototype also shows an approval step the service does not have.
+- The history and the balances filter by category; the history also searches a document number and takes several types. A filter by stock status over all warehouses is still not in the service and is not faked in the screen.
+- "Diserahkan kepada" is not needed for now (QA decision); the creator's name comes from `createdByUser`.
 - Print of the stock card and the transfer hand-over sheet is not built; there is no agreed print format.
 - Revisions of acquisition cost that belong to Purchasing and Settings (freight and tax settings, "PPN tidak dapat dikreditkan", "Ongkir ikut dikembalikan", freight per unit on the order) are not part of this screen; only the price tooltip is.
-- "Stok per gudang" in the product detail still waits for an endpoint.
 
 ## Known gaps (warehouses)
 
-- Product detail ("Stok per gudang") is not built here: no API gives the stock of one product per warehouse without a new contract.
+- "Stok per gudang" in the product detail (`ProductWarehouseStock`) reads `GET /v1/products/:id/stock` and shows only for a stock-tracked product. The Products module does not import this module (a cycle); the router passes the section in through the `renderStock` prop of `ProductDetailPage`. A person without the stock right sees no section.
 - The service logs the person in charge as an id and a minimum as `minQty:<productId>`; the screen resolves both. A name in the log would remove that step (backend wish, not a blocker).
-- No endpoint for the open purchase orders of a warehouse, so that blocking reason cannot be told in advance; it shows only when the service refuses.
+- No endpoint for the open purchase orders or the waiting transfers of a warehouse, so those two blocking reasons cannot be told in advance; they show only when the service refuses.
 
 ## Stock count
 
