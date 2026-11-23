@@ -2,7 +2,9 @@ import type { PurchaseRequest } from '@/module/purchases/domain/purchaseRequest'
 import {
   emptyRequestForm,
   hasRequestErrors,
+  mainWarehouseId,
   MIN_QUANTITY,
+  needsDeliveryWarehouse,
   REQUEST_LIMITS,
   requestToForm,
   toRequestInput,
@@ -16,6 +18,7 @@ const validForm = (): RequestFormValues => {
   form.requiredDate = '2026-12-01';
   form.departmentId = 'dept1';
   form.purpose = 'ATK bulanan';
+  form.deliveryWarehouseId = 'wh1';
   form.items[0].description = 'Kertas A4';
   return form;
 };
@@ -193,5 +196,64 @@ describe('requestToForm', () => {
       specification: '80 gsm',
       quantity: 5,
     });
+  });
+});
+
+describe('delivery warehouse ("Lokasi kirim")', () => {
+  it('is needed when any line is goods, and not when every line is a service', () => {
+    const form = validForm();
+    expect(needsDeliveryWarehouse(form.items)).toBe(true);
+    form.items[0].kind = 'SERVICE';
+    expect(needsDeliveryWarehouse(form.items)).toBe(false);
+    form.items.push({ ...form.items[0], key: 'x', kind: 'GOODS' });
+    expect(needsDeliveryWarehouse(form.items)).toBe(true);
+  });
+
+  it('is required once a line is goods', () => {
+    const form = validForm();
+    form.deliveryWarehouseId = '';
+    const errors = validateRequestForm(form);
+    expect(errors.deliveryWarehouse).toBe('required');
+    expect(hasRequestErrors(errors)).toBe(true);
+  });
+
+  it('is not asked for when every line is a service', () => {
+    const form = validForm();
+    form.deliveryWarehouseId = '';
+    form.items[0].kind = 'SERVICE';
+    expect(validateRequestForm(form).deliveryWarehouse).toBeUndefined();
+  });
+
+  it('is sent for goods and left out for services', () => {
+    const form = validForm();
+    expect(toRequestInput(form).deliveryWarehouseId).toBe('wh1');
+    form.items[0].kind = 'SERVICE';
+    expect(toRequestInput(form)).not.toHaveProperty('deliveryWarehouseId');
+  });
+
+  it('is read back from the request when it is edited', () => {
+    const doc = {
+      date: '2026-11-05',
+      requiredDate: '2026-12-01',
+      department: { id: 'd1', name: 'Eng' },
+      purpose: 'ATK',
+      iom: { number: '', date: null },
+      memo: '',
+      items: [],
+      deliveryWarehouse: { id: 'wh9', code: 'GDG-009', name: 'Semarang' },
+    } as unknown as PurchaseRequest;
+    expect(requestToForm(doc).deliveryWarehouseId).toBe('wh9');
+    expect(requestToForm({ ...doc, deliveryWarehouse: null }).deliveryWarehouseId).toBe('');
+  });
+
+  it('starts on the main warehouse', () => {
+    expect(
+      mainWarehouseId([
+        { id: 'a', name: 'A', isDefault: false },
+        { id: 'b', name: 'B', isDefault: true },
+      ])
+    ).toBe('b');
+    expect(mainWarehouseId([{ id: 'a', name: 'A', isDefault: false }])).toBe('');
+    expect(mainWarehouseId([])).toBe('');
   });
 });

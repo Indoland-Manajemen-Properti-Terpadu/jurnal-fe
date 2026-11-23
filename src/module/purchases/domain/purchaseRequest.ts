@@ -38,6 +38,8 @@ export interface PurchaseRequest extends DocumentBase {
   requiredDate: string | null;
   department: NamedRef | null;
   purpose: string;
+  /** Where the goods are delivered; null for services only and for older requests. */
+  deliveryWarehouse: { id: string; code: string; name: string } | null;
   iom: { number: string; date: string | null; attachments: Attachment[] };
   requester: UserInfo | null;
   verifiedBy: UserInfo | null;
