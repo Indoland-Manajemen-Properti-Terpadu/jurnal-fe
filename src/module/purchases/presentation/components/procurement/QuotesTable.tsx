@@ -1,5 +1,5 @@
 import tableClasses from '@/module/purchases/presentation/components/shared/Table.module.css';
-import { ActionIcon, Badge, Group, Menu, Radio, Table, Text, Tooltip } from '@mantine/core';
+import { ActionIcon, Badge, Group, Menu, Table, Text, Tooltip } from '@mantine/core';
 import { IconDots, IconEdit, IconEye, IconPaperclip, IconTrash } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import type { Procurement, Quote } from '@/module/purchases/domain/procurement';
@@ -8,10 +8,7 @@ import { formatAmount, formatDay } from '@/module/purchases/presentation/compone
 interface QuotesTableProps {
   procurement: Procurement;
   editable: boolean;
-  /** The winner can be chosen only on the bidding route; a single vendor wins by default. */
-  canChoose: boolean;
   busy: boolean;
-  onChoose: (quote: Quote) => void;
   onView: (quote: Quote) => void;
   onEdit: (quote: Quote) => void;
   onRemove: (quote: Quote) => void;
@@ -21,23 +18,19 @@ interface QuotesTableProps {
 export const QuotesTable = ({
   procurement,
   editable,
-  canChoose,
   busy,
-  onChoose,
   onView,
   onEdit,
   onRemove,
 }: Readonly<QuotesTableProps>) => {
   const { t, currentLanguage } = useTranslation('purchases');
-  const { route, totals, cheapestVendorId, winnerId } = procurement;
-  const bidding = route !== 'SINGLE';
+  const { totals, cheapestVendorId } = procurement;
 
   return (
     <Table.ScrollContainer type="native" minWidth={760}>
       <Table className={tableClasses.table} verticalSpacing="sm" highlightOnHover>
         <Table.Thead bg="var(--jurnal-color-surface-hover)">
           <Table.Tr>
-            {canChoose && <Table.Th w={44} />}
             {['vendor', 'term', 'lead', 'warranty'].map((key) => (
               <Table.Th key={key}>
                 <Text size="xs" fw={700} c="dimmed" tt="uppercase">
@@ -45,13 +38,6 @@ export const QuotesTable = ({
                 </Text>
               </Table.Th>
             ))}
-            {bidding && (
-              <Table.Th ta="right">
-                <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-                  {t('procurement.col.score')}
-                </Text>
-              </Table.Th>
-            )}
             <Table.Th ta="right">
               <Text size="xs" fw={700} c="dimmed" tt="uppercase">
                 {t('procurement.col.total')}
@@ -63,37 +49,15 @@ export const QuotesTable = ({
         <Table.Tbody>
           {procurement.quotes.map((quote) => {
             const amounts = totals[quote.id];
-            // Before the quotes are enough there is nothing to have won.
-            const isWinner = winnerId === quote.vendor.id && (!bidding || canChoose || !editable);
             const cheapest = cheapestVendorId === quote.vendor.id && procurement.quotes.length > 1;
             const expired = Boolean(quote.validUntil) && (quote.validUntil as string) < todayKey();
             return (
-              <Table.Tr key={quote.id} bg={isWinner ? 'var(--mantine-color-primary-0)' : undefined}>
-                {canChoose && (
-                  <Table.Td>
-                    <Radio
-                      checked={isWinner}
-                      disabled={!editable || busy || !amounts?.complete}
-                      aria-label={t('procurement.chooseAria', { vendor: quote.vendor.name })}
-                      onChange={() => onChoose(quote)}
-                    />
-                  </Table.Td>
-                )}
+              <Table.Tr key={quote.id}>
                 <Table.Td>
                   <Group gap={6} wrap="wrap">
                     <Text size="sm" fw={600}>
                       {quote.vendor.name}
                     </Text>
-                    {isWinner && (
-                      <Badge size="xs" radius="sm" color="primary">
-                        {t('procurement.winner')}
-                      </Badge>
-                    )}
-                    {cheapest && (
-                      <Text size="xs" c="green.7" fw={600}>
-                        {t('procurement.cheapest')}
-                      </Text>
-                    )}
                     {amounts && !amounts.complete && (
                       <Badge size="xs" radius="sm" variant="light" color="yellow">
                         {t('procurement.incomplete')}
@@ -134,13 +98,6 @@ export const QuotesTable = ({
                 <Table.Td>
                   <Text size="sm">{quote.warranty || '-'}</Text>
                 </Table.Td>
-                {bidding && (
-                  <Table.Td ta="right" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                    <Text size="sm">
-                      {amounts?.score === null || !amounts ? '-' : amounts.score.toFixed(2)}
-                    </Text>
-                  </Table.Td>
-                )}
                 <Table.Td
                   ta="right"
                   style={{ fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}
@@ -148,6 +105,11 @@ export const QuotesTable = ({
                   <Text size="sm" fw={600}>
                     {amounts ? formatAmount(amounts.total) : '-'}
                   </Text>
+                  {cheapest && (
+                    <Badge size="xs" radius="sm" variant="light" color="green">
+                      {t('procurement.cheapest')}
+                    </Badge>
+                  )}
                 </Table.Td>
                 <Table.Td>
                   <Group gap={2} justify="flex-end" wrap="nowrap">
