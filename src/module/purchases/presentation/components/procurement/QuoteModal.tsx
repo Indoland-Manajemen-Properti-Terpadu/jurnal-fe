@@ -15,12 +15,7 @@ import { notifications } from '@mantine/notifications';
 import CustomDropzone from '@/components/Dropzone/CustomDropzone';
 import { ModalFrame } from '@/components/Modals/ModalFrame';
 import { useTranslation } from '@/i18n';
-import type {
-  Procurement,
-  Quote,
-  QuoteInput,
-  ScoreKey,
-} from '@/module/purchases/domain/procurement';
+import type { Procurement, Quote, QuoteInput } from '@/module/purchases/domain/procurement';
 import type { RequestItem } from '@/module/purchases/domain/purchaseRequest';
 import {
   appliesToOf,
@@ -39,7 +34,6 @@ import {
   type QuoteFormValues,
 } from '@/module/purchases/domain/quoteForm';
 import { QuoteLinesSection } from '@/module/purchases/presentation/components/procurement/QuoteLinesSection';
-import { QuoteScoresSection } from '@/module/purchases/presentation/components/procurement/QuoteScoresSection';
 import { QuoteTermSection } from '@/module/purchases/presentation/components/procurement/QuoteTermSection';
 import { DateField } from '@/module/purchases/presentation/components/requests/DateField';
 import { SupplierSelect } from '@/module/purchases/presentation/components/shared/LookupSelects';
@@ -335,20 +329,6 @@ export const QuoteModal = ({
         onReplace={setValues}
         onChange={set}
       />
-
-      {bidding && (
-        <>
-          <Divider />
-          {heading(t('procurement.quote.scoresTitle'))}
-          <QuoteScoresSection
-            criteria={procurement.scoreCriteria}
-            scores={values.scores}
-            onChange={(key: ScoreKey, value: number) =>
-              setValues((current) => ({ ...current, scores: { ...current.scores, [key]: value } }))
-            }
-          />
-        </>
-      )}
     </ModalFrame>
   );
 };

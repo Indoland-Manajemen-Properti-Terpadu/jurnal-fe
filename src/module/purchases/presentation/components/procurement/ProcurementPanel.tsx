@@ -15,6 +15,7 @@ import { removalImpact, withoutQuote } from '@/module/purchases/domain/quoteRemo
 import { neededNotes, type NotesValues } from '@/module/purchases/domain/procurementNotes';
 import type { PurchaseRequest } from '@/module/purchases/domain/purchaseRequest';
 import { ApprovedDialog } from '@/module/purchases/presentation/components/procurement/ApprovedDialog';
+import { BiddingForm } from '@/module/purchases/presentation/components/procurement/BiddingForm';
 import { OrdersCard } from '@/module/purchases/presentation/components/procurement/OrdersCard';
 import { ProcurementNotes } from '@/module/purchases/presentation/components/procurement/ProcurementNotes';
 import { ProcurementRouteCard } from '@/module/purchases/presentation/components/procurement/ProcurementRouteCard';
@@ -201,15 +202,33 @@ export const ProcurementPanel = ({ request, rights }: Readonly<ProcurementPanelP
           <QuotesTable
             procurement={procurement}
             editable={editable}
-            canChoose={bidding && shortBy === 0}
             busy={busy}
-            onChoose={(quote) => persist((body) => ({ ...body, winner: quote.vendor.id }))}
             onView={setViewing}
             onEdit={(quote) => setEditing({ quote })}
             onRemove={setRemoving}
           />
         )}
       </SectionCard>
+
+      {bidding && (quotesIn || !editable) && (
+        <BiddingForm
+          request={request}
+          procurement={procurement}
+          editable={editable}
+          busy={busy}
+          onScore={(quote, key, value) =>
+            persist((body) => ({
+              ...body,
+              quotes: body.quotes.map((entry) =>
+                entry.id === quote.id
+                  ? { ...entry, scores: { ...entry.scores, [key]: value } }
+                  : entry
+              ),
+            }))
+          }
+          onChoose={(quote) => persist((body) => ({ ...body, winner: quote.vendor.id }))}
+        />
+      )}
 
       {(quotesIn || !editable) && (
         <>
