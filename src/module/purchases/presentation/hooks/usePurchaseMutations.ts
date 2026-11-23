@@ -68,9 +68,7 @@ export const useUpdateRequest = (onDone?: (doc: WithId & Doc) => void) =>
 export const useSubmitRequest = () =>
   useAction('submitted', ({ id }: WithId) => api.submitRequest(id));
 export const useVerifyRequest = () =>
-  useAction('requestVerified', ({ id, note }: WithId & { note?: string }) =>
-    api.verifyRequest(id, note)
-  );
+  useAction('requestVerified', ({ id }: WithId) => api.verifyRequest(id));
 export const useReturnRequest = () =>
   useAction('requestReturned', ({ id, note }: WithId & { note: string }) =>
     api.returnRequest(id, note)

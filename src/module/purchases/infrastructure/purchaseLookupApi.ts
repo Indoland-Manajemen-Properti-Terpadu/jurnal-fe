@@ -1,5 +1,6 @@
 import type {
   NamedRef,
+  WarehouseRef,
   PartyRef,
   PaymentMethodRef,
   PaymentTermOption,
@@ -152,13 +153,20 @@ export const listUnits = async (): Promise<NamedRef[]> => {
   return data.data.map(({ id, name }) => ({ id, name }));
 };
 
-/** Active warehouses, for the delivery warehouse of an order (the service allows 100 per page). */
-export const listWarehouses = async (): Promise<NamedRef[]> => {
-  const { data } = await http.get<ApiEnvelope<ListDto<NamedDto>>>(PURCHASE_API.warehouses, {
-    isActive: true,
-    limit: 100,
-  });
-  return data.results.map(({ id, name }) => ({ id, name }));
+/**
+ * Active warehouses, for the delivery warehouse of a request or an order (the service allows 100
+ * per page). The main one is marked, because a new request starts on it.
+ */
+export const listWarehouses = async (): Promise<WarehouseRef[]> => {
+  const { data } = await http.get<ApiEnvelope<ListDto<NamedDto & { isDefault?: boolean }>>>(
+    PURCHASE_API.warehouses,
+    { isActive: true, limit: 100 }
+  );
+  return data.results.map(({ id, name, isDefault }) => ({
+    id,
+    name,
+    isDefault: isDefault === true,
+  }));
 };
 
 /** Transaction tags a bill can carry (the service allows 100 per page). */

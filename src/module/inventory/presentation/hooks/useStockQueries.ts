@@ -1,5 +1,6 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { useTranslation } from '@/i18n';
+import { fetchCategories } from '@/module/products';
 import { describeApiError } from '@/lib/http/apiError';
 import { TRANSFER_MENU } from '@/module/inventory/domain/stockTransfer';
 import {
@@ -10,6 +11,7 @@ import {
 import {
   fetchBalances,
   fetchMovements,
+  fetchProductStock,
   fetchStockCard,
   type BalanceParams,
   type CardParams,
@@ -30,6 +32,12 @@ const STABLE_MS = 60_000;
 /** Menu id of the stock card, balances and movements; the service answers 403 without it. */
 export const STOCK_CARD_MENU = 'JP-STOCK-CARD';
 
+/**
+ * Menu id of the money values of stock. Without it the service leaves every rupiah field out of its
+ * answers and refuses the export (403), so the export button is not offered.
+ */
+export const STOCK_VALUE_MENU = 'JP-STOCK-VAL';
+
 export const useBalances = (params: BalanceParams = {}, enabled = true) => {
   const scope = useInventoryScope();
   return useQuery({
@@ -47,6 +55,27 @@ export const useMovements = (params: MovementParams = {}, enabled = true) => {
     queryFn: () => fetchMovements(params),
     placeholderData: keepPreviousData,
     enabled,
+  });
+};
+
+/** The product categories of the site, for the category filter of balances and history. */
+export const useCategoryOptions = () => {
+  const scope = useInventoryScope();
+  return useQuery({
+    queryKey: inventoryKeys.categories(scope),
+    queryFn: () => fetchCategories(1, 100),
+    staleTime: STABLE_MS,
+  });
+};
+
+/** One product's stock in every warehouse, for the product detail page. */
+export const useProductStock = (productId: string | undefined, enabled = true) => {
+  const scope = useInventoryScope();
+  return useQuery({
+    queryKey: inventoryKeys.productStock(scope, productId ?? ''),
+    queryFn: () => fetchProductStock(productId ?? ''),
+    enabled: enabled && Boolean(productId),
+    staleTime: STABLE_MS,
   });
 };
 
@@ -90,9 +119,14 @@ const useMenuRights = (menu: string): MenuRights => {
 };
 
 /** What the signed-in person may do with stock figures and with transfers; nothing until known. */
-export const useStockRights = (): { card: MenuRights; transfer: MenuRights } => ({
+export const useStockRights = (): {
+  card: MenuRights;
+  transfer: MenuRights;
+  value: MenuRights;
+} => ({
   card: useMenuRights(STOCK_CARD_MENU),
   transfer: useMenuRights(TRANSFER_MENU),
+  value: useMenuRights(STOCK_VALUE_MENU),
 });
 
 /** A safe sentence for a failed stock call (the server's Indonesian refusal for Indonesian readers). */

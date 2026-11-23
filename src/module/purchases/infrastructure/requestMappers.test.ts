@@ -282,3 +282,17 @@ describe('toPurchaseRequest, negotiation evidence', () => {
     ).toEqual([]);
   });
 });
+
+describe('toPurchaseRequest, delivery warehouse', () => {
+  it('reads the warehouse the goods are delivered to', () => {
+    const request = toPurchaseRequest({
+      ...(dto as unknown as PurchaseRequestDto),
+      deliveryWarehouse: { id: 'w1', code: 'GDG-001', name: 'Gudang Utama' },
+    });
+    expect(request.deliveryWarehouse).toEqual({ id: 'w1', code: 'GDG-001', name: 'Gudang Utama' });
+  });
+
+  it('has none for an older request or a request of services only', () => {
+    expect(toPurchaseRequest(dto as unknown as PurchaseRequestDto).deliveryWarehouse).toBeNull();
+  });
+});

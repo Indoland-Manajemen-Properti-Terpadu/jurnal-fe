@@ -25,8 +25,8 @@ export const requestActions = (doc: PurchaseRequest) => {
     submit: open,
     attach: open,
     verify: doc.status === 'SUBMITTED',
-    /** The service lets Accounting send it back until procurement starts. */
-    return: doc.status === 'SUBMITTED' || doc.status === 'VERIFIED',
+    /** Accounting sends it back only before verifying it; the service refuses a verified one (400, 2026-11-23). */
+    return: doc.status === 'SUBMITTED',
     cancel: open || doc.status === 'SUBMITTED' || doc.status === 'VERIFIED',
   };
 };

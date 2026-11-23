@@ -86,3 +86,65 @@ describe('toTransfer', () => {
     expect(toTransfer({ ...dto, memo: undefined }).memo).toBe('');
   });
 });
+
+describe('toTransfer, approval', () => {
+  const dto: TransferDto = {
+    id: 't2',
+    transactionNumber: 'PDH/2026/11/0006',
+    transactionDate: '2026-11-23T00:00:00.000Z',
+    from: { id: 'a', code: 'GDG-001', name: 'Utama' },
+    to: { id: 'b', code: 'GDG-003', name: 'Uji' },
+    items: [],
+    status: 'PENDING_APPROVAL',
+    canDecide: true,
+    createdByUser: { id: 'u1', name: 'Firman Bojong' },
+    pendingApprovers: [
+      { level: 0, name: 'Persetujuan', roles: [{ id: 'r1', name: 'Building Manager' }] },
+    ],
+  };
+
+  it('maps a transfer that waits for approval, with who made it and who must decide', () => {
+    expect(toTransfer(dto)).toMatchObject({
+      status: 'pending',
+      canDecide: true,
+      createdByName: 'Firman Bojong',
+      waitingFor: ['Building Manager'],
+    });
+  });
+
+  it('maps a rejected transfer with who rejected it', () => {
+    expect(
+      toTransfer({
+        ...dto,
+        status: 'REJECTED',
+        canDecide: false,
+        rejectedByUser: { id: 'u2', name: 'Budi' },
+        rejectionReason: 'Stok dipakai',
+      })
+    ).toMatchObject({
+      status: 'rejected',
+      canDecide: false,
+      rejectedByName: 'Budi',
+      rejectReason: 'Stok dipakai',
+    });
+  });
+
+  it('shows no names and no deciding right when the service sends none', () => {
+    expect(
+      toTransfer({ ...dto, canDecide: undefined, createdByUser: null, pendingApprovers: null })
+    ).toMatchObject({ canDecide: false, createdByName: '', waitingFor: [] });
+  });
+
+  it('lists a role once when two steps wait for it', () => {
+    const role = { id: 'r1', name: 'Building Manager' };
+    expect(
+      toTransfer({
+        ...dto,
+        pendingApprovers: [
+          { level: 0, roles: [role] },
+          { level: 1, roles: [role, { id: 'r2', name: 'Chief Finance' }] },
+        ],
+      }).waitingFor
+    ).toEqual(['Building Manager', 'Chief Finance']);
+  });
+});

@@ -62,8 +62,12 @@ describe('requestActions', () => {
     });
   });
 
-  it('allows returning a verified request until procurement starts, and closes the rest', () => {
-    expect(requestActions(doc('VERIFIED'))).toMatchObject({ verify: false, return: true });
+  it('sends back only a submitted request: a verified one can no longer be returned', () => {
+    expect(requestActions(doc('SUBMITTED')).return).toBe(true);
+    expect(requestActions(doc('VERIFIED'))).toMatchObject({ verify: false, return: false });
+  });
+
+  it('closes every action once procurement has started or the request ended', () => {
     for (const status of ['IN_PROCUREMENT', 'COMPLETED', 'CANCELLED']) {
       expect(requestActions(doc(status))).toEqual({
         edit: false,

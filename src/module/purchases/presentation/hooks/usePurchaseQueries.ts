@@ -7,6 +7,7 @@ import type {
   PaymentMethodRef,
   ProductRef,
   TaxRef,
+  WarehouseRef,
 } from '@/module/purchases/domain/purchaseCommon';
 import type {
   GoodsReceipt,
@@ -225,7 +226,7 @@ export const useUnitOptions = () => {
 
 export const useWarehouseOptions = () => {
   const scope = usePurchaseScope();
-  return useQuery<NamedRef[], PurchaseError>({
+  return useQuery<WarehouseRef[], PurchaseError>({
     queryKey: [...purchaseKeys.lookups(scope), 'warehouses'],
     queryFn: listWarehouses,
     staleTime: STABLE_MS,
