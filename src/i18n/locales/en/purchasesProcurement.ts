@@ -1,6 +1,19 @@
 export const purchasesProcurement = {
   routeCard: { title: 'Procurement route' },
-  routeLocked: 'The route can no longer change because quotes are filled in or it was submitted.',
+  routeLocked: 'The route can no longer be changed because it was submitted.',
+  routeDiscard:
+    'Switching to a single vendor deletes the quotes already entered on the bidding route.',
+  switchSingle: {
+    title: 'Switch to a single vendor?',
+    description: 'The quotes entered on the bidding route do not carry over.',
+    willDelete: 'What will be deleted',
+    quotes: '{count} vendor quotes with their files',
+    scores: 'The scores of every vendor',
+    winner: 'The winner already chosen',
+    redo: 'The single-vendor route uses one quote, so you will need to upload the vendor quote again from scratch.',
+    confirm: 'Switch and delete quotes',
+  },
+  routeKeep: 'Quotes already uploaded stay saved if the route is changed.',
   quotesShort: '{count} more quotes needed to meet the minimum of {needed}.',
   quotesCount: '{count} / {needed} quotes',
   pickTitle: 'Choose the procurement route',

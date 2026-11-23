@@ -7,6 +7,8 @@ interface ProcurementRouteCardProps {
   route: ProcurementRoute | null;
   /** The route can be changed now: a draft with at most one quote. */
   canChange: boolean;
+  /** Quotes entered so far: they stay saved when the route changes, except bidding quotes going to a single vendor. */
+  quoteCount?: number;
   busy: boolean;
   onChange: (route: ProcurementRoute) => void;
 }
@@ -15,6 +17,7 @@ interface ProcurementRouteCardProps {
 export const ProcurementRouteCard = ({
   route,
   canChange,
+  quoteCount = 0,
   busy,
   onChange,
 }: Readonly<ProcurementRouteCardProps>) => {
@@ -54,6 +57,9 @@ export const ProcurementRouteCard = ({
       />
       <Text size="sm" c="dimmed" mt="sm">
         {canChange ? t(`procurement.routeHint.${current}`) : t('procurement.routeLocked')}
+        {canChange &&
+          quoteCount > 0 &&
+          ` ${t(current === 'BIDDING' && quoteCount > 1 ? 'procurement.routeDiscard' : 'procurement.routeKeep')}`}
       </Text>
     </Paper>
   );

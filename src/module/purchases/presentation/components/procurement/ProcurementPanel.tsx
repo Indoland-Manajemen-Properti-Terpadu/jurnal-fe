@@ -14,9 +14,10 @@ import {
 } from '@/module/purchases/domain/procurement';
 import { removalImpact, withoutQuote } from '@/module/purchases/domain/quoteRemoval';
 import { type NotesValues } from '@/module/purchases/domain/procurementNotes';
-import type { PurchaseRequest } from '@/module/purchases/domain/purchaseRequest';
+import type { ProcurementRoute, PurchaseRequest } from '@/module/purchases/domain/purchaseRequest';
 import { ApprovedDialog } from '@/module/purchases/presentation/components/procurement/ApprovedDialog';
 import { BiddingForm } from '@/module/purchases/presentation/components/procurement/BiddingForm';
+import { SwitchToSingleDialog } from '@/module/purchases/presentation/components/procurement/SwitchToSingleDialog';
 import { ProcurementSubmit } from '@/module/purchases/presentation/components/procurement/ProcurementSubmit';
 import { SingleVendorForm } from '@/module/purchases/presentation/components/procurement/SingleVendorForm';
 import { OrdersCard } from '@/module/purchases/presentation/components/procurement/OrdersCard';
@@ -68,17 +69,35 @@ export const ProcurementPanel = ({ request, rights }: Readonly<ProcurementPanelP
   const [viewing, setViewing] = useState<Quote | null>(null);
   const [removing, setRemoving] = useState<Quote | null>(null);
   const [approved, setApproved] = useState<OrderRef[] | null>(null);
+  const [discarding, setDiscarding] = useState(false);
 
   const editable = procurementEditable(procurement) && rights.fill;
   const busy = save.isPending || submit.isPending;
   const bidding = procurement.route !== 'SINGLE';
   const single = procurement.route === 'SINGLE';
   const canAddQuote = editable && (bidding || procurement.quotes.length === 0);
-  const canSwitchRoute = editable && procurement.quotes.length <= 1;
+  // The route can be changed until the procurement is submitted; the quotes stay saved either way.
+  const canSwitchRoute = editable;
 
   /** Applies one change to the saved procurement and saves the whole of it. */
   const persist = (change: (input: ProcurementInput) => ProcurementInput) =>
     save.mutateAsync({ id: request.id, input: change(procurementToInput(procurement)) });
+
+  const changeRoute = (route: ProcurementRoute, discardQuotes = false) =>
+    persist((body) =>
+      // A winner left from the single-vendor route is not a bidding result: clear it on the
+      // service (omitting it would keep it) so the person picks again.
+      route === 'BIDDING'
+        ? { ...body, route, winner: null }
+        : discardQuotes
+          ? { ...body, route, quotes: [], winner: null }
+          : {
+              ...body,
+              route,
+              // A single vendor wins by default: keep the winner, else the first quote's vendor.
+              ...(body.winner || body.quotes.length === 0 ? {} : { winner: body.quotes[0].vendor }),
+            }
+    );
 
   const saveQuote = async (input: QuoteInput, files: File[]) => {
     const existing = editing?.quote ?? null;
@@ -233,14 +252,14 @@ export const ProcurementPanel = ({ request, rights }: Readonly<ProcurementPanelP
         <ProcurementRouteCard
           route={procurement.route}
           canChange={canSwitchRoute}
+          quoteCount={procurement.quotes.length}
           busy={busy}
-          onChange={(route) =>
-            persist((body) =>
-              // A winner left from the single-vendor route is not a bidding result: clear it on the
-              // service (omitting it would keep it) so the person picks again.
-              route === 'BIDDING' ? { ...body, route, winner: null } : { ...body, route }
-            )
-          }
+          onChange={(route) => {
+            // One vendor means one quote: with several bidding quotes entered, the change throws
+            // them away, so the person confirms it first.
+            if (route === 'SINGLE' && procurement.quotes.length > 1) setDiscarding(true);
+            else changeRoute(route);
+          }}
         />
       )}
       <ProcurementSteps procurement={procurement} />
@@ -369,6 +388,18 @@ export const ProcurementPanel = ({ request, rights }: Readonly<ProcurementPanelP
         procurement={procurement}
         items={request.items}
         onClose={() => setViewing(null)}
+      />
+      <SwitchToSingleDialog
+        opened={discarding}
+        quoteCount={procurement.quotes.length}
+        hasWinner={procurement.winnerId !== null}
+        loading={save.isPending}
+        onClose={() => setDiscarding(false)}
+        onConfirm={() =>
+          changeRoute('SINGLE', true)
+            .then(() => setDiscarding(false))
+            .catch(() => undefined)
+        }
       />
       <ApprovedDialog orders={approved} onClose={() => setApproved(null)} />
     </Stack>

@@ -87,7 +87,11 @@ export const SingleVendorForm = ({
   children,
 }: Readonly<SingleVendorFormProps>) => {
   const { t } = useTranslation('purchases');
-  const quote = procurement.quotes[0] ?? null;
+  // The quote of the chosen vendor; before one is chosen, the first quote entered.
+  const quote =
+    procurement.quotes.find((entry) => entry.vendor.id === procurement.winnerId) ??
+    procurement.quotes[0] ??
+    null;
   const totals = quote ? procurement.totals[quote.id] : undefined;
   const [drafts, setDrafts] = useState<Record<string, number | ''>>({});
 
