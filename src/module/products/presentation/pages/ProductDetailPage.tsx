@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Box, Grid, Group, LoadingOverlay, Modal, Stack, Text, ThemeIcon } from '@mantine/core';
 import { IconEdit } from '@tabler/icons-react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -23,7 +23,15 @@ import {
 } from '@/module/products/presentation/hooks/useProductQueries';
 import { useReferenceLabels } from '@/module/products/presentation/hooks/useReferenceLabels';
 
-export function ProductDetailPage() {
+interface ProductDetailPageProps {
+  /**
+   * Another feature's section under the product's settings, such as its stock per warehouse. The
+   * router supplies it, so this module does not import the feature that owns it.
+   */
+  renderStock?: (product: { id: string; isTracked: boolean }) => ReactNode;
+}
+
+export function ProductDetailPage({ renderStock }: Readonly<ProductDetailPageProps>) {
   const { t } = useTranslation('products');
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -72,11 +80,14 @@ export function ProductDetailPage() {
 
           <Grid gutter="lg" align="flex-start">
             <Grid.Col span={{ base: 12, lg: 8 }}>
-              <ProductSettingsCards
-                product={product}
-                accountLabel={accountLabel}
-                taxLabel={taxLabel}
-              />
+              <Stack gap="lg">
+                <ProductSettingsCards
+                  product={product}
+                  accountLabel={accountLabel}
+                  taxLabel={taxLabel}
+                />
+                {renderStock?.({ id: product.id, isTracked: product.inventoryInfo.isTracked })}
+              </Stack>
             </Grid.Col>
             <Grid.Col span={{ base: 12, lg: 4 }}>
               <ProductAuditPanel

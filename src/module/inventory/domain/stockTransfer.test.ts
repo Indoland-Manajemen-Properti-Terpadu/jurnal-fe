@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { availableQty, fillAllLines, validateTransfer, type TransferInput } from './stockTransfer';
+import {
+  availableQty,
+  fillAllLines,
+  isTransferValued,
+  validateTransfer,
+  type TransferInput,
+} from './stockTransfer';
 import type { BalanceReport } from './stockBalance';
 
 const TODAY = '2026-11-22';
@@ -98,5 +104,17 @@ describe('availableQty and fillAllLines', () => {
       { product: 'p1', quantity: 12 },
       { product: 'p3', quantity: 3 },
     ]);
+  });
+});
+
+describe('isTransferValued', () => {
+  it('has a price only once the transfer was approved', () => {
+    expect(isTransferValued('posted')).toBe(true);
+    expect(isTransferValued('void')).toBe(true);
+  });
+
+  it('has no price while it waits or after it was refused, so no "Rp 0,00" is shown', () => {
+    expect(isTransferValued('pending')).toBe(false);
+    expect(isTransferValued('rejected')).toBe(false);
   });
 });

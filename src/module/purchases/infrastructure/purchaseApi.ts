@@ -142,8 +142,7 @@ export const createRequest = (input: PurchaseRequestInput) => requests.create(in
 export const updateRequest = (id: string, input: PurchaseRequestInput) =>
   requests.update(id, input);
 export const submitRequest = (id: string) => requests.act(id, 'submit');
-export const verifyRequest = (id: string, note?: string) =>
-  requests.act(id, 'verify', note ? { note } : undefined);
+export const verifyRequest = (id: string) => requests.act(id, 'verify');
 export const returnRequest = (id: string, note: string) => requests.act(id, 'return', { note });
 export const cancelRequest = (id: string, reason: string) => requests.act(id, 'cancel', { reason });
 

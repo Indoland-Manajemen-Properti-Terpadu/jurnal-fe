@@ -77,6 +77,11 @@ export interface NamedRef {
   name: string;
 }
 
+/** An active warehouse in a picker; the main one is where a new document starts. */
+export interface WarehouseRef extends NamedRef {
+  isDefault: boolean;
+}
+
 /** A person as the server describes them on a document. */
 export interface UserInfo {
   id: string;

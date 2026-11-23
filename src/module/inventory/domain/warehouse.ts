@@ -105,17 +105,26 @@ export type BlockReason =
   | { kind: 'default' }
   | { kind: 'stock'; itemCount: number | null; value: number | null }
   | { kind: 'orders'; count: number | null }
+  | { kind: 'transfers'; count: number | null; transfers: { id: string; number: string }[] }
   | { kind: 'opname'; number: string; id: string }
   | { kind: 'other'; message: string };
 
-const BLOCK_ORDER: BlockReason['kind'][] = ['default', 'stock', 'orders', 'opname', 'other'];
+const BLOCK_ORDER: BlockReason['kind'][] = [
+  'default',
+  'stock',
+  'orders',
+  'transfers',
+  'opname',
+  'other',
+];
 
 export const sortBlockReasons = (reasons: BlockReason[]): BlockReason[] =>
   [...reasons].sort((a, b) => BLOCK_ORDER.indexOf(a.kind) - BLOCK_ORDER.indexOf(b.kind));
 
 /**
  * What already stops a deactivation from the warehouse's own figures, so the dialog can say so
- * without asking the service. Open purchase orders are only known to the service.
+ * without asking the service. Open purchase orders and transfers waiting for approval are only
+ * known to the service.
  */
 export const knownBlockers = (warehouse: Warehouse): BlockReason[] => {
   const reasons: BlockReason[] = [];
