@@ -106,6 +106,8 @@ export interface Procurement {
   reason: string;
   /** Why the final price is above the quoted price. */
   negotiationNote: string;
+  /** Evidence of the negotiation, uploaded while the procurement is a draft or was rejected. */
+  negotiationAttachments: Attachment[];
   quotes: Quote[];
   /** Totals by quote id. */
   totals: Record<string, QuoteTotals>;
