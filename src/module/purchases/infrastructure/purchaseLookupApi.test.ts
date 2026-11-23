@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { listDepartments, listUnits, listWarehouses } from './purchaseLookupApi';
+import { listDepartments, listPaymentTerms, listUnits, listWarehouses } from './purchaseLookupApi';
 
 const http = vi.hoisted(() => ({ get: vi.fn() }));
 vi.mock('@/lib/http/apiClient', () => ({ default: http }));
@@ -35,6 +35,33 @@ describe('listUnits', () => {
       timeout: expect.any(Number),
     });
     expect(units).toEqual([{ id: 'u1', name: 'Bulan' }]);
+  });
+});
+
+describe('listPaymentTerms', () => {
+  const row = { id: 't1', name: 'Net 30', summary: { dueLabel: 'Jatuh tempo 30 hari' } };
+
+  it('asks only for the terms of one kind when told', async () => {
+    http.get.mockResolvedValue({ data: { data: [row] } });
+
+    const terms = await listPaymentTerms('service');
+
+    expect(http.get).toHaveBeenCalledWith('/v1/payment-terms/options', {
+      params: { appliesTo: 'service' },
+      timeout: expect.any(Number),
+    });
+    expect(terms[0]).toMatchObject({ id: 't1', name: 'Net 30', dueLabel: 'Jatuh tempo 30 hari' });
+  });
+
+  it('sends no kind to get every active term', async () => {
+    http.get.mockResolvedValue({ data: { data: [row] } });
+
+    await listPaymentTerms();
+
+    expect(http.get).toHaveBeenCalledWith('/v1/payment-terms/options', {
+      params: {},
+      timeout: expect.any(Number),
+    });
   });
 });
 

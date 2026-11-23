@@ -217,6 +217,44 @@ describe('toPurchaseRequest, the procurement part', () => {
   });
 });
 
+describe('toPurchaseRequest, quote discount', () => {
+  const withDiscount = (extra: Record<string, unknown>) => {
+    const base = dto as unknown as PurchaseRequestDto;
+    const quote = { ...base.procurement?.quotes?.[0], ...extra };
+    return toPurchaseRequest({
+      ...base,
+      procurement: { ...base.procurement, quotes: [quote] },
+    } as PurchaseRequestDto).procurement.quotes[0];
+  };
+
+  it('reads a percent discount with its percent', () => {
+    expect(
+      withDiscount({ discountType: 'percentage', discountValue: 10, discountAmount: 0 })
+    ).toMatchObject({
+      discountType: 'percentage',
+      discountValue: 10,
+    });
+  });
+
+  it('reads a rupiah discount with its amount', () => {
+    expect(
+      withDiscount({ discountType: 'nominal', discountValue: 250000, discountAmount: 250000 })
+    ).toMatchObject({
+      discountType: 'nominal',
+      discountValue: 250000,
+    });
+  });
+
+  it('reads an older quote that has only an amount as a rupiah discount', () => {
+    expect(
+      withDiscount({ discountType: null, discountValue: 0, discountAmount: 125000 })
+    ).toMatchObject({
+      discountType: 'nominal',
+      discountValue: 125000,
+    });
+  });
+});
+
 describe('toPurchaseRequest, delivery warehouse', () => {
   it('reads the warehouse the goods are delivered to', () => {
     const request = toPurchaseRequest({

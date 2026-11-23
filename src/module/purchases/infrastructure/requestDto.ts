@@ -61,6 +61,8 @@ export interface QuoteDto {
   warranty?: string | null;
   withReceipt?: boolean | null;
   isPriceIncludeTax?: boolean | null;
+  discountType?: 'nominal' | 'percentage' | null;
+  discountValue?: number | null;
   discountAmount?: number | null;
   shippingAmount?: number | null;
   lines?: QuoteLineDto[] | null;

@@ -47,6 +47,9 @@ export interface QuoteLine {
   taxName: string;
 }
 
+/** A quote's discount is a rupiah amount (`nominal`) or a percent of the items (`percentage`). */
+export type DiscountMode = 'nominal' | 'percentage';
+
 export interface Quote {
   id: string;
   vendor: PartyRef;
@@ -61,6 +64,11 @@ export interface Quote {
   /** The goods or service are received through an FPB / BAPP before billing. */
   withReceipt: boolean;
   isPriceIncludeTax: boolean;
+  /** How the discount was given: a rupiah amount or a percent of the items. */
+  discountType: DiscountMode;
+  /** The rupiah amount or the percent, by `discountType`. */
+  discountValue: number;
+  /** The discount in rupiah, whichever way it was given. */
   discountAmount: number;
   shippingAmount: number;
   lines: QuoteLine[];
@@ -152,7 +160,8 @@ export interface QuoteInput {
   warranty: string;
   withReceipt: boolean;
   isPriceIncludeTax: boolean;
-  discountAmount: number;
+  discountType: DiscountMode;
+  discountValue: number;
   shippingAmount: number;
   lines: QuoteLineInput[];
   scores?: Partial<Record<ScoreKey, number>>;
@@ -213,7 +222,8 @@ export const quoteToInput = (quote: Quote): QuoteInput => ({
   warranty: quote.warranty,
   withReceipt: quote.withReceipt,
   isPriceIncludeTax: quote.isPriceIncludeTax,
-  discountAmount: quote.discountAmount,
+  discountType: quote.discountType,
+  discountValue: quote.discountValue,
   shippingAmount: quote.shippingAmount,
   lines: quote.lines.map((line) => ({
     requestItem: line.requestItemId,
