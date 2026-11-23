@@ -11,6 +11,7 @@ import {
   type Quote,
   type QuoteInput,
 } from '@/module/purchases/domain/procurement';
+import { removalImpact, withoutQuote } from '@/module/purchases/domain/quoteRemoval';
 import { neededNotes, type NotesValues } from '@/module/purchases/domain/procurementNotes';
 import type { PurchaseRequest } from '@/module/purchases/domain/purchaseRequest';
 import { ApprovedDialog } from '@/module/purchases/presentation/components/procurement/ApprovedDialog';
@@ -18,11 +19,13 @@ import { OrdersCard } from '@/module/purchases/presentation/components/procureme
 import { ProcurementNotes } from '@/module/purchases/presentation/components/procurement/ProcurementNotes';
 import { ProcurementRouteCard } from '@/module/purchases/presentation/components/procurement/ProcurementRouteCard';
 import { ProcurementSteps } from '@/module/purchases/presentation/components/procurement/ProcurementSteps';
+import { QuoteDetailModal } from '@/module/purchases/presentation/components/procurement/QuoteDetailModal';
 import { QuoteModal } from '@/module/purchases/presentation/components/procurement/QuoteModal';
 import { QuotesTable } from '@/module/purchases/presentation/components/procurement/QuotesTable';
 import { ApprovalPanel } from '@/module/purchases/presentation/components/shared/ApprovalPanel';
 import { AttachmentsCard } from '@/module/purchases/presentation/components/shared/AttachmentsCard';
 import { ReasonModal } from '@/module/purchases/presentation/components/shared/ReasonModal';
+import { formatAmount } from '@/module/purchases/presentation/components/shared/format';
 import { SectionCard } from '@/module/purchases/presentation/components/shared/SectionCard';
 import {
   useApproveProcurement,
@@ -58,6 +61,7 @@ export const ProcurementPanel = ({ request, rights }: Readonly<ProcurementPanelP
   const upload = useUploadAttachments();
   const createOrders = useCreateOrdersFromProcurement();
   const [editing, setEditing] = useState<{ quote: Quote | null } | null>(null);
+  const [viewing, setViewing] = useState<Quote | null>(null);
   const [removing, setRemoving] = useState<Quote | null>(null);
   const [approved, setApproved] = useState<OrderRef[] | null>(null);
 
@@ -102,11 +106,24 @@ export const ProcurementPanel = ({ request, rights }: Readonly<ProcurementPanelP
   };
 
   const removeQuote = (quote: Quote) =>
-    persist((body) => {
-      const { winner, ...rest } = body;
-      const next = { ...rest, quotes: body.quotes.filter((other) => other.id !== quote.id) };
-      return winner && winner !== quote.vendor.id ? { ...next, winner } : next;
-    }).finally(() => setRemoving(null));
+    persist((body) => withoutQuote(body, quote)).finally(() => setRemoving(null));
+
+  const impact = removing ? removalImpact(procurement, removing) : null;
+  const removeDescription =
+    removing && impact
+      ? [
+          t('procurement.removeDescription', {
+            vendor: removing.vendor.name,
+            total: impact.total === null ? '-' : formatAmount(impact.total),
+          }),
+          impact.isWinner ? t('procurement.removeWinner') : '',
+          bidding && impact.short > 0
+            ? t('procurement.removeShort', { remaining: impact.remaining, needed: impact.needed })
+            : '',
+        ]
+          .filter(Boolean)
+          .join(' ')
+      : '';
 
   const complete = Object.values(procurement.totals).filter((totals) => totals.complete).length;
   const needed = quotesNeeded(procurement);
@@ -187,6 +204,7 @@ export const ProcurementPanel = ({ request, rights }: Readonly<ProcurementPanelP
             canChoose={bidding && shortBy === 0}
             busy={busy}
             onChoose={(quote) => persist((body) => ({ ...body, winner: quote.vendor.id }))}
+            onView={setViewing}
             onEdit={(quote) => setEditing({ quote })}
             onRemove={setRemoving}
           />
@@ -310,13 +328,19 @@ export const ProcurementPanel = ({ request, rights }: Readonly<ProcurementPanelP
       <ReasonModal
         opened={removing !== null}
         title={t('procurement.removeTitle')}
-        description={t('procurement.removeDescription', { vendor: removing?.vendor.name ?? '' })}
+        description={removeDescription}
         confirmLabel={t('procurement.removeConfirm')}
         optional
         label={t('procurement.removeNote')}
         loading={save.isPending}
         onClose={() => setRemoving(null)}
         onConfirm={() => removing && removeQuote(removing)}
+      />
+      <QuoteDetailModal
+        quote={viewing}
+        procurement={procurement}
+        items={request.items}
+        onClose={() => setViewing(null)}
       />
       <ApprovedDialog orders={approved} onClose={() => setApproved(null)} />
     </Stack>
