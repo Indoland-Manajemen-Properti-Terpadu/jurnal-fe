@@ -11,19 +11,17 @@ import {
   type Quote,
   type QuoteInput,
 } from '@/module/purchases/domain/procurement';
+import { neededNotes, type NotesValues } from '@/module/purchases/domain/procurementNotes';
 import type { PurchaseRequest } from '@/module/purchases/domain/purchaseRequest';
 import { ApprovedDialog } from '@/module/purchases/presentation/components/procurement/ApprovedDialog';
 import { OrdersCard } from '@/module/purchases/presentation/components/procurement/OrdersCard';
-import {
-  neededNotes,
-  ProcurementNotes,
-  type NotesValues,
-} from '@/module/purchases/presentation/components/procurement/ProcurementNotes';
+import { ProcurementNotes } from '@/module/purchases/presentation/components/procurement/ProcurementNotes';
 import { ProcurementRouteCard } from '@/module/purchases/presentation/components/procurement/ProcurementRouteCard';
 import { ProcurementSteps } from '@/module/purchases/presentation/components/procurement/ProcurementSteps';
 import { QuoteModal } from '@/module/purchases/presentation/components/procurement/QuoteModal';
 import { QuotesTable } from '@/module/purchases/presentation/components/procurement/QuotesTable';
 import { ApprovalPanel } from '@/module/purchases/presentation/components/shared/ApprovalPanel';
+import { AttachmentsCard } from '@/module/purchases/presentation/components/shared/AttachmentsCard';
 import { ReasonModal } from '@/module/purchases/presentation/components/shared/ReasonModal';
 import { SectionCard } from '@/module/purchases/presentation/components/shared/SectionCard';
 import {
@@ -196,12 +194,22 @@ export const ProcurementPanel = ({ request, rights }: Readonly<ProcurementPanelP
       </SectionCard>
 
       {(quotesIn || !editable) && (
-        <ProcurementNotes
-          procurement={procurement}
-          editable={editable}
-          saving={save.isPending}
-          onSave={(values: NotesValues) => persist((body) => ({ ...body, ...values }))}
-        />
+        <>
+          <ProcurementNotes
+            procurement={procurement}
+            editable={editable}
+            saving={save.isPending}
+            onSave={(values: NotesValues) => persist((body) => ({ ...body, ...values }))}
+          />
+          <AttachmentsCard
+            target="request"
+            documentId={request.id}
+            attachments={procurement.negotiationAttachments}
+            canUpload={editable}
+            requestFile="negotiation"
+            titleKey="procurement.notes.evidenceTitle"
+          />
+        </>
       )}
 
       {editable && quotesIn && (

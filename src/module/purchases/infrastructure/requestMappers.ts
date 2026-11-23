@@ -140,6 +140,7 @@ const toProcurement = (dto: PurchaseRequestDto): Procurement => {
     winnerId: base?.winner ?? null,
     reason: base?.reason ?? '',
     negotiationNote: base?.negotiationNote ?? '',
+    negotiationAttachments: toAttachments(base?.negotiationAttachments),
     quotes: (base?.quotes ?? []).map(toQuote),
     totals,
     cheapestVendorId: view?.cheapestVendor ?? null,

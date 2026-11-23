@@ -254,3 +254,31 @@ describe('toPurchaseRequest, quote discount', () => {
     });
   });
 });
+
+describe('toPurchaseRequest, negotiation evidence', () => {
+  it('reads the files uploaded as evidence of the negotiation', () => {
+    const base = dto as unknown as PurchaseRequestDto;
+    const request = toPurchaseRequest({
+      ...base,
+      procurement: {
+        ...base.procurement,
+        negotiationAttachments: [
+          {
+            id: 'a1',
+            fileName: 'negosiasi.pdf',
+            filePath: 'uploads/negosiasi.pdf',
+            mimeType: 'application/pdf',
+          },
+        ],
+      },
+    } as PurchaseRequestDto);
+    expect(request.procurement.negotiationAttachments).toHaveLength(1);
+    expect(request.procurement.negotiationAttachments[0]).toMatchObject({ name: 'negosiasi.pdf' });
+  });
+
+  it('has none when the service sends none', () => {
+    expect(
+      toPurchaseRequest(dto as unknown as PurchaseRequestDto).procurement.negotiationAttachments
+    ).toEqual([]);
+  });
+});

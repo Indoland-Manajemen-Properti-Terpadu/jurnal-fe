@@ -1,35 +1,14 @@
-import { useEffect, useState } from 'react';
-import { Button, Stack, Text, Textarea } from '@mantine/core';
+import { useEffect, useRef, useState } from 'react';
+import { Stack, Text, Textarea } from '@mantine/core';
 import { IconNotes } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import type { Procurement } from '@/module/purchases/domain/procurement';
+import {
+  noteFields,
+  type NoteKey,
+  type NotesValues,
+} from '@/module/purchases/domain/procurementNotes';
 import { SectionCard } from '@/module/purchases/presentation/components/shared/SectionCard';
-
-export interface NotesValues {
-  singleReason: string;
-  belowMinQuotesReason: string;
-  reason: string;
-  negotiationNote: string;
-}
-
-/** Which written reasons this procurement needs, from what the service checks before submitting. */
-export const neededNotes = (procurement: Procurement) => {
-  const winner = procurement.quotes.find((quote) => quote.vendor.id === procurement.winnerId);
-  const complete = Object.values(procurement.totals).filter((totals) => totals.complete).length;
-  const negotiated = Boolean(
-    winner?.lines.some((line) => line.finalPrice !== null && line.finalPrice > line.unitPrice)
-  );
-  return {
-    single: procurement.route === 'SINGLE',
-    belowMin: procurement.route !== 'SINGLE' && complete < procurement.minQuotes,
-    notCheapest:
-      procurement.route !== 'SINGLE' &&
-      winner !== undefined &&
-      procurement.cheapestVendorId !== null &&
-      procurement.cheapestVendorId !== procurement.winnerId,
-    negotiated,
-  };
-};
 
 interface ProcurementNotesProps {
   procurement: Procurement;
@@ -45,7 +24,11 @@ const fromProcurement = (procurement: Procurement): NotesValues => ({
   negotiationNote: procurement.negotiationNote,
 });
 
-/** The reasons the approver reads: why one vendor, why not the cheapest, why the price went up. */
+/**
+ * The reasons the approver reads: why one vendor, why this choice and how it was negotiated, why
+ * fewer quotes. A field saves itself when it is left, so the submit button never waits on a
+ * separate "save notes" step.
+ */
 export const ProcurementNotes = ({
   procurement,
   editable,
@@ -53,25 +36,31 @@ export const ProcurementNotes = ({
   onSave,
 }: Readonly<ProcurementNotesProps>) => {
   const { t } = useTranslation('purchases');
-  const needed = neededNotes(procurement);
+  const route = procurement.route === 'SINGLE' ? 'SINGLE' : 'BIDDING';
   const [values, setValues] = useState<NotesValues>(() => fromProcurement(procurement));
+  const lastSaved = useRef<NotesValues>(fromProcurement(procurement));
 
+  // A refreshed procurement updates the fields the person has not touched since the last sync;
+  // what they are typing in another field stays.
   useEffect(() => {
-    setValues(fromProcurement(procurement));
+    const saved = fromProcurement(procurement);
+    setValues((current) => {
+      const next = { ...current };
+      (Object.keys(saved) as NoteKey[]).forEach((key) => {
+        if (current[key].trim() === lastSaved.current[key].trim()) next[key] = saved[key];
+      });
+      return next;
+    });
+    lastSaved.current = saved;
   }, [procurement]);
 
-  const dirty = (Object.keys(values) as (keyof NotesValues)[]).some(
-    (key) => values[key].trim() !== procurement[key].trim()
-  );
-  const fields: { key: keyof NotesValues; needed: boolean }[] = [
-    { key: 'singleReason', needed: needed.single },
-    { key: 'belowMinQuotesReason', needed: needed.belowMin },
-    { key: 'reason', needed: needed.notCheapest },
-    { key: 'negotiationNote', needed: needed.negotiated },
-  ];
-  const visible = fields.filter((field) => field.needed || values[field.key].trim() !== '');
-
-  if (visible.length === 0) return null;
+  const fields = noteFields(procurement);
+  const leave = () => {
+    const changed = (Object.keys(values) as NoteKey[]).some(
+      (key) => values[key].trim() !== procurement[key].trim()
+    );
+    if (editable && changed) onSave(values);
+  };
 
   return (
     <SectionCard
@@ -80,36 +69,30 @@ export const ProcurementNotes = ({
       subtitle={t('procurement.notes.subtitle')}
     >
       <Stack gap="md">
-        {visible.map(({ key, needed: required }) => (
+        {fields.map(({ key, needed }) => (
           <Textarea
             key={key}
             radius="md"
             autosize
             minRows={2}
-            withAsterisk={required}
+            withAsterisk={needed}
             disabled={!editable}
-            label={t(`procurement.notes.${key}`)}
-            description={t(`procurement.notes.${key}Hint`)}
+            label={t(`procurement.notes.${key === 'reason' ? `reason.${route}` : key}`)}
+            description={t(
+              `procurement.notes.${key === 'reason' ? `reasonHint.${route}` : `${key}Hint`}`
+            )}
             value={values[key]}
             onChange={(event) => setValues({ ...values, [key]: event.currentTarget.value })}
+            onBlur={leave}
           />
         ))}
-        {editable ? (
-          <div>
-            <Button
-              variant="default"
-              disabled={!dirty}
-              loading={saving}
-              onClick={() => onSave(values)}
-            >
-              {t('procurement.notes.save')}
-            </Button>
-          </div>
-        ) : (
-          <Text size="xs" c="dimmed">
-            {t('procurement.notes.locked')}
-          </Text>
-        )}
+        <Text size="xs" c="dimmed">
+          {editable
+            ? saving
+              ? t('procurement.notes.saving')
+              : t('procurement.notes.autosave')
+            : t('procurement.notes.locked')}
+        </Text>
       </Stack>
     </SectionCard>
   );

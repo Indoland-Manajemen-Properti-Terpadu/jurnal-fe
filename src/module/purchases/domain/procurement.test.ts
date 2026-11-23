@@ -66,6 +66,7 @@ const procurement = (overrides: Partial<Procurement> = {}): Procurement => ({
   winnerId: 'v1',
   reason: '',
   negotiationNote: '',
+  negotiationAttachments: [],
   quotes: [quote()],
   totals: {},
   cheapestVendorId: 'v1',

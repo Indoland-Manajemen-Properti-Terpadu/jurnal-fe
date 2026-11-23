@@ -77,6 +77,7 @@ export interface ProcurementDto {
   winner?: string | null;
   reason?: string | null;
   negotiationNote?: string | null;
+  negotiationAttachments?: AttachmentDto[] | null;
   quotes?: QuoteDto[] | null;
 }
 
