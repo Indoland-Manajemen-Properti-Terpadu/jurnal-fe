@@ -96,6 +96,12 @@ export interface TransferWarehouse {
   name: string;
 }
 
+/**
+ * A transfer is asked for first: stock moves only when an approver agrees. A refused one never
+ * moved anything; a posted one can still be cancelled, which moves the stock back.
+ */
+export type TransferStatus = 'pending' | 'posted' | 'rejected' | 'void';
+
 export interface StockTransfer {
   id: string;
   number: string;
@@ -105,7 +111,14 @@ export interface StockTransfer {
   items: TransferItem[];
   productCount: number;
   memo: string;
-  status: 'posted' | 'void';
+  status: TransferStatus;
+  /** True when the signed-in person is one of the approvers who can still decide it. */
+  canDecide: boolean;
+  createdByName: string;
+  /** Role names whose approval is still awaited, each listed once. */
+  waitingFor: string[];
+  rejectedByName: string | null;
+  rejectReason: string | null;
   voidReason: string | null;
   voidedAt: string | null;
   createdAt: string;

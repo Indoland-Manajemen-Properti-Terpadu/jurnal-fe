@@ -1,5 +1,6 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { useTranslation } from '@/i18n';
+import { fetchCategories } from '@/module/products';
 import { describeApiError } from '@/lib/http/apiError';
 import { TRANSFER_MENU } from '@/module/inventory/domain/stockTransfer';
 import {
@@ -10,6 +11,7 @@ import {
 import {
   fetchBalances,
   fetchMovements,
+  fetchProductStock,
   fetchStockCard,
   type BalanceParams,
   type CardParams,
@@ -47,6 +49,27 @@ export const useMovements = (params: MovementParams = {}, enabled = true) => {
     queryFn: () => fetchMovements(params),
     placeholderData: keepPreviousData,
     enabled,
+  });
+};
+
+/** The product categories of the site, for the category filter of balances and history. */
+export const useCategoryOptions = () => {
+  const scope = useInventoryScope();
+  return useQuery({
+    queryKey: inventoryKeys.categories(scope),
+    queryFn: () => fetchCategories(1, 100),
+    staleTime: STABLE_MS,
+  });
+};
+
+/** One product's stock in every warehouse, for the product detail page. */
+export const useProductStock = (productId: string | undefined, enabled = true) => {
+  const scope = useInventoryScope();
+  return useQuery({
+    queryKey: inventoryKeys.productStock(scope, productId ?? ''),
+    queryFn: () => fetchProductStock(productId ?? ''),
+    enabled: enabled && Boolean(productId),
+    staleTime: STABLE_MS,
   });
 };
 

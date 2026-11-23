@@ -26,7 +26,11 @@ export default function StockMovementsPage() {
     if (values.tab === 'balances') {
       exporter.run(
         'balances',
-        { asOf: values.asOf || undefined, warehouse: values.warehouse || undefined },
+        {
+          asOf: values.asOf || undefined,
+          warehouse: values.warehouse || undefined,
+          categoryId: values.category || undefined,
+        },
         today
       );
       return;
@@ -38,7 +42,9 @@ export default function StockMovementsPage() {
         endDate: values.to,
         warehouse: values.warehouse || undefined,
         product: values.product || undefined,
-        type: values.type || undefined,
+        types: values.type.split(',').filter(Boolean),
+        categoryId: values.category || undefined,
+        search: values.doc || undefined,
       },
       today
     );

@@ -1,13 +1,16 @@
 import { useMemo, useState } from 'react';
-import { Alert, Anchor, Badge, Group, Paper, Skeleton, Table, Text } from '@mantine/core';
+import { Alert, Anchor, Button, Group, Paper, Skeleton, Table, Text } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import {
   IconArrowRight,
+  IconCheck,
+  IconClockHour4,
   IconInfoCircle,
   IconLock,
   IconPackage,
   IconTransfer,
   IconTrash,
+  IconX,
 } from '@tabler/icons-react';
 import { Link, useParams } from 'react-router-dom';
 import { EmptyState } from '@/components/EmptyState/EmptyState';
@@ -23,6 +26,9 @@ import { InfoGrid } from '@/module/inventory/presentation/components/shared/Info
 import { SectionCard } from '@/module/inventory/presentation/components/shared/SectionCard';
 import { stockTakeDetailPath } from '@/module/inventory/presentation/components/shared/stockLinks';
 import { MovementsTable } from '@/module/inventory/presentation/components/stock/MovementsTable';
+import { ApproveTransferDialog } from '@/module/inventory/presentation/components/stock/ApproveTransferDialog';
+import { RejectTransferDialog } from '@/module/inventory/presentation/components/stock/RejectTransferDialog';
+import { TransferStatusBadge } from '@/module/inventory/presentation/components/stock/TransferStatusBadge';
 import { VoidTransferDialog } from '@/module/inventory/presentation/components/stock/VoidTransferDialog';
 import { useFrozenWarehouses } from '@/module/inventory/presentation/hooks/useOpnames';
 import {
@@ -45,8 +51,10 @@ export default function TransferDetailPage() {
   const { id } = useParams<{ id: string }>();
   const describe = useStockErrorMessage();
   const { transfer: rights, card } = useStockRights();
-  const { cancel } = useTransferMutations();
+  const { cancel, approve, reject } = useTransferMutations();
   const [voidOpen, setVoidOpen] = useState(false);
+  const [approveOpen, setApproveOpen] = useState(false);
+  const [rejectOpen, setRejectOpen] = useState(false);
   const frozen = useFrozenWarehouses();
 
   const query = useTransfer(id);
@@ -93,6 +101,10 @@ export default function TransferDetailPage() {
   }
 
   const isPosted = data.status === 'posted';
+  const isPending = data.status === 'pending';
+  const isRejected = data.status === 'rejected';
+  const isVoid = data.status === 'void';
+  const showDecision = isPending && data.canDecide;
   const showValue = data.items.some((item) => item.value !== null);
   const totalValue = data.items.reduce((total, item) => total + (item.value ?? 0), 0);
   const movementValues = movements.some((move) => move.value !== null);
@@ -122,6 +134,47 @@ export default function TransferDetailPage() {
       }
     );
 
+  const decideFailed = (title: string) => (error: unknown) => {
+    setApproveOpen(false);
+    setRejectOpen(false);
+    notifications.show({
+      color: 'orange',
+      autoClose: 7000,
+      title,
+      message: describe(error),
+    });
+  };
+
+  const confirmApprove = () =>
+    approve.mutate(
+      { id: data.id },
+      {
+        onSuccess: () => {
+          setApproveOpen(false);
+          notifications.show({
+            color: 'green',
+            message: t('detail.approveDone', { number: data.number }),
+          });
+        },
+        onError: decideFailed(t('detail.approveFailedTitle')),
+      }
+    );
+
+  const confirmReject = (reason: string) =>
+    reject.mutate(
+      { id: data.id, reason },
+      {
+        onSuccess: () => {
+          setRejectOpen(false);
+          notifications.show({
+            color: 'green',
+            message: t('detail.rejectDone', { number: data.number }),
+          });
+        },
+        onError: decideFailed(t('detail.rejectFailedTitle')),
+      }
+    );
+
   const warehouseLink = (warehouse: { id: string; name: string }) => (
     <Anchor
       component={Link}
@@ -137,11 +190,7 @@ export default function TransferDetailPage() {
       icon={IconTransfer}
       title={data.number}
       copyable
-      badges={
-        <Badge variant="light" color={isPosted ? 'green' : 'gray'} size="sm">
-          {t(isPosted ? 'detail.posted' : 'detail.void')}
-        </Badge>
-      }
+      badges={<TransferStatusBadge status={data.status} />}
       subtitle={
         <Group gap={6} wrap="wrap">
           <span>{dateFormatV1(data.date, 'D MMM YYYY')}</span>
@@ -153,6 +202,23 @@ export default function TransferDetailPage() {
       }
       backTo={BACK}
       backLabel={t('detail.back')}
+      actions={
+        showDecision ? (
+          <>
+            <Button
+              variant="default"
+              color="red"
+              leftSection={<IconX size={16} />}
+              onClick={() => setRejectOpen(true)}
+            >
+              {t('detail.reject')}
+            </Button>
+            <Button leftSection={<IconCheck size={16} />} onClick={() => setApproveOpen(true)}>
+              {t('detail.approve')}
+            </Button>
+          </>
+        ) : undefined
+      }
       menu={
         isPosted && rights.delete && !frozenBy
           ? [
@@ -166,6 +232,22 @@ export default function TransferDetailPage() {
           : undefined
       }
     >
+      {isPending && (
+        <Alert
+          color="yellow"
+          variant="light"
+          radius="md"
+          icon={<IconClockHour4 size={18} />}
+          title={t('detail.pendingTitle')}
+        >
+          <Text size="sm">
+            {data.waitingFor.length > 0
+              ? t('detail.pendingBody', { roles: data.waitingFor.join(', ') })
+              : t('detail.pendingBodyNoRoles')}
+          </Text>
+        </Alert>
+      )}
+
       {isPosted && frozenBy && (
         <Alert
           color="yellow"
@@ -202,15 +284,26 @@ export default function TransferDetailPage() {
               label: t('detail.created'),
               value: data.createdAt ? dateFormatV1(data.createdAt, 'D MMM YYYY, HH:mm') : '-',
             },
-            ...(isPosted
-              ? []
-              : [
+            ...(data.createdByName
+              ? [{ label: t('detail.createdBy'), value: data.createdByName }]
+              : []),
+            ...(isRejected
+              ? [
+                  { label: t('detail.rejectedBy'), value: data.rejectedByName ?? '-' },
+                  ...(data.rejectReason
+                    ? [{ label: t('detail.rejectReason'), value: data.rejectReason }]
+                    : []),
+                ]
+              : []),
+            ...(isVoid
+              ? [
                   {
                     label: t('detail.voided'),
                     value: data.voidedAt ? dateFormatV1(data.voidedAt, 'D MMM YYYY, HH:mm') : '-',
                   },
                   { label: t('detail.voidReason'), value: data.voidReason ?? '-' },
-                ]),
+                ]
+              : []),
             { label: t('detail.memo'), value: data.memo || '-', muted: !data.memo, full: true },
           ]}
         />
@@ -278,7 +371,7 @@ export default function TransferDetailPage() {
         </DataTableFrame>
       </SectionCard>
 
-      {card.read && (
+      {card.read && (isPosted || isVoid) && (
         <SectionCard
           icon={IconTransfer}
           title={t('detail.movementsTitle')}
@@ -295,6 +388,23 @@ export default function TransferDetailPage() {
         </SectionCard>
       )}
 
+      <ApproveTransferDialog
+        opened={approveOpen}
+        number={data.number}
+        fromName={data.from.name}
+        toName={data.to.name}
+        productCount={data.productCount}
+        saving={approve.isPending}
+        onConfirm={confirmApprove}
+        onClose={() => setApproveOpen(false)}
+      />
+      <RejectTransferDialog
+        opened={rejectOpen}
+        number={data.number}
+        saving={reject.isPending}
+        onConfirm={confirmReject}
+        onClose={() => setRejectOpen(false)}
+      />
       <VoidTransferDialog
         opened={voidOpen}
         number={data.number}

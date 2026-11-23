@@ -5,6 +5,7 @@ import type {
   BalanceRow,
   BalanceWarehouse,
 } from '@/module/inventory/domain/stockBalance';
+import { productStockStatus, type ProductStock } from '@/module/inventory/domain/productStock';
 import type { StockCard, StockCardRow } from '@/module/inventory/domain/stockCard';
 import type {
   CostBreakdown,
@@ -79,6 +80,8 @@ export interface BalanceParams {
   asOf?: string;
   warehouse?: string;
   q?: string;
+  /** Product category; the service refuses an empty value, so it is only sent when chosen. */
+  categoryId?: string;
 }
 
 /** Only what was chosen; the service refuses empty and unknown query values. */
@@ -86,6 +89,7 @@ export const toBalanceQuery = (params: BalanceParams): Query => {
   const query: Query = {};
   if (params.asOf) query.asOf = params.asOf;
   if (params.warehouse) query.warehouse = params.warehouse;
+  if (params.categoryId) query.categoryId = params.categoryId;
   const q = params.q?.trim();
   if (q) query.q = q;
   return query;
@@ -140,6 +144,11 @@ export interface MovementParams {
   warehouse?: string;
   product?: string;
   type?: string;
+  /** Several types at once; the service takes them separated by commas. */
+  types?: string[];
+  categoryId?: string;
+  /** Part of a document number. */
+  search?: string;
   page?: number;
   limit?: number;
 }
@@ -151,6 +160,10 @@ export const toMovementQuery = (params: MovementParams): Query => {
   if (params.warehouse) query.warehouse = params.warehouse;
   if (params.product) query.product = params.product;
   if (params.type) query.type = params.type;
+  if (params.types && params.types.length > 0) query.types = params.types.join(',');
+  if (params.categoryId) query.categoryId = params.categoryId;
+  const search = params.search?.trim();
+  if (search) query.search = search;
   if (params.page) query.page = params.page;
   if (params.limit) query.limit = params.limit;
   return query;
@@ -316,4 +329,57 @@ export const exportStock = async (
   return call(() =>
     apiClient.get<Blob>(`${STOCK}/export`, { params: query, responseType: 'blob' })
   );
+};
+
+/* ---------- One product, every warehouse ---------- */
+
+export interface ProductStockDto {
+  product: { id: string; unit?: string | null };
+  totalQty?: number | null;
+  warehouses?:
+    | {
+        id: string;
+        code?: string | null;
+        name?: string | null;
+        isActive?: boolean;
+        isDefault?: boolean;
+        quantity?: number | null;
+        minQty?: number | null;
+        status?: string | null;
+        belowMin?: boolean;
+        lastOpname?: { id: string; number: string; date: string } | null;
+      }[]
+    | null;
+}
+
+export const toProductStock = (dto: ProductStockDto): ProductStock => ({
+  productId: dto.product.id,
+  unit: text(dto.product.unit),
+  totalQty: dto.totalQty ?? 0,
+  warehouses: (dto.warehouses ?? []).map((row) => {
+    const quantity = row.quantity ?? 0;
+    return {
+      warehouseId: row.id,
+      code: text(row.code),
+      name: text(row.name),
+      isActive: row.isActive ?? true,
+      isDefault: row.isDefault ?? false,
+      quantity,
+      minQty: row.minQty ?? 0,
+      status: productStockStatus({
+        quantity,
+        belowMin: row.belowMin ?? false,
+        status: text(row.status),
+      }),
+      lastOpname: row.lastOpname ?? null,
+    };
+  }),
+});
+
+/** Quantity, minimum and last count of one product in each warehouse (no money). */
+export const fetchProductStock = async (productId: string): Promise<ProductStock> => {
+  const body = await call(() =>
+    apiClient.get<Envelope<ProductStockDto>>(`/v1/products/${productId}/stock`)
+  );
+  return toProductStock(body.data);
 };

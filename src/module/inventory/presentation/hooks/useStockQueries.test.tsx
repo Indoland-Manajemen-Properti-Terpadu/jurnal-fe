@@ -105,4 +105,33 @@ describe('useTransferMutations', () => {
       })
     );
   });
+
+  it('approves a transfer and refreshes the figures', async () => {
+    vi.mocked(apiClient.post).mockResolvedValue({
+      data: { data: { ...transferDto, status: 'POSTED' } },
+    } as never);
+    const { wrapper, invalidate } = setup();
+    const { result } = renderHook(() => useTransferMutations(), { wrapper });
+
+    act(() => result.current.approve.mutate({ id: 't1' }));
+
+    await waitFor(() => expect(invalidate).toHaveBeenCalled());
+    expect(apiClient.post).toHaveBeenCalledWith('/v1/stock/transfers/t1/approve', {});
+  });
+
+  it('sends the reason when a transfer is rejected', async () => {
+    vi.mocked(apiClient.post).mockResolvedValue({
+      data: { data: { ...transferDto, status: 'REJECTED' } },
+    } as never);
+    const { wrapper } = setup();
+    const { result } = renderHook(() => useTransferMutations(), { wrapper });
+
+    act(() => result.current.reject.mutate({ id: 't1', reason: ' Stok dipakai ' }));
+
+    await waitFor(() =>
+      expect(apiClient.post).toHaveBeenCalledWith('/v1/stock/transfers/t1/reject', {
+        reason: 'Stok dipakai',
+      })
+    );
+  });
 });
