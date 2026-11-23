@@ -16,6 +16,7 @@ import { Link, useParams } from 'react-router-dom';
 import { EmptyState } from '@/components/EmptyState/EmptyState';
 import { useTranslation } from '@/i18n';
 import { ApiError } from '@/lib/http/apiError';
+import { isTransferValued } from '@/module/inventory/domain/stockTransfer';
 import { columnHeader } from '@/module/inventory/presentation/components/shared/columnHeader';
 import { DataTableFrame } from '@/module/inventory/presentation/components/shared/DataTableFrame';
 import {
@@ -105,7 +106,7 @@ export default function TransferDetailPage() {
   const isRejected = data.status === 'rejected';
   const isVoid = data.status === 'void';
   const showDecision = isPending && data.canDecide;
-  const showValue = data.items.some((item) => item.value !== null);
+  const showValue = isTransferValued(data.status) && data.items.some((item) => item.value !== null);
   const totalValue = data.items.reduce((total, item) => total + (item.value ?? 0), 0);
   const movementValues = movements.some((move) => move.value !== null);
   // While a count holds either warehouse, cancelling would move stock in it.

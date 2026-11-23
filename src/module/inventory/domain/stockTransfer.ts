@@ -102,6 +102,13 @@ export interface TransferWarehouse {
  */
 export type TransferStatus = 'pending' | 'posted' | 'rejected' | 'void';
 
+/**
+ * The service prices a transfer when it is approved. Before that, and after a refusal, its lines
+ * carry a cost and value of 0, which would read as a real "Rp 0,00", so the screen shows no value.
+ */
+export const isTransferValued = (status: TransferStatus): boolean =>
+  status === 'posted' || status === 'void';
+
 export interface StockTransfer {
   id: string;
   number: string;
