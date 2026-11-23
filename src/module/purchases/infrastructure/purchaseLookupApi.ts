@@ -83,13 +83,19 @@ interface PaymentTermDto {
   isActive?: boolean | null;
 }
 
-/** Active payment terms for the quote and the bill (the service allows 100 per page). */
-export const listPaymentTerms = async (): Promise<PaymentTermOption[]> => {
-  const { data } = await http.get<ApiEnvelope<{ data: PaymentTermDto[] }>>(
-    PURCHASE_API.paymentTerms,
-    { isActive: true, limit: 100 }
+/**
+ * Active payment terms for the quote and the bill. `appliesTo` keeps only the terms for goods or for
+ * services (a term for both stays); without it every active term comes back. The answer is a plain
+ * list, not a page.
+ */
+export const listPaymentTerms = async (
+  appliesTo?: 'goods' | 'service'
+): Promise<PaymentTermOption[]> => {
+  const { data } = await http.get<ApiEnvelope<PaymentTermDto[]>>(
+    `${PURCHASE_API.paymentTerms}/options`,
+    { appliesTo }
   );
-  return data.data.map((term) => ({
+  return data.map((term) => ({
     id: term.id,
     name: term.name,
     days: term.days ?? 0,

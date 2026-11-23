@@ -196,11 +196,11 @@ export const usePaymentMethodOptions = () => {
   });
 };
 
-export const usePaymentTermOptions = () => {
+export const usePaymentTermOptions = (appliesTo?: 'goods' | 'service') => {
   const scope = usePurchaseScope();
   return useQuery({
-    queryKey: [...purchaseKeys.lookups(scope), 'payment-terms'],
-    queryFn: listPaymentTerms,
+    queryKey: [...purchaseKeys.lookups(scope), 'payment-terms', appliesTo ?? 'all'],
+    queryFn: () => listPaymentTerms(appliesTo),
     staleTime: STABLE_MS,
   });
 };

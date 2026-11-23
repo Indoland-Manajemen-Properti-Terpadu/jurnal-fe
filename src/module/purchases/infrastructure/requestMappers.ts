@@ -79,6 +79,15 @@ const toScores = (dto: QuoteDto['scores']): QuoteScores => ({
   term: score(dto?.term),
 });
 
+/**
+ * The service keeps the discount as a mode and a value, and still sends the rupiah amount. A quote
+ * from before the mode existed has only the amount, which is then a rupiah discount.
+ */
+const toDiscount = (dto: QuoteDto): Pick<Quote, 'discountType' | 'discountValue'> =>
+  dto.discountType === 'percentage'
+    ? { discountType: 'percentage', discountValue: dto.discountValue ?? 0 }
+    : { discountType: 'nominal', discountValue: dto.discountValue || (dto.discountAmount ?? 0) };
+
 const toQuote = (dto: QuoteDto): Quote => ({
   id: dto._id,
   vendor: toParty(dto.vendor),
@@ -92,6 +101,7 @@ const toQuote = (dto: QuoteDto): Quote => ({
   warranty: dto.warranty ?? '',
   withReceipt: dto.withReceipt !== false,
   isPriceIncludeTax: Boolean(dto.isPriceIncludeTax),
+  ...toDiscount(dto),
   discountAmount: dto.discountAmount ?? 0,
   shippingAmount: dto.shippingAmount ?? 0,
   lines: (dto.lines ?? []).map((line) => ({

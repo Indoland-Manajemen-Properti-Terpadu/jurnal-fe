@@ -40,6 +40,8 @@ const quote = (overrides: Partial<Quote> = {}): Quote => ({
   warranty: '12 bulan',
   withReceipt: true,
   isPriceIncludeTax: false,
+  discountType: 'nominal',
+  discountValue: 0,
   discountAmount: 0,
   shippingAmount: 0,
   lines: [
