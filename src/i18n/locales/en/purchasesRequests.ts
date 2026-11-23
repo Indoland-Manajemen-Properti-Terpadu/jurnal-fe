@@ -86,6 +86,12 @@ export const purchasesRequests = {
     notEditableTitle: 'This request cannot be edited',
     notEditableDescription:
       'Only requests that are a draft or sent back can be edited. Open the detail to see where it stands.',
+    deliveryWarehouse: 'Delivery location',
+    deliveryWarehouseHint:
+      'The warehouse the goods go to. It carries over to the order and can still change before the order is sent to the vendor.',
+    deliveryWarehousePlaceholder: 'Choose the destination warehouse',
+    noWarehouse: 'No active warehouse',
+    deliveryWarehouseError: { required: 'Choose the warehouse for the goods' },
   },
   submitDialog: {
     title: 'Submit the request?',
@@ -98,6 +104,7 @@ export const purchasesRequests = {
     itemCount: '{count} items',
     requestDate: 'Request date',
     items: 'Goods or services',
+    deliveryWarehouse: 'Delivery location',
   },
   detail: {
     waitingAccounting: 'Waiting for Accounting to verify',
@@ -133,6 +140,7 @@ export const purchasesRequests = {
     cancel: 'Cancel Request',
     cancelTitle: 'Cancel request',
     cancelDescription: 'A cancelled request cannot continue to procurement.',
+    deliveryWarehouse: 'Delivery location',
   },
   notice: {
     returnedTitle: 'Sent back by {name}',
