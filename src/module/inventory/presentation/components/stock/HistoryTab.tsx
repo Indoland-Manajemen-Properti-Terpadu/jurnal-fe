@@ -1,8 +1,9 @@
-import { useMemo, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import {
   Alert,
   Button,
   Group,
+  MultiSelect,
   Pagination,
   Paper,
   Select,
@@ -10,20 +11,34 @@ import {
   Stack,
   Table,
   Text,
+  TextInput,
   Tooltip,
 } from '@mantine/core';
-import { IconAlertCircle, IconArrowsLeftRight, IconInfoCircle } from '@tabler/icons-react';
+import { useDebouncedValue } from '@mantine/hooks';
+import {
+  IconAlertCircle,
+  IconArrowsLeftRight,
+  IconInfoCircle,
+  IconSearch,
+} from '@tabler/icons-react';
 import { EmptyState } from '@/components/EmptyState/EmptyState';
 import { useTranslation } from '@/i18n';
 import { MOVEMENT_TYPES } from '@/module/inventory/domain/stockMovement';
 import { DateRangeField } from '@/module/inventory/presentation/components/shared/DateRangeField';
 import { MovementsTable } from '@/module/inventory/presentation/components/stock/MovementsTable';
 import type { StockFilterValues } from '@/module/inventory/presentation/components/stock/stockFilters';
-import { useBalances, useMovements } from '@/module/inventory/presentation/hooks/useStockQueries';
+import {
+  useBalances,
+  useCategoryOptions,
+  useMovements,
+} from '@/module/inventory/presentation/hooks/useStockQueries';
 import { useWarehouseList } from '@/module/inventory/presentation/hooks/useWarehouses';
 import { formatCurrency, numberFormat } from '@/utils/formatCurrency';
 
 const PAGE_SIZE = 20;
+const SEARCH_DELAY_MS = 300;
+
+const splitTypes = (value: string): string[] => value.split(',').filter(Boolean);
 
 type Props = {
   filters: StockFilterValues;
@@ -35,12 +50,24 @@ type Props = {
 /** The movement ledger, newest first, with the filters of period, warehouse, product and type. */
 export function HistoryTab({ filters, today, update, tabList }: Readonly<Props>) {
   const { t } = useTranslation('stockMovements');
+  const [docInput, setDocInput] = useState(filters.doc);
+  const [debouncedDoc] = useDebouncedValue(docInput.trim(), SEARCH_DELAY_MS);
+  // The address keeps the settled text, so a link or a reload opens the same list.
+  useEffect(() => {
+    if (debouncedDoc === docInput.trim() && debouncedDoc !== filters.doc.trim()) {
+      update({ doc: debouncedDoc });
+    }
+  }, [debouncedDoc, docInput, filters.doc, update]);
+  const types = splitTypes(filters.type);
+  const categories = useCategoryOptions();
   const movements = useMovements({
     startDate: filters.from,
     endDate: filters.to,
     warehouse: filters.warehouse || undefined,
     product: filters.product || undefined,
-    type: filters.type || undefined,
+    types,
+    categoryId: filters.category || undefined,
+    search: filters.doc || undefined,
     page: filters.page,
     limit: PAGE_SIZE,
   });
@@ -65,6 +92,11 @@ export function HistoryTab({ filters, today, update, tabList }: Readonly<Props>)
   const warehouseOptions = (warehouses.data?.items ?? []).map((warehouse) => ({
     value: warehouse.id,
     label: `${warehouse.code} · ${warehouse.name}`,
+  }));
+
+  const categoryOptions = (categories.data?.items ?? []).map((category) => ({
+    value: category.id,
+    label: category.name,
   }));
 
   const typeOptions = MOVEMENT_TYPES.map((type) => ({ value: type, label: t(`types.${type}`) }));
@@ -155,12 +187,32 @@ export function HistoryTab({ filters, today, update, tabList }: Readonly<Props>)
             w={{ base: '100%', sm: 230 }}
           />
           <Select
-            aria-label={t('history.type')}
-            placeholder={t('history.allTypes')}
-            data={typeOptions}
-            value={filters.type || null}
-            onChange={(value) => update({ type: value ?? '' })}
+            aria-label={t('history.category')}
+            placeholder={t('history.allCategories')}
+            data={categoryOptions}
+            value={filters.category || null}
+            onChange={(value) => update({ category: value ?? '' })}
             clearable
+            searchable
+            radius="md"
+            w={{ base: '100%', sm: 230 }}
+          />
+          <MultiSelect
+            aria-label={t('history.type')}
+            placeholder={types.length === 0 ? t('history.allTypes') : undefined}
+            data={typeOptions}
+            value={types}
+            onChange={(value) => update({ type: value.join(',') })}
+            clearable
+            radius="md"
+            w={{ base: '100%', sm: 300 }}
+          />
+          <TextInput
+            aria-label={t('history.docSearchLabel')}
+            placeholder={t('history.docSearch')}
+            leftSection={<IconSearch size={16} />}
+            value={docInput}
+            onChange={(event) => setDocInput(event.currentTarget.value)}
             radius="md"
             w={{ base: '100%', sm: 230 }}
           />

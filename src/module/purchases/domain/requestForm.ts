@@ -1,4 +1,5 @@
 import type { PurchaseRequestInput } from '@/module/purchases/domain/purchaseInputs';
+import type { WarehouseRef } from '@/module/purchases/domain/purchaseCommon';
 import type { PurchaseRequest, RequestItemKind } from '@/module/purchases/domain/purchaseRequest';
 
 /** Lengths the service accepts; a longer value is refused with a 400. */
@@ -30,6 +31,8 @@ export interface RequestFormValues {
   transactionDate: string;
   requiredDate: string;
   departmentId: string;
+  /** Where the goods go; asked for only while a line is goods. */
+  deliveryWarehouseId: string;
   purpose: string;
   iomNumber: string;
   iomDate: string;
@@ -41,6 +44,7 @@ export type RequestFormErrors = {
   transactionDate?: 'required';
   requiredDate?: 'required' | 'beforeDate';
   department?: 'required';
+  deliveryWarehouse?: 'required';
   purpose?: 'required' | 'tooLong';
   iomNumber?: 'tooLong';
   memo?: 'tooLong';
@@ -72,10 +76,19 @@ export const emptyRequestItem = (kind: RequestItemKind = 'GOODS'): RequestFormIt
   quantity: 1,
 });
 
+/** Goods are delivered somewhere; a request of services only has no delivery warehouse. */
+export const needsDeliveryWarehouse = (items: RequestFormItem[]): boolean =>
+  items.some((item) => item.kind === 'GOODS');
+
+/** The warehouse a new request starts on: the main one, when the list names it. */
+export const mainWarehouseId = (warehouses: WarehouseRef[]): string =>
+  warehouses.find((warehouse) => warehouse.isDefault)?.id ?? '';
+
 export const emptyRequestForm = (today: string): RequestFormValues => ({
   transactionDate: today,
   requiredDate: '',
   departmentId: '',
+  deliveryWarehouseId: '',
   purpose: '',
   iomNumber: '',
   iomDate: '',
@@ -87,6 +100,7 @@ export const requestToForm = (doc: PurchaseRequest): RequestFormValues => ({
   transactionDate: doc.date,
   requiredDate: doc.requiredDate ?? '',
   departmentId: doc.department?.id ?? '',
+  deliveryWarehouseId: doc.deliveryWarehouse?.id ?? '',
   purpose: doc.purpose,
   iomNumber: doc.iom.number,
   iomDate: doc.iom.date ?? '',
@@ -112,6 +126,9 @@ export const validateRequestForm = (values: RequestFormValues): RequestFormError
     errors.requiredDate = 'beforeDate';
   }
   if (!values.departmentId) errors.department = 'required';
+  if (needsDeliveryWarehouse(values.items) && !values.deliveryWarehouseId) {
+    errors.deliveryWarehouse = 'required';
+  }
   const purpose = values.purpose.trim();
   if (!purpose) errors.purpose = 'required';
   else if (purpose.length > REQUEST_LIMITS.purpose) errors.purpose = 'tooLong';
@@ -137,6 +154,7 @@ export const hasRequestErrors = (errors: RequestFormErrors): boolean =>
     errors.transactionDate ||
     errors.requiredDate ||
     errors.department ||
+    errors.deliveryWarehouse ||
     errors.purpose ||
     errors.iomNumber ||
     errors.memo ||
@@ -149,6 +167,9 @@ export const toRequestInput = (values: RequestFormValues): PurchaseRequestInput 
   transactionDate: values.transactionDate,
   requiredDate: values.requiredDate,
   department: values.departmentId,
+  ...(needsDeliveryWarehouse(values.items) && values.deliveryWarehouseId
+    ? { deliveryWarehouseId: values.deliveryWarehouseId }
+    : {}),
   purpose: values.purpose.trim(),
   iom: { number: values.iomNumber.trim(), date: values.iomDate || null },
   memo: values.memo.trim(),

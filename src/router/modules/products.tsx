@@ -1,5 +1,6 @@
 import type { RouteObject } from 'react-router-dom';
 import { AppShellLayout } from '@/components/AppShellLayout';
+import { ProductWarehouseStock } from '@/module/inventory';
 import {
   ProductCategoriesPage,
   ProductDetailPage,
@@ -37,7 +38,11 @@ export const productsRoutes: RouteObject[] = [
     path: routes.products.detail,
     element: (
       <AppShellLayout>
-        <ProductDetailPage />
+        <ProductDetailPage
+          renderStock={(product) =>
+            product.isTracked ? <ProductWarehouseStock productId={product.id} /> : null
+          }
+        />
       </AppShellLayout>
     ),
   },

@@ -4,6 +4,7 @@ import {
   toBalanceReport,
   toMovement,
   toMovementQuery,
+  toProductStock,
   toStockCard,
 } from './stockApi';
 
@@ -164,5 +165,60 @@ describe('toStockCard', () => {
     expect(card.warehouse).toBeNull();
     expect(card.closing).toEqual({ quantity: 6, value: 600 });
     expect(card.rows[0]).toMatchObject({ balanceQty: 10, balanceValue: 1000, journalId: 'j1' });
+  });
+});
+
+describe('toProductStock', () => {
+  it('maps each warehouse and works out its status', () => {
+    const stock = toProductStock({
+      product: { id: 'p1', unit: 'rim' },
+      totalQty: 63,
+      warehouses: [
+        {
+          id: 'w1',
+          code: 'GDG-001',
+          name: 'Gudang Utama',
+          isActive: true,
+          isDefault: true,
+          quantity: 60,
+          minQty: 40,
+          status: 'aman',
+          belowMin: false,
+          lastOpname: { id: 'o1', number: 'SO/2026/11/0004', date: '2026-11-22' },
+        },
+        { id: 'w2', code: 'GDG-002', name: 'Cadangan', quantity: 3, minQty: 10, belowMin: true },
+        { id: 'w3', code: 'GDG-003', name: 'Uji', quantity: 0, status: 'habis' },
+      ],
+    });
+
+    expect(stock).toMatchObject({ productId: 'p1', unit: 'rim', totalQty: 63 });
+    expect(stock.warehouses.map((row) => row.status)).toEqual(['safe', 'belowMin', 'empty']);
+    expect(stock.warehouses[0].lastOpname?.number).toBe('SO/2026/11/0004');
+    expect(stock.warehouses[2]).toMatchObject({ minQty: 0, lastOpname: null, isActive: true });
+  });
+
+  it('tolerates a product with no warehouse rows', () => {
+    expect(toProductStock({ product: { id: 'p' } }).warehouses).toEqual([]);
+  });
+});
+
+describe('category, document number and several types in the query', () => {
+  it('sends the category to balances and to movements', () => {
+    expect(toBalanceQuery({ categoryId: 'c1' })).toEqual({ categoryId: 'c1' });
+    expect(toMovementQuery({ categoryId: 'c1' })).toEqual({ categoryId: 'c1' });
+  });
+
+  it('sends the document number trimmed, and nothing when it is blank', () => {
+    expect(toMovementQuery({ search: ' PDH/2026/11/0003 ' })).toEqual({
+      search: 'PDH/2026/11/0003',
+    });
+    expect(toMovementQuery({ search: '   ' })).toEqual({});
+  });
+
+  it('joins several types with commas, and leaves one type or none alone', () => {
+    expect(toMovementQuery({ types: ['REVERSAL', 'TRANSFER_OUT'] })).toEqual({
+      types: 'REVERSAL,TRANSFER_OUT',
+    });
+    expect(toMovementQuery({ types: [] })).toEqual({});
   });
 });

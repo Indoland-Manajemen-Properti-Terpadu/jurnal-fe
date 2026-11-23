@@ -65,4 +65,54 @@ describe('WarehouseBlockedDialog', () => {
 
     expect(screen.getByText('Ada hal lain yang belum selesai.')).toBeInTheDocument();
   });
+
+  it('names each transfer that waits for approval and links to it', () => {
+    renderBlocked([
+      {
+        kind: 'transfers',
+        count: 2,
+        transfers: [
+          { id: 't5', number: 'PDH/2026/11/0005' },
+          { id: 't6', number: 'PDH/2026/11/0006' },
+        ],
+      },
+    ]);
+
+    expect(screen.getByText('2 pindah barang masih menunggu persetujuan.')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'PDH/2026/11/0005' })).toHaveAttribute(
+      'href',
+      '/inventory/stock-movements/transfers/t5'
+    );
+    expect(screen.getByRole('link', { name: 'PDH/2026/11/0006' })).toHaveAttribute(
+      'href',
+      '/inventory/stock-movements/transfers/t6'
+    );
+    expect(screen.queryByRole('link', { name: /lainnya/ })).not.toBeInTheDocument();
+  });
+
+  it('shows the first five and sends the rest to the list of waiting transfers', () => {
+    const transfers = Array.from({ length: 7 }, (_, index) => ({
+      id: `t${index}`,
+      number: `PDH/2026/11/000${index}`,
+    }));
+    renderBlocked([{ kind: 'transfers', count: 7, transfers }]);
+
+    expect(screen.getAllByRole('link', { name: /^PDH\// })).toHaveLength(5);
+    expect(screen.getByRole('link', { name: 'dan 2 lainnya' })).toHaveAttribute(
+      'href',
+      '/inventory/stock-movements?tab=transfers&warehouse=w2&tstatus=PENDING_APPROVAL'
+    );
+  });
+
+  it('still points to the list when the service names no transfer', () => {
+    renderBlocked([{ kind: 'transfers', count: null, transfers: [] }]);
+
+    expect(
+      screen.getByText('Masih ada pindah barang yang menunggu persetujuan.')
+    ).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Lihat pindah barang' })).toHaveAttribute(
+      'href',
+      '/inventory/stock-movements?tab=transfers&warehouse=w2&tstatus=PENDING_APPROVAL'
+    );
+  });
 });

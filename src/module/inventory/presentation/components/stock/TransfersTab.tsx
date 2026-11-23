@@ -2,7 +2,6 @@ import type { ReactNode } from 'react';
 import {
   Alert,
   Anchor,
-  Badge,
   Button,
   Group,
   Pagination,
@@ -17,12 +16,14 @@ import { IconAlertCircle, IconPlus, IconTransfer } from '@tabler/icons-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { EmptyState } from '@/components/EmptyState/EmptyState';
 import { useTranslation } from '@/i18n';
+import type { TransferStatusDto } from '@/module/inventory/infrastructure/transferApi';
 import { columnHeader } from '@/module/inventory/presentation/components/shared/columnHeader';
 import { DataTableFrame } from '@/module/inventory/presentation/components/shared/DataTableFrame';
 import {
   transferDetailPath,
   transferNewPath,
 } from '@/module/inventory/presentation/components/shared/stockLinks';
+import { TransferStatusBadge } from '@/module/inventory/presentation/components/stock/TransferStatusBadge';
 import type { StockFilterValues } from '@/module/inventory/presentation/components/stock/stockFilters';
 import {
   useStockRights,
@@ -146,9 +147,7 @@ export function TransfersTab({ filters, update, tabList }: Readonly<Props>) {
                 <Text size="sm">{row.productCount}</Text>
               </Table.Td>
               <Table.Td>
-                <Badge variant="light" color={row.status === 'posted' ? 'green' : 'gray'} size="sm">
-                  {t(row.status === 'posted' ? 'transfers.posted' : 'transfers.void')}
-                </Badge>
+                <TransferStatusBadge status={row.status} />
               </Table.Td>
             </Table.Tr>
           ))}
@@ -166,12 +165,14 @@ export function TransfersTab({ filters, update, tabList }: Readonly<Props>) {
             aria-label={t('transfers.statusColumn')}
             placeholder={t('transfers.allStatuses')}
             data={[
+              { value: 'PENDING_APPROVAL', label: t('transfers.pending') },
               { value: 'POSTED', label: t('transfers.posted') },
+              { value: 'REJECTED', label: t('transfers.rejected') },
               { value: 'VOID', label: t('transfers.void') },
             ]}
             value={filters.transferStatus || null}
             onChange={(value) =>
-              update({ transferStatus: (value as 'POSTED' | 'VOID' | null) ?? '' })
+              update({ transferStatus: (value as TransferStatusDto | null) ?? '' })
             }
             clearable
             radius="md"

@@ -93,6 +93,62 @@ describe('toBlockReasons', () => {
     expect(reasons[2]).toEqual({ kind: 'other', message: 'Ada hal lain.' });
   });
 
+  it('reads the exact codes the service uses', () => {
+    const reasons = toBlockReasons({
+      reasons: [
+        { code: 'OPEN_PURCHASE_ORDER', message: 'x', count: 2 },
+        { code: 'HAS_STOCK', message: 'x', count: 4 },
+        { code: 'DEFAULT', message: 'x' },
+      ],
+    });
+
+    expect(reasons).toEqual([
+      { kind: 'default' },
+      { kind: 'stock', itemCount: 4, value: null },
+      { kind: 'orders', count: 2 },
+    ]);
+  });
+
+  it('reads the transfers that wait for approval, between the orders and the count', () => {
+    const reasons = toBlockReasons({
+      reasons: [
+        { code: 'RUNNING_OPNAME', message: 'x', opname: { id: 'o', number: 'SO/1' } },
+        {
+          code: 'OPEN_TRANSFER',
+          message: 'x',
+          count: 2,
+          transfers: [
+            { id: 't1', number: 'PDH/2026/11/0005' },
+            { id: 't2', number: 'PDH/2026/11/0006' },
+          ],
+        },
+        { code: 'OPEN_PURCHASE_ORDER', message: 'x', count: 1 },
+      ],
+    });
+
+    expect(reasons.map((reason) => reason.kind)).toEqual(['orders', 'transfers', 'opname']);
+    expect(reasons[1]).toEqual({
+      kind: 'transfers',
+      count: 2,
+      transfers: [
+        { id: 't1', number: 'PDH/2026/11/0005' },
+        { id: 't2', number: 'PDH/2026/11/0006' },
+      ],
+    });
+  });
+
+  it('counts the listed transfers when the service sends no count, and none when it lists none', () => {
+    const [counted] = toBlockReasons({
+      reasons: [
+        { code: 'OPEN_TRANSFER', message: 'x', transfers: [{ id: 't1', number: 'PDH/1' }] },
+      ],
+    });
+    const [bare] = toBlockReasons({ reasons: [{ code: 'OPEN_TRANSFER', message: 'x' }] });
+
+    expect(counted).toMatchObject({ kind: 'transfers', count: 1 });
+    expect(bare).toEqual({ kind: 'transfers', count: null, transfers: [] });
+  });
+
   it('returns nothing for an answer without reasons', () => {
     expect(toBlockReasons(undefined)).toEqual([]);
     expect(toBlockReasons({})).toEqual([]);

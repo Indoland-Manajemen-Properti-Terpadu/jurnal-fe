@@ -183,6 +183,13 @@ export const toPurchaseRequest = (dto: PurchaseRequestDto): PurchaseRequest => (
   requiredDate: toDateOrNull(dto.requiredDate),
   department: dto.department ? { id: dto.department.id, name: dto.department.name } : null,
   purpose: dto.purpose ?? '',
+  deliveryWarehouse: dto.deliveryWarehouse
+    ? {
+        id: dto.deliveryWarehouse.id,
+        code: dto.deliveryWarehouse.code ?? '',
+        name: dto.deliveryWarehouse.name ?? '',
+      }
+    : null,
   iom: {
     number: dto.iom?.number ?? '',
     date: toDateOrNull(dto.iom?.date),

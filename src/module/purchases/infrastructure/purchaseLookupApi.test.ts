@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { listDepartments, listPaymentTerms, listUnits } from './purchaseLookupApi';
+import { listDepartments, listPaymentTerms, listUnits, listWarehouses } from './purchaseLookupApi';
 
 const http = vi.hoisted(() => ({ get: vi.fn() }));
 vi.mock('@/lib/http/apiClient', () => ({ default: http }));
@@ -62,5 +62,27 @@ describe('listPaymentTerms', () => {
       params: {},
       timeout: expect.any(Number),
     });
+  });
+});
+
+describe('listWarehouses', () => {
+  it('keeps which warehouse is the main one', async () => {
+    http.get.mockResolvedValue({
+      data: {
+        data: {
+          results: [
+            { id: 'w1', name: 'Gudang lt 10', isDefault: true },
+            { id: 'w2', name: 'Gudang Cadangan' },
+          ],
+        },
+      },
+    });
+
+    const warehouses = await listWarehouses();
+
+    expect(warehouses).toEqual([
+      { id: 'w1', name: 'Gudang lt 10', isDefault: true },
+      { id: 'w2', name: 'Gudang Cadangan', isDefault: false },
+    ]);
   });
 });

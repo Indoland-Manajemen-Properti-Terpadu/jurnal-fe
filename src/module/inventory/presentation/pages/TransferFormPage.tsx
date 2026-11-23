@@ -123,7 +123,7 @@ export default function TransferFormPage() {
       onSuccess: (transfer) => {
         notifications.show({
           color: 'green',
-          message: t('form.saved', {
+          message: t(transfer.status === 'pending' ? 'form.requested' : 'form.saved', {
             number: transfer.number,
             count: transfer.productCount,
             to: transfer.to.name,

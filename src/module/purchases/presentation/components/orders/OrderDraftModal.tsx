@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Button, Select, Stack, Textarea } from '@mantine/core';
 import { ModalFrame } from '@/components/Modals/ModalFrame';
 import { useTranslation } from '@/i18n';
+import type { NamedRef } from '@/module/purchases/domain/purchaseCommon';
 import type { PurchaseOrder } from '@/module/purchases/domain/purchaseDocuments';
 import {
   draftToInput,
@@ -38,7 +39,7 @@ export const OrderDraftModal = ({ order, opened, onClose }: Readonly<OrderDraftM
   const errors = validateDraft(values);
   const set = <K extends keyof DraftValues>(key: K, value: DraftValues[K]) =>
     setValues((current) => ({ ...current, [key]: value }));
-  const options = [...(warehouses.data ?? [])];
+  const options: NamedRef[] = [...(warehouses.data ?? [])];
   if (order.warehouse && !options.some((warehouse) => warehouse.id === order.warehouse?.id)) {
     options.unshift(order.warehouse);
   }
