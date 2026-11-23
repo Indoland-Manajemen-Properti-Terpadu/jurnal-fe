@@ -3,6 +3,7 @@ import { IconClipboardText } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import type { NamedRef } from '@/module/purchases/domain/purchaseCommon';
 import {
+  needsDeliveryWarehouse,
   REQUEST_LIMITS,
   type RequestFormErrors,
   type RequestFormValues,
@@ -16,6 +17,8 @@ interface RequestInfoSectionProps {
   showErrors: boolean;
   departments: NamedRef[];
   departmentsLoading: boolean;
+  warehouses: NamedRef[];
+  warehousesLoading: boolean;
   onChange: <K extends keyof RequestFormValues>(key: K, value: RequestFormValues[K]) => void;
 }
 
@@ -26,6 +29,8 @@ export const RequestInfoSection = ({
   showErrors,
   departments,
   departmentsLoading,
+  warehouses,
+  warehousesLoading,
   onChange,
 }: Readonly<RequestInfoSectionProps>) => {
   const { t } = useTranslation('purchases');
@@ -77,6 +82,25 @@ export const RequestInfoSection = ({
             error={error(errors.department, 'departmentError')}
           />
         </Grid.Col>
+        {needsDeliveryWarehouse(values.items) && (
+          <Grid.Col span={12}>
+            <Select
+              withAsterisk
+              searchable
+              radius="md"
+              label={t('requests.form.deliveryWarehouse')}
+              description={t('requests.form.deliveryWarehouseHint')}
+              placeholder={t('requests.form.deliveryWarehousePlaceholder')}
+              nothingFoundMessage={
+                warehousesLoading ? t('shared.searching') : t('requests.form.noWarehouse')
+              }
+              data={warehouses.map((warehouse) => ({ value: warehouse.id, label: warehouse.name }))}
+              value={values.deliveryWarehouseId || null}
+              onChange={(value) => onChange('deliveryWarehouseId', value ?? '')}
+              error={error(errors.deliveryWarehouse, 'deliveryWarehouseError')}
+            />
+          </Grid.Col>
+        )}
         <Grid.Col span={12}>
           <TextInput
             withAsterisk

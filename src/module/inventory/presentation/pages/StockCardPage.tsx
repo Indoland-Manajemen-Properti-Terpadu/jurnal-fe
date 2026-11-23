@@ -38,7 +38,7 @@ export default function StockCardPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const describe = useStockErrorMessage();
-  const { card: rights } = useStockRights();
+  const { card: rights, value: valueRights } = useStockRights();
   const exporter = useStockExport();
   const [params, setParams] = useSearchParams();
 
@@ -117,7 +117,7 @@ export default function StockCardPage() {
       backLabel={t('card.back')}
       onBack={goBack}
       actions={
-        rights.read ? (
+        rights.read && valueRights.read ? (
           <Button
             variant="default"
             leftSection={<IconDownload size={16} />}

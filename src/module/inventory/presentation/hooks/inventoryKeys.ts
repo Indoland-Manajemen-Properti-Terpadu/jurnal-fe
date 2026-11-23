@@ -46,6 +46,9 @@ export const inventoryKeys = {
     [...inventoryKeys.stock(scope), 'balances', params] as const,
   movements: (scope: string, params: MovementParams) =>
     [...inventoryKeys.stock(scope), 'movements', params] as const,
+  categories: (scope: string) => [...inventoryKeys.stock(scope), 'categories'] as const,
+  productStock: (scope: string, productId: string) =>
+    [...inventoryKeys.stock(scope), 'product', productId] as const,
   card: (scope: string, params: CardParams) =>
     [...inventoryKeys.stock(scope), 'card', params] as const,
   transfers: (scope: string, params: TransferListParams) =>

@@ -1,5 +1,11 @@
 import { Grid, Stack } from '@mantine/core';
-import { IconBuilding, IconCalendar, IconFileText, IconUser } from '@tabler/icons-react';
+import {
+  IconBuilding,
+  IconBuildingWarehouse,
+  IconCalendar,
+  IconFileText,
+  IconUser,
+} from '@tabler/icons-react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
 import { requestActions } from '@/module/purchases/domain/purchaseActions';
@@ -80,6 +86,16 @@ export default function RequestDetailPage() {
           label: t('common.department'),
           value: doc.department?.name ?? '-',
         },
+        ...(doc.deliveryWarehouse
+          ? [
+              {
+                icon: IconBuildingWarehouse,
+                label: t('requests.detail.deliveryWarehouse'),
+                value: doc.deliveryWarehouse.name,
+                sub: doc.deliveryWarehouse.code,
+              },
+            ]
+          : []),
         {
           icon: IconUser,
           label: t('requests.detail.requestedBy'),
