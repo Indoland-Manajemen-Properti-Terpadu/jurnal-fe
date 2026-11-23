@@ -45,7 +45,7 @@ export interface TransferDto {
   canDecide?: boolean;
   createdByUser?: { id: string; name: string } | null;
   rejectedByUser?: { id: string; name: string } | null;
-  rejectReason?: string | null;
+  rejectionReason?: string | null;
   pendingApprovers?:
     | { level?: number; name?: string; roles?: { id?: string; name: string }[] }[]
     | null;
@@ -84,7 +84,7 @@ export const toTransfer = (dto: TransferDto): StockTransfer => {
       ),
     ],
     rejectedByName: dto.rejectedByUser?.name ?? null,
-    rejectReason: dto.rejectReason ?? null,
+    rejectReason: dto.rejectionReason ?? null,
     voidReason: dto.voidReason ?? null,
     voidedAt: dto.voidedAt ?? null,
     createdAt: dto.createdAt ?? '',

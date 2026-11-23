@@ -119,7 +119,7 @@ describe('toTransfer, approval', () => {
         status: 'REJECTED',
         canDecide: false,
         rejectedByUser: { id: 'u2', name: 'Budi' },
-        rejectReason: 'Stok dipakai',
+        rejectionReason: 'Stok dipakai',
       })
     ).toMatchObject({
       status: 'rejected',
