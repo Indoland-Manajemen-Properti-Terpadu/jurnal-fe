@@ -23,7 +23,7 @@ export interface ProductStock {
 }
 
 /**
- * The service names the state in its own words ("aman", "habis") and flags `belowMin`; an empty
+ * The service names the state in its own words ("aman", "di_bawah_minimum", "habis") and flags `belowMin`; an empty
  * warehouse is never reported as "below minimum", because empty is the stronger signal.
  */
 export const productStockStatus = (row: {
@@ -32,5 +32,5 @@ export const productStockStatus = (row: {
   status: string;
 }): StockStatus => {
   if (row.quantity <= 0 || row.status === 'habis') return 'empty';
-  return row.belowMin ? 'belowMin' : 'safe';
+  return row.belowMin || row.status === 'di_bawah_minimum' ? 'belowMin' : 'safe';
 };

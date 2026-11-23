@@ -10,6 +10,12 @@ describe('productStockStatus', () => {
     expect(productStockStatus({ quantity: 5, belowMin: true, status: 'menipis' })).toBe('belowMin');
   });
 
+  it('reads the status word for "below minimum" even without the flag', () => {
+    expect(productStockStatus({ quantity: 5, belowMin: false, status: 'di_bawah_minimum' })).toBe(
+      'belowMin'
+    );
+  });
+
   it('is safe when there is stock and the minimum is met', () => {
     expect(productStockStatus({ quantity: 60, belowMin: false, status: 'aman' })).toBe('safe');
   });
