@@ -236,6 +236,13 @@ export const purchasesBills = {
     verifyDescription:
       'Tagihan diakui sebagai Hutang Usaha dan jurnalnya dibuat. Setelah diverifikasi, tagihan tidak bisa diubah dan siap dibayar.',
     verifyAcknowledge: 'Saya sudah memeriksa selisih di atas dan tetap ingin memverifikasi.',
+    verifyMissingTitle: 'Lengkapi dulu lewat tombol Ubah sebelum diverifikasi:',
+    verifyMissing: {
+      vendorInvoiceNumber: 'No. invoice vendor',
+      vendorInvoiceFile: 'Berkas invoice vendor',
+      vendorInvoiceTotal: 'Total faktur vendor (wajib untuk tagihan dari penerimaan)',
+      taxInvoiceFile: 'Berkas faktur pajak (wajib karena tagihan memakai PPN)',
+    },
     requestPayment: 'Ajukan Pembayaran',
     applyCredit: 'Alokasikan Kredit',
     createReturn: 'Buat Retur',
