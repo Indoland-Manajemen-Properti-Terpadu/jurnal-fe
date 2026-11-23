@@ -124,6 +124,10 @@ export const warehouses = {
     openOpname: 'Open stock count',
     transferStock: 'Transfer stock',
     viewOrders: 'View orders',
+    transfers: '{count} transfers are still waiting for approval.',
+    transfersNoCount: 'Some transfers are still waiting for approval.',
+    viewTransfers: 'View transfers',
+    moreTransfers: 'and {count} more',
     other: 'Another process is still unfinished.',
   },
   minStock: {

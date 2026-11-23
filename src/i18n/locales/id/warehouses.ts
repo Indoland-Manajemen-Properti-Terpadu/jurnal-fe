@@ -125,6 +125,10 @@ export const warehouses = {
     openOpname: 'Buka opname',
     transferStock: 'Pindah barang',
     viewOrders: 'Lihat pesanan',
+    transfers: '{count} pindah barang masih menunggu persetujuan.',
+    transfersNoCount: 'Masih ada pindah barang yang menunggu persetujuan.',
+    viewTransfers: 'Lihat pindah barang',
+    moreTransfers: 'dan {count} lainnya',
     other: 'Ada proses lain yang belum selesai.',
   },
   minStock: {

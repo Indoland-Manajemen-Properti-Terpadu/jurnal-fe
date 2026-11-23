@@ -31,14 +31,14 @@ A warehouse is a master record of a place. It never holds a stock figure of its 
 | Switch on or off              | `PATCH /v1/warehouses/:id/status` with `{ status: 'active'                                                     | 'inactive' }` |
 | Minimum stock                 | `PUT /v1/warehouses/:id/min-stock` with `{ items: [{ productId, minQty }] }`                                   |
 | Delete                        | `DELETE /v1/warehouses/:id`                                                                                    |
-| Stock of one product | `GET /v1/products/:id/stock` (quantity, `minQty`, status, `lastOpname` per warehouse; no money) |
+| Stock of one product          | `GET /v1/products/:id/stock` (quantity, `minQty`, status, `lastOpname` per warehouse; no money)                |
 | Rights                        | `GET /v1/users/me/permissions`, menu `JP-STOCK` (create, read, update, delete)                                 |
 
 **Rules shown** (`domain/warehouse.ts`)
 
 - Exactly one main warehouse; it cannot be switched off or deleted.
 - Delete only when `canDelete` (no document ever used the warehouse). The code is read-only when `codeLocked`.
-- Switching off is refused with a 409 that lists every reason in `data.reasons[]` (`code`, `message`, extra data). `RUNNING_OPNAME` is confirmed against the service; the main-warehouse, stock and purchase-order codes are matched by name and an unknown code keeps the service's sentence. The screen shows a blocking dialog straight away for what the list already knows (main warehouse, remaining stock, running count) and asks the service for the rest.
+- Switching off is refused with a 409 that lists every reason in `data.reasons[]` (`code`, `message`, extra data). The backend confirmed the codes on PRO-104 (2026-11-23): `DEFAULT`, `HAS_STOCK` (`count` of products, no value yet), `OPEN_PURCHASE_ORDER` (`count`), `OPEN_TRANSFER` (`count` and `transfers: [{ id, number }]`, for transfers waiting for approval) and `RUNNING_OPNAME` (`opname: { id, number, status }`). They differ from the names in the QA spec (`IS_DEFAULT`, `OPEN_PO`); the screen matches by name, so either set works, and an unknown code keeps the service's sentence. The dialog names up to five waiting transfers with a link to each, and sends the rest to the transfer list narrowed to this warehouse and `PENDING_APPROVAL`. The screen shows a blocking dialog straight away for what the list already knows (main warehouse, remaining stock, running count) and asks the service for the rest.
 - Stock status: `Habis` at zero, `Di bawah minimum` under a set minimum, `Aman` otherwise. Quantities are never added across products; only the value is totalled, and the total is the service's own figure.
 - Values (inventory value, average cost, value of a movement) are shown only when the service sends them. A person without that right sees no value column, never `Rp 0`.
 - The change history names the person in charge and the product of a minimum-stock change (`domain/warehouseAudit.ts`); the service logs both as ids.
@@ -55,15 +55,15 @@ The stock ledger, read-only: nothing here adds, edits or deletes a movement. The
 
 **Endpoints** (`infrastructure/stockApi.ts`, `transferApi.ts`)
 
-| Use                               | Call                                                                                                                                                                                               |
-| --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- |
-| Balances (matrix, reconciliation) | `GET /v1/stock/balances?asOf&warehouse&q&categoryId` (the reconciliation is inside this answer; there is no separate endpoint)                                                                                |
-| Movement history                  | `GET /v1/stock/movements?startDate&endDate&warehouse&product&types&categoryId&search&page&limit` (`types` is a comma list, `search` is part of a document number; answers `totals` over the whole filter)                                                       |
-| Stock card                        | `GET /v1/stock/card?product=<id>&warehouse&startDate&endDate`                                                                                                                                      |
-| Export                            | `GET /v1/stock/export?scope=balances                                                                                                                                                               | movements` (a workbook) |
+| Use                               | Call                                                                                                                                                                                                                                                                                        |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- |
+| Balances (matrix, reconciliation) | `GET /v1/stock/balances?asOf&warehouse&q&categoryId` (the reconciliation is inside this answer; there is no separate endpoint)                                                                                                                                                              |
+| Movement history                  | `GET /v1/stock/movements?startDate&endDate&warehouse&product&types&categoryId&search&page&limit` (`types` is a comma list, `search` is part of a document number; answers `totals` over the whole filter)                                                                                   |
+| Stock card                        | `GET /v1/stock/card?product=<id>&warehouse&startDate&endDate`                                                                                                                                                                                                                               |
+| Export                            | `GET /v1/stock/export?scope=balances                                                                                                                                                                                                                                                        | movements` (a workbook) |
 | Transfers                         | `GET /v1/stock/transfers`, `GET /:id`, `POST` with `{transactionDate, fromWarehouse, toWarehouse, items:[{product, quantity}], memo}`, `POST /:id/approve`, `POST /:id/reject` with `{reason}`, `POST /:id/void` with `{reason}`; status `PENDING_APPROVAL`, `POSTED`, `REJECTED` or `VOID` |
-| Journal of a movement             | the journal detail page, by the movement's `journalTransaction`                                                                                                                                    |
-| Rights                            | menus `JP-STOCK-CARD` (read) and `JP-STOCK-TRF` (create, read, delete)                                                                                                                             |
+| Journal of a movement             | the journal detail page, by the movement's `journalTransaction`                                                                                                                                                                                                                             |
+| Rights                            | menus `JP-STOCK-CARD` (read) and `JP-STOCK-TRF` (create, read, delete)                                                                                                                                                                                                                      |
 
 **Behaviour**
 
@@ -84,7 +84,7 @@ The stock ledger, read-only: nothing here adds, edits or deletes a movement. The
 
 - "Stok per gudang" in the product detail (`ProductWarehouseStock`) reads `GET /v1/products/:id/stock` and shows only for a stock-tracked product. The Products module does not import this module (a cycle); the router passes the section in through the `renderStock` prop of `ProductDetailPage`. A person without the stock right sees no section.
 - The service logs the person in charge as an id and a minimum as `minQty:<productId>`; the screen resolves both. A name in the log would remove that step (backend wish, not a blocker).
-- No endpoint for the open purchase orders of a warehouse, so that blocking reason cannot be told in advance; it shows only when the service refuses.
+- No endpoint for the open purchase orders or the waiting transfers of a warehouse, so those two blocking reasons cannot be told in advance; they show only when the service refuses.
 
 ## Stock count
 
