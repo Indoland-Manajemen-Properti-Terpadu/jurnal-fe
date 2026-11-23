@@ -130,8 +130,6 @@ export const purchasesRequests = {
     verifyTitle: 'Verifikasi permintaan',
     verifyDescription:
       'Pastikan permintaan sudah sesuai anggaran dan kebutuhan. Setelah diverifikasi, permintaan masuk ke tahap pengadaan.',
-    verifyNote: 'Catatan verifikasi (opsional)',
-    verifyNotePlaceholder: 'Contoh: Sesuai anggaran',
     return: 'Kembalikan',
     returnTitle: 'Kembalikan ke peminta',
     returnDescription:

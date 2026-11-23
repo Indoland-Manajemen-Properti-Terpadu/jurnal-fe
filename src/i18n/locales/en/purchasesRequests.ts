@@ -130,8 +130,6 @@ export const purchasesRequests = {
     verifyTitle: 'Verify request',
     verifyDescription:
       'Make sure the request fits the budget and the need. Once verified, it moves to procurement.',
-    verifyNote: 'Verification note (optional)',
-    verifyNotePlaceholder: 'Example: Within budget',
     return: 'Send Back',
     returnTitle: 'Send back to the requester',
     returnDescription: 'The requester will see your note, fix the request and submit it again.',

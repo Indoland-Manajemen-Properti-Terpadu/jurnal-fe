@@ -13,6 +13,7 @@ import { useTranslation } from '@/i18n';
 import { requestActions } from '@/module/purchases/domain/purchaseActions';
 import type { PurchaseRequest } from '@/module/purchases/domain/purchaseRequest';
 import { requestRights } from '@/module/purchases/domain/requestAccess';
+import { VerifyRequestDialog } from '@/module/purchases/presentation/components/requests/VerifyRequestDialog';
 import { ReasonModal } from '@/module/purchases/presentation/components/shared/ReasonModal';
 import { usePurchaseAccess } from '@/module/purchases/presentation/hooks/usePurchaseAccess';
 import {
@@ -104,20 +105,11 @@ export const RequestActionBar = ({ request }: Readonly<{ request: PurchaseReques
           </Menu.Dropdown>
         </Menu>
       )}
-      <ReasonModal
+      <VerifyRequestDialog
         opened={dialog === 'verify'}
-        title={t('requests.detail.verifyTitle')}
-        description={t('requests.detail.verifyDescription')}
-        confirmLabel={t('requests.detail.verify')}
-        tone="primary"
-        optional
-        label={t('requests.detail.verifyNote')}
-        placeholder={t('requests.detail.verifyNotePlaceholder')}
         loading={verify.isPending}
         onClose={close}
-        onConfirm={(note) =>
-          verify.mutate({ id: request.id, note: note || undefined }, { onSuccess: close })
-        }
+        onConfirm={() => verify.mutate({ id: request.id }, { onSuccess: close })}
       />
       <ReasonModal
         opened={dialog === 'return'}
