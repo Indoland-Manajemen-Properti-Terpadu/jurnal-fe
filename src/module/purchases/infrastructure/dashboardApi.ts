@@ -65,6 +65,7 @@ interface ChainDocumentDto {
   transactionNumber?: string | null;
   status?: string | null;
   kind?: string | null;
+  procurement?: { routeLabel?: string | null; statusLabel?: string | null } | null;
 }
 
 type ChainDto = Partial<Record<keyof DocumentChain, ChainDocumentDto[]>>;
@@ -75,6 +76,12 @@ const toChainDocs = (docs: ChainDocumentDto[] | undefined): ChainDocument[] =>
     number: doc.transactionNumber ?? '',
     status: doc.status ?? '',
     kind: doc.kind ?? undefined,
+    procurement: doc.procurement?.routeLabel
+      ? {
+          routeLabel: doc.procurement.routeLabel,
+          statusLabel: doc.procurement.statusLabel ?? '',
+        }
+      : undefined,
   }));
 
 /** Every document linked to one document: the request it came from down to payments and returns. */

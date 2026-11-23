@@ -1,5 +1,6 @@
 import type {
   NamedRef,
+  WarehouseRef,
   PartyRef,
   PaymentMethodRef,
   PaymentTermOption,
@@ -83,13 +84,19 @@ interface PaymentTermDto {
   isActive?: boolean | null;
 }
 
-/** Active payment terms for the quote and the bill (the service allows 100 per page). */
-export const listPaymentTerms = async (): Promise<PaymentTermOption[]> => {
-  const { data } = await http.get<ApiEnvelope<{ data: PaymentTermDto[] }>>(
-    PURCHASE_API.paymentTerms,
-    { isActive: true, limit: 100 }
+/**
+ * Active payment terms for the quote and the bill. `appliesTo` keeps only the terms for goods or for
+ * services (a term for both stays); without it every active term comes back. The answer is a plain
+ * list, not a page.
+ */
+export const listPaymentTerms = async (
+  appliesTo?: 'goods' | 'service'
+): Promise<PaymentTermOption[]> => {
+  const { data } = await http.get<ApiEnvelope<PaymentTermDto[]>>(
+    `${PURCHASE_API.paymentTerms}/options`,
+    { appliesTo }
   );
-  return data.data.map((term) => ({
+  return data.map((term) => ({
     id: term.id,
     name: term.name,
     days: term.days ?? 0,
@@ -146,13 +153,20 @@ export const listUnits = async (): Promise<NamedRef[]> => {
   return data.data.map(({ id, name }) => ({ id, name }));
 };
 
-/** Active warehouses, for the delivery warehouse of an order (the service allows 100 per page). */
-export const listWarehouses = async (): Promise<NamedRef[]> => {
-  const { data } = await http.get<ApiEnvelope<ListDto<NamedDto>>>(PURCHASE_API.warehouses, {
-    isActive: true,
-    limit: 100,
-  });
-  return data.results.map(({ id, name }) => ({ id, name }));
+/**
+ * Active warehouses, for the delivery warehouse of a request or an order (the service allows 100
+ * per page). The main one is marked, because a new request starts on it.
+ */
+export const listWarehouses = async (): Promise<WarehouseRef[]> => {
+  const { data } = await http.get<ApiEnvelope<ListDto<NamedDto & { isDefault?: boolean }>>>(
+    PURCHASE_API.warehouses,
+    { isActive: true, limit: 100 }
+  );
+  return data.results.map(({ id, name, isDefault }) => ({
+    id,
+    name,
+    isDefault: isDefault === true,
+  }));
 };
 
 /** Transaction tags a bill can carry (the service allows 100 per page). */

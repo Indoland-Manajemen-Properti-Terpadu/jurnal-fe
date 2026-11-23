@@ -40,6 +40,8 @@ const quote = (overrides: Partial<Quote> = {}): Quote => ({
   warranty: '12 bulan',
   withReceipt: true,
   isPriceIncludeTax: false,
+  discountType: 'nominal',
+  discountValue: 0,
   discountAmount: 0,
   shippingAmount: 0,
   lines: [
@@ -64,6 +66,7 @@ const procurement = (overrides: Partial<Procurement> = {}): Procurement => ({
   winnerId: 'v1',
   reason: '',
   negotiationNote: '',
+  negotiationAttachments: [],
   quotes: [quote()],
   totals: {},
   cheapestVendorId: 'v1',

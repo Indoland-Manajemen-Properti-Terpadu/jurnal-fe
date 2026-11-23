@@ -61,6 +61,8 @@ export interface QuoteDto {
   warranty?: string | null;
   withReceipt?: boolean | null;
   isPriceIncludeTax?: boolean | null;
+  discountType?: 'nominal' | 'percentage' | null;
+  discountValue?: number | null;
   discountAmount?: number | null;
   shippingAmount?: number | null;
   lines?: QuoteLineDto[] | null;
@@ -75,6 +77,7 @@ export interface ProcurementDto {
   winner?: string | null;
   reason?: string | null;
   negotiationNote?: string | null;
+  negotiationAttachments?: AttachmentDto[] | null;
   quotes?: QuoteDto[] | null;
 }
 
@@ -116,6 +119,7 @@ export interface PurchaseRequestDto extends DocumentDto, ApprovalFieldsDto {
   statusLabel?: string | null;
   requiredDate?: string | null;
   department?: { id: string; name: string } | null;
+  deliveryWarehouse?: { id: string; code?: string | null; name?: string | null } | null;
   purpose?: string | null;
   iom?: {
     number?: string | null;

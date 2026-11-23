@@ -17,6 +17,8 @@ export interface PurchaseRequestInput {
   transactionDate: string;
   requiredDate: string;
   department: string;
+  /** Needed when a line is goods; for services only it is left out and the service clears it. */
+  deliveryWarehouseId?: string;
   purpose: string;
   iom: { number: string; date: string | null };
   memo: string;

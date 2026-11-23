@@ -1,17 +1,27 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Button, Divider, Grid, Text, Textarea, TextInput, NumberInput } from '@mantine/core';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import {
+  Button,
+  Divider,
+  Grid,
+  Group,
+  NumberInput,
+  Select,
+  Text,
+  Textarea,
+  TextInput,
+} from '@mantine/core';
 import { MIME_TYPES } from '@mantine/dropzone';
 import { notifications } from '@mantine/notifications';
 import CustomDropzone from '@/components/Dropzone/CustomDropzone';
 import { ModalFrame } from '@/components/Modals/ModalFrame';
 import { useTranslation } from '@/i18n';
-import type {
-  Procurement,
-  Quote,
-  QuoteInput,
-  ScoreKey,
-} from '@/module/purchases/domain/procurement';
+import type { Procurement, Quote, QuoteInput } from '@/module/purchases/domain/procurement';
 import type { RequestItem } from '@/module/purchases/domain/purchaseRequest';
+import {
+  appliesToOf,
+  defaultTaxId,
+  type WarrantyUnit,
+} from '@/module/purchases/domain/quoteDefaults';
 import {
   emptyQuoteForm,
   hasQuoteErrors,
@@ -19,15 +29,19 @@ import {
   quoteToForm,
   toQuoteInput,
   validateQuoteForm,
+  withTermDefaults,
   type QuoteFormLine,
   type QuoteFormValues,
 } from '@/module/purchases/domain/quoteForm';
 import { QuoteLinesSection } from '@/module/purchases/presentation/components/procurement/QuoteLinesSection';
-import { QuoteScoresSection } from '@/module/purchases/presentation/components/procurement/QuoteScoresSection';
 import { QuoteTermSection } from '@/module/purchases/presentation/components/procurement/QuoteTermSection';
 import { DateField } from '@/module/purchases/presentation/components/requests/DateField';
 import { SupplierSelect } from '@/module/purchases/presentation/components/shared/LookupSelects';
-import { usePaymentTermOptions } from '@/module/purchases/presentation/hooks/usePurchaseQueries';
+import { todayIso } from '@/module/purchases/presentation/components/shared/format';
+import {
+  usePaymentTermOptions,
+  useTaxOptions,
+} from '@/module/purchases/presentation/hooks/usePurchaseQueries';
 
 const MAX_FILES = 5;
 const MAX_BYTES = 5 * 1024 * 1024;
@@ -69,19 +83,39 @@ export const QuoteModal = ({
   onSave,
 }: Readonly<QuoteModalProps>) => {
   const { t } = useTranslation('purchases');
-  const terms = usePaymentTermOptions();
-  const [values, setValues] = useState<QuoteFormValues>(() => emptyQuoteForm(items));
+  const terms = usePaymentTermOptions(appliesToOf(items));
+  const taxes = useTaxOptions();
+  const [values, setValues] = useState<QuoteFormValues>(() => emptyQuoteForm(items, todayIso()));
   const [files, setFiles] = useState<File[]>([]);
   const [showErrors, setShowErrors] = useState(false);
 
+  const defaultsDone = useRef(false);
+
   useEffect(() => {
     if (!opened) return;
-    setValues(quote ? quoteToForm(quote, items) : emptyQuoteForm(items));
+    defaultsDone.current = false;
+    setValues(quote ? quoteToForm(quote, items) : emptyQuoteForm(items, todayIso()));
     setFiles([]);
     setShowErrors(false);
   }, [opened, quote, items]);
 
   const termOptions = terms.data ?? [];
+
+  // A new quote starts on the first term and on 11% VAT, once both lists are in; a saved quote keeps its own.
+  useEffect(() => {
+    if (!opened || quote || defaultsDone.current) return;
+    if (!terms.data || !taxes.data) return;
+    defaultsDone.current = true;
+    const taxId = defaultTaxId(taxes.data);
+    setValues((current) => {
+      const withTerm = current.paymentTermId ? current : withTermDefaults(current, terms.data?.[0]);
+      return {
+        ...withTerm,
+        lines: withTerm.lines.map((line) => (line.taxId ? line : { ...line, taxId })),
+      };
+    });
+  }, [opened, quote, terms.data, taxes.data]);
+
   const term = termOptions.find((candidate) => candidate.id === values.paymentTermId);
   const bidding = procurement.route !== 'SINGLE';
   const takenVendors = useMemo(
@@ -121,7 +155,7 @@ export const QuoteModal = ({
       setShowErrors(true);
       return;
     }
-    onSave(toQuoteInput(values, term), files);
+    onSave(toQuoteInput(values, term, { allowFinalPrice: !bidding }), files);
   };
 
   const fieldError = (key: keyof QuoteFormValues) =>
@@ -130,6 +164,9 @@ export const QuoteModal = ({
           max: key === 'number' ? QUOTE_LIMITS.number : QUOTE_LIMITS.warranty,
         })
       : undefined;
+  const warrantyUnits: { value: WarrantyUnit; label: string }[] = (
+    ['day', 'month', 'year'] as const
+  ).map((unit) => ({ value: unit, label: t(`procurement.quote.warrantyUnits.${unit}`) }));
 
   return (
     <ModalFrame
@@ -169,6 +206,7 @@ export const QuoteModal = ({
         </Grid.Col>
         <Grid.Col span={{ base: 12, sm: 6 }}>
           <TextInput
+            withAsterisk
             radius="md"
             label={t('procurement.quote.number')}
             placeholder={t('procurement.quote.numberPlaceholder')}
@@ -179,10 +217,12 @@ export const QuoteModal = ({
         </Grid.Col>
         <Grid.Col span={{ base: 12, sm: 6 }}>
           <DateField
-            clearable
+            withAsterisk
             label={t('procurement.quote.validUntil')}
             value={values.validUntil}
+            minDate={todayIso()}
             onChange={(value) => set('validUntil', value)}
+            error={fieldError('validUntil')}
           />
         </Grid.Col>
         <Grid.Col span={{ base: 12, sm: 6 }}>
@@ -201,14 +241,38 @@ export const QuoteModal = ({
           />
         </Grid.Col>
         <Grid.Col span={{ base: 12, sm: 6 }}>
-          <TextInput
-            radius="md"
-            label={t('procurement.quote.warranty')}
-            placeholder={t('procurement.quote.warrantyPlaceholder')}
-            value={values.warranty}
-            onChange={(event) => set('warranty', event.currentTarget.value)}
-            error={fieldError('warranty')}
-          />
+          <Text size="sm" fw={500} mb={4}>
+            {t('procurement.quote.warrantyValue')}
+          </Text>
+          <Group gap="xs" wrap="nowrap" align="flex-start">
+            <NumberInput
+              radius="md"
+              aria-label={t('procurement.quote.warrantyValue')}
+              placeholder={t('procurement.quote.warrantyValuePlaceholder')}
+              min={1}
+              allowDecimal={false}
+              allowNegative={false}
+              hideControls
+              style={{ flex: 1 }}
+              value={values.warrantyValue}
+              onChange={(value) => set('warrantyValue', value === '' ? '' : Number(value))}
+              error={fieldError('warrantyValue') ?? fieldError('warrantyLegacy')}
+            />
+            <Select
+              radius="md"
+              aria-label={t('procurement.quote.warrantyUnit')}
+              allowDeselect={false}
+              data={warrantyUnits}
+              value={values.warrantyUnit}
+              onChange={(unit) => set('warrantyUnit', (unit as WarrantyUnit | null) ?? 'month')}
+              w={120}
+            />
+          </Group>
+          {values.warrantyLegacy && values.warrantyValue === '' && (
+            <Text size="xs" c="dimmed" mt={4}>
+              {t('procurement.quote.warrantyLegacy', { text: values.warrantyLegacy })}
+            </Text>
+          )}
         </Grid.Col>
         <Grid.Col span={{ base: 12, sm: 6 }}>
           <Textarea
@@ -222,7 +286,7 @@ export const QuoteModal = ({
         </Grid.Col>
       </Grid>
       <CustomDropzone
-        title={t('procurement.quote.files')}
+        title={quote ? t('procurement.quote.files') : `${t('procurement.quote.files')} *`}
         description={t('procurement.quote.filesDrop')}
         subDescription={
           quote && quote.attachments.length > 0
@@ -249,6 +313,7 @@ export const QuoteModal = ({
         values={values}
         errors={errors}
         showErrors={showErrors}
+        showFinalPrice={false}
         onLine={setLine}
         onChange={set}
       />
@@ -264,20 +329,6 @@ export const QuoteModal = ({
         onReplace={setValues}
         onChange={set}
       />
-
-      {bidding && (
-        <>
-          <Divider />
-          {heading(t('procurement.quote.scoresTitle'))}
-          <QuoteScoresSection
-            criteria={procurement.scoreCriteria}
-            scores={values.scores}
-            onChange={(key: ScoreKey, value: number) =>
-              setValues((current) => ({ ...current, scores: { ...current.scores, [key]: value } }))
-            }
-          />
-        </>
-      )}
     </ModalFrame>
   );
 };

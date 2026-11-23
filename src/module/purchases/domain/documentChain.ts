@@ -17,6 +17,8 @@ export interface ChainDocument {
   status: string;
   /** On a Payment Request: `DP` (advance) or `SETTLEMENT`. */
   kind?: string;
+  /** On a purchase request: the route and state of its procurement, once a route is chosen. */
+  procurement?: { routeLabel: string; statusLabel: string };
 }
 
 /** Every document linked to the one asked about, grouped by kind, oldest step first. */
@@ -50,6 +52,8 @@ export interface JourneyStepData {
   documents: { id: string; number: string; status: PurchaseStatus; to: string; current: boolean }[];
   /** The document on screen belongs to this step. */
   current: boolean;
+  /** A short state shown under a step that has no documents of its own, such as "Bidding · Draf". */
+  note?: string;
 }
 
 const DEAD = new Set(['VOID', 'CANCELLED', 'REJECTED', 'RETURNED']);
@@ -80,6 +84,10 @@ export const chainSteps = (
   const settlements = chain.paymentRequests.filter((doc) => doc.kind !== 'DP');
   const hasOrders = live(chain.purchaseOrders).length > 0;
   const hasRequest = chain.purchaseRequests.length > 0;
+  const withProcurement = live(chain.purchaseRequests).find((doc) => doc.procurement);
+  const procurementNote = withProcurement?.procurement
+    ? `${withProcurement.procurement.routeLabel} · ${withProcurement.procurement.statusLabel}`
+    : '';
   const ofType = (...types: ChainType[]) => Boolean(current && types.includes(current.type));
   const cid = (type: ChainType) => (current?.type === type ? current.id : undefined);
   const steps: JourneyStepData[] = [
@@ -98,6 +106,7 @@ export const chainSteps = (
       state: !hasRequest && hasOrders ? 'skipped' : hasOrders ? 'done' : 'todo',
       documents: [],
       current: false,
+      ...(procurementNote ? { note: procurementNote } : {}),
     },
     {
       kind: 'order',

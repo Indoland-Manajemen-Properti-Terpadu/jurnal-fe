@@ -1,5 +1,17 @@
-import { NumberInput, Select, SimpleGrid, Stack, Switch, Text, TextInput } from '@mantine/core';
+import {
+  Group,
+  NumberInput,
+  Paper,
+  SegmentedControl,
+  Select,
+  SimpleGrid,
+  Stack,
+  Switch,
+  Text,
+  TextInput,
+} from '@mantine/core';
 import { useTranslation } from '@/i18n';
+import { estimateQuote } from '@/module/purchases/domain/quoteEstimate';
 import {
   QUOTE_LIMITS,
   type QuoteFormErrors,
@@ -8,11 +20,14 @@ import {
 } from '@/module/purchases/domain/quoteForm';
 import { formatQuantity } from '@/module/purchases/presentation/components/shared/format';
 import { useTaxOptions } from '@/module/purchases/presentation/hooks/usePurchaseQueries';
+import { formatCurrency } from '@/utils/formatCurrency';
 
 interface QuoteLinesSectionProps {
   values: QuoteFormValues;
   errors: QuoteFormErrors;
   showErrors: boolean;
+  /** The price after negotiation is asked for only on a single-vendor procurement. */
+  showFinalPrice: boolean;
   onLine: (requestItemId: string, patch: Partial<QuoteFormLine>) => void;
   onChange: <K extends keyof QuoteFormValues>(key: K, value: QuoteFormValues[K]) => void;
 }
@@ -29,6 +44,7 @@ export const QuoteLinesSection = ({
   values,
   errors,
   showErrors,
+  showFinalPrice,
   onLine,
   onChange,
 }: Readonly<QuoteLinesSectionProps>) => {
@@ -38,6 +54,12 @@ export const QuoteLinesSection = ({
     value: tax.id,
     label: `${tax.name} (${tax.rate}%)`,
   }));
+  const estimate = estimateQuote(
+    values,
+    Object.fromEntries((taxes.data ?? []).map((tax) => [tax.id, tax.rate]))
+  );
+  const money = (minor: number) => formatCurrency(minor / 100);
+  const percent = values.discountType === 'percentage';
 
   return (
     <Stack gap="md">
@@ -66,7 +88,7 @@ export const QuoteLinesSection = ({
                 {formatQuantity(line.quantity)} {line.unitName}
               </Text>
             </div>
-            <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="sm">
+            <SimpleGrid cols={{ base: 1, sm: showFinalPrice ? 3 : 2 }} spacing="sm">
               <NumberInput
                 withAsterisk
                 radius="md"
@@ -94,24 +116,29 @@ export const QuoteLinesSection = ({
                 value={line.taxId || null}
                 onChange={(tax) => onLine(line.requestItemId, { taxId: tax ?? '' })}
               />
-              <NumberInput
-                radius="md"
-                label={t('procurement.quote.finalPrice')}
-                description={t('procurement.quote.finalPriceHint')}
-                prefix="Rp "
-                min={0}
-                allowNegative={false}
-                {...MONEY}
-                value={line.finalPrice}
-                onChange={(value) =>
-                  onLine(line.requestItemId, { finalPrice: value === '' ? '' : Number(value) })
-                }
-                error={
-                  showErrors && row?.finalPrice ? t('procurement.quote.error.negative') : undefined
-                }
-              />
+              {showFinalPrice && (
+                <NumberInput
+                  radius="md"
+                  label={t('procurement.quote.finalPrice')}
+                  description={t('procurement.quote.finalPriceHint')}
+                  prefix="Rp "
+                  min={0}
+                  allowNegative={false}
+                  {...MONEY}
+                  value={line.finalPrice}
+                  onChange={(value) =>
+                    onLine(line.requestItemId, { finalPrice: value === '' ? '' : Number(value) })
+                  }
+                  error={
+                    showErrors && row?.finalPrice
+                      ? t('procurement.quote.error.negative')
+                      : undefined
+                  }
+                />
+              )}
             </SimpleGrid>
             <TextInput
+              withAsterisk
               radius="md"
               label={t('procurement.quote.specification')}
               placeholder={t('procurement.quote.specificationPlaceholder')}
@@ -121,9 +148,11 @@ export const QuoteLinesSection = ({
               }
               error={
                 showErrors && row?.specification
-                  ? t('procurement.quote.error.specificationTooLong', {
-                      max: QUOTE_LIMITS.specification,
-                    })
+                  ? row.specification === 'specificationRequired'
+                    ? t('procurement.quote.error.specificationRequired')
+                    : t('procurement.quote.error.specificationTooLong', {
+                        max: QUOTE_LIMITS.specification,
+                      })
                   : undefined
               }
             />
@@ -131,24 +160,47 @@ export const QuoteLinesSection = ({
         );
       })}
       <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="sm">
-        <NumberInput
-          radius="md"
-          label={t('procurement.quote.discount')}
-          prefix="Rp "
-          min={0}
-          allowNegative={false}
-          {...MONEY}
-          value={values.discountAmount}
-          onChange={(value) => onChange('discountAmount', value === '' ? '' : Number(value))}
-          error={
-            showErrors && errors.fields.discountAmount
-              ? t(`procurement.quote.error.${errors.fields.discountAmount}`)
-              : undefined
-          }
-        />
+        <Stack gap={6}>
+          <Group justify="space-between" align="flex-end" wrap="nowrap">
+            <Text size="sm" fw={500}>
+              {t('procurement.quote.discount')}
+            </Text>
+            <SegmentedControl
+              size="xs"
+              radius="md"
+              aria-label={t('procurement.quote.discountMode')}
+              data={[
+                { value: 'nominal', label: t('procurement.quote.discountModes.nominal') },
+                { value: 'percentage', label: t('procurement.quote.discountModes.percentage') },
+              ]}
+              value={values.discountType}
+              onChange={(mode) => {
+                onChange('discountType', mode === 'percentage' ? 'percentage' : 'nominal');
+                onChange('discountValue', 0);
+              }}
+            />
+          </Group>
+          <NumberInput
+            radius="md"
+            aria-label={t('procurement.quote.discount')}
+            {...(percent ? { suffix: ' %', decimalScale: 2 } : { prefix: 'Rp ' })}
+            min={0}
+            max={percent ? 100 : undefined}
+            allowNegative={false}
+            {...(percent ? { hideControls: true } : MONEY)}
+            value={values.discountValue}
+            onChange={(value) => onChange('discountValue', value === '' ? '' : Number(value))}
+            error={
+              showErrors && errors.fields.discountValue
+                ? t(`procurement.quote.error.${errors.fields.discountValue}`)
+                : undefined
+            }
+          />
+        </Stack>
         <NumberInput
           radius="md"
           label={t('procurement.quote.shipping')}
+          description={t('procurement.quote.shippingHint')}
           prefix="Rp "
           min={0}
           allowNegative={false}
@@ -162,6 +214,37 @@ export const QuoteLinesSection = ({
           }
         />
       </SimpleGrid>
+      <Paper withBorder radius="md" p="md" bg="gray.0">
+        <Text size="xs" fw={700} c="dimmed" tt="uppercase" mb={6}>
+          {t('procurement.quote.summaryTitle')}
+        </Text>
+        <Stack gap={4}>
+          {[
+            ['summarySubtotal', estimate.subtotal],
+            ...(estimate.discount > 0 ? [['summaryDiscount', -estimate.discount]] : []),
+            ...(estimate.tax > 0 ? [['summaryTax', estimate.tax]] : []),
+            ...(estimate.shipping > 0 ? [['summaryShipping', estimate.shipping]] : []),
+          ].map(([key, amount]) => (
+            <Group key={key as string} justify="space-between">
+              <Text size="sm" c="dimmed">
+                {t(`procurement.quote.${key}`)}
+              </Text>
+              <Text size="sm">{money(amount as number)}</Text>
+            </Group>
+          ))}
+          <Group justify="space-between" pt={4}>
+            <Text size="sm" fw={700}>
+              {t('procurement.quote.summaryTotal')}
+            </Text>
+            <Text size="sm" fw={700}>
+              {money(estimate.total)}
+            </Text>
+          </Group>
+        </Stack>
+        <Text size="xs" c="dimmed" mt={6}>
+          {t('procurement.quote.summaryNote')}
+        </Text>
+      </Paper>
     </Stack>
   );
 };

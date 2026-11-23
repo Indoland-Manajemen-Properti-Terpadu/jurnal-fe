@@ -234,6 +234,13 @@ export const purchasesBills = {
     verifyDescription:
       'The bill is recognised as Accounts Payable and its journal is created. Once verified, the bill can no longer be edited and is ready for payment.',
     verifyAcknowledge: 'I have reviewed the differences above and still want to verify.',
+    verifyMissingTitle: 'Complete these with the Edit button before verifying:',
+    verifyMissing: {
+      vendorInvoiceNumber: 'Vendor invoice number',
+      vendorInvoiceFile: 'Vendor invoice file',
+      vendorInvoiceTotal: 'Vendor invoice total (required for a bill from a receipt)',
+      taxInvoiceFile: 'Tax invoice file (required because the bill has VAT)',
+    },
     requestPayment: 'Request Payment',
     applyCredit: 'Apply Credit',
     createReturn: 'Create Return',
