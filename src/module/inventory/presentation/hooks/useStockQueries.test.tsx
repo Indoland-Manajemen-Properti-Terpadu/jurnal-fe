@@ -51,6 +51,40 @@ describe('useStockRights', () => {
   });
 });
 
+describe('useStockRights, value right', () => {
+  beforeEach(() => {
+    vi.mocked(apiClient.get).mockReset();
+  });
+
+  const permissions = (value: boolean) =>
+    ({
+      data: {
+        role: 'user',
+        permissions: [
+          { menuId: 'JP-STOCK-CARD', create: false, read: true, update: false, delete: false },
+          { menuId: 'JP-STOCK-VAL', create: false, read: value, update: false, delete: false },
+        ],
+      },
+    }) as never;
+
+  it('knows a person who may see the money values', async () => {
+    vi.mocked(apiClient.get).mockResolvedValue(permissions(true));
+    const { wrapper } = setup();
+    const { result } = renderHook(() => useStockRights(), { wrapper });
+
+    await waitFor(() => expect(result.current.value.read).toBe(true));
+  });
+
+  it('knows a person who may read stock but not see the money values', async () => {
+    vi.mocked(apiClient.get).mockResolvedValue(permissions(false));
+    const { wrapper } = setup();
+    const { result } = renderHook(() => useStockRights(), { wrapper });
+
+    await waitFor(() => expect(result.current.card.read).toBe(true));
+    expect(result.current.value.read).toBe(false);
+  });
+});
+
 describe('useTransferMutations', () => {
   beforeEach(() => {
     vi.mocked(apiClient.post).mockReset();

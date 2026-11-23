@@ -123,7 +123,6 @@ export default function TransferDetailPage() {
           });
         },
         onError: (error) => {
-          setVoidOpen(false);
           notifications.show({
             color: 'orange',
             autoClose: 7000,
@@ -134,9 +133,8 @@ export default function TransferDetailPage() {
       }
     );
 
+  // A refused decision keeps its dialog open, so the person reads why and can try again.
   const decideFailed = (title: string) => (error: unknown) => {
-    setApproveOpen(false);
-    setRejectOpen(false);
     notifications.show({
       color: 'orange',
       autoClose: 7000,

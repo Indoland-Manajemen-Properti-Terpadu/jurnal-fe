@@ -17,10 +17,10 @@ export default function StockMovementsPage() {
   const { t } = useTranslation('stockMovements');
   const navigate = useNavigate();
   const { values, update, today } = useStockFilters();
-  const { card, transfer } = useStockRights();
+  const { card, transfer, value } = useStockRights();
   const exporter = useStockExport();
 
-  const canExport = card.read && values.tab !== 'transfers';
+  const canExport = card.read && value.read && values.tab !== 'transfers';
 
   const exportCurrent = () => {
     if (values.tab === 'balances') {

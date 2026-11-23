@@ -32,6 +32,12 @@ const STABLE_MS = 60_000;
 /** Menu id of the stock card, balances and movements; the service answers 403 without it. */
 export const STOCK_CARD_MENU = 'JP-STOCK-CARD';
 
+/**
+ * Menu id of the money values of stock. Without it the service leaves every rupiah field out of its
+ * answers and refuses the export (403), so the export button is not offered.
+ */
+export const STOCK_VALUE_MENU = 'JP-STOCK-VAL';
+
 export const useBalances = (params: BalanceParams = {}, enabled = true) => {
   const scope = useInventoryScope();
   return useQuery({
@@ -113,9 +119,14 @@ const useMenuRights = (menu: string): MenuRights => {
 };
 
 /** What the signed-in person may do with stock figures and with transfers; nothing until known. */
-export const useStockRights = (): { card: MenuRights; transfer: MenuRights } => ({
+export const useStockRights = (): {
+  card: MenuRights;
+  transfer: MenuRights;
+  value: MenuRights;
+} => ({
   card: useMenuRights(STOCK_CARD_MENU),
   transfer: useMenuRights(TRANSFER_MENU),
+  value: useMenuRights(STOCK_VALUE_MENU),
 });
 
 /** A safe sentence for a failed stock call (the server's Indonesian refusal for Indonesian readers). */
