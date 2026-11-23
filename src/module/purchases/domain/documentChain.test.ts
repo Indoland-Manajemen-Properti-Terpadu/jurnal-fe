@@ -74,3 +74,47 @@ describe('chainSteps', () => {
     expect(ret?.current).toBe(true);
   });
 });
+
+describe('chainSteps, the procurement step', () => {
+  const request = (status: string, procurement?: { routeLabel: string; statusLabel: string }) => ({
+    ...doc('pr1', status),
+    ...(procurement ? { procurement } : {}),
+  });
+  const step = (chain: DocumentChain) =>
+    chainSteps(chain).find((candidate) => candidate.kind === 'procurement');
+
+  it('names the route and status once the route is chosen, so it does not read "not made"', () => {
+    const chain = {
+      ...empty,
+      purchaseRequests: [request('IN_PROCUREMENT', { routeLabel: 'Bidding', statusLabel: 'Draf' })],
+    };
+    expect(step(chain)).toMatchObject({ note: 'Bidding · Draf', state: 'next' });
+  });
+
+  it('has no note while no route is chosen', () => {
+    const chain = { ...empty, purchaseRequests: [request('VERIFIED')] };
+    expect(step(chain)?.note).toBeUndefined();
+  });
+
+  it('keeps the note when the orders exist and the step is done', () => {
+    const chain = {
+      ...empty,
+      purchaseRequests: [
+        request('COMPLETED', { routeLabel: 'Vendor tunggal', statusLabel: 'Disetujui' }),
+      ],
+      purchaseOrders: [doc('po1', 'SENT')],
+    };
+    expect(step(chain)).toMatchObject({ note: 'Vendor tunggal · Disetujui', state: 'done' });
+  });
+
+  it('takes the procurement of the request that still counts, not a cancelled one', () => {
+    const chain = {
+      ...empty,
+      purchaseRequests: [
+        request('CANCELLED', { routeLabel: 'Bidding', statusLabel: 'Draf' }),
+        request('IN_PROCUREMENT', { routeLabel: 'Vendor tunggal', statusLabel: 'Diajukan' }),
+      ],
+    };
+    expect(step(chain)?.note).toBe('Vendor tunggal · Diajukan');
+  });
+});

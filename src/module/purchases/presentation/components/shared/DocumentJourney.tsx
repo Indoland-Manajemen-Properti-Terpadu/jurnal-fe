@@ -140,13 +140,15 @@ export const DocumentJourney = ({ steps }: Readonly<{ steps: JourneyStep[] }>) =
                 <StepDocuments documents={step.documents} />
               ) : (
                 <Text fz="sm" c="dimmed">
-                  {t(
-                    step.state === 'skipped'
-                      ? `journey.skipped.${step.kind}`
-                      : step.state === 'done'
-                        ? `journey.done.${step.kind}`
-                        : `journey.empty.${step.kind}`
-                  )}
+                  {step.note && step.state !== 'skipped'
+                    ? step.note
+                    : t(
+                        step.state === 'skipped'
+                          ? `journey.skipped.${step.kind}`
+                          : step.state === 'done'
+                            ? `journey.done.${step.kind}`
+                            : `journey.empty.${step.kind}`
+                      )}
                 </Text>
               )}
             </div>

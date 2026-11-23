@@ -1,6 +1,6 @@
 import tableClasses from '@/module/purchases/presentation/components/shared/Table.module.css';
-import { ActionIcon, Badge, Group, Radio, Table, Text, Tooltip } from '@mantine/core';
-import { IconEdit, IconPaperclip, IconTrash } from '@tabler/icons-react';
+import { ActionIcon, Badge, Group, Menu, Radio, Table, Text, Tooltip } from '@mantine/core';
+import { IconDots, IconEdit, IconEye, IconPaperclip, IconTrash } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import type { Procurement, Quote } from '@/module/purchases/domain/procurement';
 import { formatAmount, formatDay } from '@/module/purchases/presentation/components/shared/format';
@@ -12,6 +12,7 @@ interface QuotesTableProps {
   canChoose: boolean;
   busy: boolean;
   onChoose: (quote: Quote) => void;
+  onView: (quote: Quote) => void;
   onEdit: (quote: Quote) => void;
   onRemove: (quote: Quote) => void;
 }
@@ -23,6 +24,7 @@ export const QuotesTable = ({
   canChoose,
   busy,
   onChoose,
+  onView,
   onEdit,
   onRemove,
 }: Readonly<QuotesTableProps>) => {
@@ -164,28 +166,43 @@ export const QuotesTable = ({
                         </ActionIcon>
                       </Tooltip>
                     )}
-                    {editable && (
-                      <>
+                    <Menu position="bottom-end" withinPortal shadow="md" radius="md">
+                      <Menu.Target>
                         <ActionIcon
                           variant="subtle"
-                          color="primary"
+                          color="gray"
                           disabled={busy}
-                          aria-label={t('procurement.editAria', { vendor: quote.vendor.name })}
-                          onClick={() => onEdit(quote)}
+                          aria-label={t('procurement.menuAria', { vendor: quote.vendor.name })}
                         >
-                          <IconEdit size={16} />
+                          <IconDots size={16} />
                         </ActionIcon>
-                        <ActionIcon
-                          variant="subtle"
-                          color="red"
-                          disabled={busy}
-                          aria-label={t('procurement.removeAria', { vendor: quote.vendor.name })}
-                          onClick={() => onRemove(quote)}
+                      </Menu.Target>
+                      <Menu.Dropdown>
+                        <Menu.Item
+                          leftSection={<IconEye size={14} />}
+                          onClick={() => onView(quote)}
                         >
-                          <IconTrash size={16} />
-                        </ActionIcon>
-                      </>
-                    )}
+                          {t('procurement.menu.view')}
+                        </Menu.Item>
+                        {editable && (
+                          <>
+                            <Menu.Item
+                              leftSection={<IconEdit size={14} />}
+                              onClick={() => onEdit(quote)}
+                            >
+                              {t('procurement.menu.edit')}
+                            </Menu.Item>
+                            <Menu.Item
+                              color="red"
+                              leftSection={<IconTrash size={14} />}
+                              onClick={() => onRemove(quote)}
+                            >
+                              {t('procurement.menu.remove')}
+                            </Menu.Item>
+                          </>
+                        )}
+                      </Menu.Dropdown>
+                    </Menu>
                   </Group>
                 </Table.Td>
               </Table.Tr>
