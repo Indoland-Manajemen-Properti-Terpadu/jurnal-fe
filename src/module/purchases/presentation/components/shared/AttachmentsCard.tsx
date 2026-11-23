@@ -23,6 +23,8 @@ interface AttachmentsCardProps {
   requestFile?: RequestFileTarget;
   /** Translation key of the card title; defaults to the generic attachments title. */
   titleKey?: string;
+  /** Without its own card, to sit inside another card; the title becomes a plain heading. */
+  bare?: boolean;
 }
 
 /** Files on a document; up to 5 files of 5 MB each can be added. */
@@ -33,6 +35,7 @@ export const AttachmentsCard = ({
   canUpload,
   requestFile,
   titleKey = 'attachments.title',
+  bare,
 }: Readonly<AttachmentsCardProps>) => {
   const { t } = useTranslation('purchases');
   const upload = useUploadAttachments();
@@ -46,8 +49,8 @@ export const AttachmentsCard = ({
     upload.mutate({ target, id: documentId, files, requestFile });
   };
 
-  return (
-    <SectionCard icon={IconPaperclip} title={t(titleKey)} subtitle={t('attachments.limit')}>
+  const body = (
+    <>
       {attachments.length === 0 ? (
         <Text size="sm" c="dimmed">
           {t('attachments.empty')}
@@ -88,6 +91,26 @@ export const AttachmentsCard = ({
           )}
         </FileButton>
       )}
+    </>
+  );
+  if (bare) {
+    return (
+      <Stack gap={6}>
+        <div>
+          <Text size="sm" fw={600}>
+            {t(titleKey)}
+          </Text>
+          <Text size="xs" c="dimmed">
+            {t('attachments.limit')}
+          </Text>
+        </div>
+        {body}
+      </Stack>
+    );
+  }
+  return (
+    <SectionCard icon={IconPaperclip} title={t(titleKey)} subtitle={t('attachments.limit')}>
+      {body}
     </SectionCard>
   );
 };

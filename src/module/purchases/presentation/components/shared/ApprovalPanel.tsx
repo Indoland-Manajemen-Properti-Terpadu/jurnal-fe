@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Alert, Button, Group, Stack, Text, Textarea } from '@mantine/core';
 import { IconCheck, IconShieldCheck, IconX } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
+import { approvalStep, levelRule } from '@/module/purchases/domain/approvalProgress';
 import type { ApprovalState } from '@/module/purchases/domain/purchaseCommon';
 import { SectionCard } from '@/module/purchases/presentation/components/shared/SectionCard';
 import { ApprovalTrail } from '@/module/purchases/presentation/components/shared/ApprovalTrail';
@@ -18,6 +19,8 @@ interface ApprovalPanelProps {
   busy?: boolean;
   onApprove: (note?: string) => void;
   onReject: (reason: string) => void;
+  /** Without its own card, to sit inside another card. */
+  bare?: boolean;
 }
 
 /** Who still has to approve, who already did, and the approve / reject buttons when allowed. */
@@ -29,6 +32,7 @@ export const ApprovalPanel = ({
   busy,
   onApprove,
   onReject,
+  bare,
 }: Readonly<ApprovalPanelProps>) => {
   const { t } = useTranslation('purchases');
   const [note, setNote] = useState('');
@@ -39,13 +43,11 @@ export const ApprovalPanel = ({
   if (!waiting && !rejected && approval.entries.length === 0) return null;
 
   const showActions = waiting && canApprove && approval.canDecide;
+  const step = waiting ? approvalStep(approval) : null;
+  const rule = step ? levelRule(step.level) : null;
 
-  return (
-    <SectionCard
-      icon={IconShieldCheck}
-      title={t('approval.title')}
-      subtitle={waiting ? t('approval.waiting') : undefined}
-    >
+  const body = (
+    <>
       <Stack gap="sm">
         {rejected && (
           <Alert color="red" radius="md" title={t('approval.rejectedTitle')}>
@@ -57,17 +59,24 @@ export const ApprovalPanel = ({
           <ApprovalTrail approval={approval} status={status} hideReason />
         )}
 
-        {waiting && approval.pending[0] && (
+        {step && (
           <Group gap={6}>
-            {approval.pending[0].roles.map((role) => (
+            {step.total > 1 && (
+              <Text size="xs" c="dimmed">
+                {t('approval.level', { current: step.current, total: step.total })}
+              </Text>
+            )}
+            {step.level.roles.map((role) => (
               <Text key={role.id} size="xs" c={role.approved ? 'green.7' : 'dimmed'} fw={600}>
                 {role.approved ? '✓ ' : ''}
                 {role.name}
               </Text>
             ))}
-            <Text size="xs" c="dimmed">
-              {approval.pending[0].mode === 'ALL' ? t('approval.modeAll') : t('approval.modeAny')}
-            </Text>
+            {rule && (
+              <Text size="xs" c="dimmed">
+                {t(rule === 'all' ? 'approval.levelAll' : 'approval.levelAny')}
+              </Text>
+            )}
           </Group>
         )}
 
@@ -100,7 +109,9 @@ export const ApprovalPanel = ({
                   setNote('');
                 }}
               >
-                {t('approval.approve')}
+                {step && step.total > 1
+                  ? t('approval.approveStep', { current: step.current, total: step.total })
+                  : t('approval.approve')}
               </Button>
             </Group>
           </>
@@ -125,6 +136,16 @@ export const ApprovalPanel = ({
           setRejecting(false);
         }}
       />
+    </>
+  );
+  if (bare) return body;
+  return (
+    <SectionCard
+      icon={IconShieldCheck}
+      title={t('approval.title')}
+      subtitle={waiting ? t('approval.waiting') : undefined}
+    >
+      {body}
     </SectionCard>
   );
 };

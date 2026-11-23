@@ -216,3 +216,83 @@ describe('toPurchaseRequest, the procurement part', () => {
     expect(bare.orders).toEqual([]);
   });
 });
+
+describe('toPurchaseRequest, quote discount', () => {
+  const withDiscount = (extra: Record<string, unknown>) => {
+    const base = dto as unknown as PurchaseRequestDto;
+    const quote = { ...base.procurement?.quotes?.[0], ...extra };
+    return toPurchaseRequest({
+      ...base,
+      procurement: { ...base.procurement, quotes: [quote] },
+    } as PurchaseRequestDto).procurement.quotes[0];
+  };
+
+  it('reads a percent discount with its percent', () => {
+    expect(
+      withDiscount({ discountType: 'percentage', discountValue: 10, discountAmount: 0 })
+    ).toMatchObject({
+      discountType: 'percentage',
+      discountValue: 10,
+    });
+  });
+
+  it('reads a rupiah discount with its amount', () => {
+    expect(
+      withDiscount({ discountType: 'nominal', discountValue: 250000, discountAmount: 250000 })
+    ).toMatchObject({
+      discountType: 'nominal',
+      discountValue: 250000,
+    });
+  });
+
+  it('reads an older quote that has only an amount as a rupiah discount', () => {
+    expect(
+      withDiscount({ discountType: null, discountValue: 0, discountAmount: 125000 })
+    ).toMatchObject({
+      discountType: 'nominal',
+      discountValue: 125000,
+    });
+  });
+});
+
+describe('toPurchaseRequest, negotiation evidence', () => {
+  it('reads the files uploaded as evidence of the negotiation', () => {
+    const base = dto as unknown as PurchaseRequestDto;
+    const request = toPurchaseRequest({
+      ...base,
+      procurement: {
+        ...base.procurement,
+        negotiationAttachments: [
+          {
+            id: 'a1',
+            fileName: 'negosiasi.pdf',
+            filePath: 'uploads/negosiasi.pdf',
+            mimeType: 'application/pdf',
+          },
+        ],
+      },
+    } as PurchaseRequestDto);
+    expect(request.procurement.negotiationAttachments).toHaveLength(1);
+    expect(request.procurement.negotiationAttachments[0]).toMatchObject({ name: 'negosiasi.pdf' });
+  });
+
+  it('has none when the service sends none', () => {
+    expect(
+      toPurchaseRequest(dto as unknown as PurchaseRequestDto).procurement.negotiationAttachments
+    ).toEqual([]);
+  });
+});
+
+describe('toPurchaseRequest, delivery warehouse', () => {
+  it('reads the warehouse the goods are delivered to', () => {
+    const request = toPurchaseRequest({
+      ...(dto as unknown as PurchaseRequestDto),
+      deliveryWarehouse: { id: 'w1', code: 'GDG-001', name: 'Gudang Utama' },
+    });
+    expect(request.deliveryWarehouse).toEqual({ id: 'w1', code: 'GDG-001', name: 'Gudang Utama' });
+  });
+
+  it('has none for an older request or a request of services only', () => {
+    expect(toPurchaseRequest(dto as unknown as PurchaseRequestDto).deliveryWarehouse).toBeNull();
+  });
+});

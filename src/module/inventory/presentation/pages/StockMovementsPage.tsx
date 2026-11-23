@@ -17,16 +17,20 @@ export default function StockMovementsPage() {
   const { t } = useTranslation('stockMovements');
   const navigate = useNavigate();
   const { values, update, today } = useStockFilters();
-  const { card, transfer } = useStockRights();
+  const { card, transfer, value } = useStockRights();
   const exporter = useStockExport();
 
-  const canExport = card.read && values.tab !== 'transfers';
+  const canExport = card.read && value.read && values.tab !== 'transfers';
 
   const exportCurrent = () => {
     if (values.tab === 'balances') {
       exporter.run(
         'balances',
-        { asOf: values.asOf || undefined, warehouse: values.warehouse || undefined },
+        {
+          asOf: values.asOf || undefined,
+          warehouse: values.warehouse || undefined,
+          categoryId: values.category || undefined,
+        },
         today
       );
       return;
@@ -38,7 +42,9 @@ export default function StockMovementsPage() {
         endDate: values.to,
         warehouse: values.warehouse || undefined,
         product: values.product || undefined,
-        type: values.type || undefined,
+        types: values.type.split(',').filter(Boolean),
+        categoryId: values.category || undefined,
+        search: values.doc || undefined,
       },
       today
     );

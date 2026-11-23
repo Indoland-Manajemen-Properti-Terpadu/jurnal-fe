@@ -24,6 +24,14 @@ export const transferNewPath = (options: { from?: string; fillAll?: boolean } = 
   return query ? `${routes.inventory.transferNew}?${query}` : routes.inventory.transferNew;
 };
 
+/** The transfers tab, narrowed to a warehouse and a status such as `PENDING_APPROVAL`. */
+export const transferListPath = (filters: { warehouse?: string; status?: string } = {}): string => {
+  const params = new URLSearchParams({ tab: 'transfers' });
+  if (filters.warehouse) params.set('warehouse', filters.warehouse);
+  if (filters.status) params.set('tstatus', filters.status);
+  return `${routes.inventory.stockMovements}?${params.toString()}`;
+};
+
 export const transferDetailPath = (id: string): string =>
   generatePath(routes.inventory.transferDetail, { id });
 

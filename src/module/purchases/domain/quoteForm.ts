@@ -1,12 +1,20 @@
 import { sumMinor, toMinor } from '@/lib/money/money';
 import type { PaymentTermOption } from '@/module/purchases/domain/purchaseCommon';
 import type {
+  DiscountMode,
   Quote,
   QuoteInput,
   QuoteScores,
   ScoreKey,
   TermOverridesInput,
 } from '@/module/purchases/domain/procurement';
+import {
+  addDays,
+  composeWarranty,
+  QUOTE_VALID_DAYS,
+  warrantyFields,
+  type WarrantyUnit,
+} from '@/module/purchases/domain/quoteDefaults';
 import type { RequestItem } from '@/module/purchases/domain/purchaseRequest';
 
 /** Lengths the service accepts; a longer value is refused with a 400. */
@@ -39,7 +47,10 @@ export interface QuoteFormValues {
   number: string;
   validUntil: string;
   description: string;
-  warranty: string;
+  /** The warranty is a whole number and a unit; an older free-text warranty is kept apart. */
+  warrantyValue: number | '';
+  warrantyUnit: WarrantyUnit;
+  warrantyLegacy: string;
   leadDays: number | '';
   paymentTermId: string;
   advancePercent: number | '';
@@ -52,7 +63,8 @@ export interface QuoteFormValues {
   maintenanceMonths: number | '';
   withReceipt: boolean;
   isPriceIncludeTax: boolean;
-  discountAmount: number | '';
+  discountType: DiscountMode;
+  discountValue: number | '';
   shippingAmount: number | '';
   lines: QuoteFormLine[];
   scores: QuoteScores;
@@ -60,7 +72,10 @@ export interface QuoteFormValues {
 
 export type QuoteFormIssue =
   | 'vendorRequired'
+  | 'numberRequired'
   | 'numberTooLong'
+  | 'validUntilRequired'
+  | 'warrantyInvalid'
   | 'warrantyTooLong'
   | 'leadDaysInvalid'
   | 'termRequired'
@@ -72,6 +87,7 @@ export type QuoteFormIssue =
   | 'retentionRange'
   | 'maintenanceInvalid'
   | 'discountTooHigh'
+  | 'discountPercentRange'
   | 'amountNegative'
   | 'filesRequired';
 
@@ -80,7 +96,11 @@ export interface QuoteFormErrors {
   /** By request item id. */
   lines: Record<
     string,
-    { unitPrice?: 'priceRequired'; finalPrice?: 'negative'; specification?: 'tooLong' }
+    {
+      unitPrice?: 'priceRequired';
+      finalPrice?: 'negative';
+      specification?: 'specificationRequired' | 'tooLong';
+    }
   >;
 }
 
@@ -91,13 +111,15 @@ export const MIN_PERIODS = 2;
 const EMPTY_SCORES: QuoteScores = { price: null, spec: null, delivery: null, term: null };
 
 /** An empty form for a new quote; the service lists one line per request item. */
-export const emptyQuoteForm = (items: RequestItem[]): QuoteFormValues => ({
+export const emptyQuoteForm = (items: RequestItem[], today = ''): QuoteFormValues => ({
   vendorId: '',
   vendorName: '',
   number: '',
-  validUntil: '',
+  validUntil: today ? addDays(today, QUOTE_VALID_DAYS) : '',
   description: '',
-  warranty: '',
+  warrantyValue: '',
+  warrantyUnit: 'month',
+  warrantyLegacy: '',
   leadDays: '',
   paymentTermId: '',
   advancePercent: '',
@@ -109,7 +131,8 @@ export const emptyQuoteForm = (items: RequestItem[]): QuoteFormValues => ({
   maintenanceMonths: '',
   withReceipt: true,
   isPriceIncludeTax: false,
-  discountAmount: 0,
+  discountType: 'nominal',
+  discountValue: 0,
   shippingAmount: 0,
   lines: items.map((item) => ({
     requestItemId: item.id,
@@ -135,7 +158,7 @@ export const quoteToForm = (quote: Quote, items: RequestItem[]): QuoteFormValues
     number: quote.number,
     validUntil: quote.validUntil ?? '',
     description: quote.description,
-    warranty: quote.warranty,
+    ...warrantyFields(quote.warranty),
     leadDays: quote.leadDays ?? '',
     paymentTermId: quote.paymentTermId,
     advancePercent: term && term.advanceType === 'partial' ? term.advancePercent : '',
@@ -147,7 +170,8 @@ export const quoteToForm = (quote: Quote, items: RequestItem[]): QuoteFormValues
     maintenanceMonths: term && term.hasRetention ? term.maintenanceMonths : '',
     withReceipt: quote.withReceipt,
     isPriceIncludeTax: quote.isPriceIncludeTax,
-    discountAmount: quote.discountAmount,
+    discountType: quote.discountType,
+    discountValue: quote.discountValue,
     shippingAmount: quote.shippingAmount,
     lines: items.map((item) => {
       const line = quote.lines.find((candidate) => candidate.requestItemId === item.id);
@@ -191,12 +215,13 @@ export const termFields = (term: PaymentTermOption | undefined) => ({
   retention: Boolean(term?.hasRetention),
 });
 
-const isNumber = (value: number | ''): value is number => value !== '' && Number.isFinite(value);
+export const isNumber = (value: number | ''): value is number =>
+  value !== '' && Number.isFinite(value);
 
 const sum = (values: number[]) => values.reduce((total, value) => total + value, 0);
 
 /** A price with more than two decimals is rounded to the cent for this check. */
-const safeMinor = (amount: number): number => {
+export const safeMinor = (amount: number): number => {
   try {
     return toMinor(amount);
   } catch {
@@ -226,8 +251,21 @@ export const validateQuoteForm = (
   const fieldsOfTerm = termFields(term);
 
   if (!values.vendorId) fields.vendorId = 'vendorRequired';
-  if (values.number.trim().length > QUOTE_LIMITS.number) fields.number = 'numberTooLong';
-  if (values.warranty.trim().length > QUOTE_LIMITS.warranty) fields.warranty = 'warrantyTooLong';
+  const number = values.number.trim();
+  if (!number) fields.number = 'numberRequired';
+  else if (number.length > QUOTE_LIMITS.number) fields.number = 'numberTooLong';
+  if (!values.validUntil) fields.validUntil = 'validUntilRequired';
+  if (
+    values.warrantyValue !== '' &&
+    (!isNumber(values.warrantyValue) ||
+      !Number.isInteger(values.warrantyValue) ||
+      values.warrantyValue < 1)
+  ) {
+    fields.warrantyValue = 'warrantyInvalid';
+  }
+  if (composeWarranty(values).length > QUOTE_LIMITS.warranty) {
+    fields.warrantyLegacy = 'warrantyTooLong';
+  }
   if (!isNumber(values.leadDays) || values.leadDays < 0 || !Number.isInteger(values.leadDays)) {
     fields.leadDays = 'leadDaysInvalid';
   }
@@ -280,11 +318,13 @@ export const validateQuoteForm = (
     }
   }
 
-  const discount = isNumber(values.discountAmount) ? values.discountAmount : 0;
+  const discount = isNumber(values.discountValue) ? values.discountValue : 0;
   const shipping = isNumber(values.shippingAmount) ? values.shippingAmount : 0;
-  if (discount < 0) fields.discountAmount = 'amountNegative';
-  else if (safeMinor(discount) > linesSubtotalMinor(values.lines)) {
-    fields.discountAmount = 'discountTooHigh';
+  if (discount < 0) fields.discountValue = 'amountNegative';
+  else if (values.discountType === 'percentage') {
+    if (discount > 100) fields.discountValue = 'discountPercentRange';
+  } else if (safeMinor(discount) > linesSubtotalMinor(values.lines)) {
+    fields.discountValue = 'discountTooHigh';
   }
   if (shipping < 0) fields.shippingAmount = 'amountNegative';
 
@@ -292,9 +332,9 @@ export const validateQuoteForm = (
     const row: QuoteFormErrors['lines'][string] = {};
     if (!isNumber(line.unitPrice) || line.unitPrice <= 0) row.unitPrice = 'priceRequired';
     if (isNumber(line.finalPrice) && line.finalPrice < 0) row.finalPrice = 'negative';
-    if (line.specification.trim().length > QUOTE_LIMITS.specification) {
-      row.specification = 'tooLong';
-    }
+    const specification = line.specification.trim();
+    if (!specification) row.specification = 'specificationRequired';
+    else if (specification.length > QUOTE_LIMITS.specification) row.specification = 'tooLong';
     if (Object.keys(row).length > 0) lines[line.requestItemId] = row;
   });
 
@@ -340,7 +380,8 @@ const optionalScores = (scores: QuoteScores): QuoteInput['scores'] => {
 /** The quote as the service takes it. */
 export const toQuoteInput = (
   values: QuoteFormValues,
-  term: PaymentTermOption | undefined
+  term: PaymentTermOption | undefined,
+  options: { allowFinalPrice?: boolean } = {}
 ): QuoteInput => ({
   ...(values.id ? { id: values.id } : {}),
   vendor: values.vendorId,
@@ -350,15 +391,17 @@ export const toQuoteInput = (
   paymentTerm: values.paymentTermId,
   termOverrides: toOverrides(values, term),
   leadDays: Number(values.leadDays),
-  warranty: values.warranty.trim(),
+  warranty: composeWarranty(values),
   withReceipt: values.withReceipt,
   isPriceIncludeTax: values.isPriceIncludeTax,
-  discountAmount: isNumber(values.discountAmount) ? values.discountAmount : 0,
+  discountType: values.discountType,
+  discountValue: isNumber(values.discountValue) ? values.discountValue : 0,
   shippingAmount: isNumber(values.shippingAmount) ? values.shippingAmount : 0,
   lines: values.lines.map((line) => ({
     requestItem: line.requestItemId,
     unitPrice: Number(line.unitPrice),
-    finalPrice: isNumber(line.finalPrice) ? line.finalPrice : null,
+    finalPrice:
+      options.allowFinalPrice !== false && isNumber(line.finalPrice) ? line.finalPrice : null,
     specification: line.specification.trim(),
     tax: line.taxId || null,
   })),

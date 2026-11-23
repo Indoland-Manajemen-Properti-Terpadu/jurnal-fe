@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button, Grid, Group, Stack, Text } from '@mantine/core';
 import {
   IconClipboardText,
@@ -15,6 +15,8 @@ import { canCreateRequest, requestRights } from '@/module/purchases/domain/reque
 import {
   emptyRequestForm,
   hasRequestErrors,
+  mainWarehouseId,
+  needsDeliveryWarehouse,
   requestToForm,
   toRequestInput,
   validateRequestForm,
@@ -38,6 +40,7 @@ import {
 import {
   useDepartmentOptions,
   useRequest,
+  useWarehouseOptions,
 } from '@/module/purchases/presentation/hooks/usePurchaseQueries';
 import { routes } from '@/router/routes';
 
@@ -62,12 +65,31 @@ const RequestFormBody = ({ existing }: Readonly<FormBodyProps>) => {
   const submit = useSubmitRequest();
   const upload = useUploadAttachments();
   const departments = useDepartmentOptions();
+  const warehouses = useWarehouseOptions();
 
   // An inactive department a request already uses stays listed, so editing does not blank it.
   const departmentOptions = [...(departments.data ?? [])];
   if (existing?.department && !departmentOptions.some((d) => d.id === existing.department?.id)) {
     departmentOptions.unshift(existing.department);
   }
+
+  // An inactive warehouse a request already uses stays listed too, so editing does not blank it.
+  const warehouseOptions = [...(warehouses.data ?? [])];
+  if (
+    existing?.deliveryWarehouse &&
+    !warehouseOptions.some((w) => w.id === existing.deliveryWarehouse?.id)
+  ) {
+    warehouseOptions.unshift({ ...existing.deliveryWarehouse, isDefault: false });
+  }
+
+  // The goods go to the main warehouse unless the person picks another one.
+  const mainWarehouse = mainWarehouseId(warehouses.data ?? []);
+  const wantsWarehouse = needsDeliveryWarehouse(values.items);
+  useEffect(() => {
+    if (wantsWarehouse && !values.deliveryWarehouseId && mainWarehouse) {
+      setValues((current) => ({ ...current, deliveryWarehouseId: mainWarehouse }));
+    }
+  }, [wantsWarehouse, values.deliveryWarehouseId, mainWarehouse]);
 
   const errors = validateRequestForm(values);
   const set = <K extends keyof RequestFormValues>(key: K, value: RequestFormValues[K]) =>
@@ -133,6 +155,8 @@ const RequestFormBody = ({ existing }: Readonly<FormBodyProps>) => {
               showErrors={showErrors}
               departments={departmentOptions}
               departmentsLoading={departments.isLoading}
+              warehouses={warehouseOptions}
+              warehousesLoading={warehouses.isLoading}
               onChange={set}
             />
             <RequestIomSection
@@ -221,6 +245,11 @@ const RequestFormBody = ({ existing }: Readonly<FormBodyProps>) => {
         opened={confirming}
         values={values}
         departmentName={departmentOptions.find((d) => d.id === values.departmentId)?.name ?? ''}
+        warehouseName={
+          wantsWarehouse
+            ? (warehouseOptions.find((w) => w.id === values.deliveryWarehouseId)?.name ?? '')
+            : ''
+        }
         loading={saving}
         onClose={() => setConfirming(false)}
         onConfirm={() => save(true)}

@@ -25,4 +25,31 @@ describe('getDocumentChain', () => {
       id: 'po1',
     });
   });
+
+  it('reads the route and status of the procurement of a request, and none when it is null', async () => {
+    get.mockResolvedValue({
+      data: {
+        purchaseRequests: [
+          {
+            id: 'pr1',
+            transactionNumber: 'FPPBJ/1',
+            status: 'IN_PROCUREMENT',
+            procurement: {
+              route: 'BIDDING',
+              routeLabel: 'Bidding',
+              status: 'DRAFT',
+              statusLabel: 'Draf',
+            },
+          },
+          { id: 'pr2', transactionNumber: 'FPPBJ/2', status: 'VERIFIED', procurement: null },
+        ],
+      },
+    });
+    const chain = await getDocumentChain('purchaseRequest', 'pr1');
+    expect(chain.purchaseRequests[0].procurement).toEqual({
+      routeLabel: 'Bidding',
+      statusLabel: 'Draf',
+    });
+    expect(chain.purchaseRequests[1].procurement).toBeUndefined();
+  });
 });

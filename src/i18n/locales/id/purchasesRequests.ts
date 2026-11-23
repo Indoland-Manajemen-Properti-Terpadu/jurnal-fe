@@ -86,6 +86,12 @@ export const purchasesRequests = {
     notEditableTitle: 'Permintaan tidak dapat diubah',
     notEditableDescription:
       'Hanya permintaan berstatus draf atau dikembalikan yang dapat diubah. Buka detail untuk melihat posisinya.',
+    deliveryWarehouse: 'Lokasi kirim',
+    deliveryWarehouseHint:
+      'Gudang tujuan barang. Ikut ke pesanan dan masih bisa diubah sebelum pesanan dikirim ke vendor.',
+    deliveryWarehousePlaceholder: 'Pilih gudang tujuan',
+    noWarehouse: 'Tidak ada gudang aktif',
+    deliveryWarehouseError: { required: 'Pilih gudang tujuan barang' },
   },
   submitDialog: {
     title: 'Ajukan permintaan?',
@@ -98,6 +104,7 @@ export const purchasesRequests = {
     itemCount: '{count} item',
     requestDate: 'Tanggal permintaan',
     items: 'Barang atau jasa',
+    deliveryWarehouse: 'Lokasi kirim',
   },
   detail: {
     waitingAccounting: 'Menunggu verifikasi Accounting',
@@ -123,8 +130,6 @@ export const purchasesRequests = {
     verifyTitle: 'Verifikasi permintaan',
     verifyDescription:
       'Pastikan permintaan sudah sesuai anggaran dan kebutuhan. Setelah diverifikasi, permintaan masuk ke tahap pengadaan.',
-    verifyNote: 'Catatan verifikasi (opsional)',
-    verifyNotePlaceholder: 'Contoh: Sesuai anggaran',
     return: 'Kembalikan',
     returnTitle: 'Kembalikan ke peminta',
     returnDescription:
@@ -134,6 +139,7 @@ export const purchasesRequests = {
     cancel: 'Batalkan Permintaan',
     cancelTitle: 'Batalkan permintaan',
     cancelDescription: 'Permintaan yang dibatalkan tidak dapat dilanjutkan ke pengadaan.',
+    deliveryWarehouse: 'Lokasi kirim',
   },
   notice: {
     returnedTitle: 'Dikembalikan oleh {name}',

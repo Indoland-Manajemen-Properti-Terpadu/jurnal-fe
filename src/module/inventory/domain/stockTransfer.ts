@@ -96,6 +96,19 @@ export interface TransferWarehouse {
   name: string;
 }
 
+/**
+ * A transfer is asked for first: stock moves only when an approver agrees. A refused one never
+ * moved anything; a posted one can still be cancelled, which moves the stock back.
+ */
+export type TransferStatus = 'pending' | 'posted' | 'rejected' | 'void';
+
+/**
+ * The service prices a transfer when it is approved. Before that, and after a refusal, its lines
+ * carry a cost and value of 0, which would read as a real "Rp 0,00", so the screen shows no value.
+ */
+export const isTransferValued = (status: TransferStatus): boolean =>
+  status === 'posted' || status === 'void';
+
 export interface StockTransfer {
   id: string;
   number: string;
@@ -105,7 +118,14 @@ export interface StockTransfer {
   items: TransferItem[];
   productCount: number;
   memo: string;
-  status: 'posted' | 'void';
+  status: TransferStatus;
+  /** True when the signed-in person is one of the approvers who can still decide it. */
+  canDecide: boolean;
+  createdByName: string;
+  /** Role names whose approval is still awaited, each listed once. */
+  waitingFor: string[];
+  rejectedByName: string | null;
+  rejectReason: string | null;
   voidReason: string | null;
   voidedAt: string | null;
   createdAt: string;
