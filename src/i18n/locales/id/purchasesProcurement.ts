@@ -79,6 +79,18 @@ export const purchasesProcurement = {
   cheapest: 'Termurah',
   incomplete: 'Belum lengkap',
   expired: 'Kedaluwarsa',
+  rejected: {
+    badge: 'Ditolak',
+    notSelectable: 'Tidak bisa dipilih',
+    nextSingle:
+      'Langkah berikutnya: ubah penawaran ini dengan vendor lain, atau pindah ke jalur Bidding.',
+    nextBidding: 'Langkah berikutnya: pilih pemenang dari vendor lain yang penawarannya lengkap.',
+    withName: 'Ditolak oleh {name} pada {date}',
+    withoutName: 'Ditolak pada {date}',
+    reason: 'Alasan: {reason}',
+    noReason: 'Alasan penolakan tidak dicatat.',
+    cannotChoose: 'Vendor ini sudah ditolak pada pengajuan sebelumnya dan tidak bisa dipilih lagi.',
+  },
   vendorOld: 'vendor lama, {count} PO',
   vendorNew: 'vendor baru',
   validUntilShort: 'berlaku s.d. {date}',

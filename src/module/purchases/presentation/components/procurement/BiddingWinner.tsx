@@ -5,6 +5,7 @@ import { useTranslation } from '@/i18n';
 import { lineDifference } from '@/module/purchases/domain/biddingScore';
 import type { Procurement, Quote } from '@/module/purchases/domain/procurement';
 import type { RequestItem } from '@/module/purchases/domain/purchaseRequest';
+import { RejectedVendorNote } from '@/module/purchases/presentation/components/procurement/RejectedVendorNote';
 import {
   formatAmount,
   formatQuantity,
@@ -63,6 +64,7 @@ export const BiddingWinner = ({
         const amounts = totals[quote.id];
         const chosen = winnerId === quote.vendor.id;
         const complete = amounts?.complete ?? false;
+        const rejected = amounts?.rejected ?? false;
         return (
           <Paper
             key={quote.id}
@@ -91,6 +93,11 @@ export const BiddingWinner = ({
                       {t('procurement.cheapest')}
                     </Badge>
                   )}
+                  {rejected && (
+                    <Badge size="xs" radius="sm" color="red" variant="light">
+                      {t('procurement.rejected.badge')}
+                    </Badge>
+                  )}
                 </Group>
                 <Text size="xs" c="dimmed">
                   {[
@@ -111,6 +118,11 @@ export const BiddingWinner = ({
                 </Text>
               </div>
             </Group>
+            {rejected && (
+              <div style={{ padding: '0 var(--mantine-spacing-md) var(--mantine-spacing-sm)' }}>
+                <RejectedVendorNote procurement={procurement} vendorId={quote.vendor.id} />
+              </div>
+            )}
             <Table.ScrollContainer type="native" minWidth={560}>
               <Table verticalSpacing="xs" withRowBorders>
                 <Table.Thead bg="var(--jurnal-color-surface-hover)">
@@ -198,10 +210,14 @@ export const BiddingWinner = ({
                   radius="md"
                   variant={chosen ? 'filled' : 'light'}
                   leftSection={chosen ? <IconCircleCheck size={14} /> : undefined}
-                  disabled={busy || !complete}
+                  disabled={busy || !complete || rejected}
                   onClick={() => onChoose(quote)}
                 >
-                  {chosen ? t('procurement.bidding.chosen') : t('procurement.bidding.choose')}
+                  {rejected
+                    ? t('procurement.rejected.notSelectable')
+                    : chosen
+                      ? t('procurement.bidding.chosen')
+                      : t('procurement.bidding.choose')}
                 </Button>
               ) : (
                 chosen && (
