@@ -3,6 +3,7 @@ export const stockTake = {
   description:
     'Count the stock on the shelves, compare it with the book balance, and adjust the difference through a journal once approved.',
   create: 'New count',
+  warehouseMissing: 'Warehouse not found',
   status: {
     draft: 'Draft',
     counting: 'Counting',
@@ -143,6 +144,7 @@ export const stockTake = {
   },
   actions: {
     cancelMenu: 'Cancel count',
+    deleteMenu: 'Delete draft',
     start: 'Start counting',
     submit: 'Send for approval',
     approve: 'Approve and post',
@@ -268,7 +270,12 @@ export const stockTake = {
     cancelReasonPlaceholder: 'For example: wrong warehouse',
     cancelReasonRequired: 'A reason for cancelling is required.',
     cancelConfirm: 'Cancel count',
+    deleteTitle: 'Delete draft {number}?',
+    deleteBody:
+      'The draft is deleted for good and cannot be restored. A count that was started cannot be deleted, only cancelled.',
+    deleteConfirm: 'Delete draft',
     done: {
+      delete: 'Draft deleted',
       start: 'Counting started',
       submit: 'Sent for approval',
       approve: 'Count posted',
@@ -306,17 +313,15 @@ export const stockTake = {
   },
   print: {
     countAction: 'Print count sheet',
-    recordAction: 'Print minutes',
+    recordAction: 'Download minutes',
+    recordReady: 'The minutes were downloaded.',
+    recordFailed: 'The minutes could not be downloaded.',
     blocked: 'The browser blocked the print window. Allow new windows and try again.',
     countTitle: 'Stock Count Sheet',
-    recordTitle: 'Stock Count Minutes',
     meta: '{number} · {warehouse} · Count date {date}',
     people: 'Counted by: {counter} · Created by: {creator}',
     countNote:
       'Write the quantity found on the shelf. Write 0 for anything missing, do not leave it empty.',
-    noDiff: 'No difference. Every count matches the book balance.',
-    summary:
-      'Products counted: {counted} of {total} · Surplus {gainQty} units ({gainValue}) · Shortage {lossQty} units ({lossValue}) · Net {net}',
     cols: {
       no: 'No',
       product: 'Product',
@@ -324,19 +329,10 @@ export const stockTake = {
       unit: 'Unit',
       counted: 'Qty counted',
       initial: 'Initials',
-      book: 'Book balance',
-      diff: 'Difference',
-      value: 'Value',
-      reason: 'Reason',
-      account: 'Account',
-      debit: 'Debit',
-      credit: 'Credit',
     },
     sign: {
       counter: 'Counter',
       witness: 'Witness',
-      accounting: 'Accounting',
-      manager: 'Building Manager',
     },
   },
   errors: {

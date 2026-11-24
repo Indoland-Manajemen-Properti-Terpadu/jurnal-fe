@@ -1,4 +1,5 @@
 import {
+  latestRejection,
   procurementEditable,
   procurementSteps,
   procurementToInput,
@@ -22,6 +23,7 @@ const term = (overrides: Partial<TermSnapshot> = {}): TermSnapshot => ({
   installmentPercents: [],
   dueDays: 30,
   periods: null,
+  periodUnit: null,
   retentionPercent: 0,
   maintenanceMonths: 0,
   ...overrides,
@@ -60,6 +62,7 @@ const quote = (overrides: Partial<Quote> = {}): Quote => ({
 
 const procurement = (overrides: Partial<Procurement> = {}): Procurement => ({
   route: 'BIDDING',
+  rejectedWinners: [],
   status: 'DRAFT',
   singleReason: '',
   belowMinQuotesReason: '',
@@ -211,5 +214,21 @@ describe('procurementEditable', () => {
     expect(procurementEditable(procurement({ status: 'REJECTED' }))).toBe(true);
     expect(procurementEditable(procurement({ status: 'SUBMITTED' }))).toBe(false);
     expect(procurementEditable(procurement({ status: 'APPROVED' }))).toBe(false);
+  });
+});
+
+describe('latestRejection', () => {
+  const rejected = [
+    { vendorId: 'v1', reason: 'Baru', rejectedAt: '2026-11-24', rejectedByName: 'A', amount: 1 },
+    { vendorId: 'v1', reason: 'Lama', rejectedAt: '2026-11-20', rejectedByName: 'B', amount: 1 },
+    { vendorId: 'v2', reason: 'Lain', rejectedAt: '2026-11-22', rejectedByName: 'C', amount: 2 },
+  ];
+
+  it('gives the first entry of the vendor, which is the newest', () => {
+    expect(latestRejection({ rejectedWinners: rejected }, 'v1')?.reason).toBe('Baru');
+  });
+
+  it('gives null for a vendor never turned down', () => {
+    expect(latestRejection({ rejectedWinners: rejected }, 'v9')).toBeNull();
   });
 });

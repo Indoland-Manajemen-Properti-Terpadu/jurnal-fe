@@ -17,7 +17,7 @@ interface RequestInfoSectionProps {
   showErrors: boolean;
   departments: NamedRef[];
   departmentsLoading: boolean;
-  warehouses: NamedRef[];
+  warehouses: (NamedRef & { code?: string })[];
   warehousesLoading: boolean;
   onChange: <K extends keyof RequestFormValues>(key: K, value: RequestFormValues[K]) => void;
 }
@@ -94,7 +94,10 @@ export const RequestInfoSection = ({
               nothingFoundMessage={
                 warehousesLoading ? t('shared.searching') : t('requests.form.noWarehouse')
               }
-              data={warehouses.map((warehouse) => ({ value: warehouse.id, label: warehouse.name }))}
+              data={warehouses.map((warehouse) => ({
+                value: warehouse.id,
+                label: warehouse.code ? `${warehouse.code} · ${warehouse.name}` : warehouse.name,
+              }))}
               value={values.deliveryWarehouseId || null}
               onChange={(value) => onChange('deliveryWarehouseId', value ?? '')}
               error={error(errors.deliveryWarehouse, 'deliveryWarehouseError')}

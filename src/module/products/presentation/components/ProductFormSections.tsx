@@ -27,6 +27,8 @@ type UnitProps = {
   unitData: SelectOption[];
   unitsLoading: boolean;
   onCreateUnit: () => void;
+  /** The product is being counted: its base unit cannot change until the count ends. */
+  unitLocked?: boolean;
 };
 
 type LookupProps = SectionProps &
@@ -41,6 +43,7 @@ export function UnitField({
   unitData,
   unitsLoading,
   onCreateUnit,
+  unitLocked = false,
 }: Readonly<SectionProps & UnitProps>) {
   const { t } = useTranslation('products');
   return (
@@ -50,6 +53,8 @@ export function UnitField({
         withAsterisk
         placeholder={unitsLoading ? t('form.unitLoading') : t('form.unitPlaceholder')}
         data={unitData}
+        disabled={unitLocked}
+        description={unitLocked ? t('form.lockedByCount') : undefined}
         style={{ flex: 1 }}
         {...selectProps(t('form.nothingFound'))}
         clearable={false}

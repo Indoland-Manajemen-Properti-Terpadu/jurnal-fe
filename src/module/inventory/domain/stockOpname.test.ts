@@ -157,7 +157,7 @@ describe('stepIndex', () => {
 });
 
 describe('opnameActions', () => {
-  const rights = { count: false, review: false, cancel: false, approve: false };
+  const rights = { count: false, review: false, cancel: false, approve: false, remove: false };
 
   it('lets whoever may count start a draft and fill the counts', () => {
     expect(opnameActions('draft', { ...rights, count: true }).start).toBe(true);
@@ -190,8 +190,35 @@ describe('opnameActions', () => {
     expect(opnameActions('posted', { ...rights, count: true }).cancel).toBe(false);
   });
 
+  it('lets only someone with the delete right delete a draft', () => {
+    expect(opnameActions('draft', { ...rights, count: true }).remove).toBe(false);
+    expect(opnameActions('draft', { ...rights, count: true, remove: true }).remove).toBe(true);
+  });
+
+  it('never offers delete once a count was started or finished', () => {
+    const all = { count: true, review: true, cancel: true, approve: true, remove: true };
+
+    (['counting', 'pending_approval', 'posted', 'cancelled'] as const).forEach((status) => {
+      expect(opnameActions(status, all).remove).toBe(false);
+    });
+  });
+
+  it('offers the minutes of a posted count to the reviewer and the approver, not to the counter', () => {
+    expect(opnameActions('posted', { ...rights, review: true }).minutes).toBe(true);
+    expect(opnameActions('posted', { ...rights, approve: true }).minutes).toBe(true);
+    expect(opnameActions('posted', { ...rights, count: true, cancel: true }).minutes).toBe(false);
+  });
+
+  it('has no minutes before a count is posted or once it is cancelled', () => {
+    const all = { count: true, review: true, cancel: true, approve: true, remove: true };
+
+    (['draft', 'counting', 'pending_approval', 'cancelled'] as const).forEach((status) => {
+      expect(opnameActions(status, all).minutes).toBe(false);
+    });
+  });
+
   it('offers nothing on a cancelled count', () => {
-    const all = { count: true, review: true, cancel: true, approve: true };
+    const all = { count: true, review: true, cancel: true, approve: true, remove: true };
 
     expect(Object.values(opnameActions('cancelled', all)).some(Boolean)).toBe(false);
   });

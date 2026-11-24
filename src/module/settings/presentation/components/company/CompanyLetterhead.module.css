@@ -1,0 +1,97 @@
+/* The sheet is a small white page on a tinted well, so it reads as "a document" without a mock-up. */
+.well {
+  padding: var(--mantine-spacing-md);
+  border-radius: var(--mantine-radius-md);
+  background: var(--jurnal-color-surface-hover, var(--mantine-color-gray-0));
+}
+
+.sheet {
+  padding: var(--mantine-spacing-md);
+  border: 1px solid var(--mantine-color-gray-3);
+  border-radius: var(--mantine-radius-sm);
+  background: var(--mantine-color-white);
+  box-shadow: var(--mantine-shadow-xs);
+}
+
+.head {
+  display: grid;
+  grid-template-columns: 5.5rem 1fr;
+  column-gap: var(--mantine-spacing-md);
+  align-items: center;
+}
+
+/* The printed logo is at most 34 x 16 mm, about 2 to 1; the box keeps that shape. */
+.logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 34 / 16;
+  overflow: hidden;
+  border-radius: var(--mantine-radius-sm);
+}
+
+.logoImage {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.initials {
+  background: var(--mantine-color-primary-0);
+  color: var(--mantine-color-primary-8);
+  font-weight: 700;
+  font-size: var(--jurnal-text-lg);
+  letter-spacing: 0.04em;
+}
+
+.name {
+  font-weight: 700;
+  font-size: var(--jurnal-text-md);
+  line-height: 1.25;
+  color: var(--mantine-color-gray-9);
+  overflow-wrap: anywhere;
+}
+
+.namePlaceholder {
+  color: var(--mantine-color-gray-5);
+  font-weight: 600;
+}
+
+.detail {
+  margin-top: 2px;
+  font-size: var(--jurnal-text-xs);
+  line-height: 1.4;
+  color: var(--mantine-color-gray-7);
+  overflow-wrap: anywhere;
+}
+
+.rule {
+  height: 2px;
+  margin: var(--mantine-spacing-sm) 0;
+  border-radius: 1px;
+  background: var(--mantine-color-primary-6);
+}
+
+.lines {
+  display: grid;
+  row-gap: var(--mantine-spacing-xs);
+}
+
+.line {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--mantine-color-gray-2);
+}
+
+.line:nth-child(1) {
+  width: 62%;
+}
+
+.line:nth-child(2) {
+  width: 92%;
+}
+
+.line:nth-child(3) {
+  width: 78%;
+}

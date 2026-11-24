@@ -2,7 +2,7 @@ import { Anchor, Group, Progress, Text } from '@mantine/core';
 import { IconClipboardCheck } from '@tabler/icons-react';
 import { generatePath, Link } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
-import type { StockOpname } from '@/module/inventory/domain/stockOpname';
+import { warehouseName, type StockOpname } from '@/module/inventory/domain/stockOpname';
 import { InfoGrid } from '@/module/inventory/presentation/components/shared/InfoGrid';
 import { SectionCard } from '@/module/inventory/presentation/components/shared/SectionCard';
 import { routes } from '@/router/routes';
@@ -37,7 +37,7 @@ export function OpnameInfoCard({ opname }: Readonly<{ opname: StockOpname }>) {
         items={[
           {
             label: t('detail.warehouse'),
-            value: (
+            value: opname.warehouse.id ? (
               <Anchor
                 component={Link}
                 to={generatePath(routes.inventory.warehouseDetail, { id: opname.warehouse.id })}
@@ -45,6 +45,8 @@ export function OpnameInfoCard({ opname }: Readonly<{ opname: StockOpname }>) {
               >
                 {opname.warehouse.name}
               </Anchor>
+            ) : (
+              warehouseName(opname.warehouse, t('warehouseMissing'))
             ),
             sub: opname.warehouse.code,
           },

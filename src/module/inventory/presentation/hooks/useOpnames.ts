@@ -15,6 +15,7 @@ import {
 } from '@/module/inventory/infrastructure/inventoryRightsApi';
 import {
   createOpname,
+  deleteOpname,
   getJournalPreview,
   getOpname,
   getRunningOpname,
@@ -77,26 +78,23 @@ export const useRunningOpname = (warehouseId: string | undefined) => {
 };
 
 const holdingWarehouses = (
-  items: { id: string; number: string; status: OpnameStatus; warehouse: { id: string } }[],
-  statuses: OpnameStatus[]
+  items: { id: string; number: string; status: OpnameStatus; warehouse: { id: string } }[]
 ) => {
   const held = new Map<string, { id: string; number: string }>();
-  items
-    .filter((item) => statuses.includes(item.status))
-    .forEach((item) => held.set(item.warehouse.id, { id: item.id, number: item.number }));
+  items.forEach((item) => held.set(item.warehouse.id, { id: item.id, number: item.number }));
   return held;
 };
 
 /** Warehouses that a count is holding right now (draft, counting or waiting), by warehouse id. */
 export const useBusyWarehouses = () => {
-  const { data } = useOpnames({ limit: BUSY_LOOKUP });
-  return holdingWarehouses(data?.items ?? [], OPEN_STATUSES);
+  const { data } = useOpnames({ status: OPEN_STATUSES, limit: BUSY_LOOKUP });
+  return holdingWarehouses(data?.items ?? []);
 };
 
 /** Warehouses frozen by a count: stock cannot be moved in or out until it is posted or cancelled. */
 export const useFrozenWarehouses = () => {
-  const { data } = useOpnames({ limit: BUSY_LOOKUP });
-  return holdingWarehouses(data?.items ?? [], FROZEN_STATUSES);
+  const { data } = useOpnames({ status: FROZEN_STATUSES, limit: BUSY_LOOKUP });
+  return holdingWarehouses(data?.items ?? []);
 };
 
 export const useOpnameAccounts = () => {
@@ -127,6 +125,7 @@ export const useOpnameRights = (): OpnameRights => {
     review: review.read || review.update,
     cancel: review.delete,
     approve: approve.update,
+    remove: count.delete,
   };
 };
 
@@ -154,6 +153,15 @@ export const useOpnameMutations = () => {
         saveOpnameLines(id, changes),
       onSuccess: (opname) => {
         queryClient.setQueryData(inventoryKeys.opname(scope, opname.id), opname);
+        return queryClient.invalidateQueries({ queryKey: inventoryKeys.opnames(scope) });
+      },
+    }),
+    // A deleted draft is gone: its detail must not be asked for again (the answer would be a 404),
+    // and a draft moves no stock, so only the lists of counts are refreshed.
+    remove: useMutation({
+      mutationFn: (id: string) => deleteOpname(id),
+      onSuccess: (_, id) => {
+        queryClient.removeQueries({ queryKey: inventoryKeys.opname(scope, id) });
         return queryClient.invalidateQueries({ queryKey: inventoryKeys.opnames(scope) });
       },
     }),

@@ -16,6 +16,7 @@ import type {
   PurchaseReturnInput,
   SendOrderInput,
 } from '@/module/purchases/domain/purchaseInputs';
+import { toApiError } from '@/lib/http/apiError';
 import * as api from '@/module/purchases/infrastructure/purchaseApi';
 import { purchaseKeys } from '@/module/purchases/presentation/hooks/purchaseKeys';
 import { usePurchaseNotifier } from '@/module/purchases/presentation/hooks/usePurchaseNotifier';
@@ -51,6 +52,9 @@ const useAction = <Variables, Result extends { number?: string }>(
     },
   });
 };
+
+/** The screen shows a refusal by a stock count itself, with a link to the count, so no toast. */
+const isOpnameBlock = (error: unknown) => Boolean(toApiError(error).blockingOpname);
 
 type WithId = { id: string };
 type WithReason = WithId & { reason: string };
@@ -112,7 +116,12 @@ export const useVoidOrder = () =>
 
 /* ---------- Goods receipt ---------- */
 export const useCreateReceipt = (onDone?: (doc: WithId & Doc) => void) =>
-  useAction('received', (input: GoodsReceiptInput) => api.createReceipt(input), onDone);
+  useAction(
+    'received',
+    (input: GoodsReceiptInput) => api.createReceipt(input),
+    onDone,
+    isOpnameBlock
+  );
 export const useApproveReceipt = () =>
   useAction('receiptApproved', ({ id, note }: WithId & { note?: string }) =>
     api.approveReceipt(id, note)
@@ -122,7 +131,12 @@ export const useRejectReceipt = () =>
 export const useResubmitReceipt = () =>
   useAction('receiptResubmitted', ({ id }: WithId) => api.resubmitReceipt(id));
 export const useVoidReceipt = () =>
-  useAction('voided', ({ id, reason }: WithReason) => api.voidReceipt(id, reason));
+  useAction(
+    'voided',
+    ({ id, reason }: WithReason) => api.voidReceipt(id, reason),
+    undefined,
+    isOpnameBlock
+  );
 
 /* ---------- Bill ---------- */
 export const useCreateBill = (

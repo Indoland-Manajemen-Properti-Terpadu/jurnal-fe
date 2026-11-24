@@ -23,19 +23,26 @@ import {
   IconSend,
   IconX,
   IconBan,
+  IconDownload,
   IconPrinter,
+  IconTrash,
 } from '@tabler/icons-react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { EmptyState } from '@/components/EmptyState/EmptyState';
 import { useTranslation } from '@/i18n';
 import { ApiError } from '@/lib/http/apiError';
-import { opnameActions, submitReadiness } from '@/module/inventory/domain/stockOpname';
+import {
+  opnameActions,
+  submitReadiness,
+  warehouseName,
+} from '@/module/inventory/domain/stockOpname';
 import type { OpnameStep } from '@/module/inventory/infrastructure/opnameApi';
 import {
   DetailFrame,
   PageFrame,
   type FrameMenuItem,
 } from '@/module/inventory/presentation/components/shared/DetailFrame';
+import { useOpnameMinutes } from '@/module/inventory/presentation/hooks/useOpnameMinutes';
 import { useOpnamePrint } from '@/module/inventory/presentation/components/stockTake/useOpnamePrint';
 import { OpnameCountTab } from '@/module/inventory/presentation/components/stockTake/OpnameCountTab';
 import { OpnameHistoryTab } from '@/module/inventory/presentation/components/stockTake/OpnameHistoryTab';
@@ -55,7 +62,7 @@ import {
 import { routes } from '@/router/routes';
 import { dateFormatV1 } from '@/utils/formatDate';
 
-type Dialog = 'start' | 'submit' | 'approve' | 'reject' | 'cancel' | null;
+type Dialog = 'start' | 'submit' | 'approve' | 'reject' | 'cancel' | 'delete' | null;
 type Tab = 'count' | 'summary' | 'history';
 
 const BACK = routes.inventory.stockTake;
@@ -67,7 +74,9 @@ export default function StockTakeDetailPage() {
   const describe = useStockTakeErrorMessage();
   const rights = useOpnameRights();
   const print = useOpnamePrint();
-  const { step, saveLines } = useOpnameMutations();
+  const minutes = useOpnameMinutes();
+  const navigate = useNavigate();
+  const { step, saveLines, remove } = useOpnameMutations();
   const [dialog, setDialog] = useState<Dialog>(null);
   const [tab, setTab] = useState<Tab>('count');
 
@@ -104,6 +113,7 @@ export default function StockTakeDetailPage() {
   }
 
   const actions = opnameActions(data.status, rights);
+  const warehouse = warehouseName(data.warehouse, t('warehouseMissing'));
   const readiness = submitReadiness(data.lines);
   const frozen = data.status === 'counting' || data.status === 'pending_approval';
   let saveState: 'idle' | 'saving' | 'saved' | 'failed' = 'idle';
@@ -126,6 +136,18 @@ export default function StockTakeDetailPage() {
       }
     );
 
+  const removeDraft = () =>
+    remove.mutate(data.id, {
+      onSuccess: () => {
+        notifications.show({ color: 'green', message: t('dialogs.done.delete') });
+        navigate(BACK);
+      },
+      onError: (error) => {
+        setDialog(null);
+        notifications.show({ color: 'orange', autoClose: 7000, message: describe(error) });
+      },
+    });
+
   const submitHint = [
     readiness.uncounted > 0 ? t('count.notReadyUncounted', { count: readiness.uncounted }) : '',
     readiness.incomplete > 0 ? t('count.notReadyIncomplete', { count: readiness.incomplete }) : '',
@@ -137,14 +159,25 @@ export default function StockTakeDetailPage() {
   const menu: FrameMenuItem[] = [
     // The sheet to count by hand carries no book balance, so anyone who may count can print it.
     ...(open && data.lines.length > 0
-      ? [{ label: t('print.countAction'), icon: IconPrinter, onClick: () => print('count', data) }]
+      ? [{ label: t('print.countAction'), icon: IconPrinter, onClick: () => print(data) }]
       : []),
-    ...(data.canSeeValues && !open && data.status !== 'cancelled'
+    // The server makes the minutes of a posted count, so its figures match the ledger.
+    ...(actions.minutes
       ? [
           {
             label: t('print.recordAction'),
-            icon: IconPrinter,
-            onClick: () => print('record', data, preview.data),
+            icon: IconDownload,
+            onClick: () => minutes.download(data),
+          },
+        ]
+      : []),
+    ...(actions.remove
+      ? [
+          {
+            label: t('actions.deleteMenu'),
+            icon: IconTrash,
+            onClick: () => setDialog('delete'),
+            danger: true,
           },
         ]
       : []),
@@ -172,7 +205,7 @@ export default function StockTakeDetailPage() {
       title={data.number}
       copyable
       badges={<OpnameStatusBadge status={data.status} />}
-      subtitle={`${dateFormatV1(data.date, 'D MMM YYYY')} · ${data.warehouse.name}`}
+      subtitle={`${dateFormatV1(data.date, 'D MMM YYYY')} · ${warehouse}`}
       backTo={BACK}
       backLabel={t('detail.backToList')}
       menu={menu}
@@ -219,7 +252,7 @@ export default function StockTakeDetailPage() {
           variant="light"
           radius="md"
           icon={<IconLock size={18} />}
-          title={t('detail.freezeTitle', { warehouse: data.warehouse.name })}
+          title={t('detail.freezeTitle', { warehouse })}
         >
           {t('detail.freezeBody')}
         </Alert>
@@ -305,7 +338,7 @@ export default function StockTakeDetailPage() {
       <WarehouseConfirmDialog
         opened={dialog === 'start'}
         title={t('dialogs.startTitle', { number: data.number })}
-        body={t('dialogs.startBody', { warehouse: data.warehouse.name })}
+        body={t('dialogs.startBody', { warehouse })}
         confirmLabel={t('dialogs.startConfirm')}
         cancelLabel={t('dialogs.keep')}
         loading={step.isPending}
@@ -342,6 +375,17 @@ export default function StockTakeDetailPage() {
         keepLabel={t('dialogs.keep')}
         saving={step.isPending}
         onConfirm={(reason) => run('reject', reason)}
+        onClose={() => setDialog(null)}
+      />
+      <WarehouseConfirmDialog
+        opened={dialog === 'delete'}
+        title={t('dialogs.deleteTitle', { number: data.number })}
+        body={t('dialogs.deleteBody')}
+        confirmLabel={t('dialogs.deleteConfirm')}
+        cancelLabel={t('dialogs.keep')}
+        danger
+        loading={remove.isPending}
+        onConfirm={removeDraft}
         onClose={() => setDialog(null)}
       />
       <OpnameReasonDialog

@@ -159,6 +159,11 @@ export const products = {
     trackedDescription: 'Stock quantity is recorded and its value goes to the inventory account.',
     untrackedTitle: 'Not tracked (service / non-stock)',
     untrackedDescription: 'Stock is not counted. Suited to services and expenses.',
+    countingTitle: 'This product is being counted',
+    countingBody:
+      'This product is in stock count {number}. Whether it is tracked and its base unit are locked until the count ends or is cancelled.',
+    countingOpen: 'Open the count',
+    lockedByCount: 'Locked while the count runs',
     minStockHint: 'Warn when stock falls below this number',
     inventoryAccountHint: 'Asset account for stock value',
   },

@@ -183,16 +183,18 @@ interface ReasonDto {
   opname?: { id?: string; number?: string; status?: string };
   transfers?: { id?: string; number?: string }[];
   itemCount?: number;
+  /** Stock value of the warehouse; the service leaves it out (not 0) for roles without the value right. */
+  inventoryValue?: number;
   value?: number;
   count?: number;
 }
 
 /**
- * Reads the refusal of a deactivation. The service's codes (confirmed by the backend, PRO-104):
- * `DEFAULT`, `HAS_STOCK` and `OPEN_PURCHASE_ORDER` and `OPEN_TRANSFER` (each with `count`),
- * `RUNNING_OPNAME` (with `opname`) and `OPEN_TRANSFER` also with `transfers`. A code is matched by
- * name so a renamed one still lands on the right reason, and anything unknown keeps the
- * service's own sentence.
+ * Reads the refusal of a deactivation. The service's codes (confirmed by the backend on PRO-102,
+ * 2026-11-24, and seen live): `IS_DEFAULT`, `HAS_STOCK` (`count`, and `inventoryValue` only for a
+ * role that may see values), `OPEN_PO` (`count`), `RUNNING_OPNAME` (`opname`) and `OPEN_TRANSFER`
+ * (`count` and `transfers`). A code is matched by name so an older spelling still lands on the
+ * right reason, and anything unknown keeps the service's own sentence.
  */
 export const toBlockReasons = (data: { reasons?: ReasonDto[] } | undefined): BlockReason[] => {
   const reasons = (data?.reasons ?? []).map((reason): BlockReason => {
@@ -210,15 +212,16 @@ export const toBlockReasons = (data: { reasons?: ReasonDto[] } | undefined): Blo
         transfers,
       };
     }
-    if (code.includes('DEFAULT')) return { kind: 'default' };
+    if (code === 'IS_DEFAULT' || code.includes('DEFAULT')) return { kind: 'default' };
     if (code.includes('STOCK')) {
       return {
         kind: 'stock',
         itemCount: reason.itemCount ?? reason.count ?? null,
-        value: reason.value ?? null,
+        // Absent for a role without the value right: shown as nothing, never as 0.
+        value: reason.inventoryValue ?? reason.value ?? null,
       };
     }
-    if (code.includes('ORDER') || code.includes('PO')) {
+    if (code === 'OPEN_PO' || code.includes('ORDER')) {
       return { kind: 'orders', count: reason.count ?? null };
     }
     return { kind: 'other', message: text(reason.message) };

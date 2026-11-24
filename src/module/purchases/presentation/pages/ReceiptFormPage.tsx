@@ -4,8 +4,10 @@ import {
   IconClipboardText,
   IconListDetails,
   IconPackageImport,
+  IconPaperclip,
   IconSum,
 } from '@tabler/icons-react';
+import { OpnameBlockAlert } from '@/module/purchases/presentation/components/receipts/OpnameBlockAlert';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
 import { PURCHASE_MENU } from '@/module/purchases/domain/purchaseAccess';
@@ -23,6 +25,7 @@ import {
   type ReceiptFormValues,
 } from '@/module/purchases/domain/receiptForm';
 import { ReceiptImpactHint } from '@/module/purchases/presentation/components/receipts/ReceiptImpactHint';
+import { ReceiptFilesField } from '@/module/purchases/presentation/components/receipts/ReceiptFilesField';
 import { ReceiptLinesEditor } from '@/module/purchases/presentation/components/receipts/ReceiptLinesEditor';
 import { DateField } from '@/module/purchases/presentation/components/requests/DateField';
 import { StateFrame } from '@/module/purchases/presentation/components/requests/StateFrame';
@@ -87,10 +90,13 @@ const ReceiptFormBody = ({ order }: Readonly<{ order: PurchaseOrder }>) => {
       <Grid gutter="lg" align="flex-start">
         <Grid.Col span={{ base: 12, lg: 9 }}>
           <Stack gap="lg">
+            <OpnameBlockAlert error={create.error} />
             <SectionCard
               icon={IconClipboardText}
               title={t('receipts.form.infoTitle')}
-              subtitle={t('receipts.form.infoSubtitle')}
+              subtitle={t(
+                order.isService ? 'receipts.form.infoSubtitleService' : 'receipts.form.infoSubtitle'
+              )}
             >
               <Grid gutter="md">
                 <Grid.Col span={12}>
@@ -157,11 +163,25 @@ const ReceiptFormBody = ({ order }: Readonly<{ order: PurchaseOrder }>) => {
                 <Grid.Col span={{ base: 12, sm: 6 }}>
                   <TextInput
                     radius="md"
-                    label={t('receipts.form.deliveryNote')}
-                    placeholder={t('receipts.form.deliveryNotePlaceholder')}
+                    withAsterisk={order.isService}
+                    label={t(
+                      order.isService
+                        ? 'receipts.form.deliveryNoteService'
+                        : 'receipts.form.deliveryNote'
+                    )}
+                    placeholder={t(
+                      order.isService
+                        ? 'receipts.form.deliveryNoteServicePlaceholder'
+                        : 'receipts.form.deliveryNotePlaceholder'
+                    )}
                     value={values.deliveryNote}
                     maxLength={100}
                     onChange={(event) => patch({ deliveryNote: event.currentTarget.value })}
+                    error={
+                      showErrors && errors.deliveryNote
+                        ? t('receipts.form.deliveryNoteServiceRequired')
+                        : undefined
+                    }
                   />
                 </Grid.Col>
                 <Grid.Col span={12}>
@@ -177,6 +197,20 @@ const ReceiptFormBody = ({ order }: Readonly<{ order: PurchaseOrder }>) => {
                 </Grid.Col>
               </Grid>
             </SectionCard>
+
+            {order.isService && (
+              <SectionCard
+                icon={IconPaperclip}
+                title={t('receipts.form.files.sectionTitle')}
+                subtitle={t('receipts.form.files.sectionSubtitle')}
+              >
+                <ReceiptFilesField
+                  files={values.files}
+                  onChange={(files) => patch({ files })}
+                  error={showErrors && errors.files}
+                />
+              </SectionCard>
+            )}
 
             <SectionCard
               icon={IconListDetails}

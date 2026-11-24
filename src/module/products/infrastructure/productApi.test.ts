@@ -96,9 +96,35 @@ describe('fetchProduct mapping', () => {
         salesTax: null,
       },
       inventoryInfo: { isTracked: true, inventoryAccount: 'acc3', minStock: 4 },
+      countingOpname: null,
       createdAt: '2026-01-01',
       updatedAt: '2026-01-02',
     });
+  });
+
+  it('reads the stock count that is counting the product right now', async () => {
+    http.get.mockResolvedValue({
+      data: {
+        data: {
+          id: 'p3',
+          name: 'Kertas',
+          sku: 'K',
+          countingOpname: { id: 'o1', number: 'SO/2026/11/0012' },
+        },
+      },
+    });
+
+    const product = await fetchProduct('p3');
+
+    expect(product.countingOpname).toEqual({ id: 'o1', number: 'SO/2026/11/0012' });
+  });
+
+  it('has no counting stock count when the service sends none or an empty one', async () => {
+    http.get.mockResolvedValue({
+      data: { data: { id: 'p4', name: 'Pipa', sku: 'P', countingOpname: null } },
+    });
+
+    expect((await fetchProduct('p4')).countingOpname).toBeNull();
   });
 
   it('falls back to legacy field names and safe defaults', async () => {

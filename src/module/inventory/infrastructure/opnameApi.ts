@@ -1,3 +1,4 @@
+import { isAxiosError } from 'axios';
 import apiClient from '@/lib/http/apiClient';
 import { toApiError } from '@/lib/http/apiError';
 import type {
@@ -13,6 +14,7 @@ import type {
   OpnameWarehouse,
   StockOpname,
 } from '@/module/inventory/domain/stockOpname';
+import { NO_WAREHOUSE } from '@/module/inventory/domain/stockOpname';
 
 const OPNAMES = '/v1/stock/opnames';
 
@@ -54,7 +56,8 @@ export interface OpnameDto {
   number: string;
   status: OpnameStatus;
   date: string;
-  warehouse: OpnameWarehouse;
+  /** Null when the warehouse was deleted after the count was made. */
+  warehouse: OpnameWarehouse | null;
   scope?: OpnameScope | null;
   notes?: string | null;
   counterUser?: Person;
@@ -73,7 +76,7 @@ export interface OpnameItemDto {
   number: string;
   status: OpnameStatus;
   date: string;
-  warehouse: OpnameWarehouse;
+  warehouse: OpnameWarehouse | null;
   progress?: { counted: number; total: number };
   createdBy?: Person;
   diffProducts?: number;
@@ -115,7 +118,7 @@ export const toOpname = (dto: OpnameDto): StockOpname => ({
   number: dto.number,
   status: dto.status,
   date: dto.date,
-  warehouse: dto.warehouse,
+  warehouse: dto.warehouse ?? NO_WAREHOUSE,
   scope: dto.scope ?? { type: 'all', categoryIds: [], productIds: [] },
   counterName: dto.counterUser?.name ?? null,
   counterId: dto.counterUser?.id ?? null,
@@ -139,7 +142,7 @@ export const toOpnameItem = (dto: OpnameItemDto): OpnameListItem => ({
   number: dto.number,
   status: dto.status,
   date: dto.date,
-  warehouse: dto.warehouse,
+  warehouse: dto.warehouse ?? NO_WAREHOUSE,
   counted: dto.progress?.counted ?? 0,
   total: dto.progress?.total ?? 0,
   diffProducts: dto.diffProducts ?? 0,
@@ -150,7 +153,8 @@ export const toOpnameItem = (dto: OpnameItemDto): OpnameListItem => ({
 export interface OpnameListParams {
   q?: string;
   warehouse?: string;
-  status?: OpnameStatus;
+  /** One status, or several (the service accepts `status` repeated). */
+  status?: OpnameStatus | OpnameStatus[];
   startDate?: string;
   endDate?: string;
   page?: number;
@@ -159,12 +163,16 @@ export interface OpnameListParams {
 
 export const toOpnameQuery = (
   params: OpnameListParams
-): Record<string, string | number | boolean> => {
-  const query: Record<string, string | number | boolean> = {};
+): Record<string, string | string[] | number | boolean> => {
+  const query: Record<string, string | string[] | number | boolean> = {};
   const q = params.q?.trim();
   if (q) query.q = q;
   if (params.warehouse) query.warehouse = params.warehouse;
-  if (params.status) query.status = params.status;
+  if (Array.isArray(params.status)) {
+    if (params.status.length > 0) query.status = params.status;
+  } else if (params.status) {
+    query.status = params.status;
+  }
   if (params.startDate) query.startDate = params.startDate;
   if (params.endDate) query.endDate = params.endDate;
   if (params.page) query.page = params.page;
@@ -243,7 +251,11 @@ export const listOpnames = async (params: OpnameListParams = {}): Promise<Opname
         canSeeValues?: boolean;
         summary?: { running?: number; pending?: number; diffThisMonth?: number | null };
       }>
-    >(OPNAMES, { params: toOpnameQuery(params) })
+    >(OPNAMES, {
+      params: toOpnameQuery(params),
+      // `status=counting&status=pending_approval`, not `status[]=...`.
+      paramsSerializer: { indexes: null },
+    })
   );
   const { data } = body;
   return {
@@ -332,4 +344,38 @@ export const getRunningOpname = async (
     })
   );
   return body.data ? { id: body.data.id, number: body.data.number } : null;
+};
+
+/** Deletes a draft count; the service refuses (400) once it was started, which is cancelled instead. */
+export const deleteOpname = async (id: string): Promise<void> => {
+  await call(() => apiClient.delete(`${OPNAMES}/${id}`));
+};
+
+const readText = (blob: Blob): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = () => reject(reader.error);
+    reader.readAsText(blob);
+  });
+
+/**
+ * The minutes (berita acara) of a posted count as a PDF made by the server, so its figures and the
+ * company profile match the ledger. Only reviewers and approvers may ask for it (403 otherwise), and
+ * only once the count is posted (400 otherwise). An error body arrives as a blob and is read first.
+ */
+export const downloadOpnameMinutes = async (id: string): Promise<Blob> => {
+  try {
+    return (await apiClient.get<Blob>(`${OPNAMES}/${id}/print`, { responseType: 'blob' })).data;
+  } catch (error) {
+    if (isAxiosError(error) && error.response?.data instanceof Blob) {
+      const text = await readText(error.response.data);
+      try {
+        error.response.data = JSON.parse(text);
+      } catch {
+        error.response.data = {};
+      }
+    }
+    throw toApiError(error);
+  }
 };

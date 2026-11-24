@@ -77,6 +77,7 @@ interface PaymentTermDto {
   defaultAdvancePercent?: number | null;
   defaultInstallments?: number | null;
   defaultPeriods?: number | null;
+  periodUnit?: PaymentTermOption['periodUnit'] | null;
   defaultDueDays?: number | null;
   defaultRetentionPercent?: number | null;
   defaultMaintenanceMonths?: number | null;
@@ -107,6 +108,7 @@ export const listPaymentTerms = async (
     defaultAdvancePercent: term.defaultAdvancePercent ?? null,
     defaultInstallments: term.defaultInstallments ?? null,
     defaultPeriods: term.defaultPeriods ?? null,
+    periodUnit: term.periodUnit ?? 'monthly',
     defaultDueDays: term.defaultDueDays ?? null,
     defaultRetentionPercent: term.defaultRetentionPercent ?? null,
     defaultMaintenanceMonths: term.defaultMaintenanceMonths ?? null,
@@ -154,17 +156,18 @@ export const listUnits = async (): Promise<NamedRef[]> => {
 };
 
 /**
- * Active warehouses, for the delivery warehouse of a request or an order (the service allows 100
- * per page). The main one is marked, because a new request starts on it.
+ * Active warehouses, for the delivery warehouse of a request or an order. The options call needs
+ * only the stock right or the request right, so a requester without stock access can still load
+ * it. The main warehouse is first and marked, because a new request starts on it.
  */
 export const listWarehouses = async (): Promise<WarehouseRef[]> => {
-  const { data } = await http.get<ApiEnvelope<ListDto<NamedDto & { isDefault?: boolean }>>>(
-    PURCHASE_API.warehouses,
-    { isActive: true, limit: 100 }
-  );
-  return data.results.map(({ id, name, isDefault }) => ({
+  const { data } = await http.get<
+    ApiEnvelope<(NamedDto & { code?: string | null; isDefault?: boolean })[]>
+  >(PURCHASE_API.warehouseOptions);
+  return data.map(({ id, name, code, isDefault }) => ({
     id,
     name,
+    ...(code ? { code } : {}),
     isDefault: isDefault === true,
   }));
 };

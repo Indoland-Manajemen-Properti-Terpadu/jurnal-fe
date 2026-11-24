@@ -1,40 +1,12 @@
-import type {
-  JournalPreview,
-  OpnameLine,
-  OpnameReason,
-  StockOpname,
-} from '@/module/inventory/domain/stockOpname';
-
-export type PrintKind = 'count' | 'record';
+import type { StockOpname } from '@/module/inventory/domain/stockOpname';
 
 export interface PrintLabels {
   countTitle: string;
-  recordTitle: string;
   meta: (opname: StockOpname) => string;
   people: (opname: StockOpname) => string;
-  cols: Record<
-    | 'no'
-    | 'product'
-    | 'sku'
-    | 'unit'
-    | 'counted'
-    | 'initial'
-    | 'book'
-    | 'diff'
-    | 'value'
-    | 'reason'
-    | 'account'
-    | 'debit'
-    | 'credit',
-    string
-  >;
-  reason: (reason: OpnameReason) => string;
+  cols: Record<'no' | 'product' | 'sku' | 'unit' | 'counted' | 'initial', string>;
   countNote: string;
-  noDiff: string;
-  summary: (opname: StockOpname) => string;
-  sign: { counter: string; witness: string; accounting: string; manager: string };
-  money: (value: number) => string;
-  qty: (value: number) => string;
+  sign: { counter: string; witness: string };
 }
 
 const ESCAPES: Record<string, string> = {
@@ -97,79 +69,17 @@ const countSheet = (opname: StockOpname, labels: PrintLabels): string => {
     </div>`;
 };
 
-const diffRows = (lines: OpnameLine[]): OpnameLine[] =>
-  lines.filter((line) => line.countedQty !== null && (line.diffQty ?? 0) !== 0);
-
-const record = (opname: StockOpname, preview: JournalPreview | undefined, labels: PrintLabels) => {
-  const { cols } = labels;
-  const lines = diffRows(opname.lines);
-  const head = row([
-    th(cols.product),
-    th(cols.book, 'num'),
-    th(cols.counted, 'num'),
-    th(cols.diff, 'num'),
-    th(cols.value, 'num'),
-    th(cols.reason),
-  ]);
-  const body =
-    lines.length === 0
-      ? `<tr><td colspan="6">${esc(labels.noDiff)}</td></tr>`
-      : lines
-          .map((line) => {
-            const diff = line.diffQty ?? 0;
-            const reason = line.reason ? labels.reason(line.reason) : '';
-            return row([
-              td(line.name),
-              td(labels.qty(line.bookQty ?? 0), 'num'),
-              td(labels.qty(line.countedQty ?? 0), 'num'),
-              td(`${diff > 0 ? '+' : ''}${labels.qty(diff)}`, 'num'),
-              td(labels.money(line.diffValue ?? 0), 'num'),
-              td(line.note ? `${reason} - ${line.note}` : reason),
-            ]);
-          })
-          .join('');
-  const entries = preview?.entries ?? [];
-  const journal =
-    entries.length === 0
-      ? ''
-      : `<table><thead>${row([th(cols.account), th(cols.debit, 'num'), th(cols.credit, 'num')])}</thead><tbody>${entries
-          .map((entry) =>
-            row([
-              td(`${entry.accountNumber} ${entry.accountName}`),
-              td(entry.debit > 0 ? labels.money(entry.debit) : '', 'num'),
-              td(entry.credit > 0 ? labels.money(entry.credit) : '', 'num'),
-            ])
-          )
-          .join('')}</tbody></table>`;
-  return `<table><thead>${head}</thead><tbody>${body}</tbody></table>
-    <p class="meta" style="margin-top:10px">${esc(labels.summary(opname))}</p>
-    ${journal}
-    <div class="sign">
-      <div>${esc(labels.sign.counter)}<div class="line">${esc(opname.counterName ?? '')}</div></div>
-      <div>${esc(labels.sign.accounting)}<div class="line">${esc(opname.createdByName)}</div></div>
-      <div>${esc(labels.sign.manager)}<div class="line"></div></div>
-    </div>`;
-};
-
 /**
- * The page to print: a count sheet to fill in by hand (no book balance, so the counter stays blind)
- * or the minutes of a count with its differences, journal and signatures.
+ * The count sheet to fill in by hand. It carries no book balance, so the counter stays blind. The
+ * minutes of a posted count come from the server instead, so their figures match the ledger.
  */
-export const buildOpnamePrint = (
-  kind: PrintKind,
-  opname: StockOpname,
-  preview: JournalPreview | undefined,
-  labels: PrintLabels
-): string => {
-  const title = kind === 'count' ? labels.countTitle : labels.recordTitle;
-  const body = kind === 'count' ? countSheet(opname, labels) : record(opname, preview, labels);
-  return `<!doctype html><html><head><meta charset="utf-8"><title>${esc(title)}</title><style>${STYLE}</style></head><body>
-    <h1>${esc(title)}</h1>
+export const buildOpnamePrint = (opname: StockOpname, labels: PrintLabels): string =>
+  `<!doctype html><html><head><meta charset="utf-8"><title>${esc(labels.countTitle)}</title><style>${STYLE}</style></head><body>
+    <h1>${esc(labels.countTitle)}</h1>
     <p class="meta">${esc(labels.meta(opname))}</p>
     <p class="meta">${esc(labels.people(opname))}</p>
-    ${body}
+    ${countSheet(opname, labels)}
   </body></html>`;
-};
 
 /** Opens the page in a new window and prints it; false when the browser blocked the window. */
 export const printHtml = (html: string): boolean => {
