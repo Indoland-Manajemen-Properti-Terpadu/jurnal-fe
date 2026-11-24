@@ -1,5 +1,5 @@
 import { sumMinor, toMinor } from '@/lib/money/money';
-import type { PaymentTermOption } from '@/module/purchases/domain/purchaseCommon';
+import type { PaymentTermOption, PeriodUnit } from '@/module/purchases/domain/purchaseCommon';
 import type {
   DiscountMode,
   Quote,
@@ -59,6 +59,8 @@ export interface QuoteFormValues {
   installmentPercents: (number | '')[];
   dueDays: number | '';
   periods: number | '';
+  /** How often a recurring term bills; empty for any other term. */
+  periodUnit: PeriodUnit | '';
   retentionPercent: number | '';
   maintenanceMonths: number | '';
   withReceipt: boolean;
@@ -127,6 +129,7 @@ export const emptyQuoteForm = (items: RequestItem[], today = ''): QuoteFormValue
   installmentPercents: [],
   dueDays: '',
   periods: '',
+  periodUnit: '',
   retentionPercent: '',
   maintenanceMonths: '',
   withReceipt: true,
@@ -166,6 +169,7 @@ export const quoteToForm = (quote: Quote, items: RequestItem[]): QuoteFormValues
     installmentPercents: term ? term.installmentPercents : [],
     dueDays: term?.dueDays ?? '',
     periods: term?.periods ?? '',
+    periodUnit: term?.periodUnit ?? '',
     retentionPercent: term && term.hasRetention ? term.retentionPercent : '',
     maintenanceMonths: term && term.hasRetention ? term.maintenanceMonths : '',
     withReceipt: quote.withReceipt,
@@ -201,6 +205,7 @@ export const withTermDefaults = (
   installments: term?.billingSplit === 'milestone' ? (term.defaultInstallments ?? '') : '',
   installmentPercents: [],
   periods: term?.billingSplit === 'recurring' ? (term.defaultPeriods ?? '') : '',
+  periodUnit: term?.billingSplit === 'recurring' ? term.periodUnit : '',
   dueDays: term?.hasDueTerm ? (term.defaultDueDays ?? '') : '',
   retentionPercent: term?.hasRetention ? (term.defaultRetentionPercent ?? '') : '',
   maintenanceMonths: term?.hasRetention ? (term.defaultMaintenanceMonths ?? '') : '',
@@ -361,6 +366,7 @@ const toOverrides = (
     }
   }
   if (fields.periods && isNumber(values.periods)) overrides.periods = values.periods;
+  if (fields.periods && values.periodUnit) overrides.periodUnit = values.periodUnit;
   if (fields.due && isNumber(values.dueDays)) overrides.dueDays = values.dueDays;
   if (fields.retention) {
     if (isNumber(values.retentionPercent)) overrides.retentionPercent = values.retentionPercent;
@@ -407,3 +413,13 @@ export const toQuoteInput = (
   })),
   scores: optionalScores(values.scores),
 });
+
+/** The custom percents with exactly `count` slots: typed values stay, new slots are empty. */
+export const resizePercents = (percents: (number | '')[], count: number): (number | '')[] =>
+  Array.from({ length: count }, (_, index) => percents[index] ?? '');
+
+/** What the typed percents add up to, to two decimals; an empty slot counts as 0. */
+export const percentTotal = (percents: (number | '')[]): number =>
+  Math.round(
+    percents.reduce<number>((total, value) => total + (value === '' ? 0 : value), 0) * 100
+  ) / 100;

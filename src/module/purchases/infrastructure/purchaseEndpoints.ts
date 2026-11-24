@@ -57,6 +57,7 @@ export const PURCHASE_API = {
   departments: '/v1/departments',
   units: '/v1/units',
   warehouses: '/v1/warehouses',
+  warehouseOptions: '/v1/warehouses/options',
   tags: '/v1/tags',
   products: '/v1/products',
   taxes: '/v1/taxes',

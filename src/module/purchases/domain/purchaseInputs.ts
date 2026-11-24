@@ -33,6 +33,8 @@ export interface GoodsReceiptInput {
   deliveryNote?: string;
   memo?: string;
   items: { purchaseOrderItem: string; receivedQty: number; rejectedQty?: number }[];
+  /** The signed BAPP (1 to 5 files); a service receipt is then sent as multipart. */
+  attachments?: File[];
 }
 
 export type DiscountKind = 'percentage' | 'nominal';

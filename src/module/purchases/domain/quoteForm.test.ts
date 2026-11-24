@@ -43,6 +43,7 @@ const term = (overrides: Partial<PaymentTermOption> = {}): PaymentTermOption => 
   defaultAdvancePercent: null,
   defaultInstallments: null,
   defaultPeriods: null,
+  periodUnit: 'monthly',
   defaultDueDays: 30,
   defaultRetentionPercent: null,
   defaultMaintenanceMonths: null,

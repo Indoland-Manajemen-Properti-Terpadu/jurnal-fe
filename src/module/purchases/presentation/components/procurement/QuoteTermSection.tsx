@@ -1,8 +1,10 @@
 import { Group, NumberInput, Select, SimpleGrid, Stack, Switch, Text } from '@mantine/core';
 import { useTranslation } from '@/i18n';
-import type { PaymentTermOption } from '@/module/purchases/domain/purchaseCommon';
+import { PERIOD_UNITS, type PaymentTermOption } from '@/module/purchases/domain/purchaseCommon';
 import {
   termFields,
+  percentTotal,
+  resizePercents,
   withTermDefaults,
   type QuoteFormErrors,
   type QuoteFormValues,
@@ -36,6 +38,15 @@ export const QuoteTermSection = ({
   if (values.paymentTermId && !term && currentTermName) {
     data.unshift({ value: values.paymentTermId, label: currentTermName });
   }
+  // Says how far the split is from 100%, so nobody has to work out the missing percent.
+  const percentTotalLabel = (total: number) => {
+    const gap = Math.round(Math.abs(100 - total) * 100) / 100;
+    if (total === 100) return t('procurement.quote.percentTotal', { total });
+    return t(total < 100 ? 'procurement.quote.percentShort' : 'procurement.quote.percentOver', {
+      total,
+      gap,
+    });
+  };
   const error = (key: keyof QuoteFormValues) =>
     showErrors && errors.fields[key]
       ? t(`procurement.quote.error.${errors.fields[key]}`)
@@ -92,7 +103,15 @@ export const QuoteTermSection = ({
             onChange={(value) => {
               const next = value === '' ? '' : Number(value);
               onChange('installments', next);
-              if (values.installmentPercents.length > 0) onChange('installmentPercents', []);
+              // Custom percents keep what was typed and follow the new number of columns.
+              if (values.installmentPercents.length > 0) {
+                onChange(
+                  'installmentPercents',
+                  typeof next === 'number' && next >= 2
+                    ? resizePercents(values.installmentPercents, next)
+                    : []
+                );
+              }
             }}
             error={error('installments')}
           />
@@ -107,6 +126,19 @@ export const QuoteTermSection = ({
             value={values.periods}
             onChange={(value) => onChange('periods', value === '' ? '' : Number(value))}
             error={error('periods')}
+          />
+        )}
+        {fields.periods && (
+          <Select
+            radius="md"
+            label={t('procurement.quote.periodUnit')}
+            data={PERIOD_UNITS.map((unit) => ({
+              value: unit,
+              label: t(`procurement.quote.periodUnits.${unit}`),
+            }))}
+            allowDeselect={false}
+            value={values.periodUnit || term?.periodUnit || 'monthly'}
+            onChange={(unit) => onChange('periodUnit', unit as QuoteFormValues['periodUnit'])}
           />
         )}
         {fields.due && (
@@ -196,6 +228,16 @@ export const QuoteTermSection = ({
                   />
                 ))}
               </SimpleGrid>
+            )}
+            {values.installmentPercents.length > 0 && (
+              <Text
+                size="xs"
+                fw={600}
+                c={percentTotal(values.installmentPercents) === 100 ? 'teal.7' : 'red.7'}
+                aria-live="polite"
+              >
+                {percentTotalLabel(percentTotal(values.installmentPercents))}
+              </Text>
             )}
             {error('installmentPercents' as keyof QuoteFormValues) && (
               <Text size="xs" c="red">

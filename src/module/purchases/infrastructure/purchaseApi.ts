@@ -196,7 +196,22 @@ export interface ReceiptListParams extends ListParams {
 
 export const listReceipts = (params: ReceiptListParams = {}) => receipts.list(params);
 export const getReceipt = receipts.get;
-export const createReceipt = (input: GoodsReceiptInput) => receipts.create(input);
+/**
+ * A goods receipt is plain JSON. A service receipt (BAPP) carries its signed file, so it goes as
+ * multipart: `items` as a JSON string and the files in `attachments` (1 to 5, 5 MB each).
+ */
+export const createReceipt = async (input: GoodsReceiptInput) => {
+  const { attachments, items, ...rest } = input;
+  if (!attachments || attachments.length === 0) return receipts.create(input);
+  const form = new FormData();
+  Object.entries(rest).forEach(([key, value]) => {
+    if (typeof value === 'string' && value !== '') form.append(key, value);
+  });
+  form.append('items', JSON.stringify(items));
+  attachments.forEach((file) => form.append('attachments', file));
+  const body = await http.upload<ApiEnvelope<GoodsReceiptDto>>(PURCHASE_API.receipts, form);
+  return toGoodsReceipt(body.data);
+};
 export const approveReceipt = (id: string, note?: string) =>
   receipts.act(id, 'approve', note ? { note } : undefined);
 export const rejectReceipt = (id: string, reason: string) => receipts.act(id, 'reject', { reason });

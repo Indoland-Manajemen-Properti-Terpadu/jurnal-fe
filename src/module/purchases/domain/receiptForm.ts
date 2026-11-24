@@ -13,6 +13,8 @@ export interface ReceiptLine {
   stocked: boolean;
 }
 
+export const RECEIPT_MAX_FILES = 5;
+
 export interface ReceiptFormValues {
   date: string;
   warehouseId: string;
@@ -22,6 +24,8 @@ export interface ReceiptFormValues {
   quantities: Record<string, number>;
   /** Goods turned away at delivery, per order line id. */
   rejected: Record<string, number>;
+  /** The signed BAPP; a service receipt cannot be recorded without it. */
+  files: File[];
 }
 
 export type ReceiptDateError = 'required' | 'beforeOrder' | null;
@@ -30,6 +34,10 @@ export interface ReceiptErrors {
   date: ReceiptDateError;
   noQuantity: boolean;
   warehouse: boolean;
+  /** A BAPP carries its own number (the service refuses a blank one). */
+  deliveryNote: boolean;
+  /** A BAPP needs the signed file. */
+  files: boolean;
   /** Lines whose quantity is above what is still open. */
   overIds: string[];
 }
@@ -87,6 +95,7 @@ export const emptyReceiptForm = (
   memo: '',
   quantities: Object.fromEntries(receiptLines(order).map((line) => [line.itemId, 0])),
   rejected: {},
+  files: [],
 });
 
 export const clampReceived = (value: number | string, remaining: number): number => {
@@ -115,11 +124,19 @@ export const validateReceipt = (
     .map((line) => line.itemId);
   const noQuantity = !lines.some((line) => (values.quantities[line.itemId] ?? 0) > QTY_EPSILON);
   const warehouse = needsWarehouse(order, lines, values, activeWarehouses) && !values.warehouseId;
-  return { date, noQuantity, warehouse, overIds };
+  const service = Boolean(order.isService);
+  const deliveryNote = service && !values.deliveryNote.trim();
+  const files = service && values.files.length === 0;
+  return { date, noQuantity, warehouse, deliveryNote, files, overIds };
 };
 
 export const hasReceiptErrors = (errors: ReceiptErrors): boolean =>
-  errors.date !== null || errors.noQuantity || errors.warehouse || errors.overIds.length > 0;
+  errors.date !== null ||
+  errors.noQuantity ||
+  errors.warehouse ||
+  errors.deliveryNote ||
+  errors.files ||
+  errors.overIds.length > 0;
 
 export const toReceiptInput = (values: ReceiptFormValues, orderId: string): GoodsReceiptInput => ({
   purchaseOrder: orderId,
@@ -127,6 +144,7 @@ export const toReceiptInput = (values: ReceiptFormValues, orderId: string): Good
   ...(values.warehouseId ? { warehouse: values.warehouseId } : {}),
   ...(values.deliveryNote.trim() ? { deliveryNote: values.deliveryNote.trim() } : {}),
   ...(values.memo.trim() ? { memo: values.memo.trim() } : {}),
+  ...(values.files.length > 0 ? { attachments: values.files } : {}),
   items: Object.entries(values.quantities)
     .filter(([, quantity]) => quantity > QTY_EPSILON)
     .map(([purchaseOrderItem, receivedQty]) => {

@@ -36,6 +36,7 @@ export interface TermSnapshotDto {
   installmentPercents?: number[] | null;
   dueDays?: number | null;
   periods?: number | null;
+  periodUnit?: 'monthly' | 'quarterly' | 'semiannual' | 'yearly' | null;
   retentionPercent?: number | null;
   maintenanceMonths?: number | null;
 }
@@ -100,6 +101,20 @@ export interface ProcurementViewDto {
         id: string;
         /** The quote's vendor was turned down by an approver earlier. */
         rejected?: boolean | null;
+        termSchedule?: {
+          rows?:
+            | {
+                kind: 'ADVANCE' | 'TERM' | 'PERIOD' | 'RETENTION' | 'FULL';
+                seq?: number | null;
+                of?: number | null;
+                label?: string | null;
+                percent?: number | null;
+                amount?: number | null;
+              }[]
+            | null;
+          percent?: number | null;
+          amount?: number | null;
+        } | null;
         complete?: boolean | null;
         subtotal?: number | null;
         discountAmount?: number | null;
