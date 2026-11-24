@@ -47,6 +47,8 @@ export type ProductDto = {
   inventoryInfo?: Partial<Omit<InventoryInfo, 'inventoryAccount'>> & {
     inventoryAccount?: ReferenceDto;
   };
+  /** The stock count that is counting this product right now; it locks tracking and the unit. */
+  countingOpname?: { id: string; number: string } | null;
   createdAt?: string;
   created_at?: string;
   updatedAt?: string;

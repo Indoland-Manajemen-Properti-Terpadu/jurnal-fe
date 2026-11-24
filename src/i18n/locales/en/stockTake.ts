@@ -143,6 +143,7 @@ export const stockTake = {
   },
   actions: {
     cancelMenu: 'Cancel count',
+    deleteMenu: 'Delete draft',
     start: 'Start counting',
     submit: 'Send for approval',
     approve: 'Approve and post',
@@ -268,7 +269,12 @@ export const stockTake = {
     cancelReasonPlaceholder: 'For example: wrong warehouse',
     cancelReasonRequired: 'A reason for cancelling is required.',
     cancelConfirm: 'Cancel count',
+    deleteTitle: 'Delete draft {number}?',
+    deleteBody:
+      'The draft is deleted for good and cannot be restored. A count that was started cannot be deleted, only cancelled.',
+    deleteConfirm: 'Delete draft',
     done: {
+      delete: 'Draft deleted',
       start: 'Counting started',
       submit: 'Sent for approval',
       approve: 'Count posted',
