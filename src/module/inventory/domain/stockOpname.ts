@@ -24,6 +24,13 @@ export interface OpnameWarehouse {
   name: string;
 }
 
+/** A count whose warehouse no longer exists (the service sends `null`) keeps an empty warehouse. */
+export const NO_WAREHOUSE: OpnameWarehouse = { id: '', code: '', name: '' };
+
+/** The warehouse's name, or the given text when the warehouse no longer exists. */
+export const warehouseName = (warehouse: OpnameWarehouse, missing: string): string =>
+  warehouse.name || missing;
+
 export interface OpnameLine {
   id: string;
   productId: string;

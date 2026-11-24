@@ -3,6 +3,7 @@ export const stockTake = {
   description:
     'Count the stock on the shelves, compare it with the book balance, and adjust the difference through a journal once approved.',
   create: 'New count',
+  warehouseMissing: 'Warehouse not found',
   status: {
     draft: 'Draft',
     counting: 'Counting',

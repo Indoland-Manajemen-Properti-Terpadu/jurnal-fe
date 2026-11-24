@@ -13,6 +13,7 @@ import type {
   OpnameWarehouse,
   StockOpname,
 } from '@/module/inventory/domain/stockOpname';
+import { NO_WAREHOUSE } from '@/module/inventory/domain/stockOpname';
 
 const OPNAMES = '/v1/stock/opnames';
 
@@ -54,7 +55,8 @@ export interface OpnameDto {
   number: string;
   status: OpnameStatus;
   date: string;
-  warehouse: OpnameWarehouse;
+  /** Null when the warehouse was deleted after the count was made. */
+  warehouse: OpnameWarehouse | null;
   scope?: OpnameScope | null;
   notes?: string | null;
   counterUser?: Person;
@@ -73,7 +75,7 @@ export interface OpnameItemDto {
   number: string;
   status: OpnameStatus;
   date: string;
-  warehouse: OpnameWarehouse;
+  warehouse: OpnameWarehouse | null;
   progress?: { counted: number; total: number };
   createdBy?: Person;
   diffProducts?: number;
@@ -115,7 +117,7 @@ export const toOpname = (dto: OpnameDto): StockOpname => ({
   number: dto.number,
   status: dto.status,
   date: dto.date,
-  warehouse: dto.warehouse,
+  warehouse: dto.warehouse ?? NO_WAREHOUSE,
   scope: dto.scope ?? { type: 'all', categoryIds: [], productIds: [] },
   counterName: dto.counterUser?.name ?? null,
   counterId: dto.counterUser?.id ?? null,
@@ -139,7 +141,7 @@ export const toOpnameItem = (dto: OpnameItemDto): OpnameListItem => ({
   number: dto.number,
   status: dto.status,
   date: dto.date,
-  warehouse: dto.warehouse,
+  warehouse: dto.warehouse ?? NO_WAREHOUSE,
   counted: dto.progress?.counted ?? 0,
   total: dto.progress?.total ?? 0,
   diffProducts: dto.diffProducts ?? 0,

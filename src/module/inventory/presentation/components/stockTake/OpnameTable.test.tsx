@@ -77,3 +77,15 @@ describe('OpnameTable', () => {
     expect(screen.queryByRole('button', { name: /Buat opname/ })).not.toBeInTheDocument();
   });
 });
+
+describe('a count whose warehouse was deleted', () => {
+  it('still lists, and says the warehouse is not found instead of breaking the page', () => {
+    const data = page(true);
+    data.items[0] = { ...data.items[0], warehouse: { id: '', code: '', name: '' } };
+
+    renderTable(data);
+
+    expect(screen.getByText('SO/2026/11/0003')).toBeInTheDocument();
+    expect(screen.getByText('Gudang tidak ditemukan')).toBeInTheDocument();
+  });
+});

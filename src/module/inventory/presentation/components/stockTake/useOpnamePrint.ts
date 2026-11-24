@@ -1,6 +1,10 @@
 import { notifications } from '@mantine/notifications';
 import { useTranslation } from '@/i18n';
-import type { JournalPreview, StockOpname } from '@/module/inventory/domain/stockOpname';
+import {
+  warehouseName,
+  type JournalPreview,
+  type StockOpname,
+} from '@/module/inventory/domain/stockOpname';
 import {
   buildOpnamePrint,
   printHtml,
@@ -19,7 +23,7 @@ export const useOpnamePrint = () => {
     meta: (opname) =>
       t('print.meta', {
         number: opname.number,
-        warehouse: opname.warehouse.name,
+        warehouse: warehouseName(opname.warehouse, t('warehouseMissing')),
         date: dateFormatV1(opname.date, 'D MMM YYYY'),
       }),
     people: (opname) =>

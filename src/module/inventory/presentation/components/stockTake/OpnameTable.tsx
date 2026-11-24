@@ -15,6 +15,7 @@ import { IconAlertCircle, IconClipboardList, IconPlus } from '@tabler/icons-reac
 import { Link, useNavigate } from 'react-router-dom';
 import { EmptyState } from '@/components/EmptyState/EmptyState';
 import { useTranslation } from '@/i18n';
+import { warehouseName } from '@/module/inventory/domain/stockOpname';
 import type { OpnamePage } from '@/module/inventory/infrastructure/opnameApi';
 import { columnHeader } from '@/module/inventory/presentation/components/shared/columnHeader';
 import { Dash } from '@/module/inventory/presentation/components/shared/DetailFrame';
@@ -138,7 +139,9 @@ export function OpnameTable({
                 <Text size="sm">{dateFormatV1(row.date, 'D MMM YYYY')}</Text>
               </Table.Td>
               <Table.Td>
-                <Text size="sm">{row.warehouse.name}</Text>
+                <Text size="sm" c={row.warehouse.name ? undefined : 'dimmed'}>
+                  {warehouseName(row.warehouse, t('warehouseMissing'))}
+                </Text>
               </Table.Td>
               <Table.Td>
                 <OpnameStatusBadge status={row.status} />
