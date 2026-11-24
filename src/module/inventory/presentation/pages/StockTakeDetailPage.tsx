@@ -30,7 +30,11 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { EmptyState } from '@/components/EmptyState/EmptyState';
 import { useTranslation } from '@/i18n';
 import { ApiError } from '@/lib/http/apiError';
-import { opnameActions, submitReadiness } from '@/module/inventory/domain/stockOpname';
+import {
+  opnameActions,
+  submitReadiness,
+  warehouseName,
+} from '@/module/inventory/domain/stockOpname';
 import type { OpnameStep } from '@/module/inventory/infrastructure/opnameApi';
 import {
   DetailFrame,
@@ -106,6 +110,7 @@ export default function StockTakeDetailPage() {
   }
 
   const actions = opnameActions(data.status, rights);
+  const warehouse = warehouseName(data.warehouse, t('warehouseMissing'));
   const readiness = submitReadiness(data.lines);
   const frozen = data.status === 'counting' || data.status === 'pending_approval';
   let saveState: 'idle' | 'saving' | 'saved' | 'failed' = 'idle';
@@ -196,7 +201,7 @@ export default function StockTakeDetailPage() {
       title={data.number}
       copyable
       badges={<OpnameStatusBadge status={data.status} />}
-      subtitle={`${dateFormatV1(data.date, 'D MMM YYYY')} · ${data.warehouse.name}`}
+      subtitle={`${dateFormatV1(data.date, 'D MMM YYYY')} · ${warehouse}`}
       backTo={BACK}
       backLabel={t('detail.backToList')}
       menu={menu}
@@ -243,7 +248,7 @@ export default function StockTakeDetailPage() {
           variant="light"
           radius="md"
           icon={<IconLock size={18} />}
-          title={t('detail.freezeTitle', { warehouse: data.warehouse.name })}
+          title={t('detail.freezeTitle', { warehouse })}
         >
           {t('detail.freezeBody')}
         </Alert>
@@ -329,7 +334,7 @@ export default function StockTakeDetailPage() {
       <WarehouseConfirmDialog
         opened={dialog === 'start'}
         title={t('dialogs.startTitle', { number: data.number })}
-        body={t('dialogs.startBody', { warehouse: data.warehouse.name })}
+        body={t('dialogs.startBody', { warehouse })}
         confirmLabel={t('dialogs.startConfirm')}
         cancelLabel={t('dialogs.keep')}
         loading={step.isPending}

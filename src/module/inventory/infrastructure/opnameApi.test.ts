@@ -249,3 +249,19 @@ describe('toAccountsBody', () => {
     });
   });
 });
+
+describe('a count whose warehouse no longer exists', () => {
+  it('keeps an empty warehouse when the service sends null, in the list and in the detail', () => {
+    const item = toOpnameItem({
+      id: 'o9',
+      number: 'SO/2026/11/0013',
+      status: 'draft',
+      date: '2026-11-23T00:00:00.000Z',
+      warehouse: null,
+    });
+    const detail = toOpname({ ...dto, warehouse: null });
+
+    expect(item.warehouse).toEqual({ id: '', code: '', name: '' });
+    expect(detail.warehouse).toEqual({ id: '', code: '', name: '' });
+  });
+});

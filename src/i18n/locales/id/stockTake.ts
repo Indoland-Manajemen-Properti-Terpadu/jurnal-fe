@@ -3,6 +3,7 @@ export const stockTake = {
   description:
     'Hitung fisik barang di gudang, bandingkan dengan saldo buku, lalu sesuaikan selisihnya lewat jurnal setelah disetujui.',
   create: 'Buat opname',
+  warehouseMissing: 'Gudang tidak ditemukan',
   status: {
     draft: 'Draf',
     counting: 'Menghitung',
