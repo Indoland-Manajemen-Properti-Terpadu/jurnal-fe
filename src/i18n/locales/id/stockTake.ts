@@ -143,6 +143,7 @@ export const stockTake = {
   },
   actions: {
     cancelMenu: 'Batalkan opname',
+    deleteMenu: 'Hapus draf',
     start: 'Mulai hitung',
     submit: 'Kirim untuk persetujuan',
     approve: 'Setujui dan posting',
@@ -268,7 +269,12 @@ export const stockTake = {
     cancelReasonPlaceholder: 'Contoh: salah gudang',
     cancelReasonRequired: 'Alasan pembatalan wajib diisi.',
     cancelConfirm: 'Batalkan opname',
+    deleteTitle: 'Hapus draf {number}?',
+    deleteBody:
+      'Draf dihapus permanen dan tidak bisa dikembalikan. Hitungan yang sudah dimulai tidak bisa dihapus, hanya dibatalkan.',
+    deleteConfirm: 'Hapus draf',
     done: {
+      delete: 'Draf dihapus',
       start: 'Hitungan dimulai',
       submit: 'Dikirim untuk persetujuan',
       approve: 'Opname diposting',

@@ -150,7 +150,8 @@ export const toOpnameItem = (dto: OpnameItemDto): OpnameListItem => ({
 export interface OpnameListParams {
   q?: string;
   warehouse?: string;
-  status?: OpnameStatus;
+  /** One status, or several (the service accepts `status` repeated). */
+  status?: OpnameStatus | OpnameStatus[];
   startDate?: string;
   endDate?: string;
   page?: number;
@@ -159,12 +160,16 @@ export interface OpnameListParams {
 
 export const toOpnameQuery = (
   params: OpnameListParams
-): Record<string, string | number | boolean> => {
-  const query: Record<string, string | number | boolean> = {};
+): Record<string, string | string[] | number | boolean> => {
+  const query: Record<string, string | string[] | number | boolean> = {};
   const q = params.q?.trim();
   if (q) query.q = q;
   if (params.warehouse) query.warehouse = params.warehouse;
-  if (params.status) query.status = params.status;
+  if (Array.isArray(params.status)) {
+    if (params.status.length > 0) query.status = params.status;
+  } else if (params.status) {
+    query.status = params.status;
+  }
   if (params.startDate) query.startDate = params.startDate;
   if (params.endDate) query.endDate = params.endDate;
   if (params.page) query.page = params.page;
@@ -243,7 +248,11 @@ export const listOpnames = async (params: OpnameListParams = {}): Promise<Opname
         canSeeValues?: boolean;
         summary?: { running?: number; pending?: number; diffThisMonth?: number | null };
       }>
-    >(OPNAMES, { params: toOpnameQuery(params) })
+    >(OPNAMES, {
+      params: toOpnameQuery(params),
+      // `status=counting&status=pending_approval`, not `status[]=...`.
+      paramsSerializer: { indexes: null },
+    })
   );
   const { data } = body;
   return {
@@ -332,4 +341,9 @@ export const getRunningOpname = async (
     })
   );
   return body.data ? { id: body.data.id, number: body.data.number } : null;
+};
+
+/** Deletes a draft count; the service refuses (400) once it was started, which is cancelled instead. */
+export const deleteOpname = async (id: string): Promise<void> => {
+  await call(() => apiClient.delete(`${OPNAMES}/${id}`));
 };

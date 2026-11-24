@@ -81,6 +81,8 @@ export type Product = {
   buyingInfo: BuyingInfo;
   sellingInfo: SellingInfo;
   inventoryInfo: InventoryInfo;
+  /** The stock count counting this product now; tracking and the unit cannot change until it ends. */
+  countingOpname: { id: string; number: string } | null;
   createdAt: string;
   updatedAt: string;
 };

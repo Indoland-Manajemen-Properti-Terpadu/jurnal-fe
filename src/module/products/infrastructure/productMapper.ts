@@ -67,6 +67,10 @@ export const mapProduct = (dto: ProductDto): Product => {
       inventoryAccount: extractId(dto.inventoryInfo?.inventoryAccount),
       minStock: dto.inventoryInfo?.minStock ?? 0,
     },
+    countingOpname:
+      dto.countingOpname?.id && dto.countingOpname.number
+        ? { id: dto.countingOpname.id, number: dto.countingOpname.number }
+        : null,
     createdAt: dto.createdAt || dto.created_at || '',
     updatedAt: dto.updatedAt || dto.updated_at || '',
   };

@@ -24,8 +24,9 @@ import {
   IconX,
   IconBan,
   IconPrinter,
+  IconTrash,
 } from '@tabler/icons-react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { EmptyState } from '@/components/EmptyState/EmptyState';
 import { useTranslation } from '@/i18n';
 import { ApiError } from '@/lib/http/apiError';
@@ -55,7 +56,7 @@ import {
 import { routes } from '@/router/routes';
 import { dateFormatV1 } from '@/utils/formatDate';
 
-type Dialog = 'start' | 'submit' | 'approve' | 'reject' | 'cancel' | null;
+type Dialog = 'start' | 'submit' | 'approve' | 'reject' | 'cancel' | 'delete' | null;
 type Tab = 'count' | 'summary' | 'history';
 
 const BACK = routes.inventory.stockTake;
@@ -67,7 +68,8 @@ export default function StockTakeDetailPage() {
   const describe = useStockTakeErrorMessage();
   const rights = useOpnameRights();
   const print = useOpnamePrint();
-  const { step, saveLines } = useOpnameMutations();
+  const navigate = useNavigate();
+  const { step, saveLines, remove } = useOpnameMutations();
   const [dialog, setDialog] = useState<Dialog>(null);
   const [tab, setTab] = useState<Tab>('count');
 
@@ -126,6 +128,18 @@ export default function StockTakeDetailPage() {
       }
     );
 
+  const removeDraft = () =>
+    remove.mutate(data.id, {
+      onSuccess: () => {
+        notifications.show({ color: 'green', message: t('dialogs.done.delete') });
+        navigate(BACK);
+      },
+      onError: (error) => {
+        setDialog(null);
+        notifications.show({ color: 'orange', autoClose: 7000, message: describe(error) });
+      },
+    });
+
   const submitHint = [
     readiness.uncounted > 0 ? t('count.notReadyUncounted', { count: readiness.uncounted }) : '',
     readiness.incomplete > 0 ? t('count.notReadyIncomplete', { count: readiness.incomplete }) : '',
@@ -145,6 +159,16 @@ export default function StockTakeDetailPage() {
             label: t('print.recordAction'),
             icon: IconPrinter,
             onClick: () => print('record', data, preview.data),
+          },
+        ]
+      : []),
+    ...(actions.remove
+      ? [
+          {
+            label: t('actions.deleteMenu'),
+            icon: IconTrash,
+            onClick: () => setDialog('delete'),
+            danger: true,
           },
         ]
       : []),
@@ -342,6 +366,17 @@ export default function StockTakeDetailPage() {
         keepLabel={t('dialogs.keep')}
         saving={step.isPending}
         onConfirm={(reason) => run('reject', reason)}
+        onClose={() => setDialog(null)}
+      />
+      <WarehouseConfirmDialog
+        opened={dialog === 'delete'}
+        title={t('dialogs.deleteTitle', { number: data.number })}
+        body={t('dialogs.deleteBody')}
+        confirmLabel={t('dialogs.deleteConfirm')}
+        cancelLabel={t('dialogs.keep')}
+        danger
+        loading={remove.isPending}
+        onConfirm={removeDraft}
         onClose={() => setDialog(null)}
       />
       <OpnameReasonDialog

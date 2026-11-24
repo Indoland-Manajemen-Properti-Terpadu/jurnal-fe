@@ -151,6 +151,13 @@ describe('toOpnameQuery', () => {
     });
     expect(toOpnameQuery({ q: '  ' })).toEqual({});
   });
+
+  it('sends several statuses as a list, and leaves an empty list out', () => {
+    expect(toOpnameQuery({ status: ['counting', 'pending_approval'] })).toEqual({
+      status: ['counting', 'pending_approval'],
+    });
+    expect(toOpnameQuery({ status: [] })).toEqual({});
+  });
 });
 
 describe('toCreateOpnameBody', () => {

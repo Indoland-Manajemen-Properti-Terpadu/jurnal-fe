@@ -10,17 +10,27 @@ import { FormSection } from './FormSection';
 
 type ChoiceCardProps = {
   selected: boolean;
+  disabled?: boolean;
   icon: ReactNode;
   title: string;
   description: string;
   onSelect: () => void;
 };
 
-function ChoiceCard({ selected, icon, title, description, onSelect }: Readonly<ChoiceCardProps>) {
+function ChoiceCard({
+  selected,
+  disabled = false,
+  icon,
+  title,
+  description,
+  onSelect,
+}: Readonly<ChoiceCardProps>) {
   return (
     <UnstyledButton
       role="radio"
       aria-checked={selected}
+      aria-disabled={disabled}
+      disabled={disabled}
       onClick={onSelect}
       p="sm"
       style={{
@@ -32,6 +42,8 @@ function ChoiceCard({ selected, icon, title, description, onSelect }: Readonly<C
         }`,
         background: selected ? 'var(--mantine-color-primary-0)' : 'var(--mantine-color-white)',
         transition: 'border-color 120ms, background 120ms',
+        opacity: disabled && !selected ? 0.55 : 1,
+        cursor: disabled ? 'not-allowed' : undefined,
       }}
     >
       <Box style={{ display: 'flex', gap: 10, alignItems: 'flex-start', minHeight: 52 }}>
@@ -57,9 +69,15 @@ function ChoiceCard({ selected, icon, title, description, onSelect }: Readonly<C
 type InventorySectionProps = {
   form: ProductFormApi;
   accountData: SelectOption[];
+  /** The product is being counted: whether it is tracked cannot change until the count ends. */
+  locked?: boolean;
 };
 
-export function InventorySection({ form, accountData }: Readonly<InventorySectionProps>) {
+export function InventorySection({
+  form,
+  accountData,
+  locked = false,
+}: Readonly<InventorySectionProps>) {
   const { t } = useTranslation('products');
   const tracked = form.values.inventoryInfo.isTracked;
   const setTracked = (value: boolean) => form.setFieldValue('inventoryInfo.isTracked', value);
@@ -84,6 +102,7 @@ export function InventorySection({ form, accountData }: Readonly<InventorySectio
       >
         <ChoiceCard
           selected={tracked}
+          disabled={locked}
           icon={<IconPackage size={18} />}
           title={t('form.trackedTitle')}
           description={t('form.trackedDescription')}
@@ -91,6 +110,7 @@ export function InventorySection({ form, accountData }: Readonly<InventorySectio
         />
         <ChoiceCard
           selected={!tracked}
+          disabled={locked}
           icon={<IconTool size={18} />}
           title={t('form.untrackedTitle')}
           description={t('form.untrackedDescription')}

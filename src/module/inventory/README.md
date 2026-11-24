@@ -114,8 +114,8 @@ Count the stock on the shelves, compare it with the book balance, and adjust the
 
 ## Known gaps (stock count)
 
-- A draft cannot be edited or deleted from the screen (the service has `PUT` for the header, no delete). Cancel it instead.
+- A draft can be deleted (PRO-106, 2026-11-24): `DELETE /v1/stock/opnames/:id`, only while the status is `draft` (the service answers 400 for a started count, which is cancelled instead). The menu entry "Hapus draf" shows only with the delete right on the stock count menu (`JP-STOCK-OPN`, held by the Warehousing role) and asks for confirmation; deleting returns to the list.
 - Print is built as a browser print window (count sheet without book balance; minutes with differences, journal and signatures). The minutes list the journal by account, not an account per line.
-- The freeze is enforced by the service for transfers. The warehouse pickers of purchase receipts and returns mark a counted warehouse and cannot choose it; product edits and the "Lacak stok" lock during a count are not checked (no endpoint tells which product is being counted).
-- "Opname berjalan" for the pickers comes from the first 100 counts; a site with more open counts than that needs a filter on the list endpoint.
+- The freeze is enforced by the service: transfers, goods receipts (and their cancelling) and changes to tracking or the base unit of a counted product are refused with 409. Purchase returns do not make a stock movement yet, so nothing is refused there. The warehouse pickers of purchase receipts and returns also mark a counted warehouse and cannot choose it, and the product form locks "Lacak stok" and the base unit while `GET /v1/products/:id` carries `countingOpname: { id, number }` (see the products README).
+- "Opname berjalan" and the frozen warehouses for the pickers come from `GET /v1/stock/opnames` with a repeated `status` (`counting` and `pending_approval` for frozen, plus `draft` for busy), so they no longer depend on reading the newest 100 counts. The query is sent as `status=a&status=b` (`paramsSerializer: { indexes: null }`).
 - Blind count was checked against the service with a warehouse-staff account (role Warehousing): book balance, difference, price, value and `summary` are absent, and submit answers 403.

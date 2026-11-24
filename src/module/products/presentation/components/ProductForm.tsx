@@ -1,9 +1,11 @@
 import { memo, useState } from 'react';
-import { Alert, Button, Grid, Paper, Stack } from '@mantine/core';
-import { IconInfoCircle } from '@tabler/icons-react';
+import { Alert, Anchor, Button, Grid, Paper, Stack } from '@mantine/core';
+import { IconInfoCircle, IconLock } from '@tabler/icons-react';
+import { generatePath, Link } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
 import type { Product, ProductFormValues } from '@/module/products/domain/product';
 import { resolveProductImageUrl } from '@/module/products/infrastructure/productApi';
+import { routes } from '@/router/routes';
 import { useProductForm } from '@/module/products/presentation/hooks/useProductForm';
 import {
   useCategoryMutations,
@@ -48,10 +50,12 @@ function ProductFormComponent({
     resolveProductImageUrl(product?.image ?? null)
   );
 
+  const countingOpname = product?.countingOpname ?? null;
   const unitProps = {
     unitData,
     unitsLoading,
     onCreateUnit: () => setUnitModalOpened(true),
+    unitLocked: Boolean(countingOpname),
   };
 
   const { values } = form;
@@ -72,6 +76,23 @@ function ProductFormComponent({
       <Grid gutter="md" align="stretch">
         <Grid.Col span={{ base: 12, md: 8 }}>
           <Stack gap="md">
+            {countingOpname && (
+              <Alert
+                color="yellow"
+                radius="md"
+                icon={<IconLock size={16} />}
+                title={t('form.countingTitle')}
+              >
+                {t('form.countingBody', { number: countingOpname.number })}{' '}
+                <Anchor
+                  component={Link}
+                  to={generatePath(routes.inventory.stockTakeDetail, { id: countingOpname.id })}
+                  size="sm"
+                >
+                  {t('form.countingOpen')}
+                </Anchor>
+              </Alert>
+            )}
             <GeneralSection
               form={form}
               categoryData={categoryData}
@@ -92,7 +113,11 @@ function ProductFormComponent({
               taxData={taxData}
               {...unitProps}
             />
-            <InventorySection form={form} accountData={inventoryAccountData} />
+            <InventorySection
+              form={form}
+              accountData={inventoryAccountData}
+              locked={Boolean(countingOpname)}
+            />
           </Stack>
         </Grid.Col>
 
