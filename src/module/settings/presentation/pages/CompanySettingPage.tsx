@@ -193,18 +193,20 @@ export default function CompanySettingPage() {
                       radius="md"
                       type="email"
                       label={t('company.field.email')}
-                      description={t('company.field.notPrinted')}
                       placeholder={t('company.field.emailPlaceholder')}
                       {...field('email')}
                     />
                     <TextInput
                       radius="md"
                       label={t('company.field.website')}
-                      description={t('company.field.notPrinted')}
                       placeholder={t('company.field.websitePlaceholder')}
                       {...field('website')}
                     />
                   </SimpleGrid>
+                  {/* One note for both fields: the documents do not print email and website yet. */}
+                  <Text size="xs" c="dimmed" mt={-6}>
+                    {t('company.field.notPrinted')}
+                  </Text>
                 </Stack>
               </Paper>
 
