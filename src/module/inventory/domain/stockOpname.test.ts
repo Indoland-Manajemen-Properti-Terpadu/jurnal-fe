@@ -203,6 +203,20 @@ describe('opnameActions', () => {
     });
   });
 
+  it('offers the minutes of a posted count to the reviewer and the approver, not to the counter', () => {
+    expect(opnameActions('posted', { ...rights, review: true }).minutes).toBe(true);
+    expect(opnameActions('posted', { ...rights, approve: true }).minutes).toBe(true);
+    expect(opnameActions('posted', { ...rights, count: true, cancel: true }).minutes).toBe(false);
+  });
+
+  it('has no minutes before a count is posted or once it is cancelled', () => {
+    const all = { count: true, review: true, cancel: true, approve: true, remove: true };
+
+    (['draft', 'counting', 'pending_approval', 'cancelled'] as const).forEach((status) => {
+      expect(opnameActions(status, all).minutes).toBe(false);
+    });
+  });
+
   it('offers nothing on a cancelled count', () => {
     const all = { count: true, review: true, cancel: true, approve: true, remove: true };
 
