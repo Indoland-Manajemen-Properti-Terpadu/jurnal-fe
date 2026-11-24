@@ -165,3 +165,71 @@ describe('receiptForm', () => {
     });
   });
 });
+
+describe('a service receipt (BAPP)', () => {
+  const service = () => ({ ...order([item('a', 4, 0)]), isService: true }) as PurchaseOrder;
+  const file = (name: string) => new File(['x'], name, { type: 'application/pdf' });
+
+  it('starts without a file and without a number', () => {
+    const form = emptyReceiptForm(service(), '2026-11-05');
+    expect(form.files).toEqual([]);
+    expect(form.deliveryNote).toBe('');
+  });
+
+  it('asks for the BAPP number and the signed file, and for nothing more than that', () => {
+    const po = service();
+    const form = { ...emptyReceiptForm(po, '2026-11-05'), quantities: { a: 1 } };
+    const errors = validateReceipt(form, po, receiptLines(po));
+
+    expect(errors.deliveryNote).toBe(true);
+    expect(errors.files).toBe(true);
+    expect(hasReceiptErrors(errors)).toBe(true);
+  });
+
+  it('is complete with the number and one file', () => {
+    const po = service();
+    const form = {
+      ...emptyReceiptForm(po, '2026-11-05'),
+      quantities: { a: 1 },
+      deliveryNote: 'BAPP-001',
+      files: [file('bapp.pdf')],
+    };
+
+    expect(hasReceiptErrors(validateReceipt(form, po, receiptLines(po)))).toBe(false);
+  });
+
+  it('does not accept a number of only spaces', () => {
+    const po = service();
+    const form = {
+      ...emptyReceiptForm(po, '2026-11-05'),
+      quantities: { a: 1 },
+      deliveryNote: '   ',
+      files: [file('bapp.pdf')],
+    };
+
+    expect(validateReceipt(form, po, receiptLines(po)).deliveryNote).toBe(true);
+  });
+
+  it('sends the files with the payload', () => {
+    const po = service();
+    const bapp = file('bapp.pdf');
+    const form = {
+      ...emptyReceiptForm(po, '2026-11-05'),
+      quantities: { a: 1 },
+      deliveryNote: 'BAPP-001',
+      files: [bapp],
+    };
+
+    expect(toReceiptInput(form, 'po1').attachments).toEqual([bapp]);
+  });
+
+  it('never asks goods for a number or a file', () => {
+    const po = order([item('a', 4, 0)]);
+    const form = { ...emptyReceiptForm(po, '2026-11-05'), quantities: { a: 1 } };
+    const errors = validateReceipt(form, po, receiptLines(po));
+
+    expect(errors.deliveryNote).toBe(false);
+    expect(errors.files).toBe(false);
+    expect(toReceiptInput(form, 'po1').attachments).toBeUndefined();
+  });
+});

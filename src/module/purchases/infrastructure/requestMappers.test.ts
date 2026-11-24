@@ -171,6 +171,8 @@ describe('toPurchaseRequest, the procurement part', () => {
   it('keeps the totals of a quote by its id, as the service computed them', () => {
     expect(procurement.totals.q1).toEqual({
       complete: true,
+      rejected: false,
+      schedule: null,
       subtotal: 5400000,
       discountAmount: 0,
       taxAmount: 594000,
@@ -294,5 +296,132 @@ describe('toPurchaseRequest, delivery warehouse', () => {
 
   it('has none for an older request or a request of services only', () => {
     expect(toPurchaseRequest(dto as unknown as PurchaseRequestDto).deliveryWarehouse).toBeNull();
+  });
+});
+
+describe('toPurchaseRequest, rejected vendors', () => {
+  /** What the live service answered after an approver turned a winner down (Demo Site, 2026-11-24). */
+  const withRejection = (view: Record<string, unknown>) =>
+    toPurchaseRequest({
+      ...(dto as unknown as PurchaseRequestDto),
+      procurementView: {
+        ...((dto as unknown as PurchaseRequestDto).procurementView ?? {}),
+        ...view,
+      },
+    } as PurchaseRequestDto);
+
+  it('marks the quote of a vendor that was turned down', () => {
+    const { procurement } = withRejection({
+      quotes: [{ id: 'q1', rejected: true, total: 2331000 }],
+    });
+    expect(procurement.totals.q1.rejected).toBe(true);
+  });
+
+  it('treats a quote with no flag as not rejected', () => {
+    const { procurement } = toPurchaseRequest(dto as unknown as PurchaseRequestDto);
+    expect(Object.values(procurement.totals).every((entry) => entry.rejected === false)).toBe(true);
+  });
+
+  it('reads who turned the vendor down, when and why', () => {
+    const { procurement } = withRejection({
+      rejectedWinners: [
+        {
+          vendor: 'v1',
+          route: 'SINGLE',
+          amount: 2331000,
+          reason: 'Harga terlalu tinggi',
+          rejectedAt: '2026-11-24T09:11:45.030Z',
+          rejectedBy: 'u1',
+          rejectedByInfo: {
+            id: 'u1',
+            name: 'Firman Badang',
+            email: 'f@x.id',
+            title: 'Super Admin',
+          },
+        },
+      ],
+    });
+    expect(procurement.rejectedWinners).toEqual([
+      {
+        vendorId: 'v1',
+        reason: 'Harga terlalu tinggi',
+        rejectedAt: '2026-11-24T09:11:45.030Z',
+        rejectedByName: 'Firman Badang',
+        amount: 2331000,
+      },
+    ]);
+  });
+
+  it('puts the newest rejection of a vendor first', () => {
+    const { procurement } = withRejection({
+      rejectedWinners: [
+        { vendor: 'v1', reason: 'Lama', rejectedAt: '2026-11-20T01:00:00.000Z' },
+        { vendor: 'v1', reason: 'Baru', rejectedAt: '2026-11-24T01:00:00.000Z' },
+      ],
+    });
+    expect(procurement.rejectedWinners.map((entry) => entry.reason)).toEqual(['Baru', 'Lama']);
+  });
+
+  it('keeps working when the service sends no name for the rejecter', () => {
+    const { procurement } = withRejection({
+      rejectedWinners: [{ vendor: 'v1', reason: 'X', rejectedAt: '2026-11-24T01:00:00.000Z' }],
+    });
+    expect(procurement.rejectedWinners[0].rejectedByName).toBe('');
+  });
+
+  it('has no rejected vendors when the service sends none', () => {
+    expect(
+      toPurchaseRequest(dto as unknown as PurchaseRequestDto).procurement.rejectedWinners
+    ).toEqual([]);
+  });
+});
+
+describe('toPurchaseRequest, the payment schedule of a quote', () => {
+  /** What the service answered for a quote with four terms and a retention (Aldi's note, PRO-120). */
+  const withSchedule = (termSchedule: unknown) =>
+    toPurchaseRequest({
+      ...(dto as unknown as PurchaseRequestDto),
+      procurementView: {
+        ...((dto as unknown as PurchaseRequestDto).procurementView ?? {}),
+        quotes: [{ id: 'q1', total: 100000000, termSchedule }],
+      },
+    } as PurchaseRequestDto);
+
+  it('reads the rows the service planned, and their total', () => {
+    const { procurement } = withSchedule({
+      rows: [
+        {
+          kind: 'TERM',
+          seq: 1,
+          of: 4,
+          label: 'Termin 1 dari 4 · 9.5%',
+          percent: 9.5,
+          amount: 9500000,
+        },
+        { kind: 'RETENTION', seq: 5, of: 5, label: 'Retensi 5%', percent: 5, amount: 5000000 },
+      ],
+      percent: 100,
+      amount: 100000000,
+    });
+
+    expect(procurement.totals.q1.schedule).toEqual({
+      rows: [
+        {
+          kind: 'TERM',
+          seq: 1,
+          of: 4,
+          label: 'Termin 1 dari 4 · 9.5%',
+          percent: 9.5,
+          amount: 9500000,
+        },
+        { kind: 'RETENTION', seq: 5, of: 5, label: 'Retensi 5%', percent: 5, amount: 5000000 },
+      ],
+      percent: 100,
+      amount: 100000000,
+    });
+  });
+
+  it('has no schedule while the quote has no term (the service sends null)', () => {
+    expect(withSchedule(null).procurement.totals.q1.schedule).toBeNull();
   });
 });

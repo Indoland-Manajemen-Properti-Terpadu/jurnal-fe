@@ -160,6 +160,11 @@ export const products = {
     trackedDescription: 'Jumlah stok dicatat dan nilainya masuk ke akun persediaan.',
     untrackedTitle: 'Tidak dilacak (jasa / non-stok)',
     untrackedDescription: 'Stok tidak dihitung. Cocok untuk jasa dan biaya.',
+    countingTitle: 'Produk ini sedang dihitung',
+    countingBody:
+      'Produk ini ada di stok opname {number}. Pilihan Dilacak dan satuan dasar dikunci sampai opname selesai atau dibatalkan.',
+    countingOpen: 'Buka opname',
+    lockedByCount: 'Dikunci selama opname berjalan',
     minStockHint: 'Peringatan jika stok di bawah angka ini',
     inventoryAccountHint: 'Akun aset untuk nilai stok',
   },

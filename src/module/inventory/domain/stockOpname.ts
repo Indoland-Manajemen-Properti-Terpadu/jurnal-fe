@@ -24,6 +24,13 @@ export interface OpnameWarehouse {
   name: string;
 }
 
+/** A count whose warehouse no longer exists (the service sends `null`) keeps an empty warehouse. */
+export const NO_WAREHOUSE: OpnameWarehouse = { id: '', code: '', name: '' };
+
+/** The warehouse's name, or the given text when the warehouse no longer exists. */
+export const warehouseName = (warehouse: OpnameWarehouse, missing: string): string =>
+  warehouse.name || missing;
+
 export interface OpnameLine {
   id: string;
   productId: string;
@@ -158,6 +165,8 @@ export interface OpnameRights {
   review: boolean;
   cancel: boolean;
   approve: boolean;
+  /** May delete a draft (the delete right on the stock count menu). */
+  remove: boolean;
 }
 
 export interface OpnameActions {
@@ -169,6 +178,10 @@ export interface OpnameActions {
   approve: boolean;
   reject: boolean;
   cancel: boolean;
+  /** Only a draft can be deleted; a started count is cancelled instead. */
+  remove: boolean;
+  /** The minutes (berita acara) come from the server for a posted count, for reviewers and approvers. */
+  minutes: boolean;
 }
 
 const NO_ACTIONS: OpnameActions = {
@@ -180,6 +193,8 @@ const NO_ACTIONS: OpnameActions = {
   approve: false,
   reject: false,
   cancel: false,
+  remove: false,
+  minutes: false,
 };
 
 /** What the signed-in person may do with a count in its current status. */
@@ -187,7 +202,13 @@ export const opnameActions = (status: OpnameStatus, rights: OpnameRights): Opnam
   const canWork = rights.count || rights.review;
   switch (status) {
     case 'draft':
-      return { ...NO_ACTIONS, start: canWork, editHeader: canWork, cancel: rights.cancel };
+      return {
+        ...NO_ACTIONS,
+        start: canWork,
+        editHeader: canWork,
+        cancel: rights.cancel,
+        remove: rights.remove,
+      };
     case 'counting':
       return {
         ...NO_ACTIONS,
@@ -199,7 +220,11 @@ export const opnameActions = (status: OpnameStatus, rights: OpnameRights): Opnam
     case 'pending_approval':
       return { ...NO_ACTIONS, approve: rights.approve, reject: rights.approve };
     case 'posted':
-      return { ...NO_ACTIONS, cancel: rights.cancel };
+      return {
+        ...NO_ACTIONS,
+        cancel: rights.cancel,
+        minutes: rights.review || rights.approve,
+      };
     default:
       return NO_ACTIONS;
   }

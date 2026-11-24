@@ -3,6 +3,7 @@ import type {
   ApprovalState,
   Attachment,
   PartyRef,
+  PeriodUnit,
 } from '@/module/purchases/domain/purchaseCommon';
 import type { ProcurementRoute } from '@/module/purchases/domain/purchaseRequest';
 
@@ -33,6 +34,8 @@ export interface TermSnapshot {
   installmentPercents: number[];
   dueDays: number | null;
   periods: number | null;
+  /** The unit a recurring term bills by; null for a term that does not recur. */
+  periodUnit: PeriodUnit | null;
   retentionPercent: number;
   maintenanceMonths: number;
 }
@@ -75,9 +78,32 @@ export interface Quote {
   scores: QuoteScores;
 }
 
+/** One payment the service planned for a quote: an advance, a term, a period, the retention or all at once. */
+export interface TermScheduleRow {
+  kind: 'ADVANCE' | 'TERM' | 'PERIOD' | 'RETENTION' | 'FULL';
+  seq: number;
+  of: number;
+  /** The service's own sentence, e.g. "Termin 1 dari 4 · 9.5%". */
+  label: string;
+  /** Percent of the whole quote, so every row of the schedule adds up to exactly 100. */
+  percent: number;
+  amount: number;
+}
+
+/** The payment schedule worked out by the service, never by the screen. */
+export interface TermSchedule {
+  rows: TermScheduleRow[];
+  percent: number;
+  amount: number;
+}
+
 /** Amounts and score of one quote, computed by the service. */
 export interface QuoteTotals {
   complete: boolean;
+  /** An approver turned this vendor down on an earlier submission; it cannot be the winner again. */
+  rejected: boolean;
+  /** Null while the quote has no payment term. */
+  schedule: TermSchedule | null;
   subtotal: number;
   discountAmount: number;
   taxAmount: number;
@@ -95,8 +121,19 @@ export interface ApprovalPreviewLevel {
   roles: string[];
 }
 
+/** A vendor an approver turned down, with why and by whom. Newest first when a vendor appears twice. */
+export interface RejectedWinner {
+  vendorId: string;
+  reason: string;
+  rejectedAt: string | null;
+  rejectedByName: string;
+  amount: number | null;
+}
+
 export interface Procurement {
   route: ProcurementRoute | null;
+  /** Vendors turned down on earlier submissions, newest first. */
+  rejectedWinners: RejectedWinner[];
   status: ProcurementStatus;
   singleReason: string;
   belowMinQuotesReason: string;
@@ -145,6 +182,8 @@ export interface TermOverridesInput {
   installmentPercents?: number[];
   dueDays?: number;
   periods?: number;
+  /** Empty or null follows the unit of the master term. */
+  periodUnit?: PeriodUnit;
   retentionPercent?: number;
   maintenanceMonths?: number;
 }
@@ -194,7 +233,10 @@ export const termOverridesOf = (term: TermSnapshot | null): TermOverridesInput =
       overrides.installmentPercents = term.installmentPercents;
     }
   }
-  if (term.billingSplit === 'recurring' && term.periods) overrides.periods = term.periods;
+  if (term.billingSplit === 'recurring') {
+    if (term.periods) overrides.periods = term.periods;
+    if (term.periodUnit) overrides.periodUnit = term.periodUnit;
+  }
   if (term.hasDueTerm && term.dueDays !== null) overrides.dueDays = term.dueDays;
   if (term.hasRetention) {
     overrides.retentionPercent = term.retentionPercent;
@@ -282,3 +324,10 @@ export const procurementSteps = (procurement: Procurement): ProcurementStep[] =>
 /** The procurement can be changed and (re)submitted only while it is a draft or was rejected. */
 export const procurementEditable = (procurement: Procurement): boolean =>
   procurement.status === 'DRAFT' || procurement.status === 'REJECTED';
+
+/** The latest time an approver turned this vendor down, or null when it never was. */
+export const latestRejection = (
+  procurement: Pick<Procurement, 'rejectedWinners'>,
+  vendorId: string
+): RejectedWinner | null =>
+  procurement.rejectedWinners.find((entry) => entry.vendorId === vendorId) ?? null;

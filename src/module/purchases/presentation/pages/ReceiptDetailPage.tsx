@@ -11,6 +11,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
 import { PURCHASE_MENU } from '@/module/purchases/domain/purchaseAccess';
 import { receiptActions } from '@/module/purchases/domain/purchaseActions';
+import { OpnameBlockAlert } from '@/module/purchases/presentation/components/receipts/OpnameBlockAlert';
 import { ReceiptSummaryCard } from '@/module/purchases/presentation/components/receipts/ReceiptSummaryCard';
 import { StateFrame } from '@/module/purchases/presentation/components/requests/StateFrame';
 import { ApprovalPanel } from '@/module/purchases/presentation/components/shared/ApprovalPanel';
@@ -36,6 +37,7 @@ import {
   useVoidReceipt,
 } from '@/module/purchases/presentation/hooks/usePurchaseMutations';
 import { useBills, useReceipt } from '@/module/purchases/presentation/hooks/usePurchaseQueries';
+import { toApiError } from '@/lib/http/apiError';
 import { routes } from '@/router/routes';
 
 const BACK = routes.purchases.receipts;
@@ -131,66 +133,69 @@ export default function ReceiptDetailPage() {
         </>
       }
     >
-      <Grid gutter="lg" align="flex-start">
-        <Grid.Col span={{ base: 12, lg: 8 }}>
-          <Stack gap="lg">
-            <ReceiptSummaryCard receipt={doc} />
-            <BillsTableCard
-              title={t('receipts.detail.billsTitle')}
-              subtitle={t('receipts.detail.billsSubtitle')}
-              bills={(orderBills.data?.items ?? []).filter((bill) =>
-                doc.billRefs.some((ref) => ref.id === bill.id)
-              )}
-              emptyText={t('receipts.detail.billsEmpty')}
-            />
-            <AttachmentsCard
-              target="receipt"
-              documentId={doc.id}
-              attachments={doc.attachments}
-              canUpload={can(PURCHASE_MENU.receipts, 'update') && doc.status !== 'VOID'}
-            />
-          </Stack>
-        </Grid.Col>
-        <Grid.Col span={{ base: 12, lg: 4 }}>
-          <Stack gap="lg">
-            <SectionCard
-              icon={IconCalculator}
-              label
-              flush
-              title={t('receipts.detail.summaryTitle')}
-              subtitle={t('receipts.detail.summarySubtitle')}
-            >
-              <StatGrid
-                items={[
-                  { label: t('receipts.detail.totalItems'), value: String(doc.items.length) },
-                  {
-                    label: t('receipts.detail.totalReceived'),
-                    value: formatQuantity(totalReceived),
-                  },
-                  ...(doc.kind === 'GOODS'
-                    ? [
-                        {
-                          label: t('receipts.detail.totalRejected'),
-                          value: formatQuantity(totalRejected),
-                        },
-                      ]
-                    : []),
-                  { label: t('receipts.detail.totalAccrual'), value: formatAmount(doc.amount) },
-                ]}
+      <Stack gap="lg">
+        <OpnameBlockAlert error={voidReceipt.error} />
+        <Grid gutter="lg" align="flex-start">
+          <Grid.Col span={{ base: 12, lg: 8 }}>
+            <Stack gap="lg">
+              <ReceiptSummaryCard receipt={doc} />
+              <BillsTableCard
+                title={t('receipts.detail.billsTitle')}
+                subtitle={t('receipts.detail.billsSubtitle')}
+                bills={(orderBills.data?.items ?? []).filter((bill) =>
+                  doc.billRefs.some((ref) => ref.id === bill.id)
+                )}
+                emptyText={t('receipts.detail.billsEmpty')}
               />
-            </SectionCard>
-            <ApprovalPanel
-              approval={doc.approval}
-              status={doc.status}
-              canApprove={can(PURCHASE_MENU.approveReceipt, 'update')}
-              busy={approve.isPending || reject.isPending}
-              onApprove={(note) => approve.mutate({ id: doc.id, note })}
-              onReject={(reason) => reject.mutate({ id: doc.id, reason })}
-            />
-            <DocumentJourney steps={journey.steps} />
-          </Stack>
-        </Grid.Col>
-      </Grid>
+              <AttachmentsCard
+                target="receipt"
+                documentId={doc.id}
+                attachments={doc.attachments}
+                canUpload={can(PURCHASE_MENU.receipts, 'update') && doc.status !== 'VOID'}
+              />
+            </Stack>
+          </Grid.Col>
+          <Grid.Col span={{ base: 12, lg: 4 }}>
+            <Stack gap="lg">
+              <SectionCard
+                icon={IconCalculator}
+                label
+                flush
+                title={t('receipts.detail.summaryTitle')}
+                subtitle={t('receipts.detail.summarySubtitle')}
+              >
+                <StatGrid
+                  items={[
+                    { label: t('receipts.detail.totalItems'), value: String(doc.items.length) },
+                    {
+                      label: t('receipts.detail.totalReceived'),
+                      value: formatQuantity(totalReceived),
+                    },
+                    ...(doc.kind === 'GOODS'
+                      ? [
+                          {
+                            label: t('receipts.detail.totalRejected'),
+                            value: formatQuantity(totalRejected),
+                          },
+                        ]
+                      : []),
+                    { label: t('receipts.detail.totalAccrual'), value: formatAmount(doc.amount) },
+                  ]}
+                />
+              </SectionCard>
+              <ApprovalPanel
+                approval={doc.approval}
+                status={doc.status}
+                canApprove={can(PURCHASE_MENU.approveReceipt, 'update')}
+                busy={approve.isPending || reject.isPending}
+                onApprove={(note) => approve.mutate({ id: doc.id, note })}
+                onReject={(reason) => reject.mutate({ id: doc.id, reason })}
+              />
+              <DocumentJourney steps={journey.steps} />
+            </Stack>
+          </Grid.Col>
+        </Grid>
+      </Stack>
       <ReasonModal
         opened={voiding}
         title={t('receipts.detail.voidTitle', { label: doc.documentLabel })}
@@ -199,7 +204,16 @@ export default function ReceiptDetailPage() {
         loading={voidReceipt.isPending}
         onClose={() => setVoiding(false)}
         onConfirm={(reason) =>
-          voidReceipt.mutate({ id: doc.id, reason }, { onSuccess: () => setVoiding(false) })
+          voidReceipt.mutate(
+            { id: doc.id, reason },
+            {
+              onSuccess: () => setVoiding(false),
+              // The reason in the dialog does not matter once a count blocks it; the page explains why.
+              onError: (error) => {
+                if (toApiError(error).blockingOpname) setVoiding(false);
+              },
+            }
+          )
         }
       />
     </DocumentFrame>

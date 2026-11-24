@@ -70,11 +70,6 @@ export const settings = {
   formattedResult: 'Hasil format',
   previewOnly: 'Pratinjau saja. Tidak mengubah perhitungan atau data transaksi.',
   companyTitle: 'Profil Perusahaan',
-  companyNoContractTitle: 'Data perusahaan belum terhubung',
-  companyNoContractDescription:
-    'Pengaturan identitas perusahaan memerlukan kontrak data tersendiri. Halaman ini belum menampilkan atau menyimpan profil perusahaan.',
-  companyNoContractNote:
-    'Identitas, alamat, dan bahasa dokumen akan tersedia setelah layanan pengaturan perusahaan ditetapkan.',
   addRole: 'Tambah Peran',
   addUser: 'Tambah Pengguna',
   usersTab: 'Pengguna',

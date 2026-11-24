@@ -96,9 +96,9 @@ describe('toBlockReasons', () => {
   it('reads the exact codes the service uses', () => {
     const reasons = toBlockReasons({
       reasons: [
-        { code: 'OPEN_PURCHASE_ORDER', message: 'x', count: 2 },
+        { code: 'OPEN_PO', message: 'x', count: 2 },
         { code: 'HAS_STOCK', message: 'x', count: 4 },
-        { code: 'DEFAULT', message: 'x' },
+        { code: 'IS_DEFAULT', message: 'x' },
       ],
     });
 
@@ -107,6 +107,35 @@ describe('toBlockReasons', () => {
       { kind: 'stock', itemCount: 4, value: null },
       { kind: 'orders', count: 2 },
     ]);
+  });
+
+  it('still understands the earlier spellings of the default and order codes', () => {
+    const reasons = toBlockReasons({
+      reasons: [
+        { code: 'OPEN_PURCHASE_ORDER', message: 'x', count: 1 },
+        { code: 'DEFAULT', message: 'x' },
+      ],
+    });
+
+    expect(reasons.map((reason) => reason.kind)).toEqual(['default', 'orders']);
+  });
+
+  it('carries the stock value when the service sends it', () => {
+    const reasons = toBlockReasons({
+      reasons: [{ code: 'HAS_STOCK', message: 'x', count: 8, inventoryValue: 22959000 }],
+    });
+
+    expect(reasons).toEqual([{ kind: 'stock', itemCount: 8, value: 22959000 }]);
+  });
+
+  it('keeps a stock value of zero, but shows nothing when the service leaves the value out', () => {
+    const zero = toBlockReasons({
+      reasons: [{ code: 'HAS_STOCK', message: 'x', count: 1, inventoryValue: 0 }],
+    });
+    const hidden = toBlockReasons({ reasons: [{ code: 'HAS_STOCK', message: 'x', count: 1 }] });
+
+    expect(zero[0]).toMatchObject({ kind: 'stock', value: 0 });
+    expect(hidden[0]).toMatchObject({ kind: 'stock', value: null });
   });
 
   it('reads the transfers that wait for approval, between the orders and the count', () => {

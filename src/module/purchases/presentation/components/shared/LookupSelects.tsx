@@ -15,20 +15,40 @@ interface SupplierSelectProps extends PickerProps {
   onChange: (id: string | null, vendor: PartyRef | null) => void;
   /** Vendor already chosen elsewhere (for example from a document); keeps it listed. */
   selected?: PartyRef | null;
+  /** Vendors that must not be offered, for example the ones that already have a quote. */
+  excludeIds?: readonly string[];
 }
+
+/**
+ * The vendors to offer: the search result plus the one already chosen elsewhere, without the
+ * excluded ones. The vendor currently picked stays listed even when it is on the exclusion list.
+ */
+export const offeredVendors = (
+  found: PartyRef[],
+  selected: PartyRef | null | undefined,
+  value: string | null,
+  excludeIds?: readonly string[]
+): PartyRef[] => {
+  const listed =
+    selected && !found.some((v) => v.id === selected.id) ? [selected, ...found] : found;
+  return excludeIds?.length
+    ? listed.filter((vendor) => vendor.id === value || !excludeIds.includes(vendor.id))
+    : listed;
+};
 
 /** Suppliers searched on the server as the user types. */
 export const SupplierSelect = ({
   value,
   onChange,
   selected,
+  excludeIds,
   ...rest
 }: Readonly<SupplierSelectProps>) => {
   const { t } = useTranslation('purchases');
   const [search, setSearch] = useState('');
   const [debounced] = useDebouncedValue(search, 300);
   const { data = [], isFetching } = useSupplierOptions(debounced.trim());
-  const options = selected && !data.some((v) => v.id === selected.id) ? [selected, ...data] : data;
+  const options = offeredVendors(data, selected, value, excludeIds);
 
   return (
     <Select

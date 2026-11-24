@@ -42,6 +42,8 @@ export const NAV_MENU = {
   purchaseReturns: ['JP-PURCH-RET'],
   payables: ['JP-PURCH-RPT', 'JP-PURCH'],
   settings: ['JP-SETT'],
+  /** Company profile has its own right, so a role with settings but without it does not see the page. */
+  company: ['JP-SETT-COMPANY'],
   departments: ['JP-SETT-DEPT'],
   /** Users and roles screens; either menu opens the user list because it needs the roles too. */
   users: ['JP-SETT-UM', 'JP-SETT-CT'],

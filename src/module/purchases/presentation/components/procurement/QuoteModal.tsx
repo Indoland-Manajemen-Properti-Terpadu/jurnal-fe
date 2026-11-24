@@ -195,6 +195,7 @@ export const QuoteModal = ({
             label={t('procurement.quote.vendor')}
             value={values.vendorId || null}
             selected={quote ? quote.vendor : null}
+            excludeIds={[...takenVendors]}
             onChange={(id, vendor) => {
               set('vendorId', id ?? '');
               set('vendorName', vendor?.name ?? '');

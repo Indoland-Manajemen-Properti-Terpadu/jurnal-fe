@@ -5,6 +5,8 @@ import type {
   Quote,
   QuoteScores,
   QuoteTotals,
+  RejectedWinner,
+  TermSchedule,
   TermSnapshot,
 } from '@/module/purchases/domain/procurement';
 import type { NamedRef, UserInfo } from '@/module/purchases/domain/purchaseCommon';
@@ -26,6 +28,7 @@ import type {
   OrderRefDto,
   PurchaseRequestDto,
   QuoteDto,
+  RejectedWinnerDto,
   RequestItemDto,
   TermSnapshotDto,
   UserInfoDto,
@@ -65,6 +68,7 @@ const toTerm = (dto: TermSnapshotDto | null | undefined): TermSnapshot | null =>
         installmentPercents: dto.installmentPercents ?? [],
         dueDays: dto.dueDays ?? null,
         periods: dto.periods ?? null,
+        periodUnit: dto.billingSplit === 'recurring' ? (dto.periodUnit ?? 'monthly') : null,
         retentionPercent: dto.retentionPercent ?? 0,
         maintenanceMonths: dto.maintenanceMonths ?? 0,
       }
@@ -115,6 +119,38 @@ const toQuote = (dto: QuoteDto): Quote => ({
   scores: toScores(dto.scores),
 });
 
+type ScheduleDto = NonNullable<
+  NonNullable<NonNullable<PurchaseRequestDto['procurementView']>['quotes']>[number]['termSchedule']
+>;
+
+const toSchedule = (dto: ScheduleDto | null | undefined): TermSchedule | null =>
+  dto
+    ? {
+        rows: (dto.rows ?? []).map((row) => ({
+          kind: row.kind,
+          seq: row.seq ?? 1,
+          of: row.of ?? 1,
+          label: row.label ?? '',
+          percent: row.percent ?? 0,
+          amount: row.amount ?? 0,
+        })),
+        percent: dto.percent ?? 0,
+        amount: dto.amount ?? 0,
+      }
+    : null;
+
+/** Newest first, so the latest reason for a vendor is the one found first. */
+const toRejectedWinners = (list: RejectedWinnerDto[] | null | undefined): RejectedWinner[] =>
+  (list ?? [])
+    .map((entry) => ({
+      vendorId: entry.vendor,
+      reason: entry.reason ?? '',
+      rejectedAt: entry.rejectedAt ?? null,
+      rejectedByName: entry.rejectedByInfo?.name ?? '',
+      amount: entry.amount ?? null,
+    }))
+    .sort((a, b) => (b.rejectedAt ?? '').localeCompare(a.rejectedAt ?? ''));
+
 const toProcurement = (dto: PurchaseRequestDto): Procurement => {
   const base = dto.procurement;
   const view = dto.procurementView;
@@ -122,6 +158,8 @@ const toProcurement = (dto: PurchaseRequestDto): Procurement => {
   (view?.quotes ?? []).forEach((entry) => {
     totals[entry.id] = {
       complete: Boolean(entry.complete),
+      rejected: Boolean(entry.rejected),
+      schedule: toSchedule(entry.termSchedule),
       subtotal: entry.subtotal ?? 0,
       discountAmount: entry.discountAmount ?? 0,
       taxAmount: entry.taxAmount ?? 0,
@@ -134,6 +172,7 @@ const toProcurement = (dto: PurchaseRequestDto): Procurement => {
   });
   return {
     route: base?.route ?? null,
+    rejectedWinners: toRejectedWinners(view?.rejectedWinners),
     status: (base?.status ?? 'DRAFT') as ProcurementStatus,
     singleReason: base?.singleReason ?? '',
     belowMinQuotesReason: base?.belowMinQuotesReason ?? '',

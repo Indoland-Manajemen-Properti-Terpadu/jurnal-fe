@@ -69,11 +69,6 @@ export const settings = {
   formattedResult: 'Formatted result',
   previewOnly: 'Preview only. Transaction data and calculations are unchanged.',
   companyTitle: 'Company Profile',
-  companyNoContractTitle: 'Company data is not connected yet',
-  companyNoContractDescription:
-    'Company identity settings need a separate data contract. This page cannot show or save the company profile yet.',
-  companyNoContractNote:
-    'Identity, address, and document language will be available once the company settings service is defined.',
   addRole: 'Add Role',
   addUser: 'Add User',
   usersTab: 'Users',

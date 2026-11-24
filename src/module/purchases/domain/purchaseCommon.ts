@@ -37,6 +37,11 @@ export interface PaymentMethodRef {
 }
 
 /** A payment term the user can pick on a quote; the mechanism decides which overrides apply. */
+/** How often a recurring term bills: every month, quarter, half year or year. */
+export type PeriodUnit = 'monthly' | 'quarterly' | 'semiannual' | 'yearly';
+
+export const PERIOD_UNITS: PeriodUnit[] = ['monthly', 'quarterly', 'semiannual', 'yearly'];
+
 export interface PaymentTermOption {
   id: string;
   name: string;
@@ -48,6 +53,8 @@ export interface PaymentTermOption {
   defaultAdvancePercent: number | null;
   defaultInstallments: number | null;
   defaultPeriods: number | null;
+  /** The unit of the term in the master list; a quote may bill by another unit. */
+  periodUnit: PeriodUnit;
   defaultDueDays: number | null;
   defaultRetentionPercent: number | null;
   defaultMaintenanceMonths: number | null;
@@ -79,6 +86,8 @@ export interface NamedRef {
 
 /** An active warehouse in a picker; the main one is where a new document starts. */
 export interface WarehouseRef extends NamedRef {
+  /** Warehouse code such as GDG-001; shown before the name when the service sends it. */
+  code?: string;
   isDefault: boolean;
 }
 

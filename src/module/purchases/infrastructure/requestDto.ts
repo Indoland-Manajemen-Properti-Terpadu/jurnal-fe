@@ -36,6 +36,7 @@ export interface TermSnapshotDto {
   installmentPercents?: number[] | null;
   dueDays?: number | null;
   periods?: number | null;
+  periodUnit?: 'monthly' | 'quarterly' | 'semiannual' | 'yearly' | null;
   retentionPercent?: number | null;
   maintenanceMonths?: number | null;
 }
@@ -81,11 +82,39 @@ export interface ProcurementDto {
   quotes?: QuoteDto[] | null;
 }
 
+/** A winner an approver turned down; the vendor can no longer be chosen. */
+export interface RejectedWinnerDto {
+  vendor: string;
+  route?: string | null;
+  amount?: number | null;
+  reason?: string | null;
+  rejectedAt?: string | null;
+  rejectedBy?: string | null;
+  rejectedByInfo?: UserInfoDto | null;
+}
+
 export interface ProcurementViewDto {
   biddingNumber?: string | null;
+  rejectedWinners?: RejectedWinnerDto[] | null;
   quotes?:
     | {
         id: string;
+        /** The quote's vendor was turned down by an approver earlier. */
+        rejected?: boolean | null;
+        termSchedule?: {
+          rows?:
+            | {
+                kind: 'ADVANCE' | 'TERM' | 'PERIOD' | 'RETENTION' | 'FULL';
+                seq?: number | null;
+                of?: number | null;
+                label?: string | null;
+                percent?: number | null;
+                amount?: number | null;
+              }[]
+            | null;
+          percent?: number | null;
+          amount?: number | null;
+        } | null;
         complete?: boolean | null;
         subtotal?: number | null;
         discountAmount?: number | null;

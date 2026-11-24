@@ -63,6 +63,11 @@ export const QuotesTable = ({
                         {t('procurement.incomplete')}
                       </Badge>
                     )}
+                    {amounts?.rejected && (
+                      <Badge size="xs" radius="sm" variant="light" color="red">
+                        {t('procurement.rejected.badge')}
+                      </Badge>
+                    )}
                     {expired && (
                       <Badge size="xs" radius="sm" variant="light" color="red">
                         {t('procurement.expired')}
