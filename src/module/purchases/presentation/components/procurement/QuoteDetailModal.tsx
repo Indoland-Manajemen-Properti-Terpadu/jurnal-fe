@@ -2,6 +2,7 @@ import { Anchor, Button, Divider, Group, Stack, Table, Text } from '@mantine/cor
 import { ModalFrame } from '@/components/Modals/ModalFrame';
 import { useTranslation } from '@/i18n';
 import type { Procurement, Quote } from '@/module/purchases/domain/procurement';
+import { TermScheduleTable } from '@/module/purchases/presentation/components/procurement/TermScheduleTable';
 import type { RequestItem } from '@/module/purchases/domain/purchaseRequest';
 import {
   formatAmount,
@@ -166,6 +167,8 @@ export const QuoteDetailModal = ({
               </Group>
             </Stack>
           )}
+
+          {totals?.schedule && <TermScheduleTable schedule={totals.schedule} />}
 
           <Divider />
           <div>

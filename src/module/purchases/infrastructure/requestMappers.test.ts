@@ -172,6 +172,7 @@ describe('toPurchaseRequest, the procurement part', () => {
     expect(procurement.totals.q1).toEqual({
       complete: true,
       rejected: false,
+      schedule: null,
       subtotal: 5400000,
       discountAmount: 0,
       taxAmount: 594000,
@@ -372,5 +373,55 @@ describe('toPurchaseRequest, rejected vendors', () => {
     expect(
       toPurchaseRequest(dto as unknown as PurchaseRequestDto).procurement.rejectedWinners
     ).toEqual([]);
+  });
+});
+
+describe('toPurchaseRequest, the payment schedule of a quote', () => {
+  /** What the service answered for a quote with four terms and a retention (Aldi's note, PRO-120). */
+  const withSchedule = (termSchedule: unknown) =>
+    toPurchaseRequest({
+      ...(dto as unknown as PurchaseRequestDto),
+      procurementView: {
+        ...((dto as unknown as PurchaseRequestDto).procurementView ?? {}),
+        quotes: [{ id: 'q1', total: 100000000, termSchedule }],
+      },
+    } as PurchaseRequestDto);
+
+  it('reads the rows the service planned, and their total', () => {
+    const { procurement } = withSchedule({
+      rows: [
+        {
+          kind: 'TERM',
+          seq: 1,
+          of: 4,
+          label: 'Termin 1 dari 4 · 9.5%',
+          percent: 9.5,
+          amount: 9500000,
+        },
+        { kind: 'RETENTION', seq: 5, of: 5, label: 'Retensi 5%', percent: 5, amount: 5000000 },
+      ],
+      percent: 100,
+      amount: 100000000,
+    });
+
+    expect(procurement.totals.q1.schedule).toEqual({
+      rows: [
+        {
+          kind: 'TERM',
+          seq: 1,
+          of: 4,
+          label: 'Termin 1 dari 4 · 9.5%',
+          percent: 9.5,
+          amount: 9500000,
+        },
+        { kind: 'RETENTION', seq: 5, of: 5, label: 'Retensi 5%', percent: 5, amount: 5000000 },
+      ],
+      percent: 100,
+      amount: 100000000,
+    });
+  });
+
+  it('has no schedule while the quote has no term (the service sends null)', () => {
+    expect(withSchedule(null).procurement.totals.q1.schedule).toBeNull();
   });
 });

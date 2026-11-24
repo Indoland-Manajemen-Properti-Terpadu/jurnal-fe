@@ -14,6 +14,7 @@ export const purchasesReceipts = {
     subtitleService:
       'Mencatat pekerjaan yang sudah selesai dari SPK {number}. BAPP perlu disetujui sebelum dijurnal.',
     infoSubtitle: 'Tanggal terima, gudang, dan nomor surat jalan dari vendor',
+    infoSubtitleService: 'Tanggal pekerjaan diterima dan nomor BAPP',
     warehouse: 'Gudang',
     warehouseHint: 'Gudang tempat barang berstok masuk.',
     warehousePlaceholder: 'Pilih gudang',
@@ -23,6 +24,18 @@ export const purchasesReceipts = {
     dateRequired: 'Tanggal penerimaan wajib diisi',
     dateBeforeOrder: 'Tanggal penerimaan tidak boleh sebelum tanggal pesanan',
     deliveryNote: 'Nomor surat jalan',
+    deliveryNoteService: 'Nomor BAPP',
+    deliveryNoteServicePlaceholder: 'Contoh: BAPP-001/XI/2026',
+    deliveryNoteServiceRequired: 'Nomor BAPP wajib diisi',
+    files: {
+      sectionTitle: 'BAPP bertanda tangan',
+      sectionSubtitle: 'Berkas BAPP yang sudah ditandatangani wajib dilampirkan saat dicatat.',
+      title: 'Berkas BAPP bertanda tangan',
+      drop: 'Tarik berkas ke sini atau klik untuk memilih',
+      hint: 'PDF, gambar, atau dokumen. Minimal 1 berkas, maksimal 5, masing-masing 5 MB.',
+      chosen: 'Berkas dipilih',
+      required: 'Unggah BAPP bertanda tangan',
+    },
     deliveryNotePlaceholder: 'Contoh: SJ-0012',
     linesTitle: 'Barang yang Diterima',
     linesSubtitle:

@@ -23,6 +23,7 @@ const term = (overrides: Partial<TermSnapshot> = {}): TermSnapshot => ({
   installmentPercents: [],
   dueDays: 30,
   periods: null,
+  periodUnit: null,
   retentionPercent: 0,
   maintenanceMonths: 0,
   ...overrides,

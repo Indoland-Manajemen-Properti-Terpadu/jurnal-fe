@@ -108,6 +108,11 @@ export const purchasesProcurement = {
   menuAria: 'Actions for the quote of {vendor}',
   menu: { view: 'View details', edit: 'Edit', remove: 'Remove' },
   detail: {
+    schedule: {
+      title: 'Payment schedule',
+      total: 'Total',
+      col: { payment: 'Payment', percent: 'Percent', amount: 'Amount' },
+    },
     vendorLabel: 'Vendor',
     title: 'Quote details',
     close: 'Close',
@@ -321,6 +326,16 @@ export const purchasesProcurement = {
     monthsUnit: 'months',
     percentsTitle: 'Percent of each installment',
     customPercents: 'Set the percents myself',
+    percentTotal: 'Total {total}% of 100%',
+    percentShort: 'Total {total}% of 100%, {gap}% short',
+    percentOver: 'Total {total}% of 100%, {gap}% over',
+    periodUnit: 'Period unit',
+    periodUnits: {
+      monthly: 'Monthly',
+      quarterly: 'Quarterly',
+      semiannual: 'Every six months',
+      yearly: 'Yearly',
+    },
     percentAria: 'Percent of installment {number}',
     termNumber: 'Installment {number}',
     withReceipt: 'Goods or services are received first',

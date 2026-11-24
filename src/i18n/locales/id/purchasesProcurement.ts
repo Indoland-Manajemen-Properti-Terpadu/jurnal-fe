@@ -109,6 +109,11 @@ export const purchasesProcurement = {
   menuAria: 'Aksi untuk penawaran {vendor}',
   menu: { view: 'Lihat detail', edit: 'Ubah', remove: 'Hapus' },
   detail: {
+    schedule: {
+      title: 'Jadwal pembayaran',
+      total: 'Total',
+      col: { payment: 'Pembayaran', percent: 'Persen', amount: 'Jumlah' },
+    },
     vendorLabel: 'Vendor',
     title: 'Detail penawaran',
     close: 'Tutup',
@@ -324,6 +329,16 @@ export const purchasesProcurement = {
     monthsUnit: 'bulan',
     percentsTitle: 'Persen tiap termin',
     customPercents: 'Atur persen sendiri',
+    percentTotal: 'Total {total}% dari 100%',
+    percentShort: 'Total {total}% dari 100%, kurang {gap}%',
+    percentOver: 'Total {total}% dari 100%, lebih {gap}%',
+    periodUnit: 'Satuan periode',
+    periodUnits: {
+      monthly: 'Bulanan',
+      quarterly: 'Triwulanan',
+      semiannual: 'Semesteran',
+      yearly: 'Tahunan',
+    },
     percentAria: 'Persen termin {number}',
     termNumber: 'Termin {number}',
     withReceipt: 'Ada penerimaan barang atau jasa',

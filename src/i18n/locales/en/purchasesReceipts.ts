@@ -14,6 +14,7 @@ export const purchasesReceipts = {
     subtitleService:
       'Records the work completed under SPK {number}. A BAPP needs approval before it is journaled.',
     infoSubtitle: 'Date received, warehouse and the vendor delivery note number',
+    infoSubtitleService: 'The date the work was accepted and the BAPP number',
     warehouse: 'Warehouse',
     warehouseHint: 'The warehouse where stocked goods are received.',
     warehousePlaceholder: 'Select a warehouse',
@@ -23,6 +24,18 @@ export const purchasesReceipts = {
     dateRequired: 'The receipt date is required',
     dateBeforeOrder: 'The receipt date cannot be before the order date',
     deliveryNote: 'Delivery note number',
+    deliveryNoteService: 'BAPP number',
+    deliveryNoteServicePlaceholder: 'Example: BAPP-001/XI/2026',
+    deliveryNoteServiceRequired: 'The BAPP number is required',
+    files: {
+      sectionTitle: 'Signed BAPP',
+      sectionSubtitle: 'The signed BAPP file must be attached when it is recorded.',
+      title: 'Signed BAPP file',
+      drop: 'Drag the file here or click to choose',
+      hint: 'PDF, image or document. At least 1 file, at most 5, 5 MB each.',
+      chosen: 'Files chosen',
+      required: 'Upload the signed BAPP',
+    },
     deliveryNotePlaceholder: 'Example: SJ-0012',
     linesTitle: 'Items Received',
     linesSubtitle:

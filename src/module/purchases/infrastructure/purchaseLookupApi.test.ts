@@ -69,19 +69,18 @@ describe('listWarehouses', () => {
   it('keeps which warehouse is the main one', async () => {
     http.get.mockResolvedValue({
       data: {
-        data: {
-          results: [
-            { id: 'w1', name: 'Gudang lt 10', isDefault: true },
-            { id: 'w2', name: 'Gudang Cadangan' },
-          ],
-        },
+        data: [
+          { id: 'w1', code: 'GDG-001', name: 'Gudang lt 10', isDefault: true },
+          { id: 'w2', name: 'Gudang Cadangan' },
+        ],
       },
     });
 
     const warehouses = await listWarehouses();
 
+    expect(http.get).toHaveBeenCalledWith('/v1/warehouses/options', expect.anything());
     expect(warehouses).toEqual([
-      { id: 'w1', name: 'Gudang lt 10', isDefault: true },
+      { id: 'w1', code: 'GDG-001', name: 'Gudang lt 10', isDefault: true },
       { id: 'w2', name: 'Gudang Cadangan', isDefault: false },
     ]);
   });
