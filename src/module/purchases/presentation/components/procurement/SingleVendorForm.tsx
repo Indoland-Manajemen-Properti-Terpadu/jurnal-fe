@@ -23,6 +23,7 @@ import {
 import { useTranslation } from '@/i18n';
 import type { Procurement, Quote } from '@/module/purchases/domain/procurement';
 import type { RequestItem } from '@/module/purchases/domain/purchaseRequest';
+import { RejectedVendorNote } from '@/module/purchases/presentation/components/procurement/RejectedVendorNote';
 import { SectionCard } from '@/module/purchases/presentation/components/shared/SectionCard';
 import {
   formatAmount,
@@ -167,6 +168,9 @@ export const SingleVendorForm = ({
         </Text>
       ) : (
         <Stack gap="md">
+          {totals?.rejected && (
+            <RejectedVendorNote procurement={procurement} vendorId={quote.vendor.id} />
+          )}
           <SimpleGrid cols={{ base: 2, sm: 4 }} spacing="md">
             {fact(t('procurement.detail.vendorLabel'), quote.vendor.name)}
             {fact(t('procurement.detail.number'), quote.number)}

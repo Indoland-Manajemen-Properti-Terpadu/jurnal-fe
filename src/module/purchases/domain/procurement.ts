@@ -78,6 +78,8 @@ export interface Quote {
 /** Amounts and score of one quote, computed by the service. */
 export interface QuoteTotals {
   complete: boolean;
+  /** An approver turned this vendor down on an earlier submission; it cannot be the winner again. */
+  rejected: boolean;
   subtotal: number;
   discountAmount: number;
   taxAmount: number;
@@ -95,8 +97,19 @@ export interface ApprovalPreviewLevel {
   roles: string[];
 }
 
+/** A vendor an approver turned down, with why and by whom. Newest first when a vendor appears twice. */
+export interface RejectedWinner {
+  vendorId: string;
+  reason: string;
+  rejectedAt: string | null;
+  rejectedByName: string;
+  amount: number | null;
+}
+
 export interface Procurement {
   route: ProcurementRoute | null;
+  /** Vendors turned down on earlier submissions, newest first. */
+  rejectedWinners: RejectedWinner[];
   status: ProcurementStatus;
   singleReason: string;
   belowMinQuotesReason: string;
@@ -282,3 +295,10 @@ export const procurementSteps = (procurement: Procurement): ProcurementStep[] =>
 /** The procurement can be changed and (re)submitted only while it is a draft or was rejected. */
 export const procurementEditable = (procurement: Procurement): boolean =>
   procurement.status === 'DRAFT' || procurement.status === 'REJECTED';
+
+/** The latest time an approver turned this vendor down, or null when it never was. */
+export const latestRejection = (
+  procurement: Pick<Procurement, 'rejectedWinners'>,
+  vendorId: string
+): RejectedWinner | null =>
+  procurement.rejectedWinners.find((entry) => entry.vendorId === vendorId) ?? null;
