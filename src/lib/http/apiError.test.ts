@@ -55,6 +55,25 @@ describe('toApiError', () => {
     expect(error.details).toEqual([{ type: 'TOTAL', expected: 3330000, actual: 3000000 }]);
   });
 
+  it('keeps the count that blocks a 409 so the screen can link to it', () => {
+    const error = toApiError(
+      respond(409, {
+        message:
+          'Gudang Utama sedang diopname (SO/2026/11/0012). Selesaikan atau batalkan opname dulu',
+        data: { opname: { id: 'op1', number: 'SO/2026/11/0012' } },
+      })
+    );
+
+    expect(error.kind).toBe('domain');
+    expect(error.blockingOpname).toEqual({ id: 'op1', number: 'SO/2026/11/0012' });
+  });
+
+  it('has no blocking count when a refusal carries none', () => {
+    expect(
+      toApiError(respond(409, { message: 'Bentrok', data: null })).blockingOpname
+    ).toBeUndefined();
+  });
+
   it.each([
     [401, 'unauthorized'],
     [403, 'forbidden'],

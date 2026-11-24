@@ -312,17 +312,15 @@ export const stockTake = {
   },
   print: {
     countAction: 'Cetak lembar hitung',
-    recordAction: 'Cetak berita acara',
+    recordAction: 'Unduh berita acara',
+    recordReady: 'Berita acara berhasil diunduh.',
+    recordFailed: 'Berita acara belum bisa diunduh.',
     blocked: 'Jendela cetak diblokir peramban. Izinkan jendela baru lalu coba lagi.',
     countTitle: 'Lembar Hitung Stok Opname',
-    recordTitle: 'Berita Acara Stok Opname',
     meta: '{number} · {warehouse} · Tanggal hitung {date}',
     people: 'Petugas hitung: {counter} · Dibuat oleh: {creator}',
     countNote:
       'Isi qty hasil hitungan fisik. Barang yang memang tidak ada ditulis 0, bukan dikosongkan.',
-    noDiff: 'Tidak ada selisih. Seluruh hitungan cocok dengan saldo buku.',
-    summary:
-      'Produk dihitung: {counted} dari {total} · Lebih {gainQty} unit ({gainValue}) · Kurang {lossQty} unit ({lossValue}) · Net {net}',
     cols: {
       no: 'No',
       product: 'Produk',
@@ -330,19 +328,10 @@ export const stockTake = {
       unit: 'Satuan',
       counted: 'Qty hitung',
       initial: 'Paraf',
-      book: 'Saldo buku',
-      diff: 'Selisih',
-      value: 'Nilai',
-      reason: 'Alasan',
-      account: 'Akun',
-      debit: 'Debit',
-      credit: 'Kredit',
     },
     sign: {
       counter: 'Petugas Hitung',
       witness: 'Saksi',
-      accounting: 'Accounting',
-      manager: 'Building Manager',
     },
   },
   errors: {

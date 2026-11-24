@@ -27,6 +27,8 @@ export class ApiError extends Error {
   readonly fieldErrors: FieldError[];
   /** Extra data a business refusal carries (for example the figures that differ); never shown as written. */
   readonly details: unknown[];
+  /** The stock count that froze the warehouse, when a refusal (409) names one. */
+  readonly blockingOpname?: { id: string; number: string };
 
   constructor(init: {
     kind: ApiErrorKind;
@@ -34,6 +36,7 @@ export class ApiError extends Error {
     serverMessage?: string;
     fieldErrors?: FieldError[];
     details?: unknown[];
+    blockingOpname?: { id: string; number: string };
   }) {
     super(init.kind);
     this.name = 'ApiError';
@@ -42,10 +45,18 @@ export class ApiError extends Error {
     this.serverMessage = init.serverMessage;
     this.fieldErrors = init.fieldErrors ?? [];
     this.details = init.details ?? [];
+    this.blockingOpname = init.blockingOpname;
   }
 }
 
 const asText = (value: unknown) => (typeof value === 'string' && value.trim() ? value : undefined);
+
+const readBlockingOpname = (data: unknown): ApiError['blockingOpname'] => {
+  if (typeof data !== 'object' || data === null) return undefined;
+  const { opname } = data as { opname?: Record<string, unknown> };
+  if (typeof opname?.id !== 'string' || typeof opname.number !== 'string') return undefined;
+  return { id: opname.id, number: opname.number };
+};
 
 const readFieldErrors = (data: unknown[]): FieldError[] =>
   data.flatMap((item) => {
@@ -80,7 +91,12 @@ export const toApiError = (error: unknown): ApiError => {
     return new ApiError({ kind: 'validation', status, fieldErrors });
   }
   if (status >= 400 && status < 500 && serverMessage) {
-    return new ApiError({ kind: 'domain', status, serverMessage });
+    return new ApiError({
+      kind: 'domain',
+      status,
+      serverMessage,
+      blockingOpname: readBlockingOpname(body.data),
+    });
   }
   return new ApiError({ kind: 'unknown', status });
 };

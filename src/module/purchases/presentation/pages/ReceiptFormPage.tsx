@@ -7,6 +7,7 @@ import {
   IconPaperclip,
   IconSum,
 } from '@tabler/icons-react';
+import { OpnameBlockAlert } from '@/module/purchases/presentation/components/receipts/OpnameBlockAlert';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
 import { PURCHASE_MENU } from '@/module/purchases/domain/purchaseAccess';
@@ -89,6 +90,7 @@ const ReceiptFormBody = ({ order }: Readonly<{ order: PurchaseOrder }>) => {
       <Grid gutter="lg" align="flex-start">
         <Grid.Col span={{ base: 12, lg: 9 }}>
           <Stack gap="lg">
+            <OpnameBlockAlert error={create.error} />
             <SectionCard
               icon={IconClipboardText}
               title={t('receipts.form.infoTitle')}

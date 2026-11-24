@@ -67,6 +67,11 @@ export const purchasesReceipts = {
       'Received goods are recognised right away as an expense or inventory, with the offsetting entry in Unbilled Payables. The journal is created automatically. When the vendor bill is verified, Unbilled Payables moves into Accounts Payable.',
     submit: 'Record Receipt',
   },
+  opnameBlock: {
+    title: 'Warehouse is being counted',
+    body: 'Receiving goods, and cancelling a receipt, is paused while this warehouse is being counted. Finish or cancel the count first.',
+    open: 'Open count {number}',
+  },
   detail: {
     backToList: 'Back to the receipts list',
     infoSubtitle: 'Vendor, who recorded it, the order and the delivery note',

@@ -313,17 +313,15 @@ export const stockTake = {
   },
   print: {
     countAction: 'Print count sheet',
-    recordAction: 'Print minutes',
+    recordAction: 'Download minutes',
+    recordReady: 'The minutes were downloaded.',
+    recordFailed: 'The minutes could not be downloaded.',
     blocked: 'The browser blocked the print window. Allow new windows and try again.',
     countTitle: 'Stock Count Sheet',
-    recordTitle: 'Stock Count Minutes',
     meta: '{number} · {warehouse} · Count date {date}',
     people: 'Counted by: {counter} · Created by: {creator}',
     countNote:
       'Write the quantity found on the shelf. Write 0 for anything missing, do not leave it empty.',
-    noDiff: 'No difference. Every count matches the book balance.',
-    summary:
-      'Products counted: {counted} of {total} · Surplus {gainQty} units ({gainValue}) · Shortage {lossQty} units ({lossValue}) · Net {net}',
     cols: {
       no: 'No',
       product: 'Product',
@@ -331,19 +329,10 @@ export const stockTake = {
       unit: 'Unit',
       counted: 'Qty counted',
       initial: 'Initials',
-      book: 'Book balance',
-      diff: 'Difference',
-      value: 'Value',
-      reason: 'Reason',
-      account: 'Account',
-      debit: 'Debit',
-      credit: 'Credit',
     },
     sign: {
       counter: 'Counter',
       witness: 'Witness',
-      accounting: 'Accounting',
-      manager: 'Building Manager',
     },
   },
   errors: {

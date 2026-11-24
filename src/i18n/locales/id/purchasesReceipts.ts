@@ -67,6 +67,11 @@ export const purchasesReceipts = {
       'Barang yang diterima langsung diakui sebagai beban atau persediaan, dengan pasangannya di akun Hutang Belum Ditagih. Jurnal dibuat otomatis. Saat tagihan vendor diverifikasi, akun Hutang Belum Ditagih dipindahkan menjadi Hutang Usaha.',
     submit: 'Catat Penerimaan',
   },
+  opnameBlock: {
+    title: 'Gudang sedang dihitung',
+    body: 'Penerimaan barang dan pembatalannya dihentikan sementara selama gudang ini dihitung. Selesaikan atau batalkan hitungan dulu.',
+    open: 'Buka hitungan {number}',
+  },
   detail: {
     backToList: 'Kembali ke daftar penerimaan',
     infoSubtitle: 'Vendor, pencatat, pesanan asal, dan nomor surat jalan',

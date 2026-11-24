@@ -23,6 +23,7 @@ import {
   IconSend,
   IconX,
   IconBan,
+  IconDownload,
   IconPrinter,
   IconTrash,
 } from '@tabler/icons-react';
@@ -41,6 +42,7 @@ import {
   PageFrame,
   type FrameMenuItem,
 } from '@/module/inventory/presentation/components/shared/DetailFrame';
+import { useOpnameMinutes } from '@/module/inventory/presentation/hooks/useOpnameMinutes';
 import { useOpnamePrint } from '@/module/inventory/presentation/components/stockTake/useOpnamePrint';
 import { OpnameCountTab } from '@/module/inventory/presentation/components/stockTake/OpnameCountTab';
 import { OpnameHistoryTab } from '@/module/inventory/presentation/components/stockTake/OpnameHistoryTab';
@@ -72,6 +74,7 @@ export default function StockTakeDetailPage() {
   const describe = useStockTakeErrorMessage();
   const rights = useOpnameRights();
   const print = useOpnamePrint();
+  const minutes = useOpnameMinutes();
   const navigate = useNavigate();
   const { step, saveLines, remove } = useOpnameMutations();
   const [dialog, setDialog] = useState<Dialog>(null);
@@ -156,14 +159,15 @@ export default function StockTakeDetailPage() {
   const menu: FrameMenuItem[] = [
     // The sheet to count by hand carries no book balance, so anyone who may count can print it.
     ...(open && data.lines.length > 0
-      ? [{ label: t('print.countAction'), icon: IconPrinter, onClick: () => print('count', data) }]
+      ? [{ label: t('print.countAction'), icon: IconPrinter, onClick: () => print(data) }]
       : []),
-    ...(data.canSeeValues && !open && data.status !== 'cancelled'
+    // The server makes the minutes of a posted count, so its figures match the ledger.
+    ...(actions.minutes
       ? [
           {
             label: t('print.recordAction'),
-            icon: IconPrinter,
-            onClick: () => print('record', data, preview.data),
+            icon: IconDownload,
+            onClick: () => minutes.download(data),
           },
         ]
       : []),

@@ -1,3 +1,4 @@
+import { isAxiosError } from 'axios';
 import apiClient from '@/lib/http/apiClient';
 import { toApiError } from '@/lib/http/apiError';
 import type {
@@ -348,4 +349,33 @@ export const getRunningOpname = async (
 /** Deletes a draft count; the service refuses (400) once it was started, which is cancelled instead. */
 export const deleteOpname = async (id: string): Promise<void> => {
   await call(() => apiClient.delete(`${OPNAMES}/${id}`));
+};
+
+const readText = (blob: Blob): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = () => reject(reader.error);
+    reader.readAsText(blob);
+  });
+
+/**
+ * The minutes (berita acara) of a posted count as a PDF made by the server, so its figures and the
+ * company profile match the ledger. Only reviewers and approvers may ask for it (403 otherwise), and
+ * only once the count is posted (400 otherwise). An error body arrives as a blob and is read first.
+ */
+export const downloadOpnameMinutes = async (id: string): Promise<Blob> => {
+  try {
+    return (await apiClient.get<Blob>(`${OPNAMES}/${id}/print`, { responseType: 'blob' })).data;
+  } catch (error) {
+    if (isAxiosError(error) && error.response?.data instanceof Blob) {
+      const text = await readText(error.response.data);
+      try {
+        error.response.data = JSON.parse(text);
+      } catch {
+        error.response.data = {};
+      }
+    }
+    throw toApiError(error);
+  }
 };
