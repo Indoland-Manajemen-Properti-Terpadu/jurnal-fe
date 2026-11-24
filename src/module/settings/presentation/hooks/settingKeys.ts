@@ -5,6 +5,7 @@ import type { PaymentTermListParams } from '@/module/settings/infrastructure/pay
 export const settingKeys = {
   all: ['settings'] as const,
   general: () => [...settingKeys.all, 'general'] as const,
+  company: () => [...settingKeys.all, 'company-profile'] as const,
   accountMappings: () => [...settingKeys.all, 'account-mappings'] as const,
   numberFormats: () => [...settingKeys.all, 'number-formats'] as const,
   paymentTerms: () => [...settingKeys.all, 'payment-terms'] as const,
