@@ -69,4 +69,15 @@ Namespace `settings` is the existing hub and layout keys plus `settingsPages` (f
 
 ## Planned pages
 
-`SitesPage`, `AccountingPeriodsPage` and `ApprovalFlowPage` (`presentation/pages/PlannedSettingsPages.tsx`) render the shared planned-module content inside `SettingsLayout`, so their menu items open a real page with the side menu. The company profile page is a notice that the company data is not connected yet.
+`SitesPage`, `AccountingPeriodsPage` and `ApprovalFlowPage` (`presentation/pages/PlannedSettingsPages.tsx`) render the shared planned-module content inside `SettingsLayout`, so their menu items open a real page with the side menu.
+
+## Company profile (PRO-118)
+
+`CompanySettingPage` edits the identity printed in the header of the purchasing PDFs (PO/SPK, request, receipt/BAPP, purchase bill): logo, name, address, city, postal code, NPWP, phone, email and website. One profile per site; the service creates it on the first read, named after the site.
+
+- **Endpoints** (`infrastructure/companyProfileApi.ts`): `GET /v1/settings/company-profile`, `PUT` the same path (every text field, trimmed, so a cleared field is really cleared), `POST /v1/settings/company-profile/logo` (multipart, one file in the field `logo`; a new logo replaces the old one) and `PUT { logo: null }` to remove it. Every call answers the whole profile, which replaces what the page holds. The logo path is relative to the API host, so the page puts `BASE_URL` in front (`resolveLogoUrl`).
+- **Rights:** menu `JP-SETT-COMPANY` (`COMPANY_MENU`): read opens the page (the settings side menu uses `NAV_MENU.company`, so a role with settings but without this right does not see the entry), update shows Save and the logo buttons. Without update the fields are read-only and a note says who to ask. Super Admin and Admin inherit it; other roles get it in Settings > Roles.
+- **Rules** (`domain/companyProfile.ts`, no field is required by the service): the company name stays filled on the form because it names the initials box and the tax-invoice sentence; email must look like an email (the service answers 400 otherwise); texts stop at the service limits (`maxLength`, so an over-long text cannot be typed); the logo is PNG, JPG or WEBP up to 1 MB (SVG is refused) and is checked before it is sent, with the reason shown under the logo.
+- **Layout (Standard B):** three cards on the left (identity, address, logo), and on the right a sticky live preview of the document header plus the one primary action. The preview is the printed header: logo box of about 34 x 16 mm (or the initials box without a logo), the name, the line "alamat, kota kode pos" and the line "NPWP … - Telp …", each left out when blank. It follows every keystroke. Save and Discard sit under it and stay off until something changed; leaving with unsaved changes asks first (`UnsavedChangesGuard`).
+- **Not printed yet:** email and website are saved but the PDFs do not print them yet (said on the fields). The financial reports still print the site name, not this profile. Both are backend matters.
+- **Moved here:** the company address, NPWP and phone that once lived on the general settings page are no longer there (the service ignores them in `PUT /settings/general-settings`); their old values are carried into the profile when it is first opened.

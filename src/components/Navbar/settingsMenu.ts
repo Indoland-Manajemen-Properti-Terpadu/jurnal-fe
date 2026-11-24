@@ -43,7 +43,7 @@ export const settingsGroups: SettingsGroup[] = [
         key: 'company',
         path: routes.settings.company,
         icon: IconBuildingStore,
-        menus: NAV_MENU.settings,
+        menus: NAV_MENU.company,
       },
       {
         key: 'general',

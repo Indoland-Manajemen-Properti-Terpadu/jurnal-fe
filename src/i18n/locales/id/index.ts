@@ -4,6 +4,7 @@ import { journal } from './journal';
 import { settings } from './settings';
 import { settingsPages } from './settingsPages';
 import { settingsDepartments } from './settingsDepartments';
+import { settingsCompany } from './settingsCompany';
 import { pendingChanges } from './pendingChanges';
 import { assets } from './assets';
 import { assetWriteOffs } from './assetWriteOffs';
@@ -42,7 +43,7 @@ export const id = {
   common,
   navigation,
   journal,
-  settings: { ...settings, ...settingsPages, ...settingsDepartments },
+  settings: { ...settings, ...settingsPages, ...settingsDepartments, ...settingsCompany },
   pendingChanges,
   assets,
   assetWriteOffs,
