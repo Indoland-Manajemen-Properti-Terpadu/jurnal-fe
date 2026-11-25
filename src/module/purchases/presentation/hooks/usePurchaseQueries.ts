@@ -1,4 +1,4 @@
-import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQueries, useQuery } from '@tanstack/react-query';
 import type { PurchaseAccessProfile } from '@/module/purchases/domain/purchaseAccess';
 import type {
   NamedRef,
@@ -285,4 +285,23 @@ export const useActivity = (kind: ActivityKind, id: string | undefined) => {
     queryFn: () => getActivity(kind, id as string),
     enabled: Boolean(id),
   });
+};
+
+/**
+ * The open bills (verified or part paid) of several vendors, read one vendor at a time because the
+ * service filters by one vendor. `items` has them together; `isLoading` is true while any is loading.
+ */
+export const useOpenBillsOfVendors = (vendorIds: readonly string[], enabled = true) => {
+  const scope = usePurchaseScope();
+  const results = useQueries({
+    queries: vendorIds.map((vendor) => ({
+      queryKey: [...purchaseKeys.all(scope), 'open-bills-of-vendor', vendor],
+      queryFn: () => listBills({ vendor, status: ['VERIFIED', 'PARTIAL_PAID'], limit: 100 }),
+      enabled,
+    })),
+  });
+  return {
+    items: results.flatMap((result) => result.data?.items ?? []),
+    isLoading: results.some((result) => result.isLoading),
+  };
 };

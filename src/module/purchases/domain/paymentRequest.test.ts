@@ -3,6 +3,9 @@ import {
   emptyPaymentRequestForm,
   hasPaymentRequestErrors,
   sameVendor,
+  vendorLabel,
+  vendorSubtotals,
+  voucherProgress,
   toPaymentRequestInput,
   toPaymentRequestUpdate,
   validatePaymentRequestForm,
@@ -115,5 +118,98 @@ describe('sameVendor', () => {
     expect(sameVendor([], bill('a'))).toBe(true);
     expect(sameVendor([bill('a')], bill('a'))).toBe(true);
     expect(sameVendor([bill('a')], bill('b'))).toBe(false);
+  });
+});
+
+describe('settlement with several vendors', () => {
+  const billVendor = { b1: 'v1', b2: 'v1', b3: 'v2' };
+  const limits = { requestable: { b1: 100, b2: 200, b3: 300 }, billVendor };
+  const multi = (amounts: Record<string, number>, vendorIds: string[]) => ({
+    ...emptyPaymentRequestForm('SETTLEMENT', '2026-11-25'),
+    amounts,
+    vendorIds,
+  });
+
+  it('sends the chosen vendors next to the bills, as the service takes them', () => {
+    const input = toPaymentRequestInput(multi({ b1: 100, b3: 300 }, ['v1', 'v2']));
+
+    expect(input.vendors).toEqual(['v1', 'v2']);
+    expect(input.items).toEqual([
+      { bill: 'b1', amount: 100 },
+      { bill: 'b3', amount: 300 },
+    ]);
+  });
+
+  it('keeps the vendors in an update too', () => {
+    expect(toPaymentRequestUpdate(multi({ b1: 100 }, ['v1'])).vendors).toEqual(['v1']);
+  });
+
+  it('does not send vendors for an advance request', () => {
+    expect(toPaymentRequestInput(advance())).not.toHaveProperty('vendors');
+  });
+
+  it('asks for at least one bill of every vendor that was chosen', () => {
+    const errors = validatePaymentRequestForm(multi({ b1: 100 }, ['v1', 'v2']), limits);
+
+    expect(errors.vendors).toEqual({ v2: 'noBillForVendor' });
+    expect(hasPaymentRequestErrors(errors)).toBe(true);
+  });
+
+  it('is fine when each chosen vendor has a bill picked', () => {
+    const errors = validatePaymentRequestForm(multi({ b1: 100, b3: 300 }, ['v1', 'v2']), limits);
+
+    expect(errors.vendors).toEqual({});
+    expect(hasPaymentRequestErrors(errors)).toBe(false);
+  });
+
+  it('adds up what is asked from each vendor, in whole minor units', () => {
+    const totals = vendorSubtotals({ b1: 100.1, b2: 200.2, b3: 300 }, billVendor);
+
+    expect(totals).toEqual({ v1: 300.3, v2: 300 });
+  });
+});
+
+describe('vendor wording of a request', () => {
+  const doc = (overrides: object) =>
+    ({
+      vendor: { id: 'v1', name: 'PT Alfa' },
+      isMultiVendor: false,
+      vendorTotals: [],
+      ...overrides,
+    }) as unknown as import('@/module/purchases/domain/paymentRequest').PaymentRequest;
+  const totals = [
+    {
+      vendorId: 'v1',
+      vendorName: 'PT Alfa',
+      amount: 1,
+      billCount: 1,
+      voucher: { id: 'p', number: 'PV/1', status: 'DRAFT' },
+    },
+    { vendorId: 'v2', vendorName: 'CV Mitra', amount: 2, billCount: 1, voucher: null },
+  ];
+
+  it('names the one vendor of an ordinary request', () => {
+    expect(vendorLabel(doc({}))).toBe('PT Alfa');
+  });
+
+  it('names every vendor of a request with several', () => {
+    expect(vendorLabel(doc({ isMultiVendor: true, vendorTotals: totals }))).toBe(
+      'PT Alfa, CV Mitra'
+    );
+  });
+
+  it('has no name when the service sent no vendor', () => {
+    expect(vendorLabel(doc({ vendor: null }))).toBe('');
+  });
+
+  it('counts the vendors that already have a voucher', () => {
+    expect(voucherProgress(doc({ isMultiVendor: true, vendorTotals: totals }))).toEqual({
+      issued: 1,
+      total: 2,
+    });
+  });
+
+  it('has nothing to count for a request with one vendor', () => {
+    expect(voucherProgress(doc({}))).toBeNull();
   });
 });

@@ -9,6 +9,7 @@ export const purchasesPaymentRequests = {
     create: 'Buat Pembayaran',
     col: { request: 'Payment Request dan tanggal', kind: 'Jenis', voucher: 'Payment Voucher' },
     noVoucher: 'Belum terbit',
+    vouchersIssued: '{issued} dari {total} voucher',
     viewVoucher: 'Lihat Payment Voucher',
     issueVoucher: 'Terbitkan Payment Voucher',
   },
@@ -34,6 +35,8 @@ export const purchasesPaymentRequests = {
     settlementDesc: 'Pilih vendornya dulu, lalu faktur mana saja yang dibayar.',
     advanceDesc: 'Dibayar sebelum fakturnya ada, dari satu PO/SPK bertermin uang muka.',
     vendorHint: 'Pembayaran tetap per vendor.',
+    vendorsHint:
+      'Pilih satu atau beberapa vendor. Setiap vendor nanti mendapat satu payment voucher sendiri.',
   },
   form: {
     backToList: 'Kembali ke daftar pembayaran',
@@ -70,6 +73,10 @@ export const purchasesPaymentRequests = {
     overdue: 'Jatuh tempo',
     amountInvalid: 'Isi jumlah lebih dari nol, maksimal dua desimal',
     amountTooHigh: 'Maksimal {max}',
+    vendors: 'Vendor',
+    vendorNeedsBill: 'Pilih minimal satu faktur untuk {name}',
+    vendorNoBills: 'Tidak ada faktur terbuka untuk vendor ini',
+    askedFromVendor: 'Diminta dari vendor ini',
     heldHint: 'Sebagian sedang diajukan di Payment Request lain.',
     orderTitle: 'Uang Muka',
     orderSubtitle: 'Pilih PO/SPK yang termin pembayarannya memakai uang muka',
@@ -97,6 +104,11 @@ export const purchasesPaymentRequests = {
       'Hanya faktur terverifikasi yang masih memiliki sisa yang belum diajukan yang dapat dibayar.',
   },
   detail: {
+    vendorsTitle: 'Vendor dan voucher',
+    vendorsSubtitle: 'Yang diminta dari tiap vendor dan voucher yang diterbitkan untuknya',
+    vendorsCount: '{count} vendor',
+    billCount: '{count} faktur',
+    noVendorVoucher: 'Belum ada voucher',
     waitingApproval: 'Menunggu persetujuan {level}',
     waitingVoucher: 'Menunggu kasir menerbitkan Payment Voucher',
     summaryTitle: 'Ringkasan',
@@ -129,6 +141,7 @@ export const purchasesPaymentRequests = {
     advanceSubtitle: 'Diajukan dari PO/SPK',
     advanceApplied: 'Sudah dipotong ke faktur: {amount}',
     col: {
+      vendor: 'Vendor',
       bill: 'Faktur',
       dueDate: 'Jatuh Tempo',
       status: 'Status',

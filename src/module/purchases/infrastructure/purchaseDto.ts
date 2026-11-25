@@ -1,3 +1,4 @@
+import type { AdvanceStateDto } from '@/module/purchases/infrastructure/advanceStateDto';
 import type { DocumentJournalDto } from '@/module/purchases/infrastructure/documentJournalMappers';
 /** Shapes of the purchasing API responses, as captured from the live service. */
 
@@ -179,31 +180,6 @@ export interface PurchaseOrderDto extends DocumentDto, AmountsDto {
   sentNote?: string | null;
 }
 
-export interface AdvanceDocDto {
-  id: string;
-  transactionNumber?: string | null;
-  status?: string | null;
-}
-
-export interface AdvanceStateDto {
-  mode?: 'BILL' | 'REQUEST' | null;
-  amount?: number | null;
-  paidAmount?: number | null;
-  billed?: boolean | null;
-  paid?: boolean | null;
-  postedAmount?: number | null;
-  recognizedAmount?: number | null;
-  heldAmount?: number | null;
-  step?: string | null;
-  stepLabel?: string | null;
-  canCreateBill?: boolean | null;
-  receiptAllowed?: boolean | null;
-  receiptBlockReason?: string | null;
-  bills?: AdvanceDocDto[] | null;
-  paymentRequests?: AdvanceDocDto[] | null;
-  paymentVouchers?: AdvanceDocDto[] | null;
-}
-
 export interface GoodsReceiptDto extends DocumentDto, ApprovalFieldsDto {
   journals?: DocumentJournalDto[] | null;
   kind?: 'GOODS' | 'SERVICE' | null;
@@ -319,6 +295,16 @@ export interface PaymentRequestDto extends DocumentDto, ApprovalFieldsDto {
   kind: 'DP' | 'SETTLEMENT';
   status: string;
   vendor?: PartyDto | null;
+  isMultiVendor?: boolean | null;
+  vendorTotals?:
+    | {
+        vendor: string;
+        vendorName?: string | null;
+        amount: number;
+        billCount?: number | null;
+        voucher?: { id: string; transactionNumber?: string | null; status?: string | null } | null;
+      }[]
+    | null;
   amount: number;
   dueDate?: string | null;
   advanceAccount?: string | null;
@@ -341,6 +327,8 @@ export interface PaymentRequestDto extends DocumentDto, ApprovalFieldsDto {
   itemRefs?:
     | {
         amount: number;
+        vendor?: string | null;
+        voucher?: { id: string } | null;
         bill: {
           id: string;
           transactionNumber?: string | null;

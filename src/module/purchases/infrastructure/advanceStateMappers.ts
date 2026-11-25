@@ -1,5 +1,8 @@
 import type { AdvanceDocRef, OrderAdvanceState } from '@/module/purchases/domain/purchaseDocuments';
-import type { AdvanceDocDto, AdvanceStateDto } from '@/module/purchases/infrastructure/purchaseDto';
+import type {
+  AdvanceDocDto,
+  AdvanceStateDto,
+} from '@/module/purchases/infrastructure/advanceStateDto';
 
 const toAdvanceDocs = (docs: AdvanceDocDto[] | null | undefined): AdvanceDocRef[] =>
   (docs ?? []).map((doc) => ({

@@ -3,7 +3,7 @@ import { Anchor, Box, Group, Table, Text } from '@mantine/core';
 import { IconCalculator, IconClipboardText, IconListDetails } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
-import type { PaymentRequest } from '@/module/purchases/domain/paymentRequest';
+import { vendorLabel, type PaymentRequest } from '@/module/purchases/domain/paymentRequest';
 import { SummaryRows } from '@/module/purchases/presentation/components/shared/SummaryRows';
 import { StatusBadge } from '@/module/purchases/presentation/components/shared/StatusBadge';
 import { InfoGrid } from '@/module/purchases/presentation/components/shared/InfoGrid';
@@ -24,7 +24,7 @@ export const PaymentRequestInfoCard = ({ doc }: Readonly<{ doc: PaymentRequest }
     >
       <InfoGrid
         items={[
-          { label: t('paymentRequests.detail.vendor'), value: doc.vendor?.name },
+          { label: t('paymentRequests.detail.vendor'), value: vendorLabel(doc) },
           {
             label: t('paymentRequests.detail.kind'),
             value:
@@ -59,20 +59,24 @@ export const PaymentRequestInfoCard = ({ doc }: Readonly<{ doc: PaymentRequest }
               ? formatDay(doc.voucher.paidAt.slice(0, 10), currentLanguage)
               : t('paymentRequests.detail.notPaid'),
           },
-          {
-            label: t('paymentRequests.detail.voucher'),
-            value: doc.voucher ? (
-              <Anchor
-                component={Link}
-                to={routes.purchases.paymentDetail.replace(':id', doc.voucher.id)}
-                fw={700}
-              >
-                {doc.voucher.number}
-              </Anchor>
-            ) : (
-              t('paymentRequests.detail.noVoucher')
-            ),
-          },
+          ...(doc.isMultiVendor
+            ? []
+            : [
+                {
+                  label: t('paymentRequests.detail.voucher'),
+                  value: doc.voucher ? (
+                    <Anchor
+                      component={Link}
+                      to={routes.purchases.paymentDetail.replace(':id', doc.voucher.id)}
+                      fw={700}
+                    >
+                      {doc.voucher.number}
+                    </Anchor>
+                  ) : (
+                    t('paymentRequests.detail.noVoucher')
+                  ),
+                },
+              ]),
           ...(doc.memo
             ? [{ label: t('paymentRequests.detail.memo'), value: doc.memo, span: 2 as const }]
             : []),
@@ -193,7 +197,16 @@ export const PaymentRequestItemsCard = ({ doc }: Readonly<{ doc: PaymentRequest 
         <Table className={tableClasses.table} verticalSpacing="sm" horizontalSpacing="lg">
           <Table.Thead bg="var(--jurnal-color-surface-muted)">
             <Table.Tr>
-              {(['bill', 'dueDate', 'status', 'remaining', 'amount'] as const).map((key) => (
+              {(
+                [
+                  'bill',
+                  ...(doc.isMultiVendor ? ['vendor' as const] : []),
+                  'dueDate',
+                  'status',
+                  'remaining',
+                  'amount',
+                ] as const
+              ).map((key) => (
                 <Table.Th
                   key={key}
                   ta={key === 'remaining' || key === 'amount' ? 'right' : undefined}
@@ -223,6 +236,14 @@ export const PaymentRequestItemsCard = ({ doc }: Readonly<{ doc: PaymentRequest 
                     </Text>
                   )}
                 </Table.Td>
+                {doc.isMultiVendor && (
+                  <Table.Td>
+                    <Text size="sm">
+                      {doc.vendorTotals.find((total) => total.vendorId === item.vendorId)
+                        ?.vendorName ?? '-'}
+                    </Text>
+                  </Table.Td>
+                )}
                 <Table.Td>
                   <Text size="sm">{formatDay(item.bill.dueDate, currentLanguage)}</Text>
                 </Table.Td>

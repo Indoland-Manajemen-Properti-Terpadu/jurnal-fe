@@ -272,6 +272,20 @@ export const toPaymentRequest = (dto: PaymentRequestDto): PaymentRequest => ({
   kind: dto.kind,
   status: dto.status as PaymentRequest['status'],
   vendor: dto.vendor ? toParty(dto.vendor) : null,
+  isMultiVendor: dto.isMultiVendor === true,
+  vendorTotals: (dto.vendorTotals ?? []).map((total) => ({
+    vendorId: total.vendor,
+    vendorName: total.vendorName ?? '',
+    amount: total.amount,
+    billCount: total.billCount ?? 0,
+    voucher: total.voucher
+      ? {
+          id: total.voucher.id,
+          number: total.voucher.transactionNumber ?? '',
+          status: total.voucher.status ?? '',
+        }
+      : null,
+  })),
   amount: dto.amount,
   dueDate: toDateOrNull(dto.dueDate),
   order: dto.purchaseOrderRef
@@ -285,6 +299,7 @@ export const toPaymentRequest = (dto: PaymentRequestDto): PaymentRequest => ({
     : null,
   items: (dto.itemRefs ?? []).map((line) => ({
     amount: line.amount,
+    vendorId: line.vendor ?? dto.vendor?.id ?? '',
     bill: {
       id: line.bill.id,
       number: line.bill.transactionNumber ?? '',
