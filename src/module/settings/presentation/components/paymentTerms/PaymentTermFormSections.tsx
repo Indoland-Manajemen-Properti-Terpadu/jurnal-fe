@@ -162,10 +162,13 @@ export function PaymentTermBillingSection({ form }: Readonly<Props>) {
           />
         )}
         {visible.advanceOutsideInstallments && (
+          // Always on: the advance is billed on its own and the terms share the rest.
           <Switch
+            checked
+            disabled
+            readOnly
             label={st('paymentTerm.form.advanceOutside')}
             description={st('paymentTerm.form.advanceOutsideHint')}
-            {...form.getInputProps('advanceOutsideInstallments', { type: 'checkbox' })}
           />
         )}
         {visible.period && (

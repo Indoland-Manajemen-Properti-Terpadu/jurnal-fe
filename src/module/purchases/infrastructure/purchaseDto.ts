@@ -1,3 +1,5 @@
+import type { AdvanceStateDto } from '@/module/purchases/infrastructure/advanceStateDto';
+import type { DocumentJournalDto } from '@/module/purchases/infrastructure/documentJournalMappers';
 /** Shapes of the purchasing API responses, as captured from the live service. */
 
 export interface ApiEnvelope<T> {
@@ -169,6 +171,7 @@ export interface PurchaseOrderDto extends DocumentDto, AmountsDto {
     used?: number | null;
     available?: number | null;
   } | null;
+  advanceState?: AdvanceStateDto | null;
   payableAmount?: number | null;
   billedAmount?: number | null;
   sentByEmail?: boolean | null;
@@ -178,6 +181,7 @@ export interface PurchaseOrderDto extends DocumentDto, AmountsDto {
 }
 
 export interface GoodsReceiptDto extends DocumentDto, ApprovalFieldsDto {
+  journals?: DocumentJournalDto[] | null;
   kind?: 'GOODS' | 'SERVICE' | null;
   documentLabel?: string | null;
   statusLabel?: string | null;
@@ -226,6 +230,7 @@ export interface DocumentRefDto {
 }
 
 export interface PurchaseBillDto extends DocumentDto, AmountsDto {
+  journals?: DocumentJournalDto[] | null;
   source?: 'RECEIPT' | 'ORDER' | 'MANUAL' | null;
   noMatch?: boolean | null;
   statusLabel?: string | null;
@@ -257,6 +262,7 @@ export interface PurchaseBillDto extends DocumentDto, AmountsDto {
 }
 
 export interface PaymentVoucherDto extends DocumentDto {
+  journals?: DocumentJournalDto[] | null;
   statusLabel?: string | null;
   vendor: PartyDto;
   status: string;
@@ -289,6 +295,16 @@ export interface PaymentRequestDto extends DocumentDto, ApprovalFieldsDto {
   kind: 'DP' | 'SETTLEMENT';
   status: string;
   vendor?: PartyDto | null;
+  isMultiVendor?: boolean | null;
+  vendorTotals?:
+    | {
+        vendor: string;
+        vendorName?: string | null;
+        amount: number;
+        billCount?: number | null;
+        voucher?: { id: string; transactionNumber?: string | null; status?: string | null } | null;
+      }[]
+    | null;
   amount: number;
   dueDate?: string | null;
   advanceAccount?: string | null;
@@ -311,6 +327,8 @@ export interface PaymentRequestDto extends DocumentDto, ApprovalFieldsDto {
   itemRefs?:
     | {
         amount: number;
+        vendor?: string | null;
+        voucher?: { id: string } | null;
         bill: {
           id: string;
           transactionNumber?: string | null;

@@ -50,7 +50,11 @@ export const orderActions = (doc: PurchaseOrder) => {
     bill: !doc.withReceipt && live && doc.billedAmount < doc.payableAmount,
     close: live || doc.status === 'RECEIVED',
     /** The advance of the payment term, not yet fully asked for in Payment Requests. */
-    requestAdvance: (live || doc.status === 'RECEIVED') && doc.advance.available > 0,
+    // An advance paid through its own bill is not asked for in a Payment Request (the service refuses).
+    requestAdvance:
+      (live || doc.status === 'RECEIVED') &&
+      doc.advance.available > 0 &&
+      doc.advanceState?.mode !== 'BILL',
     void:
       (doc.status === 'DRAFT' || doc.status === 'SENT') &&
       received < QTY_EPSILON &&

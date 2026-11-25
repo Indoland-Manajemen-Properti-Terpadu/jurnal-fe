@@ -161,12 +161,16 @@ export function OpnameTable({
               </Table.Td>
               {showValue && (
                 <Table.Td ta="right">
-                  {row.diffProducts === 0 ? <Dash /> : <Text size="sm">{row.diffProducts}</Text>}
+                  {row.diffProducts === 0 || row.status === 'cancelled' ? (
+                    <Dash />
+                  ) : (
+                    <Text size="sm">{row.diffProducts}</Text>
+                  )}
                 </Table.Td>
               )}
               {showValue && (
                 <Table.Td ta="right" style={{ whiteSpace: 'nowrap' }}>
-                  {row.diffValue === null || row.diffValue === 0 ? (
+                  {row.diffValue === null || row.diffValue === 0 || row.status === 'cancelled' ? (
                     <Dash />
                   ) : (
                     <Text size="sm" c={row.diffValue < 0 ? 'red.7' : undefined}>

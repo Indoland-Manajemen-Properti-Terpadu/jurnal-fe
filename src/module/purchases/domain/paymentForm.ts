@@ -1,6 +1,9 @@
 import { sumMinor, toMinor } from '@/lib/money/money';
 import type { PartyRef } from '@/module/purchases/domain/purchaseCommon';
-import type { PaymentRequest } from '@/module/purchases/domain/paymentRequest';
+import type {
+  PaymentRequest,
+  PaymentRequestVendorTotal,
+} from '@/module/purchases/domain/paymentRequest';
 
 /** An approved Payment Request waiting for a voucher. */
 export interface ReadyRequest {
@@ -68,6 +71,8 @@ export const validatePaymentForm = (
 export interface PaymentVoucherInput {
   transactionDate: string;
   paymentRequests: string[];
+  /** Only the bills of this vendor go into the voucher; for a request with several vendors. */
+  vendor?: string;
   paymentMethod?: string;
   depositAccount?: string;
   referenceNumber?: string;
@@ -76,10 +81,12 @@ export interface PaymentVoucherInput {
 
 export const toPaymentInput = (
   values: PaymentFormValues,
-  picked: ReadyRequest[]
+  picked: ReadyRequest[],
+  vendorId?: string
 ): PaymentVoucherInput => ({
   transactionDate: values.date,
   paymentRequests: picked.map((request) => request.id),
+  ...(vendorId ? { vendor: vendorId } : {}),
   ...(values.paymentMethodId ? { paymentMethod: values.paymentMethodId } : {}),
   ...(values.depositAccountId ? { depositAccount: values.depositAccountId } : {}),
   ...(values.referenceNumber.trim() ? { referenceNumber: values.referenceNumber.trim() } : {}),
@@ -142,3 +149,24 @@ export const toPayInput = (values: PayFormValues): PayInput => ({
 /** What leaves the bank: the amount paid plus the admin fee, added in whole minor units. */
 export const cashOutOf = (total: number, adminFee: number): number =>
   sumMinor([toMinor(total), toMinor(adminFee)]) / 100;
+
+/* ---------- Vouchers of a request with several vendors ---------- */
+
+/**
+ * How vouchers can be issued for a request with several vendors: all vendors at once while none has
+ * a voucher, or one vendor at a time for the ones that still lack one.
+ */
+export const issueOptions = (
+  request: PaymentRequest
+): { allAtOnce: boolean; pending: PaymentRequestVendorTotal[] } => {
+  if (!request.isMultiVendor) return { allAtOnce: false, pending: [] };
+  const pending = request.vendorTotals.filter((total) => total.voucher === null);
+  return { allAtOnce: pending.length === request.vendorTotals.length, pending };
+};
+
+/** What the chosen scope pays: every vendor still without a voucher (`all`), or one vendor. */
+export const scopeAmount = (request: PaymentRequest, scope: 'all' | string): number => {
+  const { pending } = issueOptions(request);
+  const chosen = scope === 'all' ? pending : pending.filter((total) => total.vendorId === scope);
+  return sumMinor(chosen.map((total) => toMinor(total.amount))) / 100;
+};

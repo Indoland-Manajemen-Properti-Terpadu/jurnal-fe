@@ -33,13 +33,20 @@ const STATUS: Record<TransferStatusDto, TransferStatus> = {
   VOID: 'void',
 };
 
+export interface TransferWarehouseDto {
+  id: string;
+  code: string;
+  name: string;
+  deleted?: boolean;
+}
+
 export interface TransferDto {
   id: string;
   transactionNumber: string;
   transactionDate: string;
   /** `null` when the warehouse was deleted after the transfer was made. */
-  from: TransferWarehouse | null;
-  to: TransferWarehouse | null;
+  from: TransferWarehouseDto | null;
+  to: TransferWarehouseDto | null;
   items?: TransferItemDto[] | null;
   productCount?: number;
   memo?: string | null;
@@ -47,6 +54,9 @@ export interface TransferDto {
   canDecide?: boolean;
   createdByUser?: { id: string; name: string } | null;
   rejectedByUser?: { id: string; name: string } | null;
+  approvedByUser?: { id: string; name: string } | null;
+  approvedAt?: string | null;
+  voidedByUser?: { id: string; name: string } | null;
   rejectionReason?: string | null;
   pendingApprovers?:
     | { level?: number; name?: string; roles?: { id?: string; name: string }[] }[]
@@ -66,14 +76,17 @@ const toItem = (dto: TransferItemDto): TransferItem => ({
   value: dto.value ?? null,
 });
 
+const toWarehouse = (dto: TransferWarehouseDto | null): TransferWarehouse =>
+  dto ? { ...dto, deleted: dto.deleted === true } : NO_TRANSFER_WAREHOUSE;
+
 export const toTransfer = (dto: TransferDto): StockTransfer => {
   const items = (dto.items ?? []).map(toItem);
   return {
     id: dto.id,
     number: dto.transactionNumber,
     date: dto.transactionDate,
-    from: dto.from ?? NO_TRANSFER_WAREHOUSE,
-    to: dto.to ?? NO_TRANSFER_WAREHOUSE,
+    from: toWarehouse(dto.from),
+    to: toWarehouse(dto.to),
     items,
     productCount: dto.productCount ?? items.length,
     memo: dto.memo ?? '',
@@ -86,6 +99,9 @@ export const toTransfer = (dto: TransferDto): StockTransfer => {
       ),
     ],
     rejectedByName: dto.rejectedByUser?.name ?? null,
+    approvedByName: dto.approvedByUser?.name ?? null,
+    approvedAt: dto.approvedAt ?? null,
+    voidedByName: dto.voidedByUser?.name ?? null,
     rejectReason: dto.rejectionReason ?? null,
     voidReason: dto.voidReason ?? null,
     voidedAt: dto.voidedAt ?? null,

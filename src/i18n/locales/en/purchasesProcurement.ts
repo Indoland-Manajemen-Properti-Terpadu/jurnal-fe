@@ -111,6 +111,10 @@ export const purchasesProcurement = {
     schedule: {
       title: 'Payment schedule',
       total: 'Total',
+      advanceTotal: 'Advance',
+      afterAdvance: 'Terms after the advance',
+      heldOnTerm: 'Retention held {amount}',
+      withheldNote: 'Retention is held from each term and is not added to the total.',
       col: { payment: 'Payment', percent: 'Percent', amount: 'Amount' },
     },
     vendorLabel: 'Vendor',

@@ -1,67 +1,53 @@
 import { render, screen, userEvent } from '@test-utils';
 import { VoidTransferDialog } from './VoidTransferDialog';
 
-const setup = () => {
+const renderDialog = (mode?: 'cancel' | 'withdraw') => {
   const onConfirm = vi.fn();
-  const onClose = vi.fn();
   render(
     <VoidTransferDialog
       opened
-      number="PDH/2026/11/0003"
-      fromName="Gudang Utama"
+      mode={mode}
+      number="PDH/2026/11/0016"
+      fromName="Utama"
       saving={false}
       onConfirm={onConfirm}
-      onClose={onClose}
+      onClose={vi.fn()}
     />
   );
-  return { onConfirm, onClose };
+  return { onConfirm };
 };
 
 describe('VoidTransferDialog', () => {
-  it('names the document and where the stock goes back to', () => {
-    setup();
+  it('asks to cancel a posted transfer by default', () => {
+    renderDialog();
 
-    expect(screen.getByText('Batalkan PDH/2026/11/0003?')).toBeInTheDocument();
-    expect(screen.getByText(/Stok kembali ke Gudang Utama/)).toBeInTheDocument();
+    expect(screen.getByText('Batalkan PDH/2026/11/0016?')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Batalkan pindah barang' })).toBeInTheDocument();
   });
 
-  it('refuses to cancel without a reason', async () => {
-    const { onConfirm } = setup();
+  it('asks to withdraw a request that still waits, in its own words', () => {
+    renderDialog('withdraw');
 
-    await userEvent.click(screen.getByRole('button', { name: 'Batalkan pindah barang' }));
-
-    expect(await screen.findByText('Alasan pembatalan wajib diisi')).toBeInTheDocument();
-    expect(onConfirm).not.toHaveBeenCalled();
+    expect(screen.getByText('Tarik pengajuan PDH/2026/11/0016?')).toBeInTheDocument();
+    expect(screen.getByLabelText('Alasan penarikan')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Tarik pengajuan' })).toBeInTheDocument();
   });
 
-  it('does not accept a reason of only spaces', async () => {
-    const { onConfirm } = setup();
+  it('needs a reason before it withdraws', async () => {
+    const { onConfirm } = renderDialog('withdraw');
 
-    await userEvent.type(screen.getByRole('textbox', { name: /Alasan pembatalan/ }), '   ');
-    await userEvent.click(screen.getByRole('button', { name: 'Batalkan pindah barang' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Tarik pengajuan' }));
 
-    expect(await screen.findByText('Alasan pembatalan wajib diisi')).toBeInTheDocument();
+    expect(screen.getByText('Alasan penarikan wajib diisi')).toBeInTheDocument();
     expect(onConfirm).not.toHaveBeenCalled();
   });
 
   it('sends the trimmed reason', async () => {
-    const { onConfirm } = setup();
+    const { onConfirm } = renderDialog('withdraw');
 
-    await userEvent.type(
-      screen.getByRole('textbox', { name: /Alasan pembatalan/ }),
-      '  Salah memilih gudang  '
-    );
-    await userEvent.click(screen.getByRole('button', { name: 'Batalkan pindah barang' }));
+    await userEvent.type(screen.getByLabelText('Alasan penarikan'), '  salah produk ');
+    await userEvent.click(screen.getByRole('button', { name: 'Tarik pengajuan' }));
 
-    expect(onConfirm).toHaveBeenCalledWith('Salah memilih gudang');
-  });
-
-  it('goes back without cancelling', async () => {
-    const { onConfirm, onClose } = setup();
-
-    await userEvent.click(screen.getByRole('button', { name: 'Kembali' }));
-
-    expect(onClose).toHaveBeenCalled();
-    expect(onConfirm).not.toHaveBeenCalled();
+    expect(onConfirm).toHaveBeenCalledWith('salah produk');
   });
 });

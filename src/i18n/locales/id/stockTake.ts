@@ -21,7 +21,7 @@ export const stockTake = {
   },
   metrics: {
     running: 'Sedang berjalan',
-    runningHint: 'Draf dan hitungan yang belum dikirim',
+    runningHint: 'Hitungan yang sudah dimulai dan belum dikirim',
     pending: 'Menunggu persetujuan',
     pendingHint: 'Perlu keputusan Building Manager',
     diff: 'Selisih bulan ini',

@@ -1,4 +1,4 @@
-import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQueries, useQuery } from '@tanstack/react-query';
 import type { PurchaseAccessProfile } from '@/module/purchases/domain/purchaseAccess';
 import type {
   NamedRef,
@@ -20,9 +20,11 @@ import type {
 } from '@/module/purchases/domain/purchaseDocuments';
 import type { PaymentRequest } from '@/module/purchases/domain/paymentRequest';
 import type { BillSourceDoc } from '@/module/purchases/domain/billSources';
+import type { ActivityEntry, ActivityKind } from '@/module/purchases/domain/activityLog';
 import type { PurchaseBillInput } from '@/module/purchases/domain/purchaseInputs';
 import type { PurchaseRequest } from '@/module/purchases/domain/purchaseRequest';
 import {
+  getActivity,
   getBill,
   getOrder,
   getPayablesAging,
@@ -243,11 +245,21 @@ export const useTagOptions = () => {
 };
 
 /** Receipts or orders ready to be billed, of one vendor when given. */
-export const useBillSources = (source: 'RECEIPT' | 'ORDER' | null, vendor?: string) => {
+export const useBillSources = (
+  source: 'RECEIPT' | 'ORDER' | null,
+  vendor?: string,
+  purchaseOrder?: string
+) => {
   const scope = usePurchaseScope();
   return useQuery<BillSourceDoc[], PurchaseError>({
-    queryKey: [...purchaseKeys.all(scope), 'bill-sources', source, vendor ?? ''],
-    queryFn: () => listBillSources(source as 'RECEIPT' | 'ORDER', vendor),
+    queryKey: [
+      ...purchaseKeys.all(scope),
+      'bill-sources',
+      source,
+      vendor ?? '',
+      purchaseOrder ?? '',
+    ],
+    queryFn: () => listBillSources(source as 'RECEIPT' | 'ORDER', vendor, purchaseOrder),
     enabled: source !== null,
   });
 };
@@ -263,4 +275,33 @@ export const useBillPreview = (input: PurchaseBillInput | null) => {
     staleTime: 10_000,
     retry: false,
   });
+};
+
+/** The approval history of a document (who approved, rejected or cancelled it, and when). */
+export const useActivity = (kind: ActivityKind, id: string | undefined) => {
+  const scope = usePurchaseScope();
+  return useQuery<ActivityEntry[], PurchaseError>({
+    queryKey: [...purchaseKeys.all(scope), 'activity', kind, id ?? ''],
+    queryFn: () => getActivity(kind, id as string),
+    enabled: Boolean(id),
+  });
+};
+
+/**
+ * The open bills (verified or part paid) of several vendors, read one vendor at a time because the
+ * service filters by one vendor. `items` has them together; `isLoading` is true while any is loading.
+ */
+export const useOpenBillsOfVendors = (vendorIds: readonly string[], enabled = true) => {
+  const scope = usePurchaseScope();
+  const results = useQueries({
+    queries: vendorIds.map((vendor) => ({
+      queryKey: [...purchaseKeys.all(scope), 'open-bills-of-vendor', vendor],
+      queryFn: () => listBills({ vendor, status: ['VERIFIED', 'PARTIAL_PAID'], limit: 100 }),
+      enabled,
+    })),
+  });
+  return {
+    items: results.flatMap((result) => result.data?.items ?? []),
+    isLoading: results.some((result) => result.isLoading),
+  };
 };

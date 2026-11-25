@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button, Menu } from '@mantine/core';
+import { Button, Menu, Tooltip } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import {
   IconCircleCheck,
@@ -15,6 +15,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
 import { PURCHASE_MENU } from '@/module/purchases/domain/purchaseAccess';
+import { receiptBlockReason } from '@/module/purchases/domain/orderAdvance';
 import { orderActions } from '@/module/purchases/domain/purchaseActions';
 import type { PurchaseOrder } from '@/module/purchases/domain/purchaseDocuments';
 import { downloadOrderPdf } from '@/module/purchases/infrastructure/purchaseApi';
@@ -50,6 +51,9 @@ export const OrderActionBar = ({ order }: Readonly<{ order: PurchaseOrder }>) =>
   const showSend = actions.send && canUpdate;
   const showReceive = actions.receive && can(PURCHASE_MENU.receipts, 'create');
   const showBill = actions.bill && canCreate;
+  // The advance invoice comes first: its own button while the service allows it.
+  const showAdvanceBill = Boolean(order.advanceState?.canCreateBill) && canCreate;
+  const blockReason = receiptBlockReason(order);
   const showAdvance = actions.requestAdvance && can(PURCHASE_MENU.paymentRequests, 'create');
   const showClose = actions.close && canUpdate;
   const showVoid = actions.void && can(PURCHASE_MENU.documents, 'delete');
@@ -92,14 +96,28 @@ export const OrderActionBar = ({ order }: Readonly<{ order: PurchaseOrder }>) =>
           {t('orders.detail.createBill')}
         </Button>
       )}
-      {showReceive && (
+      {showAdvanceBill && (
         <Button
           radius="md"
-          leftSection={<IconPackageImport size={16} />}
-          onClick={() => navigate(`${routes.purchases.receiptAdd}?order=${order.id}`)}
+          leftSection={<IconFileInvoice size={16} />}
+          onClick={() => navigate(`${routes.purchases.billAdd}?order=${order.id}`)}
         >
-          {t('orders.detail.receive')}
+          {t('orders.detail.createAdvanceBill')}
         </Button>
+      )}
+      {showReceive && (
+        <Tooltip label={blockReason} disabled={!blockReason} multiline w={280} withArrow>
+          <span>
+            <Button
+              radius="md"
+              leftSection={<IconPackageImport size={16} />}
+              disabled={blockReason !== null}
+              onClick={() => navigate(`${routes.purchases.receiptAdd}?order=${order.id}`)}
+            >
+              {t('orders.detail.receive')}
+            </Button>
+          </span>
+        </Tooltip>
       )}
       <Menu position="bottom-end" withinPortal>
         <Menu.Target>

@@ -7,6 +7,7 @@ const base = {
   createdByName: 'Firman',
   startedAt: '2026-11-25T03:36:00.000Z',
   postedAt: '2026-11-25T03:38:00.000Z',
+  approvedByName: null,
   history: [
     { at: '2026-11-25T03:35:00.000Z', action: 'Dokumen dibuat', note: '', userName: 'Firman' },
     { at: '2026-11-25T03:36:00.000Z', action: 'Hitungan dimulai', note: '', userName: 'Firman' },
@@ -34,6 +35,12 @@ describe('opnameStages', () => {
     expect(details.counting.at).toBe('2026-11-25T03:36:00.000Z');
     expect(details.pending_approval).toEqual({ at: '2026-11-25T03:37:00.000Z', by: 'Firman' });
     expect(details.posted).toEqual({ at: '2026-11-25T03:38:00.000Z', by: 'Budi' });
+  });
+
+  it('prefers the approver the service records over the one read from the history', () => {
+    const { details } = opnameStages({ ...base, approvedByName: 'Ketua' });
+
+    expect(details.posted.by).toBe('Ketua');
   });
 
   it('uses the latest submission when a count was sent back and sent again', () => {

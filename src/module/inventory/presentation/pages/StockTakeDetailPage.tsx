@@ -33,6 +33,7 @@ import { useTranslation } from '@/i18n';
 import { ApiError } from '@/lib/http/apiError';
 import {
   opnameActions,
+  saveStateOf,
   submitReadiness,
   warehouseName,
 } from '@/module/inventory/domain/stockOpname';
@@ -118,10 +119,10 @@ export default function StockTakeDetailPage() {
   const warehouse = warehouseName(data.warehouse, t('warehouseMissing'));
   const readiness = submitReadiness(data.lines);
   const frozen = data.status === 'counting' || data.status === 'pending_approval';
-  let saveState: 'idle' | 'saving' | 'saved' | 'failed' = 'idle';
-  if (saveLines.isPending) saveState = 'saving';
-  else if (saveLines.isError) saveState = 'failed';
-  else if (saveLines.isSuccess) saveState = 'saved';
+  const saveState = saveStateOf(
+    { pending: saveLines.isPending, error: saveLines.isError, success: saveLines.isSuccess },
+    data.status
+  );
 
   const run = (kind: OpnameStep, reason?: string) =>
     step.mutate(

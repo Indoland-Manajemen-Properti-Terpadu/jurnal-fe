@@ -110,10 +110,17 @@ export interface ProcurementViewDto {
                 label?: string | null;
                 percent?: number | null;
                 amount?: number | null;
+                retentionAmount?: number | null;
+                withheld?: boolean | null;
               }[]
             | null;
           percent?: number | null;
           amount?: number | null;
+          advanceAmount?: number | null;
+          advancePercent?: number | null;
+          afterAdvanceAmount?: number | null;
+          afterAdvancePercent?: number | null;
+          retentionAmount?: number | null;
         } | null;
         complete?: boolean | null;
         subtotal?: number | null;

@@ -31,6 +31,8 @@ interface BillSourceStepProps {
   onPickVendor: (vendorId: string) => void;
   onPicked: (update: (current: BillSourceDoc[]) => BillSourceDoc[]) => void;
   onField: <K extends keyof BillFormValues>(key: K, value: BillFormValues[K]) => void;
+  /** The order the page was opened for. */
+  order?: string;
 }
 
 /** Step 1: where the bill comes from, then the vendor and the receipts or orders (or the vendor alone). */
@@ -48,6 +50,7 @@ export const BillSourceStep = ({
   onPickVendor,
   onPicked,
   onField,
+  order,
 }: Readonly<BillSourceStepProps>) => {
   const { t } = useTranslation('purchases');
   const pickable = source === 'MANUAL' ? null : source;
@@ -87,6 +90,7 @@ export const BillSourceStep = ({
           <BillSourcePicker
             source={pickable}
             picked={picked}
+            order={order}
             vendorId={pickVendor}
             onVendorChange={(id) => {
               onPickVendor(id);

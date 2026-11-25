@@ -35,7 +35,8 @@ export type AccountMappingsByGroup = {
   [groupKey: string]: AccountMappingItem[] | undefined;
 };
 
-export type NumberFormatType = 'invoice' | 'transaction';
+/** The code of a document type the service can number (`invoice`, `paymentRequest`, `stockTransfer`, ...). */
+export type NumberFormatType = string;
 
 export type NumberFormat = {
   id: string;

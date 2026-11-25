@@ -5,6 +5,8 @@ import { useTranslation } from '@/i18n';
 
 type Props = {
   opened: boolean;
+  /** `withdraw` is for a request that still waits for approval; no stock was moved yet. */
+  mode?: 'cancel' | 'withdraw';
   number: string;
   /** The warehouse the stock goes back to. */
   fromName: string;
@@ -13,9 +15,10 @@ type Props = {
   onClose: () => void;
 };
 
-/** Cancelling a transfer needs a reason; the service keeps it with the document. */
+/** Cancelling or withdrawing a transfer needs a reason; the service keeps it with the document. */
 export function VoidTransferDialog({
   opened,
+  mode = 'cancel',
   number,
   fromName,
   saving,
@@ -25,6 +28,8 @@ export function VoidTransferDialog({
   const { t } = useTranslation('stockMovements');
   const [reason, setReason] = useState('');
   const [error, setError] = useState<string | null>(null);
+  // Withdrawing a waiting request has its own words: nothing was posted, so nothing is reversed.
+  const k = mode === 'withdraw' ? 'withdraw' : 'void';
 
   useEffect(() => {
     if (opened) {
@@ -36,7 +41,7 @@ export function VoidTransferDialog({
   const confirm = () => {
     const trimmed = reason.trim();
     if (!trimmed) {
-      setError(t('detail.voidReasonRequired'));
+      setError(t(`detail.${k}ReasonRequired`));
       return;
     }
     setError(null);
@@ -47,24 +52,24 @@ export function VoidTransferDialog({
     <ModalFrame
       opened={opened}
       onClose={saving ? () => undefined : onClose}
-      title={t('detail.voidTitle', { number })}
+      title={t(`detail.${k}Title`, { number })}
       footer={
         <>
           <Button variant="default" onClick={onClose} disabled={saving}>
             {t('detail.voidKeep')}
           </Button>
           <Button color="red" onClick={confirm} loading={saving}>
-            {t('detail.voidConfirm')}
+            {t(`detail.${k}Confirm`)}
           </Button>
         </>
       }
     >
       <Text size="sm" c="dimmed" lh={1.6}>
-        {t('detail.voidBody', { from: fromName })}
+        {t(`detail.${k}Body`, { from: fromName })}
       </Text>
       <Textarea
-        label={t('detail.voidReasonLabel')}
-        placeholder={t('detail.voidReasonPlaceholder')}
+        label={t(`detail.${k}ReasonLabel`)}
+        placeholder={t(`detail.${k}ReasonPlaceholder`)}
         value={reason}
         onChange={(event) => {
           setReason(event.currentTarget.value);

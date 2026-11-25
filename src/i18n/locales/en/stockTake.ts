@@ -21,7 +21,7 @@ export const stockTake = {
   },
   metrics: {
     running: 'In progress',
-    runningHint: 'Drafts and counts not yet sent',
+    runningHint: 'Counts already started and not yet sent',
     pending: 'Awaiting approval',
     pendingHint: 'Needs the Building Manager',
     diff: 'Difference this month',

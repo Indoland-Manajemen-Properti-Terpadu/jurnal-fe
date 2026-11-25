@@ -1,3 +1,5 @@
+import { toAdvanceState } from '@/module/purchases/infrastructure/advanceStateMappers';
+import { toDocumentJournals } from '@/module/purchases/infrastructure/documentJournalMappers';
 import type { PaymentRequest } from '@/module/purchases/domain/paymentRequest';
 import type {
   BillItem,
@@ -115,6 +117,7 @@ export const toPurchaseOrder = (dto: PurchaseOrderDto): PurchaseOrder => ({
     used: dto.advance?.used ?? 0,
     available: dto.advance?.available ?? 0,
   },
+  advanceState: toAdvanceState(dto.advanceState),
   payableAmount: dto.payableAmount ?? 0,
   billedAmount: dto.billedAmount ?? 0,
   sent: {
@@ -127,6 +130,7 @@ export const toPurchaseOrder = (dto: PurchaseOrderDto): PurchaseOrder => ({
 
 export const toGoodsReceipt = (dto: GoodsReceiptDto): GoodsReceipt => ({
   ...base(dto),
+  journals: toDocumentJournals(dto.journals),
   kind: dto.kind ?? 'GOODS',
   documentLabel: dto.documentLabel ?? (dto.kind === 'SERVICE' ? 'BAPP' : 'FPB'),
   statusLabel: dto.statusLabel ?? '',
@@ -197,6 +201,7 @@ export const toPurchaseBill = (dto: PurchaseBillDto): PurchaseBill => {
   return {
     ...base(dto),
     ...toAmounts(dto),
+    journals: toDocumentJournals(dto.journals),
     source: dto.source ?? 'RECEIPT',
     noMatch: Boolean(dto.noMatch),
     statusLabel: dto.statusLabel ?? '',
@@ -235,6 +240,7 @@ export const toPurchaseBill = (dto: PurchaseBillDto): PurchaseBill => {
 
 export const toPaymentVoucher = (dto: PaymentVoucherDto): PaymentVoucher => ({
   ...base(dto),
+  journals: toDocumentJournals(dto.journals),
   statusLabel: dto.statusLabel ?? '',
   vendor: toParty(dto.vendor),
   status: dto.status as PaymentVoucher['status'],
@@ -266,6 +272,20 @@ export const toPaymentRequest = (dto: PaymentRequestDto): PaymentRequest => ({
   kind: dto.kind,
   status: dto.status as PaymentRequest['status'],
   vendor: dto.vendor ? toParty(dto.vendor) : null,
+  isMultiVendor: dto.isMultiVendor === true,
+  vendorTotals: (dto.vendorTotals ?? []).map((total) => ({
+    vendorId: total.vendor,
+    vendorName: total.vendorName ?? '',
+    amount: total.amount,
+    billCount: total.billCount ?? 0,
+    voucher: total.voucher
+      ? {
+          id: total.voucher.id,
+          number: total.voucher.transactionNumber ?? '',
+          status: total.voucher.status ?? '',
+        }
+      : null,
+  })),
   amount: dto.amount,
   dueDate: toDateOrNull(dto.dueDate),
   order: dto.purchaseOrderRef
@@ -279,6 +299,7 @@ export const toPaymentRequest = (dto: PaymentRequestDto): PaymentRequest => ({
     : null,
   items: (dto.itemRefs ?? []).map((line) => ({
     amount: line.amount,
+    vendorId: line.vendor ?? dto.vendor?.id ?? '',
     bill: {
       id: line.bill.id,
       number: line.bill.transactionNumber ?? '',

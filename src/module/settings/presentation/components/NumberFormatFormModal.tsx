@@ -1,4 +1,5 @@
 import {
+  Alert,
   Button,
   Divider,
   Grid,
@@ -13,10 +14,15 @@ import {
   TextInput,
   ThemeIcon,
 } from '@mantine/core';
-import { IconHash } from '@tabler/icons-react';
+import { IconHash, IconInfoCircle } from '@tabler/icons-react';
 import type { NumberFormatType } from '@/module/settings/domain/settingTypes';
 
-import { previewNumber } from '@/module/settings/domain/settingRules';
+import {
+  formatExample,
+  groupNumberFormatTypes,
+  numberFormatTypeHint,
+  type NumberFormatTypeInfo,
+} from '@/module/settings/domain/numberFormatTypes';
 import { useTranslation } from '@/i18n';
 import type { UseFormReturnType } from '@mantine/form';
 
@@ -35,6 +41,8 @@ interface NumberFormatFormModalProps {
   form: UseFormReturnType<NumberFormatFormValues>;
   onSubmit: (values: NumberFormatFormValues) => void | Promise<void>;
   isPending: boolean;
+  /** The document types the service can number, with their default number. */
+  types: NumberFormatTypeInfo[];
 }
 
 export function NumberFormatFormModal({
@@ -44,8 +52,11 @@ export function NumberFormatFormModal({
   form,
   onSubmit,
   isPending,
+  types,
 }: NumberFormatFormModalProps) {
   const { t: st } = useTranslation('settings');
+  const chosen = types.find((entry) => entry.type === form.values.type);
+  const hint = chosen ? numberFormatTypeHint(chosen) : null;
 
   return (
     <Modal
@@ -67,15 +78,32 @@ export function NumberFormatFormModal({
       <form onSubmit={form.onSubmit(onSubmit)}>
         <Stack gap="md">
           <Select
-            label={st('numberFormat.colType')}
-            data={[
-              { label: st('numberFormat.optionInvoice'), value: 'invoice' },
-              { label: st('numberFormat.optionTransaction'), value: 'transaction' },
-            ]}
+            label={st('numberFormat.docType')}
+            placeholder={st('numberFormat.docTypePlaceholder')}
+            data={groupNumberFormatTypes(types)}
+            searchable
             disabled={Boolean(isEditing)}
             required
             {...form.getInputProps('type')}
           />
+          {hint && (
+            <Alert color="blue" variant="light" radius="md" icon={<IconInfoCircle size={16} />}>
+              <Stack gap={2}>
+                {hint.kind === 'required' && (
+                  <Text size="sm">{st('numberFormat.hintRequired')}</Text>
+                )}
+                {hint.kind === 'default' && (
+                  <Text size="sm">
+                    {st('numberFormat.hintDefault', { example: hint.example })}{' '}
+                    {hint.restartsEvery && st(`numberFormat.restarts.${hint.restartsEvery}`)}
+                  </Text>
+                )}
+                {hint.kind === 'active' && (
+                  <Text size="sm">{st('numberFormat.hintActive', { next: hint.next })}</Text>
+                )}
+              </Stack>
+            </Alert>
+          )}
 
           <Grid gutter="sm">
             <Grid.Col span={8}>
@@ -119,7 +147,10 @@ export function NumberFormatFormModal({
               {st('numberFormat.previewResult')}
             </Text>
             <Text size="md" fw={700} c="primary.9" ff="monospace" mt={2}>
-              {previewNumber(form.values.prefix, form.values.startNumber || 1, form.values.suffix)}
+              {formatExample(form.values.prefix, form.values.startNumber || 1, form.values.suffix)}
+            </Text>
+            <Text size="xs" c="dimmed" mt={4}>
+              {st('numberFormat.formatNote')}
             </Text>
           </Paper>
 

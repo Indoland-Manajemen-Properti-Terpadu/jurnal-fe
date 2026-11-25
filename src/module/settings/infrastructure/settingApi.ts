@@ -1,5 +1,6 @@
 import apiClient from '@/lib/http/apiClient';
 import { API_SETTINGS } from '@/lib/http/endpoints';
+import type { NumberFormatTypeInfo } from '@/module/settings/domain/numberFormatTypes';
 import type {
   GeneralSetting,
   AccountMappingItem,
@@ -87,6 +88,14 @@ export const updateAccountMappingBatch = async (
 export const fetchNumberFormats = async (): Promise<NumberFormat[]> => {
   const { data } = await apiClient.get<ApiEnvelope<NumberFormat[]>>(
     API_SETTINGS.GET_NUMBER_FORMATS
+  );
+  return Array.isArray(data.data) ? data.data : [];
+};
+
+/** The document types that can be numbered, with their default number and the format the site set. */
+export const fetchNumberFormatTypes = async (): Promise<NumberFormatTypeInfo[]> => {
+  const { data } = await apiClient.get<ApiEnvelope<NumberFormatTypeInfo[]>>(
+    API_SETTINGS.GET_NUMBER_FORMAT_TYPES
   );
   return Array.isArray(data.data) ? data.data : [];
 };
