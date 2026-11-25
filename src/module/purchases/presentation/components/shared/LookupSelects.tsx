@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Select, type SelectProps } from '@mantine/core';
+import { MultiSelect, Select, type MultiSelectProps, type SelectProps } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
 import { useTranslation } from '@/i18n';
 import type { PartyRef, ProductRef } from '@/module/purchases/domain/purchaseCommon';
@@ -91,6 +91,57 @@ export const ProductSelect = ({ value, onChange, ...rest }: Readonly<ProductSele
       searchValue={search}
       onSearchChange={setSearch}
       onChange={(id) => onChange(id, data.find((product) => product.id === id) ?? null)}
+      filter={({ options: items }) => items}
+      {...rest}
+    />
+  );
+};
+
+type MultiPickerProps = Omit<
+  MultiSelectProps,
+  'data' | 'searchValue' | 'onSearchChange' | 'onChange' | 'value'
+>;
+
+interface SupplierMultiSelectProps extends MultiPickerProps {
+  value: string[];
+  /** The vendors already chosen, so their names stay listed while the search changes. */
+  selected: Pick<PartyRef, 'id' | 'name'>[];
+  onChange: (ids: string[], vendors: Pick<PartyRef, 'id' | 'name'>[]) => void;
+}
+
+/** Several suppliers searched on the server as the user types; the chosen ones stay in the list. */
+export const SupplierMultiSelect = ({
+  value,
+  selected,
+  onChange,
+  ...rest
+}: Readonly<SupplierMultiSelectProps>) => {
+  const { t } = useTranslation('purchases');
+  const [search, setSearch] = useState('');
+  const [debounced] = useDebouncedValue(search, 300);
+  const { data = [], isFetching } = useSupplierOptions(debounced.trim());
+  const options = [
+    ...selected,
+    ...data.filter((vendor) => !selected.some((s) => s.id === vendor.id)),
+  ];
+
+  return (
+    <MultiSelect
+      searchable
+      clearable
+      radius="md"
+      placeholder={value.length === 0 ? t('shared.supplierPlaceholder') : undefined}
+      nothingFoundMessage={isFetching ? t('shared.searching') : t('shared.noSupplier')}
+      data={options.map((vendor) => ({ value: vendor.id, label: vendor.name }))}
+      value={value}
+      searchValue={search}
+      onSearchChange={setSearch}
+      onChange={(ids) =>
+        onChange(
+          ids,
+          options.filter((vendor) => ids.includes(vendor.id))
+        )
+      }
       filter={({ options: items }) => items}
       {...rest}
     />

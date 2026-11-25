@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
 import { paymentRequestActions } from '@/module/purchases/domain/paymentRequest';
 import { PURCHASE_MENU } from '@/module/purchases/domain/purchaseAccess';
+import { PaymentRequestVendorsCard } from '@/module/purchases/presentation/components/paymentRequests/PaymentRequestVendorsCard';
 import { PaymentRequestActionBar } from '@/module/purchases/presentation/components/paymentRequests/PaymentRequestActionBar';
 import {
   PaymentRequestInfoCard,
@@ -86,6 +87,7 @@ export default function PaymentRequestDetailPage() {
         <Grid.Col span={{ base: 12, lg: 8 }}>
           <Stack gap="lg">
             <PaymentRequestInfoCard doc={doc} />
+            <PaymentRequestVendorsCard doc={doc} />
             <PaymentRequestItemsCard doc={doc} />
           </Stack>
         </Grid.Col>
