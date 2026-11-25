@@ -125,6 +125,19 @@ export const settingsPages = {
     saveMapping: 'Save Mapping',
   },
   numberFormat: {
+    docType: 'Document type',
+    docTypePlaceholder: 'Pick a document type',
+    hintRequired:
+      'This type has no default number: a format must be set before its documents can be made.',
+    hintDefault: 'It uses the default number now, for example {example}.',
+    hintActive:
+      'This type already has an active format; its next number is {next}. That format replaces the default number completely.',
+    restarts: {
+      MONTH: 'The default number starts again every month.',
+      YEAR: 'The default number starts again every year.',
+    },
+    formatNote:
+      'A number from this format is the prefix, a five-digit running number, then the suffix, with no year or month. The counter keeps rising and does not restart every month.',
     title: 'Document Number Formats',
     description:
       'Set the automatic numbering format and prefix for Sales Invoices and General Journal Transactions.',

@@ -30,12 +30,13 @@ import {
   useCreateNumberFormat,
   useDeleteNumberFormat,
   useNumberFormats,
+  useNumberFormatTypes,
   useUpdateNumberFormat,
 } from '@/module/settings/presentation/hooks/useNumberFormats';
 import type { NumberFormat } from '@/module/settings/domain/settingTypes';
 
+import { formatExample } from '@/module/settings/domain/numberFormatTypes';
 import {
-  previewNumber,
   validateNumberFormatPrefix,
   validateStartNumber,
   type SettingValidationKey,
@@ -51,6 +52,8 @@ import { DeleteConfirmModal } from '@/module/settings/presentation/components/De
 export default function NumberFormatPage() {
   const { t: st } = useTranslation('settings');
   const { data: formats = [], isLoading, refetch } = useNumberFormats();
+  const { data: types = [] } = useNumberFormatTypes();
+  const labelOf = (type: string) => types.find((entry) => entry.type === type)?.label ?? type;
   const createMutation = useCreateNumberFormat();
   const updateMutation = useUpdateNumberFormat();
   const deleteMutation = useDeleteNumberFormat();
@@ -69,8 +72,8 @@ export default function NumberFormatPage() {
   const msg = (key: SettingValidationKey | null) => (key ? st(key) : null);
   const form = useForm<NumberFormatFormValues>({
     initialValues: {
-      type: 'invoice',
-      prefix: 'PRO/INV',
+      type: '',
+      prefix: '',
       suffix: '',
       startNumber: 1,
       status: 'active',
@@ -130,6 +133,7 @@ export default function NumberFormatPage() {
   const filteredFormats = formats.filter(
     (f) =>
       f.type.toLowerCase().includes(search.toLowerCase()) ||
+      labelOf(f.type).toLowerCase().includes(search.toLowerCase()) ||
       f.prefix.toLowerCase().includes(search.toLowerCase()) ||
       f.suffix.toLowerCase().includes(search.toLowerCase())
   );
@@ -222,15 +226,8 @@ export default function NumberFormatPage() {
                 {filteredFormats.map((nf) => (
                   <Table.Tr key={nf.id}>
                     <Table.Td>
-                      <Badge
-                        color={nf.type === 'invoice' ? 'blue' : 'violet'}
-                        variant="light"
-                        size="sm"
-                        tt="capitalize"
-                      >
-                        {nf.type === 'invoice'
-                          ? st('numberFormat.typeInvoice')
-                          : st('numberFormat.typeTransaction')}
+                      <Badge color="blue" variant="light" size="sm">
+                        {labelOf(nf.type)}
                       </Badge>
                     </Table.Td>
                     <Table.Td>
@@ -245,7 +242,7 @@ export default function NumberFormatPage() {
                     </Table.Td>
                     <Table.Td>
                       <Text size="sm" fw={700} ff="monospace" c="primary.9">
-                        {previewNumber(nf.prefix, nf.currentNumber || nf.startNumber, nf.suffix)}
+                        {formatExample(nf.prefix, nf.currentNumber || nf.startNumber, nf.suffix)}
                       </Text>
                     </Table.Td>
                     <Table.Td>
@@ -305,6 +302,7 @@ export default function NumberFormatPage() {
         form={form}
         onSubmit={handleSubmit}
         isPending={createMutation.isPending || updateMutation.isPending}
+        types={types}
       />
 
       <DeleteConfirmModal

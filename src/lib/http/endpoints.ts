@@ -96,6 +96,7 @@ export const API_SETTINGS = {
 
   // Number formats
   GET_NUMBER_FORMATS: `/v1/settings/number-formats`,
+  GET_NUMBER_FORMAT_TYPES: `/v1/settings/number-formats/types`,
   POST_NUMBER_FORMAT: `/v1/settings/number-formats`,
   PUT_NUMBER_FORMAT: (id: string) => `/v1/settings/number-formats/${id}`,
   DELETE_NUMBER_FORMAT: (id: string) => `/v1/settings/number-formats/${id}`,

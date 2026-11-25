@@ -125,6 +125,19 @@ export const settingsPages = {
     saveMapping: 'Simpan Pemetaan',
   },
   numberFormat: {
+    docType: 'Jenis dokumen',
+    docTypePlaceholder: 'Pilih jenis dokumen',
+    hintRequired:
+      'Jenis ini belum punya nomor bawaan: format harus diatur dulu sebelum dokumennya bisa dibuat.',
+    hintDefault: 'Sekarang memakai nomor bawaan, contoh {example}.',
+    hintActive:
+      'Sudah ada format aktif untuk jenis ini; nomor berikutnya {next}. Format itu menggantikan nomor bawaan sepenuhnya.',
+    restarts: {
+      MONTH: 'Nomor bawaan mulai dari awal setiap bulan.',
+      YEAR: 'Nomor bawaan mulai dari awal setiap tahun.',
+    },
+    formatNote:
+      'Nomor dari format ini berupa prefix, nomor urut 5 digit, lalu suffix, tanpa tahun atau bulan. Penghitungnya terus naik dan tidak mengulang tiap bulan.',
     title: 'Format Nomor Dokumen (Number Formats)',
     description:
       'Atur format dan awalan penomoran otomatis untuk Faktur Penjualan (Invoice) dan Transaksi Jurnal Umum.',
