@@ -17,6 +17,7 @@ import { StateFrame } from '@/module/purchases/presentation/components/requests/
 import { ApprovalPanel } from '@/module/purchases/presentation/components/shared/ApprovalPanel';
 import { AttachmentsCard } from '@/module/purchases/presentation/components/shared/AttachmentsCard';
 import { DocumentApprovalLog } from '@/module/purchases/presentation/components/shared/DocumentApprovalLog';
+import { DocumentJournalsCard } from '@/module/purchases/presentation/components/shared/DocumentJournalsCard';
 import { DocumentJourney } from '@/module/purchases/presentation/components/shared/DocumentJourney';
 import { DocumentFrame } from '@/module/purchases/presentation/components/shared/DocumentFrame';
 import {
@@ -148,6 +149,7 @@ export default function ReceiptDetailPage() {
                 )}
                 emptyText={t('receipts.detail.billsEmpty')}
               />
+              <DocumentJournalsCard journals={doc.journals} />
               <AttachmentsCard
                 target="receipt"
                 documentId={doc.id}
