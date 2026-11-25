@@ -17,6 +17,10 @@ export const purchasesPaymentRequests = {
   issue: {
     title: 'Issue Payment Voucher',
     confirm: 'Issue PV',
+    scope: 'Issue for',
+    scopeHint: 'Each vendor gets a payment voucher of its own.',
+    scopeAll: 'All vendors at once ({count} vouchers)',
+    scopeOne: 'Only {name} ({amount})',
     amountLabel: 'Amount ordered',
     payTo: 'Paid to',
     voucherValue: 'Voucher value',

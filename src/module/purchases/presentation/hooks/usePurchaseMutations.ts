@@ -206,8 +206,34 @@ export const useCancelPaymentRequest = () =>
   useAction('cancelled', ({ id, reason }: WithReason) => api.cancelPaymentRequest(id, reason));
 
 /* ---------- Payment voucher ---------- */
-export const useCreatePayment = (onDone?: (doc: WithId & Doc) => void) =>
-  useAction('created', (input: PaymentVoucherInput) => api.createPayment(input), onDone);
+export const useCreatePayment = (
+  onDone?: (doc: WithId & Doc) => void,
+  /** An error the screen shows itself, so no toast is made for it. */
+  isHandled?: (error: unknown) => boolean
+) =>
+  useAction('created', (input: PaymentVoucherInput) => api.createPayment(input), onDone, isHandled);
+/** One voucher per vendor of a request with several vendors, issued together. */
+export const useCreatePaymentsByVendor = (
+  onDone?: (docs: { id: string }[]) => void,
+  isHandled?: (error: unknown) => boolean
+) => {
+  const client = useQueryClient();
+  const scope = usePurchaseScope();
+  const notify = usePurchaseNotifier();
+  return useMutation<{ id: string; number: string }[], unknown, PaymentVoucherInput>({
+    mutationFn: async (input) =>
+      (await api.createPaymentsByVendor(input)).map((doc) => ({ id: doc.id, number: doc.number })),
+    onSuccess: async (docs) => {
+      await client.invalidateQueries({ queryKey: purchaseKeys.all(scope) });
+      notify.success('created', docs.map((doc) => doc.number).join(', '));
+      onDone?.(docs);
+    },
+    onError: async (error) => {
+      if (!isHandled?.(error)) notify.failure(error);
+      await client.invalidateQueries({ queryKey: purchaseKeys.all(scope) });
+    },
+  });
+};
 export const usePayVoucher = () =>
   useAction('paid', ({ id, input }: WithId & { input: PayInput }) => api.payVoucher(id, input));
 export const useVoidPayment = () =>

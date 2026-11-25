@@ -17,6 +17,10 @@ export const purchasesPaymentRequests = {
   issue: {
     title: 'Terbitkan Payment Voucher',
     confirm: 'Terbitkan PV',
+    scope: 'Terbitkan untuk',
+    scopeHint: 'Setiap vendor mendapat satu payment voucher sendiri.',
+    scopeAll: 'Semua vendor sekaligus ({count} voucher)',
+    scopeOne: 'Hanya {name} ({amount})',
     amountLabel: 'Nominal diperintahkan',
     payTo: 'Dibayarkan ke',
     voucherValue: 'Nilai PV',

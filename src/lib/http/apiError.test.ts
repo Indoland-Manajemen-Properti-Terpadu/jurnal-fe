@@ -43,6 +43,24 @@ describe('toApiError', () => {
     expect(error.serverMessage).toBeUndefined();
   });
 
+  it('keeps the sentence of a validation refusal apart, for a screen that may show it', () => {
+    const error = toApiError(
+      respond(400, {
+        message:
+          'Payment voucher belum bisa diterbitkan (PT Geruite): Isi rekening bank vendor di data kontak',
+        data: [
+          { field: 'vendor.bankAccounts', message: 'Isi rekening bank vendor di data kontak' },
+        ],
+      })
+    );
+
+    expect(error.kind).toBe('validation');
+    expect(error.serverMessage).toBeUndefined();
+    expect(error.validationMessage).toBe(
+      'Payment voucher belum bisa diterbitkan (PT Geruite): Isi rekening bank vendor di data kontak'
+    );
+  });
+
   it('keeps a 400 whose list has no fields as a business refusal with its details', () => {
     const error = toApiError(
       respond(400, {

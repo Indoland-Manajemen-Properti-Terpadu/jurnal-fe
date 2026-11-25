@@ -288,6 +288,16 @@ export const cancelPaymentRequest = (id: string, reason: string) =>
 export const listPayments = payments.list;
 export const getPayment = payments.get;
 export const createPayment = (input: PaymentVoucherInput) => payments.create(input);
+/** One voucher for every vendor of a request, all issued together or none (`{ payments: [...] }`). */
+export const createPaymentsByVendor = async (
+  input: PaymentVoucherInput
+): Promise<PaymentVoucher[]> => {
+  const body = await http.post<ApiEnvelope<{ payments?: PaymentVoucherDto[] }>>(
+    PURCHASE_API.paymentsByVendor,
+    input
+  );
+  return (body.data?.payments ?? []).map(toPaymentVoucher);
+};
 export const payVoucher = (id: string, input: PayInput) => payments.act(id, 'pay', input);
 export const voidPayment = (id: string, reason: string) => payments.act(id, 'void', { reason });
 
