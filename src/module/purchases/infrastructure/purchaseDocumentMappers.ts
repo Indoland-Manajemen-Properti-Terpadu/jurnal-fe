@@ -9,6 +9,8 @@ import type {
   PayablesAging,
   PaymentVoucher,
   PurchaseBill,
+  AdvanceDocRef,
+  OrderAdvanceState,
   PurchaseOrder,
   PurchaseReturn,
   VendorCredits,
@@ -18,6 +20,8 @@ import type {
   CreditApplicationDto,
   DocumentDto,
   DocumentRefDto,
+  AdvanceDocDto,
+  AdvanceStateDto,
   GoodsReceiptDto,
   PayablesAgingDto,
   PaymentRequestDto,
@@ -89,6 +93,36 @@ const toOrderItem = (dto: PurchaseOrderDto['items'][number]): OrderItem => ({
   },
 });
 
+const toAdvanceDocs = (docs: AdvanceDocDto[] | null | undefined): AdvanceDocRef[] =>
+  (docs ?? []).map((doc) => ({
+    id: doc.id,
+    number: doc.transactionNumber ?? '',
+    status: doc.status ?? '',
+  }));
+
+const toAdvanceState = (dto: AdvanceStateDto | null | undefined): OrderAdvanceState | null =>
+  dto
+    ? {
+        mode: dto.mode === 'REQUEST' ? 'REQUEST' : 'BILL',
+        amount: dto.amount ?? 0,
+        paidAmount: dto.paidAmount ?? 0,
+        billed: dto.billed === true,
+        paid: dto.paid === true,
+        postedAmount: dto.postedAmount ?? 0,
+        recognizedAmount: dto.recognizedAmount ?? 0,
+        heldAmount: dto.heldAmount ?? 0,
+        step: dto.step ?? '',
+        stepLabel: dto.stepLabel ?? '',
+        canCreateBill: dto.canCreateBill === true,
+        // A missing flag must not block a receipt the service would accept.
+        receiptAllowed: dto.receiptAllowed !== false,
+        receiptBlockReason: dto.receiptBlockReason ?? null,
+        bills: toAdvanceDocs(dto.bills),
+        paymentRequests: toAdvanceDocs(dto.paymentRequests),
+        paymentVouchers: toAdvanceDocs(dto.paymentVouchers),
+      }
+    : null;
+
 export const toPurchaseOrder = (dto: PurchaseOrderDto): PurchaseOrder => ({
   ...base(dto),
   ...toAmounts(dto),
@@ -115,6 +149,7 @@ export const toPurchaseOrder = (dto: PurchaseOrderDto): PurchaseOrder => ({
     used: dto.advance?.used ?? 0,
     available: dto.advance?.available ?? 0,
   },
+  advanceState: toAdvanceState(dto.advanceState),
   payableAmount: dto.payableAmount ?? 0,
   billedAmount: dto.billedAmount ?? 0,
   sent: {

@@ -84,6 +84,37 @@ export interface OrderItem {
   billOnly: boolean;
 }
 
+/** How the advance is paid: through a bill of its own, or only through a Payment Request. */
+export type OrderAdvanceMode = 'BILL' | 'REQUEST';
+
+export interface AdvanceDocRef {
+  id: string;
+  number: string;
+  status: string;
+}
+
+/** Where the advance (DP) of an order stands: its documents, its step and what is still held. */
+export interface OrderAdvanceState {
+  mode: OrderAdvanceMode;
+  amount: number;
+  paidAmount: number;
+  billed: boolean;
+  paid: boolean;
+  /** Booked as advance, how much of it goods or services received have used, and what is left. */
+  postedAmount: number;
+  recognizedAmount: number;
+  heldAmount: number;
+  step: string;
+  stepLabel: string;
+  canCreateBill: boolean;
+  /** False while the advance invoice is unpaid: a receipt is refused until then. */
+  receiptAllowed: boolean;
+  receiptBlockReason: string | null;
+  bills: AdvanceDocRef[];
+  paymentRequests: AdvanceDocRef[];
+  paymentVouchers: AdvanceDocRef[];
+}
+
 export interface OrderAdvance {
   /** The advance agreed in the quote. */
   amount: number;
@@ -116,6 +147,8 @@ export interface PurchaseOrder extends DocumentBase, DocumentAmounts {
   withReceipt: boolean;
   items: OrderItem[];
   advance: OrderAdvance;
+  /** Null when the order has no advance. */
+  advanceState: OrderAdvanceState | null;
   /** What the vendor is owed on this order, and how much of it is billed. */
   payableAmount: number;
   billedAmount: number;

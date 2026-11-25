@@ -1,3 +1,4 @@
+import { OrderAdvanceCard } from '@/module/purchases/presentation/components/orders/OrderAdvanceCard';
 import tableClasses from '@/module/purchases/presentation/components/shared/Table.module.css';
 import { Anchor, Progress, Stack, Table, Text } from '@mantine/core';
 import { IconClipboardText, IconListDetails, IconSend, IconWallet } from '@tabler/icons-react';
@@ -125,7 +126,9 @@ export const OrderSummaryCard = ({ order }: Readonly<{ order: PurchaseOrder }>) 
         </SectionCard>
       )}
 
-      {order.advance.amount > 0 && (
+      {order.advanceState && <OrderAdvanceCard advance={order.advanceState} />}
+
+      {order.advance.amount > 0 && !order.advanceState && (
         <SectionCard
           icon={IconWallet}
           label
