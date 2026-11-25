@@ -322,6 +322,35 @@ export const uploadAttachments = async (
   await http.upload<unknown>(ATTACHMENT_URL[target](id), form);
 };
 
+/** The two files a bill can carry when it is saved: the vendor's invoice and the tax invoice. */
+export interface BillFiles {
+  invoice: File[];
+  tax: File[];
+}
+
+/**
+ * Sends each chosen file under its own kind (the service keeps one active file per kind). A field
+ * left empty sends nothing. The uploads go one after the other: two at the same time on one bill
+ * make the service refuse the second with a version error. Both are tried even when the first
+ * fails, so one bad file does not drop the other; the first failure is then thrown.
+ */
+export const uploadBillFiles = async (id: string, files: BillFiles) => {
+  const groups: { kind: AttachmentKind; files: File[] }[] = [
+    { kind: 'VENDOR_INVOICE', files: files.invoice },
+    { kind: 'TAX_INVOICE', files: files.tax },
+  ];
+  let failure: unknown;
+  for (const group of groups.filter((item) => item.files.length > 0)) {
+    try {
+      await uploadAttachments('bill', id, group.files, undefined, undefined, group.kind);
+    } catch (error) {
+      failure ??= error;
+    }
+  }
+  // eslint-disable-next-line @typescript-eslint/no-throw-literal -- rethrows the original failure
+  if (failure) throw failure;
+};
+
 export const downloadOrderPdf = (id: string) => http.blob(PURCHASE_API.orderPrint(id));
 export const downloadPaymentPdf = (id: string) => http.blob(PURCHASE_API.paymentPrint(id));
 export const downloadPayablesExcel = (params: { asOf?: string; vendor?: string }) =>

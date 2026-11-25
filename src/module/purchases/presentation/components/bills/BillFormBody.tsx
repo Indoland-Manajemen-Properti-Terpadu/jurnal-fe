@@ -31,7 +31,6 @@ import type {
   BillVariance,
   PurchaseBill,
 } from '@/module/purchases/domain/purchaseDocuments';
-import type { PurchaseBillInput } from '@/module/purchases/domain/purchaseInputs';
 import { toPurchaseError } from '@/module/purchases/infrastructure/purchaseErrors';
 import {
   BillFileFields,
@@ -57,7 +56,7 @@ import {
 } from '@/module/purchases/presentation/components/shared/wizard/WizardStepper';
 import {
   useCreateBill,
-  useUploadAttachments,
+  useUploadBillFiles,
   useVerifyBill,
 } from '@/module/purchases/presentation/hooks/usePurchaseMutations';
 import { useBillSources } from '@/module/purchases/presentation/hooks/usePurchaseQueries';
@@ -88,32 +87,43 @@ export const BillFormBody = ({
   const [showErrors, setShowErrors] = useState(false);
   const [step, setStep] = useState(0);
   const [variances, setVariances] = useState<BillVariance[] | null>(null);
-  const [lastInput, setLastInput] = useState<PurchaseBillInput | null>(null);
   // A refused verification that lists differences is answered here, with a question, not a message.
-  const upload = useUploadAttachments();
+  const uploadFiles = useUploadBillFiles();
   const [files, setFiles] = useState<BillFiles>({ invoice: [], tax: [] });
   const filesRef = useRef(files);
   filesRef.current = files;
-  const create = useCreateBill(
-    async (doc) => {
-      // The files go to the saved bill first, so the detail opens with them listed.
-      const { invoice, tax } = filesRef.current;
-      const groups = [
-        { kind: 'VENDOR_INVOICE' as const, files: invoice },
-        { kind: 'TAX_INVOICE' as const, files: tax },
-      ].filter((group) => group.files.length > 0);
-      for (const group of groups) {
-        await upload
-          .mutateAsync({ target: 'bill', id: doc.id, files: group.files, kind: group.kind })
-          .catch(() => undefined);
+  // "Save and verify" saves a draft first: the service checks the files when it verifies, and they
+  // can only go to a bill that exists. Verifying comes after the files are sent.
+  const verifyAfterRef = useRef(false);
+  const [savedId, setSavedId] = useState<string | null>(null);
+  const isVarianceRefusal = (error: unknown) =>
+    readVariances(toPurchaseError(error).details).length > 0;
+  const verify = useVerifyBill(isVarianceRefusal);
+  const verifySaved = async (id: string, acknowledgeVariance: boolean) => {
+    try {
+      await verify.mutateAsync({ id, acknowledgeVariance });
+    } catch (error) {
+      const found = readVariances(toPurchaseError(error).details);
+      if (found.length > 0) {
+        setSavedId(id);
+        setVariances(found);
+        return;
       }
-      navigate(detailOf(doc.id));
-    },
-    (error) => readVariances(toPurchaseError(error).details).length > 0
-  );
+    }
+    navigate(detailOf(id));
+  };
+  const create = useCreateBill(async (doc) => {
+    const { invoice, tax } = filesRef.current;
+    if (invoice.length > 0 || tax.length > 0) {
+      // A refused upload is reported by the hook; the saved bill stays a draft to fix on its page.
+      await uploadFiles.mutateAsync({ id: doc.id, files: { invoice, tax } }).catch(() => undefined);
+    }
+    if (verifyAfterRef.current) await verifySaved(doc.id, false);
+    else navigate(detailOf(doc.id));
+  });
   const update = useUpdateBill((doc) => navigate(detailOf(doc.id)));
-  const verify = useVerifyBill();
-  const pending = create.isPending || update.isPending || verify.isPending;
+  const pending =
+    create.isPending || update.isPending || verify.isPending || uploadFiles.isPending;
 
   const pickable: PickedSource | null = source === 'MANUAL' ? null : source;
   const sources = useBillSources(existing ? null : pickable);
@@ -164,14 +174,8 @@ export const BillFormBody = ({
       update.mutate({ id: existing.id, input: toBillUpdate(values) });
       return;
     }
-    const input = toBillInput(source, values, picked, post, quantities);
-    setLastInput(input);
-    create.mutate(input, {
-      onError: (error) => {
-        const found = readVariances(toPurchaseError(error).details);
-        if (found.length > 0) setVariances(found);
-      },
-    });
+    verifyAfterRef.current = post;
+    create.mutate(toBillInput(source, values, picked, false, quantities));
   };
 
   const dueHint = useMemo(() => {
@@ -236,7 +240,7 @@ export const BillFormBody = ({
         label: t('common.saveDraft'),
         icon: <IconDeviceFloppy size={16} />,
         onClick: () => save(false),
-        loading: create.isPending && !create.variables?.post,
+        loading: pending && !verifyAfterRef.current,
       }}
       finish={{
         label: t('bills.form.saveVerify'),
@@ -250,15 +254,17 @@ export const BillFormBody = ({
   const dialog = (
     <BillVarianceDialog
       variances={variances}
-      loading={create.isPending}
-      onClose={() => setVariances(null)}
-      onConfirm={() =>
-        lastInput &&
-        create.mutate(
-          { ...lastInput, acknowledgeVariance: true },
-          { onSuccess: () => setVariances(null) }
-        )
-      }
+      loading={verify.isPending}
+      onClose={() => {
+        // The bill is saved as a draft already; closing the question leaves it there.
+        setVariances(null);
+        if (savedId) navigate(detailOf(savedId));
+      }}
+      onConfirm={() => {
+        if (!savedId) return;
+        setVariances(null);
+        verifySaved(savedId, true).catch(() => undefined);
+      }}
     />
   );
 
