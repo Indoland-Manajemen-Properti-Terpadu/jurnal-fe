@@ -279,7 +279,7 @@ export const settingsPages = {
       installments: 'Jumlah termin',
       installmentsHint: 'Minimal 2 termin.',
       advanceOutside: 'Uang muka di luar termin',
-      advanceOutsideHint: 'Uang muka tidak dihitung sebagai salah satu termin.',
+      advanceOutsideHint: 'Uang muka selalu ditagih terpisah, dan termin membagi sisanya.',
       periodUnit: 'Satuan periode',
       periodMonthly: 'Bulanan',
       periodQuarterly: 'Triwulan',

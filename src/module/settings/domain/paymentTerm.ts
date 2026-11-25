@@ -201,7 +201,9 @@ export const toPaymentTermPayload = (values: PaymentTermFormValues): PaymentTerm
     payload.defaultInstallments = values.installments;
   }
   if (visible.advanceOutsideInstallments) {
-    payload.advanceOutsideInstallments = values.advanceOutsideInstallments;
+    // The service now always bills the advance apart and the terms share what is left, so this is
+    // not a choice any more; it is still sent for services that read it.
+    payload.advanceOutsideInstallments = true;
   }
   if (visible.period) {
     payload.periodUnit = values.periodUnit;
