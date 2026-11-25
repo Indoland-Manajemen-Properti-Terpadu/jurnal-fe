@@ -61,8 +61,7 @@ export default function TransferDetailPage() {
 
   const query = useTransfer(id);
   const { data } = query;
-  const date = data?.date.slice(0, 10);
-  const range = { startDate: date, endDate: undefined, limit: 100 };
+  const range = { startDate: data?.date.slice(0, 10), endDate: undefined, limit: 100 };
   const fromMoves = useMovements(
     { ...range, warehouse: data?.from.id },
     Boolean(data?.from.id) && card.read
