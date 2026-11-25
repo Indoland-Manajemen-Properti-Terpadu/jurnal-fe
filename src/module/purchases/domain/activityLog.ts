@@ -8,6 +8,8 @@ export interface ActivityEntry {
   /** Which approval step this was, counted from 1; null for an action that is not a step. */
   step: number | null;
   totalSteps: number | null;
+  /** The part of the document the action belongs to ("Pengadaan"); empty when none. */
+  stageLabel: string;
   roleName: string;
   byName: string;
   at: string;

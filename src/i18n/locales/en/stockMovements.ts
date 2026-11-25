@@ -69,6 +69,7 @@ export const stockMovements = {
     reset: 'Reset filters',
   },
   history: {
+    backToMovements: 'Back to stock movements',
     category: 'Product category',
     allCategories: 'All categories',
     docSearch: 'Search document no...',

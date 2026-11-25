@@ -88,4 +88,20 @@ describe('a count whose warehouse was deleted', () => {
     expect(screen.getByText('SO/2026/11/0003')).toBeInTheDocument();
     expect(screen.getByText('Gudang tidak ditemukan')).toBeInTheDocument();
   });
+
+  it('shows no difference for a count that was cancelled: nothing of it is booked', () => {
+    const data = page(true);
+    renderTable({
+      ...data,
+      items: [{ ...data.items[0], status: 'cancelled', diffProducts: 1, diffValue: -820000 }],
+    });
+
+    expect(screen.queryByText(/820\.000/)).not.toBeInTheDocument();
+  });
+
+  it('still shows the difference of a posted count', () => {
+    renderTable(page(true));
+
+    expect(screen.getByText(/113\.600/)).toBeInTheDocument();
+  });
 });

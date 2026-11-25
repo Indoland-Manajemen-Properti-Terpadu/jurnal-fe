@@ -8,6 +8,7 @@ const dto = {
   action: 'APPROVE',
   actionLabel: 'Disetujui',
   stage: 'REQUEST',
+  stageLabel: 'Pengadaan',
   step: 1,
   totalSteps: 2,
   role: { id: 'r1', name: 'Chief Finance' },
@@ -25,6 +26,7 @@ describe('toActivityEntry', () => {
       label: 'Disetujui',
       step: 1,
       totalSteps: 2,
+      stageLabel: 'Pengadaan',
       roleName: 'Chief Finance',
       byName: 'Budi',
       at: '2026-11-25T03:00:00.000Z',
@@ -38,6 +40,7 @@ describe('toActivityEntry', () => {
       toActivityEntry({ action: 'CREATE', actionLabel: 'Dibuat', at: '2026-11-25T03:00:00.000Z' })
     ).toMatchObject({
       label: 'Dibuat',
+      stageLabel: '',
       roleName: '',
       byName: '',
       step: null,

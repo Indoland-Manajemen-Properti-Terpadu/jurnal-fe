@@ -69,6 +69,7 @@ export const stockMovements = {
     reset: 'Atur ulang filter',
   },
   history: {
+    backToMovements: 'Kembali ke mutasi stok',
     category: 'Kategori produk',
     allCategories: 'Semua kategori',
     docSearch: 'Cari no. dokumen...',

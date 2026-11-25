@@ -8,6 +8,7 @@ const entry = (overrides: Partial<ActivityEntry> = {}): ActivityEntry => ({
   label: 'Disetujui',
   step: 1,
   totalSteps: 2,
+  stageLabel: '',
   roleName: 'Chief Finance',
   byName: 'Budi',
   at: '2026-11-25T03:00:00.000Z',
@@ -47,6 +48,12 @@ describe('ApprovalLogCard', () => {
     const items = screen.getAllByRole('listitem');
     expect(items[0]).toHaveTextContent('Diajukan');
     expect(items[1]).toHaveTextContent('Disetujui');
+  });
+
+  it('names the stage of the document an action belongs to, when the service says it', () => {
+    render(<ApprovalLogCard entries={[entry({ stageLabel: 'Pengadaan' })]} />);
+
+    expect(screen.getByText(/Pengadaan/)).toBeInTheDocument();
   });
 
   it('shows no step for an action that is not an approval step', () => {

@@ -133,6 +133,7 @@ export const journalEntries = {
     referenceNumber: 'Nomor Referensi',
     transactionType: 'Tipe Transaksi',
     types: {
+      DEFAULT: 'Jurnal Umum',
       TRANSFER_MONEY: 'Transfer Uang',
       RECEIVE_MONEY: 'Terima Uang',
       SEND_MONEY: 'Kirim Uang',

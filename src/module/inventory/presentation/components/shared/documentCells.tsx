@@ -1,6 +1,6 @@
 import { ActionIcon, Anchor, Text, Tooltip } from '@mantine/core';
 import { IconFileText } from '@tabler/icons-react';
-import { Link, generatePath } from 'react-router-dom';
+import { Link, generatePath, useLocation } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
 import {
   documentTarget,
@@ -11,6 +11,7 @@ import {
   stockTakeDetailPath,
   transferDetailPath,
 } from '@/module/inventory/presentation/components/shared/stockLinks';
+import { backStateOf } from '@/router/backState';
 import { routes } from '@/router/routes';
 import { formatCurrency } from '@/utils/formatCurrency';
 
@@ -35,6 +36,8 @@ type DocumentProps = {
 };
 
 export function DocumentNumber({ sourceType, sourceId, number }: Readonly<DocumentProps>) {
+  const { t } = useTranslation('stockMovements');
+  const location = useLocation();
   const path = documentPath(sourceType, sourceId);
   if (!number) {
     return (
@@ -44,7 +47,14 @@ export function DocumentNumber({ sourceType, sourceId, number }: Readonly<Docume
     );
   }
   return path ? (
-    <Anchor component={Link} to={path} size="sm" fw={500}>
+    <Anchor
+      component={Link}
+      to={path}
+      // The document page leads back here, with the filters this page had, not to its own list.
+      state={backStateOf(`${location.pathname}${location.search}`, t('history.backToMovements'))}
+      size="sm"
+      fw={500}
+    >
       {number}
     </Anchor>
   ) : (
