@@ -280,7 +280,7 @@ export const settingsPages = {
       installments: 'Number of installments',
       installmentsHint: 'At least 2 installments.',
       advanceOutside: 'Advance outside the installments',
-      advanceOutsideHint: 'The advance is not counted as one of the installments.',
+      advanceOutsideHint: 'The advance is always billed apart, and the terms share the rest.',
       periodUnit: 'Period unit',
       periodMonthly: 'Monthly',
       periodQuarterly: 'Quarterly',
