@@ -5,6 +5,7 @@ import {
   type OpnameLineChange,
   type OpnameRights,
   type OpnameStatus,
+  type StockOpname,
 } from '@/module/inventory/domain/stockOpname';
 import { useTranslation } from '@/i18n';
 import { describeApiError } from '@/lib/http/apiError';
@@ -34,6 +35,8 @@ import {
   inventoryKeys,
   useInventoryScope,
 } from '@/module/inventory/presentation/hooks/inventoryKeys';
+import { useMovements } from '@/module/inventory/presentation/hooks/useStockQueries';
+import { opnameJournalIds } from '@/module/inventory/domain/opnameJournals';
 
 const STABLE_MS = 60_000;
 const BUSY_LOOKUP = 100;
@@ -65,6 +68,16 @@ export const useOpnameJournalPreview = (id: string | undefined, enabled: boolean
     queryFn: () => getJournalPreview(id ?? ''),
     enabled: Boolean(id) && enabled,
   });
+};
+
+/** The journals a posted count booked, read from its adjustment movements. */
+export const useOpnameJournalIds = (opname: StockOpname | undefined) => {
+  const posted = Boolean(opname?.postedAt) && opname?.status !== 'cancelled';
+  const movements = useMovements(
+    { startDate: opname?.date.slice(0, 10), warehouse: opname?.warehouse.id, limit: 100 },
+    posted && Boolean(opname?.warehouse.id)
+  );
+  return opname ? opnameJournalIds(movements.data?.items ?? [], opname.id) : [];
 };
 
 /** The count that is freezing a warehouse right now, if any. */

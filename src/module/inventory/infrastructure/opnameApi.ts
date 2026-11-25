@@ -64,6 +64,7 @@ export interface OpnameDto {
   createdBy?: Person;
   createdAt?: string;
   startedAt?: string | null;
+  postedAt?: string | null;
   canSeeValues?: boolean;
   progress?: { counted: number; total: number };
   lines?: LineDto[] | null;
@@ -125,6 +126,7 @@ export const toOpname = (dto: OpnameDto): StockOpname => ({
   createdByName: dto.createdBy?.name ?? '',
   createdAt: dto.createdAt ?? '',
   startedAt: dto.startedAt ?? null,
+  postedAt: dto.postedAt ?? null,
   notes: dto.notes ?? '',
   canSeeValues: dto.canSeeValues ?? false,
   lines: (dto.lines ?? []).map(toLine),

@@ -96,6 +96,7 @@ export const stockTake = {
     products: 'Pilih minimal satu produk.',
   },
   steps: {
+    by: 'oleh {{name}}',
     hint: {
       draft: 'Dokumen dibuat, saldo buku belum dibekukan',
       counting: 'Saldo buku dibekukan dan gudang dikunci',
@@ -223,6 +224,9 @@ export const stockTake = {
     netHint: 'Setelah dijurnal',
     journalTitle: 'Pratinjau jurnal',
     journalSubtitle: 'Jurnal penyesuaian yang dibuat saat opname diposting',
+    journalPostedTitle: 'Jurnal yang terbit',
+    journalPostedSubtitle: 'Jurnal penyesuaian yang sudah tercatat dari opname ini',
+    openJournal: 'Buka di Transaksi Jurnal',
     account: 'Akun',
     debit: 'Debit',
     credit: 'Kredit',

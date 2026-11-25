@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { transferWarehouseName } from '@/module/inventory/domain/stockTransfer';
 import { toCreateBody, toTransfer, toTransferQuery, type TransferDto } from './transferApi';
 
 describe('toCreateBody', () => {
@@ -146,5 +147,18 @@ describe('toTransfer, approval', () => {
         ],
       }).waitingFor
     ).toEqual(['Building Manager', 'Chief Finance']);
+  });
+
+  it('keeps a transfer whose warehouse was deleted (the service sends null) instead of crashing', () => {
+    const mapped = toTransfer({ ...dto, to: null, from: null });
+
+    expect(mapped.to).toEqual({ id: '', code: '', name: '' });
+    expect(mapped.from).toEqual({ id: '', code: '', name: '' });
+    expect(transferWarehouseName(mapped.to, 'Gudang tidak ditemukan')).toBe(
+      'Gudang tidak ditemukan'
+    );
+    expect(
+      transferWarehouseName({ id: 'a', code: 'GDG-004', name: 'Bekasi' }, 'Gudang tidak ditemukan')
+    ).toBe('Bekasi');
   });
 });

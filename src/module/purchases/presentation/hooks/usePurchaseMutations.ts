@@ -143,10 +143,20 @@ export const useCreateBill = (
   onDone?: (doc: WithId & Doc) => void,
   isHandled?: (error: unknown) => boolean
 ) => useAction('created', (input: PurchaseBillInput) => api.createBill(input), onDone, isHandled);
-export const useVerifyBill = () =>
-  useAction('verified', ({ id, acknowledgeVariance }: WithId & { acknowledgeVariance: boolean }) =>
-    api.verifyBill(id, acknowledgeVariance)
+export const useVerifyBill = (isHandled?: (error: unknown) => boolean) =>
+  useAction(
+    'verified',
+    ({ id, acknowledgeVariance }: WithId & { acknowledgeVariance: boolean }) =>
+      api.verifyBill(id, acknowledgeVariance),
+    undefined,
+    isHandled
   );
+/** Sends the vendor invoice and the tax invoice chosen on the bill form to the saved bill. */
+export const useUploadBillFiles = () =>
+  useAction('uploaded', async ({ id, files }: WithId & { files: api.BillFiles }) => {
+    await api.uploadBillFiles(id, files);
+    return {} as { number?: string };
+  });
 export const useVoidBill = () =>
   useAction('voided', ({ id, reason }: WithReason) => api.voidBill(id, reason));
 export const useApplyCredit = () =>
