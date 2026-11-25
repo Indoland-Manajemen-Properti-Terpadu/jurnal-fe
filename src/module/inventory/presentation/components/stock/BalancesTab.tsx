@@ -181,7 +181,9 @@ export function BalancesTab({ filters, today, update, tabList }: Readonly<Props>
   return (
     <Stack gap="lg">
       {report && <BalanceMetrics report={report} />}
-      {report && <ReconciliationBanner report={report} />}
+      {report && (
+        <ReconciliationBanner report={report} scoped={singleWarehouse || filters.category !== ''} />
+      )}
       <Paper withBorder radius="lg" p="md" bg="white">
         <Stack gap="md">
           {tabList}

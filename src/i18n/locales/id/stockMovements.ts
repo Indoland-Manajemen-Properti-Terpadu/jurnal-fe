@@ -30,6 +30,7 @@ export const stockMovements = {
     productsCount: '{count} produk',
   },
   reconciliation: {
+    wholeSite: 'Pencocokan ini dihitung untuk semua gudang dan kategori, bukan hanya yang dipilih.',
     figures: 'Stok {stock} · Buku besar {ledger}',
     compare: 'Bandingkan',
     matches: 'Cocok dengan buku besar',
