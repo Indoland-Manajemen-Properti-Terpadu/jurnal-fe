@@ -57,4 +57,36 @@ describe('billSources', () => {
     expect(included.subtotal).toBeCloseTo(100000);
     expect(included.total).toBeCloseTo(111000);
   });
+
+  it('marks the row of an advance line, so the screen can say it is the advance', () => {
+    const advanceDoc = {
+      id: 'po1',
+      number: 'SPK/1',
+      orderNumber: 'SPK/1',
+      isPriceIncludeTax: false,
+      lines: [],
+      orderLines: [
+        {
+          purchaseOrderItemId: 'a',
+          description: 'Jasa — Uang muka 20%',
+          openQty: 1,
+          unitPrice: 420000,
+          taxRate: 11,
+          schedule: { kind: 'ADVANCE', seq: 1, of: 1, periodFrom: null, periodTo: null },
+        },
+        {
+          purchaseOrderItemId: 'b',
+          description: 'Jasa — Termin 1',
+          openQty: 1,
+          unitPrice: 100,
+          taxRate: 0,
+          schedule: null,
+        },
+      ],
+    } as unknown as BillSourceDoc;
+
+    const { rows } = estimateBill([advanceDoc]);
+
+    expect(rows.map((row) => row.isAdvance)).toEqual([true, false]);
+  });
 });

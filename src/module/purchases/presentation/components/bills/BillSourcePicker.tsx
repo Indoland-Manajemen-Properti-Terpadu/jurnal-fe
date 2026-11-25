@@ -1,4 +1,15 @@
-import { Alert, Checkbox, Paper, Select, Skeleton, Stack, Table, Text } from '@mantine/core';
+import {
+  Alert,
+  Badge,
+  Checkbox,
+  Group,
+  Paper,
+  Select,
+  Skeleton,
+  Stack,
+  Table,
+  Text,
+} from '@mantine/core';
 import { IconBuildingStore, IconInfoCircle } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import {
@@ -17,6 +28,8 @@ interface BillSourcePickerProps {
   vendorId: string;
   onVendorChange: (vendorId: string) => void;
   onToggle: (doc: BillSourceDoc) => void;
+  /** The order the page was opened for; the service lists it first. */
+  order?: string;
 }
 
 /** The vendor that is shown: the chosen one, else the vendor of what is picked, else the first. */
@@ -33,9 +46,10 @@ export const BillSourcePicker = ({
   vendorId,
   onVendorChange,
   onToggle,
+  order,
 }: Readonly<BillSourcePickerProps>) => {
   const { t, currentLanguage } = useTranslation('purchases');
-  const query = useBillSources(source);
+  const query = useBillSources(source, undefined, source === 'ORDER' ? order : undefined);
   const docs = query.data ?? [];
 
   if (query.isLoading) {
@@ -128,9 +142,16 @@ export const BillSourcePicker = ({
                       />
                     </Table.Td>
                     <Table.Td>
-                      <Text size="sm" fw={700}>
-                        {doc.number}
-                      </Text>
+                      <Group gap="xs" wrap="nowrap">
+                        <Text size="sm" fw={700}>
+                          {doc.number}
+                        </Text>
+                        {doc.hasAdvance && (
+                          <Badge variant="light" color="primary" radius="sm" size="sm">
+                            {t('bills.wizard.advanceTag')}
+                          </Badge>
+                        )}
+                      </Group>
                       {blocked && (
                         <Text size="xs" c="orange.8">
                           {t(`bills.form.blocked.${blocked}`)}

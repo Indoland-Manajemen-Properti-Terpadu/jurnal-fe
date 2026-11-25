@@ -125,7 +125,11 @@ export const BillFormBody = ({
   const pending = create.isPending || update.isPending || verify.isPending || uploadFiles.isPending;
 
   const pickable: PickedSource | null = source === 'MANUAL' ? null : source;
-  const sources = useBillSources(existing ? null : pickable);
+  const sources = useBillSources(
+    existing ? null : pickable,
+    undefined,
+    pickable === 'ORDER' ? preselect.order : undefined
+  );
   const shownVendorName = sources.data?.find(
     (doc) => doc.vendor.id === effectiveVendor(sources.data ?? [], picked, pickVendor)
   )?.vendor.name;
@@ -135,7 +139,9 @@ export const BillFormBody = ({
     source === 'RECEIPT' ? preselect.receipt : source === 'ORDER' ? preselect.order : undefined;
   useEffect(() => {
     if (!wanted || picked.length > 0 || !sources.data) return;
-    const found = sources.data.find((doc) => doc.id === wanted || doc.orderId === wanted);
+    const found = sources.data.find(
+      (doc) => doc.id === wanted || doc.orderId === wanted || (source === 'ORDER' && doc.selected)
+    );
     if (found) setPicked([found]);
     // Only the first load of the ready documents preselects; later picks are the person's own.
   }, [wanted, sources.data]);
@@ -332,6 +338,7 @@ export const BillFormBody = ({
           onPicked={setPicked}
           onField={set}
           shownVendorName={shownVendorName}
+          order={preselect.order}
         />
       )}
 
