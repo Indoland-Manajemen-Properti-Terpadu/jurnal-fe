@@ -8,6 +8,7 @@ export const settingKeys = {
   company: () => [...settingKeys.all, 'company-profile'] as const,
   accountMappings: () => [...settingKeys.all, 'account-mappings'] as const,
   numberFormats: () => [...settingKeys.all, 'number-formats'] as const,
+  numberFormatTypes: () => [...settingKeys.all, 'number-format-types'] as const,
   paymentTerms: () => [...settingKeys.all, 'payment-terms'] as const,
   paymentTermList: (params: PaymentTermListParams) =>
     [...settingKeys.paymentTerms(), 'list', params] as const,
