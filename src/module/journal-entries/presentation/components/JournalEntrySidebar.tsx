@@ -24,6 +24,7 @@ import { useTranslation } from '@/i18n';
 import { routes } from '@/router/routes';
 import { dateFormatV1 } from '@/utils/formatDate';
 import { tagNames } from '../../domain/journalTags';
+import { transactionTypeLabel } from '../../domain/transactionTypeLabel';
 import type { JournalAsset, JournalEntryDetail } from '../../domain/journalEntry';
 import JournalAttachments from './JournalAttachments';
 
@@ -146,8 +147,11 @@ const JournalEntrySidebar: React.FC<JournalEntrySidebarProps> = ({ entry }) => {
           <Row label={t('detail.transactionType')}>
             <Value muted={!entry.transactionType}>
               {entry.transactionType
-                ? t(`detail.types.${entry.transactionType}`, {
-                    defaultValue: entry.transactionType,
+                ? transactionTypeLabel(entry.transactionType, (type) => {
+                    const key = `detail.types.${type}`;
+                    const text = t(key);
+                    // A missing translation comes back as its own key.
+                    return text === key ? undefined : text;
                   })
                 : '—'}
             </Value>

@@ -37,7 +37,7 @@ export const ApprovalLogCard = ({ entries }: Readonly<{ entries: ActivityEntry[]
                   )}
                 </Group>
                 <Text size="xs" c="dimmed">
-                  {[entry.byName, entry.roleName].filter(Boolean).join(' · ')}
+                  {[entry.byName, entry.roleName, entry.stageLabel].filter(Boolean).join(' · ')}
                   {entry.at ? ` · ${dateFormatV1(entry.at, 'D MMM YYYY, HH:mm')}` : ''}
                 </Text>
                 {entry.note && (

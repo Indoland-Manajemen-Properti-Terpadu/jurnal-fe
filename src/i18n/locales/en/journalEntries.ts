@@ -132,6 +132,7 @@ export const journalEntries = {
     referenceNumber: 'Reference Number',
     transactionType: 'Transaction Type',
     types: {
+      DEFAULT: 'General Journal',
       TRANSFER_MONEY: 'Transfer Money',
       RECEIVE_MONEY: 'Receive Money',
       SEND_MONEY: 'Send Money',

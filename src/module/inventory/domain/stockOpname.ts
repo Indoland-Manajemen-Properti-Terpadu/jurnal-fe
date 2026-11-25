@@ -308,3 +308,23 @@ export const validateOpnameInput = (
   }
   return issues;
 };
+
+/**
+ * Whether the service refused a new count because of its date ("Ada mutasi di ... setelah tanggal
+ * hitung ..."), so the screen can say it under the date field instead of in a banner on top.
+ */
+export const isDateRefusal = (message: string): boolean => /\btanggal\b/i.test(message);
+
+/**
+ * The line under the count table ("Tersimpan", "Belum tersimpan"). It only speaks while the count is
+ * being filled in: after it was sent, posted or cancelled, an old failure would be a false alarm.
+ */
+export const saveStateOf = (
+  save: { pending: boolean; error: boolean; success: boolean },
+  status: OpnameStatus
+): 'idle' | 'saving' | 'saved' | 'failed' => {
+  if (status !== 'counting') return 'idle';
+  if (save.pending) return 'saving';
+  if (save.error) return 'failed';
+  return save.success ? 'saved' : 'idle';
+};

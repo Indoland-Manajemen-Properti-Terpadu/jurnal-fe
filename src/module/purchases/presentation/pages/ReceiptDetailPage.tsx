@@ -7,7 +7,7 @@ import {
   IconSend,
   IconX,
 } from '@tabler/icons-react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
 import { PURCHASE_MENU } from '@/module/purchases/domain/purchaseAccess';
 import { receiptActions } from '@/module/purchases/domain/purchaseActions';
@@ -40,12 +40,16 @@ import {
 } from '@/module/purchases/presentation/hooks/usePurchaseMutations';
 import { useBills, useReceipt } from '@/module/purchases/presentation/hooks/usePurchaseQueries';
 import { toApiError } from '@/lib/http/apiError';
+import { readBackState } from '@/router/backState';
 import { routes } from '@/router/routes';
 
-const BACK = routes.purchases.receipts;
+const LIST = routes.purchases.receipts;
 
 export default function ReceiptDetailPage() {
   const { id } = useParams();
+  // Opened from another page (Mutasi Stok), the way back leads there, not to the list of receipts.
+  const cameFrom = readBackState(useLocation().state);
+  const BACK = cameFrom?.backTo ?? LIST;
   const navigate = useNavigate();
   const { t, currentLanguage } = useTranslation('purchases');
   const { can, canRead, isLoading: accessLoading } = usePurchaseAccess();
@@ -99,7 +103,7 @@ export default function ReceiptDetailPage() {
       badges={<ReceiptStatusBadge receipt={doc} />}
       date={`${doc.documentLabel} · ${formatDay(doc.date, currentLanguage)}`}
       backTo={BACK}
-      backLabel={t('receipts.detail.backToList')}
+      backLabel={cameFrom?.backLabel ?? t('receipts.detail.backToList')}
       actions={
         <>
           {canBill && (

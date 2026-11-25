@@ -148,3 +148,39 @@ export interface StockTransfer {
   voidedAt: string | null;
   createdAt: string;
 }
+
+export interface WarehouseChoice {
+  value: string;
+  label: string;
+  disabled: boolean;
+}
+
+/**
+ * The warehouses to offer in one of the two pickers. One that is being counted is held back and
+ * named with its count; the one chosen in the other picker is held back too, so a transfer cannot
+ * be made from a warehouse to itself.
+ */
+export const transferWarehouseChoices = (
+  warehouses: readonly { id: string; code: string; name: string }[],
+  holderOf: (id: string) => { number: string } | undefined,
+  otherSide: string,
+  frozenLabel: (number: string) => string
+): WarehouseChoice[] =>
+  warehouses.map((warehouse) => {
+    const holder = holderOf(warehouse.id);
+    const label = `${warehouse.code} · ${warehouse.name}`;
+    return {
+      value: warehouse.id,
+      label: holder ? `${label} · ${frozenLabel(holder.number)}` : label,
+      disabled: holder !== undefined || warehouse.id === otherSide,
+    };
+  });
+
+/** The issues without the one of a field the person has just changed, so it does not linger. */
+export const withoutIssue = (
+  issues: TransferIssues,
+  field: 'date' | 'from' | 'to'
+): TransferIssues => {
+  const { [field]: _dropped, ...rest } = issues;
+  return rest as TransferIssues;
+};

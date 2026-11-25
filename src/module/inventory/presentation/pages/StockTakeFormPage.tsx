@@ -26,6 +26,7 @@ import dayjs from 'dayjs';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
 import {
+  isDateRefusal,
   validateOpnameInput,
   type OpnameInputIssues,
   type OpnameScope,
@@ -102,6 +103,9 @@ export default function StockTakeFormPage() {
 
   const saving = create.isPending || step.isPending;
   const failure = create.error ?? step.error;
+  const failureText = failure ? describe(failure) : '';
+  // A refusal about the date belongs under the date field, where it can be fixed.
+  const dateRefused = failureText !== '' && isDateRefusal(failureText);
 
   const submit = (startNow: boolean) => {
     const input = {
@@ -143,7 +147,7 @@ export default function StockTakeFormPage() {
         title={t('form.title')}
         description={t('form.description')}
       />
-      {failure && (
+      {Boolean(failure) && !dateRefused && (
         <Alert
           color="red"
           variant="light"
@@ -151,7 +155,7 @@ export default function StockTakeFormPage() {
           icon={<IconAlertCircle size={18} />}
           title={t('form.failedTitle')}
         >
-          {describe(failure)}
+          {failureText}
         </Alert>
       )}
       <SectionCard
@@ -184,8 +188,11 @@ export default function StockTakeFormPage() {
             required
             value={date}
             maxDate={today}
-            onChange={setDate}
-            error={issueText(issues.date)}
+            onChange={(value) => {
+              setDate(value);
+              create.reset();
+            }}
+            error={issueText(issues.date) ?? (dateRefused ? failureText : undefined)}
           />
         </SimpleGrid>
       </SectionCard>

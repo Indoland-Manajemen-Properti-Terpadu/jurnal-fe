@@ -415,6 +415,7 @@ interface ActivityDto {
   actionLabel?: string;
   step?: number | null;
   totalSteps?: number | null;
+  stageLabel?: string | null;
   role?: { id?: string; name?: string } | null;
   by?: { id?: string; name?: string } | null;
   at?: string;
@@ -428,6 +429,7 @@ export const toActivityEntry = (dto: ActivityDto): ActivityEntry => ({
   label: dto.actionLabel ?? dto.action ?? '',
   step: dto.step ?? null,
   totalSteps: dto.totalSteps ?? null,
+  stageLabel: dto.stageLabel ?? '',
   roleName: dto.role?.name ?? '',
   byName: dto.by?.name ?? '',
   at: dto.at ?? '',
