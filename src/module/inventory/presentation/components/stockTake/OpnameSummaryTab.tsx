@@ -71,12 +71,7 @@ const Figure = ({
 };
 
 /** What the count changes: surplus, shortage and net, the journal that books it, and the lines behind it. */
-export function OpnameSummaryTab({
-  opname,
-  preview,
-  previewLoading,
-  journalIds,
-}: Readonly<Props>) {
+export function OpnameSummaryTab({ opname, preview, previewLoading, journalIds }: Readonly<Props>) {
   const { t } = useTranslation('stockTake');
   const { summary } = opname;
   const posted = opname.status === 'posted';

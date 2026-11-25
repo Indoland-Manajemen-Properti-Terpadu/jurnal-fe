@@ -269,8 +269,16 @@ export default function TransferDetailPage() {
       >
         <InfoGrid
           items={[
-            { label: t('detail.from'), value: <TransferWarehouseLink warehouseId={data.from.id} name={fromName} />, sub: data.from.code },
-            { label: t('detail.to'), value: <TransferWarehouseLink warehouseId={data.to.id} name={toName} />, sub: data.to.code },
+            {
+              label: t('detail.from'),
+              value: <TransferWarehouseLink warehouseId={data.from.id} name={fromName} />,
+              sub: data.from.code,
+            },
+            {
+              label: t('detail.to'),
+              value: <TransferWarehouseLink warehouseId={data.to.id} name={toName} />,
+              sub: data.to.code,
+            },
             {
               label: t('detail.productCount'),
               value: t('detail.productCountValue', { count: data.productCount }),

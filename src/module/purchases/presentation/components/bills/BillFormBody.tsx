@@ -122,8 +122,7 @@ export const BillFormBody = ({
     else navigate(detailOf(doc.id));
   });
   const update = useUpdateBill((doc) => navigate(detailOf(doc.id)));
-  const pending =
-    create.isPending || update.isPending || verify.isPending || uploadFiles.isPending;
+  const pending = create.isPending || update.isPending || verify.isPending || uploadFiles.isPending;
 
   const pickable: PickedSource | null = source === 'MANUAL' ? null : source;
   const sources = useBillSources(existing ? null : pickable);

@@ -21,7 +21,8 @@ export function OpnameStages({ opname }: Readonly<{ opname: StockOpname }>) {
           let state: StageState = 'todo';
           if (index < at) state = 'done';
           else if (index === at) state = 'current';
-          const { at: time, by } = state !== 'todo' ? details[step as StageKey] : { at: null, by: null };
+          const { at: time, by } =
+            state !== 'todo' ? details[step as StageKey] : { at: null, by: null };
           return (
             <li key={step} className={classes.item} data-state={state}>
               <ThemeIcon

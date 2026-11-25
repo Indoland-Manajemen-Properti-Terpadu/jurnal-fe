@@ -39,11 +39,26 @@ describe('opnameStages', () => {
   it('uses the latest submission when a count was sent back and sent again', () => {
     const history = [
       ...base.history.slice(0, 3),
-      { at: '2026-11-25T03:37:30.000Z', action: 'Ditolak, dikembalikan ke petugas', note: 'x', userName: 'Budi' },
-      { at: '2026-11-25T03:37:50.000Z', action: 'Dikirim untuk persetujuan', note: '', userName: 'Firman' },
+      {
+        at: '2026-11-25T03:37:30.000Z',
+        action: 'Ditolak, dikembalikan ke petugas',
+        note: 'x',
+        userName: 'Budi',
+      },
+      {
+        at: '2026-11-25T03:37:50.000Z',
+        action: 'Dikirim untuk persetujuan',
+        note: '',
+        userName: 'Firman',
+      },
     ];
 
-    const { details } = opnameStages({ ...base, status: 'pending_approval', postedAt: null, history });
+    const { details } = opnameStages({
+      ...base,
+      status: 'pending_approval',
+      postedAt: null,
+      history,
+    });
 
     expect(details.pending_approval.at).toBe('2026-11-25T03:37:50.000Z');
     expect(details.posted).toEqual({ at: null, by: null });
@@ -65,7 +80,13 @@ describe('opnameStages', () => {
   });
 
   it('leaves a stage empty when nothing says when it happened', () => {
-    const { details } = opnameStages({ ...base, status: 'draft', startedAt: null, postedAt: null, history: [] });
+    const { details } = opnameStages({
+      ...base,
+      status: 'draft',
+      startedAt: null,
+      postedAt: null,
+      history: [],
+    });
 
     expect(details.counting).toEqual({ at: null, by: null });
   });

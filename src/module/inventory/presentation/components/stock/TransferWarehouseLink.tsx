@@ -13,7 +13,11 @@ export const TransferWarehouseLink = ({
   name,
 }: Readonly<TransferWarehouseLinkProps>) =>
   warehouseId ? (
-    <Anchor component={Link} to={routes.inventory.warehouseDetail.replace(':id', warehouseId)} fw={700}>
+    <Anchor
+      component={Link}
+      to={routes.inventory.warehouseDetail.replace(':id', warehouseId)}
+      fw={700}
+    >
       {name}
     </Anchor>
   ) : (

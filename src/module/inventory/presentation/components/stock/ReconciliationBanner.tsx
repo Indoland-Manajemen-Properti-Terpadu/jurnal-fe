@@ -15,7 +15,10 @@ interface ReconciliationBannerProps {
   scoped?: boolean;
 }
 
-export function ReconciliationBanner({ report, scoped = false }: Readonly<ReconciliationBannerProps>) {
+export function ReconciliationBanner({
+  report,
+  scoped = false,
+}: Readonly<ReconciliationBannerProps>) {
   const { t } = useTranslation('stockMovements');
   const gap = reconciliationGap(report);
   if (!report.reconciliation || gap === null) return null;
