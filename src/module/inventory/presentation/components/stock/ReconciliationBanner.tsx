@@ -9,7 +9,16 @@ import { formatCurrency } from '@/utils/formatCurrency';
  * Whether the stock value agrees with the Inventory account of the general ledger, in one calm line.
  * A gap names both figures so the reader sees which side is higher.
  */
-export function ReconciliationBanner({ report }: Readonly<{ report: BalanceReport }>) {
+interface ReconciliationBannerProps {
+  report: BalanceReport;
+  /** True while the table below is narrowed to one warehouse or category. */
+  scoped?: boolean;
+}
+
+export function ReconciliationBanner({
+  report,
+  scoped = false,
+}: Readonly<ReconciliationBannerProps>) {
   const { t } = useTranslation('stockMovements');
   const gap = reconciliationGap(report);
   if (!report.reconciliation || gap === null) return null;
@@ -37,6 +46,7 @@ export function ReconciliationBanner({ report }: Readonly<{ report: BalanceRepor
           </Text>
           {' · '}
           {t(matches ? 'reconciliation.matchesBody' : 'reconciliation.gapBody', { date })}
+          {scoped ? ` ${t('reconciliation.wholeSite')}` : ''}
         </Text>
         {!matches && (
           <Tooltip

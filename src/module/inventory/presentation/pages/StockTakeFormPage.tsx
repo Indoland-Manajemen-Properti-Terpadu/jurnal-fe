@@ -92,7 +92,7 @@ export default function StockTakeFormPage() {
     const label = `${item.code} · ${item.name}`;
     return {
       value: item.id,
-      label: running ? `${label} (${t('form.warehouseBusy', { number: running.number })})` : label,
+      label: running ? `${label} · ${t('form.warehouseBusy', { number: running.number })}` : label,
       disabled: running !== undefined,
     };
   });

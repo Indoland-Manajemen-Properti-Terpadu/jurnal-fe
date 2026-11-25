@@ -30,6 +30,7 @@ export const stockMovements = {
     productsCount: '{count} products',
   },
   reconciliation: {
+    wholeSite: 'This check covers every warehouse and category, not only the one chosen.',
     figures: 'Stock {stock} · Ledger {ledger}',
     compare: 'Compare',
     matches: 'Matches the general ledger',
@@ -118,6 +119,7 @@ export const stockMovements = {
     OPNAME_LOSS: 'Stock count adjustment (short)',
     REVERSAL: 'Reversal',
   },
+  warehouseMissing: 'Warehouse not found',
   transfers: {
     number: 'Document no.',
     date: 'Date',

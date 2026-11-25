@@ -23,6 +23,7 @@ import {
   transferDetailPath,
   transferNewPath,
 } from '@/module/inventory/presentation/components/shared/stockLinks';
+import { transferWarehouseName } from '@/module/inventory/domain/stockTransfer';
 import { TransferStatusBadge } from '@/module/inventory/presentation/components/stock/TransferStatusBadge';
 import type { StockFilterValues } from '@/module/inventory/presentation/components/stock/stockFilters';
 import {
@@ -138,10 +139,10 @@ export function TransfersTab({ filters, update, tabList }: Readonly<Props>) {
                 <Text size="sm">{dateFormatV1(row.date, 'D MMM YYYY')}</Text>
               </Table.Td>
               <Table.Td>
-                <Text size="sm">{row.from.name}</Text>
+                <Text size="sm">{transferWarehouseName(row.from, t('warehouseMissing'))}</Text>
               </Table.Td>
               <Table.Td>
-                <Text size="sm">{row.to.name}</Text>
+                <Text size="sm">{transferWarehouseName(row.to, t('warehouseMissing'))}</Text>
               </Table.Td>
               <Table.Td ta="right">
                 <Text size="sm">{row.productCount}</Text>

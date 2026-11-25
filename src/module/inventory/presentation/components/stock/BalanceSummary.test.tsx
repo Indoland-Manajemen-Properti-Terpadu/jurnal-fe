@@ -97,6 +97,18 @@ describe('ReconciliationBanner', () => {
     expect(screen.queryByText('Cocok dengan buku besar')).not.toBeInTheDocument();
   });
 
+  it('says the check covers every warehouse when the table is narrowed to one', () => {
+    render(<ReconciliationBanner report={report()} scoped />);
+
+    expect(screen.getByText(/dihitung untuk semua gudang dan kategori/i)).toBeInTheDocument();
+  });
+
+  it('adds no such note when nothing narrows the table', () => {
+    render(<ReconciliationBanner report={report()} />);
+
+    expect(screen.queryByText(/dihitung untuk semua gudang/i)).not.toBeInTheDocument();
+  });
+
   it('shows nothing without a reconciliation', () => {
     render(<ReconciliationBanner report={report({ reconciliation: null })} />);
 

@@ -70,6 +70,21 @@ describe('OpnameCountRow', () => {
     expect(onSave).toHaveBeenCalledWith({ product: 'p1', countedQty: 0 });
   });
 
+  it('never sends a negative count: what the field shows is what is saved', async () => {
+    const { onSave } = renderRow();
+    const field = screen.getByRole('textbox', { name: /Qty hitung Uji Kertas A4/ });
+
+    await userEvent.type(field, '-3');
+    await userEvent.tab();
+
+    for (const [change] of onSave.mock.calls) {
+      expect(change.countedQty).toBeGreaterThanOrEqual(0);
+    }
+    expect(Number((field as HTMLInputElement).value)).toBeGreaterThanOrEqual(0);
+    const saved = onSave.mock.calls.at(-1)?.[0].countedQty;
+    expect(Number((field as HTMLInputElement).value)).toBe(saved);
+  });
+
   it('draws neither book balance, difference nor price for a person who counts blind', () => {
     renderRow({
       showValues: false,

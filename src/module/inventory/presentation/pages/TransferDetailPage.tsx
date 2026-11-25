@@ -16,7 +16,8 @@ import { Link, useParams } from 'react-router-dom';
 import { EmptyState } from '@/components/EmptyState/EmptyState';
 import { useTranslation } from '@/i18n';
 import { ApiError } from '@/lib/http/apiError';
-import { isTransferValued } from '@/module/inventory/domain/stockTransfer';
+import { TransferWarehouseLink } from '@/module/inventory/presentation/components/stock/TransferWarehouseLink';
+import { isTransferValued, transferWarehouseName } from '@/module/inventory/domain/stockTransfer';
 import { columnHeader } from '@/module/inventory/presentation/components/shared/columnHeader';
 import { DataTableFrame } from '@/module/inventory/presentation/components/shared/DataTableFrame';
 import {
@@ -60,13 +61,15 @@ export default function TransferDetailPage() {
 
   const query = useTransfer(id);
   const { data } = query;
-  const date = data?.date.slice(0, 10);
-  const range = { startDate: date, endDate: undefined, limit: 100 };
+  const range = { startDate: data?.date.slice(0, 10), endDate: undefined, limit: 100 };
   const fromMoves = useMovements(
     { ...range, warehouse: data?.from.id },
-    Boolean(data) && card.read
+    Boolean(data?.from.id) && card.read
   );
-  const toMoves = useMovements({ ...range, warehouse: data?.to.id }, Boolean(data) && card.read);
+  const toMoves = useMovements(
+    { ...range, warehouse: data?.to.id },
+    Boolean(data?.to.id) && card.read
+  );
 
   const movements = useMemo(() => {
     if (!data) return [];
@@ -174,15 +177,8 @@ export default function TransferDetailPage() {
       }
     );
 
-  const warehouseLink = (warehouse: { id: string; name: string }) => (
-    <Anchor
-      component={Link}
-      to={routes.inventory.warehouseDetail.replace(':id', warehouse.id)}
-      fw={700}
-    >
-      {warehouse.name}
-    </Anchor>
-  );
+  const fromName = transferWarehouseName(data.from, tf('warehouseMissing'));
+  const toName = transferWarehouseName(data.to, tf('warehouseMissing'));
 
   return (
     <DetailFrame
@@ -194,9 +190,9 @@ export default function TransferDetailPage() {
         <Group gap={6} wrap="wrap">
           <span>{dateFormatV1(data.date, 'D MMM YYYY')}</span>
           <span>·</span>
-          <span>{data.from.name}</span>
+          <span>{fromName}</span>
           <IconArrowRight size={14} />
-          <span>{data.to.name}</span>
+          <span>{toName}</span>
         </Group>
       }
       backTo={BACK}
@@ -272,8 +268,16 @@ export default function TransferDetailPage() {
       >
         <InfoGrid
           items={[
-            { label: t('detail.from'), value: warehouseLink(data.from), sub: data.from.code },
-            { label: t('detail.to'), value: warehouseLink(data.to), sub: data.to.code },
+            {
+              label: t('detail.from'),
+              value: <TransferWarehouseLink warehouseId={data.from.id} name={fromName} />,
+              sub: data.from.code,
+            },
+            {
+              label: t('detail.to'),
+              value: <TransferWarehouseLink warehouseId={data.to.id} name={toName} />,
+              sub: data.to.code,
+            },
             {
               label: t('detail.productCount'),
               value: t('detail.productCountValue', { count: data.productCount }),
@@ -390,8 +394,8 @@ export default function TransferDetailPage() {
       <ApproveTransferDialog
         opened={approveOpen}
         number={data.number}
-        fromName={data.from.name}
-        toName={data.to.name}
+        fromName={fromName}
+        toName={toName}
         productCount={data.productCount}
         saving={approve.isPending}
         onConfirm={confirmApprove}
@@ -407,7 +411,7 @@ export default function TransferDetailPage() {
       <VoidTransferDialog
         opened={voidOpen}
         number={data.number}
-        fromName={data.from.name}
+        fromName={fromName}
         saving={cancel.isPending}
         onConfirm={confirmVoid}
         onClose={() => setVoidOpen(false)}

@@ -17,7 +17,7 @@ import {
   IconInfoCircle,
   IconScale,
 } from '@tabler/icons-react';
-import { Link } from 'react-router-dom';
+import { generatePath, Link } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
 import type { JournalPreview, StockOpname } from '@/module/inventory/domain/stockOpname';
 import { columnHeader } from '@/module/inventory/presentation/components/shared/columnHeader';
@@ -30,6 +30,8 @@ type Props = {
   opname: StockOpname;
   preview: JournalPreview | undefined;
   previewLoading: boolean;
+  /** The journals a posted count booked; empty before posting. */
+  journalIds: string[];
 };
 
 type Tone = 'gain' | 'loss' | 'net';
@@ -69,9 +71,10 @@ const Figure = ({
 };
 
 /** What the count changes: surplus, shortage and net, the journal that books it, and the lines behind it. */
-export function OpnameSummaryTab({ opname, preview, previewLoading }: Readonly<Props>) {
+export function OpnameSummaryTab({ opname, preview, previewLoading, journalIds }: Readonly<Props>) {
   const { t } = useTranslation('stockTake');
   const { summary } = opname;
+  const posted = opname.status === 'posted';
 
   if (!opname.canSeeValues) {
     return (
@@ -134,11 +137,23 @@ export function OpnameSummaryTab({ opname, preview, previewLoading }: Readonly<P
       <Stack gap="xs">
         <div>
           <Text fw={700} fz="md">
-            {t('summary.journalTitle')}
+            {posted ? t('summary.journalPostedTitle') : t('summary.journalTitle')}
           </Text>
           <Text fz="xs" c="dimmed">
-            {t('summary.journalSubtitle')}
+            {posted ? t('summary.journalPostedSubtitle') : t('summary.journalSubtitle')}
           </Text>
+          {posted &&
+            journalIds.map((journalId) => (
+              <Anchor
+                key={journalId}
+                component={Link}
+                to={generatePath(routes.journalEntries.detail, { idTransaction: journalId })}
+                size="sm"
+                fw={600}
+              >
+                {t('summary.openJournal')}
+              </Anchor>
+            ))}
         </div>
         {previewLoading ? (
           <Skeleton height={80} radius="md" />

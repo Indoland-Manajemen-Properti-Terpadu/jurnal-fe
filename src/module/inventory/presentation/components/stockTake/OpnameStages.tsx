@@ -1,7 +1,8 @@
 import { Text, ThemeIcon } from '@mantine/core';
 import { IconCheck, IconRoute } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
-import { OPNAME_STEPS, stepIndex, type StockOpname } from '@/module/inventory/domain/stockOpname';
+import { opnameStages, type StageKey } from '@/module/inventory/domain/opnameStages';
+import { OPNAME_STEPS, type StockOpname } from '@/module/inventory/domain/stockOpname';
 import { SectionCard } from '@/module/inventory/presentation/components/shared/SectionCard';
 import classes from '@/module/inventory/presentation/components/stockTake/OpnameStages.module.css';
 import { dateFormatV1 } from '@/utils/formatDate';
@@ -11,11 +12,7 @@ type StageState = 'done' | 'current' | 'todo';
 /** The four stages of a count, top to bottom, each saying what it means and when it happened. */
 export function OpnameStages({ opname }: Readonly<{ opname: StockOpname }>) {
   const { t } = useTranslation('stockTake');
-  const at = opname.status === 'posted' ? OPNAME_STEPS.length : stepIndex(opname.status);
-  const timeOf: Partial<Record<string, string>> = {
-    draft: opname.createdAt,
-    counting: opname.startedAt ?? undefined,
-  };
+  const { done: at, details } = opnameStages(opname);
 
   return (
     <SectionCard icon={IconRoute} title={t('steps.title')} subtitle={t('steps.subtitle')} fill>
@@ -24,7 +21,8 @@ export function OpnameStages({ opname }: Readonly<{ opname: StockOpname }>) {
           let state: StageState = 'todo';
           if (index < at) state = 'done';
           else if (index === at) state = 'current';
-          const time = state !== 'todo' ? timeOf[step] : undefined;
+          const { at: time, by } =
+            state !== 'todo' ? details[step as StageKey] : { at: null, by: null };
           return (
             <li key={step} className={classes.item} data-state={state}>
               <ThemeIcon
@@ -58,6 +56,7 @@ export function OpnameStages({ opname }: Readonly<{ opname: StockOpname }>) {
                 {time && (
                   <Text fz="xs" c="primary.7" fw={500} mt={2}>
                     {dateFormatV1(time, 'D MMM YYYY, HH:mm')}
+                    {by ? ` · ${t('steps.by', { name: by })}` : ''}
                   </Text>
                 )}
               </div>

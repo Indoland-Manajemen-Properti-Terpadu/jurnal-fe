@@ -96,6 +96,13 @@ export interface TransferWarehouse {
   name: string;
 }
 
+/** What stands in for a warehouse the service no longer has (deleted after the transfer was made). */
+export const NO_TRANSFER_WAREHOUSE: TransferWarehouse = { id: '', code: '', name: '' };
+
+/** The warehouse's name, or the given text when the warehouse no longer exists. */
+export const transferWarehouseName = (warehouse: TransferWarehouse, missing: string): string =>
+  warehouse.name || missing;
+
 /**
  * A transfer is asked for first: stock moves only when an approver agrees. A refused one never
  * moved anything; a posted one can still be cancelled, which moves the stock back.
