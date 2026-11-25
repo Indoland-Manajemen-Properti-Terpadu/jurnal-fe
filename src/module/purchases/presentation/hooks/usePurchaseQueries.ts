@@ -243,11 +243,21 @@ export const useTagOptions = () => {
 };
 
 /** Receipts or orders ready to be billed, of one vendor when given. */
-export const useBillSources = (source: 'RECEIPT' | 'ORDER' | null, vendor?: string) => {
+export const useBillSources = (
+  source: 'RECEIPT' | 'ORDER' | null,
+  vendor?: string,
+  purchaseOrder?: string
+) => {
   const scope = usePurchaseScope();
   return useQuery<BillSourceDoc[], PurchaseError>({
-    queryKey: [...purchaseKeys.all(scope), 'bill-sources', source, vendor ?? ''],
-    queryFn: () => listBillSources(source as 'RECEIPT' | 'ORDER', vendor),
+    queryKey: [
+      ...purchaseKeys.all(scope),
+      'bill-sources',
+      source,
+      vendor ?? '',
+      purchaseOrder ?? '',
+    ],
+    queryFn: () => listBillSources(source as 'RECEIPT' | 'ORDER', vendor, purchaseOrder),
     enabled: source !== null,
   });
 };

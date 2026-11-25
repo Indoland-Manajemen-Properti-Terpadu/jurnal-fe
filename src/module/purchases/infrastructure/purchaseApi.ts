@@ -227,13 +227,21 @@ export interface BillListParams extends ListParams {
   source?: string;
 }
 export const listBills = (params: BillListParams = {}) => bills.list(params);
-/** Receipts or orders ready to be billed, optionally of one vendor. */
+/**
+ * Receipts or orders ready to be billed, optionally of one vendor. `purchaseOrder` is the order the
+ * page was opened for: the service answers with it first and marked `selected`.
+ */
 export const listBillSources = async (
   source: 'RECEIPT' | 'ORDER',
-  vendor?: string
+  vendor?: string,
+  purchaseOrder?: string
 ): Promise<BillSourceDoc[]> =>
   (
-    await http.get<ApiEnvelope<BillSourceDto[]>>(PURCHASE_API.billSources, { source, vendor })
+    await http.get<ApiEnvelope<BillSourceDto[]>>(PURCHASE_API.billSources, {
+      source,
+      vendor,
+      purchaseOrder,
+    })
   ).data.map(toBillSource);
 export const verifyBill = (id: string, acknowledgeVariance: boolean) =>
   bills.act(id, 'verify', { acknowledgeVariance });

@@ -118,6 +118,7 @@ export const purchasesBills = {
     continue: 'Lanjutkan Verifikasi',
   },
   wizard: {
+    advanceTag: 'Uang muka (DP)',
     qtyAria: 'Qty difakturkan untuk {name}',
     title: 'Catat Faktur',
     source: 'Sumber Tagihan',
