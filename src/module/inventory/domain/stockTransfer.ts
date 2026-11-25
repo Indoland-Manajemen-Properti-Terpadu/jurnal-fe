@@ -94,10 +94,17 @@ export interface TransferWarehouse {
   id: string;
   code: string;
   name: string;
+  /** True when the warehouse was deleted after the transfer; the service still sends its name. */
+  deleted: boolean;
 }
 
 /** What stands in for a warehouse the service no longer has (deleted after the transfer was made). */
-export const NO_TRANSFER_WAREHOUSE: TransferWarehouse = { id: '', code: '', name: '' };
+export const NO_TRANSFER_WAREHOUSE: TransferWarehouse = {
+  id: '',
+  code: '',
+  name: '',
+  deleted: false,
+};
 
 /** The warehouse's name, or the given text when the warehouse no longer exists. */
 export const transferWarehouseName = (warehouse: TransferWarehouse, missing: string): string =>
@@ -132,6 +139,10 @@ export interface StockTransfer {
   /** Role names whose approval is still awaited, each listed once. */
   waitingFor: string[];
   rejectedByName: string | null;
+  /** Who approved it and when; empty until it is approved. */
+  approvedByName: string | null;
+  approvedAt: string | null;
+  voidedByName: string | null;
   rejectReason: string | null;
   voidReason: string | null;
   voidedAt: string | null;

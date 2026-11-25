@@ -32,7 +32,8 @@ export const opnameStages = (
     pending_approval: submitted,
     posted: {
       at: opname.postedAt ?? approved.at,
-      by: approved.by,
+      // The service's own record wins; the history stands in for counts made before it kept one.
+      by: opname.approvedByName ?? approved.by,
     },
   };
 
