@@ -88,6 +88,10 @@ export interface TermScheduleRow {
   /** Percent of the whole quote, so every row of the schedule adds up to exactly 100. */
   percent: number;
   amount: number;
+  /** The retention held from this term when it is paid; 0 when none. */
+  retentionAmount: number;
+  /** Shown for information only: held from each term, so it is not added to the total. */
+  withheld: boolean;
 }
 
 /** The payment schedule worked out by the service, never by the screen. */
@@ -95,6 +99,13 @@ export interface TermSchedule {
   rows: TermScheduleRow[];
   percent: number;
   amount: number;
+  /** The advance billed on its own, and what the terms share after it (both 0 without an advance). */
+  advanceAmount: number;
+  advancePercent: number;
+  afterAdvanceAmount: number;
+  afterAdvancePercent: number;
+  /** All the retention held over the terms. */
+  retentionAmount: number;
 }
 
 /** Amounts and score of one quote, computed by the service. */

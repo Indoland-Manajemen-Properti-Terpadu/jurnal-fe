@@ -133,9 +133,16 @@ const toSchedule = (dto: ScheduleDto | null | undefined): TermSchedule | null =>
           label: row.label ?? '',
           percent: row.percent ?? 0,
           amount: row.amount ?? 0,
+          retentionAmount: row.retentionAmount ?? 0,
+          withheld: row.withheld === true,
         })),
         percent: dto.percent ?? 0,
         amount: dto.amount ?? 0,
+        advanceAmount: dto.advanceAmount ?? 0,
+        advancePercent: dto.advancePercent ?? 0,
+        afterAdvanceAmount: dto.afterAdvanceAmount ?? 0,
+        afterAdvancePercent: dto.afterAdvancePercent ?? 0,
+        retentionAmount: dto.retentionAmount ?? 0,
       }
     : null;
 

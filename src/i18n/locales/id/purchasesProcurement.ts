@@ -112,6 +112,10 @@ export const purchasesProcurement = {
     schedule: {
       title: 'Jadwal pembayaran',
       total: 'Total',
+      advanceTotal: 'DP',
+      afterAdvance: 'Termin setelah DP',
+      heldOnTerm: 'Retensi ditahan {amount}',
+      withheldNote: 'Retensi ditahan dari tiap termin dan tidak dijumlahkan ke total.',
       col: { payment: 'Pembayaran', percent: 'Persen', amount: 'Jumlah' },
     },
     vendorLabel: 'Vendor',

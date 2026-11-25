@@ -18,6 +18,8 @@ export const hasSplitSchedule = (schedule: TermSchedule | null): schedule is Ter
 export const TermScheduleTable = ({ schedule }: Readonly<TermScheduleTableProps>) => {
   const { t } = useTranslation('purchases');
   if (!hasSplitSchedule(schedule)) return null;
+  const hasAdvance = schedule.advanceAmount > 0;
+  const hasWithheld = schedule.rows.some((row) => row.withheld);
 
   return (
     <Stack gap={6}>
@@ -49,16 +51,56 @@ export const TermScheduleTable = ({ schedule }: Readonly<TermScheduleTableProps>
             {schedule.rows.map((row) => (
               <Table.Tr key={`${row.kind}-${row.seq}`}>
                 <Table.Td>
-                  <Text size="sm">{row.label}</Text>
+                  <Text
+                    size="sm"
+                    c={row.withheld ? 'dimmed' : undefined}
+                    fs={row.withheld ? 'italic' : undefined}
+                  >
+                    {row.label}
+                  </Text>
+                  {row.retentionAmount > 0 && (
+                    <Text size="xs" c="dimmed">
+                      {t('procurement.detail.schedule.heldOnTerm', {
+                        amount: formatAmount(row.retentionAmount),
+                      })}
+                    </Text>
+                  )}
                 </Table.Td>
                 <Table.Td ta="right" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                  <Text size="sm">{row.percent}%</Text>
+                  <Text size="sm" c={row.withheld ? 'dimmed' : undefined}>
+                    {row.percent}%
+                  </Text>
                 </Table.Td>
                 <Table.Td ta="right" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                  <Text size="sm">{formatAmount(row.amount)}</Text>
+                  <Text size="sm" c={row.withheld ? 'dimmed' : undefined}>
+                    {formatAmount(row.amount)}
+                  </Text>
                 </Table.Td>
               </Table.Tr>
             ))}
+            {hasAdvance &&
+              [
+                ['advanceTotal', schedule.advancePercent, schedule.advanceAmount],
+                ['afterAdvance', schedule.afterAdvancePercent, schedule.afterAdvanceAmount],
+              ].map(([key, percent, amount]) => (
+                <Table.Tr key={key} bg="var(--jurnal-color-surface-muted)">
+                  <Table.Td>
+                    <Text size="sm" fw={600}>
+                      {t(`procurement.detail.schedule.${key}`)}
+                    </Text>
+                  </Table.Td>
+                  <Table.Td ta="right" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                    <Text size="sm" fw={600}>
+                      {percent}%
+                    </Text>
+                  </Table.Td>
+                  <Table.Td ta="right" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                    <Text size="sm" fw={600}>
+                      {formatAmount(Number(amount))}
+                    </Text>
+                  </Table.Td>
+                </Table.Tr>
+              ))}
             <Table.Tr>
               <Table.Td>
                 <Text size="sm" fw={700}>
@@ -81,6 +123,11 @@ export const TermScheduleTable = ({ schedule }: Readonly<TermScheduleTableProps>
           </Table.Tbody>
         </Table>
       </Table.ScrollContainer>
+      {hasWithheld && (
+        <Text size="xs" c="dimmed">
+          {t('procurement.detail.schedule.withheldNote')}
+        </Text>
+      )}
     </Stack>
   );
 };
