@@ -13,6 +13,7 @@ import {
 import { StateFrame } from '@/module/purchases/presentation/components/requests/StateFrame';
 import { ApprovalPanel } from '@/module/purchases/presentation/components/shared/ApprovalPanel';
 import { DocumentFrame } from '@/module/purchases/presentation/components/shared/DocumentFrame';
+import { DocumentApprovalLog } from '@/module/purchases/presentation/components/shared/DocumentApprovalLog';
 import { DocumentJourney } from '@/module/purchases/presentation/components/shared/DocumentJourney';
 import { formatDay } from '@/module/purchases/presentation/components/shared/format';
 import { StatusBadge } from '@/module/purchases/presentation/components/shared/StatusBadge';
@@ -99,6 +100,7 @@ export default function PaymentRequestDetailPage() {
               onApprove={(note) => approve.mutate({ id: doc.id, note })}
               onReject={(reason) => reject.mutate({ id: doc.id, reason })}
             />
+            <DocumentApprovalLog kind="paymentRequest" id={doc.id} />
             <DocumentJourney steps={journey.steps} />
           </Stack>
         </Grid.Col>

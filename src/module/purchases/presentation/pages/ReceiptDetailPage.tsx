@@ -16,6 +16,7 @@ import { ReceiptSummaryCard } from '@/module/purchases/presentation/components/r
 import { StateFrame } from '@/module/purchases/presentation/components/requests/StateFrame';
 import { ApprovalPanel } from '@/module/purchases/presentation/components/shared/ApprovalPanel';
 import { AttachmentsCard } from '@/module/purchases/presentation/components/shared/AttachmentsCard';
+import { DocumentApprovalLog } from '@/module/purchases/presentation/components/shared/DocumentApprovalLog';
 import { DocumentJourney } from '@/module/purchases/presentation/components/shared/DocumentJourney';
 import { DocumentFrame } from '@/module/purchases/presentation/components/shared/DocumentFrame';
 import {
@@ -191,6 +192,7 @@ export default function ReceiptDetailPage() {
                 onApprove={(note) => approve.mutate({ id: doc.id, note })}
                 onReject={(reason) => reject.mutate({ id: doc.id, reason })}
               />
+              <DocumentApprovalLog kind="receipt" id={doc.id} />
               <DocumentJourney steps={journey.steps} />
             </Stack>
           </Grid.Col>

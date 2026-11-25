@@ -92,6 +92,23 @@ export const purchasesCommon = {
     estimateNote: 'Perkiraan. Angka akhir dihitung ulang saat dokumen disimpan.',
   },
   approval: {
+    log: {
+      title: 'Log approval',
+      subtitle: 'Siapa melakukan apa pada dokumen ini',
+      empty: 'Belum ada riwayat',
+      step: 'langkah {step} dari {total}',
+    },
+    confirm: {
+      title: 'Setujui approval ke {current} dari {total}?',
+      titleSingle: 'Setujui dokumen ini?',
+      single: 'Dokumen akan disetujui dan persetujuan ini dicatat atas nama Anda.',
+      next: 'Setelah ini dokumen menunggu persetujuan {name}. Persetujuan Anda dicatat atas nama Anda.',
+      final: 'Ini approval terakhir. Setelah Anda setuju, dokumen disetujui.',
+      sameLevel:
+        'Tingkat ini masih menunggu role lain, jadi dokumen belum berpindah ke tingkat berikutnya.',
+      back: 'Kembali',
+      yes: 'Ya, setujui',
+    },
     trail: {
       approved: 'Disetujui {date}',
       waiting: 'Menunggu persetujuan',

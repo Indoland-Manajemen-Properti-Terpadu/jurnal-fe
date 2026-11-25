@@ -2,10 +2,15 @@ import { useState } from 'react';
 import { Alert, Button, Group, Stack, Text, Textarea } from '@mantine/core';
 import { IconCheck, IconShieldCheck, IconX } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
-import { approvalStep, levelRule } from '@/module/purchases/domain/approvalProgress';
+import {
+  approvalConfirmation,
+  approvalStep,
+  levelRule,
+} from '@/module/purchases/domain/approvalProgress';
 import type { ApprovalState } from '@/module/purchases/domain/purchaseCommon';
 import { SectionCard } from '@/module/purchases/presentation/components/shared/SectionCard';
 import { ApprovalTrail } from '@/module/purchases/presentation/components/shared/ApprovalTrail';
+import { ApprovalConfirmModal } from '@/module/purchases/presentation/components/shared/ApprovalConfirmModal';
 import { ReasonModal } from '@/module/purchases/presentation/components/shared/ReasonModal';
 
 interface ApprovalPanelProps {
@@ -37,6 +42,7 @@ export const ApprovalPanel = ({
   const { t } = useTranslation('purchases');
   const [note, setNote] = useState('');
   const [rejecting, setRejecting] = useState(false);
+  const [confirming, setConfirming] = useState(false);
 
   const waiting = status === waitingStatus;
   const rejected = status === 'REJECTED' && approval.rejectionReason;
@@ -104,10 +110,7 @@ export const ApprovalPanel = ({
               <Button
                 leftSection={<IconCheck size={16} />}
                 loading={busy}
-                onClick={() => {
-                  onApprove(note.trim() || undefined);
-                  setNote('');
-                }}
+                onClick={() => setConfirming(true)}
               >
                 {step && step.total > 1
                   ? t('approval.approveStep', { current: step.current, total: step.total })
@@ -124,6 +127,17 @@ export const ApprovalPanel = ({
         )}
       </Stack>
 
+      <ApprovalConfirmModal
+        opened={confirming}
+        confirmation={approvalConfirmation(approval)}
+        busy={busy}
+        onClose={() => setConfirming(false)}
+        onConfirm={() => {
+          onApprove(note.trim() || undefined);
+          setNote('');
+          setConfirming(false);
+        }}
+      />
       <ReasonModal
         opened={rejecting}
         title={t('approval.rejectTitle')}

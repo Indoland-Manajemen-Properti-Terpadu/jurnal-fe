@@ -6,7 +6,11 @@ const PAY = '/v1/purchase-payments';
 const PAYREQ = '/v1/purchase-payment-requests';
 const RET = '/v1/purchase-returns';
 
+const ACTIVITY_BASE = { request: PR, receipt: GR, paymentRequest: PAYREQ } as const;
+
 export const PURCHASE_API = {
+  activity: (kind: keyof typeof ACTIVITY_BASE, id: string) =>
+    `${ACTIVITY_BASE[kind]}/${id}/activity`,
   requests: PR,
   request: (id: string) => `${PR}/${id}`,
   requestAction: (id: string, action: string) => `${PR}/${id}/${action}`,
