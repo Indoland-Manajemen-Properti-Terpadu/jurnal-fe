@@ -91,6 +91,17 @@ export const purchasesCommon = {
     remaining: 'Remaining Balance',
     estimateNote: 'Estimate. Final figures are recalculated when the document is saved.',
   },
+  journals: {
+    title: 'Journals',
+    subtitle: 'The journals this document posted',
+    count: '{count} journals',
+    empty: 'No journal yet',
+    open: 'Open journal',
+    account: 'Account',
+    debit: 'Debit',
+    credit: 'Credit',
+    total: 'Total',
+  },
   approval: {
     log: {
       title: 'Approval log',

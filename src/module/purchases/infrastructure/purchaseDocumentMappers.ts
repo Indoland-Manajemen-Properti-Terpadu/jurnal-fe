@@ -1,3 +1,5 @@
+import { toAdvanceState } from '@/module/purchases/infrastructure/advanceStateMappers';
+import { toDocumentJournals } from '@/module/purchases/infrastructure/documentJournalMappers';
 import type { PaymentRequest } from '@/module/purchases/domain/paymentRequest';
 import type {
   BillItem,
@@ -9,8 +11,6 @@ import type {
   PayablesAging,
   PaymentVoucher,
   PurchaseBill,
-  AdvanceDocRef,
-  OrderAdvanceState,
   PurchaseOrder,
   PurchaseReturn,
   VendorCredits,
@@ -20,8 +20,6 @@ import type {
   CreditApplicationDto,
   DocumentDto,
   DocumentRefDto,
-  AdvanceDocDto,
-  AdvanceStateDto,
   GoodsReceiptDto,
   PayablesAgingDto,
   PaymentRequestDto,
@@ -93,36 +91,6 @@ const toOrderItem = (dto: PurchaseOrderDto['items'][number]): OrderItem => ({
   },
 });
 
-const toAdvanceDocs = (docs: AdvanceDocDto[] | null | undefined): AdvanceDocRef[] =>
-  (docs ?? []).map((doc) => ({
-    id: doc.id,
-    number: doc.transactionNumber ?? '',
-    status: doc.status ?? '',
-  }));
-
-const toAdvanceState = (dto: AdvanceStateDto | null | undefined): OrderAdvanceState | null =>
-  dto
-    ? {
-        mode: dto.mode === 'REQUEST' ? 'REQUEST' : 'BILL',
-        amount: dto.amount ?? 0,
-        paidAmount: dto.paidAmount ?? 0,
-        billed: dto.billed === true,
-        paid: dto.paid === true,
-        postedAmount: dto.postedAmount ?? 0,
-        recognizedAmount: dto.recognizedAmount ?? 0,
-        heldAmount: dto.heldAmount ?? 0,
-        step: dto.step ?? '',
-        stepLabel: dto.stepLabel ?? '',
-        canCreateBill: dto.canCreateBill === true,
-        // A missing flag must not block a receipt the service would accept.
-        receiptAllowed: dto.receiptAllowed !== false,
-        receiptBlockReason: dto.receiptBlockReason ?? null,
-        bills: toAdvanceDocs(dto.bills),
-        paymentRequests: toAdvanceDocs(dto.paymentRequests),
-        paymentVouchers: toAdvanceDocs(dto.paymentVouchers),
-      }
-    : null;
-
 export const toPurchaseOrder = (dto: PurchaseOrderDto): PurchaseOrder => ({
   ...base(dto),
   ...toAmounts(dto),
@@ -162,6 +130,7 @@ export const toPurchaseOrder = (dto: PurchaseOrderDto): PurchaseOrder => ({
 
 export const toGoodsReceipt = (dto: GoodsReceiptDto): GoodsReceipt => ({
   ...base(dto),
+  journals: toDocumentJournals(dto.journals),
   kind: dto.kind ?? 'GOODS',
   documentLabel: dto.documentLabel ?? (dto.kind === 'SERVICE' ? 'BAPP' : 'FPB'),
   statusLabel: dto.statusLabel ?? '',
@@ -232,6 +201,7 @@ export const toPurchaseBill = (dto: PurchaseBillDto): PurchaseBill => {
   return {
     ...base(dto),
     ...toAmounts(dto),
+    journals: toDocumentJournals(dto.journals),
     source: dto.source ?? 'RECEIPT',
     noMatch: Boolean(dto.noMatch),
     statusLabel: dto.statusLabel ?? '',
@@ -270,6 +240,7 @@ export const toPurchaseBill = (dto: PurchaseBillDto): PurchaseBill => {
 
 export const toPaymentVoucher = (dto: PaymentVoucherDto): PaymentVoucher => ({
   ...base(dto),
+  journals: toDocumentJournals(dto.journals),
   statusLabel: dto.statusLabel ?? '',
   vendor: toParty(dto.vendor),
   status: dto.status as PaymentVoucher['status'],

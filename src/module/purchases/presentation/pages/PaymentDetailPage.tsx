@@ -14,6 +14,7 @@ import { AttachmentsCard } from '@/module/purchases/presentation/components/shar
 import { DocumentFrame } from '@/module/purchases/presentation/components/shared/DocumentFrame';
 import { formatDay } from '@/module/purchases/presentation/components/shared/format';
 import { StatusBadge } from '@/module/purchases/presentation/components/shared/StatusBadge';
+import { DocumentJournalsCard } from '@/module/purchases/presentation/components/shared/DocumentJournalsCard';
 import { DocumentJourney } from '@/module/purchases/presentation/components/shared/DocumentJourney';
 import { useDocumentChain } from '@/module/purchases/presentation/hooks/useDashboard';
 import { usePurchaseAccess } from '@/module/purchases/presentation/hooks/usePurchaseAccess';
@@ -68,6 +69,7 @@ export default function PaymentDetailPage() {
           <Stack gap="lg">
             <PaymentInfoCard doc={doc} />
             <PaymentItemsCard doc={doc} />
+            <DocumentJournalsCard journals={doc.journals} />
           </Stack>
         </Grid.Col>
         <Grid.Col span={{ base: 12, lg: 4 }}>

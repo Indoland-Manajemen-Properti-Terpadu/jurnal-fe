@@ -1,3 +1,4 @@
+import type { DocumentJournalDto } from '@/module/purchases/infrastructure/documentJournalMappers';
 /** Shapes of the purchasing API responses, as captured from the live service. */
 
 export interface ApiEnvelope<T> {
@@ -204,6 +205,7 @@ export interface AdvanceStateDto {
 }
 
 export interface GoodsReceiptDto extends DocumentDto, ApprovalFieldsDto {
+  journals?: DocumentJournalDto[] | null;
   kind?: 'GOODS' | 'SERVICE' | null;
   documentLabel?: string | null;
   statusLabel?: string | null;
@@ -252,6 +254,7 @@ export interface DocumentRefDto {
 }
 
 export interface PurchaseBillDto extends DocumentDto, AmountsDto {
+  journals?: DocumentJournalDto[] | null;
   source?: 'RECEIPT' | 'ORDER' | 'MANUAL' | null;
   noMatch?: boolean | null;
   statusLabel?: string | null;
@@ -283,6 +286,7 @@ export interface PurchaseBillDto extends DocumentDto, AmountsDto {
 }
 
 export interface PaymentVoucherDto extends DocumentDto {
+  journals?: DocumentJournalDto[] | null;
   statusLabel?: string | null;
   vendor: PartyDto;
   status: string;

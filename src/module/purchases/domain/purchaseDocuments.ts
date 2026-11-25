@@ -1,3 +1,4 @@
+import type { DocumentJournal } from '@/module/purchases/domain/documentJournal';
 import type {
   ApprovalState,
   DocumentBase,
@@ -173,6 +174,8 @@ export interface DocumentRef {
 }
 
 export interface GoodsReceipt extends DocumentBase {
+  /** The journals this document posted; empty before it posts one. */
+  journals: DocumentJournal[];
   kind: ReceiptKind;
   /** `FPB` for goods, `BAPP` for services. */
   documentLabel: string;
@@ -228,6 +231,7 @@ export interface CreditApplication {
 }
 
 export interface PurchaseBill extends DocumentBase, DocumentAmounts {
+  journals: DocumentJournal[];
   source: BillSource;
   /** True for a manual bill: no order or receipt to compare it with. */
   noMatch: boolean;
@@ -277,6 +281,7 @@ export interface PaymentVoucherItem {
 }
 
 export interface PaymentVoucher extends DocumentBase {
+  journals: DocumentJournal[];
   /** The server's Indonesian label of the status. */
   statusLabel: string;
   vendor: PartyRef;

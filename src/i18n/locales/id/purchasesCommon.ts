@@ -91,6 +91,17 @@ export const purchasesCommon = {
     remaining: 'Sisa Hutang',
     estimateNote: 'Perkiraan. Angka akhir dihitung ulang saat dokumen disimpan.',
   },
+  journals: {
+    title: 'Jurnal',
+    subtitle: 'Jurnal yang diposting dokumen ini',
+    count: '{count} jurnal',
+    empty: 'Belum ada jurnal',
+    open: 'Buka jurnal',
+    account: 'Akun',
+    debit: 'Debit',
+    credit: 'Kredit',
+    total: 'Total',
+  },
   approval: {
     log: {
       title: 'Log approval',
