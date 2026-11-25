@@ -3,6 +3,7 @@ import { Button, Group, Select } from '@mantine/core';
 import { IconPlus } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '@/i18n';
+import { foundProductOptions } from '@/module/inventory/domain/foundProducts';
 import { fetchProducts } from '@/module/products';
 
 const LOOKUP_LIMIT = 100;
@@ -23,12 +24,7 @@ export function FoundProductPicker({ taken, saving, onAdd }: Readonly<Props>) {
     queryFn: () => fetchProducts({ page: 1, limit: LOOKUP_LIMIT }),
     staleTime: 60_000,
   });
-  const options = (products.data?.items ?? [])
-    .filter((item) => !taken.includes(item.id))
-    .map((item) => ({
-      value: item.id,
-      label: item.sku ? `${item.name} · ${item.sku}` : item.name,
-    }));
+  const options = foundProductOptions(products.data?.items ?? [], taken);
 
   return (
     <Group gap="xs" wrap="nowrap" w={{ base: '100%', md: 'auto' }}>

@@ -54,6 +54,7 @@ import { OpnameSummaryTab } from '@/module/inventory/presentation/components/sto
 import { WarehouseConfirmDialog } from '@/module/inventory/presentation/components/warehouses/WarehouseActionDialogs';
 import {
   useOpname,
+  useOpnameJournalIds,
   useOpnameJournalPreview,
   useOpnameMutations,
   useOpnameRights,
@@ -82,6 +83,7 @@ export default function StockTakeDetailPage() {
 
   const query = useOpname(id);
   const { data } = query;
+  const journalIds = useOpnameJournalIds(data);
   const preview = useOpnameJournalPreview(
     id,
     Boolean(data?.canSeeValues) && data?.status !== 'cancelled' && data?.status !== 'draft'
@@ -318,6 +320,7 @@ export default function StockTakeDetailPage() {
               opname={data}
               preview={preview.data}
               previewLoading={preview.isLoading}
+              journalIds={journalIds}
             />
           </Tabs.Panel>
           <Tabs.Panel value="history">

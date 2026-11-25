@@ -96,6 +96,7 @@ export const stockTake = {
     products: 'Choose at least one product.',
   },
   steps: {
+    by: 'by {{name}}',
     hint: {
       draft: 'Document created, book balance not frozen yet',
       counting: 'Book balance frozen and warehouse locked',
@@ -223,6 +224,9 @@ export const stockTake = {
     netHint: 'Once journaled',
     journalTitle: 'Journal preview',
     journalSubtitle: 'The adjustment journal created when the count is posted',
+    journalPostedTitle: 'Journal posted',
+    journalPostedSubtitle: 'The adjustment journal this count booked',
+    openJournal: 'Open in Journal Entries',
     account: 'Account',
     debit: 'Debit',
     credit: 'Credit',

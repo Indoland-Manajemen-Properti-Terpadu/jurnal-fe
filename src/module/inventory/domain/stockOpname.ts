@@ -90,6 +90,8 @@ export interface StockOpname {
   createdByName: string;
   createdAt: string;
   startedAt: string | null;
+  /** When the count was approved and posted; stays on record after a later cancellation. */
+  postedAt: string | null;
   notes: string;
   /** False for a person who counts blind. */
   canSeeValues: boolean;

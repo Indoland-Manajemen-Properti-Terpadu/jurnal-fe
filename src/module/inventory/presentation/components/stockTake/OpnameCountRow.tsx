@@ -72,7 +72,10 @@ export function OpnameCountRow({ line, showValues, canCount, canReason, onSave }
   const costInput = showValues && line.costEditable && (diff ?? 0) > 0 && canReason;
 
   const saveCounted = () => {
-    const next = toNumber(counted);
+    const typed = toNumber(counted);
+    // A count is never below zero: what the field shows after leaving it is what is sent.
+    const next = typed === null ? null : Math.max(0, typed);
+    if (next !== null && next !== typed) setCounted(next);
     if (next !== null && next !== line.countedQty) {
       onSave({ product: line.productId, countedQty: next });
     }
@@ -116,6 +119,7 @@ export function OpnameCountRow({ line, showValues, canCount, canReason, onSave }
           onBlur={saveCounted}
           disabled={!canCount}
           min={0}
+          allowNegative={false}
           decimalScale={2}
           hideControls
           radius="md"
