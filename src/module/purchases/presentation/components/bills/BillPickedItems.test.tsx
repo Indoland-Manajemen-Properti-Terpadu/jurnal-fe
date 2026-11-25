@@ -73,4 +73,31 @@ describe('BillEstimateSummary', () => {
     expect(screen.getByText(/Dihitung oleh sistem/)).toBeInTheDocument();
     expect(screen.getByText(/843\.600/)).toBeInTheDocument();
   });
+
+  it('tells which line is the advance of the order', () => {
+    const advanceDoc = {
+      ...doc,
+      lines: [],
+      orderLines: [
+        {
+          purchaseOrderItemId: 'dp',
+          receiptItemId: '',
+          description: 'Jasa servis AC — Uang muka 20%',
+          openQty: 1,
+          unitPrice: 420000,
+          taxRate: 11,
+          schedule: { kind: 'ADVANCE', seq: 1, of: 1, periodFrom: null, periodTo: null },
+        },
+      ],
+    } as unknown as BillSourceDoc;
+    render(<BillPickedItems estimate={estimateBill([advanceDoc])} onQuantity={vi.fn()} />);
+
+    expect(screen.getByText('Uang muka (DP)')).toBeInTheDocument();
+  });
+
+  it('shows no advance tag on an ordinary line', () => {
+    render(<BillPickedItems estimate={estimateBill([doc])} onQuantity={vi.fn()} />);
+
+    expect(screen.queryByText('Uang muka (DP)')).not.toBeInTheDocument();
+  });
 });

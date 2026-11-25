@@ -27,7 +27,10 @@ import { detailPath } from '@/module/purchases/presentation/components/hub/docum
 import { PaymentRequestAmountFields } from '@/module/purchases/presentation/components/paymentRequests/PaymentRequestAmountFields';
 import { DateField } from '@/module/purchases/presentation/components/requests/DateField';
 import { FormFrame } from '@/module/purchases/presentation/components/shared/FormFrame';
-import { SupplierSelect } from '@/module/purchases/presentation/components/shared/LookupSelects';
+import {
+  SupplierMultiSelect,
+  SupplierSelect,
+} from '@/module/purchases/presentation/components/shared/LookupSelects';
 import { ChoiceCard } from '@/module/purchases/presentation/components/shared/wizard/ChoiceCard';
 import { WizardActionBar } from '@/module/purchases/presentation/components/shared/wizard/WizardActionBar';
 import { WizardCard } from '@/module/purchases/presentation/components/shared/wizard/WizardCard';
@@ -40,7 +43,10 @@ import {
   useCreatePaymentRequest,
   useUpdatePaymentRequest,
 } from '@/module/purchases/presentation/hooks/usePurchaseMutations';
-import { useBills, useOrders } from '@/module/purchases/presentation/hooks/usePurchaseQueries';
+import {
+  useOpenBillsOfVendors,
+  useOrders,
+} from '@/module/purchases/presentation/hooks/usePurchaseQueries';
 import { routes } from '@/router/routes';
 
 const BACK = routes.purchases.payments;
@@ -61,8 +67,20 @@ export const PaymentRequestFormBody = ({
 }: Readonly<PaymentRequestFormBodyProps>) => {
   const { t } = useTranslation('purchases');
   const navigate = useNavigate();
-  const [values, setValues] = useState<PaymentRequestFormValues>(initial);
+  // A settlement starts with the vendor it was opened for; the vendors are then chosen in step one.
+  const [values, setValues] = useState<PaymentRequestFormValues>(() =>
+    initial.kind === 'SETTLEMENT' && initial.vendorIds.length === 0 && initialVendor
+      ? { ...initial, vendorIds: [initialVendor.id] }
+      : initial
+  );
   const [vendorId, setVendorId] = useState(initialVendor?.id ?? '');
+  // Names of the vendors chosen, so the headers keep them while the search list changes.
+  const [vendorNames, setVendorNames] = useState<Record<string, string>>(() => ({
+    ...(initialVendor ? { [initialVendor.id]: initialVendor.name } : {}),
+    ...Object.fromEntries(
+      (editing?.vendorTotals ?? []).map((total) => [total.vendorId, total.vendorName])
+    ),
+  }));
   const [showErrors, setShowErrors] = useState(false);
   const [step, setStep] = useState(0);
   const isAdvance = values.kind === 'DP';
@@ -71,11 +89,9 @@ export const PaymentRequestFormBody = ({
   const update = useUpdatePaymentRequest((doc) => navigate(detailPath('paymentRequest', doc.id)));
   const saving = create.isPending || update.isPending;
 
-  const billsEnabled = !isAdvance && Boolean(vendorId);
-  const billsQuery = useBills(
-    { vendor: vendorId, status: ['VERIFIED', 'PARTIAL_PAID'], limit: 100 },
-    billsEnabled
-  );
+  const hasVendor = isAdvance ? Boolean(vendorId) : values.vendorIds.length > 0;
+  const billsQuery = useOpenBillsOfVendors(values.vendorIds, !isAdvance && hasVendor);
+  const chosenVendors = values.vendorIds.map((id) => ({ id, name: vendorNames[id] ?? '' }));
   const ordersQuery = useOrders({ vendor: vendorId, limit: 100 }, isAdvance && Boolean(vendorId));
 
   // A draft already holds part of each bill, so while editing it may ask for that part again.
@@ -85,11 +101,11 @@ export const PaymentRequestFormBody = ({
   );
   const bills = useMemo(
     () =>
-      requestableBills(billsQuery.data?.items ?? []).map((bill) => ({
+      requestableBills(billsQuery.items).map((bill) => ({
         ...bill,
         requestable: sumMinor([toMinor(bill.requestable), toMinor(own[bill.id] ?? 0)]) / 100,
       })),
-    [billsQuery.data, own]
+    [billsQuery.items, own]
   );
   const orders = (ordersQuery.data?.items ?? []).filter(
     (order) => order.advance.available > 0 || order.id === values.purchaseOrderId
@@ -102,6 +118,7 @@ export const PaymentRequestFormBody = ({
 
   const errors = validatePaymentRequestForm(values, {
     requestable: Object.fromEntries(bills.map((bill) => [bill.id, bill.requestable])),
+    billVendor: Object.fromEntries(bills.map((bill) => [bill.id, bill.vendorId])),
     available,
   });
   const total = isAdvance
@@ -114,9 +131,9 @@ export const PaymentRequestFormBody = ({
     setValues((current) => ({ ...current, ...next }));
 
   const submit = () => {
-    if (hasPaymentRequestErrors(errors) || !vendorId) {
+    if (hasPaymentRequestErrors(errors) || !hasVendor) {
       setShowErrors(true);
-      setStep(!vendorId ? 0 : errors.date ? 2 : 1);
+      setStep(!hasVendor ? 0 : errors.date ? 2 : 1);
       return;
     }
     if (editing) {
@@ -130,10 +147,12 @@ export const PaymentRequestFormBody = ({
     setValues((current) => ({
       ...current,
       kind,
+      vendorIds: [],
       amounts: {},
       purchaseOrderId: '',
       advanceAmount: '',
     }));
+    setVendorId('');
     setShowErrors(false);
   };
 
@@ -158,8 +177,12 @@ export const PaymentRequestFormBody = ({
     },
   ];
   const stepOk = [
-    Boolean(vendorId),
-    !errors.noBills && !errors.order && !errors.advance && Object.keys(errors.bills).length === 0,
+    hasVendor,
+    !errors.noBills &&
+      !errors.order &&
+      !errors.advance &&
+      Object.keys(errors.bills).length === 0 &&
+      Object.keys(errors.vendors).length === 0,
     !errors.date,
   ];
   const next = () => {
@@ -245,24 +268,56 @@ export const PaymentRequestFormBody = ({
                 onSelect={() => changeKind('DP')}
               />
             </SimpleGrid>
-            <SupplierSelect
-              withAsterisk
-              label={t('paymentRequests.form.vendor')}
-              value={vendorId || null}
-              selected={initialVendor}
-              disabled={Boolean(editing)}
-              description={
-                editing
-                  ? t('paymentRequests.form.vendorLocked')
-                  : t('paymentRequests.wizard.vendorHint')
-              }
-              error={showErrors && !vendorId ? t('paymentRequests.form.vendorRequired') : undefined}
-              onChange={(id) => {
-                setVendorId(id ?? '');
-                patch({ amounts: {}, purchaseOrderId: '', advanceAmount: '' });
-              }}
-            />
-            {!vendorId && (
+            {isAdvance ? (
+              <SupplierSelect
+                withAsterisk
+                label={t('paymentRequests.form.vendor')}
+                value={vendorId || null}
+                selected={initialVendor}
+                disabled={Boolean(editing)}
+                description={
+                  editing
+                    ? t('paymentRequests.form.vendorLocked')
+                    : t('paymentRequests.wizard.vendorHint')
+                }
+                error={
+                  showErrors && !vendorId ? t('paymentRequests.form.vendorRequired') : undefined
+                }
+                onChange={(id) => {
+                  setVendorId(id ?? '');
+                  patch({ amounts: {}, purchaseOrderId: '', advanceAmount: '' });
+                }}
+              />
+            ) : (
+              <SupplierMultiSelect
+                withAsterisk
+                label={t('paymentRequests.form.vendors')}
+                description={t('paymentRequests.wizard.vendorsHint')}
+                value={values.vendorIds}
+                selected={chosenVendors.map((vendor) => ({ id: vendor.id, name: vendor.name }))}
+                error={
+                  showErrors && !hasVendor ? t('paymentRequests.form.vendorRequired') : undefined
+                }
+                onChange={(ids, vendors) => {
+                  setVendorNames((current) => ({
+                    ...current,
+                    ...Object.fromEntries(vendors.map((vendor) => [vendor.id, vendor.name])),
+                  }));
+                  // A bill of a vendor that was taken off the list is no longer asked for.
+                  patch({
+                    vendorIds: ids,
+                    amounts: Object.fromEntries(
+                      Object.entries(values.amounts).filter(([billId]) => {
+                        const owner = billsQuery.items.find((bill) => bill.id === billId)?.vendor
+                          .id;
+                        return owner === undefined || ids.includes(owner);
+                      })
+                    ),
+                  });
+                }}
+              />
+            )}
+            {!hasVendor && (
               <Alert color="blue" variant="light" radius="md" icon={<IconInfoCircle size={16} />}>
                 {t('paymentRequests.form.pickVendorFirst')}
               </Alert>
@@ -292,6 +347,7 @@ export const PaymentRequestFormBody = ({
             errors={errors}
             showErrors={showErrors}
             bills={bills}
+            vendors={chosenVendors}
             billsLoading={billsQuery.isLoading}
             orders={orders}
             ordersLoading={ordersQuery.isLoading}

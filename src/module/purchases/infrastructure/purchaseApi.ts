@@ -1,3 +1,4 @@
+import type { ActivityEntry, ActivityKind } from '@/module/purchases/domain/activityLog';
 import type { AttachmentKind, Page } from '@/module/purchases/domain/purchaseCommon';
 import type {
   GoodsReceipt,
@@ -227,13 +228,21 @@ export interface BillListParams extends ListParams {
   source?: string;
 }
 export const listBills = (params: BillListParams = {}) => bills.list(params);
-/** Receipts or orders ready to be billed, optionally of one vendor. */
+/**
+ * Receipts or orders ready to be billed, optionally of one vendor. `purchaseOrder` is the order the
+ * page was opened for: the service answers with it first and marked `selected`.
+ */
 export const listBillSources = async (
   source: 'RECEIPT' | 'ORDER',
-  vendor?: string
+  vendor?: string,
+  purchaseOrder?: string
 ): Promise<BillSourceDoc[]> =>
   (
-    await http.get<ApiEnvelope<BillSourceDto[]>>(PURCHASE_API.billSources, { source, vendor })
+    await http.get<ApiEnvelope<BillSourceDto[]>>(PURCHASE_API.billSources, {
+      source,
+      vendor,
+      purchaseOrder,
+    })
   ).data.map(toBillSource);
 export const verifyBill = (id: string, acknowledgeVariance: boolean) =>
   bills.act(id, 'verify', { acknowledgeVariance });
@@ -279,6 +288,16 @@ export const cancelPaymentRequest = (id: string, reason: string) =>
 export const listPayments = payments.list;
 export const getPayment = payments.get;
 export const createPayment = (input: PaymentVoucherInput) => payments.create(input);
+/** One voucher for every vendor of a request, all issued together or none (`{ payments: [...] }`). */
+export const createPaymentsByVendor = async (
+  input: PaymentVoucherInput
+): Promise<PaymentVoucher[]> => {
+  const body = await http.post<ApiEnvelope<{ payments?: PaymentVoucherDto[] }>>(
+    PURCHASE_API.paymentsByVendor,
+    input
+  );
+  return (body.data?.payments ?? []).map(toPaymentVoucher);
+};
 export const payVoucher = (id: string, input: PayInput) => payments.act(id, 'pay', input);
 export const voidPayment = (id: string, reason: string) => payments.act(id, 'void', { reason });
 
@@ -387,4 +406,47 @@ export const previewBill = async (input: PurchaseBillInput): Promise<BillPreview
     finalAmount: dto.finalAmount ?? dto.total ?? 0,
     dueDate: dto.dueDate ? dto.dueDate.slice(0, 10) : null,
   };
+};
+
+/* ---------- History ---------- */
+interface ActivityDto {
+  id?: string;
+  action?: string;
+  actionLabel?: string;
+  step?: number | null;
+  totalSteps?: number | null;
+  stageLabel?: string | null;
+  role?: { id?: string; name?: string } | null;
+  by?: { id?: string; name?: string } | null;
+  at?: string;
+  note?: string | null;
+  text?: string | null;
+}
+
+export const toActivityEntry = (dto: ActivityDto): ActivityEntry => ({
+  id: dto.id ?? `${dto.action ?? ''}-${dto.at ?? ''}`,
+  action: dto.action ?? '',
+  label: dto.actionLabel ?? dto.action ?? '',
+  step: dto.step ?? null,
+  totalSteps: dto.totalSteps ?? null,
+  stageLabel: dto.stageLabel ?? '',
+  roleName: dto.role?.name ?? '',
+  byName: dto.by?.name ?? '',
+  at: dto.at ?? '',
+  note: dto.note ?? '',
+  text: dto.text ?? '',
+});
+
+/**
+ * The approval history of a document, oldest first. A service that has no such address yet answers
+ * 404, which reads as "no history" so the screen still opens.
+ */
+export const getActivity = async (kind: ActivityKind, id: string): Promise<ActivityEntry[]> => {
+  try {
+    const { data } = await http.get<ApiEnvelope<ActivityDto[]>>(PURCHASE_API.activity(kind, id));
+    return (data ?? []).map(toActivityEntry);
+  } catch (error) {
+    if ((error as { kind?: string }).kind === 'notFound') return [];
+    throw error;
+  }
 };

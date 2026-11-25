@@ -2,10 +2,10 @@ import { useMemo, useState } from 'react';
 import { Alert, Anchor, Button, Group, Paper, Skeleton, Table, Text } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import {
+  IconArrowBackUp,
   IconArrowRight,
   IconCheck,
   IconClockHour4,
-  IconInfoCircle,
   IconLock,
   IconPackage,
   IconTransfer,
@@ -16,15 +16,15 @@ import { Link, useParams } from 'react-router-dom';
 import { EmptyState } from '@/components/EmptyState/EmptyState';
 import { useTranslation } from '@/i18n';
 import { ApiError } from '@/lib/http/apiError';
-import { TransferWarehouseLink } from '@/module/inventory/presentation/components/stock/TransferWarehouseLink';
-import { isTransferValued, transferWarehouseName } from '@/module/inventory/domain/stockTransfer';
+import { TransferInfoCard } from '@/module/inventory/presentation/components/stock/TransferInfoCard';
+import { useTransferWarehouseName } from '@/module/inventory/presentation/hooks/useTransferWarehouseName';
+import { isTransferValued } from '@/module/inventory/domain/stockTransfer';
 import { columnHeader } from '@/module/inventory/presentation/components/shared/columnHeader';
 import { DataTableFrame } from '@/module/inventory/presentation/components/shared/DataTableFrame';
 import {
   DetailFrame,
   PageFrame,
 } from '@/module/inventory/presentation/components/shared/DetailFrame';
-import { InfoGrid } from '@/module/inventory/presentation/components/shared/InfoGrid';
 import { SectionCard } from '@/module/inventory/presentation/components/shared/SectionCard';
 import { stockTakeDetailPath } from '@/module/inventory/presentation/components/shared/stockLinks';
 import { MovementsTable } from '@/module/inventory/presentation/components/stock/MovementsTable';
@@ -55,9 +55,11 @@ export default function TransferDetailPage() {
   const { transfer: rights, card } = useStockRights();
   const { cancel, approve, reject } = useTransferMutations();
   const [voidOpen, setVoidOpen] = useState(false);
+  const [withdrawOpen, setWithdrawOpen] = useState(false);
   const [approveOpen, setApproveOpen] = useState(false);
   const [rejectOpen, setRejectOpen] = useState(false);
   const frozen = useFrozenWarehouses();
+  const warehouseName = useTransferWarehouseName();
 
   const query = useTransfer(id);
   const { data } = query;
@@ -104,9 +106,10 @@ export default function TransferDetailPage() {
     );
   }
 
+  const fromName = warehouseName(data.from);
+  const toName = warehouseName(data.to);
   const isPosted = data.status === 'posted';
   const isPending = data.status === 'pending';
-  const isRejected = data.status === 'rejected';
   const isVoid = data.status === 'void';
   const showDecision = isPending && data.canDecide;
   const showValue = isTransferValued(data.status) && data.items.some((item) => item.value !== null);
@@ -115,22 +118,24 @@ export default function TransferDetailPage() {
   // While a count holds either warehouse, cancelling would move stock in it.
   const frozenBy = frozen.get(data.from.id) ?? frozen.get(data.to.id);
 
-  const confirmVoid = (reason: string) =>
+  // Cancelling a posted transfer and withdrawing a waiting one are the same service call.
+  const confirmVoid = (reason: string, kind: 'void' | 'withdraw') =>
     cancel.mutate(
       { id: data.id, reason },
       {
         onSuccess: () => {
           setVoidOpen(false);
+          setWithdrawOpen(false);
           notifications.show({
             color: 'green',
-            message: t('detail.voidDone', { number: data.number }),
+            message: t(`detail.${kind}Done`, { number: data.number }),
           });
         },
         onError: (error) => {
           notifications.show({
             color: 'orange',
             autoClose: 7000,
-            title: t('detail.voidFailedTitle'),
+            title: t(`detail.${kind}FailedTitle`),
             message: describe(error),
           });
         },
@@ -177,9 +182,6 @@ export default function TransferDetailPage() {
       }
     );
 
-  const fromName = transferWarehouseName(data.from, tf('warehouseMissing'));
-  const toName = transferWarehouseName(data.to, tf('warehouseMissing'));
-
   return (
     <DetailFrame
       icon={IconTransfer}
@@ -224,7 +226,15 @@ export default function TransferDetailPage() {
                 danger: true,
               },
             ]
-          : undefined
+          : isPending && rights.delete
+            ? [
+                {
+                  label: t('detail.withdrawMenu'),
+                  icon: IconArrowBackUp,
+                  onClick: () => setWithdrawOpen(true),
+                },
+              ]
+            : undefined
       }
     >
       {isPending && (
@@ -260,57 +270,12 @@ export default function TransferDetailPage() {
         </Alert>
       )}
 
-      <SectionCard
-        icon={IconInfoCircle}
-        title={t('detail.infoTitle')}
-        subtitle={t('detail.infoSubtitle')}
-        flush
-      >
-        <InfoGrid
-          items={[
-            {
-              label: t('detail.from'),
-              value: <TransferWarehouseLink warehouseId={data.from.id} name={fromName} />,
-              sub: data.from.code,
-            },
-            {
-              label: t('detail.to'),
-              value: <TransferWarehouseLink warehouseId={data.to.id} name={toName} />,
-              sub: data.to.code,
-            },
-            {
-              label: t('detail.productCount'),
-              value: t('detail.productCountValue', { count: data.productCount }),
-              sub: showValue ? formatCurrency(totalValue) : undefined,
-            },
-            {
-              label: t('detail.created'),
-              value: data.createdAt ? dateFormatV1(data.createdAt, 'D MMM YYYY, HH:mm') : '-',
-            },
-            ...(data.createdByName
-              ? [{ label: t('detail.createdBy'), value: data.createdByName }]
-              : []),
-            ...(isRejected
-              ? [
-                  { label: t('detail.rejectedBy'), value: data.rejectedByName ?? '-' },
-                  ...(data.rejectReason
-                    ? [{ label: t('detail.rejectReason'), value: data.rejectReason }]
-                    : []),
-                ]
-              : []),
-            ...(isVoid
-              ? [
-                  {
-                    label: t('detail.voided'),
-                    value: data.voidedAt ? dateFormatV1(data.voidedAt, 'D MMM YYYY, HH:mm') : '-',
-                  },
-                  { label: t('detail.voidReason'), value: data.voidReason ?? '-' },
-                ]
-              : []),
-            { label: t('detail.memo'), value: data.memo || '-', muted: !data.memo, full: true },
-          ]}
-        />
-      </SectionCard>
+      <TransferInfoCard
+        transfer={data}
+        fromName={fromName}
+        toName={toName}
+        totalValue={showValue ? totalValue : undefined}
+      />
 
       <SectionCard
         icon={IconPackage}
@@ -413,8 +378,17 @@ export default function TransferDetailPage() {
         number={data.number}
         fromName={fromName}
         saving={cancel.isPending}
-        onConfirm={confirmVoid}
+        onConfirm={(reason) => confirmVoid(reason, 'void')}
         onClose={() => setVoidOpen(false)}
+      />
+      <VoidTransferDialog
+        opened={withdrawOpen}
+        mode="withdraw"
+        number={data.number}
+        fromName={fromName}
+        saving={cancel.isPending}
+        onConfirm={(reason) => confirmVoid(reason, 'withdraw')}
+        onClose={() => setWithdrawOpen(false)}
       />
     </DetailFrame>
   );

@@ -34,4 +34,6 @@ export interface BillSourceDto {
   isPriceIncludeTax?: boolean | null;
   lines?: BillSourceLineDto[] | null;
   orderLines?: BillSourceLineDto[] | null;
+  hasAdvance?: boolean | null;
+  selected?: boolean | null;
 }

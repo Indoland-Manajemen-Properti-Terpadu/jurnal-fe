@@ -5,6 +5,8 @@ import {
   hasPayErrors,
   hasPaymentErrors,
   toPayInput,
+  issueOptions,
+  scopeAmount,
   toPaymentInput,
   validatePayForm,
   validatePaymentForm,
@@ -87,5 +89,56 @@ describe('pay form', () => {
       adminFee: 2500,
       referenceNumber: 'TRF',
     });
+  });
+});
+
+describe('issuing vouchers for a request with several vendors', () => {
+  const total = (vendorId: string, amount: number, voucher = false) => ({
+    vendorId,
+    vendorName: `Vendor ${vendorId}`,
+    amount,
+    billCount: 1,
+    voucher: voucher ? { id: `pv-${vendorId}`, number: `PV/${vendorId}`, status: 'DRAFT' } : null,
+  });
+  const multi = (totals: ReturnType<typeof total>[]) =>
+    ({
+      isMultiVendor: true,
+      vendorTotals: totals,
+    }) as unknown as import('@/module/purchases/domain/paymentRequest').PaymentRequest;
+
+  it('offers all vendors at once while none has a voucher', () => {
+    const options = issueOptions(multi([total('v1', 100), total('v2', 200)]));
+
+    expect(options.allAtOnce).toBe(true);
+    expect(options.pending.map((vendor) => vendor.vendorId)).toEqual(['v1', 'v2']);
+  });
+
+  it('offers only the vendors that still lack a voucher once one was issued', () => {
+    const options = issueOptions(multi([total('v1', 100, true), total('v2', 200)]));
+
+    expect(options.allAtOnce).toBe(false);
+    expect(options.pending.map((vendor) => vendor.vendorId)).toEqual(['v2']);
+  });
+
+  it('has no choice to make for a request with one vendor', () => {
+    const options = issueOptions({ isMultiVendor: false, vendorTotals: [] } as never);
+
+    expect(options.allAtOnce).toBe(false);
+    expect(options.pending).toEqual([]);
+  });
+
+  it('adds up what the chosen scope pays', () => {
+    const doc = multi([total('v1', 100.1), total('v2', 200.2)]);
+
+    expect(scopeAmount(doc, 'all')).toBe(300.3);
+    expect(scopeAmount(doc, 'v2')).toBe(200.2);
+    expect(scopeAmount(multi([total('v1', 100, true), total('v2', 200)]), 'all')).toBe(200);
+  });
+
+  it('names the vendor in the voucher input when one vendor is chosen', () => {
+    const picked = [request('a', 'v1', 100)];
+
+    expect(toPaymentInput(emptyPaymentForm('2026-11-25'), picked, 'v2').vendor).toBe('v2');
+    expect(toPaymentInput(emptyPaymentForm('2026-11-25'), picked)).not.toHaveProperty('vendor');
   });
 });

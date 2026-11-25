@@ -257,6 +257,20 @@ describe('toPaymentTermPayload', () => {
     }
   });
 
+  it('always sends the advance as outside the terms, whatever the form says: the service bills it apart', () => {
+    expect(
+      toPaymentTermPayload(
+        form({
+          advanceType: 'partial',
+          advancePercent: 20,
+          billingSplit: 'milestone',
+          installments: 3,
+          advanceOutsideInstallments: false,
+        })
+      )
+    ).toMatchObject({ advanceOutsideInstallments: true });
+  });
+
   it('sends the outside-installments switch only for a partial advance with milestones', () => {
     expect(
       toPaymentTermPayload(

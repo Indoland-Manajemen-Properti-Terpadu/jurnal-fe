@@ -48,6 +48,10 @@ export interface BillSourceDoc {
   lines: BillSourceLine[];
   /** Extra lines of the order (shipping, an advance) the bill takes along. */
   orderLines: BillSourceLine[];
+  /** An order that still has an advance line open to bill (DP). */
+  hasAdvance: boolean;
+  /** The order the page was opened for (the "Catat faktur DP" button); the service puts it first. */
+  selected: boolean;
 }
 
 /** The due date for a vendor invoice dated `invoiceDate`; the service leaves it null for that term. */
@@ -106,6 +110,8 @@ export interface BillEstimateRow {
   max: number;
   unitPrice: number;
   amount: number;
+  /** The line is the order's advance (DP), billed on its own. */
+  isAdvance: boolean;
 }
 
 export interface BillEstimate {
@@ -189,6 +195,7 @@ export const estimateBill = (
         max: line.openQty,
         unitPrice: line.unitPrice,
         amount,
+        isAdvance: line.schedule?.kind === 'ADVANCE',
       });
     });
   });

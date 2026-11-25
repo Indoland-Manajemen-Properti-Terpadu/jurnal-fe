@@ -116,6 +116,7 @@ export const purchasesBills = {
     continue: 'Continue Verifying',
   },
   wizard: {
+    advanceTag: 'Advance (DP)',
     qtyAria: 'Quantity to bill for {name}',
     title: 'Record Bill',
     source: 'Bill Source',

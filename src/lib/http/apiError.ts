@@ -24,6 +24,11 @@ export class ApiError extends Error {
   readonly status?: number;
   /** Indonesian business message from the server; only set for `domain` and `forbidden`. */
   readonly serverMessage?: string;
+  /**
+   * The sentence the server wrote for a 400 that lists fields. Never shown by `describeApiError`
+   * (it is often technical); a screen whose server rules are plain business sentences may show it.
+   */
+  readonly validationMessage?: string;
   readonly fieldErrors: FieldError[];
   /** Extra data a business refusal carries (for example the figures that differ); never shown as written. */
   readonly details: unknown[];
@@ -34,6 +39,7 @@ export class ApiError extends Error {
     kind: ApiErrorKind;
     status?: number;
     serverMessage?: string;
+    validationMessage?: string;
     fieldErrors?: FieldError[];
     details?: unknown[];
     blockingOpname?: { id: string; number: string };
@@ -43,6 +49,7 @@ export class ApiError extends Error {
     this.kind = init.kind;
     this.status = init.status;
     this.serverMessage = init.serverMessage;
+    this.validationMessage = init.validationMessage;
     this.fieldErrors = init.fieldErrors ?? [];
     this.details = init.details ?? [];
     this.blockingOpname = init.blockingOpname;
@@ -88,7 +95,12 @@ export const toApiError = (error: unknown): ApiError => {
     if (fieldErrors.length === 0 && serverMessage) {
       return new ApiError({ kind: 'domain', status, serverMessage, details: body.data });
     }
-    return new ApiError({ kind: 'validation', status, fieldErrors });
+    return new ApiError({
+      kind: 'validation',
+      status,
+      fieldErrors,
+      validationMessage: serverMessage,
+    });
   }
   if (status >= 400 && status < 500 && serverMessage) {
     return new ApiError({

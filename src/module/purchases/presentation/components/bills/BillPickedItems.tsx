@@ -1,4 +1,4 @@
-import { Alert, Box, Group, NumberInput, Paper, Stack, Table, Text } from '@mantine/core';
+import { Alert, Badge, Box, Group, NumberInput, Paper, Stack, Table, Text } from '@mantine/core';
 import { IconAlertTriangle } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import type { BillEstimate } from '@/module/purchases/domain/billSources';
@@ -42,9 +42,16 @@ export const BillPickedItems = ({
               {estimate.rows.map((row) => (
                 <Table.Tr key={row.key}>
                   <Table.Td>
-                    <Text size="sm" fw={700}>
-                      {row.description}
-                    </Text>
+                    <Group gap="xs" wrap="nowrap">
+                      <Text size="sm" fw={700}>
+                        {row.description}
+                      </Text>
+                      {row.isAdvance && (
+                        <Badge variant="light" color="primary" radius="sm" size="sm">
+                          {t('bills.wizard.advanceTag')}
+                        </Badge>
+                      )}
+                    </Group>
                   </Table.Td>
                   <Table.Td>
                     <Text size="sm" c="dimmed">

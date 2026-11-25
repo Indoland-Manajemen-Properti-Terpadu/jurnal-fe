@@ -1,22 +1,29 @@
 import { useState } from 'react';
-import { Box, Button, Group, Paper, Text, Textarea } from '@mantine/core';
+import { Alert, Box, Button, Group, Paper, Radio, Stack, Text, Textarea } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
+import { toApiError } from '@/lib/http/apiError';
+import { usePurchaseErrorMessage } from '@/module/purchases/presentation/hooks/purchaseErrorMessage';
 import { ModalFrame } from '@/components/Modals/ModalFrame';
 import { useTranslation } from '@/i18n';
 import {
   emptyPaymentForm,
   hasPaymentErrors,
+  issueOptions,
+  scopeAmount,
   toPaymentInput,
   toReadyRequest,
   validatePaymentForm,
   type PaymentFormValues,
 } from '@/module/purchases/domain/paymentForm';
-import type { PaymentRequest } from '@/module/purchases/domain/paymentRequest';
+import { vendorLabel, type PaymentRequest } from '@/module/purchases/domain/paymentRequest';
 import { DepositAccountField } from '@/module/purchases/presentation/components/payments/DepositAccountField';
 import { DateField } from '@/module/purchases/presentation/components/requests/DateField';
 import { detailPath } from '@/module/purchases/presentation/components/hub/documentPaths';
 import { formatAmount, todayIso } from '@/module/purchases/presentation/components/shared/format';
-import { useCreatePayment } from '@/module/purchases/presentation/hooks/usePurchaseMutations';
+import {
+  useCreatePayment,
+  useCreatePaymentsByVendor,
+} from '@/module/purchases/presentation/hooks/usePurchaseMutations';
 
 interface IssueVoucherDialogProps {
   request: PaymentRequest;
@@ -36,7 +43,16 @@ export const IssueVoucherDialog = ({
 }: Readonly<IssueVoucherDialogProps>) => {
   const { t } = useTranslation('purchases');
   const navigate = useNavigate();
-  const create = useCreatePayment((doc) => navigate(detailPath('payment', doc.id)));
+  // A request with several vendors gets a voucher per vendor, so the page to see is the request.
+  const here = request.isMultiVendor ? detailPath('paymentRequest', request.id) : undefined;
+  // A refusal is shown in the dialog, in the service's own words, so it can be fixed from here.
+  const shown = () => true;
+  const create = useCreatePayment((doc) => navigate(here ?? detailPath('payment', doc.id)), shown);
+  const createByVendor = useCreatePaymentsByVendor(() => navigate(here ?? '/'), shown);
+  const describe = usePurchaseErrorMessage();
+  const failure = create.error ?? createByVendor.error;
+  const { allAtOnce, pending } = issueOptions(request);
+  const [scope, setScope] = useState<string>(allAtOnce ? 'all' : (pending[0]?.vendorId ?? 'all'));
   const [showErrors, setShowErrors] = useState(false);
   const [values, setValues] = useState<PaymentFormValues>(emptyPaymentForm(todayIso()));
   const picked = [toReadyRequest(request)];
@@ -49,8 +65,16 @@ export const IssueVoucherDialog = ({
       setShowErrors(true);
       return;
     }
-    create.mutate(toPaymentInput(values, picked));
+    if (!request.isMultiVendor) {
+      create.mutate(toPaymentInput(values, picked));
+    } else if (scope === 'all') {
+      createByVendor.mutate(toPaymentInput(values, picked));
+    } else {
+      create.mutate(toPaymentInput(values, picked, scope));
+    }
   };
+  const busy = create.isPending || createByVendor.isPending;
+  const amount = request.isMultiVendor ? scopeAmount(request, scope) : request.amount;
 
   return (
     <ModalFrame
@@ -58,13 +82,13 @@ export const IssueVoucherDialog = ({
       onClose={onClose}
       size="lg"
       title={t('paymentRequests.issue.title')}
-      description={`${request.number} · ${request.vendor?.name ?? ''}`}
+      description={`${request.number} · ${vendorLabel(request)}`}
       footer={
         <>
-          <Button variant="default" onClick={onClose} disabled={create.isPending}>
+          <Button variant="default" onClick={onClose} disabled={busy}>
             {t('common.cancel')}
           </Button>
-          <Button loading={create.isPending} onClick={submit}>
+          <Button loading={busy} onClick={submit}>
             {t('paymentRequests.issue.confirm')}
           </Button>
         </>
@@ -81,10 +105,41 @@ export const IssueVoucherDialog = ({
             </Text>
           </div>
           <Text fz={24} fw={700} c="primary.8" style={{ fontVariantNumeric: 'tabular-nums' }}>
-            {formatAmount(request.amount)}
+            {formatAmount(amount)}
           </Text>
         </Group>
       </Paper>
+      {request.isMultiVendor && (
+        <Radio.Group
+          label={t('paymentRequests.issue.scope')}
+          description={t('paymentRequests.issue.scopeHint')}
+          value={scope}
+          onChange={(next) => {
+            setScope(next);
+            create.reset();
+            createByVendor.reset();
+          }}
+        >
+          <Stack gap="xs" mt="xs">
+            {allAtOnce && (
+              <Radio
+                value="all"
+                label={t('paymentRequests.issue.scopeAll', { count: pending.length })}
+              />
+            )}
+            {pending.map((vendor) => (
+              <Radio
+                key={vendor.vendorId}
+                value={vendor.vendorId}
+                label={t('paymentRequests.issue.scopeOne', {
+                  name: vendor.vendorName,
+                  amount: formatAmount(vendor.amount),
+                })}
+              />
+            ))}
+          </Stack>
+        </Radio.Group>
+      )}
       <Paper withBorder radius="md" p={0} style={{ overflow: 'hidden' }}>
         <Box px="md" py="xs" bg="var(--jurnal-color-surface-muted)">
           <Text size="xs" fw={700} tt="uppercase" style={{ letterSpacing: '0.04em' }}>
@@ -96,7 +151,7 @@ export const IssueVoucherDialog = ({
             {t('paymentRequests.detail.vendor')}
           </Text>
           <Text size="sm" fw={700}>
-            {request.vendor?.name ?? '-'}
+            {vendorLabel(request) || '-'}
           </Text>
         </Group>
         <Group
@@ -109,7 +164,7 @@ export const IssueVoucherDialog = ({
             {t('paymentRequests.issue.voucherValue')}
           </Text>
           <Text size="sm" fw={700}>
-            {formatAmount(request.amount)}
+            {formatAmount(amount)}
           </Text>
         </Group>
       </Paper>
@@ -137,6 +192,11 @@ export const IssueVoucherDialog = ({
         maxLength={500}
         onChange={(event) => patch({ memo: event.currentTarget.value })}
       />
+      {Boolean(failure) && (
+        <Alert color="red" variant="light" radius="md" role="alert">
+          {toApiError(failure).validationMessage ?? describe(failure)}
+        </Alert>
+      )}
       <Paper radius="md" p="md" bg="primary.0">
         <Text size="sm">{t('paymentRequests.issue.note')}</Text>
       </Paper>

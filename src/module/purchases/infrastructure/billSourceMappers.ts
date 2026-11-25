@@ -55,4 +55,6 @@ export const toBillSource = (dto: BillSourceDto): BillSourceDoc => ({
   isPriceIncludeTax: Boolean(dto.isPriceIncludeTax),
   lines: (dto.lines ?? []).map(toSourceLine),
   orderLines: (dto.orderLines ?? []).map(toSourceLine),
+  hasAdvance: dto.hasAdvance === true,
+  selected: dto.selected === true,
 });

@@ -14,7 +14,9 @@ import { useTranslation } from '@/i18n';
 import {
   availableQty,
   fillAllLines,
+  transferWarehouseChoices,
   validateTransfer,
+  withoutIssue,
   type TransferIssues,
   type TransferLine,
 } from '@/module/inventory/domain/stockTransfer';
@@ -92,18 +94,15 @@ export default function TransferFormPage() {
     setLines(fillAllLines(report, from));
   }, [report, from, params]);
 
-  const warehouseOptions = (warehouses.data?.items ?? []).map((warehouse) => {
-    const holder = frozen.get(warehouse.id);
-    const label = `${warehouse.code} · ${warehouse.name}`;
-    return {
-      value: warehouse.id,
-      label: holder ? `${label} (${tf('frozen.warehouse', { number: holder.number })})` : label,
-      disabled: holder !== undefined,
-    };
-  });
+  const holderOf = (id: string) => frozen.get(id);
+  const frozenLabel = (number: string) => tf('frozen.warehouse', { number });
+  const warehouseList = warehouses.data?.items ?? [];
+  const fromOptions = transferWarehouseChoices(warehouseList, holderOf, to, frozenLabel);
+  const toOptions = transferWarehouseChoices(warehouseList, holderOf, from, frozenLabel);
 
   const changeFrom = (value: string) => {
     if (value === from) return;
+    setIssues((current) => withoutIssue(current, 'from'));
     if (lines.length > 0) setPendingFrom(value);
     else setFrom(value);
   };
@@ -165,14 +164,17 @@ export default function TransferFormPage() {
             required
             value={date}
             maxDate={today}
-            onChange={(value) => setDate(value)}
+            onChange={(value) => {
+              setDate(value);
+              setIssues((current) => withoutIssue(current, 'date'));
+            }}
             error={issueText(issues.date)}
           />
           <Select
             label={t('form.from')}
             placeholder={t('form.pickWarehouse')}
             required
-            data={warehouseOptions}
+            data={fromOptions}
             value={from || null}
             onChange={(value) => changeFrom(value ?? '')}
             error={issueText(issues.from)}
@@ -183,9 +185,12 @@ export default function TransferFormPage() {
             label={t('form.to')}
             placeholder={t('form.pickWarehouse')}
             required
-            data={warehouseOptions}
+            data={toOptions}
             value={to || null}
-            onChange={(value) => setTo(value ?? '')}
+            onChange={(value) => {
+              setTo(value ?? '');
+              setIssues((current) => withoutIssue(current, 'to'));
+            }}
             error={issueText(issues.to)}
             searchable
             radius="md"

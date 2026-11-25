@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
 import { paymentRequestActions } from '@/module/purchases/domain/paymentRequest';
 import { PURCHASE_MENU } from '@/module/purchases/domain/purchaseAccess';
+import { PaymentRequestVendorsCard } from '@/module/purchases/presentation/components/paymentRequests/PaymentRequestVendorsCard';
 import { PaymentRequestActionBar } from '@/module/purchases/presentation/components/paymentRequests/PaymentRequestActionBar';
 import {
   PaymentRequestInfoCard,
@@ -13,6 +14,7 @@ import {
 import { StateFrame } from '@/module/purchases/presentation/components/requests/StateFrame';
 import { ApprovalPanel } from '@/module/purchases/presentation/components/shared/ApprovalPanel';
 import { DocumentFrame } from '@/module/purchases/presentation/components/shared/DocumentFrame';
+import { DocumentApprovalLog } from '@/module/purchases/presentation/components/shared/DocumentApprovalLog';
 import { DocumentJourney } from '@/module/purchases/presentation/components/shared/DocumentJourney';
 import { formatDay } from '@/module/purchases/presentation/components/shared/format';
 import { StatusBadge } from '@/module/purchases/presentation/components/shared/StatusBadge';
@@ -85,6 +87,7 @@ export default function PaymentRequestDetailPage() {
         <Grid.Col span={{ base: 12, lg: 8 }}>
           <Stack gap="lg">
             <PaymentRequestInfoCard doc={doc} />
+            <PaymentRequestVendorsCard doc={doc} />
             <PaymentRequestItemsCard doc={doc} />
           </Stack>
         </Grid.Col>
@@ -99,6 +102,7 @@ export default function PaymentRequestDetailPage() {
               onApprove={(note) => approve.mutate({ id: doc.id, note })}
               onReject={(reason) => reject.mutate({ id: doc.id, reason })}
             />
+            <DocumentApprovalLog kind="paymentRequest" id={doc.id} />
             <DocumentJourney steps={journey.steps} />
           </Stack>
         </Grid.Col>

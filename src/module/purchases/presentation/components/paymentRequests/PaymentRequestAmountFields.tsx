@@ -16,6 +16,8 @@ interface PaymentRequestAmountFieldsProps {
   errors: PaymentRequestErrors;
   showErrors: boolean;
   bills: RequestableBill[];
+  /** The vendors chosen in step one, in the order they were chosen. */
+  vendors: { id: string; name: string }[];
   billsLoading: boolean;
   orders: PurchaseOrder[];
   ordersLoading: boolean;
@@ -32,6 +34,7 @@ export const PaymentRequestAmountFields = ({
   errors,
   showErrors,
   bills,
+  vendors,
   billsLoading,
   orders,
   ordersLoading,
@@ -123,6 +126,7 @@ export const PaymentRequestAmountFields = ({
           {bills.length > 0 && (
             <RequestableBillsEditor
               bills={bills}
+              vendors={vendors}
               values={values}
               errors={errors}
               showErrors={showErrors}

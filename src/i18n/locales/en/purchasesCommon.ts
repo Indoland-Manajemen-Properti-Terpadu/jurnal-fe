@@ -91,7 +91,35 @@ export const purchasesCommon = {
     remaining: 'Remaining Balance',
     estimateNote: 'Estimate. Final figures are recalculated when the document is saved.',
   },
+  journals: {
+    title: 'Journals',
+    subtitle: 'The journals this document posted',
+    count: '{count} journals',
+    empty: 'No journal yet',
+    open: 'Open journal',
+    account: 'Account',
+    debit: 'Debit',
+    credit: 'Credit',
+    total: 'Total',
+  },
   approval: {
+    log: {
+      title: 'Approval log',
+      subtitle: 'Who did what to this document',
+      empty: 'No history yet',
+      step: 'step {step} of {total}',
+    },
+    confirm: {
+      title: 'Approve step {current} of {total}?',
+      titleSingle: 'Approve this document?',
+      single: 'The document will be approved and recorded under your name.',
+      next: 'After this the document waits for the approval of {name}. Your approval is recorded under your name.',
+      final: 'This is the last approval. Once you approve, the document is approved.',
+      sameLevel:
+        'This level still waits for other roles, so the document does not move to the next level yet.',
+      back: 'Back',
+      yes: 'Yes, approve',
+    },
     trail: {
       approved: 'Approved {date}',
       waiting: 'Waiting for approval',

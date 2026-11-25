@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
+  isDateRefusal,
+  saveStateOf,
   lineIssue,
   lineState,
   opnameActions,
@@ -297,5 +299,36 @@ describe('lineState', () => {
   it('only says counted or not to a person who counts blind', () => {
     expect(lineState(line({ countedQty: null, diffQty: null }), false)).toBe('uncounted');
     expect(lineState(line({ countedQty: 9, diffQty: null }), false)).toBe('counted');
+  });
+});
+
+describe('isDateRefusal', () => {
+  it('knows a refusal that is about the date of the count', () => {
+    expect(
+      isDateRefusal('Ada mutasi di Uji Gudang Bekasi setelah tanggal hitung 20 Nov 2026')
+    ).toBe(true);
+    expect(isDateRefusal('Tanggal hitung tidak boleh di masa depan')).toBe(true);
+  });
+
+  it('leaves every other refusal in the banner', () => {
+    expect(isDateRefusal('Gudang tidak ditemukan atau tidak aktif')).toBe(false);
+    expect(isDateRefusal('')).toBe(false);
+  });
+});
+
+describe('saveStateOf', () => {
+  const none = { pending: false, error: false, success: false };
+
+  it('says what the last save did while the count is being filled in', () => {
+    expect(saveStateOf({ ...none, pending: true }, 'counting')).toBe('saving');
+    expect(saveStateOf({ ...none, error: true }, 'counting')).toBe('failed');
+    expect(saveStateOf({ ...none, success: true }, 'counting')).toBe('saved');
+    expect(saveStateOf(none, 'counting')).toBe('idle');
+  });
+
+  it('says nothing once the count can no longer be changed, even after a failed save', () => {
+    expect(saveStateOf({ ...none, error: true }, 'cancelled')).toBe('idle');
+    expect(saveStateOf({ ...none, error: true }, 'posted')).toBe('idle');
+    expect(saveStateOf({ ...none, success: true }, 'pending_approval')).toBe('idle');
   });
 });

@@ -12,6 +12,7 @@ import { useBillExtras } from '@/module/purchases/presentation/components/bills/
 import { StateFrame } from '@/module/purchases/presentation/components/requests/StateFrame';
 import { AmountsCard } from '@/module/purchases/presentation/components/shared/AmountsCard';
 import { AttachmentsCard } from '@/module/purchases/presentation/components/shared/AttachmentsCard';
+import { DocumentJournalsCard } from '@/module/purchases/presentation/components/shared/DocumentJournalsCard';
 import { DocumentJourney } from '@/module/purchases/presentation/components/shared/DocumentJourney';
 import { DocumentFrame } from '@/module/purchases/presentation/components/shared/DocumentFrame';
 import { formatAmount, formatDay } from '@/module/purchases/presentation/components/shared/format';
@@ -129,6 +130,7 @@ export default function BillDetailPage() {
               allocations={extras.data?.allocations ?? []}
               canVoid={open && can(PURCHASE_MENU.payments, 'delete')}
             />
+            <DocumentJournalsCard journals={doc.journals} />
             <AttachmentsCard
               target="bill"
               documentId={doc.id}

@@ -7,6 +7,8 @@ import { PURCHASE_MENU } from '@/module/purchases/domain/purchaseAccess';
 import {
   PAYMENT_REQUEST_STATUSES,
   paymentRequestActions,
+  vendorLabel,
+  voucherProgress,
   type PaymentRequest,
   type PaymentRequestKind,
 } from '@/module/purchases/domain/paymentRequest';
@@ -85,13 +87,17 @@ export const PaymentRequestList = () => {
               number={row.number}
               sub={formatDay(row.date, currentLanguage)}
             />
-            <TextCell value={row.vendor?.name ?? '-'} maxWidth={260} />
+            <TextCell value={vendorLabel(row) || '-'} maxWidth={260} />
             <TextCell value={t(`paymentRequests.kinds.${row.kind}`)} />
             <Table.Td>
               <StatusBadge status={row.status} label={row.statusLabel} />
             </Table.Td>
             <Table.Td style={{ whiteSpace: 'nowrap' }}>
-              {row.voucher ? (
+              {voucherProgress(row) ? (
+                <Text size="sm" c="dimmed">
+                  {t('paymentRequests.list.vouchersIssued', voucherProgress(row) ?? {})}
+                </Text>
+              ) : row.voucher ? (
                 <>
                   <Anchor
                     component={Link}

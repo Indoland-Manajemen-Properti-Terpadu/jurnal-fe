@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 import {
   fetchNumberFormats,
+  fetchNumberFormatTypes,
   createNumberFormat,
   updateNumberFormat,
   deleteNumberFormat,
@@ -21,6 +22,13 @@ export const useNumberFormats = () =>
     queryFn: fetchNumberFormats,
   });
 
+/** The document types for the form: what can be numbered and what each number is now. */
+export const useNumberFormatTypes = () =>
+  useQuery({
+    queryKey: settingKeys.numberFormatTypes(),
+    queryFn: fetchNumberFormatTypes,
+  });
+
 export const useCreateNumberFormat = () => {
   const { t: st } = useTranslation('settings');
   const queryClient = useQueryClient();
@@ -28,6 +36,7 @@ export const useCreateNumberFormat = () => {
     mutationFn: (payload: CreateNumberFormatPayload) => createNumberFormat(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: settingKeys.numberFormats() });
+      queryClient.invalidateQueries({ queryKey: settingKeys.numberFormatTypes() });
       notifications.show({
         color: 'teal',
         title: st('notify.success'),
@@ -52,6 +61,7 @@ export const useUpdateNumberFormat = () => {
       updateNumberFormat(id, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: settingKeys.numberFormats() });
+      queryClient.invalidateQueries({ queryKey: settingKeys.numberFormatTypes() });
       notifications.show({
         color: 'teal',
         title: st('notify.success'),
@@ -75,6 +85,7 @@ export const useDeleteNumberFormat = () => {
     mutationFn: (id: string) => deleteNumberFormat(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: settingKeys.numberFormats() });
+      queryClient.invalidateQueries({ queryKey: settingKeys.numberFormatTypes() });
       notifications.show({
         color: 'teal',
         title: st('notify.success'),

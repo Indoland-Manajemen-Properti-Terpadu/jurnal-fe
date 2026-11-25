@@ -187,6 +187,18 @@ describe('<PaymentTermFormPage />', () => {
       expect(await screen.findByText('Daftar termin')).toBeVisible();
     });
 
+    it('shows the advance as outside the terms, checked and not changeable', async () => {
+      const user = userEvent.setup();
+      renderPage();
+      await screen.findByRole('heading', { name: 'Tambah Termin Pembayaran' });
+      await choose(user, 'Sebagian');
+      await choose(user, 'Beberapa termin');
+
+      const outside = screen.getByRole('switch', { name: /Uang muka di luar termin/ });
+      expect(outside).toBeChecked();
+      expect(outside).toBeDisabled();
+    });
+
     it('sends a milestone term with partial advance, advance outside the installments and retention', async () => {
       http.post.mockResolvedValue({ data: { data: { id: 'new' } } });
       const user = userEvent.setup();
@@ -196,7 +208,6 @@ describe('<PaymentTermFormPage />', () => {
       await setNumber(user, /Uang muka \(%\)/, '30');
       await choose(user, 'Beberapa termin');
       await setNumber(user, /Jumlah termin/, '3');
-      await user.click(screen.getByRole('switch', { name: /Uang muka di luar termin/ }));
       await user.click(screen.getByRole('switch', { name: /Ada retensi/ }));
       await setNumber(user, /Retensi \(%\)/, '5');
       await setNumber(user, /Masa pemeliharaan/, '6');
