@@ -20,9 +20,11 @@ import type {
 } from '@/module/purchases/domain/purchaseDocuments';
 import type { PaymentRequest } from '@/module/purchases/domain/paymentRequest';
 import type { BillSourceDoc } from '@/module/purchases/domain/billSources';
+import type { ActivityEntry, ActivityKind } from '@/module/purchases/domain/activityLog';
 import type { PurchaseBillInput } from '@/module/purchases/domain/purchaseInputs';
 import type { PurchaseRequest } from '@/module/purchases/domain/purchaseRequest';
 import {
+  getActivity,
   getBill,
   getOrder,
   getPayablesAging,
@@ -272,5 +274,15 @@ export const useBillPreview = (input: PurchaseBillInput | null) => {
     placeholderData: keepPreviousData,
     staleTime: 10_000,
     retry: false,
+  });
+};
+
+/** The approval history of a document (who approved, rejected or cancelled it, and when). */
+export const useActivity = (kind: ActivityKind, id: string | undefined) => {
+  const scope = usePurchaseScope();
+  return useQuery<ActivityEntry[], PurchaseError>({
+    queryKey: [...purchaseKeys.all(scope), 'activity', kind, id ?? ''],
+    queryFn: () => getActivity(kind, id as string),
+    enabled: Boolean(id),
   });
 };

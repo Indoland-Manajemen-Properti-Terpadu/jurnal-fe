@@ -1,3 +1,4 @@
+import type { ActivityEntry, ActivityKind } from '@/module/purchases/domain/activityLog';
 import type { AttachmentKind, Page } from '@/module/purchases/domain/purchaseCommon';
 import type {
   GoodsReceipt,
@@ -395,4 +396,45 @@ export const previewBill = async (input: PurchaseBillInput): Promise<BillPreview
     finalAmount: dto.finalAmount ?? dto.total ?? 0,
     dueDate: dto.dueDate ? dto.dueDate.slice(0, 10) : null,
   };
+};
+
+/* ---------- History ---------- */
+interface ActivityDto {
+  id?: string;
+  action?: string;
+  actionLabel?: string;
+  step?: number | null;
+  totalSteps?: number | null;
+  role?: { id?: string; name?: string } | null;
+  by?: { id?: string; name?: string } | null;
+  at?: string;
+  note?: string | null;
+  text?: string | null;
+}
+
+export const toActivityEntry = (dto: ActivityDto): ActivityEntry => ({
+  id: dto.id ?? `${dto.action ?? ''}-${dto.at ?? ''}`,
+  action: dto.action ?? '',
+  label: dto.actionLabel ?? dto.action ?? '',
+  step: dto.step ?? null,
+  totalSteps: dto.totalSteps ?? null,
+  roleName: dto.role?.name ?? '',
+  byName: dto.by?.name ?? '',
+  at: dto.at ?? '',
+  note: dto.note ?? '',
+  text: dto.text ?? '',
+});
+
+/**
+ * The approval history of a document, oldest first. A service that has no such address yet answers
+ * 404, which reads as "no history" so the screen still opens.
+ */
+export const getActivity = async (kind: ActivityKind, id: string): Promise<ActivityEntry[]> => {
+  try {
+    const { data } = await http.get<ApiEnvelope<ActivityDto[]>>(PURCHASE_API.activity(kind, id));
+    return (data ?? []).map(toActivityEntry);
+  } catch (error) {
+    if ((error as { kind?: string }).kind === 'notFound') return [];
+    throw error;
+  }
 };

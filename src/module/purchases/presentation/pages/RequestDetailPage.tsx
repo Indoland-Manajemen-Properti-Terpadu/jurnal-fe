@@ -16,6 +16,7 @@ import { RequestStatusNotice } from '@/module/purchases/presentation/components/
 import { RequestSummaryCard } from '@/module/purchases/presentation/components/requests/RequestSummaryCard';
 import { StateFrame } from '@/module/purchases/presentation/components/requests/StateFrame';
 import { AttachmentsCard } from '@/module/purchases/presentation/components/shared/AttachmentsCard';
+import { DocumentApprovalLog } from '@/module/purchases/presentation/components/shared/DocumentApprovalLog';
 import { DocumentJourney } from '@/module/purchases/presentation/components/shared/DocumentJourney';
 import { DocumentFrame } from '@/module/purchases/presentation/components/shared/DocumentFrame';
 import { formatDay } from '@/module/purchases/presentation/components/shared/format';
@@ -114,6 +115,7 @@ export default function RequestDetailPage() {
         </Grid.Col>
         <Grid.Col span={{ base: 12, lg: 4 }}>
           <Stack gap="lg">
+            <DocumentApprovalLog kind="request" id={doc.id} />
             <DocumentJourney steps={journey.steps} />
             <AttachmentsCard
               target="request"
