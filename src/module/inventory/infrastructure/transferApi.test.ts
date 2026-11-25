@@ -152,13 +152,50 @@ describe('toTransfer, approval', () => {
   it('keeps a transfer whose warehouse was deleted (the service sends null) instead of crashing', () => {
     const mapped = toTransfer({ ...dto, to: null, from: null });
 
-    expect(mapped.to).toEqual({ id: '', code: '', name: '' });
-    expect(mapped.from).toEqual({ id: '', code: '', name: '' });
+    expect(mapped.to).toEqual({ id: '', code: '', name: '', deleted: false });
+    expect(mapped.from).toEqual({ id: '', code: '', name: '', deleted: false });
     expect(transferWarehouseName(mapped.to, 'Gudang tidak ditemukan')).toBe(
       'Gudang tidak ditemukan'
     );
     expect(
-      transferWarehouseName({ id: 'a', code: 'GDG-004', name: 'Bekasi' }, 'Gudang tidak ditemukan')
+      transferWarehouseName(
+        { id: 'a', code: 'GDG-004', name: 'Bekasi', deleted: false },
+        'Gudang tidak ditemukan'
+      )
     ).toBe('Bekasi');
+  });
+
+  it('maps who approved the transfer and when, and who cancelled it', () => {
+    const mapped = toTransfer({
+      ...dto,
+      status: 'VOID',
+      approvedByUser: { id: 'u2', name: 'Budi' },
+      approvedAt: '2026-11-23T08:00:00.000Z',
+      voidedByUser: { id: 'u3', name: 'Sari' },
+    });
+
+    expect(mapped).toMatchObject({
+      approvedByName: 'Budi',
+      approvedAt: '2026-11-23T08:00:00.000Z',
+      voidedByName: 'Sari',
+    });
+  });
+
+  it('leaves the approver empty for a transfer that was never approved', () => {
+    expect(toTransfer(dto)).toMatchObject({
+      approvedByName: null,
+      approvedAt: null,
+      voidedByName: null,
+    });
+  });
+
+  it('keeps the name of a deleted warehouse and marks it as deleted', () => {
+    const mapped = toTransfer({
+      ...dto,
+      to: { id: 'b', code: 'GDG-003', name: 'Uji', deleted: true },
+    });
+
+    expect(mapped.to).toMatchObject({ name: 'Uji', deleted: true });
+    expect(mapped.from.deleted).toBe(false);
   });
 });

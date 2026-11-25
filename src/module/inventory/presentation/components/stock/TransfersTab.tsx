@@ -23,7 +23,7 @@ import {
   transferDetailPath,
   transferNewPath,
 } from '@/module/inventory/presentation/components/shared/stockLinks';
-import { transferWarehouseName } from '@/module/inventory/domain/stockTransfer';
+import { useTransferWarehouseName } from '@/module/inventory/presentation/hooks/useTransferWarehouseName';
 import { TransferStatusBadge } from '@/module/inventory/presentation/components/stock/TransferStatusBadge';
 import type { StockFilterValues } from '@/module/inventory/presentation/components/stock/stockFilters';
 import {
@@ -43,6 +43,7 @@ type Props = {
 /** The transfer documents (PDH): where stock went from one warehouse to another. */
 export function TransfersTab({ filters, update, tabList }: Readonly<Props>) {
   const { t } = useTranslation('stockMovements');
+  const warehouseName = useTransferWarehouseName();
   const navigate = useNavigate();
   const { transfer: rights } = useStockRights();
   const transfers = useTransfers({
@@ -139,10 +140,10 @@ export function TransfersTab({ filters, update, tabList }: Readonly<Props>) {
                 <Text size="sm">{dateFormatV1(row.date, 'D MMM YYYY')}</Text>
               </Table.Td>
               <Table.Td>
-                <Text size="sm">{transferWarehouseName(row.from, t('warehouseMissing'))}</Text>
+                <Text size="sm">{warehouseName(row.from)}</Text>
               </Table.Td>
               <Table.Td>
-                <Text size="sm">{transferWarehouseName(row.to, t('warehouseMissing'))}</Text>
+                <Text size="sm">{warehouseName(row.to)}</Text>
               </Table.Td>
               <Table.Td ta="right">
                 <Text size="sm">{row.productCount}</Text>
