@@ -118,6 +118,7 @@ export const stockMovements = {
     OPNAME_LOSS: 'Penyesuaian opname (kurang)',
     REVERSAL: 'Pembatalan',
   },
+  warehouseMissing: 'Gudang tidak ditemukan',
   transfers: {
     number: 'No. dokumen',
     date: 'Tanggal',

@@ -118,6 +118,7 @@ export const stockMovements = {
     OPNAME_LOSS: 'Stock count adjustment (short)',
     REVERSAL: 'Reversal',
   },
+  warehouseMissing: 'Warehouse not found',
   transfers: {
     number: 'Document no.',
     date: 'Date',

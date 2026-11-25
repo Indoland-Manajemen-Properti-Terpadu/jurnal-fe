@@ -1,11 +1,12 @@
 import apiClient from '@/lib/http/apiClient';
 import { toApiError } from '@/lib/http/apiError';
-import type {
-  StockTransfer,
-  TransferInput,
-  TransferItem,
-  TransferStatus,
-  TransferWarehouse,
+import {
+  NO_TRANSFER_WAREHOUSE,
+  type StockTransfer,
+  type TransferInput,
+  type TransferItem,
+  type TransferStatus,
+  type TransferWarehouse,
 } from '@/module/inventory/domain/stockTransfer';
 
 const TRANSFERS = '/v1/stock/transfers';
@@ -36,8 +37,9 @@ export interface TransferDto {
   id: string;
   transactionNumber: string;
   transactionDate: string;
-  from: TransferWarehouse;
-  to: TransferWarehouse;
+  /** `null` when the warehouse was deleted after the transfer was made. */
+  from: TransferWarehouse | null;
+  to: TransferWarehouse | null;
   items?: TransferItemDto[] | null;
   productCount?: number;
   memo?: string | null;
@@ -70,8 +72,8 @@ export const toTransfer = (dto: TransferDto): StockTransfer => {
     id: dto.id,
     number: dto.transactionNumber,
     date: dto.transactionDate,
-    from: dto.from,
-    to: dto.to,
+    from: dto.from ?? NO_TRANSFER_WAREHOUSE,
+    to: dto.to ?? NO_TRANSFER_WAREHOUSE,
     items,
     productCount: dto.productCount ?? items.length,
     memo: dto.memo ?? '',
