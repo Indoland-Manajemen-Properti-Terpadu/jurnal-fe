@@ -20,6 +20,8 @@ export interface ChainDocument {
   kind?: string;
   /** On a purchase request: the route and state of its procurement, once a route is chosen. */
   procurement?: { routeLabel: string; statusLabel: string };
+  reorderSource?: { id: string; number: string };
+  reorderApproval?: { statusLabel?: string; stage?: number };
 }
 
 /** Every document linked to the one asked about, grouped by kind, oldest step first. */
@@ -63,6 +65,7 @@ export interface JourneyStepData {
   current: boolean;
   /** A short state shown under a step that has no documents of its own, such as "Bidding · Draf". */
   note?: string;
+  label?: string;
 }
 
 const DEAD = new Set(['VOID', 'CANCELLED', 'REJECTED', 'RETURNED']);
@@ -104,6 +107,10 @@ export const chainSteps = (
   const procurementNote = withProcurement?.procurement
     ? `${withProcurement.procurement.routeLabel} · ${withProcurement.procurement.statusLabel}`
     : '';
+  const currentOrder = chain.purchaseOrders.find((doc) => doc.id === current?.id);
+  const reorderOrder = currentOrder?.reorderSource
+    ? currentOrder
+    : chain.purchaseOrders.find((doc) => doc.reorderSource);
   const ofType = (...types: ChainType[]) => Boolean(current && types.includes(current.type));
   const cid = (type: ChainType) => (current?.type === type ? current.id : undefined);
   const steps: JourneyStepData[] = [
@@ -122,7 +129,11 @@ export const chainSteps = (
       state: !hasRequest && hasOrders ? 'skipped' : hasOrders ? 'done' : 'todo',
       documents: [],
       current: false,
-      ...(procurementNote ? { note: procurementNote } : {}),
+      ...(reorderOrder
+        ? { label: 'reorder', note: reorderOrder.reorderApproval?.statusLabel ?? '' }
+        : procurementNote
+          ? { note: procurementNote }
+          : {}),
     },
     {
       kind: 'order',

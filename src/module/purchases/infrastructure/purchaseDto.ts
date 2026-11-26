@@ -1,5 +1,9 @@
 import type { OrderRetentionDto } from '@/module/purchases/infrastructure/orderRetentionMapper';
 import type { AdvanceStateDto } from '@/module/purchases/infrastructure/advanceStateDto';
+import type {
+  ReorderLineFieldsDto,
+  ReorderOrderFieldsDto,
+} from '@/module/purchases/infrastructure/purchaseReorderDto';
 import type { DocumentJournalDto } from '@/module/purchases/infrastructure/documentJournalMappers';
 import type {
   GoodsReceiptDisplayStatus,
@@ -128,7 +132,7 @@ export interface LineDto {
   amount: number;
 }
 
-export interface OrderItemDto extends LineDto {
+export interface OrderItemDto extends LineDto, ReorderLineFieldsDto {
   requestItem: string;
   specification?: string | null;
   receivedQty: number;
@@ -145,7 +149,8 @@ export interface OrderItemDto extends LineDto {
   } | null;
 }
 
-export interface PurchaseOrderDto extends DocumentDto, AmountsDto {
+export interface PurchaseOrderDto
+  extends DocumentDto, AmountsDto, ApprovalFieldsDto, ReorderOrderFieldsDto {
   statusLabel?: string | null;
   documentLabel?: string | null;
   isService?: boolean | null;
