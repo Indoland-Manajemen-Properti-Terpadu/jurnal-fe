@@ -1,6 +1,7 @@
 export const purchasesReports = {
   title: 'Payables by Vendor',
   subtitle: 'What is owed to each vendor, grouped by how long it has been due.',
+  subtitleAsOf: 'What is owed to each vendor, grouped by how long it has been due (as of {date}).',
   backToHub: 'Back to Purchases',
   asOf: 'As of',
   vendor: 'Vendor',
@@ -9,8 +10,13 @@ export const purchasesReports = {
   exportFailed: 'The Excel file could not be created. Please try again.',
   refresh: 'Reload',
   kpi: {
+    current: 'Not yet due',
+    days1to30: '1–30 days',
+    days31to60: '31–60 days',
+    days61to90: '61–90 days',
+    over90: 'Over 90 days',
     totalOwed: 'Total Payables',
-    totalOwedHint: '{count} unpaid bills',
+    totalOwedHint: '{count} bills',
     overdue: 'Past Due',
     overdueHint: '{percent}% of total payables',
     vendors: 'Vendors with payables',
@@ -21,6 +27,7 @@ export const purchasesReports = {
   col: {
     vendor: 'Vendor',
     remaining: 'Remaining',
+    total: 'Total',
     current: 'Not Yet Due',
     days1to30: '1–30 Days',
     days31to60: '31–60 Days',

@@ -1,56 +1,63 @@
 import tableClasses from '@/module/purchases/presentation/components/shared/Table.module.css';
 import { Badge, Paper, Skeleton, Table, Text } from '@mantine/core';
-import { IconCircleCheck } from '@tabler/icons-react';
+import { IconAlertCircle, IconCircleCheck } from '@tabler/icons-react';
+import { Link } from 'react-router-dom';
 import { EmptyState } from '@/components/EmptyState';
 import { useTranslation } from '@/i18n';
-import { daysLate } from '@/module/purchases/domain/payablesView';
-import type { PurchaseBill } from '@/module/purchases/domain/purchaseDocuments';
-import { NumberCell, PartyCell } from '@/module/purchases/presentation/components/lists/cells';
+import type { PayablesAging } from '@/module/purchases/domain/purchaseDocuments';
 import { formatAmount, formatDay } from '@/module/purchases/presentation/components/shared/format';
-import { useBills } from '@/module/purchases/presentation/hooks/usePurchaseQueries';
-
-const COLUMNS = 5;
-
-const Head = ({ label, right }: { label: string; right?: boolean }) => (
-  <Table.Th ta={right ? 'right' : undefined} style={{ whiteSpace: 'nowrap' }}>
-    <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-      {label}
-    </Text>
-  </Table.Th>
-);
+import { routes } from '@/router/routes';
 
 interface PayableBillsTableProps {
-  asOf: string;
-  vendor?: string;
-  enabled: boolean;
+  data: PayablesAging | undefined;
+  isLoading: boolean;
+  isError: boolean;
+  canReadBills: boolean;
+  onRetry: () => void;
 }
 
-/** The open bills behind the totals above: which invoice, whose, when due, how late, what is left. */
-export const PayableBillsTable = ({ asOf, vendor, enabled }: Readonly<PayableBillsTableProps>) => {
+/** Invoice details supplied by the same report response as the vendor totals. */
+export const PayableBillsTable = ({
+  data,
+  isLoading,
+  isError,
+  canReadBills,
+  onRetry,
+}: Readonly<PayableBillsTableProps>) => {
   const { t, currentLanguage } = useTranslation('purchases');
-  // The service filters by one display status at a time, so owed and late bills are two calls.
-  const owed = useBills({ displayStatus: 'UNPAID', vendor, limit: 100 }, enabled);
-  const late = useBills({ displayStatus: 'OVERDUE', vendor, limit: 100 }, enabled);
-  const query = { isLoading: owed.isLoading || late.isLoading };
-  const rows: PurchaseBill[] = [...(late.data?.items ?? []), ...(owed.data?.items ?? [])]
-    .filter((bill) => bill.remainingAmount > 0)
-    .sort((a, b) => (a.dueDate ?? '').localeCompare(b.dueDate ?? ''));
+  const rows = data?.invoices ?? [];
 
   const body = () => {
-    if (query.isLoading) {
+    if (isLoading) {
       return Array.from({ length: 4 }, (_, index) => (
         // eslint-disable-next-line react/no-array-index-key
         <Table.Tr key={`skeleton-${index}`}>
-          <Table.Td colSpan={COLUMNS}>
-            <Skeleton height={16} radius="sm" />
+          <Table.Td colSpan={5}>
+            <Skeleton height={16} />
           </Table.Td>
         </Table.Tr>
       ));
     }
+    if (isError) {
+      return (
+        <Table.Tr>
+          <Table.Td colSpan={5} p={0}>
+            <EmptyState
+              icon={<IconAlertCircle size={32} stroke={1.6} />}
+              color="red"
+              title={t('list.errorTitle')}
+              description={t('list.errorDescription')}
+              actionLabel={t('common.retry')}
+              onAction={onRetry}
+            />
+          </Table.Td>
+        </Table.Tr>
+      );
+    }
     if (rows.length === 0) {
       return (
         <Table.Tr>
-          <Table.Td colSpan={COLUMNS} p={0}>
+          <Table.Td colSpan={5} p={0}>
             <EmptyState
               icon={<IconCircleCheck size={32} stroke={1.6} />}
               title={t('reports.emptyTitle')}
@@ -60,41 +67,49 @@ export const PayableBillsTable = ({ asOf, vendor, enabled }: Readonly<PayableBil
         </Table.Tr>
       );
     }
-    return rows.map((bill) => {
-      const lateDays = daysLate(bill.dueDate, asOf);
-      return (
-        <Table.Tr key={bill.id}>
-          <NumberCell
-            kind="bill"
-            id={bill.id}
-            number={bill.number}
-            sub={bill.vendorInvoiceNumber || undefined}
-          />
-          <PartyCell name={bill.vendor.name} />
-          <Table.Td style={{ whiteSpace: 'nowrap' }}>
-            <Text size="sm">{formatDay(bill.dueDate, currentLanguage)}</Text>
-          </Table.Td>
-          <Table.Td style={{ whiteSpace: 'nowrap' }}>
-            <Badge
-              variant="light"
-              color={lateDays > 0 ? 'red' : 'green'}
-              radius="sm"
-              size="sm"
-              tt="none"
-            >
-              {lateDays > 0
-                ? t('reports.bills.late', { count: lateDays })
-                : t('reports.bills.notDue')}
-            </Badge>
-          </Table.Td>
-          <Table.Td ta="right" style={{ whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>
-            <Text size="sm" fw={700}>
-              {formatAmount(bill.remainingAmount)}
+    return rows.map((invoice) => (
+      <Table.Tr key={invoice.id}>
+        <Table.Td>
+          {canReadBills ? (
+            <Link to={routes.purchases.billDetail.replace(':id', invoice.id)}>
+              {invoice.transactionNumber}
+            </Link>
+          ) : (
+            <Text size="sm" fw={600}>
+              {invoice.transactionNumber}
             </Text>
-          </Table.Td>
-        </Table.Tr>
-      );
-    });
+          )}
+          {invoice.vendorInvoiceNumber && (
+            <Text size="xs" c="dimmed">
+              {invoice.vendorInvoiceNumber}
+            </Text>
+          )}
+        </Table.Td>
+        <Table.Td>
+          <Text size="sm">{invoice.vendorName}</Text>
+        </Table.Td>
+        <Table.Td>
+          <Text size="sm">{formatDay(invoice.dueDate, currentLanguage)}</Text>
+        </Table.Td>
+        <Table.Td>
+          <Badge
+            variant="light"
+            color={invoice.daysOverdue > 0 ? 'red' : 'green'}
+            radius="sm"
+            tt="none"
+          >
+            {invoice.daysOverdue > 0
+              ? t('reports.bills.late', { count: invoice.daysOverdue })
+              : t('reports.bills.notDue')}
+          </Badge>
+        </Table.Td>
+        <Table.Td ta="right">
+          <Text size="sm" fw={700}>
+            {formatAmount(invoice.remainingAmount, data?.precision)}
+          </Text>
+        </Table.Td>
+      </Table.Tr>
+    ));
   };
 
   return (
@@ -108,11 +123,11 @@ export const PayableBillsTable = ({ asOf, vendor, enabled }: Readonly<PayableBil
         >
           <Table.Thead bg="var(--jurnal-color-surface-hover)">
             <Table.Tr>
-              <Head label={t('reports.bills.col.bill')} />
-              <Head label={t('reports.col.vendor')} />
-              <Head label={t('reports.bills.col.due')} />
-              <Head label={t('reports.bills.col.age')} />
-              <Head right label={t('reports.col.remaining')} />
+              <Table.Th>{t('reports.bills.col.bill')}</Table.Th>
+              <Table.Th>{t('reports.col.vendor')}</Table.Th>
+              <Table.Th>{t('reports.bills.col.due')}</Table.Th>
+              <Table.Th>{t('reports.bills.col.age')}</Table.Th>
+              <Table.Th ta="right">{t('reports.col.remaining')}</Table.Th>
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>{body()}</Table.Tbody>

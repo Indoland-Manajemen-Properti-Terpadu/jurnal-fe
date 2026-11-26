@@ -1,6 +1,7 @@
 export const purchasesReports = {
   title: 'Laporan Hutang per Vendor',
   subtitle: 'Sisa hutang tiap vendor, dikelompokkan menurut umur jatuh tempo.',
+  subtitleAsOf: 'Sisa hutang tiap vendor, dikelompokkan menurut umur jatuh tempo (per {date}).',
   backToHub: 'Kembali ke Pembelian',
   asOf: 'Per Tanggal',
   vendor: 'Vendor',
@@ -9,8 +10,13 @@ export const purchasesReports = {
   exportFailed: 'Berkas Excel belum dapat dibuat. Silakan coba lagi.',
   refresh: 'Muat Ulang',
   kpi: {
-    totalOwed: 'Total Hutang',
-    totalOwedHint: '{count} tagihan belum lunas',
+    current: 'Belum jatuh tempo',
+    days1to30: '1–30 hari',
+    days31to60: '31–60 hari',
+    days61to90: '61–90 hari',
+    over90: 'Lebih dari 90 hari',
+    totalOwed: 'Total hutang',
+    totalOwedHint: '{count} faktur',
     overdue: 'Sudah Jatuh Tempo',
     overdueHint: '{percent}% dari total hutang',
     vendors: 'Vendor dengan hutang',
@@ -21,6 +27,7 @@ export const purchasesReports = {
   col: {
     vendor: 'Vendor',
     remaining: 'Sisa Hutang',
+    total: 'Total',
     current: 'Belum Jatuh Tempo',
     days1to30: '1–30 Hari',
     days31to60: '31–60 Hari',

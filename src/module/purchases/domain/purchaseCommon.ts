@@ -1,9 +1,11 @@
-export interface Page<T> {
+export interface Page<T, Summary = never> {
   items: T[];
   page: number;
   limit: number;
   totalPages: number;
   totalResults: number;
+  summary?: Summary;
+  precision?: number;
 }
 
 export interface PartyRef {
