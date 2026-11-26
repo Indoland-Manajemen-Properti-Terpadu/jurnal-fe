@@ -78,7 +78,11 @@ export const RequestList = () => {
           <Table.Td>
             <StatusBadge
               status={row.status}
-              label={row.statusLabel}
+              label={
+                row.status === 'SUBMITTED' || row.status === 'VERIFIED'
+                  ? t(`hub.requests.statusFilters.${row.status}`)
+                  : row.statusLabel
+              }
               englishLabel={
                 row.status === 'SUBMITTED' || row.status === 'VERIFIED'
                   ? t(`hub.requests.statusFilters.${row.status}`)
