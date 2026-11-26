@@ -96,6 +96,8 @@ export const stockTake = {
     products: 'Pilih minimal satu produk.',
   },
   steps: {
+    cancelled: 'Dibatalkan',
+    cancelledBy: 'Dibatalkan oleh {{name}}',
     by: 'oleh {{name}}',
     hint: {
       draft: 'Dokumen dibuat, saldo buku belum dibekukan',

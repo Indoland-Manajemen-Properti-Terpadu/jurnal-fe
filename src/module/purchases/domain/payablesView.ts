@@ -54,3 +54,13 @@ export const normalizeAgingRow = (raw: RawAgingRow): PayablesAgingRow => {
     over90: raw.over90,
   };
 };
+
+/** Whole days a bill is past its due date on `asOf` (both `YYYY-MM-DD`); 0 when not yet due. */
+export const daysLate = (dueDate: string | null, asOf: string): number => {
+  if (!dueDate) {
+    return 0;
+  }
+  const diff =
+    Date.parse(`${asOf.slice(0, 10)}T00:00:00Z`) - Date.parse(`${dueDate.slice(0, 10)}T00:00:00Z`);
+  return Math.max(0, Math.round(diff / 86_400_000));
+};

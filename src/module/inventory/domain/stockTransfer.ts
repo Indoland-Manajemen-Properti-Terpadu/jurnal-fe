@@ -146,6 +146,9 @@ export interface StockTransfer {
   rejectReason: string | null;
   voidReason: string | null;
   voidedAt: string | null;
+  rejectedAt: string | null;
+  /** Cancelled while it still waited for approval: it never posted, so it reads as withdrawn. */
+  withdrawn: boolean;
   createdAt: string;
 }
 

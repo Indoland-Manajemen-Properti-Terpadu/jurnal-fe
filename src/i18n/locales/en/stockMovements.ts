@@ -132,6 +132,7 @@ export const stockMovements = {
     allStatuses: 'All statuses',
     posted: 'Done',
     void: 'Cancelled',
+    withdrawn: 'Withdrawn',
     emptyTitle: 'No transfers yet',
     emptyBody:
       'Move stock between warehouses. Inventory value does not change and no journal is posted.',
@@ -261,6 +262,9 @@ export const stockMovements = {
     voidFailedTitle: 'It could not be cancelled',
     createdBy: 'Created by',
     rejectedBy: 'Rejected by',
+    rejectedAt: 'Rejected on',
+    withdrawnAt: 'Withdrawn on',
+    withdrawnBy: 'Withdrawn by',
     approvedBy: 'Approved by',
     approvedAt: 'Approved on',
     voidedBy: 'Cancelled by',

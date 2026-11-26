@@ -187,7 +187,7 @@ export default function TransferDetailPage() {
       icon={IconTransfer}
       title={data.number}
       copyable
-      badges={<TransferStatusBadge status={data.status} />}
+      badges={<TransferStatusBadge status={data.status} withdrawn={data.withdrawn} />}
       subtitle={
         <Group gap={6} wrap="wrap">
           <span>{dateFormatV1(data.date, 'D MMM YYYY')}</span>

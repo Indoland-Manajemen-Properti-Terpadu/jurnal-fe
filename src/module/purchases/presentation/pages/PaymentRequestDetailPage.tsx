@@ -12,9 +12,8 @@ import {
   PaymentRequestSummaryCard,
 } from '@/module/purchases/presentation/components/paymentRequests/PaymentRequestDetailCards';
 import { StateFrame } from '@/module/purchases/presentation/components/requests/StateFrame';
-import { ApprovalPanel } from '@/module/purchases/presentation/components/shared/ApprovalPanel';
+import { ApprovalCard } from '@/module/purchases/presentation/components/shared/ApprovalCard';
 import { DocumentFrame } from '@/module/purchases/presentation/components/shared/DocumentFrame';
-import { DocumentApprovalLog } from '@/module/purchases/presentation/components/shared/DocumentApprovalLog';
 import { DocumentJourney } from '@/module/purchases/presentation/components/shared/DocumentJourney';
 import { formatDay } from '@/module/purchases/presentation/components/shared/format';
 import { StatusBadge } from '@/module/purchases/presentation/components/shared/StatusBadge';
@@ -94,7 +93,9 @@ export default function PaymentRequestDetailPage() {
         <Grid.Col span={{ base: 12, lg: 4 }}>
           <Stack gap="lg">
             <PaymentRequestSummaryCard doc={doc} />
-            <ApprovalPanel
+            <ApprovalCard
+              kind="paymentRequest"
+              id={doc.id}
               approval={doc.approval}
               status={doc.status}
               canApprove={can(PURCHASE_MENU.approvePayment, 'update')}
@@ -102,7 +103,6 @@ export default function PaymentRequestDetailPage() {
               onApprove={(note) => approve.mutate({ id: doc.id, note })}
               onReject={(reason) => reject.mutate({ id: doc.id, reason })}
             />
-            <DocumentApprovalLog kind="paymentRequest" id={doc.id} />
             <DocumentJourney steps={journey.steps} />
           </Stack>
         </Grid.Col>

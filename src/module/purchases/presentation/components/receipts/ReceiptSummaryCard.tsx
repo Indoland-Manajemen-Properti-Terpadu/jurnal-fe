@@ -90,8 +90,7 @@ export const ReceiptSummaryCard = ({ receipt }: Readonly<ReceiptSummaryCardProps
                   {
                     label: t('common.memo'),
                     value: receipt.memo,
-                    // Beside the journal it fills the row; alone it takes the whole row.
-                    span: receipt.journalId ? undefined : (2 as const),
+                    span: 2 as const,
                   },
                 ]
               : []),

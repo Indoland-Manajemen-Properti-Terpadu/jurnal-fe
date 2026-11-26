@@ -232,6 +232,7 @@ export const purchasesCommon = {
     cancelled: 'Document cancelled',
     voided: 'Document voided and its journal reversed',
     closed: 'Order closed',
+    retentionReleased: 'Retention released. A payment request is next',
     verified: 'Bill verified and journaled',
     paid: 'Payment recorded and journaled',
     refunded: 'Refund recorded and journaled',

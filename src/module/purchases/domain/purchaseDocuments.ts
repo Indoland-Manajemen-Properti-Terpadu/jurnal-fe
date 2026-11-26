@@ -127,6 +127,21 @@ export interface OrderAdvance {
   available: number;
 }
 
+/** What the term bills of an order hold back until the final handover; null when it holds none. */
+export interface OrderRetention {
+  percent: number;
+  maintenanceMonths: number;
+  total: number;
+  held: number;
+  released: number;
+  balance: number;
+  /** `HELD`, `RELEASABLE`, `RELEASED` or `NONE`. */
+  state: string;
+  /** Null until the last term is billed: the maintenance period only starts then. */
+  maintenanceFrom: string | null;
+  releasableFrom: string | null;
+}
+
 export interface PurchaseOrder extends DocumentBase, DocumentAmounts {
   /** The server's Indonesian label of the status. */
   statusLabel: string;
@@ -150,6 +165,7 @@ export interface PurchaseOrder extends DocumentBase, DocumentAmounts {
   advance: OrderAdvance;
   /** Null when the order has no advance. */
   advanceState: OrderAdvanceState | null;
+  retention: OrderRetention | null;
   /** What the vendor is owed on this order, and how much of it is billed. */
   payableAmount: number;
   billedAmount: number;
@@ -235,6 +251,10 @@ export interface PurchaseBill extends DocumentBase, DocumentAmounts {
   source: BillSource;
   /** True for a manual bill: no order or receipt to compare it with. */
   noMatch: boolean;
+  /** `RETENTION_RELEASE` for a bill that pays out held retention. */
+  kind: 'BILL' | 'RETENTION_RELEASE';
+  /** The final handover number a retention release was made against; empty for other bills. */
+  bastNumber: string;
   statusLabel: string;
   displayStatus: BillDisplayStatus;
   displayStatusLabel: string;
