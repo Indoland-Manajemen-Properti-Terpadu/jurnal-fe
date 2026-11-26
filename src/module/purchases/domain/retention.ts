@@ -118,7 +118,9 @@ export const validateRetentionRelease = (
   if (!values.bastNumber.trim()) issues.bastNumber = true;
   if (!values.releaseDate) issues.date = true;
   else if (values.releaseDate > context.today) issues.future = true;
-  else if (context.releasableFrom && values.releaseDate < context.releasableFrom) { issues.early = true; }
+  else if (context.releasableFrom && values.releaseDate < context.releasableFrom) {
+    issues.early = true;
+  }
   if (!values.file) issues.file = true;
   return issues;
 };

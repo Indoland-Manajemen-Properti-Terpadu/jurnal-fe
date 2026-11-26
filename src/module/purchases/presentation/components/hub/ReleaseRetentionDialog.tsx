@@ -95,10 +95,10 @@ export const ReleaseRetentionDialog = ({
     if (issues.date) return t('reports.retention.release.error.date');
     if (issues.future) return t('reports.retention.release.error.future');
     if (issues.early) {
-return t('reports.retention.release.error.early', {
+      return t('reports.retention.release.error.early', {
         date: formatDay(releasableFrom, currentLanguage),
       });
-}
+    }
     return undefined;
   })();
 

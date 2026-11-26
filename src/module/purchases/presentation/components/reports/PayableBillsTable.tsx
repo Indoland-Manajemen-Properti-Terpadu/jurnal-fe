@@ -75,7 +75,13 @@ export const PayableBillsTable = ({ asOf, vendor, enabled }: Readonly<PayableBil
             <Text size="sm">{formatDay(bill.dueDate, currentLanguage)}</Text>
           </Table.Td>
           <Table.Td style={{ whiteSpace: 'nowrap' }}>
-            <Badge variant="light" color={lateDays > 0 ? 'red' : 'green'} radius="sm" size="sm" tt="none">
+            <Badge
+              variant="light"
+              color={lateDays > 0 ? 'red' : 'green'}
+              radius="sm"
+              size="sm"
+              tt="none"
+            >
               {lateDays > 0
                 ? t('reports.bills.late', { count: lateDays })
                 : t('reports.bills.notDue')}
