@@ -56,6 +56,23 @@ describe('ApprovalLogCard', () => {
     expect(screen.getByText(/Pengadaan/)).toBeInTheDocument();
   });
 
+  it('marks a rejection red with a cross and an approval green with a check', () => {
+    const { container } = render(
+      <ApprovalLogCard
+        entries={[
+          entry({ id: 'a1', action: 'APPROVE', label: 'Disetujui' }),
+          entry({ id: 'a2', action: 'REJECT', label: 'Ditolak' }),
+        ]}
+      />
+    );
+
+    const markers = container.querySelectorAll('[data-tone]');
+    expect(markers[0]).toHaveAttribute('data-tone', 'positive');
+    expect(markers[1]).toHaveAttribute('data-tone', 'negative');
+    expect(markers[1].querySelector('.tabler-icon-x')).not.toBeNull();
+    expect(markers[1].querySelector('.tabler-icon-check')).toBeNull();
+  });
+
   it('shows no step for an action that is not an approval step', () => {
     render(
       <ApprovalLogCard entries={[entry({ label: 'Dibuat', step: null, totalSteps: null })]} />

@@ -1,3 +1,4 @@
+import type { OrderRetentionDto } from '@/module/purchases/infrastructure/orderRetentionMapper';
 import type { AdvanceStateDto } from '@/module/purchases/infrastructure/advanceStateDto';
 import type { DocumentJournalDto } from '@/module/purchases/infrastructure/documentJournalMappers';
 /** Shapes of the purchasing API responses, as captured from the live service. */
@@ -172,6 +173,7 @@ export interface PurchaseOrderDto extends DocumentDto, AmountsDto {
     available?: number | null;
   } | null;
   advanceState?: AdvanceStateDto | null;
+  retention?: OrderRetentionDto | null;
   payableAmount?: number | null;
   billedAmount?: number | null;
   sentByEmail?: boolean | null;
@@ -233,6 +235,8 @@ export interface PurchaseBillDto extends DocumentDto, AmountsDto {
   journals?: DocumentJournalDto[] | null;
   source?: 'RECEIPT' | 'ORDER' | 'MANUAL' | null;
   noMatch?: boolean | null;
+  kind?: 'BILL' | 'RETENTION_RELEASE' | null;
+  retentionRelease?: { bastNumber?: string | null } | null;
   statusLabel?: string | null;
   displayStatus?: string | null;
   displayStatusLabel?: string | null;

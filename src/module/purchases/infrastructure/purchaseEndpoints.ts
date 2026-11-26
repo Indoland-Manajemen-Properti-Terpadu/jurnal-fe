@@ -41,6 +41,10 @@ export const PURCHASE_API = {
   vendorCredits: `${BILL}/vendor-credits`,
   payablesBySupplier: `${BILL}/payables/by-supplier`,
   payablesExport: `${BILL}/payables/by-supplier/export`,
+  retention: `${BILL}/retention`,
+  retentionTasks: `${BILL}/retention/tasks`,
+  retentionReleases: `${BILL}/retention-releases`,
+  retentionReleasePreview: `${BILL}/retention-releases/preview`,
 
   paymentRequests: PAYREQ,
   paymentRequest: (id: string) => `${PAYREQ}/${id}`,

@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
 import { PURCHASE_MENU } from '@/module/purchases/domain/purchaseAccess';
 import { OrderActionBar } from '@/module/purchases/presentation/components/orders/OrderActionBar';
+import { OrderRetentionCard } from '@/module/purchases/presentation/components/orders/OrderRetentionCard';
 import { OrderSummaryCard } from '@/module/purchases/presentation/components/orders/OrderSummaryCard';
 import { StateFrame } from '@/module/purchases/presentation/components/requests/StateFrame';
 import { AmountsCard } from '@/module/purchases/presentation/components/shared/AmountsCard';
@@ -81,10 +82,21 @@ export default function OrderDetailPage() {
               emptyText={t('orders.detail.receiptsEmpty')}
               docs={docsOf(chain?.goodsReceipts, routes.purchases.receiptDetail)}
             />
+            {doc.retention && (
+              <OrderRetentionCard
+                orderId={doc.id}
+                retention={doc.retention}
+                isService={doc.isService}
+                bills={orderBills.data?.items ?? []}
+                canRelease={can(PURCHASE_MENU.retentionRelease, 'create')}
+              />
+            )}
             <BillsTableCard
               title={t('orders.detail.billsTitle')}
               subtitle={t('orders.detail.billsSubtitle')}
-              bills={(orderBills.data?.items ?? []).filter((bill) => bill.status !== 'VOID')}
+              bills={(orderBills.data?.items ?? []).filter(
+                (bill) => bill.status !== 'VOID' && bill.kind !== 'RETENTION_RELEASE'
+              )}
               emptyText={t('orders.detail.billsEmpty')}
             />
             <RelatedDocsCard
