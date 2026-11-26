@@ -6,7 +6,12 @@ import { SectionCard } from '@/module/purchases/presentation/components/shared/S
 import { Timeline } from '@/module/purchases/presentation/components/shared/Timeline';
 import { dateFormatV1 } from '@/utils/formatDate';
 
-const LABEL_COLOR = { positive: 'green.8', negative: 'red.8', neutral: undefined } as const;
+const LABEL_COLOR = {
+  positive: 'green.8',
+  warning: 'orange.8',
+  negative: 'red.8',
+  neutral: undefined,
+} as const;
 
 /** Who did what to the document, in the order it happened: made, sent, approved, rejected, cancelled. */
 export const ApprovalLogCard = ({ entries }: Readonly<{ entries: ActivityEntry[] }>) => {

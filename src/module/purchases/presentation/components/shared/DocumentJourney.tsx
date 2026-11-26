@@ -26,16 +26,28 @@ const SHORT: Partial<Record<JourneyKind, string>> = { advance: 'DP', voucher: 'P
 
 const DOT: Record<StatusTone, string> = {
   neutral: 'var(--mantine-color-gray-5)',
-  info: 'var(--mantine-color-primary-6)',
-  warning: 'var(--mantine-color-yellow-6)',
+  info: 'var(--mantine-color-blue-6)',
+  warning: 'var(--mantine-color-orange-6)',
   success: 'var(--mantine-color-green-6)',
   danger: 'var(--mantine-color-red-6)',
+  cyan: 'var(--mantine-color-cyan-6)',
+  slate: 'var(--mantine-color-slate-6)',
+  purple: 'var(--mantine-color-purple-6)',
 };
 
 /** One document of a step: its number on the left, its status as a dot and a word on the right. */
 const DocRow = ({ doc }: Readonly<{ doc: JourneyDoc }>) => {
-  const { t } = useTranslation('purchases');
+  const { t, currentLanguage } = useTranslation('purchases');
   const closed = isClosedStatus(doc.status);
+  const paymentRequestLabel =
+    doc.statusContext === 'paymentRequest' && doc.status === 'APPROVED'
+      ? t('paymentRequests.statusLabels.APPROVED')
+      : doc.statusContext === 'paymentRequest' && doc.status === 'PROCESSED'
+        ? t('paymentRequests.statusLabels.PROCESSED')
+        : undefined;
+  const label =
+    paymentRequestLabel ??
+    (currentLanguage === 'id' && doc.statusLabel ? doc.statusLabel : t(`status.${doc.status}`));
   return (
     <div
       className={classes.doc}
@@ -46,10 +58,10 @@ const DocRow = ({ doc }: Readonly<{ doc: JourneyDoc }>) => {
         {doc.number}
       </Anchor>
       <span className={classes.status}>
-        <span className={classes.dot} style={{ background: DOT[statusTone(doc.status)] }} />
+        <span className={classes.dot} style={{ background: DOT[statusTone(doc.status, label)] }} />
         <Text span fz="xs" c="dimmed">
           {doc.current ? `${t('journey.thisDocument')} · ` : ''}
-          {t(`status.${doc.status}`)}
+          {label}
         </Text>
       </span>
     </div>

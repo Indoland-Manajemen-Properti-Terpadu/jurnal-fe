@@ -1,6 +1,10 @@
 import type { OrderRetentionDto } from '@/module/purchases/infrastructure/orderRetentionMapper';
 import type { AdvanceStateDto } from '@/module/purchases/infrastructure/advanceStateDto';
 import type { DocumentJournalDto } from '@/module/purchases/infrastructure/documentJournalMappers';
+import type {
+  GoodsReceiptDisplayStatus,
+  OrderItemStatus,
+} from '@/module/purchases/domain/purchaseDocuments';
 /** Shapes of the purchasing API responses, as captured from the live service. */
 
 export interface ApiEnvelope<T> {
@@ -136,6 +140,8 @@ export interface OrderItemDto extends LineDto {
   specification?: string | null;
   receivedQty: number;
   billedQty: number;
+  status?: OrderItemStatus | null;
+  statusLabel?: string | null;
   billOnly?: boolean | null;
   schedule?: {
     kind: 'FULL' | 'ADVANCE' | 'TERM' | 'PERIOD' | 'RETENTION';
@@ -193,6 +199,7 @@ export interface GoodsReceiptDto extends DocumentDto, ApprovalFieldsDto {
   warehouse?: { id: string; name: string } | null;
   deliveryNote?: string | null;
   status: string;
+  displayStatus?: GoodsReceiptDisplayStatus | null;
   amount?: number | null;
   billRefs?: { id: string; transactionNumber?: string | null; status?: string | null }[] | null;
   items: {

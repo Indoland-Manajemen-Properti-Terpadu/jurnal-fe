@@ -129,6 +129,7 @@ export const purchasesOrders = {
     itemsSubtitle: 'Receiving and billing progress of each line',
     col: {
       item: 'Goods or service',
+      status: 'Status',
       schedule: 'Billing',
       received: 'Received',
       billed: 'Billed',
