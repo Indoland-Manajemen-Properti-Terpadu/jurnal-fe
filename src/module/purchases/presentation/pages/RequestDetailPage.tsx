@@ -65,7 +65,21 @@ export default function RequestDetailPage() {
     <DocumentFrame
       icon={IconFileText}
       number={doc.number}
-      badges={<StatusBadge status={doc.status} label={doc.statusLabel} />}
+      badges={
+        <StatusBadge
+          status={doc.status}
+          label={
+            doc.status === 'SUBMITTED' || doc.status === 'VERIFIED'
+              ? t(`hub.requests.statusFilters.${doc.status}`)
+              : doc.statusLabel
+          }
+          englishLabel={
+            doc.status === 'SUBMITTED' || doc.status === 'VERIFIED'
+              ? t(`hub.requests.statusFilters.${doc.status}`)
+              : undefined
+          }
+        />
+      }
       date={formatDay(doc.date, currentLanguage)}
       backTo={BACK}
       backLabel={t('requests.detail.backToList')}

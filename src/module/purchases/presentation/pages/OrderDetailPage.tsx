@@ -6,6 +6,7 @@ import { PURCHASE_MENU } from '@/module/purchases/domain/purchaseAccess';
 import { OrderActionBar } from '@/module/purchases/presentation/components/orders/OrderActionBar';
 import { OrderRetentionCard } from '@/module/purchases/presentation/components/orders/OrderRetentionCard';
 import { OrderSummaryCard } from '@/module/purchases/presentation/components/orders/OrderSummaryCard';
+import { orderStatusLabelKey } from '@/module/purchases/presentation/components/orders/orderStatusLabel';
 import { StateFrame } from '@/module/purchases/presentation/components/requests/StateFrame';
 import { AmountsCard } from '@/module/purchases/presentation/components/shared/AmountsCard';
 import { AttachmentsCard } from '@/module/purchases/presentation/components/shared/AttachmentsCard';
@@ -17,7 +18,11 @@ import { RelatedDocsCard } from '@/module/purchases/presentation/components/shar
 import { StatusBadge } from '@/module/purchases/presentation/components/shared/StatusBadge';
 import { usePurchaseAccess } from '@/module/purchases/presentation/hooks/usePurchaseAccess';
 import { useDocumentChain } from '@/module/purchases/presentation/hooks/useDashboard';
-import { useBills, useOrder } from '@/module/purchases/presentation/hooks/usePurchaseQueries';
+import {
+  useBills,
+  useOrder,
+  useReceipts,
+} from '@/module/purchases/presentation/hooks/usePurchaseQueries';
 import { routes } from '@/router/routes';
 
 const BACK = routes.purchases.orders;
@@ -28,6 +33,7 @@ export default function OrderDetailPage() {
   const { can, canRead, isLoading: accessLoading } = usePurchaseAccess();
   const order = useOrder(id);
   const journey = useDocumentChain('purchaseOrder', id);
+  const orderReceipts = useReceipts({ purchaseOrder: id, limit: 50 }, Boolean(id));
   const orderBills = useBills({ purchaseOrder: id, limit: 50 }, Boolean(id));
 
   if (accessLoading || order.isLoading) {
@@ -59,12 +65,34 @@ export default function OrderDetailPage() {
     list: { id: string; number: string; status: string }[] | undefined,
     route: string
   ) => (list ?? []).map((ref) => ({ ...ref, to: route.replace(':id', ref.id) }));
+  const receiptById = new Map(
+    (orderReceipts.data?.items ?? []).map((receipt) => [receipt.id, receipt])
+  );
+  const receiptDocs = (chain?.goodsReceipts ?? []).map((ref) => {
+    const receipt = receiptById.get(ref.id);
+    return {
+      ...ref,
+      status: receipt?.displayStatus ?? ref.status,
+      statusLabel: receipt?.statusLabel,
+      to: routes.purchases.receiptDetail.replace(':id', ref.id),
+    };
+  });
 
   return (
     <DocumentFrame
       icon={IconShoppingCart}
       number={doc.number}
-      badges={<StatusBadge status={doc.status} label={doc.statusLabel} />}
+      badges={
+        <StatusBadge
+          status={doc.status}
+          label={doc.statusLabel}
+          englishLabel={
+            orderStatusLabelKey(doc.status, doc.isService)
+              ? t(orderStatusLabelKey(doc.status, doc.isService) as string)
+              : undefined
+          }
+        />
+      }
       date={`${doc.documentLabel} · ${formatDay(doc.date, currentLanguage)}`}
       backTo={BACK}
       backLabel={t('orders.detail.backToList')}
@@ -78,9 +106,11 @@ export default function OrderDetailPage() {
               icon={IconTruckDelivery}
               title={t('orders.detail.receiptsTitle')}
               subtitle={t('orders.detail.receiptsSubtitle')}
-              count={t('bills.detail.docsCount', { count: chain?.goodsReceipts.length ?? 0 })}
+              count={t('bills.detail.docsCount', {
+                count: orderReceipts.data?.totalResults ?? chain?.goodsReceipts.length ?? 0,
+              })}
               emptyText={t('orders.detail.receiptsEmpty')}
-              docs={docsOf(chain?.goodsReceipts, routes.purchases.receiptDetail)}
+              docs={receiptDocs}
             />
             {doc.retention && (
               <OrderRetentionCard

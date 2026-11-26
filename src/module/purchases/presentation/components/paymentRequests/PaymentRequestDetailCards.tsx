@@ -120,7 +120,9 @@ export const PaymentRequestSummaryCard = ({ doc }: Readonly<{ doc: PaymentReques
             value:
               currentLanguage === 'id' && doc.statusLabel
                 ? doc.statusLabel
-                : t(`status.${doc.status}`),
+                : doc.status === 'APPROVED' || doc.status === 'PROCESSED'
+                  ? t(`paymentRequests.statusLabels.${doc.status}`)
+                  : t(`status.${doc.status}`),
           },
           ...(doc.advanceAppliedAmount > 0
             ? [

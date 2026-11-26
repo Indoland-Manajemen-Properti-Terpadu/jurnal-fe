@@ -116,6 +116,10 @@ export const purchasesHub = {
     colRequest: 'Request and date',
     route: 'Route',
     routes: { BIDDING: 'Bidding', SINGLE: 'Single vendor' },
+    statusFilters: {
+      SUBMITTED: 'Awaiting verification',
+      VERIFIED: 'Awaiting procurement',
+    },
     neededOn: 'Needed {date}',
     emptyTitle: 'No purchase requests yet',
     emptyDescription:
@@ -127,13 +131,25 @@ export const purchasesHub = {
     search: 'Search PO or SPK number',
     expected: 'Expected on',
     payable: 'Payable to vendor',
+    statusFilters: {
+      PARTIAL_RECEIVED: 'Partially received / worked',
+      RECEIVED: 'Fully received / work completed',
+      COMPLETED: 'Fully billed',
+    },
+    statusLabels: {
+      goodsPartial: 'Partially received',
+      servicePartial: 'Partially worked',
+      goodsComplete: 'Fully received',
+      serviceComplete: 'Work completed',
+      fullyBilled: 'Fully billed',
+    },
     emptyTitle: 'No purchase orders yet',
     emptyDescription:
       'A PO or SPK is created automatically when procurement is approved. Complete the procurement on the request detail.',
   },
   receipts: {
     note: 'Delivery note / BAPP',
-    billed: 'Bill',
+    billed: 'Status',
     isBilled: 'Billed',
     notBilled: 'Not billed yet',
     search: 'Search FPB or BAPP number',

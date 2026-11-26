@@ -73,6 +73,7 @@ interface ChainDocumentDto {
   id: string;
   transactionNumber?: string | null;
   status?: string | null;
+  statusLabel?: string | null;
   kind?: string | null;
   procurement?: { routeLabel?: string | null; statusLabel?: string | null } | null;
 }
@@ -84,6 +85,7 @@ const toChainDocs = (docs: ChainDocumentDto[] | undefined): ChainDocument[] =>
     id: doc.id,
     number: doc.transactionNumber ?? '',
     status: doc.status ?? '',
+    statusLabel: doc.statusLabel ?? undefined,
     kind: doc.kind ?? undefined,
     procurement: doc.procurement?.routeLabel
       ? {

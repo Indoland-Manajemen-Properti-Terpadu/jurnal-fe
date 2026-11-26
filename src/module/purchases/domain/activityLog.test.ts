@@ -10,7 +10,7 @@ describe('activityTone', () => {
   it('reads a refusal, a send-back or a cancellation as negative', () => {
     expect(activityTone('REJECT')).toBe('negative');
     expect(activityTone('REJECTED')).toBe('negative');
-    expect(activityTone('RETURN')).toBe('negative');
+    expect(activityTone('RETURN')).toBe('warning');
     expect(activityTone('CANCEL')).toBe('negative');
     expect(activityTone('WITHDRAW')).toBe('negative');
   });

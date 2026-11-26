@@ -1,11 +1,15 @@
 export const purchasesPaymentRequests = {
+  statusLabels: {
+    APPROVED: 'Waiting for a Payment Voucher',
+    PROCESSED: 'Awaiting payment',
+  },
   list: {
     search: 'Search number, bill or vendor',
     kindFilter: 'Filter by request type',
     allKinds: 'All types',
     emptyTitle: 'No Payment Requests yet',
     emptyDescription:
-      'Request payment of a vendor bill or an order advance. Once approved, the cashier issues a Payment Voucher.',
+      'Request payment of a vendor bill or an order advance. Once approved, Finance issues a Payment Voucher.',
     create: 'New Payment',
     col: { request: 'Payment Request and date', kind: 'Type', voucher: 'Payment Voucher' },
     noVoucher: 'Not issued yet',
@@ -107,7 +111,7 @@ export const purchasesPaymentRequests = {
     billCount: '{count} bills',
     noVendorVoucher: 'No voucher yet',
     waitingApproval: 'Waiting for approval by {level}',
-    waitingVoucher: 'Waiting for the cashier to issue the Payment Voucher',
+    waitingVoucher: 'The Payment Voucher is issued by Finance',
     summaryTitle: 'Summary',
     summarySubtitle: 'The amount asked to pay the vendor',
     requested: 'Amount requested',
@@ -148,9 +152,9 @@ export const purchasesPaymentRequests = {
     note: {
       DRAFT: 'Still a draft. Submit it for approval so it can be paid.',
       PENDING_APPROVAL: 'Waiting for approval. No money has moved.',
-      APPROVED: 'Approved. The cashier can issue a Payment Voucher from this request.',
+      APPROVED: 'Approved. Waiting for Finance to issue the Payment Voucher.',
       REJECTED: 'Rejected. Edit and submit again, or cancel.',
-      PROCESSED: 'In a Payment Voucher that is waiting to be paid.',
+      PROCESSED: 'The Payment Voucher was issued by Finance and is waiting to be paid.',
       PAID: 'Paid through a Payment Voucher.',
       CANCELLED: 'This Payment Request was cancelled.',
     },

@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
 import type { OrderItem, PurchaseOrder } from '@/module/purchases/domain/purchaseDocuments';
 import { InfoGrid } from '@/module/purchases/presentation/components/shared/InfoGrid';
+import { StatusBadge } from '@/module/purchases/presentation/components/shared/StatusBadge';
 import { SectionCard } from '@/module/purchases/presentation/components/shared/SectionCard';
 import {
   formatAmount,
@@ -164,12 +165,13 @@ export const OrderSummaryCard = ({ order }: Readonly<{ order: PurchaseOrder }>) 
         subtitle={t('orders.detail.itemsSubtitle')}
         count={t('orders.detail.itemsCount', { count: order.items.length })}
       >
-        <Table.ScrollContainer type="native" minWidth={760}>
+        <Table.ScrollContainer type="native" minWidth={order.isService ? 850 : 760}>
           <Table className={tableClasses.table} verticalSpacing="sm" horizontalSpacing="lg">
             <Table.Thead bg="var(--jurnal-color-surface-muted)">
               <Table.Tr>
                 {[
                   'item',
+                  ...(order.isService ? ['status'] : []),
                   ...(showSchedule ? ['schedule'] : []),
                   'received',
                   'billed',
@@ -209,6 +211,11 @@ export const OrderSummaryCard = ({ order }: Readonly<{ order: PurchaseOrder }>) 
                       {item.tax ? ` · ${item.tax.name}` : ''}
                     </Text>
                   </Table.Td>
+                  {order.isService && (
+                    <Table.Td>
+                      {item.status && <StatusBadge status={item.status} label={item.statusLabel} />}
+                    </Table.Td>
+                  )}
                   {showSchedule && (
                     <Table.Td style={{ whiteSpace: 'nowrap' }}>
                       <Text size="sm">{scheduleLabel(item)}</Text>

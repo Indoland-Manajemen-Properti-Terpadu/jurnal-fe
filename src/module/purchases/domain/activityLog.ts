@@ -18,16 +18,18 @@ export interface ActivityEntry {
   text: string;
 }
 
-/** Whether an action moved the document forward (approved) or stopped it (rejected, cancelled). */
-export type ActivityTone = 'positive' | 'negative';
+/** Whether an action approved, returned, or stopped the document. */
+export type ActivityTone = 'positive' | 'warning' | 'negative';
 
 // Matched by prefix so both `REJECT` and `REJECTED` (or `approve` / `APPROVED`) count.
 const POSITIVE = ['APPROV', 'VERIF'];
-const NEGATIVE = ['REJECT', 'RETURN', 'CANCEL', 'VOID', 'WITHDRAW'];
+const WARNING = ['RETURN'];
+const NEGATIVE = ['REJECT', 'CANCEL', 'VOID', 'WITHDRAW'];
 
 export const activityTone = (action: string): ActivityTone | undefined => {
   const code = action.toUpperCase();
   if (POSITIVE.some((prefix) => code.startsWith(prefix))) return 'positive';
+  if (WARNING.some((prefix) => code.startsWith(prefix))) return 'warning';
   if (NEGATIVE.some((prefix) => code.startsWith(prefix))) return 'negative';
   return undefined;
 };
