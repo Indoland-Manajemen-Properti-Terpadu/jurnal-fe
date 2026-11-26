@@ -25,17 +25,34 @@ interface SummaryDto extends Omit<DashboardSummary, 'payables' | 'retention'> {
 interface ActionsDto {
   total: number;
   late: number;
-  items: {
-    key: string;
-    title: string;
-    subtitle?: string | null;
-    cta?: string | null;
-    target: DashboardActions['items'][number]['target'];
-    waiting?: number | null;
-    late?: number | null;
-    due?: string | null;
-  }[];
+  bySeverity?: DashboardActions['bySeverity'];
+  oldest?: ActionsDtoItem | null;
+  items: ActionsDtoItem[];
 }
+
+interface ActionsDtoItem {
+  key: string;
+  title: string;
+  subtitle?: string | null;
+  cta?: string | null;
+  target: DashboardActions['items'][number]['target'];
+  waiting?: number | null;
+  late?: number | null;
+  due?: string | null;
+  severity?: DashboardActions['items'][number]['severity'];
+}
+
+const toAction = (item: ActionsDtoItem): DashboardActions['items'][number] => ({
+  key: item.key,
+  title: item.title,
+  subtitle: item.subtitle ?? '',
+  cta: item.cta ?? '',
+  target: item.target,
+  waiting: item.waiting ?? null,
+  late: item.late ?? null,
+  due: item.due ?? null,
+  severity: item.severity,
+});
 
 /** Counts per stage, procurement routes, what is ready to pay and, with the report right, payables. */
 export const getDashboardSummary = async (): Promise<DashboardSummary> => {
@@ -53,16 +70,9 @@ export const getDashboardActions = async (): Promise<DashboardActions> => {
   return {
     total: data.total,
     late: data.late,
-    items: data.items.map((item) => ({
-      key: item.key,
-      title: item.title,
-      subtitle: item.subtitle ?? '',
-      cta: item.cta ?? '',
-      target: item.target,
-      waiting: item.waiting ?? null,
-      late: item.late ?? null,
-      due: item.due ?? null,
-    })),
+    bySeverity: data.bySeverity,
+    oldest: data.oldest ? toAction(data.oldest) : null,
+    items: data.items.map(toAction),
   };
 };
 

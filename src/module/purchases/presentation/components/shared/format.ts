@@ -12,12 +12,12 @@ export const setAmountPrecision = (precision: number): void => {
   }
 };
 
-export const formatAmount = (amount: number): string =>
+export const formatAmount = (amount: number, precision?: number): string =>
   amount.toLocaleString('id-ID', {
     style: 'currency',
     currency: 'IDR',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: amountPrecision,
+    minimumFractionDigits: precision ?? 0,
+    maximumFractionDigits: precision ?? amountPrecision,
   });
 
 /** `YYYY-MM-DD` shown as a calendar day in the reader's language, never shifted by time zone. */
@@ -38,10 +38,15 @@ export const formatQuantity = (value: number): string =>
 
 /** Today as `YYYY-MM-DD` in the local calendar. */
 export const todayIso = (): string => {
-  const now = new Date();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
-  return `${now.getFullYear()}-${month}-${day}`;
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Asia/Jakarta',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(new Date());
+  const value = (part: 'year' | 'month' | 'day') =>
+    parts.find((item) => item.type === part)?.value ?? '';
+  return `${value('year')}-${value('month')}-${value('day')}`;
 };
 
 /** A `YYYY-MM-DD` string from a date input value (Date or null). */

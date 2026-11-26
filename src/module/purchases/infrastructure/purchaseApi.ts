@@ -1,4 +1,11 @@
 import type { ActivityEntry, ActivityKind } from '@/module/purchases/domain/activityLog';
+import type {
+  BillListSummary,
+  OrderListSummary,
+  PaymentRequestListSummary,
+  ReceiptListSummary,
+  RequestListSummary,
+} from '@/module/purchases/domain/listSummaries';
 import type { AttachmentKind, Page } from '@/module/purchases/domain/purchaseCommon';
 import type {
   GoodsReceipt,
@@ -74,7 +81,7 @@ export interface ListParams {
 }
 
 /** Wraps one document type: list, detail and the shared create / update / action calls. */
-const resource = <Dto, Doc>(
+const resource = <Dto, Doc, Summary = never>(
   endpoints: {
     list: string;
     one: (id: string) => string;
@@ -84,8 +91,11 @@ const resource = <Dto, Doc>(
 ) => {
   const one = async (call: Promise<ApiEnvelope<Dto>>) => map((await call).data);
   return {
-    list: async (params: ListParams = {}): Promise<Page<Doc>> =>
-      toPage((await http.get<ApiEnvelope<ListDto<Dto>>>(endpoints.list, params)).data, map),
+    list: async (params: ListParams = {}): Promise<Page<Doc, Summary>> =>
+      toPage(
+        (await http.get<ApiEnvelope<ListDto<Dto, Summary>>>(endpoints.list, params)).data,
+        map
+      ),
     get: (id: string) => one(http.get<ApiEnvelope<Dto>>(endpoints.one(id))),
     create: (body: unknown) => one(http.post<ApiEnvelope<Dto>>(endpoints.list, body)),
     update: (id: string, body: unknown) => one(http.put<ApiEnvelope<Dto>>(endpoints.one(id), body)),
@@ -94,15 +104,15 @@ const resource = <Dto, Doc>(
   };
 };
 
-const requests = resource<PurchaseRequestDto, PurchaseRequest>(
+const requests = resource<PurchaseRequestDto, PurchaseRequest, RequestListSummary>(
   { list: PURCHASE_API.requests, one: PURCHASE_API.request, action: PURCHASE_API.requestAction },
   toPurchaseRequest
 );
-const orders = resource<PurchaseOrderDto, PurchaseOrder>(
+const orders = resource<PurchaseOrderDto, PurchaseOrder, OrderListSummary>(
   { list: PURCHASE_API.orders, one: PURCHASE_API.order, action: PURCHASE_API.orderAction },
   toPurchaseOrder
 );
-const receipts = resource<GoodsReceiptDto, GoodsReceipt>(
+const receipts = resource<GoodsReceiptDto, GoodsReceipt, ReceiptListSummary>(
   {
     list: PURCHASE_API.receipts,
     one: PURCHASE_API.receipt,
@@ -110,7 +120,7 @@ const receipts = resource<GoodsReceiptDto, GoodsReceipt>(
   },
   toGoodsReceipt
 );
-const bills = resource<PurchaseBillDto, PurchaseBill>(
+const bills = resource<PurchaseBillDto, PurchaseBill, BillListSummary>(
   { list: PURCHASE_API.bills, one: PURCHASE_API.bill, action: PURCHASE_API.billAction },
   toPurchaseBill
 );
@@ -118,7 +128,7 @@ const payments = resource<PaymentVoucherDto, PaymentVoucher>(
   { list: PURCHASE_API.payments, one: PURCHASE_API.payment, action: PURCHASE_API.paymentAction },
   toPaymentVoucher
 );
-const paymentRequests = resource<PaymentRequestDto, PaymentRequest>(
+const paymentRequests = resource<PaymentRequestDto, PaymentRequest, PaymentRequestListSummary>(
   {
     list: PURCHASE_API.paymentRequests,
     one: PURCHASE_API.paymentRequest,

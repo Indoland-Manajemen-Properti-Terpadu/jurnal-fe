@@ -27,6 +27,7 @@ export const PipelineStrip = ({ summary, canOpen, onOpen }: Readonly<PipelineStr
   return (
     <SectionCard
       icon={IconRoute}
+      plain
       title={t('hub.overview.pipelineTitle')}
       subtitle={t('hub.overview.pipelineSubtitle')}
     >
@@ -54,6 +55,9 @@ export const PipelineStrip = ({ summary, canOpen, onOpen }: Readonly<PipelineStr
             >
               {count}
             </Text>
+            <Text fz="xs" c="dimmed">
+              {t(`hub.overview.stageHint.${key}`)}
+            </Text>
           </button>
         ))}
       </div>
@@ -65,6 +69,8 @@ export const PipelineStrip = ({ summary, canOpen, onOpen }: Readonly<PipelineStr
 export const ProcurementCard = ({ summary }: Readonly<{ summary: DashboardSummary }>) => {
   const { t } = useTranslation('purchases');
   const { bidding, single, pastRequiredDate } = summary.procurement;
+  const unassigned = summary.procurement.unassigned ?? 0;
+  const count = summary.procurement.count ?? bidding + single + unassigned;
   const row = (label: string, value: string, danger = false) => (
     <Group justify="space-between" py={4} wrap="nowrap">
       <Text size="sm" c="dimmed">
@@ -78,12 +84,51 @@ export const ProcurementCard = ({ summary }: Readonly<{ summary: DashboardSummar
   return (
     <SectionCard
       icon={IconRoute}
+      plain
       title={t('hub.overview.procurementTitle')}
       subtitle={t('hub.overview.procurementSubtitle')}
     >
       <div>
+        <Text fw={700} size="xl">
+          {count}
+        </Text>
+        <Text size="xs" c="dimmed" mb="sm">
+          {t('hub.overview.requestsCount', { count })}
+        </Text>
+        {count > 0 && (
+          <div
+            style={{
+              display: 'flex',
+              height: 8,
+              borderRadius: 99,
+              overflow: 'hidden',
+              marginBottom: 12,
+            }}
+            aria-hidden
+          >
+            <span
+              style={{
+                width: `${(bidding / count) * 100}%`,
+                background: 'var(--mantine-color-primary-7)',
+              }}
+            />
+            <span
+              style={{
+                width: `${(single / count) * 100}%`,
+                background: 'var(--mantine-color-primary-4)',
+              }}
+            />
+            <span
+              style={{
+                width: `${(unassigned / count) * 100}%`,
+                background: 'var(--mantine-color-gray-4)',
+              }}
+            />
+          </div>
+        )}
         {row(t('hub.overview.bidding'), t('hub.overview.requestsCount', { count: bidding }))}
         {row(t('hub.overview.single'), t('hub.overview.requestsCount', { count: single }))}
+        {row(t('hub.overview.unassigned'), t('hub.overview.requestsCount', { count: unassigned }))}
         {row(t('hub.overview.pastRequiredLabel'), String(pastRequiredDate), pastRequiredDate > 0)}
       </div>
     </SectionCard>

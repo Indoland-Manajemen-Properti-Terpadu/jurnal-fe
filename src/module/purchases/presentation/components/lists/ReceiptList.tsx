@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { Select, Table } from '@mantine/core';
-import { IconTruckDelivery } from '@tabler/icons-react';
+import { IconClipboardCheck, IconClock, IconReceipt, IconTruckDelivery } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
 import { RECEIPT_STATUSES } from '@/module/purchases/domain/purchaseStatus';
 import { detailPath } from '@/module/purchases/presentation/components/hub/documentPaths';
 import { viewAction } from '@/module/purchases/presentation/components/lists/rowActions';
+import { ListSummaryCards } from '@/module/purchases/presentation/components/lists/ListSummaryCards';
 import { NumberCell, TextCell } from '@/module/purchases/presentation/components/lists/cells';
 import { ListShell } from '@/module/purchases/presentation/components/shared/ListShell';
 import {
@@ -25,6 +26,25 @@ export const ReceiptList = () => {
 
   return (
     <ListShell
+      summary={
+        query.data?.summary && (
+          <ListSummaryCards
+            icons={[IconTruckDelivery, IconClock, IconReceipt, IconClipboardCheck]}
+            items={(
+              [
+                ['total', query.data.summary.total],
+                ['pendingApproval', query.data.summary.pendingApproval],
+                ['unbilled', query.data.summary.unbilled],
+                ['billed', query.data.summary.billed],
+              ] as const
+            ).map(([key, value]) => ({
+              label: t(`hub.listSummary.receipts.${key}.label`),
+              hint: t(`hub.listSummary.receipts.${key}.hint`),
+              value,
+            }))}
+          />
+        )
+      }
       searchValue={state.searchInput}
       onSearchChange={state.setSearch}
       searchPlaceholder={t('hub.receipts.search')}

@@ -2,29 +2,28 @@ import { useState } from 'react';
 import { ActionIcon, Button, Group, Paper, Stack, Text, Tooltip } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconDownload, IconReportAnalytics, IconRefresh } from '@tabler/icons-react';
+import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
 import { PURCHASE_MENU } from '@/module/purchases/domain/purchaseAccess';
 import { downloadPayablesExcel } from '@/module/purchases/infrastructure/purchaseApi';
 import { saveBlob } from '@/module/purchases/presentation/components/orders/saveBlob';
 import { StateFrame } from '@/module/purchases/presentation/components/requests/StateFrame';
-import { DateField } from '@/module/purchases/presentation/components/requests/DateField';
-import { AgingChart } from '@/module/purchases/presentation/components/reports/AgingChart';
 import { PayablesKpis } from '@/module/purchases/presentation/components/reports/PayablesKpis';
 import { PayableBillsTable } from '@/module/purchases/presentation/components/reports/PayableBillsTable';
 import { PayablesTable } from '@/module/purchases/presentation/components/reports/PayablesTable';
-import { VendorCreditCard } from '@/module/purchases/presentation/components/reports/VendorCreditCard';
 import { usePayablesReport } from '@/module/purchases/presentation/components/reports/usePayablesReport';
 import { SupplierSelect } from '@/module/purchases/presentation/components/shared/LookupSelects';
 import { PageFrame } from '@/module/purchases/presentation/components/shared/PageFrame';
-import { todayIso } from '@/module/purchases/presentation/components/shared/format';
+import { formatDay, todayIso } from '@/module/purchases/presentation/components/shared/format';
 import { usePurchaseAccess } from '@/module/purchases/presentation/hooks/usePurchaseAccess';
 import { routes } from '@/router/routes';
 
 export default function PayablesReportPage() {
-  const { t } = useTranslation('purchases');
+  const { t, currentLanguage } = useTranslation('purchases');
   const { can, isLoading: accessLoading } = usePurchaseAccess();
-  const [asOf, setAsOf] = useState(todayIso);
-  const [vendor, setVendor] = useState<string | null>(null);
+  const [asOf] = useState(todayIso);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const vendor = searchParams.get('vendor');
   const [exporting, setExporting] = useState(false);
   const allowed = can(PURCHASE_MENU.reports, 'read');
   const report = usePayablesReport({ asOf, vendor: vendor ?? undefined }, allowed);
@@ -54,9 +53,10 @@ export default function PayablesReportPage() {
     <PageFrame
       icon={IconReportAnalytics}
       title={t('reports.title')}
-      description={t('reports.subtitle')}
+      description={t('reports.subtitleAsOf', { date: formatDay(asOf, currentLanguage) })}
       backTo={routes.purchases.main}
       backLabel={t('reports.backToHub')}
+      backOutside
       actions={
         <Group gap="sm">
           <Tooltip label={t('reports.refresh')}>
@@ -88,31 +88,18 @@ export default function PayablesReportPage() {
       }
     >
       <Stack gap="lg">
-        {report.data && (
-          <>
-            <PayablesKpis data={report.data} />
-            <AgingChart totals={report.data.totals} />
-          </>
-        )}
+        <SupplierSelect
+          clearable
+          label={t('reports.vendor')}
+          placeholder={t('reports.allVendors')}
+          value={vendor}
+          onChange={(id) => setSearchParams(id ? { vendor: id } : {})}
+          w={{ base: '100%', sm: 300 }}
+        />
+        {report.data && <PayablesKpis data={report.data} />}
 
         <Paper withBorder radius="lg" p="md" bg="white">
           <Stack gap="md">
-            <Group gap="sm" align="flex-end" wrap="wrap">
-              <DateField
-                label={t('reports.asOf')}
-                value={asOf}
-                onChange={(value) => setAsOf(value || todayIso())}
-                w={200}
-              />
-              <SupplierSelect
-                clearable
-                label={t('reports.vendor')}
-                placeholder={t('reports.allVendors')}
-                value={vendor}
-                onChange={(id) => setVendor(id)}
-                w={300}
-              />
-            </Group>
             <Text fw={700}>{t('reports.perVendor')}</Text>
             <PayablesTable
               data={report.data}
@@ -128,11 +115,17 @@ export default function PayablesReportPage() {
         <Paper withBorder radius="lg" p="md" bg="white">
           <Stack gap="md">
             <Text fw={700}>{t('reports.billDetail')}</Text>
-            <PayableBillsTable asOf={asOf} vendor={vendor ?? undefined} enabled={allowed} />
+            <PayableBillsTable
+              data={report.data}
+              isLoading={report.isLoading}
+              isError={report.isError}
+              onRetry={() => {
+                report.refetch();
+              }}
+              canReadBills={can(PURCHASE_MENU.documents, 'read')}
+            />
           </Stack>
         </Paper>
-
-        {vendor && <VendorCreditCard vendorId={vendor} />}
       </Stack>
     </PageFrame>
   );

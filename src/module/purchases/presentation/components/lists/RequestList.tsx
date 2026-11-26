@@ -1,11 +1,12 @@
 import { Table, Text } from '@mantine/core';
-import { IconFilePlus } from '@tabler/icons-react';
+import { IconClipboardText, IconClock, IconFilePlus, IconShoppingCart } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
 import { REQUEST_STATUSES } from '@/module/purchases/domain/purchaseStatus';
 import { canCreateRequest } from '@/module/purchases/domain/requestAccess';
 import { detailPath } from '@/module/purchases/presentation/components/hub/documentPaths';
 import { viewAction } from '@/module/purchases/presentation/components/lists/rowActions';
+import { ListSummaryCards } from '@/module/purchases/presentation/components/lists/ListSummaryCards';
 import { NumberCell, TextCell } from '@/module/purchases/presentation/components/lists/cells';
 import { ListShell } from '@/module/purchases/presentation/components/shared/ListShell';
 import { formatDay } from '@/module/purchases/presentation/components/shared/format';
@@ -25,6 +26,25 @@ export const RequestList = () => {
 
   return (
     <ListShell
+      summary={
+        query.data?.summary && (
+          <ListSummaryCards
+            icons={[IconClipboardText, IconClock, IconShoppingCart, IconShoppingCart]}
+            items={(
+              [
+                ['total', query.data.summary.total],
+                ['waitingVerification', query.data.summary.waitingVerification],
+                ['waitingProcurement', query.data.summary.waitingProcurement],
+                ['inProcurement', query.data.summary.inProcurement],
+              ] as const
+            ).map(([key, value]) => ({
+              label: t(`hub.listSummary.requests.${key}.label`),
+              hint: t(`hub.listSummary.requests.${key}.hint`),
+              value,
+            }))}
+          />
+        )
+      }
       searchValue={state.searchInput}
       onSearchChange={state.setSearch}
       searchPlaceholder={t('hub.requests.search')}
