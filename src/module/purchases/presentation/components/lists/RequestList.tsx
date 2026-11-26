@@ -32,7 +32,10 @@ export const RequestList = () => {
       onStatusChange={state.setStatus}
       statusOptions={REQUEST_STATUSES.map((status) => ({
         value: status,
-        label: t(`status.${status}`),
+        label:
+          status === 'SUBMITTED' || status === 'VERIFIED'
+            ? t(`hub.requests.statusFilters.${status}`)
+            : t(`status.${status}`),
       }))}
       columns={[
         { key: 'number', label: t('hub.requests.colRequest') },
@@ -73,7 +76,15 @@ export const RequestList = () => {
             </Text>
           </Table.Td>
           <Table.Td>
-            <StatusBadge status={row.status} label={row.statusLabel} />
+            <StatusBadge
+              status={row.status}
+              label={row.statusLabel}
+              englishLabel={
+                row.status === 'SUBMITTED' || row.status === 'VERIFIED'
+                  ? t(`hub.requests.statusFilters.${row.status}`)
+                  : undefined
+              }
+            />
           </Table.Td>
         </>
       )}

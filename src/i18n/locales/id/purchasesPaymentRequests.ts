@@ -1,11 +1,15 @@
 export const purchasesPaymentRequests = {
+  statusLabels: {
+    APPROVED: 'Menunggu PV',
+    PROCESSED: 'Menunggu pembayaran',
+  },
   list: {
     search: 'Cari nomor, faktur, atau vendor',
     kindFilter: 'Filter jenis pengajuan',
     allKinds: 'Semua jenis',
     emptyTitle: 'Belum ada Payment Request',
     emptyDescription:
-      'Ajukan pelunasan faktur vendor atau uang muka pesanan. Setelah disetujui, kasir menerbitkan Payment Voucher.',
+      'Ajukan pelunasan faktur vendor atau uang muka pesanan. Setelah disetujui, Finance menerbitkan Payment Voucher.',
     create: 'Buat Pembayaran',
     col: { request: 'Payment Request dan tanggal', kind: 'Jenis', voucher: 'Payment Voucher' },
     noVoucher: 'Belum terbit',
@@ -114,7 +118,7 @@ export const purchasesPaymentRequests = {
     billCount: '{count} faktur',
     noVendorVoucher: 'Belum ada voucher',
     waitingApproval: 'Menunggu persetujuan {level}',
-    waitingVoucher: 'Menunggu kasir menerbitkan Payment Voucher',
+    waitingVoucher: 'PV diterbitkan oleh Finance',
     summaryTitle: 'Ringkasan',
     summarySubtitle: 'Nilai yang diajukan ke vendor',
     requested: 'Nominal diajukan',
@@ -155,9 +159,9 @@ export const purchasesPaymentRequests = {
     note: {
       DRAFT: 'Masih draf. Ajukan untuk persetujuan agar bisa dibayarkan.',
       PENDING_APPROVAL: 'Menunggu persetujuan. Belum ada uang yang keluar.',
-      APPROVED: 'Sudah disetujui. Kasir dapat menerbitkan Payment Voucher dari pengajuan ini.',
+      APPROVED: 'Sudah disetujui. Menunggu PV diterbitkan oleh Finance.',
       REJECTED: 'Ditolak. Ubah lalu ajukan lagi, atau batalkan.',
-      PROCESSED: 'Sudah masuk Payment Voucher dan menunggu dibayar.',
+      PROCESSED: 'PV diterbitkan oleh Finance dan menunggu pembayaran.',
       PAID: 'Sudah dibayar lewat Payment Voucher.',
       CANCELLED: 'Payment Request ini dibatalkan.',
     },

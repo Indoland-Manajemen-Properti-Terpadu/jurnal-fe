@@ -90,7 +90,15 @@ export const PaymentRequestList = () => {
             <TextCell value={vendorLabel(row) || '-'} maxWidth={260} />
             <TextCell value={t(`paymentRequests.kinds.${row.kind}`)} />
             <Table.Td>
-              <StatusBadge status={row.status} label={row.statusLabel} />
+              <StatusBadge
+                status={row.status}
+                label={row.statusLabel}
+                englishLabel={
+                  row.status === 'APPROVED' || row.status === 'PROCESSED'
+                    ? t(`paymentRequests.statusLabels.${row.status}`)
+                    : undefined
+                }
+              />
             </Table.Td>
             <Table.Td style={{ whiteSpace: 'nowrap' }}>
               {voucherProgress(row) ? (

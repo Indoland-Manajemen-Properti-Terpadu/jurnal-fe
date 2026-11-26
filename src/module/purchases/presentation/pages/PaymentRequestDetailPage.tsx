@@ -67,7 +67,17 @@ export default function PaymentRequestDetailPage() {
     <DocumentFrame
       icon={IconCoins}
       number={doc.number}
-      badges={<StatusBadge status={doc.status} label={doc.statusLabel} />}
+      badges={
+        <StatusBadge
+          status={doc.status}
+          label={doc.statusLabel}
+          englishLabel={
+            doc.status === 'APPROVED' || doc.status === 'PROCESSED'
+              ? t(`paymentRequests.statusLabels.${doc.status}`)
+              : undefined
+          }
+        />
+      }
       date={formatDay(doc.date, currentLanguage)}
       backTo={BACK}
       backLabel={t('paymentRequests.detail.backToList')}

@@ -9,6 +9,7 @@ export interface RelatedDoc {
   id: string;
   number: string;
   status: PurchaseStatus | string;
+  statusLabel?: string;
   to: string;
   /** A dimmed line under the number: the vendor, the date. */
   sub?: string;
@@ -70,7 +71,7 @@ export const RelatedDocsCard = ({
                 {doc.trailing}
               </Text>
             )}
-            <StatusBadge status={doc.status as PurchaseStatus} />
+            <StatusBadge status={doc.status as PurchaseStatus} label={doc.statusLabel} />
           </Group>
         </Group>
       ))

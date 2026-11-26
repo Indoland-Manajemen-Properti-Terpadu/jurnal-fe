@@ -4,12 +4,22 @@ import type {
   PurchaseBillStatus,
   PurchaseOrderStatus,
   PurchaseReturnStatus,
+  GoodsReceiptDisplayStatus,
+  OrderItemStatus,
 } from '@/module/purchases/domain/purchaseDocuments';
 import type { PaymentRequestStatus } from '@/module/purchases/domain/paymentRequest';
 import type { PurchaseRequestStatus } from '@/module/purchases/domain/purchaseRequest';
 
-/** Tone drives the badge color: color only carries real success, warning and failure. */
-export type StatusTone = 'neutral' | 'info' | 'warning' | 'success' | 'danger';
+/** Semantic status color shared by purchasing badges and document journey markers. */
+export type StatusTone =
+  | 'neutral'
+  | 'info'
+  | 'warning'
+  | 'success'
+  | 'danger'
+  | 'cyan'
+  | 'slate'
+  | 'purple';
 
 export type PurchaseStatus =
   | PurchaseRequestStatus
@@ -18,31 +28,108 @@ export type PurchaseStatus =
   | PurchaseBillStatus
   | PaymentVoucherStatus
   | PaymentRequestStatus
-  | PurchaseReturnStatus;
+  | PurchaseReturnStatus
+  | GoodsReceiptDisplayStatus
+  | OrderItemStatus;
 
 const TONES: Record<PurchaseStatus, StatusTone> = {
   DRAFT: 'neutral',
   PENDING_APPROVAL: 'warning',
-  APPROVED: 'info',
+  APPROVED: 'cyan',
   REJECTED: 'danger',
   SUBMITTED: 'warning',
   RETURNED: 'warning',
   IN_PROCUREMENT: 'info',
   COMPLETED: 'success',
-  CANCELLED: 'neutral',
+  CANCELLED: 'danger',
   SENT: 'info',
   PARTIAL_RECEIVED: 'info',
-  RECEIVED: 'success',
-  CLOSED: 'neutral',
-  VOID: 'neutral',
+  RECEIVED: 'cyan',
+  CLOSED: 'slate',
+  VOID: 'danger',
   POSTED: 'success',
-  VERIFIED: 'info',
+  VERIFIED: 'warning',
   PARTIAL_PAID: 'warning',
   PAID: 'success',
-  PROCESSED: 'info',
+  PROCESSED: 'warning',
+  BILLED: 'success',
+  UNBILLED: 'cyan',
+  WAITING_BILL: 'info',
+  BAPP_REJECTED: 'danger',
+  WAITING_BAPP: 'info',
 };
 
-export const statusTone = (status: PurchaseStatus): StatusTone => TONES[status];
+const LABEL_TONES: Record<string, StatusTone> = {
+  'awaiting verification': 'warning',
+  'menunggu verifikasi': 'warning',
+  'awaiting procurement': 'warning',
+  'menunggu pengadaan': 'warning',
+  'waiting for approval': 'warning',
+  'menunggu approval': 'warning',
+  'waiting for advance': 'warning',
+  'menunggu uang muka': 'warning',
+  'waiting for pv': 'warning',
+  'menunggu pv': 'warning',
+  'awaiting payment': 'warning',
+  'menunggu pembayaran': 'warning',
+  dikembalikan: 'warning',
+  'sent back': 'warning',
+  'advance invoice not recorded': 'warning',
+  'faktur uang muka belum dicatat': 'warning',
+  'advance unpaid': 'warning',
+  'uang muka belum dibayar': 'warning',
+  unpaid: 'warning',
+  'belum dibayar': 'warning',
+  'in procurement': 'info',
+  'dalam pengadaan': 'info',
+  'awaiting receipt': 'info',
+  'menunggu penerimaan': 'info',
+  'partially received': 'info',
+  'diterima sebagian': 'info',
+  'partially worked': 'info',
+  'dikerjakan sebagian': 'info',
+  'waiting for bill': 'info',
+  'menunggu tagihan': 'info',
+  'waiting for bapp': 'info',
+  'menunggu bapp': 'info',
+  approved: 'cyan',
+  disetujui: 'cyan',
+  'fully received': 'cyan',
+  'diterima penuh': 'cyan',
+  'work completed': 'cyan',
+  'selesai dikerjakan': 'cyan',
+  'fully billed': 'cyan',
+  'ditagih penuh': 'cyan',
+  'not billed yet': 'cyan',
+  'belum difaktur': 'cyan',
+  completed: 'success',
+  selesai: 'success',
+  billed: 'success',
+  'sudah difaktur': 'success',
+  lunas: 'success',
+  paid: 'success',
+  dibayar: 'success',
+  'advance paid': 'success',
+  'uang muka lunas': 'success',
+  cancelled: 'danger',
+  dibatalkan: 'danger',
+  rejected: 'danger',
+  ditolak: 'danger',
+  'bapp rejected': 'danger',
+  'bapp ditolak': 'danger',
+  overdue: 'danger',
+  'jatuh tempo': 'danger',
+  closed: 'slate',
+  ditutup: 'slate',
+  draft: 'neutral',
+  draf: 'neutral',
+  'advance cancelled': 'neutral',
+  'uang muka dibatalkan': 'neutral',
+  'masa pemeliharaan': 'purple',
+};
+
+export const statusTone = (status: PurchaseStatus, label?: string): StatusTone =>
+  (label ? LABEL_TONES[label.trim().toLowerCase()] : undefined) ?? TONES[status];
 
 /** Statuses a list filters by, per document, in the order of the tabs and menus. */
 export const REQUEST_STATUSES: PurchaseRequestStatus[] = [
@@ -63,7 +150,13 @@ export const ORDER_STATUSES: PurchaseOrderStatus[] = [
   'CLOSED',
   'VOID',
 ];
-export const RECEIPT_STATUSES: GoodsReceiptStatus[] = ['POSTED', 'VOID'];
+export const RECEIPT_STATUSES: GoodsReceiptDisplayStatus[] = [
+  'UNBILLED',
+  'BILLED',
+  'PENDING_APPROVAL',
+  'REJECTED',
+  'VOID',
+];
 export const BILL_STATUSES: PurchaseBillStatus[] = [
   'DRAFT',
   'VERIFIED',

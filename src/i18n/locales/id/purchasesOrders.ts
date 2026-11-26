@@ -130,6 +130,7 @@ export const purchasesOrders = {
     itemsSubtitle: 'Perkembangan penerimaan dan penagihan tiap baris',
     col: {
       item: 'Barang atau jasa',
+      status: 'Status',
       schedule: 'Penagihan',
       received: 'Diterima',
       billed: 'Ditagih',
