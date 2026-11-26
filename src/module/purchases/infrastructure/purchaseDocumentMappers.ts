@@ -1,6 +1,8 @@
 import { toOrderRetention } from '@/module/purchases/infrastructure/orderRetentionMapper';
 import { toAdvanceState } from '@/module/purchases/infrastructure/advanceStateMappers';
 import { toDocumentJournals } from '@/module/purchases/infrastructure/documentJournalMappers';
+import { toReorderOrderFields } from '@/module/purchases/infrastructure/purchaseReorderMappers';
+import { toOrderSent } from '@/module/purchases/infrastructure/orderSentMapper';
 import type { PaymentRequest } from '@/module/purchases/domain/paymentRequest';
 import type {
   BillItem,
@@ -86,6 +88,8 @@ const toOrderItem = (dto: PurchaseOrderDto['items'][number]): OrderItem => ({
   status: dto.status ?? undefined,
   statusLabel: dto.statusLabel ?? undefined,
   billOnly: Boolean(dto.billOnly),
+  reorderSelectable: dto.reorderSelectable !== false,
+  previousUnitPrice: dto.previousUnitPrice ?? null,
   schedule: {
     kind: dto.schedule?.kind ?? 'FULL',
     seq: dto.schedule?.seq ?? 1,
@@ -125,12 +129,8 @@ export const toPurchaseOrder = (dto: PurchaseOrderDto): PurchaseOrder => ({
   retention: toOrderRetention(dto.retention),
   payableAmount: dto.payableAmount ?? 0,
   billedAmount: dto.billedAmount ?? 0,
-  sent: {
-    byEmail: Boolean(dto.sentByEmail),
-    to: dto.sentTo ?? '',
-    cc: dto.sentCc ?? [],
-    note: dto.sentNote ?? '',
-  },
+  sent: toOrderSent(dto),
+  ...toReorderOrderFields(dto),
 });
 
 export const toGoodsReceipt = (dto: GoodsReceiptDto): GoodsReceipt => ({

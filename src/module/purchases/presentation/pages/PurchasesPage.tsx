@@ -8,6 +8,7 @@ import {
   IconPlus,
   IconReceipt2,
   IconRefresh,
+  IconRepeat,
   IconShoppingCart,
   IconWallet,
 } from '@tabler/icons-react';
@@ -25,6 +26,7 @@ import {
 import { OverviewMetrics } from '@/module/purchases/presentation/components/hub/OverviewMetrics';
 import { OverviewTab } from '@/module/purchases/presentation/components/hub/OverviewTab';
 import { BillPickerDialog } from '@/module/purchases/presentation/components/returns/BillPickerDialog';
+import { ReorderDialog } from '@/module/purchases/presentation/components/orders/ReorderDialog';
 import { PageFrame } from '@/module/purchases/presentation/components/shared/PageFrame';
 import {
   useDashboardActions,
@@ -51,6 +53,7 @@ export default function PurchasesPage() {
   const openReport = () => navigate(routes.purchases.payables);
   const visible = visibleTabs(access.can);
   const [picking, setPicking] = useState(false);
+  const [reordering, setReordering] = useState(false);
   const createItems = [
     ...(access.can(PURCHASE_MENU.request, 'create')
       ? [
@@ -63,6 +66,11 @@ export default function PurchasesPage() {
       : []),
     ...(access.can(PURCHASE_MENU.documents, 'create')
       ? [
+          {
+            label: t('orders.reorder.menuLabel'),
+            icon: <IconRepeat size={16} />,
+            run: () => setReordering(true),
+          },
           {
             label: t('hub.createBill'),
             icon: <IconReceipt2 size={16} />,
@@ -200,6 +208,7 @@ export default function PurchasesPage() {
         onClose={() => setPicking(false)}
         onPick={(billId) => navigate(`${routes.purchases.returnAdd}?bill=${billId}`)}
       />
+      <ReorderDialog opened={reordering} onClose={() => setReordering(false)} />
     </PageFrame>
   );
 }

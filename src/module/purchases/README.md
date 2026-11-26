@@ -147,9 +147,15 @@ Verified live on the Demo Site (2026-11-21), positive and negative.
 
 ### PRO-120 purchasing summaries (2026-11-26)
 
-- The dashboard renders the service's `flow` order, due groups, action severity/counts and `oldest`, top vendors, credits, monthly purchases, and procurement breakdown. Action filters page eight items at a time. Financial sections are absent when the report right is absent; zero values that the service sends remain visible. Retention tasks remain separate from the action feed.
+- The dashboard renders the service's `flow` order, due groups, action severity/counts and `oldest`, top vendors, credits, monthly purchases, and procurement breakdown. Action filters page twelve items at a time; the retention card follows the action list in its column to use the available space. Financial sections are absent when the report right is absent; zero values that the service sends remain visible. Retention tasks remain separate from the action feed.
 - The payables report reads vendor totals and invoice rows from one `GET /v1/purchase-bills/payables/by-supplier` response. Vendor selection is shared by the visible report, invoice table, and export request. The report uses its returned precision and Jakarta calendar date for the requested `asOf`.
 - The request, order, receipt, bill, and payment request lists show four cards from each list response's `data.summary`, above the search and table. Missing summaries are hidden; present zero summaries are shown. The bill's remaining payable card also requires `JP-PURCH-RPT` read access.
+
+### PRO-120 Pesan Ulang PO/SPK (2026-11-26)
+
+- `GET /v1/purchase-orders/reorder-sources` supplies the picker, including blocked completed orders and their reasons. The detail supplies `canReorder`, selectable source lines, the source and related order links, and the live approval plan. Creation requires `JP-PURCH.create`.
+- The modal locks vendor, term, warehouse, and source items. Selected quantity and unit price are sent to `POST /:id/reorder/preview`; the server owns totals, price increase, reason requirement, active reorder warning, and approval configuration. Submitting `POST /:id/reorder` uses a UUID reused with the same payload after an uncertain network result.
+- Pending and rejected reorders cannot be sent, printed, received, billed, or used for an advance. The detail uses server `canDecide` and the zero-based approval stage for approve/reject, then refreshes purchasing queries.
 
 All purchasing screens share one set of building blocks in `presentation/components/shared/`: `DocumentFrame` (back link, header card, facts strip, two columns), `SectionCard` (icon tile, title, hairline, body), `InfoGrid`, `AmountsCard`, `RelatedDocsCard`, `DocumentJourney` and `ApprovalTrail` (the approval history sits inside the Persetujuan card, vertical), `ListShell`, `SourcePickerDialog` (the "Buat baru" pickers), `ReasonModal`, and `wizard/*` for the step forms (`WizardCard`, `WizardStepper`, `WizardActionBar`, `ChoiceCard`). Rules every screen follows: tables use `Table.module.css` (no line or empty space under the last row) and rows are the link; a badge is only for a status; notices sit full width under the header; dialogs use `ModalFrame`.
 
