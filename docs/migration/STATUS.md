@@ -77,3 +77,7 @@ The audit is [AUDIT.md](AUDIT.md). The ESLint ratchet baseline (`eslint-baseline
 ## Release update (2026-11-03)
 
 Follow-up polish for account setup, contacts, journal entries, petty cash, and the shared module header was merged to `develop-frontend` in PR #78 and promoted to `staging` in PR #79. The migration statuses above remain unchanged. The staging image build and push completed, but the server deployment could not connect over SSH on port 22; the running staging application was not updated, so the staging smoke test is still pending.
+
+## Release update (2026-11-26)
+
+PRO-120 purchase status display alignment was merged to `develop-frontend` in PR #269 and promoted to `staging` in PR #270. The staging image build, push, and server deployment completed successfully. The migration statuses above remain unchanged. The staging smoke test is pending before production promotion.
