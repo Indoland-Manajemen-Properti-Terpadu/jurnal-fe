@@ -140,13 +140,13 @@ export const settingsPages = {
       'A number from this format is the prefix, a five-digit running number, then the suffix, with no year or month. The counter keeps rising and does not restart every month.',
     title: 'Document Number Formats',
     description:
-      'Set the automatic numbering format and prefix for Sales Invoices and General Journal Transactions.',
+      'Set the prefix, suffix, and starting number for automatic numbering of each document type, such as sales invoices, purchases, inventory, and journals.',
     addNew: 'Add New Format',
     listPrefix: 'Document Numbering List (',
     search: 'Search type or prefix...',
     emptyTitle: 'No Number Formats Yet',
     emptyDescription:
-      'Configure numbering formats for sales invoices and transaction journals so they are structured and increment automatically.',
+      'Set up numbering formats for the document types you use so numbers stay tidy and increase automatically.',
     addFormat: 'Add Number Format',
     colType: 'Document Type',
     colAffix: 'Prefix / Suffix',
