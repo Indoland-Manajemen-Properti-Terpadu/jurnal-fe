@@ -96,6 +96,8 @@ export const stockTake = {
     products: 'Choose at least one product.',
   },
   steps: {
+    cancelled: 'Cancelled',
+    cancelledBy: 'Cancelled by {{name}}',
     by: 'by {{name}}',
     hint: {
       draft: 'Document created, book balance not frozen yet',

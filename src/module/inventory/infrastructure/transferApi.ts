@@ -63,6 +63,7 @@ export interface TransferDto {
     | null;
   voidReason?: string | null;
   voidedAt?: string | null;
+  rejectedAt?: string | null;
   createdAt?: string;
 }
 
@@ -105,6 +106,8 @@ export const toTransfer = (dto: TransferDto): StockTransfer => {
     rejectReason: dto.rejectionReason ?? null,
     voidReason: dto.voidReason ?? null,
     voidedAt: dto.voidedAt ?? null,
+    rejectedAt: dto.rejectedAt ?? null,
+    withdrawn: dto.status === 'VOID' && !dto.approvedAt,
     createdAt: dto.createdAt ?? '',
   };
 };

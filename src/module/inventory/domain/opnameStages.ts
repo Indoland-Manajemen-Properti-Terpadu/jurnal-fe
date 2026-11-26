@@ -23,7 +23,7 @@ const lastEntry = (opname: StockOpname, startsWith: string): StageDetail => {
  */
 export const opnameStages = (
   opname: StockOpname
-): { done: number; details: OpnameStageDetails } => {
+): { done: number; details: OpnameStageDetails; cancelled: StageDetail | null } => {
   const submitted = lastEntry(opname, 'Dikirim');
   const approved = lastEntry(opname, 'Disetujui');
   const details: OpnameStageDetails = {
@@ -38,12 +38,12 @@ export const opnameStages = (
   };
 
   const { status } = opname;
-  if (status === 'posted') return { done: OPNAME_STEPS.length, details };
-  if (status !== 'cancelled') return { done: stepIndex(status), details };
+  if (status === 'posted') return { done: OPNAME_STEPS.length, details, cancelled: null };
+  if (status !== 'cancelled') return { done: stepIndex(status), details, cancelled: null };
 
   let done = 1;
   if (details.counting.at) done = 2;
   if (details.pending_approval.at) done = 3;
   if (details.posted.at) done = 4;
-  return { done, details };
+  return { done, details, cancelled: lastEntry(opname, 'Dibatalkan') };
 };
