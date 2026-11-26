@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Anchor, Select, Table, Text } from '@mantine/core';
-import { IconCoins, IconWallet } from '@tabler/icons-react';
+import { IconClock, IconCoins, IconReceipt2, IconWallet } from '@tabler/icons-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
 import { PURCHASE_MENU } from '@/module/purchases/domain/purchaseAccess';
@@ -14,6 +14,7 @@ import {
 } from '@/module/purchases/domain/paymentRequest';
 import { IssueVoucherDialog } from '@/module/purchases/presentation/components/paymentRequests/IssueVoucherDialog';
 import { viewAction } from '@/module/purchases/presentation/components/lists/rowActions';
+import { ListSummaryCards } from '@/module/purchases/presentation/components/lists/ListSummaryCards';
 import { detailPath } from '@/module/purchases/presentation/components/hub/documentPaths';
 import {
   AmountCell,
@@ -41,6 +42,25 @@ export const PaymentRequestList = () => {
   return (
     <>
       <ListShell
+        summary={
+          query.data?.summary && (
+            <ListSummaryCards
+              icons={[IconWallet, IconClock, IconReceipt2, IconWallet]}
+              items={(
+                [
+                  ['total', query.data.summary.total],
+                  ['pendingApproval', query.data.summary.pendingApproval],
+                  ['waitingVoucher', query.data.summary.waitingVoucher],
+                  ['waitingPayment', query.data.summary.waitingPayment],
+                ] as const
+              ).map(([key, value]) => ({
+                label: t(`hub.listSummary.paymentRequests.${key}.label`),
+                hint: t(`hub.listSummary.paymentRequests.${key}.hint`),
+                value,
+              }))}
+            />
+          )
+        }
         searchValue={state.searchInput}
         onSearchChange={state.setSearch}
         searchPlaceholder={t('paymentRequests.list.search')}

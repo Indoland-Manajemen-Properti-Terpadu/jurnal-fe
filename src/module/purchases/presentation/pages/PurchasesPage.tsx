@@ -120,8 +120,13 @@ export default function PurchasesPage() {
           isLoading={summary.isLoading || actions.isLoading}
           onOpenReport={canReport ? openReport : undefined}
           onOpenReady={
-            access.can(PURCHASE_MENU.payments, 'read')
+            access.can(PURCHASE_MENU.paymentRequests, 'read')
               ? () => navigate(routes.purchases.payments)
+              : undefined
+          }
+          onOpenUnbilled={
+            access.can(PURCHASE_MENU.receipts, 'read')
+              ? () => navigate(routes.purchases.receipts)
               : undefined
           }
         />
@@ -137,6 +142,11 @@ export default function PurchasesPage() {
           canOpen={(tab) => canReadTab(tab, access.can)}
           onOpen={(tab) => navigate(listPath(tab))}
           onOpenReport={canReport ? openReport : undefined}
+          onOpenVendor={
+            canReport
+              ? (id) => navigate(`${routes.purchases.payables}?vendor=${encodeURIComponent(id)}`)
+              : undefined
+          }
         />
       </>
     );

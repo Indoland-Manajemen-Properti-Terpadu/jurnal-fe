@@ -1,9 +1,11 @@
 import { Table, Text } from '@mantine/core';
-import { IconReceipt2 } from '@tabler/icons-react';
+import { IconAlertTriangle, IconClock, IconReceipt2, IconWallet } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { viewAction } from '@/module/purchases/presentation/components/lists/rowActions';
+import { ListSummaryCards } from '@/module/purchases/presentation/components/lists/ListSummaryCards';
 import { useTranslation } from '@/i18n';
 import { detailPath } from '@/module/purchases/presentation/components/hub/documentPaths';
+import { PURCHASE_MENU } from '@/module/purchases/domain/purchaseAccess';
 import {
   DueCell,
   NumberCell,
@@ -14,10 +16,12 @@ import { formatAmount, formatDay } from '@/module/purchases/presentation/compone
 import { StatusBadge } from '@/module/purchases/presentation/components/shared/StatusBadge';
 import { useListState } from '@/module/purchases/presentation/components/shared/useListState';
 import { useBills } from '@/module/purchases/presentation/hooks/usePurchaseQueries';
+import { usePurchaseAccess } from '@/module/purchases/presentation/hooks/usePurchaseAccess';
 
 export const BillList = () => {
   const { t, currentLanguage } = useTranslation('purchases');
   const navigate = useNavigate();
+  const { can } = usePurchaseAccess();
   const state = useListState();
   // The status filter is the list's tabs: not verified, owed, owed and late, paid, voided.
   const { status: displayStatus, ...rest } = state.params;
@@ -25,6 +29,29 @@ export const BillList = () => {
 
   return (
     <ListShell
+      summary={
+        query.data?.summary && (
+          <ListSummaryCards
+            icons={[IconReceipt2, IconClock, IconAlertTriangle, IconWallet]}
+            precision={query.data?.precision}
+            items={(
+              [
+                ['total', query.data.summary.total, false],
+                ['unpaid', query.data.summary.unpaid, false],
+                ['overdue', query.data.summary.overdue, false],
+                ...(can(PURCHASE_MENU.reports, 'read')
+                  ? ([['remainingPayable', query.data.summary.remainingPayable, true]] as const)
+                  : []),
+              ] as const
+            ).map(([key, value, money]) => ({
+              label: t(`hub.listSummary.bills.${key}.label`),
+              hint: t(`hub.listSummary.bills.${key}.hint`),
+              value,
+              money,
+            }))}
+          />
+        )
+      }
       searchValue={state.searchInput}
       onSearchChange={state.setSearch}
       searchPlaceholder={t('hub.bills.search')}

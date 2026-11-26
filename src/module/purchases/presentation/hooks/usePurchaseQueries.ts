@@ -1,6 +1,13 @@
 import { keepPreviousData, useQueries, useQuery } from '@tanstack/react-query';
 import type { PurchaseAccessProfile } from '@/module/purchases/domain/purchaseAccess';
 import type {
+  BillListSummary,
+  OrderListSummary,
+  PaymentRequestListSummary,
+  ReceiptListSummary,
+  RequestListSummary,
+} from '@/module/purchases/domain/listSummaries';
+import type {
   NamedRef,
   Page,
   PartyRef,
@@ -75,14 +82,14 @@ const STABLE_MS = 5 * 60 * 1000;
 const retryUnlessNotFound = (count: number, error: PurchaseError) =>
   error.kind !== 'notFound' && count < 2;
 
-const useList = <T>(
+const useList = <T, Summary = never>(
   kind: DocumentKind,
   params: ListParams,
-  fetch: (params: ListParams) => Promise<Page<T>>,
+  fetch: (params: ListParams) => Promise<Page<T, Summary>>,
   enabled = true
 ) => {
   const scope = usePurchaseScope();
-  return useQuery<Page<T>, PurchaseError>({
+  return useQuery<Page<T, Summary>, PurchaseError>({
     queryKey: purchaseKeys.list(scope, kind, params),
     queryFn: () => fetch(params),
     placeholderData: keepPreviousData,
@@ -114,23 +121,28 @@ export const usePurchaseAccessProfile = () => {
 };
 
 export const useRequests = (params: RequestListParams, enabled?: boolean) =>
-  useList<PurchaseRequest>('requests', params, listRequests, enabled);
+  useList<PurchaseRequest, RequestListSummary>('requests', params, listRequests, enabled);
 export const useRequest = (id?: string) => useDetail<PurchaseRequest>('requests', id, getRequest);
 
 export const useOrders = (params: ListParams, enabled?: boolean) =>
-  useList<PurchaseOrder>('orders', params, listOrders, enabled);
+  useList<PurchaseOrder, OrderListSummary>('orders', params, listOrders, enabled);
 export const useOrder = (id?: string) => useDetail<PurchaseOrder>('orders', id, getOrder);
 
 export const useReceipts = (params: ReceiptListParams, enabled?: boolean) =>
-  useList<GoodsReceipt>('receipts', params, listReceipts, enabled);
+  useList<GoodsReceipt, ReceiptListSummary>('receipts', params, listReceipts, enabled);
 export const useReceipt = (id?: string) => useDetail<GoodsReceipt>('receipts', id, getReceipt);
 
 export const useBills = (params: BillListParams, enabled?: boolean) =>
-  useList<PurchaseBill>('bills', params, listBills, enabled);
+  useList<PurchaseBill, BillListSummary>('bills', params, listBills, enabled);
 export const useBill = (id?: string) => useDetail<PurchaseBill>('bills', id, getBill);
 
 export const usePaymentRequests = (params: PaymentRequestListParams, enabled?: boolean) =>
-  useList<PaymentRequest>('paymentRequests', params, listPaymentRequests, enabled);
+  useList<PaymentRequest, PaymentRequestListSummary>(
+    'paymentRequests',
+    params,
+    listPaymentRequests,
+    enabled
+  );
 export const usePaymentRequest = (id?: string) =>
   useDetail<PaymentRequest>('paymentRequests', id, getPaymentRequest);
 

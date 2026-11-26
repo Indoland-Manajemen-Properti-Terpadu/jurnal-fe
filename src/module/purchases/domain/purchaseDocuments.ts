@@ -405,6 +405,19 @@ export interface PayablesAgingRow {
 
 export interface PayablesAging {
   asOf: string;
+  precision?: number;
   rows: PayablesAgingRow[];
   totals: Omit<PayablesAgingRow, 'vendorId' | 'vendorName'>;
+  invoices?: PayableInvoice[];
+}
+
+export interface PayableInvoice {
+  id: string;
+  transactionNumber: string;
+  vendorInvoiceNumber: string;
+  vendorName: string;
+  dueDate: string;
+  daysOverdue: number;
+  agingBucket: string;
+  remainingAmount: number;
 }

@@ -1,4 +1,3 @@
-import { Button } from '@mantine/core';
 import { IconHourglass } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import type { AgingBucket } from '@/module/purchases/domain/dashboard';
@@ -12,15 +11,15 @@ import {
 
 interface AgingCardProps {
   buckets: AgingBucket[];
-  onOpenReport: () => void;
 }
 
 /** How the remaining payables split by days past due, as the summary of the service sends them. */
-export const AgingCard = ({ buckets, onOpenReport }: Readonly<AgingCardProps>) => {
+export const AgingCard = ({ buckets }: Readonly<AgingCardProps>) => {
   const { t } = useTranslation('purchases');
   return (
     <SectionCard
       icon={IconHourglass}
+      plain
       title={t('hub.overview.agingTitle')}
       subtitle={t('hub.overview.agingSubtitle')}
     >
@@ -41,9 +40,6 @@ export const AgingCard = ({ buckets, onOpenReport }: Readonly<AgingCardProps>) =
           color: AGING_COLOR[bucket.key],
         }))}
       />
-      <Button variant="light" fullWidth onClick={onOpenReport}>
-        {t('hub.overview.seeReport')}
-      </Button>
     </SectionCard>
   );
 };

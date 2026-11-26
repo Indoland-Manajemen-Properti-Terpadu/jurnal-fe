@@ -13,6 +13,7 @@ interface PageFrameProps {
   /** Where the back button leads; omit on the hub. */
   backTo?: string;
   backLabel?: string;
+  backOutside?: boolean;
   actions?: ReactNode;
   children: ReactNode;
 }
@@ -24,6 +25,7 @@ export const PageFrame = ({
   description,
   backTo,
   backLabel,
+  backOutside,
   actions,
   children,
 }: Readonly<PageFrameProps>) => {
@@ -33,13 +35,25 @@ export const PageFrame = ({
     <AppShellLayout>
       <Box p={{ base: 'md', sm: 'xl' }}>
         <Stack gap="lg">
+          {backTo && backOutside && (
+            <Button
+              variant="subtle"
+              color="dark"
+              size="sm"
+              leftSection={<IconArrowLeft size={16} />}
+              onClick={() => navigate(backTo)}
+              style={{ alignSelf: 'flex-start', paddingInline: 0 }}
+            >
+              {backLabel}
+            </Button>
+          )}
           <ModuleHeader
             icon={icon}
             title={title}
             description={description}
             actions={
               <>
-                {backTo && (
+                {backTo && !backOutside && (
                   <Button
                     variant="default"
                     radius="md"

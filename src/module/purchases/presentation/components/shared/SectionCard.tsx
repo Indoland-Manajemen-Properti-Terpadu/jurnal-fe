@@ -14,6 +14,7 @@ interface SectionCardProps {
   action?: ReactNode;
   /** The body runs edge to edge: a table, a fact grid, a summary. */
   flush?: boolean;
+  plain?: boolean;
   children: ReactNode;
 }
 
@@ -29,14 +30,23 @@ export const SectionCard = ({
   count,
   action,
   flush,
+  plain,
   children,
 }: Readonly<SectionCardProps>) => (
   <Paper withBorder radius="lg" p={0} bg="white" style={{ overflow: 'hidden' }}>
     <Group justify="space-between" align="center" wrap="nowrap" px="lg" py="md" gap="sm">
       <Group gap="sm" wrap="nowrap" align="center" style={{ minWidth: 0 }}>
-        <ThemeIcon size={36} radius="md" variant="light" color="primary" style={{ flexShrink: 0 }}>
-          <CardIcon size={18} stroke={1.8} />
-        </ThemeIcon>
+        {!plain && (
+          <ThemeIcon
+            size={36}
+            radius="md"
+            variant="light"
+            color="primary"
+            style={{ flexShrink: 0 }}
+          >
+            <CardIcon size={18} stroke={1.8} />
+          </ThemeIcon>
+        )}
         <div style={{ minWidth: 0 }}>
           <Text
             fw={700}
@@ -65,7 +75,9 @@ export const SectionCard = ({
         </Group>
       )}
     </Group>
-    <Divider />
-    <Box p={flush ? 0 : 'lg'}>{flush ? children : <Stack gap="md">{children}</Stack>}</Box>
+    {!plain && <Divider />}
+    <Box p={flush ? 0 : 'lg'} pt={plain && !flush ? 0 : undefined}>
+      {flush ? children : <Stack gap="md">{children}</Stack>}
+    </Box>
   </Paper>
 );
