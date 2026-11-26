@@ -70,7 +70,11 @@ export default function PaymentRequestDetailPage() {
       badges={
         <StatusBadge
           status={doc.status}
-          label={doc.statusLabel}
+          label={
+            doc.status === 'APPROVED' || doc.status === 'PROCESSED'
+              ? t(`paymentRequests.statusLabels.${doc.status}`)
+              : doc.statusLabel
+          }
           englishLabel={
             doc.status === 'APPROVED' || doc.status === 'PROCESSED'
               ? t(`paymentRequests.statusLabels.${doc.status}`)

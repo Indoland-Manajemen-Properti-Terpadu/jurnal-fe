@@ -92,7 +92,11 @@ export const PaymentRequestList = () => {
             <Table.Td>
               <StatusBadge
                 status={row.status}
-                label={row.statusLabel}
+                label={
+                  row.status === 'APPROVED' || row.status === 'PROCESSED'
+                    ? t(`paymentRequests.statusLabels.${row.status}`)
+                    : row.statusLabel
+                }
                 englishLabel={
                   row.status === 'APPROVED' || row.status === 'PROCESSED'
                     ? t(`paymentRequests.statusLabels.${row.status}`)

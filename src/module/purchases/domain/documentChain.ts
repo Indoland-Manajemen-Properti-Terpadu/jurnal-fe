@@ -15,6 +15,7 @@ export interface ChainDocument {
   id: string;
   number: string;
   status: string;
+  statusLabel?: string;
   /** On a Payment Request: `DP` (advance) or `SETTLEMENT`. */
   kind?: string;
   /** On a purchase request: the route and state of its procurement, once a route is chosen. */
@@ -49,7 +50,15 @@ export type JourneyState = 'done' | 'next' | 'todo' | 'skipped';
 export interface JourneyStepData {
   kind: JourneyKind;
   state: JourneyState;
-  documents: { id: string; number: string; status: PurchaseStatus; to: string; current: boolean }[];
+  documents: {
+    id: string;
+    number: string;
+    status: PurchaseStatus;
+    statusLabel?: string;
+    statusContext?: 'paymentRequest';
+    to: string;
+    current: boolean;
+  }[];
   /** The document on screen belongs to this step. */
   current: boolean;
   /** A short state shown under a step that has no documents of its own, such as "Bidding · Draf". */
@@ -62,11 +71,18 @@ const DEAD = new Set(['VOID', 'CANCELLED', 'REJECTED', 'RETURNED']);
 export const isClosedStatus = (status: string): boolean => DEAD.has(status);
 const live = (docs: ChainDocument[]) => docs.filter((doc) => !DEAD.has(doc.status));
 
-const toDocs = (docs: ChainDocument[], route: string, currentId?: string) =>
+const toDocs = (
+  docs: ChainDocument[],
+  route: string,
+  currentId?: string,
+  statusContext?: 'paymentRequest'
+) =>
   docs.map((doc) => ({
     id: doc.id,
     number: doc.number,
     status: doc.status as PurchaseStatus,
+    statusLabel: doc.statusLabel,
+    statusContext,
     to: route.replace(':id', doc.id),
     current: doc.id === currentId,
   }));
@@ -122,7 +138,8 @@ export const chainSteps = (
             documents: toDocs(
               advances,
               routes.purchases.paymentRequestDetail,
-              cid('paymentRequest')
+              cid('paymentRequest'),
+              'paymentRequest'
             ),
             current: ofType('paymentRequest') && advances.some((doc) => doc.id === current?.id),
           },
@@ -143,7 +160,12 @@ export const chainSteps = (
     {
       kind: 'settlement',
       state: live(settlements).length > 0 ? 'done' : 'todo',
-      documents: toDocs(settlements, routes.purchases.paymentRequestDetail, cid('paymentRequest')),
+      documents: toDocs(
+        settlements,
+        routes.purchases.paymentRequestDetail,
+        cid('paymentRequest'),
+        'paymentRequest'
+      ),
       current: ofType('paymentRequest') && settlements.some((doc) => doc.id === current?.id),
     },
     {

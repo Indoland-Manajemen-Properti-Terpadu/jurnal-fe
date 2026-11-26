@@ -37,8 +37,17 @@ const DOT: Record<StatusTone, string> = {
 
 /** One document of a step: its number on the left, its status as a dot and a word on the right. */
 const DocRow = ({ doc }: Readonly<{ doc: JourneyDoc }>) => {
-  const { t } = useTranslation('purchases');
+  const { t, currentLanguage } = useTranslation('purchases');
   const closed = isClosedStatus(doc.status);
+  const paymentRequestLabel =
+    doc.statusContext === 'paymentRequest' && doc.status === 'APPROVED'
+      ? t('paymentRequests.statusLabels.APPROVED')
+      : doc.statusContext === 'paymentRequest' && doc.status === 'PROCESSED'
+        ? t('paymentRequests.statusLabels.PROCESSED')
+        : undefined;
+  const label =
+    paymentRequestLabel ??
+    (currentLanguage === 'id' && doc.statusLabel ? doc.statusLabel : t(`status.${doc.status}`));
   return (
     <div
       className={classes.doc}
@@ -49,10 +58,10 @@ const DocRow = ({ doc }: Readonly<{ doc: JourneyDoc }>) => {
         {doc.number}
       </Anchor>
       <span className={classes.status}>
-        <span className={classes.dot} style={{ background: DOT[statusTone(doc.status)] }} />
+        <span className={classes.dot} style={{ background: DOT[statusTone(doc.status, label)] }} />
         <Text span fz="xs" c="dimmed">
           {doc.current ? `${t('journey.thisDocument')} · ` : ''}
-          {t(`status.${doc.status}`)}
+          {label}
         </Text>
       </span>
     </div>

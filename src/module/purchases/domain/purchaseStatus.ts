@@ -70,6 +70,7 @@ const LABEL_TONES: Record<string, StatusTone> = {
   'menunggu uang muka': 'warning',
   'waiting for pv': 'warning',
   'menunggu pv': 'warning',
+  'waiting for a payment voucher': 'warning',
   'awaiting payment': 'warning',
   'menunggu pembayaran': 'warning',
   dikembalikan: 'warning',

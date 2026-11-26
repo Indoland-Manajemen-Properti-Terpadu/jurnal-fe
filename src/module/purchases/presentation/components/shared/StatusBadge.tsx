@@ -28,9 +28,11 @@ interface StatusBadgeProps {
 /** Use the backend's Indonesian status label to distinguish states that share an API code. */
 export const StatusBadge = ({ status, label, englishLabel }: Readonly<StatusBadgeProps>) => {
   const { t, currentLanguage } = useTranslation('purchases');
+  const displayLabel =
+    currentLanguage === 'id' && label ? label : (englishLabel ?? t(`status.${status}`));
   return (
-    <Badge variant="light" radius="sm" color={COLORS[statusTone(status, label)]}>
-      {currentLanguage === 'id' && label ? label : (englishLabel ?? t(`status.${status}`))}
+    <Badge variant="light" radius="sm" color={COLORS[statusTone(status, displayLabel)]}>
+      {displayLabel}
     </Badge>
   );
 };
