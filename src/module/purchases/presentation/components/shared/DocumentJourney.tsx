@@ -140,7 +140,9 @@ export const DocumentJourney = ({ steps }: Readonly<{ steps: JourneyStep[] }>) =
                   lh={1.35}
                   c={step.state === 'done' || step.state === 'next' ? 'dark.9' : 'dimmed'}
                 >
-                  {t(`journey.${step.kind}`)}
+                  {step.label === 'reorder'
+                    ? t('orders.reorder.approval')
+                    : t(`journey.${step.kind}`)}
                 </Text>
                 {step.documents.length > 1 && (
                   <Text fz="xs" c="dimmed">

@@ -144,6 +144,8 @@ export const REQUEST_STATUSES: PurchaseRequestStatus[] = [
 ];
 export const ORDER_STATUSES: PurchaseOrderStatus[] = [
   'DRAFT',
+  'PENDING_APPROVAL',
+  'REJECTED',
   'SENT',
   'PARTIAL_RECEIVED',
   'RECEIVED',

@@ -19,6 +19,8 @@ export type PurchaseOrderStatus =
   | 'RECEIVED'
   | 'COMPLETED'
   | 'CLOSED'
+  | 'PENDING_APPROVAL'
+  | 'REJECTED'
   | 'VOID';
 
 export type OrderItemStatus =
@@ -100,6 +102,8 @@ export interface OrderItem {
   schedule: OrderSchedule;
   /** A line that is only billed (shipping, advance, retention): nothing is received for it. */
   billOnly: boolean;
+  reorderSelectable?: boolean;
+  previousUnitPrice?: number | null;
 }
 
 /** How the advance is paid: through a bill of its own, or only through a Payment Request. */
@@ -187,6 +191,26 @@ export interface PurchaseOrder extends DocumentBase, DocumentAmounts {
   payableAmount: number;
   billedAmount: number;
   sent: { byEmail: boolean; to: string; cc: string[]; note: string };
+  canReorder: boolean;
+  reorderBlockReason: string | null;
+  reorderSourceRef: { id: string; number: string } | null;
+  reorderedOrders: { id: string; number: string; status: string }[];
+  reorder: {
+    note: string;
+    sourceTotal: number;
+    priceIncreased: boolean;
+    totalIncreased: boolean;
+  } | null;
+  approvalPlan: { name: string; mode: 'ANY' | 'ALL'; roles: { role: string; name: string }[] }[];
+  pendingApprovers: {
+    level: number;
+    name: string;
+    mode: 'ANY' | 'ALL';
+    roles: { id: string; name: string; approved: boolean }[];
+  }[];
+  canDecide: boolean;
+  approvalStage: number | null;
+  rejectionReason: string | null;
 }
 
 export interface ReceiptItem {

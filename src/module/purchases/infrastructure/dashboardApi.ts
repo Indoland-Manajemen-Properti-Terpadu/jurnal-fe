@@ -86,6 +86,8 @@ interface ChainDocumentDto {
   statusLabel?: string | null;
   kind?: string | null;
   procurement?: { routeLabel?: string | null; statusLabel?: string | null } | null;
+  reorderSource?: { id: string; transactionNumber?: string | null } | null;
+  reorderApproval?: { statusLabel?: string | null; stage?: number | null } | null;
 }
 
 type ChainDto = Partial<Record<keyof DocumentChain, ChainDocumentDto[]>>;
@@ -101,6 +103,15 @@ const toChainDocs = (docs: ChainDocumentDto[] | undefined): ChainDocument[] =>
       ? {
           routeLabel: doc.procurement.routeLabel,
           statusLabel: doc.procurement.statusLabel ?? '',
+        }
+      : undefined,
+    reorderSource: doc.reorderSource
+      ? { id: doc.reorderSource.id, number: doc.reorderSource.transactionNumber ?? '' }
+      : undefined,
+    reorderApproval: doc.reorderApproval
+      ? {
+          statusLabel: doc.reorderApproval.statusLabel ?? undefined,
+          stage: doc.reorderApproval.stage ?? undefined,
         }
       : undefined,
   }));
