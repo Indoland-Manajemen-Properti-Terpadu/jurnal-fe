@@ -101,10 +101,15 @@ export const toApproval = (dto: ApprovalFieldsDto): ApprovalState => ({
   rejectedAt: dto.rejectedAt ?? null,
 });
 
-export const toPage = <T, U>(dto: ListDto<T>, map: (item: T) => U): Page<U> => ({
+export const toPage = <T, U, Summary>(
+  dto: ListDto<T, Summary>,
+  map: (item: T) => U
+): Page<U, Summary> => ({
   items: dto.results.map(map),
   page: dto.page,
   limit: dto.limit,
   totalPages: dto.totalPages,
   totalResults: dto.totalResults,
+  summary: dto.summary,
+  precision: dto.precision,
 });

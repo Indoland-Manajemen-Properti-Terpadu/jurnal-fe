@@ -1,4 +1,4 @@
-import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { normalizeAgingRow, type RawAgingRow } from '@/module/purchases/domain/payablesView';
 import type { PayablesAging } from '@/module/purchases/domain/purchaseDocuments';
 import type { ApiEnvelope } from '@/module/purchases/infrastructure/purchaseDto';
@@ -10,8 +10,19 @@ import { usePurchaseScope } from '@/module/purchases/presentation/hooks/usePurch
 
 interface RawAging {
   asOf: string;
+  precision?: number;
   rows: RawAgingRow[];
   totals: PayablesAging['totals'];
+  invoices?: {
+    id: string;
+    transactionNumber: string;
+    vendorInvoiceNumber?: string | null;
+    vendor?: { id?: string; name?: string; displayName?: string } | null;
+    dueDate?: string | null;
+    daysOverdue: number;
+    agingBucket: string;
+    remainingAmount: number;
+  }[];
 }
 
 export interface PayablesParams {
@@ -33,11 +44,21 @@ export const usePayablesReport = (params: PayablesParams, enabled: boolean) => {
       });
       return {
         asOf: data.asOf.slice(0, 10),
+        precision: data.precision,
         rows: data.rows.map(normalizeAgingRow),
         totals: data.totals,
+        invoices: (data.invoices ?? []).map((invoice) => ({
+          id: invoice.id,
+          transactionNumber: invoice.transactionNumber,
+          vendorInvoiceNumber: invoice.vendorInvoiceNumber ?? '',
+          vendorName: invoice.vendor?.name ?? invoice.vendor?.displayName ?? '-',
+          dueDate: invoice.dueDate?.slice(0, 10) ?? '',
+          daysOverdue: invoice.daysOverdue,
+          agingBucket: invoice.agingBucket,
+          remainingAmount: invoice.remainingAmount,
+        })),
       };
     },
     enabled,
-    placeholderData: keepPreviousData,
   });
 };

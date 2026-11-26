@@ -1,8 +1,15 @@
 import { Table } from '@mantine/core';
-import { IconPackage } from '@tabler/icons-react';
+import {
+  IconCircleCheck,
+  IconClipboardText,
+  IconPackage,
+  IconShoppingCart,
+  IconTruck,
+} from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
 import { viewAction } from '@/module/purchases/presentation/components/lists/rowActions';
+import { ListSummaryCards } from '@/module/purchases/presentation/components/lists/ListSummaryCards';
 import { ORDER_STATUSES } from '@/module/purchases/domain/purchaseStatus';
 import { detailPath } from '@/module/purchases/presentation/components/hub/documentPaths';
 import {
@@ -25,6 +32,25 @@ export const OrderList = () => {
 
   return (
     <ListShell
+      summary={
+        query.data?.summary && (
+          <ListSummaryCards
+            icons={[IconShoppingCart, IconTruck, IconClipboardText, IconCircleCheck]}
+            items={(
+              [
+                ['total', query.data.summary.total],
+                ['waitingReceipt', query.data.summary.waitingReceipt],
+                ['partiallyReceived', query.data.summary.partiallyReceived],
+                ['completed', query.data.summary.completed],
+              ] as const
+            ).map(([key, value]) => ({
+              label: t(`hub.listSummary.orders.${key}.label`),
+              hint: t(`hub.listSummary.orders.${key}.hint`),
+              value,
+            }))}
+          />
+        )
+      }
       searchValue={state.searchInput}
       onSearchChange={state.setSearch}
       searchPlaceholder={t('hub.orders.search')}

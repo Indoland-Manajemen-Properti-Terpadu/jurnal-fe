@@ -9,6 +9,7 @@ import {
   Paper,
   Select,
   Skeleton,
+  Stack,
   Table,
   Text,
   TextInput,
@@ -34,6 +35,7 @@ export interface RowAction {
 const PAGE_SIZES = ['10', '20', '50'];
 
 interface ListShellProps<T> {
+  summary?: ReactNode;
   searchValue: string;
   onSearchChange: (value: string) => void;
   searchPlaceholder: string;
@@ -76,6 +78,7 @@ const SKELETON_ROWS = 6;
 
 /** Search, status filter, table frame and pagination of one purchasing list. */
 export function ListShell<T>({
+  summary,
   searchValue,
   onSearchChange,
   searchPlaceholder,
@@ -195,116 +198,119 @@ export function ListShell<T>({
   };
 
   return (
-    <Paper withBorder radius="lg" p={0} bg="white" style={{ overflow: 'hidden' }}>
-      <Group
-        gap="sm"
-        align="center"
-        wrap="wrap"
-        p="md"
-        bg="var(--jurnal-color-surface-muted)"
-        style={{ borderBottom: '1px solid var(--jurnal-color-border-subtle)' }}
-      >
-        <TextInput
-          value={searchValue}
-          onChange={(event) => onSearchChange(event.currentTarget.value)}
-          placeholder={searchPlaceholder}
-          aria-label={searchPlaceholder}
-          leftSection={<IconSearch size={16} />}
-          radius="md"
-          style={{ flex: '1 1 260px', maxWidth: 420 }}
-        />
-        {statusOptions.length > 0 && (
-          <Select
-            value={statusValue || null}
-            onChange={onStatusChange}
-            data={statusOptions}
-            placeholder={t('list.allStatuses')}
-            aria-label={t('list.statusFilter')}
-            clearable
+    <Stack gap="lg">
+      {summary}
+      <Paper withBorder radius="lg" p={0} bg="white" style={{ overflow: 'hidden' }}>
+        <Group
+          gap="sm"
+          align="center"
+          wrap="wrap"
+          p="md"
+          bg="var(--jurnal-color-surface-muted)"
+          style={{ borderBottom: '1px solid var(--jurnal-color-border-subtle)' }}
+        >
+          <TextInput
+            value={searchValue}
+            onChange={(event) => onSearchChange(event.currentTarget.value)}
+            placeholder={searchPlaceholder}
+            aria-label={searchPlaceholder}
+            leftSection={<IconSearch size={16} />}
             radius="md"
-            w={220}
+            style={{ flex: '1 1 260px', maxWidth: 420 }}
           />
-        )}
-        {filters}
-      </Group>
-
-      <Box p="md">
-        <Paper withBorder radius="md" bg="white" p={0} style={{ overflow: 'hidden' }}>
-          <Table.ScrollContainer type="native" minWidth={760}>
-            <Table
-              className={tableClasses.table}
-              verticalSpacing="sm"
-              horizontalSpacing="md"
-              highlightOnHover={Boolean(onRowClick)}
-            >
-              <Table.Thead bg="var(--jurnal-color-surface-muted)">
-                <Table.Tr>
-                  {columns.map((column) => (
-                    <Table.Th
-                      key={column.key}
-                      ta={column.align}
-                      miw={column.minWidth}
-                      style={{ whiteSpace: 'nowrap' }}
-                    >
-                      <Text size="xs" fw={700} c="dark.7" tt="uppercase">
-                        {column.label}
-                      </Text>
-                    </Table.Th>
-                  ))}
-                  {rowActions && (
-                    <Table.Th ta="center" w={64}>
-                      <Text size="xs" fw={700} c="dark.7" tt="uppercase">
-                        {t('list.actionsColumn')}
-                      </Text>
-                    </Table.Th>
-                  )}
-                </Table.Tr>
-              </Table.Thead>
-              <Table.Tbody>{body()}</Table.Tbody>
-            </Table>
-          </Table.ScrollContainer>
-
-          {totalResults > 0 && (
-            <Group
-              justify="space-between"
-              align="center"
-              wrap="wrap"
-              gap="sm"
-              px="md"
-              py="sm"
-              style={{ borderTop: '1px solid var(--jurnal-color-border-subtle)' }}
-            >
-              <Text size="xs" c="dimmed">
-                {t('list.showing', { from, to, total: totalResults, noun })}
-              </Text>
-              <Group gap="sm" wrap="nowrap">
-                <Select
-                  value={String(limit)}
-                  onChange={(value) => value && onLimitChange(Number(value))}
-                  data={PAGE_SIZES.map((size) => ({
-                    value: size,
-                    label: t('list.perPage', { count: size }),
-                  }))}
-                  allowDeselect={false}
-                  aria-label={t('list.perPageAria')}
-                  radius="md"
-                  size="xs"
-                  w={96}
-                />
-                {totalPages > 1 && (
-                  <Pagination
-                    value={page}
-                    onChange={onPageChange}
-                    total={totalPages}
-                    radius="md"
-                    size="sm"
-                  />
-                )}
-              </Group>
-            </Group>
+          {statusOptions.length > 0 && (
+            <Select
+              value={statusValue || null}
+              onChange={onStatusChange}
+              data={statusOptions}
+              placeholder={t('list.allStatuses')}
+              aria-label={t('list.statusFilter')}
+              clearable
+              radius="md"
+              w={220}
+            />
           )}
-        </Paper>
-      </Box>
-    </Paper>
+          {filters}
+        </Group>
+
+        <Box p="md">
+          <Paper withBorder radius="md" bg="white" p={0} style={{ overflow: 'hidden' }}>
+            <Table.ScrollContainer type="native" minWidth={760}>
+              <Table
+                className={tableClasses.table}
+                verticalSpacing="sm"
+                horizontalSpacing="md"
+                highlightOnHover={Boolean(onRowClick)}
+              >
+                <Table.Thead bg="var(--jurnal-color-surface-muted)">
+                  <Table.Tr>
+                    {columns.map((column) => (
+                      <Table.Th
+                        key={column.key}
+                        ta={column.align}
+                        miw={column.minWidth}
+                        style={{ whiteSpace: 'nowrap' }}
+                      >
+                        <Text size="xs" fw={700} c="dark.7" tt="uppercase">
+                          {column.label}
+                        </Text>
+                      </Table.Th>
+                    ))}
+                    {rowActions && (
+                      <Table.Th ta="center" w={64}>
+                        <Text size="xs" fw={700} c="dark.7" tt="uppercase">
+                          {t('list.actionsColumn')}
+                        </Text>
+                      </Table.Th>
+                    )}
+                  </Table.Tr>
+                </Table.Thead>
+                <Table.Tbody>{body()}</Table.Tbody>
+              </Table>
+            </Table.ScrollContainer>
+
+            {totalResults > 0 && (
+              <Group
+                justify="space-between"
+                align="center"
+                wrap="wrap"
+                gap="sm"
+                px="md"
+                py="sm"
+                style={{ borderTop: '1px solid var(--jurnal-color-border-subtle)' }}
+              >
+                <Text size="xs" c="dimmed">
+                  {t('list.showing', { from, to, total: totalResults, noun })}
+                </Text>
+                <Group gap="sm" wrap="nowrap">
+                  <Select
+                    value={String(limit)}
+                    onChange={(value) => value && onLimitChange(Number(value))}
+                    data={PAGE_SIZES.map((size) => ({
+                      value: size,
+                      label: t('list.perPage', { count: size }),
+                    }))}
+                    allowDeselect={false}
+                    aria-label={t('list.perPageAria')}
+                    radius="md"
+                    size="xs"
+                    w={96}
+                  />
+                  {totalPages > 1 && (
+                    <Pagination
+                      value={page}
+                      onChange={onPageChange}
+                      total={totalPages}
+                      radius="md"
+                      size="sm"
+                    />
+                  )}
+                </Group>
+              </Group>
+            )}
+          </Paper>
+        </Box>
+      </Paper>
+    </Stack>
   );
 }

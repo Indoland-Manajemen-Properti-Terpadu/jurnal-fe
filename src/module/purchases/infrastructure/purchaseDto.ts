@@ -5,6 +5,8 @@ import type {
   GoodsReceiptDisplayStatus,
   OrderItemStatus,
 } from '@/module/purchases/domain/purchaseDocuments';
+
+export type { ListDto } from '@/module/purchases/infrastructure/purchaseListDto';
 /** Shapes of the purchasing API responses, as captured from the live service. */
 
 export interface ApiEnvelope<T> {
@@ -12,15 +14,6 @@ export interface ApiEnvelope<T> {
   message: string;
   data: T;
 }
-
-export interface ListDto<T> {
-  results: T[];
-  page: number;
-  limit: number;
-  totalPages: number;
-  totalResults: number;
-}
-
 export interface ContactListDto<T> {
   data: T[];
   pagination: { total: number; page: number; limit: number; totalPages?: number; pages?: number };

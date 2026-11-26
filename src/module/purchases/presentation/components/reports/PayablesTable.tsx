@@ -1,12 +1,11 @@
 import tableClasses from '@/module/purchases/presentation/components/shared/Table.module.css';
-import { Group, Paper, Skeleton, Table, Text } from '@mantine/core';
+import { Paper, Skeleton, Table, Text } from '@mantine/core';
 import { IconAlertCircle, IconCircleCheck } from '@tabler/icons-react';
 import { EmptyState } from '@/components/EmptyState';
 import { useTranslation } from '@/i18n';
 import { AGING_BUCKETS } from '@/module/purchases/domain/payablesView';
 import type { PayablesAging } from '@/module/purchases/domain/purchaseDocuments';
 import { formatAmount } from '@/module/purchases/presentation/components/shared/format';
-import { AGING_COLOR, SegmentBar } from '@/module/purchases/presentation/components/shared/visuals';
 
 interface PayablesTableProps {
   data: PayablesAging | undefined;
@@ -25,14 +24,24 @@ const Head = ({ label, right }: { label: string; right?: boolean }) => (
   </Table.Th>
 );
 
-const Amount = ({ value, bold, late }: { value: number; bold?: boolean; late?: boolean }) => (
+const Amount = ({
+  value,
+  bold,
+  late,
+  precision,
+}: {
+  value: number;
+  bold?: boolean;
+  late?: boolean;
+  precision?: number;
+}) => (
   <Table.Td ta="right" style={{ whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>
     <Text
       size="sm"
       fw={bold ? 700 : 400}
       c={value === 0 && !bold ? 'dimmed' : late && value > 0 ? 'red.7' : undefined}
     >
-      {value === 0 && !bold ? '-' : formatAmount(value)}
+      {value === 0 && !bold ? '-' : formatAmount(value, precision)}
     </Text>
   </Table.Td>
 );
@@ -92,38 +101,18 @@ export const PayablesTable = ({
           <Text size="sm" fw={500}>
             {row.vendorName}
           </Text>
-          <Text size="xs" c="dimmed">
-            {t('reports.billsCount', { count: row.billCount })}
-          </Text>
-        </Table.Td>
-        <Table.Td ta="right" style={{ whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>
-          <Text size="sm" fw={700}>
-            {formatAmount(row.totalRemaining)}
-          </Text>
-          <Group justify="flex-end" mt={4}>
-            <div style={{ width: 64 }}>
-              <SegmentBar
-                aria-label={t('reports.col.remaining')}
-                segments={[
-                  { key: 'current', value: row.current, color: AGING_COLOR.current },
-                  {
-                    key: 'late',
-                    value: row.totalRemaining - row.current,
-                    color: AGING_COLOR.days31to60,
-                  },
-                ]}
-              />
-            </div>
-          </Group>
         </Table.Td>
         {AGING_BUCKETS.map((key) => (
-          <Amount key={key} value={row[key]} late={key !== 'current'} />
+          <Amount key={key} value={row[key]} late={key !== 'current'} precision={data.precision} />
         ))}
+        <Table.Td ta="right" style={{ whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>
+          <Text size="sm" fw={700}>
+            {formatAmount(row.totalRemaining, data.precision)}
+          </Text>
+        </Table.Td>
       </Table.Tr>
     ));
   };
-
-  const showTotals = !isLoading && !isError && data && data.rows.length > 0;
 
   return (
     <Paper withBorder radius="md" bg="white" p={0} style={{ overflow: 'hidden' }}>
@@ -137,31 +126,13 @@ export const PayablesTable = ({
           <Table.Thead bg="var(--jurnal-color-surface-hover)">
             <Table.Tr>
               <Head label={t('reports.col.vendor')} />
-              <Head right label={t('reports.col.remaining')} />
               {AGING_BUCKETS.map((key) => (
                 <Head key={key} right label={t(`reports.col.${key}`)} />
               ))}
+              <Head right label={t('reports.col.total')} />
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>{body()}</Table.Tbody>
-          {showTotals && (
-            <Table.Tfoot>
-              <Table.Tr
-                bg="var(--jurnal-color-surface-hover)"
-                style={{ borderTop: '1px solid var(--jurnal-color-border-muted)' }}
-              >
-                <Table.Td>
-                  <Text size="sm" fw={700}>
-                    {t('reports.total')}
-                  </Text>
-                </Table.Td>
-                <Amount bold value={data.totals.totalRemaining} />
-                {AGING_BUCKETS.map((key) => (
-                  <Amount key={key} bold late={key !== 'current'} value={data.totals[key]} />
-                ))}
-              </Table.Tr>
-            </Table.Tfoot>
-          )}
         </Table>
       </Table.ScrollContainer>
     </Paper>

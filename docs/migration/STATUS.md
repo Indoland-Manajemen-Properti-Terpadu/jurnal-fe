@@ -81,3 +81,5 @@ Follow-up polish for account setup, contacts, journal entries, petty cash, and t
 ## Release update (2026-11-26)
 
 PRO-120 purchase status display alignment was merged to `develop-frontend` in PR #269 and promoted to `staging` in PR #270. The staging image build, push, and server deployment completed successfully. The migration statuses above remain unchanged. The staging smoke test is pending before production promotion.
+
+The next PRO-120 purchase summary slice covers the purchasing dashboard, the payables by vendor report, and summary cards on the request, order, receipt, vendor bill, and payment request lists. Its API values come from the purchase dashboard, payables report, and list responses. The purchase module structure and migration statuses above remain unchanged. The owner authorized direct production promotion while the product is not yet live; record any skipped staging smoke test in the release PR.

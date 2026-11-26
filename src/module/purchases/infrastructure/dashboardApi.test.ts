@@ -1,5 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { getDocumentChain } from '@/module/purchases/infrastructure/dashboardApi';
+import {
+  getDashboardActions,
+  getDocumentChain,
+} from '@/module/purchases/infrastructure/dashboardApi';
 
 const get = vi.fn();
 vi.mock('@/module/purchases/infrastructure/purchaseHttp', () => ({
@@ -51,5 +54,40 @@ describe('getDocumentChain', () => {
       statusLabel: 'Draf',
     });
     expect(chain.purchaseRequests[1].procurement).toBeUndefined();
+  });
+});
+
+describe('getDashboardActions', () => {
+  beforeEach(() => get.mockReset());
+
+  it('preserves service order, severity counts, and the oldest action', async () => {
+    const first = {
+      key: 'f-1',
+      title: 'Catat faktur',
+      severity: 'stale',
+      late: 12,
+      target: { type: 'goodsReceipt', id: 'r1' },
+    };
+    const second = {
+      key: 'b-2',
+      title: 'Ajukan pembayaran',
+      severity: 'ok',
+      target: { type: 'purchaseBill', id: 'b2' },
+    };
+    get.mockResolvedValue({
+      data: {
+        total: 2,
+        late: 1,
+        bySeverity: { stale: 1, warn: 0, ok: 1 },
+        oldest: first,
+        items: [first, second],
+      },
+    });
+
+    const actions = await getDashboardActions();
+    expect(actions.bySeverity).toEqual({ stale: 1, warn: 0, ok: 1 });
+    expect(actions.oldest).toMatchObject({ key: 'f-1', severity: 'stale', late: 12 });
+    expect(actions.items.map((item) => item.key)).toEqual(['f-1', 'b-2']);
+    expect(actions.items[1]).toMatchObject({ subtitle: '', due: null, severity: 'ok' });
   });
 });

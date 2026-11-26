@@ -18,8 +18,26 @@ export interface DashboardSummary {
   /** Decimal digits of money, from the general settings. */
   precision: number;
   flow: FlowStage[];
-  procurement: { bidding: number; single: number; pastRequiredDate: number };
-  readyToPay: { count: number; amount: number };
+  procurement: {
+    count?: number;
+    bidding: number;
+    single: number;
+    unassigned?: number;
+    pastRequiredDate: number;
+  };
+  readyToPay: { count: number; amount?: number };
+  unbilledReceipts?: { count: number; amount?: number };
+  vendorCredits?: {
+    advances: { count: number; amount: number };
+    returnCredits: { count: number; amount: number };
+    pendingRefunds: { count: number; amount: number };
+  };
+  purchaseMonth?: {
+    current: PurchasePeriod;
+    previousComparable: PurchasePeriod;
+    previousMonth: PurchasePeriod;
+    percentOfPreviousMonth: number | null;
+  };
   /** Only for people who may read the purchasing report. */
   payables: {
     total: number;
@@ -27,9 +45,33 @@ export interface DashboardSummary {
     overduePercent: number;
     billCount: number;
     aging: AgingBucket[];
+    due?: {
+      overdue: DueGroup;
+      dueWithin7Days: DueGroup & { nearestDueDate?: string | null };
+      dueAfter7Days: DueGroup;
+    };
+    vendorCount?: number;
+    topVendors?: {
+      vendor: { id: string; name: string };
+      amount: number;
+      billCount: number;
+      percent: number;
+    }[];
   } | null;
   /** Retention held back from vendors; null when the user may not read it. */
   retention: RetentionSummary | null;
+}
+
+export interface DueGroup {
+  amount: number;
+  billCount: number;
+  percent: number;
+}
+
+export interface PurchasePeriod {
+  startDate?: string;
+  endDate?: string;
+  amount: number;
 }
 
 export type ActionTargetType =
@@ -52,12 +94,15 @@ export interface DashboardAction {
   waiting: number | null;
   late: number | null;
   due: string | null;
+  severity?: 'stale' | 'warn' | 'ok';
 }
 
 export interface DashboardActions {
   total: number;
   late: number;
   items: DashboardAction[];
+  bySeverity?: { stale: number; warn: number; ok: number };
+  oldest?: DashboardAction | null;
 }
 
 export interface DashboardConfig {
