@@ -18,6 +18,11 @@ import {
   type DashboardActions,
   type DashboardSummary,
 } from '@/module/purchases/domain/dashboard';
+import { ReleaseRetentionDialog } from '@/module/purchases/presentation/components/hub/ReleaseRetentionDialog';
+import { RetentionTaskRow } from '@/module/purchases/presentation/components/hub/RetentionTaskRow';
+import { PURCHASE_MENU } from '@/module/purchases/domain/purchaseAccess';
+import { usePurchaseAccess } from '@/module/purchases/presentation/hooks/usePurchaseAccess';
+import { useRetentionTasks } from '@/module/purchases/presentation/hooks/useRetention';
 import { AgingCard } from '@/module/purchases/presentation/components/hub/AgingCard';
 import type { ListTab } from '@/module/purchases/presentation/components/hub/hubTabs';
 import classes from '@/module/purchases/presentation/components/hub/OverviewTab.module.css';
@@ -97,6 +102,11 @@ export const OverviewTab = ({
   const items = actions?.items ?? [];
   const rows = expanded ? items : items.slice(0, VISIBLE_ROWS);
   const aging = summary?.payables?.aging;
+  // Only people who may read the purchasing report get a retention summary, and so its to-dos.
+  const retentionTasks = useRetentionTasks(Boolean(summary?.retention)).data ?? [];
+  const { can } = usePurchaseAccess();
+  const canRelease = can(PURCHASE_MENU.retentionRelease, 'create');
+  const [releasing, setReleasing] = useState<string | null>(null);
 
   const body = () => {
     if (isLoading) {
@@ -121,7 +131,7 @@ export const OverviewTab = ({
         />
       );
     }
-    if (items.length === 0) {
+    if (items.length === 0 && retentionTasks.length === 0) {
       return (
         <EmptyState
           icon={<IconCheck size={32} stroke={1.6} />}
@@ -153,6 +163,14 @@ export const OverviewTab = ({
           {rows.map((action) => (
             <ActionRow key={action.key} action={action} language={currentLanguage} />
           ))}
+          {retentionTasks.map((task) => (
+            <RetentionTaskRow
+              key={`${task.purchaseOrderId}-${task.type}`}
+              task={task}
+              language={currentLanguage}
+              onRelease={canRelease ? setReleasing : undefined}
+            />
+          ))}
         </div>
         {items.length > VISIBLE_ROWS && (
           <button
@@ -171,6 +189,9 @@ export const OverviewTab = ({
 
   return (
     <Stack gap="lg">
+      {releasing && (
+        <ReleaseRetentionDialog purchaseOrderId={releasing} onClose={() => setReleasing(null)} />
+      )}
       {summary && <PipelineStrip summary={summary} canOpen={canOpen} onOpen={onOpen} />}
       <Grid gutter="lg" align="flex-start">
         <Grid.Col span={{ base: 12, lg: summary ? 8 : 12 }}>

@@ -1,3 +1,4 @@
+import type { RetentionSummary } from '@/module/purchases/domain/retention';
 import { routes } from '@/router/routes';
 
 /** One bar of the payables aging, in the order the server sends them. */
@@ -27,6 +28,8 @@ export interface DashboardSummary {
     billCount: number;
     aging: AgingBucket[];
   } | null;
+  /** Retention held back from vendors; null when the user may not read it. */
+  retention: RetentionSummary | null;
 }
 
 export type ActionTargetType =
