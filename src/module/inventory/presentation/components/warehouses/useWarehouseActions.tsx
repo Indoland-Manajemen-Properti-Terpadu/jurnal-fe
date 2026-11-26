@@ -174,6 +174,7 @@ export const useWarehouseActions = ({ onDeleted }: Options = {}) => {
         body={t('dialog.deactivateBody')}
         confirmLabel={t('dialog.deactivateConfirm')}
         cancelLabel={t('dialog.cancel')}
+        danger
         loading={actions.setActive.isPending}
         onConfirm={() => pending && confirmDeactivate(pending.warehouse)}
         onClose={close}

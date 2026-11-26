@@ -96,6 +96,7 @@ export const warehouses = {
     nameTooLong: 'Nama gudang maksimal 100 karakter',
     nameTaken: 'Nama gudang sudah dipakai',
     phoneInvalid: 'Format nomor telepon tidak valid',
+    serverField: 'Periksa kembali kolom ini',
   },
   dialog: {
     defaultTitle: 'Jadikan gudang utama?',

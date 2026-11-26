@@ -95,6 +95,7 @@ export const warehouses = {
     nameTooLong: 'Warehouse name can be 100 characters at most',
     nameTaken: 'This warehouse name is already in use',
     phoneInvalid: 'The phone number format is not valid',
+    serverField: 'Check this field and try again',
   },
   dialog: {
     defaultTitle: 'Make this the main warehouse?',

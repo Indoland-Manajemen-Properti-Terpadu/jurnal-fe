@@ -136,7 +136,9 @@ export const useWarehouseMutations = () => {
     }),
     remove: useMutation({
       mutationFn: (id: string) => deleteWarehouse(id),
-      onSuccess: refresh,
+      onSuccess: () => {
+        refresh();
+      },
     }),
   };
 };

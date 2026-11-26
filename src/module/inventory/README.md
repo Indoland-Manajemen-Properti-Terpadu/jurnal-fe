@@ -25,8 +25,8 @@ A warehouse is a master record of a place. It never holds a stock figure of its 
 | Stock of one warehouse        | `GET /v1/warehouses/:id/stock`                                                                                 |
 | Latest movements              | the same movements call as Stock movements below, with `warehouse=<id>&limit=20`                               |
 | Change history                | `GET /v1/warehouses/:id/audit-log`                                                                             |
-| People for "Penanggung jawab" | `GET /v1/warehouses/pic-options`                                                                               |
-| Save                          | `POST /v1/warehouses`, `PUT /v1/warehouses/:id` (a blank code is left out so the service numbers it `GDG-00N`) |
+| People for "Penanggung jawab" | `GET /v1/warehouses/pic-options` (`id`, `name`, `email`; no job title yet)                                  |
+| Save                          | `POST /v1/warehouses` may include `isDefault`; `PUT /v1/warehouses/:id` omits it (a blank code is left out so the service numbers it `GDG-00N`) |
 | Make main                     | `PATCH /v1/warehouses/:id/default`                                                                             |
 | Switch on or off              | `PATCH /v1/warehouses/:id/status` with `{ status: 'active'                                                     | 'inactive' }` |
 | Minimum stock                 | `PUT /v1/warehouses/:id/min-stock` with `{ items: [{ productId, minQty }] }`                                   |
@@ -47,7 +47,7 @@ A warehouse is a master record of a place. It never holds a stock figure of its 
 
 **Tables:** every table sits in `DataTableFrame` (a plain scroller, no gutter under the rows, no line after the last row). The scroll-area table container leaves a 12px gutter under the table, so it is not used here.
 
-**State:** server data in TanStack Query (keys start with the signed-in user, `presentation/hooks/inventoryKeys.ts`); every write invalidates the warehouse queries. Switching off shows a toast with "Batalkan" that switches the warehouse back on.
+**State:** server data in TanStack Query (keys start with the signed-in user, `presentation/hooks/inventoryKeys.ts`); every write invalidates the warehouse queries. Delete closes its confirmation as soon as the response succeeds while the invalidated queries refresh in the background. Switching off shows a toast with "Batalkan" that switches the warehouse back on.
 
 ## Stock movements
 
@@ -85,6 +85,7 @@ The stock ledger, read-only: nothing here adds, edits or deletes a movement. The
 
 - "Stok per gudang" in the product detail (`ProductWarehouseStock`) reads `GET /v1/products/:id/stock` and shows only for a stock-tracked product. The Products module does not import this module (a cycle); the router passes the section in through the `renderStock` prop of `ProductDetailPage`. A person without the stock right sees no section.
 - The service logs the person in charge as an id and a minimum as `minQty:<productId>`; the screen resolves both. A name in the log would remove that step (backend wish, not a blocker).
+- `pic-options` does not return a job title/position yet, so the form cannot show or search by it; adding that field to the endpoint is a backend dependency.
 - No endpoint for the open purchase orders or the waiting transfers of a warehouse, so those two blocking reasons cannot be told in advance; they show only when the service refuses.
 
 ## Stock count

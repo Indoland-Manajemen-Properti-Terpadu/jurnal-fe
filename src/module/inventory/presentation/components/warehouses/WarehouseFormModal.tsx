@@ -51,6 +51,23 @@ const clashField = (error: unknown): 'name' | 'code' | null => {
   return null;
 };
 
+const FORM_FIELD_BY_API_FIELD: Record<string, keyof WarehouseInput> = {
+  code: 'code',
+  warehousecode: 'code',
+  name: 'name',
+  warehousename: 'name',
+  address: 'address',
+  city: 'city',
+  postalcode: 'postalCode',
+  phone: 'phone',
+  notes: 'notes',
+  picuserid: 'picUserId',
+  isdefault: 'isDefault',
+};
+
+const formFieldForApiField = (field: string): keyof WarehouseInput | null =>
+  FORM_FIELD_BY_API_FIELD[field.replace(/[^a-z0-9]/gi, '').toLowerCase()] ?? null;
+
 export function WarehouseFormModal({ opened, warehouse, onClose }: Readonly<Props>) {
   const { t } = useTranslation('warehouses');
   const describe = useWarehouseErrorMessage();
@@ -61,7 +78,6 @@ export function WarehouseFormModal({ opened, warehouse, onClose }: Readonly<Prop
   const failure = create.error ?? update.error;
   const clash = clashField(failure);
   const editing = warehouse !== null;
-  const alreadyDefault = warehouse?.isDefault === true;
 
   const form = useForm<WarehouseInput>({
     initialValues: emptyWarehouseInput(),
@@ -86,11 +102,6 @@ export function WarehouseFormModal({ opened, warehouse, onClose }: Readonly<Prop
     setConfirmDiscard(false);
   }, [opened, warehouse]);
 
-  useEffect(() => {
-    if (clash === 'name') form.setFieldError('name', t('validation.nameTaken'));
-    if (clash === 'code') form.setFieldError('code', t('validation.codeTaken'));
-  }, [clash]);
-
   const requestClose = () => {
     if (saving) return;
     if (form.isDirty()) setConfirmDiscard(true);
@@ -102,13 +113,29 @@ export function WarehouseFormModal({ opened, warehouse, onClose }: Readonly<Prop
     onClose();
   };
 
+  const showFieldErrors = (error: unknown) => {
+    const fieldClash = clashField(error);
+    if (fieldClash === 'name') form.setFieldError('name', t('validation.nameTaken'));
+    if (fieldClash === 'code') form.setFieldError('code', t('validation.codeTaken'));
+    if (error instanceof ApiError && error.kind === 'validation') {
+      for (const issue of error.fieldErrors) {
+        const field = formFieldForApiField(issue.field);
+        if (field) form.setFieldError(field, t('validation.serverField'));
+      }
+    }
+  };
+
   const submit = form.onSubmit((values) => {
     const input = toWarehousePayload(values);
     if (warehouse) {
-      update.mutate({ id: warehouse.id, input }, { onSuccess: done(t('notify.updated')) });
+      update.mutate(
+        { id: warehouse.id, input },
+        { onSuccess: done(t('notify.updated')), onError: showFieldErrors }
+      );
     } else {
       create.mutate(input, {
         onSuccess: done(t('notify.created', { name: input.name })),
+        onError: showFieldErrors,
       });
     }
   });
@@ -210,12 +237,13 @@ export function WarehouseFormModal({ opened, warehouse, onClose }: Readonly<Prop
               maxRows={5}
               {...form.getInputProps('notes')}
             />
-            <Switch
-              label={t('form.isDefault')}
-              description={t(alreadyDefault ? 'form.isDefaultCurrent' : 'form.isDefaultHint')}
-              disabled={alreadyDefault}
-              {...form.getInputProps('isDefault', { type: 'checkbox' })}
-            />
+            {!editing && (
+              <Switch
+                label={t('form.isDefault')}
+                description={t('form.isDefaultHint')}
+                {...form.getInputProps('isDefault', { type: 'checkbox' })}
+              />
+            )}
           </Stack>
         </form>
       </ModalFrame>
@@ -225,6 +253,7 @@ export function WarehouseFormModal({ opened, warehouse, onClose }: Readonly<Prop
         body={t('form.discardBody')}
         confirmLabel={t('form.discardConfirm')}
         cancelLabel={t('form.discardKeep')}
+        danger
         onConfirm={() => {
           setConfirmDiscard(false);
           onClose();
