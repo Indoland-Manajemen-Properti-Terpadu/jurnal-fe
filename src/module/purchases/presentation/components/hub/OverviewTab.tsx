@@ -47,7 +47,7 @@ import {
 import { SectionCard } from '@/module/purchases/presentation/components/shared/SectionCard';
 import { formatAmount, formatDay } from '@/module/purchases/presentation/components/shared/format';
 
-const VISIBLE_ROWS = 8;
+const VISIBLE_ROWS = 12;
 type SeverityFilter = 'all' | 'stale' | 'warn' | 'ok';
 
 const ActionRow = ({
@@ -252,24 +252,49 @@ export const OverviewTab = ({
       {summary && <PipelineStrip summary={summary} canOpen={canOpen} onOpen={onOpen} />}
       <Grid gutter="lg" align="flex-start">
         <Grid.Col span={{ base: 12, lg: summary ? 8 : 12 }}>
-          <div id="purchase-actions">
-            <SectionCard
-              icon={IconChecklist}
-              plain
-              flush
-              title={t('hub.overview.workTitle')}
-              subtitle={t('hub.overview.workSubtitle')}
-              action={
-                actions && actions.late > 0 ? (
-                  <Text size="xs" c="red.7" fw={600}>
-                    {t('hub.overview.lateBadge', { count: actions.late })}
+          <Stack gap="lg">
+            <div id="purchase-actions">
+              <SectionCard
+                icon={IconChecklist}
+                plain
+                flush
+                title={t('hub.overview.workTitle')}
+                subtitle={t('hub.overview.workSubtitle')}
+                action={
+                  actions && actions.late > 0 ? (
+                    <Text size="xs" c="red.7" fw={600}>
+                      {t('hub.overview.lateBadge', { count: actions.late })}
+                    </Text>
+                  ) : undefined
+                }
+              >
+                {body()}
+              </SectionCard>
+            </div>
+            {summary?.retention && (
+              <SectionCard
+                icon={IconCoins}
+                flush
+                title={t('hub.overview.retentionTitle')}
+                subtitle={formatAmount(summary.retention.total, summary.precision)}
+              >
+                {retentionTasks.length === 0 ? (
+                  <Text p="lg" size="sm" c="dimmed">
+                    {t('hub.overview.retentionNoTasks')}
                   </Text>
-                ) : undefined
-              }
-            >
-              {body()}
-            </SectionCard>
-          </div>
+                ) : (
+                  retentionTasks.map((task) => (
+                    <RetentionTaskRow
+                      key={`${task.purchaseOrderId}-${task.type}`}
+                      task={task}
+                      language={currentLanguage}
+                      onRelease={canRelease ? setReleasing : undefined}
+                    />
+                  ))
+                )}
+              </SectionCard>
+            )}
+          </Stack>
         </Grid.Col>
         {summary && (
           <Grid.Col span={{ base: 12, lg: 4 }}>
@@ -289,29 +314,6 @@ export const OverviewTab = ({
           </Grid.Col>
         )}
       </Grid>
-      {summary?.retention && (
-        <SectionCard
-          icon={IconCoins}
-          flush
-          title={t('hub.overview.retentionTitle')}
-          subtitle={formatAmount(summary.retention.total, summary.precision)}
-        >
-          {retentionTasks.length === 0 ? (
-            <Text p="lg" size="sm" c="dimmed">
-              {t('hub.overview.retentionNoTasks')}
-            </Text>
-          ) : (
-            retentionTasks.map((task) => (
-              <RetentionTaskRow
-                key={`${task.purchaseOrderId}-${task.type}`}
-                task={task}
-                language={currentLanguage}
-                onRelease={canRelease ? setReleasing : undefined}
-              />
-            ))
-          )}
-        </SectionCard>
-      )}
     </Stack>
   );
 };

@@ -5,6 +5,7 @@ import { useTranslation } from '@/i18n';
 import { PURCHASE_MENU } from '@/module/purchases/domain/purchaseAccess';
 import { OrderActionBar } from '@/module/purchases/presentation/components/orders/OrderActionBar';
 import { OrderRetentionCard } from '@/module/purchases/presentation/components/orders/OrderRetentionCard';
+import { OrderReorderApprovalCard } from '@/module/purchases/presentation/components/orders/OrderReorderApprovalCard';
 import { OrderSummaryCard } from '@/module/purchases/presentation/components/orders/OrderSummaryCard';
 import { orderStatusLabelKey } from '@/module/purchases/presentation/components/orders/orderStatusLabel';
 import { StateFrame } from '@/module/purchases/presentation/components/requests/StateFrame';
@@ -102,6 +103,7 @@ export default function OrderDetailPage() {
         <Grid.Col span={{ base: 12, lg: 8 }}>
           <Stack gap="lg">
             <OrderSummaryCard order={doc} />
+            <OrderReorderApprovalCard order={doc} />
             <RelatedDocsCard
               icon={IconTruckDelivery}
               title={t('orders.detail.receiptsTitle')}

@@ -1,11 +1,12 @@
 import { useState, type ReactNode } from 'react';
-import { ActionIcon, Button, Paper, Skeleton, Stack, Tooltip } from '@mantine/core';
+import { ActionIcon, Button, Menu, Paper, Skeleton, Stack, Text, Tooltip } from '@mantine/core';
 import {
   IconArrowBackUp,
   IconFileText,
   IconLock,
   IconPackage,
   IconPlus,
+  IconRepeat,
   IconReceipt2,
   IconRefresh,
   IconTruckDelivery,
@@ -25,6 +26,7 @@ import { ReceiptList } from '@/module/purchases/presentation/components/lists/Re
 import { RequestList } from '@/module/purchases/presentation/components/lists/RequestList';
 import { ReturnList } from '@/module/purchases/presentation/components/lists/ReturnList';
 import { OrderPickerDialog } from '@/module/purchases/presentation/components/receipts/OrderPickerDialog';
+import { ReorderDialog } from '@/module/purchases/presentation/components/orders/ReorderDialog';
 import { BillPickerDialog } from '@/module/purchases/presentation/components/returns/BillPickerDialog';
 import { PageFrame } from '@/module/purchases/presentation/components/shared/PageFrame';
 import { purchaseKeys } from '@/module/purchases/presentation/hooks/purchaseKeys';
@@ -89,9 +91,11 @@ export default function PurchaseListPage({ tab }: Readonly<PurchaseListPageProps
   const scope = usePurchaseScope();
   const fetching = useIsFetching({ queryKey: purchaseKeys.all(scope) }) > 0;
   const [picking, setPicking] = useState<'billPicker' | 'orderPicker' | null>(null);
+  const [reordering, setReordering] = useState(false);
   const config = PAGES[tab];
   const { create } = config;
   const canCreate = create ? access.can(PURCHASE_MENU[create.menu], 'create') : false;
+  const canCreateOrder = tab === 'orders' && access.can(PURCHASE_MENU.documents, 'create');
   const allowed = canReadTab(tab, access.can);
 
   return (
@@ -126,6 +130,35 @@ export default function PurchaseListPage({ tab }: Readonly<PurchaseListPageProps
               {t(create.labelKey)}
             </Button>
           )}
+          {canCreateOrder && (
+            <Menu position="bottom-end" withinPortal>
+              <Menu.Target>
+                <Button radius="md" leftSection={<IconPlus size={16} />}>
+                  {t('orders.reorder.createOrder')}
+                </Button>
+              </Menu.Target>
+              <Menu.Dropdown>
+                <Menu.Item
+                  leftSection={<IconPackage size={16} />}
+                  onClick={() => navigate(routes.purchases.requests)}
+                >
+                  {t('orders.reorder.newOrder')}
+                  <Text size="xs" c="dimmed">
+                    {t('orders.reorder.newOrderHint')}
+                  </Text>
+                </Menu.Item>
+                <Menu.Item
+                  leftSection={<IconRepeat size={16} />}
+                  onClick={() => setReordering(true)}
+                >
+                  {t('orders.reorder.menuLabel')}
+                  <Text size="xs" c="dimmed">
+                    {t('orders.reorder.menuHint')}
+                  </Text>
+                </Menu.Item>
+              </Menu.Dropdown>
+            </Menu>
+          )}
         </>
       }
     >
@@ -157,6 +190,7 @@ export default function PurchaseListPage({ tab }: Readonly<PurchaseListPageProps
         onClose={() => setPicking(null)}
         onPick={(orderId) => navigate(`${routes.purchases.receiptAdd}?order=${orderId}`)}
       />
+      <ReorderDialog opened={reordering} onClose={() => setReordering(false)} />
     </PageFrame>
   );
 }

@@ -9,6 +9,7 @@ import {
   IconFileInvoice,
   IconPackageImport,
   IconPrinter,
+  IconRepeat,
   IconSend,
   IconX,
 } from '@tabler/icons-react';
@@ -19,6 +20,7 @@ import { receiptBlockReason } from '@/module/purchases/domain/orderAdvance';
 import { orderActions } from '@/module/purchases/domain/purchaseActions';
 import type { PurchaseOrder } from '@/module/purchases/domain/purchaseDocuments';
 import { downloadOrderPdf } from '@/module/purchases/infrastructure/purchaseApi';
+import { ReorderDialog } from '@/module/purchases/presentation/components/orders/ReorderDialog';
 import { OrderDraftModal } from '@/module/purchases/presentation/components/orders/OrderDraftModal';
 import { SendOrderDialog } from '@/module/purchases/presentation/components/orders/SendOrderDialog';
 import { saveBlob } from '@/module/purchases/presentation/components/orders/saveBlob';
@@ -43,6 +45,7 @@ export const OrderActionBar = ({ order }: Readonly<{ order: PurchaseOrder }>) =>
   const voidOrder = useVoidOrder();
   const [dialog, setDialog] = useState<Dialog>(null);
   const [printing, setPrinting] = useState(false);
+  const [reordering, setReordering] = useState(false);
 
   const actions = orderActions(order);
   const canUpdate = can(PURCHASE_MENU.documents, 'update');
@@ -52,7 +55,9 @@ export const OrderActionBar = ({ order }: Readonly<{ order: PurchaseOrder }>) =>
   const showReceive = actions.receive && can(PURCHASE_MENU.receipts, 'create');
   const showBill = actions.bill && canCreate;
   // The advance invoice comes first: its own button while the service allows it.
-  const showAdvanceBill = Boolean(order.advanceState?.canCreateBill) && canCreate;
+  const approvalLocked = order.status === 'PENDING_APPROVAL' || order.status === 'REJECTED';
+  const showAdvanceBill =
+    !approvalLocked && Boolean(order.advanceState?.canCreateBill) && canCreate;
   const blockReason = receiptBlockReason(order);
   const showAdvance = actions.requestAdvance && can(PURCHASE_MENU.paymentRequests, 'create');
   const showClose = actions.close && canUpdate;
@@ -119,56 +124,66 @@ export const OrderActionBar = ({ order }: Readonly<{ order: PurchaseOrder }>) =>
           </span>
         </Tooltip>
       )}
-      <Menu position="bottom-end" withinPortal>
-        <Menu.Target>
-          <Button
-            variant="default"
-            radius="md"
-            px="xs"
-            aria-label={t('common.more')}
-            loading={printing}
-          >
-            <IconDots size={18} />
-          </Button>
-        </Menu.Target>
-        <Menu.Dropdown>
-          <Menu.Item
-            leftSection={<IconPrinter size={14} />}
-            onClick={() => {
-              print();
-            }}
-          >
-            {t('orders.detail.print')}
-          </Menu.Item>
-          {showAdvance && (
-            <Menu.Item
-              leftSection={<IconCoins size={14} />}
-              onClick={() => navigate(`${routes.purchases.paymentRequestAdd}?order=${order.id}`)}
+      {(!approvalLocked || (order.canReorder && canCreate)) && (
+        <Menu position="bottom-end" withinPortal>
+          <Menu.Target>
+            <Button
+              variant="default"
+              radius="md"
+              px="xs"
+              aria-label={t('common.more')}
+              loading={printing}
             >
-              {t('orders.detail.requestAdvance')}
-            </Menu.Item>
-          )}
-          {showClose && (
-            <Menu.Item
-              leftSection={<IconCircleCheck size={14} />}
-              onClick={() => setDialog('close')}
-            >
-              {t('orders.detail.close', { label: order.documentLabel })}
-            </Menu.Item>
-          )}
-          {showVoid && (
-            <Menu.Item
-              color="red"
-              leftSection={<IconX size={14} />}
-              onClick={() => setDialog('void')}
-            >
-              {t('orders.detail.void', { label: order.documentLabel })}
-            </Menu.Item>
-          )}
-        </Menu.Dropdown>
-      </Menu>
+              <IconDots size={18} />
+            </Button>
+          </Menu.Target>
+          <Menu.Dropdown>
+            {!approvalLocked && (
+              <Menu.Item
+                leftSection={<IconPrinter size={14} />}
+                onClick={() => {
+                  print();
+                }}
+              >
+                {t('orders.detail.print')}
+              </Menu.Item>
+            )}
+            {order.canReorder && canCreate && (
+              <Menu.Item leftSection={<IconRepeat size={14} />} onClick={() => setReordering(true)}>
+                {t('orders.reorder.menuLabel')}
+              </Menu.Item>
+            )}
+            {showAdvance && (
+              <Menu.Item
+                leftSection={<IconCoins size={14} />}
+                onClick={() => navigate(`${routes.purchases.paymentRequestAdd}?order=${order.id}`)}
+              >
+                {t('orders.detail.requestAdvance')}
+              </Menu.Item>
+            )}
+            {showClose && (
+              <Menu.Item
+                leftSection={<IconCircleCheck size={14} />}
+                onClick={() => setDialog('close')}
+              >
+                {t('orders.detail.close', { label: order.documentLabel })}
+              </Menu.Item>
+            )}
+            {showVoid && (
+              <Menu.Item
+                color="red"
+                leftSection={<IconX size={14} />}
+                onClick={() => setDialog('void')}
+              >
+                {t('orders.detail.void', { label: order.documentLabel })}
+              </Menu.Item>
+            )}
+          </Menu.Dropdown>
+        </Menu>
+      )}
 
       <OrderDraftModal order={order} opened={dialog === 'edit'} onClose={closeDialog} />
+      <ReorderDialog opened={reordering} sourceId={order.id} onClose={() => setReordering(false)} />
       <SendOrderDialog order={order} opened={dialog === 'send'} onClose={closeDialog} />
       <ReasonModal
         opened={dialog === 'close'}
