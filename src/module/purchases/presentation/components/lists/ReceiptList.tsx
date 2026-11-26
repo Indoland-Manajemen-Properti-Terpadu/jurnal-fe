@@ -57,7 +57,7 @@ export const ReceiptList = () => {
         { key: 'vendor', label: t('common.vendor'), minWidth: 180 },
         { key: 'note', label: t('hub.receipts.note') },
         { key: 'quantity', label: t('hub.receipts.quantity'), align: 'right' },
-        { key: 'billed', label: t('hub.receipts.billed') },
+        { key: 'status', label: t('hub.receipts.billed') },
       ]}
       rows={query.data?.items}
       getKey={(row) => row.id}

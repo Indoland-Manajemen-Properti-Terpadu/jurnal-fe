@@ -13,6 +13,7 @@ import {
 import { ListShell } from '@/module/purchases/presentation/components/shared/ListShell';
 import { formatDay } from '@/module/purchases/presentation/components/shared/format';
 import { StatusBadge } from '@/module/purchases/presentation/components/shared/StatusBadge';
+import { orderStatusLabelKey } from '@/module/purchases/presentation/components/orders/orderStatusLabel';
 import { useListState } from '@/module/purchases/presentation/components/shared/useListState';
 import { useOrders } from '@/module/purchases/presentation/hooks/usePurchaseQueries';
 
@@ -31,7 +32,10 @@ export const OrderList = () => {
       onStatusChange={state.setStatus}
       statusOptions={ORDER_STATUSES.map((status) => ({
         value: status,
-        label: t(`status.${status}`),
+        label:
+          status === 'PARTIAL_RECEIVED' || status === 'RECEIVED' || status === 'COMPLETED'
+            ? t(`hub.orders.statusFilters.${status}`)
+            : t(`status.${status}`),
       }))}
       columns={[
         { key: 'number', label: t('hub.orders.colOrder') },
@@ -55,7 +59,15 @@ export const OrderList = () => {
           <TextCell value={row.vendor.name} maxWidth={260} />
           <TextCell value={formatDay(row.expectedDate, currentLanguage)} dimmed />
           <Table.Td>
-            <StatusBadge status={row.status} label={row.statusLabel} />
+            <StatusBadge
+              status={row.status}
+              label={row.statusLabel}
+              englishLabel={
+                orderStatusLabelKey(row.status, row.isService)
+                  ? t(orderStatusLabelKey(row.status, row.isService) as string)
+                  : undefined
+              }
+            />
           </Table.Td>
           <AmountCell value={row.finalAmount} />
           <AmountCell value={row.payableAmount} dimmed={row.payableAmount === 0} />

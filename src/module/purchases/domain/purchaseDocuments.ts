@@ -21,6 +21,14 @@ export type PurchaseOrderStatus =
   | 'CLOSED'
   | 'VOID';
 
+export type OrderItemStatus =
+  | 'BILLED'
+  | 'UNBILLED'
+  | 'WAITING_BILL'
+  | 'PENDING_APPROVAL'
+  | 'BAPP_REJECTED'
+  | 'WAITING_BAPP';
+
 /** How a line of a PO / SPK is billed: all at once, as an advance, by term, by period or as retention. */
 export type OrderScheduleKind = 'FULL' | 'ADVANCE' | 'TERM' | 'PERIOD' | 'RETENTION';
 
@@ -34,6 +42,12 @@ export interface OrderSchedule {
 }
 
 export type GoodsReceiptStatus = 'POSTED' | 'PENDING_APPROVAL' | 'REJECTED' | 'VOID';
+export type GoodsReceiptDisplayStatus =
+  | 'UNBILLED'
+  | 'BILLED'
+  | 'PENDING_APPROVAL'
+  | 'REJECTED'
+  | 'VOID';
 
 /** Goods go through an FPB and post at once; services go through a BAPP that needs approval. */
 export type ReceiptKind = 'GOODS' | 'SERVICE';
@@ -80,6 +94,9 @@ export interface OrderItem {
   amount: number;
   receivedQty: number;
   billedQty: number;
+  /** Present on SPK lines; supplied by the service from BAPP and billing progress. */
+  status?: OrderItemStatus;
+  statusLabel?: string;
   schedule: OrderSchedule;
   /** A line that is only billed (shipping, advance, retention): nothing is received for it. */
   billOnly: boolean;
@@ -202,6 +219,8 @@ export interface GoodsReceipt extends DocumentBase {
   warehouse: NamedRef | null;
   deliveryNote: string;
   status: GoodsReceiptStatus;
+  /** Display state from the service; POSTED is split into billed and unbilled. */
+  displayStatus: GoodsReceiptDisplayStatus;
   items: ReceiptItem[];
   /** What the receipt recognises as accrued before the bill. */
   amount: number;

@@ -117,6 +117,10 @@ export const purchasesHub = {
     colRequest: 'Permintaan dan tanggal',
     route: 'Jalur',
     routes: { BIDDING: 'Bidding', SINGLE: 'Vendor tunggal' },
+    statusFilters: {
+      SUBMITTED: 'Menunggu verifikasi',
+      VERIFIED: 'Menunggu pengadaan',
+    },
     neededOn: 'Dibutuhkan {date}',
     emptyTitle: 'Belum ada permintaan pembelian',
     emptyDescription:
@@ -128,13 +132,25 @@ export const purchasesHub = {
     search: 'Cari nomor PO atau SPK',
     expected: 'Perkiraan tiba',
     payable: 'Hutang ke vendor',
+    statusFilters: {
+      PARTIAL_RECEIVED: 'Diterima sebagian / Dikerjakan sebagian',
+      RECEIVED: 'Diterima penuh / Selesai dikerjakan',
+      COMPLETED: 'Ditagih penuh',
+    },
+    statusLabels: {
+      goodsPartial: 'Diterima sebagian',
+      servicePartial: 'Dikerjakan sebagian',
+      goodsComplete: 'Diterima penuh',
+      serviceComplete: 'Selesai dikerjakan',
+      fullyBilled: 'Ditagih penuh',
+    },
     emptyTitle: 'Belum ada pesanan pembelian',
     emptyDescription:
       'PO atau SPK dibuat otomatis saat pengadaan disetujui. Selesaikan pengadaan di detail permintaan.',
   },
   receipts: {
     note: 'Surat jalan / BAPP',
-    billed: 'Faktur',
+    billed: 'Status',
     isBilled: 'Sudah difaktur',
     notBilled: 'Belum difaktur',
     search: 'Cari nomor FPB atau BAPP',

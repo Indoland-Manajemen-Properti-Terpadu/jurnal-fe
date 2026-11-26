@@ -16,7 +16,7 @@ import { useActivity } from '@/module/purchases/presentation/hooks/usePurchaseQu
 import { dateFormatV1 } from '@/utils/formatDate';
 
 /** Approving reads green; refusing, sending back or cancelling reads red; the rest stays neutral. */
-const LABEL_COLOR = { positive: 'green.8', negative: 'red.8' } as const;
+const LABEL_COLOR = { positive: 'green.8', warning: 'orange.8', negative: 'red.8' } as const;
 
 type PanelProps = Omit<Parameters<typeof ApprovalPanel>[0], 'bare' | 'actionsOnly'>;
 
@@ -34,7 +34,8 @@ export const ApprovalCard = ({
   const entries = activity.data ?? [];
   // Steps still ahead matter only while the document waits; after a refusal the approval is over.
   const lastEntry = entries.at(-1);
-  const refused = lastEntry !== undefined && activityTone(lastEntry.action) === 'negative';
+  const lastTone = lastEntry ? activityTone(lastEntry.action) : undefined;
+  const refused = lastTone === 'negative' || lastTone === 'warning';
   const waiting = !refused && panel.status === (panel.waitingStatus ?? 'PENDING_APPROVAL');
   const ahead = waiting
     ? trailSteps(panel.approval, panel.status).filter(

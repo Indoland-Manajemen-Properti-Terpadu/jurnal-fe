@@ -85,6 +85,11 @@
   color: var(--mantine-color-green-8);
 }
 
+.marker[data-tone='warning'] {
+  background: var(--mantine-color-orange-1);
+  color: var(--mantine-color-orange-8);
+}
+
 .marker[data-tone='negative'] {
   background: var(--mantine-color-red-1);
   color: var(--mantine-color-red-8);

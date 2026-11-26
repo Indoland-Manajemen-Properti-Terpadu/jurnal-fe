@@ -40,7 +40,7 @@ const MONEY = {
 const STATUS_COLOR = {
   DRAFT: 'gray',
   SUBMITTED: 'orange',
-  APPROVED: 'green',
+  APPROVED: 'cyan',
   REJECTED: 'red',
 } as const;
 

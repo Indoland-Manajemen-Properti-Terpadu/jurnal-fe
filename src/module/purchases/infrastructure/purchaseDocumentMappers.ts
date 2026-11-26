@@ -8,6 +8,7 @@ import type {
   DocumentAmounts,
   DocumentRef,
   GoodsReceipt,
+  GoodsReceiptDisplayStatus,
   OrderItem,
   PayablesAging,
   PaymentVoucher,
@@ -82,6 +83,8 @@ const toOrderItem = (dto: PurchaseOrderDto['items'][number]): OrderItem => ({
   amount: dto.amount,
   receivedQty: dto.receivedQty,
   billedQty: dto.billedQty,
+  status: dto.status ?? undefined,
+  statusLabel: dto.statusLabel ?? undefined,
   billOnly: Boolean(dto.billOnly),
   schedule: {
     kind: dto.schedule?.kind ?? 'FULL',
@@ -135,13 +138,19 @@ export const toGoodsReceipt = (dto: GoodsReceiptDto): GoodsReceipt => ({
   journals: toDocumentJournals(dto.journals),
   kind: dto.kind ?? 'GOODS',
   documentLabel: dto.documentLabel ?? (dto.kind === 'SERVICE' ? 'BAPP' : 'FPB'),
-  statusLabel: dto.statusLabel ?? '',
+  statusLabel: dto.displayStatus || dto.status !== 'POSTED' ? (dto.statusLabel ?? '') : '',
   vendor: toParty(dto.vendor),
   purchaseOrderId: dto.purchaseOrderRef?.id ?? refId(dto.purchaseOrder),
   purchaseOrderNumber: dto.purchaseOrderRef?.transactionNumber ?? '',
   warehouse: dto.warehouse ? { id: dto.warehouse.id, name: dto.warehouse.name } : null,
   deliveryNote: dto.deliveryNote ?? '',
   status: dto.status as GoodsReceipt['status'],
+  displayStatus: (dto.displayStatus ??
+    (dto.status === 'POSTED'
+      ? dto.billRefs?.length
+        ? 'BILLED'
+        : 'UNBILLED'
+      : dto.status)) as GoodsReceiptDisplayStatus,
   items: dto.items.map((item) => ({
     id: item._id,
     purchaseOrderItemId: item.purchaseOrderItem,
