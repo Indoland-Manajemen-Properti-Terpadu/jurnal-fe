@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { IconCheck } from '@tabler/icons-react';
+import { IconCheck, IconX } from '@tabler/icons-react';
 import classes from '@/module/purchases/presentation/components/shared/Timeline.module.css';
 
 /** done: happened; latest: the one on screen; waiting: being waited for; upcoming: still ahead. */
@@ -8,6 +8,8 @@ export type TimelineState = 'done' | 'latest' | 'waiting' | 'upcoming';
 export interface TimelineItem {
   id: string;
   state: TimelineState;
+  /** What happened: approved (green check) or refused / cancelled (red cross). */
+  tone?: 'positive' | 'negative';
   children: ReactNode;
 }
 
@@ -16,8 +18,9 @@ export const Timeline = ({ items }: Readonly<{ items: TimelineItem[] }>) => (
   <ol className={classes.list}>
     {items.map((item, index) => (
       <li key={item.id} className={classes.item} data-next={items[index + 1]?.state}>
-        <span className={classes.marker} data-state={item.state} aria-hidden>
-          {(item.state === 'done' || item.state === 'latest') && (
+        <span className={classes.marker} data-state={item.state} data-tone={item.tone} aria-hidden>
+          {item.tone === 'negative' && <IconX size={12} stroke={2.5} />}
+          {item.tone !== 'negative' && (item.state === 'done' || item.state === 'latest') && (
             <IconCheck size={12} stroke={2.5} />
           )}
         </span>
