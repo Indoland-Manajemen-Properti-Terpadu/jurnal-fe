@@ -105,7 +105,7 @@ export function MovementsTable({ rows, showValue, withinDocument = false }: Read
             )}
             {!withinDocument && (
               <Table.Td ta="center" style={{ whiteSpace: 'nowrap' }}>
-                <JournalLink journalId={row.journalId} />
+                <JournalLink journalId={row.journalId} openReversal={row.isReversal} />
               </Table.Td>
             )}
           </Table.Tr>
