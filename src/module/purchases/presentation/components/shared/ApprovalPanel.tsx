@@ -26,6 +26,8 @@ interface ApprovalPanelProps {
   onReject: (reason: string) => void;
   /** Without its own card, to sit inside another card. */
   bare?: boolean;
+  /** Only the note and the buttons: the caller already lists who approved and who is next. */
+  actionsOnly?: boolean;
 }
 
 /** Who still has to approve, who already did, and the approve / reject buttons when allowed. */
@@ -38,6 +40,7 @@ export const ApprovalPanel = ({
   onApprove,
   onReject,
   bare,
+  actionsOnly = false,
 }: Readonly<ApprovalPanelProps>) => {
   const { t } = useTranslation('purchases');
   const [note, setNote] = useState('');
@@ -51,21 +54,22 @@ export const ApprovalPanel = ({
   const showActions = waiting && canApprove && approval.canDecide;
   const step = waiting ? approvalStep(approval) : null;
   const rule = step ? levelRule(step.level) : null;
+  if (actionsOnly && !showActions) return null;
 
   const body = (
     <>
       <Stack gap="sm">
-        {rejected && (
+        {rejected && !actionsOnly && (
           <Alert color="red" radius="md" title={t('approval.rejectedTitle')}>
             {approval.rejectionReason}
           </Alert>
         )}
 
-        {approval.plan.length > 0 && (
+        {approval.plan.length > 0 && !actionsOnly && (
           <ApprovalTrail approval={approval} status={status} hideReason />
         )}
 
-        {step && (
+        {step && !actionsOnly && (
           <Group gap={6}>
             {step.total > 1 && (
               <Text size="xs" c="dimmed">
@@ -120,7 +124,7 @@ export const ApprovalPanel = ({
           </>
         )}
 
-        {waiting && !showActions && (
+        {waiting && !showActions && !actionsOnly && (
           <Text size="xs" c="dimmed">
             {canApprove ? t('approval.notYourTurn') : t('approval.noRight')}
           </Text>

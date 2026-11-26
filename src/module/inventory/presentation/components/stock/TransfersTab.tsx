@@ -149,7 +149,7 @@ export function TransfersTab({ filters, update, tabList }: Readonly<Props>) {
                 <Text size="sm">{row.productCount}</Text>
               </Table.Td>
               <Table.Td>
-                <TransferStatusBadge status={row.status} />
+                <TransferStatusBadge status={row.status} withdrawn={row.withdrawn} />
               </Table.Td>
             </Table.Tr>
           ))}

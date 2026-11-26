@@ -14,9 +14,8 @@ import { receiptActions } from '@/module/purchases/domain/purchaseActions';
 import { OpnameBlockAlert } from '@/module/purchases/presentation/components/receipts/OpnameBlockAlert';
 import { ReceiptSummaryCard } from '@/module/purchases/presentation/components/receipts/ReceiptSummaryCard';
 import { StateFrame } from '@/module/purchases/presentation/components/requests/StateFrame';
-import { ApprovalPanel } from '@/module/purchases/presentation/components/shared/ApprovalPanel';
+import { ApprovalCard } from '@/module/purchases/presentation/components/shared/ApprovalCard';
 import { AttachmentsCard } from '@/module/purchases/presentation/components/shared/AttachmentsCard';
-import { DocumentApprovalLog } from '@/module/purchases/presentation/components/shared/DocumentApprovalLog';
 import { DocumentJournalsCard } from '@/module/purchases/presentation/components/shared/DocumentJournalsCard';
 import { DocumentJourney } from '@/module/purchases/presentation/components/shared/DocumentJourney';
 import { DocumentFrame } from '@/module/purchases/presentation/components/shared/DocumentFrame';
@@ -190,7 +189,9 @@ export default function ReceiptDetailPage() {
                   ]}
                 />
               </SectionCard>
-              <ApprovalPanel
+              <ApprovalCard
+                kind="receipt"
+                id={doc.id}
                 approval={doc.approval}
                 status={doc.status}
                 canApprove={can(PURCHASE_MENU.approveReceipt, 'update')}
@@ -198,7 +199,6 @@ export default function ReceiptDetailPage() {
                 onApprove={(note) => approve.mutate({ id: doc.id, note })}
                 onReject={(reason) => reject.mutate({ id: doc.id, reason })}
               />
-              <DocumentApprovalLog kind="receipt" id={doc.id} />
               <DocumentJourney steps={journey.steps} />
             </Stack>
           </Grid.Col>

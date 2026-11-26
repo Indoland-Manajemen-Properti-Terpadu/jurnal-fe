@@ -21,6 +21,8 @@ export const PURCHASE_MENU = {
   approveReceipt: 'JP-PURCH-APR-BAPP',
   approvePayment: 'JP-PURCH-APR-PAY',
   reports: 'JP-PURCH-RPT',
+  /** Releasing the retention held on an SPK/PO (only `create`). */
+  retentionRelease: 'JP-PURCH-RETREL',
 } as const;
 
 export type PurchaseMenu = (typeof PURCHASE_MENU)[keyof typeof PURCHASE_MENU];

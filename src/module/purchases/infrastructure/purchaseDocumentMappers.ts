@@ -1,3 +1,4 @@
+import { toOrderRetention } from '@/module/purchases/infrastructure/orderRetentionMapper';
 import { toAdvanceState } from '@/module/purchases/infrastructure/advanceStateMappers';
 import { toDocumentJournals } from '@/module/purchases/infrastructure/documentJournalMappers';
 import type { PaymentRequest } from '@/module/purchases/domain/paymentRequest';
@@ -118,6 +119,7 @@ export const toPurchaseOrder = (dto: PurchaseOrderDto): PurchaseOrder => ({
     available: dto.advance?.available ?? 0,
   },
   advanceState: toAdvanceState(dto.advanceState),
+  retention: toOrderRetention(dto.retention),
   payableAmount: dto.payableAmount ?? 0,
   billedAmount: dto.billedAmount ?? 0,
   sent: {
@@ -204,6 +206,8 @@ export const toPurchaseBill = (dto: PurchaseBillDto): PurchaseBill => {
     journals: toDocumentJournals(dto.journals),
     source: dto.source ?? 'RECEIPT',
     noMatch: Boolean(dto.noMatch),
+    kind: dto.kind === 'RETENTION_RELEASE' ? 'RETENTION_RELEASE' : 'BILL',
+    bastNumber: dto.retentionRelease?.bastNumber ?? '',
     statusLabel: dto.statusLabel ?? '',
     displayStatus: (dto.displayStatus ?? dto.status) as PurchaseBill['displayStatus'],
     displayStatusLabel: dto.displayStatusLabel ?? '',

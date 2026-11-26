@@ -10,11 +10,16 @@ import type {
 } from '@/module/purchases/domain/documentChain';
 import type { ApiEnvelope } from '@/module/purchases/infrastructure/purchaseDto';
 import { http } from '@/module/purchases/infrastructure/purchaseHttp';
+import {
+  toRetentionSummary,
+  type SummaryRetentionDto,
+} from '@/module/purchases/infrastructure/retentionApi';
 
 const DASHBOARD = '/v1/purchase-dashboard';
 
-interface SummaryDto extends Omit<DashboardSummary, 'payables'> {
+interface SummaryDto extends Omit<DashboardSummary, 'payables' | 'retention'> {
   payables?: DashboardSummary['payables'];
+  retention?: SummaryRetentionDto;
 }
 
 interface ActionsDto {
@@ -35,7 +40,11 @@ interface ActionsDto {
 /** Counts per stage, procurement routes, what is ready to pay and, with the report right, payables. */
 export const getDashboardSummary = async (): Promise<DashboardSummary> => {
   const { data } = await http.get<ApiEnvelope<SummaryDto>>(`${DASHBOARD}/summary`);
-  return { ...data, payables: data.payables ?? null };
+  return {
+    ...data,
+    payables: data.payables ?? null,
+    retention: toRetentionSummary(data.retention),
+  };
 };
 
 /** "Perlu tindakan": what this user can act on now, most overdue first (the server sorts it). */

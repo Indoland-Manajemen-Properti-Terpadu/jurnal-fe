@@ -12,7 +12,7 @@ type StageState = 'done' | 'current' | 'todo';
 /** The four stages of a count, top to bottom, each saying what it means and when it happened. */
 export function OpnameStages({ opname }: Readonly<{ opname: StockOpname }>) {
   const { t } = useTranslation('stockTake');
-  const { done: at, details } = opnameStages(opname);
+  const { done: at, details, cancelled } = opnameStages(opname);
 
   return (
     <SectionCard icon={IconRoute} title={t('steps.title')} subtitle={t('steps.subtitle')} fill>
@@ -64,6 +64,12 @@ export function OpnameStages({ opname }: Readonly<{ opname: StockOpname }>) {
           );
         })}
       </ol>
+      {cancelled?.at && (
+        <Text fz="xs" c="dimmed" fw={500} mt="sm">
+          {cancelled.by ? t('steps.cancelledBy', { name: cancelled.by }) : t('steps.cancelled')}
+          {` · ${dateFormatV1(cancelled.at, 'D MMM YYYY, HH:mm')}`}
+        </Text>
+      )}
     </SectionCard>
   );
 }

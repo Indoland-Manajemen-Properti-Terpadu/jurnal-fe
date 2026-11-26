@@ -232,6 +232,7 @@ export const purchasesCommon = {
     cancelled: 'Dokumen berhasil dibatalkan',
     voided: 'Dokumen berhasil dibatalkan dan jurnalnya dibalik',
     closed: 'Pesanan berhasil ditutup',
+    retentionReleased: 'Retensi berhasil dilepas. Tinggal diajukan Payment Request',
     verified: 'Tagihan berhasil diverifikasi dan dijurnal',
     requestVerified: 'Permintaan berhasil diverifikasi',
     requestReturned: 'Permintaan dikembalikan ke peminta',

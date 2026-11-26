@@ -140,13 +140,13 @@ export const settingsPages = {
       'Nomor dari format ini berupa prefix, nomor urut 5 digit, lalu suffix, tanpa tahun atau bulan. Penghitungnya terus naik dan tidak mengulang tiap bulan.',
     title: 'Format Nomor Dokumen (Number Formats)',
     description:
-      'Atur format dan awalan penomoran otomatis untuk Faktur Penjualan (Invoice) dan Transaksi Jurnal Umum.',
+      'Atur awalan, akhiran, dan nomor awal penomoran otomatis untuk setiap jenis dokumen, seperti faktur penjualan, pembelian, persediaan, dan jurnal.',
     addNew: 'Tambah Format Baru',
     listPrefix: 'Daftar Penomoran Dokumen (',
     search: 'Cari tipe atau prefix...',
     emptyTitle: 'Belum Ada Format Penomoran',
     emptyDescription:
-      'Konfigurasikan format penomoran untuk faktur penjualan dan jurnal transaksi agar terstruktur dan otomatis bertambah.',
+      'Atur format penomoran untuk jenis dokumen yang Anda pakai agar nomornya rapi dan bertambah otomatis.',
     addFormat: 'Tambah Format Penomoran',
     colType: 'Tipe Dokumen',
     colAffix: 'Prefix / Suffix',

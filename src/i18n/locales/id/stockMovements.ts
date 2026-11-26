@@ -132,6 +132,7 @@ export const stockMovements = {
     allStatuses: 'Semua status',
     posted: 'Selesai',
     void: 'Dibatalkan',
+    withdrawn: 'Ditarik',
     emptyTitle: 'Belum ada pindah barang',
     emptyBody:
       'Pindahkan stok antar gudang. Nilai persediaan tidak berubah dan tidak membuat jurnal.',
@@ -260,6 +261,9 @@ export const stockMovements = {
     voidFailedTitle: 'Belum berhasil dibatalkan',
     createdBy: 'Dibuat oleh',
     rejectedBy: 'Ditolak oleh',
+    rejectedAt: 'Ditolak pada',
+    withdrawnAt: 'Ditarik pada',
+    withdrawnBy: 'Ditarik oleh',
     approvedBy: 'Disetujui oleh',
     approvedAt: 'Disetujui pada',
     voidedBy: 'Dibatalkan oleh',

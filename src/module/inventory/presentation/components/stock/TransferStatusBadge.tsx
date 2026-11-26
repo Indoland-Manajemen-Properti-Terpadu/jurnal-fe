@@ -10,11 +10,14 @@ const COLOR: Record<TransferStatus, string> = {
 };
 
 /** The state of a transfer in the list and on its page: asked for, done, refused or cancelled. */
-export const TransferStatusBadge = ({ status }: Readonly<{ status: TransferStatus }>) => {
+export const TransferStatusBadge = ({
+  status,
+  withdrawn = false,
+}: Readonly<{ status: TransferStatus; withdrawn?: boolean }>) => {
   const { t } = useTranslation('stockMovements');
   return (
     <Badge variant="light" color={COLOR[status]} size="sm">
-      {t(`transfers.${status}`)}
+      {t(withdrawn ? 'transfers.withdrawn' : `transfers.${status}`)}
     </Badge>
   );
 };

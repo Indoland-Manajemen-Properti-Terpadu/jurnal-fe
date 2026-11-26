@@ -56,6 +56,7 @@ export function TransferInfoCard({ transfer, fromName, toName, totalValue }: Rea
           ...(status === 'rejected'
             ? [
                 { label: t('detail.rejectedBy'), value: transfer.rejectedByName ?? '-' },
+                { label: t('detail.rejectedAt'), value: time(transfer.rejectedAt) },
                 ...(transfer.rejectReason
                   ? [{ label: t('detail.rejectReason'), value: transfer.rejectReason }]
                   : []),
@@ -63,11 +64,22 @@ export function TransferInfoCard({ transfer, fromName, toName, totalValue }: Rea
             : []),
           ...(status === 'void'
             ? [
-                { label: t('detail.voided'), value: time(transfer.voidedAt) },
+                {
+                  label: t(transfer.withdrawn ? 'detail.withdrawnAt' : 'detail.voided'),
+                  value: time(transfer.voidedAt),
+                },
                 ...(transfer.voidedByName
-                  ? [{ label: t('detail.voidedBy'), value: transfer.voidedByName }]
+                  ? [
+                      {
+                        label: t(transfer.withdrawn ? 'detail.withdrawnBy' : 'detail.voidedBy'),
+                        value: transfer.voidedByName,
+                      },
+                    ]
                   : []),
-                { label: t('detail.voidReason'), value: transfer.voidReason ?? '-' },
+                {
+                  label: t(transfer.withdrawn ? 'detail.withdrawReasonLabel' : 'detail.voidReason'),
+                  value: transfer.voidReason ?? '-',
+                },
               ]
             : []),
           {
