@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ActionIcon, Button, Group, Paper, Stack, Tooltip } from '@mantine/core';
+import { ActionIcon, Button, Group, Paper, Stack, Text, Tooltip } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconDownload, IconReportAnalytics, IconRefresh } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
@@ -10,6 +10,7 @@ import { StateFrame } from '@/module/purchases/presentation/components/requests/
 import { DateField } from '@/module/purchases/presentation/components/requests/DateField';
 import { AgingChart } from '@/module/purchases/presentation/components/reports/AgingChart';
 import { PayablesKpis } from '@/module/purchases/presentation/components/reports/PayablesKpis';
+import { PayableBillsTable } from '@/module/purchases/presentation/components/reports/PayableBillsTable';
 import { PayablesTable } from '@/module/purchases/presentation/components/reports/PayablesTable';
 import { VendorCreditCard } from '@/module/purchases/presentation/components/reports/VendorCreditCard';
 import { usePayablesReport } from '@/module/purchases/presentation/components/reports/usePayablesReport';
@@ -112,6 +113,7 @@ export default function PayablesReportPage() {
                 w={300}
               />
             </Group>
+            <Text fw={700}>{t('reports.perVendor')}</Text>
             <PayablesTable
               data={report.data}
               isLoading={report.isLoading}
@@ -120,6 +122,13 @@ export default function PayablesReportPage() {
                 report.refetch();
               }}
             />
+          </Stack>
+        </Paper>
+
+        <Paper withBorder radius="lg" p="md" bg="white">
+          <Stack gap="md">
+            <Text fw={700}>{t('reports.billDetail')}</Text>
+            <PayableBillsTable asOf={asOf} vendor={vendor ?? undefined} enabled={allowed} />
           </Stack>
         </Paper>
 

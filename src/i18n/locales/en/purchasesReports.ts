@@ -27,6 +27,13 @@ export const purchasesReports = {
     days61to90: '61–90 Days',
     over90: '> 90 Days',
   },
+  perVendor: 'By vendor',
+  billDetail: 'Invoice details',
+  bills: {
+    col: { bill: 'Invoice', due: 'Due Date', age: 'Age' },
+    late: '{count} days late',
+    notDue: 'Not due yet',
+  },
   billsCount: '{count} bills',
   total: 'Total',
   emptyTitle: 'Nothing is owed',

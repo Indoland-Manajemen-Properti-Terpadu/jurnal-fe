@@ -27,6 +27,13 @@ export const purchasesReports = {
     days61to90: '61–90 Hari',
     over90: '> 90 Hari',
   },
+  perVendor: 'Per vendor',
+  billDetail: 'Rincian faktur',
+  bills: {
+    col: { bill: 'Faktur', due: 'Jatuh Tempo', age: 'Umur' },
+    late: 'Terlambat {count} hari',
+    notDue: 'Belum jatuh tempo',
+  },
   billsCount: '{count} tagihan',
   total: 'Total',
   emptyTitle: 'Tidak ada hutang',
