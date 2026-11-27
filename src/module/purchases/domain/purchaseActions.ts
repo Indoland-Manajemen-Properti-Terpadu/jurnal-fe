@@ -108,7 +108,9 @@ export const billActions = (doc: PurchaseBill) => {
 /** A voucher is paid straight from its draft; a paid one can still be voided, which reverses the journal. */
 export const voucherActions = (doc: PaymentVoucher) => ({
   pay: doc.status === 'DRAFT',
-  void: doc.status !== 'VOID',
+  void:
+    doc.status !== 'VOID' &&
+    !(doc.status === 'PAID' && doc.items.some((item) => item.kind === 'DP')),
 });
 
 export const returnActions = (doc: PurchaseReturn) => ({

@@ -1,6 +1,11 @@
 import tableClasses from '@/module/purchases/presentation/components/shared/Table.module.css';
-import { Anchor, Box, Group, Table, Text } from '@mantine/core';
-import { IconCalculator, IconClipboardText, IconListDetails } from '@tabler/icons-react';
+import { Alert, Anchor, Box, Group, Table, Text } from '@mantine/core';
+import {
+  IconAlertCircle,
+  IconCalculator,
+  IconClipboardText,
+  IconListDetails,
+} from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
 import { vendorLabel, type PaymentRequest } from '@/module/purchases/domain/paymentRequest';
@@ -156,6 +161,15 @@ export const PaymentRequestItemsCard = ({ doc }: Readonly<{ doc: PaymentRequest 
         subtitle={t('paymentRequests.detail.advanceSubtitle')}
       >
         <Box px="lg" py="md">
+          <Alert
+            color="yellow"
+            variant="light"
+            radius="md"
+            mb="sm"
+            icon={<IconAlertCircle size={18} />}
+          >
+            <Text size="sm">{t('paymentRequests.detail.advanceCancellationWarning')}</Text>
+          </Alert>
           {doc.order && (
             <Group justify="space-between" py={4}>
               <Text size="sm" c="dimmed">
