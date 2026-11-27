@@ -3,7 +3,7 @@ import { Anchor, Table, Text } from '@mantine/core';
 import { IconClipboardText, IconListDetails } from '@tabler/icons-react';
 import { Link, generatePath } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
-import type { GoodsReceipt } from '@/module/purchases/domain/purchaseDocuments';
+import type { GoodsReceipt, OrderSchedule } from '@/module/purchases/domain/purchaseDocuments';
 import { InfoGrid } from '@/module/purchases/presentation/components/shared/InfoGrid';
 import { SectionCard } from '@/module/purchases/presentation/components/shared/SectionCard';
 import {
@@ -18,10 +18,15 @@ const numeric = { whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' } as 
 interface ReceiptSummaryCardProps {
   receipt: GoodsReceipt;
   section: 'info' | 'lines';
+  orderSchedules?: Record<string, Pick<OrderSchedule, 'kind' | 'seq' | 'of'>>;
 }
 
 /** Who delivered what, when, against which order, and the value recognised for it. */
-export const ReceiptSummaryCard = ({ receipt, section }: Readonly<ReceiptSummaryCardProps>) => {
+export const ReceiptSummaryCard = ({
+  receipt,
+  section,
+  orderSchedules,
+}: Readonly<ReceiptSummaryCardProps>) => {
   const { t, currentLanguage } = useTranslation('purchases');
   const total = receipt.amount || receipt.items.reduce((sum, item) => sum + item.accrualAmount, 0);
   const service = receipt.kind === 'SERVICE';
@@ -142,6 +147,14 @@ export const ReceiptSummaryCard = ({ receipt, section }: Readonly<ReceiptSummary
                       <Text size="sm" fw={700}>
                         {item.description || item.product?.name || '-'}
                       </Text>
+                      {orderSchedules?.[item.purchaseOrderItemId]?.kind === 'TERM' && (
+                        <Text size="xs" c="dimmed">
+                          {t('orders.schedule.TERM', {
+                            seq: orderSchedules[item.purchaseOrderItemId].seq,
+                            of: orderSchedules[item.purchaseOrderItemId].of,
+                          })}
+                        </Text>
+                      )}
                     </Table.Td>
                     <Table.Td ta="right" style={numeric}>
                       <Text size="sm">

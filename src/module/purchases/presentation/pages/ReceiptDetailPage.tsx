@@ -37,7 +37,11 @@ import {
   useResubmitReceipt,
   useVoidReceipt,
 } from '@/module/purchases/presentation/hooks/usePurchaseMutations';
-import { useBills, useReceipt } from '@/module/purchases/presentation/hooks/usePurchaseQueries';
+import {
+  useBills,
+  useOrder,
+  useReceipt,
+} from '@/module/purchases/presentation/hooks/usePurchaseQueries';
 import { toApiError } from '@/lib/http/apiError';
 import { readBackState } from '@/router/backState';
 import { routes } from '@/router/routes';
@@ -53,6 +57,10 @@ export default function ReceiptDetailPage() {
   const { t, currentLanguage } = useTranslation('purchases');
   const { can, canRead, isLoading: accessLoading } = usePurchaseAccess();
   const receipt = useReceipt(id);
+  const order = useOrder(receipt.data?.purchaseOrderId);
+  const orderSchedules = Object.fromEntries(
+    (order.data?.items ?? []).map((item) => [item.id, item.schedule])
+  );
   const journey = useDocumentChain('goodsReceipt', id);
   const orderBills = useBills(
     { purchaseOrder: receipt.data?.purchaseOrderId, limit: 50 },
@@ -150,7 +158,7 @@ export default function ReceiptDetailPage() {
                 attachments={doc.attachments}
                 canUpload={can(PURCHASE_MENU.receipts, 'update') && doc.status !== 'VOID'}
               />
-              <ReceiptSummaryCard receipt={doc} section="lines" />
+              <ReceiptSummaryCard receipt={doc} section="lines" orderSchedules={orderSchedules} />
               <BillsTableCard
                 title={t('receipts.detail.billsTitle')}
                 subtitle={t('receipts.detail.billsSubtitle')}

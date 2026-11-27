@@ -22,9 +22,12 @@ import {
   type PaymentRequestKind,
 } from '@/module/purchases/domain/paymentRequest';
 import type { PartyRef } from '@/module/purchases/domain/purchaseCommon';
+import { canRequestAdvancePayment } from '@/module/purchases/domain/orderAdvance';
 import { sumMinor, toMinor } from '@/lib/money/money';
 import { detailPath } from '@/module/purchases/presentation/components/hub/documentPaths';
 import { PaymentRequestAmountFields } from '@/module/purchases/presentation/components/paymentRequests/PaymentRequestAmountFields';
+import { PaymentRequestProformaFiles } from '@/module/purchases/presentation/components/paymentRequests/PaymentRequestProformaFiles';
+import { paymentRequestSteps } from '@/module/purchases/presentation/components/paymentRequests/paymentRequestSteps';
 import { DateField } from '@/module/purchases/presentation/components/requests/DateField';
 import { FormFrame } from '@/module/purchases/presentation/components/shared/FormFrame';
 import {
@@ -34,13 +37,12 @@ import {
 import { ChoiceCard } from '@/module/purchases/presentation/components/shared/wizard/ChoiceCard';
 import { WizardActionBar } from '@/module/purchases/presentation/components/shared/wizard/WizardActionBar';
 import { WizardCard } from '@/module/purchases/presentation/components/shared/wizard/WizardCard';
-import {
-  WizardStepper,
-  type WizardStep,
-} from '@/module/purchases/presentation/components/shared/wizard/WizardStepper';
+import { WizardStepper } from '@/module/purchases/presentation/components/shared/wizard/WizardStepper';
 import { formatAmount } from '@/module/purchases/presentation/components/shared/format';
 import {
   useCreatePaymentRequest,
+  useCreatePaymentRequestWithAttachments,
+  useUploadAttachments,
   useUpdatePaymentRequest,
 } from '@/module/purchases/presentation/hooks/usePurchaseMutations';
 import {
@@ -83,11 +85,15 @@ export const PaymentRequestFormBody = ({
   }));
   const [showErrors, setShowErrors] = useState(false);
   const [step, setStep] = useState(0);
+  const [proformaFiles, setProformaFiles] = useState<File[]>([]);
   const isAdvance = values.kind === 'DP';
 
-  const create = useCreatePaymentRequest((doc) => navigate(detailPath('paymentRequest', doc.id)));
-  const update = useUpdatePaymentRequest((doc) => navigate(detailPath('paymentRequest', doc.id)));
-  const saving = create.isPending || update.isPending;
+  const create = useCreatePaymentRequest();
+  const createWithAttachments = useCreatePaymentRequestWithAttachments();
+  const update = useUpdatePaymentRequest();
+  const upload = useUploadAttachments();
+  const saving =
+    create.isPending || createWithAttachments.isPending || update.isPending || upload.isPending;
 
   const hasVendor = isAdvance ? Boolean(vendorId) : values.vendorIds.length > 0;
   const billsQuery = useOpenBillsOfVendors(values.vendorIds, !isAdvance && hasVendor);
@@ -109,10 +115,7 @@ export const PaymentRequestFormBody = ({
   );
   const orders = (ordersQuery.data?.items ?? []).filter(
     (order) =>
-      (order.id === values.purchaseOrderId && Boolean(editing)) ||
-      (order.advance.available > 0 &&
-        order.advanceState?.mode !== 'BILL' &&
-        !order.advanceState?.paid)
+      (order.id === values.purchaseOrderId && Boolean(editing)) || canRequestAdvancePayment(order)
   );
   const order = orders.find((item) => item.id === values.purchaseOrderId);
   const available =
@@ -134,16 +137,32 @@ export const PaymentRequestFormBody = ({
   const patch = (next: Partial<PaymentRequestFormValues>) =>
     setValues((current) => ({ ...current, ...next }));
 
-  const submit = () => {
+  const submit = async () => {
     if (hasPaymentRequestErrors(errors) || !hasVendor) {
       setShowErrors(true);
       setStep(!hasVendor ? 0 : errors.date ? 2 : 1);
       return;
     }
-    if (editing) {
-      update.mutate({ id: editing.id, input: toPaymentRequestUpdate(values) });
-    } else {
-      create.mutate(toPaymentRequestInput(values));
+    try {
+      const doc = editing
+        ? await update.mutateAsync({ id: editing.id, input: toPaymentRequestUpdate(values) })
+        : isAdvance && proformaFiles.length > 0
+          ? await createWithAttachments.mutateAsync({
+              input: toPaymentRequestInput(values),
+              files: proformaFiles,
+            })
+          : await create.mutateAsync(toPaymentRequestInput(values));
+      if (editing && isAdvance && proformaFiles.length > 0) {
+        try {
+          await upload.mutateAsync({ target: 'paymentRequest', id: doc.id, files: proformaFiles });
+        } catch {
+          navigate(detailPath('paymentRequest', doc.id));
+          return;
+        }
+      }
+      navigate(detailPath('paymentRequest', doc.id));
+    } catch {
+      // The mutation already reports its business or network error.
     }
   };
 
@@ -156,30 +175,12 @@ export const PaymentRequestFormBody = ({
       purchaseOrderId: '',
       advanceAmount: '',
     }));
+    setProformaFiles([]);
     setVendorId('');
     setShowErrors(false);
   };
 
-  const steps: WizardStep[] = [
-    {
-      id: 'source',
-      label: t('paymentRequests.wizard.source'),
-      description: t('paymentRequests.wizard.sourceHint'),
-      icon: <IconClipboardText size={20} />,
-    },
-    {
-      id: 'amount',
-      label: t('paymentRequests.wizard.amount'),
-      description: t('paymentRequests.wizard.amountHint'),
-      icon: <IconListDetails size={20} />,
-    },
-    {
-      id: 'data',
-      label: t('paymentRequests.wizard.data'),
-      description: t('paymentRequests.wizard.dataHint'),
-      icon: <IconCalendar size={20} />,
-    },
-  ];
+  const steps = paymentRequestSteps(t);
   const stepOk = [
     hasVendor,
     !errors.noBills &&
@@ -393,6 +394,15 @@ export const PaymentRequestFormBody = ({
                 onChange={(event) => patch({ memo: event.currentTarget.value })}
               />
             </Grid.Col>
+            {isAdvance && (
+              <Grid.Col span={12}>
+                <PaymentRequestProformaFiles
+                  attachments={editing?.attachments ?? []}
+                  files={proformaFiles}
+                  onChange={setProformaFiles}
+                />
+              </Grid.Col>
+            )}
           </Grid>
           {showErrors && hasPaymentRequestErrors(errors) && (
             <Text size="xs" c="red" mt="sm" role="alert">

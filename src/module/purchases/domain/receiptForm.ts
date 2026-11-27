@@ -6,6 +6,7 @@ import { remainingQty } from '@/module/purchases/domain/purchaseTotals';
 export interface ReceiptLine {
   itemId: string;
   name: string;
+  schedule: Pick<OrderItem['schedule'], 'kind' | 'seq' | 'of'>;
   unitName: string | null;
   ordered: number;
   received: number;
@@ -58,6 +59,7 @@ export const receiptLines = (order: PurchaseOrder): ReceiptLine[] =>
     .map((item) => ({
       itemId: item.id,
       name: itemName(item),
+      schedule: { kind: item.schedule.kind, seq: item.schedule.seq, of: item.schedule.of },
       unitName: item.unitName,
       ordered: item.quantity,
       received: item.receivedQty,

@@ -1,7 +1,7 @@
 import { MemoryRouter } from 'react-router-dom';
 import { render, screen } from '@test-utils';
 import type { PaymentRequest } from '@/module/purchases/domain/paymentRequest';
-import { PaymentRequestItemsCard } from './PaymentRequestDetailCards';
+import { PaymentRequestItemsCard, PaymentRequestSummaryCard } from './PaymentRequestDetailCards';
 
 const bill = (id: string) => ({
   id,
@@ -16,6 +16,7 @@ const bill = (id: string) => ({
 const doc = (overrides: Partial<PaymentRequest>): PaymentRequest =>
   ({
     kind: 'SETTLEMENT',
+    status: 'APPROVED',
     amount: 300,
     isMultiVendor: false,
     vendorTotals: [],
@@ -62,5 +63,37 @@ describe('PaymentRequestItemsCard', () => {
         'Batalkan DP melalui detail PO/SPK. Pembatalan ditolak jika PO/SPK pernah difakturkan atau DP pernah dibayar.'
       )
     ).toBeInTheDocument();
+  });
+
+  it('hides settlement and bill amounts until every approval is complete', () => {
+    renderCard(doc({ status: 'PENDING_APPROVAL' }));
+
+    expect(screen.queryByText(/100,00/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/200,00/)).not.toBeInTheDocument();
+    expect(screen.getAllByText('—')).toHaveLength(4);
+  });
+
+  it('hides the DP amount and ratio while approval is pending', () => {
+    renderCard(
+      doc({
+        kind: 'DP',
+        status: 'PENDING_APPROVAL',
+        order: { id: 'po1', number: 'PO/1', isService: false, total: 1000, status: 'APPROVED' },
+      })
+    );
+
+    expect(screen.queryByText(/30%/)).not.toBeInTheDocument();
+    expect(screen.getAllByText('—')).toHaveLength(2);
+  });
+
+  it('hides the summary total while approval is pending', () => {
+    render(
+      <MemoryRouter>
+        <PaymentRequestSummaryCard doc={doc({ status: 'PENDING_APPROVAL' })} />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByText('—')).toBeInTheDocument();
+    expect(screen.queryByText(/300,00/)).not.toBeInTheDocument();
   });
 });

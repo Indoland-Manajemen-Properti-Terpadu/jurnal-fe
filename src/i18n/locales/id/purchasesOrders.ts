@@ -102,6 +102,8 @@ export const purchasesOrders = {
       cancelTitle: 'Batalkan uang muka',
       cancelDescription:
         'Pembatalan ditolak jika PO/SPK pernah difakturkan atau DP pernah dibayar. Jika voucher draf juga memuat pembayaran lain, batalkan voucher draf lalu buat ulang pembayaran tersebut.',
+      cancelPermissionMissing:
+        'Akun ini tidak memiliki akses untuk membatalkan DP. Minta administrator memberi akses pembatalan DP.',
       cancelReasonLabel: 'Alasan pembatalan',
       cancelReasonPlaceholder: 'Tulis alasan pembatalan uang muka',
       left: 'Belum dikompensasi (DPP) {held} dari {total}',
@@ -116,6 +118,7 @@ export const purchasesOrders = {
       title: 'Retensi {percent}%',
       subtitle:
         'Ditahan dari tiap faktur termin, dilepas setelah masa pemeliharaan {months} bulan ({doc})',
+      subtitleNone: 'Retensi belum ditahan pada dokumen ini.',
       docService: 'BAST',
       docGoods: 'berita acara',
       total: 'Total retensi',
@@ -127,10 +130,12 @@ export const purchasesOrders = {
         ready: 'Bisa dilepas',
         from: 'Dilepas {date}',
         waiting: 'Menunggu termin terakhir',
+        none: 'Belum ditahan',
       },
       note: {
         released: 'Retensi sudah dilepas seluruhnya.',
         waiting: 'Masa pemeliharaan mulai dihitung setelah termin terakhir difaktur.',
+        none: 'Belum ada nilai retensi yang ditahan.',
         ready: 'Masa pemeliharaan sudah selesai. Tugas "Lepas retensi" menunggu di Perlu tindakan',
         held: 'Masa pemeliharaan selesai {date}. Pengingat minta {doc} muncul di Perlu tindakan 30 hari sebelumnya, lalu retensinya dilepas ke Hutang Usaha dan diajukan Payment Request.',
         doNow: 'Kerjakan sekarang',

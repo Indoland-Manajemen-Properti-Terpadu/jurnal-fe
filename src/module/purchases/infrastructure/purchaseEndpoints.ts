@@ -56,6 +56,7 @@ export const PURCHASE_API = {
   paymentRequests: PAYREQ,
   paymentRequest: (id: string) => `${PAYREQ}/${id}`,
   paymentRequestAction: (id: string, action: string) => `${PAYREQ}/${id}/${action}`,
+  paymentRequestAttachments: (id: string) => `${PAYREQ}/${id}/attachments`,
 
   payments: PAY,
   paymentsByVendor: `${PAY}/by-vendor`,

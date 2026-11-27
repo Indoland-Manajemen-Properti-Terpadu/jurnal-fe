@@ -9,6 +9,7 @@ import type { RefundInput } from '@/module/purchases/domain/returnForm';
 import type { ProcurementInput } from '@/module/purchases/domain/procurement';
 import type { PriceChangeInput } from '@/module/purchases/domain/purchasePriceChanges';
 import { cancelOrderAdvance } from '@/module/purchases/infrastructure/purchaseAdvanceApi';
+import { createPaymentRequestWithAttachments } from '@/module/purchases/infrastructure/paymentRequestCreateApi';
 import type {
   CreditApplicationInput,
   GoodsReceiptInput,
@@ -225,6 +226,13 @@ export const useVoidCreditApplication = () =>
 /* ---------- Payment Request ---------- */
 export const useCreatePaymentRequest = (onDone?: (doc: WithId & Doc) => void) =>
   useAction('created', (input: PaymentRequestInput) => api.createPaymentRequest(input), onDone);
+export const useCreatePaymentRequestWithAttachments = (onDone?: (doc: WithId & Doc) => void) =>
+  useAction(
+    'created',
+    ({ input, files }: { input: PaymentRequestInput; files: File[] }) =>
+      createPaymentRequestWithAttachments(input, files),
+    onDone
+  );
 export const useUpdatePaymentRequest = (onDone?: (doc: WithId & Doc) => void) =>
   useAction(
     'updated',

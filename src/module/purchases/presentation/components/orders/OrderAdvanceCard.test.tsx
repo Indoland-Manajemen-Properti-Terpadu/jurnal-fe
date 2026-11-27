@@ -141,23 +141,48 @@ describe('OrderAdvanceCard', () => {
           advance={advance}
           orderId="po1"
           canCancelAdvance={false}
+          canCancelAdvancePermission={false}
           onCancelAdvance={() => Promise.resolve()}
         />
       </MemoryRouter>
     );
     expect(screen.queryByRole('button', { name: 'Batalkan DP' })).not.toBeInTheDocument();
+    expect(screen.getByText(/tidak memiliki akses untuk membatalkan DP/i)).toBeInTheDocument();
 
     rerender(
       <MemoryRouter>
         <OrderAdvanceCard
-          advance={{ ...advance, billed: true }}
+          advance={{
+            ...advance,
+            bills: [{ id: 'bill-1', number: 'B/1', status: 'VOID' }],
+          }}
+          orderId="po1"
+          canCancelAdvance
+          canCancelAdvancePermission
+          onCancelAdvance={() => Promise.resolve()}
+        />
+      </MemoryRouter>
+    );
+    expect(screen.queryByRole('button', { name: 'Batalkan DP' })).not.toBeInTheDocument();
+  });
+
+  it('shows DP cancellation when billed is the default flag and there is no bill history', () => {
+    render(
+      <MemoryRouter>
+        <OrderAdvanceCard
+          advance={state({
+            mode: 'REQUEST',
+            billed: true,
+            paymentRequests: [{ id: 'r1', number: 'PR/1', status: 'DRAFT' }],
+          })}
           orderId="po1"
           canCancelAdvance
           onCancelAdvance={() => Promise.resolve()}
         />
       </MemoryRouter>
     );
-    expect(screen.queryByRole('button', { name: 'Batalkan DP' })).not.toBeInTheDocument();
+
+    expect(screen.getByRole('button', { name: 'Batalkan DP' })).toBeInTheDocument();
   });
 
   it('requires a nonblank reason and trims it before cancelling', async () => {

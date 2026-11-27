@@ -30,6 +30,28 @@ export type PaymentRequestStatus =
   | 'PAID'
   | 'CANCELLED';
 
+/** Requested values stay private until the full approval chain is complete. */
+export const paymentRequestAmountsVisible = (
+  status: PaymentRequestStatus,
+  approval?: Pick<ApprovalState, 'entries' | 'plan' | 'rejectionReason'>
+): boolean =>
+  status === 'APPROVED' ||
+  status === 'PROCESSED' ||
+  status === 'PAID' ||
+  (status === 'CANCELLED' &&
+    approval !== undefined &&
+    approval.rejectionReason === null &&
+    approval.plan.length > 0 &&
+    approval.plan.every((level, index) => {
+      const approvedRoles = new Set(
+        approval.entries.filter((entry) => entry.level === index).map((entry) => entry.roleId)
+      );
+      if (level.roles.length === 0) return false;
+      return level.mode === 'ANY'
+        ? level.roles.some((role) => approvedRoles.has(role.id))
+        : level.roles.every((role) => approvedRoles.has(role.id));
+    }));
+
 /** The bill of a settlement line, with what the server knows of it now. */
 export interface PaymentRequestBill {
   id: string;

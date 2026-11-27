@@ -247,6 +247,8 @@ export const purchasesProcurement = {
     },
     evidenceTitle: 'Negotiation evidence',
     autosave: 'Saved automatically when you leave the field.',
+    saved: 'Notes saved.',
+    saveFailed: 'Notes were not saved. Leave the field again to retry.',
     saving: 'Saving...',
     negotiationNote: 'Negotiation note',
     negotiationNoteHint: 'The final price is higher than the quoted price, explain why.',

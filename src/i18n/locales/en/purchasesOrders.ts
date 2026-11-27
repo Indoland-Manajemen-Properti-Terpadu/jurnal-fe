@@ -101,6 +101,8 @@ export const purchasesOrders = {
       cancelTitle: 'Cancel the advance',
       cancelDescription:
         'Cancellation is blocked if the PO/SPK has ever been billed or the advance has ever been paid. If a draft voucher also includes another payment, void the draft voucher and issue the other payment again.',
+      cancelPermissionMissing:
+        'This account cannot cancel the advance. Ask an administrator for the advance cancellation permission.',
       cancelReasonLabel: 'Cancellation reason',
       cancelReasonPlaceholder: 'Write the reason for cancelling the advance',
       left: 'Not yet applied (before tax) {held} of {total}',
@@ -115,6 +117,7 @@ export const purchasesOrders = {
       title: 'Retention {percent}%',
       subtitle:
         'Held back from every term bill, released after the {months}-month maintenance period ({doc})',
+      subtitleNone: 'No retention has been withheld on this document.',
       docService: 'BAST',
       docGoods: 'acceptance report',
       total: 'Total retention',
@@ -126,10 +129,12 @@ export const purchasesOrders = {
         ready: 'Ready to release',
         from: 'Release {date}',
         waiting: 'Waiting for the last term',
+        none: 'Not held',
       },
       note: {
         released: 'All retention has been released.',
         waiting: 'The maintenance period starts once the last term is billed.',
+        none: 'No retention amount has been withheld.',
         ready: 'The maintenance period is over. A "Release retention" task is waiting in To do',
         held: 'The maintenance period ends {date}. A reminder to ask for the {doc} shows in To do 30 days before; then the retention is released to Accounts Payable and a Payment Request is made.',
         doNow: 'Do it now',

@@ -11,6 +11,7 @@ import {
   PaymentRequestItemsCard,
   PaymentRequestSummaryCard,
 } from '@/module/purchases/presentation/components/paymentRequests/PaymentRequestDetailCards';
+import { AttachmentsCard } from '@/module/purchases/presentation/components/shared/AttachmentsCard';
 import { StateFrame } from '@/module/purchases/presentation/components/requests/StateFrame';
 import { ApprovalCard } from '@/module/purchases/presentation/components/shared/ApprovalCard';
 import { DocumentFrame } from '@/module/purchases/presentation/components/shared/DocumentFrame';
@@ -100,6 +101,15 @@ export default function PaymentRequestDetailPage() {
         <Grid.Col span={{ base: 12, lg: 8 }}>
           <Stack gap="lg">
             <PaymentRequestInfoCard doc={doc} />
+            {doc.kind === 'DP' && (
+              <AttachmentsCard
+                target="paymentRequest"
+                documentId={doc.id}
+                attachments={doc.attachments}
+                canUpload={doc.status === 'DRAFT' && can(PURCHASE_MENU.paymentRequests, 'update')}
+                titleKey="paymentRequests.detail.proformaTitle"
+              />
+            )}
             <PaymentRequestVendorsCard doc={doc} />
             <PaymentRequestItemsCard doc={doc} />
           </Stack>

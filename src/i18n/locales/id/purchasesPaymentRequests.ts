@@ -105,6 +105,11 @@ export const purchasesPaymentRequests = {
     save: 'Simpan Payment Request',
     saveEdit: 'Simpan Perubahan',
     fixErrors: 'Lengkapi isian yang ditandai sebelum menyimpan.',
+    proformaTitle: 'Invoice proforma vendor',
+    requiredBeforeSubmit: 'Wajib sebelum diajukan',
+    proformaHint:
+      'Maksimal 5 berkas, masing-masing 5 MB. Permintaan baru mengirim berkas bersama draf.',
+    removeProforma: 'Hapus {name}',
     notEditableTitle: 'Payment Request ini tidak dapat diubah',
     notEditableDescription: 'Hanya Payment Request berstatus draf yang dapat diubah.',
     notReadyTitle: 'Faktur belum dapat diajukan',
@@ -112,6 +117,9 @@ export const purchasesPaymentRequests = {
       'Hanya faktur terverifikasi yang masih memiliki sisa yang belum diajukan yang dapat dibayar.',
   },
   detail: {
+    proformaTitle: 'Invoice proforma vendor',
+    proformaRequired: 'Invoice proforma belum dilampirkan',
+    proformaUploadHint: 'Unggah berkas pada bagian Invoice proforma di bawah sebelum mengajukan.',
     bankMissing: 'Rekening bank vendor belum lengkap',
     bankCheckFailed: 'Rekening vendor belum dapat diperiksa. Segarkan halaman dan coba lagi.',
     vendorsTitle: 'Vendor dan voucher',

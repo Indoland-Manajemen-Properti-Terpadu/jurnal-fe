@@ -8,7 +8,11 @@ import {
 } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
-import { vendorLabel, type PaymentRequest } from '@/module/purchases/domain/paymentRequest';
+import {
+  paymentRequestAmountsVisible,
+  vendorLabel,
+  type PaymentRequest,
+} from '@/module/purchases/domain/paymentRequest';
 import { SummaryRows } from '@/module/purchases/presentation/components/shared/SummaryRows';
 import { StatusBadge } from '@/module/purchases/presentation/components/shared/StatusBadge';
 import { InfoGrid } from '@/module/purchases/presentation/components/shared/InfoGrid';
@@ -103,6 +107,7 @@ export const PaymentRequestInfoCard = ({ doc }: Readonly<{ doc: PaymentRequest }
 /** The money asked for, and the status it stands in. */
 export const PaymentRequestSummaryCard = ({ doc }: Readonly<{ doc: PaymentRequest }>) => {
   const { t, currentLanguage } = useTranslation('purchases');
+  const showAmounts = paymentRequestAmountsVisible(doc.status, doc.approval);
   return (
     <SectionCard
       icon={IconCalculator}
@@ -129,7 +134,7 @@ export const PaymentRequestSummaryCard = ({ doc }: Readonly<{ doc: PaymentReques
                   ? t(`paymentRequests.statusLabels.${doc.status}`)
                   : t(`status.${doc.status}`),
           },
-          ...(doc.advanceAppliedAmount > 0
+          ...(showAmounts && doc.advanceAppliedAmount > 0
             ? [
                 {
                   label: t('paymentRequests.detail.advanceAppliedLabel'),
@@ -139,7 +144,10 @@ export const PaymentRequestSummaryCard = ({ doc }: Readonly<{ doc: PaymentReques
               ]
             : []),
         ]}
-        total={{ label: t('paymentRequests.detail.requested'), value: formatAmount(doc.amount) }}
+        total={{
+          label: t('paymentRequests.detail.requested'),
+          value: showAmounts ? formatAmount(doc.amount) : '—',
+        }}
       />
     </SectionCard>
   );
@@ -148,9 +156,10 @@ export const PaymentRequestSummaryCard = ({ doc }: Readonly<{ doc: PaymentReques
 /** Bills of a settlement with the amount asked on each, or the advance of an order. */
 export const PaymentRequestItemsCard = ({ doc }: Readonly<{ doc: PaymentRequest }>) => {
   const { t, currentLanguage } = useTranslation('purchases');
+  const showAmounts = paymentRequestAmountsVisible(doc.status, doc.approval);
   if (doc.kind === 'DP') {
     const percent =
-      doc.order && doc.order.total > 0
+      showAmounts && doc.order && doc.order.total > 0
         ? Math.round((doc.amount / doc.order.total) * 1000) / 10
         : null;
     return (
@@ -176,7 +185,7 @@ export const PaymentRequestItemsCard = ({ doc }: Readonly<{ doc: PaymentRequest 
                 {t('paymentRequests.detail.orderTotal')}
               </Text>
               <Text size="sm" fw={600}>
-                {formatAmount(doc.order.total)}
+                {showAmounts ? formatAmount(doc.order.total) : '—'}
               </Text>
             </Group>
           )}
@@ -187,10 +196,10 @@ export const PaymentRequestItemsCard = ({ doc }: Readonly<{ doc: PaymentRequest 
                 : t('paymentRequests.detail.advancePercent', { percent })}
             </Text>
             <Text size="sm" fw={700} c="orange.8">
-              {formatAmount(doc.amount)}
+              {showAmounts ? formatAmount(doc.amount) : '—'}
             </Text>
           </Group>
-          {doc.advanceAppliedAmount > 0 && (
+          {showAmounts && doc.advanceAppliedAmount > 0 && (
             <Text size="xs" c="dimmed" mt={4}>
               {t('paymentRequests.detail.advanceApplied', {
                 amount: formatAmount(doc.advanceAppliedAmount),
@@ -267,11 +276,13 @@ export const PaymentRequestItemsCard = ({ doc }: Readonly<{ doc: PaymentRequest 
                   <StatusBadge status={item.bill.status as 'VERIFIED'} />
                 </Table.Td>
                 <Table.Td ta="right">
-                  <Text size="sm">{formatAmount(item.bill.remainingAmount)}</Text>
+                  <Text size="sm">
+                    {showAmounts ? formatAmount(item.bill.remainingAmount) : '—'}
+                  </Text>
                 </Table.Td>
                 <Table.Td ta="right">
                   <Text size="sm" fw={700}>
-                    {formatAmount(item.amount)}
+                    {showAmounts ? formatAmount(item.amount) : '—'}
                   </Text>
                 </Table.Td>
               </Table.Tr>

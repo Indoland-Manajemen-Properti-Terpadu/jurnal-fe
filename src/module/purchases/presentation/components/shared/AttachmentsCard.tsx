@@ -42,7 +42,14 @@ export const AttachmentsCard = ({
 
   const handleFiles = (files: File[]) => {
     if (files.length === 0) return;
-    if (files.length > MAX_FILES || files.some((file) => file.size > MAX_BYTES)) {
+    if (attachments.length + files.length > MAX_FILES) {
+      notifications.show({
+        color: 'orange',
+        message: t('attachments.tooMany', { max: MAX_FILES }),
+      });
+      return;
+    }
+    if (files.some((file) => file.size > MAX_BYTES)) {
       notifications.show({ color: 'orange', message: t('attachments.tooLarge') });
       return;
     }
@@ -85,6 +92,7 @@ export const AttachmentsCard = ({
               fullWidth
               leftSection={<IconUpload size={14} />}
               loading={upload.isPending}
+              disabled={attachments.length >= MAX_FILES}
             >
               {t('attachments.add')}
             </Button>

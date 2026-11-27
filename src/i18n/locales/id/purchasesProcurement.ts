@@ -251,6 +251,8 @@ export const purchasesProcurement = {
     },
     evidenceTitle: 'Bukti negosiasi',
     autosave: 'Tersimpan otomatis saat Anda keluar dari kolom.',
+    saved: 'Catatan berhasil disimpan.',
+    saveFailed: 'Catatan belum tersimpan. Coba keluar dari kolom lagi untuk menyimpan ulang.',
     saving: 'Menyimpan...',
     negotiationNote: 'Catatan negosiasi',
     negotiationNoteHint: 'Harga final lebih tinggi dari harga penawaran, jelaskan sebabnya.',

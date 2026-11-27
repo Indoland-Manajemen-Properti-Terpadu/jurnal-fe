@@ -2,7 +2,10 @@ import { Anchor, Group, Text } from '@mantine/core';
 import { IconBuildingStore } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
-import type { PaymentRequest } from '@/module/purchases/domain/paymentRequest';
+import {
+  paymentRequestAmountsVisible,
+  type PaymentRequest,
+} from '@/module/purchases/domain/paymentRequest';
 import type { PurchaseStatus } from '@/module/purchases/domain/purchaseStatus';
 import { formatAmount } from '@/module/purchases/presentation/components/shared/format';
 import { SectionCard } from '@/module/purchases/presentation/components/shared/SectionCard';
@@ -12,6 +15,7 @@ import { routes } from '@/router/routes';
 /** For a request with several vendors: what each is asked for and the voucher each one got. */
 export const PaymentRequestVendorsCard = ({ doc }: Readonly<{ doc: PaymentRequest }>) => {
   const { t } = useTranslation('purchases');
+  const showAmounts = paymentRequestAmountsVisible(doc.status, doc.approval);
   if (!doc.isMultiVendor) return null;
   return (
     <SectionCard
@@ -42,7 +46,7 @@ export const PaymentRequestVendorsCard = ({ doc }: Readonly<{ doc: PaymentReques
           </div>
           <Group gap="md" wrap="nowrap">
             <Text size="sm" fw={600} style={{ fontVariantNumeric: 'tabular-nums' }}>
-              {formatAmount(total.amount)}
+              {showAmounts ? formatAmount(total.amount) : '—'}
             </Text>
             {total.voucher ? (
               <Group gap="xs" wrap="nowrap">

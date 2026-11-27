@@ -31,6 +31,8 @@ export const PaymentRequestActionBar = ({ doc }: Readonly<{ doc: PaymentRequest 
   const [issuing, setIssuing] = useState(false);
 
   const actions = paymentRequestActions(doc);
+  const missingProforma =
+    doc.kind === 'DP' && doc.status === 'DRAFT' && doc.attachments.length === 0;
   const canUpdate = can(PURCHASE_MENU.paymentRequests, 'update');
   const showVoucher = actions.createVoucher && can(PURCHASE_MENU.payments, 'create');
   const vendorIds = [
@@ -58,6 +60,11 @@ export const PaymentRequestActionBar = ({ doc }: Readonly<{ doc: PaymentRequest 
 
   return (
     <>
+      {actions.submit && canUpdate && missingProforma && (
+        <Alert color="orange" title={t('paymentRequests.detail.proformaRequired')}>
+          {t('paymentRequests.detail.proformaUploadHint')}
+        </Alert>
+      )}
       {actions.submit && canUpdate && missing.length > 0 && (
         <Alert color="orange" title={t('paymentRequests.detail.bankMissing')}>
           <Stack gap={4}>
@@ -91,7 +98,7 @@ export const PaymentRequestActionBar = ({ doc }: Readonly<{ doc: PaymentRequest 
           radius="md"
           leftSection={<IconSend size={16} />}
           loading={submit.isPending}
-          disabled={bankCheckIncomplete || missing.length > 0}
+          disabled={bankCheckIncomplete || missing.length > 0 || missingProforma}
           onClick={() => submit.mutate({ id: doc.id })}
         >
           {t('paymentRequests.detail.submit')}

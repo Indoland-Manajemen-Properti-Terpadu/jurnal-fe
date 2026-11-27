@@ -73,6 +73,14 @@ export const ReceiptLinesEditor = ({
                   <Text size="sm" pt={7}>
                     {line.name}
                   </Text>
+                  {line.schedule.kind === 'TERM' && (
+                    <Text size="xs" c="dimmed">
+                      {t('orders.schedule.TERM', {
+                        seq: line.schedule.seq,
+                        of: line.schedule.of,
+                      })}
+                    </Text>
+                  )}
                 </Table.Td>
                 <Table.Td ta="right">
                   <Text size="sm" pt={7} style={{ whiteSpace: 'nowrap' }}>

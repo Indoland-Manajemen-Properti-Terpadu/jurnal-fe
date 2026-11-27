@@ -13,16 +13,29 @@ const receipt = (status: string) =>
     vendor: { id: 'v1', displayName: 'Vendor' },
     purchaseOrder: 'po1',
     amount: 24975000,
-    items: [{ _id: 'i1', description: 'Termin 1 dari 3', receivedQty: 1, accrualAmount: 24975000 }],
+    items: [
+      {
+        _id: 'i1',
+        purchaseOrderItem: 'oi1',
+        description: 'Jasa renovasi',
+        receivedQty: 1,
+        accrualAmount: 24975000,
+      },
+    ],
   } as unknown as GoodsReceiptDto);
 
 describe('ReceiptSummaryCard', () => {
   it('hides BAPP amounts until final approval', () => {
     render(
       <MemoryRouter>
-        <ReceiptSummaryCard receipt={receipt('PENDING_APPROVAL')} section="lines" />
+        <ReceiptSummaryCard
+          receipt={receipt('PENDING_APPROVAL')}
+          section="lines"
+          orderSchedules={{ oi1: { kind: 'TERM', seq: 1, of: 3 } }}
+        />
       </MemoryRouter>
     );
+    expect(screen.getByText('Jasa renovasi')).toBeInTheDocument();
     expect(screen.getByText('Termin 1 dari 3')).toBeInTheDocument();
     expect(screen.queryByText(/24\.975\.000/)).not.toBeInTheDocument();
   });
