@@ -6,6 +6,7 @@ import { ModalFrame } from '@/components/Modals/ModalFrame';
 import CustomDropzone from '@/components/Dropzone/CustomDropzone';
 import { useTranslation } from '@/i18n';
 import {
+  cashOutOf,
   hasPayErrors,
   toPayInput,
   validatePayForm,
@@ -21,6 +22,7 @@ import {
   todayIso,
 } from '@/module/purchases/presentation/components/shared/format';
 import { useVoucherMinDate } from '@/module/purchases/presentation/hooks/useVoucherMinDate';
+import { usePaymentMethodOptions } from '@/module/purchases/presentation/hooks/usePurchaseQueries';
 import { usePayVoucher } from '@/module/purchases/presentation/hooks/usePurchaseMutations';
 
 const MAX_FILES = 5;
@@ -40,6 +42,7 @@ export const PayDialog = ({ doc, opened, onClose }: Readonly<PayDialogProps>) =>
   const [showErrors, setShowErrors] = useState(false);
   const [proofFiles, setProofFiles] = useState<File[]>([]);
   const minDate = useVoucherMinDate(doc);
+  const { data: methods = [] } = usePaymentMethodOptions();
   const [edited, setEdited] = useState(false);
   const earliest = [doc.date, minDate].reduce((a, b) => (b > a ? b : a), '');
   const [values, setValues] = useState<PayFormValues>({
@@ -50,6 +53,8 @@ export const PayDialog = ({ doc, opened, onClose }: Readonly<PayDialogProps>) =>
     referenceNumber: doc.referenceNumber,
   });
   const errors = validatePayForm(values, doc.attachments.length > 0 || proofFiles.length > 0);
+  const method = methods.find((item) => item.id === values.paymentMethodId);
+  const fee = values.adminFee === '' ? method?.adminFee : values.adminFee;
   const patch = (next: Partial<PayFormValues>) => {
     if (next.paidAt !== undefined) setEdited(true);
     setValues((current) => ({ ...current, ...next }));
@@ -99,6 +104,11 @@ export const PayDialog = ({ doc, opened, onClose }: Readonly<PayDialogProps>) =>
       description={t('payments.detail.payDescription', { amount: formatAmount(doc.totalAmount) })}
       footer={
         <>
+          {fee !== undefined && (
+            <Text size="sm" fw={600}>
+              {t('payments.detail.cashOut')}: {formatAmount(cashOutOf(doc.totalAmount, fee))}
+            </Text>
+          )}
           <Button variant="default" disabled={pay.isPending} onClick={onClose}>
             {t('common.cancel')}
           </Button>
