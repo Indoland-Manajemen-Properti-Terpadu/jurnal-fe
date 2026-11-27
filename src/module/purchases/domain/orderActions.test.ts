@@ -46,12 +46,11 @@ describe('orderActions', () => {
 
   it('requires a paid advance before receiving a waiting-advance order', () => {
     const advanceState = { paid: false, receiptAllowed: true };
+    expect(orderActions(order({ status: 'WAITING_ADVANCE', advanceState })).receive).toBe(false);
     expect(
-      orderActions(order({ status: 'WAITING_ADVANCE', advanceState })).receive
-    ).toBe(false);
-    expect(
-      orderActions(order({ status: 'WAITING_ADVANCE', advanceState: { ...advanceState, paid: true } }))
-        .receive
+      orderActions(
+        order({ status: 'WAITING_ADVANCE', advanceState: { ...advanceState, paid: true } })
+      ).receive
     ).toBe(true);
   });
 
