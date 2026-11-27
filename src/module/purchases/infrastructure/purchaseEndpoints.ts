@@ -23,6 +23,11 @@ export const PURCHASE_API = {
   orderAction: (id: string, action: string) => `${PO}/${id}/${action}`,
   orderPrint: (id: string) => `${PO}/${id}/print`,
   orderAttachments: (id: string) => `${PO}/${id}/attachments`,
+  priceChanges: `${PO}/price-changes`,
+  priceChangesForOrder: (id: string) => `${PO}/${id}/price-changes`,
+  priceChange: (id: string) => `${PO}/price-changes/${id}`,
+  priceChangeAction: (id: string, action: 'approve' | 'reject') =>
+    `${PO}/price-changes/${id}/${action}`,
 
   receipts: GR,
   receipt: (id: string) => `${GR}/${id}`,

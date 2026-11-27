@@ -144,8 +144,10 @@ export const validateBillForm = (
   const fields: BillFormErrors['fields'] = {};
   const lines: BillFormErrors['lines'] = {};
   if (!values.date) fields.date = 'dateRequired';
-  else if (values.dueDate && values.dueDate < values.date) fields.dueDate = 'dueBeforeDate';
-  if (values.discountKind !== 'none') {
+  else if (source === 'MANUAL' && values.dueDate && values.dueDate < values.date) {
+    fields.dueDate = 'dueBeforeDate';
+  }
+  if (source === 'MANUAL' && values.discountKind !== 'none') {
     const value = isNumber(values.discountValue) ? values.discountValue : 0;
     if (value < 0) {
       fields.discountValue = 'discountNegative';
@@ -228,7 +230,12 @@ export const toBillInput = (
   post: boolean,
   quantities: BillQuantities = {}
 ): PurchaseBillInput => {
-  const base = { ...header(values), ...(post ? { post: true } : {}) };
+  const formHeader = header(values);
+  const { vendorInvoiceTotal, discountType, discountValue, dueDate, ...orderHeader } = formHeader;
+  const base = {
+    ...(source === 'MANUAL' ? formHeader : orderHeader),
+    ...(post ? { post: true } : {}),
+  };
   if (source === 'MANUAL') {
     return { ...base, source, vendor: values.vendorId, items: manualItems(values.lines) };
   }
@@ -241,16 +248,40 @@ export const toBillInput = (
     : { ...base, source, purchaseOrders: ids };
 };
 
+/** Preview includes the vendor total for comparison; a saved PO bill never stores that amount. */
+export const toBillPreviewInput = (
+  source: BillSource,
+  values: BillFormValues,
+  picked: BillSourceDoc[],
+  post: boolean,
+  quantities: BillQuantities = {}
+): PurchaseBillInput => {
+  const input = toBillInput(source, values, picked, post, quantities);
+  if (source === 'MANUAL' || !isNumber(values.vendorInvoiceTotal)) return input;
+  return { ...input, vendorInvoiceTotal: values.vendorInvoiceTotal };
+};
+
 /** The update body: every header field, cleared ones empty, so a PUT replaces what the person emptied. */
-export const toBillUpdate = (values: BillFormValues): BillUpdateInput => ({
+export const toBillUpdate = (
+  values: BillFormValues,
+  source: BillSource = 'MANUAL'
+): BillUpdateInput => ({
   transactionDate: values.date,
   vendorInvoiceNumber: values.vendorInvoiceNumber.trim(),
   taxInvoiceNumber: values.taxInvoiceNumber.trim(),
-  ...(isNumber(values.vendorInvoiceTotal) ? { vendorInvoiceTotal: values.vendorInvoiceTotal } : {}),
-  ...(values.dueDate ? { dueDate: values.dueDate } : {}),
-  discountType: values.discountKind === 'none' ? null : values.discountKind,
-  discountValue:
-    values.discountKind === 'none' || !isNumber(values.discountValue) ? 0 : values.discountValue,
+  ...(source === 'MANUAL' && isNumber(values.vendorInvoiceTotal)
+    ? { vendorInvoiceTotal: values.vendorInvoiceTotal }
+    : {}),
+  ...(source === 'MANUAL' && values.dueDate ? { dueDate: values.dueDate } : {}),
+  ...(source === 'MANUAL'
+    ? {
+        discountType: values.discountKind === 'none' ? null : values.discountKind,
+        discountValue:
+          values.discountKind === 'none' || !isNumber(values.discountValue)
+            ? 0
+            : values.discountValue,
+      }
+    : {}),
   withholdingType: values.withholdingKind === 'none' ? null : values.withholdingKind,
   withholdingValue:
     values.withholdingKind === 'none' || !isNumber(values.withholdingValue)

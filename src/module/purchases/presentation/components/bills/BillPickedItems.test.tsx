@@ -66,6 +66,9 @@ describe('BillEstimateSummary', () => {
           withholdingAmount: 0,
           finalAmount: 843600,
           dueDate: null,
+          precision: 2,
+          priceChangePending: false,
+          pendingPriceChange: null,
         }}
       />
     );

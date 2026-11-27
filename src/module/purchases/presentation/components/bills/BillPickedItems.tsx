@@ -2,7 +2,7 @@ import { Alert, Badge, Box, Group, NumberInput, Paper, Stack, Table, Text } from
 import { IconAlertTriangle } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import type { BillEstimate } from '@/module/purchases/domain/billSources';
-import type { BillPreview } from '@/module/purchases/infrastructure/purchaseApi';
+import type { BillPreview } from '@/module/purchases/infrastructure/purchaseBillPreview';
 import tableClasses from '@/module/purchases/presentation/components/shared/Table.module.css';
 import {
   formatAmount,

@@ -9,6 +9,7 @@ import {
   IconReceipt2,
   IconRefresh,
   IconRepeat,
+  IconTag,
   IconShoppingCart,
   IconWallet,
 } from '@tabler/icons-react';
@@ -179,6 +180,16 @@ export default function PurchasesPage() {
               <IconRefresh size={18} />
             </ActionIcon>
           </Tooltip>
+          {(access.can(PURCHASE_MENU.documents, 'read') ||
+            access.can(PURCHASE_MENU.approvePriceChange, 'read')) && (
+            <Button
+              variant="default"
+              leftSection={<IconTag size={16} />}
+              onClick={() => navigate(routes.purchases.priceChanges)}
+            >
+              {t('bills.priceChange.queueTitle')}
+            </Button>
+          )}
           {createItems.length > 0 && (
             <Menu position="bottom-end" withinPortal shadow="md" radius="md">
               <Menu.Target>

@@ -28,6 +28,11 @@ import { toBillSource } from '@/module/purchases/infrastructure/billSourceMapper
 import type { BillSourceDoc } from '@/module/purchases/domain/billSources';
 import type { ProcurementInput } from '@/module/purchases/domain/procurement';
 import type { PurchaseRequest } from '@/module/purchases/domain/purchaseRequest';
+import {
+  toBillPreview,
+  type BillPreview,
+  type BillPreviewDto,
+} from '@/module/purchases/infrastructure/purchaseBillPreview';
 import type {
   CreditApplicationInput,
   BillUpdateInput,
@@ -388,37 +393,9 @@ export const downloadPaymentPdf = (id: string) => http.blob(PURCHASE_API.payment
 export const downloadPayablesExcel = (params: { asOf?: string; vendor?: string }) =>
   http.blob(PURCHASE_API.payablesExport, params);
 
-/** The figures the service works out for a bill that has not been saved (`POST /purchase-bills/preview`). */
-export interface BillPreview {
-  /** DPP: the amount before tax, after any discount. */
-  taxBase: number;
-  taxAmount: number;
-  total: number;
-  withholdingAmount: number;
-  /** What the bill adds to payables. */
-  finalAmount: number;
-  dueDate: string | null;
-}
-
-interface BillPreviewDto {
-  taxBase?: number;
-  taxAmount?: number;
-  total?: number;
-  withholdingAmount?: number;
-  finalAmount?: number;
-  dueDate?: string | null;
-}
-
 export const previewBill = async (input: PurchaseBillInput): Promise<BillPreview> => {
   const dto = (await http.post<ApiEnvelope<BillPreviewDto>>(PURCHASE_API.billPreview, input)).data;
-  return {
-    taxBase: dto.taxBase ?? 0,
-    taxAmount: dto.taxAmount ?? 0,
-    total: dto.total ?? 0,
-    withholdingAmount: dto.withholdingAmount ?? 0,
-    finalAmount: dto.finalAmount ?? dto.total ?? 0,
-    dueDate: dto.dueDate ? dto.dueDate.slice(0, 10) : null,
-  };
+  return toBillPreview(dto);
 };
 
 /* ---------- History ---------- */

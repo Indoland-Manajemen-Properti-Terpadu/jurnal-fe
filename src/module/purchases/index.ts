@@ -4,6 +4,7 @@ export { default as PayablesReportPage } from './presentation/pages/PayablesRepo
 export { default as RequestFormPage } from './presentation/pages/RequestFormPage';
 export { default as RequestDetailPage } from './presentation/pages/RequestDetailPage';
 export { default as OrderDetailPage } from './presentation/pages/OrderDetailPage';
+export { default as PriceChangeApprovalsPage } from './presentation/pages/PriceChangeApprovalsPage';
 export { default as ReceiptFormPage } from './presentation/pages/ReceiptFormPage';
 export { default as ReceiptDetailPage } from './presentation/pages/ReceiptDetailPage';
 export { default as BillFormPage } from './presentation/pages/BillFormPage';

@@ -3,6 +3,7 @@ import { toAdvanceState } from '@/module/purchases/infrastructure/advanceStateMa
 import { toDocumentJournals } from '@/module/purchases/infrastructure/documentJournalMappers';
 import { toReorderOrderFields } from '@/module/purchases/infrastructure/purchaseReorderMappers';
 import { toOrderSent } from '@/module/purchases/infrastructure/orderSentMapper';
+import { toOrderItem } from '@/module/purchases/infrastructure/purchaseOrderItemMapper';
 import type { PaymentRequest } from '@/module/purchases/domain/paymentRequest';
 import type {
   BillItem,
@@ -11,7 +12,6 @@ import type {
   DocumentRef,
   GoodsReceipt,
   GoodsReceiptDisplayStatus,
-  OrderItem,
   PayablesAging,
   PaymentVoucher,
   PurchaseBill,
@@ -33,6 +33,7 @@ import type {
   PurchaseReturnDto,
   VendorCreditsDto,
 } from '@/module/purchases/infrastructure/purchaseDto';
+import { toPriceChangeRequest } from '@/module/purchases/infrastructure/purchasePriceChangeMappers';
 import {
   refId,
   toApproval,
@@ -70,35 +71,6 @@ const toAmounts = (dto: AmountsDto): DocumentAmounts => ({
   isPriceIncludeTax: Boolean(dto.isPriceIncludeTax),
 });
 
-const toOrderItem = (dto: PurchaseOrderDto['items'][number]): OrderItem => ({
-  id: dto._id,
-  requestItemId: dto.requestItem,
-  product: toProduct(dto.product),
-  description: dto.description ?? '',
-  specification: dto.specification ?? '',
-  quantity: dto.quantity,
-  unitName: dto.unit?.name ?? dto.product?.unit?.name ?? null,
-  unitPrice: dto.unitPrice,
-  tax: toTax(dto.tax),
-  discountAmount: dto.discountAmount,
-  taxAmount: dto.taxAmount,
-  amount: dto.amount,
-  receivedQty: dto.receivedQty,
-  billedQty: dto.billedQty,
-  status: dto.status ?? undefined,
-  statusLabel: dto.statusLabel ?? undefined,
-  billOnly: Boolean(dto.billOnly),
-  reorderSelectable: dto.reorderSelectable !== false,
-  previousUnitPrice: dto.previousUnitPrice ?? null,
-  schedule: {
-    kind: dto.schedule?.kind ?? 'FULL',
-    seq: dto.schedule?.seq ?? 1,
-    of: dto.schedule?.of ?? 1,
-    periodFrom: toDateOrNull(dto.schedule?.periodFrom),
-    periodTo: toDateOrNull(dto.schedule?.periodTo),
-  },
-});
-
 export const toPurchaseOrder = (dto: PurchaseOrderDto): PurchaseOrder => ({
   ...base(dto),
   ...toAmounts(dto),
@@ -129,6 +101,7 @@ export const toPurchaseOrder = (dto: PurchaseOrderDto): PurchaseOrder => ({
   retention: toOrderRetention(dto.retention),
   payableAmount: dto.payableAmount ?? 0,
   billedAmount: dto.billedAmount ?? 0,
+  pendingPriceChange: toPriceChangeRequest(dto.pendingPriceChange),
   sent: toOrderSent(dto),
   ...toReorderOrderFields(dto),
 });
