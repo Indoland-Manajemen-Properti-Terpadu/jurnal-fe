@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   emptyPaymentRequestForm,
   hasPaymentRequestErrors,
+  paymentRequestActions,
   sameVendor,
   vendorLabel,
   vendorSubtotals,
@@ -10,6 +11,7 @@ import {
   toPaymentRequestUpdate,
   validatePaymentRequestForm,
   type RequestableBill,
+  type PaymentRequest,
 } from '@/module/purchases/domain/paymentRequest';
 
 const settlement = (amounts: Record<string, number>) => ({
@@ -21,6 +23,19 @@ const advance = (over: object = {}) => ({
   purchaseOrderId: 'po1',
   advanceAmount: 1000 as number | '',
   ...over,
+});
+
+describe('paymentRequestActions', () => {
+  const actionDoc = (kind: PaymentRequest['kind'], status: PaymentRequest['status']) =>
+    ({ kind, status, approval: { canDecide: false } }) as PaymentRequest;
+
+  it('reserves DP cancellation for the PO/SPK detail and keeps settlement cancellation', () => {
+    for (const status of ['DRAFT', 'PENDING_APPROVAL', 'APPROVED', 'REJECTED'] as const) {
+      expect(paymentRequestActions(actionDoc('DP', status)).cancel).toBe(false);
+    }
+
+    expect(paymentRequestActions(actionDoc('SETTLEMENT', 'APPROVED')).cancel).toBe(true);
+  });
 });
 
 describe('settlement validation', () => {

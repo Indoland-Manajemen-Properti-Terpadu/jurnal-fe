@@ -1,4 +1,9 @@
-import type { OrderAdvanceMode, PurchaseOrder } from '@/module/purchases/domain/purchaseDocuments';
+import type {
+  AdvanceDocRef,
+  OrderAdvanceMode,
+  OrderAdvanceState,
+  PurchaseOrder,
+} from '@/module/purchases/domain/purchaseDocuments';
 
 /** The steps an advance goes through, in order; a request-only advance has no bill steps. */
 const BILL_STEPS = [
@@ -24,6 +29,18 @@ export const advanceStepProgress = (
     done: step === 'PAID',
   };
 };
+
+/** A request-only advance can be cancelled only before any bill or payment history exists. */
+export const canCancelAdvanceRequest = (
+  advance: OrderAdvanceState,
+  request: AdvanceDocRef
+): boolean =>
+  advance.mode === 'REQUEST' &&
+  !advance.billed &&
+  !advance.paid &&
+  advance.bills.length === 0 &&
+  request.status !== 'PAID' &&
+  request.status !== 'CANCELLED';
 
 /**
  * Why a receipt (FPB / BAPP) cannot be recorded yet: the service holds it until the advance invoice

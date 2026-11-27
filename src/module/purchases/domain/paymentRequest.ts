@@ -84,12 +84,13 @@ export const PAYMENT_REQUEST_STATUSES: PaymentRequestStatus[] = [
   'CANCELLED',
 ];
 
-/** What each status allows. A request can be cancelled until a voucher takes it. */
+/** What each status allows. DP cancellation is handled from the order with its own history guard. */
 export const paymentRequestActions = (doc: PaymentRequest) => ({
   edit: doc.status === 'DRAFT',
   submit: doc.status === 'DRAFT',
   decide: doc.status === 'PENDING_APPROVAL' && doc.approval.canDecide,
-  cancel: ['DRAFT', 'PENDING_APPROVAL', 'APPROVED', 'REJECTED'].includes(doc.status),
+  cancel:
+    doc.kind !== 'DP' && ['DRAFT', 'PENDING_APPROVAL', 'APPROVED', 'REJECTED'].includes(doc.status),
   createVoucher: doc.status === 'APPROVED',
 });
 
