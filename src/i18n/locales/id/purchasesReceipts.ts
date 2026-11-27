@@ -38,6 +38,9 @@ export const purchasesReceipts = {
     },
     deliveryNotePlaceholder: 'Contoh: SJ-0012',
     linesTitle: 'Barang yang Diterima',
+    linesTitleService: 'Jasa yang Diterima',
+    linesSubtitleService:
+      'Isi jumlah pekerjaan yang diterima kali ini. Kosongkan (0) untuk yang belum selesai.',
     linesSubtitle:
       'Isi jumlah yang diterima kali ini. Kosongkan (0) untuk barang yang belum datang.',
     receiveAll: 'Terima Semua Sisa',
@@ -65,7 +68,13 @@ export const purchasesReceipts = {
     impactTitle: 'Dampak akuntansi',
     impactBody:
       'Barang yang diterima langsung diakui sebagai beban atau persediaan, dengan pasangannya di akun Hutang Belum Ditagih. Jurnal dibuat otomatis. Saat tagihan vendor diverifikasi, akun Hutang Belum Ditagih dipindahkan menjadi Hutang Usaha.',
+    impactBodyService:
+      'Nilai dan jurnal penerimaan jasa dicatat setelah seluruh tahap persetujuan selesai.',
     submit: 'Catat Penerimaan',
+    confirmTitle: 'Catat penerimaan?',
+    confirmGoods: 'Pastikan jumlah barang yang diterima sudah sesuai sebelum mencatat penerimaan.',
+    confirmService:
+      'Pastikan pekerjaan yang diterima sudah sesuai sebelum mengajukan BAPP untuk persetujuan.',
   },
   opnameBlock: {
     title: 'Gudang sedang dihitung',
@@ -75,6 +84,7 @@ export const purchasesReceipts = {
   detail: {
     backToList: 'Kembali ke daftar penerimaan',
     infoSubtitle: 'Vendor, pencatat, pesanan asal, dan nomor surat jalan',
+    infoSubtitleService: 'Vendor, pencatat, pesanan asal, dan nomor berita acara',
     journalLabel: 'Jurnal',
     linesSubtitle: 'Jumlah pada penerimaan ini dibanding pesanan',
     itemsCount: '{count} item',
@@ -98,6 +108,7 @@ export const purchasesReceipts = {
     viewJournal: 'Lihat jurnal',
     journalNote: 'Penerimaan ini sudah dijurnal sebagai hutang belum ditagih.',
     linesTitle: 'Barang yang Diterima',
+    linesTitleService: 'Jasa yang Diterima',
     col: {
       item: 'Barang / Jasa',
       quantity: 'Diterima',

@@ -23,15 +23,16 @@ export interface BillFiles {
 interface BillFileFieldsProps {
   files: BillFiles;
   onChange: (files: BillFiles) => void;
+  taxRequired?: boolean;
 }
 
 /** The vendor's invoice and the tax invoice, picked now and sent once the bill is saved. */
-export const BillFileFields = ({ files, onChange }: Readonly<BillFileFieldsProps>) => {
+export const BillFileFields = ({ files, onChange, taxRequired }: Readonly<BillFileFieldsProps>) => {
   const { t } = useTranslation('purchases');
   const field = (key: keyof BillFiles) => (
     <Grid.Col span={{ base: 12, md: 6 }} key={key}>
       <CustomDropzone
-        title={t(`bills.form.file.${key}`)}
+        title={`${t(`bills.form.file.${key}`)}${key === 'tax' && taxRequired ? ' *' : ''}`}
         description={t('bills.form.file.drop')}
         subDescription={t('bills.form.file.hint')}
         accept={ACCEPT}

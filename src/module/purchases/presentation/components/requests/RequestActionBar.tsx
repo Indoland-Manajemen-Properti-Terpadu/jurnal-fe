@@ -41,8 +41,8 @@ export const RequestActionBar = ({ request }: Readonly<{ request: PurchaseReques
   const rights = requestRights(can, request.isOwner);
   const showEdit = actions.edit && rights.edit;
   const showSubmit = actions.submit && rights.edit;
-  const showVerify = actions.verify && rights.decide;
-  const showReturn = actions.return && rights.decide;
+  const showVerify = actions.verify && rights.decide && request.requestApproval?.canDecide === true;
+  const showReturn = actions.return && rights.decide && request.requestApproval?.canDecide === true;
   const showCancel = actions.cancel && rights.cancel;
   const close = () => setDialog(null);
 

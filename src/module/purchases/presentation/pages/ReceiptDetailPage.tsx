@@ -37,7 +37,11 @@ import {
   useResubmitReceipt,
   useVoidReceipt,
 } from '@/module/purchases/presentation/hooks/usePurchaseMutations';
-import { useBills, useReceipt } from '@/module/purchases/presentation/hooks/usePurchaseQueries';
+import {
+  useBills,
+  useOrder,
+  useReceipt,
+} from '@/module/purchases/presentation/hooks/usePurchaseQueries';
 import { toApiError } from '@/lib/http/apiError';
 import { readBackState } from '@/router/backState';
 import { routes } from '@/router/routes';
@@ -53,6 +57,10 @@ export default function ReceiptDetailPage() {
   const { t, currentLanguage } = useTranslation('purchases');
   const { can, canRead, isLoading: accessLoading } = usePurchaseAccess();
   const receipt = useReceipt(id);
+  const order = useOrder(receipt.data?.purchaseOrderId);
+  const orderSchedules = Object.fromEntries(
+    (order.data?.items ?? []).map((item) => [item.id, item.schedule])
+  );
   const journey = useDocumentChain('goodsReceipt', id);
   const orderBills = useBills(
     { purchaseOrder: receipt.data?.purchaseOrderId, limit: 50 },
@@ -143,7 +151,14 @@ export default function ReceiptDetailPage() {
         <Grid gutter="lg" align="flex-start">
           <Grid.Col span={{ base: 12, lg: 8 }}>
             <Stack gap="lg">
-              <ReceiptSummaryCard receipt={doc} />
+              <ReceiptSummaryCard receipt={doc} section="info" />
+              <AttachmentsCard
+                target="receipt"
+                documentId={doc.id}
+                attachments={doc.attachments}
+                canUpload={can(PURCHASE_MENU.receipts, 'update') && doc.status !== 'VOID'}
+              />
+              <ReceiptSummaryCard receipt={doc} section="lines" orderSchedules={orderSchedules} />
               <BillsTableCard
                 title={t('receipts.detail.billsTitle')}
                 subtitle={t('receipts.detail.billsSubtitle')}
@@ -152,13 +167,9 @@ export default function ReceiptDetailPage() {
                 )}
                 emptyText={t('receipts.detail.billsEmpty')}
               />
-              <DocumentJournalsCard journals={doc.journals} />
-              <AttachmentsCard
-                target="receipt"
-                documentId={doc.id}
-                attachments={doc.attachments}
-                canUpload={can(PURCHASE_MENU.receipts, 'update') && doc.status !== 'VOID'}
-              />
+              {(doc.kind !== 'SERVICE' || doc.status === 'POSTED' || doc.status === 'VOID') && (
+                <DocumentJournalsCard journals={doc.journals} />
+              )}
             </Stack>
           </Grid.Col>
           <Grid.Col span={{ base: 12, lg: 4 }}>
@@ -185,7 +196,14 @@ export default function ReceiptDetailPage() {
                           },
                         ]
                       : []),
-                    { label: t('receipts.detail.totalAccrual'), value: formatAmount(doc.amount) },
+                    ...(doc.kind !== 'SERVICE' || doc.status === 'POSTED' || doc.status === 'VOID'
+                      ? [
+                          {
+                            label: t('receipts.detail.totalAccrual'),
+                            value: formatAmount(doc.amount),
+                          },
+                        ]
+                      : []),
                   ]}
                 />
               </SectionCard>

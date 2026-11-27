@@ -135,6 +135,16 @@ describe('resolveSectionTitle', () => {
     expect(resolveSectionTitle(routes.purchases.main)?.titleKey).toBe('purchasesOverview');
   });
 
+  it('assigns payment request detail routes to the Payments navigation item', () => {
+    const purchases = items.find((item) => item.id === 'purchases');
+    const payment = purchases?.children?.find((child) => child.id === 'purchasesPayments');
+
+    expect(payment?.match).toContain('/purchases/payment-requests');
+    expect(resolveSectionTitle('/purchases/payment-requests/pr-1')?.titleKey).toBe(
+      'purchasesPayments'
+    );
+  });
+
   it('lets a detail page win over the list it belongs to', () => {
     expect(resolveSectionTitle('/general-journal/add-account')?.titleKey).toBe('addAccount');
     expect(resolveSectionTitle(routes.chartOfAccounts.main)?.titleKey).toBe('chartOfAccounts');

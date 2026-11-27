@@ -33,4 +33,22 @@ describe('isNavigationChildActive', () => {
       true
     );
   });
+
+  it('keeps Payment selected on Payment Request details', () => {
+    const children = [
+      '/purchases',
+      '/purchases/payments',
+      '/purchases/payment-requests',
+      '/purchases/requests',
+    ];
+
+    expect(
+      isNavigationChildActive('/purchases/payment-requests/pr-1', '/purchases/payments', children, [
+        '/purchases/payment-requests',
+      ])
+    ).toBe(true);
+    expect(
+      isNavigationChildActive('/purchases/payment-requests/pr-1', '/purchases', children)
+    ).toBe(false);
+  });
 });

@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
   emptyPaymentRequestForm,
+  hasVendorBankAccount,
   hasPaymentRequestErrors,
   paymentRequestActions,
+  paymentRequestAmountsVisible,
   sameVendor,
   vendorLabel,
   vendorSubtotals,
@@ -25,6 +27,18 @@ const advance = (over: object = {}) => ({
   ...over,
 });
 
+describe('vendor bank account', () => {
+  it('requires a bank, account number, and holder on the same account', () => {
+    expect(hasVendorBankAccount([])).toBe(false);
+    expect(
+      hasVendorBankAccount([{ bankName: 'BCA', accountNumber: ' ', accountHolder: 'Vendor' }])
+    ).toBe(false);
+    expect(
+      hasVendorBankAccount([{ bankName: 'BCA', accountNumber: '123', accountHolder: 'Vendor' }])
+    ).toBe(true);
+  });
+});
+
 describe('paymentRequestActions', () => {
   const actionDoc = (kind: PaymentRequest['kind'], status: PaymentRequest['status']) =>
     ({ kind, status, approval: { canDecide: false } }) as PaymentRequest;
@@ -35,6 +49,38 @@ describe('paymentRequestActions', () => {
     }
 
     expect(paymentRequestActions(actionDoc('SETTLEMENT', 'APPROVED')).cancel).toBe(true);
+  });
+});
+
+describe('payment request amount visibility', () => {
+  it('keeps requested values hidden until every approval is complete', () => {
+    for (const status of ['DRAFT', 'PENDING_APPROVAL', 'REJECTED', 'CANCELLED'] as const) {
+      expect(paymentRequestAmountsVisible(status)).toBe(false);
+    }
+    for (const status of ['APPROVED', 'PROCESSED', 'PAID'] as const) {
+      expect(paymentRequestAmountsVisible(status)).toBe(true);
+    }
+    expect(
+      paymentRequestAmountsVisible('CANCELLED', {
+        entries: [{ level: 0, roleId: 'finance', byId: 'approver-1', at: '2026-11-27T09:00:00Z' }],
+        plan: [{ name: 'Finance', mode: 'ALL', roles: [{ id: 'finance', name: 'Finance' }] }],
+        rejectionReason: null,
+      })
+    ).toBe(true);
+    expect(
+      paymentRequestAmountsVisible('CANCELLED', {
+        entries: [],
+        plan: [{ name: 'Finance', mode: 'ALL', roles: [{ id: 'finance', name: 'Finance' }] }],
+        rejectionReason: null,
+      })
+    ).toBe(false);
+    expect(
+      paymentRequestAmountsVisible('CANCELLED', {
+        entries: [],
+        plan: [{ name: 'Finance', mode: 'ALL', roles: [] }],
+        rejectionReason: null,
+      })
+    ).toBe(false);
   });
 });
 

@@ -9,6 +9,18 @@ import type { DocumentRef, PurchaseBill } from '@/module/purchases/domain/purcha
 /** `DP` asks for the advance of an order; `SETTLEMENT` asks to pay one or more bills of one vendor. */
 export type PaymentRequestKind = 'DP' | 'SETTLEMENT';
 
+/** A vendor needs a complete bank account before a payment request is submitted. */
+export const hasVendorBankAccount = (
+  accounts: {
+    bankName?: string | null;
+    accountNumber?: string | null;
+    accountHolder?: string | null;
+  }[]
+): boolean =>
+  accounts.some((bank) =>
+    Boolean(bank.bankName?.trim() && bank.accountNumber?.trim() && bank.accountHolder?.trim())
+  );
+
 export type PaymentRequestStatus =
   | 'DRAFT'
   | 'PENDING_APPROVAL'
@@ -17,6 +29,28 @@ export type PaymentRequestStatus =
   | 'PROCESSED'
   | 'PAID'
   | 'CANCELLED';
+
+/** Requested values stay private until the full approval chain is complete. */
+export const paymentRequestAmountsVisible = (
+  status: PaymentRequestStatus,
+  approval?: Pick<ApprovalState, 'entries' | 'plan' | 'rejectionReason'>
+): boolean =>
+  status === 'APPROVED' ||
+  status === 'PROCESSED' ||
+  status === 'PAID' ||
+  (status === 'CANCELLED' &&
+    approval !== undefined &&
+    approval.rejectionReason === null &&
+    approval.plan.length > 0 &&
+    approval.plan.every((level, index) => {
+      const approvedRoles = new Set(
+        approval.entries.filter((entry) => entry.level === index).map((entry) => entry.roleId)
+      );
+      if (level.roles.length === 0) return false;
+      return level.mode === 'ANY'
+        ? level.roles.some((role) => approvedRoles.has(role.id))
+        : level.roles.every((role) => approvedRoles.has(role.id));
+    }));
 
 /** The bill of a settlement line, with what the server knows of it now. */
 export interface PaymentRequestBill {

@@ -21,6 +21,7 @@ import {
   IconTrash,
 } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
+import { TermScheduleTable } from '@/module/purchases/presentation/components/procurement/TermScheduleTable';
 import type { Procurement, Quote } from '@/module/purchases/domain/procurement';
 import type { RequestItem } from '@/module/purchases/domain/purchaseRequest';
 import { RejectedVendorNote } from '@/module/purchases/presentation/components/procurement/RejectedVendorNote';
@@ -252,6 +253,8 @@ export const SingleVendorForm = ({
               </Table.Tbody>
             </Table>
           </Table.ScrollContainer>
+
+          {totals?.schedule && <TermScheduleTable schedule={totals.schedule} />}
 
           {totals && (
             <Stack gap={4} ml="auto" w={{ base: '100%', sm: 320 }}>

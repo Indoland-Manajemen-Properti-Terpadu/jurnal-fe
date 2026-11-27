@@ -68,6 +68,24 @@ describe('receiptForm', () => {
     expect(lines.map((line) => line.remaining)).toEqual([6.5, 0]);
   });
 
+  it('keeps the term schedule so the receipt form can distinguish installment lines', () => {
+    const term = {
+      ...item('a', 1, 0),
+      schedule: { kind: 'TERM' as const, seq: 2, of: 3, periodFrom: null, periodTo: null },
+    };
+
+    expect(receiptLines(order([term]))[0].schedule).toEqual({ kind: 'TERM', seq: 2, of: 3 });
+  });
+
+  it('keeps the order line description so service installments can be distinguished', () => {
+    const line = {
+      ...item('a', 1, 0),
+      product: { name: 'Jasa instalasi' } as OrderItem['product'],
+      description: 'Jasa instalasi — Termin 1 dari 3',
+    };
+    expect(receiptLines(order([line]))[0].name).toBe('Jasa instalasi — Termin 1 dari 3');
+  });
+
   it('starts empty so nothing is received by accident', () => {
     const form = emptyReceiptForm(order([item('a', 4, 0)]), '2026-11-05');
     expect(form.quantities).toEqual({ a: 0 });

@@ -19,7 +19,18 @@ export function isNavigationLinkActive(
 export function isNavigationChildActive(
   pathname: string,
   link: string,
-  siblingLinks: string[]
+  siblingLinks: string[],
+  matchPrefixes: string[] = []
 ): boolean {
-  return isNavigationLinkActive(pathname, link, siblingLinks);
+  const matchingPrefixes = [link, ...matchPrefixes].filter((prefix) =>
+    matchesRouteBoundary(pathname, prefix)
+  );
+  if (matchingPrefixes.length === 0) return false;
+
+  const matchingSiblings = siblingLinks.filter((candidate) =>
+    matchesRouteBoundary(pathname, candidate)
+  );
+  const mostSpecificLength = Math.max(...matchingSiblings.map((candidate) => candidate.length));
+
+  return matchingPrefixes.some((prefix) => prefix.length === mostSpecificLength);
 }

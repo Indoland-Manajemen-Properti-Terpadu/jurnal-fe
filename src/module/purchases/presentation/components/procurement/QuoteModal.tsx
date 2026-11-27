@@ -315,6 +315,9 @@ export const QuoteModal = ({
         errors={errors}
         showErrors={showErrors}
         showFinalPrice={false}
+        showShipping={
+          items.some((item) => item.kind === 'GOODS') || Number(values.shippingAmount) > 0
+        }
         onLine={setLine}
         onChange={set}
       />

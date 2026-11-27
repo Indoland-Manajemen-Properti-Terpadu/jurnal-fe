@@ -54,7 +54,7 @@ export const orderActions = (doc: PurchaseOrder) => {
   const waitingAdvancePaid = doc.status !== 'WAITING_ADVANCE' || doc.advanceState?.paid === true;
   return {
     edit: doc.status === 'DRAFT',
-    send: doc.status === 'DRAFT',
+    send: doc.status === 'DRAFT' || doc.status === 'WAITING_RECEIPT',
     receive:
       doc.withReceipt &&
       RECEIPT_STATUSES.includes(doc.status) &&

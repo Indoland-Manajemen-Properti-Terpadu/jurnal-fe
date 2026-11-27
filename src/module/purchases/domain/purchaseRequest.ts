@@ -1,6 +1,7 @@
 import type { OrderRef, Procurement } from '@/module/purchases/domain/procurement';
 import type {
   Attachment,
+  ApprovalState,
   DocumentBase,
   NamedRef,
   ProductRef,
@@ -50,6 +51,8 @@ export interface PurchaseRequest extends DocumentBase {
   items: RequestItem[];
   /** The signed-in user created this request. */
   isOwner: boolean;
+  /** Verification approval, separate from procurement approval. */
+  requestApproval?: ApprovalState;
   /** Chosen at procurement; null until then. */
   route: ProcurementRoute | null;
   procurement: Procurement;

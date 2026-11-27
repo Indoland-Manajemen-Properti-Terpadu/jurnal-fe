@@ -30,13 +30,18 @@ export const advanceStepProgress = (
   };
 };
 
+/** Only request-route advances can be chosen for a new DP Payment Request. */
+export const canRequestAdvancePayment = (
+  order: Pick<PurchaseOrder, 'advance' | 'advanceState'>
+): boolean =>
+  order.advance.available > 0 && order.advanceState?.mode === 'REQUEST' && !order.advanceState.paid;
+
 /** A request-only advance can be cancelled only before any bill or payment history exists. */
 export const canCancelAdvanceRequest = (
   advance: OrderAdvanceState,
   request: AdvanceDocRef
 ): boolean =>
   advance.mode === 'REQUEST' &&
-  !advance.billed &&
   !advance.paid &&
   advance.bills.length === 0 &&
   request.status !== 'PAID' &&

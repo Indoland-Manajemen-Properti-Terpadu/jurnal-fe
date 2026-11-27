@@ -1,4 +1,6 @@
 export const purchasesProcurement = {
+  confirmSingleTitle: 'Submit procurement for approval?',
+  confirmSingleBody: 'Check the quote and single-vendor reason before submitting.',
   routeCard: { title: 'Procurement route' },
   routeLocked: 'The route can no longer be changed because it was submitted.',
   routeDiscard:
@@ -245,6 +247,8 @@ export const purchasesProcurement = {
     },
     evidenceTitle: 'Negotiation evidence',
     autosave: 'Saved automatically when you leave the field.',
+    saved: 'Notes saved.',
+    saveFailed: 'Notes were not saved. Leave the field again to retry.',
     saving: 'Saving...',
     negotiationNote: 'Negotiation note',
     negotiationNoteHint: 'The final price is higher than the quoted price, explain why.',
@@ -260,7 +264,7 @@ export const purchasesProcurement = {
   resubmit: 'Resubmit Procurement',
   approvedTitle: 'Procurement approved',
   approvedBody:
-    '{count} order(s) created as drafts. Accounting sends them to the vendor from the order detail.',
+    '{count} order(s) created. Open the order details to see their status and next step.',
   viewOrder: 'View Order',
   orders: {
     title: 'Orders from this procurement',
@@ -331,6 +335,7 @@ export const purchasesProcurement = {
     percentsTitle: 'Percent of each installment',
     customPercents: 'Set the percents myself',
     percentTotal: 'Total {total}% of 100%',
+    percentAfterAdvance: 'Installment percentages apply to the balance after the advance.',
     percentShort: 'Total {total}% of 100%, {gap}% short',
     percentOver: 'Total {total}% of 100%, {gap}% over',
     periodUnit: 'Period unit',

@@ -64,4 +64,29 @@ describe('OrderRetentionCard', () => {
 
     expect(screen.getByText('Retensi sudah dilepas seluruhnya.')).toBeInTheDocument();
   });
+
+  it('does not say retention is released before any has been held', () => {
+    renderCard(
+      retention({ state: 'RELEASED', held: 0, released: 0, balance: 0, maintenanceFrom: null })
+    );
+    expect(screen.getByText('Menunggu termin terakhir')).toBeInTheDocument();
+    expect(screen.queryByText('Retensi sudah dilepas seluruhnya.')).not.toBeInTheDocument();
+  });
+
+  it('labels a NONE retention as not held', () => {
+    renderCard(
+      retention({
+        state: 'NONE',
+        total: 0,
+        held: 0,
+        released: 0,
+        balance: 0,
+        maintenanceFrom: null,
+        releasableFrom: null,
+      })
+    );
+
+    expect(screen.getByText('Belum ditahan')).toBeInTheDocument();
+    expect(screen.queryByText('Menunggu termin terakhir')).not.toBeInTheDocument();
+  });
 });

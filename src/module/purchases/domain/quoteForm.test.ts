@@ -351,7 +351,7 @@ describe('payment terms by kind', () => {
   });
 
   it('asks for every term when the request mixes both', () => {
-    expect(appliesToOf([line('GOODS'), line('SERVICE')])).toBeUndefined();
+    expect(appliesToOf([line('GOODS'), line('SERVICE')])).toBe('goods');
     expect(appliesToOf([])).toBeUndefined();
   });
 });

@@ -151,6 +151,8 @@ export interface OrderRefDto {
 }
 
 export interface PurchaseRequestDto extends DocumentDto, ApprovalFieldsDto {
+  requestApproval?: ApprovalFieldsDto | null;
+  requestApprovalView?: Pick<ApprovalFieldsDto, 'canDecide' | 'pendingApprovers'> | null;
   status: string;
   statusLabel?: string | null;
   requiredDate?: string | null;
