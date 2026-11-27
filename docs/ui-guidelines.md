@@ -25,7 +25,16 @@ Any agent working on this codebase MUST treat UI/UX not as an afterthought, but 
 ## UI and accessibility
 
 - Use React 18, Mantine 8, the existing custom Tailwind setup, and the repository's theme tokens. Do not use Mantine v9 APIs or invent a parallel design system.
-- Follow the existing Figma references and local theme as the design sources of truth. Prefer existing shared components. Avoid hardcoded colors, spacing, typography, and radius values when a project token exists.
+- Use the [Jurnal ProApps UI reference](https://jurnalproapps.vercel.app) as the canonical visual and interaction source. Before every implementation or fix, inspect the matching screen or flow, including shared navigation or layout when affected:
+  - **No login required**: the Vercel reference is publicly accessible without authentication.
+  - **Navigate by menu, not by URL/routes**: route paths differ between `https://jurnalproapps.vercel.app` and this repository, while the sidebar/menu structure matches. Always navigate manually through the UI menus rather than guessing or opening routes directly.
+  - **Switch roles via the footer**: when a screen or permission depends on user role, use the **"Lihat sebagai"** selector in the footer to inspect each relevant role's view and access.
+- Match the reference screen's page structure, hierarchy, controls, interaction states, UX flow, and responsive behavior. A screen in the reference takes precedence over the generic page layout standards below when they differ.
+- **Keep existing `jurnal-fe` theme tokens and architecture**: keep using the tokens in `src/theme/tokens/` (primary `#053079`, secondary `#09B2FF`, Figtree, Mantine v8), shared components, and accounting rules. Do not invent one-off styling or parallel tokens; if an approved change genuinely requires modifying a shared token, follow [design-token-change](agents/workflows/design-token-change.md).
+- **Adjust `i18n` copy when needed**: update `src/i18n/locales/{id,en}/` (following [i18n.md](i18n.md)) so labels, headings, and helper text match the reference wording cleanly in both Bahasa Indonesia and English.
+- **UI vs. backend contract mismatches**: data payloads, validations, statuses, and accounting behavior must always follow the real backend API contract. If the reference shows fields, filters, statuses, or actions that are missing or differ in the backend, do not fabricate dummy behavior or break the contract—confirm with the user first or mention the relevant team member on Jira (**Raga** for UI/UX, PM, QA; **Aldi** & **Zaki** for Backend, with **Zaki** also handling Frontend).
+- **Post-implementation visual comparison**: after implementing or fixing a UI change, compare the rendered local app against the matching screen (and role, if applicable) on `https://jurnalproapps.vercel.app` whenever a local dev server/browser check is available; otherwise state plainly that visual comparison was not run.
+- Do not use Figma or other design artifacts as the product UI source for this repository. If the reference is unavailable or has no matching screen, state that limitation, use the closest existing app pattern where appropriate, and do not claim visual verification or invent a new design.
 - Use the brand tokens defined in `src/theme/tokens/` (see [design-system.md](design-system.md) for every token and the styling rules): primary `#053079` and secondary `#09B2FF`. Their Mantine shades are derived in the same theme palette; reference `primary` and `secondary` tokens instead of hardcoding hex values in components. Keep semantic feedback colors separate from brand colors (for example, success green and error red).
 - Preserve the project's Figtree typography. Use Phosphor icons with `weight="duotone"` in the app shell and Tabler icons in general content, following the established component patterns.
 - Preserve the established app-shell navigation behavior; on desktop, the collapsed sidebar uses the existing icon-rail pattern unless the requested product change explicitly alters it.
@@ -88,8 +97,5 @@ Any agent working on this codebase MUST treat UI/UX not as an afterthought, but 
 
 ## Design references
 
-- Figma color tokens: https://www.figma.com/design/I3tHoLYN005e1bUjQWlkAL/Jurnal-Figma-Fix?node-id=2-493&m=dev
-- Figma text styles: https://www.figma.com/design/I3tHoLYN005e1bUjQWlkAL/Jurnal-Figma-Fix?node-id=2-4400&m=dev
-- Figma spacing: https://www.figma.com/design/I3tHoLYN005e1bUjQWlkAL/Jurnal-Figma-Fix?node-id=2-5511&m=dev
-- Figma radius: https://www.figma.com/design/I3tHoLYN005e1bUjQWlkAL/Jurnal-Figma-Fix?node-id=2-6791&m=dev
-- Local theme sources: `src/theme/` (tokens, Mantine theme, CSS variables) and `src/styles/` (global CSS, fonts), documented in [design-system.md](design-system.md).
+- Canonical UI/UX reference: [https://jurnalproapps.vercel.app](https://jurnalproapps.vercel.app) (no login; navigate via menus instead of routes/URLs; switch roles with **"Lihat sebagai"** in the footer). Treat its matching screens as the clone to follow for page composition, layout, and UX flow.
+- Implementation sources: `src/theme/` (tokens, Mantine theme, CSS variables), `src/styles/` (global CSS, fonts), documented in [design-system.md](design-system.md), and `src/i18n/` ([i18n.md](i18n.md)). These govern tokens and localization when implementing the reference design in this repository.
