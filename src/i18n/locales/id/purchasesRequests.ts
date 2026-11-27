@@ -108,6 +108,7 @@ export const purchasesRequests = {
   },
   detail: {
     waitingAccounting: 'Menunggu verifikasi Accounting',
+    verificationApproval: 'Persetujuan verifikasi FPPBJ',
     backToList: 'Kembali ke daftar permintaan',
     neededOn: 'Dibutuhkan pada',
     requestedBy: 'Diajukan oleh',

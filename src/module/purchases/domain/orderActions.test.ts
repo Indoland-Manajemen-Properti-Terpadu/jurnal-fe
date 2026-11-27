@@ -30,7 +30,7 @@ describe('orderActions', () => {
       receive: true,
       bill: false,
       edit: false,
-      send: false,
+      send: true,
     });
     expect(orderActions(order({ status: 'PARTIAL_RECEIVED' })).receive).toBe(true);
   });

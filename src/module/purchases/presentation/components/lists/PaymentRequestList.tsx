@@ -7,6 +7,7 @@ import { PURCHASE_MENU } from '@/module/purchases/domain/purchaseAccess';
 import {
   PAYMENT_REQUEST_STATUSES,
   paymentRequestActions,
+  paymentRequestAmountsVisible,
   vendorLabel,
   voucherProgress,
   type PaymentRequest,
@@ -153,7 +154,11 @@ export const PaymentRequestList = () => {
                 </Text>
               )}
             </Table.Td>
-            <AmountCell value={row.amount} />
+            <AmountCell
+              value={
+                paymentRequestAmountsVisible(row.status, row.approval) ? row.amount : undefined
+              }
+            />
           </>
         )}
         isLoading={query.isLoading}

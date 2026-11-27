@@ -51,6 +51,7 @@ interface OrderAdvanceCardProps {
   advance: OrderAdvanceState;
   orderId?: string;
   canCancelAdvance?: boolean;
+  canCancelAdvancePermission?: boolean;
   isCancelPending?: boolean;
   onCancelAdvance?: (requestId: string, reason: string) => Promise<unknown>;
 }
@@ -60,6 +61,7 @@ export const OrderAdvanceCard = ({
   advance,
   orderId,
   canCancelAdvance = false,
+  canCancelAdvancePermission = false,
   isCancelPending = false,
   onCancelAdvance,
 }: Readonly<OrderAdvanceCardProps>) => {
@@ -87,7 +89,9 @@ export const OrderAdvanceCard = ({
             {formatAmount(advance.amount)}
           </Text>
           <Text size="sm" fw={600} c={progress.done ? 'green.8' : 'primary.7'}>
-            {advance.stepLabel}
+            {advance.mode === 'REQUEST' && last(advance.paymentRequests)?.status === 'DRAFT'
+              ? t('orders.detail.dp.requestDraft')
+              : advance.stepLabel}
           </Text>
         </Group>
         <Progress
@@ -119,11 +123,12 @@ export const OrderAdvanceCard = ({
         )}
         {requestDocs.length > 0 ? (
           requestDocs.map((request) => {
+            const requestCanBeCancelled = canCancelAdvanceRequest(advance, request);
             const canCancel =
               canCancelAdvance &&
               Boolean(orderId) &&
               Boolean(onCancelAdvance) &&
-              canCancelAdvanceRequest(advance, request);
+              requestCanBeCancelled;
             return (
               <DocRow
                 key={request.id}
@@ -141,6 +146,10 @@ export const OrderAdvanceCard = ({
                     >
                       {t('orders.detail.dp.cancel')}
                     </Button>
+                  ) : requestCanBeCancelled && !canCancelAdvancePermission ? (
+                    <Text size="xs" c="dimmed">
+                      {t('orders.detail.dp.cancelPermissionMissing')}
+                    </Text>
                   ) : undefined
                 }
               />

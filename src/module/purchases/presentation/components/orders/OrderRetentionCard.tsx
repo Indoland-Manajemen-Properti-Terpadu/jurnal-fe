@@ -36,13 +36,17 @@ export const OrderRetentionCard = ({
   const releases = bills.filter(
     (bill) => bill.kind === 'RETENTION_RELEASE' && bill.status !== 'VOID'
   );
-  const done = retention.state === 'RELEASED' || retention.balance <= 0;
+  const done = retention.released > 0 && retention.balance <= 0;
+  const none = retention.state === 'NONE';
   const started = retention.maintenanceFrom !== null;
   const ready = retention.state === 'RELEASABLE';
 
   const badge = () => {
     if (done) {
       return { color: 'green', label: t('orders.detail.retention.badge.released') };
+    }
+    if (none) {
+      return { color: 'gray', label: t('orders.detail.retention.badge.none') };
     }
     if (!started) {
       return { color: 'gray', label: t('orders.detail.retention.badge.waiting') };
@@ -61,6 +65,7 @@ export const OrderRetentionCard = ({
 
   const note = () => {
     if (done) return t('orders.detail.retention.note.released');
+    if (none) return t('orders.detail.retention.note.none');
     if (!started) return t('orders.detail.retention.note.waiting');
     if (ready) {
       return (
@@ -102,10 +107,14 @@ export const OrderRetentionCard = ({
         icon={IconShieldLock}
         flush
         title={t('orders.detail.retention.title', { percent: retention.percent })}
-        subtitle={t('orders.detail.retention.subtitle', {
-          months: retention.maintenanceMonths,
-          doc,
-        })}
+        subtitle={
+          none
+            ? t('orders.detail.retention.subtitleNone')
+            : t('orders.detail.retention.subtitle', {
+                months: retention.maintenanceMonths,
+                doc,
+              })
+        }
         action={
           <Badge size="sm" radius="sm" variant="light" color={status.color} tt="none">
             {status.label}

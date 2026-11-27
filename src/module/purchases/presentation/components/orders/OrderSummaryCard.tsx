@@ -55,11 +55,13 @@ const useScheduleLabel = () => {
 export const OrderSummaryCard = ({
   order,
   canCancelAdvance,
+  canCancelAdvancePermission,
   isCancelAdvancePending,
   onCancelAdvance,
 }: Readonly<{
   order: PurchaseOrder;
   canCancelAdvance?: boolean;
+  canCancelAdvancePermission?: boolean;
   isCancelAdvancePending?: boolean;
   onCancelAdvance?: (requestId: string, reason: string) => Promise<unknown>;
 }>) => {
@@ -142,6 +144,7 @@ export const OrderSummaryCard = ({
           advance={order.advanceState}
           orderId={order.id}
           canCancelAdvance={canCancelAdvance}
+          canCancelAdvancePermission={canCancelAdvancePermission}
           isCancelPending={isCancelAdvancePending}
           onCancelAdvance={onCancelAdvance}
         />

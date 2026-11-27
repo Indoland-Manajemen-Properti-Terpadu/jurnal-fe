@@ -58,7 +58,7 @@ export const defaultTaxId = (taxes: TaxRef[]): string =>
 /** Goods terms for a request of goods, service terms for services; a mixed request sees them all. */
 export const appliesToOf = (items: RequestItem[]): 'goods' | 'service' | undefined => {
   if (items.length === 0) return undefined;
-  if (items.every((item) => item.kind === 'GOODS')) return 'goods';
+  if (items.some((item) => item.kind === 'GOODS')) return 'goods';
   if (items.every((item) => item.kind === 'SERVICE')) return 'service';
   return undefined;
 };

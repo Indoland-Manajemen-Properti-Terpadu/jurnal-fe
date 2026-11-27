@@ -89,7 +89,9 @@ export const OrderActionBar = ({ order }: Readonly<{ order: PurchaseOrder }>) =>
       )}
       {showSend && (
         <Button radius="md" leftSection={<IconSend size={16} />} onClick={() => setDialog('send')}>
-          {t('orders.detail.send', { label: order.documentLabel })}
+          {order.status === 'DRAFT'
+            ? t('orders.detail.send', { label: order.documentLabel })
+            : t('orders.detail.resend')}
         </Button>
       )}
       {showBill && (

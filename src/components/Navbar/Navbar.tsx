@@ -57,6 +57,7 @@ const getNavGroups = (t: (key: string) => string, canRead: CanReadMenu): NavGrou
       links: item.children?.map((child) => ({
         label: t(child.labelKey),
         link: child.link,
+        match: child.match,
         icon: child.icon,
         badgeKind: child.badge,
       })),

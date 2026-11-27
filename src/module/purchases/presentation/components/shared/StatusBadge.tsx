@@ -31,7 +31,7 @@ export const StatusBadge = ({ status, label, englishLabel }: Readonly<StatusBadg
   const displayLabel =
     currentLanguage === 'id' && label ? label : (englishLabel ?? t(`status.${status}`));
   return (
-    <Badge variant="light" radius="sm" color={COLORS[statusTone(status, displayLabel)]}>
+    <Badge variant="light" radius="sm" color={COLORS[statusTone(status, displayLabel)]} tt="none">
       {displayLabel}
     </Badge>
   );

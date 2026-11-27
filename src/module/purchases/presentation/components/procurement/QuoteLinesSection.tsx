@@ -28,6 +28,7 @@ interface QuoteLinesSectionProps {
   showErrors: boolean;
   /** The price after negotiation is asked for only on a single-vendor procurement. */
   showFinalPrice: boolean;
+  showShipping: boolean;
   onLine: (requestItemId: string, patch: Partial<QuoteFormLine>) => void;
   onChange: <K extends keyof QuoteFormValues>(key: K, value: QuoteFormValues[K]) => void;
 }
@@ -45,6 +46,7 @@ export const QuoteLinesSection = ({
   errors,
   showErrors,
   showFinalPrice,
+  showShipping,
   onLine,
   onChange,
 }: Readonly<QuoteLinesSectionProps>) => {
@@ -197,22 +199,24 @@ export const QuoteLinesSection = ({
             }
           />
         </Stack>
-        <NumberInput
-          radius="md"
-          label={t('procurement.quote.shipping')}
-          description={t('procurement.quote.shippingHint')}
-          prefix="Rp "
-          min={0}
-          allowNegative={false}
-          {...MONEY}
-          value={values.shippingAmount}
-          onChange={(value) => onChange('shippingAmount', value === '' ? '' : Number(value))}
-          error={
-            showErrors && errors.fields.shippingAmount
-              ? t(`procurement.quote.error.${errors.fields.shippingAmount}`)
-              : undefined
-          }
-        />
+        {showShipping && (
+          <NumberInput
+            radius="md"
+            label={t('procurement.quote.shipping')}
+            description={t('procurement.quote.shippingHint')}
+            prefix="Rp "
+            min={0}
+            allowNegative={false}
+            {...MONEY}
+            value={values.shippingAmount}
+            onChange={(value) => onChange('shippingAmount', value === '' ? '' : Number(value))}
+            error={
+              showErrors && errors.fields.shippingAmount
+                ? t(`procurement.quote.error.${errors.fields.shippingAmount}`)
+                : undefined
+            }
+          />
+        )}
       </SimpleGrid>
       <Paper withBorder radius="md" p="md" bg="gray.0">
         <Text size="xs" fw={700} c="dimmed" tt="uppercase" mb={6}>

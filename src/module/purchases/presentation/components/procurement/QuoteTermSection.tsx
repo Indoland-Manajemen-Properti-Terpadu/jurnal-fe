@@ -72,11 +72,33 @@ export const QuoteTermSection = ({
         }
         error={error('paymentTermId')}
       />
-      {term && (term.paymentLabel || term.billingLabel || term.dueLabel) && (
-        <Text size="xs" c="dimmed">
-          {[term.paymentLabel, term.billingLabel, term.dueLabel].filter(Boolean).join(' · ')}
-        </Text>
-      )}
+      {term &&
+        (term.paymentLabel ||
+          term.billingLabel ||
+          term.dueLabel ||
+          fields.advance ||
+          fields.installments ||
+          fields.retention) && (
+          <Text size="xs" c="dimmed">
+            {[
+              fields.advance
+                ? `${t('procurement.quote.advancePercent')} ${values.advancePercent === '' ? '—' : `${values.advancePercent}%`}`
+                : term.paymentLabel,
+              fields.installments
+                ? `${t('procurement.quote.installments')}: ${values.installments === '' ? '—' : values.installments}`
+                : term.billingLabel,
+              fields.retention
+                ? `${t('procurement.quote.retentionPercent')} ${values.retentionPercent === '' ? '—' : `${values.retentionPercent}%`}`
+                : null,
+              fields.retention
+                ? `${t('procurement.quote.maintenanceMonths')}: ${values.maintenanceMonths === '' ? '—' : `${values.maintenanceMonths} ${t('procurement.quote.monthsUnit')}`}`
+                : null,
+              term.dueLabel,
+            ]
+              .filter(Boolean)
+              .join(' · ')}
+          </Text>
+        )}
       <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="sm">
         {fields.advance && (
           <NumberInput
@@ -186,6 +208,11 @@ export const QuoteTermSection = ({
         typeof values.installments === 'number' &&
         values.installments >= 2 && (
           <Stack gap={6}>
+            {fields.advance && (
+              <Text size="xs" c="dimmed">
+                {t('procurement.quote.percentAfterAdvance')}
+              </Text>
+            )}
             <Group justify="space-between" align="center">
               <Text size="sm" fw={500}>
                 {t('procurement.quote.percentsTitle')}

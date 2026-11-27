@@ -248,6 +248,7 @@ export const toPurchaseRequest = (dto: PurchaseRequestDto): PurchaseRequest => (
   cancelReason: dto.cancelReason ?? '',
   items: dto.items.map(toRequestItem),
   isOwner: Boolean(dto.isOwner),
+  requestApproval: toApproval({ ...dto.requestApproval, ...dto.requestApprovalView }),
   route: dto.procurement?.route ?? null,
   procurement: toProcurement(dto),
   orders: (dto.purchaseOrderRefs ?? []).map(toOrderRef),

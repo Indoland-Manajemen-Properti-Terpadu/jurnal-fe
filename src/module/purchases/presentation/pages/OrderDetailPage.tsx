@@ -113,6 +113,7 @@ export default function OrderDetailPage() {
           <Stack gap="lg">
             <OrderSummaryCard
               order={doc}
+              canCancelAdvancePermission={can(PURCHASE_MENU.advanceCancel, 'delete')}
               canCancelAdvance={
                 can(PURCHASE_MENU.advanceCancel, 'delete') &&
                 orderBills.data?.totalResults === 0 &&

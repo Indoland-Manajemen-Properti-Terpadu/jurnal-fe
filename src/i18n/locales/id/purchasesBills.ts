@@ -6,6 +6,8 @@ export const purchasesBills = {
       drop: 'Tarik berkas ke sini, atau pilih berkas',
       hint: 'PDF, Word, Excel, atau gambar, maksimal 5 MB per berkas',
       chosen: 'Berkas yang akan dikirim saat disimpan',
+      verifyRequired:
+        'Unggah invoice vendor dan faktur pajak bila ada PPN sebelum menyimpan dan memverifikasi. Anda tetap dapat menyimpan draf.',
     },
     titleCreate: 'Catat Faktur Vendor',
     titleEdit: 'Ubah Faktur {number}',

@@ -79,7 +79,7 @@ export const PaymentRequestAmountFields = ({
                   {t('paymentRequests.form.orderHint', {
                     amount: formatAmount(order.advance.amount),
                     requested: formatAmount(order.advance.requested),
-                    available: formatAmount(available ?? 0),
+                    available: formatAmount(order.advance.available),
                   })}
                 </Text>
               )}
