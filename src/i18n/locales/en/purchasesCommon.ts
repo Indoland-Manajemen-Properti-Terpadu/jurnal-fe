@@ -261,5 +261,8 @@ export const purchasesCommon = {
     receiptResubmitted: 'BAPP resubmitted',
     orderSent: 'Order sent to the vendor',
     ordersCreated: 'Order created as a draft',
+    priceChangeRequested: 'PO/SPK price change request sent',
+    priceChangeApproved: 'PO/SPK price change decision recorded',
+    priceChangeRejected: 'PO/SPK price change request rejected',
   },
 };

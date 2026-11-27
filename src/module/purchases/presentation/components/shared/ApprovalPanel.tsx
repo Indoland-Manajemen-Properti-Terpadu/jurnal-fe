@@ -22,6 +22,8 @@ interface ApprovalPanelProps {
   /** The user holds the approval right for this document type. */
   canApprove: boolean;
   busy?: boolean;
+  rejectMinLength?: number;
+  rejectMaxLength?: number;
   onApprove: (note?: string) => void;
   onReject: (reason: string) => void;
   /** Without its own card, to sit inside another card. */
@@ -37,6 +39,8 @@ export const ApprovalPanel = ({
   waitingStatus = 'PENDING_APPROVAL',
   canApprove,
   busy,
+  rejectMinLength,
+  rejectMaxLength,
   onApprove,
   onReject,
   bare,
@@ -147,6 +151,8 @@ export const ApprovalPanel = ({
         title={t('approval.rejectTitle')}
         description={t('approval.rejectDescription')}
         confirmLabel={t('approval.reject')}
+        minLength={rejectMinLength}
+        maxLength={rejectMaxLength}
         loading={busy}
         onClose={() => setRejecting(false)}
         onConfirm={(reason) => {

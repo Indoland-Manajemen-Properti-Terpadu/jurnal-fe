@@ -8,6 +8,7 @@ import type {
   ProductRef,
   TaxRef,
 } from '@/module/purchases/domain/purchaseCommon';
+import type { PriceChangeRequest } from '@/module/purchases/domain/purchasePriceChanges';
 
 export type DiscountType = 'percentage' | 'nominal';
 export type WithholdingType = 'percentage' | 'nominal';
@@ -193,6 +194,7 @@ export interface PurchaseOrder extends DocumentBase, DocumentAmounts {
   /** What the vendor is owed on this order, and how much of it is billed. */
   payableAmount: number;
   billedAmount: number;
+  pendingPriceChange: PriceChangeRequest | null;
   sent: { byEmail: boolean; to: string; cc: string[]; note: string };
   canReorder: boolean;
   reorderBlockReason: string | null;

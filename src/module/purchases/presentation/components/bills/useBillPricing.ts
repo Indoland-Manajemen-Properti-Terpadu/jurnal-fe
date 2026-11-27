@@ -6,9 +6,9 @@ import {
   type BillQuantities,
   type BillSourceDoc,
 } from '@/module/purchases/domain/billSources';
-import { toBillInput, type BillFormValues } from '@/module/purchases/domain/billForm';
+import { toBillPreviewInput, type BillFormValues } from '@/module/purchases/domain/billForm';
 import type { BillSource } from '@/module/purchases/domain/purchaseDocuments';
-import type { BillPreview } from '@/module/purchases/infrastructure/purchaseApi';
+import type { BillPreview } from '@/module/purchases/infrastructure/purchaseBillPreview';
 import { useBillPreview } from '@/module/purchases/presentation/hooks/usePurchaseQueries';
 
 const TYPING_DELAY_MS = 400;
@@ -18,6 +18,10 @@ export interface BillPricing {
   estimate: BillEstimate;
   /** The service's own figures for what is picked, once it has answered. */
   preview: BillPreview | undefined;
+  previewReady: boolean;
+  previewLoading: boolean;
+  previewError: boolean;
+  refetch: () => Promise<{ data: BillPreview | undefined }>;
   /** At least one line is billed for more than nothing. */
   hasQuantity: boolean;
 }
@@ -35,10 +39,27 @@ export const useBillPricing = (
     () =>
       source === 'MANUAL' || picked.length === 0 || !hasQuantity || !values.date
         ? null
-        : toBillInput(source, values, picked, false, quantities),
+        : toBillPreviewInput(source, values, picked, false, quantities),
     [source, values, picked, quantities, hasQuantity]
   );
   const [settled] = useDebouncedValue(input, TYPING_DELAY_MS);
-  const preview = useBillPreview(settled);
-  return { estimate, preview: input ? preview.data : undefined, hasQuantity };
+  const query = useBillPreview(settled);
+  const inputKey = input ? JSON.stringify(input) : null;
+  const settledKey = settled ? JSON.stringify(settled) : null;
+  const isCurrentInput = inputKey !== null && inputKey === settledKey;
+  const previewReady =
+    isCurrentInput &&
+    Boolean(query.data) &&
+    !query.isFetching &&
+    !query.isPlaceholderData &&
+    !query.isError;
+  return {
+    estimate,
+    preview: isCurrentInput && !query.isPlaceholderData ? query.data : undefined,
+    previewReady,
+    previewLoading: Boolean(input && (!isCurrentInput || query.isPending || query.isFetching)),
+    previewError: Boolean(input && query.isError),
+    refetch: query.refetch,
+    hasQuantity,
+  };
 };

@@ -128,6 +128,7 @@ export const routes = {
     bills: '/purchases/bills',
     payments: '/purchases/payments',
     returns: '/purchases/returns',
+    priceChanges: '/purchases/price-changes',
     payables: '/purchases/payables',
     requestAdd: '/purchases/requests/new',
     requestDetail: '/purchases/requests/:id',

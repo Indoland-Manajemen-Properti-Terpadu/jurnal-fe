@@ -30,6 +30,7 @@ import type { BillSourceDoc } from '@/module/purchases/domain/billSources';
 import type { ActivityEntry, ActivityKind } from '@/module/purchases/domain/activityLog';
 import type { PurchaseBillInput } from '@/module/purchases/domain/purchaseInputs';
 import type { PurchaseRequest } from '@/module/purchases/domain/purchaseRequest';
+import type { PriceChangeRequest } from '@/module/purchases/domain/purchasePriceChanges';
 import {
   getActivity,
   getBill,
@@ -43,7 +44,6 @@ import {
   getVendorCredits,
   listBillSources,
   previewBill,
-  type BillPreview,
   listBills,
   listOrders,
   listPayments,
@@ -57,7 +57,12 @@ import {
   type ReceiptListParams,
   type RequestListParams,
 } from '@/module/purchases/infrastructure/purchaseApi';
+import type { BillPreview } from '@/module/purchases/infrastructure/purchaseBillPreview';
 import type { PurchaseError } from '@/module/purchases/infrastructure/purchaseErrors';
+import {
+  listPriceChanges,
+  type PriceChangeListParams,
+} from '@/module/purchases/infrastructure/purchasePriceChangeApi';
 import {
   getAccessProfile,
   listDepartments,
@@ -153,6 +158,16 @@ export const usePayment = (id?: string) => useDetail<PaymentVoucher>('payments',
 export const useReturns = (params: ListParams, enabled?: boolean) =>
   useList<PurchaseReturn>('returns', params, listReturns, enabled);
 export const useReturn = (id?: string) => useDetail<PurchaseReturn>('returns', id, getReturn);
+
+export const usePriceChanges = (params: PriceChangeListParams, enabled = true) => {
+  const scope = usePurchaseScope();
+  return useQuery<Page<PriceChangeRequest>, PurchaseError>({
+    queryKey: purchaseKeys.priceChanges(scope, params),
+    queryFn: () => listPriceChanges(params),
+    placeholderData: keepPreviousData,
+    enabled,
+  });
+};
 
 export const useVendorCredits = (vendor: string | undefined) => {
   const scope = usePurchaseScope();
