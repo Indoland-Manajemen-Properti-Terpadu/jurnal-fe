@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Anchor, Grid, Select, Stack, Text, TextInput, Textarea } from '@mantine/core';
+import { Anchor, Button, Grid, Select, Stack, Text, TextInput, Textarea } from '@mantine/core';
+import { ModalFrame } from '@/components/Modals/ModalFrame';
 import {
   IconClipboardText,
   IconListDetails,
@@ -57,6 +58,7 @@ const ReceiptFormBody = ({ order }: Readonly<{ order: PurchaseOrder }>) => {
     emptyReceiptForm(order, todayIso(), order.warehouse?.id ?? '')
   );
   const [showErrors, setShowErrors] = useState(false);
+  const [confirming, setConfirming] = useState(false);
   const create = useCreateReceipt((doc) => navigate(receiptDetail(doc.id)));
 
   // A single active warehouse is the answer; it is chosen once the list is known.
@@ -74,7 +76,7 @@ const ReceiptFormBody = ({ order }: Readonly<{ order: PurchaseOrder }>) => {
       setShowErrors(true);
       return;
     }
-    create.mutate(toReceiptInput(effective, order.id));
+    setConfirming(true);
   };
 
   return (
@@ -214,8 +216,14 @@ const ReceiptFormBody = ({ order }: Readonly<{ order: PurchaseOrder }>) => {
 
             <SectionCard
               icon={IconListDetails}
-              title={t('receipts.form.linesTitle')}
-              subtitle={t('receipts.form.linesSubtitle')}
+              title={t(
+                order.isService ? 'receipts.form.linesTitleService' : 'receipts.form.linesTitle'
+              )}
+              subtitle={t(
+                order.isService
+                  ? 'receipts.form.linesSubtitleService'
+                  : 'receipts.form.linesSubtitle'
+              )}
             >
               <ReceiptLinesEditor
                 lines={lines}
@@ -249,7 +257,7 @@ const ReceiptFormBody = ({ order }: Readonly<{ order: PurchaseOrder }>) => {
                   ? t('receipts.form.summaryLines', { count: receivedLines })
                   : t('receipts.form.summaryNone')}
               </Text>
-              <ReceiptImpactHint />
+              <ReceiptImpactHint service={order.isService} />
               <FormActions
                 loading={create.isPending}
                 submitLabel={t('receipts.form.submit')}
@@ -260,6 +268,32 @@ const ReceiptFormBody = ({ order }: Readonly<{ order: PurchaseOrder }>) => {
           </Stack>
         </Grid.Col>
       </Grid>
+      <ModalFrame
+        opened={confirming}
+        onClose={create.isPending ? () => undefined : () => setConfirming(false)}
+        title={t('receipts.form.confirmTitle')}
+        footer={
+          <>
+            <Button
+              variant="default"
+              disabled={create.isPending}
+              onClick={() => setConfirming(false)}
+            >
+              {t('common.back')}
+            </Button>
+            <Button
+              loading={create.isPending}
+              onClick={() => create.mutate(toReceiptInput(effective, order.id))}
+            >
+              {t('receipts.form.submit')}
+            </Button>
+          </>
+        }
+      >
+        <Text size="sm">
+          {t(order.isService ? 'receipts.form.confirmService' : 'receipts.form.confirmGoods')}
+        </Text>
+      </ModalFrame>
     </PageFrame>
   );
 };

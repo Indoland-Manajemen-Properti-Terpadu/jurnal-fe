@@ -70,7 +70,11 @@ export const ApprovalPanel = ({
         )}
 
         {approval.plan.length > 0 && !actionsOnly && (
-          <ApprovalTrail approval={approval} status={status} hideReason />
+          <ApprovalTrail
+            approval={approval}
+            status={waiting ? 'PENDING_APPROVAL' : status}
+            hideReason
+          />
         )}
 
         {step && !actionsOnly && (

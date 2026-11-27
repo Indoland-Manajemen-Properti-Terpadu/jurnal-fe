@@ -1,4 +1,9 @@
-import { advanceStepProgress, canCancelAdvanceRequest, receiptBlockReason } from './orderAdvance';
+import {
+  advanceStepProgress,
+  canCancelAdvanceRequest,
+  canRequestAdvancePayment,
+  receiptBlockReason,
+} from './orderAdvance';
 import { orderActions } from './purchaseActions';
 import type { OrderAdvanceState, PurchaseOrder } from './purchaseDocuments';
 
@@ -74,11 +79,8 @@ describe('canCancelAdvanceRequest', () => {
     expect(canCancelAdvanceRequest(state({ mode: 'REQUEST' }), request('PROCESSED'))).toBe(true);
   });
 
-  it('does not allow cancellation for another advance mode, a billed order, or a settled request', () => {
+  it('does not allow cancellation for another advance mode or a settled request', () => {
     expect(canCancelAdvanceRequest(state({ mode: 'BILL' }), request('APPROVED'))).toBe(false);
-    expect(
-      canCancelAdvanceRequest(state({ mode: 'REQUEST', billed: true }), request('APPROVED'))
-    ).toBe(false);
     expect(
       canCancelAdvanceRequest(state({ mode: 'REQUEST', paid: true }), request('APPROVED'))
     ).toBe(false);
@@ -86,11 +88,42 @@ describe('canCancelAdvanceRequest', () => {
     expect(canCancelAdvanceRequest(state({ mode: 'REQUEST' }), request('CANCELLED'))).toBe(false);
   });
 
+  it('ignores the default billed flag when a request-only advance has no bill history', () => {
+    expect(
+      canCancelAdvanceRequest(state({ mode: 'REQUEST', billed: true }), request('DRAFT'))
+    ).toBe(true);
+  });
+
   it('does not allow cancellation when the advance has any bill reference', () => {
     expect(
       canCancelAdvanceRequest(
         state({ mode: 'REQUEST', bills: [{ id: 'bill-1', number: 'B/1', status: 'VOID' }] }),
         request('APPROVED')
+      )
+    ).toBe(false);
+  });
+});
+
+describe('canRequestAdvancePayment', () => {
+  const candidate = (overrides: Partial<PurchaseOrder> = {}) =>
+    ({
+      advance: { amount: 100, requested: 0, paid: 0, used: 0, available: 100 },
+      advanceState: state({ mode: 'REQUEST' }),
+      ...overrides,
+    }) as PurchaseOrder;
+
+  it('requires a request-route advance with an unpaid available balance', () => {
+    expect(canRequestAdvancePayment(candidate())).toBe(true);
+    expect(canRequestAdvancePayment(candidate({ advanceState: state({ mode: 'BILL' }) }))).toBe(
+      false
+    );
+    expect(
+      canRequestAdvancePayment(candidate({ advanceState: state({ mode: 'REQUEST', paid: true }) }))
+    ).toBe(false);
+    expect(canRequestAdvancePayment(candidate({ advanceState: null }))).toBe(false);
+    expect(
+      canRequestAdvancePayment(
+        candidate({ advance: { amount: 100, requested: 100, paid: 100, used: 0, available: 0 } })
       )
     ).toBe(false);
   });

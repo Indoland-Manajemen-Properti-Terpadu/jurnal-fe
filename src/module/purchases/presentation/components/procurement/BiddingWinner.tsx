@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Anchor, Badge, Button, Group, Paper, Table, Text } from '@mantine/core';
 import { IconCircleCheck } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
+import { TermScheduleTable } from '@/module/purchases/presentation/components/procurement/TermScheduleTable';
 import { lineDifference } from '@/module/purchases/domain/biddingScore';
 import type { Procurement, Quote } from '@/module/purchases/domain/procurement';
 import type { RequestItem } from '@/module/purchases/domain/purchaseRequest';
@@ -198,6 +199,7 @@ export const BiddingWinner = ({
                 </Table.Tbody>
               </Table>
             </Table.ScrollContainer>
+            {chosen && amounts?.schedule && <TermScheduleTable schedule={amounts.schedule} />}
             <Group justify="space-between" px="md" py="sm" wrap="nowrap">
               <Text size="xs" c="dimmed">
                 {amounts?.score == null

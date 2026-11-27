@@ -289,6 +289,7 @@ export const listPaymentRequests = (params: PaymentRequestListParams = {}) =>
   paymentRequests.list(params);
 export const getPaymentRequest = paymentRequests.get;
 export const createPaymentRequest = (input: PaymentRequestInput) => paymentRequests.create(input);
+/** Creates a draft payment request together with its proforma files in one atomic request. */
 export const updatePaymentRequest = (id: string, input: PaymentRequestUpdate) =>
   paymentRequests.update(id, input);
 export const submitPaymentRequest = (id: string) => paymentRequests.act(id, 'submit');
@@ -328,7 +329,14 @@ export const refundReturn = (id: string, input: RefundInput) => returns.act(id, 
 export const voidReturn = (id: string, reason: string) => returns.act(id, 'void', { reason });
 
 /* ---------- Files ---------- */
-export type AttachmentTarget = 'request' | 'order' | 'receipt' | 'bill' | 'payment' | 'return';
+export type AttachmentTarget =
+  | 'request'
+  | 'order'
+  | 'receipt'
+  | 'bill'
+  | 'paymentRequest'
+  | 'payment'
+  | 'return';
 
 /** Where on an FPPBJ the file belongs: the request itself, or its IOM memo. */
 export type RequestFileTarget = 'request' | 'iom' | 'quote' | 'negotiation';
@@ -338,6 +346,7 @@ const ATTACHMENT_URL: Record<AttachmentTarget, (id: string) => string> = {
   order: PURCHASE_API.orderAttachments,
   receipt: PURCHASE_API.receiptAttachments,
   bill: PURCHASE_API.billAttachments,
+  paymentRequest: PURCHASE_API.paymentRequestAttachments,
   payment: PURCHASE_API.paymentAttachments,
   return: PURCHASE_API.returnAttachments,
 };
@@ -406,6 +415,7 @@ interface ActivityDto {
   step?: number | null;
   totalSteps?: number | null;
   stageLabel?: string | null;
+  stage?: string | null;
   role?: { id?: string; name?: string } | null;
   by?: { id?: string; name?: string } | null;
   at?: string;
@@ -434,7 +444,11 @@ export const toActivityEntry = (dto: ActivityDto): ActivityEntry => ({
 export const getActivity = async (kind: ActivityKind, id: string): Promise<ActivityEntry[]> => {
   try {
     const { data } = await http.get<ApiEnvelope<ActivityDto[]>>(PURCHASE_API.activity(kind, id));
-    return (data ?? []).map(toActivityEntry);
+    return (data ?? []).map((entry) =>
+      toActivityEntry(
+        kind === 'receipt' && entry.stage === 'REQUEST' ? { ...entry, stageLabel: 'BAPP' } : entry
+      )
+    );
   } catch (error) {
     if ((error as { kind?: string }).kind === 'notFound') return [];
     throw error;

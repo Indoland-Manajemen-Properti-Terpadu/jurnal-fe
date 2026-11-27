@@ -6,6 +6,8 @@ export const purchasesBills = {
       drop: 'Drop files here, or choose files',
       hint: 'PDF, Word, Excel or images, up to 5 MB each',
       chosen: 'Files to send when saved',
+      verifyRequired:
+        'Upload the vendor invoice and tax invoice when VAT applies before saving and verifying. You can still save a draft.',
     },
     titleCreate: 'Record Vendor Bill',
     titleEdit: 'Edit Bill {number}',

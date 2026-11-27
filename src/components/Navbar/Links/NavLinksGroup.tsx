@@ -8,6 +8,8 @@ import { isNavigationChildActive, isNavigationLinkActive } from '../activeNaviga
 export type LinksGroupChild = {
   label: string;
   link: string;
+  /** Other route prefixes owned by this navigation page, such as detail routes. */
+  match?: string[];
   icon?: React.ElementType;
   badge?: React.ReactNode;
 };
@@ -53,7 +55,7 @@ export function LinksGroup(props: LinksGroupProps) {
     activeLink,
     siblingLinks.length ? siblingLinks : [activeLink]
   );
-  const childLinks = (hasLinks ? links : []).map((item) => item.link);
+  const childLinks = (hasLinks ? links : []).flatMap((item) => [item.link, ...(item.match ?? [])]);
   const isChildActive =
     hasLinks &&
     links.some((item) => isNavigationChildActive(location.pathname, item.link, childLinks));
@@ -81,7 +83,12 @@ export function LinksGroup(props: LinksGroupProps) {
   };
 
   const items = (hasLinks ? links : []).map((item) => {
-    const isCurrentChild = isNavigationChildActive(location.pathname, item.link, childLinks);
+    const isCurrentChild = isNavigationChildActive(
+      location.pathname,
+      item.link,
+      childLinks,
+      item.match
+    );
     const SubIcon = item.icon;
 
     return (

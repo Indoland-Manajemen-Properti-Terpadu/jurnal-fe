@@ -33,6 +33,7 @@ describe('ApprovalPanel, levels in order', () => {
   it('shows which level is waiting and numbers the approve button', () => {
     setup(twoLevels());
     expect(screen.getByText('Tingkat 1 dari 2')).toBeInTheDocument();
+    expect(screen.getByText('Menunggu persetujuan')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Setujui (1/2)' })).toBeInTheDocument();
   });
 

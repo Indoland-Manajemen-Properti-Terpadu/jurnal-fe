@@ -7,6 +7,9 @@ export type BillVerifyGap =
   | 'vendorInvoiceTotal'
   | 'taxInvoiceFile';
 
+export const billNewFilesMissing = (invoiceCount: number, taxCount: number, taxAmount: number) =>
+  invoiceCount === 0 || (taxAmount > 0 && taxCount === 0);
+
 /**
  * What a draft bill still lacks before it can be verified (QA decision, PRO-111, 2026-11-23).
  * Saving a draft stays free; only verifying asks for the vendor invoice number and file, the vendor

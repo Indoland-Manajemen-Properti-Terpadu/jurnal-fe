@@ -69,6 +69,18 @@ describe('ProcurementNotes', () => {
     );
   });
 
+  it('shows an error when an autosaved note is rejected', async () => {
+    const onSave = vi.fn().mockRejectedValue(new Error('network'));
+    render(
+      <ProcurementNotes procurement={procurement()} editable saving={false} onSave={onSave} />
+    );
+    const field = screen.getByLabelText(/Alasan pemilihan & catatan negosiasi/);
+    await userEvent.type(field, 'Harga lebih baik');
+    await userEvent.tab();
+
+    expect(await screen.findByText(/Catatan belum tersimpan/i)).toBeInTheDocument();
+  });
+
   it('does not save when nothing changed', async () => {
     const { onSave } = setup(procurement({ reason: 'Sudah ada' }));
     const field = screen.getByLabelText(/Alasan pemilihan & catatan negosiasi/);

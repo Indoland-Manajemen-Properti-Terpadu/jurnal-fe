@@ -1,4 +1,4 @@
-import { billVerifyMissing } from './billVerify';
+import { billNewFilesMissing, billVerifyMissing } from './billVerify';
 import type { PurchaseBill } from './purchaseDocuments';
 
 const file = (kind: 'VENDOR_INVOICE' | 'TAX_INVOICE' | 'OTHER') => ({
@@ -8,6 +8,15 @@ const file = (kind: 'VENDOR_INVOICE' | 'TAX_INVOICE' | 'OTHER') => ({
   mimeType: 'application/pdf',
   kind,
   kindLabel: '',
+});
+
+describe('billNewFilesMissing', () => {
+  it('requires the invoice and requires the tax invoice only when VAT is present', () => {
+    expect(billNewFilesMissing(0, 0, 0)).toBe(true);
+    expect(billNewFilesMissing(1, 0, 0)).toBe(false);
+    expect(billNewFilesMissing(1, 0, 110)).toBe(true);
+    expect(billNewFilesMissing(1, 1, 110)).toBe(false);
+  });
 });
 
 const bill = (overrides: Partial<PurchaseBill> = {}): PurchaseBill =>

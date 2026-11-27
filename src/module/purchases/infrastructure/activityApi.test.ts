@@ -62,7 +62,9 @@ describe('getActivity', () => {
 
     expect(http.get.mock.calls[0][0]).toBe('/v1/goods-receipts/gr1/activity');
     expect(entries).toHaveLength(1);
-    await getActivity('request', 'pr1');
+    expect(entries[0].stageLabel).toBe('BAPP');
+    const requestEntries = await getActivity('request', 'pr1');
+    expect(requestEntries[0].stageLabel).toBe('Pengadaan');
     expect(http.get.mock.calls[1][0]).toBe('/v1/purchase-requests/pr1/activity');
     await getActivity('paymentRequest', 'pp1');
     expect(http.get.mock.calls[2][0]).toBe('/v1/purchase-payment-requests/pp1/activity');

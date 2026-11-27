@@ -4,6 +4,7 @@ import {
   IconBuildingWarehouse,
   IconCalendar,
   IconFileText,
+  IconShieldCheck,
   IconUser,
 } from '@tabler/icons-react';
 import { useParams } from 'react-router-dom';
@@ -16,6 +17,8 @@ import { RequestStatusNotice } from '@/module/purchases/presentation/components/
 import { RequestSummaryCard } from '@/module/purchases/presentation/components/requests/RequestSummaryCard';
 import { StateFrame } from '@/module/purchases/presentation/components/requests/StateFrame';
 import { AttachmentsCard } from '@/module/purchases/presentation/components/shared/AttachmentsCard';
+import { ApprovalTrail } from '@/module/purchases/presentation/components/shared/ApprovalTrail';
+import { SectionCard } from '@/module/purchases/presentation/components/shared/SectionCard';
 import { DocumentApprovalLog } from '@/module/purchases/presentation/components/shared/DocumentApprovalLog';
 import { DocumentJourney } from '@/module/purchases/presentation/components/shared/DocumentJourney';
 import { DocumentFrame } from '@/module/purchases/presentation/components/shared/DocumentFrame';
@@ -86,7 +89,11 @@ export default function RequestDetailPage() {
       actions={<RequestActionBar request={doc} />}
       waiting={
         doc.status === 'SUBMITTED' &&
-        !(requestActions(doc).verify && requestRights(can, doc.isOwner).decide)
+        !(
+          requestActions(doc).verify &&
+          requestRights(can, doc.isOwner).decide &&
+          doc.requestApproval?.canDecide
+        )
           ? t('requests.detail.waitingAccounting')
           : undefined
       }
@@ -129,6 +136,14 @@ export default function RequestDetailPage() {
         </Grid.Col>
         <Grid.Col span={{ base: 12, lg: 4 }}>
           <Stack gap="lg">
+            {doc.requestApproval && doc.requestApproval.plan.length > 0 && (
+              <SectionCard icon={IconShieldCheck} title={t('requests.detail.verificationApproval')}>
+                <ApprovalTrail
+                  approval={doc.requestApproval}
+                  status={doc.status === 'SUBMITTED' ? 'PENDING_APPROVAL' : doc.status}
+                />
+              </SectionCard>
+            )}
             <DocumentApprovalLog kind="request" id={doc.id} />
             <DocumentJourney steps={journey.steps} />
             <AttachmentsCard

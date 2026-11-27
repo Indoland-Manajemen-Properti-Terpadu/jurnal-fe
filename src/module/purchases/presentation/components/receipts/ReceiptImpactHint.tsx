@@ -3,7 +3,7 @@ import { IconBulb } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 
 /** What receiving does to the books, folded away until someone asks. */
-export const ReceiptImpactHint = () => {
+export const ReceiptImpactHint = ({ service }: Readonly<{ service: boolean }>) => {
   const { t } = useTranslation('purchases');
   return (
     <Accordion variant="contained" radius="md">
@@ -15,7 +15,7 @@ export const ReceiptImpactHint = () => {
         </Accordion.Control>
         <Accordion.Panel>
           <Text size="sm" c="dimmed" lh={1.55}>
-            {t('receipts.form.impactBody')}
+            {t(service ? 'receipts.form.impactBodyService' : 'receipts.form.impactBody')}
           </Text>
         </Accordion.Panel>
       </Accordion.Item>

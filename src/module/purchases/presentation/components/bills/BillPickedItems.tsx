@@ -93,15 +93,17 @@ export const BillPickedItems = ({
           </Table>
         </Table.ScrollContainer>
       </Paper>
-      <Alert
-        color="yellow"
-        variant="light"
-        radius="md"
-        icon={<IconAlertTriangle size={18} />}
-        title={t('bills.wizard.threeWayTitle')}
-      >
-        {t('bills.wizard.itemsNote')}
-      </Alert>
+      {estimate.rows.some((row) => !row.isAdvance) && (
+        <Alert
+          color="yellow"
+          variant="light"
+          radius="md"
+          icon={<IconAlertTriangle size={18} />}
+          title={t('bills.wizard.threeWayTitle')}
+        >
+          {t('bills.wizard.itemsNote')}
+        </Alert>
+      )}
     </Stack>
   );
 };

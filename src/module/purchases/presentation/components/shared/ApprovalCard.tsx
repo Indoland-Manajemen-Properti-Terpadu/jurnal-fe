@@ -1,5 +1,5 @@
 import { Group, Stack, Text } from '@mantine/core';
-import { IconShieldCheck } from '@tabler/icons-react';
+import { IconChecklist } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import { type ActivityKind, activityTone } from '@/module/purchases/domain/activityLog';
 import { ApprovalPanel } from '@/module/purchases/presentation/components/shared/ApprovalPanel';
@@ -105,7 +105,7 @@ export const ApprovalCard = ({
 
   return (
     <SectionCard
-      icon={IconShieldCheck}
+      icon={IconChecklist}
       title={t('approval.log.title')}
       subtitle={t('approval.log.subtitle')}
     >

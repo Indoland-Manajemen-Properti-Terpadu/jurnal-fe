@@ -16,7 +16,7 @@ interface ProcurementNotesProps {
   saving: boolean;
   /** Without its own card, to sit inside another card. */
   bare?: boolean;
-  onSave: (values: NotesValues) => void;
+  onSave: (values: NotesValues) => Promise<unknown> | void;
 }
 
 const fromProcurement = (procurement: Procurement): NotesValues => ({
@@ -41,6 +41,7 @@ export const ProcurementNotes = ({
   const { t } = useTranslation('purchases');
   const route = procurement.route === 'SINGLE' ? 'SINGLE' : 'BIDDING';
   const [values, setValues] = useState<NotesValues>(() => fromProcurement(procurement));
+  const [saveState, setSaveState] = useState<'idle' | 'pending' | 'saved' | 'failed'>('idle');
   const lastSaved = useRef<NotesValues>(fromProcurement(procurement));
 
   // A refreshed procurement updates the fields the person has not touched since the last sync;
@@ -62,7 +63,12 @@ export const ProcurementNotes = ({
     const changed = (Object.keys(values) as NoteKey[]).some(
       (key) => values[key].trim() !== procurement[key].trim()
     );
-    if (editable && changed) onSave(values);
+    if (!editable || !changed) return;
+    setSaveState('pending');
+    Promise.resolve(onSave(values)).then(
+      () => setSaveState('saved'),
+      () => setSaveState('failed')
+    );
   };
 
   const body = (
@@ -86,9 +92,13 @@ export const ProcurementNotes = ({
       ))}
       <Text size="xs" c="dimmed">
         {editable
-          ? saving
+          ? saving || saveState === 'pending'
             ? t('procurement.notes.saving')
-            : t('procurement.notes.autosave')
+            : saveState === 'failed'
+              ? t('procurement.notes.saveFailed')
+              : saveState === 'saved'
+                ? t('procurement.notes.saved')
+                : t('procurement.notes.autosave')
           : t('procurement.notes.locked')}
       </Text>
     </Stack>

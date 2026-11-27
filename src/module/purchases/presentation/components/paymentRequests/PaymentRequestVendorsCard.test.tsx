@@ -27,7 +27,14 @@ const renderCard = (overrides: Partial<PaymentRequest> = {}) =>
   render(
     <MemoryRouter>
       <PaymentRequestVendorsCard
-        doc={{ isMultiVendor: true, vendorTotals: totals, ...overrides } as PaymentRequest}
+        doc={
+          {
+            isMultiVendor: true,
+            status: 'APPROVED',
+            vendorTotals: totals,
+            ...overrides,
+          } as PaymentRequest
+        }
       />
     </MemoryRouter>
   );
@@ -58,5 +65,13 @@ describe('PaymentRequestVendorsCard', () => {
     renderCard({ isMultiVendor: false });
 
     expect(screen.queryByText('Vendor dan voucher')).not.toBeInTheDocument();
+  });
+
+  it('hides each vendor amount while approval is still pending', () => {
+    renderCard({ status: 'PENDING_APPROVAL' });
+
+    expect(screen.queryByText(/932\.400/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/15\.980\.500/)).not.toBeInTheDocument();
+    expect(screen.getAllByText('—')).toHaveLength(2);
   });
 });

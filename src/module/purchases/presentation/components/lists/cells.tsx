@@ -75,10 +75,10 @@ export const TextCell = ({
   </Table.Td>
 );
 
-export const AmountCell = ({ value, dimmed }: Readonly<{ value: number; dimmed?: boolean }>) => (
+export const AmountCell = ({ value, dimmed }: Readonly<{ value?: number; dimmed?: boolean }>) => (
   <Table.Td ta="right" style={{ whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>
     <Text size="sm" fw={dimmed ? 400 : 500} c={dimmed ? 'dimmed' : undefined}>
-      {formatAmount(value)}
+      {value === undefined ? '—' : formatAmount(value)}
     </Text>
   </Table.Td>
 );

@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import { Button, Group, List, Text } from '@mantine/core';
+import { ModalFrame } from '@/components/Modals/ModalFrame';
 import { IconAlertTriangle, IconSend } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import type { Procurement } from '@/module/purchases/domain/procurement';
@@ -22,6 +24,7 @@ export const ProcurementSubmit = ({
   onSubmit,
 }: Readonly<ProcurementSubmitProps>) => {
   const { t } = useTranslation('purchases');
+  const [confirming, setConfirming] = useState(false);
   const single = procurement.route === 'SINGLE';
   const label =
     procurement.status === 'REJECTED'
@@ -50,11 +53,34 @@ export const ProcurementSubmit = ({
           leftSection={<IconSend size={16} />}
           disabled={!ready}
           loading={loading}
-          onClick={onSubmit}
+          onClick={() => (single ? setConfirming(true) : onSubmit())}
         >
           {label}
         </Button>
       </Group>
+      <ModalFrame
+        opened={confirming}
+        onClose={loading ? () => undefined : () => setConfirming(false)}
+        title={t('procurement.confirmSingleTitle')}
+        footer={
+          <>
+            <Button variant="default" disabled={loading} onClick={() => setConfirming(false)}>
+              {t('common.cancel')}
+            </Button>
+            <Button
+              loading={loading}
+              onClick={() => {
+                setConfirming(false);
+                onSubmit();
+              }}
+            >
+              {label}
+            </Button>
+          </>
+        }
+      >
+        <Text size="sm">{t('procurement.confirmSingleBody')}</Text>
+      </ModalFrame>
     </>
   );
 };
