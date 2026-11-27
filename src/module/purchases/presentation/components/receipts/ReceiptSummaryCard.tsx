@@ -25,7 +25,7 @@ export const ReceiptSummaryCard = ({ receipt, section }: Readonly<ReceiptSummary
   const { t, currentLanguage } = useTranslation('purchases');
   const total = receipt.amount || receipt.items.reduce((sum, item) => sum + item.accrualAmount, 0);
   const service = receipt.kind === 'SERVICE';
-  const showAccrual = !service || receipt.status === 'POSTED';
+  const showAccrual = !service || receipt.status === 'POSTED' || receipt.status === 'VOID';
 
   return (
     <>

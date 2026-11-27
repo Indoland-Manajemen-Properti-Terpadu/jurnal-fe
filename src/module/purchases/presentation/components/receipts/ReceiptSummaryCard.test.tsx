@@ -35,4 +35,13 @@ describe('ReceiptSummaryCard', () => {
     );
     expect(screen.getAllByText(/24\.975\.000/).length).toBeGreaterThan(0);
   });
+
+  it('keeps the posted amount visible after voiding for audit', () => {
+    render(
+      <MemoryRouter>
+        <ReceiptSummaryCard receipt={receipt('VOID')} section="lines" />
+      </MemoryRouter>
+    );
+    expect(screen.getAllByText(/24\.975\.000/).length).toBeGreaterThan(0);
+  });
 });

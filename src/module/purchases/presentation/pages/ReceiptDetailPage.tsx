@@ -159,7 +159,7 @@ export default function ReceiptDetailPage() {
                 )}
                 emptyText={t('receipts.detail.billsEmpty')}
               />
-              {(doc.kind !== 'SERVICE' || doc.status === 'POSTED') && (
+              {(doc.kind !== 'SERVICE' || doc.status === 'POSTED' || doc.status === 'VOID') && (
                 <DocumentJournalsCard journals={doc.journals} />
               )}
             </Stack>
@@ -188,7 +188,7 @@ export default function ReceiptDetailPage() {
                           },
                         ]
                       : []),
-                    ...(doc.kind !== 'SERVICE' || doc.status === 'POSTED'
+                    ...(doc.kind !== 'SERVICE' || doc.status === 'POSTED' || doc.status === 'VOID'
                       ? [
                           {
                             label: t('receipts.detail.totalAccrual'),
