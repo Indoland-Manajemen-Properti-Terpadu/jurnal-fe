@@ -1,6 +1,6 @@
 import { Grid, Stack } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
-import { IconCoins } from '@tabler/icons-react';
+import { IconCashBanknote } from '@tabler/icons-react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
 import { useSimpleAccounts } from '@/module/chart-of-accounts';
@@ -117,7 +117,7 @@ export default function PaymentRequestDetailPage() {
 
   return (
     <DocumentFrame
-      icon={IconCoins}
+      icon={IconCashBanknote}
       number={doc.number}
       badges={
         <StatusBadge

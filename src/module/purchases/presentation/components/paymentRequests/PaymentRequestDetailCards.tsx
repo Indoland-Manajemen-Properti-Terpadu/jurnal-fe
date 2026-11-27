@@ -1,6 +1,6 @@
 import tableClasses from '@/module/purchases/presentation/components/shared/Table.module.css';
 import { Anchor, Box, Group, Table, Text } from '@mantine/core';
-import { IconCalculator, IconClipboardText, IconCoins, IconListDetails } from '@tabler/icons-react';
+import { IconCalculator, IconCoins, IconInfoCircle, IconReceipt2 } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
 import {
@@ -31,12 +31,12 @@ export const PaymentRequestInfoCard = ({
   const { t, currentLanguage } = useTranslation('purchases');
   const orders = doc.order ? [doc.order] : relatedOrders;
   const kindLabel =
-    currentLanguage === 'id' && doc.kindLabel
+    doc.kind === 'DP' && currentLanguage === 'id' && doc.kindLabel
       ? doc.kindLabel
       : t(`paymentRequests.kinds.${doc.kind}`);
   return (
     <SectionCard
-      icon={IconClipboardText}
+      icon={IconInfoCircle}
       label
       flush
       title={t('paymentRequests.detail.infoTitle')}
@@ -258,7 +258,7 @@ export const PaymentRequestItemsCard = ({
         : null;
     return (
       <SectionCard
-        icon={IconListDetails}
+        icon={IconReceipt2}
         flush
         title={t('paymentRequests.detail.basisTitle')}
         subtitle={t('paymentRequests.detail.basisSubtitle')}
@@ -298,7 +298,7 @@ export const PaymentRequestItemsCard = ({
   }
   return (
     <SectionCard
-      icon={IconListDetails}
+      icon={IconReceipt2}
       flush
       title={t('paymentRequests.detail.itemsTitle')}
       subtitle={t('paymentRequests.detail.itemsSubtitle')}
