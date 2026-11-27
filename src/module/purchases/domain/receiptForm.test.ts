@@ -31,16 +31,36 @@ const item = (id: string, quantity: number, receivedQty: number): OrderItem => (
   schedule: { kind: 'FULL', seq: 1, of: 1, periodFrom: null, periodTo: null },
 });
 
-const order = (items: OrderItem[], status: PurchaseOrder['status'] = 'SENT', withReceipt = true) =>
-  ({ id: 'po1', date: '2026-11-01', status, items, withReceipt }) as unknown as PurchaseOrder;
+const order = (
+  items: OrderItem[],
+  status: PurchaseOrder['status'] = 'WAITING_RECEIPT',
+  withReceipt = true
+) =>
+  ({
+    id: 'po1',
+    date: '2026-11-01',
+    status,
+    items,
+    withReceipt,
+    advance: { available: 0 },
+  }) as unknown as PurchaseOrder;
 
 describe('receiptForm', () => {
-  it('only sent or partly received orders that use receipts can take a receipt', () => {
-    expect(canReceive(order([], 'SENT'))).toBe(true);
-    expect(canReceive(order([], 'SENT', false))).toBe(false);
-    expect(canReceive(order([], 'PARTIAL_RECEIVED'))).toBe(true);
-    expect(canReceive(order([], 'RECEIVED'))).toBe(false);
-    expect(canReceive(order([], 'DRAFT'))).toBe(false);
+  it('only eligible order states with open quantity can take a receipt', () => {
+    const openItem = item('a', 1, 0);
+    expect(canReceive(order([openItem], 'WAITING_RECEIPT'))).toBe(true);
+    expect(canReceive(order([openItem], 'WAITING_RECEIPT', false))).toBe(false);
+    expect(canReceive(order([openItem], 'PARTIAL_RECEIVED'))).toBe(true);
+    expect(canReceive(order([openItem], 'WAITING_ADVANCE'))).toBe(false);
+    expect(
+      canReceive({
+        ...order([openItem], 'WAITING_ADVANCE'),
+        advanceState: { paid: true, receiptAllowed: true },
+      } as PurchaseOrder)
+    ).toBe(true);
+    expect(canReceive(order([openItem], 'RECEIVED'))).toBe(false);
+    expect(canReceive(order([openItem], 'DRAFT'))).toBe(false);
+    expect(canReceive(order([openItem], 'SENT'))).toBe(false);
   });
 
   it('computes what is still open per line', () => {

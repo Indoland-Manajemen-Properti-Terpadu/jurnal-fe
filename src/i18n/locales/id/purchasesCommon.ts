@@ -41,6 +41,8 @@ export const purchasesCommon = {
     CANCELLED: 'Dibatalkan',
     PROCESSED: 'Menunggu pembayaran',
     SENT: 'Menunggu penerimaan',
+    WAITING_ADVANCE: 'Menunggu uang muka',
+    WAITING_RECEIPT: 'Menunggu penerimaan',
     PARTIAL_RECEIVED: 'Diterima sebagian',
     RECEIVED: 'Diterima penuh',
     CLOSED: 'Ditutup',

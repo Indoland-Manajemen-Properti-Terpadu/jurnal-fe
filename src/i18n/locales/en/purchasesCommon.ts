@@ -41,6 +41,8 @@ export const purchasesCommon = {
     CANCELLED: 'Cancelled',
     PROCESSED: 'Awaiting payment',
     SENT: 'Awaiting receipt',
+    WAITING_ADVANCE: 'Waiting for advance',
+    WAITING_RECEIPT: 'Waiting for receipt',
     PARTIAL_RECEIVED: 'Partially received',
     RECEIVED: 'Fully received',
     CLOSED: 'Closed',

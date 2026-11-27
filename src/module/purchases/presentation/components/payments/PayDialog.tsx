@@ -1,6 +1,9 @@
 import { useState } from 'react';
-import { Button, NumberInput, TextInput } from '@mantine/core';
+import { Button, NumberInput, Stack, Text, TextInput } from '@mantine/core';
+import { MIME_TYPES } from '@mantine/dropzone';
+import { notifications } from '@mantine/notifications';
 import { ModalFrame } from '@/components/Modals/ModalFrame';
+import CustomDropzone from '@/components/Dropzone/CustomDropzone';
 import { useTranslation } from '@/i18n';
 import {
   hasPayErrors,
@@ -20,6 +23,10 @@ import {
 import { useVoucherMinDate } from '@/module/purchases/presentation/hooks/useVoucherMinDate';
 import { usePayVoucher } from '@/module/purchases/presentation/hooks/usePurchaseMutations';
 
+const MAX_FILES = 5;
+const MAX_FILE_BYTES = 5 * 1024 * 1024;
+const PROOF_TYPES = [MIME_TYPES.pdf, MIME_TYPES.png, MIME_TYPES.jpeg];
+
 interface PayDialogProps {
   doc: PaymentVoucher;
   opened: boolean;
@@ -31,6 +38,7 @@ export const PayDialog = ({ doc, opened, onClose }: Readonly<PayDialogProps>) =>
   const { t } = useTranslation('purchases');
   const pay = usePayVoucher();
   const [showErrors, setShowErrors] = useState(false);
+  const [proofFiles, setProofFiles] = useState<File[]>([]);
   const minDate = useVoucherMinDate(doc);
   const [edited, setEdited] = useState(false);
   const earliest = [doc.date, minDate].reduce((a, b) => (b > a ? b : a), '');
@@ -41,7 +49,7 @@ export const PayDialog = ({ doc, opened, onClose }: Readonly<PayDialogProps>) =>
     adminFee: '',
     referenceNumber: doc.referenceNumber,
   });
-  const errors = validatePayForm(values);
+  const errors = validatePayForm(values, doc.attachments.length > 0 || proofFiles.length > 0);
   const patch = (next: Partial<PayFormValues>) => {
     if (next.paidAt !== undefined) setEdited(true);
     setValues((current) => ({ ...current, ...next }));
@@ -54,7 +62,33 @@ export const PayDialog = ({ doc, opened, onClose }: Readonly<PayDialogProps>) =>
       setShowErrors(true);
       return;
     }
-    pay.mutate({ id: doc.id, input: toPayInput({ ...values, paidAt }) }, { onSuccess: onClose });
+    pay.mutate(
+      { id: doc.id, input: toPayInput({ ...values, paidAt }), proofFiles },
+      { onSuccess: onClose }
+    );
+  };
+
+  const addProofFiles = (added: File[]) => {
+    const existingNames = new Set(doc.attachments.map((file) => file.name));
+    const next = [
+      ...proofFiles,
+      ...added.filter(
+        (file) =>
+          !existingNames.has(file.name) && !proofFiles.some((item) => item.name === file.name)
+      ),
+    ];
+    if (doc.attachments.length + next.length > MAX_FILES) {
+      notifications.show({
+        color: 'orange',
+        message: t('attachments.tooMany', { max: MAX_FILES }),
+      });
+      return;
+    }
+    if (next.some((file) => file.size > MAX_FILE_BYTES)) {
+      notifications.show({ color: 'orange', message: t('attachments.tooLarge') });
+      return;
+    }
+    setProofFiles(next);
   };
 
   return (
@@ -114,9 +148,42 @@ export const PayDialog = ({ doc, opened, onClose }: Readonly<PayDialogProps>) =>
         label={t('payments.form.reference')}
         placeholder={t('payments.form.referencePlaceholder')}
         value={values.referenceNumber}
+        withAsterisk
         maxLength={100}
         onChange={(event) => patch({ referenceNumber: event.currentTarget.value })}
+        error={
+          showErrors && errors.referenceNumber ? t('payments.detail.referenceRequired') : undefined
+        }
       />
+      <Stack gap={6}>
+        {doc.attachments.length > 0 && (
+          <Text size="xs" c="dimmed">
+            {t('payments.detail.existingProof', { count: doc.attachments.length })}
+          </Text>
+        )}
+        <CustomDropzone
+          title={`${t('payments.detail.transferProof')} *`}
+          description={t('payments.detail.transferProofHint')}
+          subDescription={t('attachments.limit')}
+          accept={PROOF_TYPES}
+          aria-label={t('payments.detail.transferProof')}
+          maxSize={MAX_FILE_BYTES}
+          files={proofFiles}
+          uploadedTitle={t('payments.detail.proofChosen')}
+          handleDrop={addProofFiles}
+          onReject={() =>
+            notifications.show({ color: 'orange', message: t('attachments.tooLarge') })
+          }
+          onRemoveFile={(name) =>
+            setProofFiles((current) => current.filter((file) => file.name !== name))
+          }
+        />
+        {showErrors && errors.attachments && (
+          <Text size="xs" c="red" role="alert">
+            {t('payments.detail.attachmentRequired')}
+          </Text>
+        )}
+      </Stack>
     </ModalFrame>
   );
 };

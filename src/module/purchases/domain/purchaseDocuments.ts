@@ -15,6 +15,9 @@ export type WithholdingType = 'percentage' | 'nominal';
 export type PurchaseOrderStatus =
   | 'DRAFT'
   | 'SENT'
+  | 'WAITING_ADVANCE'
+  | 'WAITING_RECEIPT'
+  | 'WAITING_BILL'
   | 'PARTIAL_RECEIVED'
   | 'RECEIVED'
   | 'COMPLETED'

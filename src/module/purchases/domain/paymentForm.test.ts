@@ -66,23 +66,36 @@ describe('pay form', () => {
     depositAccountId: 'acc',
     paymentMethodId: '',
     adminFee: '' as const,
-    referenceNumber: '',
+    referenceNumber: 'TRF-001',
   };
 
   it('insists on a deposit account, which the server would otherwise default', () => {
-    expect(validatePayForm({ ...ok, depositAccountId: '' }).depositAccountId).toBe(
+    expect(validatePayForm({ ...ok, depositAccountId: '' }, true).depositAccountId).toBe(
       'depositRequired'
     );
-    expect(hasPayErrors(validatePayForm(ok))).toBe(false);
+    expect(hasPayErrors(validatePayForm(ok, true))).toBe(false);
+  });
+
+  it('requires a transfer reference and at least one proof attachment before payment', () => {
+    expect(validatePayForm({ ...ok, referenceNumber: '  ' }, false)).toMatchObject({
+      referenceNumber: 'referenceRequired',
+      attachments: 'attachmentRequired',
+    });
+    expect(validatePayForm(ok, false).attachments).toBe('attachmentRequired');
+    expect(validatePayForm(ok, true)).toEqual({});
   });
 
   it('rejects a negative fee and a missing date', () => {
-    expect(validatePayForm({ ...ok, adminFee: -1 }).adminFee).toBe('feeInvalid');
-    expect(validatePayForm({ ...ok, paidAt: '' }).paidAt).toBe('dateRequired');
+    expect(validatePayForm({ ...ok, adminFee: -1 }, true).adminFee).toBe('feeInvalid');
+    expect(validatePayForm({ ...ok, paidAt: '' }, true).paidAt).toBe('dateRequired');
   });
 
   it('leaves an empty fee to the payment method default', () => {
-    expect(toPayInput(ok)).toEqual({ paidAt: '2026-11-22', depositAccount: 'acc' });
+    expect(toPayInput(ok)).toEqual({
+      paidAt: '2026-11-22',
+      depositAccount: 'acc',
+      referenceNumber: 'TRF-001',
+    });
     expect(toPayInput({ ...ok, adminFee: 2500, referenceNumber: ' TRF ' })).toEqual({
       paidAt: '2026-11-22',
       depositAccount: 'acc',
