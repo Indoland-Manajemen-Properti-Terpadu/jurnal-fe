@@ -27,6 +27,7 @@ import {
 } from '@/module/purchases/presentation/hooks/usePurchaseQueries';
 import {
   useApprovePriceChange,
+  useCancelOrderAdvance,
   useRejectPriceChange,
 } from '@/module/purchases/presentation/hooks/usePurchaseMutations';
 import { routes } from '@/router/routes';
@@ -40,6 +41,7 @@ export default function OrderDetailPage() {
   const order = useOrder(id);
   const approvePriceChange = useApprovePriceChange();
   const rejectPriceChange = useRejectPriceChange();
+  const cancelAdvance = useCancelOrderAdvance();
   const journey = useDocumentChain('purchaseOrder', id);
   const orderReceipts = useReceipts({ purchaseOrder: id, limit: 50 }, Boolean(id));
   const orderBills = useBills({ purchaseOrder: id, limit: 50 }, Boolean(id));
@@ -109,7 +111,18 @@ export default function OrderDetailPage() {
       <Grid gutter="lg" align="flex-start">
         <Grid.Col span={{ base: 12, lg: 8 }}>
           <Stack gap="lg">
-            <OrderSummaryCard order={doc} />
+            <OrderSummaryCard
+              order={doc}
+              canCancelAdvance={
+                can(PURCHASE_MENU.advanceCancel, 'delete') &&
+                orderBills.data?.totalResults === 0 &&
+                orderBills.data.items.length === 0
+              }
+              isCancelAdvancePending={cancelAdvance.isPending}
+              onCancelAdvance={(requestId, reason) =>
+                cancelAdvance.mutateAsync({ orderId: doc.id, requestId, reason })
+              }
+            />
             <PriceChangeApprovalCard
               request={doc.pendingPriceChange}
               canApprove={can(PURCHASE_MENU.approvePriceChange, 'update')}

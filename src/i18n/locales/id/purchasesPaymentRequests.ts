@@ -147,6 +147,8 @@ export const purchasesPaymentRequests = {
     itemsSubtitle: 'Jumlah yang diajukan untuk tiap faktur',
     advanceTitle: 'Uang Muka',
     advanceSubtitle: 'Diajukan dari PO/SPK',
+    advanceCancellationWarning:
+      'Batalkan DP melalui detail PO/SPK. Pembatalan ditolak jika PO/SPK pernah difakturkan atau DP pernah dibayar.',
     advanceApplied: 'Sudah dipotong ke faktur: {amount}',
     col: {
       vendor: 'Vendor',

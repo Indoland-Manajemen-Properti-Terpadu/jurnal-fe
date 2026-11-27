@@ -52,7 +52,17 @@ const useScheduleLabel = () => {
 };
 
 /** Header facts, the way the order is sent, the advance and the item lines of a PO / SPK. */
-export const OrderSummaryCard = ({ order }: Readonly<{ order: PurchaseOrder }>) => {
+export const OrderSummaryCard = ({
+  order,
+  canCancelAdvance,
+  isCancelAdvancePending,
+  onCancelAdvance,
+}: Readonly<{
+  order: PurchaseOrder;
+  canCancelAdvance?: boolean;
+  isCancelAdvancePending?: boolean;
+  onCancelAdvance?: (requestId: string, reason: string) => Promise<unknown>;
+}>) => {
   const { t, currentLanguage } = useTranslation('purchases');
   const scheduleLabel = useScheduleLabel();
   const label = order.documentLabel;
@@ -127,7 +137,15 @@ export const OrderSummaryCard = ({ order }: Readonly<{ order: PurchaseOrder }>) 
         </SectionCard>
       )}
 
-      {order.advanceState && <OrderAdvanceCard advance={order.advanceState} />}
+      {order.advanceState && (
+        <OrderAdvanceCard
+          advance={order.advanceState}
+          orderId={order.id}
+          canCancelAdvance={canCancelAdvance}
+          isCancelPending={isCancelAdvancePending}
+          onCancelAdvance={onCancelAdvance}
+        />
+      )}
 
       {order.advance.amount > 0 && !order.advanceState && (
         <SectionCard

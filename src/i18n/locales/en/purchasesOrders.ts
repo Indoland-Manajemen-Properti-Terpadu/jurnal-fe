@@ -96,6 +96,12 @@ export const purchasesOrders = {
       bill: 'Advance bill',
       request: 'Advance payment request',
       voucher: 'Advance payment voucher',
+      cancel: 'Cancel DP',
+      cancelTitle: 'Cancel the advance',
+      cancelDescription:
+        'Cancellation is blocked if the PO/SPK has ever been billed or the advance has ever been paid. If a draft voucher also includes another payment, void the draft voucher and issue the other payment again.',
+      cancelReasonLabel: 'Cancellation reason',
+      cancelReasonPlaceholder: 'Write the reason for cancelling the advance',
       left: 'Advance left {held} of {total}',
       progress: 'Step {step} of {total}',
     },

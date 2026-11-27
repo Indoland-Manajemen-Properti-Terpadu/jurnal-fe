@@ -12,8 +12,9 @@ interface ReasonModalProps {
   confirmLabel: string;
   /** `danger` for void, cancel and reject. */
   tone?: 'primary' | 'danger';
-  /** The note may stay empty (a verification note); otherwise at least three characters. */
+  /** Minimum trimmed length when required; defaults to three. */
   optional?: boolean;
+  /** Maximum input length; defaults to 500. */
   minLength?: number;
   maxLength?: number;
   label?: string;
@@ -23,7 +24,7 @@ interface ReasonModalProps {
   onConfirm: (reason: string) => void;
 }
 
-/** Rejecting, cancelling, returning and voiding need a reason of at least three characters. */
+/** Collects an optional or required reason for a document action. */
 export const ReasonModal = ({
   opened,
   title,
