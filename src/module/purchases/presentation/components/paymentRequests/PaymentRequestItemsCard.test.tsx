@@ -173,6 +173,17 @@ describe('PaymentRequestSummaryCard', () => {
     expect(screen.getByText('Rekening tujuan')).toBeInTheDocument();
     expect(screen.getByText('BNI 0456-7890-12 a.n. CV Mitra Teknik Lift')).toBeInTheDocument();
   });
+
+  it('marks the total as paid with the success treatment after payment', () => {
+    render(
+      <MemoryRouter>
+        <PaymentRequestSummaryCard doc={doc({ status: 'PAID' })} />
+      </MemoryRouter>
+    );
+
+    expect(screen.queryByText('Nominal diajukan')).not.toBeInTheDocument();
+    expect(screen.getByText('Dibayar')).toHaveStyle({ color: 'var(--mantine-color-green-8)' });
+  });
 });
 
 describe('PaymentRequestVoucherCard', () => {

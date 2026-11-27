@@ -46,11 +46,12 @@ export default function PaymentRequestDetailPage() {
   const { id } = useParams();
   const { t, currentLanguage } = useTranslation('purchases');
   const { can, isLoading: accessLoading } = usePurchaseAccess();
+  const canReadPayments = can(PURCHASE_MENU.payments, 'read');
   const request = usePaymentRequest(id);
-  const voucherDetail = usePayment(request.data?.voucher?.id);
+  const voucherDetail = usePayment(request.data?.voucher?.id, canReadPayments);
   const { accounts: paymentAccounts } = useSimpleAccounts(
     { isBankAndCash: true },
-    Boolean(request.data?.voucher?.id)
+    Boolean(request.data?.voucher?.id) && canReadPayments
   );
   const order = useOrder(request.data?.kind === 'DP' ? request.data.order?.id : undefined);
   const visibleValues = request.data
@@ -95,9 +96,10 @@ export default function PaymentRequestDetailPage() {
   if (!doc) {
     return <StateFrame kind="loading" />;
   }
-  const depositAccount = voucherDetail.data?.depositAccountId
-    ? paymentAccounts.find((account) => account.id === voucherDetail.data?.depositAccountId)
-    : undefined;
+  const depositAccount =
+    canReadPayments && voucherDetail.data?.depositAccountId
+      ? paymentAccounts.find((account) => account.id === voucherDetail.data?.depositAccountId)
+      : undefined;
   const depositAccountLabel = depositAccount
     ? `${depositAccount.accountNumber} · ${depositAccount.name}`
     : undefined;
@@ -169,18 +171,21 @@ export default function PaymentRequestDetailPage() {
             {!doc.isMultiVendor && (
               <PaymentRequestVoucherCard doc={doc} depositAccountLabel={depositAccountLabel} />
             )}
-            {!doc.isMultiVendor && doc.voucher?.status === 'PAID' && voucherDetail.data && (
-              <AttachmentsCard
-                target="payment"
-                documentId={voucherDetail.data.id}
-                attachments={voucherDetail.data.attachments}
-                canUpload={false}
-                titleKey="paymentRequests.detail.transferProofTitle"
-                subtitleKey="paymentRequests.detail.transferProofSubtitle"
-                showCount
-                showFileActions
-              />
-            )}
+            {!doc.isMultiVendor &&
+              canReadPayments &&
+              doc.voucher?.status === 'PAID' &&
+              voucherDetail.data && (
+                <AttachmentsCard
+                  target="payment"
+                  documentId={voucherDetail.data.id}
+                  attachments={voucherDetail.data.attachments}
+                  canUpload={false}
+                  titleKey="paymentRequests.detail.transferProofTitle"
+                  subtitleKey="paymentRequests.detail.transferProofSubtitle"
+                  showCount
+                  showFileActions
+                />
+              )}
           </Stack>
         </Grid.Col>
         <Grid.Col span={{ base: 12, lg: 4 }}>

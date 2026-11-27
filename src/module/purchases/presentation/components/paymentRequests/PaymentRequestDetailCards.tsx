@@ -148,8 +148,12 @@ export const PaymentRequestSummaryCard = ({
             : []),
         ]}
         total={{
-          label: t('paymentRequests.detail.requested'),
+          label:
+            doc.status === 'PAID'
+              ? t('paymentRequests.detail.paidTotal')
+              : t('paymentRequests.detail.requested'),
           value: showAmounts ? formatAmount(doc.amount) : '—',
+          ...(doc.status === 'PAID' ? { tone: 'success' as const } : {}),
         }}
       />
     </SectionCard>

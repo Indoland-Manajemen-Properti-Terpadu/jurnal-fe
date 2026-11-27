@@ -105,13 +105,14 @@ const useList = <T, Summary = never>(
 const useDetail = <T>(
   kind: DocumentKind,
   id: string | undefined,
-  fetch: (id: string) => Promise<T>
+  fetch: (id: string) => Promise<T>,
+  enabled = true
 ) => {
   const scope = usePurchaseScope();
   return useQuery<T, PurchaseError>({
     queryKey: purchaseKeys.detail(scope, kind, id ?? ''),
     queryFn: () => fetch(id as string),
-    enabled: Boolean(id),
+    enabled: Boolean(id) && enabled,
     retry: retryUnlessNotFound,
   });
 };
@@ -153,7 +154,8 @@ export const usePaymentRequest = (id?: string) =>
 
 export const usePayments = (params: ListParams, enabled?: boolean) =>
   useList<PaymentVoucher>('payments', params, listPayments, enabled);
-export const usePayment = (id?: string) => useDetail<PaymentVoucher>('payments', id, getPayment);
+export const usePayment = (id?: string, enabled = true) =>
+  useDetail<PaymentVoucher>('payments', id, getPayment, enabled);
 
 export const useReturns = (params: ListParams, enabled?: boolean) =>
   useList<PurchaseReturn>('returns', params, listReturns, enabled);

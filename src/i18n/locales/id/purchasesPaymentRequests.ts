@@ -132,6 +132,7 @@ export const purchasesPaymentRequests = {
     summaryTitle: 'Ringkasan',
     summarySubtitle: 'Nilai yang diajukan ke vendor',
     requested: 'Nominal diajukan',
+    paidTotal: 'Dibayar',
     advanceAppliedLabel: 'Sudah dipotong ke faktur',
     orderTotal: 'Total PO',
     advanceRow: 'Uang muka',

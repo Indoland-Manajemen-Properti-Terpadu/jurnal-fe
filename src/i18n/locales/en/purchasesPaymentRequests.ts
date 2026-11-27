@@ -124,6 +124,7 @@ export const purchasesPaymentRequests = {
     summaryTitle: 'Summary',
     summarySubtitle: 'The amount asked to pay the vendor',
     requested: 'Amount requested',
+    paidTotal: 'Paid',
     advanceAppliedLabel: 'Already deducted from bills',
     orderTotal: 'Order total',
     advanceRow: 'Advance',
