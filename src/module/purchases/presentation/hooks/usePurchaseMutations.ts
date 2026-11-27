@@ -235,7 +235,9 @@ export const useCreatePaymentsByVendor = (
   });
 };
 export const usePayVoucher = () =>
-  useAction('paid', ({ id, input }: WithId & { input: PayInput }) => api.payVoucher(id, input));
+  useAction('paid', ({ id, input, proofFiles }: WithId & { input: PayInput; proofFiles: File[] }) =>
+    api.payVoucher(id, input, proofFiles)
+  );
 export const useVoidPayment = () =>
   useAction('voided', ({ id, reason }: WithReason) => api.voidPayment(id, reason));
 

@@ -308,7 +308,10 @@ export const createPaymentsByVendor = async (
   );
   return (body.data?.payments ?? []).map(toPaymentVoucher);
 };
-export const payVoucher = (id: string, input: PayInput) => payments.act(id, 'pay', input);
+export const payVoucher = async (id: string, input: PayInput, proofFiles: File[] = []) => {
+  if (proofFiles.length > 0) await uploadAttachments('payment', id, proofFiles);
+  return payments.act(id, 'pay', input);
+};
 export const voidPayment = (id: string, reason: string) => payments.act(id, 'void', { reason });
 
 /* ---------- Return ---------- */
