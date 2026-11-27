@@ -46,7 +46,7 @@ export interface ReceiptErrors {
 const QTY_EPSILON = 1e-4;
 
 export const itemName = (item: Pick<OrderItem, 'product' | 'description'>): string =>
-  item.product?.name || item.description || '-';
+  item.description || item.product?.name || '-';
 
 /** The same status, advance-payment, receipt-mode, and remaining-quantity gate used by order actions. */
 export const canReceive = (order: PurchaseOrder): boolean => orderActions(order).receive;

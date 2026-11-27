@@ -26,7 +26,7 @@ export const toPriceChangeRequest = (
             ? item.purchaseOrderItem
             : item.purchaseOrderItem.id,
         description: item.description ?? orderItem?.description ?? '',
-        oldUnitPrice: item.oldUnitPrice ?? 0,
+        oldUnitPrice: item.previousUnitPrice ?? item.oldUnitPrice ?? 0,
         newUnitPrice: item.newUnitPrice,
       };
     }),

@@ -38,6 +38,9 @@ export const purchasesReceipts = {
     },
     deliveryNotePlaceholder: 'Example: SJ-0012',
     linesTitle: 'Items Received',
+    linesTitleService: 'Services Received',
+    linesSubtitleService:
+      'Enter the quantity of work accepted this time. Leave 0 for work not yet completed.',
     linesSubtitle:
       'Enter the quantity received this time. Leave 0 for items that have not arrived.',
     receiveAll: 'Receive All Remaining',
@@ -65,7 +68,12 @@ export const purchasesReceipts = {
     impactTitle: 'Accounting impact',
     impactBody:
       'Received goods are recognised right away as an expense or inventory, with the offsetting entry in Unbilled Payables. The journal is created automatically. When the vendor bill is verified, Unbilled Payables moves into Accounts Payable.',
+    impactBodyService:
+      'The service receipt value and journal are recorded after all approval steps are complete.',
     submit: 'Record Receipt',
+    confirmTitle: 'Record receipt?',
+    confirmGoods: 'Check the received quantities before recording the receipt.',
+    confirmService: 'Check the accepted work before submitting the BAPP for approval.',
   },
   opnameBlock: {
     title: 'Warehouse is being counted',
@@ -75,6 +83,7 @@ export const purchasesReceipts = {
   detail: {
     backToList: 'Back to the receipts list',
     infoSubtitle: 'Vendor, who recorded it, the order and the delivery note',
+    infoSubtitleService: 'Vendor, who recorded it, the order and the acceptance document',
     journalLabel: 'Journal',
     linesSubtitle: 'Quantities on this receipt against the order',
     itemsCount: '{count} items',
@@ -98,6 +107,7 @@ export const purchasesReceipts = {
     viewJournal: 'View journal',
     journalNote: 'This receipt has been journaled as an unbilled payable.',
     linesTitle: 'Items Received',
+    linesTitleService: 'Services Received',
     col: {
       item: 'Item / Service',
       quantity: 'Received',

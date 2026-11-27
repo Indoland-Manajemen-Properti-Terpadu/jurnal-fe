@@ -4,6 +4,10 @@ import type { BillFormErrors, BillFormValues } from '@/module/purchases/domain/b
 import type { PurchaseBill } from '@/module/purchases/domain/purchaseDocuments';
 import { useTranslation } from '@/i18n';
 import { BillHeaderFields } from '@/module/purchases/presentation/components/bills/BillHeaderFields';
+import {
+  BillFileFields,
+  type BillFiles,
+} from '@/module/purchases/presentation/components/bills/BillFileFields';
 import { FormFrame } from '@/module/purchases/presentation/components/shared/FormFrame';
 import { WizardCard } from '@/module/purchases/presentation/components/shared/wizard/WizardCard';
 import { routes } from '@/router/routes';
@@ -15,6 +19,8 @@ interface BillDraftHeaderFormProps {
   showErrors: boolean;
   pending: boolean;
   dueHint?: string;
+  files: BillFiles;
+  onFilesChange: (files: BillFiles) => void;
   onChange: <K extends keyof BillFormValues>(key: K, value: BillFormValues[K]) => void;
   onCancel: () => void;
   onSave: () => void;
@@ -27,6 +33,8 @@ export const BillDraftHeaderForm = ({
   showErrors,
   pending,
   dueHint,
+  files,
+  onFilesChange,
   onChange,
   onCancel,
   onSave,
@@ -64,6 +72,11 @@ export const BillDraftHeaderForm = ({
           showErrors={showErrors}
           dueHint={dueHint}
           onChange={onChange}
+        />
+        <BillFileFields
+          files={files}
+          onChange={onFilesChange}
+          taxRequired={existing.taxAmount > 0}
         />
       </WizardCard>
     </FormFrame>

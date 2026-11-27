@@ -143,7 +143,14 @@ export default function ReceiptDetailPage() {
         <Grid gutter="lg" align="flex-start">
           <Grid.Col span={{ base: 12, lg: 8 }}>
             <Stack gap="lg">
-              <ReceiptSummaryCard receipt={doc} />
+              <ReceiptSummaryCard receipt={doc} section="info" />
+              <AttachmentsCard
+                target="receipt"
+                documentId={doc.id}
+                attachments={doc.attachments}
+                canUpload={can(PURCHASE_MENU.receipts, 'update') && doc.status !== 'VOID'}
+              />
+              <ReceiptSummaryCard receipt={doc} section="lines" />
               <BillsTableCard
                 title={t('receipts.detail.billsTitle')}
                 subtitle={t('receipts.detail.billsSubtitle')}
@@ -152,13 +159,9 @@ export default function ReceiptDetailPage() {
                 )}
                 emptyText={t('receipts.detail.billsEmpty')}
               />
-              <DocumentJournalsCard journals={doc.journals} />
-              <AttachmentsCard
-                target="receipt"
-                documentId={doc.id}
-                attachments={doc.attachments}
-                canUpload={can(PURCHASE_MENU.receipts, 'update') && doc.status !== 'VOID'}
-              />
+              {(doc.kind !== 'SERVICE' || doc.status === 'POSTED') && (
+                <DocumentJournalsCard journals={doc.journals} />
+              )}
             </Stack>
           </Grid.Col>
           <Grid.Col span={{ base: 12, lg: 4 }}>
@@ -185,7 +188,14 @@ export default function ReceiptDetailPage() {
                           },
                         ]
                       : []),
-                    { label: t('receipts.detail.totalAccrual'), value: formatAmount(doc.amount) },
+                    ...(doc.kind !== 'SERVICE' || doc.status === 'POSTED'
+                      ? [
+                          {
+                            label: t('receipts.detail.totalAccrual'),
+                            value: formatAmount(doc.amount),
+                          },
+                        ]
+                      : []),
                   ]}
                 />
               </SectionCard>

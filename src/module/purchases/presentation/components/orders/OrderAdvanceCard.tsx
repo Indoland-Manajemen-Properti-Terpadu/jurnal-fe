@@ -87,7 +87,9 @@ export const OrderAdvanceCard = ({
             {formatAmount(advance.amount)}
           </Text>
           <Text size="sm" fw={600} c={progress.done ? 'green.8' : 'primary.7'}>
-            {advance.stepLabel}
+            {advance.mode === 'REQUEST' && last(advance.paymentRequests)?.status === 'DRAFT'
+              ? t('orders.detail.dp.requestDraft')
+              : advance.stepLabel}
           </Text>
         </Group>
         <Progress

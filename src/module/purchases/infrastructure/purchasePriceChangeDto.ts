@@ -2,6 +2,7 @@ export interface PriceChangeItemDto {
   purchaseOrderItem: string | { id: string; description?: string | null };
   description?: string | null;
   oldUnitPrice?: number | null;
+  previousUnitPrice?: number | null;
   newUnitPrice: number;
 }
 

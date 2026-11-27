@@ -105,6 +105,8 @@ export const purchasesPaymentRequests = {
     notReadyDescription: 'Only a verified bill with an amount not yet requested can be paid.',
   },
   detail: {
+    bankMissing: 'Vendor bank account is incomplete',
+    bankCheckFailed: 'Unable to check vendor bank accounts. Refresh the page and try again.',
     vendorsTitle: 'Vendors and vouchers',
     vendorsSubtitle: 'What is asked from each vendor and the voucher issued to it',
     vendorsCount: '{count} vendors',

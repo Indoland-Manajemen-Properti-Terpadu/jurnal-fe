@@ -406,6 +406,7 @@ interface ActivityDto {
   step?: number | null;
   totalSteps?: number | null;
   stageLabel?: string | null;
+  stage?: string | null;
   role?: { id?: string; name?: string } | null;
   by?: { id?: string; name?: string } | null;
   at?: string;
@@ -434,7 +435,11 @@ export const toActivityEntry = (dto: ActivityDto): ActivityEntry => ({
 export const getActivity = async (kind: ActivityKind, id: string): Promise<ActivityEntry[]> => {
   try {
     const { data } = await http.get<ApiEnvelope<ActivityDto[]>>(PURCHASE_API.activity(kind, id));
-    return (data ?? []).map(toActivityEntry);
+    return (data ?? []).map((entry) =>
+      toActivityEntry(
+        kind === 'receipt' && entry.stage === 'REQUEST' ? { ...entry, stageLabel: 'BAPP' } : entry
+      )
+    );
   } catch (error) {
     if ((error as { kind?: string }).kind === 'notFound') return [];
     throw error;

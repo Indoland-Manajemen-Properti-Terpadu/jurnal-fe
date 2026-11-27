@@ -108,7 +108,11 @@ export const PaymentRequestFormBody = ({
     [billsQuery.items, own]
   );
   const orders = (ordersQuery.data?.items ?? []).filter(
-    (order) => order.advance.available > 0 || order.id === values.purchaseOrderId
+    (order) =>
+      (order.id === values.purchaseOrderId && Boolean(editing)) ||
+      (order.advance.available > 0 &&
+        order.advanceState?.mode !== 'BILL' &&
+        !order.advanceState?.paid)
   );
   const order = orders.find((item) => item.id === values.purchaseOrderId);
   const available =

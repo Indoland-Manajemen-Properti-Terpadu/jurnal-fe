@@ -74,8 +74,8 @@ describe('OrderAdvanceCard', () => {
   it('says how much of the advance is left once it is booked', () => {
     renderCard(state({ postedAmount: 30000000, recognizedAmount: 7500000, heldAmount: 22500000 }));
 
-    expect(screen.getByText(/Uang muka tersisa/)).toHaveTextContent(/22\.500\.000/);
-    expect(screen.getByText(/Uang muka tersisa/)).toHaveTextContent(/30\.000\.000/);
+    expect(screen.getByText(/Belum dikompensasi/)).toHaveTextContent(/22\.500\.000/);
+    expect(screen.getByText(/Belum dikompensasi/)).toHaveTextContent(/30\.000\.000/);
   });
 
   it('gives no balance sentence before the advance is booked', () => {

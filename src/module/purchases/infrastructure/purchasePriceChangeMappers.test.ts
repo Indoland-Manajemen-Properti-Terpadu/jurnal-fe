@@ -77,4 +77,13 @@ describe('price change response mapping', () => {
   it('maps a missing pending request to null on order detail', () => {
     expect(toPriceChangeRequest(null)).toBeNull();
   });
+
+  it('reads previousUnitPrice from the live approval response', () => {
+    const result = toPriceChangeRequest({
+      id: 'change-2',
+      status: 'PENDING_APPROVAL',
+      items: [{ purchaseOrderItem: 'item-1', previousUnitPrice: 55000, newUnitPrice: 60000 }],
+    });
+    expect(result?.items[0].oldUnitPrice).toBe(55000);
+  });
 });

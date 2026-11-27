@@ -1,12 +1,21 @@
 import { useCallback } from 'react';
 import { useTranslation } from '@/i18n';
-import { describeApiError } from '@/lib/http/apiError';
+import { describeApiError, toApiError } from '@/lib/http/apiError';
 
 type Translate = (key: string) => string;
 
 /** A safe sentence for any purchasing failure (see `describeApiError`). */
-export const describePurchaseError = (error: unknown, language: string, t: Translate): string =>
-  describeApiError(error, language, {
+export const describePurchaseError = (error: unknown, language: string, t: Translate): string => {
+  const normalized = toApiError(error);
+  const messages = [
+    normalized.validationMessage,
+    normalized.serverMessage,
+    ...normalized.fieldErrors.map((item) => item.message),
+  ];
+  if (messages.some((message) => /invoice proforma vendor/i.test(message ?? ''))) {
+    return t('errors.proformaRequired');
+  }
+  return describeApiError(error, language, {
     rejected: t('errors.rejected'),
     forbidden: t('errors.forbidden'),
     validation: t('errors.validation'),
@@ -15,6 +24,7 @@ export const describePurchaseError = (error: unknown, language: string, t: Trans
     network: t('errors.network'),
     generic: t('errors.generic'),
   });
+};
 
 export const usePurchaseErrorMessage = () => {
   const { t, currentLanguage } = useTranslation('purchases');

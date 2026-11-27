@@ -36,7 +36,7 @@ export const OrderRetentionCard = ({
   const releases = bills.filter(
     (bill) => bill.kind === 'RETENTION_RELEASE' && bill.status !== 'VOID'
   );
-  const done = retention.state === 'RELEASED' || retention.balance <= 0;
+  const done = retention.released > 0 && retention.balance <= 0;
   const started = retention.maintenanceFrom !== null;
   const ready = retention.state === 'RELEASABLE';
 

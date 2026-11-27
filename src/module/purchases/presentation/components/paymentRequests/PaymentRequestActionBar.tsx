@@ -1,10 +1,13 @@
 import { useState } from 'react';
-import { Button } from '@mantine/core';
+import { Alert, Anchor, Button, Stack } from '@mantine/core';
+import { useQueries } from '@tanstack/react-query';
 import { IconEdit, IconSend, IconWallet, IconX } from '@tabler/icons-react';
-import { useNavigate } from 'react-router-dom';
+import { Link, generatePath, useNavigate } from 'react-router-dom';
+import { fetchContact } from '@/module/contacts';
 import { useTranslation } from '@/i18n';
 import {
   paymentRequestActions,
+  hasVendorBankAccount,
   type PaymentRequest,
 } from '@/module/purchases/domain/paymentRequest';
 import { PURCHASE_MENU } from '@/module/purchases/domain/purchaseAccess';
@@ -30,9 +33,49 @@ export const PaymentRequestActionBar = ({ doc }: Readonly<{ doc: PaymentRequest 
   const actions = paymentRequestActions(doc);
   const canUpdate = can(PURCHASE_MENU.paymentRequests, 'update');
   const showVoucher = actions.createVoucher && can(PURCHASE_MENU.payments, 'create');
+  const vendorIds = [
+    ...new Set(
+      doc.vendorTotals.length
+        ? doc.vendorTotals.map((item) => item.vendorId)
+        : doc.vendor
+          ? [doc.vendor.id]
+          : []
+    ),
+  ].filter(Boolean);
+  const contacts = useQueries({
+    queries: vendorIds.map((id) => ({
+      queryKey: ['purchase-vendor-bank', id],
+      queryFn: () => fetchContact(id),
+      enabled: actions.submit && canUpdate,
+      staleTime: 0,
+    })),
+  });
+  const missing = contacts.flatMap((query) =>
+    query.data && !hasVendorBankAccount(query.data.bankAccounts) ? [query.data] : []
+  );
+  const bankCheckIncomplete =
+    vendorIds.length === 0 || contacts.some((query) => query.isPending || query.isError);
 
   return (
     <>
+      {actions.submit && canUpdate && missing.length > 0 && (
+        <Alert color="orange" title={t('paymentRequests.detail.bankMissing')}>
+          <Stack gap={4}>
+            {missing.map((vendor) => (
+              <Anchor
+                key={vendor.id}
+                component={Link}
+                to={generatePath(routes.contacts.detail, { idAccount: vendor.id })}
+              >
+                {vendor.displayName}
+              </Anchor>
+            ))}
+          </Stack>
+        </Alert>
+      )}
+      {actions.submit && canUpdate && contacts.some((query) => query.isError) && (
+        <Alert color="orange">{t('paymentRequests.detail.bankCheckFailed')}</Alert>
+      )}
       {actions.edit && canUpdate && (
         <Button
           variant="default"
@@ -48,6 +91,7 @@ export const PaymentRequestActionBar = ({ doc }: Readonly<{ doc: PaymentRequest 
           radius="md"
           leftSection={<IconSend size={16} />}
           loading={submit.isPending}
+          disabled={bankCheckIncomplete || missing.length > 0}
           onClick={() => submit.mutate({ id: doc.id })}
         >
           {t('paymentRequests.detail.submit')}

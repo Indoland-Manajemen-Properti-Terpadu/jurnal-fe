@@ -9,6 +9,18 @@ import type { DocumentRef, PurchaseBill } from '@/module/purchases/domain/purcha
 /** `DP` asks for the advance of an order; `SETTLEMENT` asks to pay one or more bills of one vendor. */
 export type PaymentRequestKind = 'DP' | 'SETTLEMENT';
 
+/** A vendor needs a complete bank account before a payment request is submitted. */
+export const hasVendorBankAccount = (
+  accounts: {
+    bankName?: string | null;
+    accountNumber?: string | null;
+    accountHolder?: string | null;
+  }[]
+): boolean =>
+  accounts.some((bank) =>
+    Boolean(bank.bankName?.trim() && bank.accountNumber?.trim() && bank.accountHolder?.trim())
+  );
+
 export type PaymentRequestStatus =
   | 'DRAFT'
   | 'PENDING_APPROVAL'

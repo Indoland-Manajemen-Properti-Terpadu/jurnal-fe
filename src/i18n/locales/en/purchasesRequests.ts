@@ -108,6 +108,7 @@ export const purchasesRequests = {
   },
   detail: {
     waitingAccounting: 'Waiting for Accounting to verify',
+    verificationApproval: 'Purchase request verification',
     backToList: 'Back to the requests list',
     neededOn: 'Needed on',
     requestedBy: 'Requested by',

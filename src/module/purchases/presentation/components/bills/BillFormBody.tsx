@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Text } from '@mantine/core';
+import { notifications } from '@mantine/notifications';
+import { billNewFilesMissing } from '@/module/purchases/domain/billVerify';
 import {
   IconDeviceFloppy,
   IconFileInvoice,
@@ -30,12 +32,9 @@ import type {
   PurchaseBill,
 } from '@/module/purchases/domain/purchaseDocuments';
 import { toPurchaseError } from '@/module/purchases/infrastructure/purchaseErrors';
-import {
-  BillFileFields,
-  type BillFiles,
-} from '@/module/purchases/presentation/components/bills/BillFileFields';
+import type { BillFiles } from '@/module/purchases/presentation/components/bills/BillFileFields';
+import { BillDataStep } from '@/module/purchases/presentation/components/bills/BillDataStep';
 import { BillDraftHeaderForm } from '@/module/purchases/presentation/components/bills/BillDraftHeaderForm';
-import { BillHeaderFields } from '@/module/purchases/presentation/components/bills/BillHeaderFields';
 import { BillManualLines } from '@/module/purchases/presentation/components/bills/BillManualLines';
 import { BillVarianceDialog } from '@/module/purchases/presentation/components/bills/BillVarianceDialog';
 import { effectiveVendor } from '@/module/purchases/presentation/components/bills/BillSourcePicker';
@@ -115,13 +114,28 @@ export const BillFormBody = ({
   const create = useCreateBill(async (doc) => {
     const { invoice, tax } = filesRef.current;
     if (invoice.length > 0 || tax.length > 0) {
-      // A refused upload is reported by the hook; the saved bill stays a draft to fix on its page.
-      await uploadFiles.mutateAsync({ id: doc.id, files: { invoice, tax } }).catch(() => undefined);
+      // A refused upload leaves the saved bill as a draft; do not attempt verification with missing files.
+      try {
+        await uploadFiles.mutateAsync({ id: doc.id, files: { invoice, tax } });
+      } catch {
+        navigate(detailOf(doc.id));
+        return;
+      }
     }
     if (verifyAfterRef.current) await verifySaved(doc.id, false);
     else navigate(detailOf(doc.id));
   });
-  const update = useUpdateBill((doc) => navigate(detailOf(doc.id)));
+  const update = useUpdateBill(async (doc) => {
+    const selected = filesRef.current;
+    if (selected.invoice.length || selected.tax.length) {
+      const uploaded = await uploadFiles.mutateAsync({ id: doc.id, files: selected }).then(
+        () => true,
+        () => false
+      );
+      if (!uploaded) return;
+    }
+    navigate(detailOf(doc.id));
+  });
   const pending = create.isPending || update.isPending || verify.isPending || uploadFiles.isPending;
 
   const pickable: PickedSource | null = source === 'MANUAL' ? null : source;
@@ -177,6 +191,19 @@ export const BillFormBody = ({
       if (!existing) {
         setStep(pickError || errors.fields.vendorId ? 0 : hasHeaderErrors ? 1 : 2);
       }
+      return;
+    }
+    if (
+      !existing &&
+      post &&
+      billNewFilesMissing(
+        files.invoice.length,
+        files.tax.length,
+        preview?.taxAmount ?? estimate.tax
+      )
+    ) {
+      notifications.show({ color: 'orange', message: t('bills.form.file.verifyRequired') });
+      setStep(1);
       return;
     }
     if (existing) {
@@ -255,6 +282,8 @@ export const BillFormBody = ({
         showErrors={showErrors}
         pending={pending}
         dueHint={dueHint}
+        files={files}
+        onFilesChange={setFiles}
         onChange={set}
         onCancel={cancel}
         onSave={() => save(false)}
@@ -292,24 +321,17 @@ export const BillFormBody = ({
       )}
 
       {step === 1 && (
-        <WizardCard
-          icon={<IconFileInvoice size={20} />}
-          title={t('bills.wizard.data')}
-          description={t('bills.wizard.dataHint')}
-          hintTitle={picked[0]?.vendor.name ?? (values.vendorName || undefined)}
-          hint={picked.map((doc) => doc.number).join(', ') || undefined}
+        <BillDataStep
+          vendorName={picked[0]?.vendor.name ?? (values.vendorName || undefined)}
+          documents={picked.map((doc) => doc.number).join(', ') || undefined}
           footer={bar(false)}
-        >
-          <BillHeaderFields
-            source={source}
-            values={values}
-            errors={errors}
-            showErrors={showErrors}
-            dueHint={dueHint}
-            onChange={set}
-          />
-          <BillFileFields files={files} onChange={setFiles} />
-        </WizardCard>
+          header={{ source, values, errors, showErrors, dueHint, onChange: set }}
+          attachments={{
+            files,
+            onChange: setFiles,
+            taxRequired: (preview?.taxAmount ?? estimate.tax) > 0,
+          }}
+        />
       )}
 
       {step === 2 && (

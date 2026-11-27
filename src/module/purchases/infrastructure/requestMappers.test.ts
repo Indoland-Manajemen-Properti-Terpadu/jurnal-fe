@@ -2,6 +2,26 @@ import { toPurchaseRequest } from './requestMappers';
 import type { PurchaseRequestDto } from './requestDto';
 import { requestDtoFixture as dto } from './requestDtoFixture';
 
+describe('request verification approval', () => {
+  it('reads its own approval separately from procurement approval', () => {
+    const request = toPurchaseRequest({
+      ...dto,
+      canDecide: false,
+      requestApproval: {
+        approvalPlan: [{ name: 'Accounting', mode: 'ANY', roles: [] }],
+        approvals: [],
+      },
+      requestApprovalView: {
+        canDecide: true,
+        pendingApprovers: [{ level: 0, name: 'Accounting', mode: 'ANY', roles: [] }],
+      },
+    });
+    expect(request.requestApproval?.canDecide).toBe(true);
+    expect(request.requestApproval?.pending[0].name).toBe('Accounting');
+    expect(request.procurement.approval.canDecide).toBe(false);
+  });
+});
+
 describe('toPurchaseRequest, the procurement part', () => {
   const request = toPurchaseRequest(dto);
   const { procurement } = request;

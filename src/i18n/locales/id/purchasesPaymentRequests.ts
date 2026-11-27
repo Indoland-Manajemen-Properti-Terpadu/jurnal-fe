@@ -112,6 +112,8 @@ export const purchasesPaymentRequests = {
       'Hanya faktur terverifikasi yang masih memiliki sisa yang belum diajukan yang dapat dibayar.',
   },
   detail: {
+    bankMissing: 'Rekening bank vendor belum lengkap',
+    bankCheckFailed: 'Rekening vendor belum dapat diperiksa. Segarkan halaman dan coba lagi.',
     vendorsTitle: 'Vendor dan voucher',
     vendorsSubtitle: 'Yang diminta dari tiap vendor dan voucher yang diterbitkan untuknya',
     vendorsCount: '{count} vendor',

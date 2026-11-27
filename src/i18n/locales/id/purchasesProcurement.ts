@@ -1,4 +1,6 @@
 export const purchasesProcurement = {
+  confirmSingleTitle: 'Ajukan pengadaan untuk persetujuan?',
+  confirmSingleBody: 'Pastikan penawaran dan alasan vendor tunggal sudah sesuai sebelum diajukan.',
   routeCard: { title: 'Jalur pengadaan' },
   routeLocked: 'Jalur tidak dapat diubah lagi karena sudah diajukan.',
   routeDiscard: 'Pindah ke vendor tunggal menghapus penawaran yang sudah diisi di jalur bidding.',
@@ -264,7 +266,7 @@ export const purchasesProcurement = {
   resubmit: 'Ajukan Ulang Pengadaan',
   approvedTitle: 'Pengadaan disetujui',
   approvedBody:
-    '{count} pesanan dibuat sebagai draf. Bagian Accounting mengirimnya ke vendor dari detail pesanan.',
+    '{count} pesanan telah dibuat. Buka detail pesanan untuk melihat status dan langkah berikutnya.',
   viewOrder: 'Lihat Pesanan',
   orders: {
     title: 'Pesanan dari pengadaan ini',
@@ -334,6 +336,7 @@ export const purchasesProcurement = {
     percentsTitle: 'Persen tiap termin',
     customPercents: 'Atur persen sendiri',
     percentTotal: 'Total {total}% dari 100%',
+    percentAfterAdvance: 'Persentase termin dihitung dari sisa nilai setelah uang muka.',
     percentShort: 'Total {total}% dari 100%, kurang {gap}%',
     percentOver: 'Total {total}% dari 100%, lebih {gap}%',
     periodUnit: 'Satuan periode',

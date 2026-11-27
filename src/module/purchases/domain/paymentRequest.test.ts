@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   emptyPaymentRequestForm,
+  hasVendorBankAccount,
   hasPaymentRequestErrors,
   paymentRequestActions,
   sameVendor,
@@ -23,6 +24,18 @@ const advance = (over: object = {}) => ({
   purchaseOrderId: 'po1',
   advanceAmount: 1000 as number | '',
   ...over,
+});
+
+describe('vendor bank account', () => {
+  it('requires a bank, account number, and holder on the same account', () => {
+    expect(hasVendorBankAccount([])).toBe(false);
+    expect(
+      hasVendorBankAccount([{ bankName: 'BCA', accountNumber: ' ', accountHolder: 'Vendor' }])
+    ).toBe(false);
+    expect(
+      hasVendorBankAccount([{ bankName: 'BCA', accountNumber: '123', accountHolder: 'Vendor' }])
+    ).toBe(true);
+  });
 });
 
 describe('paymentRequestActions', () => {
