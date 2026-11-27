@@ -24,7 +24,7 @@ For a bug ticket written by QA, and for a request that arrives as a Jira comment
 
 10. Comment on each FE ticket after the change is live, not before. A comment says, in the language of the ticket: what changed for every finding that was worked, what was not done and why (for example "needs the backend"), and a short list of what to check when retesting. Say plainly what was not verified, such as "not tried in a browser". Ask QA to hard refresh first.
 11. Move the ticket to Need to Test. Never to Done: QA closes it.
-12. Put what the backend must fix on the paired BE ticket, mentioning its assignee, with the request, the answer received and the steps to reproduce.
+12. Put what the backend must fix on the paired BE ticket, mentioning its assignee, with the request, the answer received and the steps to reproduce. When a finding involves a UI-vs-backend mismatch against the [Jurnal ProApps UI reference](https://jurnalproapps.vercel.app), confirm or mention the relevant owner on Jira (**Raga** for UI/UX, PM, QA; **Aldi** & **Zaki** for Backend, with **Zaki** also occasionally handling Frontend).
 13. When the work is finished, give the user feedback: what was done, what was not done, risks of the change (for example a dropdown that now hides old data), what the backend still owes, and what QA should be told. Feedback is part of the task, not an extra.
 
 ## Release

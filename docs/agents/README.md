@@ -15,10 +15,11 @@ Scope rules, the work process and the task workflows. The technical rules live i
 ## Work process
 
 1. Read the topic documents your task needs (indexed in `AGENTS.md`), inspect the relevant implementation and API contracts, and check `git status` before editing.
-2. Confirm the requested outcome and keep the change within that scope. Ask before changing external systems, expanding behavior, adding dependencies, changing public contracts, or performing a broad migration.
-3. Make the smallest cohesive change that follows the architecture. Improve messy structure in the affected area when it directly helps the requested work and preserves behavior.
-4. Review the diff for accidental changes, secrets, generated files, and unrelated formatting. Preserve all user-owned changes.
-5. Report what changed, the files affected, verification performed, and any unresolved contract or environment issue.
+2. Before any implementation or fix, open the [Jurnal ProApps UI reference](https://jurnalproapps.vercel.app) and inspect the screen or flow related to the task (see [`docs/ui-guidelines.md`](../ui-guidelines.md) for how to navigate by menu, switch roles with **"Lihat sebagai"** in the footer, and handle mismatches). If the task touches shared navigation or layout, inspect that too. For work with no matching screen, inspect the closest relevant page or app shell. If the reference cannot be reached or has no equivalent screen, record that limitation and do not claim visual verification.
+3. Confirm the requested outcome and keep the change within that scope. Ask before changing external systems, expanding behavior, adding dependencies, changing public contracts, or performing a broad migration. If the Vercel UI reference conflicts with the backend API contract, confirm with the user or mention the relevant Jira owner (Raga: UI/UX, PM, QA; Aldi & Zaki: backend, Zaki also handles frontend) rather than inventing dummy behavior.
+4. Make the smallest cohesive change that follows the architecture, keeps `jurnal-fe`'s existing theme tokens, updates `i18n` copy where needed, and matches the reference screen's UI, layout, and UX flow. Improve messy structure in the affected area when it directly helps the requested work and preserves behavior.
+5. Review the diff for accidental changes, secrets, generated files, and unrelated formatting. Preserve all user-owned changes. For UI changes, visually compare the local result against `https://jurnalproapps.vercel.app` when local rendering is available.
+6. Report what changed, the files affected, which reference screen or flow (and role, if applicable) was inspected, verification performed (including visual comparison or why it was skipped), and any unresolved contract, design, or environment issue.
 
 ## Task workflows
 
