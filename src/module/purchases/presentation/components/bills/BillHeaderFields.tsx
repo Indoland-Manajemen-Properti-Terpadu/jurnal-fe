@@ -5,10 +5,12 @@ import type {
   BillFormValues,
   AdjustmentKind,
 } from '@/module/purchases/domain/billForm';
+import type { BillSource } from '@/module/purchases/domain/purchaseDocuments';
 import { DateField } from '@/module/purchases/presentation/components/requests/DateField';
 import { useTagOptions } from '@/module/purchases/presentation/hooks/usePurchaseQueries';
 
 interface BillHeaderFieldsProps {
+  source: BillSource;
   values: BillFormValues;
   errors: BillFormErrors;
   showErrors: boolean;
@@ -27,6 +29,7 @@ const KINDS: AdjustmentKind[] = ['none', 'percentage', 'nominal'];
 
 /** The vendor's invoice numbers and total, the dates, the discount, the PPh withholding, tags and note. */
 export const BillHeaderFields = ({
+  source,
   values,
   errors,
   showErrors,
@@ -34,6 +37,7 @@ export const BillHeaderFields = ({
   onChange,
 }: Readonly<BillHeaderFieldsProps>) => {
   const { t } = useTranslation('purchases');
+  const isManual = source === 'MANUAL';
   const tags = useTagOptions();
   const error = (key: keyof BillFormValues) =>
     showErrors && errors.fields[key] ? t(`bills.form.error.${errors.fields[key]}`) : undefined;
@@ -110,25 +114,35 @@ export const BillHeaderFields = ({
           error={error('date')}
         />
       </Grid.Col>
-      <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
-        <DateField
-          clearable
-          label={t('bills.form.dueDate')}
-          description={dueHint ?? t('bills.form.dueDateHint')}
-          inputWrapperOrder={[...hintBelow]}
-          value={values.dueDate}
-          minDate={values.date || undefined}
-          onChange={(value) => onChange('dueDate', value)}
-          error={error('dueDate')}
-        />
-      </Grid.Col>
-      {adjustment('discountKind', 'discountValue', t('bills.form.discount'))}
+      {isManual && (
+        <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
+          <DateField
+            clearable
+            label={t('bills.form.dueDate')}
+            description={dueHint ?? t('bills.form.dueDateHint')}
+            inputWrapperOrder={[...hintBelow]}
+            value={values.dueDate}
+            minDate={values.date || undefined}
+            onChange={(value) => onChange('dueDate', value)}
+            error={error('dueDate')}
+          />
+        </Grid.Col>
+      )}
+      {isManual && adjustment('discountKind', 'discountValue', t('bills.form.discount'))}
       {adjustment('withholdingKind', 'withholdingValue', t('bills.form.withholding'))}
       <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
         <NumberInput
           radius="md"
-          label={t('bills.form.vendorInvoiceTotal')}
-          description={t('bills.form.vendorInvoiceTotalHint')}
+          label={
+            isManual
+              ? t('bills.form.vendorInvoiceTotal')
+              : t('bills.form.vendorInvoiceTotalComparison')
+          }
+          description={
+            isManual
+              ? t('bills.form.vendorInvoiceTotalHint')
+              : t('bills.form.vendorInvoiceTotalComparisonHint')
+          }
           inputWrapperOrder={[...hintBelow]}
           prefix="Rp "
           min={0}

@@ -33,6 +33,11 @@ export const requestActions = (doc: PurchaseRequest) => {
 
 const sum = (values: number[]) => values.reduce((total, value) => total + value, 0);
 const QTY_EPSILON = 1e-4;
+const RECEIPT_STATUSES: PurchaseOrder['status'][] = [
+  'WAITING_RECEIPT',
+  'PARTIAL_RECEIVED',
+  'WAITING_ADVANCE',
+];
 
 /**
  * What the status of a PO / SPK allows. Only a draft can be changed or sent; the prices were fixed
@@ -42,10 +47,20 @@ export const orderActions = (doc: PurchaseOrder) => {
   const received = sum(doc.items.map((item) => item.receivedQty));
   const billed = sum(doc.items.map((item) => item.billedQty));
   const live = doc.status === 'SENT' || doc.status === 'PARTIAL_RECEIVED';
+  const hasReceivableQuantity = doc.items.some(
+    (item) => !item.billOnly && item.quantity - item.receivedQty > QTY_EPSILON
+  );
+  const advanceAllowsReceipt = doc.advanceState?.receiptAllowed !== false;
+  const waitingAdvancePaid = doc.status !== 'WAITING_ADVANCE' || doc.advanceState?.paid === true;
   return {
     edit: doc.status === 'DRAFT',
     send: doc.status === 'DRAFT',
-    receive: doc.withReceipt && live,
+    receive:
+      doc.withReceipt &&
+      RECEIPT_STATUSES.includes(doc.status) &&
+      hasReceivableQuantity &&
+      advanceAllowsReceipt &&
+      waitingAdvancePaid,
     /** A bill straight from the order, for an order that takes no receipt. */
     bill: !doc.withReceipt && live && doc.billedAmount < doc.payableAmount,
     close: live || doc.status === 'RECEIVED',

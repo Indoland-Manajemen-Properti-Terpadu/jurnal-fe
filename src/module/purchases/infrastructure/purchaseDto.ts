@@ -1,14 +1,11 @@
 import type { OrderRetentionDto } from '@/module/purchases/infrastructure/orderRetentionMapper';
 import type { AdvanceStateDto } from '@/module/purchases/infrastructure/advanceStateDto';
-import type {
-  ReorderLineFieldsDto,
-  ReorderOrderFieldsDto,
-} from '@/module/purchases/infrastructure/purchaseReorderDto';
+import type { ReorderOrderFieldsDto } from '@/module/purchases/infrastructure/purchaseReorderDto';
 import type { DocumentJournalDto } from '@/module/purchases/infrastructure/documentJournalMappers';
-import type {
-  GoodsReceiptDisplayStatus,
-  OrderItemStatus,
-} from '@/module/purchases/domain/purchaseDocuments';
+import type { GoodsReceiptDisplayStatus } from '@/module/purchases/domain/purchaseDocuments';
+import type { OrderItemDto as PurchaseOrderItemDto } from '@/module/purchases/infrastructure/purchaseOrderItemDto';
+
+export type { OrderItemDto } from '@/module/purchases/infrastructure/purchaseOrderItemDto';
 
 export type { ListDto } from '@/module/purchases/infrastructure/purchaseListDto';
 /** Shapes of the purchasing API responses, as captured from the live service. */
@@ -132,23 +129,6 @@ export interface LineDto {
   amount: number;
 }
 
-export interface OrderItemDto extends LineDto, ReorderLineFieldsDto {
-  requestItem: string;
-  specification?: string | null;
-  receivedQty: number;
-  billedQty: number;
-  status?: OrderItemStatus | null;
-  statusLabel?: string | null;
-  billOnly?: boolean | null;
-  schedule?: {
-    kind: 'FULL' | 'ADVANCE' | 'TERM' | 'PERIOD' | 'RETENTION';
-    seq?: number | null;
-    of?: number | null;
-    periodFrom?: string | null;
-    periodTo?: string | null;
-  } | null;
-}
-
 export interface PurchaseOrderDto
   extends DocumentDto, AmountsDto, ApprovalFieldsDto, ReorderOrderFieldsDto {
   statusLabel?: string | null;
@@ -168,7 +148,7 @@ export interface PurchaseOrderDto
   deliveryAddress?: string | null;
   status: string;
   withReceipt?: boolean | null;
-  items: OrderItemDto[];
+  items: PurchaseOrderItemDto[];
   advance?: {
     amount?: number | null;
     requested?: number | null;
@@ -180,6 +160,9 @@ export interface PurchaseOrderDto
   retention?: OrderRetentionDto | null;
   payableAmount?: number | null;
   billedAmount?: number | null;
+  pendingPriceChange?:
+    | import('@/module/purchases/infrastructure/purchasePriceChangeDto').PriceChangeDto
+    | null;
   sentByEmail?: boolean | null;
   sentTo?: string | null;
   sentCc?: string[] | null;

@@ -43,6 +43,8 @@ const TONES: Record<PurchaseStatus, StatusTone> = {
   COMPLETED: 'success',
   CANCELLED: 'danger',
   SENT: 'info',
+  WAITING_ADVANCE: 'warning',
+  WAITING_RECEIPT: 'info',
   PARTIAL_RECEIVED: 'info',
   RECEIVED: 'cyan',
   CLOSED: 'slate',

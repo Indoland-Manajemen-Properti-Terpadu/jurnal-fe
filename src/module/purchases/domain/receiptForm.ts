@@ -1,4 +1,5 @@
 import type { OrderItem, PurchaseOrder } from '@/module/purchases/domain/purchaseDocuments';
+import { orderActions } from '@/module/purchases/domain/purchaseActions';
 import type { GoodsReceiptInput } from '@/module/purchases/domain/purchaseInputs';
 import { remainingQty } from '@/module/purchases/domain/purchaseTotals';
 
@@ -47,12 +48,8 @@ const QTY_EPSILON = 1e-4;
 export const itemName = (item: Pick<OrderItem, 'product' | 'description'>): string =>
   item.product?.name || item.description || '-';
 
-/**
- * A sent or partly received order that uses receipts can take one. An order billed straight from the
- * order takes none (the service answers 400), so the screens hide the way in.
- */
-export const canReceive = (order: PurchaseOrder): boolean =>
-  order.withReceipt && (order.status === 'SENT' || order.status === 'PARTIAL_RECEIVED');
+/** The same status, advance-payment, receipt-mode, and remaining-quantity gate used by order actions. */
+export const canReceive = (order: PurchaseOrder): boolean => orderActions(order).receive;
 
 /** Lines that are only billed (an advance, shipping) are never received. */
 export const receiptLines = (order: PurchaseOrder): ReceiptLine[] =>

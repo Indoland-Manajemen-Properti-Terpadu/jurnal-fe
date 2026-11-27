@@ -113,6 +113,8 @@ export interface PayFormValues {
 export interface PayFormErrors {
   paidAt?: 'dateRequired';
   depositAccountId?: 'depositRequired';
+  referenceNumber?: 'referenceRequired';
+  attachments?: 'attachmentRequired';
   adminFee?: 'feeInvalid';
 }
 
@@ -122,9 +124,11 @@ export const hasPayErrors = (errors: PayFormErrors): boolean => Object.keys(erro
  * The server falls back to a default cash account when none is sent, which would book the payment to a
  * bank nobody chose; the form insists on a choice instead.
  */
-export const validatePayForm = (values: PayFormValues): PayFormErrors => ({
+export const validatePayForm = (values: PayFormValues, hasProof: boolean): PayFormErrors => ({
   ...(values.paidAt ? {} : { paidAt: 'dateRequired' as const }),
   ...(values.depositAccountId ? {} : { depositAccountId: 'depositRequired' as const }),
+  ...(values.referenceNumber.trim() ? {} : { referenceNumber: 'referenceRequired' as const }),
+  ...(hasProof ? {} : { attachments: 'attachmentRequired' as const }),
   ...(values.adminFee !== '' && (!Number.isFinite(values.adminFee) || values.adminFee < 0)
     ? { adminFee: 'feeInvalid' as const }
     : {}),
@@ -135,7 +139,7 @@ export interface PayInput {
   depositAccount: string;
   paymentMethod?: string;
   adminFee?: number;
-  referenceNumber?: string;
+  referenceNumber: string;
 }
 
 export const toPayInput = (values: PayFormValues): PayInput => ({
@@ -143,7 +147,7 @@ export const toPayInput = (values: PayFormValues): PayInput => ({
   depositAccount: values.depositAccountId,
   ...(values.paymentMethodId ? { paymentMethod: values.paymentMethodId } : {}),
   ...(values.adminFee === '' ? {} : { adminFee: values.adminFee }),
-  ...(values.referenceNumber.trim() ? { referenceNumber: values.referenceNumber.trim() } : {}),
+  referenceNumber: values.referenceNumber.trim(),
 });
 
 /** What leaves the bank: the amount paid plus the admin fee, added in whole minor units. */
