@@ -30,6 +30,9 @@ export const PaymentRequestInfoCard = ({
 }>) => {
   const { t, currentLanguage } = useTranslation('purchases');
   const orders = doc.order ? [doc.order] : relatedOrders;
+  const orderPrefix = orders.length === 1 ? orders[0].number.split('/')[0] : undefined;
+  const orderLabel =
+    orderPrefix === 'PO' || orderPrefix === 'SPK' ? orderPrefix : t('paymentRequests.detail.order');
   const kindLabel =
     doc.kind === 'DP' && currentLanguage === 'id' && doc.kindLabel
       ? doc.kindLabel
@@ -56,7 +59,7 @@ export const PaymentRequestInfoCard = ({
           ...(orders.length > 0
             ? [
                 {
-                  label: t('paymentRequests.detail.order'),
+                  label: orderLabel,
                   value: (
                     <Group gap="sm" wrap="wrap">
                       {orders.map((order) => (
