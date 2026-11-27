@@ -169,7 +169,7 @@ export const purchasesPaymentRequests = {
     infoTitle: 'Informasi Pembayaran',
     infoSubtitle: 'Vendor, jenis, dan rekening tujuan',
     vendor: 'Vendor',
-    date: 'Tanggal Pengajuan',
+    date: 'Tanggal pengajuan',
     kind: 'Jenis',
     paymentKind: 'Jenis pembayaran',
     dueDate: 'Jatuh Tempo',
