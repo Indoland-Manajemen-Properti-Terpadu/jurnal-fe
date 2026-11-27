@@ -26,6 +26,8 @@ export const purchaseKeys = {
     [...purchaseKeys.documents(scope, kind), 'list', params] as const,
   detail: (scope: string, kind: DocumentKind, id: string) =>
     [...purchaseKeys.documents(scope, kind), 'detail', id] as const,
+  priceChanges: (scope: string, params: Record<string, unknown>) =>
+    [...purchaseKeys.all(scope), 'price-changes', params] as const,
   credits: (scope: string, vendor: string) =>
     [...purchaseKeys.all(scope), 'credits', vendor] as const,
   dashboard: (scope: string, part: 'summary' | 'actions' | 'config') =>

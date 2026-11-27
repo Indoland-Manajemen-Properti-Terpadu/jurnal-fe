@@ -41,6 +41,8 @@ export const purchasesCommon = {
     CANCELLED: 'Dibatalkan',
     PROCESSED: 'Menunggu pembayaran',
     SENT: 'Menunggu penerimaan',
+    WAITING_ADVANCE: 'Menunggu uang muka',
+    WAITING_RECEIPT: 'Menunggu penerimaan',
     PARTIAL_RECEIVED: 'Diterima sebagian',
     RECEIVED: 'Diterima penuh',
     CLOSED: 'Ditutup',
@@ -259,5 +261,8 @@ export const purchasesCommon = {
     receiptResubmitted: 'BAPP diajukan ulang',
     orderSent: 'Pesanan berhasil dikirim ke vendor',
     ordersCreated: 'Pesanan berhasil dibuat sebagai draf',
+    priceChangeRequested: 'Pengajuan perubahan harga PO/SPK dikirim',
+    priceChangeApproved: 'Keputusan perubahan harga PO/SPK tercatat',
+    priceChangeRejected: 'Pengajuan perubahan harga PO/SPK ditolak',
   },
 };

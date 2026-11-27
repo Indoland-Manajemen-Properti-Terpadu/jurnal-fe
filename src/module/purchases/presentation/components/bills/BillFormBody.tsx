@@ -1,11 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { Button, Group, Text } from '@mantine/core';
+import { useEffect, useRef, useState } from 'react';
+import { Text } from '@mantine/core';
 import {
   IconDeviceFloppy,
   IconFileInvoice,
   IconListDetails,
   IconRosetteDiscountCheck,
-  IconTruckDelivery,
 } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
@@ -20,12 +19,11 @@ import {
   type BillFormValues,
 } from '@/module/purchases/domain/billForm';
 import {
-  dueDateFor,
   type BillQuantities,
   type BillSourceDoc,
   type PickedSource,
 } from '@/module/purchases/domain/billSources';
-import { formatDay, todayIso } from '@/module/purchases/presentation/components/shared/format';
+import { todayIso } from '@/module/purchases/presentation/components/shared/format';
 import type {
   BillSource,
   BillVariance,
@@ -36,6 +34,7 @@ import {
   BillFileFields,
   type BillFiles,
 } from '@/module/purchases/presentation/components/bills/BillFileFields';
+import { BillDraftHeaderForm } from '@/module/purchases/presentation/components/bills/BillDraftHeaderForm';
 import { BillHeaderFields } from '@/module/purchases/presentation/components/bills/BillHeaderFields';
 import { BillManualLines } from '@/module/purchases/presentation/components/bills/BillManualLines';
 import { BillVarianceDialog } from '@/module/purchases/presentation/components/bills/BillVarianceDialog';
@@ -46,14 +45,15 @@ import {
 } from '@/module/purchases/presentation/components/bills/BillPickedItems';
 import { BillSourceStep } from '@/module/purchases/presentation/components/bills/BillSourceStep';
 import { useBillPricing } from '@/module/purchases/presentation/components/bills/useBillPricing';
+import { useBillPriceChange } from '@/module/purchases/presentation/components/bills/useBillPriceChange';
+import { BillPriceChangeDialog } from '@/module/purchases/presentation/components/bills/BillPriceChangeDialog';
+import { BillPriceChangeState } from '@/module/purchases/presentation/components/bills/BillPriceChangeState';
+import { BillWizardSteps } from '@/module/purchases/presentation/components/bills/BillWizardSteps';
+import { useBillDueHint } from '@/module/purchases/presentation/components/bills/useBillDueHint';
 import { useUpdateBill } from '@/module/purchases/presentation/components/bills/useUpdateBill';
 import { FormFrame } from '@/module/purchases/presentation/components/shared/FormFrame';
 import { WizardActionBar } from '@/module/purchases/presentation/components/shared/wizard/WizardActionBar';
 import { WizardCard } from '@/module/purchases/presentation/components/shared/wizard/WizardCard';
-import {
-  WizardStepper,
-  type WizardStep,
-} from '@/module/purchases/presentation/components/shared/wizard/WizardStepper';
 import {
   useCreateBill,
   useUploadBillFiles,
@@ -150,7 +150,10 @@ export const BillFormBody = ({
     subtotal: existing?.subtotal,
     headerOnly: Boolean(existing),
   });
-  const { estimate, preview, hasQuantity } = useBillPricing(source, values, picked, quantities);
+  const pricing = useBillPricing(source, values, picked, quantities);
+  const { estimate, preview, hasQuantity } = pricing;
+  const priceChange = useBillPriceChange(source, values, picked, pricing);
+  const saveBlocked = !existing && !priceChange.gate.canSave;
   const pickError = !existing && source !== 'MANUAL' && picked.length === 0;
   const quantityError = !existing && source !== 'MANUAL' && picked.length > 0 && !hasQuantity;
   const set = <K extends keyof BillFormValues>(key: K, value: BillFormValues[K]) =>
@@ -164,60 +167,28 @@ export const BillFormBody = ({
     setShowErrors(false);
   };
 
-  const hasHeaderFieldErrors = Object.keys(errors.fields).some(
+  const hasHeaderErrors = Object.keys(errors.fields).some(
     (key) => key !== 'vendorId' && key !== 'lines'
   );
   const save = (post: boolean) => {
+    if (!existing && !priceChange.gate.canSave) return;
     if (hasBillErrors(errors) || pickError || quantityError) {
       setShowErrors(true);
       if (!existing) {
-        setStep(pickError || errors.fields.vendorId ? 0 : hasHeaderFieldErrors ? 1 : 2);
+        setStep(pickError || errors.fields.vendorId ? 0 : hasHeaderErrors ? 1 : 2);
       }
       return;
     }
     if (existing) {
-      update.mutate({ id: existing.id, input: toBillUpdate(values) });
+      update.mutate({ id: existing.id, input: toBillUpdate(values, existing.source) });
       return;
     }
     verifyAfterRef.current = post;
     create.mutate(toBillInput(source, values, picked, false, quantities));
   };
 
-  const dueHint = useMemo(() => {
-    const first = picked[0];
-    if (!first) return undefined;
-    const suggested = dueDateFor(first, values.date);
-    return suggested
-      ? t('bills.form.dueDateSuggested', {
-          term: first.term.name,
-          date: formatDay(suggested, currentLanguage),
-        })
-      : t('bills.form.dueDateFromTerm', { term: first.term.name });
-  }, [picked, values.date, t, currentLanguage]);
+  const dueHint = useBillDueHint(picked, values.date, currentLanguage);
 
-  const steps: WizardStep[] = [
-    {
-      id: 'source',
-      label: t('bills.wizard.source'),
-      description: t('bills.wizard.sourceHint'),
-      icon: <IconTruckDelivery size={20} />,
-    },
-    {
-      id: 'data',
-      label: t('bills.wizard.data'),
-      description: t('bills.wizard.dataHint'),
-      icon: <IconFileInvoice size={20} />,
-    },
-    {
-      id: 'items',
-      label: t('bills.wizard.items'),
-      description: t('bills.wizard.itemsHint'),
-      icon: <IconListDetails size={20} />,
-    },
-  ];
-  const hasHeaderErrors = Object.keys(errors.fields).some(
-    (key) => key !== 'vendorId' && key !== 'lines'
-  );
   const stepOk = [
     source === 'MANUAL' ? Boolean(values.vendorId) : !pickError,
     !hasHeaderErrors,
@@ -246,11 +217,13 @@ export const BillFormBody = ({
         icon: <IconDeviceFloppy size={16} />,
         onClick: () => save(false),
         loading: pending && !verifyAfterRef.current,
+        disabled: saveBlocked,
       }}
       finish={{
         label: t('bills.form.saveVerify'),
         icon: <IconRosetteDiscountCheck size={16} />,
         loading: pending,
+        disabled: saveBlocked,
         onClick: () => save(true),
       }}
     />
@@ -275,41 +248,17 @@ export const BillFormBody = ({
 
   if (existing) {
     return (
-      <FormFrame
-        icon={IconFileInvoice}
-        title={t('bills.form.titleEdit', { number: existing.number })}
-        description={t('bills.form.subtitleEdit')}
-        backTo={detailOf(existing.id)}
-        backLabel={t('bills.detail.backToList')}
-      >
-        <WizardCard
-          icon={<IconFileInvoice size={20} />}
-          title={t('bills.wizard.data')}
-          description={t('bills.wizard.dataHint')}
-          footer={
-            <Group justify="space-between">
-              <Button variant="default" disabled={pending} onClick={cancel}>
-                {t('common.cancel')}
-              </Button>
-              <Button
-                leftSection={<IconDeviceFloppy size={16} />}
-                loading={pending}
-                onClick={() => save(false)}
-              >
-                {t('common.save')}
-              </Button>
-            </Group>
-          }
-        >
-          <BillHeaderFields
-            values={values}
-            errors={errors}
-            showErrors={showErrors}
-            dueHint={dueHint}
-            onChange={set}
-          />
-        </WizardCard>
-      </FormFrame>
+      <BillDraftHeaderForm
+        existing={existing}
+        values={values}
+        errors={errors}
+        showErrors={showErrors}
+        pending={pending}
+        dueHint={dueHint}
+        onChange={set}
+        onCancel={cancel}
+        onSave={() => save(false)}
+      />
     );
   }
 
@@ -321,7 +270,7 @@ export const BillFormBody = ({
       backTo={routes.purchases.bills}
       backLabel={t('bills.detail.backToList')}
     >
-      <WizardStepper steps={steps} active={step} onStepClick={setStep} />
+      <BillWizardSteps active={step} onStepClick={setStep} />
 
       {step === 0 && (
         <BillSourceStep
@@ -352,6 +301,7 @@ export const BillFormBody = ({
           footer={bar(false)}
         >
           <BillHeaderFields
+            source={source}
             values={values}
             errors={errors}
             showErrors={showErrors}
@@ -396,6 +346,26 @@ export const BillFormBody = ({
                   {t('bills.form.error.qtyEmpty')}
                 </Text>
               )}
+              {picked.length > 0 && (
+                <BillPriceChangeState
+                  sourceIsManual={false}
+                  gate={priceChange.gate}
+                  orderId={priceChange.orderId}
+                  orderNumber={priceChange.orderNumber}
+                  vendorInvoiceTotal={values.vendorInvoiceTotal}
+                  previewTotal={preview?.total}
+                  previewReady={pricing.previewReady}
+                  previewLoading={pricing.previewLoading}
+                  previewError={pricing.previewError}
+                  refreshLoading={priceChange.order.isFetching || pricing.previewLoading}
+                  pendingRequest={priceChange.pendingRequest}
+                  requestDisabled={priceChange.requestDisabled || !priceChange.gate.canRequest}
+                  onRequest={() => priceChange.setDialogOpened(true)}
+                  onRefresh={() => {
+                    priceChange.refreshStatus().catch(() => undefined);
+                  }}
+                />
+              )}
             </>
           )}
           {showErrors && errors.fields.lines && source === 'MANUAL' && (
@@ -405,6 +375,23 @@ export const BillFormBody = ({
           )}
         </WizardCard>
       )}
+      <BillPriceChangeDialog
+        opened={priceChange.dialogOpened}
+        orderNumber={priceChange.orderNumber}
+        orderItems={priceChange.order.data?.items ?? []}
+        invoiceNumber={values.vendorInvoiceNumber}
+        invoiceTotal={values.vendorInvoiceTotal}
+        orderLoading={priceChange.order.isLoading}
+        orderError={priceChange.order.isError}
+        loading={priceChange.mutation.isPending}
+        onRetryOrder={() => {
+          priceChange.order.refetch();
+        }}
+        onClose={() => priceChange.setDialogOpened(false)}
+        onSubmit={(input) => {
+          priceChange.submit(input).catch(() => undefined);
+        }}
+      />
       {dialog}
     </FormFrame>
   );

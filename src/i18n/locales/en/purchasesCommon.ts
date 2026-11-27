@@ -41,6 +41,8 @@ export const purchasesCommon = {
     CANCELLED: 'Cancelled',
     PROCESSED: 'Awaiting payment',
     SENT: 'Awaiting receipt',
+    WAITING_ADVANCE: 'Waiting for advance',
+    WAITING_RECEIPT: 'Waiting for receipt',
     PARTIAL_RECEIVED: 'Partially received',
     RECEIVED: 'Fully received',
     CLOSED: 'Closed',
@@ -259,5 +261,8 @@ export const purchasesCommon = {
     receiptResubmitted: 'BAPP resubmitted',
     orderSent: 'Order sent to the vendor',
     ordersCreated: 'Order created as a draft',
+    priceChangeRequested: 'PO/SPK price change request sent',
+    priceChangeApproved: 'PO/SPK price change decision recorded',
+    priceChangeRejected: 'PO/SPK price change request rejected',
   },
 };

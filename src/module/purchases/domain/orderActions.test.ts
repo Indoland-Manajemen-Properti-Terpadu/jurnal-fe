@@ -3,12 +3,12 @@ import type { PurchaseOrder } from '@/module/purchases/domain/purchaseDocuments'
 
 const order = (overrides: Record<string, unknown> = {}) =>
   ({
-    status: 'SENT',
+    status: 'WAITING_RECEIPT',
     withReceipt: true,
     billedAmount: 0,
     payableAmount: 100,
     advance: { available: 0 },
-    items: [{ receivedQty: 0, billedQty: 0 }],
+    items: [{ billOnly: false, quantity: 10, receivedQty: 0, billedQty: 0 }],
     ...overrides,
   }) as unknown as PurchaseOrder;
 
@@ -25,7 +25,7 @@ describe('orderActions', () => {
     });
   });
 
-  it('lets a sent order that uses receipts take one, and not be billed directly', () => {
+  it('lets an order waiting for receipt take one, and not be billed directly', () => {
     expect(orderActions(order())).toMatchObject({
       receive: true,
       bill: false,
@@ -35,21 +35,23 @@ describe('orderActions', () => {
     expect(orderActions(order({ status: 'PARTIAL_RECEIVED' })).receive).toBe(true);
   });
 
-  it('bills straight from a sent order that takes no receipt, until it is fully billed', () => {
-    expect(orderActions(order({ withReceipt: false }))).toMatchObject({
-      bill: true,
-      receive: false,
-    });
-    expect(orderActions(order({ withReceipt: false, billedAmount: 100 })).bill).toBe(false);
-  });
-
-  it('offers the advance only while the order is live and the advance is not used up', () => {
+  it('offers the advance on a sent order while the advance is not used up', () => {
     const advance = { available: 500 };
-    expect(orderActions(order({ advance })).requestAdvance).toBe(true);
+    expect(orderActions(order({ advance, status: 'SENT' })).requestAdvance).toBe(true);
     expect(orderActions(order({ advance, status: 'RECEIVED' })).requestAdvance).toBe(true);
     expect(orderActions(order({ advance, status: 'DRAFT' })).requestAdvance).toBe(false);
     expect(orderActions(order({ advance, status: 'VOID' })).requestAdvance).toBe(false);
     expect(orderActions(order()).requestAdvance).toBe(false);
+  });
+
+  it('requires a paid advance before receiving a waiting-advance order', () => {
+    const advanceState = { paid: false, receiptAllowed: true };
+    expect(orderActions(order({ status: 'WAITING_ADVANCE', advanceState })).receive).toBe(false);
+    expect(
+      orderActions(
+        order({ status: 'WAITING_ADVANCE', advanceState: { ...advanceState, paid: true } })
+      ).receive
+    ).toBe(true);
   });
 
   it('cannot void an order that already received or billed something', () => {

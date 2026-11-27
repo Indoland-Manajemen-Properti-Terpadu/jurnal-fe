@@ -7,6 +7,7 @@ import type {
 } from '@/module/purchases/domain/paymentRequest';
 import type { RefundInput } from '@/module/purchases/domain/returnForm';
 import type { ProcurementInput } from '@/module/purchases/domain/procurement';
+import type { PriceChangeInput } from '@/module/purchases/domain/purchasePriceChanges';
 import type {
   CreditApplicationInput,
   GoodsReceiptInput,
@@ -21,6 +22,11 @@ import * as api from '@/module/purchases/infrastructure/purchaseApi';
 import { purchaseKeys } from '@/module/purchases/presentation/hooks/purchaseKeys';
 import { usePurchaseNotifier } from '@/module/purchases/presentation/hooks/usePurchaseNotifier';
 import { usePurchaseScope } from '@/module/purchases/presentation/hooks/usePurchaseScope';
+import {
+  approvePriceChange,
+  createPriceChange,
+  rejectPriceChange,
+} from '@/module/purchases/infrastructure/purchasePriceChangeApi';
 
 /**
  * One purchasing action. Documents feed each other (a receipt changes the order, a payment the
@@ -28,7 +34,12 @@ import { usePurchaseScope } from '@/module/purchases/presentation/hooks/usePurch
  * refreshes, because the refusal often means the document moved on in the meantime.
  * A pending mutation blocks a second submit; amounts are never applied optimistically.
  */
-const useAction = <Variables, Result extends { number?: string }>(
+const resultNumber = (result: unknown): string | undefined => {
+  if (typeof result !== 'object' || result === null || !('number' in result)) return undefined;
+  return typeof result.number === 'string' ? result.number : undefined;
+};
+
+const useAction = <Variables, Result>(
   successKey: string,
   run: (variables: Variables) => Promise<Result>,
   onDone?: (result: Result) => void,
@@ -43,7 +54,7 @@ const useAction = <Variables, Result extends { number?: string }>(
     mutationFn: run,
     onSuccess: async (result) => {
       await refresh();
-      notify.success(successKey, result?.number);
+      notify.success(successKey, resultNumber(result));
       onDone?.(result);
     },
     onError: async (error) => {
@@ -113,6 +124,25 @@ export const useCloseOrder = () =>
   useAction('closed', ({ id, note }: WithId & { note: string }) => api.closeOrder(id, note));
 export const useVoidOrder = () =>
   useAction('voided', ({ id, reason }: WithReason) => api.voidOrder(id, reason));
+
+export const useCreatePriceChange = () =>
+  useAction(
+    'priceChangeRequested',
+    ({ orderId, input }: { orderId: string; input: PriceChangeInput }) =>
+      createPriceChange(orderId, input)
+  );
+export const useApprovePriceChange = () =>
+  useAction(
+    'priceChangeApproved',
+    ({ id, approvalStage, note }: WithId & { approvalStage: number; note?: string }) =>
+      approvePriceChange(id, approvalStage, note)
+  );
+export const useRejectPriceChange = () =>
+  useAction(
+    'priceChangeRejected',
+    ({ id, approvalStage, reason }: WithId & { approvalStage: number; reason: string }) =>
+      rejectPriceChange(id, approvalStage, reason)
+  );
 
 /* ---------- Goods receipt ---------- */
 export const useCreateReceipt = (onDone?: (doc: WithId & Doc) => void) =>
@@ -235,7 +265,9 @@ export const useCreatePaymentsByVendor = (
   });
 };
 export const usePayVoucher = () =>
-  useAction('paid', ({ id, input }: WithId & { input: PayInput }) => api.payVoucher(id, input));
+  useAction('paid', ({ id, input, proofFiles }: WithId & { input: PayInput; proofFiles: File[] }) =>
+    api.payVoucher(id, input, proofFiles)
+  );
 export const useVoidPayment = () =>
   useAction('voided', ({ id, reason }: WithReason) => api.voidPayment(id, reason));
 

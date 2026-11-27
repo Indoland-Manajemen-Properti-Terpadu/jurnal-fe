@@ -20,6 +20,7 @@ export const PURCHASE_MENU = {
   approveProcurement: 'JP-PURCH-APR-PROC',
   approveReceipt: 'JP-PURCH-APR-BAPP',
   approvePayment: 'JP-PURCH-APR-PAY',
+  approvePriceChange: 'JP-PURCH-APR-PRICE',
   reports: 'JP-PURCH-RPT',
   /** Releasing the retention held on an SPK/PO (only `create`). */
   retentionRelease: 'JP-PURCH-RETREL',

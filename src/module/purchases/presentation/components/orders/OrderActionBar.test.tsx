@@ -44,7 +44,7 @@ const renderBar = (state: OrderAdvanceState | null) =>
               id: 'po1',
               number: 'SPK/2026/11/0005',
               documentLabel: 'SPK',
-              status: 'SENT',
+              status: 'WAITING_RECEIPT',
               withReceipt: true,
               billedAmount: 0,
               payableAmount: 100,
@@ -57,7 +57,7 @@ const renderBar = (state: OrderAdvanceState | null) =>
               warehouse: null,
               vendorEmails: [],
               sent: { byEmail: false, to: '', cc: [], note: '' },
-              items: [{ receivedQty: 0, billedQty: 0 }],
+              items: [{ billOnly: false, quantity: 10, receivedQty: 0, billedQty: 0 }],
             } as unknown as PurchaseOrder
           }
         />
@@ -66,10 +66,10 @@ const renderBar = (state: OrderAdvanceState | null) =>
   );
 
 describe('OrderActionBar and the advance', () => {
-  it('holds the receipt button back while the advance invoice is unpaid', () => {
+  it('does not offer receipt while the advance invoice is unpaid', () => {
     renderBar(advance());
 
-    expect(screen.getByRole('button', { name: 'Catat Penerimaan' })).toBeDisabled();
+    expect(screen.queryByRole('button', { name: 'Catat Penerimaan' })).not.toBeInTheDocument();
   });
 
   it('lets a receipt be recorded once the advance allows it', () => {

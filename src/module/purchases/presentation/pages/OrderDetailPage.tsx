@@ -6,6 +6,7 @@ import { PURCHASE_MENU } from '@/module/purchases/domain/purchaseAccess';
 import { OrderActionBar } from '@/module/purchases/presentation/components/orders/OrderActionBar';
 import { OrderRetentionCard } from '@/module/purchases/presentation/components/orders/OrderRetentionCard';
 import { OrderReorderApprovalCard } from '@/module/purchases/presentation/components/orders/OrderReorderApprovalCard';
+import { PriceChangeApprovalCard } from '@/module/purchases/presentation/components/orders/PriceChangeApprovalCard';
 import { OrderSummaryCard } from '@/module/purchases/presentation/components/orders/OrderSummaryCard';
 import { orderStatusLabelKey } from '@/module/purchases/presentation/components/orders/orderStatusLabel';
 import { StateFrame } from '@/module/purchases/presentation/components/requests/StateFrame';
@@ -24,6 +25,10 @@ import {
   useOrder,
   useReceipts,
 } from '@/module/purchases/presentation/hooks/usePurchaseQueries';
+import {
+  useApprovePriceChange,
+  useRejectPriceChange,
+} from '@/module/purchases/presentation/hooks/usePurchaseMutations';
 import { routes } from '@/router/routes';
 
 const BACK = routes.purchases.orders;
@@ -33,6 +38,8 @@ export default function OrderDetailPage() {
   const { t, currentLanguage } = useTranslation('purchases');
   const { can, canRead, isLoading: accessLoading } = usePurchaseAccess();
   const order = useOrder(id);
+  const approvePriceChange = useApprovePriceChange();
+  const rejectPriceChange = useRejectPriceChange();
   const journey = useDocumentChain('purchaseOrder', id);
   const orderReceipts = useReceipts({ purchaseOrder: id, limit: 50 }, Boolean(id));
   const orderBills = useBills({ purchaseOrder: id, limit: 50 }, Boolean(id));
@@ -103,6 +110,31 @@ export default function OrderDetailPage() {
         <Grid.Col span={{ base: 12, lg: 8 }}>
           <Stack gap="lg">
             <OrderSummaryCard order={doc} />
+            <PriceChangeApprovalCard
+              request={doc.pendingPriceChange}
+              canApprove={can(PURCHASE_MENU.approvePriceChange, 'update')}
+              busy={approvePriceChange.isPending || rejectPriceChange.isPending}
+              onApprove={(note) => {
+                const request = doc.pendingPriceChange;
+                if (request?.approvalStage !== null && request) {
+                  approvePriceChange.mutate({
+                    id: request.id,
+                    approvalStage: request.approvalStage,
+                    note,
+                  });
+                }
+              }}
+              onReject={(reason) => {
+                const request = doc.pendingPriceChange;
+                if (request?.approvalStage !== null && request) {
+                  rejectPriceChange.mutate({
+                    id: request.id,
+                    approvalStage: request.approvalStage,
+                    reason,
+                  });
+                }
+              }}
+            />
             <OrderReorderApprovalCard order={doc} />
             <RelatedDocsCard
               icon={IconTruckDelivery}

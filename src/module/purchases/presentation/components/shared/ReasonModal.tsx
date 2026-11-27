@@ -14,6 +14,8 @@ interface ReasonModalProps {
   tone?: 'primary' | 'danger';
   /** The note may stay empty (a verification note); otherwise at least three characters. */
   optional?: boolean;
+  minLength?: number;
+  maxLength?: number;
   label?: string;
   placeholder?: string;
   loading?: boolean;
@@ -29,6 +31,8 @@ export const ReasonModal = ({
   confirmLabel,
   tone = 'danger',
   optional = false,
+  minLength = MIN_REASON,
+  maxLength = 500,
   label,
   placeholder,
   loading,
@@ -57,7 +61,7 @@ export const ReasonModal = ({
           <Button
             color={tone === 'danger' ? 'red' : 'primary'}
             loading={loading}
-            disabled={!optional && trimmed.length < MIN_REASON}
+            disabled={!optional && trimmed.length < minLength}
             onClick={() => {
               onConfirm(trimmed);
               setReason('');
@@ -75,7 +79,7 @@ export const ReasonModal = ({
         onChange={(event) => setReason(event.currentTarget.value)}
         minRows={3}
         autosize
-        maxLength={500}
+        maxLength={maxLength}
         data-autofocus
       />
     </ModalFrame>

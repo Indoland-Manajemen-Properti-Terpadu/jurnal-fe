@@ -25,7 +25,10 @@ export const OrderPickerDialog = ({
 }: Readonly<OrderPickerDialogProps>) => {
   const { t } = useTranslation('purchases');
   const [search, setSearch] = useState('');
-  const query = useOrders({ status: ['SENT', 'PARTIAL_RECEIVED'], search, limit: 20 }, opened);
+  const query = useOrders(
+    { status: ['WAITING_RECEIPT', 'PARTIAL_RECEIVED', 'WAITING_ADVANCE'], search, limit: 20 },
+    opened
+  );
   const options: SourceOption[] = (query.data?.items ?? [])
     .filter((order) => orderActions(order).receive)
     .map((order) => {
