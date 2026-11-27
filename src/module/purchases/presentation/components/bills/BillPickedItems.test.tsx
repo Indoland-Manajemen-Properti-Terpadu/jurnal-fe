@@ -102,5 +102,27 @@ describe('BillEstimateSummary', () => {
     render(<BillPickedItems estimate={estimateBill([doc])} onQuantity={vi.fn()} />);
 
     expect(screen.queryByText('Uang muka (DP)')).not.toBeInTheDocument();
+    expect(screen.getByText('Pencocokan 3 arah')).toBeInTheDocument();
+  });
+
+  it('hides the receipt matching reminder for a bill that only contains an advance', () => {
+    const advanceDoc = {
+      ...doc,
+      lines: [],
+      orderLines: [
+        {
+          purchaseOrderItemId: 'dp',
+          receiptItemId: '',
+          description: 'Jasa servis AC — Uang muka 20%',
+          openQty: 1,
+          unitPrice: 420000,
+          taxRate: 11,
+          schedule: { kind: 'ADVANCE', seq: 1, of: 1, periodFrom: null, periodTo: null },
+        },
+      ],
+    } as unknown as BillSourceDoc;
+    render(<BillPickedItems estimate={estimateBill([advanceDoc])} onQuantity={vi.fn()} />);
+
+    expect(screen.queryByText('Pencocokan 3 arah')).not.toBeInTheDocument();
   });
 });

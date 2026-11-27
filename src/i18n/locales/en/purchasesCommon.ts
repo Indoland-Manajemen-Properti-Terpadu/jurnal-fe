@@ -206,6 +206,12 @@ export const purchasesCommon = {
   attachments: {
     title: 'Attachments',
     limit: 'Up to 5 files, 5 MB each',
+    count: '{count} files',
+    preview: 'View file',
+    download: 'Download file',
+    share: 'Share file',
+    linkCopied: 'File link copied.',
+    shareFailed: 'The file link could not be shared.',
     add: 'Add Attachment',
     empty: 'No attachments yet.',
     tooLarge: 'Choose at most 5 files, each under 5 MB.',

@@ -1,6 +1,25 @@
-import { Anchor, Badge, Button, FileButton, Group, Stack, Text } from '@mantine/core';
+import {
+  ActionIcon,
+  Anchor,
+  Badge,
+  Button,
+  FileButton,
+  Group,
+  Paper,
+  Stack,
+  Text,
+  ThemeIcon,
+  Tooltip,
+} from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { IconPaperclip, IconUpload } from '@tabler/icons-react';
+import {
+  IconDownload,
+  IconEye,
+  IconFile,
+  IconPaperclip,
+  IconShare,
+  IconUpload,
+} from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import type { Attachment } from '@/module/purchases/domain/purchaseCommon';
 import type {
@@ -23,6 +42,12 @@ interface AttachmentsCardProps {
   requestFile?: RequestFileTarget;
   /** Translation key of the card title; defaults to the generic attachments title. */
   titleKey?: string;
+  /** Translation key of the subtitle; defaults to the upload limit. */
+  subtitleKey?: string;
+  /** Show a file count in the card header. */
+  showCount?: boolean;
+  /** Use the reference file row with preview, download and share actions. */
+  showFileActions?: boolean;
   /** Without its own card, to sit inside another card; the title becomes a plain heading. */
   bare?: boolean;
 }
@@ -35,6 +60,9 @@ export const AttachmentsCard = ({
   canUpload,
   requestFile,
   titleKey = 'attachments.title',
+  subtitleKey = 'attachments.limit',
+  showCount = false,
+  showFileActions = false,
   bare,
 }: Readonly<AttachmentsCardProps>) => {
   const { t } = useTranslation('purchases');
@@ -56,6 +84,20 @@ export const AttachmentsCard = ({
     upload.mutate({ target, id: documentId, files, requestFile });
   };
 
+  const shareFile = async (file: Attachment) => {
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: file.name, url: file.url });
+      } else {
+        await navigator.clipboard.writeText(file.url);
+        notifications.show({ color: 'teal', message: t('attachments.linkCopied') });
+      }
+    } catch (error) {
+      if (error instanceof DOMException && error.name === 'AbortError') return;
+      notifications.show({ color: 'orange', message: t('attachments.shareFailed') });
+    }
+  };
+
   const body = (
     <>
       {attachments.length === 0 ? (
@@ -64,19 +106,83 @@ export const AttachmentsCard = ({
         </Text>
       ) : (
         <Stack gap={6}>
-          {attachments.map((file) => (
-            <Group key={file.id} gap={8} wrap="nowrap">
-              <IconPaperclip size={14} />
-              <Anchor href={file.url} target="_blank" rel="noreferrer" size="sm" truncate>
-                {file.name}
-              </Anchor>
-              {file.kind !== 'OTHER' && file.kindLabel && (
-                <Badge variant="light" radius="sm" size="sm" style={{ flexShrink: 0 }}>
-                  {file.kindLabel}
-                </Badge>
-              )}
-            </Group>
-          ))}
+          {attachments.map((file) =>
+            showFileActions ? (
+              <Paper key={file.id} withBorder radius="md" p="sm">
+                <Group justify="space-between" wrap="nowrap" gap="sm">
+                  <Group gap="sm" wrap="nowrap" style={{ minWidth: 0 }}>
+                    <ThemeIcon variant="light" color="primary" radius="md" size={42}>
+                      <IconFile size={20} />
+                    </ThemeIcon>
+                    <div style={{ minWidth: 0 }}>
+                      <Text size="sm" fw={600} truncate>
+                        {file.name}
+                      </Text>
+                      <Text size="xs" c="dimmed">
+                        {file.mimeType === 'application/pdf'
+                          ? 'PDF'
+                          : (file.mimeType.split('/').at(-1) ?? '').toUpperCase()}
+                      </Text>
+                      {file.kind !== 'OTHER' && file.kindLabel && (
+                        <Badge variant="light" radius="sm" size="sm" mt={4}>
+                          {file.kindLabel}
+                        </Badge>
+                      )}
+                    </div>
+                  </Group>
+                  <Group gap={4} wrap="nowrap">
+                    <Tooltip label={t('attachments.preview')}>
+                      <ActionIcon
+                        component="a"
+                        href={file.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        variant="default"
+                        radius="md"
+                        aria-label={t('attachments.preview')}
+                      >
+                        <IconEye size={17} />
+                      </ActionIcon>
+                    </Tooltip>
+                    <Tooltip label={t('attachments.download')}>
+                      <ActionIcon
+                        component="a"
+                        href={file.url}
+                        download={file.name}
+                        variant="default"
+                        radius="md"
+                        aria-label={t('attachments.download')}
+                      >
+                        <IconDownload size={17} />
+                      </ActionIcon>
+                    </Tooltip>
+                    <Tooltip label={t('attachments.share')}>
+                      <ActionIcon
+                        variant="default"
+                        radius="md"
+                        aria-label={t('attachments.share')}
+                        onClick={async () => shareFile(file)}
+                      >
+                        <IconShare size={17} />
+                      </ActionIcon>
+                    </Tooltip>
+                  </Group>
+                </Group>
+              </Paper>
+            ) : (
+              <Group key={file.id} gap={8} wrap="nowrap">
+                <IconPaperclip size={14} />
+                <Anchor href={file.url} target="_blank" rel="noreferrer" size="sm" truncate>
+                  {file.name}
+                </Anchor>
+                {file.kind !== 'OTHER' && file.kindLabel && (
+                  <Badge variant="light" radius="sm" size="sm" style={{ flexShrink: 0 }}>
+                    {file.kindLabel}
+                  </Badge>
+                )}
+              </Group>
+            )
+          )}
         </Stack>
       )}
       {canUpload && (
@@ -117,7 +223,12 @@ export const AttachmentsCard = ({
     );
   }
   return (
-    <SectionCard icon={IconPaperclip} title={t(titleKey)} subtitle={t('attachments.limit')}>
+    <SectionCard
+      icon={IconPaperclip}
+      title={t(titleKey)}
+      subtitle={t(subtitleKey)}
+      count={showCount ? t('attachments.count', { count: attachments.length }) : undefined}
+    >
       {body}
     </SectionCard>
   );

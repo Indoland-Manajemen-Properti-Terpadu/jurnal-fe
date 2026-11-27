@@ -206,6 +206,12 @@ export const purchasesCommon = {
   attachments: {
     title: 'Lampiran',
     limit: 'Maksimal 5 berkas, masing-masing 5 MB',
+    count: '{count} berkas',
+    preview: 'Lihat berkas',
+    download: 'Unduh berkas',
+    share: 'Bagikan berkas',
+    linkCopied: 'Tautan berkas disalin.',
+    shareFailed: 'Tautan berkas belum dapat dibagikan.',
     add: 'Tambah Lampiran',
     empty: 'Belum ada lampiran.',
     tooLarge: 'Pilih maksimal 5 berkas dengan ukuran masing-masing di bawah 5 MB.',

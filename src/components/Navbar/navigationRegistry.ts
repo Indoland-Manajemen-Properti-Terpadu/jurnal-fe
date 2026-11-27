@@ -56,6 +56,8 @@ export type NavChild = {
   labelKey: string;
   icon: ElementType;
   link: string;
+  /** Other route prefixes owned by this navigation page, such as its detail routes. */
+  match?: string[];
   menus?: string[];
   badge?: NavBadge;
 };
@@ -86,8 +88,9 @@ const child = (
   icon: ElementType,
   link: string,
   menus?: string[],
-  labelKey = id
-): NavChild => ({ id, labelKey, icon, link, menus });
+  labelKey = id,
+  match?: string[]
+): NavChild => ({ id, labelKey, icon, link, menus, match });
 
 export const navigationSections: NavSection[] = [
   {
@@ -147,9 +150,14 @@ export const navigationSections: NavSection[] = [
             ...NAV_MENU.purchaseReceipts,
           ]),
           child('purchasesBills', Receipt, routes.purchases.bills, [...NAV_MENU.purchaseBills]),
-          child('purchasesPayments', Wallet, routes.purchases.payments, [
-            ...NAV_MENU.purchasePayments,
-          ]),
+          child(
+            'purchasesPayments',
+            Wallet,
+            routes.purchases.payments,
+            [...NAV_MENU.purchasePayments],
+            'purchasesPayments',
+            ['/purchases/payment-requests']
+          ),
           child('purchasesReturns', ArrowUUpLeft, routes.purchases.returns, [
             ...NAV_MENU.purchaseReturns,
           ]),
