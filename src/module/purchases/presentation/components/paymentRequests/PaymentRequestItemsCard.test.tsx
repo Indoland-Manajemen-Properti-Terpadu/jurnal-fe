@@ -53,4 +53,14 @@ describe('PaymentRequestItemsCard', () => {
 
     expect(screen.queryByRole('columnheader', { name: 'Vendor' })).not.toBeInTheDocument();
   });
+
+  it('explains why an advance cannot be cancelled after billing or payment', () => {
+    renderCard(doc({ kind: 'DP' }));
+
+    expect(
+      screen.getByText(
+        'Batalkan DP melalui detail PO/SPK. Pembatalan ditolak jika PO/SPK pernah difakturkan atau DP pernah dibayar.'
+      )
+    ).toBeInTheDocument();
+  });
 });

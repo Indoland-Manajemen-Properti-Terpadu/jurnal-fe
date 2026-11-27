@@ -8,6 +8,7 @@ import type {
 import type { RefundInput } from '@/module/purchases/domain/returnForm';
 import type { ProcurementInput } from '@/module/purchases/domain/procurement';
 import type { PriceChangeInput } from '@/module/purchases/domain/purchasePriceChanges';
+import { cancelOrderAdvance } from '@/module/purchases/infrastructure/purchaseAdvanceApi';
 import type {
   CreditApplicationInput,
   GoodsReceiptInput,
@@ -124,6 +125,13 @@ export const useCloseOrder = () =>
   useAction('closed', ({ id, note }: WithId & { note: string }) => api.closeOrder(id, note));
 export const useVoidOrder = () =>
   useAction('voided', ({ id, reason }: WithReason) => api.voidOrder(id, reason));
+export const useCancelOrderAdvance = (onDone?: () => void) =>
+  useAction(
+    'cancelled',
+    ({ orderId, requestId, reason }: { orderId: string; requestId: string; reason: string }) =>
+      cancelOrderAdvance(orderId, requestId, reason),
+    onDone
+  );
 
 export const useCreatePriceChange = () =>
   useAction(

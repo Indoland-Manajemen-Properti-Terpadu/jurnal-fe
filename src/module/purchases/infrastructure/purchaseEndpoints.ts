@@ -21,6 +21,8 @@ export const PURCHASE_API = {
   orders: PO,
   order: (id: string) => `${PO}/${id}`,
   orderAction: (id: string, action: string) => `${PO}/${id}/${action}`,
+  orderAdvanceCancel: (orderId: string, requestId: string) =>
+    `${PO}/${orderId}/advances/${requestId}/cancel`,
   orderPrint: (id: string) => `${PO}/${id}/print`,
   orderAttachments: (id: string) => `${PO}/${id}/attachments`,
   priceChanges: `${PO}/price-changes`,

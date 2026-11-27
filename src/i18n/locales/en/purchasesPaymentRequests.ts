@@ -140,6 +140,8 @@ export const purchasesPaymentRequests = {
     itemsSubtitle: 'The amount requested for each bill',
     advanceTitle: 'Advance',
     advanceSubtitle: 'Requested from the PO/SPK',
+    advanceCancellationWarning:
+      'Cancel the advance from the PO/SPK detail. Cancellation is blocked if the PO/SPK has ever been billed or the advance has ever been paid.',
     advanceApplied: 'Already deducted from bills: {amount}',
     col: {
       vendor: 'Vendor',

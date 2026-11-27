@@ -97,6 +97,12 @@ export const purchasesOrders = {
       bill: 'Faktur DP',
       request: 'Payment request DP',
       voucher: 'Payment voucher DP',
+      cancel: 'Batalkan DP',
+      cancelTitle: 'Batalkan uang muka',
+      cancelDescription:
+        'Pembatalan ditolak jika PO/SPK pernah difakturkan atau DP pernah dibayar. Jika voucher draf juga memuat pembayaran lain, batalkan voucher draf lalu buat ulang pembayaran tersebut.',
+      cancelReasonLabel: 'Alasan pembatalan',
+      cancelReasonPlaceholder: 'Tulis alasan pembatalan uang muka',
       left: 'Uang muka tersisa {held} dari {total}',
       progress: 'Langkah {step} dari {total}',
     },

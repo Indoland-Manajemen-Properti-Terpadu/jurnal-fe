@@ -1,26 +1,32 @@
-import { Alert, Anchor, Group, Progress, Stack, Text } from '@mantine/core';
-import { IconClockHour4, IconCoins } from '@tabler/icons-react';
+import { useState, type ReactNode } from 'react';
+import { Alert, Anchor, Button, Group, Progress, Stack, Text } from '@mantine/core';
+import { IconClockHour4, IconCoins, IconX } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
-import { advanceStepProgress } from '@/module/purchases/domain/orderAdvance';
+import {
+  advanceStepProgress,
+  canCancelAdvanceRequest,
+} from '@/module/purchases/domain/orderAdvance';
 import type { AdvanceDocRef, OrderAdvanceState } from '@/module/purchases/domain/purchaseDocuments';
 import type { PurchaseStatus } from '@/module/purchases/domain/purchaseStatus';
 import { formatAmount } from '@/module/purchases/presentation/components/shared/format';
 import { SectionCard } from '@/module/purchases/presentation/components/shared/SectionCard';
 import { StatusBadge } from '@/module/purchases/presentation/components/shared/StatusBadge';
+import { ReasonModal } from '@/module/purchases/presentation/components/shared/ReasonModal';
 import { routes } from '@/router/routes';
 
 interface DocRowProps {
   label: string;
   doc: AdvanceDocRef | undefined;
   route: string;
+  action?: ReactNode;
 }
 
 /** One document of the advance: its number as a link with its status, or a plain "Belum ada". */
-const DocRow = ({ label, doc, route }: Readonly<DocRowProps>) => {
+const DocRow = ({ label, doc, route, action }: Readonly<DocRowProps>) => {
   const { t } = useTranslation('purchases');
   return (
-    <Group justify="space-between" wrap="nowrap" px="lg" py="sm">
+    <Group justify="space-between" wrap="wrap" px="lg" py="sm">
       <Text size="sm" c="dimmed">
         {label}
       </Text>
@@ -36,17 +42,37 @@ const DocRow = ({ label, doc, route }: Readonly<DocRowProps>) => {
           {t('orders.detail.dp.none')}
         </Text>
       )}
+      {action}
     </Group>
   );
 };
 
-/** The advance (DP) of an order: its amount, where it stands, the three documents that carry it. */
-export const OrderAdvanceCard = ({ advance }: Readonly<{ advance: OrderAdvanceState }>) => {
+interface OrderAdvanceCardProps {
+  advance: OrderAdvanceState;
+  orderId?: string;
+  canCancelAdvance?: boolean;
+  isCancelPending?: boolean;
+  onCancelAdvance?: (requestId: string, reason: string) => Promise<unknown>;
+}
+
+/** The advance (DP) of an order: its amount, status and linked documents. */
+export const OrderAdvanceCard = ({
+  advance,
+  orderId,
+  canCancelAdvance = false,
+  isCancelPending = false,
+  onCancelAdvance,
+}: Readonly<OrderAdvanceCardProps>) => {
   const { t } = useTranslation('purchases');
+  const [cancelingRequest, setCancelingRequest] = useState<AdvanceDocRef | null>(null);
   const progress = advanceStepProgress(advance.mode, advance.step);
   const waiting = !advance.receiptAllowed;
-  // The last document of each kind is the one that counts, as an advance has one of each.
+  // Request-only advances may have several DP requests; the other flows show their latest reference.
   const last = (docs: AdvanceDocRef[]) => docs[docs.length - 1];
+  const requestDocs =
+    advance.mode === 'REQUEST'
+      ? advance.paymentRequests
+      : [last(advance.paymentRequests)].filter((doc): doc is AdvanceDocRef => Boolean(doc));
 
   return (
     <SectionCard
@@ -91,11 +117,42 @@ export const OrderAdvanceCard = ({ advance }: Readonly<{ advance: OrderAdvanceSt
             route={routes.purchases.billDetail}
           />
         )}
-        <DocRow
-          label={t('orders.detail.dp.request')}
-          doc={last(advance.paymentRequests)}
-          route={routes.purchases.paymentRequestDetail}
-        />
+        {requestDocs.length > 0 ? (
+          requestDocs.map((request) => {
+            const canCancel =
+              canCancelAdvance &&
+              Boolean(orderId) &&
+              Boolean(onCancelAdvance) &&
+              canCancelAdvanceRequest(advance, request);
+            return (
+              <DocRow
+                key={request.id}
+                label={t('orders.detail.dp.request')}
+                doc={request}
+                route={routes.purchases.paymentRequestDetail}
+                action={
+                  canCancel ? (
+                    <Button
+                      size="xs"
+                      variant="light"
+                      color="red"
+                      leftSection={<IconX size={14} />}
+                      onClick={() => setCancelingRequest(request)}
+                    >
+                      {t('orders.detail.dp.cancel')}
+                    </Button>
+                  ) : undefined
+                }
+              />
+            );
+          })
+        ) : (
+          <DocRow
+            label={t('orders.detail.dp.request')}
+            doc={undefined}
+            route={routes.purchases.paymentRequestDetail}
+          />
+        )}
         <DocRow
           label={t('orders.detail.dp.voucher')}
           doc={last(advance.paymentVouchers)}
@@ -114,6 +171,24 @@ export const OrderAdvanceCard = ({ advance }: Readonly<{ advance: OrderAdvanceSt
           <Text size="sm">{advance.receiptBlockReason}</Text>
         </Alert>
       )}
+      <ReasonModal
+        opened={Boolean(cancelingRequest)}
+        title={t('orders.detail.dp.cancelTitle')}
+        description={t('orders.detail.dp.cancelDescription')}
+        confirmLabel={t('orders.detail.dp.cancel')}
+        label={t('orders.detail.dp.cancelReasonLabel')}
+        placeholder={t('orders.detail.dp.cancelReasonPlaceholder')}
+        minLength={1}
+        maxLength={500}
+        loading={isCancelPending}
+        onClose={() => setCancelingRequest(null)}
+        onConfirm={(reason) => {
+          if (!cancelingRequest || !onCancelAdvance) return;
+          onCancelAdvance(cancelingRequest.id, reason)
+            .then(() => setCancelingRequest(null))
+            .catch(() => undefined);
+        }}
+      />
     </SectionCard>
   );
 };

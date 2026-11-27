@@ -15,6 +15,8 @@ export const PURCHASE_MENU = {
   receipts: 'JP-PURCH-RCV',
   returns: 'JP-PURCH-RET',
   paymentRequests: 'JP-PURCH-PAYREQ',
+  /** Cancelling an unpaid request-only advance on an order. */
+  advanceCancel: 'JP-PURCH-DP-CAN',
   /** Payment vouchers (cashier). */
   payments: 'JP-PURCH-PAY',
   approveProcurement: 'JP-PURCH-APR-PROC',

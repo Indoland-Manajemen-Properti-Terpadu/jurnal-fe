@@ -1,4 +1,4 @@
-import { advanceStepProgress, receiptBlockReason } from './orderAdvance';
+import { advanceStepProgress, canCancelAdvanceRequest, receiptBlockReason } from './orderAdvance';
 import { orderActions } from './purchaseActions';
 import type { OrderAdvanceState, PurchaseOrder } from './purchaseDocuments';
 
@@ -64,6 +64,35 @@ describe('advanceStepProgress', () => {
       total: 5,
       done: false,
     });
+  });
+});
+
+describe('canCancelAdvanceRequest', () => {
+  const request = (status: string) => ({ id: 'request-1', number: 'PR/1', status });
+
+  it('allows an unpaid request-only advance when the order has no bill history', () => {
+    expect(canCancelAdvanceRequest(state({ mode: 'REQUEST' }), request('PROCESSED'))).toBe(true);
+  });
+
+  it('does not allow cancellation for another advance mode, a billed order, or a settled request', () => {
+    expect(canCancelAdvanceRequest(state({ mode: 'BILL' }), request('APPROVED'))).toBe(false);
+    expect(
+      canCancelAdvanceRequest(state({ mode: 'REQUEST', billed: true }), request('APPROVED'))
+    ).toBe(false);
+    expect(
+      canCancelAdvanceRequest(state({ mode: 'REQUEST', paid: true }), request('APPROVED'))
+    ).toBe(false);
+    expect(canCancelAdvanceRequest(state({ mode: 'REQUEST' }), request('PAID'))).toBe(false);
+    expect(canCancelAdvanceRequest(state({ mode: 'REQUEST' }), request('CANCELLED'))).toBe(false);
+  });
+
+  it('does not allow cancellation when the advance has any bill reference', () => {
+    expect(
+      canCancelAdvanceRequest(
+        state({ mode: 'REQUEST', bills: [{ id: 'bill-1', number: 'B/1', status: 'VOID' }] }),
+        request('APPROVED')
+      )
+    ).toBe(false);
   });
 });
 
