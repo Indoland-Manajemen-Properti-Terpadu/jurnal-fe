@@ -5,6 +5,7 @@ export const salesPay = {
     customer: 'Customer',
     invoiceTotal: 'Invoice Total',
     remaining: 'Outstanding',
+    invoiceLoadError: 'Invoice details could not be loaded. Retry before saving the payment.',
     depositAccount: 'Deposit To (Cash & Bank)',
     depositAccountPlaceholder: 'Select the bank or cash account that receives it...',
     depositAccountEmpty: 'There is no Cash & Bank account to choose from yet',

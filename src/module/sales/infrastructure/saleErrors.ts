@@ -31,6 +31,9 @@ export const classifySaleError = (error: unknown): ClassifiedSaleError => {
   if (status === 401) return { kind: 'unauthorized' };
   if (status === 403) return { kind: 'forbidden', serverMessage: asText(body.message) };
   if (status === 404) return { kind: 'notFound' };
+  if (status === 503 && asText(body.message)?.startsWith('Server email (SMTP)')) {
+    return { kind: 'domain', serverMessage: asText(body.message) };
+  }
   // 429 is the order email's 30 second wait; its message says how long is left.
   if (status === 400 || status === 409 || status === 422 || status === 429) {
     if (Array.isArray(body.data) && body.data.length > 0) return { kind: 'validation' };

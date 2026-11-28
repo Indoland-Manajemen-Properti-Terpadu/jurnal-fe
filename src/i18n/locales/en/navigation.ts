@@ -30,6 +30,7 @@ export const navigation = {
   budgetMenu: 'Budgeting',
   closingBooksMenu: 'Period Closing',
   salesInvoices: 'Sales Invoices',
+  salesOverview: 'Sales Overview',
   salesQuotes: 'Quotations',
   salesOrders: 'Sales Orders',
   salesPayments: 'Payments Received',

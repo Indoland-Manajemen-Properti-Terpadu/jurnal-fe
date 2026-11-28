@@ -2,11 +2,12 @@ import { useEffect, useReducer, useState } from 'react';
 import { ActionIcon, Box, Paper, Stack, Tooltip } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
 import { IconCashBanknote, IconRefresh } from '@tabler/icons-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AppShellLayout } from '@/components/AppShellLayout';
 import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
 import { useTranslation } from '@/i18n';
 import { routes } from '@/router/routes';
+import { monthRangeFromKey } from '../../domain/saleDateRange';
 import {
   hasActivePaymentFilters,
   initialPaymentListState,
@@ -20,8 +21,12 @@ import { useSalePaymentSummary, useSalePayments } from '../hooks/useSaleQueries'
 
 export function SalePaymentsPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { t } = useTranslation('sales');
-  const [state, dispatch] = useReducer(paymentListReducer, initialPaymentListState);
+  const [state, dispatch] = useReducer(paymentListReducer, {
+    ...initialPaymentListState,
+    range: monthRangeFromKey(searchParams.get('month')) ?? initialPaymentListState.range,
+  });
   const [searchInput, setSearchInput] = useState('');
   const [debouncedSearch] = useDebouncedValue(searchInput, 400);
   useEffect(() => {

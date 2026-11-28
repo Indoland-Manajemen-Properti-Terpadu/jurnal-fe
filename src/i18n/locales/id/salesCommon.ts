@@ -5,6 +5,7 @@ export const salesCommon = {
     back: 'Kembali',
   },
   status: {
+    open: 'Belum Lunas',
     draft: 'Draf',
     unpaid: 'Belum Lunas',
     paid: 'Lunas',
@@ -13,6 +14,8 @@ export const salesCommon = {
     partial: 'Sebagian',
     partialPaid: 'Dibayar Sebagian',
     returned: 'Diretur',
+    returnedPartial: 'Retur Sebagian',
+    returnedFull: 'Retur Penuh',
     sent: 'Terkirim',
   },
   reason: {
@@ -39,6 +42,7 @@ export const salesCommon = {
     draftSaved: 'Draf faktur {number} tersimpan.',
     sent: 'Faktur {number} diterbitkan dan dicatat sebagai piutang usaha.',
     resent: 'Email faktur {number} dikirim ulang.',
+    reminderSent: 'Pengingat pembayaran faktur {number} dikirim.',
     emailNotSent:
       'Faktur tersimpan, tetapi email belum terkirim. Pastikan pelanggan punya alamat email, lalu kirim ulang.',
     emailNotSentReason:

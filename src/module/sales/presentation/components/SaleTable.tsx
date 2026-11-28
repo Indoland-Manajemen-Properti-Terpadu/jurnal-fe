@@ -36,7 +36,7 @@ const columnsFor = (tab: SaleTab): Column[] => [
   { key: 'colDue' },
   { key: 'colTotal', align: 'right' },
   ...(tab === 'draft' ? [] : [{ key: 'colRemaining', align: 'right' as const }]),
-  { key: 'colStatus', align: 'center', width: 130 },
+  { key: 'colStatus', align: 'center', width: 230 },
   { key: 'colAction', align: 'center', width: 130 },
 ];
 
@@ -69,7 +69,12 @@ export function SaleTable({
           <Table.Thead bg="gray.0">
             <Table.Tr>
               {columns.map((column) => (
-                <Table.Th key={column.key} ta={column.align} w={column.width}>
+              <Table.Th
+                key={column.key}
+                ta={column.align}
+                w={column.width}
+                style={column.width ? { minWidth: column.width } : undefined}
+              >
                   <Text size="xs" fw={700} c="dimmed" style={{ whiteSpace: 'nowrap' }}>
                     {t(`table.${column.key}`)}
                   </Text>

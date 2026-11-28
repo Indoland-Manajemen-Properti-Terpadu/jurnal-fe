@@ -25,6 +25,11 @@ describe('tabParams', () => {
   it('uses the chosen status exactly', () => {
     expect(tabParams('issued', 'OVERDUE')).toEqual({ paymentStatus: 'OVERDUE' });
   });
+
+  it('filters open invoices to unpaid and overdue without including paid or void', () => {
+    expect(SENT_STATUS_FILTERS).toContain('OPEN');
+    expect(tabParams('issued', 'OPEN')).toEqual({ paymentStatus: ['UNPAID', 'OVERDUE'] });
+  });
 });
 
 describe('saleStatusTone', () => {
@@ -74,15 +79,54 @@ const sale = (code: 'DRAFT' | 'UNPAID' | 'OVERDUE' | 'PAID' | 'VOID', extra = {}
 });
 
 describe('saleBadges', () => {
-  it('reads "returned" for an issued invoice with a return', () => {
-    expect(saleBadges(sale('UNPAID', { hasReturn: true })).main).toBe('RETURNED');
-    expect(saleBadges(sale('PAID', { hasReturn: true })).main).toBe('RETURNED');
+  it('keeps the payment state visible beside the return flag', () => {
+    expect(saleBadges(sale('UNPAID', { hasReturn: true }))).toEqual({
+      main: 'UNPAID',
+      returned: 'unknown',
+      partialPaid: false,
+    });
+    expect(saleBadges(sale('OVERDUE', { hasReturn: true }))).toEqual({
+      main: 'OVERDUE',
+      returned: 'unknown',
+      partialPaid: false,
+    });
+    expect(saleBadges(sale('PAID', { hasReturn: true }))).toEqual({
+      main: 'PAID',
+      returned: 'unknown',
+      partialPaid: false,
+    });
+  });
+
+  it('labels the example invoice as a partial return of one out of four units', () => {
+    expect(
+      saleBadges(
+        sale('OVERDUE', {
+          hasReturn: true,
+          items: [{ quantity: 4, returnedQty: 1 }],
+          finalAmount: 1_500_000,
+          returnedAmount: 500_000,
+        })
+      ).returned
+    ).toBe('partial');
+  });
+
+  it('distinguishes a full return and uses the monetary values when list items are absent', () => {
+    expect(
+      saleBadges(sale('UNPAID', { hasReturn: true, items: [{ quantity: 4, returnedQty: 4 }] }))
+        .returned
+    ).toBe('full');
+    expect(
+      saleBadges(sale('UNPAID', { hasReturn: true, finalAmount: 1_500_000, returnedAmount: 500_000 }))
+        .returned
+    ).toBe('partial');
   });
 
   it('keeps the server state without a return, and for drafts and void ones', () => {
     expect(saleBadges(sale('OVERDUE')).main).toBe('OVERDUE');
     expect(saleBadges(sale('VOID', { hasReturn: true })).main).toBe('VOID');
     expect(saleBadges(sale('DRAFT', { hasReturn: true })).main).toBe('DRAFT');
+    expect(saleBadges(sale('VOID', { hasReturn: true })).returned).toBeNull();
+    expect(saleBadges(sale('DRAFT', { hasReturn: true })).returned).toBeNull();
   });
 
   it('adds "partly paid" only while the invoice is still open', () => {
@@ -94,6 +138,7 @@ describe('saleBadges', () => {
   it('shows an unpaid invoice with a payment as "partly paid" alone, not twice', () => {
     expect(saleBadges(sale('UNPAID', { isPartiallyPaid: true }))).toEqual({
       main: 'PARTIAL',
+      returned: null,
       partialPaid: false,
     });
   });
@@ -101,11 +146,13 @@ describe('saleBadges', () => {
   it('keeps both badges when the partly paid invoice is overdue or returned', () => {
     expect(saleBadges(sale('OVERDUE', { isPartiallyPaid: true }))).toEqual({
       main: 'OVERDUE',
+      returned: null,
       partialPaid: true,
     });
     expect(saleBadges(sale('UNPAID', { isPartiallyPaid: true, hasReturn: true }))).toEqual({
-      main: 'RETURNED',
-      partialPaid: true,
+      main: 'PARTIAL',
+      returned: 'unknown',
+      partialPaid: false,
     });
   });
 });
