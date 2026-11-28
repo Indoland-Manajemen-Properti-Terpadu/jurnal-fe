@@ -22,7 +22,7 @@ import {
   IconSearch,
   IconArchive,
 } from '@tabler/icons-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AppShellLayout } from '@/components/AppShellLayout';
 import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
 import { useTranslation } from '@/i18n';
@@ -45,12 +45,21 @@ const TAB_ICONS = { running: IconPlayerPlay, accepted: IconCircleCheck, finished
 
 export function QuoteListPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { t } = useTranslation('salesQuotes');
   const rights = useQuoteRights();
   const { handlers, dialogs } = useQuoteActions();
 
-  const [tab, setTab] = useState<QuoteTab>('running');
-  const [status, setStatus] = useState<QuoteDisplayStatus | 'all'>('all');
+  const initialTab: QuoteTab =
+    searchParams.get('tab') === 'accepted'
+      ? 'accepted'
+      : searchParams.get('tab') === 'finished'
+        ? 'finished'
+        : 'running';
+  const initialStatus =
+    QUOTE_STATUS_FILTERS[initialTab].find((value) => value === searchParams.get('status')) ?? 'all';
+  const [tab, setTab] = useState<QuoteTab>(initialTab);
+  const [status, setStatus] = useState<QuoteDisplayStatus | 'all'>(initialStatus);
   const [searchInput, setSearchInput] = useState('');
   const [search] = useDebouncedValue(searchInput, 400);
   const [page, setPage] = useState(1);

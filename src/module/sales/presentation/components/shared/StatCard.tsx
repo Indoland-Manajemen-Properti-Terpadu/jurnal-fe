@@ -10,6 +10,7 @@ interface StatCardProps {
   icon: ReactNode;
   tone?: StatTone;
   loading?: boolean;
+  compact?: boolean;
 }
 
 /**
@@ -23,10 +24,11 @@ export function StatCard({
   icon,
   tone = 'primary',
   loading,
+  compact = false,
 }: Readonly<StatCardProps>) {
   return (
-    <Paper withBorder radius="lg" p="lg" bg="white">
-      <Group justify="space-between" align="flex-start" wrap="nowrap" gap="md">
+    <Paper withBorder radius="lg" p={compact ? 'md' : 'lg'} bg="white">
+      <Group justify="space-between" align="flex-start" wrap="nowrap" gap={compact ? 'sm' : 'md'}>
         <Stack gap={4} style={{ minWidth: 0 }}>
           <Text size="xs" fw={700} c="dimmed" tt="uppercase" style={{ letterSpacing: '0.04em' }}>
             {label}
@@ -34,7 +36,12 @@ export function StatCard({
           {loading ? (
             <Skeleton height={30} width={150} radius="sm" />
           ) : (
-            <Text fw={800} fz={26} lh={1.2} style={{ fontVariantNumeric: 'tabular-nums' }}>
+            <Text
+              fw={800}
+              fz={compact ? 24 : 26}
+              lh={1.2}
+              style={{ fontVariantNumeric: 'tabular-nums' }}
+            >
               {value}
             </Text>
           )}
@@ -44,7 +51,7 @@ export function StatCard({
             </Text>
           )}
         </Stack>
-        <ThemeIcon size={44} radius="md" variant="light" color={tone}>
+        <ThemeIcon size={compact ? 40 : 44} radius="md" variant="light" color={tone}>
           {icon}
         </ThemeIcon>
       </Group>

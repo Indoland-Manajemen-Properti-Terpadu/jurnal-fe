@@ -99,6 +99,7 @@ export const routes = {
   },
 
   sales: {
+    overview: '/sales/overview',
     main: '/sales',
     add: '/sales/new',
     quotations: '/sales/quotations',

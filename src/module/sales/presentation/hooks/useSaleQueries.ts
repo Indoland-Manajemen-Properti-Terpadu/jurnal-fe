@@ -7,6 +7,7 @@ import type { SaleListParams } from '../../domain/sale';
 import { withContactDetails, type CustomerSummary } from '../../domain/saleCustomer';
 import type { SalePaymentListParams } from '../../domain/salePaymentList';
 import { depositAccountOptions } from '../../domain/saleDeposit';
+import { fetchSalesOverview } from '../../infrastructure/salesOverviewApi';
 import {
   fetchOverpaymentAccount,
   fetchPaymentMethods,
@@ -45,6 +46,7 @@ export const saleKeys = {
   overpaymentAccount: () => ['sales', 'overpayment-account'] as const,
   receivables: (range: ReceivablesRange) => [...saleKeys.all, 'receivables', range] as const,
   counts: (filters: StatusCountFilters) => [...saleKeys.all, 'counts', filters] as const,
+  overview: () => [...saleKeys.all, 'overview'] as const,
   publicInvoice: (token: string) => ['sales', 'public', token] as const,
 };
 
@@ -52,6 +54,14 @@ export const useSales = (params: SaleListParams = {}) =>
   useQuery({
     queryKey: saleKeys.list(params),
     queryFn: () => fetchSales(params),
+    staleTime: 30_000,
+  });
+
+/** The sales overview is cached with the other sales data and refreshes every 30 seconds. */
+export const useSalesOverview = () =>
+  useQuery({
+    queryKey: saleKeys.overview(),
+    queryFn: fetchSalesOverview,
     staleTime: 30_000,
   });
 

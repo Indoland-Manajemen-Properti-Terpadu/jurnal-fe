@@ -1,0 +1,362 @@
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jurnal-space-3);
+  min-width: 0;
+}
+
+.receivableValue {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+.receivableParts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--jurnal-space-4);
+  margin-top: var(--jurnal-space-4);
+}
+
+.receivablePart {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+  gap: var(--jurnal-space-1);
+}
+
+.partLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--jurnal-space-2);
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  flex: none;
+  border-radius: 50%;
+}
+
+.money {
+  font-variant-numeric: tabular-nums;
+}
+
+.summaryGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  align-items: stretch;
+  gap: var(--jurnal-space-4);
+}
+
+.summaryGrid > * {
+  min-width: 0;
+}
+
+.highlights {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.highlight {
+  display: block;
+  flex: 1;
+  width: 100%;
+  min-height: 64px;
+  height: auto;
+  padding: var(--jurnal-space-3) var(--jurnal-space-2);
+  color: var(--jurnal-color-text-primary);
+  text-align: left;
+  border-top: 1px solid var(--jurnal-color-border-subtle);
+}
+
+.highlight:first-child {
+  border-top: 0;
+}
+
+button.highlight:hover {
+  background: var(--jurnal-color-surface-hover);
+}
+
+.highlightCopy {
+  display: flex;
+  align-items: center;
+  gap: var(--jurnal-space-3);
+  min-width: 0;
+}
+
+.highlightText {
+  min-width: 0;
+}
+
+.highlightValue {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--jurnal-space-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.workflowGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--jurnal-space-3);
+}
+
+.workflowItem {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  min-height: 104px;
+  height: auto;
+  padding: var(--jurnal-space-3);
+  text-align: left;
+  white-space: normal;
+  border: 1px solid var(--jurnal-color-border-subtle);
+  border-radius: var(--mantine-radius-md);
+  background: var(--mantine-color-gray-0);
+  color: var(--jurnal-color-text-primary);
+}
+
+button.workflowItem:hover {
+  background: var(--jurnal-color-surface-hover);
+}
+
+.dashboardGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  align-items: start;
+  gap: var(--jurnal-space-4);
+}
+
+.dashboardGrid > * {
+  min-width: 0;
+}
+
+.dashboardAside {
+  min-width: 0;
+}
+
+.workflowTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--jurnal-space-2);
+}
+
+.workflowCount {
+  font-size: var(--jurnal-text-2xl);
+  font-weight: var(--jurnal-font-weight-bold);
+  line-height: var(--jurnal-leading-2xl);
+  color: var(--jurnal-color-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.taskList {
+  display: flex;
+  flex-direction: column;
+}
+
+.taskNotice {
+  padding: var(--jurnal-space-3);
+  border-radius: var(--mantine-radius-md);
+  background: var(--mantine-color-orange-0);
+  border: 1px solid var(--mantine-color-orange-2);
+}
+
+.taskFilters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--jurnal-space-1);
+  padding: var(--jurnal-space-1);
+  border-radius: var(--mantine-radius-md);
+  background: var(--mantine-color-gray-1);
+}
+
+.taskFilter {
+  padding: var(--jurnal-space-2) var(--jurnal-space-3);
+  border-radius: var(--mantine-radius-sm);
+  color: var(--jurnal-color-text-secondary);
+  font-size: var(--jurnal-text-xs);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.taskFilter[data-active='true'] {
+  color: var(--jurnal-color-text-primary);
+  background: white;
+  box-shadow: var(--mantine-shadow-xs);
+}
+
+.taskRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--jurnal-space-4);
+  padding: var(--jurnal-space-3);
+  border: 1px solid var(--jurnal-color-border-subtle);
+  border-left: 3px solid transparent;
+  border-radius: var(--mantine-radius-md);
+  margin-top: var(--jurnal-space-2);
+}
+
+.taskRow[data-urgency='warn'] {
+  background: var(--mantine-color-orange-0);
+  border-color: var(--mantine-color-orange-2);
+  border-left-color: var(--mantine-color-orange-5);
+}
+
+.taskRow[data-urgency='stale'] {
+  background: var(--mantine-color-red-0);
+  border-color: var(--mantine-color-red-2);
+  border-left-color: var(--mantine-color-red-5);
+}
+
+.taskCopy {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  gap: var(--jurnal-space-1);
+}
+
+.taskMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--jurnal-space-2);
+}
+
+.taskAside {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--jurnal-space-2);
+}
+
+.monthCompare {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jurnal-space-2);
+}
+
+.quoteTrack {
+  margin: var(--jurnal-space-3) 0;
+}
+
+.agingRows,
+.customerRows,
+.quoteRows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jurnal-space-3);
+}
+
+.valueRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--jurnal-space-3);
+}
+
+.customerRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--jurnal-space-1) var(--jurnal-space-3);
+  align-items: center;
+}
+
+.customerIdentity {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: var(--jurnal-space-2);
+}
+
+.customerName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.customerBalance {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.customerProgress {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: var(--jurnal-space-2);
+}
+
+.customerProgress > :first-child {
+  flex: 1;
+}
+
+.monthSummary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--jurnal-space-3);
+}
+
+.monthMetric {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: var(--jurnal-space-1);
+}
+
+.quoteSummary {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--jurnal-space-4);
+}
+
+.quoteRate {
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: $mantine-breakpoint-md) {
+  .dashboardGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .workflowGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 81.25em) {
+  .summaryGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: $mantine-breakpoint-sm) {
+  .receivableParts {
+    grid-template-columns: 1fr;
+    gap: var(--jurnal-space-3);
+  }
+
+  .taskRow {
+    flex-direction: column;
+  }
+
+  .taskAside {
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .quoteSummary {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+}

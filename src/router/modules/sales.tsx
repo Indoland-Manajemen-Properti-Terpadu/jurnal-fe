@@ -15,10 +15,12 @@ import {
   SaleFormPage,
   SaleMainPage,
   SalePaymentsPage,
+  SalesOverviewPage,
 } from '@/module/sales';
 import { routes } from '../routes';
 
 export const salesRoutes: RouteObject[] = [
+  { path: routes.sales.overview, element: <SalesOverviewPage /> },
   { path: routes.sales.main, element: <SaleMainPage /> },
   { path: routes.sales.add, element: <SaleFormPage /> },
   { path: routes.sales.quotations, element: <QuoteListPage /> },

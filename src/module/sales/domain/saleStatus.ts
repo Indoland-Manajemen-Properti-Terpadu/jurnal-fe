@@ -1,4 +1,5 @@
 import type { SaleDisplayCode, SaleExtraFilter, SaleListParams } from './sale';
+import { toCents } from './saleMoney';
 
 export const SALE_TABS = ['draft', 'issued', 'void'] as const;
 export type SaleTab = (typeof SALE_TABS)[number];
@@ -8,6 +9,7 @@ export const SENT_STATUSES: SaleDisplayCode[] = ['UNPAID', 'PAID', 'OVERDUE'];
 
 /** Status choices inside the Terbit tab; the draft and cancelled tabs have none. */
 export const SENT_STATUS_FILTERS: SaleStatusFilter[] = [
+  'OPEN',
   'UNPAID',
   'OVERDUE',
   'PAID',
@@ -15,8 +17,8 @@ export const SENT_STATUS_FILTERS: SaleStatusFilter[] = [
   'RETURNED',
 ];
 
-/** One choice of the status filter. The last two only narrow the list; they are not badges. */
-export type SaleStatusFilter = SaleDisplayCode | SaleExtraFilter;
+/** OPEN combines unpaid and overdue invoices; it is a list filter, never an API status or badge. */
+export type SaleStatusFilter = SaleDisplayCode | SaleExtraFilter | 'OPEN';
 
 /** List query for a tab and an optional status filter ("all" = no extra filter). */
 export const tabParams = (
@@ -25,31 +27,58 @@ export const tabParams = (
 ): Pick<SaleListParams, 'paymentStatus'> => {
   if (tab === 'draft') return { paymentStatus: 'DRAFT' };
   if (tab === 'void') return { paymentStatus: 'VOID' };
+  if (status === 'OPEN') return { paymentStatus: ['UNPAID', 'OVERDUE'] };
   return { paymentStatus: status === 'all' ? SENT_STATUSES : status };
 };
 
 /** What the badges of an invoice say: its state, and whether a payment covers only part of it. */
 export interface SaleBadges {
   /**
-   * A returned invoice reads "Diretur"; an unpaid one with a payment on it reads "Dibayar
-   * sebagian" alone, since "Belum lunas" next to it says the same twice; otherwise the server's own state.
+   * Payment state stays visible even after a return. An unpaid invoice with a payment on it reads
+   * "Dibayar sebagian" alone, since "Belum lunas" next to it says the same twice.
    */
-  main: SaleDisplayCode | 'RETURNED' | 'PARTIAL';
+  main: SaleDisplayCode | 'PARTIAL';
+  returned: 'partial' | 'full' | 'unknown' | null;
   partialPaid: boolean;
 }
+
+const returnExtent = (sale: {
+  hasReturn?: boolean;
+  items?: readonly { quantity: number; returnedQty?: number }[];
+  finalAmount?: number;
+  returnedAmount?: number;
+}): SaleBadges['returned'] => {
+  if (!sale.hasReturn) return null;
+
+  const items = sale.items ?? [];
+  if (items.some((item) => (item.returnedQty ?? 0) > 0)) {
+    return items.every((item) => item.quantity > 0 && (item.returnedQty ?? 0) >= item.quantity)
+      ? 'full'
+      : 'partial';
+  }
+
+  if (sale.returnedAmount != null && toCents(sale.returnedAmount) > 0 && sale.finalAmount != null) {
+    return toCents(sale.finalAmount) > 0 ? 'partial' : 'full';
+  }
+
+  return 'unknown';
+};
 
 export const saleBadges = (sale: {
   displayStatus: { code: SaleDisplayCode };
   hasReturn?: boolean;
   isPartiallyPaid?: boolean;
+  items?: readonly { quantity: number; returnedQty?: number }[];
+  finalAmount?: number;
+  returnedAmount?: number;
 }): SaleBadges => {
   const { code } = sale.displayStatus;
   const issued = code !== 'DRAFT' && code !== 'VOID';
   // Paid in full or void is never "partly paid", whatever the flag says.
   const partial = Boolean(sale.isPartiallyPaid) && (code === 'UNPAID' || code === 'OVERDUE');
-  if (issued && sale.hasReturn) return { main: 'RETURNED', partialPaid: partial };
-  if (partial && code === 'UNPAID') return { main: 'PARTIAL', partialPaid: false };
-  return { main: code, partialPaid: partial };
+  const returned = issued ? returnExtent(sale) : null;
+  if (partial && code === 'UNPAID') return { main: 'PARTIAL', returned, partialPaid: false };
+  return { main: code, returned, partialPaid: partial };
 };
 
 export type SaleStatusTone = { color: string; variant: 'light' | 'filled' | 'outline' };

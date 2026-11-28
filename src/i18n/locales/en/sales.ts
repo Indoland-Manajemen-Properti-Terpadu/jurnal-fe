@@ -4,6 +4,7 @@ import { salesList } from './salesList';
 import { salesPay } from './salesPay';
 import { salesPublic } from './salesPublic';
 import { salesView } from './salesView';
+import { salesOverview } from './salesOverview';
 
 export const sales = {
   ...salesList,
@@ -11,5 +12,6 @@ export const sales = {
   ...salesPay,
   ...salesPublic,
   ...salesView,
+  ...salesOverview,
   ...salesCommon,
 };

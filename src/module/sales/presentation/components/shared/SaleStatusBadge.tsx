@@ -1,4 +1,5 @@
-import { Badge, Group } from '@mantine/core';
+import { Badge, Group, Text } from '@mantine/core';
+import { IconCornerUpLeft } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import type { Sale, SaleDisplayStatus } from '@/module/sales/domain/sale';
 import { saleBadges, saleStatusTone } from '@/module/sales/domain/saleStatus';
@@ -16,35 +17,41 @@ export const SaleStatusBadge = ({ status }: Readonly<{ status: SaleDisplayStatus
   );
 };
 
-const STATUS_KEY = { RETURNED: 'status.returned', PARTIAL: 'status.partialPaid' } as const;
-
 /**
- * The badges of a whole invoice: "Diretur" instead of the state once it has a return, and a
- * second "Dibayar sebagian" while a payment covers only part of it.
+ * Show the payment state as the primary badge and return extent beside it. A partial-payment
+ * amount is already visible in the balance column, so it does not need a second badge.
  */
 export const SaleStatusBadges = ({
   sale,
   align = 'center',
 }: Readonly<{
-  sale: Pick<Sale, 'displayStatus' | 'hasReturn' | 'isPartiallyPaid'>;
+  sale: Pick<
+    Sale,
+    'displayStatus' | 'hasReturn' | 'isPartiallyPaid' | 'items' | 'finalAmount' | 'returnedAmount'
+  >;
   align?: 'center' | 'flex-start';
 }>) => {
   const { t } = useTranslation('sales');
-  const { main, partialPaid } = saleBadges(sale);
+  const { main, returned } = saleBadges(sale);
   const tone = saleStatusTone(main);
   return (
-    <Group gap={6} justify={align} wrap="wrap">
-      <Badge color={tone.color} variant={tone.variant} radius="sm" size="md" style={BADGE_STYLE}>
-        {t(
-          main === 'RETURNED' || main === 'PARTIAL'
-            ? STATUS_KEY[main]
-            : `status.${main.toLowerCase()}`
-        )}
+    <Group gap={8} justify={align} wrap="nowrap">
+      <Badge color={tone.color} variant={tone.variant} radius="sm" size="sm" style={BADGE_STYLE}>
+        {t(main === 'PARTIAL' ? 'status.partialPaid' : `status.${main.toLowerCase()}`)}
       </Badge>
-      {partialPaid && (
-        <Badge color="blue" variant="outline" radius="sm" size="md" style={BADGE_STYLE}>
-          {t('status.partialPaid')}
-        </Badge>
+      {returned && (
+        <Group gap={3} wrap="nowrap" c="orange.7">
+          <IconCornerUpLeft size={14} aria-hidden="true" />
+          <Text size="xs" fw={600} c="orange.7" style={{ whiteSpace: 'nowrap' }}>
+            {t(
+              returned === 'partial'
+                ? 'status.returnedPartial'
+                : returned === 'full'
+                  ? 'status.returnedFull'
+                  : 'status.returned'
+            )}
+          </Text>
+        </Group>
       )}
     </Group>
   );

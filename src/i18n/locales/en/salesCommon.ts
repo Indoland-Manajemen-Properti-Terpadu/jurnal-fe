@@ -5,6 +5,7 @@ export const salesCommon = {
     back: 'Back',
   },
   status: {
+    open: 'Unpaid',
     draft: 'Draft',
     unpaid: 'Unpaid',
     paid: 'Paid',
@@ -13,6 +14,8 @@ export const salesCommon = {
     partial: 'Partial',
     partialPaid: 'Partially paid',
     returned: 'Returned',
+    returnedPartial: 'Partially returned',
+    returnedFull: 'Fully returned',
     sent: 'Sent',
   },
   reason: {
@@ -39,6 +42,7 @@ export const salesCommon = {
     draftSaved: 'Draft invoice {number} saved.',
     sent: 'Invoice {number} issued and recorded as accounts receivable.',
     resent: 'The email for invoice {number} was sent again.',
+    reminderSent: 'Payment reminder for invoice {number} sent.',
     emailNotSent:
       'The invoice is saved, but the email was not delivered. Make sure the customer has an email address, then resend.',
     emailNotSentReason:

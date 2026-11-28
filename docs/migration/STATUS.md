@@ -82,6 +82,10 @@ Follow-up polish for account setup, contacts, journal entries, petty cash, and t
 
 PRO-120 purchase status display alignment was merged to `develop-frontend` in PR #269 and promoted to `staging` in PR #270. The staging image build, push, and server deployment completed successfully. The migration statuses above remain unchanged. The staging smoke test is pending before production promotion.
 
+## Release update (2026-11-28)
+
+Sales overview and receivables were merged to `develop-frontend` in PR #309. The related backend API was merged to `main-backend` in `jurnal-be` PR #1. Staging deployment and smoke testing are pending before frontend production promotion. The `sales` module migration status above remains unchanged.
+
 The next PRO-120 purchase summary slice covers the purchasing dashboard, the payables by vendor report, and summary cards on the request, order, receipt, vendor bill, and payment request lists. Its API values come from the purchase dashboard, payables report, and list responses. The purchase module structure and migration statuses above remain unchanged. The owner authorized direct production promotion while the product is not yet live; record any skipped staging smoke test in the release PR.
 
 The next PRO-120 Pesan Ulang slice adds the completed PO/SPK picker, preview, approval submission and decisions, source links, and a denser Ringkasan Pembelian layout. The purchase module structure and migration statuses above remain unchanged. The Demo Site currently has zero completed orders, so the live source form could not be smoke tested there; typecheck, lint, unit tests, build, and the empty picker were checked locally. The owner previously authorized production promotion while the product is not yet live and asked to proceed directly without staging smoke.
