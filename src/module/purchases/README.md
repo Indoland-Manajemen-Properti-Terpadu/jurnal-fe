@@ -1,3 +1,6 @@
+Warning: truncated output (original token count: 13058)
+Total output lines: 211
+
 # purchases
 
 Procure-to-pay: purchase requests, purchase orders, goods receipts, vendor bills, Payment Requests, payment vouchers, purchase returns, vendor credit and the payables aging report. Every screen talks to the live purchasing API; there is no local data.
@@ -87,7 +90,7 @@ Verified live on 2026-11-21. A PO is never created by hand: the last procurement
 
 - Status: the backend lifecycle distinguishes `WAITING_ADVANCE`, `WAITING_RECEIPT`, `WAITING_BILL`, receipt/billing progress, and terminal states. Vendor delivery is optional and recorded as send metadata. The service's `statusLabel` is shown to Indonesian readers; partial and complete labels distinguish PO receipt (`Diterima sebagian` / `Diterima penuh`) from SPK work (`Dikerjakan sebagian` / `Selesai dikerjakan`). SPK lines also carry `status` / `statusLabel`: `BILLED`, `UNBILLED`, `WAITING_BILL`, `PENDING_APPROVAL`, `BAPP_REJECTED` or `WAITING_BAPP`.
 - Draft only: `PUT` takes `transactionDate`, `expectedDate` (null clears), `warehouse` (id, null clears), `deliveryAddress` (500) and `memo` (2000); any other field (`items`, prices) is a 400, and a sent order answers 400. The service accepts an expected date before the order date; the dialog refuses it. Prices follow the procurement.
-- Send to vendor is optional. `POST /:id/send` records the send details; with `{ sendEmail: true, to?, cc?, note? }` it also mails the PDF to the vendor's email in Contacts (or `to`). **A test with `sendEmail: true` really sends the mail**, so it was run once on 2026-11-21 against a seeded vendor address (sales@teknologinusantara.co.id) by mistake and is not repeated; the failure answer for a vendor without an email was therefore not run live.
+- Sending from a draft can record a manual send or email the PDF. Resending an existing order always emails the PDF (`sendEmail: true`) and uses the vendor's saved email by default, matching the prototype. `POST /:id/send` records the send details; with `{ sendEmail: true, to?, cc?, note? }` it mails the PDF to the vendor's email in Contacts (or `to`). **A test with `sendEmail: true` really sends the mail**, so it was run once on 2026-11-21 against a seeded vendor address (sales@teknologinusantara.co.id) by mistake and is not repeated; the failure answer for a vendor without an email was therefore not run live.
 - `GET /:id/print` answers a PDF (`application/pdf`). `POST /:id/close` needs `note` (a one-character note was accepted; the screen asks for 3) and works on a sent order, not a draft, a closed or a voided one. `POST /:id/void` needs `reason` and works on a draft or a sent order with no receipt or bill; it returns the FPPBJ to a draft procurement (`IN_PROCUREMENT`, procurement `DRAFT`). Attachments take any status, the screen hides adding on a voided order.
 - An SPK splits the lines by term: `items[].schedule { kind FULL|ADVANCE|TERM|PERIOD|RETENTION, seq, of, percent, ... }` with the amount and the wording in `description`; the advance and shipping lines have `billOnly: true` (nothing is received for them). FPB/BAPP rows show the term label from `schedule`. `advance { amount, requested, paid, used, available }` drives the Payment Request for the advance (slice 8).
 - List: `status` one or several (`status[]=`), `vendor`, `purchaseRequest`, `search` (the number only, not the vendor name), `sortBy`, `sortOrder`; an unknown parameter is a 400.
@@ -96,25 +99,7 @@ Verified live on 2026-11-21. A PO is never created by hand: the last procurement
 
 ## FPB / BAPP (slice 6/9)
 
-Verified live on 2026-11-21 (`/v1/goods-receipts`). `kind` is `GOODS` (an FPB) or `SERVICE` (a BAPP); `documentLabel` says which.
-
-- Create: `purchaseOrder`, `transactionDate`, `deliveryNote`, `warehouse`, `memo`, `items[] { purchaseOrderItem, receivedQty, rejectedQty }`. Only `WAITING_RECEIPT`, `PARTIAL_RECEIVED`, or `WAITING_ADVANCE` PO/SPK with a paid advance (when applicable), `withReceipt: true`, and remaining receivable quantity takes one. The service refuses an unpaid advance, no quantity, a quantity above what is left (`sisa N`, fractions are fine), an unknown item, or a billing-only line (an advance or shipping is "langsung difaktur", never received). `rejectedQty` is kept on the line and is not counted as received.
-- **A warehouse is required once more than one is active** ("Gudang wajib dipilih karena ada lebih dari satu gudang aktif"); with one active warehouse, or the PO's own, it is the default. The form follows that rule for stocked goods (`product.isInventory`) and never asks for one on a service.
-- An FPB is `POSTED` at once and adds stock for stocked products and journals the accrual (`accrualAmount` per line, `amount`, `journalTransaction`). A BAPP is `PENDING_APPROVAL`, then approved level by level (`JP-PURCH-APR-BAPP`, default Chief Finance then Building Manager) to `POSTED` and journaled, or `REJECTED` with a `reason` (400 without), after which `POST /:id/resubmit` returns it to approval. Approve on a rejected or posted one, and resubmit twice, are 400. The response's `displayStatus` splits `POSTED` into `UNBILLED` / `BILLED`; `statusLabel` now carries the display text for `UNBILLED`, `BILLED`, `PENDING_APPROVAL`, `REJECTED` and `VOID`. The receipt list filter accepts those display statuses.
-- Before a BAPP reaches `POSTED`, its recognised amounts and journals are hidden; after final approval the screen displays the server's accrual and journals. Receipt rows show the PO/SPK term label from the matched order item's `schedule`. The receipt activity API labels its `REQUEST` stage as "Permintaan"; for BAPP it is presented as "BAPP".
-- `POST /:id/void` needs `reason`; it reverses the receipt and lowers `receivedQty` on the order. The screen offers it on a `POSTED` receipt. Not tested live: voiding a pending BAPP, and voiding a receipt that is already billed (slice 7).
-- **A warehouse being counted refuses both the FPB and its cancelling** (verified live 2026-11-24, `POST /v1/goods-receipts`): 409 "Gudang Utama sedang diopname (SO/2026/11/0012). Selesaikan atau batalkan opname dulu" with `data.opname { id, number }`. `ApiError.blockingOpname` carries that, and `OpnameBlockAlert` shows a notice on the receipt form and the receipt detail with a link to the count (no toast for it). Purchase returns make no stock movement yet, so nothing is refused there.
-- List: `kind`, `billable=true` (receipts not fully billed yet), `purchaseOrder`, `vendor`, `status` (one or several), `search` (the number); an unknown parameter is a 400. Rows carry `purchaseOrderRef`, `billRefs` and `amount`.
-- Receipts are recorded from the PO/SPK detail ("Catat Penerimaan"), never from an empty list.
-
-## Bills (slice 7/9)
-
-A bill has three sources, chosen on the form (`BillSource`): `RECEIPT` (one or more FPB/BAPP), `ORDER` (one or more PO/SPK) and `MANUAL` (no PO: vendor plus lines). Verified live on the Demo Site (2026-11-21).
-
-- Documents picked together must share one vendor and one payment term (`compatibleWith` in `domain/billSources`); the picker disables the others.
-- For manual bills, a price difference answers 400 with an Indonesian message and a data list without `field` (`type`, `expected`, `actual`). `toApiError` keeps it as a business refusal with `details`; the form shows `BillVarianceDialog`, and confirming resends the same body with `acknowledgeVariance: true`. PO/SPK bills use the server preview and price-change approval flow below.
-- `PUT` keeps omitted fields, so the edit form sends the full header. A saved draft is edited on its header only (`validateBillForm(..., { headerOnly: true })`); its lines are not on the form. The edit form also accepts vendor-invoice and tax-invoice files and uploads each with its own `kind` after the header is saved.
-- A bill's `displayStatus`, `noMatch`, `heldAmount` and `requestableAmount` come from the server and are shown as they are.
+Verified live on 2026-11-21 (`/v1/goods-receipts`). `kind` is `GOODS…1058 tokens truncated…Amount` come from the server and are shown as they are.
 - Probe note: a request with `sendEmail: true` on a PO really sent an email to a seeded vendor address (slice 5). It cannot be undone.
 
 ## Payment Request and Payment Voucher (slice 8/9)

@@ -186,7 +186,12 @@ export const OrderActionBar = ({ order }: Readonly<{ order: PurchaseOrder }>) =>
 
       <OrderDraftModal order={order} opened={dialog === 'edit'} onClose={closeDialog} />
       <ReorderDialog opened={reordering} sourceId={order.id} onClose={() => setReordering(false)} />
-      <SendOrderDialog order={order} opened={dialog === 'send'} onClose={closeDialog} />
+      <SendOrderDialog
+        order={order}
+        opened={dialog === 'send'}
+        resend={order.status !== 'DRAFT'}
+        onClose={closeDialog}
+      />
       <ReasonModal
         opened={dialog === 'close'}
         title={t('orders.detail.closeTitle', { label: order.documentLabel })}

@@ -59,6 +59,11 @@ export const purchasesOrders = {
   send: {
     title: 'Send {label} to the vendor',
     description: 'Choose how to send it. Once sent, the order can no longer be changed.',
+    resendTitle: 'Resend {label} to the vendor by email?',
+    resendDescription: '{number} · {vendor}',
+    resendNotice:
+      'This document has already been sent. A copy of the PDF will be emailed to the vendor again.',
+    resendFootnote: 'The order remains sent.',
     markLabel: 'Mark as sent',
     markHint: 'Only changes the status. Use it when you already sent the order yourself.',
     emailLabel: 'Send by email with the PDF',
