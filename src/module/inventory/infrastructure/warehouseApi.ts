@@ -297,13 +297,20 @@ export const fetchPicOptions = async (): Promise<PicOption[]> => {
 };
 
 /** The body of a save: a blank code is left out so the service numbers a new warehouse itself. */
-const toBody = (input: WarehouseInput) => {
-  const { code, picUserId, ...rest } = input;
-  return { ...rest, ...(code ? { code } : {}), ...(picUserId ? { picUserId } : {}) };
+const toBody = (input: WarehouseInput, includeDefault = false) => {
+  const { code, picUserId, isDefault, ...rest } = input;
+  return {
+    ...rest,
+    ...(includeDefault ? { isDefault } : {}),
+    ...(code ? { code } : {}),
+    ...(picUserId ? { picUserId } : {}),
+  };
 };
 
 export const createWarehouse = async (input: WarehouseInput): Promise<Warehouse> => {
-  const body = await call(() => apiClient.post<Envelope<WarehouseDto>>(WAREHOUSES, toBody(input)));
+  const body = await call(() =>
+    apiClient.post<Envelope<WarehouseDto>>(WAREHOUSES, toBody(input, true))
+  );
   return toWarehouse(body.data);
 };
 
