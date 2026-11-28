@@ -66,6 +66,7 @@ export interface PaymentRequestBill {
 export interface PaymentRequestItem {
   bill: PaymentRequestBill;
   amount: number;
+  sourceStage?: string | null;
   /** The vendor of the bill; for a single-vendor request it is the request's vendor. */
   vendorId: string;
 }
