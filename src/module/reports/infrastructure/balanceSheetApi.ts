@@ -27,15 +27,27 @@ export const balanceSheetApi = {
     signal?: AbortSignal
   ): Promise<BalanceSheetData> {
     try {
-      // In Postman collection: GET {{base_url}}/v1/reports/balance-sheet?date=2025-04-04&endDate=2026-04-10
-      const response = await apiClient.get<unknown>('/v1/reports/balance-sheet', {
-        params: {
-          date: params.startDate,
-          endDate: params.endDate,
-        },
-        signal,
-      });
-      return mapBalanceSheetResponse(response.data, params);
+      const read = async (range: { startDate: string; endDate: string }) =>
+        mapBalanceSheetResponse(
+          (
+            await apiClient.get<unknown>('/v1/reports/balance-sheet', {
+              // The balance sheet is a point-in-time report; comparison snapshots
+              // use the same endpoint with a different cut-off date.
+              params: { date: range.endDate },
+              signal,
+            })
+          ).data,
+          range
+        );
+      const [current, compare] = await Promise.all([
+        read(params),
+        params.comparePeriod ? read(params.comparePeriod) : Promise.resolve(null),
+      ]);
+      return {
+        ...current,
+        compare: compare ?? current.compare ?? null,
+        compareAsOf: compare?.endDate ?? current.compareAsOf,
+      };
     } catch (error) {
       if (isRequestCanceled(error)) throw error;
       throw new Error(parseErrorMessage(error));
@@ -45,14 +57,24 @@ export const balanceSheetApi = {
   async exportReport(
     params: BalanceSheetQueryParams,
     type: BalanceSheetExportType,
-    signal?: AbortSignal
+    signal?: AbortSignal,
+    options: { summary?: boolean; showZero?: boolean } = {}
   ): Promise<Blob> {
     try {
       // Try dedicated export endpoint
       const response = await apiClient.get<Blob>(`/v1/reports/balance-sheet/export/${type}`, {
         params: {
-          date: params.startDate,
+          startDate: params.startDate,
           endDate: params.endDate,
+          ...(params.comparePeriod
+            ? {
+                compare: 'custom',
+                compareStartDate: params.comparePeriod.startDate,
+                compareEndDate: params.comparePeriod.endDate,
+              }
+            : {}),
+          summary: options.summary ?? false,
+          showZero: options.showZero ?? false,
         },
         responseType: 'blob',
         signal,

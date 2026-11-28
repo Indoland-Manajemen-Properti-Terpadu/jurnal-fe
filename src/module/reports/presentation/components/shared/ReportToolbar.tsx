@@ -50,6 +50,8 @@ export interface ReportToolbarProps {
   hasData: boolean;
   /** Search or other filters shown beside the dates. */
   extra?: React.ReactNode;
+  /** Optional page-specific quick periods. */
+  presetOptions?: { label: string; value: PeriodPreset }[];
 }
 
 type RangeValue = [string | null, string | null];
@@ -78,6 +80,7 @@ export const ReportToolbar: React.FC<ReportToolbarProps> = ({
   onRefresh,
   hasData,
   extra,
+  presetOptions,
 }) => {
   const { t } = useTranslation('reports');
 
@@ -103,7 +106,7 @@ export const ReportToolbar: React.FC<ReportToolbarProps> = ({
     draftPeriod.startDate !== appliedPeriod.startDate ||
     draftPeriod.endDate !== appliedPeriod.endDate;
 
-  const presets = [
+  const presets = presetOptions ?? [
     { label: t('common.thisMonthId'), value: 'this_month' },
     { label: t('common.lastMonthId'), value: 'last_month' },
     { label: t('common.thisQuarterId'), value: 'this_quarter' },

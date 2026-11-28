@@ -91,7 +91,7 @@ export type Contact = {
   createdAt: string;
   updatedAt: string;
   external_id?: string | null;
-  /** Created automatically (e.g. a vendor from ProApps) and not yet completed by a person. */
+  /** Created automatically by another app and cleared when a person completes the contact here. */
   needsReview?: boolean;
 };
 

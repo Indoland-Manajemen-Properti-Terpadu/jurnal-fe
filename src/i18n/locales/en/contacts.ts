@@ -77,6 +77,9 @@ export const contacts = {
     otherTypes: '({count}) other types',
     systemDefault: 'System Default',
     archived: 'Archived',
+    needsReview: 'Needs review',
+    needsReviewHint:
+      'This contact was created automatically from Proapps (an asset vendor) and only has a name, phone, email and address. Complete the details, then save.',
     viewTooltip: 'View Details',
     viewAria: 'View Contact Details',
     editTooltip: 'Edit Contact',

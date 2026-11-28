@@ -1,0 +1,68 @@
+.summaryFrame,
+.indicatorFrame {
+  overflow: hidden;
+}
+
+.summaryGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1px;
+  background: var(--mantine-color-gray-2);
+}
+
+.metric {
+  min-width: 0;
+  padding: var(--jurnal-space-5);
+  background: var(--mantine-color-white);
+}
+
+.number {
+  font-variant-numeric: tabular-nums;
+}
+
+.breakdown {
+  padding-top: var(--jurnal-space-3);
+  border-top: 1px solid var(--mantine-color-gray-2);
+}
+
+.breakdownRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--jurnal-space-3);
+}
+
+.breakdownRow > :first-child {
+  min-width: 0;
+}
+
+.breakdownRow > :last-child {
+  flex: 0 0 auto;
+  text-align: right;
+}
+
+.indicatorGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  background: var(--mantine-color-gray-2);
+}
+
+.indicator {
+  min-width: 0;
+  padding: var(--jurnal-space-5);
+  background: var(--mantine-color-white);
+}
+
+@media (max-width: $mantine-breakpoint-md) {
+  .summaryGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: $mantine-breakpoint-sm) {
+  .summaryGrid,
+  .indicatorGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

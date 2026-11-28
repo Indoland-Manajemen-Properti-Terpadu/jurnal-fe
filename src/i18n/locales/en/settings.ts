@@ -20,7 +20,7 @@ export const settings = {
   },
   item: {
     company: 'Company Profile',
-    general: 'Number Precision',
+    general: 'Number Format',
     accountMapping: 'Account Mapping',
     opnameAccounts: 'Count Difference Accounts',
     taxes: 'Taxes',
@@ -37,7 +37,7 @@ export const settings = {
   },
   description: {
     company: 'Company identity and legal details.',
-    general: 'The currently configured decimal places.',
+    general: 'Choose how negative amounts appear and view the saved decimal precision.',
     accountMapping: 'Default accounts for automatic transactions.',
     opnameAccounts: 'Accounts for stock count differences.',
     taxes: 'Tax rates and accounts.',
@@ -52,9 +52,8 @@ export const settings = {
     approvalFlow: 'Who approves each approval step.',
     sites: 'Manage the companies or locations that use this app.',
   },
-  generalTitle: 'Number Precision',
-  generalDescription:
-    'View the saved decimal precision and preview its appearance without changing data.',
+  generalTitle: 'Number Format',
+  generalDescription: 'Choose how negative amounts appear and view the saved decimal precision.',
   currentPrecision: 'Saved precision',
   currentPrecisionDescription: 'Value returned by the general settings service.',
   readOnly: 'View only',
@@ -62,6 +61,13 @@ export const settings = {
   precisionValue: '{count} places',
   precisionLockedReason:
     'Precision changes are held until posted transaction status, approval, and audit history are available from the service. The preview below is never saved.',
+  negativeFormatTitle: 'Negative number format',
+  negativeFormatDescription:
+    'Choose how negative amounts appear in financial reports and exported files.',
+  negativeFormatParentheses: 'Parentheses (1,000.00)',
+  negativeFormatMinus: 'Minus sign -1,000.00',
+  negativeFormatExample: 'Example:',
+  saveNegativeFormat: 'Save format',
   previewTitle: 'Preview number formatting',
   previewDescription: 'Compare decimal display with a sample amount. This is a local preview only.',
   previewPrecision: 'Preview precision',

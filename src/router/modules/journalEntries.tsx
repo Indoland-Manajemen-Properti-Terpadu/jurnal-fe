@@ -1,9 +1,7 @@
 import type { RouteObject } from 'react-router-dom';
-import {
-  AddJournalEntryPage,
-  JournalEntryDetailPage,
-  JournalHistoryPage,
-} from '@/module/journal-entries';
+import { AddJournalEntryPage } from '@/module/journal-entries/presentation/pages/AddJournalEntryPage';
+import { JournalEntryDetailPage } from '@/module/journal-entries/presentation/pages/JournalEntryDetailPage';
+import JournalHistoryPage from '@/module/journal-entries/presentation/pages/JournalHistoryPage';
 import { routes } from '../routes';
 
 export const journalEntriesRoutes: RouteObject[] = [

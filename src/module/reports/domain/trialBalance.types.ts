@@ -1,3 +1,5 @@
+import type { NegativeNumberFormat } from '@/module/settings';
+
 /** The five column groups of a trial balance, in print order. */
 export const TRIAL_BALANCE_GROUPS = [
   'opening',
@@ -51,6 +53,10 @@ export interface TrialBalanceReport {
   endDate: string;
   /** Decimal places the server rounded the amounts to; absent on an older server. */
   precision?: number;
+  /** How the server's reports write a negative amount; absent on older servers. */
+  negativeFormat?: NegativeNumberFormat;
+  /** Three-pair statement returned by the report endpoint for the screen and exports. */
+  statement?: TrialBalanceStatement;
   accounts: TrialBalanceAccount[];
   /** From the server; the page never adds the accounts up (a parent already holds its children). */
   totals: Record<TrialBalanceGroup, TrialBalanceSums>;
@@ -59,6 +65,51 @@ export interface TrialBalanceReport {
   /** Profit of the period. */
   profit: number;
   pagination: TrialBalancePagination;
+}
+
+export interface TrialBalanceStatementRow {
+  id: string;
+  code: string;
+  name: string;
+  category: string;
+  lines: number;
+  open_debit: number;
+  open_credit: number;
+  debit: number;
+  credit: number;
+  close_debit: number;
+  close_credit: number;
+}
+
+export interface TrialBalanceStatementGroup {
+  key: string;
+  label: string;
+  rows: TrialBalanceStatementRow[];
+  open_debit: number;
+  open_credit: number;
+  debit: number;
+  credit: number;
+  close_debit: number;
+  close_credit: number;
+}
+
+export interface TrialBalanceStatementTotals {
+  open_debit: number;
+  open_credit: number;
+  debit: number;
+  credit: number;
+  close_debit: number;
+  close_credit: number;
+}
+
+export interface TrialBalanceStatement {
+  from: string;
+  to: string;
+  groups: TrialBalanceStatementGroup[];
+  totals: TrialBalanceStatementTotals;
+  selisih: { open: number; move: number; close: number };
+  journalCount: number;
+  modules: Record<string, number>;
 }
 
 export type TrialBalanceExportType = 'pdf' | 'xlsx' | 'csv';

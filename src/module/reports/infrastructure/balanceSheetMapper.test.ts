@@ -14,13 +14,13 @@ describe('mapBalanceSheetResponse', () => {
     expect(result.assets.totalCurrentAssets).toBe(1500.5);
   });
 
-  it('replaces a server section total of 0 with the sum of its items', () => {
+  it('keeps a server section total of 0 when it is explicitly provided', () => {
     const result = mapBalanceSheetResponse(
       { data: { assets: { currentAssets: [item(200), item(300)], totalCurrentAssets: 0 } } },
       params
     );
 
-    expect(result.assets.totalCurrentAssets).toBe(500);
+    expect(result.assets.totalCurrentAssets).toBe(0);
   });
 
   it('keeps a non-zero server section total even when the items sum differently', () => {
@@ -51,13 +51,38 @@ describe('mapBalanceSheetResponse', () => {
     expect(result.assets.calculatedTotal).toBe(750);
   });
 
-  it('ignores the server grand total when the payload is not wrapped in data', () => {
+  it('keeps the server grand total in a flat legacy payload', () => {
     const result = mapBalanceSheetResponse(
       { assets: { currentAssets: [item(500)] }, totalAssets: 12 },
       params
     );
 
-    expect(result.totalAssets).toBe(500);
+    expect(result.totalAssets).toBe(12);
+  });
+
+  it('maps the backend profit and overdraft fields used by the balance sheet view', () => {
+    const result = mapBalanceSheetResponse(
+      {
+        data: {
+          assets: { currentAssets: [] },
+          equity: [
+            { accountName: 'Laba Tahun Berjalan', balance: 90, derived: true },
+            { accountName: 'Laba Periode Lalu (belum ditutup)', balance: 10, derived: false },
+          ],
+          currentYearProfit: 90,
+          priorYearProfit: 10,
+          overdrafts: [{ accountNumber: '1-10001', accountName: 'Bank', balance: 25 }],
+        },
+      },
+      params
+    );
+
+    expect(result.currentYearProfit).toBe(90);
+    expect(result.priorYearProfit).toBe(10);
+    expect(result.equity.map((account) => account.derived)).toEqual([true, false]);
+    expect(result.overdrafts).toEqual([
+      { accountNumber: '1-10001', accountName: 'Bank', balance: 25 },
+    ]);
   });
 
   it('splits a flat liabilities list by category name', () => {

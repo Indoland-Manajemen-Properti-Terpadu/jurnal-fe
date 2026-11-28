@@ -9,7 +9,7 @@ interface ReportSearchInputProps {
   placeholder: string;
 }
 
-/** The search box of the report toolbar's `extra` slot, the same on every report page. */
+/** Shared account search input for report filters and statement cards. */
 export const ReportSearchInput: React.FC<ReportSearchInputProps> = ({
   value,
   onChange,

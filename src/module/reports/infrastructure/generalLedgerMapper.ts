@@ -30,6 +30,7 @@ function mapTransaction(rawSource: unknown): GeneralLedgerTransaction {
   return {
     transactionDate: safeString(source.transactionDate),
     transactionNumber: safeString(source.transactionNumber, '-'),
+    referenceNumber: safeString(source.referenceNumber),
     description: safeString(source.description, '-'),
     notes: safeString(source.notes),
     debit: safeNumber(source.debit),
@@ -76,6 +77,10 @@ export function mapGeneralLedgerResponse(raw: unknown): GeneralLedgerReport {
   return {
     accounts,
     precision: optionalPrecision(data.precision),
+    negativeFormat:
+      data.negativeFormat === 'minus' || data.negativeFormat === 'parentheses'
+        ? data.negativeFormat
+        : undefined,
     pagination: {
       page: safeNumber(paging.page) || 1,
       limit: safeNumber(paging.limit) || accounts.length,

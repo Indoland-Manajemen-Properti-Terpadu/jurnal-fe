@@ -30,6 +30,8 @@ export const accountLedger = {
     loadFailedMessage:
       'The account details could not be loaded. Check your connection and try again.',
     retry: 'Try Again',
+    reportPeriod: 'Showing journals from {from} to {to}',
+    clearReportPeriod: 'Show all periods',
     side: { Debit: 'Debit', Kredit: 'Credit' },
   },
   cashBank: {

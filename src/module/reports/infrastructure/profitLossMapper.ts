@@ -3,6 +3,8 @@ import type {
   ProfitLossReport,
   ProfitLossRow,
   ProfitLossRowType,
+  ProfitLossStatement,
+  ProfitLossStatementPair,
   ProfitLossSection,
   ProfitLossSummary,
 } from '@/module/reports/domain/profitLoss.types';
@@ -66,6 +68,61 @@ const mapSection = (raw: unknown): ProfitLossSection => {
   };
 };
 
+const mapStatement = (raw: unknown): ProfitLossStatement | null => {
+  const statement = asRecord(raw);
+  if (!Object.keys(statement).length) return null;
+  const totals = asRecord(statement.totals);
+  const modules = asRecord(statement.modules);
+
+  return {
+    from: safeString(statement.from),
+    to: safeString(statement.to),
+    label: safeString(statement.label),
+    sections: asArray(statement.sections).map((value) => {
+      const section = asRecord(value);
+      return {
+        key: safeString(section.key),
+        label: safeString(section.label),
+        normal: section.normal === 'credit' ? 'credit' : 'debit',
+        total: safeNumber(section.total),
+        accounts: asArray(section.accounts).map((accountValue) => {
+          const account = asRecord(accountValue);
+          return {
+            id: safeString(account.id),
+            code: safeString(account.code),
+            name: safeString(account.name),
+            category: safeString(account.category) || null,
+            balance: safeNumber(account.balance),
+          };
+        }),
+      };
+    }),
+    totals: {
+      pendapatan: safeNumber(totals.pendapatan),
+      hpp: safeNumber(totals.hpp),
+      beban: safeNumber(totals.beban),
+      lain_masuk: safeNumber(totals.lain_masuk),
+      lain_keluar: safeNumber(totals.lain_keluar),
+      pajak: safeNumber(totals.pajak),
+      laba_kotor: safeNumber(totals.laba_kotor),
+      laba_operasional: safeNumber(totals.laba_operasional),
+      laba_sebelum_pajak: safeNumber(totals.laba_sebelum_pajak),
+      laba_bersih: safeNumber(totals.laba_bersih),
+    },
+    journalCount: safeNumber(statement.journal_count),
+    modules: Object.fromEntries(
+      Object.entries(modules).map(([name, count]) => [name, safeNumber(count)])
+    ),
+  };
+};
+
+const mapStatementPair = (raw: unknown): ProfitLossStatementPair | undefined => {
+  const statement = asRecord(raw);
+  const current = mapStatement(statement.current);
+  if (!current) return undefined;
+  return { current, compare: mapStatement(statement.compare) };
+};
+
 /** One page of `GET /v1/reports/profit-loss` (`{ data: { sections, summary, rows, pagination } }`). */
 export const mapProfitLossPage = (
   body: unknown
@@ -77,9 +134,14 @@ export const mapProfitLossPage = (
       startDate: safeString(data.startDate),
       endDate: safeString(data.endDate),
       precision: optionalPrecision(data.precision),
+      negativeFormat:
+        data.negativeFormat === 'minus' || data.negativeFormat === 'parentheses'
+          ? data.negativeFormat
+          : undefined,
       sections: asArray(data.sections).map(mapSection),
       summary: mapSummary(data.summary),
       rows: asArray(data.rows).map(mapRow),
+      statement: mapStatementPair(data.statement),
     },
     pagination: {
       page: safeNumber(pagination.page) || 1,

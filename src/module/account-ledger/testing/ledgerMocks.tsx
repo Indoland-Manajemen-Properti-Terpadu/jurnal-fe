@@ -137,10 +137,15 @@ export const makeQueryClient = () => {
 };
 
 /** Renders a page element at `/ledger/:idAccount` with a location probe for navigations. */
-export const renderLedger = (element: ReactNode, client = makeQueryClient(), id = 'acc-1') => {
+export const renderLedger = (
+  element: ReactNode,
+  client = makeQueryClient(),
+  id = 'acc-1',
+  search = ''
+) => {
   const result = render(
     <QueryClientProvider client={client}>
-      <MemoryRouter initialEntries={[`/ledger/${id}`]}>
+      <MemoryRouter initialEntries={[`/ledger/${id}${search}`]}>
         <Routes>
           <Route path="/ledger/:idAccount" element={element} />
           <Route path="*" element={<LocationProbe />} />

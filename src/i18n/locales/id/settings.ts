@@ -20,7 +20,7 @@ export const settings = {
   },
   item: {
     company: 'Profil Perusahaan',
-    general: 'Presisi Angka',
+    general: 'Format Angka',
     accountMapping: 'Pemetaan Akun',
     opnameAccounts: 'Akun Selisih Opname',
     taxes: 'Pajak',
@@ -37,7 +37,7 @@ export const settings = {
   },
   description: {
     company: 'Identitas dan data legal perusahaan.',
-    general: 'Jumlah digit desimal pada pengaturan saat ini.',
+    general: 'Atur tampilan angka negatif dan lihat presisi desimal yang tersimpan.',
     accountMapping: 'Akun default untuk transaksi otomatis.',
     opnameAccounts: 'Akun untuk selisih stok opname.',
     taxes: 'Tarif dan akun pajak.',
@@ -52,9 +52,8 @@ export const settings = {
     approvalFlow: 'Siapa yang menyetujui tiap tahap persetujuan.',
     sites: 'Kelola perusahaan atau lokasi yang memakai aplikasi ini.',
   },
-  generalTitle: 'Presisi Angka',
-  generalDescription:
-    'Lihat presisi desimal yang tersimpan dan coba tampilannya tanpa mengubah data.',
+  generalTitle: 'Format Angka',
+  generalDescription: 'Atur tampilan angka negatif dan lihat presisi desimal yang tersimpan.',
   currentPrecision: 'Presisi tersimpan',
   currentPrecisionDescription: 'Nilai yang dikembalikan layanan pengaturan umum.',
   readOnly: 'Hanya lihat',
@@ -62,6 +61,13 @@ export const settings = {
   precisionValue: '{count} digit',
   precisionLockedReason:
     'Perubahan presisi ditahan sampai status transaksi yang sudah dibukukan, persetujuan, dan jejak audit tersedia dari layanan. Pratinjau di bawah tidak disimpan.',
+  negativeFormatTitle: 'Format angka negatif',
+  negativeFormatDescription:
+    'Pilih cara angka negatif ditampilkan di laporan keuangan dan file ekspor.',
+  negativeFormatParentheses: 'Dalam kurung (1.000,00)',
+  negativeFormatMinus: 'Dengan minus -1.000,00',
+  negativeFormatExample: 'Contoh:',
+  saveNegativeFormat: 'Simpan format',
   previewTitle: 'Coba format angka',
   previewDescription:
     'Bandingkan tampilan desimal dengan angka contoh. Hasil ini hanya pratinjau lokal.',

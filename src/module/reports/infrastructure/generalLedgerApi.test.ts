@@ -56,3 +56,15 @@ describe('generalLedgerApi.getReport', () => {
     );
   });
 });
+
+describe('generalLedgerApi.exportReport', () => {
+  it('sends only the selected account IDs to the existing export endpoint', async () => {
+    get.mockResolvedValue({ data: new Blob(['ledger']) });
+    await generalLedgerApi.exportReport(period, 'csv', undefined, ['a1', 'a2']);
+    expect(get.mock.calls[0][0]).toBe('/v1/general-ledger/export/csv');
+    expect(get.mock.calls[0][1]).toMatchObject({
+      params: { startDate: period.startDate, endDate: period.endDate, accountIds: ['a1', 'a2'] },
+      paramsSerializer: { indexes: null },
+    });
+  });
+});
