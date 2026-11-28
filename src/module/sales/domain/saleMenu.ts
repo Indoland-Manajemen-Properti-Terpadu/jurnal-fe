@@ -7,6 +7,7 @@ export const SALE_MENU = {
   quotes: 'JP-SALES-QUOTE',
   orders: 'JP-SALES-ORDER',
   returns: 'JP-SALES-RETURN',
+  reports: 'JP-SALES-RPT',
 } as const;
 
 export type SaleMenu = (typeof SALE_MENU)[keyof typeof SALE_MENU];

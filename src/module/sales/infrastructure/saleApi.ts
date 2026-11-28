@@ -35,10 +35,12 @@ import type {
 import { toNumber } from './saleMapperUtils';
 
 export const SALE_ENDPOINTS = {
+  overview: '/v1/sales/overview',
   sales: '/v1/sales',
   saleDetail: (id: string) => `/v1/sales/${id}`,
   saleByTxNumber: (txNumber: string) => `/v1/sales/transaction/${txNumber}`,
   send: (id: string) => `/v1/sales/${id}/send`,
+  reminder: (id: string) => `/v1/sales/${id}/reminder`,
   void: (id: string) => `/v1/sales/${id}/void`,
   generateInvoiceLink: (id: string) => `/v1/sales/${id}/invoice-link`,
   downloadInvoice: (id: string) => `/v1/sales/${id}/print`,
@@ -150,6 +152,13 @@ export const sendSale = async (id: string, sendEmail: boolean): Promise<SendSale
     sendEmail,
   });
   return mapSendResult(data.data);
+};
+
+export const sendInvoiceReminder = async (
+  id: string,
+  payload: { email: string; message: string }
+): Promise<void> => {
+  await apiClient.post(SALE_ENDPOINTS.reminder(id), payload);
 };
 
 export const voidSale = async (id: string, reason: string): Promise<Sale> => {

@@ -126,6 +126,7 @@ export const navigationSections: NavSection[] = [
         link: routes.sales.main,
         menus: [...NAV_MENU.sales],
         children: [
+          child('salesOverview', SquaresFour, routes.sales.overview),
           child('salesInvoices', Receipt, routes.sales.main),
           child('salesQuotes', FileText, routes.sales.quotations),
           child('salesOrders', ClipboardText, routes.sales.orders),

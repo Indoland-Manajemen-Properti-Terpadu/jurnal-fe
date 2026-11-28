@@ -91,3 +91,134 @@ export const paidPercent = (finalAmount: number, paidAmount: number): number => 
   if (total <= 0) return 0;
   return Math.min(100, Math.max(0, Math.floor((toCents(paidAmount) / total) * 100)));
 };
+
+export type ReceivableAgingKey = 'current' | 'days1to30' | 'days31to60' | 'days61to90' | 'over90';
+export type ReceivableAgingFilter = ReceivableAgingKey | 'overdue' | 'dueNext7';
+export type ReceivableView = 'customers' | 'invoices';
+export type ReceivableAgingAmount = { amount: number; count: number };
+export type ReceivableAging = Record<ReceivableAgingKey, ReceivableAgingAmount>;
+
+export type ReceivablesOverview = {
+  asOf: string;
+  precision: number;
+  summary: {
+    total: ReceivableAgingAmount;
+    customerCount: number;
+    overdue: ReceivableAgingAmount & { oldestDays: number };
+    dueInSevenDays: ReceivableAgingAmount;
+    customerCredit: { amount: number; customerCount: number };
+  };
+  aging: ReceivableAging;
+  reconciliation: {
+    asOf: string;
+    invoiceBalance: number;
+    invoiceCount: number;
+    ledgerBalance: number;
+    difference: number;
+    status: 'MATCHED' | 'DIFFERENCE';
+    accounts: { id: string; accountNumber: string; name: string }[];
+    forward: { adjustment: number; invoiceCount: number | null };
+    afterDate: Record<string, { count: number; amount: number; effect: number }>;
+  };
+};
+
+export type ReceivableCustomerRow = {
+  customer: { id: string; name: string; contactNumber: string };
+  invoiceCount: number;
+  total: number;
+  credit: number;
+  overdueCount: number;
+  maxDaysOverdue: number;
+  aging: ReceivableAging;
+};
+
+export type ReceivableInvoiceRow = {
+  id: string;
+  transactionNumber: string;
+  customer: { id: string; name: string; contactNumber: string } | null;
+  customerRefNumber: string;
+  transactionDate: string | null;
+  dueDate: string | null;
+  daysPastDue: number;
+  aging: ReceivableAgingKey;
+  finalAmount: number;
+  paidAmount: number;
+  remainingAmount: number;
+  returnedAmount: number;
+  creditAppliedAmount: number;
+  outstandingLateFee: number;
+  lastInvoiceEmailAt: string | null;
+  canEmailInvoice: boolean;
+  saleOrderId: string | null;
+  status: string;
+};
+
+export type ReceivablesPage<T> = {
+  data: T[];
+  precision: number;
+  pagination: { page: number; limit: number; total: number; totalPages: number };
+};
+
+export type ReceivableCustomerDetail = {
+  precision: number;
+  customer: {
+    id: string;
+    name: string;
+    displayName: string;
+    contactNumber: string;
+    phoneNumber: string;
+    emails: string[];
+    address: string;
+  };
+  totalReceivable: number;
+  creditAvailable: number;
+  aging: ReceivableAging;
+  invoices: {
+    data: {
+      id: string;
+      transactionNumber: string;
+      transactionDate: string | null;
+      dueDate: string | null;
+      finalAmount: number;
+      paidAmount: number;
+      remainingAmount: number;
+      returnedAmount: number;
+      lastInvoiceEmailAt: string | null;
+      canEmailInvoice: boolean;
+      saleOrderId: string | null;
+      status: string;
+    }[];
+    pagination: { total: number; limit: number; hasMore: boolean };
+  };
+  payments: {
+    id: string;
+    invoiceId: string;
+    invoiceNumber: string;
+    transactionNumber: string;
+    paymentDate: string | null;
+    amount: number;
+    memo: string;
+  }[];
+  upcomingOrders: {
+    data: {
+      id: string;
+      transactionNumber: string;
+      transactionDate: string | null;
+      targetDate: string | null;
+      status: string;
+      total: number;
+      [key: string]: unknown;
+    }[];
+    total: number;
+  };
+};
+
+export type ReceivableListParams = {
+  page: number;
+  limit: number;
+  search?: string;
+  customer?: string;
+  aging?: ReceivableAgingFilter;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+};

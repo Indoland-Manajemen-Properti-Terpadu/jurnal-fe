@@ -30,7 +30,13 @@ import { Link } from 'react-router-dom';
 import { ModalFrame } from '@/components/Modals/ModalFrame';
 import { useTranslation } from '@/i18n';
 import { routes } from '@/router/routes';
-import type { CreateSalePaymentPayload, Sale, SalePaymentResult } from '@/module/sales/domain/sale';
+import type {
+  CreateSalePaymentPayload,
+  Sale,
+  SaleCustomer,
+  SaleItem,
+  SalePaymentResult,
+} from '@/module/sales/domain/sale';
 import { formatIDR } from '@/module/sales/domain/saleFormat';
 import {
   emptyPaymentForm,
@@ -55,7 +61,20 @@ import { PaymentResultView } from './pay/PaymentResultView';
 
 type PaySaleModalProps = {
   opened: boolean;
-  sale?: Sale | null;
+  sale?:
+    | (Pick<
+        Sale,
+        | 'id'
+        | 'remainingAmount'
+        | 'transactionNumber'
+        | 'finalAmount'
+        | 'outstandingLateFee'
+        | 'transactionDate'
+      > & {
+        customer: Pick<SaleCustomer, 'id' | 'displayName'> | null;
+        items?: SaleItem[];
+      })
+    | null;
   isSubmitting?: boolean;
   onClose: () => void;
   onSubmit: (payload: CreateSalePaymentPayload) => Promise<SalePaymentResult>;
@@ -79,6 +98,9 @@ export function PaySaleModal({
   // The invoice's own lines (id, open balance, open late fee) come from the detail call.
   const detailQuery = useSaleDetail(opened ? sale?.id : undefined);
   const invoice = detailQuery.data ?? sale;
+  const saleDetailsMissing = Boolean(sale && (!sale.items || sale.items.length === 0));
+  const saleDetailsLoading = saleDetailsMissing && detailQuery.isLoading;
+  const saleDetailsFailed = saleDetailsMissing && detailQuery.isError;
   const [result, setResult] = useState<SalePaymentResult | null>(null);
 
   const remaining = invoice?.remainingAmount ?? 0;
@@ -190,7 +212,13 @@ export function PaySaleModal({
                   form={FORM_ID}
                   color="primary"
                   loading={isSubmitting}
-                  disabled={mappingMissing || (kind === 'partial' && !invoice) || allocationBlocked}
+                  disabled={
+                    saleDetailsLoading ||
+                    saleDetailsFailed ||
+                    mappingMissing ||
+                    (kind === 'partial' && !invoice) ||
+                    allocationBlocked
+                  }
                 >
                   {t('pay.save')}
                 </Button>
@@ -212,6 +240,7 @@ export function PaySaleModal({
           }}
         >
           <Stack gap="md">
+            {saleDetailsFailed && <Alert color="orange">{t('pay.invoiceLoadError')}</Alert>}
             <Paper withBorder p="sm" radius="md" bg="gray.0">
               <Grid gutter="xs">
                 <Grid.Col span={6}>

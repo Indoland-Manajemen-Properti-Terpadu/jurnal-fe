@@ -5,6 +5,7 @@ export const salesPay = {
     customer: 'Pelanggan',
     invoiceTotal: 'Total Tagihan',
     remaining: 'Sisa Tagihan',
+    invoiceLoadError: 'Rincian faktur belum dapat dimuat. Coba lagi sebelum menyimpan pembayaran.',
     depositAccount: 'Setor ke Akun (Kas & Bank)',
     depositAccountPlaceholder: 'Pilih rekening bank atau kas penerima...',
     depositAccountEmpty: 'Belum ada akun Kas & Bank yang dapat dipilih',

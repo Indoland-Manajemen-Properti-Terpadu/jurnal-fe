@@ -30,6 +30,7 @@ export const navigation = {
   budgetMenu: 'Anggaran',
   closingBooksMenu: 'Tutup Buku',
   salesInvoices: 'Faktur Penjualan',
+  salesOverview: 'Ringkasan Penjualan',
   salesQuotes: 'Penawaran',
   salesOrders: 'Pesanan Penjualan',
   salesPayments: 'Pembayaran Masuk',
