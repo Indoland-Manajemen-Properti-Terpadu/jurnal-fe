@@ -3,6 +3,14 @@ import type { DateRange } from './saleListState';
 export const DATE_PRESETS = ['all', 'today', 'week', 'month', 'year', 'custom'] as const;
 export type DatePreset = (typeof DATE_PRESETS)[number];
 
+/** A dashboard month key to the exact calendar range accepted by the list API. */
+export const monthRangeFromKey = (key: string | null): DateRange | null => {
+  if (!key || !/^\d{4}-(0[1-9]|1[0-2])$/.test(key)) return null;
+  const [year, month] = key.split('-').map(Number);
+  const lastDay = new Date(Date.UTC(year, month, 0)).getUTCDate();
+  return [`${key}-01`, `${key}-${String(lastDay).padStart(2, '0')}`];
+};
+
 const iso = (date: Date): string =>
   `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 

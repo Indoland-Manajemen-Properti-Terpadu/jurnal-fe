@@ -16,6 +16,7 @@ import { salesQuotes } from './salesQuotes';
 import { salesOrders } from './salesOrders';
 import { salesBulk } from './salesBulk';
 import { salesReturns } from './salesReturns';
+import { salesReceivables } from './salesReceivables';
 import { dashboard } from './dashboard';
 import { plannedModules } from './plannedModules';
 import { landing } from './landing';
@@ -55,6 +56,7 @@ export const en = {
   salesOrders,
   salesBulk,
   salesReturns,
+  salesReceivables,
   dashboard,
   plannedModules,
   landing,

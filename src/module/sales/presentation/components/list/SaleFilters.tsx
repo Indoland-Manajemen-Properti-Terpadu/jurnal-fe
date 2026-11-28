@@ -10,8 +10,9 @@ import {
 import { DateRangeFilter } from '../shared/DateRangeFilter';
 
 const STATUS_LABEL_KEY: Record<SaleStatusFilter, string> = {
+  OPEN: 'status.open',
   DRAFT: 'status.draft',
-  UNPAID: 'status.unpaid',
+  UNPAID: 'stats.parts.notDue',
   OVERDUE: 'status.overdue',
   PAID: 'status.paid',
   VOID: 'status.void',

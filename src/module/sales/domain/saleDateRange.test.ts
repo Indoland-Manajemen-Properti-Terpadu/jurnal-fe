@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { presetRange } from './saleDateRange';
+import { monthRangeFromKey, presetRange } from './saleDateRange';
 
 // Thursday 19 November 2026.
 const now = new Date(2026, 10, 19, 15, 30);
@@ -19,5 +19,17 @@ describe('presetRange', () => {
   it('has no range for "all" and "custom"', () => {
     expect(presetRange('all', now)).toEqual([null, null]);
     expect(presetRange('custom', now)).toEqual([null, null]);
+  });
+});
+
+describe('monthRangeFromKey', () => {
+  it('uses the full month, including a leap day', () => {
+    expect(monthRangeFromKey('2026-11')).toEqual(['2026-11-01', '2026-11-30']);
+    expect(monthRangeFromKey('2028-02')).toEqual(['2028-02-01', '2028-02-29']);
+  });
+
+  it('ignores an invalid month in the URL', () => {
+    expect(monthRangeFromKey('2026-13')).toBeNull();
+    expect(monthRangeFromKey(null)).toBeNull();
   });
 });

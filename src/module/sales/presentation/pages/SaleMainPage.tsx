@@ -10,7 +10,7 @@ import {
   IconRepeat,
   IconSend,
 } from '@tabler/icons-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AppShellLayout } from '@/components/AppShellLayout';
 import { ModuleHeader } from '@/components/ModuleHeader/ModuleHeader';
 import { useTranslation } from '@/i18n';
@@ -50,12 +50,20 @@ const editPath = (id: string) => routes.sales.edit.replace(':id', id);
 
 export function SaleMainPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const initialTab = searchParams.get('tab') === 'draft' ? 'draft' : 'issued';
+  const initialStatus =
+    initialTab === 'issued' && searchParams.get('status') === 'open' ? 'OPEN' : 'all';
   const { t } = useTranslation('sales');
   const { t: tBulk } = useTranslation('salesBulk');
   const { can, isReady } = useMyGrants();
   const canBulk = !isReady || can(SALE_MENU.invoices, 'create');
 
-  const [state, dispatch] = useReducer(saleListReducer, initialListState);
+  const [state, dispatch] = useReducer(saleListReducer, {
+    ...initialListState,
+    tab: initialTab,
+    status: initialStatus,
+  });
   const [searchInput, setSearchInput] = useState('');
   const [debouncedSearch] = useDebouncedValue(searchInput, 400);
   useEffect(() => {

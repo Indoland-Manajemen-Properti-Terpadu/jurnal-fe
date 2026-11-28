@@ -23,6 +23,19 @@ describe('classifySaleError', () => {
     ).toEqual({ kind: 'validation' });
   });
 
+  it('keeps a service-unavailable email message from the API', () => {
+    expect(
+      classifySaleError(
+        failure(503, {
+          message: 'Server email (SMTP) belum dikonfigurasi, email tidak dapat dikirim.',
+        })
+      )
+    ).toEqual({
+      kind: 'domain',
+      serverMessage: 'Server email (SMTP) belum dikonfigurasi, email tidak dapat dikirim.',
+    });
+  });
+
   it('maps statuses and a missing response', () => {
     expect(classifySaleError(failure(401, {})).kind).toBe('unauthorized');
     expect(classifySaleError(failure(403, { message: 'Forbidden Access Role' })).kind).toBe(
