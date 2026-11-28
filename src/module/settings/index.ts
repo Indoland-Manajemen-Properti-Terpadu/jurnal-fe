@@ -14,3 +14,5 @@ export { default as SettingsLayout } from './presentation/components/SettingsLay
 export { useAccountMappings } from './presentation/hooks/useAccountMappings';
 export type { AccountMappingItem, AccountMappingsByGroup } from './domain/settingTypes';
 export { useDecimalPrecision } from './presentation/hooks/useDecimalPrecision';
+export type { NegativeNumberFormat } from './domain/settingTypes';
+export { useGeneralSettings } from './presentation/hooks/useGeneralSettings';

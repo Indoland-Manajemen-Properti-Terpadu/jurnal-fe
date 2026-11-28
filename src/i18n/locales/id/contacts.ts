@@ -78,6 +78,9 @@ export const contacts = {
     otherTypes: '({count}) tipe lainnya',
     systemDefault: 'Standar Sistem',
     archived: 'Diarsipkan',
+    needsReview: 'Perlu dilengkapi',
+    needsReviewHint:
+      'Kontak ini dibuat otomatis dari Proapps (vendor aset) dan baru berisi nama, telepon, email, dan alamat. Lengkapi datanya, lalu simpan.',
     viewTooltip: 'Lihat Detail',
     viewAria: 'Lihat Detail Kontak',
     editTooltip: 'Ubah Kontak',

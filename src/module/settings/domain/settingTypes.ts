@@ -1,13 +1,20 @@
 /** An account the API returns either as an id or as a populated object. */
 export type AccountRef = string | { id?: string; name?: string; accountNumber?: string } | null;
 
+export type NegativeNumberFormat = 'parentheses' | 'minus';
+
 export type GeneralSetting = {
   id: string;
   site?: string;
   decimalPrecision: number;
+  negativeNumberFormat?: NegativeNumberFormat;
   createdAt?: string;
   updatedAt?: string;
 };
+
+export type UpdateGeneralSettingPayload = Partial<
+  Pick<GeneralSetting, 'decimalPrecision' | 'negativeNumberFormat'>
+>;
 
 export type AccountMappingAccount = {
   id: string;

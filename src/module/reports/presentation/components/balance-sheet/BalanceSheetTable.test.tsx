@@ -1,4 +1,5 @@
 import { render, screen, userEvent, within } from '@test-utils';
+import { MemoryRouter } from 'react-router-dom';
 import {
   BalanceSheetTable,
   type BalanceSheetGroup,
@@ -40,16 +41,18 @@ const section = (overrides: Partial<BalanceSheetSection> = {}): BalanceSheetSect
   ...overrides,
 });
 
+const renderTable = (table: React.ReactElement) => render(<MemoryRouter>{table}</MemoryRouter>);
+
 describe('BalanceSheetTable', () => {
   it('shows the subtotal in the group band and negative balances in parentheses', () => {
-    render(<BalanceSheetTable sections={[section()]} searching={false} />);
+    renderTable(<BalanceSheetTable sections={[section()]} searching={false} />);
     expect(screen.getByText('Kas')).toBeInTheDocument();
-    expect(screen.getByText(/\(Rp\s?13\.762\.000,00\)/)).toBeInTheDocument();
-    expect(screen.getByText(/\(Rp\s?100,00\)/)).toBeInTheDocument();
+    expect(screen.getByText(/\(13\.762\.000,00\)/)).toBeInTheDocument();
+    expect(screen.getByText(/\(100,00\)/)).toBeInTheDocument();
   });
 
   it('is one table: every section is a head inside it, in order, each with its own total row', () => {
-    render(
+    renderTable(
       <BalanceSheetTable
         sections={[
           section(),
@@ -83,7 +86,7 @@ describe('BalanceSheetTable', () => {
   });
 
   it('ends every section with its total row and the table with the grand total', () => {
-    render(
+    renderTable(
       <BalanceSheetTable
         sections={[section()]}
         grandTotal={{ label: 'Total Liabilitas + Ekuitas', value: 900 }}
@@ -91,54 +94,54 @@ describe('BalanceSheetTable', () => {
       />
     );
     const row = screen.getByText('Total Aset').closest('tr')!;
-    expect(within(row).getByText(/Rp\s?900/)).toBeInTheDocument();
+    expect(within(row).getByText(/900,00/)).toBeInTheDocument();
     const grand = screen.getByText('Total Liabilitas + Ekuitas').closest('tr')!;
-    expect(within(grand).getByText(/Rp\s?900/)).toBeInTheDocument();
+    expect(within(grand).getByText(/900,00/)).toBeInTheDocument();
   });
 
   it('puts no figure in a section head, the total is in the row under it', () => {
-    render(<BalanceSheetTable sections={[section({ groups: [] })]} searching={false} />);
+    renderTable(<BalanceSheetTable sections={[section({ groups: [] })]} searching={false} />);
     const head = screen.getByText('Aset (Aktiva)').closest('tr')!;
     expect(within(head).queryByText(/Rp/)).not.toBeInTheDocument();
   });
 
   it('collapses the accounts of a group but keeps its subtotal visible', async () => {
-    render(
+    renderTable(
       <BalanceSheetTable
         sections={[section({ groups: [group({ subtotal: 500 })] })]}
         searching={false}
       />
     );
-    const band = screen.getByRole('button', { name: /Aset Lancar/ });
+    const band = screen.getByRole('button', { name: /Aset lancar/ });
     expect(band).toHaveAttribute('aria-expanded', 'true');
     await userEvent.click(band);
     expect(band).toHaveAttribute('aria-expanded', 'false');
     expect(screen.queryByText('Kas')).not.toBeInTheDocument();
-    expect(screen.getByText(/Rp\s?500/)).toBeInTheDocument();
+    expect(screen.getByText(/500,00/)).toBeInTheDocument();
   });
 
   it('shows accounts of a flat section without a group band', () => {
-    render(<BalanceSheetTable sections={[section({ flat: true })]} searching={false} />);
+    renderTable(<BalanceSheetTable sections={[section({ flat: true })]} searching={false} />);
     expect(screen.getByText('Kas')).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /Aset Lancar/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Aset lancar/ })).not.toBeInTheDocument();
   });
 
   it('drops a group with no match while searching, and says so when nothing is left', () => {
     const empty = group({ key: 'empty', title: 'Penyusutan', accounts: [], subtotal: 0 });
-    const { unmount } = render(
+    const { unmount } = renderTable(
       <BalanceSheetTable sections={[section({ groups: [empty, group()] })]} searching />
     );
     expect(screen.queryByText('Penyusutan')).not.toBeInTheDocument();
-    expect(screen.getByText('Aset Lancar')).toBeInTheDocument();
+    expect(screen.getByText('Aset lancar')).toBeInTheDocument();
     unmount();
 
-    render(<BalanceSheetTable sections={[section({ groups: [empty] })]} searching />);
+    renderTable(<BalanceSheetTable sections={[section({ groups: [empty] })]} searching />);
     expect(screen.getByText(/yang cocok dengan pencarian/)).toBeInTheDocument();
   });
 
   it('notes an empty group when not searching', () => {
     const empty = group({ key: 'empty', title: 'Penyusutan', accounts: [], subtotal: 0 });
-    render(<BalanceSheetTable sections={[section({ groups: [empty] })]} searching={false} />);
+    renderTable(<BalanceSheetTable sections={[section({ groups: [empty] })]} searching={false} />);
     expect(screen.getByText('Penyusutan')).toBeInTheDocument();
     expect(screen.getByText(/akun tercatat/)).toBeInTheDocument();
   });

@@ -140,6 +140,25 @@ describe('non cash/bank ledger page (characterization)', () => {
     expect(screen.queryByRole('tab')).not.toBeInTheDocument();
   });
 
+  it('keeps the selected report period when opening an account from Buku Besar', async () => {
+    ledgerState.transactions = [
+      { ...journalRow(100, 0, 'before'), transactionDate: new Date('2026-10-31T12:00:00') },
+      { ...journalRow(200, 0, 'inside'), transactionDate: new Date('2026-11-10T12:00:00') },
+      { ...journalRow(300, 0, 'after'), transactionDate: new Date('2026-12-01T12:00:00') },
+    ];
+    renderLedger(
+      <AccountLedgerPage variant="nonCashBank" />,
+      undefined,
+      'acc-1',
+      '?from=2026-11-01&to=2026-11-30'
+    );
+    expect(screen.getByText('rows:1')).toBeInTheDocument();
+    expect(screen.getByText(formatCurrency(200))).toBeInTheDocument();
+    const user = userEvent.setup();
+    await user.click(screen.getByRole('button', { name: 'Lihat semua periode' }));
+    expect(screen.getByText('rows:3')).toBeInTheDocument();
+  });
+
   it('shows the account balance and zero totals without entries', () => {
     renderNonCash();
     expect(screen.getAllByText(formatCurrency(1500000.5)).length).toBeGreaterThan(0);

@@ -1,29 +1,28 @@
 import React from 'react';
-import { Box, Paper, Text } from '@mantine/core';
+import { Box, Group, Text } from '@mantine/core';
 import type { BalanceSheetData } from '@/module/reports/domain/balanceSheet.types';
 import {
   currentAssetsShare,
   currentRatio,
-  fundingStructure,
+  debtRatio,
 } from '@/module/reports/domain/balanceSheetInsights';
 import { useTranslation } from '@/i18n';
 import classes from './BalanceSheet.module.css';
-
-const ratioFormat = new Intl.NumberFormat('id-ID', { maximumFractionDigits: 1 });
-const percentFormat = new Intl.NumberFormat('id-ID', { maximumFractionDigits: 0 });
 
 interface BalanceSheetReadingProps {
   data: BalanceSheetData;
 }
 
 const Reading = ({ label, value, note }: { label: string; value: string; note: string }) => (
-  <Box>
-    <Text fz="xs" c="dimmed" tt="uppercase" fw={600}>
-      {label}
-    </Text>
-    <Text fz="xl" fw={700} c="dark.9" mt={2} style={{ fontVariantNumeric: 'tabular-nums' }}>
-      {value}
-    </Text>
+  <Box className={classes.readingCell}>
+    <Group justify="space-between" align="baseline" wrap="nowrap" gap="xs">
+      <Text fz="sm" c="dark.9" fw={600}>
+        {label}
+      </Text>
+      <Text fz="md" fw={700} c="dark.9" style={{ fontVariantNumeric: 'tabular-nums' }}>
+        {value}
+      </Text>
+    </Group>
     <Text fz="xs" c="dimmed" mt={2}>
       {note}
     </Text>
@@ -36,40 +35,43 @@ const Reading = ({ label, value, note }: { label: string; value: string; note: s
  * They state the figure and what it means; they judge nothing.
  */
 export const BalanceSheetReading: React.FC<BalanceSheetReadingProps> = ({ data }) => {
-  const { t } = useTranslation('reports');
+  const { t, currentLanguage } = useTranslation('reports');
+  const locale = currentLanguage === 'id' ? 'id-ID' : 'en-US';
+  const ratioFormat = new Intl.NumberFormat(locale, { maximumFractionDigits: 1 });
+  const percentFormat = new Intl.NumberFormat(locale, { maximumFractionDigits: 0 });
   const ratio = currentRatio(data);
-  const funding = fundingStructure(data);
+  const debt = debtRatio(data);
   const currentShare = currentAssetsShare(data);
 
   return (
-    <Paper withBorder radius="lg" p="lg" bg="white">
-      <Text fz="sm" fw={600} c="dark.9" mb="md">
-        {t('balanceSheet.readingTitle')}
-      </Text>
-      <div className={classes.reading}>
-        <Reading
-          label={t('balanceSheet.ratioLabel')}
-          value={ratio === null ? '–' : `${ratioFormat.format(ratio)}×`}
-          note={
-            ratio === null
-              ? t('balanceSheet.ratioNone')
-              : t('balanceSheet.ratioNote', { times: ratioFormat.format(ratio) })
-          }
-        />
-        <Reading
-          label={t('balanceSheet.fundingLabel')}
-          value={t('balanceSheet.fundingValue', {
-            liabilities: percentFormat.format(funding.liabilitiesShare),
-            equity: percentFormat.format(funding.equityShare),
-          })}
-          note={t('balanceSheet.fundingNote')}
-        />
-        <Reading
-          label={t('balanceSheet.currentShareLabel')}
-          value={currentShare === null ? '–' : `${percentFormat.format(currentShare)}%`}
-          note={t('balanceSheet.currentShareNote')}
-        />
-      </div>
-    </Paper>
+    <div className={classes.reading}>
+      <Reading
+        label={t('balanceSheet.ratioLabel')}
+        value={ratio === null ? '–' : `${ratioFormat.format(ratio)}×`}
+        note={
+          ratio === null
+            ? t('balanceSheet.ratioNone')
+            : t(ratio >= 1 ? 'balanceSheet.ratioEnough' : 'balanceSheet.ratioShort')
+        }
+      />
+      <Reading
+        label={t('balanceSheet.debtRatioLabel')}
+        value={debt === null ? '–' : `${percentFormat.format(debt)}%`}
+        note={
+          debt === null
+            ? t('balanceSheet.debtRatioNone')
+            : t(debt > 100 ? 'balanceSheet.debtRatioOver' : 'balanceSheet.debtRatioNote')
+        }
+      />
+      <Reading
+        label={t('balanceSheet.currentShareLabel')}
+        value={currentShare === null ? '–' : `${percentFormat.format(currentShare)}%`}
+        note={
+          currentShare === null
+            ? t('balanceSheet.currentShareNone')
+            : t('balanceSheet.currentShareNote')
+        }
+      />
+    </div>
   );
 };

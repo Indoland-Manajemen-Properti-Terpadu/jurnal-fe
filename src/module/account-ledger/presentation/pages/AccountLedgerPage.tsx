@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react';
-import { Alert, Box, Button, Center, Loader, Stack, Text, Title } from '@mantine/core';
+import { Alert, Box, Button, Center, Group, Loader, Stack, Text, Title } from '@mantine/core';
 import { IconAlertCircle } from '@tabler/icons-react';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
+import { format } from 'date-fns';
 import { useTranslation } from '@/i18n';
 import { AppShellLayout } from '@/components/AppShellLayout';
 import { accountDetailData, useDetailAccount } from '@/module/chart-of-accounts';
@@ -27,6 +28,12 @@ interface AccountLedgerPageProps {
 const AccountLedgerContent: React.FC<AccountLedgerPageProps> = ({ variant }) => {
   const { t } = useTranslation('accountLedger');
   const { idAccount = '' } = useParams<{ idAccount: string }>();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const from = searchParams.get('from');
+  const to = searchParams.get('to');
+  const hasReportPeriod = Boolean(
+    from && to && /^\d{4}-\d{2}-\d{2}$/.test(from) && /^\d{4}-\d{2}-\d{2}$/.test(to) && from <= to
+  );
   const isCashBank = variant === 'cashBank';
 
   const {
@@ -36,6 +43,18 @@ const AccountLedgerContent: React.FC<AccountLedgerPageProps> = ({ variant }) => 
     refetch: refetchAccount,
   } = useDetailAccount(idAccount);
   const entries = useJournalEntriesByAccount(idAccount);
+  const periodEntries = useMemo(
+    () => ({
+      ...entries,
+      data: hasReportPeriod
+        ? entries.data?.filter((entry) => {
+            const date = format(new Date(entry.transactionDate), 'yyyy-MM-dd');
+            return date >= from! && date <= to!;
+          })
+        : entries.data,
+    }),
+    [entries, from, to, hasReportPeriod]
+  );
   const summary = useCashBankSummary(idAccount, isCashBank);
 
   const account = accountDetailData(unwrapAccountDetail(accountDetail));
@@ -58,8 +77,11 @@ const AccountLedgerContent: React.FC<AccountLedgerPageProps> = ({ variant }) => 
       }),
     [account.category?.name, account.category?.isDebit, account.type, account.isContra]
   );
-  const metrics = useMemo(() => summarizeMutations(entries.data), [entries.data]);
-  const lastEntryDate = useMemo(() => latestTransactionDate(entries.data), [entries.data]);
+  const metrics = useMemo(() => summarizeMutations(periodEntries.data), [periodEntries.data]);
+  const lastEntryDate = useMemo(
+    () => latestTransactionDate(periodEntries.data),
+    [periodEntries.data]
+  );
 
   // The cash/bank tab shows its own entries loader, the other ledger waits for the entries too.
   const isLoading = isCashBank ? isLoadingAccount : isLoadingAccount || entries.isLoading;
@@ -98,7 +120,7 @@ const AccountLedgerContent: React.FC<AccountLedgerPageProps> = ({ variant }) => 
     );
   }
 
-  const journalCount = entries.data?.length || 0;
+  const journalCount = periodEntries.data?.length || 0;
 
   return (
     <>
@@ -114,6 +136,28 @@ const AccountLedgerContent: React.FC<AccountLedgerPageProps> = ({ variant }) => 
               onArchive={actions.openArchiveModal}
               onDelete={actions.openDeleteModal}
             />
+
+            {hasReportPeriod && (
+              <Alert color="blue" radius="md">
+                <Group justify="space-between" gap="sm">
+                  <Text fz="sm">
+                    {t('common.reportPeriod', { from: from ?? '', to: to ?? '' })}
+                  </Text>
+                  <Button
+                    size="xs"
+                    variant="subtle"
+                    onClick={() => {
+                      const next = new URLSearchParams(searchParams);
+                      next.delete('from');
+                      next.delete('to');
+                      setSearchParams(next);
+                    }}
+                  >
+                    {t('common.clearReportPeriod')}
+                  </Button>
+                </Group>
+              </Alert>
+            )}
 
             {isCashBank ? (
               <>
@@ -147,7 +191,7 @@ const AccountLedgerContent: React.FC<AccountLedgerPageProps> = ({ variant }) => 
                   idAccount={idAccount}
                   activeTab={activeTab}
                   onChange={setActiveTab}
-                  entries={entries}
+                  entries={periodEntries}
                   selectedRecords={selectedRecords}
                   setSelectedRecords={setSelectedRecords}
                   statementCount={summary.statementCount}
@@ -164,7 +208,7 @@ const AccountLedgerContent: React.FC<AccountLedgerPageProps> = ({ variant }) => 
                 />
                 <NonCashBankPanel
                   idAccount={idAccount}
-                  entries={entries}
+                  entries={periodEntries}
                   selectedRecords={selectedRecords}
                   setSelectedRecords={setSelectedRecords}
                 />

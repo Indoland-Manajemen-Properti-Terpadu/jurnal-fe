@@ -8,6 +8,10 @@ import type {
   ProfitLossReport,
 } from '@/module/reports/domain/profitLoss.types';
 import { assignRoles, visibleLines } from '@/module/reports/domain/profitLossRows';
+import {
+  getProfitLossComparisonRange,
+  type ProfitLossComparisonPreset,
+} from '@/module/reports/domain/profitLossPeriod';
 import { profitLossApi } from '@/module/reports/infrastructure/profitLossApi';
 import { ReportRequestError } from '@/module/reports/infrastructure/reportRequest';
 import { isRequestCanceled } from '@/module/reports/infrastructure/requestCancel';
@@ -27,13 +31,32 @@ export function useProfitLoss() {
   const exportRequest = useAbortableRequest();
   const period = useReportPeriod('this_month', exportRequest.abort);
   const [search, setSearch] = useState('');
+  const [comparisonPreset, setComparisonPreset] = useState<ProfitLossComparisonPreset>('none');
+  const [customComparePeriod, setCustomComparePeriod] = useState({ startDate: '', endDate: '' });
+  const [viewMode, setViewMode] = useState<'rinci' | 'ringkas'>('rinci');
+  const [hideZero, setHideZero] = useState(true);
+  const comparePeriod = useMemo(
+    () => getProfitLossComparisonRange(comparisonPreset, period.period, customComparePeriod),
+    [comparisonPreset, period.period, customComparePeriod]
+  );
 
   const query = useQuery<ProfitLossReport>({
-    queryKey: ['profit-loss', period.period.startDate, period.period.endDate, currentLanguage],
+    queryKey: [
+      'profit-loss',
+      period.period.startDate,
+      period.period.endDate,
+      comparePeriod?.startDate ?? null,
+      comparePeriod?.endDate ?? null,
+      currentLanguage,
+    ],
     queryFn: ({ signal }) =>
       profitLossApi.getReport(
         period.period,
-        { lang: currentLanguage, fallbackMessage: t('profitLoss.loadFailedMessage') },
+        {
+          lang: currentLanguage,
+          fallbackMessage: t('profitLoss.loadFailedMessage'),
+          comparePeriod,
+        },
         signal
       ),
     enabled: allowed,
@@ -49,7 +72,13 @@ export function useProfitLoss() {
       profitLossApi.exportReport(
         period.period,
         type,
-        { lang: currentLanguage, fallbackMessage: t('common.exportRetry') },
+        {
+          lang: currentLanguage,
+          fallbackMessage: t('common.exportRetry'),
+          comparePeriod,
+          mode: viewMode,
+          hideZero,
+        },
         exportRequest.start()
       ),
     onSuccess: ({ blob, filename }, type) => {
@@ -85,6 +114,15 @@ export function useProfitLoss() {
     shown,
     search,
     setSearch,
+    comparisonPreset,
+    setComparisonPreset,
+    customComparePeriod,
+    setCustomComparePeriod,
+    comparePeriod,
+    viewMode,
+    setViewMode,
+    hideZero,
+    setHideZero,
     exportMutation,
     cancelExport,
   };

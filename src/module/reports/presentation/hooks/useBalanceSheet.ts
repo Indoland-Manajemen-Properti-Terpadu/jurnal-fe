@@ -5,42 +5,66 @@ import { balanceSheetApi } from '@/module/reports/infrastructure/balanceSheetApi
 import { isRequestCanceled } from '@/module/reports/infrastructure/requestCancel';
 import { useAbortableRequest } from '@/module/reports/presentation/hooks/useAbortableRequest';
 import type {
-  BalanceSheetAccountItem,
+  BalanceSheetComparison,
   BalanceSheetData,
   BalanceSheetExportType,
   BalanceSheetQueryParams,
+  BalanceSheetViewMode,
 } from '@/module/reports/domain/balanceSheet.types';
 import { getPresetDateRange, type PeriodPreset } from '@/module/reports/domain/reportFormat';
-
+import { getProfitLossComparisonRange } from '@/module/reports/domain/profitLossPeriod';
+import type { ReportPeriod } from '@/module/reports/domain/generalLedger.types';
 import { useTranslation } from '@/i18n';
+import { format, parseISO, subMonths, subQuarters, subYears } from 'date-fns';
+
+export type BalanceSheetPreset = PeriodPreset;
 
 export function useBalanceSheet() {
   const { t } = useTranslation('reports');
   const exportRequest = useAbortableRequest();
-  const [preset, setPreset] = useState<PeriodPreset>('this_month');
-  const [period, setPeriod] = useState<BalanceSheetQueryParams>(() =>
-    getPresetDateRange('this_month')
-  );
-  const [draftPeriod, setDraftPeriod] = useState<BalanceSheetQueryParams>(() =>
-    getPresetDateRange('this_month')
-  );
-
+  const [preset, setPreset] = useState<BalanceSheetPreset>('this_month');
+  const [period, setPeriod] = useState<ReportPeriod>(() => getPresetDateRange('this_month'));
   const [searchQuery, setSearchQuery] = useState('');
+  const [comparison, setComparison] = useState<BalanceSheetComparison>('none');
+  const [customComparePeriod, setCustomComparePeriod] = useState<ReportPeriod>({
+    startDate: '',
+    endDate: '',
+  });
+  const [viewMode, setViewMode] = useState<BalanceSheetViewMode>('rinci');
+  const [hideZero, setHideZero] = useState(true);
 
-  // Handle preset change
-  const handlePresetChange = (newPreset: PeriodPreset) => {
+  const comparePeriod = useMemo(() => {
+    if (comparison !== 'previous_period' || preset === 'custom') {
+      return getProfitLossComparisonRange(comparison, period, customComparePeriod);
+    }
+    const shift =
+      preset === 'this_month' || preset === 'last_month'
+        ? subMonths
+        : preset === 'this_quarter'
+          ? subQuarters
+          : subYears;
+    return {
+      startDate: format(shift(parseISO(period.startDate), 1), 'yyyy-MM-dd'),
+      endDate: format(shift(parseISO(period.endDate), 1), 'yyyy-MM-dd'),
+    };
+  }, [comparison, customComparePeriod, period, preset]);
+
+  const handleComparePeriodChange = (next: ReportPeriod) => {
+    setCustomComparePeriod(next);
+    setComparison('custom');
+    exportRequest.abort();
+  };
+
+  const handlePresetChange = (newPreset: BalanceSheetPreset) => {
     setPreset(newPreset);
     if (newPreset !== 'custom') {
-      const range = getPresetDateRange(newPreset);
-      setDraftPeriod(range);
-      setPeriod(range);
+      setPeriod(getPresetDateRange(newPreset));
       exportRequest.abort();
     }
   };
 
-  // Apply custom dates
-  const handleApplyCustomPeriod = () => {
-    if (draftPeriod.startDate > draftPeriod.endDate) {
+  const handlePeriodChange = (next: ReportPeriod) => {
+    if (next.startDate > next.endDate) {
       notifications.show({
         color: 'red',
         title: t('common.invalidRangeTitle'),
@@ -49,91 +73,53 @@ export function useBalanceSheet() {
       return;
     }
     setPreset('custom');
-    setPeriod(draftPeriod);
+    setPeriod(next);
     exportRequest.abort();
   };
 
-  // Query
+  const queryParams: BalanceSheetQueryParams = {
+    ...period,
+    comparePeriod: comparePeriod ?? undefined,
+  };
   const query = useQuery<BalanceSheetData>({
-    queryKey: ['balance-sheet-report', period.startDate, period.endDate],
-    queryFn: ({ signal }) => balanceSheetApi.getReport(period, signal),
+    queryKey: [
+      'balance-sheet-report',
+      period.startDate,
+      period.endDate,
+      comparePeriod?.startDate ?? null,
+      comparePeriod?.endDate ?? null,
+    ],
+    queryFn: ({ signal }) => balanceSheetApi.getReport(queryParams, signal),
     staleTime: 60_000,
   });
 
-  const { data } = query;
-
-  // Filter accounts helper
-  const filterAccounts = (accounts: BalanceSheetAccountItem[]): BalanceSheetAccountItem[] => {
-    const term = searchQuery.trim().toLowerCase();
-    if (!term) return accounts;
-    return accounts.filter((item) => {
-      const name = item.accountName.toLowerCase();
-      const num = (item.accountNumber || '').toLowerCase();
-      const cat = (item.categoryName || '').toLowerCase();
-      return name.includes(term) || num.includes(term) || cat.includes(term);
-    });
-  };
-
-  // Filtered Assets
-  const filteredCurrentAssets = useMemo(
-    () => filterAccounts(data?.assets.currentAssets ?? []),
-    [data?.assets.currentAssets, searchQuery]
-  );
-  const filteredNonCurrentAssets = useMemo(
-    () => filterAccounts(data?.assets.nonCurrentAssets ?? []),
-    [data?.assets.nonCurrentAssets, searchQuery]
-  );
-  const filteredDepreciation = useMemo(
-    () => filterAccounts(data?.assets.depreciationAmortization ?? []),
-    [data?.assets.depreciationAmortization, searchQuery]
-  );
-
-  // Filtered Liabilities
-  const filteredCurrentLiabilities = useMemo(
-    () => filterAccounts(data?.liabilities.currentLiabilities ?? []),
-    [data?.liabilities.currentLiabilities, searchQuery]
-  );
-  const filteredNonCurrentLiabilities = useMemo(
-    () => filterAccounts(data?.liabilities.nonCurrentLiabilities ?? []),
-    [data?.liabilities.nonCurrentLiabilities, searchQuery]
-  );
-  const filteredAllLiabilities = useMemo(
-    () => filterAccounts(data?.liabilities.allLiabilities ?? []),
-    [data?.liabilities.allLiabilities, searchQuery]
-  );
-
-  // Filtered Equity
-  const filteredEquity = useMemo(
-    () => filterAccounts(data?.equity ?? []),
-    [data?.equity, searchQuery]
-  );
-
-  // Export mutation
   const exportMutation = useMutation({
     mutationFn: (type: BalanceSheetExportType) =>
-      balanceSheetApi.exportReport(period, type, exportRequest.start()),
+      balanceSheetApi.exportReport(queryParams, type, exportRequest.start(), {
+        summary: viewMode === 'ringkas',
+        showZero: !hideZero,
+      }),
     onSuccess: (blob, type) => {
       const url = URL.createObjectURL(blob);
       const anchor = document.createElement('a');
       anchor.href = url;
-      anchor.download = `neraca_${period.startDate}_sd_${period.endDate}.${type}`;
+      anchor.download = `neraca-${period.endDate}.${type}`;
       document.body.appendChild(anchor);
       anchor.click();
       anchor.remove();
       setTimeout(() => URL.revokeObjectURL(url), 60_000);
-
       notifications.show({
         color: 'teal',
         title: t('common.exportSuccess'),
         message: t('balanceSheet.fileDownloaded', { type: type.toUpperCase() }),
       });
     },
-    onError: (err) => {
-      if (isRequestCanceled(err)) return;
+    onError: (error) => {
+      if (isRequestCanceled(error)) return;
       notifications.show({
         color: 'red',
         title: t('common.exportFailed'),
-        message: err instanceof Error ? err.message : t('balanceSheet.exportFailedMessage'),
+        message: error instanceof Error ? error.message : t('balanceSheet.exportFailedMessage'),
       });
     },
   });
@@ -145,26 +131,22 @@ export function useBalanceSheet() {
 
   return {
     period,
-    draftPeriod,
-    setDraftPeriod,
     preset,
     handlePresetChange,
-    handleApplyCustomPeriod,
-
+    handlePeriodChange,
+    comparison,
+    setComparison,
+    comparePeriod,
+    customComparePeriod,
+    setCustomComparePeriod: handleComparePeriodChange,
     searchQuery,
     setSearchQuery,
-
+    viewMode,
+    setViewMode,
+    hideZero,
+    setHideZero,
     query,
-    data,
-
-    filteredCurrentAssets,
-    filteredNonCurrentAssets,
-    filteredDepreciation,
-    filteredCurrentLiabilities,
-    filteredNonCurrentLiabilities,
-    filteredAllLiabilities,
-    filteredEquity,
-
+    data: query.data,
     exportMutation,
     cancelExport,
   };

@@ -1,20 +1,59 @@
+.periodFields {
+  width: min(100%, 454px);
+  display: grid;
+  gap: var(--jurnal-space-2);
+}
+
+.dateField {
+  flex: 1;
+  min-width: 0;
+}
+
+.summaryGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.metric {
+  min-width: 0;
+  padding: var(--jurnal-space-4) var(--jurnal-space-5);
+}
+
+.metric + .metric {
+  border-left: 1px solid var(--jurnal-color-border-subtle);
+}
+
+.numeric {
+  font-variant-numeric: tabular-nums;
+}
+
+.ledgerPaper {
+  overflow: hidden;
+}
+
+.controls {
+  border-bottom: 1px solid var(--jurnal-color-border-subtle);
+}
+
+.reportHeading {
+  padding: var(--jurnal-space-5) var(--jurnal-space-4);
+  text-align: center;
+}
+
 .frame {
   overflow-x: auto;
-  border: 1px solid var(--mantine-color-gray-3);
-  border-radius: var(--mantine-radius-md);
 }
 
 .table {
   width: 100%;
-  min-width: 900px;
-  table-layout: fixed;
+  min-width: 920px;
   border-collapse: collapse;
-  font-size: var(--mantine-font-size-sm);
+  font-size: var(--jurnal-text-sm);
   font-variant-numeric: tabular-nums;
 }
 
 .colDate {
-  width: 116px;
+  width: 130px;
 }
 
 .colRef {
@@ -22,92 +61,95 @@
 }
 
 .colAmount {
-  width: 150px;
+  width: 142px;
 }
 
 .colBalance {
-  width: 170px;
+  width: 160px;
 }
 
 .table th,
 .table td {
-  padding: 9px var(--mantine-spacing-md);
-  text-align: left;
+  padding: var(--jurnal-space-3) var(--jurnal-space-4);
+  border-bottom: 1px solid var(--jurnal-color-border-subtle);
   vertical-align: top;
-  border-bottom: 1px solid var(--mantine-color-gray-3);
+  text-align: left;
 }
 
-.table thead th {
-  color: var(--mantine-color-dimmed);
-  font-size: var(--mantine-font-size-xs);
+.table th {
+  color: var(--jurnal-color-text-secondary);
+  font-size: var(--jurnal-text-xs);
   font-weight: 700;
-  letter-spacing: 0.04em;
-  text-align: center;
   text-transform: uppercase;
-  white-space: nowrap;
-  background: var(--mantine-color-gray-0);
+  letter-spacing: 0.02em;
+  background: var(--jurnal-color-bg-subtle);
 }
 
-.table [data-num] {
+.table th:nth-last-child(-n + 3) {
+  text-align: right;
+}
+
+.table td.numeric {
   text-align: right;
   white-space: nowrap;
 }
 
 .table td[data-zero] {
-  color: var(--mantine-color-gray-5);
-}
-
-.table td[data-balance='strong'] {
-  font-weight: 700;
+  color: var(--jurnal-color-text-muted);
 }
 
 .table td[data-negative] {
-  color: var(--mantine-color-red-7);
+  color: var(--jurnal-color-danger-strong);
 }
 
-/* The class of the accounts under it (assets, liabilities, ...). */
 .classRow td {
-  padding-top: var(--mantine-spacing-xs);
-  padding-bottom: var(--mantine-spacing-xs);
-  color: var(--mantine-color-dark-9);
-  font-size: var(--mantine-font-size-xs);
+  padding-top: var(--jurnal-space-2);
+  padding-bottom: var(--jurnal-space-2);
+  color: var(--jurnal-color-text-primary);
+  font-size: var(--jurnal-text-xs);
   font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  background: var(--mantine-color-gray-1);
+  background: var(--jurnal-color-surface-muted);
 }
 
-/* The name of an account, over its section. */
 .accountRow td {
-  color: var(--mantine-color-dark-9);
-  font-weight: 700;
-  background: var(--mantine-color-gray-0);
-  border-top: 2px solid var(--mantine-color-gray-3);
+  background: var(--jurnal-color-bg-subtle);
+  font-weight: 600;
+  border-top: 1px solid var(--jurnal-color-border-subtle);
 }
 
 .accountNumber {
-  color: var(--mantine-color-dimmed);
-  font-weight: 600;
+  color: var(--jurnal-color-text-muted);
+  font-size: var(--jurnal-text-xs);
 }
 
-.contra {
-  margin-left: var(--mantine-spacing-xs);
-  color: var(--mantine-color-dimmed);
-  font-size: var(--mantine-font-size-xs);
+.normalBalance {
+  color: var(--jurnal-color-text-muted);
+  font-size: var(--jurnal-text-xs);
   font-weight: 400;
 }
 
-.openingRow td {
-  color: var(--mantine-color-dark-9);
-  font-weight: 600;
+.caret {
+  display: inline-grid;
+  place-items: center;
+  width: var(--jurnal-space-6);
+  height: var(--jurnal-space-6);
+  padding: 0;
+  color: var(--jurnal-color-text-secondary);
+  background: transparent;
+  border: 0;
+  border-radius: var(--mantine-radius-sm);
+  cursor: pointer;
 }
 
-.table tbody tr:not(.classRow):not(.accountRow):not(.closingRow):not(.pagerRow):hover td {
-  background: var(--mantine-color-gray-0);
+.caret:focus-visible {
+  outline: 2px solid var(--jurnal-color-primary);
+  outline-offset: 2px;
 }
 
 .ref {
-  color: var(--mantine-color-primary-7);
+  color: var(--jurnal-color-primary);
   font-weight: 600;
   text-decoration: none;
 }
@@ -116,31 +158,145 @@
   text-decoration: underline;
 }
 
+.openingRow td {
+  color: var(--jurnal-color-text-secondary);
+  background: var(--jurnal-color-surface);
+}
+
+.journalRow {
+  cursor: pointer;
+}
+
+.journalRow:hover td,
+.journalRow:focus-visible td {
+  background: var(--jurnal-color-bg-subtle);
+}
+
+.journalRow:focus-visible {
+  outline: 2px solid var(--jurnal-color-primary);
+  outline-offset: -2px;
+}
+
 .description {
   overflow-wrap: anywhere;
-  color: var(--mantine-color-dark-9);
+  color: var(--jurnal-color-text-primary);
 }
 
 .notes {
-  margin-top: 2px;
-  overflow: hidden;
-  color: var(--mantine-color-dimmed);
-  font-size: var(--mantine-font-size-xs);
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  margin-top: var(--jurnal-space-1);
+  color: var(--jurnal-color-text-muted);
+  font-size: var(--jurnal-text-xs);
+  overflow-wrap: anywhere;
+}
+
+.emptyTransaction td {
+  color: var(--jurnal-color-text-muted);
+  font-style: italic;
 }
 
 .pagerRow td {
-  background: var(--mantine-color-white);
+  background: var(--jurnal-color-surface);
 }
 
-/* The closing line of an account: the period's debit and credit and the closing balance. */
 .closingRow td {
-  color: var(--mantine-color-dark-9);
   font-weight: 700;
-  background: var(--mantine-color-gray-0);
+  background: var(--jurnal-color-primary-subtle);
 }
 
 .closingRow td:first-child {
   text-align: right;
+}
+
+.closingNote {
+  color: var(--jurnal-color-text-muted);
+  font-size: var(--jurnal-text-xs);
+  font-weight: 400;
+}
+
+.totalRow td {
+  font-weight: 700;
+  background: var(--jurnal-color-surface-muted);
+  border-top: 1px solid var(--jurnal-color-border-strong);
+}
+
+.footnote {
+  line-height: 1.6;
+}
+
+@media (max-width: 767px) {
+  .summaryGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .metric:nth-child(3) {
+    border-left: 0;
+  }
+
+  .metric:nth-child(n + 3) {
+    border-top: 1px solid var(--jurnal-color-border-subtle);
+  }
+}
+
+@media (max-width: 575px) {
+  .summaryGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .metric + .metric {
+    border-left: 0;
+    border-top: 1px solid var(--jurnal-color-border-subtle);
+  }
+
+  .periodFields {
+    width: 100%;
+  }
+}
+
+@media print {
+  :global(body:has(.general-ledger-print) .mantine-AppShell-header),
+  :global(body:has(.general-ledger-print) .mantine-AppShell-navbar),
+  :global(body:has(.general-ledger-print) .mantine-AppShell-footer) {
+    display: none;
+  }
+
+  :global(body:has(.general-ledger-print) .mantine-AppShell-main) {
+    padding: 0;
+  }
+
+  :global(.general-ledger-print) {
+    padding: 0;
+  }
+
+  .screenOnly,
+  .controls,
+  .pagerRow {
+    display: none;
+  }
+
+  .ledgerPaper {
+    border: 0;
+  }
+
+  .frame {
+    overflow: visible;
+  }
+
+  .table {
+    min-width: 0;
+    font-size: var(--jurnal-text-xs);
+  }
+
+  .table thead {
+    display: table-header-group;
+  }
+
+  .accountRow,
+  .openingRow,
+  .closingRow {
+    break-inside: avoid;
+  }
+
+  .caret {
+    display: none;
+  }
 }

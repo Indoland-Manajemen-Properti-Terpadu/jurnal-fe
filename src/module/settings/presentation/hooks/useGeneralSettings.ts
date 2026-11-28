@@ -4,6 +4,7 @@ import {
   fetchGeneralSettings,
   updateGeneralSettings,
 } from '@/module/settings/infrastructure/settingApi';
+import type { UpdateGeneralSettingPayload } from '@/module/settings/domain/settingTypes';
 
 import { settingKeys } from '@/module/settings/presentation/hooks/settingKeys';
 
@@ -30,8 +31,9 @@ export const useUpdateGeneralSettings = () => {
   const { t: st } = useTranslation('settings');
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (decimalPrecision: number) => updateGeneralSettings(decimalPrecision),
-    onSuccess: () => {
+    mutationFn: (payload: UpdateGeneralSettingPayload) => updateGeneralSettings(payload),
+    onSuccess: (saved) => {
+      queryClient.setQueryData(settingKeys.general(), saved);
       queryClient.invalidateQueries({ queryKey: settingKeys.general() });
       queryClient.invalidateQueries({
         predicate: ({ queryKey }) => PRECISION_DEPENDENT_KEYS.has(String(queryKey[0])),

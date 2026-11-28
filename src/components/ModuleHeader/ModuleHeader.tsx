@@ -11,6 +11,7 @@ export type ModuleHeaderProps = {
   description: ReactNode;
   breadcrumbs?: Crumb[];
   actions?: ReactNode;
+  compact?: boolean;
 };
 
 /** Shared feature header for module pages. */
@@ -19,16 +20,23 @@ export function ModuleHeader({
   title,
   description,
   actions,
+  compact = false,
 }: Readonly<ModuleHeaderProps>) {
   return (
-    <Paper radius="lg" p={{ base: 'md', sm: 'lg' }} withBorder bg="white" shadow="none">
+    <Paper
+      radius="lg"
+      p={compact ? 'md' : { base: 'md', sm: 'lg' }}
+      withBorder
+      bg="white"
+      shadow="none"
+    >
       <Group justify="space-between" align="flex-start" wrap="wrap" gap="lg">
         <Box className={classes.intro}>
-          <ThemeIcon size={48} radius="md" color="primary" variant="filled">
-            <HeaderIcon size={24} stroke={1.8} />
+          <ThemeIcon size={compact ? 40 : 48} radius="md" color="primary" variant="filled">
+            <HeaderIcon size={compact ? 22 : 24} stroke={1.8} />
           </ThemeIcon>
           <Box className={classes.copy}>
-            <Title order={2} fz={{ base: 20, sm: 24 }} className={classes.title}>
+            <Title order={2} fz={compact ? 20 : { base: 20, sm: 24 }} className={classes.title}>
               {title}
             </Title>
             <Box className={classes.description}>{description}</Box>

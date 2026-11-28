@@ -27,6 +27,7 @@ None of its own; it only uses hooks of the sibling modules (`useDetailAccount`, 
 
 - Query keys it invalidates or refetches: `['detail_account', id]` (refetch after archive, invalidate after deleting entries) and `['transaction_by_account', id]` (prefix of the journal list key). Selection of journal rows and the active tab live in the page; the bank statement selection lives in `CashBankTabs`.
 - `?tab=` is ignored. `BankCash` links to the cash/bank route with `?tab=reconciliation`, but the page always opens on the first tab (documented, not changed).
+- `?from=YYYY-MM-DD&to=YYYY-MM-DD` from Buku Besar limits the visible journal entries and their movement summary to the selected inclusive period on both variants. A banner shows the range and can clear it. The account balance in the header remains the account's current balance; bank statements and reconciliation are unchanged.
 
 ## Domain rules
 
