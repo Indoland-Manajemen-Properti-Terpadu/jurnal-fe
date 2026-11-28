@@ -41,6 +41,30 @@ describe('aborting a report request', () => {
     expect(get).toHaveBeenCalledTimes(2);
   });
 
+  it('exports the same period, comparison, and display selection as the balance sheet view', async () => {
+    get.mockResolvedValueOnce({ data: new Blob(['x']) });
+    await balanceSheetApi.exportReport(
+      { ...period, comparePeriod: { startDate: '2026-10-01', endDate: '2026-10-05' } },
+      'xlsx',
+      undefined,
+      { summary: true, showZero: false }
+    );
+    expect(get).toHaveBeenCalledWith(
+      '/v1/reports/balance-sheet/export/xlsx',
+      expect.objectContaining({
+        params: {
+          startDate: '2026-11-01',
+          endDate: '2026-11-05',
+          compare: 'custom',
+          compareStartDate: '2026-10-01',
+          compareEndDate: '2026-10-05',
+          summary: true,
+          showZero: false,
+        },
+      })
+    );
+  });
+
   it('does not wrap an aborted ledger request in an error message', async () => {
     get.mockRejectedValueOnce(new CanceledError());
     await expect(generalLedgerApi.getReport(period)).rejects.toBeInstanceOf(CanceledError);

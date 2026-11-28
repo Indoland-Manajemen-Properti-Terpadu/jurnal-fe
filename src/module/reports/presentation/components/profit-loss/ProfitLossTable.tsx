@@ -5,7 +5,10 @@ import type { ProfitLossRow } from '@/module/reports/domain/profitLoss.types';
 import type { ProfitLossLine, ProfitLossRole } from '@/module/reports/domain/profitLossRows';
 import { formatMoney } from '@/module/reports/domain/reportFormat';
 import { useTranslation } from '@/i18n';
-import { useReportPrecision } from '@/module/reports/presentation/hooks/useReportPrecision';
+import {
+  useReportNegativeFormat,
+  useReportPrecision,
+} from '@/module/reports/presentation/hooks/useReportPrecision';
 import classes from './ProfitLoss.module.css';
 
 const ROLE_KEY: Record<ProfitLossRole, string> = {
@@ -38,6 +41,7 @@ export const ProfitLossTable: React.FC<ProfitLossTableProps> = ({
   onResetSearch,
 }) => {
   const precision = useReportPrecision();
+  const negativeFormat = useReportNegativeFormat();
   const { t } = useTranslation('reports');
 
   const labelOf = (line: ProfitLossRow & { role?: ProfitLossRole; groupLabel?: string }) => {
@@ -107,7 +111,7 @@ export const ProfitLossTable: React.FC<ProfitLossTableProps> = ({
                         </td>
                         {hasAmount && (
                           <td className={negative ? classes.negative : undefined}>
-                            {formatMoney(line.amount ?? 0, precision)}
+                            {formatMoney(line.amount ?? 0, precision, negativeFormat)}
                           </td>
                         )}
                       </tr>

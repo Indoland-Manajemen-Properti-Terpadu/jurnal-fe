@@ -60,10 +60,10 @@ describe('ProfitLossTable', () => {
     expect(screen.getByText('Penjualan').closest('tr')).not.toHaveAttribute('data-standalone');
   });
 
-  it('marks a contra account and shows a negative amount with its sign', () => {
+  it('marks a contra account and shows a negative amount in parentheses', () => {
     render(<ProfitLossTable {...base} lines={lines} />);
     expect(screen.getByText('Kontra')).toBeInTheDocument();
-    expect(screen.getByText(/-Rp\s?2\.500/)).toBeInTheDocument();
+    expect(screen.getByText(/\(Rp\s?2\.500/)).toBeInTheDocument();
   });
 
   it('has no switch for empty accounts: what is given is drawn', () => {

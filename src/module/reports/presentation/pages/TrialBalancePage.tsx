@@ -1,33 +1,40 @@
 import React from 'react';
 import { Alert, Box, Button, Group, Skeleton, Stack, Text } from '@mantine/core';
-import { IconAlertTriangle, IconFileAnalytics, IconRefresh } from '@tabler/icons-react';
+import { IconAlertTriangle, IconRefresh } from '@tabler/icons-react';
 import { AppShellLayout } from '@/components/AppShellLayout';
 import { ErrorAlert } from '@/components/ErrorAlert';
 import { ReportRequestError } from '@/module/reports/infrastructure/reportRequest';
-import { ReportPageHeader } from '@/module/reports/presentation/components/shared/ReportPageHeader';
 import { TrialBalanceFilterBar } from '@/module/reports/presentation/components/trial-balance/TrialBalanceFilterBar';
+import { TrialBalanceHeader } from '@/module/reports/presentation/components/trial-balance/TrialBalanceHeader';
 import { TrialBalanceSummary } from '@/module/reports/presentation/components/trial-balance/TrialBalanceSummary';
 import { TrialBalanceTable } from '@/module/reports/presentation/components/trial-balance/TrialBalanceTable';
 import { useTrialBalance } from '@/module/reports/presentation/hooks/useTrialBalance';
 import { useTranslation } from '@/i18n';
+import { useCompanySite } from '@/module/profile';
 import { ReportPrecisionProvider } from '@/module/reports/presentation/hooks/useReportPrecision';
+import { TrialBalanceDisplayControls } from '@/module/reports/presentation/components/trial-balance/TrialBalanceDisplayControls';
+import { TrialBalanceStatementTable } from '@/module/reports/presentation/components/trial-balance/TrialBalanceStatementTable';
 
 /** Route `/result-reports/business-overview/trial-balance`: the trial balance. */
 export default function TrialBalancePage() {
   const { t } = useTranslation('reports');
+  const { site } = useCompanySite();
   const trialBalance = useTrialBalance();
   const { query, report, accounts, sections } = trialBalance;
   const forbidden = query.error instanceof ReportRequestError && query.error.status === 403;
 
   return (
     <AppShellLayout>
-      <ReportPrecisionProvider precision={trialBalance.report?.precision}>
+      <ReportPrecisionProvider
+        precision={trialBalance.report?.precision}
+        negativeFormat={trialBalance.report?.negativeFormat}
+      >
         <Box p={{ base: 'md', sm: 'xl' }}>
           <Stack gap="lg">
-            <ReportPageHeader
-              icon={IconFileAnalytics}
-              title={t('catalog.trialBalanceTitle')}
-              description={t('trialBalance.description')}
+            <TrialBalanceHeader
+              hasData={Boolean(report)}
+              isExporting={trialBalance.exportMutation.isPending}
+              onExport={(type) => trialBalance.exportMutation.mutate(type)}
             />
 
             {!trialBalance.allowed && (
@@ -41,18 +48,8 @@ export default function TrialBalancePage() {
               <TrialBalanceFilterBar
                 preset={trialBalance.preset}
                 onPresetChange={trialBalance.selectPreset}
-                draftPeriod={trialBalance.draftPeriod}
-                onDraftPeriodChange={trialBalance.setDraftPeriod}
-                appliedPeriod={trialBalance.period}
-                onApplyPeriod={trialBalance.applyDraft}
-                isFetching={query.isFetching}
-                onRefresh={() => query.refetch()}
-                onExport={(type) => trialBalance.exportMutation.mutate(type)}
-                isExporting={trialBalance.exportMutation.isPending}
-                onCancelExport={trialBalance.cancelExport}
-                searchQuery={trialBalance.search}
-                onSearchQueryChange={trialBalance.setSearch}
-                hasData={Boolean(report)}
+                period={trialBalance.period}
+                onPeriodChange={trialBalance.applyRange}
               />
             )}
 
@@ -95,13 +92,31 @@ export default function TrialBalancePage() {
             {report && trialBalance.allowed && (
               <>
                 <TrialBalanceSummary report={report} />
-                <TrialBalanceTable
-                  report={report}
-                  sections={sections}
-                  accountCount={accounts.length}
+                <TrialBalanceDisplayControls
                   search={trialBalance.search}
-                  onResetSearch={() => trialBalance.setSearch('')}
+                  onSearchChange={trialBalance.setSearch}
+                  hideZero={trialBalance.hideZero}
+                  onHideZeroChange={trialBalance.setHideZero}
+                  mode={trialBalance.mode}
+                  onModeChange={trialBalance.setMode}
                 />
+                {report.statement ? (
+                  <TrialBalanceStatementTable
+                    statement={report.statement}
+                    mode={trialBalance.mode}
+                    search={trialBalance.search}
+                    onResetSearch={() => trialBalance.setSearch('')}
+                    companyName={site?.name}
+                  />
+                ) : (
+                  <TrialBalanceTable
+                    report={report}
+                    sections={sections}
+                    accountCount={accounts.length}
+                    search={trialBalance.search}
+                    onResetSearch={() => trialBalance.setSearch('')}
+                  />
+                )}
               </>
             )}
           </Stack>

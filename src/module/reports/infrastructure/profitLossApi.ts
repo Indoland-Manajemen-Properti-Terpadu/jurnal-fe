@@ -26,7 +26,11 @@ export const profitLossApi = {
    */
   async getReport(
     period: ReportPeriod,
-    options: { lang: SupportedLanguage; fallbackMessage: string },
+    options: {
+      lang: SupportedLanguage;
+      fallbackMessage: string;
+      comparePeriod?: ReportPeriod | null;
+    },
     signal?: AbortSignal
   ): Promise<ProfitLossReport> {
     try {
@@ -40,6 +44,12 @@ export const profitLossApi = {
                 lang: options.lang,
                 page,
                 limit: PROFIT_LOSS_PAGE_SIZE,
+                ...(options.comparePeriod
+                  ? {
+                      compareStartDate: options.comparePeriod.startDate,
+                      compareEndDate: options.comparePeriod.endDate,
+                    }
+                  : {}),
               },
               signal,
             })
@@ -64,12 +74,30 @@ export const profitLossApi = {
   async exportReport(
     period: ReportPeriod,
     type: ProfitLossExportType,
-    options: { lang: SupportedLanguage; fallbackMessage: string },
+    options: {
+      lang: SupportedLanguage;
+      fallbackMessage: string;
+      comparePeriod?: ReportPeriod | null;
+      mode?: 'rinci' | 'ringkas';
+      hideZero?: boolean;
+    },
     signal?: AbortSignal
   ): Promise<{ blob: Blob; filename: string }> {
     try {
       const response = await apiClient.get<Blob>(`${ENDPOINT}/export/${type}`, {
-        params: { startDate: period.startDate, endDate: period.endDate, lang: options.lang },
+        params: {
+          startDate: period.startDate,
+          endDate: period.endDate,
+          lang: options.lang,
+          mode: options.mode ?? 'rinci',
+          hideZero: options.hideZero ?? true,
+          ...(options.comparePeriod
+            ? {
+                compareStartDate: options.comparePeriod.startDate,
+                compareEndDate: options.comparePeriod.endDate,
+              }
+            : {}),
+        },
         responseType: 'blob',
         signal,
       });

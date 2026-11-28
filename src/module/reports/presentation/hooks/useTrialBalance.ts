@@ -35,13 +35,15 @@ export function useTrialBalance() {
   const exportRequest = useAbortableRequest();
   const period = useReportPeriod('this_month', exportRequest.abort);
   const [search, setSearch] = useState('');
+  const [hideZero, setHideZero] = useState(true);
+  const [mode, setMode] = useState<'rinci' | 'ringkas'>('rinci');
 
   const query = useQuery<TrialBalanceReport>({
-    queryKey: ['trial-balance', period.period.startDate, period.period.endDate],
+    queryKey: ['trial-balance', period.period.startDate, period.period.endDate, hideZero],
     queryFn: ({ signal }) =>
       trialBalanceApi.getReport(
         period.period,
-        { fallbackMessage: t('trialBalance.loadFailedMessage') },
+        { fallbackMessage: t('trialBalance.loadFailedMessage'), allAccounts: !hideZero },
         signal
       ),
     enabled: allowed,
@@ -63,7 +65,7 @@ export function useTrialBalance() {
       trialBalanceApi.exportReport(
         period.period,
         type,
-        { fallbackMessage: t('common.exportRetry') },
+        { fallbackMessage: t('common.exportRetry'), mode, hideZero },
         exportRequest.start()
       ),
     onSuccess: ({ blob, filename }, type) => {
@@ -100,6 +102,10 @@ export function useTrialBalance() {
     sections,
     search,
     setSearch,
+    hideZero,
+    setHideZero,
+    mode,
+    setMode,
     exportMutation,
     cancelExport,
   };

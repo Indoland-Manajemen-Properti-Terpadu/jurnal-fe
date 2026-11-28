@@ -5,7 +5,10 @@ import { displayDate, formatMoney } from '@/module/reports/domain/reportFormat';
 import { ReportKpiStrip } from '@/module/reports/presentation/components/shared/ReportKpiStrip';
 
 import { useTranslation } from '@/i18n';
-import { useReportPrecision } from '@/module/reports/presentation/hooks/useReportPrecision';
+import {
+  useReportNegativeFormat,
+  useReportPrecision,
+} from '@/module/reports/presentation/hooks/useReportPrecision';
 
 const percentFormat = new Intl.NumberFormat('id-ID', { maximumFractionDigits: 1 });
 
@@ -16,13 +19,19 @@ interface ProfitLossSummaryProps {
 /** Revenue and the three profit levels, each with its share of revenue. */
 export const ProfitLossSummary: React.FC<ProfitLossSummaryProps> = ({ report }) => {
   const precision = useReportPrecision();
+  const negativeFormat = useReportNegativeFormat();
   const { t } = useTranslation('reports');
   const { summary } = report;
   const margin = (profit: number) => {
     const share = marginOf(profit, summary.netRevenue);
     return share === null
       ? undefined
-      : t('profitLoss.margin', { percent: percentFormat.format(share) });
+      : t('profitLoss.margin', {
+          percent:
+            share < 0 && negativeFormat === 'parentheses'
+              ? `(${percentFormat.format(Math.abs(share))})`
+              : `${share < 0 ? '-' : ''}${percentFormat.format(Math.abs(share))}`,
+        });
   };
 
   return (
@@ -33,31 +42,31 @@ export const ProfitLossSummary: React.FC<ProfitLossSummaryProps> = ({ report }) 
         {
           key: 'revenue',
           label: t('profitLoss.cardRevenue'),
-          value: formatMoney(summary.netRevenue, precision),
+          value: formatMoney(summary.netRevenue, precision, negativeFormat),
           hint:
             summary.totalContra === 0
               ? t('profitLoss.cardRevenueHint')
               : t('profitLoss.cardRevenueContraHint', {
-                  gross: formatMoney(summary.grossRevenue, precision),
-                  contra: formatMoney(summary.totalContra, precision),
+                  gross: formatMoney(summary.grossRevenue, precision, negativeFormat),
+                  contra: formatMoney(summary.totalContra, precision, negativeFormat),
                 }),
         },
         {
           key: 'gross',
           label: t('profitLoss.cardGross'),
-          value: formatMoney(summary.grossProfit, precision),
+          value: formatMoney(summary.grossProfit, precision, negativeFormat),
           hint: margin(summary.grossProfit),
         },
         {
           key: 'operating',
           label: t('profitLoss.cardOperating'),
-          value: formatMoney(summary.profitAfterOpex, precision),
+          value: formatMoney(summary.profitAfterOpex, precision, negativeFormat),
           hint: margin(summary.profitAfterOpex),
         },
         {
           key: 'afterTax',
           label: t('profitLoss.cardAfterTax'),
-          value: formatMoney(summary.profitAfterTax, precision),
+          value: formatMoney(summary.profitAfterTax, precision, negativeFormat),
           hint: margin(summary.profitAfterTax),
         },
       ]}

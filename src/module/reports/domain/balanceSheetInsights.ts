@@ -25,4 +25,8 @@ export const currentRatio = (data: BalanceSheetData): number | null =>
 
 /** The share of current assets in the total assets, 0 to 100, or `null` without assets. */
 export const currentAssetsShare = (data: BalanceSheetData): number | null =>
-  data.totalAssets > 0 ? percentOf(data.assets.totalCurrentAssets, data.totalAssets) : null;
+  data.totalAssets === 0 ? null : (data.assets.totalCurrentAssets / data.totalAssets) * 100;
+
+/** Liabilities as a percentage of assets; ratios above 100% remain visible. */
+export const debtRatio = (data: BalanceSheetData): number | null =>
+  data.totalAssets === 0 ? null : (data.totalLiabilities / data.totalAssets) * 100;

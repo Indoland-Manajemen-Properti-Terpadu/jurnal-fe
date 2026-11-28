@@ -1,0 +1,146 @@
+.frame {
+  overflow: hidden;
+  background: var(--mantine-color-white);
+}
+
+.heading {
+  padding: var(--mantine-spacing-lg);
+  border-bottom: 1px solid var(--mantine-color-gray-3);
+}
+
+.scroller {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  min-width: 980px;
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-size: var(--mantine-font-size-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.codeCol {
+  width: 112px;
+}
+
+.accountCol {
+  width: min(36vw, 420px);
+}
+
+.amountCol {
+  width: 132px;
+}
+
+.table th,
+.table td {
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--mantine-color-gray-3);
+  background: var(--mantine-color-white);
+}
+
+.table thead th {
+  height: 40px;
+  color: var(--mantine-color-gray-7);
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 700;
+  text-align: left;
+  text-transform: uppercase;
+  background: var(--mantine-color-gray-0);
+}
+
+.table thead tr:first-child th:nth-child(n + 3) {
+  text-align: center;
+}
+
+.table thead tr:last-child th {
+  text-align: right;
+}
+
+.table [data-start] {
+  border-left: 1px solid var(--mantine-color-gray-3);
+}
+
+.table tbody tr:hover td {
+  background: var(--mantine-color-gray-0);
+}
+
+.code {
+  color: var(--mantine-color-gray-7);
+  font-size: var(--mantine-font-size-xs);
+}
+
+.accountLink {
+  color: var(--mantine-color-primary-8);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.accountLink:hover {
+  text-decoration: underline;
+}
+
+.accountMeta {
+  color: var(--mantine-color-gray-6);
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 400;
+}
+
+.table td:nth-child(n + 3),
+.table tfoot td:nth-child(n + 3) {
+  text-align: right;
+}
+
+.zero {
+  color: var(--mantine-color-gray-5);
+}
+
+.negative {
+  color: var(--mantine-color-red-7);
+}
+
+.table tbody tr.category td {
+  padding-top: 14px;
+  padding-bottom: 14px;
+  font-weight: 700;
+  background: var(--mantine-color-gray-1);
+}
+
+.table tbody tr.subtotal td {
+  font-weight: 700;
+  background: var(--mantine-color-gray-0);
+}
+
+.table tbody tr.subtotal td:first-child .accountMeta {
+  margin-left: var(--mantine-spacing-sm);
+}
+
+.table tfoot td {
+  height: 48px;
+  font-weight: 750;
+  background: var(--mantine-color-gray-2);
+  border-bottom: 0;
+}
+
+.empty {
+  padding: 0 !important;
+  text-align: center !important;
+}
+
+.footnote {
+  padding: var(--mantine-spacing-md) var(--mantine-spacing-lg);
+  border-top: 1px solid var(--mantine-color-gray-3);
+}
+
+@media (max-width: 600px) {
+  .heading {
+    padding: var(--mantine-spacing-md);
+  }
+
+  .table th,
+  .table td {
+    padding-right: 10px;
+    padding-left: 10px;
+  }
+}
