@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   Alert,
   Anchor,
@@ -22,7 +22,7 @@ import {
   IconBan,
   IconLinkOff,
 } from '@tabler/icons-react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useDisclosure } from '@mantine/hooks';
 import { ConfirmModal } from '@/components';
 import { AppShellLayout } from '@/components/AppShellLayout';
@@ -46,7 +46,10 @@ import JournalEntrySidebar from '../components/JournalEntrySidebar';
 export const JournalEntryDetailPage: React.FC = () => {
   const { t } = useTranslation('journalEntries');
   const { t: rt } = useTranslation('reconciliation');
+  const location = useLocation();
   const navigate = useNavigate();
+  const shouldOpenReversal =
+    (location.state as { openReversal?: unknown } | null)?.openReversal === true;
   const { idTransaction } = useParams<{ idTransaction: string }>();
   const { journalEntry, isError, isLoading } = useJournalEntryDetail(idTransaction!);
   const [voidOpened, { open: openVoid, close: closeVoid }] = useDisclosure(false);
@@ -54,6 +57,16 @@ export const JournalEntryDetailPage: React.FC = () => {
   const [unmatchOpened, { open: openUnmatch, close: closeUnmatch }] = useDisclosure(false);
   const { data: matchIds = [] } = useJournalMatches(idTransaction);
   const cancelMatch = useCancelReconciliation();
+
+  useEffect(() => {
+    const reversalId = journalEntry?.reversedBy;
+    if (!shouldOpenReversal || journalEntry?.status !== 'VOID' || !reversalId) return;
+
+    navigate(routes.journalEntries.detail.replace(':idTransaction', reversalId), {
+      replace: true,
+      state: null,
+    });
+  }, [shouldOpenReversal, journalEntry?.status, journalEntry?.reversedBy, navigate]);
 
   const lines = journalEntry?.transactionDetail || [];
   const totalDebit = sumAmounts(lines.map((item) => Number(item.debit) || 0));

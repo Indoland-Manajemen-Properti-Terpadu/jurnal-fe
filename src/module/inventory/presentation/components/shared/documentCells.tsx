@@ -65,7 +65,10 @@ export function DocumentNumber({ sourceType, sourceId, number }: Readonly<Docume
 }
 
 /** The journal a movement posted, or a plain note that it posted none. */
-export function JournalLink({ journalId }: Readonly<{ journalId: string | null }>) {
+export function JournalLink({
+  journalId,
+  openReversal = false,
+}: Readonly<{ journalId: string | null; openReversal?: boolean }>) {
   const { t } = useTranslation('stockMovements');
   if (!journalId) {
     return (
@@ -81,6 +84,7 @@ export function JournalLink({ journalId }: Readonly<{ journalId: string | null }
       <ActionIcon
         component={Link}
         to={generatePath(routes.journalEntries.detail, { idTransaction: journalId })}
+        state={openReversal ? { openReversal: true } : null}
         variant="light"
         color="primary"
         size="md"
