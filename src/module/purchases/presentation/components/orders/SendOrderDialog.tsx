@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Alert, Button, Radio, Stack, TagsInput, Text, Textarea, TextInput } from '@mantine/core';
-import { IconAlertCircle } from '@tabler/icons-react';
+import { IconAlertCircle, IconInfoCircle } from '@tabler/icons-react';
 import { ModalFrame } from '@/components/Modals/ModalFrame';
 import { useTranslation } from '@/i18n';
 import type { PurchaseOrder } from '@/module/purchases/domain/purchaseDocuments';
@@ -12,29 +12,37 @@ import { useSendOrder } from '@/module/purchases/presentation/hooks/usePurchaseM
 interface SendOrderDialogProps {
   order: PurchaseOrder;
   opened: boolean;
+  resend?: boolean;
   onClose: () => void;
 }
 
-/** Two ways to send: only mark it as sent, or mail the PDF to the vendor and then mark it. */
-export const SendOrderDialog = ({ order, opened, onClose }: Readonly<SendOrderDialogProps>) => {
+/** Drafts can be marked sent or emailed; a resend always emails the existing order PDF. */
+export const SendOrderDialog = ({
+  order,
+  opened,
+  resend = false,
+  onClose,
+}: Readonly<SendOrderDialogProps>) => {
   const { t } = useTranslation('purchases');
   const describe = usePurchaseErrorMessage();
   const send = useSendOrder();
-  const [mode, setMode] = useState<SendMode>('mark');
+  const [mode, setMode] = useState<SendMode>(resend ? 'email' : 'mark');
   const [to, setTo] = useState('');
   const [cc, setCc] = useState<string[]>([]);
   const [note, setNote] = useState('');
   const [showErrors, setShowErrors] = useState(false);
 
+  const vendorEmail = order.vendorEmails[0] ?? '';
+
   useEffect(() => {
     if (!opened) return;
-    setMode('mark');
-    setTo('');
+    setMode(resend ? 'email' : 'mark');
+    setTo(resend ? vendorEmail : '');
     setCc([]);
     setNote('');
     setShowErrors(false);
     send.reset();
-  }, [opened]);
+  }, [opened, order.id, resend, vendorEmail]);
 
   const values = { mode, to, cc, note };
   const errors = validateSend(values, order.vendorEmails);
@@ -51,9 +59,20 @@ export const SendOrderDialog = ({ order, opened, onClose }: Readonly<SendOrderDi
     <ModalFrame
       opened={opened}
       onClose={onClose}
-      size="lg"
-      title={t('orders.send.title', { label: order.documentLabel })}
-      description={t('orders.send.description')}
+      size={resend ? 'md' : 'lg'}
+      title={
+        resend
+          ? t('orders.send.resendTitle', { label: order.documentLabel })
+          : t('orders.send.title', { label: order.documentLabel })
+      }
+      description={
+        resend
+          ? t('orders.send.resendDescription', {
+              number: order.number,
+              vendor: order.vendor.name,
+            })
+          : t('orders.send.description')
+      }
       footer={
         <>
           <Button variant="default" onClick={onClose} disabled={send.isPending}>
@@ -70,30 +89,39 @@ export const SendOrderDialog = ({ order, opened, onClose }: Readonly<SendOrderDi
           {describe(send.error)}
         </Alert>
       )}
-      <Radio.Group value={mode} onChange={(value) => setMode(value as SendMode)}>
-        <Stack gap="sm">
-          <Radio
-            value="mark"
-            label={t('orders.send.markLabel')}
-            description={t('orders.send.markHint')}
-          />
-          <Radio
-            value="email"
-            label={t('orders.send.emailLabel')}
-            description={t('orders.send.emailHint')}
-          />
-        </Stack>
-      </Radio.Group>
-      {mode === 'email' && (
+      {resend && (
+        <Alert color="blue" variant="light" radius="md" icon={<IconInfoCircle size={18} />}>
+          {t('orders.send.resendNotice')}
+        </Alert>
+      )}
+      {!resend && (
+        <Radio.Group value={mode} onChange={(value) => setMode(value as SendMode)}>
+          <Stack gap="sm">
+            <Radio
+              value="mark"
+              label={t('orders.send.markLabel')}
+              description={t('orders.send.markHint')}
+            />
+            <Radio
+              value="email"
+              label={t('orders.send.emailLabel')}
+              description={t('orders.send.emailHint')}
+            />
+          </Stack>
+        </Radio.Group>
+      )}
+      {(resend || mode === 'email') && (
         <Stack gap="sm">
           <TextInput
             radius="md"
             label={t('orders.send.to')}
-            placeholder={order.vendorEmails[0] ?? t('orders.send.toPlaceholder')}
+            placeholder={t('orders.send.toPlaceholder')}
             description={
-              order.vendorEmails.length > 0
+              !resend && order.vendorEmails.length > 0
                 ? t('orders.send.toHint', { email: order.vendorEmails[0] })
-                : t('orders.send.noVendorEmail')
+                : order.vendorEmails.length === 0
+                  ? t('orders.send.noVendorEmail')
+                  : undefined
             }
             value={to}
             onChange={(event) => setTo(event.currentTarget.value)}
@@ -119,7 +147,13 @@ export const SendOrderDialog = ({ order, opened, onClose }: Readonly<SendOrderDi
         onChange={(event) => setNote(event.currentTarget.value)}
       />
       <Text size="xs" c="dimmed">
-        {t(mode === 'email' ? 'orders.send.emailFootnote' : 'orders.send.markFootnote')}
+        {t(
+          resend
+            ? 'orders.send.resendFootnote'
+            : mode === 'email'
+              ? 'orders.send.emailFootnote'
+              : 'orders.send.markFootnote'
+        )}
       </Text>
     </ModalFrame>
   );
