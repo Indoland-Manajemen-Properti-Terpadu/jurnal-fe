@@ -59,6 +59,10 @@ export const purchasesOrders = {
   send: {
     title: 'Kirim {label} ke vendor',
     description: 'Pilih cara mengirim. Setelah dikirim, pesanan tidak bisa diubah lagi.',
+    resendTitle: 'Kirim ulang {label} ke email vendor?',
+    resendDescription: '{number} · {vendor}',
+    resendNotice: 'Dokumen ini sudah pernah dikirim. Salinan PDF akan dikirim ulang ke vendor.',
+    resendFootnote: 'Status pesanan tetap terkirim.',
     markLabel: 'Tandai sudah dikirim',
     markHint: 'Hanya mengubah status. Gunakan bila pesanan sudah Anda kirim sendiri.',
     emailLabel: 'Kirim lewat email dengan PDF',
