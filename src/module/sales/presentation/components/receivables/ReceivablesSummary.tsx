@@ -209,11 +209,7 @@ export function ReceivablesSummary({
           <AgingPanel overview={overview} loading={loading} onAgingClick={onAgingClick} />
         </Grid.Col>
         <Grid.Col span={{ base: 12, lg: 6 }}>
-          <ReceivablesReconciliationPanel
-            overview={overview}
-            loading={loading}
-            asOf={asOf}
-          />
+          <ReceivablesReconciliationPanel overview={overview} loading={loading} asOf={asOf} />
         </Grid.Col>
       </Grid>
     </Stack>

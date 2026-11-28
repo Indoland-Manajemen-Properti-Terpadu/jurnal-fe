@@ -47,11 +47,13 @@ export function InvoiceReminderDialog({
     if (!sale.data || initialized) return;
     const invoice = sale.data;
     setEmail(invoice.emails[0] || invoice.customer?.emails?.[0] || '');
-    setMessage(t('reminder.defaultMessage', {
-      number: invoice.transactionNumber,
-      amount: formatMoneyAt(invoice.remainingAmount, 2),
-      due: formatDate(invoice.dueDate),
-    }));
+    setMessage(
+      t('reminder.defaultMessage', {
+        number: invoice.transactionNumber,
+        amount: formatMoneyAt(invoice.remainingAmount, 2),
+        due: formatDate(invoice.dueDate),
+      })
+    );
     setInitialized(true);
   }, [sale.data, initialized, t]);
 
@@ -65,31 +67,74 @@ export function InvoiceReminderDialog({
       onClose={onClose}
       size="min(1000px, 94vw)"
       title={
-        <Group gap="xs"><IconSend size={18} />{t('reminder.composeTitle')}</Group>
+        <Group gap="xs">
+          <IconSend size={18} />
+          {t('reminder.composeTitle')}
+        </Group>
       }
       description={t('reminder.composeHelp')}
-      footer={<>
-        <Button variant="default" onClick={onClose}>{t('reminder.cancel')}</Button>
-        <Button
-          leftSection={<IconSend size={16} />}
-          loading={sending}
-          disabled={!canSend}
-          onClick={() => onSend({ ...target, email: email.trim(), message: message.trim() })}
-        >
-          {t('reminder.confirmLabel')}
-        </Button>
-      </>}
+      footer={
+        <>
+          <Button variant="default" onClick={onClose}>
+            {t('reminder.cancel')}
+          </Button>
+          <Button
+            leftSection={<IconSend size={16} />}
+            loading={sending}
+            disabled={!canSend}
+            onClick={() => onSend({ ...target, email: email.trim(), message: message.trim() })}
+          >
+            {t('reminder.confirmLabel')}
+          </Button>
+        </>
+      }
     >
-      {sale.isError && <Alert color="red" mb="md">{t('reminder.loadError')}</Alert>}
+      {sale.isError && (
+        <Alert color="red" mb="md">
+          {t('reminder.loadError')}
+        </Alert>
+      )}
       <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
         <Stack gap="md">
-          {sale.isLoading ? <Skeleton height={110} /> : invoice && (
-            <SimpleGrid cols={2} spacing="xs">
-              <div><Text size="xs" c="dimmed">{t('table.invoice')}</Text><Text size="sm" fw={600}>{invoice.transactionNumber}</Text></div>
-              <div><Text size="xs" c="dimmed">{t('table.customer')}</Text><Text size="sm" fw={600}>{invoice.customer?.displayName || '—'}</Text></div>
-              <div><Text size="xs" c="dimmed">{t('table.dueDate')}</Text><Text size="sm" fw={600}>{formatDate(invoice.dueDate)}</Text></div>
-              <div><Text size="xs" c="dimmed">{t('table.invoiceTotal')}</Text><Text size="sm" fw={600}>{formatMoneyAt(invoice.finalAmount, 2)}</Text></div>
-            </SimpleGrid>
+          {sale.isLoading ? (
+            <Skeleton height={110} />
+          ) : (
+            invoice && (
+              <SimpleGrid cols={2} spacing="xs">
+                <div>
+                  <Text size="xs" c="dimmed">
+                    {t('table.invoice')}
+                  </Text>
+                  <Text size="sm" fw={600}>
+                    {invoice.transactionNumber}
+                  </Text>
+                </div>
+                <div>
+                  <Text size="xs" c="dimmed">
+                    {t('table.customer')}
+                  </Text>
+                  <Text size="sm" fw={600}>
+                    {invoice.customer?.displayName || '—'}
+                  </Text>
+                </div>
+                <div>
+                  <Text size="xs" c="dimmed">
+                    {t('table.dueDate')}
+                  </Text>
+                  <Text size="sm" fw={600}>
+                    {formatDate(invoice.dueDate)}
+                  </Text>
+                </div>
+                <div>
+                  <Text size="xs" c="dimmed">
+                    {t('table.invoiceTotal')}
+                  </Text>
+                  <Text size="sm" fw={600}>
+                    {formatMoneyAt(invoice.finalAmount, 2)}
+                  </Text>
+                </div>
+              </SimpleGrid>
+            )
           )}
           <TextInput
             type="email"
@@ -113,7 +158,9 @@ export function InvoiceReminderDialog({
         </Stack>
         <Stack gap="xs">
           <Group justify="space-between">
-            <Text size="sm" fw={600}>{t('reminder.attachment')}</Text>
+            <Text size="sm" fw={600}>
+              {t('reminder.attachment')}
+            </Text>
             <Button
               size="compact-xs"
               variant="subtle"
@@ -124,17 +171,27 @@ export function InvoiceReminderDialog({
               {t('reminder.download')}
             </Button>
           </Group>
-          <Text size="xs" c="dimmed">{target.transactionNumber}.pdf</Text>
+          <Text size="xs" c="dimmed">
+            {target.transactionNumber}.pdf
+          </Text>
           <Paper withBorder radius="sm" bg="gray.0" h={370} style={{ overflow: 'hidden' }}>
             {invoice ? (
               <InvoiceReminderPreview invoice={invoice} />
             ) : (
               <Box p="md">
-                {pdf.isError ? <Text size="sm" c="red">{t('reminder.pdfError')}</Text> : <Skeleton height={330} />}
+                {pdf.isError ? (
+                  <Text size="sm" c="red">
+                    {t('reminder.pdfError')}
+                  </Text>
+                ) : (
+                  <Skeleton height={330} />
+                )}
               </Box>
             )}
           </Paper>
-          <Text size="xs" c="dimmed">{t('reminder.previewFallback')}</Text>
+          <Text size="xs" c="dimmed">
+            {t('reminder.previewFallback')}
+          </Text>
         </Stack>
       </SimpleGrid>
     </ModalFrame>

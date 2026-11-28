@@ -24,11 +24,12 @@ export function CustomerReminderDialog({
 }>) {
   const { t } = useTranslation('salesReceivables');
   const detail = useReceivableCustomerDetail(customerId || undefined);
-  const invoices = detail.data?.invoices.data.filter(
-    (invoice) =>
-      invoice.remainingAmount > 0 &&
-      Boolean(invoice.dueDate && invoice.dueDate.slice(0, 10) < localToday())
-  ) ?? [];
+  const invoices =
+    detail.data?.invoices.data.filter(
+      (invoice) =>
+        invoice.remainingAmount > 0 &&
+        Boolean(invoice.dueDate && invoice.dueDate.slice(0, 10) < localToday())
+    ) ?? [];
 
   useEffect(() => {
     if (customerId && !detail.data?.invoices.pagination.hasMore && invoices.length === 1) {
@@ -44,17 +45,27 @@ export function CustomerReminderDialog({
       size="lg"
     >
       <Stack gap="sm">
-        <Text size="sm" c="dimmed">{t('reminder.customerHelp')}</Text>
+        <Text size="sm" c="dimmed">
+          {t('reminder.customerHelp')}
+        </Text>
         {detail.isLoading && <Skeleton height={74} />}
-        {detail.isError && <Text size="sm" c="red">{t('reminder.loadError')}</Text>}
+        {detail.isError && (
+          <Text size="sm" c="red">
+            {t('reminder.loadError')}
+          </Text>
+        )}
         {!detail.isLoading && !detail.isError && invoices.length === 0 && (
-          <Text size="sm" c="dimmed">{t('reminder.noOverdue')}</Text>
+          <Text size="sm" c="dimmed">
+            {t('reminder.noOverdue')}
+          </Text>
         )}
         {invoices.map((invoice) => (
           <Paper key={invoice.id} withBorder radius="md" p="sm">
             <Group justify="space-between" align="center" gap="sm" wrap="wrap">
               <div>
-                <Text size="sm" fw={600}>{invoice.transactionNumber}</Text>
+                <Text size="sm" fw={600}>
+                  {invoice.transactionNumber}
+                </Text>
                 <Text size="xs" c="dimmed">
                   {t('reminder.invoiceMeta', {
                     due: formatDate(invoice.dueDate),
@@ -66,7 +77,9 @@ export function CustomerReminderDialog({
                 size="xs"
                 variant="light"
                 leftSection={<IconSend size={15} />}
-                onClick={() => onSelect({ id: invoice.id, transactionNumber: invoice.transactionNumber })}
+                onClick={() =>
+                  onSelect({ id: invoice.id, transactionNumber: invoice.transactionNumber })
+                }
               >
                 {t('actions.sendReminder')}
               </Button>
@@ -74,7 +87,9 @@ export function CustomerReminderDialog({
           </Paper>
         ))}
         {detail.data?.invoices.pagination.hasMore && (
-          <Text size="xs" c="dimmed">{t('reminder.moreInvoices')}</Text>
+          <Text size="xs" c="dimmed">
+            {t('reminder.moreInvoices')}
+          </Text>
         )}
       </Stack>
     </Modal>

@@ -116,8 +116,9 @@ describe('saleBadges', () => {
         .returned
     ).toBe('full');
     expect(
-      saleBadges(sale('UNPAID', { hasReturn: true, finalAmount: 1_500_000, returnedAmount: 500_000 }))
-        .returned
+      saleBadges(
+        sale('UNPAID', { hasReturn: true, finalAmount: 1_500_000, returnedAmount: 500_000 })
+      ).returned
     ).toBe('partial');
   });
 

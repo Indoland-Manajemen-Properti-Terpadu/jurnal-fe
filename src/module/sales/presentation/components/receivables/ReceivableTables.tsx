@@ -89,10 +89,7 @@ function CustomerActions({
           {t('actions.customerDetail')}
         </Menu.Item>
         {actions.canSendReminder && row.overdueCount > 0 && (
-          <Menu.Item
-            leftSection={<IconBell size={16} />}
-            onClick={() => actions.onReminder(row)}
-          >
+          <Menu.Item leftSection={<IconBell size={16} />} onClick={() => actions.onReminder(row)}>
             {t('actions.customerReminder', { count: formatCount(row.overdueCount) })}
           </Menu.Item>
         )}
@@ -136,133 +133,133 @@ export function ReceivableCustomersTable({
   ];
   return (
     <Paper withBorder radius="md" p={0} bg="white" style={{ overflow: 'hidden' }}>
-        <Table.ScrollContainer minWidth={1080}>
-          <Table verticalSpacing="sm" horizontalSpacing="md" highlightOnHover>
-            <Table.Thead bg="gray.0">
-              <Table.Tr>
-                {columns.map((key) => (
-                  <Table.Th
-                    key={key}
-                    ta={
-                      key === 'customer'
-                        ? 'left'
-                        : key === 'invoices' || key === 'action'
-                          ? 'center'
-                          : 'right'
-                    }
+      <Table.ScrollContainer minWidth={1080}>
+        <Table verticalSpacing="sm" horizontalSpacing="md" highlightOnHover>
+          <Table.Thead bg="gray.0">
+            <Table.Tr>
+              {columns.map((key) => (
+                <Table.Th
+                  key={key}
+                  ta={
+                    key === 'customer'
+                      ? 'left'
+                      : key === 'invoices' || key === 'action'
+                        ? 'center'
+                        : 'right'
+                  }
+                >
+                  <Text
+                    size="xs"
+                    fw={700}
+                    c="dimmed"
+                    tt="uppercase"
+                    style={{ whiteSpace: 'nowrap' }}
                   >
-                    <Text
-                      size="xs"
-                      fw={700}
-                      c="dimmed"
-                      tt="uppercase"
-                      style={{ whiteSpace: 'nowrap' }}
-                    >
-                      {key === 'action' ? '' : t(`table.${key}`)}
-                    </Text>
-                  </Table.Th>
-                ))}
+                    {key === 'action' ? '' : t(`table.${key}`)}
+                  </Text>
+                </Table.Th>
+              ))}
+            </Table.Tr>
+          </Table.Thead>
+          <Table.Tbody>
+            {loading &&
+              Array.from({ length: 4 }, (_, index) => (
+                <Table.Tr key={index}>
+                  {columns.map((key) => (
+                    <Table.Td key={key}>
+                      <Skeleton height={16} radius="sm" />
+                    </Table.Td>
+                  ))}
+                </Table.Tr>
+              ))}
+            {!loading && error && (
+              <Table.Tr>
+                <Table.Td colSpan={columns.length} p="xl">
+                  <EmptyState
+                    title={t('table.errorTitle')}
+                    description={t('table.errorDescription')}
+                    actionLabel={t('table.retry')}
+                    onAction={onRetry}
+                  />
+                </Table.Td>
               </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>
-              {loading &&
-                Array.from({ length: 4 }, (_, index) => (
-                  <Table.Tr key={index}>
-                    {columns.map((key) => (
-                      <Table.Td key={key}>
-                        <Skeleton height={16} radius="sm" />
-                      </Table.Td>
-                    ))}
-                  </Table.Tr>
-                ))}
-              {!loading && error && (
-                <Table.Tr>
-                  <Table.Td colSpan={columns.length} p="xl">
-                    <EmptyState
-                      title={t('table.errorTitle')}
-                      description={t('table.errorDescription')}
-                      actionLabel={t('table.retry')}
-                      onAction={onRetry}
-                    />
-                  </Table.Td>
-                </Table.Tr>
-              )}
-              {!loading && !error && rows.length === 0 && (
-                <Table.Tr>
-                  <Table.Td colSpan={columns.length} p="xl">
-                    <EmptyState
-                      title={t('table.emptyTitle')}
-                      description={t('table.emptyDescription')}
-                    />
-                  </Table.Td>
-                </Table.Tr>
-              )}
-              {!loading &&
-                !error &&
-                rows.map((row) => (
-                  <Table.Tr key={row.customer.id}>
-                    <Table.Td>
-                      <Stack gap={2}>
-                        <Anchor
-                          component="button"
-                          type="button"
-                          ta="left"
-                          fw={600}
-                          size="sm"
-                          onClick={() => actions.onDetail(row)}
-                        >
-                          {row.customer.name || '—'}
-                        </Anchor>
-                        {row.overdueCount > 0 && (
-                          <Text size="xs" c="red.7">
-                            {t('table.customerOverdue', {
-                              count: formatCount(row.overdueCount),
-                              days: formatCount(row.maxDaysOverdue),
-                            })}
-                          </Text>
-                        )}
-                      </Stack>
-                    </Table.Td>
-                    <Table.Td ta="center">
-                      <Text size="sm">{formatCount(row.invoiceCount)}</Text>
-                    </Table.Td>
-                    {(['current', 'days1to30', 'days31to60', 'days61to90', 'over90'] as const).map(
-                      (key) => (
-                        <Table.Td key={key} ta="right">
-                          <Text
-                            size="sm"
-                            c={key !== 'current' && row.aging[key].amount > 0 ? 'red.7' : undefined}
-                            style={{ whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}
-                          >
-                            {row.aging[key].amount > 0
-                              ? formatMoneyAt(row.aging[key].amount, precision)
-                              : '—'}
-                          </Text>
-                        </Table.Td>
-                      )
-                    )}
-                    <Table.Td ta="right">
-                      <Text
+            )}
+            {!loading && !error && rows.length === 0 && (
+              <Table.Tr>
+                <Table.Td colSpan={columns.length} p="xl">
+                  <EmptyState
+                    title={t('table.emptyTitle')}
+                    description={t('table.emptyDescription')}
+                  />
+                </Table.Td>
+              </Table.Tr>
+            )}
+            {!loading &&
+              !error &&
+              rows.map((row) => (
+                <Table.Tr key={row.customer.id}>
+                  <Table.Td>
+                    <Stack gap={2}>
+                      <Anchor
+                        component="button"
+                        type="button"
+                        ta="left"
+                        fw={600}
                         size="sm"
-                        fw={700}
-                        style={{ whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}
+                        onClick={() => actions.onDetail(row)}
                       >
-                        {formatMoneyAt(row.total, precision)}
-                      </Text>
-                    </Table.Td>
-                    <Table.Td ta="right">
-                      <Text size="sm" c={row.credit > 0 ? 'teal.7' : 'dimmed'}>
-                        {row.credit > 0 ? formatMoneyAt(row.credit, precision) : '—'}
-                      </Text>
-                    </Table.Td>
-                    <Table.Td ta="center">
-                      <CustomerActions row={row} actions={actions} />
-                    </Table.Td>
-                  </Table.Tr>
-                ))}
-            </Table.Tbody>
-          </Table>
-        </Table.ScrollContainer>
+                        {row.customer.name || '—'}
+                      </Anchor>
+                      {row.overdueCount > 0 && (
+                        <Text size="xs" c="red.7">
+                          {t('table.customerOverdue', {
+                            count: formatCount(row.overdueCount),
+                            days: formatCount(row.maxDaysOverdue),
+                          })}
+                        </Text>
+                      )}
+                    </Stack>
+                  </Table.Td>
+                  <Table.Td ta="center">
+                    <Text size="sm">{formatCount(row.invoiceCount)}</Text>
+                  </Table.Td>
+                  {(['current', 'days1to30', 'days31to60', 'days61to90', 'over90'] as const).map(
+                    (key) => (
+                      <Table.Td key={key} ta="right">
+                        <Text
+                          size="sm"
+                          c={key !== 'current' && row.aging[key].amount > 0 ? 'red.7' : undefined}
+                          style={{ whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}
+                        >
+                          {row.aging[key].amount > 0
+                            ? formatMoneyAt(row.aging[key].amount, precision)
+                            : '—'}
+                        </Text>
+                      </Table.Td>
+                    )
+                  )}
+                  <Table.Td ta="right">
+                    <Text
+                      size="sm"
+                      fw={700}
+                      style={{ whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}
+                    >
+                      {formatMoneyAt(row.total, precision)}
+                    </Text>
+                  </Table.Td>
+                  <Table.Td ta="right">
+                    <Text size="sm" c={row.credit > 0 ? 'teal.7' : 'dimmed'}>
+                      {row.credit > 0 ? formatMoneyAt(row.credit, precision) : '—'}
+                    </Text>
+                  </Table.Td>
+                  <Table.Td ta="center">
+                    <CustomerActions row={row} actions={actions} />
+                  </Table.Td>
+                </Table.Tr>
+              ))}
+          </Table.Tbody>
+        </Table>
+      </Table.ScrollContainer>
       <Box style={{ borderTop: '1px solid var(--jurnal-color-border-subtle)' }}>
         <TableFooter {...paging} />
       </Box>

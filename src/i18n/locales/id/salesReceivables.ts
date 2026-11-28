@@ -142,7 +142,8 @@ export const salesReceivables = {
   },
   reminder: {
     composeTitle: 'Kirim Pengingat Tagihan',
-    composeHelp: 'Faktur yang sama dikirim ulang dengan pesan pengingat. Status dan nomornya tidak berubah.',
+    composeHelp:
+      'Faktur yang sama dikirim ulang dengan pesan pengingat. Status dan nomornya tidak berubah.',
     recipient: 'Email tujuan',
     recipientHelp: 'Email pelanggan',
     emailError: {
@@ -151,14 +152,16 @@ export const salesReceivables = {
       example: 'Ini alamat email contoh. Ganti dengan alamat email pelanggan yang sebenarnya.',
     },
     customerMessage: 'Pesan untuk pelanggan',
-    defaultMessage: 'Kami ingin mengingatkan faktur {number} dengan sisa tagihan {amount}, yang jatuh tempo pada {due}.\n\nPDF faktur dilampirkan untuk referensi.\n\nAbaikan pesan ini bila pembayaran sudah dilakukan. Terima kasih.',
+    defaultMessage:
+      'Kami ingin mengingatkan faktur {number} dengan sisa tagihan {amount}, yang jatuh tempo pada {due}.\n\nPDF faktur dilampirkan untuk referensi.\n\nAbaikan pesan ini bila pembayaran sudah dilakukan. Terima kasih.',
     attachment: 'Lampiran',
     download: 'Unduh',
     previewInvoice: 'Faktur Penjualan',
     previewItem: 'Barang atau jasa',
     previewQuantity: 'Jumlah',
     pdfError: 'Pratinjau faktur tidak dapat dimuat.',
-    previewFallback: 'Pratinjau ini menampilkan isi faktur. Gunakan Unduh untuk memeriksa PDF yang akan dilampirkan.',
+    previewFallback:
+      'Pratinjau ini menampilkan isi faktur. Gunakan Unduh untuk memeriksa PDF yang akan dilampirkan.',
     cancel: 'Batal',
     customerTitle: 'Pengingat untuk {name}',
     customerHelp: 'Pilih faktur terlambat yang akan dikirimi pengingat pembayaran.',
@@ -166,9 +169,11 @@ export const salesReceivables = {
     noOverdue: 'Tidak ada faktur terlambat yang perlu diingatkan.',
     invoiceMeta: 'Jatuh tempo {due} · sisa {amount}',
     noEmail: 'Email belum tersedia',
-    moreInvoices: 'Sebagian faktur tidak tampil di sini. Gunakan tab Per faktur untuk faktur lainnya.',
+    moreInvoices:
+      'Sebagian faktur tidak tampil di sini. Gunakan tab Per faktur untuk faktur lainnya.',
     confirmTitle: 'Kirim pengingat {number}',
-    confirmMessage: 'Email pengingat pembayaran akan dikirim ke alamat pada faktur atau kontak pelanggan.',
+    confirmMessage:
+      'Email pengingat pembayaran akan dikirim ke alamat pada faktur atau kontak pelanggan.',
     confirmLabel: 'Kirim pengingat',
   },
   drawer: {

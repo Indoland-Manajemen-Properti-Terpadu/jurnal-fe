@@ -1,5 +1,8 @@
 import { useState } from 'react';
-import type { ReceivableCustomerRow, ReceivableInvoiceRow } from '@/module/sales/domain/saleReceivables';
+import type {
+  ReceivableCustomerRow,
+  ReceivableInvoiceRow,
+} from '@/module/sales/domain/saleReceivables';
 import { useSendInvoiceReminder } from '../../hooks/useSaleMutations';
 import { CustomerReminderDialog } from './CustomerReminderDialog';
 import { InvoiceReminderDialog, type ReminderTarget } from './InvoiceReminderDialog';
@@ -25,13 +28,16 @@ export function ReceivablesReminderControls({
     onCloseInvoice();
     onCloseCustomer();
   };
-  const send = (target: ReminderTarget & { email: string; message: string }) => reminder.mutate(
-    { ...target, number: target.transactionNumber },
-    { onSuccess: async () => {
-      close();
-      await onSent();
-    } }
-  );
+  const send = (target: ReminderTarget & { email: string; message: string }) =>
+    reminder.mutate(
+      { ...target, number: target.transactionNumber },
+      {
+        onSuccess: async () => {
+          close();
+          await onSent();
+        },
+      }
+    );
 
   return (
     <>
@@ -41,7 +47,15 @@ export function ReceivablesReminderControls({
         onClose={onCloseCustomer}
         onSelect={setSelected}
       />
-      {active && <InvoiceReminderDialog key={active.id} target={active} sending={reminder.isPending} onClose={close} onSend={send} />}
+      {active && (
+        <InvoiceReminderDialog
+          key={active.id}
+          target={active}
+          sending={reminder.isPending}
+          onClose={close}
+          onSend={send}
+        />
+      )}
     </>
   );
 }

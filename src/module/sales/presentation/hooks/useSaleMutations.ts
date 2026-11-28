@@ -82,8 +82,16 @@ export const useSendInvoiceReminder = () => {
   const notify = useSaleNotifier();
   const refresh = useRefreshSales();
   return useMutation({
-    mutationFn: ({ id, email, message }: { id: string; number: string; email: string; message: string }) =>
-      sendInvoiceReminder(id, { email, message }),
+    mutationFn: ({
+      id,
+      email,
+      message,
+    }: {
+      id: string;
+      number: string;
+      email: string;
+      message: string;
+    }) => sendInvoiceReminder(id, { email, message }),
     onSuccess: (_result, { number }) => notify.success('reminderSent', number),
     onError: notify.failure,
     onSettled: refresh,

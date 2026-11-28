@@ -69,12 +69,12 @@ export function SaleTable({
           <Table.Thead bg="gray.0">
             <Table.Tr>
               {columns.map((column) => (
-              <Table.Th
-                key={column.key}
-                ta={column.align}
-                w={column.width}
-                style={column.width ? { minWidth: column.width } : undefined}
-              >
+                <Table.Th
+                  key={column.key}
+                  ta={column.align}
+                  w={column.width}
+                  style={column.width ? { minWidth: column.width } : undefined}
+                >
                   <Text size="xs" fw={700} c="dimmed" style={{ whiteSpace: 'nowrap' }}>
                     {t(`table.${column.key}`)}
                   </Text>

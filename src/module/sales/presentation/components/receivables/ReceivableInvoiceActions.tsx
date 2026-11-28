@@ -1,5 +1,13 @@
 import { ActionIcon, Menu, Tooltip } from '@mantine/core';
-import { IconBell, IconBook2, IconCash, IconDotsVertical, IconEye, IconLink, IconReceiptTax } from '@tabler/icons-react';
+import {
+  IconBell,
+  IconBook2,
+  IconCash,
+  IconDotsVertical,
+  IconEye,
+  IconLink,
+  IconReceiptTax,
+} from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
 import type { ReceivableInvoiceRow } from '@/module/sales/domain/saleReceivables';
 

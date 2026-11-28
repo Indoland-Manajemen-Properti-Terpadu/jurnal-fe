@@ -39,10 +39,7 @@ import type {
 } from '../../domain/saleReceivables';
 import { downloadReceivablesCsv } from '../../infrastructure/saleReceivablesWorkbenchApi';
 import { downloadBlob } from '../hooks/downloadBlob';
-import {
-  useCreateSalePayment,
-  useCopyInvoiceLink,
-} from '../hooks/useSaleMutations';
+import { useCreateSalePayment, useCopyInvoiceLink } from '../hooks/useSaleMutations';
 import { useSaleNotifier } from '../hooks/useSaleNotifier';
 import {
   useReceivableCustomers,
@@ -350,7 +347,8 @@ export default function ReceivablesPage() {
                     canSendReminder: rights.canSendInvoiceEmail,
                     onDetail: (row) => setDetailCustomerId(row.customer.id),
                     onReminder: setReminderCustomer,
-                    onContact: (row) => navigate(routes.contacts.detail.replace(':idAccount', row.customer.id)),
+                    onContact: (row) =>
+                      navigate(routes.contacts.detail.replace(':idAccount', row.customer.id)),
                   }}
                 />
               ) : (

@@ -1,4 +1,15 @@
-import { Alert, Badge, Button, Divider, Group, Paper, Skeleton, Stack, Text, Title } from '@mantine/core';
+import {
+  Alert,
+  Badge,
+  Button,
+  Divider,
+  Group,
+  Paper,
+  Skeleton,
+  Stack,
+  Text,
+  Title,
+} from '@mantine/core';
 import { IconCheck, IconChevronRight } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
@@ -22,7 +33,9 @@ export function ReceivablesReconciliationPanel({
   const precision = overview?.precision ?? 2;
   const isToday = asOf === overview?.asOf;
   const forward = reconciliation?.forward;
-  const receivableHead = reconciliation?.accounts.find((account) => account.accountNumber === '1-10100');
+  const receivableHead = reconciliation?.accounts.find(
+    (account) => account.accountNumber === '1-10100'
+  );
   const ledgerPath = receivableHead
     ? routes.accountLedger.nonCashBank.replace(':idAccount', receivableHead.id)
     : routes.reports.generalLedger;
@@ -62,7 +75,12 @@ export function ReceivablesReconciliationPanel({
           <Stack gap="sm">
             <div>
               <Group gap="xs" align="center" wrap="wrap">
-                <Text fz={24} fw={700} c="var(--jurnal-color-text-primary)" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                <Text
+                  fz={24}
+                  fw={700}
+                  c="var(--jurnal-color-text-primary)"
+                  style={{ fontVariantNumeric: 'tabular-nums' }}
+                >
                   {formatMoneyAt(reconciliation.invoiceBalance, precision)}
                 </Text>
                 <Badge
@@ -76,13 +94,19 @@ export function ReceivablesReconciliationPanel({
                 </Badge>
               </Group>
               <Text size="xs" c="dimmed">
-                {t(isToday ? 'reconciliation.invoiceBalanceToday' : 'reconciliation.invoiceBalanceAsOf')}
+                {t(
+                  isToday
+                    ? 'reconciliation.invoiceBalanceToday'
+                    : 'reconciliation.invoiceBalanceAsOf'
+                )}
               </Text>
             </div>
             <Divider />
             <Stack gap="xs">
               <Group justify="space-between" gap="xs" wrap="nowrap">
-                <Text size="xs" c="dimmed">{t('reconciliation.totalInvoices')}</Text>
+                <Text size="xs" c="dimmed">
+                  {t('reconciliation.totalInvoices')}
+                </Text>
                 <Text size="sm" fw={500} ta="right" style={{ whiteSpace: 'nowrap' }}>
                   {formatMoneyAt(overview?.summary.total.amount ?? 0, precision)}
                 </Text>
@@ -112,7 +136,9 @@ export function ReceivablesReconciliationPanel({
               </Group>
               {!matched && (
                 <Group justify="space-between" gap="xs" wrap="nowrap">
-                  <Text size="xs" c="dimmed">{t('reconciliation.differenceLabel')}</Text>
+                  <Text size="xs" c="dimmed">
+                    {t('reconciliation.differenceLabel')}
+                  </Text>
                   <Text size="sm" fw={700} c="orange.7" ta="right">
                     {formatMoneyAt(reconciliation.difference, precision)}
                   </Text>

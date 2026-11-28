@@ -25,7 +25,11 @@ describe('classifySaleError', () => {
 
   it('keeps a service-unavailable email message from the API', () => {
     expect(
-      classifySaleError(failure(503, { message: 'Server email (SMTP) belum dikonfigurasi, email tidak dapat dikirim.' }))
+      classifySaleError(
+        failure(503, {
+          message: 'Server email (SMTP) belum dikonfigurasi, email tidak dapat dikirim.',
+        })
+      )
     ).toEqual({
       kind: 'domain',
       serverMessage: 'Server email (SMTP) belum dikonfigurasi, email tidak dapat dikirim.',

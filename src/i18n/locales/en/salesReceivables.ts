@@ -142,7 +142,8 @@ export const salesReceivables = {
   },
   reminder: {
     composeTitle: 'Send Payment Reminder',
-    composeHelp: 'The same invoice is sent again with a reminder message. Its status and number stay the same.',
+    composeHelp:
+      'The same invoice is sent again with a reminder message. Its status and number stay the same.',
     recipient: 'Recipient email',
     recipientHelp: 'Customer email',
     emailError: {
@@ -151,14 +152,16 @@ export const salesReceivables = {
       example: 'This is an example address. Replace it with the customer’s real email address.',
     },
     customerMessage: 'Message to customer',
-    defaultMessage: 'This is a reminder that invoice {number} has an outstanding balance of {amount} and was due on {due}.\n\nThe invoice PDF is attached for reference.\n\nPlease disregard this message if payment has already been made. Thank you.',
+    defaultMessage:
+      'This is a reminder that invoice {number} has an outstanding balance of {amount} and was due on {due}.\n\nThe invoice PDF is attached for reference.\n\nPlease disregard this message if payment has already been made. Thank you.',
     attachment: 'Attachment',
     download: 'Download',
     previewInvoice: 'Sales Invoice',
     previewItem: 'Product or service',
     previewQuantity: 'Quantity',
     pdfError: 'The invoice preview could not be loaded.',
-    previewFallback: 'This preview shows the invoice contents. Use Download to inspect the PDF attachment.',
+    previewFallback:
+      'This preview shows the invoice contents. Use Download to inspect the PDF attachment.',
     cancel: 'Cancel',
     customerTitle: 'Reminder for {name}',
     customerHelp: 'Choose an overdue invoice to send a payment reminder.',
@@ -168,7 +171,8 @@ export const salesReceivables = {
     noEmail: 'Email unavailable',
     moreInvoices: 'Some invoices are not shown here. Use the By invoice tab for the rest.',
     confirmTitle: 'Send reminder for {number}',
-    confirmMessage: 'A payment reminder will be emailed to the address on the invoice or customer contact.',
+    confirmMessage:
+      'A payment reminder will be emailed to the address on the invoice or customer contact.',
     confirmLabel: 'Send reminder',
   },
   drawer: {
