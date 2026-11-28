@@ -349,6 +349,11 @@ export const PaymentRequestItemsCard = ({
                       {item.bill.vendorInvoiceNumber}
                     </Text>
                   )}
+                  {item.sourceStage === 'ADVANCE' && (
+                    <Text size="xs" c="dimmed">
+                      {t('paymentRequests.detail.advanceOrigin')}
+                    </Text>
+                  )}
                 </Table.Td>
                 {doc.isMultiVendor && (
                   <Table.Td>

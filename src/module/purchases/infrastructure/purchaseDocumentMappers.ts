@@ -285,6 +285,7 @@ export const toPaymentRequest = (dto: PaymentRequestDto): PaymentRequest => ({
     : null,
   items: (dto.itemRefs ?? []).map((line) => ({
     amount: line.amount,
+    sourceStage: line.sourceStage,
     vendorId: line.vendor ?? dto.vendor?.id ?? '',
     bill: {
       id: line.bill.id,
