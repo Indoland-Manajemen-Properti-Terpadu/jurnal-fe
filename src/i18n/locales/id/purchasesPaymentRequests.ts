@@ -136,6 +136,7 @@ export const purchasesPaymentRequests = {
     advanceAppliedLabel: 'Sudah dipotong ke faktur',
     orderTotal: 'Total PO',
     advanceRow: 'Uang muka',
+    advanceOrigin: 'Tagihan dari uang muka (DP)',
     advancePercent: 'Uang muka {percent}%',
     itemsCount: '{count} faktur',
     backToList: 'Kembali ke daftar pembayaran',

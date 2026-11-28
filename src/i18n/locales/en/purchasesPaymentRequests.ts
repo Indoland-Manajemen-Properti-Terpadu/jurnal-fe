@@ -128,6 +128,7 @@ export const purchasesPaymentRequests = {
     advanceAppliedLabel: 'Already deducted from bills',
     orderTotal: 'Order total',
     advanceRow: 'Advance',
+    advanceOrigin: 'Bill from an advance payment (DP)',
     advancePercent: 'Advance {percent}%',
     itemsCount: '{count} bills',
     backToList: 'Back to the payments list',

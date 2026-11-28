@@ -64,6 +64,40 @@ describe('price change API', () => {
     expect(post).toHaveBeenCalledWith('/v1/purchase-orders/order-1/price-changes', input);
   });
 
+  it('approves a tax-bearing price change with one mocked write', async () => {
+    const invoiceTotal = 1_250_000;
+    post.mockResolvedValue({
+      data: {
+        id: 'change-tax',
+        status: 'APPROVED',
+        purchaseOrder: { id: 'order-1', transactionNumber: 'PO/2026/11/0011' },
+        vendorInvoiceNumber: 'INV-TAX-001',
+        vendorInvoiceTotal: invoiceTotal,
+        items: [
+          {
+            purchaseOrderItem: { id: 'line-1', description: 'Meja rapat' },
+            previousUnitPrice: 55_000,
+            newUnitPrice: 60_000,
+          },
+        ],
+        approvalStage: 1,
+      },
+    });
+
+    const approved = await approvePriceChange('change-tax', 1, 'Tax invoice reviewed');
+
+    expect(post).toHaveBeenCalledTimes(1);
+    expect(post).toHaveBeenCalledWith('/v1/purchase-orders/price-changes/change-tax/approve', {
+      approvalStage: 1,
+      note: 'Tax invoice reviewed',
+    });
+    expect(approved).toMatchObject({
+      status: 'APPROVED',
+      vendorInvoiceTotal: invoiceTotal,
+      items: [{ oldUnitPrice: 55_000, newUnitPrice: 60_000 }],
+    });
+  });
+
   it('sends the active stage for approval and a reason for rejection', async () => {
     post.mockResolvedValue({ data: { id: 'change-1', status: 'PENDING_APPROVAL', items: [] } });
     await approvePriceChange('change-1', 1, 'Setuju');

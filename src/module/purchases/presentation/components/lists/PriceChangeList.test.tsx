@@ -1,4 +1,4 @@
-import { render, screen } from '@test-utils';
+import { render, screen, userEvent } from '@test-utils';
 import { MemoryRouter } from 'react-router-dom';
 import type { PriceChangeRequest } from '@/module/purchases/domain/purchasePriceChanges';
 import { PriceChangeList } from './PriceChangeList';
@@ -52,6 +52,47 @@ describe('PriceChangeList', () => {
     expect(screen.getByText('Meja rapat')).toBeInTheDocument();
     expect(screen.getByText(/1\.000\.000/)).toBeInTheDocument();
     expect(screen.getAllByText(/1\.100\.000/)).toHaveLength(2);
+  });
+
+  it('shows the tax-bearing invoice total through the final approval step', async () => {
+    const onApprove = vi.fn();
+    const taxRequest: PriceChangeRequest = {
+      ...request,
+      id: 'change-tax',
+      vendorInvoiceNumber: 'INV-TAX-001',
+      vendorInvoiceTotal: 1_250_000,
+      plan: [
+        { name: 'Chief Finance', mode: 'ANY', roles: [{ id: 'cf', name: 'Chief Finance' }] },
+        { name: 'Building Manager', mode: 'ANY', roles: [{ id: 'bm', name: 'Building Manager' }] },
+      ],
+      pending: [
+        {
+          level: 1,
+          name: 'Building Manager',
+          mode: 'ANY',
+          roles: [{ id: 'bm', name: 'Building Manager', approved: false }],
+        },
+      ],
+      approvalStage: 1,
+    };
+
+    render(
+      <MemoryRouter>
+        <PriceChangeList
+          requests={[taxRequest]}
+          canDecide
+          onApprove={onApprove}
+          onReject={vi.fn()}
+        />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByText(/1\.250\.000/)).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Setujui (2/2)' }));
+    expect(await screen.findByText(/Ini approval terakhir/)).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Ya, setujui' }));
+
+    expect(onApprove).toHaveBeenCalledWith(taxRequest, undefined);
   });
 
   it('does not mark a request as ready for this user without permission', () => {
