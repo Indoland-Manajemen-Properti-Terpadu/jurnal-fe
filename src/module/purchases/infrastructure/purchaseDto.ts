@@ -319,6 +319,7 @@ export interface PaymentRequestDto extends DocumentDto, ApprovalFieldsDto {
   itemRefs?:
     | {
         amount: number;
+        sourceStage?: string | null;
         vendor?: string | null;
         voucher?: { id: string } | null;
         bill: {

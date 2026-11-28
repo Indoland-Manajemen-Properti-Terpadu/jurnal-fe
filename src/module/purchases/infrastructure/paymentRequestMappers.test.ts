@@ -75,4 +75,31 @@ describe('toPaymentRequest, vendors', () => {
 
     expect(doc.items[0].vendorId).toBe('v1');
   });
+
+  it('preserves each settlement bill source stage without changing the request kind', () => {
+    const doc = toPaymentRequest(
+      dto({
+        kind: 'SETTLEMENT',
+        itemRefs: [
+          { amount: 100, bill: bill('b1'), sourceStage: 'ADVANCE' },
+          { amount: 100, bill: bill('b2') },
+          { amount: 100, bill: bill('b3'), sourceStage: null },
+          { amount: 100, bill: bill('b4'), sourceStage: 'TERM' },
+        ],
+      } as unknown as Partial<PaymentRequestDto>)
+    );
+
+    expect(doc.kind).toBe('SETTLEMENT');
+    expect(
+      doc.items.map((item) => [
+        item.bill.id,
+        (item as unknown as { sourceStage?: string | null }).sourceStage,
+      ])
+    ).toEqual([
+      ['b1', 'ADVANCE'],
+      ['b2', undefined],
+      ['b3', null],
+      ['b4', 'TERM'],
+    ]);
+  });
 });

@@ -96,6 +96,25 @@ describe('PaymentRequestItemsCard', () => {
     expect(cells[4]).toHaveTextContent('0');
   });
 
+  it('shows the DP origin only for settlement items with ADVANCE sourceStage', () => {
+    renderCard(
+      doc({
+        items: [
+          { bill: bill('b1'), amount: 100, vendorId: 'v1', sourceStage: 'ADVANCE' },
+          { bill: bill('b2'), amount: 100, vendorId: 'v1' },
+          { bill: bill('b3'), amount: 100, vendorId: 'v1', sourceStage: null },
+          { bill: bill('b4'), amount: 100, vendorId: 'v1', sourceStage: 'TERM' },
+        ],
+      })
+    );
+
+    const label = 'Tagihan dari uang muka (DP)';
+    const rows = screen.getAllByRole('row').slice(1);
+
+    expect(rows[0]).toHaveTextContent(label);
+    expect(rows.slice(1).every((row) => !row.textContent?.includes(label))).toBe(true);
+  });
+
   it('hides settlement and bill amounts until every approval is complete', () => {
     renderCard(doc({ status: 'PENDING_APPROVAL' }));
 
