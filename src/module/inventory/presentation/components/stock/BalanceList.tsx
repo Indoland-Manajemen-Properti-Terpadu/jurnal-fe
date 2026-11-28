@@ -2,7 +2,7 @@ import { Anchor, Table, Text } from '@mantine/core';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '@/i18n';
 import type { BalanceReport } from '@/module/inventory/domain/stockBalance';
-import type { StockStatus } from '@/module/inventory/domain/warehouse';
+import { stockStatus, type StockStatus } from '@/module/inventory/domain/warehouse';
 import { columnHeader } from '@/module/inventory/presentation/components/shared/columnHeader';
 import { DataTableFrame } from '@/module/inventory/presentation/components/shared/DataTableFrame';
 import { stockCardPath } from '@/module/inventory/presentation/components/shared/stockLinks';
@@ -46,6 +46,7 @@ export function BalanceList({ report, warehouseId, showValue, mins }: Readonly<P
       <Table.Tbody>
         {report.rows.map((row) => {
           const info = mins?.[row.productId];
+          const status = info?.status ?? stockStatus(row.quantities[warehouseId] ?? 0, 0);
           return (
             <Table.Tr key={row.productId}>
               <Table.Td>
@@ -80,15 +81,9 @@ export function BalanceList({ report, warehouseId, showValue, mins }: Readonly<P
                     </Text>
                   </Table.Td>
                   <Table.Td>
-                    {info ? (
-                      <Text size="sm" fw={500} c={STATUS_COLOR[info.status]}>
-                        {t(`status.${info.status}`)}
-                      </Text>
-                    ) : (
-                      <Text size="sm" c="dimmed">
-                        -
-                      </Text>
-                    )}
+                    <Text size="sm" fw={500} c={STATUS_COLOR[status]}>
+                      {t(`status.${status}`)}
+                    </Text>
                   </Table.Td>
                 </>
               )}

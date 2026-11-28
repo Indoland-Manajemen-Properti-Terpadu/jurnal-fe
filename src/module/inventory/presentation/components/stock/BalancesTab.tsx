@@ -15,7 +15,7 @@ import { useDebouncedValue } from '@mantine/hooks';
 import { IconAlertCircle, IconPackage, IconSearch } from '@tabler/icons-react';
 import { EmptyState } from '@/components/EmptyState/EmptyState';
 import { useTranslation } from '@/i18n';
-import type { StockStatus } from '@/module/inventory/domain/warehouse';
+import { stockStatus, type StockStatus } from '@/module/inventory/domain/warehouse';
 import { DateField } from '@/module/inventory/presentation/components/shared/DateField';
 import {
   BalanceList,
@@ -74,14 +74,42 @@ export function BalancesTab({ filters, today, update, tabList }: Readonly<Props>
     );
   }, [singleWarehouse, isToday, warehouseStock.data]);
 
+  const metricsReport = useMemo(() => {
+    if (!report) return undefined;
+
+    const stockCount = report.rows.filter((row) =>
+      singleWarehouse ? (row.quantities[filters.warehouse] ?? 0) > 0 : row.totalQty > 0
+    ).length;
+    const emptyCount = isToday
+      ? Math.max(0, report.summary.trackedProducts - stockCount)
+      : report.summary.emptyCount;
+    const belowMinCount =
+      singleWarehouse && mins
+        ? report.rows.filter(
+            (row) =>
+              (mins[row.productId]?.status ??
+                stockStatus(row.quantities[filters.warehouse] ?? 0, 0)) === 'belowMin'
+          ).length
+        : report.summary.belowMinCount;
+
+    return {
+      ...report,
+      summary: { ...report.summary, emptyCount, belowMinCount },
+    };
+  }, [report, singleWarehouse, isToday, filters.warehouse, mins]);
+
   const visibleReport = useMemo(() => {
     if (!report) return undefined;
     if (!mins || status === 'all') return report;
     return {
       ...report,
-      rows: report.rows.filter((row) => (mins[row.productId]?.status ?? 'safe') === status),
+      rows: report.rows.filter(
+        (row) =>
+          (mins[row.productId]?.status ??
+            stockStatus(row.quantities[filters.warehouse] ?? 0, 0)) === status
+      ),
     };
-  }, [report, mins, status]);
+  }, [report, filters.warehouse, mins, status]);
 
   const hasFilters =
     search !== '' || singleWarehouse || filters.category !== '' || status !== 'all';
@@ -180,7 +208,7 @@ export function BalancesTab({ filters, today, update, tabList }: Readonly<Props>
 
   return (
     <Stack gap="lg">
-      {report && <BalanceMetrics report={report} />}
+      {metricsReport && <BalanceMetrics report={metricsReport} />}
       {report && (
         <ReconciliationBanner report={report} scoped={singleWarehouse || filters.category !== ''} />
       )}
