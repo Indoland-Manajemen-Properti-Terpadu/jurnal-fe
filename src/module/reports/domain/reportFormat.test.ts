@@ -55,6 +55,6 @@ describe('formatAmount', () => {
     const { formatAmount } = await import('./reportFormat');
     expect(formatAmount(1234567.5, 2)).toBe('1.234.567,50');
     expect(formatAmount(0, 0)).toBe('0');
-    expect(formatAmount(-2500, 4)).toBe('-2.500,0000');
+    expect(formatAmount(-2500, 4)).toBe('(2.500,0000)');
   });
 });

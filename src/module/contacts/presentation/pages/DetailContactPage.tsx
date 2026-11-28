@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import {
+  Alert,
   Badge,
   Box,
   Button,
@@ -136,6 +137,11 @@ export function DetailContactPage() {
     <AppShellLayout>
       <Box p={{ base: 'md', sm: 'xl' }}>
         <Stack gap="lg">
+          {contact.needsReview && (
+            <Alert color="orange" variant="light" radius="md" title={t('table.needsReview')}>
+              {t('table.needsReviewHint')}
+            </Alert>
+          )}
           <ModuleHeader
             icon={IconAddressBook}
             title={

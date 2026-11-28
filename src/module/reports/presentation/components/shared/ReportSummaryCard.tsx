@@ -1,7 +1,10 @@
 import React from 'react';
 import { Box, Divider, Group, Stack, Text } from '@mantine/core';
 import { formatMoney } from '@/module/reports/domain/reportFormat';
-import { useReportPrecision } from '@/module/reports/presentation/hooks/useReportPrecision';
+import {
+  useReportNegativeFormat,
+  useReportPrecision,
+} from '@/module/reports/presentation/hooks/useReportPrecision';
 
 export interface ReportSummaryLine {
   key: string;
@@ -36,6 +39,7 @@ export const ReportSummaryCard: React.FC<ReportSummaryCardProps> = ({
   closing,
 }) => {
   const precision = useReportPrecision();
+  const negativeFormat = useReportNegativeFormat();
   return (
     <Stack gap="sm" role="group" aria-label={ariaLabel} title={ariaLabel}>
       <Box>
@@ -59,7 +63,7 @@ export const ReportSummaryCard: React.FC<ReportSummaryCardProps> = ({
                 {line.label}
               </Text>
               <Text fz="sm" fw={600} c="dark.9" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                {formatMoney(line.value, precision)}
+                {formatMoney(line.value, precision, negativeFormat)}
               </Text>
             </Group>
             <Box
@@ -95,7 +99,7 @@ export const ReportSummaryCard: React.FC<ReportSummaryCardProps> = ({
           c={closing.alert ? 'red.7' : 'dark.9'}
           style={{ fontVariantNumeric: 'tabular-nums' }}
         >
-          {formatMoney(closing.value, precision)}
+          {formatMoney(closing.value, precision, negativeFormat)}
         </Text>
       </Group>
     </Stack>

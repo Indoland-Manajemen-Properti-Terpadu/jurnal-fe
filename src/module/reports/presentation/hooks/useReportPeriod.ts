@@ -44,5 +44,14 @@ export function useReportPeriod(initial: PeriodPreset = 'this_month', onPeriodCh
     onPeriodChange?.();
   };
 
-  return { preset, period, draftPeriod, setDraftPeriod, selectPreset, applyDraft };
+  /** Applies a complete range immediately, for report pages with separate start and end fields. */
+  const applyRange = (range: ReportPeriodDates) => {
+    if (!range.startDate || !range.endDate || range.startDate > range.endDate) return;
+    setPreset('custom');
+    setDraftPeriod(range);
+    setPeriod(range);
+    onPeriodChange?.();
+  };
+
+  return { preset, period, draftPeriod, setDraftPeriod, selectPreset, applyDraft, applyRange };
 }

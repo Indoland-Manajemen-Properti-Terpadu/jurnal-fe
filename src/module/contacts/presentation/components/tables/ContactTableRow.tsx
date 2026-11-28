@@ -83,6 +83,13 @@ export function ContactTableRow({
                 {contact.displayName}
               </Text>
               {contact.deleted && <ArchivedContactIndicator label={t('table.archived')} />}
+              {contact.needsReview && (
+                <Tooltip label={t('table.needsReviewHint')} multiline w={260} withArrow>
+                  <Badge color="orange" variant="light" size="sm">
+                    {t('table.needsReview')}
+                  </Badge>
+                </Tooltip>
+              )}
             </Group>
             <Text size="xs" ff="monospace" c="dimmed" mt={2}>
               {contact.contactNumber || '—'}

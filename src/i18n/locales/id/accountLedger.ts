@@ -29,6 +29,8 @@ export const accountLedger = {
     loadFailedTitle: 'Gagal memuat akun',
     loadFailedMessage: 'Detail akun tidak dapat dimuat. Periksa koneksi Anda lalu coba lagi.',
     retry: 'Coba Lagi',
+    reportPeriod: 'Menampilkan jurnal periode {from} s.d. {to}',
+    clearReportPeriod: 'Lihat semua periode',
     side: { Debit: 'Debit', Kredit: 'Kredit' },
   },
   cashBank: {

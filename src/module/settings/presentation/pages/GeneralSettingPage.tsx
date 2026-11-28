@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Alert,
   Badge,
+  Button,
   Group,
   NumberInput,
   Paper,
@@ -12,17 +13,27 @@ import {
 } from '@mantine/core';
 import { IconInfoCircle, IconLock } from '@tabler/icons-react';
 import { useTranslation } from '@/i18n';
-import { formatMoneyAt } from '@/utils/formatMoney';
+import { formatSignedMoneyAt } from '@/utils/formatMoney';
 import SettingsLayout from '@/module/settings/presentation/components/SettingsLayout';
-import { useGeneralSettings } from '@/module/settings/presentation/hooks/useGeneralSettings';
+import {
+  useGeneralSettings,
+  useUpdateGeneralSettings,
+} from '@/module/settings/presentation/hooks/useGeneralSettings';
+import type { NegativeNumberFormat } from '@/module/settings/domain/settingTypes';
 
-const previewAmount = 1459200.5678;
+const previewAmount = -1459200.5678;
 
 export default function GeneralSettingPage() {
   const { t, currentLanguage } = useTranslation('settings');
   const general = useGeneralSettings();
+  const updateGeneral = useUpdateGeneralSettings();
+  const [negativeFormat, setNegativeFormat] = useState<NegativeNumberFormat>('parentheses');
   const [previewPrecision, setPreviewPrecision] = useState('2');
   const [amount, setAmount] = useState<number>(previewAmount);
+
+  useEffect(() => {
+    if (general.data?.negativeNumberFormat) setNegativeFormat(general.data.negativeNumberFormat);
+  }, [general.data?.negativeNumberFormat]);
 
   return (
     <SettingsLayout title={t('generalTitle')} description={t('generalDescription')}>
@@ -55,6 +66,57 @@ export default function GeneralSettingPage() {
           <Alert color="blue" variant="light" icon={<IconLock size={18} />} mt="lg">
             {t('precisionLockedReason')}
           </Alert>
+        </Paper>
+
+        <Paper withBorder radius="lg" p={{ base: 'md', sm: 'xl' }}>
+          <Group justify="space-between" align="flex-start" mb="md">
+            <div>
+              <Text fw={700} fz="lg">
+                {t('negativeFormatTitle')}
+              </Text>
+              <Text c="dimmed" fz="sm">
+                {t('negativeFormatDescription')}
+              </Text>
+            </div>
+          </Group>
+
+          {general.isPending ? (
+            <Skeleton height={40} />
+          ) : general.isError ? (
+            <Alert color="red" icon={<IconInfoCircle size={18} />}>
+              {t('loadGeneralError')}
+            </Alert>
+          ) : (
+            <Stack gap="md">
+              <SegmentedControl
+                aria-label={t('negativeFormatTitle')}
+                data={[
+                  { value: 'parentheses', label: t('negativeFormatParentheses') },
+                  { value: 'minus', label: t('negativeFormatMinus') },
+                ]}
+                value={negativeFormat}
+                onChange={(value) => setNegativeFormat(value as NegativeNumberFormat)}
+                fullWidth
+              />
+              <Group justify="space-between" align="center" wrap="wrap">
+                <Text fz="sm" c="dimmed">
+                  {t('negativeFormatExample')}{' '}
+                  <Text span fw={700} c="dark.8">
+                    {negativeFormat === 'minus' ? '-Rp 1.459.200,57' : '(Rp 1.459.200,57)'}
+                  </Text>
+                </Text>
+                <Button
+                  onClick={() => updateGeneral.mutate({ negativeNumberFormat: negativeFormat })}
+                  loading={updateGeneral.isPending}
+                  disabled={
+                    negativeFormat === (general.data?.negativeNumberFormat ?? 'parentheses')
+                  }
+                >
+                  {t('saveNegativeFormat')}
+                </Button>
+              </Group>
+            </Stack>
+          )}
         </Paper>
 
         <Paper withBorder radius="lg" p={{ base: 'md', sm: 'xl' }}>
@@ -93,7 +155,7 @@ export default function GeneralSettingPage() {
                 c="primary.8"
                 style={{ overflowWrap: 'anywhere' }}
               >
-                {formatMoneyAt(amount, Number(previewPrecision))}
+                {formatSignedMoneyAt(amount, Number(previewPrecision), negativeFormat)}
               </Text>
               <Text fz="xs" c="dimmed" mt="xs">
                 {t('previewOnly')}

@@ -10,20 +10,30 @@ interface ReportPageHeaderProps {
   icon: Icon;
   title: string;
   description: string;
-  /** Page actions shown after the way back to the report center. */
+  /** Page actions shown on the right side of the header. */
   actions?: ReactNode;
+  showBackButton?: boolean;
+  compact?: boolean;
 }
 
-export function ReportPageHeader({ icon, title, description, actions }: ReportPageHeaderProps) {
+export function ReportPageHeader({
+  icon,
+  title,
+  description,
+  actions,
+  showBackButton = true,
+  compact = false,
+}: ReportPageHeaderProps) {
   const { t } = useTranslation('reports');
   return (
     <ModuleHeader
       icon={icon}
       title={title}
       description={description}
+      compact={compact}
       actions={
         <>
-          <ReportBackButton />
+          {showBackButton && <ReportBackButton />}
           {actions}
         </>
       }

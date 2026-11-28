@@ -72,14 +72,17 @@ export const generalLedgerApi = {
   async exportReport(
     period: ReportPeriod,
     type: GeneralLedgerExportType,
-    signal?: AbortSignal
+    signal?: AbortSignal,
+    accountIds?: string[]
   ): Promise<Blob> {
     try {
       const response = await apiClient.get<Blob>(`/v1/general-ledger/export/${type}`, {
         params: {
           startDate: period.startDate,
           endDate: period.endDate,
+          ...(accountIds ? { accountIds } : {}),
         },
+        paramsSerializer: { indexes: null },
         responseType: 'blob',
         signal,
       });

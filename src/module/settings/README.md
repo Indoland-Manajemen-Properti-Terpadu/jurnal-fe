@@ -1,13 +1,13 @@
 # settings
 
-Company and accounting settings, reached from one "Settings" entry in the app sidebar and a side menu next to every settings page (`SettingsLayout`, `SettingsNav`; no settings hub page): decimal precision, default account mapping, taxes, payment terms, payment methods, document number formats, transaction tags and the company profile page. Formerly `SettingMenu` (user management is a separate module, `SettingMenu/UserManagement` until it migrates).
+Company and accounting settings, reached from one "Settings" entry in the app sidebar and a side menu next to every settings page (`SettingsLayout`, `SettingsNav`; no settings hub page): general number formatting and decimal precision, default account mapping, taxes, payment terms, payment methods, document number formats, transaction tags and the company profile page. Formerly `SettingMenu` (user management is a separate module, `SettingMenu/UserManagement` until it migrates).
 
 ## Routes (`src/router/routes.ts`)
 
 | Constant                   | Path                               | Page                                                |
 | -------------------------- | ---------------------------------- | --------------------------------------------------- |
 | `settings.main`            | `/settings`                        | redirects to the first settings page                |
-| `settings.general`         | `/settings/general`                | `GeneralSettingPage` (decimal precision, read only) |
+| `settings.general`         | `/settings/general`                | `GeneralSettingPage` (decimal precision (read only) and negative-number format) |
 | `settings.accountMapping`  | `/settings/account-mapping`        | `AccountMappingPage`                                |
 | `settings.taxes`           | `/settings/taxes`                  | `TaxSettingPage`                                    |
 | `settings.paymentTerms`    | `/settings/payment-terms`          | `PaymentTermPage` (list, filters, status, delete)   |
@@ -23,7 +23,7 @@ Company and accounting settings, reached from one "Settings" entry in the app si
 
 ## Endpoints (`API_SETTINGS`, `infrastructure/settingApi.ts`)
 
-`/v1/settings/general-settings` (read, update), `/v1/settings/account-mappings` (read, `/seed`, `/:id`, `/batch`), `/v1/settings/number-formats` (list, create, update, delete), `/v1/payment-methods`, `/v1/taxes`, `/v1/tags` (each list, create, update, delete). Payment terms have their own client, `infrastructure/paymentTermApi.ts` (`/v1/settings/payment-terms`: list with `q`, `appliesTo`, `isActive`, `page`; detail; create; `PUT`; `PATCH /:id/status` with `{ isActive }`; delete). The API is camelCase in query and body; snake_case is rejected with 400. Account choices come from `@/module/chart-of-accounts` (`getJournalAccounts`); the tax form uses `useSimpleAccounts({ type: 'tax_sales' })` and `{ type: 'tax_purchase' }` for its sales and purchase account dropdowns.
+`/v1/settings/general-settings` (read, update `negativeNumberFormat` as `minus` or `parentheses`; decimal precision remains read only in the FE), `/v1/settings/account-mappings` (read, `/seed`, `/:id`, `/batch`), `/v1/settings/number-formats` (list, create, update, delete), `/v1/payment-methods`, `/v1/taxes`, `/v1/tags` (each list, create, update, delete). Payment terms have their own client, `infrastructure/paymentTermApi.ts` (`/v1/settings/payment-terms`: list with `q`, `appliesTo`, `isActive`, `page`; detail; create; `PUT`; `PATCH /:id/status` with `{ isActive }`; delete). The API is camelCase in query and body; snake_case is rejected with 400. Account choices come from `@/module/chart-of-accounts` (`getJournalAccounts`); the tax form uses `useSimpleAccounts({ type: 'tax_sales' })` and `{ type: 'tax_purchase' }` for its sales and purchase account dropdowns.
 
 ### Departments (`/v1/departments`)
 

@@ -1,0 +1,79 @@
+.frame {
+  overflow: hidden;
+}
+
+.reportHeading {
+  padding: var(--jurnal-space-5);
+  text-align: center;
+}
+
+.table {
+  min-width: 42rem;
+  border-top: 1px solid var(--mantine-color-gray-3);
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.table thead th {
+  color: var(--mantine-color-dimmed);
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 600;
+  background: var(--mantine-color-gray-0);
+  border-bottom: 1px solid var(--mantine-color-gray-3);
+}
+
+.table td {
+  border-bottom: 1px solid var(--mantine-color-gray-1);
+}
+
+.table tr:last-child td {
+  border-bottom: 0;
+}
+
+.table tr[data-kind='section'] td {
+  color: var(--mantine-color-dark-9);
+  font-weight: 700;
+  background: var(--mantine-color-white);
+  border-bottom-color: var(--mantine-color-gray-2);
+}
+
+.table tr[data-kind='total'] td {
+  font-weight: 700;
+  background: var(--mantine-color-gray-0);
+  border-top: 1px solid var(--mantine-color-gray-3);
+}
+
+.table tr[data-kind='result'] td,
+.table tr[data-kind='grand'] td {
+  font-weight: 700;
+  background: var(--mantine-color-primary-0);
+  border-top: 1px solid var(--mantine-color-primary-2);
+}
+
+.table tr[data-kind='grand'] td {
+  font-size: var(--mantine-font-size-md);
+}
+
+.code {
+  color: var(--mantine-color-dimmed);
+  font-size: var(--mantine-font-size-xs);
+  white-space: nowrap;
+}
+
+.accountLink {
+  text-decoration: none;
+}
+
+.accountLink:hover {
+  text-decoration: underline;
+}
+
+.negative {
+  color: var(--jurnal-color-danger-strong);
+}
+
+.note {
+  padding: var(--jurnal-space-4) var(--jurnal-space-5);
+  border-top: 1px solid var(--mantine-color-gray-2);
+  background: var(--mantine-color-gray-0);
+}

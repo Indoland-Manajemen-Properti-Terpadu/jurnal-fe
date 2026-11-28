@@ -1,3 +1,5 @@
+import type { NegativeNumberFormat } from '@/module/settings';
+
 export type ProfitLossRowType =
   | 'title'
   | 'head'
@@ -50,14 +52,61 @@ export interface ProfitLossSummary {
   profitAfterTax: number;
 }
 
+export interface ProfitLossStatementAccount {
+  id: string;
+  code: string;
+  name: string;
+  category: string | null;
+  balance: number;
+}
+
+export interface ProfitLossStatementSection {
+  key: string;
+  label: string;
+  normal: 'debit' | 'credit';
+  total: number;
+  accounts: ProfitLossStatementAccount[];
+}
+
+export interface ProfitLossStatementTotals {
+  pendapatan: number;
+  hpp: number;
+  beban: number;
+  lain_masuk: number;
+  lain_keluar: number;
+  pajak: number;
+  laba_kotor: number;
+  laba_operasional: number;
+  laba_sebelum_pajak: number;
+  laba_bersih: number;
+}
+
+export interface ProfitLossStatement {
+  from: string;
+  to: string;
+  label: string;
+  sections: ProfitLossStatementSection[];
+  totals: ProfitLossStatementTotals;
+  journalCount: number;
+  modules: Record<string, number>;
+}
+
+export interface ProfitLossStatementPair {
+  current: ProfitLossStatement;
+  compare: ProfitLossStatement | null;
+}
+
 export interface ProfitLossReport {
   startDate: string;
   endDate: string;
   /** Decimal places the server rounded the amounts to; absent on an older server. */
   precision?: number;
+  negativeFormat?: NegativeNumberFormat;
   sections: ProfitLossSection[];
   summary: ProfitLossSummary;
   rows: ProfitLossRow[];
+  /** Available from the current profit-loss endpoint; absent on older backend versions. */
+  statement?: ProfitLossStatementPair;
 }
 
 export interface ProfitLossPagination {

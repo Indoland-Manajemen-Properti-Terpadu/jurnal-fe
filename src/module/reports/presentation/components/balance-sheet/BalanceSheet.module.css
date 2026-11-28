@@ -4,12 +4,128 @@
   border-radius: var(--mantine-radius-md);
 }
 
+.reportHeading {
+  padding: var(--jurnal-space-4) var(--jurnal-space-3);
+  text-align: center;
+}
+
+.footnote {
+  line-height: 1.6;
+}
+
+.statementPaper {
+  overflow: hidden;
+}
+
+/* The four headline figures share one panel, like a single financial statement. */
+.summaryGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.dateFields {
+  margin-top: var(--jurnal-space-3);
+}
+
+.summaryColumn {
+  min-width: 0;
+  padding: var(--jurnal-space-5);
+}
+
+.summaryColumn + .summaryColumn {
+  border-left: 1px solid var(--jurnal-color-border-muted);
+}
+
+.summaryHeadline,
+.summaryStatus,
+.summaryAmount {
+  font-variant-numeric: tabular-nums;
+}
+
+.summaryHeadline {
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.summaryRows {
+  display: grid;
+  gap: var(--jurnal-space-3);
+  margin-top: var(--jurnal-space-5);
+  padding-top: var(--jurnal-space-4);
+  border-top: 1px solid var(--jurnal-color-border-muted);
+}
+
+.summaryRow {
+  min-width: 0;
+}
+
+.summaryLabel {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.summaryAmount {
+  flex: none;
+  white-space: nowrap;
+}
+
+.summaryNegative,
+.summaryStatus[data-balanced='false'] {
+  color: var(--jurnal-color-danger-strong);
+}
+
+.summaryStatus[data-balanced='true'] {
+  color: var(--jurnal-color-success-strong);
+}
+
+@media (max-width: $mantine-breakpoint-md) {
+  .summaryGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .summaryColumn + .summaryColumn {
+    border-left: 0;
+  }
+
+  .summaryColumn:nth-child(odd) {
+    border-right: 1px solid var(--jurnal-color-border-muted);
+  }
+
+  .summaryColumn:nth-child(n + 3) {
+    border-top: 1px solid var(--jurnal-color-border-muted);
+  }
+}
+
+@media (max-width: $mantine-breakpoint-sm) {
+  .summaryGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .summaryColumn {
+    border-right: 0;
+    border-top: 1px solid var(--jurnal-color-border-muted);
+  }
+
+  .summaryColumn:nth-child(odd) {
+    border-right: 0;
+  }
+
+  .summaryColumn:first-child {
+    border-top: 0;
+  }
+}
+
 .table {
   width: 100%;
-  min-width: 420px;
+  min-width: 620px;
   border-collapse: collapse;
   font-size: var(--mantine-font-size-sm);
   font-variant-numeric: tabular-nums;
+}
+
+.comparison {
+  min-width: 1080px;
 }
 
 .table th,
@@ -23,11 +139,16 @@
   color: var(--mantine-color-dimmed);
   font-size: var(--mantine-font-size-xs);
   font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  letter-spacing: normal;
   white-space: nowrap;
   background: var(--mantine-color-gray-0);
   border-bottom: 1px solid var(--mantine-color-gray-3);
+}
+
+.table thead th.dateHeader,
+.table thead th .dateHeader {
+  text-transform: none;
+  letter-spacing: normal;
 }
 
 .table [data-num] {
@@ -41,6 +162,10 @@
 
 .colAmount {
   width: 170px;
+}
+
+.colPercent {
+  width: 92px;
 }
 
 /* A group of accounts: its band carries the name and the subtotal, so a closed group still reads. */
@@ -92,7 +217,7 @@
   font-weight: 400;
 }
 
-.band td.bandAmount {
+.band td[data-num] {
   padding: 9px var(--mantine-spacing-md);
   font-weight: 700;
   text-align: right;
@@ -107,6 +232,35 @@
 .category {
   color: var(--mantine-color-dimmed);
   font-size: var(--mantine-font-size-xs);
+}
+
+.accountCell {
+  min-width: 150px;
+}
+
+.accountAction,
+.accountLink {
+  padding: 0;
+  color: var(--mantine-color-primary-7);
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  text-decoration: none;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.accountAction:hover,
+.accountLink:hover {
+  text-decoration: underline;
+}
+
+.accountAction:focus-visible,
+.accountLink:focus-visible {
+  border-radius: var(--mantine-radius-xs);
+  outline: 2px solid var(--mantine-color-primary-5);
+  outline-offset: 2px;
 }
 
 .negative {
@@ -153,25 +307,28 @@ tbody:first-of-type .sectionHead td {
 /* The quick reading: three plain statements side by side. */
 .reading {
   display: grid;
-  gap: var(--mantine-spacing-lg);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-top: 1px solid var(--jurnal-color-border-muted);
 }
 
-@media (min-width: 48em) {
-  .reading {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
+.readingCell {
+  min-width: 0;
+  padding: var(--jurnal-space-4) var(--jurnal-space-5);
+}
 
-  .reading > * + * {
-    padding-left: var(--mantine-spacing-lg);
-    border-left: 1px solid var(--mantine-color-gray-2);
-  }
+.readingCell + .readingCell {
+  border-left: 1px solid var(--jurnal-color-border-muted);
 }
 
 /* On a phone the balance is the figure that matters, so the table fits instead of scrolling. */
 @media (max-width: 36em) {
   .table {
-    min-width: 0;
+    min-width: 620px;
     font-size: var(--mantine-font-size-xs);
+  }
+
+  .comparison {
+    min-width: 1080px;
   }
 
   .table th,
@@ -187,8 +344,17 @@ tbody:first-of-type .sectionHead td {
     width: 124px;
   }
 
+  .reading {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .readingCell + .readingCell {
+    border-top: 1px solid var(--jurnal-color-border-muted);
+    border-left: 0;
+  }
+
   .bandButton,
-  .band td.bandAmount {
+  .band td[data-num] {
     padding: 8px var(--mantine-spacing-xs);
   }
 }
@@ -208,4 +374,44 @@ tbody:first-of-type .sectionHead td {
 .grandRow td[data-num] {
   text-align: right;
   white-space: nowrap;
+}
+
+@media print {
+  :global(body:has(.balance-sheet-print) .mantine-AppShell-header),
+  :global(body:has(.balance-sheet-print) .mantine-AppShell-navbar),
+  :global(body:has(.balance-sheet-print) .mantine-AppShell-footer) {
+    display: none;
+  }
+
+  :global(body:has(.balance-sheet-print) .mantine-AppShell-main) {
+    padding: 0;
+  }
+
+  :global(.balance-sheet-print) {
+    padding: 0;
+  }
+
+  .screenOnly {
+    display: none;
+  }
+
+  .statementPaper {
+    border: 0;
+  }
+
+  .frame {
+    overflow: visible;
+  }
+
+  .table,
+  .comparison {
+    min-width: 0;
+    font-size: var(--mantine-font-size-xs);
+  }
+
+  .band,
+  .closingRow,
+  .grandRow {
+    break-inside: avoid;
+  }
 }

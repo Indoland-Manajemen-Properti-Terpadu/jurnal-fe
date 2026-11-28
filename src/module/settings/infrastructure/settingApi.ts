@@ -3,6 +3,7 @@ import { API_SETTINGS } from '@/lib/http/endpoints';
 import type { NumberFormatTypeInfo } from '@/module/settings/domain/numberFormatTypes';
 import type {
   GeneralSetting,
+  UpdateGeneralSettingPayload,
   AccountMappingItem,
   AccountMappingsByGroup,
   NumberFormat,
@@ -35,12 +36,12 @@ export const fetchGeneralSettings = async (): Promise<GeneralSetting> => {
   return data.data;
 };
 
-export const updateGeneralSettings = async (decimalPrecision: number): Promise<GeneralSetting> => {
+export const updateGeneralSettings = async (
+  payload: UpdateGeneralSettingPayload
+): Promise<GeneralSetting> => {
   const { data } = await apiClient.put<ApiEnvelope<GeneralSetting>>(
     API_SETTINGS.PUT_GENERAL_SETTINGS,
-    {
-      decimalPrecision,
-    }
+    payload
   );
   return data.data;
 };

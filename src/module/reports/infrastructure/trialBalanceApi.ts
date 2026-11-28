@@ -21,6 +21,9 @@ export const TRIAL_BALANCE_PAGE_SIZE = 100;
 /** The server rejects `lang` on this report (400), so none is sent; the page labels are the client's. */
 interface RequestOptions {
   fallbackMessage: string;
+  allAccounts?: boolean;
+  mode?: 'rinci' | 'ringkas';
+  hideZero?: boolean;
 }
 
 export const trialBalanceApi = {
@@ -44,6 +47,7 @@ export const trialBalanceApi = {
                 endDate: period.endDate,
                 page,
                 limit: TRIAL_BALANCE_PAGE_SIZE,
+                ...(options.allAccounts ? { allAccounts: true } : {}),
               },
               signal,
             })
@@ -73,7 +77,12 @@ export const trialBalanceApi = {
   ): Promise<{ blob: Blob; filename: string }> {
     try {
       const response = await apiClient.get<Blob>(`${ENDPOINT}/export/${type}`, {
-        params: { startDate: period.startDate, endDate: period.endDate },
+        params: {
+          startDate: period.startDate,
+          endDate: period.endDate,
+          ...(options.mode ? { mode: options.mode } : {}),
+          ...(options.hideZero !== undefined ? { hideZero: options.hideZero } : {}),
+        },
         responseType: 'blob',
         signal,
       });

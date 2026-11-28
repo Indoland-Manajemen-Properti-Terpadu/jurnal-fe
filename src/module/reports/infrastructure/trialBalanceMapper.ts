@@ -4,6 +4,10 @@ import type {
   TrialBalanceGroup,
   TrialBalanceReport,
   TrialBalanceSums,
+  TrialBalanceStatement,
+  TrialBalanceStatementGroup,
+  TrialBalanceStatementRow,
+  TrialBalanceStatementTotals,
 } from '@/module/reports/domain/trialBalance.types';
 import { TRIAL_BALANCE_GROUPS } from '@/module/reports/domain/trialBalance.types';
 import { asArray, asRecord, optionalPrecision, safeNumber, safeString } from './reportValue';
@@ -24,6 +28,63 @@ const mapCells = (raw: unknown): TrialBalanceCells | null => {
 const mapSums = (raw: unknown): TrialBalanceSums => {
   const sums = asRecord(raw);
   return { debit: safeNumber(sums.debit), credit: safeNumber(sums.credit) };
+};
+
+const mapStatementAmounts = (raw: unknown): TrialBalanceStatementTotals => {
+  const source = asRecord(raw);
+  return {
+    open_debit: safeNumber(source.open_debit),
+    open_credit: safeNumber(source.open_credit),
+    debit: safeNumber(source.debit),
+    credit: safeNumber(source.credit),
+    close_debit: safeNumber(source.close_debit),
+    close_credit: safeNumber(source.close_credit),
+  };
+};
+
+const mapStatementRow = (raw: unknown): TrialBalanceStatementRow => {
+  const row = asRecord(raw);
+  return {
+    id: safeString(row.id),
+    code: safeString(row.code),
+    name: safeString(row.name),
+    category: safeString(row.category),
+    lines: safeNumber(row.lines),
+    ...mapStatementAmounts(row),
+  };
+};
+
+const mapStatementGroup = (raw: unknown): TrialBalanceStatementGroup => {
+  const group = asRecord(raw);
+  return {
+    key: safeString(group.key),
+    label: safeString(group.label),
+    rows: asArray(group.rows).map(mapStatementRow),
+    ...mapStatementAmounts(group),
+  };
+};
+
+const mapStatement = (raw: unknown): TrialBalanceStatement | undefined => {
+  if (!raw || typeof raw !== 'object') return undefined;
+  const statement = asRecord(raw);
+  const totals = asRecord(statement.totals);
+  const difference = asRecord(statement.selisih);
+  const modules = asRecord(statement.modules);
+  return {
+    from: safeString(statement.from),
+    to: safeString(statement.to),
+    groups: asArray(statement.groups).map(mapStatementGroup),
+    totals: mapStatementAmounts(totals),
+    selisih: {
+      open: safeNumber(difference.open),
+      move: safeNumber(difference.move),
+      close: safeNumber(difference.close),
+    },
+    journalCount: safeNumber(statement.journal_count),
+    modules: Object.fromEntries(
+      Object.entries(modules).map(([name, count]) => [name, safeNumber(count)])
+    ),
+  };
 };
 
 const mapAccount = (raw: unknown): TrialBalanceAccount => {
@@ -57,6 +118,11 @@ export const mapTrialBalancePage = (body: unknown): TrialBalanceReport => {
     startDate: safeString(data.startDate),
     endDate: safeString(data.endDate),
     precision: optionalPrecision(data.precision),
+    negativeFormat:
+      data.negativeFormat === 'minus' || data.negativeFormat === 'parentheses'
+        ? data.negativeFormat
+        : undefined,
+    statement: mapStatement(data.statement),
     accounts,
     totals: Object.fromEntries(
       TRIAL_BALANCE_GROUPS.map((group) => [group, mapSums(totals[group])])

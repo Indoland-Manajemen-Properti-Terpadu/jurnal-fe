@@ -8,6 +8,7 @@ export type GeneralLedgerExportType = 'pdf' | 'xlsx' | 'csv';
 export interface GeneralLedgerTransaction {
   transactionDate: string;
   transactionNumber: string;
+  referenceNumber?: string;
   description: string;
   /** Longer memo of the journal, when it has one. */
   notes: string;
@@ -44,6 +45,7 @@ export interface GeneralLedgerPagination {
 export interface GeneralLedgerReport {
   /** Decimal places the server rounded the amounts to; absent on an older server. */
   precision?: number;
+  negativeFormat?: 'minus' | 'parentheses';
   /** One page of accounts; the totals below cover every account of the period. */
   accounts: GeneralLedgerAccount[];
   pagination: GeneralLedgerPagination;
